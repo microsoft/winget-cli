@@ -7,14 +7,14 @@
 
 namespace winrt::WinGetUWPCaller::implementation
 {
-    winrt::Microsoft::Management::Deployment::CatalogPackage ActivePackageView::Package()
+    Microsoft::Management::Deployment::CatalogPackage ActivePackageView::Package()
     {
         return m_package;
     }
 
-    void ActivePackageView::Package(winrt::Microsoft::Management::Deployment::CatalogPackage const& value)
+    void ActivePackageView::Package(Microsoft::Management::Deployment::CatalogPackage const& value)
     {
-        m_package = value;;
+        m_package = value;
     }
 
     ActivePackageView::AsyncOperation_t ActivePackageView::AsyncOperation()
@@ -22,11 +22,11 @@ namespace winrt::WinGetUWPCaller::implementation
         return m_asyncOperation;
     }
 
-    winrt::Windows::Foundation::IAsyncAction UpdateUIProgress(
-        winrt::Microsoft::Management::Deployment::InstallProgress progress,
+    Windows::Foundation::IAsyncAction UpdateUIProgress(
+        Microsoft::Management::Deployment::InstallProgress progress,
         WinGetUWPCaller::ActivePackageView view)
     {
-        co_await winrt::resume_foreground(view.Dispatcher());
+        co_await resume_foreground(view.Dispatcher());
         view.Progress(progress.DownloadProgress * 100);
     }
 
@@ -35,7 +35,7 @@ namespace winrt::WinGetUWPCaller::implementation
         m_asyncOperation = value;
         m_asyncOperation.Progress([=](
             ActivePackageView::AsyncOperation_t const& /* sender */,
-            winrt::Microsoft::Management::Deployment::InstallProgress const& progress)
+            Microsoft::Management::Deployment::InstallProgress const& progress)
             {
                 UpdateUIProgress(progress, *this);
             });
@@ -65,22 +65,22 @@ namespace winrt::WinGetUWPCaller::implementation
         m_text = value;
     }
 
-    winrt::Windows::UI::Core::CoreDispatcher ActivePackageView::Dispatcher()
+    Windows::UI::Core::CoreDispatcher ActivePackageView::Dispatcher()
     {
         return m_dispatcher;
     }
 
-    void ActivePackageView::Dispatcher(winrt::Windows::UI::Core::CoreDispatcher const& value)
+    void ActivePackageView::Dispatcher(Windows::UI::Core::CoreDispatcher const& value)
     {
         m_dispatcher = value;
     }
 
-    winrt::event_token ActivePackageView::PropertyChanged(Windows::UI::Xaml::Data::PropertyChangedEventHandler const& handler)
+    event_token ActivePackageView::PropertyChanged(Windows::UI::Xaml::Data::PropertyChangedEventHandler const& handler)
     {
         return m_propertyChanged.add(handler);
     }
 
-    void ActivePackageView::PropertyChanged(winrt::event_token const& token)
+    void ActivePackageView::PropertyChanged(event_token const& token)
     {
         m_propertyChanged.remove(token);
     }

@@ -40,7 +40,7 @@
             <Button x:Name="loadCatalogsButton" Click="LoadCatalogsButtonClickHandler">Load Catalogs</Button>
             <TextBlock x:Name="catalogStatusText" Text="" HorizontalAlignment="Center" Margin="0,0,0,20"/>
             <TextBlock>Select catalog(s) to use</TextBlock>
-            <ListBox x:Name="catalogsListBox" ItemsSource="{x:Bind PackageCatalogs}" SelectionMode="Multiple" Height="200">
+            <ListBox x:Name="catalogsListBox" ItemsSource="{x:Bind PackageCatalogs}" SelectionChanged="CatalogSelectionChangedHandler" SelectionMode="Multiple" Height="200">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="deployment:PackageCatalogReference">
                         <TextBlock Text="{x:Bind Info.Name, Mode=OneTime}"/>
@@ -79,7 +79,7 @@
         <StackPanel Grid.Row="2" Margin="3">
             <TextBlock Style="{StaticResource SubheaderTextBlockStyle}">Installed Packages</TextBlock>
             <TextBlock>View installed package information</TextBlock>
-            <Button x:Name="refreshButton" Click="RefreshInstalledButtonClickHandler" IsEnabled="True">Refresh</Button>
+            <Button x:Name="refreshInstalledButton" Click="RefreshInstalledButtonClickHandler" IsEnabled="True">Refresh</Button>
             <TextBlock x:Name="installedStatusText" Text=""/>
             <ListBox x:Name="installedListBox" ItemsSource="{x:Bind InstalledPackages}" Height="300" SelectionMode="Single" ScrollViewer.VerticalScrollBarVisibility="Visible">
                 <ItemsControl.ItemTemplate>
@@ -89,7 +89,7 @@
                 </ItemsControl.ItemTemplate>
             </ListBox>
 
-            <Button x:Name="uninstallButton" Click="UninstallButtonClickHandler" IsEnabled="False" Margin="5,20,5,5">Uninstall</Button>
+            <Button x:Name="uninstallButton" Click="UninstallButtonClickHandler" IsEnabled="True" Margin="5,20,5,5">Uninstall</Button>
             <ProgressBar x:Name="uninstallProgressBar" Value="0" Maximum="100" Width="350"/>
             <TextBlock x:Name="uninstallStatusText" Text="" HorizontalAlignment="Center" Margin="0,0,0,20"/>
         </StackPanel>

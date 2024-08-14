@@ -2,12 +2,10 @@
 #include "MainPage.h"
 #include "MainPage.g.cpp"
 
-#include <wrl.h>
 #include <winrt/Microsoft.Management.Deployment.h>
-#include <winrt/Windows.UI.Core.h>
 
-using namespace Microsoft::WRL;
 using namespace std::chrono_literals;
+using namespace std::string_view_literals;
 using namespace winrt::Microsoft::Management::Deployment;
 
 namespace winrt
@@ -19,124 +17,148 @@ namespace winrt
 
 namespace winrt::WinGetUWPCaller::implementation
 {
-    static std::wstring ConvertExceptionToStatusString(std::wstring_view context, std::exception_ptr& exceptionPtr)
+    namespace
     {
-        std::wostringstream result;
+        std::wstring ConvertExceptionToStatusString(std::wstring_view context, std::exception_ptr exceptionPtr)
+        {
+            std::wostringstream result;
 
-        try
-        {
-            std::rethrow_exception(exceptionPtr);
-        }
-        catch (const winrt::hresult_error& error)
-        {
-            result << context << L" :: " << L"0x" << std::hex << std::setw(8) << std::setfill('0') << error.code() << L": " << static_cast<std::wstring_view>(error.message());
-        }
-        catch (const std::exception& exception)
-        {
-            result << context << L" :: " << exception.what();
-        }
-        catch (...)
-        {
-            result << context << L" :: Unknown exception";
-        }
-
-        return std::move(result).str();
-    }
-
-    template <typename Operation>
-    static std::wstring RunAndCatchStatus(std::wstring_view context, Operation&& operation)
-    {
-        try
-        {
-            operation();
-        }
-        catch (...)
-        {
-            return ConvertExceptionToStatusString(context, std::current_exception());
-        }
-
-        return {};
-    }
-
-    // Helper object to control button states and status text.
-    struct BackgroundActionData
-    {
-        // This object should be constructed on the foreground thread.
-        // disabledButtons will be disabled during the operation.
-        // enabledButtons will be enabled during the operation.
-        // statusText will be updated with the result.
-        BackgroundActionData(
-            std::initializer_list<Windows::UI::Xaml::Controls::Button> disabledButtons,
-            std::initializer_list<Windows::UI::Xaml::Controls::Button> enabledButtons,
-            Windows::UI::Xaml::Controls::TextBlock statusText) :
-            m_disabledButtons(disabledButtons),
-            m_enabledButtons(enabledButtons),
-            m_statusText(statusText)
-        {
-            if (m_disabledButtons.empty())
+            try
             {
-                throw std::exception("Must specify at least one disabled button.");
+                std::rethrow_exception(exceptionPtr);
+            }
+            catch (const winrt::hresult_error& error)
+            {
+                result << context << L" :: " << L"0x" << std::hex << std::setw(8) << std::setfill(L'0') << error.code() << L": " << static_cast<std::wstring_view>(error.message());
+            }
+            catch (const std::exception& exception)
+            {
+                result << context << L" :: " << exception.what();
+            }
+            catch (...)
+            {
+                result << context << L" :: Unknown exception";
             }
 
-            for (const auto& button : m_disabledButtons)
-            {
-                button.IsEnabled(false);
-            }
-
-            for (const auto& button : m_enabledButtons)
-            {
-                button.IsEnabled(true);
-            }
-
-            m_statusText.Text(L"");
-        }
-
-        // This should be run on the foreground thread.
-        void Finalize() const
-        {
-            for (const auto& button : m_disabledButtons)
-            {
-                button.IsEnabled(true);
-            }
-
-            for (const auto& button : m_enabledButtons)
-            {
-                button.IsEnabled(false);
-            }
-
-            m_statusText.Text(m_status);
+            return std::move(result).str();
         }
 
         template <typename Operation>
-        void RunAndCatchStatus(std::wstring_view context, Operation&& operation)
+        std::wstring RunAndReturnStatus(std::wstring_view context, Operation&& operation)
         {
-            if (m_status.empty())
+            try
             {
-                m_status = RunAndCatchStatus(context, operation);
+                operation();
             }
+            catch (...)
+            {
+                return ConvertExceptionToStatusString(context, std::current_exception());
+            }
+
+            return {};
         }
 
-        void Status(std::wstring&& value)
+        // Helper object to control button states and status text.
+        struct BackgroundActionData
         {
-            m_status = std::move(value);
-        }
+            // This object should be constructed on the foreground thread.
+            // disabledButtons will be disabled during the operation.
+            // enabledButtons will be enabled during the operation.
+            // statusText will be updated with the result.
+            BackgroundActionData(
+                std::initializer_list<Windows::UI::Xaml::Controls::Button> disabledButtons,
+                Windows::UI::Xaml::Controls::TextBlock statusText) :
+                m_disabledButtons(disabledButtons),
+                m_statusText(statusText)
+            {
+                if (m_disabledButtons.empty())
+                {
+                    throw std::exception("Must specify at least one disabled button.");
+                }
 
-        bool Successful() const
+                for (const auto& button : m_disabledButtons)
+                {
+                    button.IsEnabled(false);
+                }
+
+                m_statusText.Text(L"");
+            }
+
+            BackgroundActionData(
+                std::initializer_list<Windows::UI::Xaml::Controls::Button> disabledButtons,
+                std::initializer_list<Windows::UI::Xaml::Controls::Button> enabledButtons,
+                Windows::UI::Xaml::Controls::TextBlock statusText) :
+                BackgroundActionData(disabledButtons, statusText)
+            {
+                m_enabledButtons = enabledButtons;
+                for (const auto& button : m_enabledButtons)
+                {
+                    button.IsEnabled(true);
+                }
+            }
+
+            // This should be run on the foreground thread.
+            void Finalize() const
+            {
+                for (const auto& button : m_disabledButtons)
+                {
+                    button.IsEnabled(true);
+                }
+
+                for (const auto& button : m_enabledButtons)
+                {
+                    button.IsEnabled(false);
+                }
+
+                m_statusText.Text(m_status);
+            }
+
+            template <typename Operation>
+            void RunAndCatchStatus(std::wstring_view context, Operation&& operation)
+            {
+                if (m_status.empty())
+                {
+                    m_status = RunAndReturnStatus(context, operation);
+                }
+            }
+
+            void Status(std::wstring&& value)
+            {
+                m_status = std::move(value);
+            }
+
+            bool Successful() const
+            {
+                return m_status.empty();
+            }
+
+            Windows::UI::Core::CoreDispatcher Dispatcher() const
+            {
+                return m_disabledButtons[0].Dispatcher();
+            }
+
+        private:
+            std::vector<Windows::UI::Xaml::Controls::Button> m_disabledButtons;
+            std::vector<Windows::UI::Xaml::Controls::Button> m_enabledButtons;
+            Windows::UI::Xaml::Controls::TextBlock m_statusText;
+            std::wstring m_status;
+        };
+
+        std::wstring MakeCompactByteString(uint64_t bytes)
         {
-            return m_status.empty();
-        }
+            static constexpr std::array<std::wstring_view, 4> s_sizeStrings = { L"B"sv, L"KB"sv, L"MB"sv, L"GB"sv };
+            static constexpr size_t s_sizeIncrement = 1000;
 
-        Windows::UI::Core::CoreDispatcher Dispatcher() const
-        {
-            m_disabledButtons[0].Dispatcher();
-        }
+            size_t sizeIndex = 0;
+            while (sizeIndex < s_sizeStrings.size() && bytes > s_sizeIncrement)
+            {
+                sizeIndex += 1;
+                bytes /= s_sizeIncrement;
+            }
 
-    private:
-        std::vector<Windows::UI::Xaml::Controls::Button> m_disabledButtons;
-        std::vector<Windows::UI::Xaml::Controls::Button> m_enabledButtons;
-        Windows::UI::Xaml::Controls::TextBlock m_statusText;
-        std::wstring m_status;
-    };
+            return std::to_wstring(bytes).append(L" ").append(s_sizeStrings[sizeIndex]);
+        }
+    }
 
     MainPage::MainPage()
     {
@@ -166,60 +188,61 @@ namespace winrt::WinGetUWPCaller::implementation
         LoadCatalogsAsync();
     }
 
+    void MainPage::CatalogSelectionChangedHandler(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::RoutedEventArgs const&)
+    {
+        m_catalog = nullptr;
+    }
+
     void MainPage::SearchButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
-        m_installAppId = queryTextBox().Text();
-        installButton().IsEnabled(false);
-        downloadButton().IsEnabled(false);
-        cancelButton().IsEnabled(false);
-        operationStatusText().Text(L"Looking for package.");
-        FindPackage(installButton(), downloadButton(), operationProgressBar(), operationStatusText());
+        FindPackageAsync();
     }
 
     void MainPage::InstallButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
-        if (m_installPackageOperation == nullptr || m_installPackageOperation.Status() != AsyncStatus::Started)
+        if (m_packageOperation == nullptr || m_packageOperation.Status() != AsyncStatus::Started)
         {
-            StartInstall(installButton(), cancelButton(), operationProgressBar(), operationStatusText());
+            InstallOrUpgradeAsync(false);
         }
     }
 
     void MainPage::UpgradeButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
-        throw_hresult(E_NOTIMPL);
+        if (m_packageOperation == nullptr || m_packageOperation.Status() != AsyncStatus::Started)
+        {
+            InstallOrUpgradeAsync(true);
+        }
     }
 
     void MainPage::DownloadButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
-        m_downloadDirectory = downloadDirectoryTextBox().Text();
-
-        if (m_downloadPackageOperation == nullptr || m_downloadPackageOperation.Status() != AsyncStatus::Started)
+        if (m_packageOperation == nullptr || m_packageOperation.Status() != AsyncStatus::Started)
         {
-            StartDownload(downloadButton(), cancelButton(), operationProgressBar(), operationStatusText());
+            DownloadAsync();
         }
     }
 
     void MainPage::CancelButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
-        if (m_installPackageOperation && m_installPackageOperation.Status() == AsyncStatus::Started)
+        if (m_packageOperation && m_packageOperation.Status() == AsyncStatus::Started)
         {
-            m_installPackageOperation.Cancel();
+            m_packageOperation.Cancel();
         }
     }
 
     void MainPage::RefreshInstalledButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
-        GetInstalledPackages(installedStatusText());
+        GetInstalledPackagesAsync();
     }
 
     void MainPage::UninstallButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
-        throw_hresult(E_NOTIMPL);
+        UninstallAsync();
     }
 
     void MainPage::RefreshActiveButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
-        GetActivePackages(operationStatusText());
+        GetActivePackagesAsync();
     }
 
     std::wstring MainPage::EnsurePackageManager(bool forceRecreate)
@@ -230,7 +253,7 @@ namespace winrt::WinGetUWPCaller::implementation
 
         if (!m_packageManager || forceRecreate)
         {
-            result = RunAndCatchStatus(L"Create PackageManager", [&]() {
+            result = RunAndReturnStatus(L"Create PackageManager", [&]() {
                 m_packageManager = PackageManager{};
             });
         }
@@ -240,7 +263,7 @@ namespace winrt::WinGetUWPCaller::implementation
 
     IAsyncAction MainPage::LoadCatalogsAsync()
     {
-        BackgroundActionData actionData{ { loadCatalogsButton() }, {}, catalogStatusText() };
+        BackgroundActionData actionData{ { loadCatalogsButton() }, catalogStatusText() };
 
         co_await winrt::resume_background();
 
@@ -266,529 +289,663 @@ namespace winrt::WinGetUWPCaller::implementation
         actionData.Finalize();
     }
 
-    IAsyncOperation<PackageCatalog> MainPage::LoadCatalogAsync(std::wstring packageCatalog)
+    IAsyncAction MainPage::FindPackageAsync()
     {
-        PackageManager packageManager;
-        PackageCatalogReference catalogRef{ packageManager.GetPackageCatalogByName(packageSource) };
-        if (catalogRef)
-        {
-            ConnectResult connectResult{ co_await catalogRef.ConnectAsync() };
-            // PackageCatalog will be null if connectResult.ErrorCode() is a failure
-            PackageCatalog catalog = connectResult.PackageCatalog();
-            co_return catalog;
-        }
-    }
+        hstring queryInput = queryTextBox().Text();
+        auto selectedItems = catalogsListBox().SelectedItems();
+        int32_t searchType = searchField().SelectedIndex();
+        PackageCatalog catalog = m_catalog;
 
-    IAsyncOperation<FindPackagesResult> MainPage::TryFindPackageInCatalogAsync(PackageCatalog catalog, std::wstring packageId)
-    {
-        FindPackagesOptions findPackagesOptions;
-        PackageMatchFilter filter;
-        filter.Field(PackageMatchField::Id);
-        filter.Option(PackageFieldMatchOption::Equals);
-        filter.Value(packageId);
-        findPackagesOptions.Filters().Append(filter);
-        return catalog.FindPackagesAsync(findPackagesOptions);
-    }
-    IAsyncOperation<CatalogPackage> MainPage::FindPackageInCatalogAsync(PackageCatalog catalog, std::wstring packageId)
-    {
-        FindPackagesOptions findPackagesOptions;
-        PackageMatchFilter filter;
-        filter.Field(PackageMatchField::Id);
-        filter.Option(PackageFieldMatchOption::Equals);
-        filter.Value(packageId);
-        findPackagesOptions.Filters().Append(filter);
-        FindPackagesResult findPackagesResult{ co_await catalog.FindPackagesAsync(findPackagesOptions) };
+        BackgroundActionData actionData{ { searchButton() }, operationStatusText() };
 
-        winrt::IVectorView<MatchResult> matches = findPackagesResult.Matches();
-        if (matches.Size() == 0)
-        {
-            co_return nullptr;
-        }
-        co_return matches.GetAt(0).CatalogPackage();
-    }
-
-    IAsyncOperationWithProgress<InstallResult, InstallProgress> MainPage::InstallPackage(CatalogPackage package)
-    {
-        PackageManager packageManager;
-        InstallOptions installOptions;
-
-        // Passing PackageInstallScope::User causes the install to fail if there's no installer that supports that.
-        installOptions.PackageInstallScope(PackageInstallScope::Any);
-        installOptions.PackageInstallMode(PackageInstallMode::Silent);
-
-        return packageManager.InstallPackageAsync(package, installOptions);
-    }
-
-    IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> MainPage::DownloadPackage(CatalogPackage package, std::wstring downloadDirectory)
-    {
-        PackageManager packageManager;
-        DownloadOptions downloadOptions;
-
-        if (!downloadDirectory.empty())
-        {
-            downloadOptions.DownloadDirectory(downloadDirectory);
-        }
-
-        return packageManager.DownloadPackageAsync(package, downloadOptions);
-    }
-
-    IAsyncAction UpdateUIProgress(
-        InstallProgress progress,
-        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
-        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
-    {
-        co_await winrt::resume_foreground(progressBar.Dispatcher());
-        progressBar.Value(progress.DownloadProgress*100);
-
-        std::wstring downloadText{ L"Downloading. " };
-        switch (progress.State)
-        {
-        case PackageInstallProgressState::Queued:
-            statusText.Text(L"Queued");
-            break;
-        case PackageInstallProgressState::Downloading:
-            downloadText += std::to_wstring(progress.BytesDownloaded) + L" bytes of " + std::to_wstring(progress.BytesRequired);
-            statusText.Text(downloadText);
-            break;
-        case PackageInstallProgressState::Installing:
-            statusText.Text(L"Installing");
-            progressBar.IsIndeterminate(true);
-            break;
-        case PackageInstallProgressState::PostInstall:
-            statusText.Text(L"Finishing install");
-            break;
-        case PackageInstallProgressState::Finished:
-            statusText.Text(L"Finished install.");
-            progressBar.IsIndeterminate(false);
-            break;
-        default:
-            statusText.Text(L"");
-        }
-    }
-
-    IAsyncAction UpdateUIDownloadProgress(
-        PackageDownloadProgress progress,
-        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
-        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
-    {
-        co_await winrt::resume_foreground(progressBar.Dispatcher());
-        progressBar.Value(progress.DownloadProgress * 100);
-
-        std::wstring downloadText{ L"Downloading. " };
-        switch (progress.State)
-        {
-        case PackageDownloadProgressState::Queued:
-            statusText.Text(L"Queued");
-            break;
-        case PackageDownloadProgressState::Downloading:
-            downloadText += std::to_wstring(progress.BytesDownloaded) + L" bytes of " + std::to_wstring(progress.BytesRequired);
-            statusText.Text(downloadText);
-            break;
-        case PackageDownloadProgressState::Finished:
-            statusText.Text(L"Finished download.");
-            progressBar.IsIndeterminate(false);
-            break;
-        default:
-            statusText.Text(L"");
-        }
-    }
-
-    // This method is called from a background thread.
-    IAsyncAction UpdateUIForInstall(
-        IAsyncOperationWithProgress<InstallResult, InstallProgress> installPackageOperation,
-        winrt::Windows::UI::Xaml::Controls::Button installButton,
-        winrt::Windows::UI::Xaml::Controls::Button cancelButton,
-        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
-        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
-    {
-        installPackageOperation.Progress([=](
-            IAsyncOperationWithProgress<InstallResult, InstallProgress> const& /* sender */,
-            InstallProgress const& progress)
-            {
-                UpdateUIProgress(progress, progressBar, statusText).get();
-            });
-
-        winrt::hresult installOperationHr = S_OK;
-        std::wstring errorMessage{ L"Unknown Error" };
-        InstallResult installResult{ nullptr };
-        try
-        {
-            installResult = co_await installPackageOperation;
-        }
-        catch (hresult_canceled const&)
-        {
-            errorMessage = L"Cancelled";
-            OutputDebugString(L"Operation was cancelled");
-        }
-        catch (...)
-        {
-            // Operation failed
-            // Example: HRESULT_FROM_WIN32(ERROR_DISK_FULL).
-            installOperationHr = winrt::to_hresult();
-            // Example: "There is not enough space on the disk."
-            errorMessage = winrt::to_message();
-            OutputDebugString(L"Operation failed");
-        }
-
-        // Switch back to ui thread context.
-        co_await winrt::resume_foreground(progressBar.Dispatcher());
-
-        cancelButton.IsEnabled(false);
-        installButton.IsEnabled(true);
-        progressBar.IsIndeterminate(false);
-
-        if (installPackageOperation.Status() == AsyncStatus::Canceled)
-        {
-            installButton.Content(box_value(L"Retry"));
-            statusText.Text(L"Install cancelled.");
-        }
-        if (installPackageOperation.Status() == AsyncStatus::Error || installResult == nullptr)
-        {
-            installButton.Content(box_value(L"Retry"));
-            statusText.Text(errorMessage);
-        }
-        else if (installResult.RebootRequired())
-        {
-            installButton.Content(box_value(L"Install"));
-            statusText.Text(L"Reboot to finish installation.");
-        }
-        else if (installResult.Status() == InstallResultStatus::Ok)
-        {
-            installButton.Content(box_value(L"Install"));
-            statusText.Text(L"Finished.");
-        }
-        else
-        {
-            std::wostringstream failText;
-            failText << L"Install failed: " << installResult.ExtendedErrorCode() << L" [" << installResult.InstallerErrorCode() << L"]";
-            installButton.Content(box_value(L"Install"));
-            statusText.Text(failText.str());
-        }
-    }
-
-    // This method is called from a background thread.
-    IAsyncAction UpdateUIForDownload(
-        IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> operation,
-        winrt::Windows::UI::Xaml::Controls::Button downloadButton,
-        winrt::Windows::UI::Xaml::Controls::Button cancelButton,
-        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
-        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
-    {
-        operation.Progress([=](
-            IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> const& /* sender */,
-            PackageDownloadProgress const& progress)
-            {
-                UpdateUIDownloadProgress(progress, progressBar, statusText).get();
-            });
-
-        winrt::hresult downloadOperationHr = S_OK;
-        std::wstring errorMessage{ L"Unknown Error" };
-        DownloadResult downloadResult{ nullptr };
-        try
-        {
-            downloadResult = co_await operation;
-        }
-        catch (hresult_canceled const&)
-        {
-            errorMessage = L"Cancelled";
-            OutputDebugString(L"Operation was cancelled");
-        }
-        catch (...)
-        {
-            // Operation failed
-            // Example: HRESULT_FROM_WIN32(ERROR_DISK_FULL).
-            downloadOperationHr = winrt::to_hresult();
-            // Example: "There is not enough space on the disk."
-            errorMessage = winrt::to_message();
-            OutputDebugString(L"Operation failed");
-        }
-
-        // Switch back to ui thread context.
-        co_await winrt::resume_foreground(progressBar.Dispatcher());
-
-        cancelButton.IsEnabled(false);
-        downloadButton.IsEnabled(true);
-        progressBar.IsIndeterminate(false);
-
-        if (operation.Status() == AsyncStatus::Canceled)
-        {
-            downloadButton.Content(box_value(L"Retry"));
-            statusText.Text(L"Download cancelled.");
-        }
-        if (operation.Status() == AsyncStatus::Error || downloadResult == nullptr)
-        {
-            downloadButton.Content(box_value(L"Retry"));
-            statusText.Text(errorMessage);
-        }
-        else if (downloadResult.Status() == DownloadResultStatus::Ok)
-        {
-            downloadButton.Content(box_value(L"Download"));
-            statusText.Text(L"Finished.");
-        }
-        else
-        {
-            std::wostringstream failText;
-            failText << L"Download failed: " << downloadResult.ExtendedErrorCode();
-            downloadButton.Content(box_value(L"Download"));
-            statusText.Text(failText.str());
-        }
-    }
-
-    IAsyncAction MainPage::GetInstalledPackages(winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
-    {
-        int32_t selectedIndex = catalogsListBox().SelectedIndex();
         co_await winrt::resume_background();
 
-        PackageManager packageManager;
+        actionData.Status(EnsurePackageManager());
 
-        PackageCatalogReference installedSearchCatalogRef{ nullptr };
-
-        if (selectedIndex < 0)
+        if (!catalog)
         {
-            installedSearchCatalogRef = packageManager.GetLocalPackageCatalog(LocalPackageCatalog::InstalledPackages);
+            actionData.RunAndCatchStatus(L"Connect catalog(s)", [&]() {
+                PackageCatalogReference catalogReference{ nullptr };
+
+                if (selectedItems.Size() == 0)
+                {
+                    // If no items are selected, we use all available catalogs.
+                    CreateCompositePackageCatalogOptions createCompositePackageCatalogOptions;
+                    createCompositePackageCatalogOptions.CompositeSearchBehavior(CompositeSearchBehavior::RemotePackagesFromRemoteCatalogs);
+
+                    for (const auto& item : m_packageManager.GetPackageCatalogs())
+                    {
+                        createCompositePackageCatalogOptions.Catalogs().Append(item);
+                    }
+
+                    catalogReference = m_packageManager.CreateCompositePackageCatalog(createCompositePackageCatalogOptions);
+                }
+                else if (selectedItems.Size() == 1)
+                {
+                    // If one items is selected, we can directly use this catalog.
+                    catalogReference = selectedItems.GetAt(0).as<PackageCatalogReference>();
+                }
+                else
+                {
+                    // If multiple items are selected, we create a composite catalog using those catalogs.
+                    CreateCompositePackageCatalogOptions createCompositePackageCatalogOptions;
+                    createCompositePackageCatalogOptions.CompositeSearchBehavior(CompositeSearchBehavior::RemotePackagesFromRemoteCatalogs);
+
+                    for (const auto& item : selectedItems)
+                    {
+                        createCompositePackageCatalogOptions.Catalogs().Append(item.as<PackageCatalogReference>());
+                    }
+
+                    catalogReference = m_packageManager.CreateCompositePackageCatalog(createCompositePackageCatalogOptions);
+                }
+
+                ConnectResult connectResult{ catalogReference.Connect() };
+
+                switch (connectResult.Status())
+                {
+                case ConnectResultStatus::Ok: break;
+                case ConnectResultStatus::CatalogError: throw std::exception{ "Catalog connection error." };
+                case ConnectResultStatus::SourceAgreementsNotAccepted: throw std::exception{ "Required catalog agreements not accepted." };
+                }
+
+                catalog = connectResult.PackageCatalog();
+            });
         }
-        else
+
+        CatalogPackage package{ nullptr };
+
+        actionData.RunAndCatchStatus(L"Find package", [&]() {
+            FindPackagesOptions findPackagesOptions;
+            PackageMatchFilter filter;
+
+            switch (searchType)
+            {
+            case 0: // Generic query
+                filter.Field(PackageMatchField::CatalogDefault);
+                filter.Option(PackageFieldMatchOption::ContainsCaseInsensitive);
+                break;
+            case 1: // Identifier (case-insensitive)
+                filter.Field(PackageMatchField::Id);
+                filter.Option(PackageFieldMatchOption::EqualsCaseInsensitive);
+                break;
+            case 2: // Name (substring)
+                filter.Field(PackageMatchField::Name);
+                filter.Option(PackageFieldMatchOption::ContainsCaseInsensitive);
+                break;
+            }
+
+            filter.Value(queryInput);
+            findPackagesOptions.Selectors().Append(filter);
+            FindPackagesResult findPackagesResult = catalog.FindPackages(findPackagesOptions);
+
+            winrt::IVectorView<MatchResult> matches = findPackagesResult.Matches();
+            if (matches.Size() == 0)
+            {
+                throw std::exception{ "No package found matching input" };
+            }
+            else if (matches.Size() > 1)
+            {
+                throw std::exception{ "Multiple packages found matching input; refine query." };
+            }
+            else
+            {
+                package = matches.GetAt(0).CatalogPackage();
+            }
+        });
+
+        if (package)
         {
-            PackageCatalogReference selectedRemoteCatalogRef = m_packageCatalogs.GetAt(selectedIndex);
-            CreateCompositePackageCatalogOptions createCompositePackageCatalogOptions;
-            createCompositePackageCatalogOptions.Catalogs().Append(selectedRemoteCatalogRef);
-
-            createCompositePackageCatalogOptions.CompositeSearchBehavior(CompositeSearchBehavior::LocalCatalogs);
-            installedSearchCatalogRef = packageManager.CreateCompositePackageCatalog(createCompositePackageCatalogOptions);
+            // Display the package name using the user's default localization information.
+            std::wostringstream stream;
+            stream << L"Found package: " <<
+                static_cast<std::wstring_view>(package.DefaultInstallVersion().GetCatalogPackageMetadata().PackageName()) << L" [" <<
+                static_cast<std::wstring_view>(package.Id()) << L"]";
+            actionData.Status(std::move(stream).str());
         }
 
-        ConnectResult connectResult{ co_await installedSearchCatalogRef.ConnectAsync() };
-        PackageCatalog installedCatalog = connectResult.PackageCatalog();
-        if (!installedCatalog)
+        co_await winrt::resume_foreground(actionData.Dispatcher());
+
+        m_catalog = catalog;
+        m_package = package;
+
+        bool operationButtonsEnabled = static_cast<bool>(m_package);
+        installButton().IsEnabled(operationButtonsEnabled);
+        upgradeButton().IsEnabled(operationButtonsEnabled);
+        downloadButton().IsEnabled(operationButtonsEnabled);
+
+        actionData.Finalize();
+    }
+
+    IAsyncAction MainPage::InstallOrUpgradeAsync(bool upgrade)
+    {
+        PackageManager packageManager = m_packageManager;
+        CatalogPackage package = m_package;
+        auto progressBar = operationProgressBar();
+        auto statusText = operationStatusText();
+
+        BackgroundActionData actionData{ { installButton(), upgradeButton(), downloadButton() }, { cancelButton() }, statusText };
+
+        co_await winrt::resume_background();
+
+        Windows::Foundation::IAsyncOperationWithProgress<Deployment::InstallResult, Deployment::InstallProgress> packageOperation;
+
+        actionData.RunAndCatchStatus(L"Begin install", [&]() {
+            InstallOptions installOptions;
+
+            // Passing PackageInstallScope::User causes the install to fail if there's no installer that supports that.
+            installOptions.PackageInstallScope(PackageInstallScope::Any);
+            installOptions.PackageInstallMode(PackageInstallMode::Silent);
+
+            if (upgrade)
+            {
+                packageOperation = packageManager.UpgradePackageAsync(package, installOptions);
+            }
+            else
+            {
+                packageOperation = packageManager.InstallPackageAsync(package, installOptions);
+            }
+        });
+
+        actionData.Dispatcher().RunAsync(Windows::UI::Core::CoreDispatcherPriority::Normal,
+            [packageOperation, this]() { m_packageOperation = packageOperation; });
+
+        actionData.RunAndCatchStatus(L"Set progress handler", [&]() {
+            packageOperation.Progress([&](
+                IAsyncOperationWithProgress<InstallResult, InstallProgress> const& /* sender */,
+                InstallProgress const& progress)
+                {
+                    actionData.Dispatcher().RunAsync(Windows::UI::Core::CoreDispatcherPriority::Normal,
+                        [progressBar, statusText, progress]() {
+                            progressBar.Value(progress.DownloadProgress * 100);
+
+                            switch (progress.State)
+                            {
+                            case PackageInstallProgressState::Queued:
+                                statusText.Text(L"Queued");
+                                break;
+                            case PackageInstallProgressState::Downloading:
+                            {
+                                std::wstring downloadText{ L"Downloaded " };
+                                downloadText += MakeCompactByteString(progress.BytesDownloaded) + L" of " + MakeCompactByteString(progress.BytesRequired);
+                                statusText.Text(downloadText);
+                            }
+                            break;
+                            case PackageInstallProgressState::Installing:
+                                statusText.Text(L"Installer running");
+                                progressBar.IsIndeterminate(true);
+                                break;
+                            case PackageInstallProgressState::PostInstall:
+                                statusText.Text(L"Post install bookkeeping");
+                                break;
+                            case PackageInstallProgressState::Finished:
+                                statusText.Text(L"Done");
+                                progressBar.IsIndeterminate(false);
+                                break;
+                            default:
+                                statusText.Text(L"");
+                            }
+                        });
+                });
+            });
+
+        InstallResult installResult{ nullptr };
+
+        actionData.RunAndCatchStatus(L"Install", [&]() {
+            installResult = packageOperation.get();
+        });
+
+        if (packageOperation && packageOperation.Status() == AsyncStatus::Canceled)
         {
-            // Connect Error.
-            co_await winrt::resume_foreground(statusText.Dispatcher());
-            statusText.Text(L"Failed to connect to catalog.");
-            co_return;
+            actionData.Status(L"Cancelled");
+        }
+        else if (installResult)
+        {
+            // Error handling for the installResult is done by first examining the Status.
+            // Any status value other than Ok will have additional error detail in the
+            // ExtendedErrorCode property. This HRESULT value will typically (but not always)
+            // have the Windows Package Manager facility value (0xA15). The symbolic names and
+            // meanings of these error codes can be found at:
+            // https://github.com/microsoft/winget-cli/blob/master/doc/windows/package-manager/winget/returnCodes.md
+            // or by using the winget CLI:
+            // > winget error 0x8A150049
+            // > winget error -- -2146762487
+            switch (installResult.Status())
+            {
+            case InstallResultStatus::Ok:
+                actionData.Status(installResult.RebootRequired() ? L"Reboot required" : L"Done");
+                break;
+            case InstallResultStatus::BlockedByPolicy:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is typically caused by system configuration applied by policy.
+                actionData.Status(L"Blocked by policy");
+                break;
+            case InstallResultStatus::CatalogError:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is typically an issue with an external service.
+                actionData.Status(L"Catalog error");
+                break;
+            case InstallResultStatus::InternalError:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is typically an issue with the Windows Package Manager code.
+                actionData.Status(L"Internal error");
+                break;
+            case InstallResultStatus::InvalidOptions:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is caused by invalid input combinations.
+                actionData.Status(L"Invalid options");
+                break;
+            case InstallResultStatus::DownloadError:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is typically a transient network error.
+                actionData.Status(L"Download error");
+                break;
+            case InstallResultStatus::InstallError:
+                // See installResult.ExtendedErrorCode and installResult.InstallerErrorCode for more detail.
+                // This is caused by an error in the installer or an issue with the system state.
+                // InstallerErrorCode is the value returned by the installer technology in use for the install
+                // attempt and may or may not be an HRESULT.
+                actionData.Status(L"Installation error");
+                break;
+            case InstallResultStatus::ManifestError:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is an issue with the catalog providing the package.
+                actionData.Status(L"Manifest error");
+                break;
+            case InstallResultStatus::NoApplicableInstallers:
+                // No applicable installers were available due the combination of the current system,
+                // user settings, and parameters provided to the install request.
+                actionData.Status(L"No applicable installers");
+                break;
+            case InstallResultStatus::NoApplicableUpgrade:
+                // No upgrade was available due the combination of available versions, the current system,
+                // user settings, and parameters provided to the upgrade request.
+                actionData.Status(L"No applicable upgrade");
+                break;
+            case InstallResultStatus::PackageAgreementsNotAccepted:
+                // The user has not accepted the agreements required by the package.
+                actionData.Status(L"Package agreements not accepted");
+                break;
+            }
         }
 
-        FindPackagesOptions findPackagesOptions;
+        // Switch back to ui thread context.
+        co_await winrt::resume_foreground(actionData.Dispatcher());
 
-        FindPackagesResult findResult{ TryFindPackageInCatalogAsync(installedCatalog, m_installAppId).get() };
-        auto matches = findResult.Matches();
+        progressBar.IsIndeterminate(false);
 
-        co_await winrt::resume_foreground(statusText.Dispatcher());
+        actionData.Finalize();
+    }
+
+    IAsyncAction MainPage::DownloadAsync()
+    {
+        hstring downloadDirectory = downloadDirectoryTextBox().Text();
+        PackageManager packageManager = m_packageManager;
+        CatalogPackage package = m_package;
+        auto progressBar = operationProgressBar();
+        auto statusText = operationStatusText();
+
+        BackgroundActionData actionData{ { installButton(), upgradeButton(), downloadButton() }, { cancelButton() }, statusText};
+
+        co_await winrt::resume_background();
+
+        Windows::Foundation::IAsyncOperationWithProgress<Deployment::DownloadResult, Deployment::PackageDownloadProgress> packageOperation;
+
+        actionData.RunAndCatchStatus(L"Begin download", [&]() {
+            DownloadOptions downloadOptions;
+
+            if (!downloadDirectory.empty())
+            {
+                downloadOptions.DownloadDirectory(downloadDirectory);
+            }
+
+            packageOperation = packageManager.DownloadPackageAsync(package, downloadOptions);
+        });
+
+        actionData.Dispatcher().RunAsync(Windows::UI::Core::CoreDispatcherPriority::Normal,
+            [packageOperation, this]() { m_packageOperation = packageOperation; });
+
+        actionData.RunAndCatchStatus(L"Set progress handler", [&]() {
+            packageOperation.Progress([&](
+                IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> const& /* sender */,
+                PackageDownloadProgress const& progress)
+                {
+                    actionData.Dispatcher().RunAsync(Windows::UI::Core::CoreDispatcherPriority::Normal,
+                        [progressBar, statusText, progress]() {
+                            progressBar.Value(progress.DownloadProgress * 100);
+
+                            switch (progress.State)
+                            {
+                            case PackageDownloadProgressState::Queued:
+                                statusText.Text(L"Queued");
+                                break;
+                            case PackageDownloadProgressState::Downloading:
+                            {
+                                std::wstring downloadText{ L"Downloaded " };
+                                downloadText += MakeCompactByteString(progress.BytesDownloaded) + L" of " + MakeCompactByteString(progress.BytesRequired);
+                                statusText.Text(downloadText);
+                            }
+                            break;
+                            case PackageDownloadProgressState::Finished:
+                                statusText.Text(L"Done");
+                                progressBar.IsIndeterminate(false);
+                                break;
+                            default:
+                                statusText.Text(L"");
+                            }
+                        });
+                });
+            });
+
+        DownloadResult downloadResult{ nullptr };
+
+        actionData.RunAndCatchStatus(L"Download", [&]() {
+            downloadResult = packageOperation.get();
+        });
+
+        if (packageOperation && packageOperation.Status() == AsyncStatus::Canceled)
+        {
+            actionData.Status(L"Cancelled");
+        }
+        else if (downloadResult)
+        {
+            // Error handling for the downloadResult is done by first examining the Status.
+            // Any status value other than Ok will have additional error detail in the
+            // ExtendedErrorCode property. This HRESULT value will typically (but not always)
+            // have the Windows Package Manager facility value (0xA15). The symbolic names and
+            // meanings of these error codes can be found at:
+            // https://github.com/microsoft/winget-cli/blob/master/doc/windows/package-manager/winget/returnCodes.md
+            // or by using the winget CLI:
+            // > winget error 0x8A150049
+            // > winget error -- -2146762487
+            switch (downloadResult.Status())
+            {
+            case DownloadResultStatus::Ok:
+                actionData.Status(L"Done");
+                break;
+            case DownloadResultStatus::BlockedByPolicy:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is typically caused by system configuration applied by policy.
+                actionData.Status(L"Blocked by policy");
+                break;
+            case DownloadResultStatus::CatalogError:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is typically an issue with an external service.
+                actionData.Status(L"Catalog error");
+                break;
+            case DownloadResultStatus::InternalError:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is typically an issue with the Windows Package Manager code.
+                actionData.Status(L"Internal error");
+                break;
+            case DownloadResultStatus::InvalidOptions:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is caused by invalid input combinations.
+                actionData.Status(L"Invalid options");
+                break;
+            case DownloadResultStatus::DownloadError:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is typically a transient network error.
+                actionData.Status(L"Download error");
+                break;
+            case DownloadResultStatus::ManifestError:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is an issue with the catalog providing the package.
+                actionData.Status(L"Manifest error");
+                break;
+            case DownloadResultStatus::NoApplicableInstallers:
+                // No applicable installers were available due the combination of the current system,
+                // user settings, and parameters provided to the install request.
+                actionData.Status(L"No applicable installers");
+                break;
+            case DownloadResultStatus::PackageAgreementsNotAccepted:
+                // The user has not accepted the agreements required by the package.
+                actionData.Status(L"Package agreements not accepted");
+                break;
+            }
+        }
+
+        // Switch back to ui thread context.
+        co_await winrt::resume_foreground(actionData.Dispatcher());
+
+        progressBar.IsIndeterminate(false);
+
+        actionData.Finalize();
+    }
+
+    IAsyncAction MainPage::GetInstalledPackagesAsync()
+    {
+        BackgroundActionData actionData{ { refreshInstalledButton() }, installedStatusText() };
+
+        co_await winrt::resume_background();
+
+        actionData.Status(EnsurePackageManager());
+
+        PackageCatalog catalog{ nullptr };
+
+        actionData.RunAndCatchStatus(L"Connect installed catalog", [&]() {
+            PackageCatalogReference catalogReference = m_packageManager.GetLocalPackageCatalog(LocalPackageCatalog::InstalledPackages);
+            ConnectResult connectResult{ catalogReference.Connect() };
+
+            switch (connectResult.Status())
+            {
+            case ConnectResultStatus::Ok: break;
+            case ConnectResultStatus::CatalogError: throw std::exception{ "Catalog connection error." };
+            }
+
+            catalog = connectResult.PackageCatalog();
+        });
+
+        winrt::IVectorView<MatchResult> matches;
+
+        actionData.RunAndCatchStatus(L"Find package", [&]() {
+            FindPackagesOptions findPackagesOptions;
+            FindPackagesResult findPackagesResult = catalog.FindPackages(findPackagesOptions);
+
+            matches = findPackagesResult.Matches();
+        });
+
+        co_await winrt::resume_foreground(actionData.Dispatcher());
+
         m_installedPackages.Clear();
-        for (auto const match : matches)
+
+        if (matches)
         {
-            // Filter to only packages that match the selectedCatalogRef
-            auto version = match.CatalogPackage().DefaultInstallVersion();
-            if (selectedIndex < 0 || (version && version.PackageCatalog().Info().Id() == m_packageCatalogs.GetAt(selectedIndex).Info().Id()))
+            for (auto const& match : matches)
             {
                 m_installedPackages.Append(match.CatalogPackage());
             }
         }
 
-        statusText.Text(L"");
-        co_return;
-    }
-    IAsyncAction MainPage::GetActivePackages(winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
-    {
-        int32_t selectedIndex = catalogsListBox().SelectedIndex();
-        co_await winrt::resume_background();
-
-        PackageManager packageManager;
-
-        PackageCatalogReference installingSearchCatalogRef{ nullptr };
-
-        if (selectedIndex < 0)
-        {
-            // Installing package querying is only really useful if you know what Catalog you're interested in.
-            co_await winrt::resume_foreground(statusText.Dispatcher());
-            statusText.Text(L"No catalog selected.");
-            co_return;
-        }
-
-        installingSearchCatalogRef = packageManager.GetLocalPackageCatalog(LocalPackageCatalog::InstallingPackages);
-
-        PackageCatalogReference selectedRemoteCatalogRef = m_packageCatalogs.GetAt(selectedIndex);
-        ConnectResult remoteConnectResult{ co_await selectedRemoteCatalogRef.ConnectAsync() };
-        PackageCatalog selectedRemoteCatalog = remoteConnectResult.PackageCatalog();
-        if (!selectedRemoteCatalog)
-        {
-            co_await winrt::resume_foreground(statusText.Dispatcher());
-            statusText.Text(L"Failed to connect to catalog.");
-            co_return;
-        }
-
-        ConnectResult connectResult{ co_await installingSearchCatalogRef.ConnectAsync() };
-        PackageCatalog installingCatalog = connectResult.PackageCatalog();
-        if (!installingCatalog)
-        {
-            co_await winrt::resume_foreground(statusText.Dispatcher());
-            statusText.Text(L"Failed to connect to catalog.");
-            co_return;
-        }
-
-        FindPackagesOptions findPackagesOptions;
-
-        FindPackagesResult findResult{ TryFindPackageInCatalogAsync(selectedRemoteCatalog, m_installAppId).get() };
-        auto matches = findResult.Matches();
-
-        co_await winrt::resume_foreground(statusText.Dispatcher());
-
-        m_activePackageViews.Clear();
-        for (auto const match : matches)
-        {
-            WinGetUWPCaller::ActivePackageView activeView;
-            activeView.Package(match.CatalogPackage());
-            auto installOperation = packageManager.GetInstallProgress(activeView.Package(), selectedRemoteCatalog.Info());
-            if (installOperation)
-            {
-                activeView.Dispatcher(statusText.Dispatcher());
-                activeView.AsyncOperation(installOperation);
-                m_activePackageViews.Append(activeView);
-            }
-        }
-
-        statusText.Text(L"");
-        co_return;
+        actionData.Finalize();
     }
 
-    IAsyncAction MainPage::StartInstall(
-        winrt::Windows::UI::Xaml::Controls::Button installButton,
-        winrt::Windows::UI::Xaml::Controls::Button cancelButton,
-        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
-        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
+    IAsyncAction MainPage::UninstallAsync()
     {
-        installButton.IsEnabled(false);
-        cancelButton.IsEnabled(true);
-        int32_t selectedIndex = catalogsListBox().SelectedIndex();
+        PackageManager packageManager = m_packageManager;
 
-        co_await winrt::resume_background();
+        auto progressBar = uninstallProgressBar();
+        auto statusText = uninstallStatusText();
 
-        if (selectedIndex < 0)
+        IInspectable selectedValue = installedListBox().SelectedValue();
+        CatalogPackage package{ nullptr };
+        if (selectedValue)
         {
-            co_await winrt::resume_foreground(installButton.Dispatcher());
-            installButton.IsEnabled(false);
-            statusText.Text(L"No catalog selected to install.");
-            co_return;
-        }
-
-        // Get the remote catalog
-        PackageCatalogReference selectedRemoteCatalogRef = m_packageCatalogs.GetAt(selectedIndex);
-        ConnectResult remoteConnectResult{ co_await selectedRemoteCatalogRef.ConnectAsync() };
-        PackageCatalog selectedRemoteCatalog = remoteConnectResult.PackageCatalog();
-        if (!selectedRemoteCatalog)
-        {
-            co_await winrt::resume_foreground(progressBar.Dispatcher());
-            statusText.Text(L"Connecting to catalog failed.");
-            co_return;
-        }
-        FindPackagesResult findPackagesResult{ TryFindPackageInCatalogAsync(selectedRemoteCatalog, m_installAppId).get() };
-        winrt::IVectorView<MatchResult> matches = findPackagesResult.Matches();
-        if (matches.Size() > 0)
-        {
-            m_installPackageOperation = InstallPackage(matches.GetAt(0).CatalogPackage());
-            UpdateUIForInstall(m_installPackageOperation, installButton, cancelButton, progressBar, statusText);
-        }
-    }
-
-    IAsyncAction MainPage::StartDownload(
-        winrt::Windows::UI::Xaml::Controls::Button button,
-        winrt::Windows::UI::Xaml::Controls::Button cancelButton,
-        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
-        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
-    {
-        button.IsEnabled(false);
-        cancelButton.IsEnabled(true);
-        int32_t selectedIndex = catalogsListBox().SelectedIndex();
-
-        co_await winrt::resume_background();
-
-        if (selectedIndex < 0)
-        {
-            co_await winrt::resume_foreground(button.Dispatcher());
-            button.IsEnabled(false);
-            statusText.Text(L"No catalog selected to download.");
-            co_return;
-        }
-
-        // Get the remote catalog
-        PackageCatalogReference selectedRemoteCatalogRef = m_packageCatalogs.GetAt(selectedIndex);
-        ConnectResult remoteConnectResult{ co_await selectedRemoteCatalogRef.ConnectAsync() };
-        PackageCatalog selectedRemoteCatalog = remoteConnectResult.PackageCatalog();
-        if (!selectedRemoteCatalog)
-        {
-            co_await winrt::resume_foreground(progressBar.Dispatcher());
-            statusText.Text(L"Connecting to catalog failed.");
-            co_return;
-        }
-        FindPackagesResult findPackagesResult{ TryFindPackageInCatalogAsync(selectedRemoteCatalog, m_installAppId).get() };
-        winrt::IVectorView<MatchResult> matches = findPackagesResult.Matches();
-        if (matches.Size() > 0)
-        {
-            m_downloadPackageOperation = DownloadPackage(matches.GetAt(0).CatalogPackage(), m_downloadDirectory);
-            UpdateUIForDownload(m_downloadPackageOperation, button, cancelButton, progressBar, statusText);
-        }
-    }
-
-    IAsyncAction MainPage::FindPackage(
-        winrt::Windows::UI::Xaml::Controls::Button installButton,
-        winrt::Windows::UI::Xaml::Controls::Button downloadButton,
-        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
-        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
-    {
-        int32_t selectedIndex = catalogsListBox().SelectedIndex();
-        if (selectedIndex < 0)
-        {
-            co_await winrt::resume_foreground(installButton.Dispatcher());
-            installButton.IsEnabled(false);
-            statusText.Text(L"No catalog selected to search.");
-            co_return;
-        }
-
-        co_await winrt::resume_background();
-
-        // Get the remote catalog
-        PackageCatalogReference selectedRemoteCatalogRef = m_packageCatalogs.GetAt(selectedIndex);
-        // Create the composite catalog
-        CreateCompositePackageCatalogOptions createCompositePackageCatalogOptions;
-        createCompositePackageCatalogOptions.Catalogs().Append(selectedRemoteCatalogRef);
-        PackageManager packageManager;
-        PackageCatalogReference catalogRef{ packageManager.CreateCompositePackageCatalog(createCompositePackageCatalogOptions) };
-        ConnectResult connectResult{ co_await catalogRef.ConnectAsync() };
-        PackageCatalog compositeCatalog = connectResult.PackageCatalog();
-        if (!compositeCatalog)
-        {
-            co_await winrt::resume_foreground(installButton.Dispatcher());
-            installButton.IsEnabled(false);
-            statusText.Text(L"Failed to connect to catalog.");
-            co_return;
-        }
-
-        // Do the search.
-        FindPackagesResult findPackagesResult{ TryFindPackageInCatalogAsync(compositeCatalog, m_installAppId).get() };
-
-        winrt::IVectorView<MatchResult> matches = findPackagesResult.Matches();
-        if (matches.Size() > 0)
-        {
-            auto installedVersion = matches.GetAt(0).CatalogPackage().InstalledVersion();
-            if (installedVersion != nullptr)
-            {
-                co_await winrt::resume_foreground(installButton.Dispatcher());
-                installButton.IsEnabled(false);
-                statusText.Text(L"Already installed. Product code: " + installedVersion.ProductCodes().GetAt(0));
-            }
-            else
-            {
-                co_await winrt::resume_foreground(installButton.Dispatcher());
-                installButton.IsEnabled(true);
-                downloadButton.IsEnabled(true);
-                statusText.Text(L"Found the package to install or download.");
-            }
+            package = selectedValue.as<CatalogPackage>();
         }
         else
         {
-            co_await winrt::resume_foreground(installButton.Dispatcher());
-            installButton.IsEnabled(false);
-            statusText.Text(L"Did not find package.");
+            statusText.Text(L"Select a package to uninstall");
+            co_return;
         }
-        co_return;
+
+        BackgroundActionData actionData{ { uninstallButton() }, statusText };
+
+        co_await winrt::resume_background();
+
+        Windows::Foundation::IAsyncOperationWithProgress<Deployment::UninstallResult, Deployment::UninstallProgress> packageOperation;
+
+        actionData.RunAndCatchStatus(L"Begin uninstall", [&]() {
+            UninstallOptions uninstallOptions;
+
+            uninstallOptions.PackageUninstallScope(PackageUninstallScope::Any);
+            uninstallOptions.PackageUninstallMode(PackageUninstallMode::Silent);
+
+            packageOperation = packageManager.UninstallPackageAsync(package, uninstallOptions);
+        });
+
+        actionData.RunAndCatchStatus(L"Set progress handler", [&]() {
+            packageOperation.Progress([&](
+                IAsyncOperationWithProgress<UninstallResult, UninstallProgress> const& /* sender */,
+                UninstallProgress const& progress)
+                {
+                    actionData.Dispatcher().RunAsync(Windows::UI::Core::CoreDispatcherPriority::Normal,
+                        [progressBar, statusText, progress]() {
+                            progressBar.Value(progress.UninstallationProgress * 100);
+
+                            switch (progress.State)
+                            {
+                            case PackageUninstallProgressState::Queued:
+                                statusText.Text(L"Queued");
+                                break;
+                            case PackageUninstallProgressState::Uninstalling:
+                                statusText.Text(L"Uninstaller running");
+                                progressBar.IsIndeterminate(true);
+                                break;
+                            case PackageUninstallProgressState::PostUninstall:
+                                statusText.Text(L"Post uninstall bookkeeping");
+                                break;
+                            case PackageUninstallProgressState::Finished:
+                                statusText.Text(L"Done");
+                                progressBar.IsIndeterminate(false);
+                                break;
+                            default:
+                                statusText.Text(L"");
+                            }
+                        });
+                });
+            });
+
+        UninstallResult uninstallResult{ nullptr };
+
+        actionData.RunAndCatchStatus(L"Uninstall", [&]() {
+            uninstallResult = packageOperation.get();
+        });
+
+        if (packageOperation && packageOperation.Status() == AsyncStatus::Canceled)
+        {
+            actionData.Status(L"Cancelled");
+        }
+        else if (uninstallResult)
+        {
+            // Error handling for the installResult is done by first examining the Status.
+            // Any status value other than Ok will have additional error detail in the
+            // ExtendedErrorCode property. This HRESULT value will typically (but not always)
+            // have the Windows Package Manager facility value (0xA15). The symbolic names and
+            // meanings of these error codes can be found at:
+            // https://github.com/microsoft/winget-cli/blob/master/doc/windows/package-manager/winget/returnCodes.md
+            // or by using the winget CLI:
+            // > winget error 0x8A150049
+            // > winget error -- -2146762487
+            switch (uninstallResult.Status())
+            {
+            case UninstallResultStatus::Ok:
+                actionData.Status(uninstallResult.RebootRequired() ? L"Reboot required" : L"Done");
+                break;
+            case UninstallResultStatus::BlockedByPolicy:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is typically caused by system configuration applied by policy.
+                actionData.Status(L"Blocked by policy");
+                break;
+            case UninstallResultStatus::CatalogError:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is typically an issue with an external service.
+                actionData.Status(L"Catalog error");
+                break;
+            case UninstallResultStatus::InternalError:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is typically an issue with the Windows Package Manager code.
+                actionData.Status(L"Internal error");
+                break;
+            case UninstallResultStatus::InvalidOptions:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is caused by invalid input combinations.
+                actionData.Status(L"Invalid options");
+                break;
+            case UninstallResultStatus::UninstallError:
+                // See installResult.ExtendedErrorCode and installResult.UninstallerErrorCode for more detail.
+                // This is caused by an error in the uninstaller or an issue with the system state.
+                // UninstallerErrorCode is the value returned by the uninstaller technology in use for the uninstall
+                // attempt and may or may not be an HRESULT.
+                actionData.Status(L"Uninstallation error");
+                break;
+            case UninstallResultStatus::ManifestError:
+                // See installResult.ExtendedErrorCode for more detail.
+                // This is an issue with the catalog providing the package.
+                actionData.Status(L"Manifest error");
+                break;
+            }
+        }
+
+        // Switch back to ui thread context.
+        co_await winrt::resume_foreground(actionData.Dispatcher());
+
+        progressBar.IsIndeterminate(false);
+
+        actionData.Finalize();
+    }
+
+    IAsyncAction MainPage::GetActivePackagesAsync()
+    {
+        BackgroundActionData actionData{ { activeRefreshButton() }, activeStatusText() };
+
+        co_await winrt::resume_background();
+
+        actionData.Status(EnsurePackageManager());
+
+        PackageCatalog catalog{ nullptr };
+
+        actionData.RunAndCatchStatus(L"Connect installed catalog", [&]() {
+            PackageCatalogReference catalogReference = m_packageManager.GetLocalPackageCatalog(LocalPackageCatalog::InstallingPackages);
+            ConnectResult connectResult{ catalogReference.Connect() };
+
+            switch (connectResult.Status())
+            {
+            case ConnectResultStatus::Ok: break;
+            case ConnectResultStatus::CatalogError: throw std::exception{ "Catalog connection error." };
+            }
+
+            catalog = connectResult.PackageCatalog();
+        });
+
+        winrt::IVectorView<MatchResult> matches;
+
+        actionData.RunAndCatchStatus(L"Find package", [&]() {
+            FindPackagesOptions findPackagesOptions;
+            FindPackagesResult findPackagesResult = catalog.FindPackages(findPackagesOptions);
+
+            matches = findPackagesResult.Matches();
+        });
+
+        co_await winrt::resume_foreground(actionData.Dispatcher());
+
+        m_activePackageViews.Clear();
+
+        if (matches)
+        {
+            for (auto const& match : matches)
+            {
+                WinGetUWPCaller::ActivePackageView activeView;
+                activeView.Package(match.CatalogPackage());
+                auto installOperation = m_packageManager.GetInstallProgress(activeView.Package(), nullptr);
+                if (installOperation)
+                {
+                    activeView.Dispatcher(actionData.Dispatcher());
+                    activeView.AsyncOperation(installOperation);
+                    m_activePackageViews.Append(activeView);
+                }
+            }
+        }
+
+        actionData.Finalize();
     }
 }

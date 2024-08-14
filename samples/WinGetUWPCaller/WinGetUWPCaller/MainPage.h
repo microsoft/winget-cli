@@ -20,6 +20,7 @@ namespace winrt::WinGetUWPCaller::implementation
 
         // Select Catalog(s) section
         void LoadCatalogsButtonClickHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
+        void CatalogSelectionChangedHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
 
         // Package Operations section
         void SearchButtonClickHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
@@ -46,33 +47,16 @@ namespace winrt::WinGetUWPCaller::implementation
         Windows::Foundation::IAsyncAction LoadCatalogsAsync();
 
         // Package Operations section
-        Windows::Foundation::IAsyncOperation<Deployment::FindPackagesResult> TryFindPackageInCatalogAsync(Deployment::PackageCatalog catalog, std::wstring packageId);
-        Windows::Foundation::IAsyncOperation<Deployment::CatalogPackage> FindPackageInCatalogAsync(Deployment::PackageCatalog catalog, std::wstring packageId);
-        Windows::Foundation::IAsyncOperationWithProgress<Deployment::InstallResult, Deployment::InstallProgress> InstallPackage(Deployment::CatalogPackage package);
-        Windows::Foundation::IAsyncOperationWithProgress<Deployment::DownloadResult, Deployment::PackageDownloadProgress> DownloadPackage(Deployment::CatalogPackage package, std::wstring downloadDirectory);
-        Windows::Foundation::IAsyncOperation<Deployment::PackageCatalog> LoadCatalogAsync(std::wstring packageCatalog);
-
-        Windows::Foundation::IAsyncAction StartInstall(
-            Windows::UI::Xaml::Controls::Button installButton,
-            Windows::UI::Xaml::Controls::Button cancelButton,
-            Windows::UI::Xaml::Controls::ProgressBar progressBar,
-            Windows::UI::Xaml::Controls::TextBlock statusText);
-        Windows::Foundation::IAsyncAction StartDownload(
-            Windows::UI::Xaml::Controls::Button installButton,
-            Windows::UI::Xaml::Controls::Button cancelButton,
-            Windows::UI::Xaml::Controls::ProgressBar progressBar,
-            Windows::UI::Xaml::Controls::TextBlock statusText);
-        Windows::Foundation::IAsyncAction FindPackage(
-            Windows::UI::Xaml::Controls::Button installButton,
-            Windows::UI::Xaml::Controls::Button downloadButton,
-            Windows::UI::Xaml::Controls::ProgressBar progressBar,
-            Windows::UI::Xaml::Controls::TextBlock statusText);
+        Windows::Foundation::IAsyncAction FindPackageAsync();
+        Windows::Foundation::IAsyncAction InstallOrUpgradeAsync(bool upgrade);
+        Windows::Foundation::IAsyncAction DownloadAsync();
 
         // Installed Packages section
-        Windows::Foundation::IAsyncAction GetInstalledPackagesAsync(Windows::UI::Xaml::Controls::Button button, Windows::UI::Xaml::Controls::TextBlock statusText);
+        Windows::Foundation::IAsyncAction GetInstalledPackagesAsync();
+        Windows::Foundation::IAsyncAction UninstallAsync();
 
         // Active Operations section
-        Windows::Foundation::IAsyncAction GetActivePackagesAsync(Windows::UI::Xaml::Controls::Button button, Windows::UI::Xaml::Controls::TextBlock statusText);
+        Windows::Foundation::IAsyncAction GetActivePackagesAsync();
 
         // Member fields
         Windows::Foundation::Collections::IObservableVector<Deployment::PackageCatalogReference> m_packageCatalogs;
@@ -81,8 +65,9 @@ namespace winrt::WinGetUWPCaller::implementation
 
         std::mutex m_packageManagerMutex;
         Deployment::PackageManager m_packageManager{ nullptr };
-        Windows::Foundation::IAsyncOperationWithProgress<Deployment::InstallResult, Deployment::InstallProgress> m_installPackageOperation;
-        Windows::Foundation::IAsyncOperationWithProgress<Deployment::DownloadResult, Deployment::PackageDownloadProgress> m_downloadPackageOperation;
+        Deployment::PackageCatalog m_catalog{ nullptr };
+        Deployment::CatalogPackage m_package{ nullptr };
+        Windows::Foundation::IAsyncInfo m_packageOperation;
     };
 }
 
