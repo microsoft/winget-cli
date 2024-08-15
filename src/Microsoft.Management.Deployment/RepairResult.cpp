@@ -11,13 +11,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     void RepairResult::Initialize(
         winrt::Microsoft::Management::Deployment::RepairResultStatus status,
         winrt::hresult extendedErrorCode,
-        uint32_t installerErrorCode,
+        uint32_t repairErrorCode,
         hstring const& correlationData,
         bool rebootRequired)
     {
         m_status = status;
         m_extendedErrorCode = extendedErrorCode;
-        m_installerErrorCode = installerErrorCode;
+        m_repairErrorCode = repairErrorCode;
         m_correlationData = correlationData;
         m_rebootRequired = rebootRequired;
     }
@@ -37,9 +37,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_extendedErrorCode;
     }
-
-    uint32_t RepairResult::InstallerErrorCode()
+    uint32_t RepairResult::RepairErrorCode()
     {
-        return m_installerErrorCode;
+        return m_repairErrorCode;
     }
 }

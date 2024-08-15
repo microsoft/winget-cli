@@ -13,7 +13,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void Initialize(
             winrt::Microsoft::Management::Deployment::RepairResultStatus status,
             winrt::hresult extendedErrorCode,
-            uint32_t installerErrorCode,
+            uint32_t repairErrorCode,
             hstring const& correlationData,
             bool rebootRequired);
 #endif
@@ -22,7 +22,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool RebootRequired();
         winrt::Microsoft::Management::Deployment::RepairResultStatus Status();
         winrt::hresult ExtendedErrorCode();
-        uint32_t InstallerErrorCode();
+        uint32_t RepairErrorCode();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -30,7 +30,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool m_rebootRequired = false;
         winrt::Microsoft::Management::Deployment::RepairResultStatus m_status = winrt::Microsoft::Management::Deployment::RepairResultStatus::Ok;
         winrt::hresult m_extendedErrorCode = S_OK;
-        uint32_t m_installerErrorCode = 0;
+        uint32_t m_repairErrorCode = 0;
 #endif
     };
 }

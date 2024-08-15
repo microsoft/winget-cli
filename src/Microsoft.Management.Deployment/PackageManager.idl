@@ -188,6 +188,7 @@ namespace Microsoft.Management.Deployment
         Ok,
         BlockedByPolicy,
         CatalogError,
+        DownloadError,
         InternalError,
         InvalidOptions,
         RepairError,
@@ -214,7 +215,7 @@ namespace Microsoft.Management.Deployment
 
        /// The error code from the repair attempt. Only valid if the Status is RepairError.
        /// This value's meaning will require knowledge of the specific repairer or repair technology.
-       UInt32 InstallerErrorCode { get; };
+       UInt32 RepairErrorCode { get; };
      }
 
     /// State of the download
@@ -1185,6 +1186,7 @@ namespace Microsoft.Management.Deployment
         /// The string must be JSON encoded.
         String CorrelationData;
 
+        /// Directs the logging to a log file. If provided, the installer must have write access to the file
         String LogOutputPath;
     }
 
