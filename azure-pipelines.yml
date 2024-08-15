@@ -215,16 +215,6 @@ jobs:
       TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
 
-  - task: PowerShell@2
-    displayName: Generate Microsoft.WinGet.Client Help Documentation
-    inputs:
-      pwsh: true
-      targetType: inline
-      script: |
-        Install-Module -Name platyPS -Force
-        Import-Module platyPS
-        New-ExternalHelp -Path '$(Build.SourcesDirectory)\src\PowerShell\Help\Microsoft.WinGet.Client' -OutputPath '$(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client'
-
   - task: CopyFiles@2
     displayName: 'Copy PowerShell AnyCPU Module Files'
     inputs:
@@ -552,6 +542,16 @@ jobs:
       SourceFolder: '$(Pipeline.Workspace)\Build.x86release\PowerShell'
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PowerShell@2
+    displayName: Generate Microsoft.WinGet.Client Help Documentation
+    inputs:
+      pwsh: true
+      targetType: inline
+      script: |
+        Install-Module -Name platyPS -Force
+        Import-Module platyPS
+        New-ExternalHelp -Path '$(Build.SourcesDirectory)\src\PowerShell\Help\Microsoft.WinGet.Client' -OutputPath '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.Client'
 
   - task: CopyFiles@2
     displayName: 'Copy Microsoft.WinGet.DSC module to staging directory'
