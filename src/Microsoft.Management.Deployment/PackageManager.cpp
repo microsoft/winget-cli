@@ -25,6 +25,7 @@
 #include "DownloadResult.h"
 #include "InstallResult.h"
 #include "UninstallResult.h"
+#include "RepairResult.h"
 #include "PackageCatalogInfo.h"
 #include "PackageCatalogReference.h"
 #include "PackageVersionInfo.h"
@@ -215,6 +216,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return *downloadResult;
     }
 
+    winrt::Microsoft::Management::Deployment::RepairResult GetRepairResult(::Workflow::ExecutionStage executionStage, winrt::hresult terminationHR, uint32_t repairError, winrt::hstring correlationData, bool rebootRequired)
+    {
+        winrt::Microsoft::Management::Deployment::RepairResultStatus repairResultStatus = GetOperationResultStatus<RepairResultStatus>(executionStage, terminationHR);
+        auto repairResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::RepairResult>>();
+        repairResult->Initialize(repairResultStatus, terminationHR, repairError, correlationData, rebootRequired);
+        return *repairResult;
+    }
 
     template <typename TResult>
     TResult GetOperationResult(::Workflow::ExecutionStage executionStage, winrt::hresult terminationHR, uint32_t operationError, winrt::hstring correlationData, bool rebootRequired)
@@ -231,9 +239,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             return GetDownloadResult(executionStage, terminationHR, correlationData);
         }
+        else if constexpr (std::is_same_v<TResult, winrt::Microsoft::Management::Deployment::RepairResult>)
+        {
+            return GetRepairResult(executionStage, terminationHR, operationError, correlationData, rebootRequired);
+        }
     }
 
-#define WINGET_GET_PROGRESS_STATE(_installState_, _uninstallState_) \
+#define WINGET_GET_PROGRESS_STATE(_installState_, _uninstallState_, _repairState_) \
     if constexpr (std::is_same_v<TState, winrt::Microsoft::Management::Deployment::PackageInstallProgressState>) \
     { \
         progressState = TState::_installState_; \
@@ -241,7 +253,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     else if constexpr (std::is_same_v<TState, winrt::Microsoft::Management::Deployment::PackageUninstallProgressState>) \
     { \
         progressState = TState::_uninstallState_; \
-    }
+    } \
+    else if constexpr (std::is_same_v<TState, winrt::Microsoft::Management::Deployment::PackageRepairProgressState>) \
+    { \
+        progressState = TState::_repairState_; \
+    } \
 
     template <typename TProgress, typename TState>
     std::optional<TProgress> GetProgress(
@@ -289,7 +305,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             // Wait until installer starts to report operation.
             break;
         case ::Workflow::ExecutionStage::Execution:
-            WINGET_GET_PROGRESS_STATE(Installing, Uninstalling);
+            WINGET_GET_PROGRESS_STATE(Installing, Uninstalling, Repairing);
             downloadProgress = 1;
             if (reportType == ReportType::ExecutionPhaseUpdate)
             {
@@ -317,7 +333,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 // Send PostInstall progress when it switches to PostExecution phase.
                 reportProgress = true;
-                WINGET_GET_PROGRESS_STATE(PostInstall, PostUninstall);
+                WINGET_GET_PROGRESS_STATE(PostInstall, PostUninstall, PostRepair);
                 downloadProgress = 1;
                 operationProgress = 1;
             }
@@ -338,6 +354,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             else if constexpr (std::is_same_v<TProgress, winrt::Microsoft::Management::Deployment::PackageDownloadProgress>)
             {
                 TProgress progress{ progressState, downloadBytesDownloaded, downloadBytesRequired, downloadProgress };
+                return progress;
+            }
+            else if constexpr (std::is_same_v<TProgress, winrt::Microsoft::Management::Deployment::RepairProgress>)
+            {
+                TProgress progress{ progressState, operationProgress };
                 return progress;
             }
         }
@@ -548,6 +569,45 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
     }
 
+    void PopulateContextFromRepairOptions(
+        ::AppInstaller::CLI::Execution::Context* context,
+        winrt::Microsoft::Management::Deployment::RepairOptions options)
+    {
+        if (options)
+        {
+            if (!options.LogOutputPath().empty())
+            {
+                context->Args.AddArg(Execution::Args::Type::Log, ::AppInstaller::Utility::ConvertToUTF8(options.LogOutputPath()));
+                context->Args.AddArg(Execution::Args::Type::VerboseLogs);
+            }
+
+            if (!options.DownloadDirectory().empty())
+            {
+                context->Args.AddArg(Execution::Args::Type::DownloadDirectory, ::AppInstaller::Utility::ConvertToUTF8(options.DownloadDirectory()));
+            }
+
+            if (options.PackageRepairMode() == PackageRepairMode::Interactive)
+            {
+                context->Args.AddArg(Execution::Args::Type::Interactive);
+            }
+            else if (options.PackageRepairMode() == PackageRepairMode::Silent)
+            {
+                context->Args.AddArg(Execution::Args::Type::Silent);
+            }
+
+            if (options.AcceptPackageAgreements())
+            {
+                context->Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
+            }
+
+            auto repairScope = GetManifestRepairScope(options.PackageRepairScope());
+            if (repairScope != ::AppInstaller::Manifest::ScopeEnum::Unknown)
+            {
+                context->Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(repairScope));
+            }
+        }
+    }
+
     template <typename TOptions>
     std::unique_ptr<COMContext> CreateContextFromOperationOptions(
         TOptions options,
@@ -570,6 +630,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         else if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::DownloadOptions>)
         {
             PopulateContextFromDownloadOptions(context.get(), options);
+        }
+        else if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::RepairOptions>)
+        {
+            PopulateContextFromRepairOptions(context.get(), options);
         }
 
         return context;
@@ -697,6 +761,24 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return Execution::OrchestratorQueueItemFactory::CreateItemForDownload(std::wstring{ package.Id() }, std::wstring{ packageVersionInfo.PackageCatalog().Info().Id() }, std::move(comContext));
     }
 
+    std::unique_ptr<Execution::OrchestratorQueueItem> CreateQueueItemForRepair(
+        std::unique_ptr<::AppInstaller::CLI::Execution::COMContext> comContext,
+        winrt::Microsoft::Management::Deployment::CatalogPackage package,
+        winrt::Microsoft::Management::Deployment::RepairOptions options)
+    {
+        // Add installed version
+        AddInstalledVersionToContext(package.InstalledVersion(), comContext.get());
+
+        // Add Package which is used to co-relate installed package with available package for repair
+        winrt::Microsoft::Management::Deployment::implementation::CatalogPackage* catalogPackageImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>(package);
+        std::shared_ptr<::AppInstaller::Repository::ICompositePackage> internalPackage = catalogPackageImpl->GetRepositoryPackage();
+        comContext->Add<AppInstaller::CLI::Execution::Data::Package>(internalPackage);
+
+        comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::InstallerExecutionUseRepair);
+
+        return Execution::OrchestratorQueueItemFactory::CreateItemForRepair(std::wstring{ package.Id() }, std::wstring{ package.InstalledVersion().PackageCatalog().Info().Id() }, std::move(comContext));
+    }
+
     template <typename TResult, typename TProgress, typename TOptions, typename TProgressState>
     winrt::Windows::Foundation::IAsyncOperationWithProgress<TResult, TProgress> GetPackageOperation(
         bool canCancelQueueItem,
@@ -737,6 +819,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 {
                     queueItem = CreateQueueItemForDownload(std::move(comContext), package, options);
                 }
+                else if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::RepairOptions>)
+                {
+                    queueItem = CreateQueueItemForRepair(std::move(comContext), package, options);
+                }
 
                 Execution::ContextOrchestrator::Instance().EnqueueAndRunItem(queueItem);
 
@@ -751,6 +837,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     report_progress(queuedProgress);
                 }
                 else if constexpr (std::is_same_v<TProgress, winrt::Microsoft::Management::Deployment::PackageDownloadProgressState>)
+                {
+                    TProgress queuedProgress{ TProgressState::Queued, 0 };
+                    report_progress(queuedProgress);
+                }
+                else if constexpr (std::is_same_v<TProgress, winrt::Microsoft::Management::Deployment::PackageRepairProgressState>)
                 {
                     TProgress queuedProgress{ TProgressState::Queued, 0 };
                     report_progress(queuedProgress);
@@ -1066,14 +1157,69 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return GetPackageOperation<Deployment::DownloadResult, Deployment::PackageDownloadProgress, Deployment::DownloadOptions, Deployment::PackageDownloadProgressState>(true, std::move(queueItem));
     }
 
+#define WINGET_RETURN_REPAIR_RESULT_HR_IF(hr, boolVal) { if(boolVal) { return GetEmptyAsynchronousResultForOperation<Deployment::RepairResult, Deployment::RepairProgress>(hr, correlationData); }}
+#define WINGET_RETURN_REPAIR_RESULT_HR_IF_FAILED(hr) { WINGET_RETURN_REPAIR_RESULT_HR_IF(hr, FAILED(hr)) }
+
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RepairResult, winrt::Microsoft::Management::Deployment::RepairProgress> PackageManager::RepairPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::RepairOptions options)
     {
-        return winrt::Windows::Foundation::IAsyncOperationWithProgress<Deployment::RepairResult, winrt::Microsoft::Management::Deployment::RepairProgress>();
+        hstring correlationData = (options) ? options.CorrelationData() : L"";
+
+        // options and catalog can both be null, package must be set.
+        WINGET_RETURN_REPAIR_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package);
+        // the package should have an installed version to be uninstalled.
+        WINGET_RETURN_REPAIR_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package.InstalledVersion());
+
+        HRESULT hr = S_OK;
+        std::wstring callerProcessInfoString;
+        try
+        {
+            // Check for permissions and get caller info for telemetry.
+            // This must be done before any co_awaits since it requires info from the rpc caller thread.
+            auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
+            WINGET_RETURN_REPAIR_RESULT_HR_IF_FAILED(hrGetCallerId);
+            WINGET_RETURN_REPAIR_RESULT_HR_IF_FAILED(EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId));
+            callerProcessInfoString = TryGetCallerProcessInfo(callerProcessId);
+        }
+        WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
+        WINGET_RETURN_REPAIR_RESULT_HR_IF_FAILED(hr);
+
+        return GetPackageOperation<Deployment::RepairResult, Deployment::RepairProgress, Deployment::RepairOptions, Deployment::PackageRepairProgressState>(
+            true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString));
     }
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RepairResult, winrt::Microsoft::Management::Deployment::RepairProgress> PackageManager::GetRepairProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
     {
-        return winrt::Windows::Foundation::IAsyncOperationWithProgress<Deployment::RepairResult, winrt::Microsoft::Management::Deployment::RepairProgress>();
+        hstring correlationData;
+        WINGET_RETURN_REPAIR_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package);
+
+        HRESULT hr = S_OK;
+        std::shared_ptr<Execution::OrchestratorQueueItem> queueItem = nullptr;
+        bool canCancelQueueItem = false;
+        try
+        {
+            // Check for permissions
+            // This must be done before any co_awaits since it requires info from the rpc caller thread.
+            auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
+            WINGET_RETURN_REPAIR_RESULT_HR_IF_FAILED(hrGetCallerId);
+            canCancelQueueItem = SUCCEEDED(EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId));
+            if (!canCancelQueueItem)
+            {
+                WINGET_RETURN_REPAIR_RESULT_HR_IF_FAILED(EnsureProcessHasCapability(Capability::PackageQuery, callerProcessId));
+            }
+
+            // Get the queueItem synchronously.
+            queueItem = GetExistingQueueItemForPackage(package, catalogInfo);
+            if (queueItem == nullptr ||
+                queueItem->GetPackageOperationType() != PackageOperationType::Repair)
+            {
+                return nullptr;
+            }
+        }
+        WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
+        WINGET_RETURN_REPAIR_RESULT_HR_IF_FAILED(hr);
+
+        return GetPackageOperation<Deployment::RepairResult, Deployment::RepairProgress, Deployment::RepairOptions, Deployment::PackageRepairProgressState>(
+            canCancelQueueItem, std::move(queueItem));
     }
     CoCreatableMicrosoftManagementDeploymentClass(PackageManager);
 }
