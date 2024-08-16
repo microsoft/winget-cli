@@ -41,6 +41,7 @@ Atest
 ATL
 AType
 AUrl
+autobuild
 auxdata
 azurewebsites
 Baz
@@ -84,6 +85,7 @@ clsctx
 CMSG
 CODEOWNERS
 codepage
+codeql
 COINIT
 COMGLB
 commandline
@@ -208,6 +210,7 @@ ICONDIRENTRY
 ICONIMAGE
 icu
 idl
+idstepsrun
 idx
 IFACEMETHODIMP
 iid
@@ -234,6 +237,7 @@ JDictionary
 jdk
 jfearn
 JObject
+jobsjob
 jpalardy
 JREs
 jrsoftware
@@ -243,6 +247,7 @@ JValue
 Kaido
 KNOWNFOLDERID
 kool
+kotlin
 ktf
 LCID
 ldcase
