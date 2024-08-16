@@ -107,19 +107,16 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task RepairNonStoreMsixPackageWithMachineScope()
         {
-            // Find package again, but this time it should be detected as installed
-            var findPackages = this.FindAllPackages(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "Microsoft.Paint_8wekyb3d8bbwe");
+            var findPackages = this.FindAllPackages(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.ContainsCaseInsensitive, "Microsoft.Paint");
 
-            if (findPackages.Count == 0)
+            if (findPackages == null || findPackages.Count == 0)
             {
-                Assert.Ignore("Test skipped as Microsoft.Paint_8wekyb3d8bbwe cannot be found.");
+                Assert.Ignore("Test skipped as Microsoft.Paint_8wekyb3d8bbwe can't be found.");
             }
 
             var searchResult = findPackages.First();
 
-            if (searchResult == null ||
-                (searchResult != null && searchResult.CatalogPackage == null) ||
-                (searchResult != null && searchResult.CatalogPackage.InstalledVersion == null))
+            if (searchResult == null || searchResult.CatalogPackage == null || searchResult.CatalogPackage.InstalledVersion == null)
             {
                 Assert.Ignore("Test skipped as Microsoft.Paint_8wekyb3d8bbwe is not installed.");
             }
@@ -138,10 +135,8 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task RepairBurnInstallerWithModifyBehavior()
         {
-            string burnInstallerPackageId = "AppInstallerTest.TestModifyRepair";
-            var replaceInstallerArguments = this.GetReplacementArgumentsBasedTestFixtureContext($"/InstallDir {this.installDir} /Version 2.0.0.0 /DisplayName TestModifyRepair");
-
-            var searchResult = await this.FindAndInstallPackage(burnInstallerPackageId, this.installDir, replaceInstallerArguments.ToString());
+            var replaceInstallerArguments = this.GetReplacementArguments(this.installDir, "2.0.0.0", "TestModifyRepair", useHKLM: true);
+            var searchResult = await this.FindAndInstallPackage("AppInstallerTest.TestModifyRepair", this.installDir, replaceInstallerArguments.ToString());
 
             // Repair the package
             var repairOptions = this.TestFactory.CreateRepairOptions();
@@ -165,10 +160,8 @@ namespace AppInstallerCLIE2ETests.Interop
                 Assert.Ignore("Test is only applicable for InProc context.");
             }
 
-            string burnInstallerPackageId = "AppInstallerTest.TestUserScopeInstallRepairInAdminContext";
-            string replaceInstallerArguments = $"/InstallDir {this.installDir} /Version 2.0.0.0 /DisplayName TestUserScopeInstallRepairInAdminContext";
-
-            var searchResult = await this.FindAndInstallPackage(burnInstallerPackageId, this.installDir, replaceInstallerArguments);
+            string replaceInstallerArguments = this.GetReplacementArguments(this.installDir, "2.0.0.0", "TestUserScopeInstallRepairInAdminContext");
+            var searchResult = await this.FindAndInstallPackage("AppInstallerTest.TestUserScopeInstallRepairInAdminContext", this.installDir, replaceInstallerArguments);
 
             // Repair the package
             var repairOptions = this.TestFactory.CreateRepairOptions();
@@ -187,11 +180,8 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task RepairBurnInstallerWithModifyBehaviorAndNoModifyFlag()
         {
-            string burnInstallerPackageId = "AppInstallerTest.TestModifyRepairWithNoModify";
-            var replaceInstallerArguments = this.GetReplacementArgumentsBasedTestFixtureContext($"/InstallDir {this.installDir} /Version 2.0.0.0 /DisplayName TestModifyRepairWithNoModify");
-            replaceInstallerArguments.Append(" /NoModify");
-
-            var searchResult = await this.FindAndInstallPackage(burnInstallerPackageId, this.installDir, replaceInstallerArguments.ToString());
+            string replaceInstallerArguments = this.GetReplacementArguments(this.installDir, "2.0.0.0", "TestModifyRepairWithNoModify", useHKLM: true, noModify: true);
+            var searchResult = await this.FindAndInstallPackage("AppInstallerTest.TestModifyRepairWithNoModify", this.installDir, replaceInstallerArguments);
 
             // Repair the package
             var repairOptions = this.TestFactory.CreateRepairOptions();
@@ -235,10 +225,8 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task RepairExeInstallerWithUninstallerBehavior()
         {
-            string exeInstallerPackageId = "AppInstallerTest.UninstallerRepair";
-            var replaceInstallerArguments = this.GetReplacementArgumentsBasedTestFixtureContext($"/InstallDir {this.installDir} /Version 2.0.0.0 /DisplayName UninstallerRepair");
-
-            var searchResult = await this.FindAndInstallPackage(exeInstallerPackageId, this.installDir, replaceInstallerArguments.ToString());
+            string replaceInstallerArguments = this.GetReplacementArguments(this.installDir, "2.0.0.0", "UninstallerRepair", useHKLM: true);
+            var searchResult = await this.FindAndInstallPackage("AppInstallerTest.UninstallerRepair", this.installDir, replaceInstallerArguments);
 
             // Repair the package
             await this.RepairPackageAndValidateStatus(searchResult.CatalogPackage, this.TestFactory.CreateRepairOptions(), RepairResultStatus.Ok);
@@ -254,11 +242,8 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task RepairExeInstallerWithUninstallerBehaviorAndNoRepairFlag()
         {
-            string exeInstallerPackageId = "AppInstallerTest.UninstallerRepairWithNoRepair";
-            var replaceInstallerArguments = this.GetReplacementArgumentsBasedTestFixtureContext($"/InstallDir {this.installDir} /Version 2.0.0.0 /DisplayName UninstallerRepairWithNoRepair");
-            replaceInstallerArguments.Append(" /NoRepair");
-
-            var searchResult = await this.FindAndInstallPackage(exeInstallerPackageId, this.installDir, replaceInstallerArguments.ToString());
+            string replaceInstallerArguments = this.GetReplacementArguments(this.installDir, "2.0.0.0", "UninstallerRepairWithNoRepair", useHKLM: true, noRepair: true);
+            var searchResult = await this.FindAndInstallPackage("AppInstallerTest.UninstallerRepairWithNoRepair", this.installDir, replaceInstallerArguments);
 
             // Repair the package
             await this.RepairPackageAndValidateStatus(searchResult.CatalogPackage, this.TestFactory.CreateRepairOptions(), RepairResultStatus.RepairError, Constants.ErrorCode.ERROR_REPAIR_NOT_SUPPORTED);
@@ -274,10 +259,8 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task RepairNullsoftInstallerWithUninstallerBehavior()
         {
-            string nullsoftTestPackageId = "AppInstallerTest.NullsoftUninstallerRepair";
-            var replaceInstallerArguments = this.GetReplacementArgumentsBasedTestFixtureContext($"/InstallDir {this.installDir} /Version 2.0.0.0 /DisplayName NullsoftUninstallerRepair");
-
-            var searchResult = await this.FindAndInstallPackage(nullsoftTestPackageId, this.installDir, replaceInstallerArguments.ToString());
+            string replaceInstallerArguments = this.GetReplacementArguments(this.installDir, "2.0.0.0", "NullsoftUninstallerRepair", useHKLM: true);
+            var searchResult = await this.FindAndInstallPackage("AppInstallerTest.NullsoftUninstallerRepair", this.installDir, replaceInstallerArguments.ToString());
 
             // Repair the package
             await this.RepairPackageAndValidateStatus(searchResult.CatalogPackage, this.TestFactory.CreateRepairOptions(), RepairResultStatus.Ok);
@@ -293,21 +276,8 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task RepairInnoInstallerWithInstallerRepairBehavior()
         {
-            string innoTestPackageId = string.Empty;
-            string replaceInstallerArguments = string.Empty;
-
-            if (this.TestFactory.Context == ClsidContext.InProc)
-            {
-                innoTestPackageId = "AppInstallerTest.TestInstallerRepair";
-                replaceInstallerArguments = $"/InstallDir {this.installDir} /Version 2.0.0.0 /DisplayName TestInstallerRepair /UseHKLM";
-            }
-            else
-            {
-                innoTestPackageId = "AppInstallerTest.TestUserScopeInstallerRepair";
-                replaceInstallerArguments = $"/InstallDir {this.installDir} /Version 2.0.0.0 /DisplayName TestUserScopeInstallerRepair";
-            }
-
-            var searchResult = await this.FindAndInstallPackage(innoTestPackageId, this.installDir, replaceInstallerArguments);
+            string replaceInstallerArguments = this.GetReplacementArguments(this.installDir, "2.0.0.0", "TestInstallerRepair", useHKLM: true);
+            var searchResult = await this.FindAndInstallPackage("AppInstallerTest.TestInstallerRepair", this.installDir, replaceInstallerArguments);
 
             // Repair the package
             await this.RepairPackageAndValidateStatus(searchResult.CatalogPackage, this.TestFactory.CreateRepairOptions(), RepairResultStatus.Ok);
@@ -358,18 +328,29 @@ namespace AppInstallerCLIE2ETests.Interop
             }
         }
 
-        private StringBuilder GetReplacementArgumentsBasedTestFixtureContext(string replacementArguments)
+        private string GetReplacementArguments(string installDir, string version, string displayName, bool useHKLM = false, bool noModify = false, bool noRepair = false)
         {
-            var replacementArgsBuilder = new StringBuilder(replacementArguments);
+            var replacementArguments = new StringBuilder($"/InstallDir {installDir} /Version {version} /DisplayName {displayName}");
 
-            // For In-proc calls runs in Admin context in the test environment, repair functionality has restriction that user scope installed package cannot be repaired in  admin elevate context. for security concerns
-            // This is a test coverage workaround that in proc calls will install the package in machine scope where as out of proc calls will install the package in user scope.
-            if (this.TestFactory.Context == ClsidContext.InProc)
+            // Machine scope install.
+            if (useHKLM)
             {
-                replacementArgsBuilder.Append(" /UseHKLM");
+                replacementArguments.Append($" /UseHKLM");
             }
 
-            return replacementArgsBuilder;
+            // Instructs test installer to set NoModify ARP flag.
+            if (noModify)
+            {
+                replacementArguments.Append($" /NoModify");
+            }
+
+            // Instructs test installer to set NoRepair ARP flag.
+            if (noRepair)
+            {
+                replacementArguments.Append($" /NoRepair");
+            }
+
+            return replacementArguments.ToString();
         }
     }
 }

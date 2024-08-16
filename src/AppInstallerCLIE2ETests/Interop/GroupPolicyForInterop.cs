@@ -129,18 +129,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installOptions = this.TestFactory.CreateInstallOptions();
             installOptions.PackageInstallMode = PackageInstallMode.Silent;
             installOptions.AcceptPackageAgreements = true;
-
-            StringBuilder replacementArgs = new StringBuilder();
-            replacementArgs.Append($"/InstallDir {installDir} /Version 2.0.0.0 /DisplayName TestModifyRepair");
-
-            // For In-proc calls runs in Admin context in the test environment, repair functionality has restriction that user scope installed package cannot be repaired in  admin elevate context. for security concerns
-            // This is a test coverage workaround that in proc calls will install the package in machine scope where as out of proc calls will install the package in user scope.
-            if (this.TestFactory.Context == ClsidContext.InProc)
-            {
-                replacementArgs.Append(" /UseHKLM");
-            }
-
-            installOptions.ReplacementInstallerArguments = replacementArgs.ToString();
+            installOptions.ReplacementInstallerArguments = $"/InstallDir {installDir} /Version 2.0.0.0 /DisplayName TestModifyRepair /UseHKLM";
 
             // Install
             var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
