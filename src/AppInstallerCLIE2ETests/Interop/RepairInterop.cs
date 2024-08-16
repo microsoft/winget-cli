@@ -8,6 +8,7 @@ namespace AppInstallerCLIE2ETests.Interop
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using AppInstallerCLIE2ETests.Helpers;
@@ -107,7 +108,14 @@ namespace AppInstallerCLIE2ETests.Interop
         public async Task RepairNonStoreMsixPackageWithMachineScope()
         {
             // Find package again, but this time it should be detected as installed
-            var searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "Microsoft.Paint_8wekyb3d8bbwe");
+            var findPackages = this.FindAllPackages(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "Microsoft.Paint_8wekyb3d8bbwe");
+
+            if (findPackages.Count == 0)
+            {
+                Assert.Ignore("Test skipped as Microsoft.Paint_8wekyb3d8bbwe cannot be found.");
+            }
+
+            var searchResult = findPackages.First();
 
             if (searchResult == null ||
                 (searchResult != null && searchResult.CatalogPackage == null) ||
