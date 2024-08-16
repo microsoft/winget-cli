@@ -107,7 +107,7 @@ namespace AppInstallerCLIE2ETests.Interop
         public async Task RepairNonStoreMsixPackageWithMachineScope()
         {
             // Find package again, but this time it should be detected as installed
-            var searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Name, PackageFieldMatchOption.Equals, "Paint");
+            var searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "Microsoft.Paint_8wekyb3d8bbwe");
 
             if (searchResult == null ||
                 (searchResult != null && searchResult.CatalogPackage == null) ||
