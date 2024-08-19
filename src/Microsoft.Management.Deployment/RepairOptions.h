@@ -29,7 +29,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         winrt::Microsoft::Management::Deployment::PackageVersionId m_packageVersionId{ nullptr };
-        std::wstring m_downloadPath = L"";
         bool m_acceptPackageAgreements = false;
         std::wstring m_logOutputPath = L"";
         std::wstring m_correlationData = L"";

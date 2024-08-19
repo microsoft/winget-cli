@@ -48,16 +48,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         m_packageRepairMode = value;
     }
 
-    hstring RepairOptions::DownloadDirectory()
-    {
-        return hstring(m_downloadPath);
-    }
-
-    void RepairOptions::DownloadDirectory(hstring const& value)
-    {
-        m_downloadPath = value;
-    }
-
     bool RepairOptions::AcceptPackageAgreements()
     {
         return m_acceptPackageAgreements;

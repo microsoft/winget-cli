@@ -1176,9 +1176,6 @@ namespace Microsoft.Management.Deployment
         /// The package repair mode.
         PackageRepairMode PackageRepairMode;
 
-        /// Optional parameter specifying the directory where installers are downloaded when the repair behavior is of type Installer.
-        String DownloadDirectory;
-
         /// Optional parameter specifying Accept the package agreements required for download.
         Boolean AcceptPackageAgreements;
 

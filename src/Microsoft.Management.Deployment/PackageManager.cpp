@@ -581,11 +581,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 context->Args.AddArg(Execution::Args::Type::VerboseLogs);
             }
 
-            if (!options.DownloadDirectory().empty())
-            {
-                context->Args.AddArg(Execution::Args::Type::DownloadDirectory, ::AppInstaller::Utility::ConvertToUTF8(options.DownloadDirectory()));
-            }
-
             if (options.PackageRepairMode() == PackageRepairMode::Interactive)
             {
                 context->Args.AddArg(Execution::Args::Type::Interactive);
