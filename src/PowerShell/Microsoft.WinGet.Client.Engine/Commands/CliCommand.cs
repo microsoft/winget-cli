@@ -106,7 +106,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <summary>
         /// Resets all sources and adds the defaults.
         /// </summary>
-        public void ResetSources()
+        public void ResetAllSources()
         {
             Utilities.VerifyAdmin();
             _ = this.Run("source", $"reset --force");

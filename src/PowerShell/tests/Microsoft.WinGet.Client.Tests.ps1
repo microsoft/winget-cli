@@ -143,7 +143,7 @@ Describe 'Reset-WinGetSource' {
 
     # Requires admin
     It 'Resets all sources' {
-        Reset-WinGetSource
+        Reset-WinGetSource -All
     }
 
     It 'Test source should be removed' {

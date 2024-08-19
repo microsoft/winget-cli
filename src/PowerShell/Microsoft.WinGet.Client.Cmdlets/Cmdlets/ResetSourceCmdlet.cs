@@ -13,17 +13,24 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
     /// <summary>
     /// Resets a source. Requires admin.
     /// </summary>
-    [Cmdlet(VerbsCommon.Reset, Constants.WinGetNouns.Source)]
+    [Cmdlet(VerbsCommon.Reset, Constants.WinGetNouns.Source, DefaultParameterSetName = Constants.DefaultSet)]
     public sealed class ResetSourceCmdlet : PSCmdlet
     {
         /// <summary>
         /// Gets or sets the name of the source to reset.
         /// </summary>
         [Parameter(
-            Mandatory = false,
+            Mandatory = true,
+            ParameterSetName = Constants.DefaultSet,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
         public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to reset all sources.
+        /// </summary>
+        [Parameter(ParameterSetName = Constants.OptionalSet, ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter All { get; set; }
 
         /// <summary>
         /// Resets source.
@@ -36,9 +43,9 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
             {
                 command.ResetSourceByName(this.Name);
             }
-            else
+            else if (this.All)
             {
-                command.ResetSources();
+                command.ResetAllSources();
             }
         }
     }
