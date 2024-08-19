@@ -543,6 +543,16 @@ jobs:
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
+  - task: PowerShell@2
+    displayName: Generate Microsoft.WinGet.Client Help Documentation
+    inputs:
+      pwsh: true
+      targetType: inline
+      script: |
+        Install-Module -Name platyPS -Force
+        Import-Module platyPS
+        New-ExternalHelp -Path '$(Build.SourcesDirectory)\src\PowerShell\Help\Microsoft.WinGet.Client' -OutputPath '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.Client'
+
   - task: CopyFiles@2
     displayName: 'Copy Microsoft.WinGet.DSC module to staging directory'
     inputs:

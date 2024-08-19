@@ -30,7 +30,6 @@ This command support the following administrative settings:
 - InstallerHashOverride
 - LocalArchiveMalwareScanOverride
 - ProxyCommandLineOptions
-- DefaultProxy
 
 Administrative settings are disabled by default. Administrative settings can also be managed using
 Group Policy objects.
