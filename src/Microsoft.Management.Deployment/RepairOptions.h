@@ -13,8 +13,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         winrt::Microsoft::Management::Deployment::PackageVersionId PackageVersionId();
         void PackageVersionId(winrt::Microsoft::Management::Deployment::PackageVersionId const& value);
-        hstring DownloadDirectory();
-        void DownloadDirectory(hstring const& value);
         winrt::Microsoft::Management::Deployment::PackageRepairScope PackageRepairScope();
         void PackageRepairScope(winrt::Microsoft::Management::Deployment::PackageRepairScope const& value);
         winrt::Microsoft::Management::Deployment::PackageRepairMode PackageRepairMode();
