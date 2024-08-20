@@ -39,6 +39,7 @@ ASequence
 ashpatil
 Ashwini
 ASwitch
+Asn
 ASYNCRTIMP
 Atest
 ATL
@@ -85,7 +86,6 @@ CLASSNOTREG
 CLOSEAPP
 cloudapp
 clsctx
-clsid
 CMSG
 cobertura
 CODEOWNERS
@@ -139,7 +139,6 @@ ecfr
 ecfrbrowse
 EFGH
 efileresource
-endregion
 ENDSESSION
 EQU
 ERANGE
@@ -148,7 +147,6 @@ errmsg
 ERRORONEXIT
 errstr
 ESRB
-ests
 etest
 etl
 execustom
@@ -256,7 +254,6 @@ ldcase
 learnxinyminutes
 lhs
 LIBYAML
-Linq
 liv
 liwpx
 localizationpriority
@@ -328,12 +325,11 @@ myinstalldir
 mylog
 mysilent
 mysilentwithprogress
-nameof
+mysource
 Nami
 nativehandle
 NBLGGH
 NESTEDINSTALLER
-netfx
 netlify
 NETSDK
 Newtonsoft
@@ -355,7 +351,6 @@ NOSEARCH
 NOSEPARATOR
 notalostreference
 NOTAPROPERTY
-notmatch
 NOTIMPL
 NOTRACK
 NOUPDATE
@@ -370,7 +365,6 @@ ofile
 oid
 omus
 onefuzz
-ools
 oop
 opensource
 OPTOUT
@@ -384,7 +378,6 @@ packageinuse
 packageinusebyapplication
 PACL
 PARAMETERMAP
-paramref
 pathparts
 Patil
 pcb
@@ -459,7 +452,6 @@ Roblox
 ronomon
 Roronoa
 rosoft
-rowids
 rowid
 roy
 RRF
@@ -532,8 +524,6 @@ TARG
 taskhostw
 tcs
 TEMPDIRECTORY
-Templating
-templating
 temppath
 testexampleinstaller
 thiscouldbeapc
@@ -544,7 +534,6 @@ tombstoned
 transitioning
 trimstart
 ttl
-typeparam
 typedef
 UCase
 ucasemap
@@ -559,7 +548,6 @@ uninstallation
 uninstaller
 uninstallprevious
 uninstalls
-Unk
 unknwn
 Unknwnbase
 UNMARSHALING
@@ -586,7 +574,6 @@ wcex
 WDAG
 webpages
 Webserver
-websites
 website
 wesome
 wfsopen
