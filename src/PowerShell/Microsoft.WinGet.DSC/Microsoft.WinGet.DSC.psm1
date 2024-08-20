@@ -366,7 +366,7 @@ class WinGetPackageManager
             } elseif ($this.UseLatestPreRelease)
             {
                 $hashArgs.Add("Latest", $true)
-                $hashArgs.Add("IncludePreRelease", $true)
+                $hashArgs.Add("IncludePrerelease", $true)
             } elseif (-not [string]::IsNullOrWhiteSpace($this.Version))
             {
                 $hashArgs.Add("Version", $this.Version)
@@ -398,7 +398,7 @@ class WinGetPackageManager
             } elseif ($this.UseLatestPreRelease)
             {
                 $hashArgs.Add("Latest", $true)
-                $hashArgs.Add("IncludePreRelease", $true)
+                $hashArgs.Add("IncludePrerelease", $true)
             } elseif (-not [string]::IsNullOrWhiteSpace($this.Version))
             {
                 $hashArgs.Add("Version", $this.Version)

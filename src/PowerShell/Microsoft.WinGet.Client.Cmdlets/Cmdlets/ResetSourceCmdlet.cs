@@ -20,6 +20,7 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
         /// Gets or sets the name of the source to reset.
         /// </summary>
         [Parameter(
+            Position = 0,
             Mandatory = true,
             ParameterSetName = Constants.DefaultSet,
             ValueFromPipeline = true,

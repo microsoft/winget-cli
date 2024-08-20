@@ -44,7 +44,7 @@ namespace Microsoft.WinGet.Client.Commands
             this.command = new WinGetPackageManagerCommand(this);
             if (this.ParameterSetName == Constants.IntegrityLatestSet)
             {
-                this.command.RepairUsingLatest(this.IncludePreRelease.ToBool(), this.AllUsers.ToBool(), this.Force.ToBool());
+                this.command.RepairUsingLatest(this.IncludePrerelease.ToBool(), this.AllUsers.ToBool(), this.Force.ToBool());
             }
             else
             {
