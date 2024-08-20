@@ -17,13 +17,13 @@ Resets WinGet sources.
 ### DefaultSet (Default)
 
 ```
-Reset-WinGetSource [-Name <String>] [<CommonParameters>]
+Reset-WinGetSource -Name <String> [<CommonParameters>]
 ```
 
 ### OptionalSet
 
 ```
-Reset-WinGetSource [-All] [<CommonParameters>]
+Reset-WinGetSource -All [<CommonParameters>]
 ```
 
 ## DESCRIPTION
