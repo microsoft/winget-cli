@@ -8,25 +8,25 @@
     {
       "Type": "exe",
       "Name": "AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe",
-      "Input": "%BUILDOUTDIR%/E2ETests/TestData/AppInstallerTestExeInstaller.exe",
+      "Input": "%BUILDOUTDIR%/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe",
       "HashToken": "<EXEHASH>"
     },
     {
       "Type": "msi",
       "Name": "AppInstallerTestMsiInstaller/AppInstallerTestMsiInstaller.msi",
-      "Input": "%BUILDOUTDIR%/E2ETests/TestData/AppInstallerTestMsiInstaller.msi",
+      "Input": "%BUILD_SOURCESDIRECTORY%/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsiInstaller.msi",
       "HashToken": "<MSIHASH>"
     },
     {
       "Type": "msi",
       "Name": "AppInstallerTestMsiInstaller/AppInstallerTestMsiInstallerV2.msi",
-      "Input": "%BUILDOUTDIR%/E2ETests/TestData/AppInstallerTestMsiInstallerV2.msi",
+      "Input": "%BUILD_SOURCESDIRECTORY%/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsiInstallerV2.msi",
       "HashToken": "<MSIHASHV2>"
     },
     {
       "Type": "msix",
       "Name": "AppInstallerTestMsixInstaller/AppInstallerTestMsixInstaller.msix",
-      "Input": "%BUILDOUTDIR%/E2ETests/TestData/AppInstallerTestMsixInstaller.msix",
+      "Input": "%BUILD_ARTIFACTSTAGINGDIRECTORY%/AppInstallerTestMsixInstaller.msix",
       "HashToken": "<MSIXHASH>",
       "SignatureToken": "<SIGNATUREHASH>"
     }

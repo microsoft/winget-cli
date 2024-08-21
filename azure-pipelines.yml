@@ -140,7 +140,7 @@ jobs:
       platform: '$(buildPlatform)'
       solution: 'src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
       configuration: '$(buildConfiguration)'
-      msbuildArguments: '/p:AppxPackageOutput="$(artifactsDir)\E2ETests\TestData\AppInstallerTestMsixInstaller.msix"
+      msbuildArguments: '/p:AppxPackageOutput="$(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix"
                          /p:AppxBundle=Never
                          /p:UapAppxPackageBuildMode=SideLoadOnly
                          /p:AppxPackageSigningEnabled=false'
@@ -255,17 +255,28 @@ jobs:
       SourceFolder: '$(buildOutDir)\LocalhostWebServer'
       TargetFolder: '$(artifactsDir)\E2ETests\LocalhostWebServer'
 
+    # Invoke E2E setup to generate the TestLocalIndex; could optimize out some of its steps if needed
+  - template: templates/e2e-setup.yml
+    parameters:
+      sourceDir: $(Build.SourcesDirectory)
+      localhostWebServerArgs: '-BuildRoot $(artifactsDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -TestDataPath $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData -ExitBeforeRun'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Test signing cert'
+    inputs:
+      Contents: $(Agent.TempDirectory)\TestSigningCert.cer
+      TargetFolder: '$(artifactsDir)\E2ETests'
+
+  - task: CopyFiles@2
+    displayName: 'Copy TestLocalIndex'
+    inputs:
+      SourceFolder: '$(Agent.TempDirectory)\TestLocalIndex'
+      TargetFolder: '$(artifactsDir)\E2ETests\TestLocalIndex'
+
   - task: CopyFiles@2
     displayName: 'Copy TestData'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\'
-      TargetFolder: '$(artifactsDir)\E2ETests\TestData'
-
-  - task: CopyFiles@2
-    displayName: 'Copy AppInstallerTestExeInstaller.exe'
-    inputs:
-      Contents: AppInstallerTestExeInstaller.exe
-      SourceFolder: '$(buildOutDir)\AppInstallerTestExeInstaller'
       TargetFolder: '$(artifactsDir)\E2ETests\TestData'
 
   - task: CopyFiles@2
@@ -404,7 +415,7 @@ jobs:
   - template: templates/e2e-setup.yml
     parameters:
       sourceDir: $(Build.SourcesDirectory)
-      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(buildOutDir)\E2ETests\TestData\localsource.json -TestDataPath $(buildOutDir)\E2ETests\TestData'
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -SourceCert $(buildOutDir)\E2ETests\TestSigningCert.cer'
 
   - template: templates/e2e-test.template.yml
     parameters:
@@ -550,7 +561,7 @@ jobs:
   - template: templates/e2e-setup.yml
     parameters:
       sourceDir: $(Build.SourcesDirectory)
-      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(buildOutDir)\E2ETests\TestData\localsource.json -TestDataPath $(buildOutDir)\E2ETests\TestData'
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -SourceCert $(buildOutDir)\E2ETests\TestSigningCert.cer'
 
   - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(buildOutDir)\DevPackage
     workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
