@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="CliCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -94,13 +94,22 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         }
 
         /// <summary>
-        /// Resets source.
+        /// Resets a source.
         /// </summary>
         /// <param name="name">Name of source.</param>
-        public void ResetSource(string name)
+        public void ResetSourceByName(string name)
         {
             Utilities.VerifyAdmin();
             _ = this.Run("source", $"reset --name {name} --force");
+        }
+
+        /// <summary>
+        /// Resets all sources and adds the defaults.
+        /// </summary>
+        public void ResetAllSources()
+        {
+            Utilities.VerifyAdmin();
+            _ = this.Run("source", $"reset --force");
         }
 
         private WinGetCLICommandResult Run(string command, string parameters, int timeOut = 60000)

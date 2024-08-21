@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="Constants.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -31,6 +31,16 @@ namespace Microsoft.WinGet.Client.Common
         /// needs to be found by searching a package source.
         /// </summary>
         public const string FoundSet = "FoundSet";
+
+        /// <summary>
+        /// This parameter set indicates the default parameters associated with a cmdlet.
+        /// </summary>
+        public const string DefaultSet = "DefaultSet";
+
+        /// <summary>
+        ///  This parameter set indicates the optional parameters associated with a cmdlet.
+        /// </summary>
+        public const string OptionalSet = "OptionalSet";
 
         /// <summary>
         /// Parameter set for an specific version parameter.
