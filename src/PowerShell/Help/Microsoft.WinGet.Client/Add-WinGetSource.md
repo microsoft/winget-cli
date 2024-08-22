@@ -95,7 +95,7 @@ Specify the trust level of the WinGet source. The parameter accepts the followin
 Type: Microsoft.WinGet.Client.PSObjects.PSSourceTrustLevel
 Parameter Sets: (All)
 Aliases:
-Accepted values: ENone, Trusted
+Accepted values: None, Trusted
 
 Required: False
 Position: Named
