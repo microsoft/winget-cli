@@ -2,9 +2,7 @@ AAD
 abcd
 abi
 ABORTIFHUNG
-accepteula
 ACCESSDENIED
-ACCESSTOKEN
 acl
 adjacents
 adml
@@ -12,7 +10,6 @@ admx
 AFAIK
 aicli
 AICLIC
-AKV
 allusers
 alreadyinstalled
 AMap
@@ -39,14 +36,13 @@ ASequence
 ashpatil
 Ashwini
 ASwitch
-Asn
 ASYNCRTIMP
 Atest
 ATL
 AType
 AUrl
+autobuild
 auxdata
-azcopy
 azurewebsites
 Baz
 bcp
@@ -87,9 +83,9 @@ CLOSEAPP
 cloudapp
 clsctx
 CMSG
-cobertura
 CODEOWNERS
 codepage
+codeql
 COINIT
 COMGLB
 commandline
@@ -110,6 +106,7 @@ CPIL
 createmanifestmetadata
 cswinrt
 ctc
+ctest
 CTL
 currentuser
 dacl
@@ -213,6 +210,7 @@ ICONDIRENTRY
 ICONIMAGE
 icu
 idl
+idstepsrun
 idx
 IFACEMETHODIMP
 iid
@@ -239,6 +237,7 @@ JDictionary
 jdk
 jfearn
 JObject
+jobsjob
 jpalardy
 JREs
 jrsoftware
@@ -248,6 +247,7 @@ JValue
 Kaido
 KNOWNFOLDERID
 kool
+kotlin
 ktf
 LCID
 ldcase
@@ -386,7 +386,6 @@ PCs
 pcwsz
 pdb
 PDWORD
-Peet
 peetdev
 PEGI
 pfn
@@ -463,8 +462,6 @@ runtimes
 ryfu
 sacl
 SARL
-sas
-SASURL
 savepoint
 schematab
 Scm
@@ -485,7 +482,6 @@ shellapi
 SHGDN
 SHOWNORMAL
 sid
-Sideload
 SIGNATUREHASH
 silentpreferred
 similarissues
