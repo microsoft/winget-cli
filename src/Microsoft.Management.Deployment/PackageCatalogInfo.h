@@ -22,6 +22,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Windows::Foundation::DateTime LastUpdateTime();
         winrt::Microsoft::Management::Deployment::PackageCatalogOrigin Origin();
         winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel TrustLevel();
+        bool Explicit();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

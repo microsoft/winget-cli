@@ -15,7 +15,7 @@ Adds a new source.
 ## SYNTAX
 
 ```
-Add-WinGetSource -Name <String> -Argument <String> [-Type <String>] [<CommonParameters>]
+Add-WinGetSource -Name <String> -Argument <String> [-Type <String>] [-TrustLevel {Default | None | Trusted}] [-Explicit] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -65,6 +65,42 @@ Required: True
 Position: Named
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -Explicit
+
+Excludes a source from discovery unless specified.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -TrustLevel
+
+Specify the trust level of the WinGet source. The parameter accepts the following values:
+
+- `None`
+- `Trusted`
+
+```yaml
+Type: Microsoft.WinGet.Client.PSObjects.PSSourceTrustLevel
+Parameter Sets: (All)
+Aliases:
+Accepted values: ENone, Trusted
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 

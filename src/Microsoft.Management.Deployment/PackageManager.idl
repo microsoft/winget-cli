@@ -262,6 +262,12 @@ namespace Microsoft.Management.Deployment
         PackageCatalogOrigin Origin { get; };
         /// The trust level of the package catalog
         PackageCatalogTrustLevel TrustLevel { get; };
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
+        {
+            /// Excludes a source from discovery unless specified.
+            Boolean Explicit{ get; };
+        }
     }
 
     /// A metadata item of a package version.

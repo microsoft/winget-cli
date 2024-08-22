@@ -70,17 +70,33 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="name">Name of source.</param>
         /// <param name="arg">Arg of source.</param>
         /// <param name="type">Type of source.</param>
-        public void AddSource(string name, string arg, string type)
+        /// <param name="trustLevel">Trust level of source.</param>
+        /// <param name="isExplicit">Make source explicit.</param>
+        public void AddSource(string name, string arg, string type, string trustLevel, bool isExplicit)
         {
             Utilities.VerifyAdmin();
+            string parameters = string.Empty;
+
             if (string.IsNullOrEmpty(type))
             {
-                _ = this.Run("source", $"add --name {name} --arg {arg}", 300000);
+                parameters = $"add --name {name} --arg {arg}";
             }
             else
             {
-                _ = this.Run("source", $"add --name {name} --arg {arg} --type {type}", 300000);
+                parameters = $"add --name {name} --arg {arg} --type {type}";
             }
+
+            if (!string.IsNullOrEmpty(trustLevel))
+            {
+                parameters += $" --trust-level {trustLevel}";
+            }
+
+            if (isExplicit)
+            {
+                parameters += " --explicit";
+            }
+
+            _ = this.Run("source", parameters, 300000);
         }
 
         /// <summary>
