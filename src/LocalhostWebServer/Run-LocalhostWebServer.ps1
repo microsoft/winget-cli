@@ -60,10 +60,10 @@ $startProcessArguments = @{
     PassThru = $true
 }
 
-if (-not [System.string]::IsNullOrEmpty($env:BUILD_ARTIFACTSTAGINGDIRECTORY))
+if (-not [System.string]::IsNullOrEmpty($env:artifactsDir))
 {
-    $startProcessArguments.RedirectStandardOutput = Join-Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY "LocalhostWebServer.out"
-    $startProcessArguments.RedirectStandardError = Join-Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY "LocalhostWebServer.err"
+    $startProcessArguments.RedirectStandardOutput = Join-Path $env:artifactsDir "LocalhostWebServer.out"
+    $startProcessArguments.RedirectStandardError = Join-Path $env:artifactsDir "LocalhostWebServer.err"
 }
 
 $Local:process = Start-Process @startProcessArguments

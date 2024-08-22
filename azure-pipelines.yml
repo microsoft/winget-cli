@@ -264,7 +264,8 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy Test signing cert'
     inputs:
-      Contents: $(Agent.TempDirectory)\TestSigningCert.cer
+      Contents: |
+        $(Agent.TempDirectory)\TestSigningCert.cer
       TargetFolder: '$(artifactsDir)\E2ETests'
 
   - task: CopyFiles@2
