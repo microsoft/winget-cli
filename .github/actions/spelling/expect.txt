@@ -30,7 +30,6 @@ appname
 appshutdown
 APPTERMINATION
 archs
-argumentlist
 ARMNT
 arp
 arphelper
@@ -390,7 +389,6 @@ Peet
 peetdev
 PEGI
 pfn
-pfxpath
 pgp
 Pherson
 pid
@@ -469,7 +467,6 @@ savepoint
 schematab
 Scm
 sddl
-SECUREFILEPATH
 secureobject
 securestring
 seof

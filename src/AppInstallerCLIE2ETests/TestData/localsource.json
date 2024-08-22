@@ -44,6 +44,7 @@
     }
   ],
   "Signature": {
-    "CertFile": "%APPINSTALLERTEST_SECUREFILEPATH%"
+    "CertFile": "%TestSigningCert_PfxPath%",
+    "Password": "%TestSigningCert_Password%"
   }
 }
