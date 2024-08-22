@@ -260,13 +260,7 @@ jobs:
     parameters:
       sourceDir: $(Build.SourcesDirectory)
       localhostWebServerArgs: '-BuildRoot $(artifactsDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -TestDataPath $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData -ExitBeforeRun'
-
-  - task: CopyFiles@2
-    displayName: 'Copy Test signing cert'
-    inputs:
-      Contents: |
-        $(Agent.TempDirectory)\TestSigningCert.cer
-      TargetFolder: '$(artifactsDir)\E2ETests'
+      signingCertOutDir: $(artifactsDir)\E2ETests
 
   - task: CopyFiles@2
     displayName: 'Copy TestLocalIndex'

@@ -4,6 +4,9 @@ parameters:
   type: string
 - name: localhostWebServerArgs
   type: string
+- name: signingCertOutDir
+  type: string
+  default: $(Agent.TempDirectory)
 
 steps:
   - pwsh: |
@@ -17,7 +20,7 @@ steps:
       $cert = New-SelfSignedCertificate @newCertArguments
 
       $certPfxPath = Join-Path $(Agent.TempDirectory) TestSigningCert.pfx
-      $certCerPath = Join-Path $(Agent.TempDirectory) TestSigningCert.cer
+      $certCerPath = Join-Path ${{ parameters.signingCertOutDir }} TestSigningCert.cer
       $certPassword = (New-Guid).ToString()
       $certSecurePassword = ConvertTo-SecureString $certPassword -AsPlainText
 
