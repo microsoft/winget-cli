@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PackageManagerWrapper.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -85,6 +85,19 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         {
             return this.Execute(
                 () => this.packageManager.DownloadPackageAsync(package, options),
+                false);
+        }
+
+        /// <summary>
+        /// Wrapper for RepairPackagesAsync.
+        /// </summary>
+        /// <param name="package">The package to repair.</param>
+        /// <param name="options">The repair options.</param>
+        /// <returns>An async operation with progress.</returns>
+        public IAsyncOperationWithProgress<RepairResult, RepairProgress> RepairPackageAsync(CatalogPackage package, RepairOptions options)
+        {
+            return this.Execute(
+                () => this.packageManager.RepairPackageAsync(package, options),
                 false);
         }
 

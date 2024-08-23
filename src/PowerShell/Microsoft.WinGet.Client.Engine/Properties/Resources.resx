@@ -237,4 +237,11 @@
     <value>Exporting '{0}'</value>
     <comment>{Locked="{0}"} {0} - The name of the package being exported.</comment>
   </data>
+  <data name="ProgressRecordActivityRepairing" xml:space="preserve">
+    <value>Repairing '{0}'</value>
+    <comment>{Locked="{0}"} {0} - The name of the package being repaired.</comment>
+  </data>
+  <data name="Repairing" xml:space="preserve">
+    <value>Repairing</value>
+  </data>
 </root>

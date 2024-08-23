@@ -241,6 +241,15 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Repairing &apos;{0}&apos;.
+        /// </summary>
+        internal static string ProgressRecordActivityRepairing {
+            get {
+                return ResourceManager.GetString("ProgressRecordActivityRepairing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Uninstalling &apos;{0}&apos;.
         /// </summary>
         internal static string ProgressRecordActivityUninstalling {
@@ -300,6 +309,15 @@ namespace Microsoft.WinGet.Resources {
         internal static string RepairFailureMessage {
             get {
                 return ResourceManager.GetString("RepairFailureMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Repairing.
+        /// </summary>
+        internal static string Repairing {
+            get {
+                return ResourceManager.GetString("Repairing", resourceCulture);
             }
         }
         

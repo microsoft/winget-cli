@@ -94,6 +94,7 @@ CmdletsToExport = @(
     'Remove-WinGetSource'
     'Reset-WinGetSource'
     'Export-WinGetPackage'
+    'Repair-WinGetPackage'
 )
 
 # Variables to export from this module
