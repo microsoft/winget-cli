@@ -24,7 +24,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// Initializes a new instance of the <see cref="RepairPackageCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">Caller cmdlet.</param>
-        /// <param name="pSCatalogPackage">PSCatalogPackage.</param>
+        /// <param name="psCatalogPackage">PSCatalogPackage.</param>
         /// <param name="version">Version to repair.</param>
         /// <param name="log">Logging file location.</param>
         /// <param name="id">Package identifier.</param>
@@ -34,7 +34,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="query">Match against any field of a package.</param>
         public RepairPackageCommand(
             PSCmdlet psCmdlet,
-            PSCatalogPackage pSCatalogPackage,
+            PSCatalogPackage psCatalogPackage,
             string version,
             string log,
             string id,
@@ -44,9 +44,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string[] query)
             : base(psCmdlet)
         {
-            if (pSCatalogPackage != null)
+            if (psCatalogPackage != null)
             {
-                this.CatalogPackage = pSCatalogPackage;
+                this.CatalogPackage = psCatalogPackage;
             }
 
             this.Version = version;
