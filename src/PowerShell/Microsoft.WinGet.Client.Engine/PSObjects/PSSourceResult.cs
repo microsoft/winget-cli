@@ -41,7 +41,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         public string Type { get; private set; }
 
         /// <summary>
-        /// Gets the 
+        /// Gets the trust level of the source.
         /// </summary>
         public string TrustLevel { get; private set; }
 
