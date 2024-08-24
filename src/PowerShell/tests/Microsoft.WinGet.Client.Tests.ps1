@@ -353,23 +353,23 @@ Describe 'Install|Repair|Uninstall-WinGetPackage' {
             Source = "TestSource"
             Status = 'Ok'
             RebootRequired = 'False'
+            InstallerErrorCode = 0
+            RepairErrorCode = 0
+            UninstallerErrorCode = 0
         }
 
         It 'Install MSIX By Id' {
             $result = Install-WinGetPackage -Id AppInstallerTest.TestMsixInstaller
-            $expectedResult.InstallerErrorCode = 0;
             Validate-WinGetPackageOperationResult $result $expectedResult 'install'
         }
 
         It 'Repair MSIX By Id' {
             $result = Repair-WinGetPackage -Id AppInstallerTest.TestMsixInstaller
-            $expectedResult.RepairErrorCode = 0
             Validate-WinGetPackageOperationResult $result $expectedResult 'repair'
         }
 
         It 'Uninstall MSIX By Id' {
             $result = Uninstall-WinGetPackage -Id AppInstallerTest.TestMsixInstaller
-            $expectedResult.UninstallerErrorCode = 0
             Validate-WinGetPackageOperationResult $result $expectedResult 'uninstall'
         }
     }
@@ -381,23 +381,23 @@ Describe 'Install|Repair|Uninstall-WinGetPackage' {
             Source = "TestSource"
             Status = 'Ok'
             RebootRequired = 'False'
+            InstallerErrorCode = 0
+            RepairErrorCode = 0
+            UninstallerErrorCode = 0
         }
 
         It 'Install Burn Installer By Id' {
             $result = Install-WinGetPackage -Id AppInstallerTest.TestModifyRepair
-            $expectedResult.InstallerErrorCode = 0
             Validate-WinGetPackageOperationResult $result $expectedResult 'install'
         }
 
         It 'Repair Burn Installer By Id' {
             $result = Repair-WinGetPackage -Id AppInstallerTest.TestModifyRepair
-            $expectedResult.RepairErrorCode = 0
             Validate-WinGetPackageOperationResult $result $expectedResult 'repair'
         }
 
         It 'Uninstall Burn Installer By Id' {
             $result = Uninstall-WinGetPackage -Id AppInstallerTest.TestModifyRepair
-            $expectedResult.UninstallerErrorCode = 0
             Validate-WinGetPackageOperationResult $result $expectedResult 'uninstall'
         }
     }
@@ -409,23 +409,23 @@ Describe 'Install|Repair|Uninstall-WinGetPackage' {
             Source = "TestSource"
             Status = 'Ok'
             RebootRequired = 'False'
+            InstallerErrorCode = 0
+            RepairErrorCode = 0
+            UninstallerErrorCode = 0
         }
 
         It 'Install Exe Installer By Id' {
             $result = Install-WinGetPackage -Id AppInstallerTest.UninstallerRepair
-            $expectedResult.InstallerErrorCode = 0
             Validate-WinGetPackageOperationResult $result $expectedResult 'install'
         }
 
         It 'Uninstaller Repair Exe Installer By Id' {
             $result = Repair-WinGetPackage -Id AppInstallerTest.UninstallerRepair
-            $expectedResult.RepairErrorCode = 0
             Validate-WinGetPackageOperationResult $result $expectedResult 'repair'
         }
 
         It "Uninstall Exe Installer By Id" {
             $result = Uninstall-WinGetPackage -Id AppInstallerTest.UninstallerRepair
-            $expectedResult.UninstallerErrorCode = 0
             Validate-WinGetPackageOperationResult $result $expectedResult 'uninstall'
         }
     }
