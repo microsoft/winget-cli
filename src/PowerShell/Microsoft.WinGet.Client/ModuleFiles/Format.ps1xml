@@ -385,37 +385,37 @@
             <Label>CorrelationData</Label>
           </TableColumnHeader>
         </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.Id</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Source</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.RepairErrorCode</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Status</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.RebootRequired</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.ExtendedErrorCode</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.CorrelationData</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
       </TableControl>
-      <TableRowEntries>
-        <TableRowEntry>
-          <TableColumnItems>
-            <TableColumnItem>
-              <ScriptBlock>$_.Id</ScriptBlock>
-            </TableColumnItem>
-            <TableColumnItem>
-              <ScriptBlock>$_.Name</ScriptBlock>
-            </TableColumnItem>
-            <TableColumnItem>
-              <ScriptBlock>$_.Source</ScriptBlock>
-            </TableColumnItem>
-            <TableColumnItem>
-              <ScriptBlock>$_.RepairErrorCode</ScriptBlock>
-            </TableColumnItem>
-            <TableColumnItem>
-              <ScriptBlock>$_.Status</ScriptBlock>
-            </TableColumnItem>
-            <TableColumnItem>
-              <ScriptBlock>$_.RebootRequired</ScriptBlock>
-            </TableColumnItem>
-            <TableColumnItem>
-              <ScriptBlock>$_.ExtendedErrorCode</ScriptBlock>
-            </TableColumnItem>
-            <TableColumnItem>
-              <ScriptBlock>$_.CorrelationData</ScriptBlock>
-            </TableColumnItem>
-          </TableColumnItems>
-        </TableRowEntry>
-      </TableRowEntries>
     </View>
   </ViewDefinitions>
 </Configuration>
