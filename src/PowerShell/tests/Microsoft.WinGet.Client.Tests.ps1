@@ -347,15 +347,17 @@ Describe 'Install|Repair|Uninstall-WinGetPackage' {
     }
 
     Context 'MSIX Repair Scenario' {
-        $expectedResult = [PSCustomObject]@{
-            Id = "AppInstallerTest.TestMsixInstaller"
-            Name = "TestMsixInstaller"
-            Source = "TestSource"
-            Status = 'Ok'
-            RebootRequired = 'False'
-            InstallerErrorCode = 0
-            RepairErrorCode = 0
-            UninstallerErrorCode = 0
+        BeforeEach {
+            $expectedResult = [PSCustomObject]@{
+                Id = "AppInstallerTest.TestMsixInstaller"
+                Name = "TestMsixInstaller"
+                Source = "TestSource"
+                Status = 'Ok'
+                RebootRequired = 'False'
+                InstallerErrorCode = 0
+                RepairErrorCode = 0
+                UninstallerErrorCode = 0
+            }
         }
 
         It 'Install MSIX By Id' {
@@ -375,15 +377,17 @@ Describe 'Install|Repair|Uninstall-WinGetPackage' {
     }
 
     Context 'Burn installer "Modify" Repair Scenario' {
-        $expectedResult = [PSCustomObject]@{
-            Id = "AppInstallerTest.TestModifyRepair"
-            Name = "TestModifyRepair"
-            Source = "TestSource"
-            Status = 'Ok'
-            RebootRequired = 'False'
-            InstallerErrorCode = 0
-            RepairErrorCode = 0
-            UninstallerErrorCode = 0
+        BeforeEach {
+            $expectedResult = [PSCustomObject]@{
+                Id = "AppInstallerTest.TestModifyRepair"
+                Name = "TestModifyRepair"
+                Source = "TestSource"
+                Status = 'Ok'
+                RebootRequired = 'False'
+                InstallerErrorCode = 0
+                RepairErrorCode = 0
+                UninstallerErrorCode = 0
+            }
         }
 
         It 'Install Burn Installer By Id' {
@@ -403,15 +407,17 @@ Describe 'Install|Repair|Uninstall-WinGetPackage' {
     }
 
     Context 'Exe Installer "Uninstaller" Repair Scenario' {
-        $expectedResult = [PSCustomObject]@{
-            Id = "AppInstallerTest.UninstallerRepair"
-            Name = "UninstallerRepair"
-            Source = "TestSource"
-            Status = 'Ok'
-            RebootRequired = 'False'
-            InstallerErrorCode = 0
-            RepairErrorCode = 0
-            UninstallerErrorCode = 0
+        BeforeEach {
+            $expectedResult = [PSCustomObject]@{
+                Id = "AppInstallerTest.UninstallerRepair"
+                Name = "UninstallerRepair"
+                Source = "TestSource"
+                Status = 'Ok'
+                RebootRequired = 'False'
+                InstallerErrorCode = 0
+                RepairErrorCode = 0
+                UninstallerErrorCode = 0
+            }
         }
 
         It 'Install Exe Installer By Id' {
