@@ -252,76 +252,56 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
         AddTestSource
     }
 
+    BeforeEach {
+        $expectedExeInstallerResult = [PSCustomObject]@{
+            Id = "AppInstallerTest.TestExeInstaller"
+            Name = "TestExeInstaller"
+            Source = "TestSource"
+            Status = 'Ok'
+            RebootRequired = 'False'
+            InstallerErrorCode = 0
+            UninstallerErrorCode = 0
+        }
+
+        $expectedPortableInstallerResult = [PSCustomObject]@{
+            Id = "AppInstallerTest.TestPortableExe"
+            Name = "TestPortableExe"
+            Source = "TestSource"
+            Status = 'Ok'
+            RebootRequired = 'False'
+            InstallerErrorCode = 0
+            UninstallerErrorCode = 0
+        }
+    }
+
     It 'Install by Id' {
         $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
-
-        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
-        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
-        $result.Name | Should -Be "TestExeInstaller"
-        $result.Source | Should -Be "TestSource"
-        $result.InstallerErrorCode | Should -Be 0
-        $result.Status | Should -Be 'Ok'
-        $result.RebootRequired | Should -Be 'False'
+        Validate-WinGetPackageOperationResult $result $expectedExeInstallerResult 'install'
     }
-
+    
     It 'Install by exact Name and Version' {
         $result = Install-WinGetPackage -Name TestPortableExe -Version '2.0.0.0' -MatchOption Equals
-
-        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
-        $result.Id | Should -Be "AppInstallerTest.TestPortableExe"
-        $result.Name | Should -Be "TestPortableExe"
-        $result.Source | Should -Be "TestSource"
-        $result.InstallerErrorCode | Should -Be 0
-        $result.Status | Should -Be 'Ok'
-        $result.RebootRequired | Should -Be 'False'
+        Validate-WinGetPackageOperationResult $result $expectedPortableInstallerResult 'install'
     }
-
+    
     It 'Update by Id' {
         $result = Update-WinGetPackage -Id AppInstallerTest.TestExeInstaller
-
-        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
-        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
-        $result.Name | Should -Be "TestExeInstaller"
-        $result.Source | Should -Be "TestSource"
-        $result.InstallerErrorCode | Should -Be 0
-        $result.Status | Should -Be 'Ok'
-        $result.RebootRequired | Should -Be 'False'
+        Validate-WinGetPackageOperationResult $result $expectedExeInstallerResult 'update'
     }
-
+    
     It 'Update by Name' {
         $result = Update-WinGetPackage -Name TestPortableExe
-
-        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
-        $result.Id | Should -Be "AppInstallerTest.TestPortableExe"
-        $result.Name | Should -Be "TestPortableExe"
-        $result.Source | Should -Be "TestSource"
-        $result.InstallerErrorCode | Should -Be 0
-        $result.Status | Should -Be 'Ok'
-        $result.RebootRequired | Should -Be 'False'
+        Validate-WinGetPackageOperationResult $result $expectedPortableInstallerResult 'update'
     }
-
+    
     It 'Uninstall by Id' {
         $result = Uninstall-WinGetPackage -Id AppInstallerTest.TestExeInstaller
-
-        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
-        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
-        $result.Name | Should -Be "TestExeInstaller"
-        $result.Source | Should -Be "TestSource"
-        $result.UninstallerErrorCode | Should -Be 0
-        $result.Status | Should -Be 'Ok'
-        $result.RebootRequired | Should -Be 'False'
+        Validate-WinGetPackageOperationResult $result $expectedExeInstallerResult 'uninstall'
     }
-
+    
     It 'Uninstall by Name' {
         $result = Uninstall-WinGetPackage -Name TestPortableExe
-
-        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
-        $result.Id | Should -Be "AppInstallerTest.TestPortableExe"
-        $result.Name | Should -Be "TestPortableExe"
-        $result.Source | Should -Be "TestSource"
-        $result.UninstallerErrorCode | Should -Be 0
-        $result.Status | Should -Be 'Ok'
-        $result.RebootRequired | Should -Be 'False'
+        Validate-WinGetPackageOperationResult $result $expectedPortableInstallerResult 'uninstall'
     }
 
     AfterAll {
