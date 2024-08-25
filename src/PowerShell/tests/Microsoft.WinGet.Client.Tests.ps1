@@ -278,27 +278,27 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
         $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
         Validate-WinGetPackageOperationResult $result $expectedExeInstallerResult 'install'
     }
-    
+
     It 'Install by exact Name and Version' {
         $result = Install-WinGetPackage -Name TestPortableExe -Version '2.0.0.0' -MatchOption Equals
         Validate-WinGetPackageOperationResult $result $expectedPortableInstallerResult 'install'
     }
-    
+
     It 'Update by Id' {
         $result = Update-WinGetPackage -Id AppInstallerTest.TestExeInstaller
         Validate-WinGetPackageOperationResult $result $expectedExeInstallerResult 'update'
     }
-    
+
     It 'Update by Name' {
         $result = Update-WinGetPackage -Name TestPortableExe
         Validate-WinGetPackageOperationResult $result $expectedPortableInstallerResult 'update'
     }
-    
+
     It 'Uninstall by Id' {
         $result = Uninstall-WinGetPackage -Id AppInstallerTest.TestExeInstaller
         Validate-WinGetPackageOperationResult $result $expectedExeInstallerResult 'uninstall'
     }
-    
+
     It 'Uninstall by Name' {
         $result = Uninstall-WinGetPackage -Name TestPortableExe
         Validate-WinGetPackageOperationResult $result $expectedPortableInstallerResult 'uninstall'
@@ -317,7 +317,7 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
         {
             Uninstall-WinGetPackage -Id AppInstallerTest.TestPortableExe
         }
-   }
+    }
 }
 
 Describe 'Install|Repair|Uninstall-WinGetPackage' {
@@ -416,6 +416,36 @@ Describe 'Install|Repair|Uninstall-WinGetPackage' {
         }
     }
 
+    Context 'Inno "Installer" Repair Scenario' {
+        BeforeEach {
+            $expectedResult = [PSCustomObject]@{
+                Id = "AppInstallerTest.TestInstallerRepair"
+                Name = "TestInstallerRepair"
+                Source = "TestSource"
+                Status = 'Ok'
+                RebootRequired = 'False'
+                InstallerErrorCode = 0
+                RepairErrorCode = 0
+                UninstallerErrorCode = 0
+            }
+        }
+
+        It 'Install Exe Installer By Id' {
+            $result = Install-WinGetPackage -Id AppInstallerTest.TestInstallerRepair
+            Validate-WinGetPackageOperationResult $result $expectedResult 'install'
+        }
+
+        It 'Installer Repair Exe Installer By Id' {
+            $result = Repair-WinGetPackage -Id AppInstallerTest.TestInstallerRepair
+            Validate-WinGetPackageOperationResult $result $expectedResult 'repair'
+        }
+
+        It "Uninstall Exe Installer By Id" {
+            $result = Uninstall-WinGetPackage -Id AppInstallerTest.TestInstallerRepair
+            Validate-WinGetPackageOperationResult $result $expectedResult 'uninstall'
+        }
+    }
+
     AfterAll {
         # Uninstall all test packages after each  for proper cleanup.
         $testMsix = Get-WinGetPackage -Id AppInstallerTest.TestMsixInstaller
@@ -423,17 +453,23 @@ Describe 'Install|Repair|Uninstall-WinGetPackage' {
         {
             Uninstall-WinGetPackage -Id AppInstallerTest.TestMsixInstaller
         }
-        
+
         $testBurn = Get-WinGetPackage -Id AppInstallerTest.TestModifyRepair
         if ($testBurn.Count -gt 0)
         {
             Uninstall-WinGetPackage -Id AppInstallerTest.TestModifyRepair
         }
-        
+
         $testExe = Get-WinGetPackage -Id AppInstallerTest.UninstallerRepair
         if ($testExe.Count -gt 0)
         {
             Uninstall-WinGetPackage -Id AppInstallerTest.UninstallerRepair
+        }
+
+        $testInno = Get-WinGetPackage -Id AppInstallerTest.TestInstallerRepair
+        if ($testInno.Count -gt 0)
+        {
+            Uninstall-WinGetPackage -Id AppInstallerTest.TestInstallerRepair
         }
     }
 }
