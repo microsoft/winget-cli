@@ -7,11 +7,11 @@
 namespace Microsoft.WinGet.Client.Commands
 {
     using System.Management.Automation;
-    using Microsoft.WinGet.Client.Cmdlets.Cmdlets.PSObjects;
     using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
     using Microsoft.WinGet.Client.Engine.Commands;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Client.PSObjects;
 
     /// <summary>
     /// This class defines the repair package command.
