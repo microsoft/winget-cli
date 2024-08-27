@@ -15,7 +15,7 @@ namespace Microsoft.WinGet.Client.Commands
     /// Compare the specified user settings with the winget user settings.
     /// </summary>
     [Cmdlet(VerbsDiagnostic.Test, Constants.WinGetNouns.UserSetting)]
-    [Alias("twgus")]
+    [Alias("twgus","Test-WinGetUserSettings")]
     [OutputType(typeof(bool))]
     public sealed class TestUserSettingsCmdlet : PSCmdlet
     {
