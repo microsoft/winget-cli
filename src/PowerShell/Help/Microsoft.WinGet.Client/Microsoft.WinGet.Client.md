@@ -1,4 +1,4 @@
-﻿---
+---
 Module Name: Microsoft.WinGet.Client
 ms.date: 08/01/2024
 Module Guid: e11157e2-cd24-4250-83b8-c6654ea4926a
@@ -51,6 +51,9 @@ Install a WinGet Package.
 
 ### [Remove-WinGetSource](Remove-WinGetSource.md)
 Removes a configured source.
+
+### [Repair-WinGetPackage](Repair-WinGetPackage.md)
+Repairs a WinGet Package.
 
 ### [Repair-WinGetPackageManager](Repair-WinGetPackageManager.md)
 Repairs the WinGet client.
