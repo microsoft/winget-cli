@@ -1,7 +1,7 @@
 ---
 author: Madhusudhan Gumbalapura Sudarshan @Madhusudhan-MSFT
 created on: 2023-12-01
-last updated: 2023-12-01
+last updated: 2024-08-27
 issue id: 148
 ---
 
@@ -50,7 +50,7 @@ will initiate the repair of the specified package. The command will display an e
 
 
 ### Repair Feature for different Installer Types with Native Repair Capabilities
-  - Msi, Wix : The repair command will use the built-in repair features of the MSI installer type. It will run the msiexec command with the default [repair options](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec#repair-options) to repair the application using a ShellExecute call or by invoking [MsiReinstallProduct](https://learn.microsoft.com/en-us/windows/win32/api/msi/nf-msi-msireinstallproductw) API call with `REINSTALLMODE` mode property set.
+  - Msi, Wix : The repair command will use the built-in repair features of the MSI installer type. It will run the msiexec command with the default [repair options](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec#repair-options) to repair the application using a ShellExecute call.
   - Msix : The repair command will use the built-in repair features of the MSIX installer type. It will make an MSIX API call to register the application package, which will attempt to repair the package.
     > We can't do the same thing as setting app repair for MSIX app right now because we can't use the private APIs that it uses to do repair operations with winget.
   - MSStore : The repair command will make an MSStore API  [StartProductInstallAsync](https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.store.preview.installcontrol.appinstallmanager.startproductinstallasync?view=winrt-22621) call to repair the application with 'Repair' property of AppInstallOption set to true.
@@ -60,7 +60,7 @@ will initiate the repair of the specified package. The command will display an e
    - Installed Source: 
      - If the YAML manifest file specifies the `Repair` switch and `Modify` as the `RepairBehavior`, the repair command will use the modify command in the ARP `ModifyPath` registry key, along with the repair switch, through a ShellExecute call, as long as `NoModify` and `NoRepair` ARP registry flags are not set to 1.
      - If the YAML manifest file specifies the `Repair` switch and `Uninstaller` as the RepairBehavior, the repair command will use the uninstall command in the ARP `UninstallString` registry key, along with the repair switch, through a ShellExecute call, as long as `NoRepair` APR registry flag is not set to 1.
-   - Remote Source: If the YAML manifest file specifies the `Repair` switch and `Installer` valure for the RepairBehavior, the repair command will obtain the matching installer from the remote source and use the repair switch on the downloaded installer through a ShellExecute call..
+   - Remote Source: If the YAML manifest file specifies the `Repair` switch and `Installer` value for the RepairBehavior, the repair command will obtain the matching installer from the remote source and use the repair switch on the downloaded installer through a ShellExecute call..
 
 > If neither switch is specified, the repair command will display an error message.
 
@@ -85,6 +85,11 @@ Addition of `RepairBehavior` enumerable property to Installer Object
  - `Repair` switch can't be empty when specified.
  - `RepairBehavior` switch can't be empty when specified.
 
+## Handling Elevation Requirement
+- The design presumes that the elevation requirements for modification/repair are consistent with those for installation, much like uninstallation.
+- The expectations are:
+  - If a non-elevated session tries to modify a package installed for machine scope, the installer should prompt for elevation, as observed in sample runs.
+  - If a package installed for user scope attempts a repair operation in an admin context, it is restricted due to possible security risks.
 
 ## Supported Repair Scenarios
 - Repair for installed applications of Msi, Wix, Msix and MSStore installer types.
@@ -92,6 +97,8 @@ Addition of `RepairBehavior` enumerable property to Installer Object
   -  The appropriate repair behavior is determined by the combination of the `Repair` switch and the `RepairBehavior` value in the YAML manifest.
 
 ## Potential Issues
+- For Msi based installer types
+  - To repair an Msi-based installer using msiexec platform support, the original installer must be present at the location registered as 'InstallSource' in the ARP registry. If the original installer is moved or renamed, the repair operation will fail, which is consistent with the modify repair through the settings app. This issue is more likely with installers installed via the winget install command, as it removes the installer right after installation to reduce disk footprint by design, making the 'InstallSource' path invalid. However, this issue does not apply if the installer can store the installer in a package cache path for future use and registers that path in 'InstallSource' in the ARP registry at the time of installation.
 - For Burn/Exe/Nullsoft/Inno installer types 
   - the repair command will not work if the installer does not have a custom repair switch specified in the YAML manifest file.
   - the repair command will not work if the installed Burn/Exe/Nullsoft/inno installer type doesn't correlate to the remote installer type that has a custom repair switch specified in the YAML manifest file.
