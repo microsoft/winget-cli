@@ -10,6 +10,7 @@ pr:
   paths:
     include:
     - azure-pipelines.yml
+    - templates/*
     - src/*
     - schemas/JSON/manifests/*
 
