@@ -54,7 +54,7 @@ Describe 'List available DSC resources'{
 Describe 'WinGetAdminSettings' {
 
     BeforeAll {
-        $initialAdminSettings = (Get-WinGetSettings).adminSettings
+        $initialAdminSettings = (Get-WinGetSetting).adminSettings
         $adminSettingsHash = @{
             BypassCertificatePinningForMicrosoftStore = !$initialAdminSettings.BypassCertificatePinningForMicrosoftStore;
             InstallerHashOverride = !$initialAdminSettings.InstallerHashOverride;
@@ -100,7 +100,7 @@ Describe 'WinGetAdminSettings' {
 Describe 'WinGetUserSettings' {
     BeforeAll {
         # Delete existing user settings file.
-        $settingsFilePath = (Get-WinGetSettings).userSettingsFile
+        $settingsFilePath = (Get-WinGetSetting).userSettingsFile
         $backupSettingsFilePath = $settingsFilePath + ".backup"
 
         if (Test-Path -Path $settingsFilePath)
