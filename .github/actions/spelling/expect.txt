@@ -368,6 +368,7 @@ oop
 opensource
 OPTOUT
 osfhandle
+oss
 outfile
 OUTOFMEMORY
 Outptr
