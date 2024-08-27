@@ -31,6 +31,7 @@ steps:
       Write-Host "##vso[task.setvariable variable=TestSigningCert.CerPath;]$certCerPath"
       Write-Host "##vso[task.setvariable variable=TestSigningCert.Password;]$certPassword"
     displayName: Create test codesigning cert
+    condition: succeededOrFailed()
 
   - pwsh: |
       $httpsCertPath = Join-Path $(Agent.TempDirectory) HttpsCert.pfx
@@ -43,12 +44,15 @@ steps:
       Write-Host "##vso[task.setvariable variable=HttpsCert.Path;]$httpsCertPath"
       Write-Host "##vso[task.setvariable variable=HttpsCert.Password;]$httpsCertPassword"
     displayName: Create and install localhost HTTPS cert
+    condition: succeededOrFailed()
 
   - pwsh: ${{ parameters.sourceDir }}\src\LocalhostWebServer\Run-LocalhostWebServer.ps1 -CertPath $(HttpsCert.Path) -CertPassword $(HttpsCert.Password) -OutCertFile $(Agent.TempDirectory)\servercert.cer ${{ parameters.localhostWebServerArgs }}
     displayName: Launch LocalhostWebServer
+    condition: succeededOrFailed()
 
   - task: PowerShell@2
     displayName: Setup Local PS Repository
+    condition: succeededOrFailed()
     inputs:
       filePath: '${{ parameters.sourceDir }}\src\AppInstallerCLIE2ETests\TestData\Configuration\Init-TestRepository.ps1'
       arguments: '-Force'
