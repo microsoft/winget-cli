@@ -4,10 +4,10 @@ Module Name: Microsoft.WinGet.Client
 ms.date: 08/01/2024
 online version:
 schema: 2.0.0
-title: Test-WinGetUserSettings
+title: Test-WinGetUserSetting
 ---
 
-# Test-WinGetUserSettings
+# Test-WinGetUserSetting
 
 ## SYNOPSIS
 Tests the current state of WinGet user settings.
@@ -15,7 +15,7 @@ Tests the current state of WinGet user settings.
 ## SYNTAX
 
 ```
-Test-WinGetUserSettings -UserSettings <Hashtable> [-IgnoreNotSet] [<CommonParameters>]
+Test-WinGetUserSetting -UserSettings <Hashtable> [-IgnoreNotSet] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -27,7 +27,7 @@ This command tests the current state of WinGet user settings against a provided 
 ### Example 1: Test for exact match
 
 ```powershell
-Test-WinGetUserSettings -UserSettings @{
+Test-WinGetUserSetting -UserSettings @{
     installBehavior = @{
         preferences = @{
             scope = 'user'
@@ -42,7 +42,7 @@ command returns `$false` if it is not an exact match.
 ### Example 2: Test only progress bar setting
 
 ```powershell
-Test-WinGetUserSettings -IgnoreNotSet -UserSettings @{
+Test-WinGetUserSetting -IgnoreNotSet -UserSettings @{
     visual = @{
         progressBar = 'rainbow'
     }
@@ -109,6 +109,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[Get-WinGetUserSettings](Get-WinGetUserSettings.md)
+[Get-WinGetUserSetting](Get-WinGetUserSetting.md)
 
-[Set-WinGetUserSettings](Set-WinGetUserSettings.md)
+[Set-WinGetUserSetting](Set-WinGetUserSetting.md)

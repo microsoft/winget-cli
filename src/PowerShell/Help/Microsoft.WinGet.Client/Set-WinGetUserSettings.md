@@ -4,10 +4,10 @@ Module Name: Microsoft.WinGet.Client
 ms.date: 08/01/2024
 online version:
 schema: 2.0.0
-title: Set-WinGetUserSettings
+title: Set-WinGetUserSetting
 ---
 
-# Set-WinGetUserSettings
+# Set-WinGetUserSetting
 
 ## SYNOPSIS
 Sets configuration settings of the WinGet client for the current user.
@@ -15,7 +15,7 @@ Sets configuration settings of the WinGet client for the current user.
 ## SYNTAX
 
 ```
-Set-WinGetUserSettings -UserSettings <Hashtable> [-Merge] [<CommonParameters>]
+Set-WinGetUserSetting -UserSettings <Hashtable> [-Merge] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,7 +31,7 @@ For more information about WinGet settings, see
 ### Example 1: Set progress bar theme
 
 ```powershell
-Set-WinGetUserSettings -UserSettings @{
+Set-WinGetUserSetting -UserSettings @{
     visual = @{
         progressBar = 'rainbow'
     }
@@ -43,7 +43,7 @@ Sets the theme of the progress bar to rainbow.
 ### Example 2: Merge install behavior settings
 
 ```powershell
-Set-WinGetUserSettings  -Merge -UserSettings @{
+Set-WinGetUserSetting  -Merge -UserSettings @{
     installBehavior = @{
         preferences = @{
             scope = 'user'
@@ -57,7 +57,7 @@ Appends the user scope preference setting to the existing WinGet settings config
 ### Example 3: Change multiple settings
 
 ```powershell
-Set-WinGetUserSettings -UserSettings @{
+Set-WinGetUserSetting -UserSettings @{
     visual = @{
         progressBar = 'rainbow'
         anonymizeDisplayedPaths = $true
@@ -121,6 +121,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[Get-WinGetUserSettings](Get-WinGetUserSettings.md)
+[Get-WinGetUserSetting](Get-WinGetUserSetting.md)
 
-[Test-WinGetUserSettings](Test-WinGetUserSettings.md)
+[Test-WinGetUserSetting](Test-WinGetUserSetting.md)

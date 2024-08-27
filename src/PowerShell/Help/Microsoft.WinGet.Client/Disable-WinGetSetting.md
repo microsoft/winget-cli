@@ -81,6 +81,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[Get-WinGetSettings](Get-WinGetSettings.md)
+[Get-WinGetSetting](Get-WinGetSetting.md)
 
-[Set-WinGetUserSettings](Set-WinGetUserSettings.md)
+[Set-WinGetUserSetting](Set-WinGetUserSetting.md)
