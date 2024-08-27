@@ -112,6 +112,7 @@ florelis
 FLUSHEACHLINE
 forcerestart
 gdi
+GDK
 HCCE
 hcertstore
 HCRYPTMSG
