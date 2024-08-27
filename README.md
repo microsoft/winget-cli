@@ -56,7 +56,7 @@ You can also [build the client yourself](#building-the-client). While the client
 
 ## Build Status
 
-[![Build Status](https://dev.azure.com/shine-oss/winget-cli/_apis/build/status%2Fwinget-cli%20Build_Test?branchName=master)](https://dev.azure.com/shine-oss/winget-cli/_build/latest?definitionId=10&branchName=master)
+[![Build Status](https://dev.azure.com/shine-oss/winget-cli/_apis/build/status/winget-cli%20Build_Test?branchName=master&label=Main%20Branch%20(Including%20PRs))](https://dev.azure.com/shine-oss/winget-cli/_build/latest?definitionId=10&branchName=master)
 
 ## Windows Package Manager Release Roadmap
 
