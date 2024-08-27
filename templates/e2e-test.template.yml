@@ -18,6 +18,7 @@ steps:
 
   - task: VSTest@2
     displayName: Run ${{ parameters.title }}
+    condition: succeededOrFailed()
     inputs:
       testRunTitle: ${{ parameters.title }}
       testSelector: 'testAssemblies'
