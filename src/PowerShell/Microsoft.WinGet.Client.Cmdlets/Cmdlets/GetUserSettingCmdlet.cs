@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="GetUserSettingsCmdlet.cs" company="Microsoft Corporation">
+// <copyright file="GetUserSettingCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -17,7 +17,7 @@ namespace Microsoft.WinGet.Client.Commands
     [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.UserSetting)]
     [Alias("gwgus", "Get-WinGetUserSettings")]
     [OutputType(typeof(Hashtable))]
-    public sealed class GetUserSettingsCmdlet : PSCmdlet
+    public sealed class GetUserSettingCmdlet : PSCmdlet
     {
         /// <summary>
         /// Gets the settings file contents.

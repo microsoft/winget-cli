@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="GetSettingsCmdlet.cs" company="Microsoft Corporation">
+// <copyright file="GetSettingCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -15,7 +15,7 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
     /// </summary>
     [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.Setting)]
     [Alias("gwgse","Get-WinGetSetting")]
-    public sealed class GetSettingsCmdlet : PSCmdlet
+    public sealed class GetSettingCmdlet : PSCmdlet
     {
         /// <summary>
         /// Gets or sets a value indicating whether to output a string or a hashtable.

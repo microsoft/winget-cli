@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="TestUserSettingsCmdlet.cs" company="Microsoft Corporation">
+// <copyright file="TestUserSettingCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -17,7 +17,7 @@ namespace Microsoft.WinGet.Client.Commands
     [Cmdlet(VerbsDiagnostic.Test, Constants.WinGetNouns.UserSetting)]
     [Alias("twgus","Test-WinGetUserSettings")]
     [OutputType(typeof(bool))]
-    public sealed class TestUserSettingsCmdlet : PSCmdlet
+    public sealed class TestUserSettingCmdlet : PSCmdlet
     {
         /// <summary>
         /// Gets or sets the input user settings.

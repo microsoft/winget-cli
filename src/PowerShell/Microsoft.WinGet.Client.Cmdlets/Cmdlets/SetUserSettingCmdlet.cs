@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="SetUserSettingsCmdlet.cs" company="Microsoft Corporation">
+// <copyright file="SetUserSettingCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -18,7 +18,7 @@ namespace Microsoft.WinGet.Client.Commands
     [Cmdlet(VerbsCommon.Set, Constants.WinGetNouns.UserSetting)]
     [Alias("swgus","Set-WinGetUserSettings")]
     [OutputType(typeof(Hashtable))]
-    public sealed class SetUserSettingsCmdlet : PSCmdlet
+    public sealed class SetUserSettingCmdlet : PSCmdlet
     {
         /// <summary>
         /// Gets or sets the input user settings.
