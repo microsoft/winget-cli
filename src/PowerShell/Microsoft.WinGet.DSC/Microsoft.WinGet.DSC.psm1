@@ -74,9 +74,9 @@ class WinGetUserSettings
     # Gets the current UserSettings by looking at the settings.json file for the current user.
     [WinGetUserSettings] Get()
     {
-        Assert-WinGetCommand "Get-WinGetUserSettings"
+        Assert-WinGetCommand "Get-WinGetUserSetting"
 
-        $userSettings = Get-WinGetUserSettings
+        $userSettings = Get-WinGetUserSetting
         $result = @{
             SID = ''
             Settings = $userSettings
@@ -87,7 +87,7 @@ class WinGetUserSettings
     # Tests if desired properties match.
     [bool] Test()
     {
-        Assert-WinGetCommand "Test-WinGetUserSettings"
+        Assert-WinGetCommand "Test-WinGetUserSetting"
 
         $hashArgs = @{
             UserSettings = $this.Settings
@@ -98,13 +98,13 @@ class WinGetUserSettings
             $hashArgs.Add('IgnoreNotSet', $true)
         }
 
-        return Test-WinGetUserSettings @hashArgs
+        return Test-WinGetUserSetting @hashArgs
     }
 
     # Sets the desired properties.
     [void] Set()
     {
-        Assert-WinGetCommand "Set-WinGetUserSettings"
+        Assert-WinGetCommand "Set-WinGetUserSetting"
 
         $hashArgs = @{
             UserSettings = $this.Settings
@@ -115,7 +115,7 @@ class WinGetUserSettings
             $hashArgs.Add('Merge', $true)
         }
 
-        Set-WinGetUserSettings @hashArgs
+        Set-WinGetUserSetting @hashArgs
     }
 }
 
