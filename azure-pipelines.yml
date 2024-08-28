@@ -348,13 +348,23 @@ jobs:
       packageFeedSelector: 'nugetOrg'
 
   - pwsh: |
+      Add-AppxPackage "${env:ProgramFiles(x86)}\Microsoft SDKs\Windows Kits\10\ExtensionSDKs\Microsoft.VCLibs.Desktop\14.0\Appx\Retail\x64\Microsoft.VCLibs.x64.14.00.Desktop.appx"
       Install-Module Microsoft.WinGet.Client -Repository PSGallery -Force
       Repair-WingetPackageManager -AllUsers
-      winget install --id Microsoft.Sysinternals.PsTools -s winget
+      Install-WinGetPackage -Id Microsoft.Sysinternals.PsTools -Source winget
+    displayName: Install Sysinternals PsTools Using Winget
+    condition: succeededOrFailed()
+
+  - pwsh: |
       $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-      PsExec -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml      
+      PsExec -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
     displayName: Run Unit Tests Unpackaged Under System Context
     workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
+    condition: succeededOrFailed()
+
+  - pwsh: |
+      Uninstall-WinGetPackage -Id Microsoft.Sysinternals.PsTools -Source winget
+    displayName: Clean up Sysinternals PsTools
     condition: succeededOrFailed()
 
   - task: PowerShell@2
