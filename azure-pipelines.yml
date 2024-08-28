@@ -69,15 +69,6 @@ jobs:
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
 
-  - pwsh: |
-      Install-Module Microsoft.WinGet.Client -Repository PSGallery -Force
-      Repair-WingetPackageManager -AllUsers
-      winget install --id Microsoft.Sysinternals.PsTools -s winget
-      $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-      PsExec -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml      
-    displayName: Install WinGet and PsExec
-    condition: succeededOrFailed()
-
   # Restores all projects, including native (vcxproj) projects
   - task: NuGetCommand@2
     displayName: Restore Solution
@@ -362,16 +353,8 @@ jobs:
       winget install --id Microsoft.Sysinternals.PsTools -s winget
       $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
       PsExec -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml      
-    displayName: Install WinGet and PsExec
-    workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
-    condition: succeededOrFailed()
-
-  - task: CmdLine@2
     displayName: Run Unit Tests Unpackaged Under System Context
-    inputs:
-      script: |
-        PsExec -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
-      workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
+    workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
     condition: succeededOrFailed()
 
   - task: PowerShell@2
