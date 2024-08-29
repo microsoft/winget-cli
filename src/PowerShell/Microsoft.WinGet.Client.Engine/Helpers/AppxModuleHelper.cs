@@ -59,6 +59,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string AppInstallerName = "Microsoft.DesktopAppInstaller";
         private const string AppxManifest = "AppxManifest.xml";
         private const string PackageFullName = "PackageFullName";
+        private const string Version = "Version";
 
         // Assets
         private const string MsixBundleName = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle";
@@ -130,6 +131,26 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="releaseTag">Release tag of GitHub release.</param>
         public void RegisterAppInstaller(string releaseTag)
         {
+            if (string.IsNullOrEmpty(releaseTag))
+            {
+                string? versionFromLocalPackage = this.GetAppInstallerPropertyValue(Version);
+
+                if (versionFromLocalPackage == null)
+                {
+                    throw new ArgumentNullException(Version);
+                }
+
+                var packageVersion = new Version(versionFromLocalPackage);
+                if (packageVersion.Major == 1 && packageVersion.Minor > 15)
+                {
+                    releaseTag = $"1.{packageVersion.Minor - 15}.{packageVersion.Build}";
+                }
+                else
+                {
+                    releaseTag = $"{packageVersion.Major}.{packageVersion.Minor}.{packageVersion.Build}";
+                }
+            }
+
             // Ensure that all dependencies are present when attempting to register.
             // If dependencies are missing, a provisioned package can appear to only need registration,
             // but will fail to register. `InstallDependenciesAsync` checks for the packages before
@@ -363,7 +384,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                         string? architectureString = psobject?.Architecture?.ToString();
                         if (architectureString == null)
                         {
-                            this.pwshCmdlet.Write(StreamType.Verbose, $"VCLibs dependency has no architecure value: {psobject?.PackageFullName ?? "<null>"}");
+                            this.pwshCmdlet.Write(StreamType.Verbose, $"VCLibs dependency has no architecture value: {psobject?.PackageFullName ?? "<null>"}");
                             continue;
                         }
 
