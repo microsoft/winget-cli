@@ -348,17 +348,11 @@ jobs:
     inputs:
       packageFeedSelector: 'nugetOrg'
 
-  - task: DownloadSecureFile@1
-    name: PsExec
-    displayName: 'Download PsExec.exe'
-    inputs:
-      secureFile: 'PsExec.exe'
-
   - task: CmdLine@2
     displayName: Run Unit Tests Unpackaged Under System Context
     inputs:
       script: |
-        $(PsExec.secureFilePath) -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
+        $(Build.SourcesDirectory)\tools\PsExec\PsExec64.exe -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
       workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
     condition: succeededOrFailed()
 
