@@ -3110,6 +3110,6 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The package is not compatible with the current Windows version or platform.</value>
   </data>
   <data name="ConfigurationSuppressPrologueArgumentDescription" xml:space="preserve">
-    <value>Suppress the configuration prologue when possible</value>
+    <value>Suppress showing initial configuration details when possible</value>
   </data>
 </root>

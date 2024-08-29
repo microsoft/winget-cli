@@ -204,7 +204,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::ConfigurationAcceptWarning:
             return { type, "accept-configuration-agreements"_liv };
         case Execution::Args::Type::ConfigurationSuppressPrologue:
-            return { type, "suppress-prologue"_liv };
+            return { type, "suppress-initial-details"_liv };
         case Execution::Args::Type::ConfigurationEnable:
             return { type, "enable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
         case Execution::Args::Type::ConfigurationDisable:
