@@ -6,7 +6,7 @@ using namespace System.Collections.Generic
 try
 {
     # Load all non-test .ps1 files in the script's directory.
-    Get-ChildItem -Path $PSScriptRoot\* -Filter *.ps1 -Exclude *.Tests.ps1 -Recurse | ForEach-Object { Import-Module $_.FullName }
+    Get-ChildItem -Path $PSScriptRoot\* -Filter *.ps1 -Exclude *.Tests.ps1 -Recurse | ForEach-Object { . $_.FullName }
 } catch
 {
     $e = $_.Exception
@@ -421,11 +421,11 @@ class WinGetPackage
     [DscProperty(Key, Mandatory)]
     [string]$Id
 
-    [DscProperty()]
-    [string]$Version
+    [DscProperty(Key)]
+    [string]$Source
 
     [DscProperty()]
-    [string]$Source
+    [string]$Version
 
     [DscProperty()]
     [Ensure]$Ensure = [Ensure]::Present
@@ -467,7 +467,17 @@ class WinGetPackage
 
         # This has to use MatchOption equals. Otherwise, it might find other package where the
         # id starts with.
-        $this.CatalogPackage = Get-WinGetPackage -Id $this.Id -MatchOption $this.MatchOption
+        $hashArgs = @{
+            Id = $this.Id
+            MatchOption = $this.MatchOption
+        }
+
+        if (-not([string]::IsNullOrWhiteSpace($this.Source)))
+        {
+            $hashArgs.Add("Source", $this.Source)
+        }
+
+        $this.CatalogPackage = Get-WinGetPackage @hashArgs
         if ($null -ne $this.CatalogPackage)
         {
             $this.InstalledVersion = $this.CatalogPackage.InstalledVersion
@@ -506,7 +516,7 @@ class WinGetPackage
         # At this point we know is installed.
         # If asked for latests, but there are updates available.
         if ($this.UseLatest -and
-            $this.CatalogPackage.IsUpdateAvailable)
+            $this.IsUpdateAvailable)
         {
             return $false
         }
