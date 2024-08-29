@@ -356,7 +356,7 @@ jobs:
       }
       Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
       Install-Module Microsoft.WinGet.Client -Repository PSGallery -Force
-      Repair-WingetPackageManager -AllUsers
+      Repair-WingetPackageManager -AllUsers -Latest
       Install-WinGetPackage -Id Microsoft.Sysinternals.PsTools -Source winget
     displayName: Install Sysinternals PsTools Using Winget
     condition: succeededOrFailed()
