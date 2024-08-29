@@ -350,8 +350,10 @@ jobs:
   # TODO: Repair-WinGetPackageManager will fail because it tries to install x64 for an x86 build machine.
   # Remove manual installation of VCLibs (x64) once this is fixed.
   - powershell: |
-      iwr https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx -OutFile Microsoft.VCLibs.x64.appx
-      Add-AppxPackage Microsoft.VCLibs.x64.appx
+      if ("$(buildPlatform)" -eq "x86") {
+        iwr https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx -OutFile Microsoft.VCLibs.x64.appx
+        Add-AppxPackage Microsoft.VCLibs.x64.appx
+      }
       Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
       Install-Module Microsoft.WinGet.Client -Repository PSGallery -Force
       Repair-WingetPackageManager -AllUsers
