@@ -21,5 +21,5 @@ Allows part or all of the user settings to be configured or retrieved.
 **Parameter**|**Attribute**|**DataType**|**Description**|**Allowed Values**
 :-----|:-----|:-----|:-----|:-----
 `SID`|Key|String|The SID of the user to target, or an empty string to target the current user. **Only the empty string is currently supported.**|See [security identifiers](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-identifiers)
-`Settings`|Mandatory|Hashtable|The user settings as a hastable.|See [the schema](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/settings/settings.schema.0.2.json)
+`Settings`|Mandatory|Hashtable|The user settings as a hashtable.|See [the schema](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/settings/settings.schema.0.2.json)
 `Action`|Optional|WinGetAction|Determines whether to overwrite (`Full`) or merge (`Partial`) the value provided in `Settings` with the current user settings.|`Full` (default), `Partial`

@@ -21,4 +21,4 @@ Allows the administrator settings to be configured or retrieved. Setting adminis
 **Parameter**|**Attribute**|**DataType**|**Description**|**Allowed Values**
 :-----|:-----|:-----|:-----|:-----
 `SID`|Key|String|The SID of the user to target, or an empty string to target the current user. **Only the empty string is currently supported.**|See [security identifiers](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-identifiers)
-`Settings`|Mandatory|Hashtable|The administrator settings as a hastable.|Inspect the `adminSettings` property of the output from `Get-WinGetSettings`
+`Settings`|Mandatory|Hashtable|The administrator settings as a hashtable.|Inspect the `adminSettings` property of the output from `Get-WinGetSettings`
