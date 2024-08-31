@@ -36,6 +36,31 @@ Get-WinGetPackage
 
 This example shows how to list all packages installed on your system.
 
+### Example 2: Get package by Id
+
+```powershell
+Get-WinGetPackage -Id "Microsoft.PowerShell"
+```
+
+This example shows how to get an installed package by its package identifier.
+
+### Example 3: Get package(s) by name
+
+```powershell
+Get-WinGetPackage -Name "PowerShell"
+```
+
+This example shows how to get installed packages that match a name value. The command does a substring comparison of the provided name with
+installed package names.
+
+### Example 4: List all packages with an available update
+
+```powershell
+Get-WinGetPackage | Where-Object IsUpdateAvailable
+```
+
+This example shows how to list all packages that have an available upgrade from one of the configured sources.
+
 ## PARAMETERS
 
 ### -Command
