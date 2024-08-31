@@ -24,7 +24,7 @@ Get-WinGetPackage [-Tag <String>] [-Command <String>] [-Count <UInt32>] [-Id <St
 
 This command lists all of the packages installed on your system. The output includes packages
 installed from WinGet sources and packages installed by other methods. Packages that have package
-identifiers starting with `MSIX` or `ARP` were not installed from a WinGet source.
+identifiers starting with `MSIX` or `ARP` could not be correlated to a WinGet source.
 
 ## EXAMPLES
 
