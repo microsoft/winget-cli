@@ -113,7 +113,7 @@ CmdletsToExport = @(
         'gwgv'
         'iswgp'
         'rwgs'
-        'rpdwgpm'
+        'rpwgpm'
         'rswgs'
         'swgus'
         'twgus'
