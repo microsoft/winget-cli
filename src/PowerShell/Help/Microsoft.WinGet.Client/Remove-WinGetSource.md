@@ -10,11 +10,12 @@ title: Remove-WinGetSource
 # Remove-WinGetSource
 
 ## SYNOPSIS
+
 Removes a configured source.
 
 ## SYNTAX
 
-```
+```powershell
 Remove-WinGetSource -Name <String> [<CommonParameters>]
 ```
 

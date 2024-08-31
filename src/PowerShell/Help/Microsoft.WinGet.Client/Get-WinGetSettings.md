@@ -10,17 +10,19 @@ title: Get-WinGetSettings
 # Get-WinGetSettings
 
 ## SYNOPSIS
+
 Gets WinGet configuration settings.
 
 ## SYNTAX
 
-```
+```powershell
 Get-WinGetSettings [-AsPlainText] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
 This command gets the WinGet configuration settings. The settings include:
+
 - the schema
 - administrative settings
 - the location of the user settings file

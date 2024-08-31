@@ -10,11 +10,12 @@ title: Add-WinGetSource
 # Add-WinGetSource
 
 ## SYNOPSIS
+
 Adds a new source.
 
 ## SYNTAX
 
-```
+```powershell
 Add-WinGetSource -Name <String> -Argument <String> [-Type <String>] [<CommonParameters>]
 ```
 

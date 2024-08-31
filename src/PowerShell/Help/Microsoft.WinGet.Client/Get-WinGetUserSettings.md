@@ -10,11 +10,12 @@ title: Get-WinGetUserSettings
 # Get-WinGetUserSettings
 
 ## SYNOPSIS
+
 Gets user settings for WinGet.
 
 ## SYNTAX
 
-```
+```powershell
 Get-WinGetUserSettings [<CommonParameters>]
 ```
 

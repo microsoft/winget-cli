@@ -10,13 +10,14 @@ title: Update-WinGetPackage
 # Update-WinGetPackage
 
 ## SYNOPSIS
+
 Installs a newer version of a previously installed WinGet package.
 
 ## SYNTAX
 
 ### FoundSet (Default)
 
-```
+```powershell
 Update-WinGetPackage [-IncludeUnknown] [-Mode <PSPackageInstallMode>] [-Override <String>] [-Custom <String>]
  [-Location <String>] [-Log <String>] [-Force] [-Header <String>] [-AllowHashMismatch]
  [-Architecture <PSProcessorArchitecture>] [-InstallerType <PSPackageInstallerType>] [-Locale <String>]
@@ -27,7 +28,7 @@ Update-WinGetPackage [-IncludeUnknown] [-Mode <PSPackageInstallMode>] [-Override
 
 ### GivenSet
 
-```
+```powershell
 Update-WinGetPackage [-IncludeUnknown] [-Mode <PSPackageInstallMode>] [-Override <String>] [-Custom <String>]
  [-Location <String>] [-Log <String>] [-Force] [-Header <String>] [-AllowHashMismatch]
  [-Architecture <PSProcessorArchitecture>] [-InstallerType <PSPackageInstallerType>] [-Locale <String>]
@@ -59,7 +60,6 @@ Update-WinGetPackage -Id Microsoft.PowerShell
 ```
 
 This example shows how to update a package by the specifying the package identifier.
-	
 If the package identifier is available from more than one source, you must provide additional search
 criteria to select a specific instance of the package.
 
@@ -218,7 +218,7 @@ Accept wildcard characters: False
 
 A package may contain multiple installer types. Use this parameter to select the installer you want
 to use. The parameter accepts the following values:
-	
+
 - `Default`
 - `Inno`
 - `Wix`
@@ -414,10 +414,10 @@ Specify one or more strings to search for. By default, the command searches all 
 Wildcards are not supported. The command compares the value provided to the following package
 manifest properties:
 
-	- `PackageIdentifier`
-	- `PackageName`
-	- `Moniker`
-	- `Tags`
+- `PackageIdentifier`
+- `PackageName`
+- `Moniker`
+- `Tags`
 
 The command does a case-insensitive substring comparison of these properties.
 

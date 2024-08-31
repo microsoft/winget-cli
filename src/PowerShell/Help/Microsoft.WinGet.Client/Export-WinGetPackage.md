@@ -10,13 +10,14 @@ title: Export-WinGetPackage
 # Export-WinGetPackage
 
 ## SYNOPSIS
+
 Downloads a WinGet package and its dependencies.
 
 ## SYNTAX
 
 ### FoundSet (Default)
 
-```
+```powershell
 Export-WinGetPackage [-DownloadDirectory <String>] [-AllowHashMismatch]
  [-Architecture <PSProcessorArchitecture>] [-InstallerType <PSPackageInstallerType>] [-Locale <String>]
  [-Scope <PSPackageInstallScope>] [-SkipDependencies] [-Version <String>] [-Id <String>] [-Name <String>]
@@ -26,7 +27,7 @@ Export-WinGetPackage [-DownloadDirectory <String>] [-AllowHashMismatch]
 
 ### GivenSet
 
-```
+```powershell
 Export-WinGetPackage [-DownloadDirectory <String>] [-AllowHashMismatch]
  [-Architecture <PSProcessorArchitecture>] [-InstallerType <PSPackageInstallerType>] [-Locale <String>]
  [-Scope <PSPackageInstallScope>] [-SkipDependencies] [[-PSCatalogPackage] <PSCatalogPackage>]

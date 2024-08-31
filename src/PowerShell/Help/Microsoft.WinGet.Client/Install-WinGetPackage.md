@@ -10,13 +10,14 @@ title: Install-WinGetPackage
 # Install-WinGetPackage
 
 ## SYNOPSIS
+
 Installs a WinGet Package.
 
 ## SYNTAX
 
 ### FoundSet (Default)
 
-```
+```powershell
 Install-WinGetPackage [-Mode <PSPackageInstallMode>] [-Override <String>] [-Custom <String>]
  [-Location <String>] [-Log <String>] [-Force] [-Header <String>] [-AllowHashMismatch]
  [-Architecture <PSProcessorArchitecture>] [-InstallerType <PSPackageInstallerType>] [-Locale <String>]
@@ -27,7 +28,7 @@ Install-WinGetPackage [-Mode <PSPackageInstallMode>] [-Override <String>] [-Cust
 
 ### GivenSet
 
-```
+```powershell
 Install-WinGetPackage [-Mode <PSPackageInstallMode>] [-Override <String>] [-Custom <String>]
  [-Location <String>] [-Log <String>] [-Force] [-Header <String>] [-AllowHashMismatch]
  [-Architecture <PSProcessorArchitecture>] [-InstallerType <PSPackageInstallerType>] [-Locale <String>]
@@ -188,6 +189,7 @@ Accept wildcard characters: False
 
 A package may contain multiple installer types. Use this parameter to select the installer you want
 to use. The parameter accepts the following values:
+
 - `Default`
 - `Inno`
 - `Wix`
@@ -267,6 +269,7 @@ Accept wildcard characters: False
 ### -MatchOption
 
 Specify the match option for a WinGet package query. This parameter accepts the following values:
+
 - `Equals`
 - `EqualsCaseInsensitive`
 - `StartsWithCaseInsensitive`
@@ -288,6 +291,7 @@ Accept wildcard characters: False
 ### -Mode
 
 Specify the output mode for the installer. The parameter accepts the following values:
+
 - `Default`
 - `Silent`
 - `Interactive`
@@ -375,10 +379,11 @@ Accept wildcard characters: False
 
 Specify one or more strings to search for. By default, the command searches all configured sources.
 The command compares the value provided to the following package manifest properties:
-	- `PackageIdentifier`
-	- `PackageName`
-	- `Moniker`
-	- `Tags`
+
+- `PackageIdentifier`
+- `PackageName`
+- `Moniker`
+- `Tags`
 
 The command does a case-insensitive substring comparison of these properties.
 

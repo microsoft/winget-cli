@@ -10,13 +10,14 @@ title: Uninstall-WinGetPackage
 # Uninstall-WinGetPackage
 
 ## SYNOPSIS
+
 Uninstalls a WinGet Package.
 
 ## SYNTAX
 
 ### FoundSet (Default)
 
-```
+```powershell
 Uninstall-WinGetPackage [-Mode <PSPackageUninstallMode>] [-Force] [-Log <String>] [-Version <String>]
  [-Id <String>] [-Name <String>] [-Moniker <String>] [-Source <String>] [[-Query] <String[]>]
  [-MatchOption <PSPackageFieldMatchOption>] [-WhatIf] [-Confirm] [<CommonParameters>]
@@ -24,7 +25,7 @@ Uninstall-WinGetPackage [-Mode <PSPackageUninstallMode>] [-Force] [-Log <String>
 
 ### GivenSet
 
-```
+```powershell
 Uninstall-WinGetPackage [-Mode <PSPackageUninstallMode>] [-Force] [-Log <String>]
  [[-PSCatalogPackage] <PSCatalogPackage>] [-Version <String>] [-WhatIf]
  [-Confirm] [<CommonParameters>]
@@ -155,7 +156,7 @@ Accept wildcard characters: False
 ### -Mode
 
 Specify the output mode for the installer. The parameter accepts the following values:
-	
+
 - `Default`
 - `Silent`
 - `Interactive`
@@ -233,10 +234,10 @@ Specify one or more strings to search for. By default, the command searches all 
 Wildcards are not supported. The command compares the value provided to the following package
 manifest properties:
 
-	- `PackageIdentifier`
-	- `PackageName`
-	- `Moniker`
-	- `Tags`
+- `PackageIdentifier`
+- `PackageName`
+- `Moniker`
+- `Tags`
 
 The command does a case-insensitive substring comparison of these properties.
 

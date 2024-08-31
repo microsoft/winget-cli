@@ -15,7 +15,7 @@ Enables WinGet administrative settings.
 
 ## SYNTAX
 
-```
+```powershell
 Enable-WinGetSetting [-Name] <String> [<CommonParameters>]
 ```
 

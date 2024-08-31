@@ -10,11 +10,12 @@ title: Get-WinGetPackage
 # Get-WinGetPackage
 
 ## SYNOPSIS
+
 Lists installed packages.
 
 ## SYNTAX
 
-```
+```powershell
 Get-WinGetPackage [-Tag <String>] [-Command <String>] [-Count <UInt32>] [-Id <String>] [-Name <String>]
  [-Moniker <String>] [-Source <String>] [[-Query] <String[]>] [-MatchOption <PSPackageFieldMatchOption>]
  [<CommonParameters>]

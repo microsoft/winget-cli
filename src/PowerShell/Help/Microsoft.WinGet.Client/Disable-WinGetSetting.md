@@ -10,11 +10,12 @@ title: Disable-WinGetSetting
 # Disable-WinGetSetting
 
 ## SYNOPSIS
+
 Disables an administrative setting.
 
 ## SYNTAX
 
-```
+```powershell
 Disable-WinGetSetting [-Name] <String> [<CommonParameters>]
 ```
 

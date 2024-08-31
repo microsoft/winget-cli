@@ -10,19 +10,20 @@ title: Repair-WinGetPackageManager
 # Repair-WinGetPackageManager
 
 ## SYNOPSIS
+
 Repairs the installation of the WinGet client on your computer.
 
 ## SYNTAX
 
 ### IntegrityVersionSet (Default)
 
-```
+```powershell
 Repair-WinGetPackageManager [-AllUsers] [-Force] [-Version <String>] [<CommonParameters>]
 ```
 
 ### IntegrityLatestSet
 
-```
+```powershell
 Repair-WinGetPackageManager [-AllUsers] [-Force] [-Latest] [-IncludePreRelease]
  [<CommonParameters>]
 ```
@@ -30,8 +31,8 @@ Repair-WinGetPackageManager [-AllUsers] [-Force] [-Latest] [-IncludePreRelease]
 ## DESCRIPTION
 
 This command repairs the installation of the WinGet client on your computer by installing the
-specified version or the latest version of the client. This command can also install the WinGet 
-client if it is not already installed on your machine. It ensures that the client is installed 
+specified version or the latest version of the client. This command can also install the WinGet
+client if it is not already installed on your machine. It ensures that the client is installed
 in a working state.
 
 ## EXAMPLES

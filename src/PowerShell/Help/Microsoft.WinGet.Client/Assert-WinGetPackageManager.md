@@ -10,19 +10,20 @@ title: Assert-WinGetPackageManager
 # Assert-WinGetPackageManager
 
 ## SYNOPSIS
+
 Verifies that WinGet is installed properly.
 
 ## SYNTAX
 
 ### IntegrityVersionSet (Default)
 
-```
+```powershell
 Assert-WinGetPackageManager [-Version <String>] [<CommonParameters>]
 ```
 
 ### IntegrityLatestSet
 
-```
+```powershell
 Assert-WinGetPackageManager [-Latest] [-IncludePrerelease] [<CommonParameters>]
 ```
 
