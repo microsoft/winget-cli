@@ -49,6 +49,20 @@ enum InstallMode
     Interactive
 }
 
+enum TrustLevel
+{
+    Undefined
+    None
+    Trusted
+}
+
+enum OptionalBool
+{
+    Undefined
+    False
+    True
+}
+
 #endregion enums
 
 #region DscResources
@@ -193,130 +207,161 @@ class WinGetAdminSettings
 }
 
 [DSCResource()]
-class WinGetSources
+class WinGetSource
 {
-    # We need a key. Do not set.
-    [DscProperty(Key)]
-    [string]$SID
-
-    # An array of Hashtable with the key value properties that follows the source's group policy schema.
+    [DscProperty(Key, Mandatory)]
+    [ValidateNotNullOrWhiteSpace()]
+    [string]$Name
+    
     [DscProperty(Mandatory)]
-    [Hashtable[]]$Sources
+    [ValidateNotNullOrWhiteSpace()]
+    [string]$Argument
+    
+    [DscProperty()]
+    [string]$Type
+    
+    [DscProperty()]
+    [TrustLevel]$TrustLevel = [TrustLevel]::Undefined
+    
+    [DscProperty()]
+    [OptionalBool]$Explicit = [OptionalBool]::Undefined
 
     [DscProperty()]
     [Ensure]$Ensure = [Ensure]::Present
 
-    [DscProperty()]
-    [bool]$Reset = $false
-
-    [DscProperty()]
-    [WinGetAction]$Action = [WinGetAction]::Full
-
-    # Gets the current sources on winget.
-    [WinGetSources] Get()
+    [WinGetSource] Get()
     {
         Assert-WinGetCommand "Get-WinGetSource"
-        $packageCatalogReferences = Get-WinGetSource
-        $wingetSources = [List[Hashtable]]::new()
-        foreach ($packageCatalogReference in $packageCatalogReferences)
+        $currentSource = Get-WinGetSource -Name $this.Name
+        $result = [WinGetSource]::new()
+
+        if ($currentSource)
         {
-            $source = @{
-                $packageCatalogReference.Name = @{
-                    Identifier = $packageCatalogReference.Id
-                    Arg = $packageCatalogReference.Argument
-                    Type = $packageCatalogReference.Type
-                }
-            }
-            $wingetSources.Add($source)
+            $result.Ensure = [Ensure]::Present
+            $result.Name = $currentSource.Name
+            $result.Argument = $currentSource.Argument
+            $result.Type = $currentSource.Type
+            $result.TrustLevel = $currentSource.TrustLevel
+            $result.Explicit = $currentSource.Explicit
+        }
+        else
+        {
+            $result.Ensure = [Ensure]::Absent
         }
 
-        $result = @{
-            SID = ''
-            Sources = $wingetSources
-        }
         return $result
     }
 
-    # Tests if desired properties match.
     [bool] Test()
     {
-        $currentSources = $this.Get().Sources
-        $currentState = [Ensure]::Present
-
-        # If this is a full match and the counts are different return false. This only applies if we want to ensure the full source is present.
-        if (($this.Action -eq [WinGetAction]::Full) -and ($this.Sources.Count -ne $currentSources.Count) -and ($this.Ensure -eq [Ensure]::Present))
-        {
-            return $false
-        }
-
-        foreach ($sourceName in $this.Sources.Keys)
-        {
-            #Check if the source name exists, if it doesn't, then return false.
-            $result = $currentSources.Keys | Where-Object { $_ -eq $sourceName }
-            if ($null -eq $result)
-            {
-                $currentState = [Ensure]::Absent
-            }
-
-            # Type has a default value.
-            $source = $this.Sources.$($sourceName)
-            $sourceType = "Microsoft.PreIndexed.Package" # default source type
-            if ($source.ContainsKey("Type") -and (-not([string]::IsNullOrWhiteSpace($source.Type))))
-            {
-                $sourceType = $source.Type
-            }
-
-            $existingSource = $currentSources.$($sourceName)
-            if ($source.Arg -ne $existingSource.Arg -or $sourceType -ne $existingSource.Type)
-            {
-                $currentState = [Ensure]::Absent
-            }
-        }
-
-        return $currentState -eq $this.Ensure
+        return $this.TestAgainstCurrent($this.Get())
     }
 
-    # Sets the desired properties.
     [void] Set()
     {
         Assert-IsAdministrator
         Assert-WinGetCommand "Add-WinGetSource"
-        Assert-WinGetCommand "Reset-WinGetSource"
         Assert-WinGetCommand "Remove-WinGetSource"
+        Assert-WinGetCommand "Reset-WinGetSource"
 
-        if (-not $this.Test())
+        $currentSource = $this.Get()
+
+        $removeSource = $false
+        $resetSource = $false
+        $addSource = $false
+
+        if ($this.Ensure -eq [Ensure]::Present)
         {
-            foreach ($sourceName in $this.Sources.Keys)
+            if ($currentSource.Ensure -eq [Ensure]::Present)
             {
-                $sourceType = "Microsoft.PreIndexed.Package"
-                $source = $this.Sources.$($sourceName)
-    
-                if ((-not $source.ContainsKey("Arg")) -or [string]::IsNullOrWhiteSpace($source.Arg))
+                if (-not $this.TestAgainstCurrent($currentSource))
                 {
-                    # TODO: Localize.
-                    throw "Invalid source input. Arg is required."
+                    $resetSource = $true
+                    $addSource = $true
                 }
-    
-                if ($source.ContainsKey("Type") -and (-not([string]::IsNullOrWhiteSpace($source.Type))))
-                {
-                    $sourceType = $source.Type
-                }
-    
-                if ($this.Ensure -eq [Ensure]::Present)
-                {
-                    Add-WinGetSource -Name $sourceName -Argument $source.Arg -Type $sourceType
-    
-                    if ($this.Reset)
-                    {
-                        Reset-WinGetSource -Name $sourceName
-                    }
-                }
-                else
-                {
-                    Remove-WinGetSource -Name $sourceName
-                }
+                # else in desired state
+            }
+            else
+            {
+                $addSource = $true
             }
         }
+        else
+        {
+            if ($currentSource.Ensure -eq [Ensure]::Present)
+            {
+                $removeSource = $true
+            }
+            else
+            {
+                # In desired state of Absent
+            }
+        }
+
+        if ($removeSource)
+        {
+            Remove-WinGetSource -Name $this.Name
+        }
+        # Only remove OR reset should be true, not both
+        elseif ($resetSource)
+        {
+            Reset-WinGetSource -Name $this.Name
+        }
+
+        if ($addSource)
+        {
+            $hashArgs = @
+            {
+                Name = $this.Name
+                Argument = $this.Argument
+            }
+
+            if (-not [string]::IsNullOrWhiteSpace($this.Type))
+            {
+                $hashArgs.Add("Type", $this.Type)
+            }
+
+            if ($this.TrustLevel -ne [TrustLevel]::Undefined)
+            {
+                $hashArgs.Add("TrustLevel", $this.TrustLevel)
+            }
+
+            if ($this.Explicit -ne [OptionalBool]::Undefined)
+            {
+                $hashArgs.Add("Explicit", $this.Explicit)
+            }
+
+            Add-WinGetSource @hashArgs
+        }
+    }
+    
+    hidden [bool] TestAgainstCurrent([WinGetSource]$currentSource)
+    {
+        if ($this.Ensure -ne $currentSource.Ensure -or
+            $this.Argument -ne $currentSource.Argument)
+        {
+            return $false
+        }
+
+        if (-not([string]::IsNullOrWhiteSpace($this.Type)) -and
+            $this.Type -ne $currentSource.Type)
+        {
+            return $false
+        }
+
+        if ($this.TrustLevel -ne [TrustLevel]::Undefined -and
+            $this.TrustLevel -ne $currentSource.TrustLevel)
+        {
+            return $false
+        }
+
+        if ($this.Explicit -ne [OptionalBool]::Undefined -and
+            $this.Explicit -ne $currentSource.Explicit)
+        {
+            return $false
+        }
+
+        return $true
     }
 }
 
@@ -419,6 +464,7 @@ class WinGetPackageManager
 class WinGetPackage
 {
     [DscProperty(Key, Mandatory)]
+    [ValidateNotNullOrWhiteSpace()]
     [string]$Id
 
     [DscProperty(Key)]
