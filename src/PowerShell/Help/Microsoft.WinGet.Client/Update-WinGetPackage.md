@@ -81,6 +81,14 @@ This example shows how to update a specific version of a package using a query. 
 query search for packages matching `Microsoft.PowerShell`. The results of the search a limited to
 matches with the version of `7.4.4.0`.
 
+### Example 5: Update all packages
+
+```powershell
+Get-WinGetPackage | Where-Object IsUpdateAvailable | Update-WinGetPackage
+```
+
+This example shows how to update all packages that have an available upgrade from one of the configured sources.
+
 ## PARAMETERS
 
 ### -AllowHashMismatch

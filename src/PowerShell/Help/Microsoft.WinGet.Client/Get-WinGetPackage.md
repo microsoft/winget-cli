@@ -24,7 +24,7 @@ Get-WinGetPackage [-Tag <String>] [-Command <String>] [-Count <UInt32>] [-Id <St
 
 This command lists all of the packages installed on your system. The output includes packages
 installed from WinGet sources and packages installed by other methods. Packages that have package
-identifiers starting with `MSIX` or `ARP` were not installed from a WinGet source.
+identifiers starting with `MSIX` or `ARP` could not be correlated to a WinGet source.
 
 ## EXAMPLES
 
@@ -35,6 +35,31 @@ Get-WinGetPackage
 ```
 
 This example shows how to list all packages installed on your system.
+
+### Example 2: Get package by Id
+
+```powershell
+Get-WinGetPackage -Id "Microsoft.PowerShell"
+```
+
+This example shows how to get an installed package by its package identifier.
+
+### Example 3: Get package(s) by name
+
+```powershell
+Get-WinGetPackage -Name "PowerShell"
+```
+
+This example shows how to get installed packages that match a name value. The command does a substring comparison of the provided name with
+installed package names.
+
+### Example 4: List all packages with an available update
+
+```powershell
+Get-WinGetPackage | Where-Object IsUpdateAvailable
+```
+
+This example shows how to list all packages that have an available upgrade from one of the configured sources.
 
 ## PARAMETERS
 
