@@ -10,12 +10,11 @@ title: Find-WinGetPackage
 # Find-WinGetPackage
 
 ## SYNOPSIS
-
 Searches for packages from configured sources.
 
 ## SYNTAX
 
-```powershell
+```
 Find-WinGetPackage [-Tag <String>] [-Command <String>] [-Count <UInt32>] [-Id <String>] [-Name <String>]
  [-Moniker <String>] [-Source <String>] [[-Query] <String[]>] [-MatchOption <PSPackageFieldMatchOption>]
  [<CommonParameters>]
@@ -172,7 +171,6 @@ Accept wildcard characters: False
 
 Specify one or more strings to search for. By default, the command searches all configured sources.
 The command compares the value provided to the following package manifest properties:
-
 - `PackageIdentifier`
 - `PackageName`
 - `Moniker`

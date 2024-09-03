@@ -10,12 +10,11 @@ title: Get-WinGetVersion
 # Get-WinGetVersion
 
 ## SYNOPSIS
-
 Gets the installed version of WinGet.
 
 ## SYNTAX
 
-```powershell
+```
 Get-WinGetVersion [<CommonParameters>]
 ```
 

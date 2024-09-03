@@ -10,12 +10,11 @@ title: Get-WinGetSource
 # Get-WinGetSource
 
 ## SYNOPSIS
-
 Lists configured WinGet sources.
 
 ## SYNTAX
 
-```powershell
+```
 Get-WinGetSource [[-Name] <String>] [<CommonParameters>]
 ```
 

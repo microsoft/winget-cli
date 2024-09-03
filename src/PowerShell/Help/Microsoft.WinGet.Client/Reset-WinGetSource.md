@@ -10,20 +10,19 @@ title: Reset-WinGetSource
 # Reset-WinGetSource
 
 ## SYNOPSIS
-
 Resets WinGet sources.
 
 ## SYNTAX
 
 ### DefaultSet (Default)
 
-```powershell
+```
 Reset-WinGetSource -Name <String> [<CommonParameters>]
 ```
 
 ### OptionalSet
 
-```powershell
+```
 Reset-WinGetSource -All [<CommonParameters>]
 ```
 

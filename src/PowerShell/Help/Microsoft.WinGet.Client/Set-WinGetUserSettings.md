@@ -10,12 +10,11 @@ title: Set-WinGetUserSettings
 # Set-WinGetUserSettings
 
 ## SYNOPSIS
-
 Sets configuration settings of the WinGet client for the current user.
 
 ## SYNTAX
 
-```powershell
+```
 Set-WinGetUserSettings -UserSettings <Hashtable> [-Merge] [<CommonParameters>]
 ```
 

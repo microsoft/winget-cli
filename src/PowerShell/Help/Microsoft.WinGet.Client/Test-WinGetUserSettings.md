@@ -10,12 +10,11 @@ title: Test-WinGetUserSettings
 # Test-WinGetUserSettings
 
 ## SYNOPSIS
-
 Tests the current state of WinGet user settings.
 
 ## SYNTAX
 
-```powershell
+```
 Test-WinGetUserSettings -UserSettings <Hashtable> [-IgnoreNotSet] [<CommonParameters>]
 ```
 
@@ -38,7 +37,7 @@ Test-WinGetUserSettings -UserSettings @{
 ```
 
 This example shows how to confirm that your current user settings match specific values. The
-command returns `$false` if it is not an exact match.
+command returns `$false` if it is not an exact match. 
 
 ### Example 2: Test only progress bar setting
 
