@@ -106,6 +106,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSettings);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationStatusWatchArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSuccessfullyApplied);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSuppressPrologueArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnexpectedTestResult);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitAssertHadNegativeResult);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitFailed);

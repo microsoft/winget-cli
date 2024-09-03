@@ -70,6 +70,9 @@ namespace ConfigurationRemotingServer
 
         static int Main(string[] args)
         {
+            // Remove any attached console to prevent modules (or their actions) from writing to our console.
+            FreeConsole();
+
             // Help find WindowsPackageManager.dll
             AssemblyLoadContext.Default.ResolvingUnmanagedDll += NativeAssemblyLoadContext.ResolvingUnmanagedHandler;
 
@@ -196,5 +199,9 @@ namespace ConfigurationRemotingServer
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         private static extern IntPtr GetCommandLineW();
+
+        [DllImport("kernel32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool FreeConsole();
     }
 }

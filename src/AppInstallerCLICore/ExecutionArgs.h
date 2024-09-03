@@ -124,6 +124,7 @@ namespace AppInstaller::CLI::Execution
             // Configuration
             ConfigurationFile,
             ConfigurationAcceptWarning,
+            ConfigurationSuppressPrologue,
             ConfigurationEnable,
             ConfigurationDisable,
             ConfigurationModulePath,
