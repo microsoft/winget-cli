@@ -1470,5 +1470,9 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<MicrosoftEntraIdAuthenticationInfo>;
         interface Windows.Foundation.Collections.IVector<AuthenticationInfo>;
         interface Windows.Foundation.Collections.IVectorView<AuthenticationInfo>;
+        interface Windows.Foundation.Collections.IVector<RepairOptions>;
+        interface Windows.Foundation.Collections.IVectorView<RepairOptions>;
+        interface Windows.Foundation.Collections.IVector<RepairResult>;
+        interface Windows.Foundation.Collections.IVectorView<RepairResult>;
     }
 }
