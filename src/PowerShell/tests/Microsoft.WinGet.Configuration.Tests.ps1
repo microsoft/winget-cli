@@ -351,7 +351,8 @@ Describe 'Invoke-WinGetConfiguration' {
     BeforeEach {
         DeleteConfigTxtFiles
     }
-
+    
+<# PS Gallery tests are unreliable.
     It 'From Gallery' {
         EnsureModuleState "XmlContentDsc" $false
 
@@ -366,6 +367,7 @@ Describe 'Invoke-WinGetConfiguration' {
         $result.UnitResults[0].State | Should -Be "Completed"
         $result.UnitResults[0].ResultCode | Should -Be -1978285819
     }
+#>
 
     It 'From TestRepo' {
         EnsureModuleState $e2eTestModule $false
@@ -530,7 +532,8 @@ Describe 'Start|Complete-WinGetConfiguration' {
     BeforeEach {
         DeleteConfigTxtFiles
     }
-
+    
+<# PS Gallery tests are unreliable.
     It 'From Gallery' {
         EnsureModuleState "XmlContentDsc" $false
 
@@ -548,6 +551,7 @@ Describe 'Start|Complete-WinGetConfiguration' {
         $result.UnitResults[0].State | Should -Be "Completed"
         $result.UnitResults[0].ResultCode | Should -Be -1978285819
     }
+#>
 
     It 'From TestRepo' {
         $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
