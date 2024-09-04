@@ -46,7 +46,7 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
         /// <summary>
         /// Gets or sets the trust level of the source to add.
         /// </summary>
-        [Parameter(ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
+        [Parameter(ValueFromPipelineByPropertyName = true)]
         public PSSourceTrustLevel TrustLevel { get; set; } = PSSourceTrustLevel.Default;
 
         /// <summary>

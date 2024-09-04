@@ -33,7 +33,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public void EnableSetting(string name)
         {
             Utilities.VerifyAdmin();
-            _ = this.Run("settings", $"--enable {name}");
+            _ = this.Run("settings", $"--enable \"{name}\"");
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public void DisableSetting(string name)
         {
             Utilities.VerifyAdmin();
-            _ = this.Run("settings", $"--disable {name}");
+            _ = this.Run("settings", $"--disable \"{name}\"");
         }
 
         /// <summary>
@@ -75,20 +75,16 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public void AddSource(string name, string arg, string type, string trustLevel, bool isExplicit)
         {
             Utilities.VerifyAdmin();
-            string parameters = string.Empty;
+            string parameters = $"add --name \"{name}\" --arg \"{arg}\"";
 
-            if (string.IsNullOrEmpty(type))
+            if (!string.IsNullOrEmpty(type))
             {
-                parameters = $"add --name {name} --arg {arg}";
-            }
-            else
-            {
-                parameters = $"add --name {name} --arg {arg} --type {type}";
+                parameters += $" --type \"{type}\"";
             }
 
             if (!string.IsNullOrEmpty(trustLevel))
             {
-                parameters += $" --trust-level {trustLevel}";
+                parameters += $" --trust-level \"{trustLevel}\"";
             }
 
             if (isExplicit)
@@ -106,7 +102,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public void RemoveSource(string name)
         {
             Utilities.VerifyAdmin();
-            _ = this.Run("source", $"remove --name {name}");
+            _ = this.Run("source", $"remove --name \"{name}\"");
         }
 
         /// <summary>
@@ -116,7 +112,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public void ResetSourceByName(string name)
         {
             Utilities.VerifyAdmin();
-            _ = this.Run("source", $"reset --name {name} --force");
+            _ = this.Run("source", $"reset --name \"{name}\" --force");
         }
 
         /// <summary>
