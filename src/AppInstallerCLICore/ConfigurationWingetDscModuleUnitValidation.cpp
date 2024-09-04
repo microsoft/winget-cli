@@ -241,8 +241,8 @@ namespace AppInstaller::CLI::Configuration
            }
            if (package.UseLatest && !package.Version.empty())
            {
-               AICLI_LOG(Config, Error, << "WinGetPackage unit both UseLatest and Version declared. Package: " << package.Id);
-               context.Reporter.Error() << Resource::String::WinGetResourceUnitBothPackageVersionAndUseLatest(Utility::LocIndView{ package.Id }) << std::endl;
+               AICLI_LOG(Config, Warning, << "WinGetPackage unit both UseLatest and Version declared. Package: " << package.Id);
+               context.Reporter.Warn() << Resource::String::WinGetResourceUnitBothPackageVersionAndUseLatest(Utility::LocIndView{ package.Id }) << std::endl;
                foundIssues = true;
            }
            // Validate dependency source is configured.

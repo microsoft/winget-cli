@@ -292,8 +292,7 @@ class WinGetSource
 
         if ($addSource)
         {
-            $hashArgs = @
-            {
+            $hashArgs = @{
                 Name = $this.Name
                 Argument = $this.Argument
             }
@@ -472,7 +471,7 @@ class WinGetPackage
 
     [WinGetPackage] Get()
     {
-        $result = [WinGetSource]::new()
+        $result = [WinGetPackage]::new()
 
         $hashArgs = @{
             Id = $this.Id
@@ -506,13 +505,11 @@ class WinGetPackage
 
     [bool] Test()
     {
-        $this.ValidateVersionSpecification();
         return $this.TestAgainstCurrent($this.Get())
     }
 
     [void] Set()
     {
-        $this.ValidateVersionSpecification();
         $currentPackage = $this.Get()
 
         if (-not $this.TestAgainstCurrent($currentPackage))
@@ -592,13 +589,15 @@ class WinGetPackage
 
         # At this point we know is installed.
         # If asked for latest, but there are updates available.
-        if ($this.UseLatest -and -not $currentPackage.UseLatest)
+        if ($this.UseLatest)
         {
-            return $false
+            if (-not $currentPackage.UseLatest)
+            {
+                return $false
+            }
         }
-
         # If there is an specific version, compare with the current installed version.
-        if (-not ([string]::IsNullOrWhiteSpace($this.Version)))
+        elseif (-not ([string]::IsNullOrWhiteSpace($this.Version)))
         {
             $compareResult = $currentPackage.CatalogPackage.CompareToVersion($this.Version)
             if ($compareResult -ne 'Equal')
@@ -608,15 +607,6 @@ class WinGetPackage
         }
 
         return $true
-    }
-
-    hidden ValidateVersionSpecification()
-    {
-        if ($this.UseLatest -and (-not [string]::IsNullOrWhiteSpace($this.Version)))
-        {
-            # TODO: Localize.
-            throw "WinGetPackage: Version and UseLatest cannot be set at the same time"
-        }
     }
 
     hidden Install([Hashtable]$hashArgs)
