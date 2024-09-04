@@ -201,7 +201,6 @@ class WinGetSource
     [string]$Name
     
     [DscProperty(Mandatory)]
-    [ValidateNotNullOrWhiteSpace()]
     [string]$Argument
     
     [DscProperty()]
@@ -497,6 +496,9 @@ class WinGetPackage
         else
         {
             $result.Ensure = [Ensure]::Absent
+            $result.Id = $this.Id
+            $result.MatchOption = $this.MatchOption
+            $result.Source = $this.Source
         }
 
         return $result
