@@ -3,21 +3,17 @@
 
 using namespace System.Collections.Generic
 
-try
+# Check that we are running as an administrator
+function Assert-IsAdministrator
 {
-    # Load all non-test .ps1 files in the script's directory.
-    Get-ChildItem -Path $PSScriptRoot\* -Filter *.ps1 -Exclude *.Tests.ps1 -Recurse | ForEach-Object { . $_.FullName }
-} catch
-{
-    $e = $_.Exception
-    while ($e.InnerException)
-    {
-        $e = $e.InnerException
-    }
+    $windowsIdentity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+    $windowsPrincipal = New-Object -TypeName 'System.Security.Principal.WindowsPrincipal' -ArgumentList @( $windowsIdentity )
 
-    if (-not [string]::IsNullOrWhiteSpace($e.Message))
+    $adminRole = [System.Security.Principal.WindowsBuiltInRole]::Administrator
+
+    if (-not $windowsPrincipal.IsInRole($adminRole))
     {
-        Write-Host $e.Message -ForegroundColor Red -BackgroundColor Black
+        New-InvalidOperationException -Message "This resource must run as an Administrator."
     }
 }
 
@@ -88,8 +84,6 @@ class WinGetUserSettings
     # Gets the current UserSettings by looking at the settings.json file for the current user.
     [WinGetUserSettings] Get()
     {
-        Assert-WinGetCommand "Get-WinGetUserSettings"
-
         $userSettings = Get-WinGetUserSettings
         $result = @{
             SID = ''
@@ -101,8 +95,6 @@ class WinGetUserSettings
     # Tests if desired properties match.
     [bool] Test()
     {
-        Assert-WinGetCommand "Test-WinGetUserSettings"
-
         $hashArgs = @{
             UserSettings = $this.Settings
         }
@@ -118,8 +110,6 @@ class WinGetUserSettings
     # Sets the desired properties.
     [void] Set()
     {
-        Assert-WinGetCommand "Set-WinGetUserSettings"
-
         $hashArgs = @{
             UserSettings = $this.Settings
         }
@@ -148,7 +138,6 @@ class WinGetAdminSettings
     # Gets the administrator settings.
     [WinGetAdminSettings] Get()
     {
-        Assert-WinGetCommand "Get-WinGetSettings"
         $settingsJson = Get-WinGetSettings
         # Get admin setting values.
 
@@ -183,8 +172,6 @@ class WinGetAdminSettings
     [void] Set()
     {
         Assert-IsAdministrator
-        Assert-WinGetCommand "Enable-WinGetSetting"
-        Assert-WinGetCommand "Disable-WinGetSetting"
 
         # It might be better to implement an internal Test with one value, or
         # create a new instances with only one setting than calling Enable/Disable
@@ -231,14 +218,13 @@ class WinGetSource
 
     [WinGetSource] Get()
     {
-        Assert-WinGetCommand "Get-WinGetSource"
         $currentSource = Get-WinGetSource -Name $this.Name
         $result = [WinGetSource]::new()
+        $result.Name = $currentSource.Name
 
         if ($currentSource)
         {
             $result.Ensure = [Ensure]::Present
-            $result.Name = $currentSource.Name
             $result.Argument = $currentSource.Argument
             $result.Type = $currentSource.Type
             $result.TrustLevel = $currentSource.TrustLevel
@@ -260,9 +246,6 @@ class WinGetSource
     [void] Set()
     {
         Assert-IsAdministrator
-        Assert-WinGetCommand "Add-WinGetSource"
-        Assert-WinGetCommand "Remove-WinGetSource"
-        Assert-WinGetCommand "Reset-WinGetSource"
 
         $currentSource = $this.Get()
 
@@ -335,8 +318,14 @@ class WinGetSource
         }
     }
     
-    hidden [bool] TestAgainstCurrent([WinGetSource]$currentSource)
+    [bool] hidden TestAgainstCurrent([WinGetSource]$currentSource)
     {
+        if ($this.Ensure -eq [Ensure]::Absent -and
+            $currentSource.Ensure -eq [Ensure]::Absent)
+        {
+            return $true
+        }
+
         if ($this.Ensure -ne $currentSource.Ensure -or
             $this.Argument -ne $currentSource.Argument)
         {
@@ -398,9 +387,6 @@ class WinGetPackageManager
     # Tests winget is installed.
     [bool] Test()
     {
-        Assert-WinGetCommand "Assert-WinGetPackageManager"
-        Assert-WinGetCommand "Get-WinGetVersion"
-
         try
         {
             $hashArgs = @{}
@@ -430,8 +416,6 @@ class WinGetPackageManager
     # Repairs Winget.
     [void] Set()
     {
-        Assert-WinGetCommand "Repair-WinGetPackageManager"
-
         if (-not $this.Test())
         {
             $result = -1
@@ -485,34 +469,12 @@ class WinGetPackage
     [DSCProperty()]
     [InstallMode]$InstallMode = [InstallMode]::Silent
 
-    [DscProperty(NotConfigurable)]
-    [string]$InstalledVersion
-
-    [DscProperty(NotConfigurable)]
-    [bool]$IsInstalled = $false
-
-    [DscProperty(NotConfigurable)]
-    [bool]$IsUpdateAvailable = $false
-
     [PSObject] hidden $CatalogPackage = $null
 
-    hidden Initialize()
+    [WinGetPackage] Get()
     {
-        # DSC only validates keys and mandatories in a Set call.
-        if ([string]::IsNullOrWhiteSpace($this.Id))
-        {
-            # TODO: Localize.
-            throw "WinGetPackage: Id is required"
-        }
+        $result = [WinGetSource]::new()
 
-        if (($this.UseLatest -eq $true) -and (-not[string]::IsNullOrWhiteSpace($this.Version)))
-        {
-            # TODO: Localize.
-            throw "WinGetPackage: Version and UseLatest cannot be set at the same time"
-        }
-
-        # This has to use MatchOption equals. Otherwise, it might find other package where the
-        # id starts with.
         $hashArgs = @{
             Id = $this.Id
             MatchOption = $this.MatchOption
@@ -523,71 +485,35 @@ class WinGetPackage
             $hashArgs.Add("Source", $this.Source)
         }
 
-        $this.CatalogPackage = Get-WinGetPackage @hashArgs
-        if ($null -ne $this.CatalogPackage)
+        $result.CatalogPackage = Get-WinGetPackage @hashArgs
+        if ($null -ne $result.CatalogPackage)
         {
-            $this.InstalledVersion = $this.CatalogPackage.InstalledVersion
-            $this.IsInstalled = $true
-            $this.IsUpdateAvailable = $this.CatalogPackage.IsUpdateAvailable
+            $result.Ensure = [Ensure]::Present
+            $result.Id = $result.CatalogPackage.Id
+            $result.Source = $result.CatalogPackage.Source
+            $result.Version = $result.CatalogPackage.InstalledVersion
+            $result.UseLatest = -not $result.CatalogPackage.IsUpdateAvailable
         }
+        else
+        {
+            $result.Ensure = [Ensure]::Absent
+        }
+
+        return $result
     }
 
-    # Get.
-    [WinGetPackage] Get()
-    {
-        Assert-WinGetCommand "Get-WinGetPackage"
-        $this.Initialize()
-        return $this
-    }
-
-    # Test.
     [bool] Test()
     {
-        $this.Initialize()
-        $ensureInstalled = $this.Ensure -eq [Ensure]::Present
-
-        # Not installed, doesn't have to.
-        if (-not($this.IsInstalled -or $ensureInstalled))
-        {
-            return $true
-        }
-
-        # Not install, need to ensure installed.
-        # Installed, need to ensure not installed.
-        if ($this.IsInstalled -ne $ensureInstalled)
-        {
-            return $false
-        }
-
-        # At this point we know is installed.
-        # If asked for latests, but there are updates available.
-        if ($this.UseLatest -and
-            $this.IsUpdateAvailable)
-        {
-            return $false
-        }
-
-        # If there is an specific version, compare with the current installed version.
-        if (-not ([string]::IsNullOrWhiteSpace($this.Version)))
-        {
-            $compareResult = $this.CatalogPackage.CompareToVersion($this.Version)
-            if ($compareResult -ne 'Equal')
-            {
-                return $false
-            }
-        }
-
-        # For now this is all.
-        return $true
+        $this.ValidateVersionSpecification();
+        return $this.TestAgainstCurrent($this.Get())
     }
 
-    # Set.
     [void] Set()
     {
-        Assert-WinGetCommand "Install-WinGetPackage"
-        Assert-WinGetCommand "Uninstall-WinGetPackage"
+        $this.ValidateVersionSpecification();
+        $currentPackage = $this.Get()
 
-        if (-not $this.Test())
+        if (-not $this.TestAgainstCurrent($currentPackage))
         {
             $hashArgs = @{
                 Id = $this.Id
@@ -602,7 +528,7 @@ class WinGetPackage
                     $hashArgs.Add("Source", $this.Source)
                 }
 
-                if ($this.IsInstalled)
+                if ($currentPackage.Ensure -eq [Ensure]::Present)
                 {
                     if ($this.UseLatest)
                     {
@@ -612,7 +538,7 @@ class WinGetPackage
                     {
                         $hashArgs.Add("Version", $this.Version)
 
-                        $compareResult = $this.CatalogPackage.CompareToVersion($this.Version)
+                        $compareResult = $currentPackage.CatalogPackage.CompareToVersion($this.Version)
                         switch ($compareResult)
                         {
                             'Lesser'
@@ -644,6 +570,50 @@ class WinGetPackage
             {
                 $this.Uninstall()
             }
+        }
+    }
+    
+    [bool] hidden TestAgainstCurrent([WinGetPackage]$currentPackage)
+    {
+        if ($this.Ensure -eq [Ensure]::Absent -and
+            $currentPackage.Ensure -eq [Ensure]::Absent)
+        {
+            return $true
+        }
+
+        $this.CatalogPackage = $currentPackage.CatalogPackage
+
+        if ($this.Ensure -ne $currentPackage.Ensure)
+        {
+            return $false
+        }
+
+        # At this point we know is installed.
+        # If asked for latest, but there are updates available.
+        if ($this.UseLatest -and -not $currentPackage.UseLatest)
+        {
+            return $false
+        }
+
+        # If there is an specific version, compare with the current installed version.
+        if (-not ([string]::IsNullOrWhiteSpace($this.Version)))
+        {
+            $compareResult = $currentPackage.CatalogPackage.CompareToVersion($this.Version)
+            if ($compareResult -ne 'Equal')
+            {
+                return $false
+            }
+        }
+
+        return $true
+    }
+
+    hidden ValidateVersionSpecification()
+    {
+        if ($this.UseLatest -and (-not [string]::IsNullOrWhiteSpace($this.Version)))
+        {
+            # TODO: Localize.
+            throw "WinGetPackage: Version and UseLatest cannot be set at the same time"
         }
     }
 

@@ -27,9 +27,6 @@ Allows WinGet package state to be configured.
 `MatchOption`|Optional|MatchOption|The method used to compare the `Id` parameter with available packages.|`Equals`, `EqualsCaseInsensitive` (default), `StartsWithCaseInsensitive`, `ContainsCaseInsensitive`
 `UseLatest`|Optional|Boolean|Whether the package should updated to the latest available version.|`True`, `False` (default)
 `InstallMode`|Optional|InstallMode|The interactivity level requested when installing.|`Default`, `Silent` (default), `Interactive`
-`InstalledVersion`|NotConfigurable|String|The version of the package that is installed.|
-`IsInstalled`|NotConfigurable|Boolean|Whether the package is installed.|
-`IsUpdateAvailable`|NotConfigurable|Boolean|If `IsInstalled`, whether an update to the package is available.|
 
 ## NOTES
 
