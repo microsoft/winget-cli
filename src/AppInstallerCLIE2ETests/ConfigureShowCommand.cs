@@ -29,6 +29,7 @@ namespace AppInstallerCLIE2ETests
         /// Simple test to confirm that a resource without a module specified can be discovered in the PSGallery.
         /// </summary>
         [Test]
+        [Ignore("PS Gallery tests are unreliable.")]
         public void ShowDetailsFromGallery()
         {
             TestCommon.EnsureModuleState(Constants.GalleryTestModuleName, present: false);
