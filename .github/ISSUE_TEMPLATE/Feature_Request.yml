@@ -4,7 +4,7 @@ labels: ['Issue-Feature']
 body:
   - type: textarea
     attributes:
-      label: Description of the new feature / enhancement
+      label: Description of the new feature/enhancement
       placeholder: |
         A clear and concise description of what the problem is that the new feature would solve.
         Describe why and how a user would use this new functionality (if applicable).
