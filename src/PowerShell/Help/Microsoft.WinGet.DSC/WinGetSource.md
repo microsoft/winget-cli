@@ -23,6 +23,6 @@ Allows WinGet sources to be configured or retrieved.
 `Name`|Key, Mandatory|String|The name of the source.|Any string using valid characters for Windows file names
 `Argument`|Mandatory|String|The primary data defining the source; typically the URI prefix of the source.|Source type specific value
 `Type`|Optional|String|The type of the source.|`Microsoft.PreIndexed.Package`, `Microsoft.Rest`
-`TrustLevel`|Optional|TrustLevel|The trust level of the source, which determines how much scrutiny is placed on it when used. If undefined and the source needs to be configured, the default value is `None`.|`Undefined` (default), `None`, `Trusted`
-`Explicit`|Optional|OptionalBool|Whether the source is included (`False`) or not (`True`) in commands that do not specify a source. If undefined and the source needs to be configured, the default value is `False`.|`Undefined` (default), `False`, `True`
-`Ensure`|Optional|Ensure|Whether the source should exist (`Present`) or not (`Absent`).|`Present` (default), `Absent`
+`TrustLevel`|Optional|WinGetTrustLevel|The trust level of the source, which determines how much scrutiny is placed on it when used. If undefined and the source needs to be configured, the default value is `None`.|`Undefined` (default), `None`, `Trusted`
+`Explicit`|Optional|WinGetOptionalBool|Whether the source is included (`False`) or not (`True`) in commands that do not specify a source. If undefined and the source needs to be configured, the default value is `False`.|`Undefined` (default), `False`, `True`
+`Ensure`|Optional|WinGetEnsure|Whether the source should exist (`Present`) or not (`Absent`).|`Present` (default), `Absent`

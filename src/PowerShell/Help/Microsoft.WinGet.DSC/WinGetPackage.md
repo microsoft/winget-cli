@@ -23,7 +23,7 @@ Allows WinGet package state to be configured.
 `Id`|Key, Mandatory|String|The identifier of a WinGet package.|Use `Find-WinGetPackage` to search for packages
 `Source`|Key|String|The name of the source that provides the package. If not provided, all configured sources will be searched for the `Id`.|Use the `WinGetSources` resource to configure a source or `Get-WinGetSource` to discover the default sources
 `Version`|Optional|String|The version of the package.|See the `AvailableVersions` property of output from `Find-WinGetPackage`
-`Ensure`|Optional|Ensure|Whether the package should be installed (`Present`) or not (`Absent`).|`Present` (default), `Absent`
-`MatchOption`|Optional|MatchOption|The method used to compare the `Id` parameter with available packages.|`Equals`, `EqualsCaseInsensitive` (default), `StartsWithCaseInsensitive`, `ContainsCaseInsensitive`
+`Ensure`|Optional|WinGetEnsure|Whether the package should be installed (`Present`) or not (`Absent`).|`Present` (default), `Absent`
+`MatchOption`|Optional|WinGetMatchOption|The method used to compare the `Id` parameter with available packages.|`Equals`, `EqualsCaseInsensitive` (default), `StartsWithCaseInsensitive`, `ContainsCaseInsensitive`
 `UseLatest`|Optional|Boolean|Whether the package should updated to the latest available version. If true, takes precedence over `Version`.|`True`, `False` (default)
-`InstallMode`|Optional|InstallMode|The interactivity level requested when installing.|`Default`, `Silent` (default), `Interactive`
+`InstallMode`|Optional|WinGetInstallMode|The interactivity level requested when installing.|`Default`, `Silent` (default), `Interactive`
