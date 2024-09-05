@@ -65,20 +65,10 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
             command.AddSource(this.Name, this.Argument, this.Type, this.ConvertPSSourceTrustLevelToString(this.TrustLevel), this.Explicit.ToBool());
         }
 
-        private string ConvertPSSourceTrustLevelToString(PSSourceTrustLevel trustLevel)
+        private string ConvertPSSourceTrustLevelToString(PSSourceTrustLevel trustLevel) => trustLevel switch
         {
-            string trustLevelString = string.Empty;
-            switch (trustLevel)
-            {
-                case PSSourceTrustLevel.None:
-                    trustLevelString = "None";
-                    break;
-                case PSSourceTrustLevel.Trusted:
-                    trustLevelString = "Trusted";
-                    break;
-            }
-
-            return trustLevelString;
-        }
+            PSSourceTrustLevel.Default => string.Empty,
+            _ => trustLevel.ToString(),
+        };
     }
 }
