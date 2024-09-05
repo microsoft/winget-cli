@@ -42,10 +42,7 @@ BeforeAll {
             Get-WinGetSource -Name 'TestSource'
         }
         catch {
-            # TODO: Add-WinGetSource does not support setting trust level yet.
-            # Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/'
-            $sourceAddCommand = "${wingetExeName} source add TestSource https://localhost:5001/TestKit/ --trust-level trusted"
-            Invoke-Expression -Command $sourceAddCommand
+            Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/' -TrustLevel 'Trusted'
         }
     }
 
@@ -154,7 +151,7 @@ Describe 'Reset-WinGetSource' {
 Describe 'Get|Add|Reset-WinGetSource' {
 
     BeforeAll {
-        AddTestSource
+        Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/' -TrustLevel 'Trusted' -Explicit
     }
 
     It 'Get Test source' {
@@ -164,6 +161,8 @@ Describe 'Get|Add|Reset-WinGetSource' {
         $source.Name | Should -Be 'TestSource'
         $source.Argument | Should -Be 'https://localhost:5001/TestKit/'
         $source.Type | Should -Be 'Microsoft.PreIndexed.Package'
+        $source.TrustLevel | Should -Be 'Trusted'
+        $source.Explicit | Should -Be $true
     }
 
     It 'Get fake source' {
