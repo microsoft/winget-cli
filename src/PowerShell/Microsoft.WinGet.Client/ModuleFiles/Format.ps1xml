@@ -283,6 +283,12 @@
           <TableColumnHeader>
             <Label>Type</Label>
           </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>TrustLevel</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Explicit</Label>
+          </TableColumnHeader>          
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
@@ -295,6 +301,12 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>$_.Type</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.TrustLevel</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Explicit</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
