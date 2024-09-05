@@ -24,13 +24,13 @@ enum WinGetAction
     Full
 }
 
-enum Ensure
+enum WinGetEnsure
 {
     Absent
     Present
 }
 
-enum MatchOption
+enum WinGetMatchOption
 {
     Equals
     EqualsCaseInsensitive
@@ -38,21 +38,21 @@ enum MatchOption
     ContainsCaseInsensitive
 }
 
-enum InstallMode
+enum WinGetInstallMode
 {
     Default
     Silent
     Interactive
 }
 
-enum TrustLevel
+enum WinGetTrustLevel
 {
     Undefined
     None
     Trusted
 }
 
-enum OptionalBool
+enum WinGetOptionalBool
 {
     Undefined
     False
@@ -207,13 +207,13 @@ class WinGetSource
     [string]$Type
     
     [DscProperty()]
-    [TrustLevel]$TrustLevel = [TrustLevel]::Undefined
+    [WinGetTrustLevel]$TrustLevel = [WinGetTrustLevel]::Undefined
     
     [DscProperty()]
-    [OptionalBool]$Explicit = [OptionalBool]::Undefined
+    [WinGetOptionalBool]$Explicit = [WinGetOptionalBool]::Undefined
 
     [DscProperty()]
-    [Ensure]$Ensure = [Ensure]::Present
+    [WinGetEnsure]$Ensure = [WinGetEnsure]::Present
 
     [WinGetSource] Get()
     {
@@ -229,7 +229,7 @@ class WinGetSource
 
         if ($currentSource)
         {
-            $result.Ensure = [Ensure]::Present
+            $result.Ensure = [WinGetEnsure]::Present
             $result.Name = $currentSource.Name
             $result.Argument = $currentSource.Argument
             $result.Type = $currentSource.Type
@@ -238,7 +238,7 @@ class WinGetSource
         }
         else
         {
-            $result.Ensure = [Ensure]::Absent
+            $result.Ensure = [WinGetEnsure]::Absent
             $result.Name = $this.Name
         }
 
@@ -260,9 +260,9 @@ class WinGetSource
         $resetSource = $false
         $addSource = $false
 
-        if ($this.Ensure -eq [Ensure]::Present)
+        if ($this.Ensure -eq [WinGetEnsure]::Present)
         {
-            if ($currentSource.Ensure -eq [Ensure]::Present)
+            if ($currentSource.Ensure -eq [WinGetEnsure]::Present)
             {
                 if (-not $this.TestAgainstCurrent($currentSource))
                 {
@@ -278,7 +278,7 @@ class WinGetSource
         }
         else
         {
-            if ($currentSource.Ensure -eq [Ensure]::Present)
+            if ($currentSource.Ensure -eq [WinGetEnsure]::Present)
             {
                 $removeSource = $true
             }
@@ -310,14 +310,14 @@ class WinGetSource
                 $hashArgs.Add("Type", $this.Type)
             }
 
-            if ($this.TrustLevel -ne [TrustLevel]::Undefined)
+            if ($this.TrustLevel -ne [WinGetTrustLevel]::Undefined)
             {
                 $hashArgs.Add("TrustLevel", $this.TrustLevel)
             }
 
-            if ($this.Explicit -ne [OptionalBool]::Undefined)
+            if ($this.Explicit -ne [WinGetOptionalBool]::Undefined)
             {
-                $hashArgs.Add("Explicit", ($this.Explicit -eq [OptionalBool]::True))
+                $hashArgs.Add("Explicit", ($this.Explicit -eq [WinGetOptionalBool]::True))
             }
 
             Add-WinGetSource @hashArgs
@@ -326,8 +326,8 @@ class WinGetSource
     
     [bool] hidden TestAgainstCurrent([WinGetSource]$currentSource)
     {
-        if ($this.Ensure -eq [Ensure]::Absent -and
-            $currentSource.Ensure -eq [Ensure]::Absent)
+        if ($this.Ensure -eq [WinGetEnsure]::Absent -and
+            $currentSource.Ensure -eq [WinGetEnsure]::Absent)
         {
             return $true
         }
@@ -344,13 +344,13 @@ class WinGetSource
             return $false
         }
 
-        if ($this.TrustLevel -ne [TrustLevel]::Undefined -and
+        if ($this.TrustLevel -ne [WinGetTrustLevel]::Undefined -and
             $this.TrustLevel -ne $currentSource.TrustLevel)
         {
             return $false
         }
 
-        if ($this.Explicit -ne [OptionalBool]::Undefined -and
+        if ($this.Explicit -ne [WinGetOptionalBool]::Undefined -and
             $this.Explicit -ne $currentSource.Explicit)
         {
             return $false
@@ -464,16 +464,16 @@ class WinGetPackage
     [string]$Version
 
     [DscProperty()]
-    [Ensure]$Ensure = [Ensure]::Present
+    [WinGetEnsure]$Ensure = [WinGetEnsure]::Present
 
     [DscProperty()]
-    [MatchOption]$MatchOption = [MatchOption]::EqualsCaseInsensitive
+    [WinGetMatchOption]$MatchOption = [WinGetMatchOption]::EqualsCaseInsensitive
 
     [DscProperty()]
     [bool]$UseLatest = $false
 
     [DSCProperty()]
-    [InstallMode]$InstallMode = [InstallMode]::Silent
+    [WinGetInstallMode]$InstallMode = [WinGetInstallMode]::Silent
 
     [PSObject] hidden $CatalogPackage = $null
 
@@ -494,7 +494,7 @@ class WinGetPackage
         $result.CatalogPackage = Get-WinGetPackage @hashArgs
         if ($null -ne $result.CatalogPackage)
         {
-            $result.Ensure = [Ensure]::Present
+            $result.Ensure = [WinGetEnsure]::Present
             $result.Id = $result.CatalogPackage.Id
             $result.Source = $result.CatalogPackage.Source
             $result.Version = $result.CatalogPackage.InstalledVersion
@@ -502,7 +502,7 @@ class WinGetPackage
         }
         else
         {
-            $result.Ensure = [Ensure]::Absent
+            $result.Ensure = [WinGetEnsure]::Absent
             $result.Id = $this.Id
             $result.MatchOption = $this.MatchOption
             $result.Source = $this.Source
@@ -528,14 +528,14 @@ class WinGetPackage
                 Mode = $this.InstallMode
             }
             
-            if ($this.Ensure -eq [Ensure]::Present)
+            if ($this.Ensure -eq [WinGetEnsure]::Present)
             {
                 if (-not([string]::IsNullOrWhiteSpace($this.Source)))
                 {
                     $hashArgs.Add("Source", $this.Source)
                 }
 
-                if ($currentPackage.Ensure -eq [Ensure]::Present)
+                if ($currentPackage.Ensure -eq [WinGetEnsure]::Present)
                 {
                     if ($this.UseLatest)
                     {
@@ -582,8 +582,8 @@ class WinGetPackage
     
     [bool] hidden TestAgainstCurrent([WinGetPackage]$currentPackage)
     {
-        if ($this.Ensure -eq [Ensure]::Absent -and
-            $currentPackage.Ensure -eq [Ensure]::Absent)
+        if ($this.Ensure -eq [WinGetEnsure]::Absent -and
+            $currentPackage.Ensure -eq [WinGetEnsure]::Absent)
         {
             return $true
         }
