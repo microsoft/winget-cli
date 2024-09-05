@@ -217,21 +217,29 @@ class WinGetSource
 
     [WinGetSource] Get()
     {
-        $currentSource = Get-WinGetSource -Name $this.Name
+        $currentSource = $null
+
+        try {
+            $currentSource = Get-WinGetSource -Name $this.Name
+        }
+        catch {
+        }
+
         $result = [WinGetSource]::new()
-        $result.Name = $currentSource.Name
 
         if ($currentSource)
         {
             $result.Ensure = [Ensure]::Present
+            $result.Name = $currentSource.Name
             $result.Argument = $currentSource.Argument
             $result.Type = $currentSource.Type
             $result.TrustLevel = $currentSource.TrustLevel
-            $result.Explicit = $currentSource.Explicit
+            $result.Explicit = $currentSource.Explicit.ToString()
         }
         else
         {
             $result.Ensure = [Ensure]::Absent
+            $result.Name = $this.Name
         }
 
         return $result
@@ -309,7 +317,7 @@ class WinGetSource
 
             if ($this.Explicit -ne [OptionalBool]::Undefined)
             {
-                $hashArgs.Add("Explicit", $this.Explicit)
+                $hashArgs.Add("Explicit", ($this.Explicit -eq [OptionalBool]::True))
             }
 
             Add-WinGetSource @hashArgs
