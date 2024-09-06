@@ -81,7 +81,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     async (package, version) =>
                     {
                         var repairOptions = this.GetRepairOptions(version, PSEnumHelpers.ToPackageRepairMode(psPackageRepairMode));
-                        return await PackageManagerWrapper.Instance.RepairPackageAsync(package, repairOptions);
+                        return await this.RepairPackageAsync(package, repairOptions);
                     }));
 
             if (result != null)
@@ -111,7 +111,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             return options;
         }
 
-        private async Task<RepairResult> RepairResultAsync(
+        private async Task<RepairResult> RepairPackageAsync(
             CatalogPackage catalogPackage,
             RepairOptions repairOptions)
         {
