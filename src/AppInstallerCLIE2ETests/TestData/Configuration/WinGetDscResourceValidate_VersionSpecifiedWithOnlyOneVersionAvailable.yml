@@ -8,7 +8,7 @@ properties:
         allowPrerelease: true
       settings:
         Name: TestSource
-        Arg: "https://localhost:5001/TestKit"
+        Argument: "https://localhost:5001/TestKit"
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       id: testPackage
       dependsOn:

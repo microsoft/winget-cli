@@ -164,6 +164,10 @@ Describe 'WinGetSource' {
 
 Describe 'WinGetPackage' {
     BeforeAll {
+        $testSourceName = 'TestSource'
+        $testSourceArg = 'https://localhost:5001/TestKit/'
+        $testSourceType = 'Microsoft.PreIndexed.Package'
+
         $testPackageId = 'AppInstallerTest.TestExeInstaller'
         $testPackageVersion = '1.0.0.0'
 

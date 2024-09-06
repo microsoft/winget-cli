@@ -52,13 +52,6 @@ enum WinGetTrustLevel
     Trusted
 }
 
-enum WinGetOptionalBool
-{
-    Undefined
-    False
-    True
-}
-
 #endregion enums
 
 #region DscResources
@@ -210,7 +203,7 @@ class WinGetSource
     [WinGetTrustLevel]$TrustLevel = [WinGetTrustLevel]::Undefined
     
     [DscProperty()]
-    [WinGetOptionalBool]$Explicit = [WinGetOptionalBool]::Undefined
+    [nullable[bool]]$Explicit = $null
 
     [DscProperty()]
     [WinGetEnsure]$Ensure = [WinGetEnsure]::Present
@@ -234,7 +227,7 @@ class WinGetSource
             $result.Argument = $currentSource.Argument
             $result.Type = $currentSource.Type
             $result.TrustLevel = $currentSource.TrustLevel
-            $result.Explicit = $currentSource.Explicit.ToString()
+            $result.Explicit = $currentSource.Explicit
         }
         else
         {
@@ -315,9 +308,9 @@ class WinGetSource
                 $hashArgs.Add("TrustLevel", $this.TrustLevel)
             }
 
-            if ($this.Explicit -ne [WinGetOptionalBool]::Undefined)
+            if ($null -ne $this.Explicit)
             {
-                $hashArgs.Add("Explicit", ($this.Explicit -eq [WinGetOptionalBool]::True))
+                $hashArgs.Add("Explicit", $this.Explicit)
             }
 
             Add-WinGetSource @hashArgs
@@ -350,7 +343,7 @@ class WinGetSource
             return $false
         }
 
-        if ($this.Explicit -ne [WinGetOptionalBool]::Undefined -and
+        if ($null -ne $this.Explicit -and
             $this.Explicit -ne $currentSource.Explicit)
         {
             return $false

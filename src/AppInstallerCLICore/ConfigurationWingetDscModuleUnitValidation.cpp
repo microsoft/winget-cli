@@ -185,10 +185,10 @@ namespace AppInstaller::CLI::Configuration
                 context.Reporter.Error() << Resource::String::WinGetResourceUnitMissingRequiredArg(Utility::LocIndView{ UnitType_WinGetSource }, "Name"_liv) << std::endl;
                 foundIssues = true;
             }
-            if (source.Arg.empty())
+            if (source.Arg.empty() && source.Present)
             {
-                AICLI_LOG(Config, Error, << "WinGetSource unit missing required arg: Arg");
-                context.Reporter.Error() << Resource::String::WinGetResourceUnitMissingRequiredArg(Utility::LocIndView{ UnitType_WinGetSource }, "Arg"_liv) << std::endl;
+                AICLI_LOG(Config, Error, << "WinGetSource unit missing required arg: Argument");
+                context.Reporter.Error() << Resource::String::WinGetResourceUnitMissingRequiredArg(Utility::LocIndView{ UnitType_WinGetSource }, "Argument"_liv) << std::endl;
                 foundIssues = true;
             }
 
