@@ -275,10 +275,7 @@ class WinGetSource
             {
                 $removeSource = $true
             }
-            else
-            {
-                # In desired state of Absent
-            }
+            # else in desired state (Absent)
         }
 
         if ($removeSource)
@@ -317,6 +314,8 @@ class WinGetSource
         }
     }
     
+    # Test $this against a value retrieved from Get
+    # We don't need to check Name because it is the Key for Get
     [bool] hidden TestAgainstCurrent([WinGetSource]$currentSource)
     {
         if ($this.Ensure -eq [WinGetEnsure]::Absent -and

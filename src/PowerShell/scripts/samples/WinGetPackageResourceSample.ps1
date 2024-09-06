@@ -52,7 +52,7 @@ else
 {
     Write-Host "PowerToys 0.65.0 is not installed."
 
-    #Invoke-DscResource @resource -Method Set
+    Invoke-DscResource @resource -Method Set
 }
 
 $resource = @{
@@ -71,5 +71,5 @@ else
 {
     Write-Host "PowerToys latest version is no installed."
 
-    #Invoke-DscResource @resource -Method Set
+    Invoke-DscResource @resource -Method Set
 }
