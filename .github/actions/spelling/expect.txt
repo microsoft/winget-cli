@@ -12,6 +12,7 @@ admx
 AFAIK
 aicli
 AICLIC
+AKV
 allusers
 alreadyinstalled
 AMap
@@ -37,12 +38,14 @@ ASequence
 ashpatil
 Ashwini
 ASwitch
+Asn
 ASYNCRTIMP
 Atest
 ATL
 AType
 AUrl
 auxdata
+azcopy
 azurewebsites
 Baz
 bcp
@@ -83,6 +86,7 @@ CLOSEAPP
 cloudapp
 clsctx
 CMSG
+cobertura
 CODEOWNERS
 codepage
 COINIT
@@ -385,6 +389,7 @@ PCs
 pcwsz
 pdb
 PDWORD
+Peet
 peetdev
 PEGI
 pfn
@@ -433,6 +438,7 @@ REFIID
 REGDB
 regexes
 REGSAM
+REINSTALLMODE
 relativefilepath
 remoting
 removefile
@@ -460,6 +466,8 @@ runtimes
 ryfu
 sacl
 SARL
+sas
+SASURL
 savepoint
 schematab
 Scm
@@ -574,7 +582,6 @@ wesome
 wfsopen
 wgetenv
 Whatif
-whitesource
 wildcards
 WINAPI
 windir
