@@ -3,6 +3,8 @@
 #pragma once
 #include "ChannelStreams.h"
 #include "VTSupport.h"
+#include <wincodec.h>
+#include <wil/com.h>
 #include <filesystem>
 
 namespace AppInstaller::CLI::VirtualTerminal
@@ -21,25 +23,30 @@ namespace AppInstaller::CLI::VirtualTerminal
     // Contains an image that can be manipulated and rendered to sixels.
     struct SixelImage
     {
+        // Limit to 256 both as the defacto maximum supported colors and to enable always using 8bpp indexed pixel format.
+        static constexpr UINT MaximumColorCount = 256;
+
+        // Yes, its right there in the name but the compiler can't read...
+        static constexpr UINT PixelsPerSixel = 6;
+
+        // Each cell is always a height of 20 and a width of 10, regardless of the screen resolution of the terminal.
+        static constexpr UINT CellHeightInPixels = 20;
+        static constexpr UINT CellWidthInPixels = 10;
+
         SixelImage(const std::filesystem::path& imageFilePath);
 
         void AspectRatio(SixelAspectRatio aspectRatio);
         void Transparency(bool transparencyEnabled);
 
-        // Limit to 256 both as the defacto maximum supported colors and to enable always using 8bpp indexed pixel format.
-        static constexpr size_t MaximumColorCount = 256;
-
         // If transparency is enabled, one of the colors will be reserved for it.
-        void ColorCount(size_t colorCount);
+        void ColorCount(UINT colorCount);
 
-        // The current aspect ratio will be used to convert to cell relative pixel size.
         // The resulting sixel image will render to this size in terminal cell pixels.
-        void RenderSizeInPixels(size_t x, size_t y);
+        void RenderSizeInPixels(UINT x, UINT y);
 
-        // The current aspect ratio will be used to convert to cell relative pixel size.
         // The resulting sixel image will render to this size in terminal cells,
         // consuming as much as possible of the given size without going over.
-        void RenderSizeInCells(size_t x, size_t y);
+        void RenderSizeInCells(UINT x, UINT y);
 
         // Only affects the scaling of the image that occurs when render size is set.
         // When true, the source image will be stretched to fill the target size.
@@ -52,13 +59,23 @@ namespace AppInstaller::CLI::VirtualTerminal
         // Renders to sixel format directly to the output stream.
         void RenderTo(Execution::OutputStream& stream);
 
-    private:
-        SixelAspectRatio m_aspectRatio = SixelAspectRatio::OneToOne;
-        bool m_transparencyEnabled = false;
-        bool m_stretchSourceToFill = false;
+        // The set of values that defines the rendered output.
+        struct RenderControls
+        {
+            SixelAspectRatio AspectRatio = SixelAspectRatio::OneToOne;
+            bool TransparencyEnabled = false;
+            bool StretchSourceToFill = false;
+            UINT ColorCount = MaximumColorCount;
+            UINT SizeX = 0;
+            UINT SizeY = 0;
+        };
 
-        size_t m_colorCount = MaximumColorCount;
-        size_t m_renderSizeX = 0;
-        size_t m_renderSizeY = 0;
+    private:
+        void InitializeFactory();
+
+        wil::com_ptr<IWICImagingFactory> m_factory;
+        wil::com_ptr<IWICBitmapSource> m_sourceImage;
+
+        RenderControls m_renderControls;
     };
 }
