@@ -134,8 +134,8 @@ class WinGetAdminSettings
     # Gets the administrator settings.
     [WinGetAdminSettings] Get()
     {
-        Assert-WinGetCommand "Get-WinGetSettings"
-        $settingsJson = Get-WinGetSettings
+        Assert-WinGetCommand "Get-WinGetSetting"
+        $settingsJson = Get-WinGetSetting
         # Get admin setting values.
 
         $result = @{

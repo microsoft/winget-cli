@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="GetSettingCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -14,7 +14,7 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
     /// Gets winget settings.
     /// </summary>
     [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.Setting)]
-    [Alias("gwgse", "Get-WinGetSetting")]
+    [Alias("gwgse", "Get-WinGetSettings")]
     public sealed class GetSettingCmdlet : PSCmdlet
     {
         /// <summary>
