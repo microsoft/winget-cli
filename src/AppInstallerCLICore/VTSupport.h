@@ -7,6 +7,7 @@
 #include <iostream>
 #include <optional>
 #include <string>
+#include <string_view>
 
 
 namespace AppInstaller::CLI::VirtualTerminal
@@ -38,16 +39,16 @@ namespace AppInstaller::CLI::VirtualTerminal
     // The base for all VT sequences.
     struct Sequence
     {
-        Sequence() = default;
-        explicit Sequence(const char* c) : m_chars(c) {}
+        constexpr Sequence() = default;
+        explicit constexpr Sequence(std::string_view c) : m_chars(c) {}
 
-        const char* Get() const { return m_chars; }
+        std::string_view Get() const { return m_chars; }
 
     protected:
-        void Set(const std::string& s) { m_chars = s.c_str(); }
+        void Set(const std::string& s) { m_chars = s; }
 
     private:
-        const char* m_chars = nullptr;
+        std::string_view m_chars;
     };
 
     // A VT sequence that is constructed at runtime.

@@ -77,7 +77,7 @@ namespace AppInstaller::CLI::VirtualTerminal
 
     void ConstructedSequence::Append(const Sequence& sequence)
     {
-        if (sequence.Get())
+        if (!sequence.Get().empty())
         {
             m_str += sequence.Get();
             Set(m_str);

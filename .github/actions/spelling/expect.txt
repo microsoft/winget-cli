@@ -234,6 +234,7 @@ ishelp
 ISQ
 ISVs
 itr
+IWIC
 iwr
 JArray
 JDictionary
@@ -582,8 +583,10 @@ wesome
 wfsopen
 wgetenv
 Whatif
+WIC
 wildcards
 WINAPI
+wincodec
 windir
 windowsdeveloper
 winerror
