@@ -156,7 +156,7 @@ Describe 'WinGetSource' {
         $result = InvokeWinGetDSC -Name WinGetSource -Method Get -Property @{ Name = $testSourceName }
         $result.Name  | Should -Be $testSourceName
         $result.Type | Should -Be $testSourceType
-        $result.Arg | Should -Be $testSourceArg
+        $result.Argument | Should -Be $testSourceArg
         $result.TrustLevel | Should -Be 'Trusted'
         $result.Explicit | Should -Be $true
     }
