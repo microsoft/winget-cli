@@ -82,6 +82,11 @@ namespace AppInstaller::CLI::Execution
         m_format.Append(sequence);
     }
 
+    void OutputStream::ClearFormat()
+    {
+        m_format.Clear();
+    }
+
     void OutputStream::ApplyFormat()
     {
         // Only apply format if m_applyFormatAtOne == 1 coming into this function.

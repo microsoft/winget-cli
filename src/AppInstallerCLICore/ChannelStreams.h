@@ -60,6 +60,9 @@ namespace AppInstaller::CLI::Execution
         // Adds a format to the current value.
         void AddFormat(const VirtualTerminal::Sequence& sequence);
 
+        // Clears the current format value.
+        void ClearFormat();
+
         template <typename T>
         OutputStream& operator<<(const T& t)
         {

@@ -53,6 +53,9 @@ namespace AppInstaller::CLI::VirtualTerminal
         // When false, the source image will be scaled while keeping its original aspect ratio.
         void StretchSourceToFill(bool stretchSourceToFill);
 
+        // Compresses the output using repeat sequences.
+        void UseRepeatSequence(bool useRepeatSequence);
+
         // Render to sixel format for storage / use multiple times.
         ConstructedSequence Render();
 
@@ -65,6 +68,7 @@ namespace AppInstaller::CLI::VirtualTerminal
             SixelAspectRatio AspectRatio = SixelAspectRatio::OneToOne;
             bool TransparencyEnabled = false;
             bool StretchSourceToFill = false;
+            bool UseRepeatSequence = false;
             UINT ColorCount = MaximumColorCount;
             UINT SizeX = 0;
             UINT SizeY = 0;

@@ -34,13 +34,24 @@ namespace AppInstaller::CLI::VirtualTerminal
             return result;
         }
 
+        // Convert [0, 255] => [0, 100]
+        UINT32 ByteToPercent(BYTE input)
+        {
+            UINT32 result = static_cast<UINT32>(input);
+            result *= 100;
+            UINT32 fractional = result % 255;
+            result /= 255;
+            return result + (fractional >= 128 ? 1 : 0);
+        }
+
         // Contains the state for a rendering pass.
         struct RenderState
         {
             RenderState(
                 IWICImagingFactory* factory,
                 wil::com_ptr<IWICBitmapSource>& sourceImage,
-                const SixelImage::RenderControls& renderControls)
+                const SixelImage::RenderControls& renderControls) :
+                m_renderControls(renderControls)
             {
                 wil::com_ptr<IWICBitmapSource> currentImage = sourceImage;
 
@@ -111,6 +122,26 @@ namespace AppInstaller::CLI::VirtualTerminal
 
                 THROW_IF_FAILED(converter->Initialize(currentImage.get(), GUID_WICPixelFormat8bppIndexed, WICBitmapDitherTypeErrorDiffusion, palette.get(), s_alphaThreshold, WICBitmapPaletteTypeCustom));
                 m_source = CacheToBitmap(factory, converter.get());
+
+                // Lock the image for rendering
+                UINT sourceX = 0;
+                UINT sourceY = 0;
+                THROW_IF_FAILED(currentImage->GetSize(&sourceX, &sourceY));
+                THROW_WIN32_IF(ERROR_BUFFER_OVERFLOW,
+                    sourceX > static_cast<UINT>(std::numeric_limits<INT>::max()) || sourceY > static_cast<UINT>(std::numeric_limits<INT>::max()));
+
+                WICRect rect{};
+                rect.Width = static_cast<INT>(sourceX);
+                rect.Height = static_cast<INT>(sourceY);
+
+                THROW_IF_FAILED(m_source->Lock(&rect, WICBitmapLockRead, &m_lockedSource));
+                THROW_IF_FAILED(m_lockedSource->GetSize(&m_lockedImageWidth, &m_lockedImageHeight));
+                THROW_IF_FAILED(m_lockedSource->GetStride(&m_lockedImageStride));
+                THROW_IF_FAILED(m_lockedSource->GetDataPointer(&m_lockedImageByteCount, &m_lockedImageBytes));
+
+                // Create render buffers
+                m_enabledColors.resize(m_palette.size());
+                m_sixelBuffer.resize(m_palette.size() * m_lockedImageWidth);
             }
 
             enum class State
@@ -124,19 +155,134 @@ namespace AppInstaller::CLI::VirtualTerminal
             // Advances the render state machine, returning true if `Current` will return a new sequence and false when it will not.
             bool Advance()
             {
-                // TODO: See if we can keep a stringstream around to reuse its memory
+                std::stringstream stream;
 
                 switch (m_currentState)
                 {
                 case State::Initial:
-                    // TODO: Output sixel initialization sequence and palette
+                    // Initial device control string
+                    stream << AICLI_VT_ESCAPE << 'P' << ToIntegral(m_renderControls.AspectRatio) << ';' << (m_renderControls.TransparencyEnabled ? '1' : '0') << ";q";
+
+                    for (size_t i = 0; i < m_palette.size(); ++i)
+                    {
+                        // 2 is RGB colorspace, with values from 0 to 100
+                        stream << '#' << i << ";2;";
+
+                        WICColor currentColor = m_palette[i];
+                        BYTE red = (currentColor >> 16) & 0xFF;
+                        BYTE green = (currentColor >> 8) & 0xFF;
+                        BYTE blue = (currentColor) & 0xFF;
+
+                        stream << ByteToPercent(red) << ';' << ByteToPercent(green) << ';' << ByteToPercent(blue);
+                    }
+
                     m_currentState = State::Pixels;
                     break;
                 case State::Pixels:
-                    // TODO: Output a row of sixels
+                {
+                    // Disable all colors and set all characters to empty (0x3F)
+                    memset(m_enabledColors.data(), 0, m_enabledColors.size());
+                    memset(m_sixelBuffer.data(), 0x3F, m_sixelBuffer.size());
+
+                    // Convert indexed pixel data into per-color sixel lines
+                    UINT rowsToProcess = std::min(SixelImage::PixelsPerSixel, m_lockedImageHeight - m_currentPixelRow);
+                    size_t imageStride = static_cast<size_t>(m_lockedImageStride);
+                    size_t imageWidth = static_cast<size_t>(m_lockedImageWidth);
+                    const BYTE* currentRowPtr = m_lockedImageBytes + (imageStride * m_currentPixelRow);
+
+                    for (UINT rowOffset = 0; rowOffset < rowsToProcess; ++rowOffset)
+                    {
+                        // The least significant bit is the top of the sixel
+                        char sixelBit = 1 << rowOffset;
+
+                        for (size_t i = 0; i < imageWidth; ++i)
+                        {
+                            BYTE colorIndex = currentRowPtr[i];
+                            m_enabledColors[colorIndex] = 1;
+                            m_sixelBuffer[(colorIndex * imageWidth) + i] += sixelBit;
+                        }
+
+                        currentRowPtr += imageStride;
+                    }
+
+                    // Output all sixel color lines
+                    bool firstOfRow = true;
+
+                    for (size_t i = 0; i < m_enabledColors.size(); ++i)
+                    {
+                        // Don't output color 0 if transparency is enabled
+                        if (m_renderControls.TransparencyEnabled && i == 0)
+                        {
+                            continue;
+                        }
+
+                        if (m_enabledColors[i])
+                        {
+                            if (firstOfRow)
+                            {
+                                firstOfRow = false;
+                            }
+                            else
+                            {
+                                // The carriage return operator resets for another color pass.
+                                stream << '$';
+                            }
+
+                            stream << '#' << i;
+
+                            const char* colorRow = &m_sixelBuffer[i * imageWidth];
+
+                            if (m_renderControls.UseRepeatSequence)
+                            {
+                                char currentChar = colorRow[0];
+                                UINT repeatCount = 1;
+
+                                for (size_t j = 1; j <= imageWidth; ++j)
+                                {
+                                    // Force processing of a final null character to handle flushing the line
+                                    const char nextChar = (j == imageWidth ? 0 : colorRow[j]);
+
+                                    if (nextChar == currentChar)
+                                    {
+                                        ++repeatCount;
+                                    }
+                                    else
+                                    {
+                                        if (repeatCount > 2)
+                                        {
+                                            stream << '!' << repeatCount;
+                                        }
+                                        else if (repeatCount == 2)
+                                        {
+                                            stream << currentChar;
+                                        }
+
+                                        stream << currentChar;
+
+                                        currentChar = nextChar;
+                                        repeatCount = 1;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                stream << std::string_view{ colorRow, imageWidth };
+                            }
+                        }
+                    }
+
+                    // The new line operator sets up for the next sixel row
+                    stream << '-';
+
+                    m_currentPixelRow += rowsToProcess;
+                    if (m_currentPixelRow >= m_lockedImageHeight)
+                    {
+                        m_currentState = State::Final;
+                    }
+                }
                     break;
                 case State::Final:
-                    // TODO: Ouput the sixel termination sequence
+                    stream << AICLI_VT_ESCAPE << '\\';
                     m_currentState = State::Terminated;
                     break;
                 case State::Terminated:
@@ -144,6 +290,7 @@ namespace AppInstaller::CLI::VirtualTerminal
                     return false;
                 }
 
+                m_currentSequence = std::move(stream).str();
                 return true;
             }
 
@@ -154,9 +301,20 @@ namespace AppInstaller::CLI::VirtualTerminal
 
         private:
             wil::com_ptr<IWICBitmap> m_source;
+            wil::com_ptr<IWICBitmapLock> m_lockedSource;
             std::vector<WICColor> m_palette;
+            SixelImage::RenderControls m_renderControls;
+
+            UINT m_lockedImageWidth = 0;
+            UINT m_lockedImageHeight = 0;
+            UINT m_lockedImageStride = 0;
+            UINT m_lockedImageByteCount = 0;
+            BYTE* m_lockedImageBytes = nullptr;
+
             State m_currentState = State::Initial;
-            size_t m_currentSixelRow = 0;
+            std::vector<char> m_enabledColors;
+            std::vector<char> m_sixelBuffer;
+            UINT m_currentPixelRow = 0;
             // TODO-C++20: Replace with a view from the stringstream
             std::string m_currentSequence;
         };
@@ -207,6 +365,11 @@ namespace AppInstaller::CLI::VirtualTerminal
     void SixelImage::StretchSourceToFill(bool stretchSourceToFill)
     {
         m_renderControls.StretchSourceToFill = stretchSourceToFill;
+    }
+
+    void SixelImage::UseRepeatSequence(bool useRepeatSequence)
+    {
+        m_renderControls.UseRepeatSequence = useRepeatSequence;
     }
 
     ConstructedSequence SixelImage::Render()

@@ -5,6 +5,9 @@
 #if _DEBUG
 #include "DebugCommand.h"
 #include <winrt/Microsoft.Management.Configuration.h>
+#include "Sixel.h"
+
+using namespace AppInstaller::CLI::Execution;
 
 namespace AppInstaller::CLI
 {
@@ -55,6 +58,7 @@ namespace AppInstaller::CLI
             std::make_unique<DumpProxyStubRegistrationsCommand>(FullName()),
             std::make_unique<DumpInterestingIIDsCommand>(FullName()),
             std::make_unique<DumpErrorResourceCommand>(FullName()),
+            std::make_unique<ShowSixelCommand>(FullName()),
         });
     }
 
@@ -146,6 +150,86 @@ namespace AppInstaller::CLI
                 "  <data name=\"" << error->Symbol() << "\" xml:space=\"preserve\">\n"
                 "    <value>" << error->GetDescription() << "</value>\n"
                 "  </data>" << std::endl;
+        }
+    }
+
+    std::vector<Argument> ShowSixelCommand::GetArguments() const
+    {
+        return {
+            Argument{ "file", 'f', Args::Type::Manifest, Resource::String::SourceListUpdatedNever, ArgumentType::Positional },
+            Argument{ "aspect-ratio", 'a', Args::Type::AcceptPackageAgreements, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+            Argument{ "transparent", 't', Args::Type::AcceptSourceAgreements, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument{ "color-count", 'c', Args::Type::ConfigurationAcceptWarning, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+            Argument{ "width", 'w', Args::Type::AdminSettingEnable, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+            Argument{ "height", 'h', Args::Type::AllowReboot, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+            Argument{ "stretch", 's', Args::Type::AllVersions, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument{ "repeat", 'r', Args::Type::Name, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument{ "out-file", 'o', Args::Type::BlockingPin, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+        };
+    }
+
+    Resource::LocString ShowSixelCommand::ShortDescription() const
+    {
+        return Utility::LocIndString("Output an image with sixels"sv);
+    }
+
+    Resource::LocString ShowSixelCommand::LongDescription() const
+    {
+        return Utility::LocIndString("Outputs an image from a file using sixel format."sv);
+    }
+
+    void ShowSixelCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        using namespace VirtualTerminal;
+        SixelImage sixelImage{ Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::Manifest)) };
+
+        if (context.Args.Contains(Args::Type::AcceptPackageAgreements))
+        {
+            switch (context.Args.GetArg(Args::Type::AcceptPackageAgreements)[0])
+            {
+            case '1':
+                sixelImage.AspectRatio(SixelAspectRatio::OneToOne);
+                break;
+            case '2':
+                sixelImage.AspectRatio(SixelAspectRatio::TwoToOne);
+                break;
+            case '3':
+                sixelImage.AspectRatio(SixelAspectRatio::ThreeToOne);
+                break;
+            case '5':
+                sixelImage.AspectRatio(SixelAspectRatio::FiveToOne);
+                break;
+            }
+        }
+
+        sixelImage.Transparency(context.Args.Contains(Args::Type::AcceptSourceAgreements));
+
+        if (context.Args.Contains(Args::Type::ConfigurationAcceptWarning))
+        {
+            sixelImage.ColorCount(std::stoul(std::string{ context.Args.GetArg(Args::Type::ConfigurationAcceptWarning) }));
+        }
+
+        if (context.Args.Contains(Args::Type::AdminSettingEnable) && context.Args.Contains(Args::Type::AllowReboot))
+        {
+            sixelImage.RenderSizeInCells(
+                std::stoul(std::string{ context.Args.GetArg(Args::Type::AdminSettingEnable) }),
+                std::stoul(std::string{ context.Args.GetArg(Args::Type::AllowReboot) }));
+        }
+
+        sixelImage.StretchSourceToFill(context.Args.Contains(Args::Type::AllVersions));
+
+        sixelImage.UseRepeatSequence(context.Args.Contains(Args::Type::Name));
+
+        if (context.Args.Contains(Args::Type::BlockingPin))
+        {
+            std::ofstream stream{ Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::BlockingPin)) };
+            stream << sixelImage.Render().Get();
+        }
+        else
+        {
+            OutputStream stream = context.Reporter.GetOutputStream(Reporter::Level::Info);
+            stream.ClearFormat();
+            sixelImage.RenderTo(stream);
         }
     }
 }

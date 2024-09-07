@@ -10,6 +10,9 @@
 #include <string_view>
 
 
+// The escape character that begins all VT sequences
+#define AICLI_VT_ESCAPE     "\x1b"
+
 namespace AppInstaller::CLI::VirtualTerminal
 {
     // RAII class to enable VT support and restore the console mode.
@@ -64,6 +67,8 @@ namespace AppInstaller::CLI::VirtualTerminal
         ConstructedSequence& operator=(ConstructedSequence&& other) noexcept { m_str = std::move(other.m_str); Set(m_str); }
 
         void Append(const Sequence& sequence);
+
+        void Clear();
 
     private:
         std::string m_str;

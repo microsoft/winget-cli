@@ -84,8 +84,11 @@ namespace AppInstaller::CLI::VirtualTerminal
         }
     }
 
-// The escape character that begins all VT sequences
-#define AICLI_VT_ESCAPE     "\x1b"
+    void ConstructedSequence::Clear()
+    {
+        m_str.clear();
+        Set(m_str);
+    }
 
 // The beginning of a Control Sequence Introducer
 #define AICLI_VT_CSI        AICLI_VT_ESCAPE "["
