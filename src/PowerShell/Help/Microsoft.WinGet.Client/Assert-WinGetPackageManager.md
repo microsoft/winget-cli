@@ -23,7 +23,7 @@ Assert-WinGetPackageManager [-Version <String>] [<CommonParameters>]
 ### IntegrityLatestSet
 
 ```
-Assert-WinGetPackageManager [-Latest] [-IncludePreRelease] [<CommonParameters>]
+Assert-WinGetPackageManager [-Latest] [-IncludePrerelease] [<CommonParameters>]
 ```
 
 ## DESCRIPTION

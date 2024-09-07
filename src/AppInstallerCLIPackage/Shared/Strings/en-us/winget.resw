@@ -2874,7 +2874,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="SettingsSetCommandShortDescription" xml:space="preserve">
     <value>Sets the value of an admin setting.</value>
   </data>
-  <data name="SourceRequireExplicitArgumentDescription" xml:space="preserve">
+  <data name="SourceExplicitArgumentDescription" xml:space="preserve">
     <value>Excludes a source from discovery unless specified</value>
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
@@ -3105,5 +3105,11 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="ConfigureListUnit" xml:space="preserve">
     <value>Unit</value>
+  </data>
+  <data name="StoreInstall_PackageNotAvailableForCurrentSystem" xml:space="preserve">
+    <value>The package is not compatible with the current Windows version or platform.</value>
+  </data>
+  <data name="ConfigurationSuppressPrologueArgumentDescription" xml:space="preserve">
+    <value>Suppress showing initial configuration details when possible</value>
   </data>
 </root>

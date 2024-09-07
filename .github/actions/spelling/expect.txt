@@ -30,7 +30,6 @@ appname
 appshutdown
 APPTERMINATION
 archs
-argumentlist
 ARMNT
 arp
 arphelper
@@ -188,6 +187,7 @@ Gomu
 GRPICONDIR
 GRPICONDIRENTRY
 guiddef
+Gumbalapura
 Hackathon
 hashtables
 helplib
@@ -234,6 +234,7 @@ ishelp
 ISQ
 ISVs
 itr
+iwr
 JArray
 JDictionary
 jdk
@@ -285,6 +286,7 @@ LTDA
 luffy
 Luffytaro
 maclachlan
+Madhusudhan
 MAJORVERSION
 malware
 mapdatafolding
@@ -369,6 +371,7 @@ oop
 opensource
 OPTOUT
 osfhandle
+oss
 outfile
 OUTOFMEMORY
 Outptr
@@ -390,7 +393,6 @@ Peet
 peetdev
 PEGI
 pfn
-pfxpath
 pgp
 Pherson
 pid
@@ -436,6 +438,7 @@ REFIID
 REGDB
 regexes
 REGSAM
+REINSTALLMODE
 relativefilepath
 remoting
 removefile
@@ -469,7 +472,6 @@ savepoint
 schematab
 Scm
 sddl
-SECUREFILEPATH
 secureobject
 securestring
 seof
@@ -513,6 +515,7 @@ STRRET
 stylecop
 subdir
 subkey
+Sudarshan
 superstring
 swervy
 SYD

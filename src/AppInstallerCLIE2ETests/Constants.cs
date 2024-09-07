@@ -45,9 +45,6 @@ namespace AppInstallerCLIE2ETests
         public const string TestSourceType = "Microsoft.PreIndexed.Package";
         public const string TestSourceIdentifier = @"WingetE2E.Tests_8wekyb3d8bbwe";
 
-        public const string AppInstallerTestCert = "AppInstallerTest.cer";
-        public const string AppInstallerTestCertThumbprint = "d03e7a688b388b1edde8476a627531c49db88017";
-
         public const string AICLIPackageFamilyName = "WinGetDevCLI_8wekyb3d8bbwe";
         public const string AICLIPackageName = "WinGetDevCLI";
         public const string AICLIPackagePublisherHash = "8wekyb3d8bbwe";

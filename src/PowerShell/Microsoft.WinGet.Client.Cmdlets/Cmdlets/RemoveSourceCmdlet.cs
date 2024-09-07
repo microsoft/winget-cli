@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="RemoveSourceCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -20,6 +20,7 @@ namespace Microsoft.WinGet.Client.Cmdlets
         /// Gets or sets the name of the source to remove.
         /// </summary>
         [Parameter(
+            Position = 0,
             Mandatory = true,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]

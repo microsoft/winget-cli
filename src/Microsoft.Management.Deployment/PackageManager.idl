@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(11)]
+    [contractversion(11)] // For version 1.9
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -329,6 +329,12 @@ namespace Microsoft.Management.Deployment
         PackageCatalogOrigin Origin { get; };
         /// The trust level of the package catalog
         PackageCatalogTrustLevel TrustLevel { get; };
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+        {
+            /// Excludes a source from discovery unless specified.
+            Boolean Explicit{ get; };
+        }
     }
 
     /// A metadata item of a package version.

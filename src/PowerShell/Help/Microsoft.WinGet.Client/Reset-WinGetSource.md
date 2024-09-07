@@ -10,18 +10,26 @@ title: Reset-WinGetSource
 # Reset-WinGetSource
 
 ## SYNOPSIS
-Resets default WinGet sources.
+Resets WinGet sources.
 
 ## SYNTAX
+
+### DefaultSet (Default)
 
 ```
 Reset-WinGetSource -Name <String> [<CommonParameters>]
 ```
 
+### OptionalSet
+
+```
+Reset-WinGetSource -All [<CommonParameters>]
+```
+
 ## DESCRIPTION
 
-Resets the current WinGet sources to the default source configurations. This command must be
-executed with administrator permissions.
+Resets a named WinGet source by removing the source configuration. You can reset all configured sources and add the default source configurations using the **All** switch parameter.
+This command must be executed with administrator permissions.
 
 ## EXAMPLES
 
@@ -33,7 +41,31 @@ Reset-WinGetSource -Name msstore
 
 This example resets the configured source named 'msstore' by removing it.
 
+### Example 2: Reset all sources
+
+```powershell
+Reset-WinGetSource -All
+```
+
+This example resets all configured sources and adds the default sources.
+
 ## PARAMETERS
+
+### -All
+
+Reset all sources and add the default sources.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: (OptionalSet)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
 
 ### -Name
 
@@ -41,7 +73,7 @@ The name of the source.
 
 ```yaml
 Type: System.String
-Parameter Sets: (All)
+Parameter Sets: (DefaultSet)
 Aliases:
 
 Required: True

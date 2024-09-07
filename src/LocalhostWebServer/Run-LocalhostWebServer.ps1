@@ -54,8 +54,19 @@ if (-not [System.String]::IsNullOrEmpty($sourceCert))
 
 Push-Location $BuildRoot
 
-$Local:process = Start-Process -FilePath "LocalhostWebServer.exe" -ArgumentList "StaticFileRoot=$StaticFileRoot CertPath=$CertPath CertPassword=$CertPassword OutCertFile=$OutCertFile LocalSourceJson=$LocalSourceJson TestDataPath=$TestDataPath ExitBeforeRun=$ExitBeforeRun" -PassThru
+$startProcessArguments = @{
+    FilePath = Join-Path $BuildRoot "LocalhostWebServer.exe"
+    ArgumentList = "StaticFileRoot=$StaticFileRoot CertPath=$CertPath CertPassword=$CertPassword OutCertFile=$OutCertFile LocalSourceJson=$LocalSourceJson TestDataPath=$TestDataPath ExitBeforeRun=$ExitBeforeRun"
+    PassThru = $true
+}
 
+if (-not [System.string]::IsNullOrEmpty($env:artifactsDir))
+{
+    $startProcessArguments.RedirectStandardOutput = Join-Path $env:artifactsDir "LocalhostWebServer.out"
+    $startProcessArguments.RedirectStandardError = Join-Path $env:artifactsDir "LocalhostWebServer.err"
+}
+
+$Local:process = Start-Process @startProcessArguments
 
 if ($ExitBeforeRun)
 {

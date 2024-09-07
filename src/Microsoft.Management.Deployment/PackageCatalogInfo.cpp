@@ -59,4 +59,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return PackageCatalogTrustLevel::None;
         }
     }
+    bool PackageCatalogInfo::Explicit()
+    {
+        return m_sourceDetails.Explicit;
+    }
 }

@@ -1369,27 +1369,31 @@ namespace AppInstaller::CLI::Workflow
         auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailFlags::ReadOnly);
         auto unification = anon::CreateProgressCancellationUnification(std::move(progressScope), getDetailsOperation);
 
+        bool suppressDetailsOutput = context.Args.Contains(Args::Type::ConfigurationAcceptWarning) && context.Args.Contains(Args::Type::ConfigurationSuppressPrologue);
         anon::OutputHelper outputHelper{ context };
         uint32_t unitsShown = 0;
 
-        getDetailsOperation.Progress([&](const IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult>& operation, const GetConfigurationUnitDetailsResult&)
-            {
-                auto threadContext = context.SetForCurrentThread();
-
-                unification.Reset();
-
-                auto unitResults = operation.GetResults().UnitResults();
-                for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
+        if (!suppressDetailsOutput)
+        {
+            getDetailsOperation.Progress([&](const IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult>& operation, const GetConfigurationUnitDetailsResult&)
                 {
-                    GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
-                    anon::LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
-                    outputHelper.OutputConfigurationUnitInformation(unitResult.Unit());
-                }
+                    auto threadContext = context.SetForCurrentThread();
 
-                progressScope = context.Reporter.BeginAsyncProgress(true);
-                progressScope->Callback().SetProgressMessage(gettingDetailString);
-                unification.Progress(std::move(progressScope));
-            });
+                    unification.Reset();
+
+                    auto unitResults = operation.GetResults().UnitResults();
+                    for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
+                    {
+                        GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
+                        anon::LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
+                        outputHelper.OutputConfigurationUnitInformation(unitResult.Unit());
+                    }
+
+                    progressScope = context.Reporter.BeginAsyncProgress(true);
+                    progressScope->Callback().SetProgressMessage(gettingDetailString);
+                    unification.Progress(std::move(progressScope));
+                });
+        }
 
         HRESULT hr = S_OK;
         GetConfigurationSetDetailsResult result = nullptr;
@@ -1419,7 +1423,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // Handle any missing progress callbacks that are in the results
-        if (result)
+        if (result && !suppressDetailsOutput)
         {
             auto unitResults = result.UnitResults();
             if (unitResults)
@@ -1434,11 +1438,14 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // Handle any units that are NOT in the results (due to an exception part of the way through)
-        auto allUnits = configContext.Set().Units();
-        for (unitsShown; unitsShown < allUnits.Size(); ++unitsShown)
+        if (!suppressDetailsOutput)
         {
-            ConfigurationUnit unit = allUnits.GetAt(unitsShown);
-            outputHelper.OutputConfigurationUnitInformation(unit);
+            auto allUnits = configContext.Set().Units();
+            for (unitsShown; unitsShown < allUnits.Size(); ++unitsShown)
+            {
+                ConfigurationUnit unit = allUnits.GetAt(unitsShown);
+                outputHelper.OutputConfigurationUnitInformation(unit);
+            }
         }
 
         if (outputHelper.ValuesTruncated)
