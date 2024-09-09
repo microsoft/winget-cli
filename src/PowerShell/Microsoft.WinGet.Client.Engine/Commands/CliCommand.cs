@@ -33,7 +33,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public void EnableSetting(string name)
         {
             Utilities.VerifyAdmin();
-            _ = this.Run("settings", $"--enable {name}");
+            _ = this.Run("settings", $"--enable \"{name}\"");
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public void DisableSetting(string name)
         {
             Utilities.VerifyAdmin();
-            _ = this.Run("settings", $"--disable {name}");
+            _ = this.Run("settings", $"--disable \"{name}\"");
         }
 
         /// <summary>
@@ -70,17 +70,29 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="name">Name of source.</param>
         /// <param name="arg">Arg of source.</param>
         /// <param name="type">Type of source.</param>
-        public void AddSource(string name, string arg, string type)
+        /// <param name="trustLevel">Trust level of source.</param>
+        /// <param name="isExplicit">Make source explicit.</param>
+        public void AddSource(string name, string arg, string type, string trustLevel, bool isExplicit)
         {
             Utilities.VerifyAdmin();
-            if (string.IsNullOrEmpty(type))
+            string parameters = $"add --name \"{name}\" --arg \"{arg}\"";
+
+            if (!string.IsNullOrEmpty(type))
             {
-                _ = this.Run("source", $"add --name {name} --arg {arg}", 300000);
+                parameters += $" --type \"{type}\"";
             }
-            else
+
+            if (!string.IsNullOrEmpty(trustLevel))
             {
-                _ = this.Run("source", $"add --name {name} --arg {arg} --type {type}", 300000);
+                parameters += $" --trust-level \"{trustLevel}\"";
             }
+
+            if (isExplicit)
+            {
+                parameters += " --explicit";
+            }
+
+            _ = this.Run("source", parameters, 300000);
         }
 
         /// <summary>
@@ -90,7 +102,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public void RemoveSource(string name)
         {
             Utilities.VerifyAdmin();
-            _ = this.Run("source", $"remove --name {name}");
+            _ = this.Run("source", $"remove --name \"{name}\"");
         }
 
         /// <summary>
@@ -100,7 +112,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public void ResetSourceByName(string name)
         {
             Utilities.VerifyAdmin();
-            _ = this.Run("source", $"reset --name {name} --force");
+            _ = this.Run("source", $"reset --name \"{name}\" --force");
         }
 
         /// <summary>
