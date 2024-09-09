@@ -14,6 +14,7 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
     /// Resets a source. Requires admin.
     /// </summary>
     [Cmdlet(VerbsCommon.Reset, Constants.WinGetNouns.Source, DefaultParameterSetName = Constants.DefaultSet)]
+    [Alias("rswgs")]
     public sealed class ResetSourceCmdlet : PSCmdlet
     {
         /// <summary>

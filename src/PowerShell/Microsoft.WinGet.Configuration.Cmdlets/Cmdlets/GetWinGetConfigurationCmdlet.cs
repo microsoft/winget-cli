@@ -15,6 +15,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     /// Opens a configuration set.
     /// </summary>
     [Cmdlet(VerbsCommon.Get, "WinGetConfiguration", DefaultParameterSetName = Helpers.Constants.ParameterSet.OpenConfigurationSetFromFile)]
+    [Alias("gwgc")]
     public sealed class GetWinGetConfigurationCmdlet : OpenConfiguration
     {
         /// <summary>
