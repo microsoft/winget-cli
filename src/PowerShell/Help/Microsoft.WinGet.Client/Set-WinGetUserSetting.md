@@ -4,30 +4,46 @@ Module Name: Microsoft.WinGet.Client
 ms.date: 08/01/2024
 online version:
 schema: 2.0.0
-title: Test-WinGetUserSettings
+title: Set-WinGetUserSetting
 ---
 
-# Test-WinGetUserSettings
+# Set-WinGetUserSetting
 
 ## SYNOPSIS
-Tests the current state of WinGet user settings.
+Sets configuration settings of the WinGet client for the current user.
 
 ## SYNTAX
 
 ```
-Test-WinGetUserSettings -UserSettings <Hashtable> [-IgnoreNotSet] [<CommonParameters>]
+Set-WinGetUserSetting -UserSettings <Hashtable> [-Merge] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
-This command tests the current state of WinGet user settings against a provided set of values.
+This command sets configuration settings of the WinGet client for the current user. The user
+settings file doesn't exist until you set a specific value. The file is stored in
+`$env:LOCALAPPDATA\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json`.
+For more information about WinGet settings, see
+[WinGet CLI Settings](https://aka.ms/winget-settings).
 
 ## EXAMPLES
 
-### Example 1: Test for exact match
+### Example 1: Set progress bar theme
 
 ```powershell
-Test-WinGetUserSettings -UserSettings @{
+Set-WinGetUserSetting -UserSettings @{
+    visual = @{
+        progressBar = 'rainbow'
+    }
+}
+```
+
+Sets the theme of the progress bar to rainbow.
+
+### Example 2: Merge install behavior settings
+
+```powershell
+Set-WinGetUserSetting  -Merge -UserSettings @{
     installBehavior = @{
         preferences = @{
             scope = 'user'
@@ -36,29 +52,25 @@ Test-WinGetUserSettings -UserSettings @{
 }
 ```
 
-This example shows how to confirm that your current user settings match specific values. The
-command returns `$false` if it is not an exact match. 
+Appends the user scope preference setting to the existing WinGet settings configuration.
 
-### Example 2: Test only progress bar setting
+### Example 3: Change multiple settings
 
 ```powershell
-Test-WinGetUserSettings -IgnoreNotSet -UserSettings @{
+Set-WinGetUserSetting -UserSettings @{
     visual = @{
         progressBar = 'rainbow'
+        anonymizeDisplayedPaths = $true
     }
 }
 ```
 
-This examples tests whether the progress bar theme is set to `rainbow`. When you use the
-**IgnoreNotSet** parameter, the command only tests the provide values and doesn't include other
-WinGet settings in the comparison.
-
 ## PARAMETERS
 
-### -IgnoreNotSet
+### -Merge
 
-When you use the **IgnoreNotSet** parameter, the command only tests the provide values and doesn't
-include other WinGet settings in the comparison.
+By default, the command overwrites the current setting with the values provided. Use this parameter
+to append the new settings to the existing configuration.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -103,12 +115,12 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### System.Boolean
+### System.Collections.Hashtable
 
 ## NOTES
 
 ## RELATED LINKS
 
-[Get-WinGetUserSettings](Get-WinGetUserSettings.md)
+[Get-WinGetUserSetting](Get-WinGetUserSetting.md)
 
-[Set-WinGetUserSettings](Set-WinGetUserSettings.md)
+[Test-WinGetUserSetting](Test-WinGetUserSetting.md)

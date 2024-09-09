@@ -17,6 +17,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     /// Wait for completion.
     /// </summary>
     [Cmdlet(VerbsLifecycle.Invoke, "WinGetConfiguration")]
+    [Alias("iwgc")]
     public sealed class InvokeWinGetConfigurationCmdlet : PSCmdlet
     {
         private bool acceptedAgreements = false;
