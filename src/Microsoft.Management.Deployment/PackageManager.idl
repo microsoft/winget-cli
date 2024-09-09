@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(12)] // For version 1.9
+    [contractversion(11)] // For version 1.9
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -152,7 +152,7 @@ namespace Microsoft.Management.Deployment
     }
 
     /// State of the repair
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
     enum PackageRepairProgressState
     {
         /// The repair is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this 
@@ -169,7 +169,7 @@ namespace Microsoft.Management.Deployment
     };
 
     /// Progress object for the repair
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
     struct RepairProgress
     {
         /// State of the repair
@@ -182,7 +182,7 @@ namespace Microsoft.Management.Deployment
     /// Status of the repair call
     /// Implementation Note: Errors mapped from AppInstallerErrors.h
     /// DESIGN NOTE: RepairResultStatus from AppInstallerErrors.h is not implemented in V1.
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
     enum RepairResultStatus
     {
         Ok,
@@ -198,7 +198,7 @@ namespace Microsoft.Management.Deployment
     };
 
     /// Result of the repair
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
     runtimeclass RepairResult
     {
        /// Used by a caller to correlate the repair with a caller's data.
@@ -1144,7 +1144,7 @@ namespace Microsoft.Management.Deployment
         String CorrelationData;
     }
 
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
     enum PackageRepairMode
     {
         /// The default experience for the installer. Installer may show some UI.
@@ -1156,7 +1156,7 @@ namespace Microsoft.Management.Deployment
         Interactive,
     };
 
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
     enum PackageRepairScope
     {
         /// Use default repair behavior.
@@ -1167,7 +1167,7 @@ namespace Microsoft.Management.Deployment
         System,
     };
 
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
     runtimeclass RepairOptions
     {
         RepairOptions();
@@ -1379,7 +1379,7 @@ namespace Microsoft.Management.Deployment
             Windows.Foundation.IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> GetDownloadProgress(CatalogPackage package, PackageCatalogInfo catalogInfo);
         }
 
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
         {
             // Repair the specified package
             Windows.Foundation.IAsyncOperationWithProgress<RepairResult, RepairProgress> RepairPackageAsync(CatalogPackage package, RepairOptions options);
