@@ -51,7 +51,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         }
 
         /// <summary>
-        /// Get-WinGetUserSettings.
+        /// Get-WinGetUserSetting.
         /// </summary>
         public void Get()
         {
@@ -59,7 +59,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         }
 
         /// <summary>
-        /// Test-WinGetUserSettings.
+        /// Test-WinGetUserSetting.
         /// </summary>
         /// <param name="userSettings">Input user settings.</param>
         /// <param name="ignoreNotSet">Ignore comparing settings that are not part of the input.</param>
@@ -69,7 +69,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         }
 
         /// <summary>
-        /// Set-WinGetUserSettings.
+        /// Set-WinGetUserSetting.
         /// </summary>
         /// <param name="userSettings">Input user settings.</param>
         /// <param name="merge">Merge the current user settings and the input settings.</param>

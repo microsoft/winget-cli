@@ -15,6 +15,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     /// Tests configuration.
     /// </summary>
     [Cmdlet(VerbsDiagnostic.Test, "WinGetConfiguration")]
+    [Alias("twgc")]
     public class TestWinGetConfigurationCmdlet : PSCmdlet
     {
         private bool acceptedAgreements = false;

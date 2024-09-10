@@ -82,7 +82,7 @@
     DscResourcesToExport = @(
         'WinGetUserSettings'
         'WinGetAdminSettings'
-        'WinGetSources'
+        'WinGetSource'
         'WinGetPackageManager'
         'WinGetPackage'
     )
