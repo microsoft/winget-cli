@@ -75,7 +75,7 @@ namespace Microsoft.WinGet.Client.Common
             /// <summary>
             /// The noun for any user settings cmdlet.
             /// </summary>
-            public const string UserSettings = "WinGetUserSettings";
+            public const string UserSetting = "WinGetUserSetting";
 
             /// <summary>
             /// The noun for winget version.
@@ -86,11 +86,6 @@ namespace Microsoft.WinGet.Client.Common
             /// The noun for enable/disable winget admin settings.
             /// </summary>
             public const string Setting = "WinGetSetting";
-
-            /// <summary>
-            /// The noun to get the winget settings.
-            /// </summary>
-            public const string Settings = "WinGetSettings";
         }
     }
 }

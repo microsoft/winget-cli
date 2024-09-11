@@ -14,6 +14,7 @@ namespace Microsoft.WinGet.Client.Commands
     /// Get-WinGetVersion. Gets the current version of winget.
     /// </summary>
     [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.Version)]
+    [Alias("gwgv")]
     [OutputType(typeof(string))]
     public class GetVersionCmdlet : PSCmdlet
     {

@@ -3,21 +3,17 @@
 
 using namespace System.Collections.Generic
 
-try
+# Check that we are running as an administrator
+function Assert-IsAdministrator
 {
-    # Load all non-test .ps1 files in the script's directory.
-    Get-ChildItem -Path $PSScriptRoot\* -Filter *.ps1 -Exclude *.Tests.ps1 -Recurse | ForEach-Object { Import-Module $_.FullName }
-} catch
-{
-    $e = $_.Exception
-    while ($e.InnerException)
-    {
-        $e = $e.InnerException
-    }
+    $windowsIdentity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+    $windowsPrincipal = New-Object -TypeName 'System.Security.Principal.WindowsPrincipal' -ArgumentList @( $windowsIdentity )
 
-    if (-not [string]::IsNullOrWhiteSpace($e.Message))
+    $adminRole = [System.Security.Principal.WindowsBuiltInRole]::Administrator
+
+    if (-not $windowsPrincipal.IsInRole($adminRole))
     {
-        Write-Host $e.Message -ForegroundColor Red -BackgroundColor Black
+        New-InvalidOperationException -Message "This resource must run as an Administrator."
     }
 }
 
@@ -28,13 +24,13 @@ enum WinGetAction
     Full
 }
 
-enum Ensure
+enum WinGetEnsure
 {
     Absent
     Present
 }
 
-enum MatchOption
+enum WinGetMatchOption
 {
     Equals
     EqualsCaseInsensitive
@@ -42,11 +38,18 @@ enum MatchOption
     ContainsCaseInsensitive
 }
 
-enum InstallMode
+enum WinGetInstallMode
 {
     Default
     Silent
     Interactive
+}
+
+enum WinGetTrustLevel
+{
+    Undefined
+    None
+    Trusted
 }
 
 #endregion enums
@@ -74,9 +77,7 @@ class WinGetUserSettings
     # Gets the current UserSettings by looking at the settings.json file for the current user.
     [WinGetUserSettings] Get()
     {
-        Assert-WinGetCommand "Get-WinGetUserSettings"
-
-        $userSettings = Get-WinGetUserSettings
+        $userSettings = Get-WinGetUserSetting
         $result = @{
             SID = ''
             Settings = $userSettings
@@ -87,8 +88,6 @@ class WinGetUserSettings
     # Tests if desired properties match.
     [bool] Test()
     {
-        Assert-WinGetCommand "Test-WinGetUserSettings"
-
         $hashArgs = @{
             UserSettings = $this.Settings
         }
@@ -98,14 +97,12 @@ class WinGetUserSettings
             $hashArgs.Add('IgnoreNotSet', $true)
         }
 
-        return Test-WinGetUserSettings @hashArgs
+        return Test-WinGetUserSetting @hashArgs
     }
 
     # Sets the desired properties.
     [void] Set()
     {
-        Assert-WinGetCommand "Set-WinGetUserSettings"
-
         $hashArgs = @{
             UserSettings = $this.Settings
         }
@@ -115,7 +112,7 @@ class WinGetUserSettings
             $hashArgs.Add('Merge', $true)
         }
 
-        Set-WinGetUserSettings @hashArgs
+        Set-WinGetUserSetting @hashArgs
     }
 }
 
@@ -134,8 +131,7 @@ class WinGetAdminSettings
     # Gets the administrator settings.
     [WinGetAdminSettings] Get()
     {
-        Assert-WinGetCommand "Get-WinGetSettings"
-        $settingsJson = Get-WinGetSettings
+        $settingsJson = Get-WinGetSetting
         # Get admin setting values.
 
         $result = @{
@@ -169,8 +165,6 @@ class WinGetAdminSettings
     [void] Set()
     {
         Assert-IsAdministrator
-        Assert-WinGetCommand "Enable-WinGetSetting"
-        Assert-WinGetCommand "Disable-WinGetSetting"
 
         # It might be better to implement an internal Test with one value, or
         # create a new instances with only one setting than calling Enable/Disable
@@ -193,130 +187,168 @@ class WinGetAdminSettings
 }
 
 [DSCResource()]
-class WinGetSources
+class WinGetSource
 {
-    # We need a key. Do not set.
-    [DscProperty(Key)]
-    [string]$SID
-
-    # An array of Hashtable with the key value properties that follows the source's group policy schema.
+    [DscProperty(Key, Mandatory)]
+    [ValidateNotNullOrWhiteSpace()]
+    [string]$Name
+    
     [DscProperty(Mandatory)]
-    [Hashtable[]]$Sources
+    [string]$Argument
+    
+    [DscProperty()]
+    [string]$Type
+    
+    [DscProperty()]
+    [WinGetTrustLevel]$TrustLevel = [WinGetTrustLevel]::Undefined
+    
+    [DscProperty()]
+    [nullable[bool]]$Explicit = $null
 
     [DscProperty()]
-    [Ensure]$Ensure = [Ensure]::Present
+    [WinGetEnsure]$Ensure = [WinGetEnsure]::Present
 
-    [DscProperty()]
-    [bool]$Reset = $false
-
-    [DscProperty()]
-    [WinGetAction]$Action = [WinGetAction]::Full
-
-    # Gets the current sources on winget.
-    [WinGetSources] Get()
+    [WinGetSource] Get()
     {
-        Assert-WinGetCommand "Get-WinGetSource"
-        $packageCatalogReferences = Get-WinGetSource
-        $wingetSources = [List[Hashtable]]::new()
-        foreach ($packageCatalogReference in $packageCatalogReferences)
-        {
-            $source = @{
-                $packageCatalogReference.Name = @{
-                    Identifier = $packageCatalogReference.Id
-                    Arg = $packageCatalogReference.Argument
-                    Type = $packageCatalogReference.Type
-                }
-            }
-            $wingetSources.Add($source)
+        $currentSource = $null
+
+        try {
+            $currentSource = Get-WinGetSource -Name $this.Name
+        }
+        catch {
         }
 
-        $result = @{
-            SID = ''
-            Sources = $wingetSources
+        $result = [WinGetSource]::new()
+
+        if ($currentSource)
+        {
+            $result.Ensure = [WinGetEnsure]::Present
+            $result.Name = $currentSource.Name
+            $result.Argument = $currentSource.Argument
+            $result.Type = $currentSource.Type
+            $result.TrustLevel = $currentSource.TrustLevel
+            $result.Explicit = $currentSource.Explicit
         }
+        else
+        {
+            $result.Ensure = [WinGetEnsure]::Absent
+            $result.Name = $this.Name
+        }
+
         return $result
     }
 
-    # Tests if desired properties match.
     [bool] Test()
     {
-        $currentSources = $this.Get().Sources
-        $currentState = [Ensure]::Present
+        return $this.TestAgainstCurrent($this.Get())
+    }
 
-        # If this is a full match and the counts are different return false. This only applies if we want to ensure the full source is present.
-        if (($this.Action -eq [WinGetAction]::Full) -and ($this.Sources.Count -ne $currentSources.Count) -and ($this.Ensure -eq [Ensure]::Present))
+    [void] Set()
+    {
+        Assert-IsAdministrator
+
+        $currentSource = $this.Get()
+
+        $removeSource = $false
+        $resetSource = $false
+        $addSource = $false
+
+        if ($this.Ensure -eq [WinGetEnsure]::Present)
+        {
+            if ($currentSource.Ensure -eq [WinGetEnsure]::Present)
+            {
+                if (-not $this.TestAgainstCurrent($currentSource))
+                {
+                    $resetSource = $true
+                    $addSource = $true
+                }
+                # else in desired state
+            }
+            else
+            {
+                $addSource = $true
+            }
+        }
+        else
+        {
+            if ($currentSource.Ensure -eq [WinGetEnsure]::Present)
+            {
+                $removeSource = $true
+            }
+            # else in desired state (Absent)
+        }
+
+        if ($removeSource)
+        {
+            Remove-WinGetSource -Name $this.Name
+        }
+        # Only remove OR reset should be true, not both
+        elseif ($resetSource)
+        {
+            Reset-WinGetSource -Name $this.Name
+        }
+
+        if ($addSource)
+        {
+            $hashArgs = @{
+                Name = $this.Name
+                Argument = $this.Argument
+            }
+
+            if (-not [string]::IsNullOrWhiteSpace($this.Type))
+            {
+                $hashArgs.Add("Type", $this.Type)
+            }
+
+            if ($this.TrustLevel -ne [WinGetTrustLevel]::Undefined)
+            {
+                $hashArgs.Add("TrustLevel", $this.TrustLevel)
+            }
+
+            if ($null -ne $this.Explicit)
+            {
+                $hashArgs.Add("Explicit", $this.Explicit)
+            }
+
+            Add-WinGetSource @hashArgs
+        }
+    }
+    
+    # Test $this against a value retrieved from Get
+    # We don't need to check Name because it is the Key for Get
+    [bool] hidden TestAgainstCurrent([WinGetSource]$currentSource)
+    {
+        if ($this.Ensure -eq [WinGetEnsure]::Absent -and
+            $currentSource.Ensure -eq [WinGetEnsure]::Absent)
+        {
+            return $true
+        }
+
+        if ($this.Ensure -ne $currentSource.Ensure -or
+            $this.Argument -ne $currentSource.Argument)
         {
             return $false
         }
 
-        foreach ($sourceName in $this.Sources.Keys)
+        if (-not([string]::IsNullOrWhiteSpace($this.Type)) -and
+            $this.Type -ne $currentSource.Type)
         {
-            #Check if the source name exists, if it doesn't, then return false.
-            $result = $currentSources.Keys | Where-Object { $_ -eq $sourceName }
-            if ($null -eq $result)
-            {
-                $currentState = [Ensure]::Absent
-            }
-
-            # Type has a default value.
-            $source = $this.Sources.$($sourceName)
-            $sourceType = "Microsoft.PreIndexed.Package" # default source type
-            if ($source.ContainsKey("Type") -and (-not([string]::IsNullOrWhiteSpace($source.Type))))
-            {
-                $sourceType = $source.Type
-            }
-
-            $existingSource = $currentSources.$($sourceName)
-            if ($source.Arg -ne $existingSource.Arg -or $sourceType -ne $existingSource.Type)
-            {
-                $currentState = [Ensure]::Absent
-            }
+            return $false
         }
 
-        return $currentState -eq $this.Ensure
-    }
-
-    # Sets the desired properties.
-    [void] Set()
-    {
-        Assert-IsAdministrator
-        Assert-WinGetCommand "Add-WinGetSource"
-        Assert-WinGetCommand "Reset-WinGetSource"
-        Assert-WinGetCommand "Remove-WinGetSource"
-
-        if (-not $this.Test())
+        if ($this.TrustLevel -ne [WinGetTrustLevel]::Undefined -and
+            $this.TrustLevel -ne $currentSource.TrustLevel)
         {
-            foreach ($sourceName in $this.Sources.Keys)
-            {
-                $sourceType = "Microsoft.PreIndexed.Package"
-                $source = $this.Sources.$($sourceName)
-    
-                if ((-not $source.ContainsKey("Arg")) -or [string]::IsNullOrWhiteSpace($source.Arg))
-                {
-                    # TODO: Localize.
-                    throw "Invalid source input. Arg is required."
-                }
-    
-                if ($source.ContainsKey("Type") -and (-not([string]::IsNullOrWhiteSpace($source.Type))))
-                {
-                    $sourceType = $source.Type
-                }
-    
-                if ($this.Ensure -eq [Ensure]::Present)
-                {
-                    Add-WinGetSource -Name $sourceName -Argument $source.Arg -Type $sourceType
-    
-                    if ($this.Reset)
-                    {
-                        Reset-WinGetSource -Name $sourceName
-                    }
-                }
-                else
-                {
-                    Remove-WinGetSource -Name $sourceName
-                }
-            }
+            return $false
         }
+
+        if ($null -ne $this.Explicit -and
+            $this.Explicit -ne $currentSource.Explicit)
+        {
+            return $false
+        }
+
+        return $true
     }
 }
 
@@ -353,9 +385,6 @@ class WinGetPackageManager
     # Tests winget is installed.
     [bool] Test()
     {
-        Assert-WinGetCommand "Assert-WinGetPackageManager"
-        Assert-WinGetCommand "Get-WinGetVersion"
-
         try
         {
             $hashArgs = @{}
@@ -385,8 +414,6 @@ class WinGetPackageManager
     # Repairs Winget.
     [void] Set()
     {
-        Assert-WinGetCommand "Repair-WinGetPackageManager"
-
         if (-not $this.Test())
         {
             $result = -1
@@ -419,119 +446,73 @@ class WinGetPackageManager
 class WinGetPackage
 {
     [DscProperty(Key, Mandatory)]
+    [ValidateNotNullOrWhiteSpace()]
     [string]$Id
+
+    [DscProperty(Key)]
+    [string]$Source
 
     [DscProperty()]
     [string]$Version
 
     [DscProperty()]
-    [string]$Source
+    [WinGetEnsure]$Ensure = [WinGetEnsure]::Present
 
     [DscProperty()]
-    [Ensure]$Ensure = [Ensure]::Present
-
-    [DscProperty()]
-    [MatchOption]$MatchOption = [MatchOption]::EqualsCaseInsensitive
+    [WinGetMatchOption]$MatchOption = [WinGetMatchOption]::EqualsCaseInsensitive
 
     [DscProperty()]
     [bool]$UseLatest = $false
 
     [DSCProperty()]
-    [InstallMode]$InstallMode = [InstallMode]::Silent
-
-    [DscProperty(NotConfigurable)]
-    [string]$InstalledVersion
-
-    [DscProperty(NotConfigurable)]
-    [bool]$IsInstalled = $false
-
-    [DscProperty(NotConfigurable)]
-    [bool]$IsUpdateAvailable = $false
+    [WinGetInstallMode]$InstallMode = [WinGetInstallMode]::Silent
 
     [PSObject] hidden $CatalogPackage = $null
 
-    hidden Initialize()
-    {
-        # DSC only validates keys and mandatories in a Set call.
-        if ([string]::IsNullOrWhiteSpace($this.Id))
-        {
-            # TODO: Localize.
-            throw "WinGetPackage: Id is required"
-        }
-
-        if (($this.UseLatest -eq $true) -and (-not[string]::IsNullOrWhiteSpace($this.Version)))
-        {
-            # TODO: Localize.
-            throw "WinGetPackage: Version and UseLatest cannot be set at the same time"
-        }
-
-        # This has to use MatchOption equals. Otherwise, it might find other package where the
-        # id starts with.
-        $this.CatalogPackage = Get-WinGetPackage -Id $this.Id -MatchOption $this.MatchOption
-        if ($null -ne $this.CatalogPackage)
-        {
-            $this.InstalledVersion = $this.CatalogPackage.InstalledVersion
-            $this.IsInstalled = $true
-            $this.IsUpdateAvailable = $this.CatalogPackage.IsUpdateAvailable
-        }
-    }
-
-    # Get.
     [WinGetPackage] Get()
     {
-        Assert-WinGetCommand "Get-WinGetPackage"
-        $this.Initialize()
-        return $this
+        $result = [WinGetPackage]::new()
+
+        $hashArgs = @{
+            Id = $this.Id
+            MatchOption = $this.MatchOption
+        }
+
+        if (-not([string]::IsNullOrWhiteSpace($this.Source)))
+        {
+            $hashArgs.Add("Source", $this.Source)
+        }
+
+        $result.CatalogPackage = Get-WinGetPackage @hashArgs
+        if ($null -ne $result.CatalogPackage)
+        {
+            $result.Ensure = [WinGetEnsure]::Present
+            $result.Id = $result.CatalogPackage.Id
+            $result.Source = $result.CatalogPackage.Source
+            $result.Version = $result.CatalogPackage.InstalledVersion
+            $result.UseLatest = -not $result.CatalogPackage.IsUpdateAvailable
+        }
+        else
+        {
+            $result.Ensure = [WinGetEnsure]::Absent
+            $result.Id = $this.Id
+            $result.MatchOption = $this.MatchOption
+            $result.Source = $this.Source
+        }
+
+        return $result
     }
 
-    # Test.
     [bool] Test()
     {
-        $this.Initialize()
-        $ensureInstalled = $this.Ensure -eq [Ensure]::Present
-
-        # Not installed, doesn't have to.
-        if (-not($this.IsInstalled -or $ensureInstalled))
-        {
-            return $true
-        }
-
-        # Not install, need to ensure installed.
-        # Installed, need to ensure not installed.
-        if ($this.IsInstalled -ne $ensureInstalled)
-        {
-            return $false
-        }
-
-        # At this point we know is installed.
-        # If asked for latests, but there are updates available.
-        if ($this.UseLatest -and
-            $this.CatalogPackage.IsUpdateAvailable)
-        {
-            return $false
-        }
-
-        # If there is an specific version, compare with the current installed version.
-        if (-not ([string]::IsNullOrWhiteSpace($this.Version)))
-        {
-            $compareResult = $this.CatalogPackage.CompareToVersion($this.Version)
-            if ($compareResult -ne 'Equal')
-            {
-                return $false
-            }
-        }
-
-        # For now this is all.
-        return $true
+        return $this.TestAgainstCurrent($this.Get())
     }
 
-    # Set.
     [void] Set()
     {
-        Assert-WinGetCommand "Install-WinGetPackage"
-        Assert-WinGetCommand "Uninstall-WinGetPackage"
+        $currentPackage = $this.Get()
 
-        if (-not $this.Test())
+        if (-not $this.TestAgainstCurrent($currentPackage))
         {
             $hashArgs = @{
                 Id = $this.Id
@@ -539,14 +520,14 @@ class WinGetPackage
                 Mode = $this.InstallMode
             }
             
-            if ($this.Ensure -eq [Ensure]::Present)
+            if ($this.Ensure -eq [WinGetEnsure]::Present)
             {
                 if (-not([string]::IsNullOrWhiteSpace($this.Source)))
                 {
                     $hashArgs.Add("Source", $this.Source)
                 }
 
-                if ($this.IsInstalled)
+                if ($currentPackage.Ensure -eq [WinGetEnsure]::Present)
                 {
                     if ($this.UseLatest)
                     {
@@ -556,7 +537,7 @@ class WinGetPackage
                     {
                         $hashArgs.Add("Version", $this.Version)
 
-                        $compareResult = $this.CatalogPackage.CompareToVersion($this.Version)
+                        $compareResult = $currentPackage.CatalogPackage.CompareToVersion($this.Version)
                         switch ($compareResult)
                         {
                             'Lesser'
@@ -589,6 +570,43 @@ class WinGetPackage
                 $this.Uninstall()
             }
         }
+    }
+    
+    [bool] hidden TestAgainstCurrent([WinGetPackage]$currentPackage)
+    {
+        if ($this.Ensure -eq [WinGetEnsure]::Absent -and
+            $currentPackage.Ensure -eq [WinGetEnsure]::Absent)
+        {
+            return $true
+        }
+
+        $this.CatalogPackage = $currentPackage.CatalogPackage
+
+        if ($this.Ensure -ne $currentPackage.Ensure)
+        {
+            return $false
+        }
+
+        # At this point we know is installed.
+        # If asked for latest, but there are updates available.
+        if ($this.UseLatest)
+        {
+            if (-not $currentPackage.UseLatest)
+            {
+                return $false
+            }
+        }
+        # If there is an specific version, compare with the current installed version.
+        elseif (-not ([string]::IsNullOrWhiteSpace($this.Version)))
+        {
+            $compareResult = $currentPackage.CatalogPackage.CompareToVersion($this.Version)
+            if ($compareResult -ne 'Equal')
+            {
+                return $false
+            }
+        }
+
+        return $true
     }
 
     hidden Install([Hashtable]$hashArgs)
