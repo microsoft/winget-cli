@@ -18,7 +18,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)binver\version.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(MSBuildThisFileDirectory)binver\version.rc" Condition="'$(XefNativeAutoVersion)'!='true'" />
+    <ResourceCompile Include="$(MSBuildThisFileDirectory)binver\version.rc" Condition="'$(IsPipelineBuild)'!='true'" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)Update-BinVer.ps1" />

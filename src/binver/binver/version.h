@@ -16,7 +16,7 @@
 #define VER_PRODUCTNAME_STR         "WinGet CLI"
 #define VER_PRODUCT_VERSION         VER_FILE_VERSION
 #define VER_PRODUCT_VERSION_STR     VER_FILE_VERSION_STR
-#define VER_ORIGINAL_FILENAME_STR   "AppInstallerCLI.exe"
+#define VER_ORIGINAL_FILENAME_STR   "winget.exe"
 #define VER_INTERNAL_NAME_STR       VER_ORIGINAL_FILENAME_STR
 #define VER_COPYRIGHT_STR           "Copyright (c) Microsoft Corporation"
 
