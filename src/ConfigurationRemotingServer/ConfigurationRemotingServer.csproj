@@ -39,8 +39,11 @@
 
   <Target Name="PwshFiles" AfterTargets="AfterBuild">
     <ItemGroup>
-      <RefFiles Include="$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\ref\**\*.*" />^M
-      <WinModuleFiles Include="$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\Modules\**\*.*" />^M
+      <RefFiles Include="$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\$(TargetFramework)\win\ref\**\*.*" />
+      <WinModuleFiles Include="$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\$(TargetFramework)\win\Modules\**\*.*" />
+      <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
+      <RefFiles Condition="!Exists(@(RefFiles))" Include="$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\ref\**\*.*" />
+      <WinModuleFiles Condition="!Exists(@(WinModuleFiles))" Include="$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\Modules\**\*.*" />
     </ItemGroup>
     <Copy SourceFiles="@(RefFiles)" DestinationFolder="$(OutputPath)\ref\" />
     <Copy SourceFiles="@(WinModuleFiles)" DestinationFolder="$(OutputPath)\Modules\%(RecursiveDir)\" />
