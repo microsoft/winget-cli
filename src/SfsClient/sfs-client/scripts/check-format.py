@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 import sysconfig
+from security import safe_command
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 root_dir = os.path.join(script_dir, "..")
@@ -51,7 +52,7 @@ for file in clang_files:
         unformatted_files.append(file)
 for file in cmake_files:
     # When the file is unformatted, cmake-format returns a non-zero exit code
-    result = subprocess.run("{} {} --check".format(cmake_format, file), stderr=subprocess.DEVNULL, shell=True)
+    result = safe_command.run(subprocess.run, "{} {} --check".format(cmake_format, file), stderr=subprocess.DEVNULL, shell=True)
     if result.returncode != 0:
         unformatted_files.append(file)
 
