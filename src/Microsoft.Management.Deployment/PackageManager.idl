@@ -1383,9 +1383,6 @@ namespace Microsoft.Management.Deployment
         {
             // Repair the specified package
             Windows.Foundation.IAsyncOperationWithProgress<RepairResult, RepairProgress> RepairPackageAsync(CatalogPackage package, RepairOptions options);
-
-            // Get repair progress
-            Windows.Foundation.IAsyncOperationWithProgress<RepairResult, RepairProgress> GetRepairProgress(CatalogPackage package, PackageCatalogInfo catalogInfo);
         }
     }
 

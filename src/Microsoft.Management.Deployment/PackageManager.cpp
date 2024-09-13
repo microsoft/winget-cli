@@ -1181,40 +1181,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return GetPackageOperation<Deployment::RepairResult, Deployment::RepairProgress, Deployment::RepairOptions, Deployment::PackageRepairProgressState>(
             true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString));
     }
-
-    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RepairResult, winrt::Microsoft::Management::Deployment::RepairProgress> PackageManager::GetRepairProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
-    {
-        hstring correlationData;
-        WINGET_RETURN_REPAIR_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package);
-
-        HRESULT hr = S_OK;
-        std::shared_ptr<Execution::OrchestratorQueueItem> queueItem = nullptr;
-        bool canCancelQueueItem = false;
-        try
-        {
-            // Check for permissions
-            // This must be done before any co_awaits since it requires info from the rpc caller thread.
-            auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
-            WINGET_RETURN_REPAIR_RESULT_HR_IF_FAILED(hrGetCallerId);
-            canCancelQueueItem = SUCCEEDED(EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId));
-            if (!canCancelQueueItem)
-            {
-                WINGET_RETURN_REPAIR_RESULT_HR_IF_FAILED(EnsureProcessHasCapability(Capability::PackageQuery, callerProcessId));
-            }
-
-            // Get the queueItem synchronously.
-            queueItem = GetExistingQueueItemForPackage(package, catalogInfo);
-            if (queueItem == nullptr ||
-                queueItem->GetPackageOperationType() != PackageOperationType::Repair)
-            {
-                return nullptr;
-            }
-        }
-        WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
-        WINGET_RETURN_REPAIR_RESULT_HR_IF_FAILED(hr);
-
-        return GetPackageOperation<Deployment::RepairResult, Deployment::RepairProgress, Deployment::RepairOptions, Deployment::PackageRepairProgressState>(
-            canCancelQueueItem, std::move(queueItem));
-    }
     CoCreatableMicrosoftManagementDeploymentClass(PackageManager);
 }
