@@ -4,10 +4,10 @@ Module Name: Microsoft.WinGet.Client
 ms.date: 08/01/2024
 online version:
 schema: 2.0.0
-title: Get-WinGetSettings
+title: Get-WinGetSetting
 ---
 
-# Get-WinGetSettings
+# Get-WinGetSetting
 
 ## SYNOPSIS
 Gets WinGet configuration settings.
@@ -15,7 +15,7 @@ Gets WinGet configuration settings.
 ## SYNTAX
 
 ```
-Get-WinGetSettings [-AsPlainText] [<CommonParameters>]
+Get-WinGetSetting [-AsPlainText] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -32,7 +32,7 @@ For more information about WinGet settings, see
 ### Example 1 - Display the WinGet configuration settings
 
 ```powershell
-Get-WinGetSettings
+Get-WinGetSetting
 ```
 
 ```Output
@@ -47,7 +47,7 @@ adminSettings     {[ProxyCommandLineOptions, False], [LocalArchiveMalwareScanOve
 ### Example 2 - Display the administrative settings in WinGet configuration
 
 ```powershell
-Get-WinGetSettings | Select-Object -ExpandProperty adminSettings
+Get-WinGetSetting | Select-Object -ExpandProperty adminSettings
 ```
 
 ```Output
@@ -97,6 +97,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[Get-WinGetUserSettings](Get-WinGetUserSettings.md)
+[Get-WinGetUserSetting](Get-WinGetUserSetting.md)
 
-[Set-WinGetUserSettings](Set-WinGetUserSettings.md)
+[Set-WinGetUserSetting](Set-WinGetUserSetting.md)

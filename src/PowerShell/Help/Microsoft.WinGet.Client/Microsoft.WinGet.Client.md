@@ -34,13 +34,13 @@ Searches configured sources for packages.
 ### [Get-WinGetPackage](Get-WinGetPackage.md)
 Gets installed packages.
 
-### [Get-WinGetSettings](Get-WinGetSettings.md)
+### [Get-WinGetSetting](Get-WinGetSetting.md)
 Gets WinGet settings.
 
 ### [Get-WinGetSource](Get-WinGetSource.md)
 Gets configured WinGet sources.
 
-### [Get-WinGetUserSettings](Get-WinGetUserSettings.md)
+### [Get-WinGetUserSetting](Get-WinGetUserSetting.md)
 Gets user settings for WinGet.
 
 ### [Get-WinGetVersion](Get-WinGetVersion.md)
@@ -61,10 +61,10 @@ Repairs the WinGet client.
 ### [Reset-WinGetSource](Reset-WinGetSource.md)
 Resets default WinGet sources.
 
-### [Set-WinGetUserSettings](Set-WinGetUserSettings.md)
+### [Set-WinGetUserSetting](Set-WinGetUserSetting.md)
 Sets WinGet settings.
 
-### [Test-WinGetUserSettings](Test-WinGetUserSettings.md)
+### [Test-WinGetUserSetting](Test-WinGetUserSetting.md)
 Tests WinGet settings.
 
 ### [Uninstall-WinGetPackage](Uninstall-WinGetPackage.md)

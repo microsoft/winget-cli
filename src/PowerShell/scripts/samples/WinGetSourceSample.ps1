@@ -3,7 +3,7 @@
 
 <#
     .SYNOPSIS
-        Simple sample on how to use WinGetSourcesResource DSC resource.
+        Simple sample on how to use WinGetSourceResource DSC resource.
         Requires PSDesiredStateConfiguration version 2.0.6
 
         IMPORTANT: This deletes the main winget source and add it again.
@@ -31,29 +31,20 @@ param (
 )
 
 $resource = @{
-    Name = 'WinGetSourcesResource'
+    Name = 'WinGetSourceResource'
     ModuleName = 'Microsoft.WinGet.DSC'
     Property = @{
+        Name = $SourceName
     }
 }
 
 $getResult = Invoke-DscResource @resource -Method Get
 Write-Host "Current sources"
-
-foreach ($source in $getResult.Sources)
-{
-    Write-Host "Name '$($source.Name)' Arg '$($source.Arg)' Type '$($source.Type)'"
-}
-
-$expectedSources = [List[Hashtable]]::new()
-$expectedSources.Add(@{
-    Name = "winget"
-    Arg = "https://cdn.winget.microsoft.com/cache"
-})
+Format-List $getResult -Force
 
 $resource.Property = @{
-    Sources = $expectedSources
-    Action = [WinGetAction]::Partial
+    Argument = $Argument
+    Type = $Type
 }
 
 # The default value comparison for test is Partial, so if you have the winget source this should succeed.
@@ -68,25 +59,8 @@ else
     return
 }
 
-# A full match will fail if there are more sources.
+# Removing winget. Note this will fail if not run as admin.
 $resource.Property = @{
-    Sources = $expectedSources
-    Action = [WinGetAction]::Full
-}
-$testResult = Invoke-DscResource @resource -Method Test
-if (-not $testResult.InDesiredState)
-{
-    Write-Host "winget source is not the only source"
-}
-else
-{
-    Write-Host "winget source is the only source"
-}
-
-# Breaking winget. Note this will fail if not run as admin.
-$resource.Property = @{
-    Sources = $expectedSources
-    Action = [WinGetAction]::Partial
     Ensure = [Ensure]::Absent
 }
 
@@ -97,16 +71,9 @@ Write-Host "winget source removed"
 $testResult = Invoke-DscResource @resource -Method Test
 if (-not $testResult.InDesiredState)
 {
-    Write-Host "winget source is gone."
-
-    # Add it again
-    $resource.Property.Command = [SourceCommand]::Add
-    Invoke-DscResource @resource -Method Set | Out-Null
+    Write-Host "winget source is still present."
 }
 else
 {
-    # TODO: debug. Basically when `winget source remove winget` happens if the
-    # commands prints the progress bar the source was not removed. I think that
-    # it was actually removed but readded updating the package.
-    Write-Host "winget was not removed."
+    Write-Host "winget was removed."
 }

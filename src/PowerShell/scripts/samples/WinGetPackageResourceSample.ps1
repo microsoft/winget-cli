@@ -26,11 +26,11 @@ $resource = @{
 $testResult = Invoke-DscResource @resource -Method Test
 if ($testResult.InDesiredState)
 {
-    Write-Host "PowerToys is installed."
+    Write-Host "PowerToys is not installed."
 }
 else
 {
-    Write-Host "PowerToys is not installed."
+    Write-Host "PowerToys is installed."
 }
 
 # Default value of Ensure is present.
