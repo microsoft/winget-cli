@@ -28,6 +28,9 @@
     <Filter Include="schema\v1.7.0">
       <UniqueIdentifier>{040a7f05-fd31-466c-bb71-0d59e4cdf1c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="schema\v1.9.0">
+      <UniqueIdentifier>{f7069050-9235-44e0-ab07-72e4addfd765}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)ManifestSchema.h" />
@@ -144,6 +147,21 @@
     </None>
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.7.0\manifest.version.1.7.0.json">
       <Filter>schema\v1.7.0</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.9.0\manifest.defaultLocale.1.9.0.json">
+      <Filter>schema\v1.9.0</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.9.0\manifest.installer.1.9.0.json">
+      <Filter>schema\v1.9.0</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.9.0\manifest.locale.1.9.0.json">
+      <Filter>schema\v1.9.0</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.9.0\manifest.singleton.1.9.0.json">
+      <Filter>schema\v1.9.0</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.9.0\manifest.version.1.9.0.json">
+      <Filter>schema\v1.9.0</Filter>
     </None>
   </ItemGroup>
 </Project>
