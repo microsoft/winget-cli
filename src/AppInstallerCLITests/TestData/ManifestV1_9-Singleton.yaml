@@ -124,6 +124,7 @@ InstallationMetadata:
       InvocationParameter: "/arg"
       DisplayName: "DisplayName"
 DownloadCommandProhibited: true
+ArchiveBinariesDependOnPath: true
 
 Installers:
   - Architecture: x86
@@ -194,5 +195,6 @@ Installers:
         ReturnResponse: custom
         ReturnResponseUrl: https://defaultReturnResponseUrl.com
     DownloadCommandProhibited: false
+    ArchiveBinariesDependOnPath: false
 ManifestType: singleton
 ManifestVersion: 1.9.0

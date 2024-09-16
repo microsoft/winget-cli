@@ -63,7 +63,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::ArpValidationError, "Arp Validation Error."sv },
                 { AppInstaller::Manifest::ManifestError::SchemaError, "Schema Error."sv },
                 { AppInstaller::Manifest::ManifestError::MsixSignatureHashFailed, "Failed to calculate MSIX signature hash.Please verify that the input file is a valid, signed MSIX."sv },
-                { AppInstaller::Manifest::ManifestError::ShadowManifestNotAllowed, "Shadow manifest is not allowed."}
+                { AppInstaller::Manifest::ManifestError::ShadowManifestNotAllowed, "Shadow manifest is not allowed." }
             };
 
             return ErrorIdToMessageMap;
@@ -258,9 +258,17 @@ namespace AppInstaller::Manifest
                 {
                     resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "NestedInstallerFiles");
                 }
-                if (installer.NestedInstallerType != InstallerTypeEnum::Portable && installer.NestedInstallerFiles.size() != 1)
+                if (installer.NestedInstallerType != InstallerTypeEnum::Portable)
                 {
-                    resultErrors.emplace_back(ManifestError::ExceededNestedInstallerFilesLimit, "NestedInstallerFiles");
+                    if (installer.NestedInstallerFiles.size() != 1)
+                    {
+                        resultErrors.emplace_back(ManifestError::ExceededNestedInstallerFilesLimit, "NestedInstallerFiles");
+                    }
+                    // ArchiveBinariesDependOnPath only applies to an archive containing portable packages.
+                    if (installer.ArchiveBinariesDependOnPath)
+                    {
+                        resultErrors.emplace_back(ManifestError::FieldNotSupported, "ArchiveBinariesDependOnPath", ValidationError::Level::Warning);
+                    }
                 }
 
                 std::set<std::string> commandAliasSet;
@@ -295,6 +303,14 @@ namespace AppInstaller::Manifest
                         resultErrors.emplace_back(ManifestError::DuplicatePortableCommandAlias, "PortableCommandAlias");
                         break;
                     }
+                }
+            }
+            else
+            {
+                // ArchiveBinariesDependOnPath only applies to an archive containing portable packages.
+                if (installer.ArchiveBinariesDependOnPath)
+                {
+                    resultErrors.emplace_back(ManifestError::FieldNotSupported, "ArchiveBinariesDependOnPath", ValidationError::Level::Warning);
                 }
             }
 

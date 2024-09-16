@@ -188,7 +188,7 @@
           "maxLength": 2048,
           "description": "Custom switches will be passed directly to the installer by winget"
         },
-        "Repair" : {
+        "Repair": {
           "type": [ "string", "null" ],
           "minLength": 1,
           "maxLength": 512,
@@ -587,7 +587,7 @@
       "type": [ "boolean", "null" ],
       "description": "Indicates whether the installer is prohibited from being downloaded for offline installation."
     },
-    "RepairBehavior": { 
+    "RepairBehavior": {
       "type": [ "string", "null" ],
       "enum": [
         "modify",
@@ -595,6 +595,10 @@
         "installer"
       ],
       "description": "The repair method"
+    },
+    "ArchiveBinariesDependOnPath": {
+      "type": [ "boolean", "null" ],
+      "description": "Indicates whether the install location should be added directly to the PATH environment variable. Only applies to an archive containing portable packages."
     },
     "Installer": {
       "type": "object",
@@ -716,6 +720,9 @@
         },
         "RepairBehavior": {
           "$ref": "#/definitions/RepairBehavior"
+        },
+        "ArchiveBinariesDependOnPath": {
+          "$ref": "#/definitions/ArchiveBinariesDependOnPath"
         }
       },
       "required": [
@@ -834,6 +841,9 @@
     },
     "RepairBehavior": {
       "$ref": "#/definitions/RepairBehavior"
+    },
+    "ArchiveBinariesDependOnPath": {
+      "$ref": "#/definitions/ArchiveBinariesDependOnPath"
     },
     "Installers": {
       "type": "array",
