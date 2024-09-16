@@ -78,6 +78,8 @@
               </com:Class>
               <com:Class Id ="6484A61D-50FA-41F0-B71E-F4370C6EB37C" DisplayName="AuthenticationArguments Server">
               </com:Class>
+              <com:Class Id="D58C7E4C-70E6-476C-A5D4-80341ED80252" DisplayName="AddPackageCatalogOptions Server">
+              </com:Class>
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>
