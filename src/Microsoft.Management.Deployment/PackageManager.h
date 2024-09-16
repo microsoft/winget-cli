@@ -41,6 +41,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             DownloadPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::DownloadOptions options);
         winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::DownloadResult, winrt::Microsoft::Management::Deployment::PackageDownloadProgress>
             GetDownloadProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo);
+        // Contract 11.0
+        winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::AddPackageCatalogResult, winrt::Microsoft::Management::Deployment::AddPackageCatalogProgress>
+            AddPackageCatalogAsync(winrt::Microsoft::Management::Deployment::AddPackageCatalogOptions options);
+        winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, winrt::Microsoft::Management::Deployment::RemovePackageCatalogProgress>
+            RemovePackageCatalogAsync(hstring const& catalogName);
+        winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::ResetPackageCatalogResult, winrt::Microsoft::Management::Deployment::ResetPackageCatalogProgress> ResetPackageCatalogAsync();
+        winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::UpdatePackageCatalogResult, winrt::Microsoft::Management::Deployment::UpdatePackageCatalogProgress> UpdatePackageCatalogAsync(hstring const& catalogName);
     };
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
