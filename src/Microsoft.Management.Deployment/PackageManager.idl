@@ -1565,5 +1565,15 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<MicrosoftEntraIdAuthenticationInfo>;
         interface Windows.Foundation.Collections.IVector<AuthenticationInfo>;
         interface Windows.Foundation.Collections.IVectorView<AuthenticationInfo>;
+        interface Windows.Foundation.Collections.IVector<AddPackageCatalogOptions>;
+        interface Windows.Foundation.Collections.IVectorView<AddPackageCatalogOptions>;
+        interface Windows.Foundation.Collections.IVector<AddPackageCatalogResult>;
+        interface Windows.Foundation.Collections.IVectorView<AddPackageCatalogResult>;
+        interface Windows.Foundation.Collections.IVector<RemovePackageCatalogResult>;
+        interface Windows.Foundation.Collections.IVectorView<RemovePackageCatalogResult>;
+        interface Windows.Foundation.Collections.IVector<ResetPackageCatalogResult>;
+        interface Windows.Foundation.Collections.IVectorView<ResetPackageCatalogResult>;
+        interface Windows.Foundation.Collections.IVector<UpdatePackageCatalogResult>;
+        interface Windows.Foundation.Collections.IVectorView<UpdatePackageCatalogResult>;
     }
 }
