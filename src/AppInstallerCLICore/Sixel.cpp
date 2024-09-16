@@ -161,7 +161,7 @@ namespace AppInstaller::CLI::VirtualTerminal
                 {
                 case State::Initial:
                     // Initial device control string
-                    stream << AICLI_VT_ESCAPE << 'P' << ToIntegral(m_renderControls.AspectRatio) << ';' << (m_renderControls.TransparencyEnabled ? '1' : '0') << ";q";
+                    stream << AICLI_VT_ESCAPE << 'P' << ToIntegral(m_renderControls.AspectRatio) << ";1;q";
 
                     for (size_t i = 0; i < m_palette.size(); ++i)
                     {
@@ -210,8 +210,10 @@ namespace AppInstaller::CLI::VirtualTerminal
 
                     for (size_t i = 0; i < m_enabledColors.size(); ++i)
                     {
-                        // Don't output color 0 if transparency is enabled
-                        if (m_renderControls.TransparencyEnabled && i == 0)
+                        // Don't output color if transparent
+                        WICColor currentColor = m_palette[i];
+                        BYTE alpha = (currentColor >> 24) & 0xFF;
+                        if (alpha == 0)
                         {
                             continue;
                         }

@@ -230,6 +230,9 @@ namespace AppInstaller::CLI
             OutputStream stream = context.Reporter.GetOutputStream(Reporter::Level::Info);
             stream.ClearFormat();
             sixelImage.RenderTo(stream);
+
+            // Force a new line to show entire image
+            stream << std::endl;
         }
     }
 }
