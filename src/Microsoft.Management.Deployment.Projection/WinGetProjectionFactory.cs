@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace Microsoft.Management.Deployment.Projection
@@ -34,5 +34,7 @@ namespace Microsoft.Management.Deployment.Projection
         public AuthenticationArguments CreateAuthenticationArguments() => InstanceInitializer.CreateInstance<AuthenticationArguments>();
 
         public PackageManagerSettings CreatePackageManagerSettings() => InstanceInitializer.CreateInstance<PackageManagerSettings>();
+
+        public AddPackageCatalogOptions CreateAddPackageCatalogOptions() => InstanceInitializer.CreateInstance<AddPackageCatalogOptions>();
     }
 }
