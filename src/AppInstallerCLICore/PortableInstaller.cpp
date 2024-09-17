@@ -121,7 +121,7 @@ namespace AppInstaller::CLI::Portable
         }
         else if (entry.FileType == PortableFileType::Symlink)
         {
-            if (BinariesDependOnPath)
+            if (BinariesDependOnPath && !InstallDirectoryAddedToPath)
             {
                 // Scenario indicated by 'ArchiveBinariesDependOnPath' manifest entry.
                 // Skip symlink creation for portables dependent on binaries that require the install directory to be added to PATH.
