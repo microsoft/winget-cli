@@ -1265,31 +1265,6 @@ namespace Microsoft.Management.Deployment
         HRESULT ExtendedErrorCode { get; };
     };
 
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    enum AddPackageCatalogProgressState
-    {
-        /// The AddCatalog is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this 
-        /// state will prevent the Catalog addition.
-        Queued,
-
-        /// The AddPackageCatalog is in progress. Cancellation of the IAsyncOperationWithProgress in this state will not
-        /// stop AddPackageCatalog operation.
-        AddingCatalog,
-
-        /// The operation is complete.
-        Finished,
-    };
-
-    /// IMPLEMENTATION NOTE: AddPackageCatalogProgress
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    struct AddPackageCatalogProgress
-    {
-        AddPackageCatalogProgressState State;
-
-        /// The progress percentage of the operation.
-        Double ProgressPercentage;
-    };
-
     /// IMPLEMENTATION NOTE: RemovePackageCatalogStatus
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
     enum RemovePackageCatalogStatus
@@ -1309,32 +1284,6 @@ namespace Microsoft.Management.Deployment
 
         /// Error codes
         HRESULT ExtendedErrorCode { get; };
-    };
-
-    /// IMPLEMENTATION NOTE: RemovePackageCatalogProgressState
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    enum RemovePackageCatalogProgressState
-    {
-        /// The RemovePackageCatalog is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this 
-        /// state will prevent the PackageCatalog removal.
-        Queued,
-
-        /// The RemovePackageCatalog is in progress. Cancellation of the IAsyncOperationWithProgress in this state will not
-        /// stop RemovePackageCatalog operation.
-        RemovingCatalog,
-
-        /// The operation is complete.
-        Finished,
-    };
-
-    /// IMPLEMENTATION NOTE: RemovePackageCatalogProgress
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    struct RemovePackageCatalogProgress
-    {
-        RemovePackageCatalogProgressState State;
-
-        /// The progress percentage of the operation.
-        Double ProgressPercentage;
     };
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
@@ -1357,31 +1306,6 @@ namespace Microsoft.Management.Deployment
     };
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    enum ResetPackageCatalogProgressState
-    {
-        /// The ResetPackageCatalog is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this 
-        /// state will prevent the PackageCatalog reset.
-        Queued,
-
-        /// The ResetPackageCatalog is in progress. Cancellation of the IAsyncOperationWithProgress in this state will not
-        /// stop ResetPackageCatalog operation.
-        ResettingCatalog,
-
-        /// The operation is complete.
-        Finished,
-    };
-
-    /// IMPLEMENTATION NOTE: ResetPackageCatalogProgress
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    struct ResetPackageCatalogProgress
-    {
-        ResetPackageCatalogProgressState State;
-
-        /// The progress percentage of the operation.
-        Double ProgressPercentage;
-    };
-
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
     enum UpdatePackageCatalogStatus
     {
         Ok,
@@ -1398,31 +1322,6 @@ namespace Microsoft.Management.Deployment
 
         /// Error codes
         HRESULT ExtendedErrorCode { get; };
-    };
-
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    enum UpdatePackageCatalogProgressState
-    {
-        /// The UpdatePackageCatalog is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this 
-        /// state will prevent the UpdatePackageCatalog reset.
-        Queued,
-
-        // The UpdatePackageCatalog is in progress. Cancellation of the IAsyncOperationWithProgress in this state will not
-        /// stop UpdatePackageCatalog operation.
-        UpdatingCatalog,
-
-        /// The operation is complete.
-        Finished,
-    };
-
-    /// IMPLEMENTATION NOTE: UpdatePackageCatalogProgress
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    struct UpdatePackageCatalogProgress
-    {
-        UpdatePackageCatalogProgressState State;
-
-        /// The progress percentage of the operation.
-        Double ProgressPercentage;
     };
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
@@ -1446,16 +1345,16 @@ namespace Microsoft.Management.Deployment
 
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
         {
-            Windows.Foundation.IAsyncOperationWithProgress<AddPackageCatalogResult, AddPackageCatalogProgress> AddPackageCatalogAsync(AddPackageCatalogOptions options);
+            Windows.Foundation.IAsyncOperationWithProgress<AddPackageCatalogResult, Double> AddPackageCatalogAsync(AddPackageCatalogOptions options);
 
             /// Removes a catalog from the Windows Package Catalogs.
-            Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, RemovePackageCatalogProgress> RemovePackageCatalogAsync(String catalogName);
+            Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, Double> RemovePackageCatalogAsync(String catalogName);
 
             /// Resets the package catalog to the default state.
-            Windows.Foundation.IAsyncOperationWithProgress<ResetPackageCatalogResult, ResetPackageCatalogProgress> ResetPackageCatalogAsync();
+            Windows.Foundation.IAsyncOperationWithProgress<ResetPackageCatalogResult, Double> ResetPackageCatalogAsync();
 
             /// Updates the package catalog.
-            Windows.Foundation.IAsyncOperationWithProgress<UpdatePackageCatalogResult, UpdatePackageCatalogProgress> UpdatePackageCatalogAsync(String catalogName);
+            Windows.Foundation.IAsyncOperationWithProgress<UpdatePackageCatalogResult, Double> UpdatePackageCatalogAsync(String catalogName);
         }
 
         /// Install the specified package
