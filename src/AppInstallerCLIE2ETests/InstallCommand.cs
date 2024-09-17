@@ -520,11 +520,11 @@ namespace AppInstallerCLIE2ETests
         /// Test install zip portable with binaries that depend on PATH variable.
         /// </summary>
         [Test]
-        public void InstallZip_PortableWithBinariesDependentOnPath()
+        public void InstallZip_ArchivePortableWithBinariesDependentOnPath()
         {
             string installDir = TestCommon.GetPortablePackagesDirectory();
             string packageId, commandAlias, fileName, packageDirName, productCode;
-            packageId = "AppInstallerTest.ArchiveBinariesDependOnPath";
+            packageId = "AppInstallerTest.ArchivePortableWithBinariesDependentOnPath";
             packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
             commandAlias = "TestPortable.exe";
             fileName = "AppInstallerTestExeInstaller.exe";

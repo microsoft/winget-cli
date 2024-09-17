@@ -399,7 +399,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
 
             Assert.AreEqual(shouldExist, exeExists, $"Expected portable exe path: {exePath}");
-            Assert.AreEqual(shouldExist, symlinkExists, $"Expected portable symlink path: {symlinkPath}");
+            Assert.AreEqual(shouldExist && !installDirectoryAddedToPath, symlinkExists, $"Expected portable symlink path: {symlinkPath}");
             Assert.AreEqual(shouldExist, portableEntryExists, $"Expected {productCode} subkey in path: {uninstallSubKey}");
             Assert.AreEqual(shouldExist, isAddedToPath, $"Expected path variable: {(installDirectoryAddedToPath ? installDir : symlinkDirectory)}");
         }
