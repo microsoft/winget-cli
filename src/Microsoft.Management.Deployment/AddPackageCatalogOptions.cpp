@@ -14,13 +14,13 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    hstring AddPackageCatalogOptions::CatalogName()
+    hstring AddPackageCatalogOptions::Name()
     {
-        return hstring(m_catalogName);
+        return hstring(m_name);
     }
-    void AddPackageCatalogOptions::CatalogName(hstring const& value)
+    void AddPackageCatalogOptions::Name(hstring const& value)
     {
-        m_catalogName = value;
+        m_name = value;
     }
     hstring AddPackageCatalogOptions::SourceUri()
     {
@@ -38,14 +38,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_type = value;
     }
-    hstring AddPackageCatalogOptions::Arguments()
-    {
-        return hstring(m_arguments);
-    }
-    void AddPackageCatalogOptions::Arguments(hstring const& value)
-    {
-        m_arguments = value;
-    }
     winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel AddPackageCatalogOptions::TrustLevel()
     {
         return m_trustLevel;
@@ -61,6 +53,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     void AddPackageCatalogOptions::CustomHeader(hstring const& value)
     {
         m_customHeader = value;
+    }
+    bool AddPackageCatalogOptions::Explicit()
+    {
+        return m_explicit;
+    }
+    void AddPackageCatalogOptions::Explicit(bool const& value)
+    {
+        m_explicit = value;
     }
 
     CoCreatableMicrosoftManagementDeploymentClass(AddPackageCatalogOptions);

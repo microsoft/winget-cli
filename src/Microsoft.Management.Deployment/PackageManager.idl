@@ -1220,18 +1220,29 @@ namespace Microsoft.Management.Deployment
     {
         AddPackageCatalogOptions();
 
-        /// The name of the catalog to add.
-        String CatalogName;
-        /// The source URI of the catalog to add.
+        /// The name of the package catalog. 
+        /// SAMPLE VALUES: For OpenWindowsCatalog "winget".
+        /// For contoso sample on msdn "contoso"
+        String Name;
+
+        /// The SourceUri used when adding the package catalog.
+        /// SAMPLE VALUES: For OpenWindowsCatalog "https://winget.azureedge.net/cache"
+        /// For contoso sample on msdn "https://pkgmgr-int.azureedge.net/cache"
         String SourceUri;
-        /// Type of the catalog to add.
+
+        /// ALLOWED VALUES: "Microsoft.Rest", "Microsoft.PreIndexed.Package"
+        /// SAMPLE VALUES: For OpenWindowsCatalog "Microsoft.PreIndexed.Package".
+        /// For contoso sample on msdn "Microsoft.PreIndexed.Package"
         String Type;
-        /// Additional arguments to pass to the catalog.
-        String Arguments;
+
         /// The trust level of the catalog to add.
         PackageCatalogTrustLevel TrustLevel;
+
         /// Custom header to pass to the catalog.
         String CustomHeader;
+
+        /// Excludes a source from discovery unless specified.
+        Boolean Explicit;
     };
 
     /// IMPLEMENTATION NOTE: AddPackageCatalogStatus
@@ -1437,7 +1448,7 @@ namespace Microsoft.Management.Deployment
         {
             Windows.Foundation.IAsyncOperationWithProgress<AddPackageCatalogResult, AddPackageCatalogProgress> AddPackageCatalogAsync(AddPackageCatalogOptions options);
 
-            /// Removes a source from the Windows Package Manager source list.
+            /// Removes a catalog from the Windows Package Catalogs.
             Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, RemovePackageCatalogProgress> RemovePackageCatalogAsync(String catalogName);
 
             /// Resets the package catalog to the default state.
@@ -1565,15 +1576,5 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<MicrosoftEntraIdAuthenticationInfo>;
         interface Windows.Foundation.Collections.IVector<AuthenticationInfo>;
         interface Windows.Foundation.Collections.IVectorView<AuthenticationInfo>;
-        interface Windows.Foundation.Collections.IVector<AddPackageCatalogOptions>;
-        interface Windows.Foundation.Collections.IVectorView<AddPackageCatalogOptions>;
-        interface Windows.Foundation.Collections.IVector<AddPackageCatalogResult>;
-        interface Windows.Foundation.Collections.IVectorView<AddPackageCatalogResult>;
-        interface Windows.Foundation.Collections.IVector<RemovePackageCatalogResult>;
-        interface Windows.Foundation.Collections.IVectorView<RemovePackageCatalogResult>;
-        interface Windows.Foundation.Collections.IVector<ResetPackageCatalogResult>;
-        interface Windows.Foundation.Collections.IVectorView<ResetPackageCatalogResult>;
-        interface Windows.Foundation.Collections.IVector<UpdatePackageCatalogResult>;
-        interface Windows.Foundation.Collections.IVectorView<UpdatePackageCatalogResult>;
     }
 }
