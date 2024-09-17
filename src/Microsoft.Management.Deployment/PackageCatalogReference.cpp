@@ -289,4 +289,26 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             });
         return m_authenticationInfo;
     }
+
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double> PackageCatalogReference::RemovePackageCatalogAsync(hstring const& catalogName)
+    {
+        UNREFERENCED_PARAMETER(catalogName);
+
+        // TODO: Implement RemovePackageCatalogAsync
+        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double>();
+    }
+
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::ResetPackageCatalogResult, double> PackageCatalogReference::ResetPackageCatalogAsync()
+    {
+        // TODO: Implement ResetPackageCatalogAsync
+        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::ResetPackageCatalogResult, double>();
+    }
+
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::UpdatePackageCatalogResult, double> PackageCatalogReference::UpdatePackageCatalogAsync(hstring const& catalogName)
+    {
+        UNREFERENCED_PARAMETER(catalogName);
+
+        // TODO: Implement UpdatePackageCatalogAsync
+        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::UpdatePackageCatalogResult, double>();
+    }
 }

@@ -784,6 +784,64 @@ namespace Microsoft.Management.Deployment
         PackageCatalog PackageCatalog { get; };
     }
 
+    /// IMPLEMENTATION NOTE: RemovePackageCatalogStatus
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    enum RemovePackageCatalogStatus
+    {
+        Ok,
+        GroupPolicyError,
+        CatalogError,
+        InternalError,
+    };
+
+    /// IMPLEMENTATION NOTE: RemovePackageCatalogResult
+    /// Result of removing a package catalog.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    runtimeclass RemovePackageCatalogResult
+    {
+        RemovePackageCatalogStatus Status { get; };
+
+        /// Error codes
+        HRESULT ExtendedErrorCode { get; };
+    };
+
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    enum ResetPackageCatalogStatus
+    {
+        Ok,
+        GroupPolicyError,
+        CatalogError,
+        InternalError,
+    };
+
+    /// IMPLEMENTATION NOTE: ResetPackageCatalogResult
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    runtimeclass ResetPackageCatalogResult
+    {
+        ResetPackageCatalogStatus Status { get; };
+
+        /// Error codes
+        HRESULT ExtendedErrorCode { get; };
+    };
+
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    enum UpdatePackageCatalogStatus
+    {
+        Ok,
+        GroupPolicyError,
+        CatalogError,
+        InternalError,
+    };
+
+    /// IMPLEMENTATION NOTE: UpdatePackageCatalogResult
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    runtimeclass UpdatePackageCatalogResult
+    {
+        UpdatePackageCatalogStatus Status { get; };
+
+        /// Error codes
+        HRESULT ExtendedErrorCode { get; };
+    };
     /// A reference to a catalog that callers can try to Connect.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageCatalogReference
@@ -837,6 +895,18 @@ namespace Microsoft.Management.Deployment
             /// Authentication info from the package catalog.
             /// This is defined by individual package catalog.
             AuthenticationInfo AuthenticationInfo { get; };
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+        {
+            /// Removes a catalog from the Windows Package Catalogs.
+            Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, Double> RemovePackageCatalogAsync(String catalogName);
+
+            /// Resets the package catalog to the default state.
+            Windows.Foundation.IAsyncOperationWithProgress<ResetPackageCatalogResult, Double> ResetPackageCatalogAsync();
+
+            /// Updates the package catalog.
+            Windows.Foundation.IAsyncOperationWithProgress<UpdatePackageCatalogResult, Double> UpdatePackageCatalogAsync(String catalogName);
         }
     }
 
@@ -1265,65 +1335,6 @@ namespace Microsoft.Management.Deployment
         HRESULT ExtendedErrorCode { get; };
     };
 
-    /// IMPLEMENTATION NOTE: RemovePackageCatalogStatus
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    enum RemovePackageCatalogStatus
-    {
-        Ok,
-        GroupPolicyError,
-        CatalogError,
-        InternalError,
-    };
-
-    /// IMPLEMENTATION NOTE: RemovePackageCatalogResult
-    /// Result of removing a package catalog.
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    runtimeclass RemovePackageCatalogResult
-    {
-        RemovePackageCatalogStatus Status { get; };
-
-        /// Error codes
-        HRESULT ExtendedErrorCode { get; };
-    };
-
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    enum ResetPackageCatalogStatus
-    {
-        Ok,
-        GroupPolicyError,
-        CatalogError,
-        InternalError,
-    };
-
-    /// IMPLEMENTATION NOTE: ResetPackageCatalogResult
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    runtimeclass ResetPackageCatalogResult
-    {
-        ResetPackageCatalogStatus Status { get; };
-
-        /// Error codes
-        HRESULT ExtendedErrorCode { get; };
-    };
-
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    enum UpdatePackageCatalogStatus
-    {
-        Ok,
-        GroupPolicyError,
-        CatalogError,
-        InternalError,
-    };
-
-    /// IMPLEMENTATION NOTE: UpdatePackageCatalogResult
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    runtimeclass UpdatePackageCatalogResult
-    {
-        UpdatePackageCatalogStatus Status { get; };
-
-        /// Error codes
-        HRESULT ExtendedErrorCode { get; };
-    };
-
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageManager
     {
@@ -1346,15 +1357,6 @@ namespace Microsoft.Management.Deployment
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
         {
             Windows.Foundation.IAsyncOperationWithProgress<AddPackageCatalogResult, Double> AddPackageCatalogAsync(AddPackageCatalogOptions options);
-
-            /// Removes a catalog from the Windows Package Catalogs.
-            Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, Double> RemovePackageCatalogAsync(String catalogName);
-
-            /// Resets the package catalog to the default state.
-            Windows.Foundation.IAsyncOperationWithProgress<ResetPackageCatalogResult, Double> ResetPackageCatalogAsync();
-
-            /// Updates the package catalog.
-            Windows.Foundation.IAsyncOperationWithProgress<UpdatePackageCatalogResult, Double> UpdatePackageCatalogAsync(String catalogName);
         }
 
         /// Install the specified package

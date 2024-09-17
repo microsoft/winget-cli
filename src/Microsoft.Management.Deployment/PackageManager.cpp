@@ -1072,27 +1072,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::AddPackageCatalogResult, double>();
     }
 
-    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double> PackageManager::RemovePackageCatalogAsync(hstring const& catalogName)
-    {
-        UNREFERENCED_PARAMETER(catalogName);
-
-        // TODO: Implement RemovePackageCatalogAsync
-        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double>();
-    }
-
-    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::ResetPackageCatalogResult, double> PackageManager::ResetPackageCatalogAsync()
-    {
-        // TODO: Implement ResetPackageCatalogAsync
-        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::ResetPackageCatalogResult, double>();
-    }
-
-    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::UpdatePackageCatalogResult, double> PackageManager::UpdatePackageCatalogAsync(hstring const& catalogName)
-    {
-        UNREFERENCED_PARAMETER(catalogName);
-
-        // TODO: Implement UpdatePackageCatalogAsync
-        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::UpdatePackageCatalogResult, double>();
-    }
-
     CoCreatableMicrosoftManagementDeploymentClass(PackageManager);
 }
