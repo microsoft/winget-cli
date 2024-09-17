@@ -5,11 +5,14 @@
 #include "ExecutionContext.h"
 #include "ManifestComparator.h"
 #include "PromptFlow.h"
+#include "Sixel.h"
 #include "TableOutput.h"
+#include <winget/FileCache.h>
 #include <winget/ExperimentalFeature.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/Pin.h>
 #include <winget/PinningData.h>
+#include <AppInstallerSHA256.h>
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
 
@@ -65,6 +68,77 @@ namespace AppInstaller::CLI::Workflow
 
             out << std::endl;
         }
+
+        // Determines icon fit given two options.
+        // Targets an 80x80 icon as the best resolution for this use case.
+        // TODO: Consider theme based on current background color.
+        bool IsIconBetter(const Manifest::Icon& current, const Manifest::Icon& alternative)
+        {
+            static constexpr std::array<uint8_t, ToIntegral(Manifest::IconResolutionEnum::Square256) + 1> s_iconResolutionOrder
+            {
+                9, // Unknown
+                8, // Custom
+                15, // Square16
+                14, // Square20
+                13, // Square24
+                12, // Square30
+                11, // Square32
+                10, // Square36
+                6, // Square40
+                5, // Square48
+                4, // Square60
+                3, // Square64
+                2, // Square72
+                0, // Square80
+                1, // Square96
+                7, // Square256
+            };
+
+            return s_iconResolutionOrder[ToIntegral(alternative.Resolution)] < s_iconResolutionOrder[ToIntegral(current.Resolution)];
+        }
+
+        void ShowManifestIcon(Execution::Context& context, const Manifest::Manifest& manifest) try
+        {
+            if (!VirtualTerminal::SixelsEnabled())
+            {
+                return;
+            }
+
+            auto icons = manifest.CurrentLocalization.Get<Manifest::Localization::Icons>();
+            const Manifest::Icon* bestFitIcon = nullptr;
+
+            for (const auto& icon : icons)
+            {
+                if (!bestFitIcon || IsIconBetter(*bestFitIcon, icon))
+                {
+                    bestFitIcon = &icon;
+                }
+            }
+
+            if (!bestFitIcon)
+            {
+                return;
+            }
+
+            // Use a cache to hold the icons
+            auto splitUri = Utility::SplitFileNameFromURI(bestFitIcon->Url);
+            Caching::FileCache fileCache{ Caching::FileCache::Type::Icons, Utility::SHA256::ConvertToString(bestFitIcon->Sha256), { splitUri.first } };
+            auto iconStream = fileCache.GetFile(splitUri.second, bestFitIcon->Sha256);
+
+            VirtualTerminal::SixelImage sixelIcon{ *iconStream, bestFitIcon->FileType };
+
+            // Using a height of 4 arbitrarily; allow width up to the entire console.
+            UINT imageHeightCells = 4;
+            UINT imageWidthCells = static_cast<UINT>(Execution::GetConsoleWidth());
+
+            sixelIcon.RenderSizeInCells(imageWidthCells, imageHeightCells);
+            auto infoOut = context.Reporter.Info();
+            sixelIcon.RenderTo(infoOut);
+
+            // Force the final sixel line to not be overwritten
+            infoOut << std::endl;
+        }
+        CATCH_LOG();
 
         Repository::Source OpenNamedSource(Execution::Context& context, Utility::LocIndView sourceName)
         {
@@ -1258,12 +1332,14 @@ namespace AppInstaller::CLI::Workflow
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
         ReportIdentity(context, {}, Resource::String::ReportIdentityFound, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id);
+        ShowManifestIcon(context, manifest);
     }
 
     void ReportManifestIdentityWithVersion::operator()(Execution::Context& context) const
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
         ReportIdentity(context, m_prefix, m_label, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id, manifest.Version, m_level);
+        ShowManifestIcon(context, manifest);
     }
 
     void SelectInstaller(Execution::Context& context)

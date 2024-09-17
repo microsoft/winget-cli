@@ -33,6 +33,11 @@
           "description": "Replaces some known folder paths with their respective environment variable",
           "type": "boolean",
           "default": true
+        },
+        "enableSixels": {
+          "description": "Enables output of sixel images in certain contexts",
+          "type": "boolean",
+          "default": false
         }
       }
     },

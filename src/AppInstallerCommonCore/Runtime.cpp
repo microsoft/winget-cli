@@ -29,6 +29,8 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_PortablePackageRoot = "WinGet"sv;
         constexpr std::string_view s_PortablePackagesDirectory = "Packages"sv;
         constexpr std::string_view s_LinksDirectory = "Links"sv;
+        constexpr std::string_view s_ImageAssetsDirectoryRelativePreview = "Images"sv;
+        constexpr std::string_view s_ImageAssetsDirectoryRelativeRelease = "Assets\\WinGet"sv;
         constexpr std::string_view s_CheckpointsDirectory = "Checkpoints"sv;
         constexpr std::string_view s_DevModeSubkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock"sv;
         constexpr std::string_view s_AllowDevelopmentWithoutDevLicense = "AllowDevelopmentWithoutDevLicense"sv;
@@ -311,8 +313,13 @@ namespace AppInstaller::Runtime
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:
+        case PathName::ImageAssets:
             result.Path = GetPackagePath();
             result.Create = false;
+            if (path == PathName::ImageAssets)
+            {
+                result.Path /= (IsReleaseBuild() ? s_ImageAssetsDirectoryRelativeRelease : s_ImageAssetsDirectoryRelativePreview);
+            }
             break;
         case PathName::CheckpointsLocation:
             result = GetPathDetailsForPackagedContext(PathName::LocalState, forDisplay);
@@ -411,11 +418,21 @@ namespace AppInstaller::Runtime
             break;
         case PathName::SelfPackageRoot:
         case PathName::CLIExecutable:
+        case PathName::ImageAssets:
             result.Path = GetBinaryDirectoryPath();
             result.Create = false;
             if (path == PathName::CLIExecutable)
             {
                 result.Path /= s_WinGet_Exe;
+            }
+            else if (path == PathName::ImageAssets)
+            {
+                // Always use preview path for unpackaged
+                result.Path /= s_ImageAssetsDirectoryRelativePreview;
+                if (!std::filesystem::is_directory(result.Path))
+                {
+                    result.Path.clear();
+                }
             }
             break;
         case PathName::CheckpointsLocation:

@@ -21,6 +21,8 @@ namespace AppInstaller::Caching
             IndexV2_PackageVersionData,
             // Manifests for index V2.
             IndexV2_Manifest,
+            // Icons
+            Icons,
 #ifndef AICLI_DISABLE_TEST_HOOKS
             // The test type.
             Tests,

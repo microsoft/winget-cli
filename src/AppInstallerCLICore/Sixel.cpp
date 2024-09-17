@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Sixel.h"
+#include <AppInstallerStrings.h>
+#include <winget/UserSettings.h>
 #include <vector>
 #include <sstream>
 
@@ -335,6 +337,52 @@ namespace AppInstaller::CLI::VirtualTerminal
         m_sourceImage = anon::CacheToBitmap(m_factory.get(), decodedFrame.get());
     }
 
+    SixelImage::SixelImage(std::istream& imageStream, Manifest::IconFileTypeEnum imageEncoding)
+    {
+        InitializeFactory();
+
+        wil::com_ptr<IStream> stream;
+        THROW_IF_FAILED(CreateStreamOnHGlobal(nullptr, TRUE, &stream));
+
+        auto imageBytes = Utility::ReadEntireStreamAsByteArray(imageStream);
+
+        ULONG written = 0;
+        THROW_IF_FAILED(stream->Write(imageBytes.data(), static_cast<ULONG>(imageBytes.size()), &written));
+        THROW_IF_FAILED(stream->Seek({}, STREAM_SEEK_SET, nullptr));
+
+        wil::com_ptr<IWICBitmapDecoder> decoder;
+        bool initializeDecoder = true;
+
+        switch (imageEncoding)
+        {
+        case Manifest::IconFileTypeEnum::Unknown:
+            THROW_IF_FAILED(m_factory->CreateDecoderFromStream(stream.get(), NULL, WICDecodeMetadataCacheOnDemand, &decoder));
+            initializeDecoder = false;
+            break;
+        case Manifest::IconFileTypeEnum::Jpeg:
+            THROW_IF_FAILED(m_factory->CreateDecoder(GUID_ContainerFormatJpeg, NULL, &decoder));
+            break;
+        case Manifest::IconFileTypeEnum::Png:
+            THROW_IF_FAILED(m_factory->CreateDecoder(GUID_ContainerFormatPng, NULL, &decoder));
+            break;
+        case Manifest::IconFileTypeEnum::Ico:
+            THROW_IF_FAILED(m_factory->CreateDecoder(GUID_ContainerFormatIco, NULL, &decoder));
+            break;
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
+
+        if (initializeDecoder)
+        {
+            THROW_IF_FAILED(decoder->Initialize(stream.get(), WICDecodeMetadataCacheOnDemand));
+        }
+
+        wil::com_ptr<IWICBitmapFrameDecode> decodedFrame;
+        THROW_IF_FAILED(decoder->GetFrame(0, &decodedFrame));
+
+        m_sourceImage = anon::CacheToBitmap(m_factory.get(), decodedFrame.get());
+    }
+
     void SixelImage::AspectRatio(SixelAspectRatio aspectRatio)
     {
         m_renderControls.AspectRatio = aspectRatio;
@@ -405,5 +453,12 @@ namespace AppInstaller::CLI::VirtualTerminal
             NULL,
             CLSCTX_INPROC_SERVER,
             IID_PPV_ARGS(&m_factory)));
+    }
+
+    bool SixelsEnabled()
+    {
+        // TODO: Detect support for sixels in current terminal
+        // You can send a DA1 request("\x1b[c") and you'll get "\x1b[?61;1;...;4;...;41c" back. The "61" is the "conformance level" (61-65 = VT100-500, in that order), but you should ignore that because modern terminals lie about their level. The "4" tells you that the terminal supports sixels and I'd recommend testing for that.
+        return Settings::User().Get<Settings::Setting::EnableSixelDisplay>();
     }
 }

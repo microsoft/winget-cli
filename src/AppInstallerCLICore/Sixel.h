@@ -3,6 +3,7 @@
 #pragma once
 #include "ChannelStreams.h"
 #include "VTSupport.h"
+#include <winget/ManifestLocalization.h>
 #include <wincodec.h>
 #include <wil/com.h>
 #include <filesystem>
@@ -34,6 +35,7 @@ namespace AppInstaller::CLI::VirtualTerminal
         static constexpr UINT CellWidthInPixels = 10;
 
         SixelImage(const std::filesystem::path& imageFilePath);
+        SixelImage(std::istream& imageBytes, Manifest::IconFileTypeEnum imageEncoding);
 
         void AspectRatio(SixelAspectRatio aspectRatio);
         void Transparency(bool transparencyEnabled);
@@ -66,7 +68,7 @@ namespace AppInstaller::CLI::VirtualTerminal
         struct RenderControls
         {
             SixelAspectRatio AspectRatio = SixelAspectRatio::OneToOne;
-            bool TransparencyEnabled = false;
+            bool TransparencyEnabled = true;
             bool StretchSourceToFill = false;
             bool UseRepeatSequence = false;
             UINT ColorCount = MaximumColorCount;
@@ -82,4 +84,7 @@ namespace AppInstaller::CLI::VirtualTerminal
 
         RenderControls m_renderControls;
     };
+
+    // Determines if sixels are enabled.
+    bool SixelsEnabled();
 }

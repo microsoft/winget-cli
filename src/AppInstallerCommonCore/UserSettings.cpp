@@ -256,6 +256,7 @@ namespace AppInstaller::Settings
             return {};
         }
 
+        WINGET_VALIDATE_PASS_THROUGH(EnableSixelDisplay)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalCmd)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)

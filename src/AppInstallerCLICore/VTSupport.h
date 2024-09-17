@@ -61,10 +61,10 @@ namespace AppInstaller::CLI::VirtualTerminal
         explicit ConstructedSequence(std::string s) : m_str(std::move(s)) { Set(m_str); }
 
         ConstructedSequence(const ConstructedSequence& other) : m_str(other.m_str) { Set(m_str); }
-        ConstructedSequence& operator=(const ConstructedSequence& other) { m_str = other.m_str; Set(m_str); }
+        ConstructedSequence& operator=(const ConstructedSequence& other) { m_str = other.m_str; Set(m_str); return *this; }
 
         ConstructedSequence(ConstructedSequence&& other) noexcept : m_str(std::move(other.m_str)) { Set(m_str); }
-        ConstructedSequence& operator=(ConstructedSequence&& other) noexcept { m_str = std::move(other.m_str); Set(m_str); }
+        ConstructedSequence& operator=(ConstructedSequence&& other) noexcept { m_str = std::move(other.m_str); Set(m_str); return *this; }
 
         void Append(const Sequence& sequence);
 
@@ -81,10 +81,10 @@ namespace AppInstaller::CLI::VirtualTerminal
     {
         namespace Position
         {
-            extern const Sequence UpOne;
-            extern const Sequence DownOne;
-            extern const Sequence ForwardOne;
-            extern const Sequence BackwardOne;
+            ConstructedSequence Up(int16_t cells);
+            ConstructedSequence Down(int16_t cells);
+            ConstructedSequence Forward(int16_t cells);
+            ConstructedSequence Backward(int16_t cells);
         }
 
         namespace Visibility

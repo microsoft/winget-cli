@@ -100,12 +100,37 @@ namespace AppInstaller::CLI::VirtualTerminal
     {
         namespace Position
         {
-#define AICLI_VT_SIMPLE_CURSORPOSITON(_c_) AICLI_VT_ESCAPE #_c_
+            ConstructedSequence Up(int16_t cells)
+            {
+                THROW_HR_IF(E_INVALIDARG, cells < 0);
+                std::ostringstream result;
+                result << AICLI_VT_CSI << cells << 'A';
+                return ConstructedSequence{ std::move(result).str() };
+            }
 
-            const Sequence UpOne{ AICLI_VT_SIMPLE_CURSORPOSITON(A) };
-            const Sequence DownOne{ AICLI_VT_SIMPLE_CURSORPOSITON(B) };
-            const Sequence ForwardOne{ AICLI_VT_SIMPLE_CURSORPOSITON(C) };
-            const Sequence BackwardOne{ AICLI_VT_SIMPLE_CURSORPOSITON(D) };
+            ConstructedSequence Down(int16_t cells)
+            {
+                THROW_HR_IF(E_INVALIDARG, cells < 0);
+                std::ostringstream result;
+                result << AICLI_VT_CSI << cells << 'B';
+                return ConstructedSequence{ std::move(result).str() };
+            }
+
+            ConstructedSequence Forward(int16_t cells)
+            {
+                THROW_HR_IF(E_INVALIDARG, cells < 0);
+                std::ostringstream result;
+                result << AICLI_VT_CSI << cells << 'C';
+                return ConstructedSequence{ std::move(result).str() };
+            }
+
+            ConstructedSequence Backward(int16_t cells)
+            {
+                THROW_HR_IF(E_INVALIDARG, cells < 0);
+                std::ostringstream result;
+                result << AICLI_VT_CSI << cells << 'D';
+                return ConstructedSequence{ std::move(result).str() };
+            }
         }
 
         namespace Visibility
@@ -148,7 +173,7 @@ namespace AppInstaller::CLI::VirtualTerminal
             {
                 std::ostringstream result;
                 result << AICLI_VT_CSI "38;2;" << static_cast<uint32_t>(color.R) << ';' << static_cast<uint32_t>(color.G) << ';' << static_cast<uint32_t>(color.B) << 'm';
-                return ConstructedSequence{ result.str() };
+                return ConstructedSequence{ std::move(result).str() };
             }
         }
 
@@ -158,7 +183,7 @@ namespace AppInstaller::CLI::VirtualTerminal
             {
                 std::ostringstream result;
                 result << AICLI_VT_CSI "48;2;" << static_cast<uint32_t>(color.R) << ';' << static_cast<uint32_t>(color.G) << ';' << static_cast<uint32_t>(color.B) << 'm';
-                return ConstructedSequence{ result.str() };
+                return ConstructedSequence{ std::move(result).str() };
             }
         }
 
@@ -166,7 +191,7 @@ namespace AppInstaller::CLI::VirtualTerminal
         {
             std::ostringstream result;
             result << AICLI_VT_OSC "8;;" << ref << AICLI_VT_ESCAPE << "\\" << text << AICLI_VT_OSC << "8;;" << AICLI_VT_ESCAPE << "\\";
-            return ConstructedSequence{ result.str() };
+            return ConstructedSequence{ std::move(result).str() };
         }
     }
 
@@ -232,7 +257,7 @@ namespace AppInstaller::CLI::VirtualTerminal
                 result << percentage.value();
             }
             result << AICLI_VT_ESCAPE << "\\";
-            return ConstructedSequence{ result.str() };
+            return ConstructedSequence{ std::move(result).str() };
         }
     }
 }

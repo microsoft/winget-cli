@@ -5,6 +5,7 @@
 #if _DEBUG
 #include "DebugCommand.h"
 #include <winrt/Microsoft.Management.Configuration.h>
+#include "AppInstallerDownloader.h"
 #include "Sixel.h"
 
 using namespace AppInstaller::CLI::Execution;
@@ -181,7 +182,24 @@ namespace AppInstaller::CLI
     void ShowSixelCommand::ExecuteInternal(Execution::Context& context) const
     {
         using namespace VirtualTerminal;
-        SixelImage sixelImage{ Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::Manifest)) };
+        std::unique_ptr<SixelImage> sixelImagePtr;
+
+        std::string imageUrl{ context.Args.GetArg(Args::Type::Manifest) };
+
+        if (Utility::IsUrlRemote(imageUrl))
+        {
+            auto imageStream = std::make_unique<std::stringstream>();
+            ProgressCallback emptyCallback;
+            Utility::DownloadToStream(imageUrl, *imageStream, Utility::DownloadType::Manifest, emptyCallback);
+
+            sixelImagePtr = std::make_unique<SixelImage>(*imageStream, Manifest::IconFileTypeEnum::Unknown);
+        }
+        else
+        {
+            sixelImagePtr = std::make_unique<SixelImage>(Utility::ConvertToUTF16(imageUrl));
+        }
+
+        SixelImage& sixelImage = *sixelImagePtr.get();
 
         if (context.Args.Contains(Args::Type::AcceptPackageAgreements))
         {
