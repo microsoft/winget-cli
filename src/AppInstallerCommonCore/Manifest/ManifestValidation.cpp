@@ -258,17 +258,9 @@ namespace AppInstaller::Manifest
                 {
                     resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "NestedInstallerFiles");
                 }
-                if (installer.NestedInstallerType != InstallerTypeEnum::Portable)
+                if (installer.NestedInstallerType != InstallerTypeEnum::Portable && installer.NestedInstallerFiles.size() != 1)
                 {
-                    if (installer.NestedInstallerFiles.size() != 1)
-                    {
-                        resultErrors.emplace_back(ManifestError::ExceededNestedInstallerFilesLimit, "NestedInstallerFiles");
-                    }
-                    // ArchiveBinariesDependOnPath only applies to an archive containing portable packages.
-                    if (installer.ArchiveBinariesDependOnPath)
-                    {
-                        resultErrors.emplace_back(ManifestError::FieldNotSupported, "ArchiveBinariesDependOnPath", ValidationError::Level::Warning);
-                    }
+                    resultErrors.emplace_back(ManifestError::ExceededNestedInstallerFilesLimit, "NestedInstallerFiles");
                 }
 
                 std::set<std::string> commandAliasSet;
@@ -303,14 +295,6 @@ namespace AppInstaller::Manifest
                         resultErrors.emplace_back(ManifestError::DuplicatePortableCommandAlias, "PortableCommandAlias");
                         break;
                     }
-                }
-            }
-            else
-            {
-                // ArchiveBinariesDependOnPath only applies to an archive containing portable packages.
-                if (installer.ArchiveBinariesDependOnPath)
-                {
-                    resultErrors.emplace_back(ManifestError::FieldNotSupported, "ArchiveBinariesDependOnPath", ValidationError::Level::Warning);
                 }
             }
 

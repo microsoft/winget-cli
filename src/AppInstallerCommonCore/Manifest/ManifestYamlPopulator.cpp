@@ -381,7 +381,7 @@ namespace AppInstaller::Manifest
             {
                 std::vector<FieldProcessInfo> fields_v1_9 =
                 {
-                    { "ArchiveBinariesDependOnPath", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestInstallerPtr(v)->ArchiveBinariesDependOnPath = value.as<bool>(); return {}; }, true },
+                    { "ArchiveBinariesDependOnPath", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestInstallerPtr(v)->ArchiveBinariesDependOnPath = value.as<bool>(); return {}; } },
                 };
 
                 std::move(fields_v1_9.begin(), fields_v1_9.end(), std::inserter(result, result.end()));
