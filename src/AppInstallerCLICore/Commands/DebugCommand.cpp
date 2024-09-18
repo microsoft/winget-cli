@@ -60,6 +60,7 @@ namespace AppInstaller::CLI
             std::make_unique<DumpInterestingIIDsCommand>(FullName()),
             std::make_unique<DumpErrorResourceCommand>(FullName()),
             std::make_unique<ShowSixelCommand>(FullName()),
+            std::make_unique<ProgressCommand>(FullName()),
         });
     }
 
@@ -251,6 +252,79 @@ namespace AppInstaller::CLI
 
             // Force a new line to show entire image
             stream << std::endl;
+        }
+    }
+
+    std::vector<Argument> ProgressCommand::GetArguments() const
+    {
+        return {
+            Argument{ "sixel", 's', Args::Type::Manifest, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument{ "hide", 'h', Args::Type::AcceptPackageAgreements, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument{ "time", 't', Args::Type::AcceptSourceAgreements, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+            Argument{ "message", 'm', Args::Type::ConfigurationAcceptWarning, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+            Argument{ "percent", 'p', Args::Type::AllowReboot, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument{ "post", 0, Args::Type::AllVersions, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+        };
+    }
+
+    Resource::LocString ProgressCommand::ShortDescription() const
+    {
+        return Utility::LocIndString("Show progress"sv);
+    }
+
+    Resource::LocString ProgressCommand::LongDescription() const
+    {
+        return Utility::LocIndString("Show progress with various controls to emulate different behaviors."sv);
+    }
+
+    void ProgressCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        if (context.Args.Contains(Args::Type::Manifest))
+        {
+            context.Reporter.SetStyle(Settings::VisualStyle::Sixel);
+        }
+
+        auto progress = context.Reporter.BeginAsyncProgress(context.Args.Contains(Args::Type::AcceptPackageAgreements));
+
+        if (context.Args.Contains(Args::Type::ConfigurationAcceptWarning))
+        {
+            progress->Callback().SetProgressMessage(context.Args.GetArg(Args::Type::ConfigurationAcceptWarning));
+        }
+
+        bool sendProgress = context.Args.Contains(Args::Type::AllowReboot);
+
+        UINT timeInSeconds = 3600;
+        if (context.Args.Contains(Args::Type::AcceptSourceAgreements))
+        {
+            timeInSeconds = std::stoul(std::string{ context.Args.GetArg(Args::Type::AcceptSourceAgreements) });
+        }
+
+        for (UINT i = 0; i < timeInSeconds; ++i)
+        {
+            if (sendProgress)
+            {
+                progress->Callback().OnProgress(i, timeInSeconds, ProgressType::Bytes);
+            }
+
+            if (progress->Callback().IsCancelledBy(CancelReason::Any))
+            {
+                sendProgress = false;
+                break;
+            }
+
+            std::this_thread::sleep_for(1s);
+        }
+
+        if (sendProgress)
+        {
+            progress->Callback().OnProgress(timeInSeconds, timeInSeconds, ProgressType::Bytes);
+        }
+
+        progress.reset();
+
+        if (context.Args.Contains(Args::Type::AllVersions))
+        {
+            context.Reporter.Info() << context.Args.GetArg(Args::Type::AllVersions) << std::endl;
         }
     }
 }

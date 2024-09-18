@@ -43,6 +43,7 @@ namespace AppInstaller::Settings
         Retro,
         Accent,
         Rainbow,
+        Sixel,
     };
 
     // The download code to use for *installers*.

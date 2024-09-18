@@ -108,11 +108,6 @@ namespace AppInstaller::CLI::Execution
         // Prompts the user for a path.
         std::filesystem::path PromptForPath(Resource::LocString message, Level level = Level::Info, std::filesystem::path resultIfDisabled = std::filesystem::path::path());
 
-        // Used to show indefinite progress. Currently an indefinite spinner is the form of
-        // showing indefinite progress.
-        // running: shows indefinite progress if set to true, stops indefinite progress if set to false
-        void ShowIndefiniteProgress(bool running);
-
         // IProgressSink
         void BeginProgress() override;
         void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
@@ -178,6 +173,11 @@ namespace AppInstaller::CLI::Execution
         Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream);
         // Gets a stream for output for internal use.
         OutputStream GetBasicOutputStream();
+
+        // Used to show indefinite progress. Currently an indefinite spinner is the form of
+        // showing indefinite progress.
+        // running: shows indefinite progress if set to true, stops indefinite progress if set to false
+        void ShowIndefiniteProgress(bool running);
 
         Channel m_channel = Channel::Output;
         std::shared_ptr<BaseStream> m_out;

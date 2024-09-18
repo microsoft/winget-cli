@@ -7,21 +7,21 @@
 #include <vector>
 #include <sstream>
 
-namespace AppInstaller::CLI::VirtualTerminal
+namespace AppInstaller::CLI::VirtualTerminal::Sixel
 {
     namespace anon
     {
-        UINT AspectRatioMultiplier(SixelAspectRatio aspectRatio)
+        UINT AspectRatioMultiplier(AspectRatio aspectRatio)
         {
             switch (aspectRatio)
             {
-            case SixelAspectRatio::OneToOne:
+            case AspectRatio::OneToOne:
                 return 1;
-            case SixelAspectRatio::TwoToOne:
+            case AspectRatio::TwoToOne:
                 return 2;
-            case SixelAspectRatio::ThreeToOne:
+            case AspectRatio::ThreeToOne:
                 return 3;
-            case SixelAspectRatio::FiveToOne:
+            case AspectRatio::FiveToOne:
                 return 5;
             default:
                 THROW_HR(E_INVALIDARG);
@@ -52,12 +52,12 @@ namespace AppInstaller::CLI::VirtualTerminal
             RenderState(
                 IWICImagingFactory* factory,
                 wil::com_ptr<IWICBitmapSource>& sourceImage,
-                const SixelImage::RenderControls& renderControls) :
+                const Image::RenderControls& renderControls) :
                 m_renderControls(renderControls)
             {
                 wil::com_ptr<IWICBitmapSource> currentImage = sourceImage;
 
-                if ((renderControls.SizeX && renderControls.SizeY) || renderControls.AspectRatio != SixelAspectRatio::OneToOne)
+                if ((renderControls.SizeX && renderControls.SizeY) || renderControls.AspectRatio != AspectRatio::OneToOne)
                 {
                     UINT targetX = renderControls.SizeX;
                     UINT targetY = renderControls.SizeY;
@@ -167,7 +167,7 @@ namespace AppInstaller::CLI::VirtualTerminal
 
                     for (size_t i = 0; i < m_palette.size(); ++i)
                     {
-                        // 2 is RGB colorspace, with values from 0 to 100
+                        // 2 is RGB color space, with values from 0 to 100
                         stream << '#' << i << ";2;";
 
                         WICColor currentColor = m_palette[i];
@@ -187,7 +187,7 @@ namespace AppInstaller::CLI::VirtualTerminal
                     memset(m_sixelBuffer.data(), 0x3F, m_sixelBuffer.size());
 
                     // Convert indexed pixel data into per-color sixel lines
-                    UINT rowsToProcess = std::min(SixelImage::PixelsPerSixel, m_lockedImageHeight - m_currentPixelRow);
+                    UINT rowsToProcess = std::min(Image::PixelsPerSixel, m_lockedImageHeight - m_currentPixelRow);
                     size_t imageStride = static_cast<size_t>(m_lockedImageStride);
                     size_t imageWidth = static_cast<size_t>(m_lockedImageWidth);
                     const BYTE* currentRowPtr = m_lockedImageBytes + (imageStride * m_currentPixelRow);
@@ -307,7 +307,7 @@ namespace AppInstaller::CLI::VirtualTerminal
             wil::com_ptr<IWICBitmap> m_source;
             wil::com_ptr<IWICBitmapLock> m_lockedSource;
             std::vector<WICColor> m_palette;
-            SixelImage::RenderControls m_renderControls;
+            Image::RenderControls m_renderControls;
 
             UINT m_lockedImageWidth = 0;
             UINT m_lockedImageHeight = 0;
@@ -324,7 +324,7 @@ namespace AppInstaller::CLI::VirtualTerminal
         };
     }
 
-    SixelImage::SixelImage(const std::filesystem::path& imageFilePath)
+    Image::Image(const std::filesystem::path& imageFilePath)
     {
         InitializeFactory();
 
@@ -337,7 +337,7 @@ namespace AppInstaller::CLI::VirtualTerminal
         m_sourceImage = anon::CacheToBitmap(m_factory.get(), decodedFrame.get());
     }
 
-    SixelImage::SixelImage(std::istream& imageStream, Manifest::IconFileTypeEnum imageEncoding)
+    Image::Image(std::istream& imageStream, Manifest::IconFileTypeEnum imageEncoding)
     {
         InitializeFactory();
 
@@ -383,46 +383,46 @@ namespace AppInstaller::CLI::VirtualTerminal
         m_sourceImage = anon::CacheToBitmap(m_factory.get(), decodedFrame.get());
     }
 
-    void SixelImage::AspectRatio(SixelAspectRatio aspectRatio)
+    void Image::AspectRatio(Sixel::AspectRatio aspectRatio)
     {
         m_renderControls.AspectRatio = aspectRatio;
     }
 
-    void SixelImage::Transparency(bool transparencyEnabled)
+    void Image::Transparency(bool transparencyEnabled)
     {
         m_renderControls.TransparencyEnabled = transparencyEnabled;
     }
 
-    void SixelImage::ColorCount(UINT colorCount)
+    void Image::ColorCount(UINT colorCount)
     {
         THROW_HR_IF(E_INVALIDARG, colorCount > MaximumColorCount || colorCount < 2);
         m_renderControls.ColorCount = colorCount;
     }
 
-    void SixelImage::RenderSizeInPixels(UINT x, UINT y)
+    void Image::RenderSizeInPixels(UINT x, UINT y)
     {
         m_renderControls.SizeX = x;
         m_renderControls.SizeY = y;
     }
 
-    void SixelImage::RenderSizeInCells(UINT x, UINT y)
+    void Image::RenderSizeInCells(UINT x, UINT y)
     {
         // We don't want to overdraw the row below, so our height must be the largest multiple of 6 that fits in Y cells.
         UINT yInPixels = y * CellHeightInPixels;
         RenderSizeInPixels(x * CellWidthInPixels, yInPixels - (yInPixels % PixelsPerSixel));
     }
 
-    void SixelImage::StretchSourceToFill(bool stretchSourceToFill)
+    void Image::StretchSourceToFill(bool stretchSourceToFill)
     {
         m_renderControls.StretchSourceToFill = stretchSourceToFill;
     }
 
-    void SixelImage::UseRepeatSequence(bool useRepeatSequence)
+    void Image::UseRepeatSequence(bool useRepeatSequence)
     {
         m_renderControls.UseRepeatSequence = useRepeatSequence;
     }
 
-    ConstructedSequence SixelImage::Render()
+    ConstructedSequence Image::Render()
     {
         anon::RenderState renderState{ m_factory.get(), m_sourceImage, m_renderControls };
 
@@ -436,7 +436,7 @@ namespace AppInstaller::CLI::VirtualTerminal
         return ConstructedSequence{ std::move(result).str() };
     }
 
-    void SixelImage::RenderTo(Execution::OutputStream& stream)
+    void Image::RenderTo(Execution::OutputStream& stream)
     {
         anon::RenderState renderState{ m_factory.get(), m_sourceImage, m_renderControls };
 
@@ -446,7 +446,7 @@ namespace AppInstaller::CLI::VirtualTerminal
         }
     }
 
-    void SixelImage::InitializeFactory()
+    void Image::InitializeFactory()
     {
         THROW_IF_FAILED(CoCreateInstance(
             CLSID_WICImagingFactory,
