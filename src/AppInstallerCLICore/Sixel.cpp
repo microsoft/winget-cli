@@ -281,8 +281,13 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
 
     Palette::Palette(const Palette& first, const Palette& second)
     {
+        auto firstPalette = first.m_palette;
+        auto secondPalette = second.m_palette;
+        std::sort(firstPalette.begin(), firstPalette.end());
+        std::sort(secondPalette.begin(), secondPalette.end());
+
         // Construct a union of the two palettes
-        std::set_union(first.m_palette.begin(), first.m_palette.end(), second.m_palette.begin(), second.m_palette.end(), std::back_inserter(m_palette));
+        std::set_union(firstPalette.begin(), firstPalette.end(), secondPalette.begin(), secondPalette.end(), std::back_inserter(m_palette));
         THROW_HR_IF(E_INVALIDARG, m_palette.size() > MaximumColorCount);
 
         m_factory = first.m_factory;
@@ -358,15 +363,20 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         return result;
     }
 
-    void ImageView::Tile(bool tile)
+    void ImageView::Translate(INT x, INT y, bool tile)
     {
         m_tile = tile;
-    }
 
-    void ImageView::Translate(INT x, INT y)
-    {
-        m_translateX = static_cast<UINT>(-x);
-        m_translateY = static_cast<UINT>(-y);
+        if (m_tile)
+        {
+            m_translateX = static_cast<UINT>(m_viewWidth - (x % static_cast<INT>(m_viewWidth)));
+            m_translateY = static_cast<UINT>(m_viewHeight - (y % static_cast<INT>(m_viewHeight)));
+        }
+        else
+        {
+            m_translateX = static_cast<UINT>(-x);
+            m_translateY = static_cast<UINT>(-y);
+        }
     }
 
     const BYTE* ImageView::GetPixel(UINT x, UINT y) const
@@ -468,7 +478,7 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         m_sourceImage = anon::CacheToBitmap(m_factory.get(), decodedFrame.get());
     }
 
-    void ImageSource::Resize(UINT pixelWidth, UINT pixelHeight, AspectRatio targetRenderRatio, bool stretchToFill)
+    void ImageSource::Resize(UINT pixelWidth, UINT pixelHeight, AspectRatio targetRenderRatio, bool stretchToFill, InterpolationMode interpolationMode)
     {
         if ((pixelWidth && pixelHeight) || targetRenderRatio != AspectRatio::OneToOne)
         {
@@ -507,19 +517,24 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
             wil::com_ptr<IWICBitmapScaler> scaler;
             THROW_IF_FAILED(m_factory->CreateBitmapScaler(&scaler));
 
-            THROW_IF_FAILED(scaler->Initialize(m_sourceImage.get(), targetX, targetY, WICBitmapInterpolationModeHighQualityCubic));
+            THROW_IF_FAILED(scaler->Initialize(m_sourceImage.get(), targetX, targetY, ToEnum<WICBitmapInterpolationMode>(ToIntegral(interpolationMode))));
             m_sourceImage = anon::CacheToBitmap(m_factory.get(), scaler.get());
         }
     }
 
     void ImageSource::Resize(const RenderControls& controls)
     {
-        Resize(controls.PixelWidth, controls.PixelHeight, controls.AspectRatio, controls.StretchSourceToFill);
+        Resize(controls.PixelWidth, controls.PixelHeight, controls.AspectRatio, controls.StretchSourceToFill, controls.InterpolationMode);
     }
 
     Palette ImageSource::CreatePalette(UINT colorCount, bool transparencyEnabled) const
     {
         return { m_factory.get(), m_sourceImage.get(), colorCount, transparencyEnabled };
+    }
+
+    Palette ImageSource::CreatePalette(const RenderControls& controls) const
+    {
+        return CreatePalette(controls.ColorCount, controls.TransparencyEnabled);
     }
 
     void ImageSource::ApplyPalette(const Palette& palette)
@@ -555,6 +570,21 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         m_views.emplace_back(std::move(view));
     }
 
+    size_t Compositor::ViewCount() const
+    {
+        return m_views.size();
+    }
+
+    ImageView& Compositor::operator[](size_t index)
+    {
+        return m_views[index];
+    }
+
+    const ImageView& Compositor::operator[](size_t index) const
+    {
+        return m_views[index];
+    }
+
     RenderControls& Compositor::Controls()
     {
         return m_renderControls;
@@ -577,6 +607,16 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         }
 
         return ConstructedSequence{ std::move(result).str() };
+    }
+
+    void Compositor::RenderTo(Execution::BaseStream& stream)
+    {
+        anon::RenderState renderState{ m_palette, m_views, m_renderControls };
+
+        while (renderState.Advance())
+        {
+            stream << renderState.Current();
+        }
     }
 
     void Compositor::RenderTo(Execution::OutputStream& stream)
@@ -656,7 +696,7 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         ImageSource localSource{ m_imageSource };
         localSource.Resize(m_renderControls);
 
-        Palette palette{ localSource.CreatePalette(m_renderControls.ColorCount, m_renderControls.TransparencyEnabled) };
+        Palette palette{ localSource.CreatePalette(m_renderControls) };
         localSource.ApplyPalette(palette);
 
         ImageView view{ localSource.Lock() };

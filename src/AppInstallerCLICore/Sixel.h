@@ -21,6 +21,16 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         FiveToOne = 2,
     };
 
+    // Determines the algorithm used when resizing the image.
+    enum class InterpolationMode
+    {
+        NearestNeighbor = WICBitmapInterpolationModeNearestNeighbor,
+        Linear = WICBitmapInterpolationModeLinear,
+        Cubic = WICBitmapInterpolationModeCubic,
+        Fant = WICBitmapInterpolationModeFant,
+        HighQualityCubic = WICBitmapInterpolationModeHighQualityCubic,
+    };
+
     // Contains the palette used by a sixel image.
     struct Palette
     {
@@ -65,13 +75,11 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         // Create a view by copying the pixels from the image.
         static ImageView Copy(IWICBitmapSource* imageSource);
 
-        // If set to true, the view will % coordinates outside of its dimensions back into its own view.
-        // If set to false, coordinates outside of the view will be null.
-        void Tile(bool tile);
-
         // Translate the view by the given pixel counts.
         // The pixel at [0, 0] of the original will be at [x, y].
-        void Translate(INT x, INT y);
+        // If tile is true, the view will % coordinates outside of its dimensions back into its own view.
+        // If tile is false, coordinates outside of the view will be null.
+        void Translate(INT x, INT y, bool tile);
 
         // Gets the pixel of the view at the given coordinate.
         // Returns null if the coordinate is outside of the view.
@@ -115,6 +123,7 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         UINT ColorCount = Palette::MaximumColorCount;
         UINT PixelWidth = 0;
         UINT PixelHeight = 0;
+        Sixel::InterpolationMode InterpolationMode = InterpolationMode::HighQualityCubic;
 
         // The resulting sixel image will render to this size in terminal cells,
         // consuming as much as possible of the given size without going over.
@@ -127,19 +136,25 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         // Create an image source from a file.
         explicit ImageSource(const std::filesystem::path& imageFilePath);
 
+        // Create an empty image source.
+        ImageSource() = default;
+
         // Create an image source from a stream.
         ImageSource(std::istream& imageStream, Manifest::IconFileTypeEnum imageEncoding);
 
         // Resize the image to the given width and height, factoring in the target aspect ratio for rendering.
         // If stretchToFill is true, the resulting image will be both the given width and height.
         // If false, the resulting image will be at most the given width or height while preserving the aspect ratio.
-        void Resize(UINT pixelWidth, UINT pixelHeight, AspectRatio targetRenderRatio, bool stretchToFill = false);
+        void Resize(UINT pixelWidth, UINT pixelHeight, AspectRatio targetRenderRatio, bool stretchToFill = false, InterpolationMode interpolationMode = InterpolationMode::HighQualityCubic);
 
         // Resizes the image using the given render controls.
         void Resize(const RenderControls& controls);
 
         // Creates a palette from the current image.
         Palette CreatePalette(UINT colorCount, bool transparencyEnabled) const;
+
+        // Creates a palette from the current image.
+        Palette CreatePalette(const RenderControls& controls) const;
 
         // Converts the image to be 8bpp indexed for the given palette.
         void ApplyPalette(const Palette& palette);
@@ -168,6 +183,13 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         // Adds a new view to the compositor. Each successive view will be behind all of the others.
         void AddView(ImageView&& view);
 
+        // Gets the number of views in the compositor.
+        size_t ViewCount() const;
+
+        // Gets the color at the given index in the palette.
+        ImageView& operator[](size_t index);
+        const ImageView& operator[](size_t index) const;
+
         // Get the render controls for the compositor.
         RenderControls& Controls();
         const RenderControls& Controls() const;
@@ -175,7 +197,10 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         // Render to sixel format for storage / use multiple times.
         ConstructedSequence Render();
 
-        // Renders to sixel format directly to the output stream.
+        // Renders to sixel format directly to the stream.
+        void RenderTo(Execution::BaseStream& stream);
+
+        // Renders to sixel format directly to the stream.
         void RenderTo(Execution::OutputStream& stream);
 
     private:

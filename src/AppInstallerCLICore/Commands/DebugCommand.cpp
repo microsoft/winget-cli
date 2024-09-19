@@ -305,11 +305,12 @@ namespace AppInstaller::CLI
             timeInSeconds = std::stoul(std::string{ context.Args.GetArg(Args::Type::AcceptSourceAgreements) });
         }
 
-        for (UINT i = 0; i < timeInSeconds; ++i)
+        UINT ticks = timeInSeconds * 10;
+        for (UINT i = 0; i < ticks; ++i)
         {
             if (sendProgress)
             {
-                progress->Callback().OnProgress(i, timeInSeconds, ProgressType::Bytes);
+                progress->Callback().OnProgress(i, ticks, ProgressType::Bytes);
             }
 
             if (progress->Callback().IsCancelledBy(CancelReason::Any))
@@ -318,12 +319,12 @@ namespace AppInstaller::CLI
                 break;
             }
 
-            std::this_thread::sleep_for(1s);
+            std::this_thread::sleep_for(100ms);
         }
 
         if (sendProgress)
         {
-            progress->Callback().OnProgress(timeInSeconds, timeInSeconds, ProgressType::Bytes);
+            progress->Callback().OnProgress(ticks, ticks, ProgressType::Bytes);
         }
 
         progress.reset();

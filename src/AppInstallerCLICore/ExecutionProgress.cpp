@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "ExecutionProgress.h"
 #include "VTSupport.h"
+#include "AppInstallerRuntime.h"
+#include "Sixel.h"
 
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::CLI::VirtualTerminal;
@@ -12,6 +14,8 @@ namespace AppInstaller::CLI::Execution
 {
     namespace
     {
+        static constexpr size_t s_ProgressBarCellWidth = 30;
+
         struct BytesFormatData
         {
             uint64_t PowerOfTwo;
@@ -299,7 +303,7 @@ namespace AppInstaller::CLI::Execution
         }
     };
 
-    // Displays progress 
+    // Displays progress via character output.
     class CharacterProgressBar : public CharacterProgressVisualizerBase, public IProgressBar
     {
     public:
@@ -433,7 +437,7 @@ namespace AppInstaller::CLI::Execution
                 };
                 const char* const blockOn = blocks[8];
                 const char* const blockOff = blocks[0];
-                constexpr size_t blockWidth = 30;
+                constexpr size_t blockWidth = s_ProgressBarCellWidth;
 
                 double percentage = static_cast<double>(current) / maximum;
                 size_t blocksOn = static_cast<size_t>(std::floor(percentage * blockWidth));
@@ -496,22 +500,286 @@ namespace AppInstaller::CLI::Execution
         }
     };
 
+    // Displays an indefinite spinner via a sixel.
+    struct SixelIndefiniteSpinner : public ProgressVisualizerBase, public IIndefiniteSpinner
+    {
+        SixelIndefiniteSpinner(BaseStream& stream, bool enableVT) :
+            ProgressVisualizerBase(stream, enableVT)
+        {
+            Sixel::RenderControls& renderControls = m_compositor.Controls();
+            renderControls.RenderSizeInCells(2, 1);
+
+            // Create palette from full image
+            std::filesystem::path imagePath = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot);
+
+            // This image matches the target pixel size. If changing the target size, choose the most appropriate image.
+            imagePath /= "Images\\AppList.targetsize-20.png";
+
+            Sixel::ImageSource wingetIcon{ imagePath };
+            wingetIcon.Resize(renderControls);
+            Sixel::Palette palette = wingetIcon.CreatePalette(renderControls);
+
+            // TODO: Move to real locations
+            m_folder = Sixel::ImageSource{ R"(C:\Users\johnmcp\Pictures\folders_only.png)" };
+            m_arrow = Sixel::ImageSource{ R"(C:\Users\johnmcp\Pictures\arrow_only.png)" };
+
+            m_folder.Resize(renderControls);
+            m_folder.ApplyPalette(palette);
+
+            Sixel::RenderControls arrowControls = renderControls;
+            arrowControls.InterpolationMode = Sixel::InterpolationMode::Linear;
+            m_arrow.Resize(arrowControls);
+            m_arrow.ApplyPalette(palette);
+
+            m_compositor.Palette(std::move(palette));
+            m_compositor.AddView(m_arrow.Copy());
+            m_compositor.AddView(m_folder.Copy());
+        }
+
+        void ShowSpinner() override
+        {
+            if (!m_spinnerJob.valid() && !m_spinnerRunning && !m_canceled)
+            {
+                m_spinnerRunning = true;
+                m_spinnerJob = std::async(std::launch::async, &SixelIndefiniteSpinner::ShowSpinnerInternal, this);
+            }
+        }
+
+        void StopSpinner() override
+        {
+            if (!m_canceled && m_spinnerJob.valid() && m_spinnerRunning)
+            {
+                m_canceled = true;
+                m_spinnerJob.get();
+            }
+        }
+
+        void SetMessage(std::string_view message) override
+        {
+            ProgressVisualizerBase::SetMessage(message);
+        }
+
+        std::shared_ptr<Utility::NormalizedString> Message() override
+        {
+            return ProgressVisualizerBase::Message();
+        }
+
+    private:
+        std::atomic<bool> m_canceled = false;
+        std::atomic<bool> m_spinnerRunning = false;
+        std::future<void> m_spinnerJob;
+        Sixel::ImageSource m_folder;
+        Sixel::ImageSource m_arrow;
+        Sixel::Compositor m_compositor;
+
+        void ShowSpinnerInternal()
+        {
+            // First wait for a small amount of time to enable a fast task to skip
+            // showing anything, or a progress task to skip straight to progress.
+            Sleep(100);
+
+            if (!m_canceled)
+            {
+                // Additional VT-based progress reporting, for terminals that support it
+                m_out << Progress::Construct(Progress::State::Indeterminate);
+
+                // Indent two spaces for the spinner, but three here so that we can overwrite it in the loop.
+                std::string_view indent = "  ";
+                std::shared_ptr<Utility::NormalizedString> message = ProgressVisualizerBase::Message();
+                size_t messageLength = message ? Utility::UTF8ColumnWidth(*message) : 0;
+
+                UINT imageHeight = m_compositor.Controls().PixelHeight;
+
+                for (size_t i = 0; !m_canceled; ++i)
+                {
+                    m_out << '\r' << indent;
+
+                    // Move arrow down one pixel each time
+                    m_compositor[0].Translate(0, i % imageHeight, true);
+                    m_compositor.RenderTo(m_out);
+
+                    message = ProgressVisualizerBase::Message();
+                    size_t newLength = (message ? Utility::UTF8ColumnWidth(*message) : 0);
+
+                    std::string eraser;
+                    if (newLength < messageLength)
+                    {
+                        eraser = std::string(messageLength - newLength, ' ');
+                    }
+
+                    messageLength = newLength;
+
+                    m_out << VirtualTerminal::Cursor::Position::Forward(3) << (message ? *message : std::string{}) << eraser << std::flush;
+                    Sleep(100);
+                }
+
+                ClearLine();
+
+                m_out << Progress::Construct(Progress::State::None);
+            }
+
+            m_canceled = false;
+            m_spinnerRunning = false;
+        }
+    };
+
+    // Displays progress with a sixel image.
+    class SixelProgressBar : public ProgressVisualizerBase, public IProgressBar
+    {
+    public:
+        SixelProgressBar(BaseStream& stream, bool enableVT) :
+            ProgressVisualizerBase(stream, enableVT)
+        {
+            static constexpr UINT s_colorsForBelt = 20;
+
+            Sixel::RenderControls imageRenderControls;
+            imageRenderControls.RenderSizeInCells(2, 1);
+
+            // This image matches the target pixel size. If changing the target size, choose the most appropriate image.
+            std::filesystem::path imagePath = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot);
+            imagePath /= "Images\\AppList.targetsize-20.png";
+
+            m_icon = Sixel::ImageSource{ imagePath };
+            m_icon.Resize(imageRenderControls);
+            imageRenderControls.ColorCount = Sixel::Palette::MaximumColorCount - s_colorsForBelt;
+            Sixel::Palette iconPalette = m_icon.CreatePalette(imageRenderControls);
+
+            // TODO: Move to real location
+            m_belt = Sixel::ImageSource{ R"(C:\Users\johnmcp\Pictures\conveyor.png)" };
+            m_belt.Resize(imageRenderControls);
+            imageRenderControls.ColorCount = s_colorsForBelt;
+            imageRenderControls.InterpolationMode = Sixel::InterpolationMode::Linear;
+            Sixel::Palette beltPalette = m_belt.CreatePalette(imageRenderControls);
+
+            Sixel::Palette combinedPalette{ iconPalette, beltPalette };
+
+            m_icon.ApplyPalette(combinedPalette);
+            m_belt.ApplyPalette(combinedPalette);
+
+            m_compositor.Palette(std::move(combinedPalette));
+            m_compositor.AddView(m_icon.Copy());
+            m_compositor.AddView(m_belt.Copy());
+            m_compositor.Controls().TransparencyEnabled = false;
+            m_compositor.Controls().RenderSizeInCells(s_ProgressBarCellWidth, 1);
+        }
+
+        void ShowProgress(uint64_t current, uint64_t maximum, ProgressType type) override
+        {
+            if (current < m_lastCurrent)
+            {
+                ClearLine();
+            }
+
+            m_out << TextFormat::Default;
+
+            m_out << "\r  ";
+
+            if (maximum)
+            {
+
+                double percentage = static_cast<double>(current) / maximum;
+
+                // Translate icon so that its leading edge is the progress line
+                INT translation = static_cast<INT>((percentage * m_compositor.Controls().PixelWidth) - m_compositor[0].Width());
+
+                m_compositor[0].Translate(translation, 0, false);
+                m_compositor[1].Translate(translation, 0, true);
+                m_compositor.RenderTo(m_out);
+
+                m_out << VirtualTerminal::Cursor::Position::Forward(s_ProgressBarCellWidth + 2);
+
+                switch (type)
+                {
+                case AppInstaller::ProgressType::Bytes:
+                    OutputBytes(m_out, current);
+                    m_out << " / ";
+                    OutputBytes(m_out, maximum);
+                    break;
+                case AppInstaller::ProgressType::Percent:
+                default:
+                    m_out << static_cast<int>(percentage * 100) << '%';
+                    break;
+                }
+
+                // Additional VT-based progress reporting, for terminals that support it
+                m_out << Progress::Construct(Progress::State::Normal, static_cast<int>(percentage * 100));
+            }
+            else
+            {
+                switch (type)
+                {
+                case AppInstaller::ProgressType::Bytes:
+                    OutputBytes(m_out, current);
+                    break;
+                case AppInstaller::ProgressType::Percent:
+                    m_out << current << '%';
+                    break;
+                default:
+                    m_out << current << " unknowns";
+                    break;
+                }
+            }
+
+            m_lastCurrent = current;
+            m_isVisible = true;
+        }
+
+        void EndProgress(bool hideProgressWhenDone) override
+        {
+            if (m_isVisible)
+            {
+                if (hideProgressWhenDone)
+                {
+                    ClearLine();
+                }
+                else
+                {
+                    m_out << std::endl;
+                }
+
+                if (VT_Enabled())
+                {
+                    // We always clear the VT-based progress bar, even if hideProgressWhenDone is false
+                    // since it would be confusing for users if progress continues to be shown after winget exits
+                    // (it is typically not automatically cleared by terminals on process exit)
+                    m_out << Progress::Construct(Progress::State::None);
+                }
+
+                m_isVisible = false;
+            }
+        }
+
+    private:
+        std::atomic<bool> m_isVisible = false;
+        uint64_t m_lastCurrent = 0;
+        Sixel::ImageSource m_icon;
+        Sixel::ImageSource m_belt;
+        Sixel::Compositor m_compositor;
+    };
+
     std::unique_ptr<IIndefiniteSpinner> IIndefiniteSpinner::CreateForStyle(BaseStream& stream, bool enableVT, VisualStyle style)
     {
         std::unique_ptr<IIndefiniteSpinner> result;
 
         switch (style)
         {
-        case AppInstaller::Settings::VisualStyle::NoVT:
-        case AppInstaller::Settings::VisualStyle::Retro:
-        case AppInstaller::Settings::VisualStyle::Accent:
-        case AppInstaller::Settings::VisualStyle::Rainbow:
+        case VisualStyle::NoVT:
+        case VisualStyle::Retro:
+        case VisualStyle::Accent:
+        case VisualStyle::Rainbow:
             result = std::make_unique<CharacterIndefiniteSpinner>(stream, enableVT, style);
             break;
-        case AppInstaller::Settings::VisualStyle::Sixel:
-            // TODO: The magic
+        case VisualStyle::Sixel:
+            if (Sixel::SixelsSupported())
+            {
+                result = std::make_unique<SixelIndefiniteSpinner>(stream, enableVT);
+            }
+            else
+            {
+                result = std::make_unique<CharacterIndefiniteSpinner>(stream, enableVT, VisualStyle::Accent);
+            }
             break;
-        case AppInstaller::Settings::VisualStyle::Disabled:
+        case VisualStyle::Disabled:
             break;
         default:
             THROW_HR(E_NOTIMPL);
@@ -526,16 +794,23 @@ namespace AppInstaller::CLI::Execution
 
         switch (style)
         {
-        case AppInstaller::Settings::VisualStyle::NoVT:
-        case AppInstaller::Settings::VisualStyle::Retro:
-        case AppInstaller::Settings::VisualStyle::Accent:
-        case AppInstaller::Settings::VisualStyle::Rainbow:
+        case VisualStyle::NoVT:
+        case VisualStyle::Retro:
+        case VisualStyle::Accent:
+        case VisualStyle::Rainbow:
             result = std::make_unique<CharacterProgressBar>(stream, enableVT, style);
             break;
-        case AppInstaller::Settings::VisualStyle::Sixel:
-            // TODO: The magic
+        case VisualStyle::Sixel:
+            if (Sixel::SixelsSupported())
+            {
+                result = std::make_unique<SixelProgressBar>(stream, enableVT);
+            }
+            else
+            {
+                result = std::make_unique<CharacterProgressBar>(stream, enableVT, VisualStyle::Accent);
+            }
             break;
-        case AppInstaller::Settings::VisualStyle::Disabled:
+        case VisualStyle::Disabled:
             break;
         default:
             THROW_HR(E_NOTIMPL);
