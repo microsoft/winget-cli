@@ -99,7 +99,7 @@ namespace AppInstaller::CLI::Workflow
 
         void ShowManifestIcon(Execution::Context& context, const Manifest::Manifest& manifest) try
         {
-            if (!VirtualTerminal::SixelsEnabled())
+            if (!VirtualTerminal::Sixel::SixelsEnabled())
             {
                 return;
             }
@@ -125,7 +125,7 @@ namespace AppInstaller::CLI::Workflow
             Caching::FileCache fileCache{ Caching::FileCache::Type::Icons, Utility::SHA256::ConvertToString(bestFitIcon->Sha256), { splitUri.first } };
             auto iconStream = fileCache.GetFile(splitUri.second, bestFitIcon->Sha256);
 
-            VirtualTerminal::SixelImage sixelIcon{ *iconStream, bestFitIcon->FileType };
+            VirtualTerminal::Sixel::Image sixelIcon{ *iconStream, bestFitIcon->FileType };
 
             // Using a height of 4 arbitrarily; allow width up to the entire console.
             UINT imageHeightCells = 4;

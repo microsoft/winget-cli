@@ -46,14 +46,14 @@ namespace AppInstaller::CLI
         auto infoOut = reporter.Info();
         VirtualTerminal::ConstructedSequence indent;
 
-        if (VirtualTerminal::SixelsEnabled())
+        if (VirtualTerminal::Sixel::SixelsEnabled())
         {
             std::filesystem::path imagePath = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot);
 
             // This image matches the target pixel size. If changing the target size, choose the most appropriate image.
             imagePath /= "Images\\AppList.targetsize-40.png";
 
-            VirtualTerminal::SixelImage wingetIcon{ imagePath };
+            VirtualTerminal::Sixel::Image wingetIcon{ imagePath };
 
             // Using a height of 2 to match the two lines of header.
             UINT imageHeightCells = 2;

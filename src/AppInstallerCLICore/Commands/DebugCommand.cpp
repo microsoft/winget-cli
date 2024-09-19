@@ -183,7 +183,7 @@ namespace AppInstaller::CLI
     void ShowSixelCommand::ExecuteInternal(Execution::Context& context) const
     {
         using namespace VirtualTerminal;
-        std::unique_ptr<SixelImage> sixelImagePtr;
+        std::unique_ptr<Sixel::Image> sixelImagePtr;
 
         std::string imageUrl{ context.Args.GetArg(Args::Type::Manifest) };
 
@@ -193,30 +193,30 @@ namespace AppInstaller::CLI
             ProgressCallback emptyCallback;
             Utility::DownloadToStream(imageUrl, *imageStream, Utility::DownloadType::Manifest, emptyCallback);
 
-            sixelImagePtr = std::make_unique<SixelImage>(*imageStream, Manifest::IconFileTypeEnum::Unknown);
+            sixelImagePtr = std::make_unique<Sixel::Image>(*imageStream, Manifest::IconFileTypeEnum::Unknown);
         }
         else
         {
-            sixelImagePtr = std::make_unique<SixelImage>(Utility::ConvertToUTF16(imageUrl));
+            sixelImagePtr = std::make_unique<Sixel::Image>(Utility::ConvertToUTF16(imageUrl));
         }
 
-        SixelImage& sixelImage = *sixelImagePtr.get();
+        Sixel::Image& sixelImage = *sixelImagePtr.get();
 
         if (context.Args.Contains(Args::Type::AcceptPackageAgreements))
         {
             switch (context.Args.GetArg(Args::Type::AcceptPackageAgreements)[0])
             {
             case '1':
-                sixelImage.AspectRatio(SixelAspectRatio::OneToOne);
+                sixelImage.AspectRatio(Sixel::AspectRatio::OneToOne);
                 break;
             case '2':
-                sixelImage.AspectRatio(SixelAspectRatio::TwoToOne);
+                sixelImage.AspectRatio(Sixel::AspectRatio::TwoToOne);
                 break;
             case '3':
-                sixelImage.AspectRatio(SixelAspectRatio::ThreeToOne);
+                sixelImage.AspectRatio(Sixel::AspectRatio::ThreeToOne);
                 break;
             case '5':
-                sixelImage.AspectRatio(SixelAspectRatio::FiveToOne);
+                sixelImage.AspectRatio(Sixel::AspectRatio::FiveToOne);
                 break;
             }
         }
@@ -259,6 +259,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument{ "sixel", 's', Args::Type::Manifest, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument{ "disabled", 'd', Args::Type::GatedVersion, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
             Argument{ "hide", 'h', Args::Type::AcceptPackageAgreements, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
             Argument{ "time", 't', Args::Type::AcceptSourceAgreements, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
             Argument{ "message", 'm', Args::Type::ConfigurationAcceptWarning, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
@@ -282,6 +283,11 @@ namespace AppInstaller::CLI
         if (context.Args.Contains(Args::Type::Manifest))
         {
             context.Reporter.SetStyle(Settings::VisualStyle::Sixel);
+        }
+
+        if (context.Args.Contains(Args::Type::GatedVersion))
+        {
+            context.Reporter.SetStyle(Settings::VisualStyle::Disabled);
         }
 
         auto progress = context.Reporter.BeginAsyncProgress(context.Args.Contains(Args::Type::AcceptPackageAgreements));

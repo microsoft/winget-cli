@@ -44,6 +44,7 @@ namespace AppInstaller::Settings
         Accent,
         Rainbow,
         Sixel,
+        Disabled,
     };
 
     // The download code to use for *installers*.

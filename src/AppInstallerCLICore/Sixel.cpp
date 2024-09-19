@@ -11,6 +11,17 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
 {
     namespace anon
     {
+        wil::com_ptr<IWICImagingFactory> CreateFactory()
+        {
+            wil::com_ptr<IWICImagingFactory> result;
+            THROW_IF_FAILED(CoCreateInstance(
+                CLSID_WICImagingFactory,
+                NULL,
+                CLSCTX_INPROC_SERVER,
+                IID_PPV_ARGS(&result)));
+            return result;
+        }
+
         UINT AspectRatioMultiplier(AspectRatio aspectRatio)
         {
             switch (aspectRatio)
@@ -50,100 +61,16 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         struct RenderState
         {
             RenderState(
-                IWICImagingFactory* factory,
-                wil::com_ptr<IWICBitmapSource>& sourceImage,
-                const Image::RenderControls& renderControls) :
+                const Palette& palette,
+                const std::vector<ImageView>& views,
+                const RenderControls& renderControls) :
+                m_palette(palette),
+                m_views(views),
                 m_renderControls(renderControls)
             {
-                wil::com_ptr<IWICBitmapSource> currentImage = sourceImage;
-
-                if ((renderControls.SizeX && renderControls.SizeY) || renderControls.AspectRatio != AspectRatio::OneToOne)
-                {
-                    UINT targetX = renderControls.SizeX;
-                    UINT targetY = renderControls.SizeY;
-
-                    if (!renderControls.StretchSourceToFill)
-                    {
-                        // We need to calculate which of the sizes needs to be reduced
-                        UINT sourceImageX = 0;
-                        UINT sourceImageY = 0;
-                        THROW_IF_FAILED(currentImage->GetSize(&sourceImageX, &sourceImageY));
-
-                        double doubleTargetX = targetX;
-                        double doubleTargetY = targetY;
-                        double doubleSourceImageX = sourceImageX;
-                        double doubleSourceImageY = sourceImageY;
-
-                        double scaleFactorX = doubleTargetX / doubleSourceImageX;
-                        double targetY_scaledForX = sourceImageY * scaleFactorX;
-                        if (targetY_scaledForX > doubleTargetY)
-                        {
-                            // Scaling to make X fill would make Y to large, so we must scale to fill Y
-                            targetX = static_cast<UINT>(sourceImageX * (doubleTargetY / doubleSourceImageY));
-                        }
-                        else
-                        {
-                            // Scaling to make X fill kept Y under target
-                            targetY = static_cast<UINT>(targetY_scaledForX);
-                        }
-                    }
-
-                    // Apply aspect ratio scaling
-                    targetY /= AspectRatioMultiplier(renderControls.AspectRatio);
-
-                    wil::com_ptr<IWICBitmapScaler> scaler;
-                    THROW_IF_FAILED(factory->CreateBitmapScaler(&scaler));
-
-                    THROW_IF_FAILED(scaler->Initialize(currentImage.get(), targetX, targetY, WICBitmapInterpolationModeHighQualityCubic));
-                    currentImage = CacheToBitmap(factory, scaler.get());
-                }
-
-                // Create a color palette
-                wil::com_ptr<IWICPalette> palette;
-                THROW_IF_FAILED(factory->CreatePalette(&palette));
-
-                THROW_IF_FAILED(palette->InitializeFromBitmap(currentImage.get(), renderControls.ColorCount, renderControls.TransparencyEnabled));
-
-                // TODO: Determine if the transparent color is always at index 0
-                //       If not, we should swap it to 0 before conversion to indexed
-
-                // Extract the palette for render use
-                UINT colorCount = 0;
-                THROW_IF_FAILED(palette->GetColorCount(&colorCount));
-
-                m_palette.resize(colorCount);
-                UINT actualColorCount = 0;
-                THROW_IF_FAILED(palette->GetColors(colorCount, m_palette.data(), &actualColorCount));
-
-                // Convert to 8bpp indexed
-                wil::com_ptr<IWICFormatConverter> converter;
-                THROW_IF_FAILED(factory->CreateFormatConverter(&converter));
-
-                // TODO: Determine a better value or enable it to be set
-                constexpr double s_alphaThreshold = 0.5;
-
-                THROW_IF_FAILED(converter->Initialize(currentImage.get(), GUID_WICPixelFormat8bppIndexed, WICBitmapDitherTypeErrorDiffusion, palette.get(), s_alphaThreshold, WICBitmapPaletteTypeCustom));
-                m_source = CacheToBitmap(factory, converter.get());
-
-                // Lock the image for rendering
-                UINT sourceX = 0;
-                UINT sourceY = 0;
-                THROW_IF_FAILED(currentImage->GetSize(&sourceX, &sourceY));
-                THROW_WIN32_IF(ERROR_BUFFER_OVERFLOW,
-                    sourceX > static_cast<UINT>(std::numeric_limits<INT>::max()) || sourceY > static_cast<UINT>(std::numeric_limits<INT>::max()));
-
-                WICRect rect{};
-                rect.Width = static_cast<INT>(sourceX);
-                rect.Height = static_cast<INT>(sourceY);
-
-                THROW_IF_FAILED(m_source->Lock(&rect, WICBitmapLockRead, &m_lockedSource));
-                THROW_IF_FAILED(m_lockedSource->GetSize(&m_lockedImageWidth, &m_lockedImageHeight));
-                THROW_IF_FAILED(m_lockedSource->GetStride(&m_lockedImageStride));
-                THROW_IF_FAILED(m_lockedSource->GetDataPointer(&m_lockedImageByteCount, &m_lockedImageBytes));
-
                 // Create render buffers
-                m_enabledColors.resize(m_palette.size());
-                m_sixelBuffer.resize(m_palette.size() * m_lockedImageWidth);
+                m_enabledColors.resize(m_palette.Size());
+                m_sixelBuffer.resize(m_palette.Size() * m_renderControls.PixelWidth);
             }
 
             enum class State
@@ -165,7 +92,7 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
                     // Initial device control string
                     stream << AICLI_VT_ESCAPE << 'P' << ToIntegral(m_renderControls.AspectRatio) << ";1;q";
 
-                    for (size_t i = 0; i < m_palette.size(); ++i)
+                    for (size_t i = 0; i < m_palette.Size(); ++i)
                     {
                         // 2 is RGB color space, with values from 0 to 100
                         stream << '#' << i << ";2;";
@@ -187,24 +114,41 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
                     memset(m_sixelBuffer.data(), 0x3F, m_sixelBuffer.size());
 
                     // Convert indexed pixel data into per-color sixel lines
-                    UINT rowsToProcess = std::min(Image::PixelsPerSixel, m_lockedImageHeight - m_currentPixelRow);
-                    size_t imageStride = static_cast<size_t>(m_lockedImageStride);
-                    size_t imageWidth = static_cast<size_t>(m_lockedImageWidth);
-                    const BYTE* currentRowPtr = m_lockedImageBytes + (imageStride * m_currentPixelRow);
+                    UINT rowsToProcess = std::min(RenderControls::PixelsPerSixel, m_renderControls.PixelHeight - m_currentPixelRow);
 
                     for (UINT rowOffset = 0; rowOffset < rowsToProcess; ++rowOffset)
                     {
                         // The least significant bit is the top of the sixel
                         char sixelBit = 1 << rowOffset;
+                        UINT currentRow = m_currentPixelRow + rowOffset;
 
-                        for (size_t i = 0; i < imageWidth; ++i)
+                        for (UINT i = 0; i < m_renderControls.PixelWidth; ++i)
                         {
-                            BYTE colorIndex = currentRowPtr[i];
-                            m_enabledColors[colorIndex] = 1;
-                            m_sixelBuffer[(colorIndex * imageWidth) + i] += sixelBit;
-                        }
+                            const BYTE* pixelPtr = nullptr;
+                            size_t colorIndex = 0;
 
-                        currentRowPtr += imageStride;
+                            for (const ImageView& view : m_views)
+                            {
+                                pixelPtr = view.GetPixel(i, currentRow);
+
+                                if (pixelPtr)
+                                {
+                                    colorIndex = *pixelPtr;
+
+                                    // Stop on the first non-transparent pixel we find
+                                    if (((m_palette[colorIndex] >> 24) & 0xFF) != 0)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (pixelPtr)
+                            {
+                                m_enabledColors[colorIndex] = 1;
+                                m_sixelBuffer[(colorIndex * m_renderControls.PixelWidth) + i] += sixelBit;
+                            }
+                        }
                     }
 
                     // Output all sixel color lines
@@ -212,16 +156,19 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
 
                     for (size_t i = 0; i < m_enabledColors.size(); ++i)
                     {
-                        // Don't output color if transparent
-                        WICColor currentColor = m_palette[i];
-                        BYTE alpha = (currentColor >> 24) & 0xFF;
-                        if (alpha == 0)
-                        {
-                            continue;
-                        }
-
                         if (m_enabledColors[i])
                         {
+                            if (m_renderControls.TransparencyEnabled)
+                            {
+                                // Don't output color if transparent
+                                WICColor currentColor = m_palette[i];
+                                BYTE alpha = (currentColor >> 24) & 0xFF;
+                                if (alpha == 0)
+                                {
+                                    continue;
+                                }
+                            }
+
                             if (firstOfRow)
                             {
                                 firstOfRow = false;
@@ -234,17 +181,17 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
 
                             stream << '#' << i;
 
-                            const char* colorRow = &m_sixelBuffer[i * imageWidth];
+                            const char* colorRow = &m_sixelBuffer[i * m_renderControls.PixelWidth];
 
                             if (m_renderControls.UseRepeatSequence)
                             {
                                 char currentChar = colorRow[0];
                                 UINT repeatCount = 1;
 
-                                for (size_t j = 1; j <= imageWidth; ++j)
+                                for (UINT j = 1; j <= m_renderControls.PixelWidth; ++j)
                                 {
                                     // Force processing of a final null character to handle flushing the line
-                                    const char nextChar = (j == imageWidth ? 0 : colorRow[j]);
+                                    const char nextChar = (j == m_renderControls.PixelWidth ? 0 : colorRow[j]);
 
                                     if (nextChar == currentChar)
                                     {
@@ -270,7 +217,7 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
                             }
                             else
                             {
-                                stream << std::string_view{ colorRow, imageWidth };
+                                stream << std::string_view{ colorRow, m_renderControls.PixelWidth };
                             }
                         }
                     }
@@ -279,7 +226,7 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
                     stream << '-';
 
                     m_currentPixelRow += rowsToProcess;
-                    if (m_currentPixelRow >= m_lockedImageHeight)
+                    if (m_currentPixelRow >= m_renderControls.PixelHeight)
                     {
                         m_currentState = State::Final;
                     }
@@ -304,16 +251,9 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
             }
 
         private:
-            wil::com_ptr<IWICBitmap> m_source;
-            wil::com_ptr<IWICBitmapLock> m_lockedSource;
-            std::vector<WICColor> m_palette;
-            Image::RenderControls m_renderControls;
-
-            UINT m_lockedImageWidth = 0;
-            UINT m_lockedImageHeight = 0;
-            UINT m_lockedImageStride = 0;
-            UINT m_lockedImageByteCount = 0;
-            BYTE* m_lockedImageBytes = nullptr;
+            const Palette& m_palette;
+            const std::vector<ImageView>& m_views;
+            const RenderControls& m_renderControls;
 
             State m_currentState = State::Initial;
             std::vector<char> m_enabledColors;
@@ -324,9 +264,154 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         };
     }
 
-    Image::Image(const std::filesystem::path& imageFilePath)
+    Palette::Palette(IWICImagingFactory* factory, IWICBitmapSource* bitmapSource, UINT colorCount, bool transparencyEnabled) :
+        m_factory(factory)
     {
-        InitializeFactory();
+        THROW_IF_FAILED(m_factory->CreatePalette(&m_paletteObject));
+
+        THROW_IF_FAILED(m_paletteObject->InitializeFromBitmap(bitmapSource, colorCount, transparencyEnabled));
+
+        // Extract the palette for render use
+        UINT actualColorCount = 0;
+        THROW_IF_FAILED(m_paletteObject->GetColorCount(&actualColorCount));
+
+        m_palette.resize(actualColorCount);
+        THROW_IF_FAILED(m_paletteObject->GetColors(actualColorCount, m_palette.data(), &actualColorCount));
+    }
+
+    Palette::Palette(const Palette& first, const Palette& second)
+    {
+        // Construct a union of the two palettes
+        std::set_union(first.m_palette.begin(), first.m_palette.end(), second.m_palette.begin(), second.m_palette.end(), std::back_inserter(m_palette));
+        THROW_HR_IF(E_INVALIDARG, m_palette.size() > MaximumColorCount);
+
+        m_factory = first.m_factory;
+        THROW_IF_FAILED(m_factory->CreatePalette(&m_paletteObject));
+        THROW_IF_FAILED(m_paletteObject->InitializeCustom(m_palette.data(), static_cast<UINT>(m_palette.size())));
+    }
+
+    IWICPalette* Palette::Get() const
+    {
+        return m_paletteObject.get();
+    }
+
+    size_t Palette::Size() const
+    {
+        return m_palette.size();
+    }
+
+    WICColor& Palette::operator[](size_t index)
+    {
+        return m_palette[index];
+    }
+
+    WICColor Palette::operator[](size_t index) const
+    {
+        return m_palette[index];
+    }
+
+    ImageView ImageView::Lock(IWICBitmap* imageSource)
+    {
+        WICPixelFormatGUID pixelFormat{};
+        THROW_IF_FAILED(imageSource->GetPixelFormat(&pixelFormat));
+        THROW_HR_IF(ERROR_INVALID_STATE, GUID_WICPixelFormat8bppIndexed != pixelFormat);
+
+        ImageView result;
+
+        UINT sourceX = 0;
+        UINT sourceY = 0;
+        THROW_IF_FAILED(imageSource->GetSize(&sourceX, &sourceY));
+        THROW_WIN32_IF(ERROR_BUFFER_OVERFLOW,
+            sourceX > static_cast<UINT>(std::numeric_limits<INT>::max()) || sourceY > static_cast<UINT>(std::numeric_limits<INT>::max()));
+
+        WICRect rect{};
+        rect.Width = static_cast<INT>(sourceX);
+        rect.Height = static_cast<INT>(sourceY);
+
+        THROW_IF_FAILED(imageSource->Lock(&rect, WICBitmapLockRead, &result.m_lockedImage));
+        THROW_IF_FAILED(result.m_lockedImage->GetSize(&result.m_viewWidth, &result.m_viewHeight));
+        THROW_IF_FAILED(result.m_lockedImage->GetStride(&result.m_viewStride));
+        THROW_IF_FAILED(result.m_lockedImage->GetDataPointer(&result.m_viewByteCount, &result.m_viewBytes));
+
+        return result;
+    }
+
+    ImageView ImageView::Copy(IWICBitmapSource* imageSource)
+    {
+        WICPixelFormatGUID pixelFormat{};
+        THROW_IF_FAILED(imageSource->GetPixelFormat(&pixelFormat));
+        THROW_HR_IF(ERROR_INVALID_STATE, GUID_WICPixelFormat8bppIndexed != pixelFormat);
+
+        ImageView result;
+
+        THROW_IF_FAILED(imageSource->GetSize(&result.m_viewWidth, &result.m_viewHeight));
+        THROW_WIN32_IF(ERROR_BUFFER_OVERFLOW,
+            result.m_viewWidth > static_cast<UINT>(std::numeric_limits<INT>::max()) || result.m_viewHeight > static_cast<UINT>(std::numeric_limits<INT>::max()));
+
+        result.m_viewStride = result.m_viewWidth;
+        result.m_viewByteCount = result.m_viewStride * result.m_viewHeight;
+        result.m_copiedImage = std::make_unique<BYTE[]>(result.m_viewByteCount);
+        result.m_viewBytes = result.m_copiedImage.get();
+
+        THROW_IF_FAILED(imageSource->CopyPixels(nullptr, result.m_viewStride, result.m_viewByteCount, result.m_viewBytes));
+
+        return result;
+    }
+
+    void ImageView::Tile(bool tile)
+    {
+        m_tile = tile;
+    }
+
+    void ImageView::Translate(INT x, INT y)
+    {
+        m_translateX = static_cast<UINT>(-x);
+        m_translateY = static_cast<UINT>(-y);
+    }
+
+    const BYTE* ImageView::GetPixel(UINT x, UINT y) const
+    {
+        UINT translatedX = x + m_translateX;
+        UINT tileCountX = translatedX / m_viewWidth;
+        UINT viewX = translatedX % m_viewWidth;
+        if (tileCountX && !m_tile)
+        {
+            return nullptr;
+        }
+
+        UINT translatedY = y + m_translateY;
+        UINT tileCountY = translatedY / m_viewHeight;
+        UINT viewY = translatedY % m_viewHeight;
+        if (tileCountY && !m_tile)
+        {
+            return nullptr;
+        }
+
+        return m_viewBytes + (static_cast<size_t>(viewY) * m_viewStride) + viewX;
+    }
+
+    UINT ImageView::Width() const
+    {
+        return m_viewWidth;
+    }
+
+    UINT ImageView::Height() const
+    {
+        return m_viewHeight;
+    }
+
+    void RenderControls::RenderSizeInCells(UINT width, UINT height)
+    {
+        PixelWidth = width * CellWidthInPixels;
+
+        // We don't want to overdraw the row below, so our height must be the largest multiple of 6 that fits in Y cells.
+        UINT yInPixels = height * CellHeightInPixels;
+        PixelHeight = yInPixels - (yInPixels % PixelsPerSixel);
+    }
+
+    ImageSource::ImageSource(const std::filesystem::path& imageFilePath)
+    {
+        m_factory = anon::CreateFactory();
 
         wil::com_ptr<IWICBitmapDecoder> decoder;
         THROW_IF_FAILED(m_factory->CreateDecoderFromFilename(imageFilePath.c_str(), NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &decoder));
@@ -337,9 +422,9 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         m_sourceImage = anon::CacheToBitmap(m_factory.get(), decodedFrame.get());
     }
 
-    Image::Image(std::istream& imageStream, Manifest::IconFileTypeEnum imageEncoding)
+    ImageSource::ImageSource(std::istream& imageStream, Manifest::IconFileTypeEnum imageEncoding)
     {
-        InitializeFactory();
+        m_factory = anon::CreateFactory();
 
         wil::com_ptr<IStream> stream;
         THROW_IF_FAILED(CreateStreamOnHGlobal(nullptr, TRUE, &stream));
@@ -383,48 +468,106 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         m_sourceImage = anon::CacheToBitmap(m_factory.get(), decodedFrame.get());
     }
 
-    void Image::AspectRatio(Sixel::AspectRatio aspectRatio)
+    void ImageSource::Resize(UINT pixelWidth, UINT pixelHeight, AspectRatio targetRenderRatio, bool stretchToFill)
     {
-        m_renderControls.AspectRatio = aspectRatio;
+        if ((pixelWidth && pixelHeight) || targetRenderRatio != AspectRatio::OneToOne)
+        {
+            UINT targetX = pixelWidth;
+            UINT targetY = pixelHeight;
+
+            if (!stretchToFill)
+            {
+                // We need to calculate which of the sizes needs to be reduced
+                UINT sourceImageX = 0;
+                UINT sourceImageY = 0;
+                THROW_IF_FAILED(m_sourceImage->GetSize(&sourceImageX, &sourceImageY));
+
+                double doubleTargetX = targetX;
+                double doubleTargetY = targetY;
+                double doubleSourceImageX = sourceImageX;
+                double doubleSourceImageY = sourceImageY;
+
+                double scaleFactorX = doubleTargetX / doubleSourceImageX;
+                double targetY_scaledForX = sourceImageY * scaleFactorX;
+                if (targetY_scaledForX > doubleTargetY)
+                {
+                    // Scaling to make X fill would make Y to large, so we must scale to fill Y
+                    targetX = static_cast<UINT>(sourceImageX * (doubleTargetY / doubleSourceImageY));
+                }
+                else
+                {
+                    // Scaling to make X fill kept Y under target
+                    targetY = static_cast<UINT>(targetY_scaledForX);
+                }
+            }
+
+            // Apply aspect ratio scaling
+            targetY /= anon::AspectRatioMultiplier(targetRenderRatio);
+
+            wil::com_ptr<IWICBitmapScaler> scaler;
+            THROW_IF_FAILED(m_factory->CreateBitmapScaler(&scaler));
+
+            THROW_IF_FAILED(scaler->Initialize(m_sourceImage.get(), targetX, targetY, WICBitmapInterpolationModeHighQualityCubic));
+            m_sourceImage = anon::CacheToBitmap(m_factory.get(), scaler.get());
+        }
     }
 
-    void Image::Transparency(bool transparencyEnabled)
+    void ImageSource::Resize(const RenderControls& controls)
     {
-        m_renderControls.TransparencyEnabled = transparencyEnabled;
+        Resize(controls.PixelWidth, controls.PixelHeight, controls.AspectRatio, controls.StretchSourceToFill);
     }
 
-    void Image::ColorCount(UINT colorCount)
+    Palette ImageSource::CreatePalette(UINT colorCount, bool transparencyEnabled) const
     {
-        THROW_HR_IF(E_INVALIDARG, colorCount > MaximumColorCount || colorCount < 2);
-        m_renderControls.ColorCount = colorCount;
+        return { m_factory.get(), m_sourceImage.get(), colorCount, transparencyEnabled };
     }
 
-    void Image::RenderSizeInPixels(UINT x, UINT y)
+    void ImageSource::ApplyPalette(const Palette& palette)
     {
-        m_renderControls.SizeX = x;
-        m_renderControls.SizeY = y;
+        // Convert to 8bpp indexed
+        wil::com_ptr<IWICFormatConverter> converter;
+        THROW_IF_FAILED(m_factory->CreateFormatConverter(&converter));
+
+        // TODO: Determine a better value or enable it to be set
+        constexpr double s_alphaThreshold = 0.5;
+
+        THROW_IF_FAILED(converter->Initialize(m_sourceImage.get(), GUID_WICPixelFormat8bppIndexed, WICBitmapDitherTypeErrorDiffusion, palette.Get(), s_alphaThreshold, WICBitmapPaletteTypeCustom));
+        m_sourceImage = anon::CacheToBitmap(m_factory.get(), converter.get());
     }
 
-    void Image::RenderSizeInCells(UINT x, UINT y)
+    ImageView ImageSource::Lock() const
     {
-        // We don't want to overdraw the row below, so our height must be the largest multiple of 6 that fits in Y cells.
-        UINT yInPixels = y * CellHeightInPixels;
-        RenderSizeInPixels(x * CellWidthInPixels, yInPixels - (yInPixels % PixelsPerSixel));
+        return ImageView::Lock(m_sourceImage.get());
     }
 
-    void Image::StretchSourceToFill(bool stretchSourceToFill)
+    ImageView ImageSource::Copy() const
     {
-        m_renderControls.StretchSourceToFill = stretchSourceToFill;
+        return ImageView::Copy(m_sourceImage.get());
     }
 
-    void Image::UseRepeatSequence(bool useRepeatSequence)
+    void Compositor::Palette(Sixel::Palette palette)
     {
-        m_renderControls.UseRepeatSequence = useRepeatSequence;
+        m_palette = std::move(palette);
     }
 
-    ConstructedSequence Image::Render()
+    void Compositor::AddView(ImageView&& view)
     {
-        anon::RenderState renderState{ m_factory.get(), m_sourceImage, m_renderControls };
+        m_views.emplace_back(std::move(view));
+    }
+
+    RenderControls& Compositor::Controls()
+    {
+        return m_renderControls;
+    }
+
+    const RenderControls& Compositor::Controls() const
+    {
+        return m_renderControls;
+    }
+
+    ConstructedSequence Compositor::Render()
+    {
+        anon::RenderState renderState{ m_palette, m_views, m_renderControls };
 
         std::stringstream result;
 
@@ -436,9 +579,9 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         return ConstructedSequence{ std::move(result).str() };
     }
 
-    void Image::RenderTo(Execution::OutputStream& stream)
+    void Compositor::RenderTo(Execution::OutputStream& stream)
     {
-        anon::RenderState renderState{ m_factory.get(), m_sourceImage, m_renderControls };
+        anon::RenderState renderState{ m_palette, m_views, m_renderControls };
 
         while (renderState.Advance())
         {
@@ -446,19 +589,95 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         }
     }
 
-    void Image::InitializeFactory()
+    Image::Image(const std::filesystem::path& imageFilePath) :
+        m_imageSource(imageFilePath)
+    {}
+
+    Image::Image(std::istream& imageStream, Manifest::IconFileTypeEnum imageEncoding) :
+        m_imageSource(imageStream, imageEncoding)
+    {}
+
+    Image& Image::AspectRatio(Sixel::AspectRatio aspectRatio)
     {
-        THROW_IF_FAILED(CoCreateInstance(
-            CLSID_WICImagingFactory,
-            NULL,
-            CLSCTX_INPROC_SERVER,
-            IID_PPV_ARGS(&m_factory)));
+        m_renderControls.AspectRatio = aspectRatio;
+        return *this;
+    }
+
+    Image& Image::Transparency(bool transparencyEnabled)
+    {
+        m_renderControls.TransparencyEnabled = transparencyEnabled;
+        return *this;
+    }
+
+    Image& Image::ColorCount(UINT colorCount)
+    {
+        THROW_HR_IF(E_INVALIDARG, colorCount > Palette::MaximumColorCount || colorCount < 2);
+        m_renderControls.ColorCount = colorCount;
+        return *this;
+    }
+
+    Image& Image::RenderSizeInPixels(UINT width, UINT height)
+    {
+        m_renderControls.PixelWidth = width;
+        m_renderControls.PixelHeight = height;
+        return *this;
+    }
+
+    Image& Image::RenderSizeInCells(UINT width, UINT height)
+    {
+        m_renderControls.RenderSizeInCells(width, height);
+        return *this;
+    }
+
+    Image& Image::StretchSourceToFill(bool stretchSourceToFill)
+    {
+        m_renderControls.StretchSourceToFill = stretchSourceToFill;
+        return *this;
+    }
+
+    Image& Image::UseRepeatSequence(bool useRepeatSequence)
+    {
+        m_renderControls.UseRepeatSequence = useRepeatSequence;
+        return *this;
+    }
+
+    ConstructedSequence Image::Render()
+    {
+        return CreateCompositor().second.Render();
+    }
+
+    void Image::RenderTo(Execution::OutputStream& stream)
+    {
+        CreateCompositor().second.RenderTo(stream);
+    }
+
+    std::pair<ImageSource, Compositor> Image::CreateCompositor()
+    {
+        ImageSource localSource{ m_imageSource };
+        localSource.Resize(m_renderControls);
+
+        Palette palette{ localSource.CreatePalette(m_renderControls.ColorCount, m_renderControls.TransparencyEnabled) };
+        localSource.ApplyPalette(palette);
+
+        ImageView view{ localSource.Lock() };
+
+        Compositor compositor;
+        compositor.Palette(std::move(palette));
+        compositor.AddView(std::move(view));
+        compositor.Controls() = m_renderControls;
+
+        return { std::move(localSource), std::move(compositor) };
+    }
+
+    bool SixelsSupported()
+    {
+        // TODO: Detect support for sixels in current terminal
+        // You can send a DA1 request("\x1b[c") and you'll get "\x1b[?61;1;...;4;...;41c" back. The "61" is the "conformance level" (61-65 = VT100-500, in that order), but you should ignore that because modern terminals lie about their level. The "4" tells you that the terminal supports sixels and I'd recommend testing for that.
+        return true;
     }
 
     bool SixelsEnabled()
     {
-        // TODO: Detect support for sixels in current terminal
-        // You can send a DA1 request("\x1b[c") and you'll get "\x1b[?61;1;...;4;...;41c" back. The "61" is the "conformance level" (61-65 = VT100-500, in that order), but you should ignore that because modern terminals lie about their level. The "4" tells you that the terminal supports sixels and I'd recommend testing for that.
-        return Settings::User().Get<Settings::Setting::EnableSixelDisplay>();
+        return SixelsSupported() && Settings::User().Get<Settings::Setting::EnableSixelDisplay>();
     }
 }

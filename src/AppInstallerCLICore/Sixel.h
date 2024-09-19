@@ -27,6 +27,9 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         // Limit to 256 both as the defacto maximum supported colors and to enable always using 8bpp indexed pixel format.
         static constexpr UINT MaximumColorCount = 256;
 
+        // Creates an empty palette.
+        Palette() = default;
+
         // Create a palette from the given source image, color count, transparency setting.
         Palette(IWICImagingFactory* factory, IWICBitmapSource* bitmapSource, UINT colorCount, bool transparencyEnabled);
 
@@ -36,10 +39,10 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         Palette(const Palette& first, const Palette& second);
 
         // Gets the WIC palette object.
-        IWICPalette* get() const;
+        IWICPalette* Get() const;
 
         // Gets the color count for the palette.
-        size_t size() const;
+        size_t Size() const;
 
         // Gets the color at the given index in the palette.
         WICColor& operator[](size_t index);
@@ -67,14 +70,23 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         void Tile(bool tile);
 
         // Translate the view by the given pixel counts.
+        // The pixel at [0, 0] of the original will be at [x, y].
         void Translate(INT x, INT y);
 
         // Gets the pixel of the view at the given coordinate.
         // Returns null if the coordinate is outside of the view.
-        BYTE* GetPixel(UINT x, UINT y);
+        const BYTE* GetPixel(UINT x, UINT y) const;
+
+        // Get the dimensions of the view.
+        UINT Width() const;
+        UINT Height() const;
 
     private:
         ImageView() = default;
+
+        bool m_tile = false;
+        UINT m_translateX = 0;
+        UINT m_translateY = 0;
 
         wil::com_ptr<IWICBitmapLock> m_lockedImage;
         std::unique_ptr<BYTE[]> m_copiedImage;
@@ -86,19 +98,45 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         BYTE* m_viewBytes = nullptr;
     };
 
+    // The set of values that defines the rendered output.
+    struct RenderControls
+    {
+        // Yes, its right there in the name but the compiler can't read...
+        static constexpr UINT PixelsPerSixel = 6;
+
+        // Each cell is always a height of 20 and a width of 10, regardless of the screen resolution of the terminal.
+        static constexpr UINT CellHeightInPixels = 20;
+        static constexpr UINT CellWidthInPixels = 10;
+
+        Sixel::AspectRatio AspectRatio = AspectRatio::OneToOne;
+        bool TransparencyEnabled = true;
+        bool StretchSourceToFill = false;
+        bool UseRepeatSequence = false;
+        UINT ColorCount = Palette::MaximumColorCount;
+        UINT PixelWidth = 0;
+        UINT PixelHeight = 0;
+
+        // The resulting sixel image will render to this size in terminal cells,
+        // consuming as much as possible of the given size without going over.
+        void RenderSizeInCells(UINT width, UINT height);
+    };
+
     // Contains an image that can be manipulated and rendered to sixels.
     struct ImageSource
     {
         // Create an image source from a file.
-        ImageSource(const std::filesystem::path& imageFilePath);
+        explicit ImageSource(const std::filesystem::path& imageFilePath);
 
         // Create an image source from a stream.
-        ImageSource(std::istream& imageBytes, Manifest::IconFileTypeEnum imageEncoding);
+        ImageSource(std::istream& imageStream, Manifest::IconFileTypeEnum imageEncoding);
 
         // Resize the image to the given width and height, factoring in the target aspect ratio for rendering.
         // If stretchToFill is true, the resulting image will be both the given width and height.
         // If false, the resulting image will be at most the given width or height while preserving the aspect ratio.
         void Resize(UINT pixelWidth, UINT pixelHeight, AspectRatio targetRenderRatio, bool stretchToFill = false);
+
+        // Resizes the image using the given render controls.
+        void Resize(const RenderControls& controls);
 
         // Creates a palette from the current image.
         Palette CreatePalette(UINT colorCount, bool transparencyEnabled) const;
@@ -121,45 +159,18 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
     // Allows one or more image sources to be rendered to a sixel output.
     struct Compositor
     {
+        // Create an empty compositor.
         Compositor() = default;
-    };
 
-    // A helpful wrapper around the sixel image primitives that makes rendering a single image easier.
-    struct Image
-    {
-        // Limit to 256 both as the defacto maximum supported colors and to enable always using 8bpp indexed pixel format.
-        static constexpr UINT MaximumColorCount = Palette::MaximumColorCount;
+        // Set the palette to be used by the compositor.
+        void Palette(Palette palette);
 
-        // Yes, its right there in the name but the compiler can't read...
-        static constexpr UINT PixelsPerSixel = 6;
+        // Adds a new view to the compositor. Each successive view will be behind all of the others.
+        void AddView(ImageView&& view);
 
-        // Each cell is always a height of 20 and a width of 10, regardless of the screen resolution of the terminal.
-        static constexpr UINT CellHeightInPixels = 20;
-        static constexpr UINT CellWidthInPixels = 10;
-
-        Image(const std::filesystem::path& imageFilePath);
-        Image(std::istream& imageBytes, Manifest::IconFileTypeEnum imageEncoding);
-
-        void AspectRatio(AspectRatio aspectRatio);
-        void Transparency(bool transparencyEnabled);
-
-        // If transparency is enabled, one of the colors will be reserved for it.
-        void ColorCount(UINT colorCount);
-
-        // The resulting sixel image will render to this size in terminal cell pixels.
-        void RenderSizeInPixels(UINT x, UINT y);
-
-        // The resulting sixel image will render to this size in terminal cells,
-        // consuming as much as possible of the given size without going over.
-        void RenderSizeInCells(UINT x, UINT y);
-
-        // Only affects the scaling of the image that occurs when render size is set.
-        // When true, the source image will be stretched to fill the target size.
-        // When false, the source image will be scaled while keeping its original aspect ratio.
-        void StretchSourceToFill(bool stretchSourceToFill);
-
-        // Compresses the output using repeat sequences.
-        void UseRepeatSequence(bool useRepeatSequence);
+        // Get the render controls for the compositor.
+        RenderControls& Controls();
+        const RenderControls& Controls() const;
 
         // Render to sixel format for storage / use multiple times.
         ConstructedSequence Render();
@@ -167,26 +178,62 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         // Renders to sixel format directly to the output stream.
         void RenderTo(Execution::OutputStream& stream);
 
-        // The set of values that defines the rendered output.
-        struct RenderControls
-        {
-            Sixel::AspectRatio AspectRatio = AspectRatio::OneToOne;
-            bool TransparencyEnabled = true;
-            bool StretchSourceToFill = false;
-            bool UseRepeatSequence = false;
-            UINT ColorCount = MaximumColorCount;
-            UINT SizeX = 0;
-            UINT SizeY = 0;
-        };
+    private:
+        RenderControls m_renderControls;
+        Sixel::Palette m_palette;
+        std::vector<ImageView> m_views;
+    };
+
+    // A helpful wrapper around the sixel image primitives that makes rendering a single image easier.
+    struct Image
+    {
+        // Create an image from a file.
+        Image(const std::filesystem::path& imageFilePath);
+
+        // Create an image from a stream.
+        Image(std::istream& imageStream, Manifest::IconFileTypeEnum imageEncoding);
+
+        // Set the aspect ratio of the result.
+        Image& AspectRatio(AspectRatio aspectRatio);
+
+        // Determine whether transparency is enabled.
+        // This will affect whether transparent pixels are rendered or not.
+        Image& Transparency(bool transparencyEnabled);
+
+        // If transparency is enabled, one of the colors will be reserved for it.
+        Image& ColorCount(UINT colorCount);
+
+        // The resulting sixel image will render to this size in terminal cell pixels.
+        Image& RenderSizeInPixels(UINT width, UINT height);
+
+        // The resulting sixel image will render to this size in terminal cells,
+        // consuming as much as possible of the given size without going over.
+        Image& RenderSizeInCells(UINT width, UINT height);
+
+        // Only affects the scaling of the image that occurs when render size is set.
+        // When true, the source image will be stretched to fill the target size.
+        // When false, the source image will be scaled while keeping its original aspect ratio.
+        Image& StretchSourceToFill(bool stretchSourceToFill);
+
+        // Compresses the output using repeat sequences.
+        Image& UseRepeatSequence(bool useRepeatSequence);
+
+        // Render to sixel format for storage / use multiple times.
+        ConstructedSequence Render();
+
+        // Renders to sixel format directly to the output stream.
+        void RenderTo(Execution::OutputStream& stream);
 
     private:
-        void InitializeFactory();
+        // Creates a compositor for the image using the current render controls.
+        std::pair<ImageSource, Compositor> CreateCompositor();
 
-        wil::com_ptr<IWICImagingFactory> m_factory;
-        wil::com_ptr<IWICBitmapSource> m_sourceImage;
-
+        ImageSource m_imageSource;
         RenderControls m_renderControls;
     };
+
+    // Determines if sixels are supported by the current instance.
+    bool SixelsSupported();
 
     // Determines if sixels are enabled.
     bool SixelsEnabled();

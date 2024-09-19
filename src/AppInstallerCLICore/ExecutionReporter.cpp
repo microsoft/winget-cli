@@ -32,8 +32,8 @@ namespace AppInstaller::CLI::Execution
     Reporter::Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream) :
         m_out(outStream),
         m_in(inStream),
-        m_progressBar(std::in_place, *m_out, ConsoleModeRestore::Instance().IsVTEnabled()),
-        m_spinner(std::in_place, *m_out, ConsoleModeRestore::Instance().IsVTEnabled())
+        m_progressBar(IProgressBar::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), VisualStyle::Accent)),
+        m_spinner(IIndefiniteSpinner::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), VisualStyle::Accent))
     {
         SetProgressSink(this);
     }
@@ -103,14 +103,13 @@ namespace AppInstaller::CLI::Execution
     void Reporter::SetStyle(VisualStyle style)
     {
         m_style = style;
-        if (m_spinner)
+
+        if (m_channel == Channel::Output)
         {
-            m_spinner->SetStyle(style);
+            m_spinner = IIndefiniteSpinner::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), style);
+            m_progressBar = IProgressBar::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), style);
         }
-        if (m_progressBar)
-        {
-            m_progressBar->SetStyle(style);
-        }
+
         if (style == VisualStyle::NoVT)
         {
             m_out->SetVTEnabled(false);
@@ -244,12 +243,7 @@ namespace AppInstaller::CLI::Execution
     {
         if (m_spinner)
         {
-            m_spinner->Message(message);
-        }
-
-        if (m_progressBar)
-        {
-            m_progressBar->Message(message);
+            m_spinner->SetMessage(message);
         }
     }
 

@@ -17,6 +17,7 @@
 #include <valijson/adapters/jsoncpp_adapter.hpp>
 #pragma warning( pop )
 
+#include <algorithm>
 #include <array>
 #include <atomic>
 #include <csignal>
@@ -30,6 +31,7 @@
 #include <optional>
 #include <set>
 #include <sstream>
+#include <string>
 #include <string_view>
 #include <vector>
 

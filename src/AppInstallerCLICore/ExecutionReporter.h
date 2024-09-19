@@ -183,8 +183,8 @@ namespace AppInstaller::CLI::Execution
         std::shared_ptr<BaseStream> m_out;
         std::istream& m_in;
         std::optional<AppInstaller::Settings::VisualStyle> m_style;
-        std::optional<IndefiniteSpinner> m_spinner;
-        std::optional<ProgressBar> m_progressBar;
+        std::unique_ptr<IIndefiniteSpinner> m_spinner;
+        std::unique_ptr<IProgressBar> m_progressBar;
         wil::srwlock m_progressCallbackLock;
         std::atomic<ProgressCallback*> m_progressCallback;
         std::atomic<IProgressSink*> m_progressSink;

@@ -253,6 +253,10 @@ namespace AppInstaller::Settings
             {
                 return VisualStyle::Sixel;
             }
+            else if (value == "disabled")
+            {
+                return VisualStyle::Disabled;
+            }
 
             return {};
         }
