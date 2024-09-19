@@ -16,7 +16,6 @@ namespace AppInstallerCLIE2ETests.Helpers
     using System.Security.Principal;
     using System.Text;
     using System.Threading;
-    using System.Web;
     using AppInstallerCLIE2ETests;
     using AppInstallerCLIE2ETests.PowerShell;
     using Microsoft.Management.Deployment;
