@@ -261,6 +261,11 @@ namespace
                 REQUIRE(defaultSwitches.at(InstallerSwitchType::Repair) == "/repair");
                 REQUIRE(manifest.DefaultInstallerInfo.RepairBehavior == RepairBehaviorEnum::Modify);
             }
+
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_9 })
+            {
+                REQUIRE(manifest.DefaultInstallerInfo.ArchiveBinariesDependOnPath);
+            }
         }
 
         if (isSingleton || isExported)
@@ -375,6 +380,11 @@ namespace
             REQUIRE(installer1.RepairBehavior == RepairBehaviorEnum::Modify);
         }
 
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_9 })
+        {
+            REQUIRE_FALSE(installer1.ArchiveBinariesDependOnPath);
+        }
+
         if (!isSingleton)
         {
             if (!isExported)
@@ -466,6 +476,12 @@ namespace
                     REQUIRE(installer5.ProductCode == "{Bar}");
                     REQUIRE(installer5.Switches.at(InstallerSwitchType::Repair) == "/repair");
                     REQUIRE(installer5.RepairBehavior == RepairBehaviorEnum::Modify);
+                }
+
+                if (manifestVer >= ManifestVer{ s_ManifestVersionV1_9 })
+                {
+                    ManifestInstaller installer4 = manifest.Installers.at(3);
+                    REQUIRE(installer4.ArchiveBinariesDependOnPath);
                 }
             }
 

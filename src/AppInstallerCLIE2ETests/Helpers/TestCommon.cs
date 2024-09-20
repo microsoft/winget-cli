@@ -353,13 +353,15 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="productCode">Product code.</param>
         /// <param name="shouldExist">Should exists.</param>
         /// <param name="scope">Scope.</param>
+        /// <param name="installDirectoryAddedToPath">Install directory added to path instead of the symlink directory.</param>
         public static void VerifyPortablePackage(
             string installDir,
             string commandAlias,
             string filename,
             string productCode,
             bool shouldExist,
-            Scope scope = Scope.User)
+            Scope scope = Scope.User,
+            bool installDirectoryAddedToPath = false)
         {
             // When portables are installed, if the exe path is inside a directory it will not be aliased
             // if the exe path is at the root level, it will be aliased. Therefore, if either exist, the exe exists
@@ -386,7 +388,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             {
                 string pathName = "Path";
                 var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);
-                var portablePathValue = symlinkDirectory + ';';
+                var portablePathValue = (installDirectoryAddedToPath ? installDir : symlinkDirectory) + ';';
                 isAddedToPath = currentPathValue.Contains(portablePathValue);
             }
 
@@ -396,9 +398,9 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
 
             Assert.AreEqual(shouldExist, exeExists, $"Expected portable exe path: {exePath}");
-            Assert.AreEqual(shouldExist, symlinkExists, $"Expected portable symlink path: {symlinkPath}");
+            Assert.AreEqual(shouldExist && !installDirectoryAddedToPath, symlinkExists, $"Expected portable symlink path: {symlinkPath}");
             Assert.AreEqual(shouldExist, portableEntryExists, $"Expected {productCode} subkey in path: {uninstallSubKey}");
-            Assert.AreEqual(shouldExist, isAddedToPath, $"Expected path variable: {symlinkDirectory}");
+            Assert.AreEqual(shouldExist, isAddedToPath, $"Expected path variable: {(installDirectoryAddedToPath ? installDir : symlinkDirectory)}");
         }
 
         /// <summary>

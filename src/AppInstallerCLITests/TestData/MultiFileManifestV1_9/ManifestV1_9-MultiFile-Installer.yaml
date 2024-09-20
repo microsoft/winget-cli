@@ -89,6 +89,7 @@ InstallationMetadata:
       InvocationParameter: "/arg"
       DisplayName: "DisplayName"
 DownloadCommandProhibited: true
+ArchiveBinariesDependOnPath: true
 
 Installers:
   - Architecture: x86
@@ -159,6 +160,7 @@ Installers:
     UnsupportedArguments:
       - location
     DownloadCommandProhibited: false
+    ArchiveBinariesDependOnPath: false
   - Architecture: x64
     InstallerType: exe
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
@@ -197,6 +199,7 @@ Installers:
         FileType: other
         InvocationParameter: "/arg2"
         DisplayName: "DisplayName2"
+    ArchiveBinariesDependOnPath: true
   - Architecture: x64
     InstallerType: burn
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe

@@ -695,6 +695,10 @@
       ],
       "description": "The repair method"
     },
+    "ArchiveBinariesDependOnPath": {
+      "type": [ "boolean", "null" ],
+      "description": "Indicates whether the install location should be added directly to the PATH environment variable. Only applies to an archive containing portable packages."
+    },
     "Installer": {
       "type": "object",
       "properties": {
@@ -815,6 +819,9 @@
         },
         "RepairBehavior": {
           "$ref": "#/definitions/RepairBehavior"
+        },
+        "ArchiveBinariesDependOnPath": {
+          "$ref": "#/definitions/ArchiveBinariesDependOnPath"
         }
       },
       "required": [
@@ -1056,6 +1063,9 @@
     },
     "RepairBehavior": {
       "$ref": "#/definitions/RepairBehavior"
+    },
+    "ArchiveBinariesDependOnPath": {
+      "$ref": "#/definitions/ArchiveBinariesDependOnPath"
     },
     "Installers": {
       "type": "array",

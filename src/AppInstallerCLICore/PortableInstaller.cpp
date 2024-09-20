@@ -121,7 +121,16 @@ namespace AppInstaller::CLI::Portable
         }
         else if (entry.FileType == PortableFileType::Symlink)
         {
-            if (!InstallDirectoryAddedToPath)
+            if (BinariesDependOnPath && !InstallDirectoryAddedToPath)
+            {
+                // Scenario indicated by 'ArchiveBinariesDependOnPath' manifest entry.
+                // Skip symlink creation for portables dependent on binaries that require the install directory to be added to PATH.
+                std::filesystem::path installDirectory = std::filesystem::path(entry.SymlinkTarget).parent_path();
+                AddToPathVariable(installDirectory);
+                AICLI_LOG(Core, Info, << "Install directory added to PATH: " << installDirectory);
+                CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
+            }
+            else if (!InstallDirectoryAddedToPath)
             {
                 std::filesystem::file_status status = std::filesystem::status(filePath);
                 if (std::filesystem::is_directory(status))
