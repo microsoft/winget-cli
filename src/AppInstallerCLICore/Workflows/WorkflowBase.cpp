@@ -99,7 +99,7 @@ namespace AppInstaller::CLI::Workflow
 
         void ShowManifestIcon(Execution::Context& context, const Manifest::Manifest& manifest) try
         {
-            if (!VirtualTerminal::Sixel::SixelsEnabled())
+            if (!context.Reporter.SixelsEnabled())
             {
                 return;
             }

@@ -16,10 +16,29 @@
 namespace AppInstaller::CLI::VirtualTerminal
 {
     // RAII class to enable VT support and restore the console mode.
-    struct ConsoleModeRestore
+    struct ConsoleModeRestoreBase
     {
-        ~ConsoleModeRestore();
+        ConsoleModeRestoreBase(DWORD handle);
+        ~ConsoleModeRestoreBase();
 
+        ConsoleModeRestoreBase(const ConsoleModeRestoreBase&) = delete;
+        ConsoleModeRestoreBase& operator=(const ConsoleModeRestoreBase&) = delete;
+
+        ConsoleModeRestoreBase(ConsoleModeRestoreBase&&) = default;
+        ConsoleModeRestoreBase& operator=(ConsoleModeRestoreBase&&) = default;
+
+        // Returns true if VT support has been enabled for the console.
+        bool IsVTEnabled() const { return m_token; }
+
+    protected:
+        DestructionToken m_token = false;
+        DWORD m_handle = 0;
+        DWORD m_previousMode = 0;
+    };
+
+    // RAII class to enable VT output support and restore the console mode.
+    struct ConsoleModeRestore : public ConsoleModeRestoreBase
+    {
         ConsoleModeRestore(const ConsoleModeRestore&) = delete;
         ConsoleModeRestore& operator=(const ConsoleModeRestore&) = delete;
 
@@ -29,14 +48,20 @@ namespace AppInstaller::CLI::VirtualTerminal
         // Gets the singleton.
         static const ConsoleModeRestore& Instance();
 
-        // Returns true if VT support has been enabled for the console.
-        bool IsVTEnabled() const { return m_token; }
-
     private:
         ConsoleModeRestore();
+    };
 
-        DestructionToken m_token = false;
-        DWORD m_previousMode = 0;
+    // RAII class to enable VT input support and restore the console mode.
+    struct ConsoleInputModeRestore : public ConsoleModeRestoreBase
+    {
+        ConsoleInputModeRestore();
+
+        ConsoleInputModeRestore(const ConsoleInputModeRestore&) = delete;
+        ConsoleInputModeRestore& operator=(const ConsoleInputModeRestore&) = delete;
+
+        ConsoleInputModeRestore(ConsoleInputModeRestore&&) = default;
+        ConsoleInputModeRestore& operator=(ConsoleInputModeRestore&&) = default;
     };
 
     // The base for all VT sequences.
@@ -80,7 +105,8 @@ namespace AppInstaller::CLI::VirtualTerminal
     // Contains the response to a DA1 (Primary Device Attributes) request.
     struct PrimaryDeviceAttributes
     {
-        static const PrimaryDeviceAttributes& Instance();
+        // Queries the device attributes on creation.
+        PrimaryDeviceAttributes(std::ostream& outStream, std::istream& inStream);
 
         // The extensions that a device may support.
         enum class Extension
@@ -112,9 +138,6 @@ namespace AppInstaller::CLI::VirtualTerminal
         bool Supports(Extension extension) const;
 
     private:
-        // Queries the device attributes on creation.
-        PrimaryDeviceAttributes();
-
         uint32_t m_conformanceLevel = 0;
         uint64_t m_extensions = 0;
     };

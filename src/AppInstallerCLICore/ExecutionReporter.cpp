@@ -31,10 +31,12 @@ namespace AppInstaller::CLI::Execution
 
     Reporter::Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream) :
         m_out(outStream),
-        m_in(inStream),
-        m_progressBar(IProgressBar::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), VisualStyle::Accent)),
-        m_spinner(IIndefiniteSpinner::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), VisualStyle::Accent))
+        m_in(inStream)
     {
+        bool sixelSupported = SixelsSupported();
+        m_spinner = IIndefiniteSpinner::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), VisualStyle::Accent, sixelSupported);
+        m_progressBar = IProgressBar::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), VisualStyle::Accent, sixelSupported);
+
         SetProgressSink(this);
     }
 
@@ -49,6 +51,18 @@ namespace AppInstaller::CLI::Execution
         if (other.m_style.has_value())
         {
             SetStyle(*other.m_style);
+        }
+    }
+
+    std::optional<PrimaryDeviceAttributes> Reporter::GetPrimaryDeviceAttributes()
+    {
+        if (ConsoleModeRestore::Instance().IsVTEnabled())
+        {
+            return PrimaryDeviceAttributes{ m_out->Get(), m_in };
+        }
+        else
+        {
+            return std::nullopt;
         }
     }
 
@@ -106,8 +120,9 @@ namespace AppInstaller::CLI::Execution
 
         if (m_channel == Channel::Output)
         {
-            m_spinner = IIndefiniteSpinner::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), style);
-            m_progressBar = IProgressBar::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), style);
+            bool sixelSupported = SixelsSupported();
+            m_spinner = IIndefiniteSpinner::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), style, sixelSupported);
+            m_progressBar = IProgressBar::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), style, sixelSupported);
         }
 
         if (style == VisualStyle::NoVT)
@@ -346,5 +361,16 @@ namespace AppInstaller::CLI::Execution
         {
             WI_ClearAllFlags(m_enabledLevels, reporterLevel);
         }
+    }
+
+    bool Reporter::SixelsSupported()
+    {
+        auto attributes = GetPrimaryDeviceAttributes();
+        return (attributes ? attributes->Supports(PrimaryDeviceAttributes::Extension::Sixel) : false);
+    }
+
+    bool Reporter::SixelsEnabled()
+    {
+        return SixelsSupported() && Settings::User().Get<Settings::Setting::EnableSixelDisplay>();
     }
 }

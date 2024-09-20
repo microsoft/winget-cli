@@ -72,6 +72,9 @@ namespace AppInstaller::CLI::Execution
 
         ~Reporter();
 
+        // Gets the primary device attributes if available.
+        std::optional<VirtualTerminal::PrimaryDeviceAttributes> GetPrimaryDeviceAttributes();
+
         // Get a stream for verbose output.
         OutputStream Verbose() { return GetOutputStream(Level::Verbose); }
 
@@ -168,6 +171,12 @@ namespace AppInstaller::CLI::Execution
         }
 
         void SetLevelMask(Level reporterLevel, bool setEnabled = true);
+
+        // Determines if sixels are supported by the current instance.
+        bool SixelsSupported();
+
+        // Determines if sixels are enabled; they must be both supported and enabled by user settings.
+        bool SixelsEnabled();
 
     private:
         Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream);

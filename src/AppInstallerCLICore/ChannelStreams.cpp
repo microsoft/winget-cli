@@ -71,6 +71,11 @@ namespace AppInstaller::CLI::Execution
         m_enabled = false;
     }
 
+    std::ostream& BaseStream::Get()
+    {
+        return m_out;
+    }
+
     OutputStream::OutputStream(BaseStream& out, bool enabled, bool VTEnabled) :
         m_out(out),
         m_enabled(enabled),

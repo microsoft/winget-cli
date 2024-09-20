@@ -256,10 +256,4 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         ImageSource m_imageSource;
         RenderControls m_renderControls;
     };
-
-    // Determines if sixels are supported by the current instance.
-    bool SixelsSupported();
-
-    // Determines if sixels are enabled.
-    bool SixelsEnabled();
 }

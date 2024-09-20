@@ -46,7 +46,7 @@ namespace AppInstaller::CLI
         auto infoOut = reporter.Info();
         VirtualTerminal::ConstructedSequence indent;
 
-        if (VirtualTerminal::Sixel::SixelsEnabled())
+        if (reporter.SixelsEnabled())
         {
             std::filesystem::path imagePath = Runtime::GetPathTo(Runtime::PathName::ImageAssets);
 

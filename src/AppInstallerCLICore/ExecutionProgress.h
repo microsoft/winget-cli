@@ -30,7 +30,7 @@ namespace AppInstaller::CLI::Execution
         virtual void StopSpinner() = 0;
 
         // Creates an indefinite spinner for the given style.
-        static std::unique_ptr<IIndefiniteSpinner> CreateForStyle(BaseStream& stream, bool enableVT, AppInstaller::Settings::VisualStyle style);
+        static std::unique_ptr<IIndefiniteSpinner> CreateForStyle(BaseStream& stream, bool enableVT, AppInstaller::Settings::VisualStyle style, bool sixelSupported);
     };
 
     // Displays a progress bar.
@@ -45,6 +45,6 @@ namespace AppInstaller::CLI::Execution
         virtual void EndProgress(bool hideProgressWhenDone) = 0;
 
         // Creates a progress bar for the given style.
-        static std::unique_ptr<IProgressBar> CreateForStyle(BaseStream& stream, bool enableVT, AppInstaller::Settings::VisualStyle style);
+        static std::unique_ptr<IProgressBar> CreateForStyle(BaseStream& stream, bool enableVT, AppInstaller::Settings::VisualStyle style, bool sixelSupported);
     };
 }
