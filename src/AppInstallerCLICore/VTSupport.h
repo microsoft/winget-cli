@@ -77,6 +77,26 @@ namespace AppInstaller::CLI::VirtualTerminal
     // Below are mapped to the sequences described here:
     // https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 
+    // Contains the response to a DA (Device Attributes) request.
+    struct DeviceAttributes
+    {
+        // Queries the device attributes on creation.
+        DeviceAttributes();
+
+        // The set of extensions.
+        enum class Extension
+        {
+
+        };
+
+        // Determines if the given extension is supported.
+        bool Supports(Extension extension) const;
+
+    private:
+        uint32_t m_conformanceLevel = 0;
+        uint64_t m_extensions = 0;
+    };
+
     namespace Cursor
     {
         namespace Position

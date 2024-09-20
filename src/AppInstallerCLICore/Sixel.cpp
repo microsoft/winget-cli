@@ -11,6 +11,17 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
 {
     namespace anon
     {
+        // Detect support for sixels in current terminal
+        bool DetectSixelSupport()
+        {
+            if (ConsoleModeRestore::Instance().IsVTEnabled())
+            {
+                // You can send a DA1 request("\x1b[c") and you'll get "\x1b[?61;1;...;4;...;41c" back. The "61" is the "conformance level" (61-65 = VT100-500, in that order), but you should ignore that because modern terminals lie about their level. The "4" tells you that the terminal supports sixels and I'd recommend testing for that.
+            }
+
+            return false;
+        }
+
         wil::com_ptr<IWICImagingFactory> CreateFactory()
         {
             wil::com_ptr<IWICImagingFactory> result;
@@ -711,9 +722,8 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
 
     bool SixelsSupported()
     {
-        // TODO: Detect support for sixels in current terminal
-        // You can send a DA1 request("\x1b[c") and you'll get "\x1b[?61;1;...;4;...;41c" back. The "61" is the "conformance level" (61-65 = VT100-500, in that order), but you should ignore that because modern terminals lie about their level. The "4" tells you that the terminal supports sixels and I'd recommend testing for that.
-        return true;
+        static bool s_SixelsSupported = anon::DetectSixelSupport();
+        return s_SixelsSupported;
     }
 
     bool SixelsEnabled()
