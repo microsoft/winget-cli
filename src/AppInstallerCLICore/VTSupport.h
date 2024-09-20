@@ -77,22 +77,44 @@ namespace AppInstaller::CLI::VirtualTerminal
     // Below are mapped to the sequences described here:
     // https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 
-    // Contains the response to a DA (Device Attributes) request.
-    struct DeviceAttributes
+    // Contains the response to a DA1 (Primary Device Attributes) request.
+    struct PrimaryDeviceAttributes
     {
-        // Queries the device attributes on creation.
-        DeviceAttributes();
+        static const PrimaryDeviceAttributes& Instance();
 
-        // The set of extensions.
+        // The extensions that a device may support.
         enum class Extension
         {
-
+            Columns132 = 1,
+            PrinterPort = 2,
+            Sixel = 4,
+            SelectiveErase = 6,
+            SoftCharacterSet = 7,
+            UserDefinedKeys = 8,
+            NationalReplacementCharacterSets = 9,
+            Yugoslavian = 12,
+            EightBitInterface = 14,
+            TechnicalCharacterSet = 15,
+            WindowingCapability = 18,
+            HorizontalScrolling = 21,
+            ColorText = 22,
+            Greek = 23,
+            Turkish = 24,
+            RectangularAreaOperations = 28,
+            TextMacros = 32,
+            ISO_Latin2CharacterSet = 42,
+            PC_Term = 44,
+            SoftKeyMap = 45,
+            ASCII_Emulation = 46,
         };
 
         // Determines if the given extension is supported.
         bool Supports(Extension extension) const;
 
     private:
+        // Queries the device attributes on creation.
+        PrimaryDeviceAttributes();
+
         uint32_t m_conformanceLevel = 0;
         uint64_t m_extensions = 0;
     };
