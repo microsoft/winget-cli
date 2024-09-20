@@ -33,6 +33,7 @@
             )
             ProjectUri = 'https://github.com/microsoft/winget-cli'
             IconUri = 'https://aka.ms/winget-icon'
+            Prerelease = 'alpha'
         }
     }
 }
