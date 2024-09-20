@@ -510,18 +510,15 @@ namespace AppInstaller::CLI::Execution
             renderControls.RenderSizeInCells(2, 1);
 
             // Create palette from full image
-            std::filesystem::path imagePath = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot);
+            std::filesystem::path imageAssetsRoot = Runtime::GetPathTo(Runtime::PathName::ImageAssets);
 
             // This image matches the target pixel size. If changing the target size, choose the most appropriate image.
-            imagePath /= "Images\\AppList.targetsize-20.png";
-
-            Sixel::ImageSource wingetIcon{ imagePath };
+            Sixel::ImageSource wingetIcon{ imageAssetsRoot / "AppList.targetsize-20.png" };
             wingetIcon.Resize(renderControls);
             Sixel::Palette palette = wingetIcon.CreatePalette(renderControls);
 
-            // TODO: Move to real locations
-            m_folder = Sixel::ImageSource{ R"(C:\Users\johnmcp\Pictures\folders_only.png)" };
-            m_arrow = Sixel::ImageSource{ R"(C:\Users\johnmcp\Pictures\arrow_only.png)" };
+            m_folder = Sixel::ImageSource{ imageAssetsRoot / "progress-sixel/folders_only.png" };
+            m_arrow = Sixel::ImageSource{ imageAssetsRoot / "progress-sixel/arrow_only.png" };
 
             m_folder.Resize(renderControls);
             m_folder.ApplyPalette(palette);
@@ -636,16 +633,15 @@ namespace AppInstaller::CLI::Execution
             imageRenderControls.RenderSizeInCells(2, 1);
 
             // This image matches the target pixel size. If changing the target size, choose the most appropriate image.
-            std::filesystem::path imagePath = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot);
-            imagePath /= "Images\\AppList.targetsize-20.png";
+            std::filesystem::path imageAssetsRoot = Runtime::GetPathTo(Runtime::PathName::ImageAssets);
 
-            m_icon = Sixel::ImageSource{ imagePath };
+            m_icon = Sixel::ImageSource{ imageAssetsRoot / "AppList.targetsize-20.png" };
             m_icon.Resize(imageRenderControls);
             imageRenderControls.ColorCount = Sixel::Palette::MaximumColorCount - s_colorsForBelt;
             Sixel::Palette iconPalette = m_icon.CreatePalette(imageRenderControls);
 
             // TODO: Move to real location
-            m_belt = Sixel::ImageSource{ R"(C:\Users\johnmcp\Pictures\conveyor.png)" };
+            m_belt = Sixel::ImageSource{ imageAssetsRoot / "progress-sixel/conveyor.png" };
             m_belt.Resize(imageRenderControls);
             imageRenderControls.ColorCount = s_colorsForBelt;
             imageRenderControls.InterpolationMode = Sixel::InterpolationMode::Linear;
@@ -772,9 +768,14 @@ namespace AppInstaller::CLI::Execution
         case VisualStyle::Sixel:
             if (Sixel::SixelsSupported())
             {
-                result = std::make_unique<SixelIndefiniteSpinner>(stream, enableVT);
+                try
+                {
+                    result = std::make_unique<SixelIndefiniteSpinner>(stream, enableVT);
+                }
+                CATCH_LOG();
             }
-            else
+
+            if (!result)
             {
                 result = std::make_unique<CharacterIndefiniteSpinner>(stream, enableVT, VisualStyle::Accent);
             }
@@ -803,9 +804,14 @@ namespace AppInstaller::CLI::Execution
         case VisualStyle::Sixel:
             if (Sixel::SixelsSupported())
             {
-                result = std::make_unique<SixelProgressBar>(stream, enableVT);
+                try
+                {
+                    result = std::make_unique<SixelProgressBar>(stream, enableVT);
+                }
+                CATCH_LOG();
             }
-            else
+
+            if (!result)
             {
                 result = std::make_unique<CharacterProgressBar>(stream, enableVT, VisualStyle::Accent);
             }

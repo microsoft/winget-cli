@@ -48,22 +48,25 @@ namespace AppInstaller::CLI
 
         if (VirtualTerminal::Sixel::SixelsEnabled())
         {
-            std::filesystem::path imagePath = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot);
+            std::filesystem::path imagePath = Runtime::GetPathTo(Runtime::PathName::ImageAssets);
 
-            // This image matches the target pixel size. If changing the target size, choose the most appropriate image.
-            imagePath /= "Images\\AppList.targetsize-40.png";
+            if (!imagePath.empty())
+            {
+                // This image matches the target pixel size. If changing the target size, choose the most appropriate image.
+                imagePath /= "AppList.targetsize-40.png";
 
-            VirtualTerminal::Sixel::Image wingetIcon{ imagePath };
+                VirtualTerminal::Sixel::Image wingetIcon{ imagePath };
 
-            // Using a height of 2 to match the two lines of header.
-            UINT imageHeightCells = 2;
-            UINT imageWidthCells = 2 * imageHeightCells;
+                // Using a height of 2 to match the two lines of header.
+                UINT imageHeightCells = 2;
+                UINT imageWidthCells = 2 * imageHeightCells;
 
-            wingetIcon.RenderSizeInCells(imageWidthCells, imageHeightCells);
-            wingetIcon.RenderTo(infoOut);
+                wingetIcon.RenderSizeInCells(imageWidthCells, imageHeightCells);
+                wingetIcon.RenderTo(infoOut);
 
-            indent = VirtualTerminal::Cursor::Position::Forward(static_cast<int16_t>(imageWidthCells));
-            infoOut << VirtualTerminal::Cursor::Position::Up(static_cast<int16_t>(imageHeightCells) - 1);
+                indent = VirtualTerminal::Cursor::Position::Forward(static_cast<int16_t>(imageWidthCells));
+                infoOut << VirtualTerminal::Cursor::Position::Up(static_cast<int16_t>(imageHeightCells) - 1);
+            }
         }
 
         auto productName = Runtime::IsReleaseBuild() ? Resource::String::WindowsPackageManager : Resource::String::WindowsPackageManagerPreview;
