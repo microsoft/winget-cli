@@ -33,7 +33,7 @@ namespace AppInstaller::CLI::Execution
         m_out(outStream),
         m_in(inStream)
     {
-        bool sixelSupported = SixelsSupported();
+        auto sixelSupported = [&]() { return SixelsSupported(); };
         m_spinner = IIndefiniteSpinner::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), VisualStyle::Accent, sixelSupported);
         m_progressBar = IProgressBar::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), VisualStyle::Accent, sixelSupported);
 
@@ -120,7 +120,7 @@ namespace AppInstaller::CLI::Execution
 
         if (m_channel == Channel::Output)
         {
-            bool sixelSupported = SixelsSupported();
+            auto sixelSupported = [&]() { return SixelsSupported(); };
             m_spinner = IIndefiniteSpinner::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), style, sixelSupported);
             m_progressBar = IProgressBar::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), style, sixelSupported);
         }
@@ -371,6 +371,6 @@ namespace AppInstaller::CLI::Execution
 
     bool Reporter::SixelsEnabled()
     {
-        return SixelsSupported() && Settings::User().Get<Settings::Setting::EnableSixelDisplay>();
+        return Settings::User().Get<Settings::Setting::EnableSixelDisplay>() && SixelsSupported();
     }
 }

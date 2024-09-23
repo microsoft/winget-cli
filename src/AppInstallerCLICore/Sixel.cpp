@@ -315,6 +315,10 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         return m_palette[index];
     }
 
+    ImageView::ImageView(UINT width, UINT height, UINT stride, UINT byteCount, BYTE* bytes) :
+        m_viewWidth(width), m_viewHeight(height), m_viewStride(stride), m_viewByteCount(byteCount), m_viewBytes(bytes)
+    {}
+
     ImageView ImageView::Lock(IWICBitmap* imageSource)
     {
         WICPixelFormatGUID pixelFormat{};

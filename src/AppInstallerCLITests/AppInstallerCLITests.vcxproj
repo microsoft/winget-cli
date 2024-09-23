@@ -326,6 +326,7 @@
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="SearchRequestSerializer.cpp" />
     <ClCompile Include="ShowFlow.cpp" />
+    <ClCompile Include="Sixel.cpp" />
     <ClCompile Include="SourceFlow.cpp" />
     <ClCompile Include="SQLiteDynamicStorage.cpp" />
     <ClCompile Include="SQLiteIndexSource.cpp" />

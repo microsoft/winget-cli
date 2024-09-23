@@ -753,7 +753,7 @@ namespace AppInstaller::CLI::Execution
         Sixel::Compositor m_compositor;
     };
 
-    std::unique_ptr<IIndefiniteSpinner> IIndefiniteSpinner::CreateForStyle(BaseStream& stream, bool enableVT, VisualStyle style, bool sixelSupported)
+    std::unique_ptr<IIndefiniteSpinner> IIndefiniteSpinner::CreateForStyle(BaseStream& stream, bool enableVT, VisualStyle style, const std::function<bool()>& sixelSupported)
     {
         std::unique_ptr<IIndefiniteSpinner> result;
 
@@ -766,7 +766,7 @@ namespace AppInstaller::CLI::Execution
             result = std::make_unique<CharacterIndefiniteSpinner>(stream, enableVT, style);
             break;
         case VisualStyle::Sixel:
-            if (sixelSupported)
+            if (sixelSupported())
             {
                 try
                 {
@@ -789,7 +789,7 @@ namespace AppInstaller::CLI::Execution
         return result;
     }
 
-    std::unique_ptr<IProgressBar> IProgressBar::CreateForStyle(BaseStream& stream, bool enableVT, VisualStyle style, bool sixelSupported)
+    std::unique_ptr<IProgressBar> IProgressBar::CreateForStyle(BaseStream& stream, bool enableVT, VisualStyle style, const std::function<bool()>& sixelSupported)
     {
         std::unique_ptr<IProgressBar> result;
 
@@ -802,7 +802,7 @@ namespace AppInstaller::CLI::Execution
             result = std::make_unique<CharacterProgressBar>(stream, enableVT, style);
             break;
         case VisualStyle::Sixel:
-            if (sixelSupported)
+            if (sixelSupported())
             {
                 try
                 {

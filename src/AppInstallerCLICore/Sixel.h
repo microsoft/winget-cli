@@ -68,6 +68,9 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
     // Can be configured to translate and/or tile the view.
     struct ImageView
     {
+        // Creates a non-owning view using the given data.
+        ImageView(UINT width, UINT height, UINT stride, UINT byteCount, BYTE* bytes);
+
         // Create a view by locking a bitmap.
         // This must be used from the same thread as the bitmap.
         static ImageView Lock(IWICBitmap* imageSource);

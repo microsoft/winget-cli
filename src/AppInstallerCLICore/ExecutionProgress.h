@@ -6,6 +6,7 @@
 #include <AppInstallerStrings.h>
 #include <winget/UserSettings.h>
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -30,7 +31,7 @@ namespace AppInstaller::CLI::Execution
         virtual void StopSpinner() = 0;
 
         // Creates an indefinite spinner for the given style.
-        static std::unique_ptr<IIndefiniteSpinner> CreateForStyle(BaseStream& stream, bool enableVT, AppInstaller::Settings::VisualStyle style, bool sixelSupported);
+        static std::unique_ptr<IIndefiniteSpinner> CreateForStyle(BaseStream& stream, bool enableVT, AppInstaller::Settings::VisualStyle style, const std::function<bool()>& sixelSupported);
     };
 
     // Displays a progress bar.
@@ -45,6 +46,6 @@ namespace AppInstaller::CLI::Execution
         virtual void EndProgress(bool hideProgressWhenDone) = 0;
 
         // Creates a progress bar for the given style.
-        static std::unique_ptr<IProgressBar> CreateForStyle(BaseStream& stream, bool enableVT, AppInstaller::Settings::VisualStyle style, bool sixelSupported);
+        static std::unique_ptr<IProgressBar> CreateForStyle(BaseStream& stream, bool enableVT, AppInstaller::Settings::VisualStyle style, const std::function<bool()>& sixelSupported);
     };
 }
