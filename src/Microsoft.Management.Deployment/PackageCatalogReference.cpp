@@ -296,10 +296,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double>();
     }
 
-    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::ResetPackageCatalogResult, double> PackageCatalogReference::ResetPackageCatalogAsync()
+    winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::ResetPackageCatalogResult> PackageCatalogReference::ResetPackageCatalogAsync()
     {
         // TODO: Implement ResetPackageCatalogAsync
-        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::ResetPackageCatalogResult, double>();
+       return winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::ResetPackageCatalogResult>();
     }
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::UpdatePackageCatalogResult, double> PackageCatalogReference::UpdatePackageCatalogAsync()

@@ -35,7 +35,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::AuthenticationInfo AuthenticationInfo();
         // Contract 11.0
         winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double> RemovePackageCatalogAsync();
-        winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::ResetPackageCatalogResult, double> ResetPackageCatalogAsync();
+        winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::ResetPackageCatalogResult> ResetPackageCatalogAsync();
         winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::UpdatePackageCatalogResult, double> UpdatePackageCatalogAsync();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)

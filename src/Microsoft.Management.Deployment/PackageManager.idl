@@ -903,7 +903,7 @@ namespace Microsoft.Management.Deployment
             Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, Double> RemovePackageCatalogAsync();
 
             /// Resets the package catalog to the default state.
-            Windows.Foundation.IAsyncOperationWithProgress<ResetPackageCatalogResult, Double> ResetPackageCatalogAsync();
+            Windows.Foundation.IAsyncOperation<ResetPackageCatalogResult> ResetPackageCatalogAsync();
 
             /// Updates the package catalog.
             Windows.Foundation.IAsyncOperationWithProgress<UpdatePackageCatalogResult, Double> UpdatePackageCatalogAsync();
