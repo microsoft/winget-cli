@@ -900,13 +900,13 @@ namespace Microsoft.Management.Deployment
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
         {
             /// Removes a catalog from the Windows Package Catalogs.
-            Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, Double> RemovePackageCatalogAsync(String catalogName);
+            Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, Double> RemovePackageCatalogAsync();
 
             /// Resets the package catalog to the default state.
             Windows.Foundation.IAsyncOperationWithProgress<ResetPackageCatalogResult, Double> ResetPackageCatalogAsync();
 
             /// Updates the package catalog.
-            Windows.Foundation.IAsyncOperationWithProgress<UpdatePackageCatalogResult, Double> UpdatePackageCatalogAsync(String catalogName);
+            Windows.Foundation.IAsyncOperationWithProgress<UpdatePackageCatalogResult, Double> UpdatePackageCatalogAsync();
         }
     }
 
