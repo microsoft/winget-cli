@@ -50,11 +50,7 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         // Convert [0, 255] => [0, 100]
         UINT32 ByteToPercent(BYTE input)
         {
-            UINT32 result = static_cast<UINT32>(input);
-            result *= 100;
-            UINT32 fractional = result % 255;
-            result /= 255;
-            return result + (fractional >= 128 ? 1 : 0);
+            return (static_cast<UINT32>(input) * 100 + 127) / 255;
         }
 
         // Contains the state for a rendering pass.

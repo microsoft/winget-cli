@@ -113,7 +113,7 @@ namespace AppInstaller::CLI::VirtualTerminal
 
     ConsoleInputModeRestore::ConsoleInputModeRestore() : ConsoleModeRestoreBase(STD_INPUT_HANDLE)
     {
-        m_token = InitializeMode(STD_INPUT_HANDLE, m_previousMode, { ENABLE_EXTENDED_FLAGS | ENABLE_VIRTUAL_TERMINAL_INPUT }, ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_QUICK_EDIT_MODE);
+        m_token = InitializeMode(STD_INPUT_HANDLE, m_previousMode, { ENABLE_EXTENDED_FLAGS | ENABLE_VIRTUAL_TERMINAL_INPUT }, ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
     }
 
     void ConstructedSequence::Append(const Sequence& sequence)
