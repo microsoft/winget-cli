@@ -155,18 +155,28 @@ namespace AppInstaller::CLI
         }
     }
 
+#define WINGET_DEBUG_SIXEL_FILE Args::Type::Manifest
+#define WINGET_DEBUG_SIXEL_ASPECT_RATIO Args::Type::AcceptPackageAgreements
+#define WINGET_DEBUG_SIXEL_TRANSPARENT Args::Type::AcceptSourceAgreements
+#define WINGET_DEBUG_SIXEL_COLOR_COUNT Args::Type::ConfigurationAcceptWarning
+#define WINGET_DEBUG_SIXEL_WIDTH Args::Type::AdminSettingEnable
+#define WINGET_DEBUG_SIXEL_HEIGHT Args::Type::AllowReboot
+#define WINGET_DEBUG_SIXEL_STRETCH Args::Type::AllVersions
+#define WINGET_DEBUG_SIXEL_REPEAT Args::Type::Name
+#define WINGET_DEBUG_SIXEL_OUT_FILE Args::Type::BlockingPin
+
     std::vector<Argument> ShowSixelCommand::GetArguments() const
     {
         return {
-            Argument{ "file", 'f', Args::Type::Manifest, Resource::String::SourceListUpdatedNever, ArgumentType::Positional },
-            Argument{ "aspect-ratio", 'a', Args::Type::AcceptPackageAgreements, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
-            Argument{ "transparent", 't', Args::Type::AcceptSourceAgreements, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
-            Argument{ "color-count", 'c', Args::Type::ConfigurationAcceptWarning, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
-            Argument{ "width", 'w', Args::Type::AdminSettingEnable, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
-            Argument{ "height", 'h', Args::Type::AllowReboot, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
-            Argument{ "stretch", 's', Args::Type::AllVersions, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
-            Argument{ "repeat", 'r', Args::Type::Name, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
-            Argument{ "out-file", 'o', Args::Type::BlockingPin, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+            Argument{ "file", 'f', WINGET_DEBUG_SIXEL_FILE, Resource::String::SourceListUpdatedNever, ArgumentType::Positional },
+            Argument{ "aspect-ratio", 'a', WINGET_DEBUG_SIXEL_ASPECT_RATIO, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+            Argument{ "transparent", 't', WINGET_DEBUG_SIXEL_TRANSPARENT, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument{ "color-count", 'c', WINGET_DEBUG_SIXEL_COLOR_COUNT, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+            Argument{ "width", 'w', WINGET_DEBUG_SIXEL_WIDTH, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+            Argument{ "height", 'h', WINGET_DEBUG_SIXEL_HEIGHT, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+            Argument{ "stretch", 's', WINGET_DEBUG_SIXEL_STRETCH, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument{ "repeat", 'r', WINGET_DEBUG_SIXEL_REPEAT, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument{ "out-file", 'o', WINGET_DEBUG_SIXEL_OUT_FILE, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
         };
     }
 
@@ -185,7 +195,7 @@ namespace AppInstaller::CLI
         using namespace VirtualTerminal;
         std::unique_ptr<Sixel::Image> sixelImagePtr;
 
-        std::string imageUrl{ context.Args.GetArg(Args::Type::Manifest) };
+        std::string imageUrl{ context.Args.GetArg(WINGET_DEBUG_SIXEL_FILE) };
 
         if (Utility::IsUrlRemote(imageUrl))
         {
@@ -202,9 +212,9 @@ namespace AppInstaller::CLI
 
         Sixel::Image& sixelImage = *sixelImagePtr.get();
 
-        if (context.Args.Contains(Args::Type::AcceptPackageAgreements))
+        if (context.Args.Contains(WINGET_DEBUG_SIXEL_ASPECT_RATIO))
         {
-            switch (context.Args.GetArg(Args::Type::AcceptPackageAgreements)[0])
+            switch (context.Args.GetArg(WINGET_DEBUG_SIXEL_ASPECT_RATIO)[0])
             {
             case '1':
                 sixelImage.AspectRatio(Sixel::AspectRatio::OneToOne);
@@ -221,27 +231,27 @@ namespace AppInstaller::CLI
             }
         }
 
-        sixelImage.Transparency(context.Args.Contains(Args::Type::AcceptSourceAgreements));
+        sixelImage.Transparency(context.Args.Contains(WINGET_DEBUG_SIXEL_TRANSPARENT));
 
-        if (context.Args.Contains(Args::Type::ConfigurationAcceptWarning))
+        if (context.Args.Contains(WINGET_DEBUG_SIXEL_COLOR_COUNT))
         {
-            sixelImage.ColorCount(std::stoul(std::string{ context.Args.GetArg(Args::Type::ConfigurationAcceptWarning) }));
+            sixelImage.ColorCount(std::stoul(std::string{ context.Args.GetArg(WINGET_DEBUG_SIXEL_COLOR_COUNT) }));
         }
 
-        if (context.Args.Contains(Args::Type::AdminSettingEnable) && context.Args.Contains(Args::Type::AllowReboot))
+        if (context.Args.Contains(WINGET_DEBUG_SIXEL_WIDTH) && context.Args.Contains(WINGET_DEBUG_SIXEL_HEIGHT))
         {
             sixelImage.RenderSizeInCells(
-                std::stoul(std::string{ context.Args.GetArg(Args::Type::AdminSettingEnable) }),
-                std::stoul(std::string{ context.Args.GetArg(Args::Type::AllowReboot) }));
+                std::stoul(std::string{ context.Args.GetArg(WINGET_DEBUG_SIXEL_WIDTH) }),
+                std::stoul(std::string{ context.Args.GetArg(WINGET_DEBUG_SIXEL_HEIGHT) }));
         }
 
-        sixelImage.StretchSourceToFill(context.Args.Contains(Args::Type::AllVersions));
+        sixelImage.StretchSourceToFill(context.Args.Contains(WINGET_DEBUG_SIXEL_STRETCH));
 
-        sixelImage.UseRepeatSequence(context.Args.Contains(Args::Type::Name));
+        sixelImage.UseRepeatSequence(context.Args.Contains(WINGET_DEBUG_SIXEL_REPEAT));
 
-        if (context.Args.Contains(Args::Type::BlockingPin))
+        if (context.Args.Contains(WINGET_DEBUG_SIXEL_OUT_FILE))
         {
-            std::ofstream stream{ Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::BlockingPin)) };
+            std::ofstream stream{ Utility::ConvertToUTF16(context.Args.GetArg(WINGET_DEBUG_SIXEL_OUT_FILE)) };
             stream << sixelImage.Render().Get();
         }
         else
@@ -255,16 +265,24 @@ namespace AppInstaller::CLI
         }
     }
 
+#define WINGET_DEBUG_PROGRESS_SIXEL Args::Type::Manifest
+#define WINGET_DEBUG_PROGRESS_DISABLED Args::Type::GatedVersion
+#define WINGET_DEBUG_PROGRESS_HIDE Args::Type::AcceptPackageAgreements
+#define WINGET_DEBUG_PROGRESS_TIME Args::Type::AcceptSourceAgreements
+#define WINGET_DEBUG_PROGRESS_MESSAGE Args::Type::ConfigurationAcceptWarning
+#define WINGET_DEBUG_PROGRESS_PERCENT Args::Type::AllowReboot
+#define WINGET_DEBUG_PROGRESS_POST Args::Type::AllVersions
+
     std::vector<Argument> ProgressCommand::GetArguments() const
     {
         return {
-            Argument{ "sixel", 's', Args::Type::Manifest, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
-            Argument{ "disabled", 'd', Args::Type::GatedVersion, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
-            Argument{ "hide", 'h', Args::Type::AcceptPackageAgreements, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
-            Argument{ "time", 't', Args::Type::AcceptSourceAgreements, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
-            Argument{ "message", 'm', Args::Type::ConfigurationAcceptWarning, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
-            Argument{ "percent", 'p', Args::Type::AllowReboot, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
-            Argument{ "post", 0, Args::Type::AllVersions, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+            Argument{ "sixel", 's', WINGET_DEBUG_PROGRESS_SIXEL, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument{ "disabled", 'd', WINGET_DEBUG_PROGRESS_DISABLED, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument{ "hide", 'h', WINGET_DEBUG_PROGRESS_HIDE, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument{ "time", 't', WINGET_DEBUG_PROGRESS_TIME, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+            Argument{ "message", 'm', WINGET_DEBUG_PROGRESS_MESSAGE, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
+            Argument{ "percent", 'p', WINGET_DEBUG_PROGRESS_PERCENT, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument{ "post", 0, WINGET_DEBUG_PROGRESS_POST, Resource::String::SourceListUpdatedNever, ArgumentType::Standard },
         };
     }
 
@@ -280,29 +298,29 @@ namespace AppInstaller::CLI
 
     void ProgressCommand::ExecuteInternal(Execution::Context& context) const
     {
-        if (context.Args.Contains(Args::Type::Manifest))
+        if (context.Args.Contains(WINGET_DEBUG_PROGRESS_SIXEL))
         {
             context.Reporter.SetStyle(Settings::VisualStyle::Sixel);
         }
 
-        if (context.Args.Contains(Args::Type::GatedVersion))
+        if (context.Args.Contains(WINGET_DEBUG_PROGRESS_DISABLED))
         {
             context.Reporter.SetStyle(Settings::VisualStyle::Disabled);
         }
 
-        auto progress = context.Reporter.BeginAsyncProgress(context.Args.Contains(Args::Type::AcceptPackageAgreements));
+        auto progress = context.Reporter.BeginAsyncProgress(context.Args.Contains(WINGET_DEBUG_PROGRESS_HIDE));
 
-        if (context.Args.Contains(Args::Type::ConfigurationAcceptWarning))
+        if (context.Args.Contains(WINGET_DEBUG_PROGRESS_MESSAGE))
         {
-            progress->Callback().SetProgressMessage(context.Args.GetArg(Args::Type::ConfigurationAcceptWarning));
+            progress->Callback().SetProgressMessage(context.Args.GetArg(WINGET_DEBUG_PROGRESS_MESSAGE));
         }
 
-        bool sendProgress = context.Args.Contains(Args::Type::AllowReboot);
+        bool sendProgress = context.Args.Contains(WINGET_DEBUG_PROGRESS_PERCENT);
 
         UINT timeInSeconds = 3600;
-        if (context.Args.Contains(Args::Type::AcceptSourceAgreements))
+        if (context.Args.Contains(WINGET_DEBUG_PROGRESS_TIME))
         {
-            timeInSeconds = std::stoul(std::string{ context.Args.GetArg(Args::Type::AcceptSourceAgreements) });
+            timeInSeconds = std::stoul(std::string{ context.Args.GetArg(WINGET_DEBUG_PROGRESS_TIME) });
         }
 
         UINT ticks = timeInSeconds * 10;
@@ -329,9 +347,9 @@ namespace AppInstaller::CLI
 
         progress.reset();
 
-        if (context.Args.Contains(Args::Type::AllVersions))
+        if (context.Args.Contains(WINGET_DEBUG_PROGRESS_POST))
         {
-            context.Reporter.Info() << context.Args.GetArg(Args::Type::AllVersions) << std::endl;
+            context.Reporter.Info() << context.Args.GetArg(WINGET_DEBUG_PROGRESS_POST) << std::endl;
         }
     }
 }

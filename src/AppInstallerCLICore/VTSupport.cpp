@@ -69,7 +69,7 @@ namespace AppInstaller::CLI::VirtualTerminal
                 inStream.readsome(&result[0], result.size());
                 THROW_HR_IF(E_UNEXPECTED, static_cast<size_t>(inStream.gcount()) >= result.size());
 
-                result.resize(inStream.gcount());
+                result.resize(static_cast<size_t>(inStream.gcount()));
 
                 std::string_view resultView = result;
                 size_t overheadLength = 1 + prefix.length() + suffix.length();
