@@ -669,9 +669,9 @@ namespace AppInstaller::MSStore
             return Utility::Architecture::Unknown;
         }
 
-        std::vector<std::string> GetSfsPackageFileSupportedPlatforms(const SFS::AppFile& appFile, Manifest::PlatformEnum requiredPlatform)
+        std::vector<Manifest::PlatformEnum> GetSfsPackageFileSupportedPlatforms(const SFS::AppFile& appFile, Manifest::PlatformEnum requiredPlatform)
         {
-            std::vector<std::string> supportedPlatforms;
+            std::vector<Manifest::PlatformEnum> supportedPlatforms;
 
             for (auto const& applicability : appFile.GetApplicabilityDetails().GetPlatformApplicabilityForPackage())
             {
@@ -679,7 +679,7 @@ namespace AppInstaller::MSStore
                 if (platform != Manifest::PlatformEnum::Unknown &&
                     (platform == requiredPlatform || requiredPlatform == Manifest::PlatformEnum::Unknown))
                 {
-                    supportedPlatforms.emplace_back(applicability);
+                    supportedPlatforms.emplace_back(platform);
                 }
             }
 
@@ -709,7 +709,7 @@ namespace AppInstaller::MSStore
         }
 
         // This also checks if the file type is supported. If not supported, the return is empty string.
-        std::string GetSfsPackageFileName(const SFS::AppFile& appFile)
+        std::string GetSfsPackageFileExtension(const SFS::AppFile& appFile)
         {
             std::string fileExtension = std::filesystem::path{ appFile.GetFileId() }.extension().u8string();
 
@@ -728,7 +728,48 @@ namespace AppInstaller::MSStore
                 return {};
             }
 
-            return appFile.GetFileMoniker() + fileExtension;
+            return fileExtension;
+        }
+
+        // The file name will be {Name}_{Version}_{Platform list}_{Arch list}.{File Extension}
+        // If the file name is longer than 256, file moniker will be used.
+        std::string GetSfsPackageFileNameForDownload(
+            const std::string& packageName,
+            const Utility::UInt64Version& packageVersion,
+            const std::vector<Manifest::PlatformEnum>& supportedPlatforms,
+            const std::vector<Utility::Architecture>& supportedArchitectures,
+            const std::string& fileExtension,
+            const std::string& fileMoniker)
+        {
+            std::string platformString;
+            for (auto platform : supportedPlatforms)
+            {
+                platformString += std::string{ Manifest::PlatformToString(platform, true) } + '.';
+            }
+            platformString.resize(platformString.size() - 1);
+
+            std::string architectureString;
+            for (auto architecture : supportedArchitectures)
+            {
+                architectureString += std::string{ Utility::ToString(architecture) } + '.';
+            }
+            architectureString.resize(architectureString.size() - 1);
+
+            std::string fileName =
+                packageName + '_' +
+                packageVersion.ToString() + '_' +
+                platformString + '_' +
+                architectureString +
+                fileExtension;
+
+            if (fileName.length() < 256)
+            {
+                return fileName;
+            }
+            else
+            {
+                return fileMoniker + fileExtension;
+            }
         }
 
         void SfsClientLoggingCallback(const SFS::LogData& logData)
@@ -784,7 +825,7 @@ namespace AppInstaller::MSStore
             Utility::Architecture requiredArchitecture = Utility::Architecture::Unknown,
             Manifest::PlatformEnum requiredPlatform = Manifest::PlatformEnum::Unknown)
         {
-            using PlatformAndArchitectureKey = std::pair<std::string, Utility::Architecture>;
+            using PlatformAndArchitectureKey = std::pair<Manifest::PlatformEnum, Utility::Architecture>;
 
             // Since the server may return multiple versions of the same package, we'll use this map to record the one with latest version
             // for each Platform|Architecture pair.
@@ -805,8 +846,8 @@ namespace AppInstaller::MSStore
                     AICLI_LOG(Core, Info, << "Package skipped due to unsupported architecture. FileId:" << appFile.GetFileId());
                     continue;
                 }
-                std::string fileName = GetSfsPackageFileName(appFile);
-                if (fileName.empty())
+                std::string fileExtension = GetSfsPackageFileExtension(appFile);
+                if (fileExtension.empty())
                 {
                     AICLI_LOG(Core, Info, << "Package skipped due to unsupported file type. FileId:" << appFile.GetFileId());
                     continue;
@@ -814,10 +855,13 @@ namespace AppInstaller::MSStore
 
                 MSStoreDownloadFile downloadFile;
                 downloadFile.Url = appFile.GetUrl();
-                downloadFile.FileName = fileName;
                 // The sha256 hash was base64 encoded
                 downloadFile.Sha256 = JSON::Base64Decode(appFile.GetHashes().at(SFS::HashType::Sha256));
-                downloadFile.Version = Msix::GetPackageVersionFromFullName(appFile.GetFileMoniker());
+                auto packageInfo = Msix::GetPackageIdInfoFromFullName(appFile.GetFileMoniker());
+                downloadFile.Version = packageInfo.Version;
+                downloadFile.FileName = GetSfsPackageFileNameForDownload(
+                    packageInfo.Name, packageInfo.Version, supportedPlatforms,
+                    supportedArchitectures, fileExtension, appFile.GetFileMoniker());
 
                 // Update the platform architecture map with latest package if applicable
                 for (auto supportedPlatform : supportedPlatforms)

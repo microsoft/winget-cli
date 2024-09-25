@@ -406,7 +406,8 @@ namespace AppInstaller::Manifest
 
     std::string_view RepairBehaviorToString(RepairBehaviorEnum repairBehavior);
 
-    std::string_view PlatformToString(PlatformEnum platform);
+    // Short string representation does not contain "Windows."
+    std::string_view PlatformToString(PlatformEnum platform, bool shortString = false);
 
     std::string_view ScopeToString(ScopeEnum scope);
 
