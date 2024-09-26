@@ -72,7 +72,7 @@ namespace AppInstaller::CLI::Portable
         }
         else if (fileType == PortableFileType::Symlink)
         {
-            std::filesystem::path symlinkTargetPath = AppInstaller::Utility::ConvertToUTF16(entry.SymlinkTarget);
+            std::filesystem::path symlinkTargetPath{ AppInstaller::Utility::ConvertToUTF16(entry.SymlinkTarget) };
             if (Filesystem::SymlinkExists(filePath) && !Filesystem::VerifySymlink(filePath, symlinkTargetPath))
             {
                 AICLI_LOG(CLI, Warning, << "Symlink target does not match ARP Entry. Expected: " << symlinkTargetPath << " Actual: " << std::filesystem::read_symlink(filePath));
@@ -151,7 +151,7 @@ namespace AppInstaller::CLI::Portable
                     m_stream << Resource::String::OverwritingExistingFileAtMessage(Utility::LocIndView{ filePath.u8string() }) << std::endl;
                 }
 
-                std::filesystem::path symlinkTargetPath = Utility::ConvertToUTF16(entry.SymlinkTarget);
+                std::filesystem::path symlinkTargetPath{ Utility::ConvertToUTF16(entry.SymlinkTarget) };
                 if (Filesystem::CreateSymlink(symlinkTargetPath, filePath))
                 {
                     AICLI_LOG(Core, Info, << "Symlink created at: " << filePath << " with target path: " << symlinkTargetPath);
