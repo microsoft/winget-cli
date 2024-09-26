@@ -48,25 +48,29 @@ namespace AppInstaller::CLI
 
         if (reporter.SixelsEnabled())
         {
-            std::filesystem::path imagePath = Runtime::GetPathTo(Runtime::PathName::ImageAssets);
-
-            if (!imagePath.empty())
+            try
             {
-                // This image matches the target pixel size. If changing the target size, choose the most appropriate image.
-                imagePath /= "AppList.targetsize-40.png";
+                std::filesystem::path imagePath = Runtime::GetPathTo(Runtime::PathName::ImageAssets);
 
-                VirtualTerminal::Sixel::Image wingetIcon{ imagePath };
+                if (!imagePath.empty())
+                {
+                    // This image matches the target pixel size. If changing the target size, choose the most appropriate image.
+                    imagePath /= "AppList.targetsize-40.png";
 
-                // Using a height of 2 to match the two lines of header.
-                UINT imageHeightCells = 2;
-                UINT imageWidthCells = 2 * imageHeightCells;
+                    VirtualTerminal::Sixel::Image wingetIcon{ imagePath };
 
-                wingetIcon.RenderSizeInCells(imageWidthCells, imageHeightCells);
-                wingetIcon.RenderTo(infoOut);
+                    // Using a height of 2 to match the two lines of header.
+                    UINT imageHeightCells = 2;
+                    UINT imageWidthCells = 2 * imageHeightCells;
 
-                indent = VirtualTerminal::Cursor::Position::Forward(static_cast<int16_t>(imageWidthCells));
-                infoOut << VirtualTerminal::Cursor::Position::Up(static_cast<int16_t>(imageHeightCells) - 1);
+                    wingetIcon.RenderSizeInCells(imageWidthCells, imageHeightCells);
+                    wingetIcon.RenderTo(infoOut);
+
+                    indent = VirtualTerminal::Cursor::Position::Forward(static_cast<int16_t>(imageWidthCells));
+                    infoOut << VirtualTerminal::Cursor::Position::Up(static_cast<int16_t>(imageHeightCells) - 1);
+                }
             }
+            CATCH_LOG();
         }
 
         auto productName = Runtime::IsReleaseBuild() ? Resource::String::WindowsPackageManager : Resource::String::WindowsPackageManagerPreview;

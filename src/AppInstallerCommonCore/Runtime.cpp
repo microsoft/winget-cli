@@ -29,8 +29,12 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_PortablePackageRoot = "WinGet"sv;
         constexpr std::string_view s_PortablePackagesDirectory = "Packages"sv;
         constexpr std::string_view s_LinksDirectory = "Links"sv;
-        constexpr std::string_view s_ImageAssetsDirectoryRelativePreview = "Images"sv;
-        constexpr std::string_view s_ImageAssetsDirectoryRelativeRelease = "Assets\\WinGet"sv;
+// Use production CLSIDs as a surrogate for repository location.
+#if USE_PROD_CLSIDS
+        constexpr std::string_view s_ImageAssetsDirectoryRelative = "Assets\\WinGet"sv;
+#else
+        constexpr std::string_view s_ImageAssetsDirectoryRelative = "Images"sv;
+#endif
         constexpr std::string_view s_CheckpointsDirectory = "Checkpoints"sv;
         constexpr std::string_view s_DevModeSubkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock"sv;
         constexpr std::string_view s_AllowDevelopmentWithoutDevLicense = "AllowDevelopmentWithoutDevLicense"sv;
@@ -318,7 +322,7 @@ namespace AppInstaller::Runtime
             result.Create = false;
             if (path == PathName::ImageAssets)
             {
-                result.Path /= (IsReleaseBuild() ? s_ImageAssetsDirectoryRelativeRelease : s_ImageAssetsDirectoryRelativePreview);
+                result.Path /= s_ImageAssetsDirectoryRelative;
             }
             break;
         case PathName::CheckpointsLocation:
@@ -427,8 +431,7 @@ namespace AppInstaller::Runtime
             }
             else if (path == PathName::ImageAssets)
             {
-                // Always use preview path for unpackaged
-                result.Path /= s_ImageAssetsDirectoryRelativePreview;
+                result.Path /= s_ImageAssetsDirectoryRelative;
                 if (!std::filesystem::is_directory(result.Path))
                 {
                     result.Path.clear();

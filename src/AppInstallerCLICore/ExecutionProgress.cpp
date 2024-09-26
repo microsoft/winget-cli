@@ -511,6 +511,7 @@ namespace AppInstaller::CLI::Execution
 
             // Create palette from full image
             std::filesystem::path imageAssetsRoot = Runtime::GetPathTo(Runtime::PathName::ImageAssets);
+            THROW_WIN32_IF(ERROR_FILE_NOT_FOUND, imageAssetsRoot.empty());
 
             // This image matches the target pixel size. If changing the target size, choose the most appropriate image.
             Sixel::ImageSource wingetIcon{ imageAssetsRoot / "AppList.targetsize-20.png" };
@@ -634,6 +635,7 @@ namespace AppInstaller::CLI::Execution
 
             // This image matches the target pixel size. If changing the target size, choose the most appropriate image.
             std::filesystem::path imageAssetsRoot = Runtime::GetPathTo(Runtime::PathName::ImageAssets);
+            THROW_WIN32_IF(ERROR_FILE_NOT_FOUND, imageAssetsRoot.empty());
 
             m_icon = Sixel::ImageSource{ imageAssetsRoot / "AppList.targetsize-20.png" };
             m_icon.Resize(imageRenderControls);

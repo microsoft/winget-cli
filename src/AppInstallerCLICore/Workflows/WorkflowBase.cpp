@@ -72,7 +72,7 @@ namespace AppInstaller::CLI::Workflow
         // Determines icon fit given two options.
         // Targets an 80x80 icon as the best resolution for this use case.
         // TODO: Consider theme based on current background color.
-        bool IsIconBetter(const Manifest::Icon& current, const Manifest::Icon& alternative)
+        bool IsSecondIconBetter(const Manifest::Icon& current, const Manifest::Icon& alternative)
         {
             static constexpr std::array<uint8_t, ToIntegral(Manifest::IconResolutionEnum::Square256) + 1> s_iconResolutionOrder
             {
@@ -94,7 +94,7 @@ namespace AppInstaller::CLI::Workflow
                 7, // Square256
             };
 
-            return s_iconResolutionOrder[ToIntegral(alternative.Resolution)] < s_iconResolutionOrder[ToIntegral(current.Resolution)];
+            return s_iconResolutionOrder.at(ToIntegral(alternative.Resolution)) < s_iconResolutionOrder.at(ToIntegral(current.Resolution));
         }
 
         void ShowManifestIcon(Execution::Context& context, const Manifest::Manifest& manifest) try
@@ -109,7 +109,7 @@ namespace AppInstaller::CLI::Workflow
 
             for (const auto& icon : icons)
             {
-                if (!bestFitIcon || IsIconBetter(*bestFitIcon, icon))
+                if (!bestFitIcon || IsSecondIconBetter(*bestFitIcon, icon))
                 {
                     bestFitIcon = &icon;
                 }
@@ -122,7 +122,7 @@ namespace AppInstaller::CLI::Workflow
 
             // Use a cache to hold the icons
             auto splitUri = Utility::SplitFileNameFromURI(bestFitIcon->Url);
-            Caching::FileCache fileCache{ Caching::FileCache::Type::Icons, Utility::SHA256::ConvertToString(bestFitIcon->Sha256), { splitUri.first } };
+            Caching::FileCache fileCache{ Caching::FileCache::Type::Icon, Utility::SHA256::ConvertToString(bestFitIcon->Sha256), { splitUri.first } };
             auto iconStream = fileCache.GetFile(splitUri.second, bestFitIcon->Sha256);
 
             VirtualTerminal::Sixel::Image sixelIcon{ *iconStream, bestFitIcon->FileType };
