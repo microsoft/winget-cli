@@ -69,6 +69,7 @@ To remove a font, the inverse operation of the steps above need to be completed.
 Manifest Example:
 ```yaml
 PackageIdentifier: Microsoft.CascadiaCode
+PackageName: Cascadia
 PackageVersion: 2404.23
 Installers:
 - InstallerType: zip
@@ -76,21 +77,48 @@ Installers:
   InstallerSha256: a911410626c0e09d03fa3fdda827188fda96607df50fecc3c5fee5906e33251b
   NestedInstallerFiles:
   - RelativeFilePath: ttf/CascadiaCodeItalic.ttf
-    FontName: Cascadia Code Italic
   - RelativeFilePath: ttf/CascadiaMonoNFItalic.ttf
-    FontName: Cascadia Mono NF Italic
 ManifestType: installer
 ManifestVersion: 1.9.0
 ```
 
+A new `PredefinedSource` will be created for `Fonts`.
+
+`PredefinedInstalledFontFactory` will be defined that creates a SQLite index from the installed font information.
+
+The table below shows how a font will be recorded in the index and highlights some of the similaries to an MSIX package.
+
+| Property | Package | Font |
+| -------- | ------- | ---- |
+| Id    |  MSIX\NotepadPlusPlus_1.0.0.0_neutral__7njy0v32s6xk6    |  Machine\Arial\Bold  |
+| Version    |  1.0.0.0  |  7.01  |
+| Name    |  NotepadPlusPlus   |  Arial Bold  |
+| PackageFamilyName    |  NotepadPlusPlus_1.0.0.0_neutral__7njy0v32s6xk6    |  Arial  |
+| InstalledLocation    |   N/A    | %LOCALAPPDATA%/Microsoft/Windows/Fonts/Arial.ttf |
+| InstalledScope    |       |   User |
+
+
+
+> The unique identifer for each font will be a combination of the scope, font font family name, and font face name.
+
+> The version of the font only exists at the font face level and not at the family level
 
 ## CLI Behavior / Implementation Details
 
-### `winget list --fonts`
-Fonts will not be shown by default to not interfere with listing packages. In order to list out all installed fonts, the user must include the `--fonts` argument. Only font families will be displayed to the user if no query is specified.
+New Command: `winget fonts`
+---
+Fonts should be completely separate from the existing package management experience. Fonts aren't as complex as installing packages so having new subcommands can help simplify the necessary arguments for proper functionality. To support this, a new command called `font` will be added. The following subcommands will be available.
+- `winget fonts list`
+- `winget fonts install`
+- `winget fonts uninstall`
+- `winget fonts upgrade`
+- `winget fonts show`
 
+`winget fonts list`
+---
+The default behavior of `winget fonts list` is to display all installed font families and the number of faces that belong to each font family.
 
-| Family Name | Font Count |
+| Family Name | Face Count |
 | -------- | ------- |
 | Arial    |   6    |
 | Bahnschrift | 1   |
@@ -139,18 +167,18 @@ The code snippet below shows how to enumerate the list of installed font family 
 
 If a user specifies a specific name such as : 
 
-`winget list --fonts --font-name 'Arial'`
+`winget fonts list --name 'Arial'`
 
 Then the tool will display all of the font faces related to that font family name along with the corresponding font file path.
 
-| Face Names | Font Family | Font File Path |
-| -------- | ------- | ------- |
-| Regular    |   Arial    | C:\Windows\Fonts\arial.ttf |
-| Narrow | Arial   | C:\Windows\Fonts\ARIALN.TTF |
-| Italic | Arial | C:\Windows\Fonts\ariali.ttf |
-| Narrow Italic | Arial | C:\Windows\Fonts\ARIALNI.TTF |
-| Narrow Bold | Arial | C:\Windows\Fonts\ARIALNB.TTF |
-| Narrow Bold Oblique | Arial | C:\Windows\Fonts\ARIALNB.TTF |
+| Face Name | Face Version | Font Family | Font File Path |
+| -------- | ------- | ------- | ------- |
+| Regular    | 7.01 |  Arial    | C:\Windows\Fonts\arial.ttf |
+| Narrow | 7.01 | Arial   | C:\Windows\Fonts\ARIALN.TTF |
+| Italic | 7.01 | Arial | C:\Windows\Fonts\ariali.ttf |
+| Narrow Italic | 7.01 | Arial | C:\Windows\Fonts\ARIALNI.TTF |
+| Narrow Bold | 7.01 | Arial | C:\Windows\Fonts\ARIALNB.TTF |
+| Narrow Bold Oblique | 7.01 | Arial | C:\Windows\Fonts\ARIALNB.TTF |
 
 > Note that some font faces share the same font file path. This will need to be handled properly during uninstall.
 
@@ -199,7 +227,8 @@ Sample Code:
         }
 ```
 
-### `winget install font`
+`winget fonts install`
+---
 
 #### 1. Initial Validation
 Winget will check that `effectiveInstallerType == font` before kicking off the font installation flow.
@@ -235,7 +264,8 @@ For all the entries above, we will check whether those files/entries already exi
 #### 3. Applying desired state
 Once all checks have been verified, we will apply the desired state so that the font file will exist in the appropriate location and a new registry entry will be created.
 
-### `winget uninstall font`
+`winget fonts uninstall`
+---
 
 1. Determine which font file(s) matches the font family/face name
 
@@ -256,28 +286,55 @@ There is no guarantee that the key name must match the intended name of the font
 Once we have determined the matching font file and registry key entry, both of these items will be removed from the system.
 
 
-#### Uninstall Scenarios:
+### Uninstall Scenarios:
+---
 
-**Uninstalling a font family with a single font face:**
+1. **Uninstalling a font family with a single font face:**
 
-`winget uninstall --font-name 'Baskerville Old Face'`
+`winget fonts uninstall --name 'Baskerville Old Face'`
 
 Winget will uninstall a font family with a single font face without any warnings.
 
-**Uninstalling a font family with multiple font faces:**
+2. **Uninstalling a font family with multiple font faces:**
 
-`winget uninstall --font-name 'Bahnschrift' --remove-multiple-fonts`
+`winget fonts uninstall --name 'Bahnschrift' --remove-multiple-fonts`
 
 If a font family contains multiple font faces, the user must include the `--remove-multiple-fonts`. Otherwise, a blocking warning will be shown to the user.
 
-**Uninstalling a specific font face:**
+3. **Uninstalling a specific font face:**
 
-`winget uninstall --font-name 'Bahnschrift' --font-face 'Semibold'`
+`winget fonts uninstall --name 'Bahnschrift' --font-face 'Semibold'`
 
-**Uninstalling a font face that shares the same font file as another font face:**
+4. **Uninstalling a font face that shares the same font file as another font face:**
 
-`winget uninstall --font-name 'Arial' --font-face 'Bold'`
+`winget fonts uninstall --name 'Arial' --font-face 'Bold'`
 
 If a specific font face that is being removed shares a font file with another font face, an error will be shown to the user and the workflow will be terminated.
 
 The user must include the `--force` argument to remove both files. This means that the registry entry from the other font face must be removed as well. The client should notify the user, which font faces are removed.
+
+`winget fonts upgrade`
+---
+Identifying the version only applies at the  font face level.
+
+Retrieving the version of the font face:
+```c++
+       wil::com_ptr<IDWriteLocalizedStrings> versionString;
+       BOOL versionStringExists;
+       THROW_IF_FAILED(font->GetInformationalStrings(DWRITE_INFORMATIONAL_STRING_VERSION_STRINGS, &versionString, &versionStringExists));
+       UINT32 versionStringIndex;
+       if (FAILED(versionString->FindLocaleName(localeName, &versionStringIndex, &versionStringExists)) || !versionStringExists) {
+           versionStringIndex = 0;
+       }
+
+       UINT32 versionStringLength = 0;
+       THROW_IF_FAILED(versionString->GetStringLength(versionStringIndex, &versionStringLength));
+       versionStringLength += 1; // Account for the trailing null terminator during allocation.
+
+       wchar_t result[512];
+       THROW_HR_IF(E_OUTOFMEMORY, versionStringLength > ARRAYSIZE(result));
+       THROW_IF_FAILED(versionString->GetString(versionStringIndex, &result[0], versionStringLength));
+
+       wprintf(L"%s\n", &result[0]);
+```
+
