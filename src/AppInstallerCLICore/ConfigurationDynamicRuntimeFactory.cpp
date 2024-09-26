@@ -5,6 +5,7 @@
 #include <AppInstallerStrings.h>
 #include <winget/ILifetimeWatcher.h>
 #include <winget/Security.h>
+#include <winrt/Microsoft.Management.Configuration.SetProcessorFactory.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -40,7 +41,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         // have this implementation leverage that one with an event handler for the packaged specifics.
         // TODO: Add SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties and pass values along to sets on creation
         //       In turn, any properties must only be set via the command line (or eventual UI requests to the user).
-        struct DynamicFactory : winrt::implements<DynamicFactory, IConfigurationSetProcessorFactory, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
+        struct DynamicFactory : winrt::implements<DynamicFactory, IConfigurationSetProcessorFactory, SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
         {
             DynamicFactory();
 
@@ -58,12 +59,58 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
             void SendDiagnostics(const IDiagnosticInformation& information);
 
+            Collections::IVectorView<winrt::hstring> AdditionalModulePaths() const
+            {
+                THROW_HR(E_NOTIMPL);
+            }
+
+            void AdditionalModulePaths(const Collections::IVectorView<winrt::hstring>&)
+            {
+                THROW_HR(E_NOTIMPL);
+            }
+
+            SetProcessorFactory::PwshConfigurationProcessorPolicy Policy() const
+            {
+                THROW_HR(E_NOTIMPL);
+            }
+
+            void Policy(SetProcessorFactory::PwshConfigurationProcessorPolicy)
+            {
+                THROW_HR(E_NOTIMPL);
+            }
+
+            SetProcessorFactory::PwshConfigurationProcessorLocation Location() const
+            {
+                return m_location;
+            }
+
+            void Location(SetProcessorFactory::PwshConfigurationProcessorLocation value)
+            {
+                auto pwshFactory = m_defaultRemoteFactory.as<SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>();
+                pwshFactory.Location(value);
+                m_location = value;
+            }
+
+            winrt::hstring CustomLocation() const
+            {
+                return m_customLocation;
+            }
+
+            void CustomLocation(winrt::hstring value)
+            {
+                auto pwshFactory = m_defaultRemoteFactory.as<SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>();
+                pwshFactory.CustomLocation(value);
+                m_customLocation = value;
+            }
+
         private:
             IConfigurationSetProcessorFactory m_defaultRemoteFactory;
             winrt::event<EventHandler<IDiagnosticInformation>> m_diagnostics;
             IConfigurationSetProcessorFactory::Diagnostics_revoker m_factoryDiagnosticsEventRevoker;
             std::mutex m_diagnosticsMutex;
             DiagnosticLevel m_minimumLevel = DiagnosticLevel::Informational;
+            SetProcessorFactory::PwshConfigurationProcessorLocation m_location = SetProcessorFactory::PwshConfigurationProcessorLocation::Default;
+            winrt::hstring m_customLocation;
         };
 
         struct DynamicProcessorInfo
@@ -194,7 +241,30 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             std::string SerializeSetProperties()
             {
                 Json::Value json{ Json::ValueType::objectValue };
+
                 json["path"] = winrt::to_string(m_configurationSet.Path());
+
+                std::string locationString;
+                switch (m_dynamicFactory->Location())
+                {
+                case SetProcessorFactory::PwshConfigurationProcessorLocation::AllUsers:
+                    locationString = "AllUsers";
+                    break;
+                case SetProcessorFactory::PwshConfigurationProcessorLocation::CurrentUser:
+                    locationString = "CurrentUser";
+                    break;
+                case SetProcessorFactory::PwshConfigurationProcessorLocation::Custom:
+                    locationString = Utility::ConvertToUTF8(m_dynamicFactory->CustomLocation());
+                    break;
+                case SetProcessorFactory::PwshConfigurationProcessorLocation::Default:
+                    break;
+                }
+
+                if (!locationString.empty())
+                {
+                    json["modulePath"] = locationString;
+                }
+
                 Json::StreamWriterBuilder writerBuilder;
                 writerBuilder.settings_["indentation"] = "\t";
                 return Json::writeString(writerBuilder, json);

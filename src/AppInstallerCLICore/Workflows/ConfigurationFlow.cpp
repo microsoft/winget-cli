@@ -105,14 +105,13 @@ namespace AppInstaller::CLI::Workflow
             if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ConfigureSelfElevation) && !Runtime::IsRunningAsAdmin())
             {
                 factory = ConfigurationRemoting::CreateDynamicRuntimeFactory();
-                // TODO: Implement SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties on dynamic factory
             }
             else
             {
                 factory = ConfigurationRemoting::CreateOutOfProcessFactory();
-                Configuration::SetModulePath(context, factory);
             }
 
+            Configuration::SetModulePath(context, factory);
             return factory;
         }
 
