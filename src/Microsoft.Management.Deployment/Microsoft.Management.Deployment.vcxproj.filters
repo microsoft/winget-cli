@@ -38,6 +38,10 @@
     <ClCompile Include="AuthenticationArguments.cpp" />
     <ClCompile Include="AuthenticationInfo.cpp" />
     <ClCompile Include="MicrosoftEntraIdAuthenticationInfo.cpp" />
+    <ClCompile Include="AddPackageCatalogOptions.cpp" />
+    <ClCompile Include="AddPackageCatalogResult.cpp" />
+    <ClCompile Include="RemovePackageCatalogResult.cpp" />
+    <ClCompile Include="UpdatePackageCatalogResult.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
@@ -81,6 +85,10 @@
     <ClInclude Include="AuthenticationArguments.h" />
     <ClInclude Include="AuthenticationInfo.h" />
     <ClInclude Include="MicrosoftEntraIdAuthenticationInfo.h" />
+    <ClInclude Include="AddPackageCatalogOptions.h" />
+    <ClInclude Include="AddPackageCatalogResult.h" />
+    <ClInclude Include="RemovePackageCatalogResult.h" />
+    <ClInclude Include="UpdatePackageCatalogResult.h" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="PackageManager.idl" />

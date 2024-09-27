@@ -784,6 +784,16 @@ namespace Microsoft.Management.Deployment
         PackageCatalog PackageCatalog { get; };
     }
 
+    /// IMPLEMENTATION NOTE: RemovePackageCatalogOptions
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    enum RemovePackageCatalogOptions
+    {
+        /// Removes the package catalog from the Windows Package Catalogs list without performing any cleanup. This is similar to the WinGet source reset operation on a specific Package Catalog.
+        Drop = 0x1,
+        /// Removes the package catalog from the Windows Package Catalogs list and clears any data written to the system by the package catalog.
+        Remove = 0x2,
+    };
+
     /// IMPLEMENTATION NOTE: RemovePackageCatalogStatus
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
     enum RemovePackageCatalogStatus
@@ -800,25 +810,6 @@ namespace Microsoft.Management.Deployment
     runtimeclass RemovePackageCatalogResult
     {
         RemovePackageCatalogStatus Status { get; };
-
-        /// Error codes
-        HRESULT ExtendedErrorCode { get; };
-    };
-
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    enum ResetPackageCatalogStatus
-    {
-        Ok,
-        GroupPolicyError,
-        CatalogError,
-        InternalError,
-    };
-
-    /// IMPLEMENTATION NOTE: ResetPackageCatalogResult
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    runtimeclass ResetPackageCatalogResult
-    {
-        ResetPackageCatalogStatus Status { get; };
 
         /// Error codes
         HRESULT ExtendedErrorCode { get; };
@@ -842,6 +833,7 @@ namespace Microsoft.Management.Deployment
         /// Error codes
         HRESULT ExtendedErrorCode { get; };
     };
+
     /// A reference to a catalog that callers can try to Connect.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageCatalogReference
@@ -900,10 +892,7 @@ namespace Microsoft.Management.Deployment
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
         {
             /// Removes a catalog from the Windows Package Catalogs.
-            Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, Double> RemovePackageCatalogAsync();
-
-            /// Resets the package catalog to the default state.
-            Windows.Foundation.IAsyncOperation<ResetPackageCatalogResult> ResetPackageCatalogAsync();
+            Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, Double> RemovePackageCatalogAsync(RemovePackageCatalogOptions options);
 
             /// Updates the package catalog.
             Windows.Foundation.IAsyncOperationWithProgress<UpdatePackageCatalogResult, Double> UpdatePackageCatalogAsync();

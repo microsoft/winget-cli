@@ -220,7 +220,6 @@
     <ClInclude Include="Public\CoCreatableMicrosoftManagementDeploymentClass.h" />
     <ClInclude Include="Public\ComClsids.h" />
     <ClInclude Include="RemovePackageCatalogResult.h" />
-    <ClInclude Include="ResetPackageCatalogResult.h" />
     <ClInclude Include="SourceAgreement.h" />
     <ClInclude Include="UninstallOptions.h" />
     <ClInclude Include="UninstallResult.h" />
@@ -265,7 +264,6 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="RemovePackageCatalogResult.cpp" />
-    <ClCompile Include="ResetPackageCatalogResult.cpp" />
     <ClCompile Include="SourceAgreement.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
     <ClCompile Include="UninstallOptions.cpp" />
