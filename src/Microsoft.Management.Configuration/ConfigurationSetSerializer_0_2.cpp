@@ -18,11 +18,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         for (auto unit : configurationSet->Units())
         {
-            if (unit.Intent() == ConfigurationUnitIntent::Assert)
+            ConfigurationUnitIntent unitIntent = unit.Intent();
+
+            if (unitIntent == ConfigurationUnitIntent::Assert)
             {
                 assertions.emplace_back(unit);
             }
-            else if (unit.Intent() == ConfigurationUnitIntent::Apply)
+            else if (unitIntent == ConfigurationUnitIntent::Apply)
             {
                 resources.emplace_back(unit);
             }
