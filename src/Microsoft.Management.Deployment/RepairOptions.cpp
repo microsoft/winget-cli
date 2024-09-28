@@ -78,5 +78,35 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         m_correlationData = value;
     }
 
+    bool RepairOptions::AllowHashMismatch()
+    {
+        return m_allowHashMismatch;
+    }
+
+    void RepairOptions::AllowHashMismatch(bool value)
+    {
+        m_allowHashMismatch = value;
+    }
+
+    bool RepairOptions::BypassIsStoreClientBlockedPolicyCheck()
+    {
+        return m_bypassIsStoreClientBlockedPolicyCheck;
+    }
+
+    void RepairOptions::BypassIsStoreClientBlockedPolicyCheck(bool value)
+    {
+        m_bypassIsStoreClientBlockedPolicyCheck = value;
+    }
+
+    bool RepairOptions::Force()
+    {
+        return m_force;
+    }
+
+    void RepairOptions::Force(bool value)
+    {
+        m_force = value;
+    }
+
     CoCreatableMicrosoftManagementDeploymentClass(RepairOptions);
 }

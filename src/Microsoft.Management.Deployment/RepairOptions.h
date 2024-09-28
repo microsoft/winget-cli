@@ -23,11 +23,21 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void LogOutputPath(hstring const& value);
         hstring CorrelationData();
         void CorrelationData(hstring const& value);
+        bool AllowHashMismatch();
+        void AllowHashMismatch(bool value);
+        bool BypassIsStoreClientBlockedPolicyCheck();
+        void BypassIsStoreClientBlockedPolicyCheck(bool value);
+        bool Force();
+        void Force(bool value);
+
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         winrt::Microsoft::Management::Deployment::PackageVersionId m_packageVersionId{ nullptr };
         bool m_acceptPackageAgreements = false;
+        bool m_allowHashMismatch = false;
+        bool m_bypassIsStoreClientBlockedPolicyCheck = false;
+        bool m_force = false;
         std::wstring m_logOutputPath = L"";
         std::wstring m_correlationData = L"";
         winrt::Microsoft::Management::Deployment::PackageRepairScope m_packageRepairScope = winrt::Microsoft::Management::Deployment::PackageRepairScope::Any;

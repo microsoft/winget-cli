@@ -75,7 +75,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             resultStatus = TStatus::InvalidOptions;
             break;
         case APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER:
-            WINGET_GET_OPERATION_RESULT_STATUS(NoApplicableInstallers, InternalError, NoApplicableInstallers, NoApplicableInstallers);
+            WINGET_GET_OPERATION_RESULT_STATUS(NoApplicableInstallers, InternalError, NoApplicableInstallers, NoApplicableRepairer);
             break;
         case APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE:
         case APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN:

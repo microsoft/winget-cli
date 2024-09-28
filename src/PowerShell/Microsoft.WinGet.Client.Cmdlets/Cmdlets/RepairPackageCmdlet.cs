@@ -39,12 +39,26 @@ namespace Microsoft.WinGet.Client.Commands
         public string Log { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to skip the installer hash validation check.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter AllowHashMismatch { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to continue upon non security related failures.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter Force { get; set; }
+
+        /// <summary>
         /// Repairs a package from the local system.
         /// </summary>
         protected override void ProcessRecord()
         {
             this.command = new RepairPackageCommand(
                         this,
+                        this.AllowHashMismatch.ToBool(),
+                        this.Force.ToBool(),
                         this.PSCatalogPackage,
                         this.Version,
                         this.Log,

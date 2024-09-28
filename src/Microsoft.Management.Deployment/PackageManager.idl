@@ -193,7 +193,7 @@ namespace Microsoft.Management.Deployment
         InvalidOptions,
         RepairError,
         ManifestError,
-        NoApplicableInstallers,
+        NoApplicableRepairer,
         PackageAgreementsNotAccepted,
     };
 
@@ -215,7 +215,7 @@ namespace Microsoft.Management.Deployment
 
        /// The error code from the repair attempt. Only valid if the Status is RepairError.
        /// This value's meaning will require knowledge of the specific repairer or repair technology.
-       UInt32 RepairErrorCode { get; };
+       UInt32 RepairerErrorCode { get; };
      }
 
     /// State of the download
@@ -1189,8 +1189,17 @@ namespace Microsoft.Management.Deployment
         /// The string must be JSON encoded.
         String CorrelationData;
 
+        /// Continues the download even if the hash in the catalog does not match the linked installer used for repair.
+        Boolean AllowHashMismatch;
+
         /// Directs the logging to a log file. If provided, the installer must have write access to the file
         String LogOutputPath;
+
+        /// Force the operation to continue upon non security related failures.
+        Boolean Force;
+
+        /// Bypasses the Disabled Store Policy
+        Boolean BypassIsStoreClientBlockedPolicyCheck;
     }
 
     /// IMPLEMENTATION NOTE: Documentation from AppInstaller::Manifest::Documentation

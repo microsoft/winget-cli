@@ -25,6 +25,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// </summary>
         /// <param name="psCmdlet">Caller cmdlet.</param>
         /// <param name="psCatalogPackage">PSCatalogPackage.</param>
+        /// <param name="allowHashMismatch">To skip the installer hash validation check.</param>
+        /// <param name="force">To continue upon non security related failures.</param>
         /// <param name="version">Version to repair.</param>
         /// <param name="log">Logging file location.</param>
         /// <param name="id">Package identifier.</param>
@@ -34,6 +36,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="query">Match against any field of a package.</param>
         public RepairPackageCommand(
             PSCmdlet psCmdlet,
+            bool allowHashMismatch,
+            bool force,
             PSCatalogPackage psCatalogPackage,
             string version,
             string log,
@@ -44,6 +48,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string[] query)
             : base(psCmdlet)
         {
+            this.Force = force;
+            this.AllowHashMismatch = allowHashMismatch;
+
             if (psCatalogPackage != null)
             {
                 this.CatalogPackage = psCatalogPackage;
@@ -64,6 +71,16 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// Gets or sets the path to the logging file.
         /// </summary>
         private string? Log { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to continue upon non security related failures.
+        /// </summary>
+        private bool Force { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to skip the installer hash validation check.
+        /// </summary>
+        private bool AllowHashMismatch { get; set; }
 
         /// <summary>
         /// Process repair package.
@@ -95,6 +112,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             PackageRepairMode repairMode)
         {
             var options = ManagementDeploymentFactory.Instance.CreateRepairOptions();
+            options.AllowHashMismatch = this.AllowHashMismatch;
+            options.Force = this.Force;
 
             if (this.Log != null)
             {

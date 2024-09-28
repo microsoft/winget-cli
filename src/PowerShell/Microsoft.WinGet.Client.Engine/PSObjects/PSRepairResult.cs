@@ -101,7 +101,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         {
             get
             {
-                return this.repairResult.RepairErrorCode;
+                return this.repairResult.RepairerErrorCode;
             }
         }
 

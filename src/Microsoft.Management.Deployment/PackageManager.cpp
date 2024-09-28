@@ -595,6 +595,21 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 context->Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
             }
 
+            if (options.AllowHashMismatch())
+            {
+                context->Args.AddArg(Execution::Args::Type::HashOverride);
+            }
+
+            if (options.BypassIsStoreClientBlockedPolicyCheck())
+            {
+                context->SetFlags(Execution::ContextFlag::BypassIsStoreClientBlockedPolicyCheck);
+            }
+
+            if (options.Force())
+            {
+                context->Args.AddArg(Execution::Args::Type::Force);
+            }
+
             auto repairScope = GetManifestRepairScope(options.PackageRepairScope());
             if (repairScope != ::AppInstaller::Manifest::ScopeEnum::Unknown)
             {
