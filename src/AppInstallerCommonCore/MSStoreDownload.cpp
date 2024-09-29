@@ -914,8 +914,16 @@ namespace AppInstaller::MSStore
                 auto requestResult = GetSfsClientInstance()->GetLatestAppDownloadInfo(sfsClientRequest, appContents);
                 if (!requestResult)
                 {
-                    AICLI_LOG(Core, Error, << "Failed to call SfsClient GetLatestAppDownloadInfo. Error code: " << requestResult.GetCode() << " Message: " << requestResult.GetMsg());
-                    THROW_HR_MSG(APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED, "Failed to call SfsClient GetLatestAppDownloadInfo. ErrorCode: %lu Message: %hs", requestResult.GetCode(), requestResult.GetMsg().c_str());
+                    if (requestResult.GetCode() == SFS::Result::Code::HttpNotFound)
+                    {
+                        AICLI_LOG(Core, Error, << "Failed to call SfsClient GetLatestAppDownloadInfo. Package not found.");
+                        THROW_HR_MSG(APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED, "Failed to call SfsClient GetLatestAppDownloadInfo. Package download not supported.");
+                    }
+                    else
+                    {
+                        AICLI_LOG(Core, Error, << "Failed to call SfsClient GetLatestAppDownloadInfo. Error code: " << requestResult.GetCode() << " Message: " << requestResult.GetMsg());
+                        THROW_HR_MSG(APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED, "Failed to call SfsClient GetLatestAppDownloadInfo. ErrorCode: %lu Message: %hs", requestResult.GetCode(), requestResult.GetMsg().c_str());
+                    }
                 }
             }
 
