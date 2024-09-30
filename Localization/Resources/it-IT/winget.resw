@@ -2874,8 +2874,8 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   <data name="SettingsSetCommandShortDescription" xml:space="preserve">
     <value>Imposta il valore di un'impostazione di amministrazione.</value>
   </data>
-  <data name="SourceRequireExplicitArgumentDescription" xml:space="preserve">
-    <value>Esclude un'origine dall'individuazione, a meno che non venga specificata</value>
+  <data name="SourceExplicitArgumentDescription" xml:space="preserve">
+    <value>Esclude un'origine dall'individuazione se non specificata</value>
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
     <value>Contenuti espliciti</value>
@@ -3044,5 +3044,72 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND" xml:space="preserve">
     <value>Non è possibile trovare la configurazione specificata.</value>
+  </data>
+  <data name="ConfigurationSetStateCompleted" xml:space="preserve">
+    <value>Operazione completata</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStateInProgress" xml:space="preserve">
+    <value>In corso</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStatePending" xml:space="preserve">
+    <value>In sospeso</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStateUnknown" xml:space="preserve">
+    <value>Sconosciuto</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationStatusWatchArgumentDescription" xml:space="preserve">
+    <value>Stato di configurazione monitoraggio.</value>
+    <comment>As in "to monitor the status of a configuration being applied".</comment>
+  </data>
+  <data name="ConfigurationUnitStateCompleted" xml:space="preserve">
+    <value>Completato</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateInProgress" xml:space="preserve">
+    <value>In corso</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStatePending" xml:space="preserve">
+    <value>In sospeso</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateSkipped" xml:space="preserve">
+    <value>Ignorato</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateUnknown" xml:space="preserve">
+    <value>Sconosciuto</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigureListApplyBegun" xml:space="preserve">
+    <value>Applicazione avviata</value>
+    <comment>When the configuration application started.</comment>
+  </data>
+  <data name="ConfigureListApplyEnded" xml:space="preserve">
+    <value>Applicazione terminata</value>
+    <comment>When the configuration application ended.</comment>
+  </data>
+  <data name="ConfigureListResult" xml:space="preserve">
+    <value>Risultato</value>
+  </data>
+  <data name="ConfigureListResultDescription" xml:space="preserve">
+    <value>Dettagli</value>
+  </data>
+  <data name="ConfigureListState" xml:space="preserve">
+    <value>Stato</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigureListUnit" xml:space="preserve">
+    <value>Unità</value>
+  </data>
+  <data name="StoreInstall_PackageNotAvailableForCurrentSystem" xml:space="preserve">
+    <value>Il pacchetto non è compatibile con la versione o la piattaforma Windows corrente.</value>
+  </data>
+  <data name="ConfigurationSuppressPrologueArgumentDescription" xml:space="preserve">
+    <value>Non visualizzare i dettagli della configurazione iniziale quando possibile</value>
   </data>
 </root>
