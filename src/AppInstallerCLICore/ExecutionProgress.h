@@ -1,89 +1,51 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "VTSupport.h"
+#include "ChannelStreams.h"
 #include <AppInstallerProgress.h>
 #include <AppInstallerStrings.h>
 #include <winget/UserSettings.h>
-#include <ChannelStreams.h>
 
-#include <wil/resource.h>
-
-#include <atomic>
-#include <future>
-#include <istream>
+#include <functional>
 #include <memory>
-#include <ostream>
 #include <string>
-#include <vector>
+#include <string_view>
 
 namespace AppInstaller::CLI::Execution
 {
-    namespace details
-    {
-        // Shared functionality for progress visualizers.
-        struct ProgressVisualizerBase
-        {
-            ProgressVisualizerBase(BaseStream& stream, bool enableVT) :
-                m_out(stream), m_enableVT(enableVT) {}
-
-            void SetStyle(AppInstaller::Settings::VisualStyle style) { m_style = style; }
-
-            void Message(std::string_view message);
-            std::shared_ptr<Utility::NormalizedString> Message();
-
-        protected:
-            BaseStream& m_out;
-            Settings::VisualStyle m_style = AppInstaller::Settings::VisualStyle::Accent;
-
-            bool UseVT() const { return m_enableVT && m_style != AppInstaller::Settings::VisualStyle::NoVT; }
-
-            // Applies the selected visual style.
-            void ApplyStyle(size_t i, size_t max, bool foregroundOnly);
-
-            void ClearLine();
-
-        private:
-            bool m_enableVT = false;
-            std::shared_ptr<Utility::NormalizedString> m_message;
-        };
-    }
-
     // Displays an indefinite spinner.
-    struct IndefiniteSpinner : public details::ProgressVisualizerBase
+    struct IIndefiniteSpinner
     {
-        IndefiniteSpinner(BaseStream& stream, bool enableVT) :
-            details::ProgressVisualizerBase(stream, enableVT) {}
+        virtual ~IIndefiniteSpinner() = default;
 
-        void ShowSpinner();
+        // Set the message for the spinner.
+        virtual void SetMessage(std::string_view message) = 0;
 
-        void StopSpinner();
+        // Get the current message for the spinner.
+        virtual std::shared_ptr<Utility::NormalizedString> Message() = 0;
 
-    private:
-        std::atomic<bool> m_canceled = false;
-        std::atomic<bool> m_spinnerRunning = false;
-        std::future<void> m_spinnerJob;
+        // Show the indefinite spinner.
+        virtual void ShowSpinner() = 0;
 
-        void ShowSpinnerInternal();
+        // Stop showing the indefinite spinner.
+        virtual void StopSpinner() = 0;
+
+        // Creates an indefinite spinner for the given style.
+        static std::unique_ptr<IIndefiniteSpinner> CreateForStyle(BaseStream& stream, bool enableVT, AppInstaller::Settings::VisualStyle style, const std::function<bool()>& sixelSupported);
     };
 
-    // Displays progress 
-    class ProgressBar : public details::ProgressVisualizerBase
+    // Displays a progress bar.
+    struct IProgressBar
     {
-    public:
-        ProgressBar(BaseStream& stream, bool enableVT) :
-            details::ProgressVisualizerBase(stream, enableVT) {}
+        virtual ~IProgressBar() = default;
 
-        void ShowProgress(uint64_t current, uint64_t maximum, ProgressType type);
+        // Show progress with the given values.
+        virtual void ShowProgress(uint64_t current, uint64_t maximum, ProgressType type) = 0;
 
-        void EndProgress(bool hideProgressWhenDone);
+        // Stop showing progress.
+        virtual void EndProgress(bool hideProgressWhenDone) = 0;
 
-    private:
-        std::atomic<bool> m_isVisible = false;
-        uint64_t m_lastCurrent = 0;
-
-        void ShowProgressNoVT(uint64_t current, uint64_t maximum, ProgressType type);
-
-        void ShowProgressWithVT(uint64_t current, uint64_t maximum, ProgressType type);
+        // Creates a progress bar for the given style.
+        static std::unique_ptr<IProgressBar> CreateForStyle(BaseStream& stream, bool enableVT, AppInstaller::Settings::VisualStyle style, const std::function<bool()>& sixelSupported);
     };
 }

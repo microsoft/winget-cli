@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "VTSupport.h"
 #include <AppInstallerLogging.h>
-
+#include <AppInstallerStrings.h>
 
 namespace AppInstaller::CLI::VirtualTerminal
 {
@@ -17,56 +17,92 @@ namespace AppInstaller::CLI::VirtualTerminal
             auto color = settings.GetColorValue(UIColorType::Accent);
             return { color.R, color.G, color.B };
         }
-    }
 
-    ConsoleModeRestore::ConsoleModeRestore()
-    {
-        // Set output mode to handle virtual terminal sequences
-        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-        if (hOut == INVALID_HANDLE_VALUE)
+        bool InitializeMode(DWORD handle, DWORD& previousMode, std::initializer_list<DWORD> modeModifierFallbacks, DWORD disabledFlags = 0)
         {
-            LOG_LAST_ERROR();
-        }
-        else if (hOut == NULL)
-        {
-            AICLI_LOG(CLI, Info, << "VT not enabled due to null output handle");
-        }
-        else
-        {
-            if (!GetConsoleMode(hOut, &m_previousMode))
+            HANDLE hStd = GetStdHandle(handle);
+            if (hStd == INVALID_HANDLE_VALUE)
             {
-                // If the user redirects output, the handle will be invalid for this function.
-                // Don't log it in that case.
-                LOG_LAST_ERROR_IF(GetLastError() != ERROR_INVALID_HANDLE);
+                LOG_LAST_ERROR();
+            }
+            else if (hStd == NULL)
+            {
+                AICLI_LOG(CLI, Info, << "VT not enabled due to null handle [" << handle << "]");
             }
             else
             {
-                // Try to degrade in case DISABLE_NEWLINE_AUTO_RETURN isn't supported.
-                for (DWORD mode : { ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN, ENABLE_VIRTUAL_TERMINAL_PROCESSING})
+                if (!GetConsoleMode(hStd, &previousMode))
                 {
-                    DWORD outMode = m_previousMode | mode;
-                    if (!SetConsoleMode(hOut, outMode))
+                    // If the user redirects output, the handle will be invalid for this function.
+                    // Don't log it in that case.
+                    LOG_LAST_ERROR_IF(GetLastError() != ERROR_INVALID_HANDLE);
+                }
+                else
+                {
+                    for (DWORD mode : modeModifierFallbacks)
                     {
-                        // Even if it is a different error, log it and try to carry on.
-                        LOG_LAST_ERROR_IF(GetLastError() != STATUS_INVALID_PARAMETER);
-                    }
-                    else
-                    {
-                        m_token = true;
-                        break;
+                        DWORD outMode = (previousMode & ~disabledFlags) | mode;
+                        if (!SetConsoleMode(hStd, outMode))
+                        {
+                            // Even if it is a different error, log it and try to carry on.
+                            LOG_LAST_ERROR_IF(GetLastError() != STATUS_INVALID_PARAMETER);
+                        }
+                        else
+                        {
+                            return true;
+                        }
                     }
                 }
             }
+
+            return false;
+        }
+
+        // Extracts a VT sequence, expected one of the form ESCAPE + prefix + result + suffix, returning the result part.
+        std::string ExtractSequence(std::istream& inStream, std::string_view prefix, std::string_view suffix)
+        {
+            std::string result;
+
+            if (inStream.peek() == AICLI_VT_ESCAPE[0])
+            {
+                result.resize(4095);
+                inStream.readsome(&result[0], result.size());
+                THROW_HR_IF(E_UNEXPECTED, static_cast<size_t>(inStream.gcount()) >= result.size());
+
+                result.resize(static_cast<size_t>(inStream.gcount()));
+
+                std::string_view resultView = result;
+                size_t overheadLength = 1 + prefix.length() + suffix.length();
+                if (resultView.length() <= overheadLength ||
+                    resultView.substr(1, prefix.length()) != prefix ||
+                    resultView.substr(resultView.length() - suffix.length()) != suffix)
+                {
+                    result.clear();
+                }
+                else
+                {
+                    result = result.substr(1 + prefix.length(), result.length() - overheadLength);
+                }
+            }
+
+            return result;
         }
     }
 
-    ConsoleModeRestore::~ConsoleModeRestore()
+    ConsoleModeRestoreBase::ConsoleModeRestoreBase(DWORD handle) : m_handle(handle) {}
+
+    ConsoleModeRestoreBase::~ConsoleModeRestoreBase()
     {
         if (m_token)
         {
-            LOG_LAST_ERROR_IF(!SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), m_previousMode));
+            LOG_LAST_ERROR_IF(!SetConsoleMode(GetStdHandle(m_handle), m_previousMode));
             m_token = false;
         }
+    }
+
+    ConsoleModeRestore::ConsoleModeRestore() : ConsoleModeRestoreBase(STD_OUTPUT_HANDLE)
+    {
+        m_token = InitializeMode(STD_OUTPUT_HANDLE, m_previousMode, { ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN, ENABLE_VIRTUAL_TERMINAL_PROCESSING });
     }
 
     const ConsoleModeRestore& ConsoleModeRestore::Instance()
@@ -75,17 +111,25 @@ namespace AppInstaller::CLI::VirtualTerminal
         return s_instance;
     }
 
+    ConsoleInputModeRestore::ConsoleInputModeRestore() : ConsoleModeRestoreBase(STD_INPUT_HANDLE)
+    {
+        m_token = InitializeMode(STD_INPUT_HANDLE, m_previousMode, { ENABLE_EXTENDED_FLAGS | ENABLE_VIRTUAL_TERMINAL_INPUT }, ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
+    }
+
     void ConstructedSequence::Append(const Sequence& sequence)
     {
-        if (sequence.Get())
+        if (!sequence.Get().empty())
         {
             m_str += sequence.Get();
             Set(m_str);
         }
     }
 
-// The escape character that begins all VT sequences
-#define AICLI_VT_ESCAPE     "\x1b"
+    void ConstructedSequence::Clear()
+    {
+        m_str.clear();
+        Set(m_str);
+    }
 
 // The beginning of a Control Sequence Introducer
 #define AICLI_VT_CSI        AICLI_VT_ESCAPE "["
@@ -93,16 +137,78 @@ namespace AppInstaller::CLI::VirtualTerminal
 // The beginning of an Operating system command
 #define AICLI_VT_OSC        AICLI_VT_ESCAPE "]"
 
+    PrimaryDeviceAttributes::PrimaryDeviceAttributes(std::ostream& outStream, std::istream& inStream)
+    {
+        try
+        {
+            ConsoleInputModeRestore inputMode;
+            if (!inputMode.IsVTEnabled())
+            {
+                return;
+            }
+
+            // Send DA1 Primary Device Attributes request
+            outStream << AICLI_VT_CSI << "0c";
+            outStream.flush();
+
+            // Response is of the form AICLI_VT_CSI ? <conformance level> ; (<extension number> ;)* c
+            std::string sequence = ExtractSequence(inStream, "[?", "c");
+            std::vector<std::string> values = Utility::Split(sequence, ';');
+
+            if (!values.empty())
+            {
+                m_conformanceLevel = std::stoul(values[0]);
+            }
+
+            for (size_t i = 1; i < values.size(); ++i)
+            {
+                m_extensions |= 1ull << std::stoul(values[i]);
+            }
+        }
+        CATCH_LOG();
+    }
+
+    bool PrimaryDeviceAttributes::Supports(Extension extension) const
+    {
+        uint64_t extensionMask = 1ull << ToIntegral(extension);
+        return (m_extensions & extensionMask) == extensionMask;
+    }
+
     namespace Cursor
     {
         namespace Position
         {
-#define AICLI_VT_SIMPLE_CURSORPOSITON(_c_) AICLI_VT_ESCAPE #_c_
+            ConstructedSequence Up(int16_t cells)
+            {
+                THROW_HR_IF(E_INVALIDARG, cells < 0);
+                std::ostringstream result;
+                result << AICLI_VT_CSI << cells << 'A';
+                return ConstructedSequence{ std::move(result).str() };
+            }
 
-            const Sequence UpOne{ AICLI_VT_SIMPLE_CURSORPOSITON(A) };
-            const Sequence DownOne{ AICLI_VT_SIMPLE_CURSORPOSITON(B) };
-            const Sequence ForwardOne{ AICLI_VT_SIMPLE_CURSORPOSITON(C) };
-            const Sequence BackwardOne{ AICLI_VT_SIMPLE_CURSORPOSITON(D) };
+            ConstructedSequence Down(int16_t cells)
+            {
+                THROW_HR_IF(E_INVALIDARG, cells < 0);
+                std::ostringstream result;
+                result << AICLI_VT_CSI << cells << 'B';
+                return ConstructedSequence{ std::move(result).str() };
+            }
+
+            ConstructedSequence Forward(int16_t cells)
+            {
+                THROW_HR_IF(E_INVALIDARG, cells < 0);
+                std::ostringstream result;
+                result << AICLI_VT_CSI << cells << 'C';
+                return ConstructedSequence{ std::move(result).str() };
+            }
+
+            ConstructedSequence Backward(int16_t cells)
+            {
+                THROW_HR_IF(E_INVALIDARG, cells < 0);
+                std::ostringstream result;
+                result << AICLI_VT_CSI << cells << 'D';
+                return ConstructedSequence{ std::move(result).str() };
+            }
         }
 
         namespace Visibility
@@ -145,7 +251,7 @@ namespace AppInstaller::CLI::VirtualTerminal
             {
                 std::ostringstream result;
                 result << AICLI_VT_CSI "38;2;" << static_cast<uint32_t>(color.R) << ';' << static_cast<uint32_t>(color.G) << ';' << static_cast<uint32_t>(color.B) << 'm';
-                return ConstructedSequence{ result.str() };
+                return ConstructedSequence{ std::move(result).str() };
             }
         }
 
@@ -155,7 +261,7 @@ namespace AppInstaller::CLI::VirtualTerminal
             {
                 std::ostringstream result;
                 result << AICLI_VT_CSI "48;2;" << static_cast<uint32_t>(color.R) << ';' << static_cast<uint32_t>(color.G) << ';' << static_cast<uint32_t>(color.B) << 'm';
-                return ConstructedSequence{ result.str() };
+                return ConstructedSequence{ std::move(result).str() };
             }
         }
 
@@ -163,7 +269,7 @@ namespace AppInstaller::CLI::VirtualTerminal
         {
             std::ostringstream result;
             result << AICLI_VT_OSC "8;;" << ref << AICLI_VT_ESCAPE << "\\" << text << AICLI_VT_OSC << "8;;" << AICLI_VT_ESCAPE << "\\";
-            return ConstructedSequence{ result.str() };
+            return ConstructedSequence{ std::move(result).str() };
         }
     }
 
@@ -229,7 +335,7 @@ namespace AppInstaller::CLI::VirtualTerminal
                 result << percentage.value();
             }
             result << AICLI_VT_ESCAPE << "\\";
-            return ConstructedSequence{ result.str() };
+            return ConstructedSequence{ std::move(result).str() };
         }
     }
 }

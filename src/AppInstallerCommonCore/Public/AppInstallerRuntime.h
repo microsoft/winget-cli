@@ -54,6 +54,8 @@ namespace AppInstaller::Runtime
         CheckpointsLocation,
         // The location of the CLI executable file.
         CLIExecutable,
+        // The location of the image assets, if it exists.
+        ImageAssets,
         // Always one more than the last path; for being able to iterate paths in tests.
         Max
     };

@@ -71,6 +71,11 @@ namespace AppInstaller::CLI::Execution
         m_enabled = false;
     }
 
+    std::ostream& BaseStream::Get()
+    {
+        return m_out;
+    }
+
     OutputStream::OutputStream(BaseStream& out, bool enabled, bool VTEnabled) :
         m_out(out),
         m_enabled(enabled),
@@ -80,6 +85,11 @@ namespace AppInstaller::CLI::Execution
     void OutputStream::AddFormat(const Sequence& sequence)
     {
         m_format.Append(sequence);
+    }
+
+    void OutputStream::ClearFormat()
+    {
+        m_format.Clear();
     }
 
     void OutputStream::ApplyFormat()

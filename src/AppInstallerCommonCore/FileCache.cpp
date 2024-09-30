@@ -17,6 +17,7 @@ namespace AppInstaller::Caching
             case FileCache::Type::IndexV1_Manifest: return "V1_M";
             case FileCache::Type::IndexV2_PackageVersionData: return "V2_PVD";
             case FileCache::Type::IndexV2_Manifest: return "V2_M";
+            case FileCache::Type::Icon: return "Icon";
 #ifndef AICLI_DISABLE_TEST_HOOKS
             case FileCache::Type::Tests: return "Tests";
 #endif
@@ -55,6 +56,7 @@ namespace AppInstaller::Caching
                         if (!expectedHash.empty() &&
                             (!downloadHash || !Utility::SHA256::AreEqual(expectedHash, downloadHash.value())))
                         {
+                            AICLI_LOG(Core, Verbose, << "Invalid hash from [" << fullPath << "]: expected [" << Utility::SHA256::ConvertToString(expectedHash) << "], got [" << (downloadHash ? Utility::SHA256::ConvertToString(*downloadHash) : "null") << "]");
                             THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
                         }
 
@@ -123,6 +125,7 @@ namespace AppInstaller::Caching
         case Type::IndexV1_Manifest:
         case Type::IndexV2_PackageVersionData:
         case Type::IndexV2_Manifest:
+        case Type::Icon:
 #ifndef AICLI_DISABLE_TEST_HOOKS
         case Type::Tests:
 #endif
