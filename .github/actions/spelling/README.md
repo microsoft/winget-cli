@@ -14,4 +14,4 @@ File | Purpose | Format | Info
 [advice.md](advice.md) | Supplement for GitHub comment when unrecognized words are found | GitHub Markdown | [advice](https://github.com/check-spelling/check-spelling/wiki/Configuration-Examples%3A-advice)
 
 Note: you can replace any of these files with a directory by the same name (minus the suffix)
-and then include multiple files inside that directory (with that suffix) to merge multiple files together.
+and then include multiple files inside that directory (with that suffix) to merge multiple files.

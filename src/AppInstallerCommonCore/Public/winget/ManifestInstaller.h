@@ -115,5 +115,7 @@ namespace AppInstaller::Manifest
         InstallationMetadataInfo InstallationMetadata;
 
         bool DownloadCommandProhibited = false;
+
+        bool ArchiveBinariesDependOnPath = false;
     };
 }

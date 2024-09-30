@@ -227,7 +227,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             //      where table.value = <value1> and paired.pairedValue = <value2>
             builder.Select().
                 Column(QCol(tableName, s_SystemReferenceStringTable_PrimaryName)).As(primaryAlias).
-                LiteralColumn("").As(valueAlias).
+                Value(std::string_view{}).As(valueAlias).
                 From(tableName).
                 Join(pairedTableName).On(QCol(tableName, s_SystemReferenceStringTable_PrimaryName), QCol(pairedTableName, s_SystemReferenceStringTable_PrimaryName)).
                 Where(QCol(tableName, valueName));

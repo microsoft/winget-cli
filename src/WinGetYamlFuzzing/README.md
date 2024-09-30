@@ -9,7 +9,7 @@ The goal of this project is to create a [libFuzzer](http://llvm.org/docs/LibFuzz
 
 This project only supports the `Fuzzing` configuration in either the `x64` or `x86` platform. The build output directory will be located at `$(ProjectDirectory)\src\$(Platform)\Fuzzing\`
 
-WinGetYamlFuzzer is compiled with `/fsanitize=fuzzer`. This injects the LibFuzzer main function which invokes `LLVMFuzzerTestOneInput`. The LibFuzzer engine code is staticly linked into the WinGetYamlFuzzer executable, which is how OneFuzz will interact with the fuzzer by providing the appropriate command-line arguments.
+WinGetYamlFuzzer is compiled with `/fsanitize=fuzzer`. This injects the LibFuzzer main function which invokes `LLVMFuzzerTestOneInput`. The LibFuzzer engine code is statically linked into the WinGetYamlFuzzer executable, which is how OneFuzz will interact with the fuzzer by providing the appropriate command-line arguments.
 
 The fuzzer and all libraries that it references need to be compiled with ASan and SanCov (along with various SanCov compiler flags). In order to run the fuzzer, the ASan runtime DLL is required. This file is copied to the output directory as a post-build step from `$(VCToolsInstallDir)\bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll​`.
 

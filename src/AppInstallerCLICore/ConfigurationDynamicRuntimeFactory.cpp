@@ -36,17 +36,49 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         }
 #endif
 
+        // This is implemented completely in the packaged context for now, if we want to make it more configurable, we will probably want to move it to configuration and
+        // have this implementation leverage that one with an event handler for the packaged specifics.
+        // TODO: Add SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties and pass values along to sets on creation
+        //       In turn, any properties must only be set via the command line (or eventual UI requests to the user).
+        struct DynamicFactory : winrt::implements<DynamicFactory, IConfigurationSetProcessorFactory, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
+        {
+            DynamicFactory();
+
+            IConfigurationSetProcessor CreateSetProcessor(const ConfigurationSet& configurationSet);
+
+            winrt::event_token Diagnostics(const EventHandler<IDiagnosticInformation>& handler);
+            void Diagnostics(const winrt::event_token& token) noexcept;
+
+            DiagnosticLevel MinimumLevel();
+            void MinimumLevel(DiagnosticLevel value);
+
+            HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher);
+
+            IConfigurationSetProcessorFactory& DefaultFactory();
+
+            void SendDiagnostics(const IDiagnosticInformation& information);
+
+        private:
+            IConfigurationSetProcessorFactory m_defaultRemoteFactory;
+            winrt::event<EventHandler<IDiagnosticInformation>> m_diagnostics;
+            IConfigurationSetProcessorFactory::Diagnostics_revoker m_factoryDiagnosticsEventRevoker;
+            std::mutex m_diagnosticsMutex;
+            DiagnosticLevel m_minimumLevel = DiagnosticLevel::Informational;
+        };
+
         struct DynamicProcessorInfo
         {
             IConfigurationSetProcessorFactory Factory;
             IConfigurationSetProcessor Processor;
+            IConfigurationSetProcessorFactory::Diagnostics_revoker DiagnosticsEventRevoker;
         };
 
         struct DynamicSetProcessor : winrt::implements<DynamicSetProcessor, IConfigurationSetProcessor>
         {
             using ProcessorMap = std::map<Security::IntegrityLevel, DynamicProcessorInfo>;
 
-            DynamicSetProcessor(IConfigurationSetProcessorFactory defaultRemoteFactory, IConfigurationSetProcessor defaultRemoteSetProcessor, const ConfigurationSet& configurationSet) : m_configurationSet(configurationSet)
+            DynamicSetProcessor(winrt::com_ptr<DynamicFactory> dynamicFactory, IConfigurationSetProcessor defaultRemoteSetProcessor, const ConfigurationSet& configurationSet) :
+                m_dynamicFactory(std::move(dynamicFactory)), m_configurationSet(configurationSet)
             {
 #ifndef AICLI_DISABLE_TEST_HOOKS
                 m_enableTestMode = GetConfigurationSetMetadataOverride(m_configurationSet, EnableTestModeTestGuid);
@@ -58,7 +90,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_currentIntegrityLevel = Security::GetEffectiveIntegrityLevel();
 #endif
 
-                m_setProcessors.emplace(m_currentIntegrityLevel, DynamicProcessorInfo{ defaultRemoteFactory, defaultRemoteSetProcessor });
+                m_setProcessors.emplace(m_currentIntegrityLevel, DynamicProcessorInfo{ m_dynamicFactory->DefaultFactory(), defaultRemoteSetProcessor});
             }
 
             IConfigurationUnitProcessorDetails GetUnitProcessorDetails(const ConfigurationUnit& unit, ConfigurationUnitDetailFlags detailFlags)
@@ -141,7 +173,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             Security::IntegrityLevel GetIntegrityLevelForUnit(const ConfigurationUnit& unit)
             {
                 // Support for 0.2 schema via metadata value
-                // TODO: Support case insensitive lookup by iteration
+                // TODO: Support case-insensitive lookup by iteration
                 auto unitMetadata = unit.Metadata();
                 auto securityContext = unitMetadata.TryLookup(L"securityContext");
                 if (securityContext)
@@ -212,6 +244,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             ProcessorMap::iterator CreateSetProcessorForIntegrityLevel(Security::IntegrityLevel integrityLevel)
             {
                 IConfigurationSetProcessorFactory factory;
+                IConfigurationSetProcessorFactory::Diagnostics_revoker factoryDiagnosticsEventRevoker;
 
                 // If we got here, the only option is that the current integrity level is not High.
                 if (integrityLevel == Security::IntegrityLevel::High)
@@ -228,9 +261,22 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     THROW_WIN32(ERROR_NOT_SUPPORTED);
                 }
 
-                return m_setProcessors.emplace(integrityLevel, DynamicProcessorInfo{ factory, factory.CreateSetProcessor(m_configurationSet) }).first;
+                if (factory)
+                {
+                    factoryDiagnosticsEventRevoker = factory.Diagnostics(winrt::auto_revoke,
+                        [weak_this{ get_weak() }](const IInspectable&, const IDiagnosticInformation& information)
+                        {
+                            if (auto strong_this{ weak_this.get() })
+                            {
+                                strong_this->m_dynamicFactory->SendDiagnostics(information);
+                            }
+                        });
+                }
+
+                return m_setProcessors.emplace(integrityLevel, DynamicProcessorInfo{ factory, factory.CreateSetProcessor(m_configurationSet), std::move(factoryDiagnosticsEventRevoker) }).first;
             }
 
+            winrt::com_ptr<DynamicFactory> m_dynamicFactory;
             Security::IntegrityLevel m_currentIntegrityLevel;
             ProcessorMap m_setProcessors;
             ConfigurationSet m_configurationSet;
@@ -243,52 +289,68 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 #endif
         };
 
-        // This is implemented completely in the packaged context for now, if we want to make it more configurable, we will probably want to move it to configuration and
-        // have this implementation leverage that one with an event handler for the packaged specifics.
-        // TODO: Add SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties and pass values along to sets on creation
-        //       In turn, any properties must only be set via the command line (or eventual UI requests to the user).
-        struct DynamicFactory : winrt::implements<DynamicFactory, IConfigurationSetProcessorFactory, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
+        DynamicFactory::DynamicFactory()
         {
-            DynamicFactory()
-            {
-                m_defaultRemoteFactory = CreateOutOfProcessFactory();
-            }
+            m_defaultRemoteFactory = CreateOutOfProcessFactory();
 
-            IConfigurationSetProcessor CreateSetProcessor(const ConfigurationSet& configurationSet)
+            if (m_defaultRemoteFactory)
             {
-                return winrt::make<DynamicSetProcessor>(m_defaultRemoteFactory, m_defaultRemoteFactory.CreateSetProcessor(configurationSet), configurationSet);
+                m_factoryDiagnosticsEventRevoker = m_defaultRemoteFactory.Diagnostics(winrt::auto_revoke,
+                    [weak_this{ get_weak() }](const IInspectable&, const IDiagnosticInformation& information)
+                    {
+                        if (auto strong_this{ weak_this.get() })
+                        {
+                            strong_this->SendDiagnostics(information);
+                        }
+                    });
             }
+        }
 
-            winrt::event_token Diagnostics(const EventHandler<IDiagnosticInformation>&)
+        IConfigurationSetProcessor DynamicFactory::CreateSetProcessor(const ConfigurationSet& configurationSet)
+        {
+            return winrt::make<DynamicSetProcessor>(get_strong(), m_defaultRemoteFactory.CreateSetProcessor(configurationSet), configurationSet);
+        }
+
+        winrt::event_token DynamicFactory::Diagnostics(const EventHandler<IDiagnosticInformation>& handler)
+        {
+            return m_diagnostics.add(handler);
+        }
+
+        void DynamicFactory::Diagnostics(const winrt::event_token& token) noexcept
+        {
+            m_diagnostics.remove(token);
+        }
+
+        DiagnosticLevel DynamicFactory::MinimumLevel()
+        {
+            return m_minimumLevel;
+        }
+
+        void DynamicFactory::MinimumLevel(DiagnosticLevel value)
+        {
+            m_minimumLevel = value;
+        }
+
+        HRESULT STDMETHODCALLTYPE DynamicFactory::SetLifetimeWatcher(IUnknown* watcher)
+        {
+            return WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
+        }
+
+        IConfigurationSetProcessorFactory& DynamicFactory::DefaultFactory()
+        {
+            return m_defaultRemoteFactory;
+        }
+
+        void DynamicFactory::SendDiagnostics(const IDiagnosticInformation& information) try
+        {
+            if (information.Level() >= m_minimumLevel)
             {
-                // TODO: If we want diagnostics here, see ConfigurationProcessor for how to integrate nicely with the infrastructure.
-                //       Best solution is probably to create a base class that both can leverage to handle it cleanly.
-                return {};
+                std::lock_guard<std::mutex> lock{ m_diagnosticsMutex };
+                m_diagnostics(*this, information);
             }
-
-            void Diagnostics(const winrt::event_token&) noexcept
-            {
-            }
-
-            DiagnosticLevel MinimumLevel()
-            {
-                return m_minimumLevel;
-            }
-
-            void MinimumLevel(DiagnosticLevel value)
-            {
-                m_minimumLevel = value;
-            }
-
-            HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher)
-            {
-                return WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
-            }
-
-        private:
-            IConfigurationSetProcessorFactory m_defaultRemoteFactory;
-            DiagnosticLevel m_minimumLevel = DiagnosticLevel::Informational;
-        };
+        }
+        // While diagnostics can be important, a failure to send them should not cause additional issues.
+        catch (...) {}
     }
 
     winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory CreateDynamicRuntimeFactory()

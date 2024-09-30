@@ -228,33 +228,32 @@
   </PropertyGroup>
   <Target Name="WinGetIncludeAdditionalFilesInPackage" AfterTargets="_ComputeAppxPackagePayload">
     <PropertyGroup>
-      <WinGetAdditonalPackageFileRoot>$(SolutionDir)</WinGetAdditonalPackageFileRoot>
-      <WinGetAdditonalPackageFileRoot Condition="!Exists('$(WinGetAdditonalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\WindowsPackageManager\WindowsPackageManager.dll')">$(OutputPath)\..\..\..\..</WinGetAdditonalPackageFileRoot>
+      <WinGetAdditionalPackageFileRoot>$(SolutionDir)</WinGetAdditionalPackageFileRoot>
     </PropertyGroup>
-    <Message Importance="normal" Text="WinGetAdditonalPackageFileRoot = $(WinGetAdditonalPackageFileRoot)" />
+    <Message Importance="normal" Text="WinGetAdditionalPackageFileRoot = $(WinGetAdditionalPackageFileRoot)" />
     <ItemGroup>
-      <WinGetAdditionalPackageFile Include="$(WinGetAdditonalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\WindowsPackageManager\WindowsPackageManager.dll">
+      <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\WindowsPackageManager\WindowsPackageManager.dll">
         <PackagePath>WindowsPackageManager.dll</PackagePath>
       </WinGetAdditionalPackageFile>
-      <WinGetAdditionalPackageFile Include="$(WinGetAdditonalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\UriValidation\libsmartscreen.dll" Condition="Exists('$(WinGetAdditonalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\UriValidation\libsmartscreen.dll')">
+      <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\UriValidation\libsmartscreen.dll" Condition="Exists('$(WinGetAdditonalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\UriValidation\libsmartscreen.dll')">
         <PackagePath>libsmartscreen.dll</PackagePath>
       </WinGetAdditionalPackageFile>
-      <WinGetAdditionalPackageFile Include="$(WinGetAdditonalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd">
+      <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd">
         <PackagePath>Microsoft.Management.Deployment.winmd</PackagePath>
       </WinGetAdditionalPackageFile>
-      <WinGetAdditionalPackageFile Include="$(WinGetAdditonalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll">
+      <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll">
         <PackagePath>Microsoft.Management.Configuration.dll</PackagePath>
       </WinGetAdditionalPackageFile>
-      <WinGetAdditionalPackageFile Include="$(WinGetAdditonalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd">
+      <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd">
         <PackagePath>Microsoft.Management.Configuration.winmd</PackagePath>
       </WinGetAdditionalPackageFile>
-      <WinGetAdditionalPackageFile Include="$(WinGetAdditonalPackageFileRoot)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\**\Microsoft.Management.Configuration.Processor.winmd">
+      <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\**\Microsoft.Management.Configuration.Processor.winmd">
         <PackagePath>Microsoft.Management.Configuration.Processor.winmd</PackagePath>
       </WinGetAdditionalPackageFile>
-      <WinGetAdditionalPackageFile Include="$(WinGetAdditonalPackageFileRoot)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Projection\**\Microsoft.Management.Configuration.Projection.dll">
+      <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Projection\**\Microsoft.Management.Configuration.Projection.dll">
         <PackagePath>ConfigurationRemotingServer\Microsoft.Management.Configuration.Projection.dll</PackagePath>
       </WinGetAdditionalPackageFile>
-      <WinGetAdditionalPackageFile Include="$(WinGetAdditonalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\ConfigurationRemotingServer\net6.0-windows10.0.22000.0\$(ConfigServerRid)\**\*">
+      <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\ConfigurationRemotingServer\net6.0-windows10.0.22000.0\$(ConfigServerRid)\**\*">
         <PackagePath>ConfigurationRemotingServer</PackagePath>
         <Recurse>true</Recurse>
       </WinGetAdditionalPackageFile>

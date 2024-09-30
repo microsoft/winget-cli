@@ -50,13 +50,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel PackageCatalogInfo::TrustLevel()
     {
-        switch (m_sourceDetails.TrustLevel)
+        if (WI_IsFlagSet(m_sourceDetails.TrustLevel, ::AppInstaller::Repository::SourceTrustLevel::Trusted))
         {
-        case ::AppInstaller::Repository::SourceTrustLevel::Trusted:
             return PackageCatalogTrustLevel::Trusted;
-        case ::AppInstaller::Repository::SourceTrustLevel::None:
-        default:
-            return PackageCatalogTrustLevel::None;
         }
+
+        return PackageCatalogTrustLevel::None;
+    }
+    bool PackageCatalogInfo::Explicit()
+    {
+        return m_sourceDetails.Explicit;
     }
 }

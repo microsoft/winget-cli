@@ -14,7 +14,7 @@ namespace AppInstaller::CLI::Configuration
 {
     namespace
     {
-        constexpr static std::string_view UnitType_WinGetSources = "WinGetSources"sv;
+        constexpr static std::string_view UnitType_WinGetSource = "WinGetSource"sv;
         constexpr static std::string_view UnitType_WinGetPackage = "WinGetPackage"sv;
 
         constexpr static std::string_view WellKnownSourceName_WinGet = "winget"sv;
@@ -22,10 +22,11 @@ namespace AppInstaller::CLI::Configuration
 
         constexpr static std::string_view ValueSetKey_TreatAsArray = "treatAsArray"sv;
 
-        constexpr static std::string_view WinGetSourcesValueSetKey_Sources = "sources"sv;
-        constexpr static std::string_view WinGetSourcesValueSetKey_SourceName = "name"sv;
-        constexpr static std::string_view WinGetSourcesValueSetKey_SourceType = "type"sv;
-        constexpr static std::string_view WinGetSourcesValueSetKey_SourceArg = "arg"sv;
+        constexpr static std::string_view WinGetSourceValueSetKey_Name = "name"sv;
+        constexpr static std::string_view WinGetSourceValueSetKey_Type = "type"sv;
+        constexpr static std::string_view WinGetSourceValueSetKey_Arg = "argument"sv;
+        constexpr static std::string_view WinGetSourceValueSetKey_Ensure = "ensure"sv;
+        constexpr static std::string_view WinGetSourceValueSetKey_Ensure_Present = "present"sv;
 
         constexpr static std::string_view WinGetPackageValueSetKey_Id = "id"sv;
         constexpr static std::string_view WinGetPackageValueSetKey_Version = "version"sv;
@@ -37,6 +38,7 @@ namespace AppInstaller::CLI::Configuration
             std::string Name;
             std::string Type;
             std::string Arg;
+            bool Present = true;
 
             bool Empty()
             {
@@ -66,64 +68,30 @@ namespace AppInstaller::CLI::Configuration
             return defaultIfFailed;
         }
 
-        std::vector<WinGetSource> ParseWinGetSourcesFromSettings(const ValueSet& settings)
+        WinGetSource ParseWinGetSourceFromSettings(const ValueSet& settings)
         {
-            // Iterate through the value set as Powershell variables are case insensitive.
-            std::vector<WinGetSource> result;
+            WinGetSource result;
+
+            // Iterate through the value set as Powershell variables are case-insensitive.
             for (auto const& settingsPair : settings)
             {
                 auto settingsKey = Utility::ConvertToUTF8(settingsPair.Key());
-                if (Utility::CaseInsensitiveEquals(WinGetSourcesValueSetKey_Sources, settingsKey))
+
+                if (Utility::CaseInsensitiveEquals(WinGetSourceValueSetKey_Name, settingsKey))
                 {
-                    auto sources = settingsPair.Value().try_as<ValueSet>();
-                    if (!sources)
-                    {
-                        return {};
-                    }
-                    bool isArray = false;
-                    for (auto const& sourcesPair : sources)
-                    {
-                        if (Utility::CaseInsensitiveEquals(ValueSetKey_TreatAsArray, Utility::ConvertToUTF8(sourcesPair.Key())))
-                        {
-                            isArray = true;
-                        }
-                        else
-                        {
-                            auto source = sourcesPair.Value().try_as<ValueSet>();
-                            if (source)
-                            {
-                                WinGetSource wingetSource;
-                                for (auto const& sourcePair : source)
-                                {
-                                    auto sourceKey = Utility::ConvertToUTF8(sourcePair.Key());
-                                    if (Utility::CaseInsensitiveEquals(WinGetSourcesValueSetKey_SourceName, sourceKey))
-                                    {
-                                        wingetSource.Name = GetPropertyValueAsString(sourcePair.Value());
-                                    }
-                                    else if (Utility::CaseInsensitiveEquals(WinGetSourcesValueSetKey_SourceType, sourceKey))
-                                    {
-                                        wingetSource.Type = GetPropertyValueAsString(sourcePair.Value());
-                                    }
-                                    else if (Utility::CaseInsensitiveEquals(WinGetSourcesValueSetKey_SourceArg, sourceKey))
-                                    {
-                                        wingetSource.Arg = GetPropertyValueAsString(sourcePair.Value());
-                                    }
-                                }
-
-                                if (!wingetSource.Empty())
-                                {
-                                    result.emplace_back(std::move(wingetSource));
-                                }
-                            }
-                        }
-                    }
-
-                    if (!isArray)
-                    {
-                        return {};
-                    }
-
-                    break;
+                    result.Name = GetPropertyValueAsString(settingsPair.Value());
+                }
+                else if (Utility::CaseInsensitiveEquals(WinGetSourceValueSetKey_Type, settingsKey))
+                {
+                    result.Type = GetPropertyValueAsString(settingsPair.Value());
+                }
+                else if (Utility::CaseInsensitiveEquals(WinGetSourceValueSetKey_Arg, settingsKey))
+                {
+                    result.Arg = GetPropertyValueAsString(settingsPair.Value());
+                }
+                else if (Utility::CaseInsensitiveEquals(WinGetSourceValueSetKey_Ensure, settingsKey))
+                {
+                    result.Present = Utility::CaseInsensitiveEquals(WinGetSourceValueSetKey_Ensure_Present, GetPropertyValueAsString(settingsPair.Value()));
                 }
             }
 
@@ -172,7 +140,7 @@ namespace AppInstaller::CLI::Configuration
 
         WinGetPackage ParseWinGetPackageFromSettings(const ValueSet& settings)
         {
-            // Iterate through the value set as Powershell variables are case insensitive.
+            // Iterate through the value set as Powershell variables are case-insensitive.
             WinGetPackage result;
             for (auto const& settingsPair : settings)
             {
@@ -206,56 +174,48 @@ namespace AppInstaller::CLI::Configuration
        auto unitType = Utility::ConvertToUTF8(details.UnitType());
        auto unitIntent = unit.Intent();
 
-       if (Utility::CaseInsensitiveEquals(UnitType_WinGetSources, unitType))
+       if (Utility::CaseInsensitiveEquals(UnitType_WinGetSource, unitType))
        {
-           auto sources = ParseWinGetSourcesFromSettings(unit.Settings());
-           if (sources.size() == 0)
-           {
-               AICLI_LOG(Config, Warning, << "Failed to parse WinGetSources or empty content.");
-               context.Reporter.Warn() << Resource::String::WinGetResourceUnitEmptyContent(Utility::LocIndView{ UnitType_WinGetSources }) << std::endl;
-               foundIssues = true;
-           }
-           for (auto const& source : sources)
-           {
-               // Validate basic semantics.
-               if (source.Name.empty())
-               {
-                   AICLI_LOG(Config, Error, << "WinGetSource unit missing required arg: Name");
-                   context.Reporter.Error() << Resource::String::WinGetResourceUnitMissingRequiredArg(Utility::LocIndView{ UnitType_WinGetSources }, "Name"_liv) << std::endl;
-                   foundIssues = true;
-               }
-               if (source.Arg.empty())
-               {
-                   AICLI_LOG(Config, Error, << "WinGetSource unit missing required arg: Arg");
-                   context.Reporter.Error() << Resource::String::WinGetResourceUnitMissingRequiredArg(Utility::LocIndView{ UnitType_WinGetSources }, "Arg"_liv) << std::endl;
-                   foundIssues = true;
-               }
+           auto source = ParseWinGetSourceFromSettings(unit.Settings());
 
-               // Validate well known source or process 3rd party source.
-               if (IsWellKnownSourceName(source.Name))
-               {
-                   if (!ValidateWellKnownSource(source))
-                   {
-                       AICLI_LOG(Config, Warning, << "WinGetSource conflicts with a well known source. Source: " << source.Name);
-                       context.Reporter.Warn() << Resource::String::WinGetResourceUnitKnownSourceConfliction(Utility::LocIndView{ source.Name }) << std::endl;
-                       foundIssues = true;
-                   }
-               }
-               else
-               {
-                   if (unitIntent == ConfigurationUnitIntent::Assert)
-                   {
-                       AICLI_LOG(Config, Warning, << "Asserting on 3rd party source: " << source.Name);
-                       context.Reporter.Warn() << Resource::String::WinGetResourceUnitThirdPartySourceAssertion(Utility::LocIndView{ source.Name }) << std::endl;
-                       foundIssues = true;
-                   }
-                   else if (unitIntent == ConfigurationUnitIntent::Apply)
-                   {
-                       // Add to dependency source map so it can be validated with later WinGetPackage source
-                       m_dependenciesSourceAndUnitIdMap.emplace(Utility::FoldCase(std::string_view{ source.Name }), Utility::FoldCase(Utility::NormalizedString{ unit.Identifier() }));
-                   }
-               }
-           }
+            // Validate basic semantics.
+            if (source.Name.empty())
+            {
+                AICLI_LOG(Config, Error, << "WinGetSource unit missing required arg: Name");
+                context.Reporter.Error() << Resource::String::WinGetResourceUnitMissingRequiredArg(Utility::LocIndView{ UnitType_WinGetSource }, "Name"_liv) << std::endl;
+                foundIssues = true;
+            }
+            if (source.Arg.empty() && source.Present)
+            {
+                AICLI_LOG(Config, Error, << "WinGetSource unit missing required arg: Argument");
+                context.Reporter.Error() << Resource::String::WinGetResourceUnitMissingRequiredArg(Utility::LocIndView{ UnitType_WinGetSource }, "Argument"_liv) << std::endl;
+                foundIssues = true;
+            }
+
+            // Validate well known source or process 3rd party source.
+            if (IsWellKnownSourceName(source.Name))
+            {
+                if (!ValidateWellKnownSource(source))
+                {
+                    AICLI_LOG(Config, Warning, << "WinGetSource conflicts with a well known source. Source: " << source.Name);
+                    context.Reporter.Warn() << Resource::String::WinGetResourceUnitKnownSourceConfliction(Utility::LocIndView{ source.Name }) << std::endl;
+                    foundIssues = true;
+                }
+            }
+            else
+            {
+                if (unitIntent == ConfigurationUnitIntent::Assert)
+                {
+                    AICLI_LOG(Config, Warning, << "Asserting on 3rd party source: " << source.Name);
+                    context.Reporter.Warn() << Resource::String::WinGetResourceUnitThirdPartySourceAssertion(Utility::LocIndView{ source.Name }) << std::endl;
+                    foundIssues = true;
+                }
+                else if (unitIntent == ConfigurationUnitIntent::Apply)
+                {
+                    // Add to dependency source map so it can be validated with later WinGetPackage source
+                    m_dependenciesSourceAndUnitIdMap.emplace(Utility::FoldCase(std::string_view{ source.Name }), Utility::FoldCase(Utility::NormalizedString{ unit.Identifier() }));
+                }
+            }
        }
        else if (Utility::CaseInsensitiveEquals(UnitType_WinGetPackage, unitType))
        {
@@ -281,8 +241,8 @@ namespace AppInstaller::CLI::Configuration
            }
            if (package.UseLatest && !package.Version.empty())
            {
-               AICLI_LOG(Config, Error, << "WinGetPackage unit both UseLatest and Version declared. Package: " << package.Id);
-               context.Reporter.Error() << Resource::String::WinGetResourceUnitBothPackageVersionAndUseLatest(Utility::LocIndView{ package.Id }) << std::endl;
+               AICLI_LOG(Config, Warning, << "WinGetPackage unit both UseLatest and Version declared. Package: " << package.Id);
+               context.Reporter.Warn() << Resource::String::WinGetResourceUnitBothPackageVersionAndUseLatest(Utility::LocIndView{ package.Id }) << std::endl;
                foundIssues = true;
            }
            // Validate dependency source is configured.

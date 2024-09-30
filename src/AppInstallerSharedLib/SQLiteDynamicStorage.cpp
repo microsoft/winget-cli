@@ -54,10 +54,10 @@ namespace AppInstaller::SQLite
     }
 
     _Acquires_lock_(mutex)
-    SQLiteDynamicStorage::TransactionLock::TransactionLock(std::mutex& mutex, Connection& connection, std::string_view name) :
+    SQLiteDynamicStorage::TransactionLock::TransactionLock(std::mutex& mutex, Connection& connection, std::string_view name, bool immediateWrite) :
         m_lock(mutex)
     {
-        m_transaction = Savepoint::Create(connection, std::string{ name });
+        m_transaction = Transaction::Create(connection, std::string{ name }, immediateWrite);
     }
 
     void SQLiteDynamicStorage::TransactionLock::Rollback(bool throwOnError)
@@ -70,9 +70,9 @@ namespace AppInstaller::SQLite
         m_transaction.Commit();
     }
 
-    std::unique_ptr<SQLiteDynamicStorage::TransactionLock> SQLiteDynamicStorage::TryBeginTransaction(std::string_view name)
+    std::unique_ptr<SQLiteDynamicStorage::TransactionLock> SQLiteDynamicStorage::TryBeginTransaction(std::string_view name, bool immediateWrite)
     {
-        auto result = std::make_unique<TransactionLock>(*m_interfaceLock, m_dbconn, name);
+        auto result = std::make_unique<TransactionLock>(*m_interfaceLock, m_dbconn, name, immediateWrite);
 
         Version currentVersion = Version::GetSchemaVersion(m_dbconn);
         if (currentVersion != m_version)

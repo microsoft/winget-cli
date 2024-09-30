@@ -212,8 +212,8 @@
      to the appropriate recovery below.  If there is no foo.add file, provide
      a zero data length to the recovery.  In that case, the append recovery
      restores the foo.gz to the previous compressed + uncompressed data state.
-     For the the compress recovery, a missing foo.add file results in foo.gz
-     being restored to the previous compressed-only data state.
+     For the compress recovery, a missing foo.add file results in foo.gz being
+     restored to the previous compressed-only data state.
    - Append recovery:
      - Pick up append at + step above
    - Compress recovery:

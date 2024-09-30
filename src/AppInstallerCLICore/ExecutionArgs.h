@@ -124,6 +124,7 @@ namespace AppInstaller::CLI::Execution
             // Configuration
             ConfigurationFile,
             ConfigurationAcceptWarning,
+            ConfigurationSuppressPrologue,
             ConfigurationEnable,
             ConfigurationDisable,
             ConfigurationModulePath,
@@ -132,6 +133,7 @@ namespace AppInstaller::CLI::Execution
             ConfigurationExportResource,
             ConfigurationHistoryItem,
             ConfigurationHistoryRemove,
+            ConfigurationStatusWatch,
 
             // Common arguments
             NoVT, // Disable VirtualTerminal outputs

@@ -32,7 +32,8 @@ namespace AppInstaller::Manifest::YamlParser
             { "RequireExplicitUpgrade"sv, YamlScalarType::Bool },
             { "DisplayInstallWarnings"sv, YamlScalarType::Bool },
             { "InstallerReturnCode"sv, YamlScalarType::Int },
-            { "DownloadCommandProhibited", YamlScalarType::Bool }
+            { "DownloadCommandProhibited", YamlScalarType::Bool },
+            { "ArchiveBinariesDependOnPath", YamlScalarType::Bool }
         };
 
         YamlScalarType GetManifestScalarValueType(const std::string& key)
@@ -104,7 +105,17 @@ namespace AppInstaller::Manifest::YamlParser
         int idx = MANIFESTSCHEMA_NO_RESOURCE;
         std::map<ManifestTypeEnum, int> resourceMap;
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_7 })
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_9 })
+        {
+            resourceMap = {
+                { ManifestTypeEnum::Singleton, IDX_MANIFEST_SCHEMA_V1_9_SINGLETON },
+                { ManifestTypeEnum::Version, IDX_MANIFEST_SCHEMA_V1_9_VERSION },
+                { ManifestTypeEnum::Installer, IDX_MANIFEST_SCHEMA_V1_9_INSTALLER },
+                { ManifestTypeEnum::DefaultLocale, IDX_MANIFEST_SCHEMA_V1_9_DEFAULTLOCALE },
+                { ManifestTypeEnum::Locale, IDX_MANIFEST_SCHEMA_V1_9_LOCALE },
+            };
+        }
+        else if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_7 })
         {
             resourceMap = {
                 { ManifestTypeEnum::Singleton, IDX_MANIFEST_SCHEMA_V1_7_SINGLETON },

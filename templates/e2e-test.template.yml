@@ -18,6 +18,7 @@ steps:
 
   - task: VSTest@2
     displayName: Run ${{ parameters.title }}
+    condition: succeededOrFailed()
     inputs:
       testRunTitle: ${{ parameters.title }}
       testSelector: 'testAssemblies'
@@ -28,7 +29,7 @@ steps:
                                       -AICLIPackagePath $(packageLayoutDir)
                                       -AICLIPath wingetdev.exe
                                       -LooseFileRegistration true
-                                      -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
+                                      -StaticFileRootPath $(buildOutDir)\E2ETests\TestLocalIndex
                                       -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1
                                       -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer
                                       -SkipTestSource true
@@ -36,7 +37,7 @@ steps:
       ${{ else }}:
           overrideTestrunParameters: '-PackagedContext false
                                       -AICLIPath $(packageLayoutDir)\AppInstallerCLI\winget.exe
-                                      -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
+                                      -StaticFileRootPath $(buildOutDir)\E2ETests\TestLocalIndex
                                       -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1
                                       -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer
                                       -SkipTestSource true

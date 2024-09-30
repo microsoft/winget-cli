@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="GitHubClient.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -43,24 +43,24 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <summary>
         /// Gets the latest released and waits.
         /// </summary>
-        /// <param name="includePreRelease">Include prerelease.</param>
+        /// <param name="includePrerelease">Include prerelease.</param>
         /// <returns>Latest version.</returns>
-        public async Task<string> GetLatestReleaseTagNameAsync(bool includePreRelease)
+        public async Task<string> GetLatestReleaseTagNameAsync(bool includePrerelease)
         {
-            return (await this.GetLatestReleaseAsync(includePreRelease)).TagName;
+            return (await this.GetLatestReleaseAsync(includePrerelease)).TagName;
         }
 
         /// <summary>
         /// Gets the latest released version.
         /// </summary>
-        /// <param name="includePreRelease">Include prerelease.</param>
+        /// <param name="includePrerelease">Include prerelease.</param>
         /// <returns>Latest version.</returns>
-        public async Task<Release> GetLatestReleaseAsync(bool includePreRelease)
+        public async Task<Release> GetLatestReleaseAsync(bool includePrerelease)
         {
             Release release;
 
             // GetLatest doesn't respect prerelease or gives an option to get it.
-            if (includePreRelease)
+            if (includePrerelease)
             {
                 // GetAll orders by newest and includes pre releases.
                 release = (await this.gitHubClient.Repository.Release.GetAll(this.owner, this.repo))[0];

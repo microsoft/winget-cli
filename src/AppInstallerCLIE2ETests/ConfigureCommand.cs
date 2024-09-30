@@ -40,6 +40,7 @@ namespace AppInstallerCLIE2ETests
         /// Intentionally has no settings to force a failure, but only after acquiring the module.
         /// </summary>
         [Test]
+        [Ignore("PS Gallery tests are unreliable.")]
         public void ConfigureFromGallery()
         {
             TestCommon.EnsureModuleState(Constants.GalleryTestModuleName, present: false);
@@ -154,7 +155,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Resource name case insensitive test.
+        /// Resource name case-insensitive test.
         /// </summary>
         [Test]
         public void ResourceCaseInsensitive()

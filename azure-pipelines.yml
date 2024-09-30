@@ -10,6 +10,7 @@ pr:
   paths:
     include:
     - azure-pipelines.yml
+    - templates/*
     - src/*
     - schemas/JSON/manifests/*
 
@@ -38,6 +39,8 @@ jobs:
       arguments: '-OutVar'
       workingDirectory: 'src'
 
+# Build job creates artifacts for use in test jobs
+
 - job: 'Build'
   timeoutInMinutes: 120
   dependsOn: 'GetReleaseTag'
@@ -49,10 +52,12 @@ jobs:
         buildConfiguration: 'Release'
         buildPlatform: 'x86'
         testBuildConfiguration: 'TestRelease'
+        artifactIdentifier: 'x86release'
       x64_release:
         buildConfiguration: 'Release'
         buildPlatform: 'x64'
         testBuildConfiguration: 'TestRelease'
+        artifactIdentifier: 'x64release'
 
   variables:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
@@ -130,41 +135,25 @@ jobs:
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly'
 
+  - task: MSBuild@1
+    displayName: Build MSIX Test Installer File
+    inputs:
+      platform: '$(buildPlatform)'
+      solution: 'src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
+      configuration: '$(buildConfiguration)'
+      msbuildArguments: '/p:AppxPackageOutput="$(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix"
+                         /p:AppxBundle=Never
+                         /p:UapAppxPackageBuildMode=SideLoadOnly
+                         /p:AppxPackageSigningEnabled=false'
+
   - task: CopyFiles@2
-    displayName: 'Copy Symbols to artifacts folder'
+    displayName: 'Copy specific build artifacts'
     inputs:
       Contents: |
           $(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb
-          $(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.pdb
+          $(buildOutDir)\WinGetUtil\WinGetUtil.dll
+          $(buildOutDir)\WinGetUtil\WinGetUtil.pdb
       TargetFolder: '$(artifactsDir)'
-    condition: succeededOrFailed()
-
-  - task: PowerShell@2
-    displayName: Install Tests Dependencies
-    inputs:
-      targetType: 'inline'
-      script: |
-        Get-ChildItem AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform) -Filter *.appx | %{ Add-AppxPackage $_.FullName }
-      workingDirectory: $(appxPackageDir)
-
-  - task: VisualStudioTestPlatformInstaller@1
-    displayName: Prepare VSTest for E2E Tests
-    inputs:
-      packageFeedSelector: 'nugetOrg'
-
-  - task: DownloadSecureFile@1
-    name: PsExec
-    displayName: 'Download PsExec.exe'
-    inputs:
-      secureFile: 'PsExec.exe'
-
-  - task: CmdLine@2
-    displayName: Run Unit Tests Unpackaged Under System Context
-    inputs:
-      script: |
-        $(PsExec.secureFilePath) -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
-      workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
-    condition: succeededOrFailed()
 
   - task: PowerShell@2
     displayName: Create Package Layout
@@ -172,6 +161,217 @@ jobs:
       filePath: 'src\AppInstallerCLIPackage\Execute-AppxRecipe.ps1'
       arguments: '-AppxRecipePath AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLIPackage.build.appxrecipe -LayoutPath $(packageLayoutDir) -Force -Verbose'
       workingDirectory: 'src'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Dev Package (Loose Files)'
+    inputs:
+      SourceFolder: '$(packageLayoutDir)'
+      TargetFolder: '$(artifactsDir)\DevPackage'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Dev Packages'
+    inputs:
+      SourceFolder: '$(appxPackageDir)'
+      TargetFolder: '$(artifactsDir)\AppxPackages'
+
+  - task: CopyFiles@2
+    displayName: 'Copy native binaries for Microsoft.WinGet.Client (net6)'
+    inputs:
+      SourceFolder: $(buildOutDir)
+      Contents: |
+          Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.dll
+          Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd
+          WindowsPackageManager\WindowsPackageManager.dll
+          UndockedRegFreeWinRT\winrtact.dll
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net6.0-windows10.0.22000.0\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy native binaries for Microsoft.WinGet.Client (net48)'
+    inputs:
+      SourceFolder: $(buildOutDir)
+      Contents: |
+          Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.dll
+          Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd
+          WindowsPackageManager\WindowsPackageManager.dll
+          UndockedRegFreeWinRT\winrtact.dll
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net48\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy native binaries for Microsoft.WinGet.Configuration'
+    inputs:
+      SourceFolder: $(buildOutDir)
+      Contents: |
+          Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy managed binaries for Microsoft.WinGet.Configuration in arch specific'
+    inputs:
+      SourceFolder: $(buildOutDirAnyCpu)
+      Contents: |
+          Microsoft.Management.Configuration.Projection\net6.0-windows10.0.22000.0\Microsoft.Management.Configuration.Projection.dll
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy PowerShell AnyCPU Module Files'
+    inputs:
+      SourceFolder: '$(buildOutDirAnyCpu)\PowerShell'
+      TargetFolder: '$(artifactsDir)\PowerShell'
+
+  - task: CopyFiles@2
+    displayName: 'Copy binaries'
+    inputs:
+      SourceFolder: '$(buildOutDir)'
+      TargetFolder: '$(artifactsDir)'
+      Contents: |
+        AppInstallerCLIE2ETests\**
+        AppInstallerCLITests\**
+        Microsoft.Management.Configuration\**
+        Microsoft.Management.Configuration.UnitTests\**
+        Microsoft.Management.Configuration.OutOfProc\**
+
+  - task: CopyFiles@2
+    displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(buildPlatform)\$(BuildConfiguration)\net6.0'
+      TargetFolder:  '$(artifactsDir)\WinGetUtilInterop.UnitTests\'
+      CleanTargetFolder: true
+      OverWrite: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy WinGetUtil to WinGetUtilInterop.UnitTests folder'
+    inputs:
+      Contents: |
+          $(buildOutDir)\WinGetUtil\WinGetUtil.dll
+      TargetFolder: '$(artifactsDir)\WinGetUtilInterop.UnitTests\'
+      flattenFolders: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy LocalhostWebServer to E2ETests'
+    inputs:
+      SourceFolder: '$(buildOutDir)\LocalhostWebServer'
+      TargetFolder: '$(artifactsDir)\E2ETests\LocalhostWebServer'
+
+    # Invoke E2E setup to generate the TestLocalIndex; could optimize out some of its steps if needed
+  - template: templates/e2e-setup.yml
+    parameters:
+      sourceDir: $(Build.SourcesDirectory)
+      localhostWebServerArgs: '-BuildRoot $(artifactsDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -TestDataPath $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData -ExitBeforeRun'
+      signingCertOutDir: $(artifactsDir)\E2ETests
+
+  - task: CopyFiles@2
+    displayName: 'Copy TestLocalIndex'
+    inputs:
+      SourceFolder: '$(Agent.TempDirectory)\TestLocalIndex'
+      TargetFolder: '$(artifactsDir)\E2ETests\TestLocalIndex'
+
+  - task: CopyFiles@2
+    displayName: 'Copy TestData'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\'
+      TargetFolder: '$(artifactsDir)\E2ETests\TestData'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Dev Package Dependencies'
+    inputs:
+      SourceFolder: '$(appxPackageDir)\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform)\'
+      TargetFolder: '$(artifactsDir)\E2ETests\DevPackageDependencies'
+
+  - task: CopyFiles@2
+    displayName: 'Copy test scripts to artifacts'
+    inputs:
+      Contents: |
+          $(Build.SourcesDirectory)\src\PowerShell\scripts\Execute-WinGetTests.ps1
+          $(Build.SourcesDirectory)\src\PowerShell\tests\**
+          $(Build.SourcesDirectory)\src\LocalhostWebServer\Run-LocalhostWebServer.ps1
+      TargetFolder: '$(artifactsDir)\E2ETests\Scripts'
+      flattenFolders: true
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish Pipeline Artifacts
+    inputs:
+      targetPath: '$(artifactsDir)'
+      artifact: 'Build.$(artifactIdentifier)'
+
+  - task: ComponentGovernanceComponentDetection@0
+    displayName: Component Governance
+    inputs:
+      scanType: 'Register'
+      verbosity: 'Verbose'
+      alertWarningLevel: 'High'
+
+# Test job runs tests using build artifacts
+
+- job: 'Test'
+  timeoutInMinutes: 120
+  dependsOn: 'Build'
+  condition: succeeded('Build')
+
+  strategy:
+    matrix:
+      x86_release:
+        buildConfiguration: 'Release'
+        buildPlatform: 'x86'
+        testBuildConfiguration: 'TestRelease'
+        artifactIdentifier: 'x86release'
+      x64_release:
+        buildConfiguration: 'Release'
+        buildPlatform: 'x64'
+        testBuildConfiguration: 'TestRelease'
+        artifactIdentifier: 'x64release'
+
+  variables:
+    buildOutDir: $(Pipeline.Workspace)\Build.$(artifactIdentifier)
+    artifactsDir: $(Build.ArtifactStagingDirectory)
+    packageLayoutDir: $(Pipeline.Workspace)\Build.$(artifactIdentifier)\DevPackage
+
+  steps:
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download Build Artifacts'
+    inputs:
+      artifact: 'Build.$(artifactIdentifier)'
+      path: '$(buildOutDir)'
+
+  - task: PowerShell@2
+    displayName: Install Tests Dependencies
+    inputs:
+      targetType: 'inline'
+      script: |
+        Get-ChildItem $(buildOutDir)\E2ETests\DevPackageDependencies -Filter *.appx | %{ Add-AppxPackage $_.FullName }
+
+  - task: VisualStudioTestPlatformInstaller@1
+    displayName: Prepare VSTest for E2E Tests
+    inputs:
+      packageFeedSelector: 'nugetOrg'
+
+  # TODO: Repair-WinGetPackageManager will fail because it tries to install x64 for an x86 build machine.
+  # Remove manual installation of VCLibs (x64) once this is fixed.
+  - powershell: |
+      if ("$(buildPlatform)" -eq "x86") {
+        iwr https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx -OutFile Microsoft.VCLibs.x64.appx
+        Add-AppxPackage Microsoft.VCLibs.x64.appx
+      }
+      Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+      Install-Module Microsoft.WinGet.Client -Repository PSGallery -Force
+      Repair-WingetPackageManager -AllUsers -Latest
+      Install-WinGetPackage -Id Microsoft.Sysinternals.PsTools -Source winget
+    displayName: Install Sysinternals PsTools Using Winget
+    condition: succeededOrFailed()
+
+  - powershell: |
+      $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+      PsExec -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
+    displayName: Run Unit Tests Unpackaged Under System Context
+    workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
+    condition: succeededOrFailed()
+
+  - powershell: |
+      Uninstall-WinGetPackage -Id Microsoft.Sysinternals.PsTools -Source winget
+    displayName: Clean up Sysinternals PsTools
     condition: succeededOrFailed()
 
   - task: PowerShell@2
@@ -190,18 +390,6 @@ jobs:
       failTaskOnFailedTests: true
     condition: succeededOrFailed()
 
-  - task: MSBuild@1
-    displayName: Build MSIX Test Installer File
-    inputs:
-      platform: '$(buildPlatform)'
-      solution: 'src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
-      configuration: '$(buildConfiguration)'
-      msbuildArguments: '/p:AppxPackageOutput="$(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix"
-                         /p:AppxBundle=Never
-                         /p:UapAppxPackageBuildMode=SideLoadOnly
-                         /p:AppxPackageSigningEnabled=false'
-    condition: succeededOrFailed()
-
   - task: PowerShell@2
     displayName: 'Set program files directory'
     inputs:
@@ -218,7 +406,7 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy resources.pri to dotnet directory'
     inputs:
-      SourceFolder: '$(buildOutDir)\AppInstallerCLI'
+      SourceFolder: '$(buildOutDir)\DevPackage'
       TargetFolder:  '$(platformProgramFiles)\dotnet'
       Contents: resources.pri
     condition: succeededOrFailed()
@@ -227,7 +415,7 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy winmd to dotnet directory'
     inputs:
-      SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
+      SourceFolder: '$(buildOutDir)\DevPackage'
       TargetFolder: '$(platformProgramFiles)\dotnet'
       Contents: Microsoft.Management.Deployment.winmd
     condition: succeededOrFailed()
@@ -235,7 +423,7 @@ jobs:
   - template: templates/e2e-setup.yml
     parameters:
       sourceDir: $(Build.SourcesDirectory)
-      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -TestDataPath $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -SourceCert $(buildOutDir)\E2ETests\TestSigningCert.cer'
 
   - template: templates/e2e-test.template.yml
     parameters:
@@ -259,64 +447,7 @@ jobs:
     displayName: 'Copy E2E Tests Package Log to artifacts folder'
     inputs:
       SourceFolder: '$(temp)\E2ETestLogs'
-      TargetFolder: '$(artifactsDir)\E2ETests\PackagedLog'
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy E2E Test Source'
-    inputs:
-      SourceFolder: '$(Agent.TempDirectory)\TestLocalIndex'
-      TargetFolder: '$(artifactsDir)\E2ETests\TestLocalIndex'
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy TestData'
-    inputs:
-      SourceFolder: '$(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\'
-      TargetFolder: '$(artifactsDir)\E2ETests\TestData'
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy LocalhostWebServer'
-    inputs:
-      SourceFolder: '$(buildOutDir)\LocalhostWebServer'
-      TargetFolder: '$(artifactsDir)\E2ETests\LocalhostWebServer'
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy Dev Package Dependencies'
-    inputs:
-      SourceFolder: '$(appxPackageDir)\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform)\'
-      TargetFolder: '$(artifactsDir)\E2ETests\DevPackageDependencies'
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy test scripts to artifacts'
-    inputs:
-      Contents: |
-          $(Build.SourcesDirectory)\src\PowerShell\scripts\Execute-WinGetTests.ps1
-          $(Build.SourcesDirectory)\src\PowerShell\tests\**
-          $(Build.SourcesDirectory)\src\LocalhostWebServer\Run-LocalhostWebServer.ps1
-      TargetFolder: '$(artifactsDir)\E2ETests\Scripts'
-      flattenFolders: true
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
-    inputs:
-      SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(buildPlatform)\$(BuildConfiguration)\net6.0'
-      TargetFolder:  '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests\'
-      CleanTargetFolder: true
-      OverWrite: true
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy WinGetUtil to WinGetUtilInterop.UnitTests folder'
-    inputs:
-      Contents: |
-          $(buildOutDir)\WinGetUtil\WinGetUtil.dll
-      TargetFolder: '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests\'
-      flattenFolders: true
+      TargetFolder: '$(artifactsDir)\PackagedLog'
     condition: succeededOrFailed()
 
   - task: VSTest@2
@@ -324,7 +455,7 @@ jobs:
     inputs:
       testSelector: 'testAssemblies'
       testAssemblyVer2: 'WinGetUtilInterop.UnitTests.dll'
-      searchFolder: '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests'
+      searchFolder: '$(buildOutDir)\WinGetUtilInterop.UnitTests'
       codeCoverageEnabled: true
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
@@ -372,121 +503,25 @@ jobs:
       arguments: '-TargetLocation $(artifactsDir)\ConfigOOPTestsLog'
     condition: succeededOrFailed()
 
-  - task: CopyFiles@2
-    displayName: 'Copy Util to artifacts folder'
-    inputs:
-      Contents: |
-          $(buildOutDir)\WinGetUtil\WinGetUtil.dll
-          $(buildOutDir)\WinGetUtil\WinGetUtil.pdb
-      TargetFolder: '$(artifactsDir)'
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy native binaries for Microsoft.WinGet.Client'
-    inputs:
-      SourceFolder: $(buildOutDir)
-      Contents: |
-          Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.dll
-          Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd
-          WindowsPackageManager\WindowsPackageManager.dll
-          UndockedRegFreeWinRT\winrtact.dll
-      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net6.0-windows10.0.22000.0\SharedDependencies\$(BuildPlatform)
-      flattenFolders: true
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy native binaries for Microsoft.WinGet.Client'
-    inputs:
-      SourceFolder: $(buildOutDir)
-      Contents: |
-          Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.dll
-          Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd
-          WindowsPackageManager\WindowsPackageManager.dll
-          UndockedRegFreeWinRT\winrtact.dll
-      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net48\SharedDependencies\$(BuildPlatform)
-      flattenFolders: true
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy native binaries for Microsoft.WinGet.Configuration'
-    inputs:
-      SourceFolder: $(buildOutDir)
-      Contents: |
-          Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll
-      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
-      flattenFolders: true
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy managed binaries for Microsoft.WinGet.Configuration in arch specific'
-    inputs:
-      SourceFolder: $(buildOutDirAnyCpu)
-      Contents: |
-          Microsoft.Management.Configuration.Projection\net6.0-windows10.0.22000.0\Microsoft.Management.Configuration.Projection.dll
-      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
-      flattenFolders: true
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy PowerShell AnyCPU Module Files'
-    inputs:
-      SourceFolder: '$(buildOutDirAnyCpu)\PowerShell'
-      TargetFolder: '$(artifactsDir)\PowerShell'
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy Dev Package (Loose Files)'
-    inputs:
-      SourceFolder: '$(packageLayoutDir)'
-      TargetFolder: '$(artifactsDir)\DevPackage'
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy Dev Packages'
-    inputs:
-      SourceFolder: '$(appxPackageDir)'
-      TargetFolder: '$(artifactsDir)\AppxPackages'
+  - powershell: Get-Process LocalhostWebServer | Stop-Process
+    displayName: Stop LocalhostWebServer
     condition: succeededOrFailed()
 
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
     inputs:
       targetPath: '$(artifactsDir)'
+      artifact: 'Test.$(artifactIdentifier).$(System.JobAttempt)'
     condition: succeededOrFailed()
 
-  - task: ComponentGovernanceComponentDetection@0
-    displayName: Component Governance
-    inputs:
-      scanType: 'Register'
-      verbosity: 'Verbose'
-      alertWarningLevel: 'High'
-
-  # Run BimSkim for all the binaries
-  - task: BinSkim@4
-    displayName: 'Run BinSkim '
-    inputs:
-      arguments: 'analyze
-        "$(buildOutDir)\AppInstallerCLI\winget.exe"
-        "$(buildOutDir)\WinGetUtil\WinGetUtil.dll"
-        "$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.dll"
-        "$(buildOutDir)\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll"
-        "$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\WinGetUtil*Interop.dll"
-        "$(buildOutDir)\UndockedRegFreeWinRT\winrtact.dll"
-        "$(buildOutDir)\Microsoft.WinGet.Client.Cmdlets\Microsoft.WinGet.Client*.dll"
-        "$(buildOutDir)\ConfigurationRemotingServer\ConfigurationRemoting*Server.dll"
-        "$(buildOutDir)\ConfigurationRemotingServer\ConfigurationRemoting*Server.exe"
-        "$(buildOutDir)\ConfigurationRemotingServer\Microsoft.Management.Configuration*.dll"
-        "$(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration*.dll"
-        "$(buildOutDir)\Microsoft.Management.Configuration.OutOfProc\Microsoft.Management.Configuration*.dll"
-        --config default --recurse'
-
-  - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@3
-    displayName: 'Publish Security Analysis Logs'
+# Build and test PowerShell module
 
 - job: 'BuildPowerShellModule'
   timeoutInMinutes: 120
   dependsOn: 'Build'
-  condition: always()
+  condition: succeeded('Build')
+  variables:
+    buildOutDir: $(Pipeline.Workspace)\Build.x64Release
 
   steps:
   - task: DownloadPipelineArtifact@2
@@ -495,7 +530,7 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy x64 PowerShell Binaries to Output'
     inputs:
-      SourceFolder: '$(Pipeline.Workspace)\Build.x64release\PowerShell'
+      SourceFolder: '$(buildOutDir)\PowerShell'
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
@@ -505,6 +540,16 @@ jobs:
       SourceFolder: '$(Pipeline.Workspace)\Build.x86release\PowerShell'
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PowerShell@2
+    displayName: Generate Microsoft.WinGet.Client Help Documentation
+    inputs:
+      pwsh: true
+      targetType: inline
+      script: |
+        Install-Module -Name platyPS -Force
+        Import-Module platyPS
+        New-ExternalHelp -Path '$(Build.SourcesDirectory)\src\PowerShell\Help\Microsoft.WinGet.Client' -OutputPath '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.Client'
 
   - task: CopyFiles@2
     displayName: 'Copy Microsoft.WinGet.DSC module to staging directory'
@@ -518,21 +563,25 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        Get-ChildItem E2ETests\DevPackageDependencies -Filter *.appx | %{ Add-AppxPackage $_.FullName }
-      workingDirectory: $(Pipeline.Workspace)\Build.x64release\
+        Get-ChildItem AppxPackages\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\x64 -Filter *.appx | %{ Add-AppxPackage $_.FullName }
+      workingDirectory: $(buildOutDir)
 
   - template: templates/e2e-setup.yml
     parameters:
       sourceDir: $(Build.SourcesDirectory)
-      localhostWebServerArgs: '-BuildRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\LocalhostWebServer -StaticFileRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\TestLocalIndex -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -SourceCert $(buildOutDir)\E2ETests\TestSigningCert.cer'
 
-  - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(Pipeline.Workspace)\Build.x64release\DevPackage
+  - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(buildOutDir)\DevPackage
     workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
     displayName: Run PowerShell 7 Tests
 
   - powershell: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\WPPesterTest
     workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
     displayName: Run Windows PowerShell Tests
+    condition: succeededOrFailed()
+
+  - powershell: Get-Process LocalhostWebServer | Stop-Process
+    displayName: Stop LocalhostWebServer
     condition: succeededOrFailed()
 
   - task: PublishTestResults@2

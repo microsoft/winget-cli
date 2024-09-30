@@ -171,7 +171,8 @@ std::string TimestampToString(std::chrono::time_point<std::chrono::system_clock>
 void LoggingCallback(const SFS::LogData& logData)
 {
     std::cout << c_darkGreyStart << "Log: " << TimestampToString(logData.time) << " [" << ToString(logData.severity)
-              << "]" << " " << std::filesystem::path(logData.file).filename().string() << ":" << logData.line << " "
+              << "]"
+              << " " << std::filesystem::path(logData.file).filename().string() << ":" << logData.line << " "
               << logData.message << c_colorEnd << std::endl;
 }
 

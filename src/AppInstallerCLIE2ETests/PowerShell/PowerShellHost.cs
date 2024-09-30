@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PowerShellHost.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -10,7 +10,6 @@ namespace AppInstallerCLIE2ETests.PowerShell
     using System.Collections;
     using System.Management.Automation;
     using System.Management.Automation.Runspaces;
-    using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.PowerShell;
     using NUnit.Framework;
 

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="WinGetPackageManagerCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -36,6 +36,6 @@ namespace Microsoft.WinGet.Client.Commands.Common
         [Parameter(
             ParameterSetName = Constants.IntegrityLatestSet,
             ValueFromPipelineByPropertyName = true)]
-        public SwitchParameter IncludePreRelease { get; set; }
+        public SwitchParameter IncludePrerelease { get; set; }
     }
 }

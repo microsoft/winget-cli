@@ -418,6 +418,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 new ExpectedConfigurationChangeData() { Change = ConfigurationSetChangeEventType.SetStateChanged, SetState = ConfigurationSetState.Completed },
             };
 
+            // Drop the pending event if it happens to be present
+            if (progressEvents.Count > 0 && progressEvents[0].Change == ConfigurationSetChangeEventType.SetStateChanged && progressEvents[0].SetState == ConfigurationSetState.Pending)
+            {
+                progressEvents.RemoveAt(0);
+            }
+
             Assert.Equal(expectedProgress.Count(), progressEvents.Count);
 
             for (int i = 0; i < progressEvents.Count; ++i)
@@ -531,6 +537,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             waitingUnitApply.Set();
             WaitOn(waitingProgress);
             Assert.Equal(ConfigurationSetState.Completed, progressState);
+
+            waitingSetOperation.AsTask().Wait();
         }
 
         /// <summary>

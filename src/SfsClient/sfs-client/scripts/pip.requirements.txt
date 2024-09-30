@@ -1,2 +1,2 @@
-clang-format==18.1.4
+clang-format==18.1.5
 cmake-format==0.6.13

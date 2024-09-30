@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="AssertWinGetPackageManagerCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -18,6 +18,7 @@ namespace Microsoft.WinGet.Client.Commands
         VerbsLifecycle.Assert,
         Constants.WinGetNouns.WinGetPackageManager,
         DefaultParameterSetName = Constants.IntegrityVersionSet)]
+    [Alias("awgpm")]
     public class AssertWinGetPackageManagerCmdlet : WinGetPackageManagerCmdlet
     {
         /// <summary>
@@ -29,7 +30,7 @@ namespace Microsoft.WinGet.Client.Commands
             var command = new WinGetPackageManagerCommand(this);
             if (this.ParameterSetName == Constants.IntegrityLatestSet)
             {
-                command.AssertUsingLatest(this.IncludePreRelease.ToBool());
+                command.AssertUsingLatest(this.IncludePrerelease.ToBool());
             }
             else
             {

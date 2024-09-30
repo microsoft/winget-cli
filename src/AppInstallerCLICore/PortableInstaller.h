@@ -32,6 +32,7 @@ namespace AppInstaller::CLI::Portable
         std::string WinGetPackageIdentifier;
         std::string WinGetSourceIdentifier;
         bool InstallDirectoryCreated = false;
+        bool BinariesDependOnPath = false;
         // If we fail to create a symlink, add install directory to PATH variable
         bool InstallDirectoryAddedToPath = false;
 

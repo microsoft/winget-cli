@@ -110,7 +110,7 @@ TEST_CASE("ManifestComparator_OSFilter_High", "[manifest_comparator]")
     REQUIRE(inapplicabilities.size() == 0);
 }
 
-TEST_CASE("ManifestComparator_InstalledScopeFilter_Uknown", "[manifest_comparator]")
+TEST_CASE("ManifestComparator_InstalledScopeFilter_Unknown", "[manifest_comparator]")
 {
     Manifest manifest;
     ManifestInstaller unknown = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::Unknown);
@@ -249,7 +249,7 @@ TEST_CASE("ManifestComparator_InstalledTypeCompare", "[manifest_comparator]")
         ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
         auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
-        RequireInstaller(result, exe);
+        RequireInstaller(result, burn);
         REQUIRE(inapplicabilities.size() == 0);
     }
     SECTION("Inno Installed")
@@ -343,7 +343,7 @@ TEST_CASE("ManifestComparator_ScopeCompare", "[manifest_comparator]")
     }
 }
 
-TEST_CASE("ManifestComparator_LocaleComparator_Installed_WithUknown", "[manifest_comparator]")
+TEST_CASE("ManifestComparator_LocaleComparator_Installed_WithUnknown", "[manifest_comparator]")
 {
     Manifest manifest;
     ManifestInstaller unknown = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::User, "", "");
@@ -868,4 +868,21 @@ TEST_CASE("ManifestComparator_MachineArchitecture_Strong_Scope_Weak", "[manifest
     auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
     RequireInstaller(result, system);
+}
+
+TEST_CASE("ManifestComparator_InstallerCompatibilitySet_Weaker_Than_Architecture", "[manifest_comparator]")
+{
+    Manifest manifest;
+    ManifestInstaller target = AddInstaller(manifest, GetSystemArchitecture(), InstallerTypeEnum::Wix, ScopeEnum::Unknown, "", "");
+    ManifestInstaller foil = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::Unknown, "", "");
+
+    ManifestComparatorTestContext context;
+
+    IPackageVersion::Metadata installationMetadata;
+    installationMetadata[PackageVersionMetadata::InstalledType] = InstallerTypeToString(foil.EffectiveInstallerType());
+
+    ManifestComparator mc(context, installationMetadata);
+    auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+    RequireInstaller(result, target);
 }

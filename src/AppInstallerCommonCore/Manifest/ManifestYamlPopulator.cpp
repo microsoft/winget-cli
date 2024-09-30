@@ -376,6 +376,16 @@ namespace AppInstaller::Manifest
 
                 std::move(fields_v1_7.begin(), fields_v1_7.end(), std::inserter(result, result.end()));
             }
+
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_9 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_9 =
+                {
+                    { "ArchiveBinariesDependOnPath", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestInstallerPtr(v)->ArchiveBinariesDependOnPath = value.as<bool>(); return {}; } },
+                };
+
+                std::move(fields_v1_9.begin(), fields_v1_9.end(), std::inserter(result, result.end()));
+            }
         }
 
         return result;
@@ -776,7 +786,7 @@ namespace AppInstaller::Manifest
             std::string key = keyValuePair.first.as<std::string>();
             const YAML::Node& valueNode = keyValuePair.second;
 
-            // We'll do case insensitive search first and validate correct case later.
+            // We'll do case-insensitive search first and validate correct case later.
             auto fieldIter = std::find_if(fieldInfos.begin(), fieldInfos.end(),
                 [&](auto const& s)
                 {

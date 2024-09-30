@@ -1,4 +1,4 @@
-Building instructions for the DLL versions of Zlib 1.2.13
+Building instructions for the DLL versions of Zlib 1.3.1
 ========================================================
 
 This directory contains projects that build zlib and minizip using
@@ -40,6 +40,12 @@ Build instructions for Visual Studio 2015 (32 bits or 64 bits)
 - Decompress current zlib, including all contrib/* files
 - Open contrib\vstudio\vc14\zlibvc.sln with Microsoft Visual C++ 2015
 
+Build instructions for Visual Studio 2022 (64 bits)
+--------------------------------------------------------------
+- Decompress current zlib, including all contrib/* files
+- Open contrib\vstudio\vc143\zlibvc.sln with Microsoft Visual C++ 2022
+
+
 
 Important
 ---------
@@ -71,5 +77,5 @@ Additional notes
 Gilles Vollant
 info@winimage.com
 
-Visual Studio 2013 and 2015 Projects from Sean Hunt
+Visual Studio 2013, 2015, and 2022 Projects from Sean Hunt
 seandhunt_7@yahoo.com

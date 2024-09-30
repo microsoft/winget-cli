@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PSSourceResult.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -6,8 +6,6 @@
 
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
-    using System.Management.Automation;
-
     /// <summary>
     /// SourceResult wrapper object for displaying to PowerShell.
     /// </summary>
@@ -23,6 +21,8 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
             this.Name = info.Name;
             this.Argument = info.Argument;
             this.Type = info.Type;
+            this.TrustLevel = info.TrustLevel.ToString();
+            this.Explicit = info.Explicit;
         }
 
         /// <summary>
@@ -39,5 +39,15 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         /// Gets the type of the source.
         /// </summary>
         public string Type { get; private set; }
+
+        /// <summary>
+        /// Gets the trust level of the source.
+        /// </summary>
+        public string TrustLevel { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the source must be explicitly specified for discovery.
+        /// </summary>
+        public bool Explicit { get; private set; }
     }
 }

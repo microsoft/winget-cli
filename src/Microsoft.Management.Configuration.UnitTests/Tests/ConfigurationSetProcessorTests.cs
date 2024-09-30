@@ -80,7 +80,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
-        /// Test CreateUnitProcessor case insensitive.
+        /// Test CreateUnitProcessor case-insensitive.
         /// </summary>
         [Fact]
         public void CreateUnitProcessor_CaseInsensitive()
@@ -114,7 +114,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
-        /// Test CreateUnitProcessor case insensitive.
+        /// Test CreateUnitProcessor case-insensitive.
         /// </summary>
         [Fact]
         public void CreateUnitProcessor_ResourceNameMismatch()

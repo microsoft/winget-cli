@@ -29,6 +29,7 @@ namespace AppInstallerCLIE2ETests
         /// Simple test to confirm that a resource without a module specified can be discovered in the PSGallery.
         /// </summary>
         [Test]
+        [Ignore("PS Gallery tests are unreliable.")]
         public void ShowDetailsFromGallery()
         {
             TestCommon.EnsureModuleState(Constants.GalleryTestModuleName, present: false);
@@ -93,7 +94,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
             WinGetSettingsHelper.ConfigureFeature("configuration03", true);
 
-            var result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo_0_3.yml"));
+            var result = TestCommon.RunAICLICommand("configure show", $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo_0_3.yml")} --verbose");
             Assert.AreEqual(0, result.ExitCode);
             Assert.True(result.StdOut.Contains(Constants.TestRepoName));
         }

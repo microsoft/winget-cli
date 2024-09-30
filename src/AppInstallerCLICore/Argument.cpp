@@ -203,6 +203,8 @@ namespace AppInstaller::CLI
             return { type, "file"_liv, 'f', ArgTypeCategory::ConfigurationSetChoice, ArgTypeExclusiveSet::ConfigurationSetChoice };
         case Execution::Args::Type::ConfigurationAcceptWarning:
             return { type, "accept-configuration-agreements"_liv };
+        case Execution::Args::Type::ConfigurationSuppressPrologue:
+            return { type, "suppress-initial-details"_liv };
         case Execution::Args::Type::ConfigurationEnable:
             return { type, "enable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
         case Execution::Args::Type::ConfigurationDisable:
@@ -219,6 +221,8 @@ namespace AppInstaller::CLI
             return { type, "history"_liv, 'h', ArgTypeCategory::ConfigurationSetChoice, ArgTypeExclusiveSet::ConfigurationSetChoice };
         case Execution::Args::Type::ConfigurationHistoryRemove:
             return { type, "remove"_liv };
+        case Execution::Args::Type::ConfigurationStatusWatch:
+            return { type, "live"_liv };
 
         // Download command
         case Execution::Args::Type::DownloadDirectory:

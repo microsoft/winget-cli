@@ -59,6 +59,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string AppInstallerName = "Microsoft.DesktopAppInstaller";
         private const string AppxManifest = "AppxManifest.xml";
         private const string PackageFullName = "PackageFullName";
+        private const string Version = "Version";
 
         // Assets
         private const string MsixBundleName = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle";
@@ -130,6 +131,26 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="releaseTag">Release tag of GitHub release.</param>
         public void RegisterAppInstaller(string releaseTag)
         {
+            if (string.IsNullOrEmpty(releaseTag))
+            {
+                string? versionFromLocalPackage = this.GetAppInstallerPropertyValue(Version);
+
+                if (versionFromLocalPackage == null)
+                {
+                    throw new ArgumentNullException(Version);
+                }
+
+                var packageVersion = new Version(versionFromLocalPackage);
+                if (packageVersion.Major == 1 && packageVersion.Minor > 15)
+                {
+                    releaseTag = $"1.{packageVersion.Minor - 15}.{packageVersion.Build}";
+                }
+                else
+                {
+                    releaseTag = $"{packageVersion.Major}.{packageVersion.Minor}.{packageVersion.Build}";
+                }
+            }
+
             // Ensure that all dependencies are present when attempting to register.
             // If dependencies are missing, a provisioned package can appear to only need registration,
             // but will fail to register. `InstallDependenciesAsync` checks for the packages before
@@ -319,10 +340,32 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
             // See if the minimum (or greater) version is installed.
             // TODO: Pull the minimum version from the target package
-            // TODO: This does not check architecture of the package
             Version minimumVersion = new Version(VCLibsUWPDesktopVersion);
 
-            bool isInstalled = false;
+            // Construct the list of frameworks that we want present.
+            Dictionary<string, string> vcLibsDependencies = new Dictionary<string, string>();
+            var arch = RuntimeInformation.OSArchitecture;
+            if (arch == Architecture.X64)
+            {
+                vcLibsDependencies.Add("x64", VCLibsUWPDesktopX64);
+            }
+            else if (arch == Architecture.X86)
+            {
+                vcLibsDependencies.Add("x86", VCLibsUWPDesktopX86);
+            }
+            else if (arch == Architecture.Arm64)
+            {
+                // Deployment please figure out for me.
+                vcLibsDependencies.Add("x64", VCLibsUWPDesktopX64);
+                vcLibsDependencies.Add("x86", VCLibsUWPDesktopX86);
+                vcLibsDependencies.Add("arm", VCLibsUWPDesktopArm);
+                vcLibsDependencies.Add("arm64", VCLibsUWPDesktopArm64);
+            }
+            else
+            {
+                throw new PSNotSupportedException(arch.ToString());
+            }
+
             if (result != null &&
                 result.Count > 0)
             {
@@ -338,42 +381,35 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
                     if (packageVersion >= minimumVersion)
                     {
-                        this.pwshCmdlet.Write(StreamType.Verbose, $"VCLibs dependency satisfied by: {psobject?.PackageFullName ?? "<null>"}");
-                        isInstalled = true;
-                        break;
+                        string? architectureString = psobject?.Architecture?.ToString();
+                        if (architectureString == null)
+                        {
+                            this.pwshCmdlet.Write(StreamType.Verbose, $"VCLibs dependency has no architecture value: {psobject?.PackageFullName ?? "<null>"}");
+                            continue;
+                        }
+
+                        architectureString = architectureString.ToLower();
+
+                        if (vcLibsDependencies.ContainsKey(architectureString))
+                        {
+                            this.pwshCmdlet.Write(StreamType.Verbose, $"VCLibs {architectureString} dependency satisfied by: {psobject?.PackageFullName ?? "<null>"}");
+                            vcLibsDependencies.Remove(architectureString);
+                        }
+                    }
+                    else
+                    {
+                        this.pwshCmdlet.Write(StreamType.Verbose, $"VCLibs is lower than minimum required version [{minimumVersion}]: {psobject?.PackageFullName ?? "<null>"}");
                     }
                 }
             }
 
-            if (!isInstalled)
+            if (vcLibsDependencies.Count != 0)
             {
-                this.pwshCmdlet.Write(StreamType.Verbose, "Couldn't find required VCLibs package");
+                this.pwshCmdlet.Write(StreamType.Verbose, "Couldn't find required VCLibs packages");
 
-                var vcLibsDependencies = new List<string>();
-                var arch = RuntimeInformation.OSArchitecture;
-                if (arch == Architecture.X64)
+                foreach (var vclibPair in vcLibsDependencies)
                 {
-                    vcLibsDependencies.Add(VCLibsUWPDesktopX64);
-                }
-                else if (arch == Architecture.X86)
-                {
-                    vcLibsDependencies.Add(VCLibsUWPDesktopX86);
-                }
-                else if (arch == Architecture.Arm64)
-                {
-                    // Deployment please figure out for me.
-                    vcLibsDependencies.Add(VCLibsUWPDesktopX64);
-                    vcLibsDependencies.Add(VCLibsUWPDesktopX86);
-                    vcLibsDependencies.Add(VCLibsUWPDesktopArm);
-                    vcLibsDependencies.Add(VCLibsUWPDesktopArm64);
-                }
-                else
-                {
-                    throw new PSNotSupportedException(arch.ToString());
-                }
-
-                foreach (var vclib in vcLibsDependencies)
-                {
+                    string vclib = vclibPair.Value;
                     await this.AddAppxPackageAsUriAsync(vclib, vclib.Substring(vclib.LastIndexOf('/') + 1));
                 }
             }
