@@ -219,8 +219,8 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED, "Failed to get Microsoft Store package download information."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE, "No applicable Microsoft Store package download information found."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED, "Failed to retrieve Microsoft Store package license."),
-            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED, "The Microsoft Store package does not support download command."),
-            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN, "Failed to retrieve Microsoft Store package license. The Microsoft Entra Id account does not have required privilege."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED, "The Microsoft Store package does not support download."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN, "Failed to retrieve Microsoft Store package license. The Microsoft Entra Id account does not have the required privilege."),
 
             // Install errors.
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, "Application is currently running. Exit the application then try again."),

@@ -2948,7 +2948,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="--rename"}</comment>
   </data>
   <data name="MSStoreDownloadAuthenticationNotice" xml:space="preserve">
-    <value>Microsoft Store package download requires Microsoft Entra Id authentication. Authentication prompt may appear when necessary. Authenticated information will be shared with Microsoft services for access authorization. For Microsoft Store package licensing, the Microsoft Entra Id account needs to be member of Global Administrator, User Administrator, or License Administrator.</value>
+    <value>Microsoft Store package download requires Microsoft Entra Id authentication. Authentication prompt may appear when necessary. Authenticated information will be shared with Microsoft services for access authorization. For Microsoft Store package licensing, the Microsoft Entra Id account needs to be a member of Global Administrator, User Administrator, or License Administrator.</value>
     <comment>{Locked="Global Administrator,User Administrator,License Administrator"}</comment>
   </data>
   <data name="SkipMicrosoftStorePackageLicenseArgumentDescription" xml:space="preserve">
@@ -3118,14 +3118,14 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="--platform--architecture"}</comment>
   </data>
   <data name="MSStoreDownloadGetLicenseForbidden" xml:space="preserve">
-    <value>Failed to retrieve Microsoft Store package license. The Microsoft Entra Id account is not member of Global Administrator, User Administrator, or License Administrator. Use --skip-license to skip retrieving Microsoft Store package license.</value>
+    <value>Failed to retrieve Microsoft Store package license. The Microsoft Entra Id account is not a member of Global Administrator, User Administrator, or License Administrator. Use --skip-license to skip retrieving Microsoft Store package license.</value>
     <comment>{Locked="Global Administrator,User Administrator,License Administrator,--skip-license"}</comment>
   </data>
   <data name="MSStoreDownloadPackageDownloadNotSupported" xml:space="preserve">
-    <value>The Microsoft Store package does not support download command.</value>
+    <value>The Microsoft Store package does not support download.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED" xml:space="preserve">
-    <value>The Microsoft Store package does not support download command.</value>
+    <value>The Microsoft Store package does not support download.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
     <value>Failed to retrieve Microsoft Store package license. The Microsoft Entra Id account does not have required privilege.</value>
