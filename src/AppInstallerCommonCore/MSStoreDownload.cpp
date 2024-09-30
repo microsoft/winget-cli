@@ -995,8 +995,25 @@ namespace AppInstaller::MSStore
             Http::HttpClientHelper::HttpRequestHeaders requestHeaders;
             requestHeaders.insert_or_assign(JSON::GetUtilityString(From), L"winget-cli");
 
-            std::optional<web::json::value> licensingResponseObject = httpClientHelper.HandlePost(
-                JSON::GetUtilityString(LicensingRestEndpoint), requestBody, requestHeaders, authHeaders);
+            std::optional<web::json::value> licensingResponseObject = std::nullopt;
+            try
+            {
+                licensingResponseObject = httpClientHelper.HandlePost(
+                    JSON::GetUtilityString(LicensingRestEndpoint), requestBody, requestHeaders, authHeaders);
+            }
+            catch (const wil::ResultException& re)
+            {
+                if (re.GetErrorCode() == HTTP_E_STATUS_FORBIDDEN)
+                {
+                    AICLI_LOG(CLI, Error, << "Getting MSStore package license failed. The Microsoft Entra Id account does not have privilege.");
+                    THROW_HR(APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN);
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Error, << "Getting MSStore package license failed. Error code: " << re.GetErrorCode());
+                    THROW_HR(re.GetErrorCode());
+                }
+            }
 
             if (!licensingResponseObject || licensingResponseObject->is_null())
             {

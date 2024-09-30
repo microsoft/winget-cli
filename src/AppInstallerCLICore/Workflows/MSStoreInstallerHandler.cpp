@@ -372,18 +372,18 @@ namespace AppInstaller::CLI::Workflow
             }
             catch (const wil::ResultException& re)
             {
-                if (re.GetErrorCode() == HTTP_E_STATUS_FORBIDDEN)
+                if (re.GetErrorCode() == APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN)
                 {
                     AICLI_LOG(CLI, Warning, << "Getting MSStore package license failed. The Microsoft Entra Id account does not have privilege.");
                     context.Reporter.Warn() << Resource::String::MSStoreDownloadGetLicenseForbidden << std::endl;
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN);
                 }
                 else
                 {
                     AICLI_LOG(CLI, Warning, << "Getting MSStore package license failed. Error code: " << re.GetErrorCode());
                     context.Reporter.Warn() << Resource::String::MSStoreDownloadGetLicenseFailed << std::endl;
-                    AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
                 }
+
+                AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
             }
 
             std::filesystem::path licenseFilePath = downloadDirectory / Utility::ConvertToUTF16(installer.ProductId + "_License.xml");
