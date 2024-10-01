@@ -8,5 +8,4 @@ resources:
       repository: AppInstallerCLIE2ETestsRepo
       securityContext: elevated
     properties:
-      outputPath: E:\Temp\psmodpath.txt # TODO: Parameter support
-      #outputPath: <OUTPUT_PATH> # TODO: Parameter support
+      outputPath: ${WinGetConfigRoot}\PSModulePath.txt

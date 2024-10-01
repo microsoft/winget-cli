@@ -111,6 +111,15 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         }
 
         /// <summary>
+        /// Creates a configuration parameter via the configuration statics object.
+        /// </summary>
+        /// <returns>A new configuration parameter.</returns>
+        protected ConfigurationParameter ConfigurationParameter()
+        {
+            return this.Fixture.ConfigurationStatics.CreateConfigurationParameter();
+        }
+
+        /// <summary>
         /// Creates a configuration set via the configuration statics object.
         /// </summary>
         /// <returns>A new configuration set.</returns>

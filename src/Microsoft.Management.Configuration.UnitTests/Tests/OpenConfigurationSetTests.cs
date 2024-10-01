@@ -14,6 +14,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.VisualBasic;
+    using Newtonsoft.Json.Bson;
     using Newtonsoft.Json.Linq;
     using Windows.Foundation.Collections;
     using Windows.Storage.Streams;
@@ -545,6 +546,93 @@ properties:
         }
 
         /// <summary>
+        /// Verifies that the configuration set (0.3) can be serialized and reopened correctly.
+        /// </summary>
+        [Fact]
+        public void TestSet_Serialize_0_3()
+        {
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();
+
+            OpenConfigurationSetResult openResult = processor.OpenConfigurationSet(this.CreateStream(@"
+$schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
+directives:
+  description: FakeSetDescription
+variables:
+  var1: Test1
+  var2: 42
+parameters:
+  param1:
+    type: securestring
+  param2:
+    type: int
+    defaultValue: 89
+resources:
+  - type: FakeModule/FakeResource
+    name: TestId
+    metadata:
+      description: FakeDescription
+      allowPrerelease: true
+      securityContext: elevated
+    settings:
+      TestString: Hello
+      TestBool: false
+      TestInt: 1234  
+  - type: FakeModule2/FakeResource2
+    name: TestId2
+    dependsOn:
+      - TestId
+      - dependency2
+      - dependency3
+    metadata:
+      description: FakeDescription2
+      securityContext: elevated
+    settings:
+      TestString: Bye
+      TestBool: true
+      TestInt: 4321
+      Mapping:
+        Key: TestValue
+"));
+
+            // Serialize set.
+            ConfigurationSet configurationSet = openResult.Set;
+            InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream();
+            configurationSet.Serialize(stream);
+
+            string yamlOutput = this.ReadStream(stream);
+
+            // Reopen configuration set from serialized string and verify values.
+            OpenConfigurationSetResult serializedSetResult = processor.OpenConfigurationSet(this.CreateStream(yamlOutput));
+            Assert.Null(serializedSetResult.ResultCode);
+            ConfigurationSet set = serializedSetResult.Set;
+            Assert.NotNull(set);
+
+            Assert.Equal("0.3", set.SchemaVersion);
+            Assert.Equal(2, set.Units.Count);
+
+            this.VerifyValueSet(set.Metadata, new KeyValuePair<string, object>("description", "FakeSetDescription"));
+            this.VerifyValueSet(set.Variables, new("var1", "Test1"), new("var2", 42));
+
+            Assert.Equal(2, set.Parameters.Count);
+            this.VerifyParameter(set.Parameters[0], "param1", Windows.Foundation.PropertyType.String, true);
+            this.VerifyParameter(set.Parameters[1], "param2", Windows.Foundation.PropertyType.Int64, false, 89);
+
+            Assert.Equal("FakeModule/FakeResource", set.Units[0].Type);
+            Assert.Equal("TestId", set.Units[0].Identifier);
+            this.VerifyValueSet(set.Units[0].Metadata, new("description", "FakeDescription"), new("allowPrerelease", true), new("securityContext", "elevated"));
+            this.VerifyValueSet(set.Units[0].Settings, new("TestString", "Hello"), new("TestBool", false), new("TestInt", 1234));
+
+            Assert.Equal("FakeModule2/FakeResource2", set.Units[1].Type);
+            Assert.Equal("TestId2", set.Units[1].Identifier);
+            this.VerifyStringArray(set.Units[1].Dependencies, "TestId", "dependency2", "dependency3");
+            this.VerifyValueSet(set.Units[1].Metadata, new("description", "FakeDescription2"), new("securityContext", "elevated"));
+
+            ValueSet mapping = new ValueSet();
+            mapping.Add("Key", "TestValue");
+            this.VerifyValueSet(set.Units[1].Settings, new("TestString", "Bye"), new("TestBool", true), new("TestInt", 4321), new("Mapping", mapping));
+        }
+
+        /// <summary>
         /// Test for using version 0.3 schema.
         /// </summary>
         [Fact]
@@ -716,21 +804,8 @@ parameters:
                 Assert.Equal(expectedType, parameters[0].Type);
                 Assert.Equal(secure, parameters[0].IsSecure);
 
-                switch (expectedValue ?? throw new ArgumentException("expectedValue"))
-                {
-                    case int i:
-                        Assert.Equal(i, (int)(long)parameters[0].DefaultValue);
-                        break;
-                    case string s:
-                        Assert.Equal(s, (string)parameters[0].DefaultValue);
-                        break;
-                    case bool b:
-                        Assert.Equal(b, (bool)parameters[0].DefaultValue);
-                        break;
-                    default:
-                        Assert.Fail($"Add expected type `{expectedValue.GetType().Name}` to switch statement.");
-                        break;
-                }
+                Assert.NotNull(expectedValue);
+                this.VerifyObject(expectedValue, parameters[0].DefaultValue);
             }
             else
             {
@@ -761,24 +836,7 @@ parameters:
                 Assert.True(values.ContainsKey(expectation.Key), $"Not Found {expectation.Key}");
                 object value = values[expectation.Key];
 
-                switch (expectation.Value)
-                {
-                    case int i:
-                        Assert.Equal(i, (int)(long)value);
-                        break;
-                    case string s:
-                        Assert.Equal(s, (string)value);
-                        break;
-                    case bool b:
-                        Assert.Equal(b, (bool)value);
-                        break;
-                    case ValueSet v:
-                        Assert.True(v.ContentEquals(value.As<ValueSet>()));
-                        break;
-                    default:
-                        Assert.Fail($"Add expected type `{expectation.Value.GetType().Name}` to switch statement.");
-                        break;
-                }
+                this.VerifyObject(expectation.Value, value);
             }
         }
 
@@ -786,6 +844,41 @@ parameters:
         {
             Assert.NotNull(strings);
             Assert.Equal(expected.Length, strings.Count);
+        }
+
+        private void VerifyParameter(ConfigurationParameter parameter, string name, Windows.Foundation.PropertyType type, bool secure, object? defaultValue = null)
+        {
+            Assert.Equal(name, parameter.Name);
+            Assert.Equal(type, parameter.Type);
+            Assert.Equal(secure, parameter.IsSecure);
+            this.VerifyObject(defaultValue, parameter.DefaultValue);
+        }
+
+        private void VerifyObject(object? expectedValue, object? actualValue)
+        {
+            if (expectedValue != null)
+            {
+                Assert.NotNull(actualValue);
+
+                switch (expectedValue)
+                {
+                    case int i:
+                        Assert.Equal(i, (int)(long)actualValue);
+                        break;
+                    case string s:
+                        Assert.Equal(s, (string)actualValue);
+                        break;
+                    case bool b:
+                        Assert.Equal(b, (bool)actualValue);
+                        break;
+                    case ValueSet v:
+                        Assert.True(v.ContentEquals(actualValue.As<ValueSet>()));
+                        break;
+                    default:
+                        Assert.Fail($"Add expected type `{expectedValue.GetType().Name}` to switch statement.");
+                        break;
+                }
+            }
         }
     }
 }

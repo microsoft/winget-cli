@@ -207,6 +207,24 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual("Contents!", File.ReadAllText(targetFilePath));
         }
 
+        /// <summary>
+        /// Specifies the module path to an "elevated" server.
+        /// </summary>
+        [Test]
+        public void SpecifyModulePathToHighIntegrityServer()
+        {
+            string configFile = TestCommon.GetTestDataFile("Configuration\\GetPSModulePath.yml");
+            string testDirectory = TestCommon.GetRandomTestDir();
+
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, $"{configFile} --module-path \"{testDirectory}\"");
+            Assert.AreEqual(0, result.ExitCode);
+
+            string testFile = Path.Join(TestCommon.GetTestDataFile("Configuration"), "PSModulePath.txt");
+            Assert.True(File.Exists(testFile));
+            string testFileContents = File.ReadAllText(testFile);
+            Assert.True(testFileContents.StartsWith(testDirectory));
+        }
+
         private void DeleteTxtFiles()
         {
             // Delete all .txt files in the test directory; they are placed there by the tests

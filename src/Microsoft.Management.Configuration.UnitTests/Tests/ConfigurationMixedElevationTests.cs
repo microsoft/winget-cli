@@ -159,5 +159,49 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.Null(elevatedUnitResult.ResultInformation.ResultCode);
             Assert.Equal(ConfigurationUnitResultSource.None, elevatedUnitResult.ResultInformation.ResultSource);
         }
+
+        /// <summary>
+        /// Verifies that attempting to pass a secure parameter across the integrity boundary fails.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public async Task SecureParameterAcrossIntegrityBoundaryFails()
+        {
+            string resourceName = "E2ETestResourcePID";
+            string moduleName = "xE2ETestResource";
+            Version version = new Version("0.0.0.1");
+
+            string tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(tempDirectory);
+
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            configurationSet.Metadata.Add(Helpers.Constants.EnableDynamicFactoryTestMode, true);
+
+            ConfigurationUnit elevatedUnit = this.ConfigurationUnit();
+            elevatedUnit.Metadata.Add("version", version.ToString());
+            elevatedUnit.Metadata.Add("module", moduleName);
+            elevatedUnit.Metadata.Add("securityContext", "elevated");
+            elevatedUnit.Settings.Add("directoryPath", tempDirectory);
+            elevatedUnit.Type = resourceName;
+            elevatedUnit.Intent = ConfigurationUnitIntent.Apply;
+
+            configurationSet.Units = new ConfigurationUnit[] { elevatedUnit };
+
+            ConfigurationParameter parameter = this.ConfigurationParameter();
+            parameter.Name = "param";
+            parameter.Type = Windows.Foundation.PropertyType.String;
+            parameter.IsSecure = true;
+            parameter.ProvidedValue = "secrets";
+
+            configurationSet.Parameters = new ConfigurationParameter[] { parameter };
+
+            IConfigurationSetProcessorFactory dynamicFactory = await this.fixture.ConfigurationStatics.CreateConfigurationSetProcessorFactoryAsync(Helpers.Constants.DynamicRuntimeHandlerIdentifier);
+
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(dynamicFactory);
+
+            ApplyConfigurationSetResult result = processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None);
+            Assert.NotNull(result.ResultCode);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY, result.ResultCode.HResult);
+        }
     }
 }
