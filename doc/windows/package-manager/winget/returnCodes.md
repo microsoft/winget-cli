@@ -143,6 +143,8 @@ ms.localizationpriority: medium
 | 0x8A150081 | -1978335103 | APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED | Failed to get Microsoft Store package download information. |
 | 0x8A150082 | -1978335102 | APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE | No applicable Microsoft Store package download information found. |
 | 0x8A150083 | -1978335101 | APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED | Failed to retrieve Microsoft Store package license. |
+| 0x8A150084 | -1978335100 | APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED | The Microsoft Store package does not support download command. |
+| 0x8A150085 | -1978335099 | APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN | Failed to retrieve Microsoft Store package license. The Microsoft Entra Id account does not have required privilege. |
 
 ## Install errors.
 

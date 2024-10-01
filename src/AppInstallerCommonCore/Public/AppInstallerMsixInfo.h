@@ -47,8 +47,14 @@ namespace AppInstaller::Msix
     // Gets the package location from the given full name.
     std::optional<std::filesystem::path> GetPackageLocationFromFullName(std::string_view fullName);
 
-    // Gets the package version from the given full name.
-    AppInstaller::Utility::UInt64Version GetPackageVersionFromFullName(std::string_view fullName);
+    struct PackageIdInfo
+    {
+        std::string Name;
+        AppInstaller::Utility::UInt64Version Version;
+    };
+
+    // Gets the package id info from the given full name.
+    PackageIdInfo GetPackageIdInfoFromFullName(std::string_view fullName);
 
     // MsixInfo class handles all appx/msix related query.
     struct MsixInfo

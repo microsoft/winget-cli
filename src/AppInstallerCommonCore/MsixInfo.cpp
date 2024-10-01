@@ -465,7 +465,7 @@ namespace AppInstaller::Msix
         return { result };
     }
 
-    Utility::UInt64Version GetPackageVersionFromFullName(std::string_view fullName)
+    Msix::PackageIdInfo GetPackageIdInfoFromFullName(std::string_view fullName)
     {
         std::wstring fullNameWide = Utility::ConvertToUTF16(fullName);
 
@@ -474,7 +474,7 @@ namespace AppInstaller::Msix
         if (returnVal != ERROR_INSUFFICIENT_BUFFER)
         {
             LOG_WIN32(returnVal);
-            return 0;
+            return {};
         }
 
         THROW_HR_IF(E_UNEXPECTED, length == 0);
@@ -485,12 +485,12 @@ namespace AppInstaller::Msix
         if (returnVal != ERROR_SUCCESS)
         {
             LOG_WIN32(returnVal);
-            return 0;
+            return {};
         }
 
         PACKAGE_ID* packageId = (PACKAGE_ID*)packageIdContent.get();
 
-        return packageId->version.Version;
+        return { Utility::ConvertToUTF8(packageId->name), packageId->version.Version };
     }
 
     GetCertContextResult GetCertContextFromMsix(const std::filesystem::path& msixPath)
