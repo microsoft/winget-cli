@@ -35,7 +35,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetSerializer_0_3::WriteYamlParameters(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationParameter>& values)
     {
-        if (values.Size() == 0)
+        if (!values || values.Size() == 0)
         {
             return;
         }
@@ -58,7 +58,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             WriteYamlValueIfNotEmpty(emitter, ConfigurationField::DefaultValue, parameter.DefaultValue());
 
             auto allowedValues = parameter.AllowedValues();
-            if (allowedValues.Size() != 0)
+            if (allowedValues && allowedValues.Size() != 0)
             {
                 emitter << Key << GetConfigurationFieldName(ConfigurationField::AllowedValues);
 
@@ -115,7 +115,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Metadata, unit.Metadata());
 
             auto dependencies = unit.Dependencies();
-            if (dependencies.Size() != 0)
+            if (dependencies && dependencies.Size() != 0)
             {
                 emitter << Key << GetConfigurationFieldName(ConfigurationField::DependsOn);
 
@@ -123,7 +123,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
                 for (const auto& value : dependencies)
                 {
-                    emitter << Value << ConvertToUTF8(value);
+                    emitter << ConvertToUTF8(value);
                 }
 
                 emitter << EndSeq;

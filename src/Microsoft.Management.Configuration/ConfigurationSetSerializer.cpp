@@ -67,7 +67,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetSerializer::WriteYamlValueSetIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, const Windows::Foundation::Collections::ValueSet& valueSet)
     {
-        if (valueSet.Size() != 0)
+        if (valueSet && valueSet.Size() != 0)
         {
             emitter << Key << GetConfigurationFieldName(key);
             WriteYamlValueSet(emitter, valueSet);

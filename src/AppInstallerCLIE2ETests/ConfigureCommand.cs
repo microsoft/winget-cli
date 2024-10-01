@@ -23,6 +23,8 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
+            WinGetSettingsHelper.ConfigureFeature("configuration03", true);
+            WinGetSettingsHelper.ConfigureFeature("configureSelfElevate", true);
             this.DeleteTxtFiles();
         }
 

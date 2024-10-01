@@ -8,14 +8,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Runtime.InteropServices;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.VisualBasic;
-    using Newtonsoft.Json.Bson;
-    using Newtonsoft.Json.Linq;
     using Windows.Foundation.Collections;
     using Windows.Storage.Streams;
     using WinRT;
@@ -555,7 +551,7 @@ properties:
 
             OpenConfigurationSetResult openResult = processor.OpenConfigurationSet(this.CreateStream(@"
 $schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
-directives:
+metadata:
   description: FakeSetDescription
 variables:
   var1: Test1
@@ -573,7 +569,7 @@ resources:
       description: FakeDescription
       allowPrerelease: true
       securityContext: elevated
-    settings:
+    properties:
       TestString: Hello
       TestBool: false
       TestInt: 1234  
@@ -586,7 +582,7 @@ resources:
     metadata:
       description: FakeDescription2
       securityContext: elevated
-    settings:
+    properties:
       TestString: Bye
       TestBool: true
       TestInt: 4321
