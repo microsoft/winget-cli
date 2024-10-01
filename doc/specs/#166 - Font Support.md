@@ -1,7 +1,7 @@
 ---
 author: Ryan Fu @ryfu-msft
-created on: 2024-9-18
-last updated: 2024-9-18
+created on: 2024-10-1
+last updated: 2024-10-1
 issue id: 166
 ---
 
@@ -62,9 +62,8 @@ To remove a font, the inverse operation of the steps above need to be completed.
 2. Remove the file from the font directory
 
 
-## Manifest Changes:
+## Manifest Changes
 - Addition of `font` to `installerType` and `nestedInstallerType`
-- Addition of `FontFaceName`. If `font` is specified for either the `installerType` and `nestedInstallerType`, then a `fontFaceName` is required. Each nested font must have a `fontFaceName` specified.
 
 Manifest Example:
 ```yaml
@@ -82,11 +81,8 @@ ManifestType: installer
 ManifestVersion: 1.9.0
 ```
 
-A new `PredefinedSource` will be created for `Fonts`.
-
-`PredefinedInstalledFontFactory` will be defined that creates a SQLite index from the installed font information.
-
-The table below shows how a font will be recorded in the index and highlights some of the similaries to an MSIX package.
+## Font Index
+A new `PredefinedSource` will be created for `Fonts`. `PredefinedInstalledFontFactory` will be defined that creates a SQLite index from the installed font information. The table below shows how a font is analogous to a package.
 
 | Property | Package | Font |
 | -------- | ------- | ---- |
@@ -97,8 +93,6 @@ The table below shows how a font will be recorded in the index and highlights so
 | InstalledLocation    |   N/A    | %LOCALAPPDATA%/Microsoft/Windows/Fonts/Arial.ttf |
 | InstalledScope    |       |   User |
 
-
-
 > The unique identifer for each font will be a combination of the scope, font font family name, and font face name.
 
 > The version of the font only exists at the font face level and not at the family level
@@ -107,7 +101,7 @@ The table below shows how a font will be recorded in the index and highlights so
 
 New Command: `winget fonts`
 ---
-Fonts should be completely separate from the existing package management experience. Fonts aren't as complex as installing packages so having new subcommands can help simplify the necessary arguments for proper functionality. To support this, a new command called `font` will be added. The following subcommands will be available.
+Fonts should be completely separate from the existing package management experience. Fonts aren't as complex as installing packages so having new subcommands can help simplify the necessary arguments for proper functionality. To support this, a new command called `font` will be added. The following subcommands will be available:
 - `winget fonts list`
 - `winget fonts install`
 - `winget fonts uninstall`
@@ -124,8 +118,8 @@ The default behavior of `winget fonts list` is to display all installed font fam
 | Bahnschrift | 1   |
 | Cascadia Code | 30 |
 
-The code snippet below shows how to enumerate the list of installed font family names.
 ```c++
+    // How to enumerate the list of installed font family names.
     wchar_t localeNameBuffer[LOCALE_NAME_MAX_LENGTH];
     const auto localeName = GetUserDefaultLocaleName(localeNameBuffer, LOCALE_NAME_MAX_LENGTH) ? localeNameBuffer : L"en-US";
 
@@ -185,13 +179,13 @@ Then the tool will display all of the font faces related to that font family nam
 Sample Code:
 
 ```c++
-        // Create a single font face from a family.
+        // Obtaining all font file paths associated with a font face.
         wil::com_ptr<IDWriteFontFace> fontFace;
         THROW_IF_FAILED(font->CreateFontFace(fontFace.addressof()));
 
         // https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontface-getfiles
         UINT32 fileCount;
-        THROW_IF_FAILED(fontFace->GetFiles(&fileCount, nullptr)); // Use null to only retrieve the number of files.
+        THROW_IF_FAILED(fontFace->GetFiles(&fileCount, nullptr)); // Use null initially to retrieve the number of files.
 
         wil::com_ptr<IDWriteFontFile> fontFiles[8];
         THROW_HR_IF(E_OUTOFMEMORY, fileCount > ARRAYSIZE(fontFiles));
@@ -230,7 +224,7 @@ Sample Code:
 `winget fonts install`
 ---
 
-#### 1. Initial Validation
+### 1. Initial Validation
 Winget will check that `effectiveInstallerType == font` before kicking off the font installation flow.
 
 The flow will start by validating the font file using the [IDWriteFontFile::Analyze](https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontfile-analyze) method. The `isValid` boolean value will be checked first to determine if we can support installing this font file. If it is not valid, the workflow will terminate and an error message will be displayed to the user.
@@ -243,48 +237,78 @@ The flow will start by validating the font file using the [IDWriteFontFile::Anal
     THROW_IF_FAILED(localFontFile->Analyze(&isValid, &fileType, &faceType, &numOfFaces));
 ```
 
-#### 2. Determining desired state
+### 2. Determining expected states
 Based on the `--scope` argument, this will be used to determine where the font file will be copied to, and where we will create a new registry key.
+We will check whether those files/entries already exist and return an error to the user. The user can bypass these checks by including the `--force` argument, which will overwrite these files/entries.
 
-User mode:
+| | User Scope | Machine Scope |
+| --- | --- | --- |
+| Font Name | Roboto | Roboto |
+| Font Path | `%LOCALAPPDATA%/Microsoft/Windows/Fonts/Roboto.ttf` | `C:\Windows\Fonts\Roboto.ttf` |
+| Registry Path | `HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts` | `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts` |
+| Registry Entry Name | `Roboto (TrueType)` | `Roboto (TrueType)` |
+| Registry Entry Value | `%LOCALAPPDATA%/Microsoft/Windows/Fonts/Roboto.ttf` | `Roboto.ttf` |
 
-Font path: `%LOCALAPPDATA%/Microsoft/Windows/Fonts/fontName.ttf`
-
-Registry Entry: `[Font Name (True Type)] : [Full font path]`
 
 > Nearly all of the font types are .ttf and append the `(True Type)` font type to the end of the font name. We will follow the same pattern if the font type is True Type.
 
-Machine scope:
-Font path: Use the known folder id for the fonts directory: `CSIDL_FONTS`. The typical path is `C:\Windows\Fonts`.
+> Machine scope font folder has a known folder id for the fonts directory: `CSIDL_FONTS`, which typically points to `C:\Windows\Fonts`.
 
-Registry Entry: `[Font Name (True Type)] : [font file name]`
+**Registry Entry Name**
 
-For all the entries above, we will check whether those files/entries already exist and return an error to the user. The user can bypass these checks by including the `--force argument` which will overwrite these files/entries.
+The font's registry name will be acquired from the file's title (right click-> properties -> details -> title). There are a few font titles that have multiple font names separated by a semicolon. The semicolon will be replaced with an `&` character. `TrueType` will be appended if the file is a true type font.
 
-#### 3. Applying desired state
-Once all checks have been verified, we will apply the desired state so that the font file will exist in the appropriate location and a new registry entry will be created.
+| Font File | Font Title | Font Registry Name|
+| --- | --- | --- |
+| timesbd.ttf | Times New Roman Bold | Times New Roman Bold (TrueType) |
+|  simsun.ttc | SimSun; NSimSun | SimSun & NSimSun (TrueType) |
+| YuGothL.ttc | Yu Gothic Light; Yu Gothic UI Light  | Yu Gothic Light & Yu Gothic UI Light (TrueType) |
+
+```c++
+    // Retrieving the title of the font file.
+    #include <ShObjIdl_core.h>
+    #include <propkey.h>
+    CoInitialize(nullptr);
+    IPropertyStore* pps = nullptr;
+    HRESULT hr = SHGetPropertyStoreFromParsingName(fontFilePath.c_str(), nullptr, GPS_DEFAULT, IID_PPV_ARGS(&pps));
+
+    if (SUCCEEDED(hr)) {
+        PROPVARIANT prop;
+        PropVariantInit(&prop);
+        hr = pps->GetValue(PKEY_Title, &prop);
+        if (SUCCEEDED(hr)) {
+            std::wstring title = prop.pwszVal;
+            PropVariantClear(&prop);
+            pps->Release();
+            wprintf(L"%s\n", &title[0]);
+        }
+
+        PropVariantClear(&prop);
+        pps->Release();
+    }
+```
+
+### 3. Applying desired state
+Once all checks have been verified, we will apply the desired state so that the font file will exist in the appropriate location and a new registry entry will be created along with updating the font index.
 
 `winget fonts uninstall`
 ---
 
 1. Determine which font file(s) matches the font family/face name
 
-Utilizing the enumeration code from above, we will determine which file(s) corresponds to the specified font family. During enumeration, it is possible to have duplicate entries for the same font family name if the font is installed in both user and system scope. The user will need to provide the `--scope` argument to filter down to exactly one font family. 
+Utilizing the enumeration code from [`winget fonts list`](#winget-fonts-list), we will determine which file(s) corresponds to the specified font family. During enumeration, it is possible to have duplicate entries for the same font family name if the font is installed in both user and system scope. The user will need to provide the `--scope` argument to filter down to exactly one font family. 
 
 `std::vector<std::filesystem::path> GetFontFilePathsByName(familyName, faceName (optional))`
 
-
 2. Check the registry values for matching font path
 
-We will check the corresponding registry for that file path. To improve performance, we will create a heuristic to determine the key name of the font by combining the font name and appending `(True Type)` if the file is indeed a true type font file. Most fonts are registered in this format so this is aims to optimize for the most common scenario.
-
-Our fallback method will be to iterate through all font registry keys to create a map of all registered fonts and font files and determine if there is key value that matches each font path. 
+We will iterate through all font registry keys to create a map of all registered fonts and font files and determine if there is key value that matches each font path. 
 
 There is no guarantee that the key name must match the intended name of the font. The registry key name has no impact on how the font is registered by the OS. Because of this, the only guaranteed solution is to scan through all font registry entries and look for a single match.
 
-3. Remove the file and the registry entry. 
-Once we have determined the matching font file and registry key entry, both of these items will be removed from the system.
+3. Remove the file and the registry entry.
 
+Once we have determined the matching font file and registry key entry, both of these items will be removed from the system and the font index will be updated.
 
 ### Uninstall Scenarios:
 ---
@@ -315,7 +339,7 @@ The user must include the `--force` argument to remove both files. This means th
 
 `winget fonts upgrade`
 ---
-Identifying the version only applies at the  font face level.
+Identifying the version only applies at the font face level.
 
 Retrieving the version of the font face:
 ```c++
@@ -338,3 +362,26 @@ Retrieving the version of the font face:
        wprintf(L"%s\n", &result[0]);
 ```
 
+We will compare this font version with what is the latest available version from the repository. If `all current font face versions < latest available font version`, we will remove the previous font and install the latest. 
+
+## Validation
+- Fonts should be submitted in their own directory in the winget-pkgs repository in order to maintain separation between fonts and manifests. Package manifests will continue to live in the `manifests` directory, while font manifests will be added to a new `fonts` directory with a similar directory structure (sorted by starting letter)
+
+```
+winget-pkgs
+│   README.md
+│   file001.txt    
+│
+└───manifests
+│   └───a
+│   └───b
+│   
+└───fonts
+│   └───a
+|       |   American Kestrel
+|       |   Autumn Voyage
+│   └───b
+```
+
+- PRSS validation is required to verify that the downloaded fonts file does not contain potential malware.
+- DAAS validation is not completely necessary. If we decide to go this route, DAAS will need to be updated to avoid checking for a valid executable and just verify that the font file/entries were correctly placed.
