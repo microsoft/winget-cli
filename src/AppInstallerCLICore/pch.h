@@ -7,6 +7,7 @@
 #include <shellapi.h>
 #include <WinInet.h>
 #include <msi.h>
+#include <wincodec.h>
 
 #pragma warning( push )
 #pragma warning ( disable : 4458 4100 6031 4702 )
@@ -16,6 +17,7 @@
 #include <valijson/adapters/jsoncpp_adapter.hpp>
 #pragma warning( pop )
 
+#include <algorithm>
 #include <array>
 #include <atomic>
 #include <csignal>
@@ -29,6 +31,7 @@
 #include <optional>
 #include <set>
 #include <sstream>
+#include <string>
 #include <string_view>
 #include <vector>
 

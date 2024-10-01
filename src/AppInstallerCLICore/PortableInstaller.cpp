@@ -72,9 +72,10 @@ namespace AppInstaller::CLI::Portable
         }
         else if (fileType == PortableFileType::Symlink)
         {
-            if (Filesystem::SymlinkExists(filePath) && !Filesystem::VerifySymlink(filePath, entry.SymlinkTarget))
+            std::filesystem::path symlinkTargetPath{ AppInstaller::Utility::ConvertToUTF16(entry.SymlinkTarget) };
+            if (Filesystem::SymlinkExists(filePath) && !Filesystem::VerifySymlink(filePath, symlinkTargetPath))
             {
-                AICLI_LOG(CLI, Warning, << "Symlink target does not match ARP Entry. Expected: " << entry.SymlinkTarget << " Actual: " << std::filesystem::read_symlink(filePath));
+                AICLI_LOG(CLI, Warning, << "Symlink target does not match ARP Entry. Expected: " << symlinkTargetPath << " Actual: " << std::filesystem::read_symlink(filePath));
                 return false;
             }
         }
@@ -121,11 +122,13 @@ namespace AppInstaller::CLI::Portable
         }
         else if (entry.FileType == PortableFileType::Symlink)
         {
+            std::filesystem::path symlinkTargetPath{ Utility::ConvertToUTF16(entry.SymlinkTarget) };
+
             if (BinariesDependOnPath && !InstallDirectoryAddedToPath)
             {
                 // Scenario indicated by 'ArchiveBinariesDependOnPath' manifest entry.
                 // Skip symlink creation for portables dependent on binaries that require the install directory to be added to PATH.
-                std::filesystem::path installDirectory = std::filesystem::path(entry.SymlinkTarget).parent_path();
+                std::filesystem::path installDirectory = symlinkTargetPath.parent_path();
                 AddToPathVariable(installDirectory);
                 AICLI_LOG(Core, Info, << "Install directory added to PATH: " << installDirectory);
                 CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
@@ -150,15 +153,15 @@ namespace AppInstaller::CLI::Portable
                     m_stream << Resource::String::OverwritingExistingFileAtMessage(Utility::LocIndView{ filePath.u8string() }) << std::endl;
                 }
 
-                if (Filesystem::CreateSymlink(entry.SymlinkTarget, filePath))
+                if (Filesystem::CreateSymlink(symlinkTargetPath, filePath))
                 {
-                    AICLI_LOG(Core, Info, << "Symlink created at: " << filePath);
+                    AICLI_LOG(Core, Info, << "Symlink created at: " << filePath << " with target path: " << symlinkTargetPath);
                 }
                 else
                 {
                     // If symlink creation fails, resort to adding the package directory to PATH.
                     AICLI_LOG(Core, Info, << "Failed to create symlink at: " << filePath);
-                    AddToPathVariable(std::filesystem::path(entry.SymlinkTarget).parent_path());
+                    AddToPathVariable(symlinkTargetPath.parent_path());
                     CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
                 }
             }
@@ -186,7 +189,7 @@ namespace AppInstaller::CLI::Portable
             else if (InstallDirectoryAddedToPath)
             {
                 // If symlink doesn't exist, check if install directory was added to PATH directly and remove.
-                RemoveFromPathVariable(std::filesystem::path(entry.SymlinkTarget).parent_path());
+                RemoveFromPathVariable(std::filesystem::path(Utility::ConvertToUTF16(entry.SymlinkTarget)).parent_path());
             }
         }
         else if (fileType == PortableFileType::Symlink && Filesystem::SymlinkExists(filePath))

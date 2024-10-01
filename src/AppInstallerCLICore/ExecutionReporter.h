@@ -72,6 +72,9 @@ namespace AppInstaller::CLI::Execution
 
         ~Reporter();
 
+        // Gets the primary device attributes if available.
+        std::optional<VirtualTerminal::PrimaryDeviceAttributes> GetPrimaryDeviceAttributes();
+
         // Get a stream for verbose output.
         OutputStream Verbose() { return GetOutputStream(Level::Verbose); }
 
@@ -107,11 +110,6 @@ namespace AppInstaller::CLI::Execution
 
         // Prompts the user for a path.
         std::filesystem::path PromptForPath(Resource::LocString message, Level level = Level::Info, std::filesystem::path resultIfDisabled = std::filesystem::path::path());
-
-        // Used to show indefinite progress. Currently an indefinite spinner is the form of
-        // showing indefinite progress.
-        // running: shows indefinite progress if set to true, stops indefinite progress if set to false
-        void ShowIndefiniteProgress(bool running);
 
         // IProgressSink
         void BeginProgress() override;
@@ -174,17 +172,28 @@ namespace AppInstaller::CLI::Execution
 
         void SetLevelMask(Level reporterLevel, bool setEnabled = true);
 
+        // Determines if sixels are supported by the current instance.
+        bool SixelsSupported();
+
+        // Determines if sixels are enabled; they must be both supported and enabled by user settings.
+        bool SixelsEnabled();
+
     private:
         Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream);
         // Gets a stream for output for internal use.
         OutputStream GetBasicOutputStream();
 
+        // Used to show indefinite progress. Currently an indefinite spinner is the form of
+        // showing indefinite progress.
+        // running: shows indefinite progress if set to true, stops indefinite progress if set to false
+        void ShowIndefiniteProgress(bool running);
+
         Channel m_channel = Channel::Output;
         std::shared_ptr<BaseStream> m_out;
         std::istream& m_in;
         std::optional<AppInstaller::Settings::VisualStyle> m_style;
-        std::optional<IndefiniteSpinner> m_spinner;
-        std::optional<ProgressBar> m_progressBar;
+        std::unique_ptr<IIndefiniteSpinner> m_spinner;
+        std::unique_ptr<IProgressBar> m_progressBar;
         wil::srwlock m_progressCallbackLock;
         std::atomic<ProgressCallback*> m_progressCallback;
         std::atomic<IProgressSink*> m_progressSink;

@@ -302,6 +302,8 @@ silentwithprogress
 Silverlight
 simplesave
 simpletest
+sixel
+sixels
 sln
 sqlbuilder
 sqliteicu

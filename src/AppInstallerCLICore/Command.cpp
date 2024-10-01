@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Command.h"
 #include "Resources.h"
+#include "Sixel.h"
 #include <winget/UserSettings.h>
 #include <AppInstallerRuntime.h>
 #include <winget/Locale.h>
@@ -42,8 +43,39 @@ namespace AppInstaller::CLI
 
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
+        auto infoOut = reporter.Info();
+        VirtualTerminal::ConstructedSequence indent;
+
+        if (reporter.SixelsEnabled())
+        {
+            try
+            {
+                std::filesystem::path imagePath = Runtime::GetPathTo(Runtime::PathName::ImageAssets);
+
+                if (!imagePath.empty())
+                {
+                    // This image matches the target pixel size. If changing the target size, choose the most appropriate image.
+                    imagePath /= "AppList.targetsize-40.png";
+
+                    VirtualTerminal::Sixel::Image wingetIcon{ imagePath };
+
+                    // Using a height of 2 to match the two lines of header.
+                    UINT imageHeightCells = 2;
+                    UINT imageWidthCells = 2 * imageHeightCells;
+
+                    wingetIcon.RenderSizeInCells(imageWidthCells, imageHeightCells);
+                    wingetIcon.RenderTo(infoOut);
+
+                    indent = VirtualTerminal::Cursor::Position::Forward(static_cast<int16_t>(imageWidthCells));
+                    infoOut << VirtualTerminal::Cursor::Position::Up(static_cast<int16_t>(imageHeightCells) - 1);
+                }
+            }
+            CATCH_LOG();
+        }
+
         auto productName = Runtime::IsReleaseBuild() ? Resource::String::WindowsPackageManager : Resource::String::WindowsPackageManagerPreview;
-        reporter.Info() << productName(Runtime::GetClientVersion()) << std::endl << Resource::String::MainCopyrightNotice << std::endl;
+        infoOut << indent << productName(Runtime::GetClientVersion()) << std::endl
+            << indent << Resource::String::MainCopyrightNotice << std::endl;
     }
 
     void Command::OutputHelp(Execution::Reporter& reporter, const CommandException* exception) const
