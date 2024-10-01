@@ -6,11 +6,12 @@
 
 #include <AppInstallerStrings.h>
 
+using namespace AppInstaller::Utility;
+using namespace AppInstaller::YAML;
+using namespace winrt::Windows::Foundation;
+
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    using namespace AppInstaller::YAML;
-    using namespace winrt::Windows::Foundation;
-
     hstring ConfigurationSetSerializer_0_2::Serialize(ConfigurationSet* configurationSet)
     {
         std::vector<ConfigurationUnit> assertions;
@@ -36,7 +37,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         emitter << Key << GetConfigurationFieldName(ConfigurationField::Properties);
 
         emitter << BeginMap;
-        emitter << Key << GetConfigurationFieldName(ConfigurationField::ConfigurationVersion) << Value << AppInstaller::Utility::ConvertToUTF8(configurationSet->SchemaVersion());
+        emitter << Key << GetConfigurationFieldName(ConfigurationField::ConfigurationVersion) << Value << ConvertToUTF8(configurationSet->SchemaVersion());
 
         if (!assertions.empty())
         {
@@ -53,7 +54,53 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         emitter << EndMap;
         emitter << EndMap;
 
-        return GetSchemaVersionComment(configurationSet->SchemaVersion()) + winrt::to_hstring(L"\n") + winrt::to_hstring(emitter.str());
+        std::wostringstream result;
+        result << GetSchemaVersionCommentPrefix() << static_cast<std::wstring_view>(configurationSet->SchemaVersion()) << L"\n" << ConvertToUTF16(emitter.str());
+        return hstring{ std::move(result).str() };
+    }
+
+    void ConfigurationSetSerializer_0_2::WriteYamlConfigurationUnits(AppInstaller::YAML::Emitter& emitter, const std::vector<ConfigurationUnit>& units)
+    {
+        emitter << BeginSeq;
+
+        for (const auto& unit : units)
+        {
+            // Resource
+            emitter << BeginMap;
+            emitter << Key << GetConfigurationFieldName(ConfigurationField::Resource) << Value << AppInstaller::Utility::ConvertToUTF8(GetResourceName(unit));
+
+            // Id
+            if (!unit.Identifier().empty())
+            {
+                emitter << Key << GetConfigurationFieldName(ConfigurationField::Id) << Value << AppInstaller::Utility::ConvertToUTF8(unit.Identifier());
+            }
+
+            // Dependencies
+            if (unit.Dependencies().Size() > 0)
+            {
+                emitter << Key << GetConfigurationFieldName(ConfigurationField::DependsOn);
+                emitter << BeginSeq;
+
+                for (const auto& dependency : unit.Dependencies())
+                {
+                    emitter << AppInstaller::Utility::ConvertToUTF8(dependency);
+                }
+
+                emitter << EndSeq;
+            }
+
+            // Directives
+            WriteResourceDirectives(emitter, unit);
+
+            // Settings
+            const auto& settings = unit.Settings();
+            emitter << Key << GetConfigurationFieldName(ConfigurationField::Settings);
+            WriteYamlValueSet(emitter, settings);
+
+            emitter << EndMap;
+        }
+
+        emitter << EndSeq;
     }
 
     winrt::hstring ConfigurationSetSerializer_0_2::GetResourceName(const ConfigurationUnit& unit)

@@ -3112,4 +3112,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationSuppressPrologueArgumentDescription" xml:space="preserve">
     <value>Suppress showing initial configuration details when possible</value>
   </data>
+  <data name="WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY" xml:space="preserve">
+    <value>Secure parameters cannot be passed across integrity boundaries.</value>
+  </data>
 </root>

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
+#include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
 #include <winget/ILifetimeWatcher.h>
 #include <winget/Security.h>
@@ -136,6 +137,26 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 #else
                 m_currentIntegrityLevel = Security::GetEffectiveIntegrityLevel();
 #endif
+
+                // Check for multiple integrity level requirements
+                bool multipleIntegrityLevels = false;
+                for (const auto& existingUnit : m_configurationSet.Units())
+                {
+                    if (GetIntegrityLevelForUnit(existingUnit) != m_currentIntegrityLevel)
+                    {
+                        multipleIntegrityLevels = true;
+                        break;
+                    }
+                }
+
+                // Prevent supplied secure parameters from crossing integrity levels
+                if (multipleIntegrityLevels)
+                {
+                    for (const auto& parameter : m_configurationSet.Parameters())
+                    {
+                        THROW_HR_IF(WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY, parameter.IsSecure() && parameter.ProvidedValue() != nullptr);
+                    }
+                }
 
                 m_setProcessors.emplace(m_currentIntegrityLevel, DynamicProcessorInfo{ m_dynamicFactory->DefaultFactory(), defaultRemoteSetProcessor});
             }
@@ -277,9 +298,10 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             std::string SerializeHighIntegrityLevelSet()
             {
                 ConfigurationSet highIntegritySet;
-
-                // TODO: Currently we only support schema version 0.2 for handling elevated integrity levels.
-                highIntegritySet.SchemaVersion(L"0.2");
+                highIntegritySet.SchemaVersion(m_configurationSet.SchemaVersion());
+                highIntegritySet.Metadata(m_configurationSet.Metadata());
+                highIntegritySet.Parameters(m_configurationSet.Parameters());
+                highIntegritySet.Variables(m_configurationSet.Variables());
 
                 std::vector<ConfigurationUnit> highIntegrityUnits;
                 auto units = m_configurationSet.Units();
