@@ -11,6 +11,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using System.Threading.Tasks;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
+    using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Client.Engine.PSObjects;
     using Microsoft.WinGet.Resources;
@@ -103,6 +104,17 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
             if (result != null)
             {
+                if (result.Item1.Status == RepairResultStatus.RepairError
+                    && result.Item1.ExtendedErrorCode != null)
+                {
+                    if (result.Item1.ExtendedErrorCode.InnerException != null)
+                    {
+                        throw new WinGetRepairPackageException(result.Item1.ExtendedErrorCode.HResult, result.Item1.RepairerErrorCode, result.Item1.ExtendedErrorCode.InnerException);
+                    }
+
+                    throw new WinGetRepairPackageException(result.Item1.ExtendedErrorCode.HResult, result.Item1.RepairerErrorCode);
+                }
+
                 this.Write(WinGet.Common.Command.StreamType.Object, new PSRepairResult(result.Item1, result.Item2));
             }
         }

@@ -214,11 +214,29 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Repair operations involving administrator privileges are not permitted on packages installed within the user scope..
+        /// </summary>
+        internal static string NoAdminRepairForUserScopePackage {
+            get {
+                return ResourceManager.GetString("NoAdminRepairForUserScopePackage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No packages matched the given input criteria..
         /// </summary>
         internal static string NoPackageFoundExceptionMessage {
             get {
                 return ResourceManager.GetString("NoPackageFoundExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The repair command for this package is not available in the Package Manifest. Please reach out to the package publisher for assistance..
+        /// </summary>
+        internal static string NoRepairInfoFound {
+            get {
+                return ResourceManager.GetString("NoRepairInfoFound", resourceCulture);
             }
         }
         
@@ -304,6 +322,24 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The installer technology in use does not match the version currently installed..
+        /// </summary>
+        internal static string RepairDifferentInstallTechnology {
+            get {
+                return ResourceManager.GetString("RepairDifferentInstallTechnology", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The repair operation was unsuccessful, exiting with RepairerExit code: {0}..
+        /// </summary>
+        internal static string RepairerFailure {
+            get {
+                return ResourceManager.GetString("RepairerFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to repair winget..
         /// </summary>
         internal static string RepairFailureMessage {
@@ -318,6 +354,15 @@ namespace Microsoft.WinGet.Resources {
         internal static string Repairing {
             get {
                 return ResourceManager.GetString("Repairing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The current installer technology does not support repair. Please reach out to the package vendor for assistance..
+        /// </summary>
+        internal static string RepairOperationNotSupported {
+            get {
+                return ResourceManager.GetString("RepairOperationNotSupported", resourceCulture);
             }
         }
         
@@ -345,6 +390,15 @@ namespace Microsoft.WinGet.Resources {
         internal static string Uninstalling {
             get {
                 return ResourceManager.GetString("Uninstalling", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An unexpected error happened while trying to repair the package. HResult:{0}.
+        /// </summary>
+        internal static string UnknownRepairFailure {
+            get {
+                return ResourceManager.GetString("UnknownRepairFailure", resourceCulture);
             }
         }
         
