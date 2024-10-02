@@ -67,7 +67,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private static readonly Guid UninstallOptionsIid = Guid.Parse("3EBC67F0-8339-594B-8A42-F90B69D02BBE");
         private static readonly Guid PackageMatchFilterIid = Guid.Parse("D981ECA3-4DE5-5AD7-967A-698C7D60FC3B");
         private static readonly Guid DownloadOptionsIid = Guid.Parse("94C92C4B-43F5-5CA3-BBBE-9F432C9546BC");
-        private static readonly Guid RepairOptionsIid = Guid.Parse("828399EF-E0E0-5DA0-973B-B80468A04E9D");
+        private static readonly Guid RepairOptionsIid = Guid.Parse("263F0546-2D7E-53A0-B8D1-75B74817FF18");
 
         private static readonly IEnumerable<Architecture> ValidArchs = new Architecture[] { Architecture.X86, Architecture.X64 };
 
@@ -161,9 +161,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
-        /// Creates an instance of the <see cref="PackageMatchFilter" /> class.
+        /// Creates an instance of the <see cref="RepairOptions" /> class.
         /// </summary>
-        /// <returns>A <see cref="PackageMatchFilter" /> instance.</returns>
+        /// <returns>A <see cref="RepairOptions" /> instance.</returns>
         public RepairOptions CreateRepairOptions()
         {
             return Create<RepairOptions>(RepairOptionsType, RepairOptionsIid);
