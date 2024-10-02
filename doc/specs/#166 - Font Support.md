@@ -7,7 +7,7 @@ issue id: 166
 
 # Support for installation of fonts
 
-For [#66](https://github.com/microsoft/winget-cli/issues/166)
+For [#166](https://github.com/microsoft/winget-cli/issues/166)
 
 ## Abstract
 This spec outlines the design for supporting the installation of fonts.
@@ -24,6 +24,8 @@ This feature will support font files with the following file types:
 The following font types to my knowledge are not supported:
 - .woff & .woff2 (developed by Google for the modern browser)
 - .eot (Embedded OpenType font file) Not used because of security issues.
+
+> Font types will not be treated differently. Support for font installation will be determined by calling [IDWriteFontFile::Analyze](https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontfile-analyze).
 
 ### Installing Fonts
 Typically, a user would download the font file and drag it to the `C:\Windows\Fonts` directory in the explorer view, but there are a couple things happening behind the scenes.
@@ -61,6 +63,17 @@ To remove a font, the inverse operation of the steps above need to be completed.
 1. Remove the registry key entry for that specific font file
 2. Remove the file from the font directory
 
+### Relevant APIS:
+- [DWriteCreateFactory](https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-dwritecreatefactory) - Creates the DirectWrite factory object for calling DWrite apis
+- [IDWriteFactory::GetSystemFontCollection](https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefactory-getsystemfontcollection) - Obtains the installed font collections
+
+- [IDWriteFontCollection::FindFamilyName](https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontcollection-findfamilyname) - Finds a font family with a specified family name. Returns the index number in the font collection.
+- [IDWriteFontCollection::GetFontFamily](https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontcollection-getfontfamily) - Creates the font family object using a provided index. Must be a valid index from the font collection.
+- [IDWriteFontList::GetFont](https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontlist-getfont) - Gets the font from a family with a zero-based index
+- [IDWriteFont::GetInformationalStrings method](https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefont-getinformationalstrings) - Gets specific informational strings such as font full name, author, etc.
+- [IDWriteLocalFontFileLoader::GetFilePathFromKey](https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritelocalfontfileloader-getfilepathfromkey) - Obtains the absolute font file path from a font file reference key.
+- [SHGetPropertyStoreFromParsingName](https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-shgetpropertystorefromparsingname) - Retrusn the property store for a given path to obtain details like the file's title.
+
 
 ## Manifest Changes
 - Addition of `font` to `installerType` and `nestedInstallerType`
@@ -74,6 +87,7 @@ Installers:
 - InstallerType: zip
   InstallerUrl: https://github.com/microsoft/cascadia-code/releases/download/v2404.23/CascadiaCode-2404.23.zip
   InstallerSha256: a911410626c0e09d03fa3fdda827188fda96607df50fecc3c5fee5906e33251b
+  NestedInstallerType: font
   NestedInstallerFiles:
   - RelativeFilePath: ttf/CascadiaCodeItalic.ttf
   - RelativeFilePath: ttf/CascadiaMonoNFItalic.ttf
@@ -93,7 +107,7 @@ A new `PredefinedSource` will be created for `Fonts`. `PredefinedInstalledFontFa
 | InstalledLocation    |   N/A    | %LOCALAPPDATA%/Microsoft/Windows/Fonts/Arial.ttf |
 | InstalledScope    |       |   User |
 
-> The unique identifer for each font will be a combination of the scope, font font family name, and font face name.
+> The unique identifer for each font will be a combination of the scope, font family name, and font face name.
 
 > The version of the font only exists at the font face level and not at the family level
 
@@ -101,7 +115,7 @@ A new `PredefinedSource` will be created for `Fonts`. `PredefinedInstalledFontFa
 
 New Command: `winget fonts`
 ---
-Fonts should be completely separate from the existing package management experience. Fonts aren't as complex as installing packages so having new subcommands can help simplify the necessary arguments for proper functionality. To support this, a new command called `font` will be added. The following subcommands will be available:
+Fonts should be completely separate from the existing package management experience. Fonts aren't as complex as installing packages so having new subcommands can help simplify the necessary arguments for proper functionality. To support this, a new command called `fonts` will be added. The following subcommands will be available:
 - `winget fonts list`
 - `winget fonts install`
 - `winget fonts uninstall`
@@ -224,8 +238,13 @@ Sample Code:
 `winget fonts install`
 ---
 
-### 1. Initial Validation
-Winget will check that `effectiveInstallerType == font` before kicking off the font installation flow.
+### 1. Selection From Font Source
+Font source:
+There will be a separate source specifically for fonts. This source will be marked as explicit. The workflows following font source selection will be the same as if an executable package was selected. A user will be enter the following commands and experience the same behavior of installing a font.
+
+`winget fonts install` == `winget install -s winget-fonts`
+
+### 2. Initial Validation
 
 The flow will start by validating the font file using the [IDWriteFontFile::Analyze](https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontfile-analyze) method. The `isValid` boolean value will be checked first to determine if we can support installing this font file. If it is not valid, the workflow will terminate and an error message will be displayed to the user.
 
@@ -237,7 +256,7 @@ The flow will start by validating the font file using the [IDWriteFontFile::Anal
     THROW_IF_FAILED(localFontFile->Analyze(&isValid, &fileType, &faceType, &numOfFaces));
 ```
 
-### 2. Determining expected states
+### 3. Determining expected states
 Based on the `--scope` argument, this will be used to determine where the font file will be copied to, and where we will create a new registry key.
 We will check whether those files/entries already exist and return an error to the user. The user can bypass these checks by including the `--force` argument, which will overwrite these files/entries.
 
@@ -288,7 +307,7 @@ The font's registry name will be acquired from the file's title (right click-> p
     }
 ```
 
-### 3. Applying desired state
+### 4. Applying desired state
 Once all checks have been verified, we will apply the desired state so that the font file will exist in the appropriate location and a new registry entry will be created along with updating the font index.
 
 `winget fonts uninstall`
@@ -296,9 +315,18 @@ Once all checks have been verified, we will apply the desired state so that the 
 
 1. Determine which font file(s) matches the font family/face name
 
-Utilizing the enumeration code from [`winget fonts list`](#winget-fonts-list), we will determine which file(s) corresponds to the specified font family. During enumeration, it is possible to have duplicate entries for the same font family name if the font is installed in both user and system scope. The user will need to provide the `--scope` argument to filter down to exactly one font family. 
+Utilizing the enumeration code from [`winget fonts list`](#winget-fonts-list), we will determine the set of file(s) that correspond to the specified font family/font face.
 
-`std::vector<std::filesystem::path> GetFontFilePathsByName(familyName, faceName (optional))`
+Example helper function: `std::vector<std::filesystem::path> GetFontFilePathsByName(familyName, faceName (optional))`
+
+> During enumeration, it is possible to have duplicate entries for the same font family name if the font is installed in both user and system scope. The user will need to provide the `--scope` argument to filter down to exactly one font family. 
+
+**High-level logic for determining files to remove:**
+1. Determine the font faces that will be uninstalled and determine which set of files correspond to each target font face. 
+2. Determine which font faces are supported by those target files. 
+3. Compare both lists and if there is a discrepancy, this means that there are extra font faces supported by those files. 
+
+If there are extra faces being removed, WinGet will with show a blocking warning to the user and require `--force` to proceed.
 
 2. Check the registry values for matching font path
 
@@ -313,25 +341,20 @@ Once we have determined the matching font file and registry key entry, both of t
 ### Uninstall Scenarios:
 ---
 
-1. **Uninstalling a font family with a single font face:**
+We will treat a `font family` as a `package` and each `font face` as a `side-by-side version`. 
 
-`winget fonts uninstall --name 'Baskerville Old Face'`
 
-Winget will uninstall a font family with a single font face without any warnings.
+1. **Uninstalling a font family:**
 
-2. **Uninstalling a font family with multiple font faces:**
+`winget fonts uninstall --family-name 'Verdana'`
 
-`winget fonts uninstall --name 'Bahnschrift' --remove-multiple-fonts`
+2. **Uninstalling a specific font face:**
 
-If a font family contains multiple font faces, the user must include the `--remove-multiple-fonts`. Otherwise, a blocking warning will be shown to the user.
+`winget fonts uninstall --family-name 'Bahnschrift' --face-name 'Semibold'`
 
-3. **Uninstalling a specific font face:**
+3. **Uninstalling a font face that shares the same font file as another font face:**
 
-`winget fonts uninstall --name 'Bahnschrift' --font-face 'Semibold'`
-
-4. **Uninstalling a font face that shares the same font file as another font face:**
-
-`winget fonts uninstall --name 'Arial' --font-face 'Bold'`
+`winget fonts uninstall --family-name 'Arial' --face-name 'Bold'`
 
 If a specific font face that is being removed shares a font file with another font face, an error will be shown to the user and the workflow will be terminated.
 
@@ -362,10 +385,15 @@ Retrieving the version of the font face:
        wprintf(L"%s\n", &result[0]);
 ```
 
-We will compare this font version with what is the latest available version from the repository. If `all current font face versions < latest available font version`, we will remove the previous font and install the latest. 
+We will compare this font version with what is the latest available version from the repository. If `all current font face versions < latest available font version`, we will remove the previous font and install the latest.
+
+`winget fonts show`
+---
+
+Behaves similarly to `winget show <package>` by showing the relevant fields from the font manifest.
 
 ## Validation
-- Fonts should be submitted in their own directory in the winget-pkgs repository in order to maintain separation between fonts and manifests. Package manifests will continue to live in the `manifests` directory, while font manifests will be added to a new `fonts` directory with a similar directory structure (sorted by starting letter)
+- Fonts should be submitted in their own directory in the winget-pkgs repository in order to maintain separation between fonts and executable packages. Package manifests will continue to live in the `manifests` directory, while font manifests will be added to a new `fonts` directory with a similar directory structure (sorted by starting letter)
 
 ```
 winget-pkgs
@@ -385,3 +413,4 @@ winget-pkgs
 
 - PRSS validation is required to verify that the downloaded fonts file does not contain potential malware.
 - DAAS validation is not completely necessary. If we decide to go this route, DAAS will need to be updated to avoid checking for a valid executable and just verify that the font file/entries were correctly placed.
+- Expose a validation function in WinGetUtil that calls [IDWriteFontFile::Analyze](https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontfile-analyze) on the font file to determine if the font is installable.
