@@ -247,6 +247,7 @@ img
 inet
 inproc
 Insta
+installable
 installinprogress
 INSTALLPROPERTY
 installshield
@@ -622,6 +623,7 @@ uswgp
 uwp
 VALUENAMECASE
 vclib
+Verdana
 versioned
 VERSIONINFO
 vns

@@ -72,7 +72,7 @@ To remove a font, the inverse operation of the steps above need to be completed.
 - [IDWriteFontList::GetFont](https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefontlist-getfont) - Gets the font from a family with a zero-based index
 - [IDWriteFont::GetInformationalStrings method](https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritefont-getinformationalstrings) - Gets specific informational strings such as font full name, author, etc.
 - [IDWriteLocalFontFileLoader::GetFilePathFromKey](https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwritelocalfontfileloader-getfilepathfromkey) - Obtains the absolute font file path from a font file reference key.
-- [SHGetPropertyStoreFromParsingName](https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-shgetpropertystorefromparsingname) - Retrusn the property store for a given path to obtain details like the file's title.
+- [SHGetPropertyStoreFromParsingName](https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-shgetpropertystorefromparsingname) - Returns the property store for a given path to obtain details like the file's title.
 
 
 ## Manifest Changes
