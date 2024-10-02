@@ -81,10 +81,10 @@ namespace AppInstaller::CLI::Workflow
 
         if (IsSmartScreenRequired(zone) && IsBlockedBySmartScreen(context, uri))
         {
-            return APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE;
+            return APPINSTALLER_CLI_ERROR_BLOCKED_BY_REPUTATION_SERVICE;
         }
 
-        return NO_ERROR;
+        return S_OK;
     }
 
     void EvaluateUri(Execution::Context& context)
@@ -97,7 +97,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Info() << "Validating Uri: " << argPath;
                 auto uriValidation = EvaluateUri(context, argPath);
-                if (uriValidation != NO_ERROR)
+                if (FAILED(uriValidation))
                 {
                     AICLI_LOG(Config, Error, << "URI validation blocked this uri: " << argPath);
                     AICLI_TERMINATE_CONTEXT(uriValidation);
