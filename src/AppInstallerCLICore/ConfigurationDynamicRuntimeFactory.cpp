@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
 #include <AppInstallerErrors.h>
+#include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerStrings.h>
 #include <winget/ILifetimeWatcher.h>
 #include <winget/Security.h>
@@ -140,21 +141,28 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
                 // Check for multiple integrity level requirements
                 bool multipleIntegrityLevels = false;
+                bool higherIntegrityLevelsThanCurrent = false;
                 for (const auto& existingUnit : m_configurationSet.Units())
                 {
-                    if (GetIntegrityLevelForUnit(existingUnit) != m_currentIntegrityLevel)
+                    auto integrityLevel = GetIntegrityLevelForUnit(existingUnit);
+                    if (integrityLevel != m_currentIntegrityLevel)
                     {
                         multipleIntegrityLevels = true;
-                        break;
+
+                        if (ToIntegral(m_currentIntegrityLevel) < ToIntegral(integrityLevel))
+                        {
+                            higherIntegrityLevelsThanCurrent = true;
+                            break;
+                        }
                     }
                 }
 
-                // Prevent supplied secure parameters from crossing integrity levels
-                if (multipleIntegrityLevels)
+                // Prevent supplied parameters from crossing integrity levels
+                for (const auto& parameter : m_configurationSet.Parameters())
                 {
-                    for (const auto& parameter : m_configurationSet.Parameters())
+                    if (parameter.ProvidedValue() != nullptr)
                     {
-                        THROW_HR_IF(WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY, parameter.IsSecure() && parameter.ProvidedValue() != nullptr);
+                        THROW_HR_IF(WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY, higherIntegrityLevelsThanCurrent || (multipleIntegrityLevels && parameter.IsSecure()));
                     }
                 }
 

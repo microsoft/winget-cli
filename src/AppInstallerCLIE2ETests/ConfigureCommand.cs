@@ -34,6 +34,8 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void OneTimeTeardown()
         {
+            WinGetSettingsHelper.ConfigureFeature("configuration03", false);
+            WinGetSettingsHelper.ConfigureFeature("configureSelfElevate", false);
             this.DeleteTxtFiles();
         }
 

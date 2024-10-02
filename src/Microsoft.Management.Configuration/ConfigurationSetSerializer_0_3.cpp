@@ -5,6 +5,7 @@
 #include "ArgumentValidation.h"
 #include "ConfigurationSetParser_0_3.h"
 #include "ConfigurationSetUtilities.h"
+#include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
 
 using namespace AppInstaller::Utility;
@@ -110,8 +111,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             emitter << BeginMap;
 
-            emitter << Key << GetConfigurationFieldName(ConfigurationField::Name) << Value << ConvertToUTF8(unit.Identifier());
-            emitter << Key << GetConfigurationFieldName(ConfigurationField::Type) << Value << ConvertToUTF8(unit.Type());
+            hstring identifier = unit.Identifier();
+            THROW_HR_IF(WINGET_CONFIG_ERROR_MISSING_FIELD, identifier.empty());
+            emitter << Key << GetConfigurationFieldName(ConfigurationField::Name) << Value << ConvertToUTF8(identifier);
+
+            hstring type = unit.Type();
+            THROW_HR_IF(WINGET_CONFIG_ERROR_MISSING_FIELD, type.empty());
+            emitter << Key << GetConfigurationFieldName(ConfigurationField::Type) << Value << ConvertToUTF8(type);
+
             WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Metadata, unit.Metadata());
 
             auto dependencies = unit.Dependencies();

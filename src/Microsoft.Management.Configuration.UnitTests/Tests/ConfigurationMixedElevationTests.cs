@@ -58,7 +58,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             unit.Metadata.Add("module", moduleName);
             unit.Settings.Add("directoryPath", tempDirectory);
             unit.Type = resourceName;
-            unit.Intent = ConfigurationUnitIntent.Apply;
 
             ConfigurationUnit elevatedUnit = this.ConfigurationUnit();
             elevatedUnit.Metadata.Add("version", version.ToString());
@@ -66,7 +65,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             elevatedUnit.Metadata.Add("securityContext", "elevated");
             elevatedUnit.Settings.Add("directoryPath", tempDirectory);
             elevatedUnit.Type = resourceName;
-            elevatedUnit.Intent = ConfigurationUnitIntent.Apply;
 
             configurationSet.Units = new ConfigurationUnit[] { unit, elevatedUnit };
 
@@ -119,15 +117,15 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             ConfigurationUnit unit = this.ConfigurationUnit();
             unit.Metadata.Add("version", version.ToString());
             unit.Metadata.Add("module", moduleName);
+            unit.Identifier = "restrictedUnit";
             unit.Type = resourceName;
-            unit.Intent = ConfigurationUnitIntent.Apply;
 
             ConfigurationUnit elevatedUnit = this.ConfigurationUnit();
             elevatedUnit.Metadata.Add("version", version.ToString());
             elevatedUnit.Metadata.Add("module", moduleName);
             elevatedUnit.Metadata.Add("securityContext", "elevated");
+            unit.Identifier = "elevatedUnit";
             elevatedUnit.Type = resourceName;
-            elevatedUnit.Intent = ConfigurationUnitIntent.Apply;
 
             configurationSet.Units = new ConfigurationUnit[] { unit, elevatedUnit };
 
