@@ -51,6 +51,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Directory.CreateDirectory(tempDirectory);
 
             ConfigurationSet configurationSet = this.ConfigurationSet();
+            configurationSet.SchemaVersion = "0.2";
             configurationSet.Metadata.Add(Helpers.Constants.EnableDynamicFactoryTestMode, true);
 
             ConfigurationUnit unit = this.ConfigurationUnit();
@@ -58,6 +59,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             unit.Metadata.Add("module", moduleName);
             unit.Settings.Add("directoryPath", tempDirectory);
             unit.Type = resourceName;
+            unit.Intent = ConfigurationUnitIntent.Apply;
 
             ConfigurationUnit elevatedUnit = this.ConfigurationUnit();
             elevatedUnit.Metadata.Add("version", version.ToString());
@@ -65,6 +67,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             elevatedUnit.Metadata.Add("securityContext", "elevated");
             elevatedUnit.Settings.Add("directoryPath", tempDirectory);
             elevatedUnit.Type = resourceName;
+            elevatedUnit.Intent = ConfigurationUnitIntent.Apply;
 
             configurationSet.Units = new ConfigurationUnit[] { unit, elevatedUnit };
 
@@ -110,6 +113,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Version version = new Version("0.0.0.1");
 
             ConfigurationSet configurationSet = this.ConfigurationSet();
+            configurationSet.SchemaVersion = "0.2";
             configurationSet.Metadata.Add(Helpers.Constants.EnableDynamicFactoryTestMode, true);
             configurationSet.Metadata.Add(Helpers.Constants.ForceHighIntegrityLevelUnitsTestGuid, true);
             configurationSet.Metadata.Add(Helpers.Constants.EnableRestrictedIntegrityLevelTestGuid, true);
@@ -117,15 +121,15 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             ConfigurationUnit unit = this.ConfigurationUnit();
             unit.Metadata.Add("version", version.ToString());
             unit.Metadata.Add("module", moduleName);
-            unit.Identifier = "restrictedUnit";
             unit.Type = resourceName;
+            unit.Intent = ConfigurationUnitIntent.Apply;
 
             ConfigurationUnit elevatedUnit = this.ConfigurationUnit();
             elevatedUnit.Metadata.Add("version", version.ToString());
             elevatedUnit.Metadata.Add("module", moduleName);
             elevatedUnit.Metadata.Add("securityContext", "elevated");
-            unit.Identifier = "elevatedUnit";
             elevatedUnit.Type = resourceName;
+            elevatedUnit.Intent = ConfigurationUnitIntent.Apply;
 
             configurationSet.Units = new ConfigurationUnit[] { unit, elevatedUnit };
 
@@ -197,9 +201,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(dynamicFactory);
 
-            ApplyConfigurationSetResult result = processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None);
-            Assert.NotNull(result.ResultCode);
-            Assert.Equal(Errors.WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY, result.ResultCode.HResult);
+            // While parameters are not supported, we expect to get a not implemented exception.
+            // Once they are implemented, swap to the appropriate error mechanism for the parameter integrity boundary.
+            Assert.Throws<NotImplementedException>(() => processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None));
         }
     }
 }
