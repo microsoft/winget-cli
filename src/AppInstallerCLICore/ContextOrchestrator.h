@@ -102,6 +102,7 @@ namespace AppInstaller::CLI::Execution
         static std::unique_ptr<OrchestratorQueueItem> CreateItemForSearch(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context);
         // Create queue item for download
         static std::unique_ptr<OrchestratorQueueItem> CreateItemForDownload(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context);
+        // Create queue item for repair
         static std::unique_ptr<OrchestratorQueueItem> CreateItemForRepair(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context);
     };
 

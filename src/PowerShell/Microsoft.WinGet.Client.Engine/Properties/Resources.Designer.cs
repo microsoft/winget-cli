@@ -331,7 +331,7 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The repair operation was unsuccessful, exiting with RepairerExit code: {0}..
+        ///   Looks up a localized string similar to The repair operation was unsuccessful, exiting with Repairer error code: {0}..
         /// </summary>
         internal static string RepairerFailure {
             get {
@@ -394,7 +394,7 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An unexpected error happened while trying to repair the package. HResult:{0}.
+        ///   Looks up a localized string similar to An unexpected error happened while trying to repair the package. Error code:{0}.
         /// </summary>
         internal static string UnknownRepairFailure {
             get {

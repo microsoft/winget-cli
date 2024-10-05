@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -251,7 +251,8 @@
     <value>The installer technology in use does not match the version currently installed.</value>
   </data>
   <data name="RepairerFailure" xml:space="preserve">
-    <value>The repair operation was unsuccessful, exiting with RepairerExit code: {0}.</value>
+    <value>The repair operation was unsuccessful, exiting with Repairer error code: {0}.</value>
+     <comment>{Locked="{0}"} {0} - The error code of the repairer.</comment>
   </data>
   <data name="RepairOperationNotSupported" xml:space="preserve">
     <value>The current installer technology does not support repair. Please reach out to the package vendor for assistance.</value>
@@ -260,6 +261,7 @@
     <value>Repair operations involving administrator privileges are not permitted on packages installed within the user scope.</value>
   </data>
   <data name="UnknownRepairFailure" xml:space="preserve">
-    <value>An unexpected error happened while trying to repair the package. HResult:{0}</value>
+    <value>An unexpected error happened while trying to repair the package. Error code:{0}</value>
+    <comment>{Locked="{0}"} {0} - The error code from the repair operation.</comment>
   </data>
 </root>

@@ -91,7 +91,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED:
         case APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED:
         case APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED:
-            WINGET_GET_OPERATION_RESULT_STATUS(InstallError, UninstallError, InternalError, RepairError);
+            WINGET_GET_OPERATION_RESULT_STATUS(InternalError, InternalError, InternalError, RepairError);
             break;
         case APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED:
             WINGET_GET_OPERATION_RESULT_STATUS(PackageAgreementsNotAccepted, InternalError, PackageAgreementsNotAccepted, PackageAgreementsNotAccepted);

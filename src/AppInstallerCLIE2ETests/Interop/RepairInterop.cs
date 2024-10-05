@@ -136,7 +136,7 @@ namespace AppInstallerCLIE2ETests.Interop
         public async Task RepairBurnInstallerWithModifyBehavior()
         {
             var replaceInstallerArguments = this.GetReplacementArguments(this.installDir, "2.0.0.0", "TestModifyRepair", useHKLM: true);
-            var searchResult = await this.FindAndInstallPackage("AppInstallerTest.TestModifyRepair", this.installDir, replaceInstallerArguments.ToString());
+            var searchResult = await this.FindAndInstallPackage(Constants.ModifyRepairInstaller, this.installDir, replaceInstallerArguments.ToString());
 
             // Repair the package
             var repairOptions = this.TestFactory.CreateRepairOptions();

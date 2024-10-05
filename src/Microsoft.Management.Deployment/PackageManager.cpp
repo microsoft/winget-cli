@@ -1176,7 +1176,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         // options and catalog can both be null, package must be set.
         WINGET_RETURN_REPAIR_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package);
-        // the package should have an installed version to be Repaired.
+        // the package should have an installed version to be repaired.
         WINGET_RETURN_REPAIR_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package.InstalledVersion());
 
         HRESULT hr = S_OK;

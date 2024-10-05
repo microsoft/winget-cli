@@ -12,7 +12,7 @@ namespace AppInstaller::CLI::Execution
 {
     namespace
     {
-        // Operation command queue used by install and uninstall commands.
+        // Operation command queue used by install, uninstall and repair commands.
         constexpr static std::string_view OperationCommandQueueName = "operation"sv;
 
         // Callback function used by worker threads in the queue.

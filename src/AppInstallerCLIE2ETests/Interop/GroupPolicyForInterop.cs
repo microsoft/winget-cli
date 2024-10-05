@@ -120,14 +120,11 @@ namespace AppInstallerCLIE2ETests.Interop
             options.CompositeSearchBehavior = CompositeSearchBehavior.AllCatalogs;
             PackageCatalogReference compositeSource = packageManager.CreateCompositePackageCatalog(options);
 
-            string testPackageId = "AppInstallerTest.TestModifyRepair";
-
             // Find package
-            var searchResult = this.FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, testPackageId);
+            var searchResult = this.FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.ModifyRepairInstaller);
 
             // Configure installation
             var installOptions = this.TestFactory.CreateInstallOptions();
-            installOptions.PackageInstallMode = PackageInstallMode.Silent;
             installOptions.AcceptPackageAgreements = true;
             installOptions.ReplacementInstallerArguments = $"/InstallDir {installDir} /Version 2.0.0.0 /DisplayName TestModifyRepair /UseHKLM";
 
@@ -136,7 +133,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
 
             // Find package again, but this time it should detect the installed version
-            searchResult = this.FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, testPackageId);
+            searchResult = this.FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.ModifyRepairInstaller);
             Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
 
             // Repair
@@ -160,7 +157,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var downloadResult = await packageManager.DownloadPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateDownloadOptions());
             Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
             var packageVersion = "2.0.0.0";
-            string downloadDir = Path.Combine(TestCommon.GetDefaultDownloadDirectory(), $"{testPackageId}_{packageVersion}");
+            string downloadDir = Path.Combine(TestCommon.GetDefaultDownloadDirectory(), $"{Constants.ModifyRepairInstaller}_{packageVersion}");
             Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "TestModifyRepair", packageVersion, ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Burn, "en-US"));
         }
     }

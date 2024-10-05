@@ -94,7 +94,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         {
             var result = this.Execute(
                 async () => await this.GetPackageAndExecuteAsync(
-                    CompositeSearchBehavior.LocalCatalogs,
+                    CompositeSearchBehavior.LocalCatalogs | CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs,
                     PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
                     async (package, version) =>
                     {
