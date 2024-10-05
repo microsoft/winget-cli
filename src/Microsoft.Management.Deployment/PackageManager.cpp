@@ -1196,5 +1196,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return GetPackageOperation<Deployment::RepairResult, Deployment::RepairProgress, Deployment::RepairOptions, Deployment::PackageRepairProgressState>(
             true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString));
     }
+
     CoCreatableMicrosoftManagementDeploymentClass(PackageManager);
 }
