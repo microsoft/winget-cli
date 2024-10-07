@@ -8,6 +8,7 @@ namespace AppInstallerCLIE2ETests.Interop
 {
     using System;
     using System.IO;
+    using System.Text;
     using System.Threading.Tasks;
     using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Management.Deployment;
@@ -86,6 +87,10 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
 
+            groupPolicyException = Assert.Catch<GroupPolicyException>(() => { RepairOptions repairOptions = this.TestFactory.CreateRepairOptions(); });
+            Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
+
             // PackageManagerSettings is not implemented in context OutOfProcDev
             if (this.TestFactory.Context == ClsidContext.InProc)
             {
@@ -116,33 +121,44 @@ namespace AppInstallerCLIE2ETests.Interop
             PackageCatalogReference compositeSource = packageManager.CreateCompositePackageCatalog(options);
 
             // Find package
-            var searchResult = this.FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.ExeInstallerPackageId);
+            var searchResult = this.FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.ModifyRepairInstaller);
 
             // Configure installation
             var installOptions = this.TestFactory.CreateInstallOptions();
-            installOptions.PackageInstallMode = PackageInstallMode.Silent;
-            installOptions.PreferredInstallLocation = installDir;
             installOptions.AcceptPackageAgreements = true;
+            installOptions.ReplacementInstallerArguments = $"/InstallDir {installDir} /Version 2.0.0.0 /DisplayName TestModifyRepair /UseHKLM";
 
             // Install
             var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
 
             // Find package again, but this time it should detect the installed version
-            searchResult = this.FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.ExeInstallerPackageId);
+            searchResult = this.FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.ModifyRepairInstaller);
             Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+
+            // Repair
+            var repairOptions = this.TestFactory.CreateRepairOptions();
+            repairOptions.PackageRepairMode = PackageRepairMode.Silent;
+            var repairResult = await packageManager.RepairPackageAsync(searchResult.CatalogPackage, repairOptions);
+            Assert.AreEqual(RepairResultStatus.Ok, repairResult.Status);
 
             // Uninstall
             var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateUninstallOptions());
             Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
             Assert.True(TestCommon.VerifyTestExeUninstalled(installDir));
 
+            // Clean up.
+            if (Directory.Exists(installDir))
+            {
+                Directory.Delete(installDir, true);
+            }
+
             // Download
             var downloadResult = await packageManager.DownloadPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateDownloadOptions());
             Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
             var packageVersion = "2.0.0.0";
-            string downloadDir = Path.Combine(TestCommon.GetDefaultDownloadDirectory(), $"{Constants.ExeInstallerPackageId}_{packageVersion}");
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "TestExeInstaller", packageVersion, ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Exe));
+            string downloadDir = Path.Combine(TestCommon.GetDefaultDownloadDirectory(), $"{Constants.ModifyRepairInstaller}_{packageVersion}");
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "TestModifyRepair", packageVersion, ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Burn, "en-US"));
         }
     }
 }

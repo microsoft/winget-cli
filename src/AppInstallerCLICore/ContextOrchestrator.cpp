@@ -12,7 +12,7 @@ namespace AppInstaller::CLI::Execution
 {
     namespace
     {
-        // Operation command queue used by install and uninstall commands.
+        // Operation command queue used by install, uninstall and repair commands.
         constexpr static std::string_view OperationCommandQueueName = "operation"sv;
 
         // Callback function used by worker threads in the queue.
@@ -30,7 +30,7 @@ namespace AppInstaller::CLI::Execution
         // Get command queue name based on command name.
         std::string_view GetCommandQueueName(std::string_view commandName)
         {
-            if (commandName == COMInstallCommand::CommandName || commandName == COMUninstallCommand::CommandName)
+            if (commandName == COMInstallCommand::CommandName || commandName == COMUninstallCommand::CommandName || commandName == COMRepairCommand::CommandName)
             {
                 return OperationCommandQueueName;
             }
@@ -363,6 +363,7 @@ namespace AppInstaller::CLI::Execution
         case PackageOperationType::Upgrade: return "root:upgrade"sv;
         case PackageOperationType::Uninstall: return "root:uninstall"sv;
         case PackageOperationType::Download: return "root:download"sv;
+        case PackageOperationType::Repair: return "root:repair"sv;
         default: return "unknown";
         }
     }
@@ -392,6 +393,13 @@ namespace AppInstaller::CLI::Execution
     {
         std::unique_ptr<OrchestratorQueueItem> item = std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context), PackageOperationType::Download);
         item->AddCommand(std::make_unique<::AppInstaller::CLI::COMDownloadCommand>(RootCommand::CommandName));
+        return item;
+    }
+
+    std::unique_ptr<OrchestratorQueueItem> OrchestratorQueueItemFactory::CreateItemForRepair(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context)
+    {
+        std::unique_ptr<OrchestratorQueueItem> item = std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context), PackageOperationType::Repair);
+        item->AddCommand(std::make_unique<::AppInstaller::CLI::COMRepairCommand>(RootCommand::CommandName));
         return item;
     }
 }

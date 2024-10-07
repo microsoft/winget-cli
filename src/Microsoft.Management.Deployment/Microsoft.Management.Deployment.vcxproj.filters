@@ -38,6 +38,8 @@
     <ClCompile Include="AuthenticationArguments.cpp" />
     <ClCompile Include="AuthenticationInfo.cpp" />
     <ClCompile Include="MicrosoftEntraIdAuthenticationInfo.cpp" />
+    <ClCompile Include="RepairResult.cpp" />
+    <ClCompile Include="RepairOptions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
@@ -81,6 +83,8 @@
     <ClInclude Include="AuthenticationArguments.h" />
     <ClInclude Include="AuthenticationInfo.h" />
     <ClInclude Include="MicrosoftEntraIdAuthenticationInfo.h" />
+    <ClInclude Include="RepairResult.h" />
+    <ClInclude Include="RepairOptions.h" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="PackageManager.idl" />

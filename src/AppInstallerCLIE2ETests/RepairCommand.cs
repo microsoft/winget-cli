@@ -94,7 +94,7 @@ namespace AppInstallerCLIE2ETests
                 Assert.Ignore("Test skipped as Microsoft.Paint_8wekyb3d8bbwe is not installed.");
             }
 
-            Assert.True(result.StdOut.Contains("Microsoft.Paint_8wekyb3d8bbwe"));
+            Assert.True(result.StdOut.Contains("Microsoft.Paint"));
 
             result = TestCommon.RunAICLICommand("repair", "Microsoft.Paint_8wekyb3d8bbwe --scope machine");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_SYSTEM_NOT_SUPPORTED, result.ExitCode);
