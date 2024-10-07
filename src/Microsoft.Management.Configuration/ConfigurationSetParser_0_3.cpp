@@ -106,43 +106,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         const Node& typeNode = CHECK_ERROR(GetAndEnsureField(node, ConfigurationField::Type, true, Node::Type::Scalar));
         std::string typeValue = typeNode.as<std::string>();
+        auto parsedType = ParseWindowsFoundationPropertyType(typeValue);
 
-        if (typeValue == "string")
+        if (parsedType)
         {
-            parameter->Type(Windows::Foundation::PropertyType::String);
-        }
-        else if (typeValue == "securestring")
-        {
-            parameter->Type(Windows::Foundation::PropertyType::String);
-            parameter->IsSecure(true);
-        }
-        else if (typeValue == "int")
-        {
-            parameter->Type(Windows::Foundation::PropertyType::Int64);
-        }
-        else if (typeValue == "bool")
-        {
-            parameter->Type(Windows::Foundation::PropertyType::Boolean);
-        }
-        else if (typeValue == "object")
-        {
-            parameter->Type(Windows::Foundation::PropertyType::Inspectable);
-        }
-        else if (typeValue == "secureobject")
-        {
-            parameter->Type(Windows::Foundation::PropertyType::Inspectable);
-            parameter->IsSecure(true);
-        }
-        else if (typeValue == "array")
-        {
-            parameter->Type(Windows::Foundation::PropertyType::InspectableArray);
+            parameter->Type(parsedType->first);
+            parameter->IsSecure(parsedType->second);
         }
         else
         {
             FIELD_VALUE_ERROR(GetConfigurationFieldName(ConfigurationField::Type), typeValue, typeNode.Mark());
         }
-
-        // TODO: Consider supporting an expanded set of type strings
     }
 
     void ConfigurationSetParser_0_3::GetStringValueForParameter(
@@ -252,5 +226,61 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // TODO: Check for known types
 
         return false;
+    }
+
+    std::optional<std::pair<Windows::Foundation::PropertyType, bool>> ParseWindowsFoundationPropertyType(std::string_view value)
+    {
+        if (value == "string")
+        {
+            return std::make_pair(Windows::Foundation::PropertyType::String, false);
+        }
+        else if (value == "securestring")
+        {
+            return std::make_pair(Windows::Foundation::PropertyType::String, true);
+        }
+        else if (value == "int")
+        {
+            return std::make_pair(Windows::Foundation::PropertyType::Int64, false);
+        }
+        else if (value == "bool")
+        {
+            return std::make_pair(Windows::Foundation::PropertyType::Boolean, false);
+        }
+        else if (value == "object")
+        {
+            return std::make_pair(Windows::Foundation::PropertyType::Inspectable, false);
+        }
+        else if (value == "secureobject")
+        {
+            return std::make_pair(Windows::Foundation::PropertyType::Inspectable, true);
+        }
+        else if (value == "array")
+        {
+            return std::make_pair(Windows::Foundation::PropertyType::InspectableArray, false);
+        }
+
+        // TODO: Consider supporting an expanded set of type strings
+        return std::nullopt;
+    }
+
+    std::string_view ToString(Windows::Foundation::PropertyType value, bool isSecure)
+    {
+        switch (value)
+        {
+        case Windows::Foundation::PropertyType::Int16:
+        case Windows::Foundation::PropertyType::Int32:
+        case Windows::Foundation::PropertyType::Int64:
+            return "int"sv;
+        case Windows::Foundation::PropertyType::Boolean:
+            return "bool"sv;
+        case Windows::Foundation::PropertyType::String:
+            return isSecure ? "securestring"sv : "string"sv;
+        case Windows::Foundation::PropertyType::Inspectable:
+            return isSecure ? "secureobject"sv : "object"sv;
+        case Windows::Foundation::PropertyType::InspectableArray:
+            return "array"sv;
+        default:
+            return {};
+        }
     }
 }

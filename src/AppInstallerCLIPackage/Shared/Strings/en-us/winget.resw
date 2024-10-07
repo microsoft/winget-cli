@@ -3130,4 +3130,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
     <value>Failed to retrieve Microsoft Store package license. The Microsoft Entra Id account does not have required privilege.</value>
   </data>
+  <data name="WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY" xml:space="preserve">
+    <value>Parameter cannot be passed across integrity boundary.</value>
+  </data>
 </root>

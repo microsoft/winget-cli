@@ -13,40 +13,40 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         ConfigurationParameter() = default;
 
-        hstring Name();
+        hstring Name() const;
         void Name(hstring const& value);
 
-        hstring Description();
+        hstring Description() const;
         void Description(hstring const& value);
 
-        Windows::Foundation::Collections::ValueSet Metadata();
+        Windows::Foundation::Collections::ValueSet Metadata() const;
         void Metadata(const Windows::Foundation::Collections::ValueSet& value);
 
-        bool IsSecure();
+        bool IsSecure() const;
         void IsSecure(bool value);
 
-        Windows::Foundation::PropertyType Type();
+        Windows::Foundation::PropertyType Type() const;
         void Type(Windows::Foundation::PropertyType value);
 
-        Windows::Foundation::IInspectable DefaultValue();
+        Windows::Foundation::IInspectable DefaultValue() const;
         void DefaultValue(Windows::Foundation::IInspectable const& value);
 
-        Windows::Foundation::Collections::IVector<Windows::Foundation::IInspectable> AllowedValues();
+        Windows::Foundation::Collections::IVector<Windows::Foundation::IInspectable> AllowedValues() const;
         void AllowedValues(Windows::Foundation::Collections::IVector<Windows::Foundation::IInspectable> const& value);
 
-        uint32_t MinimumLength();
+        uint32_t MinimumLength() const;
         void MinimumLength(uint32_t value);
 
-        uint32_t MaximumLength();
+        uint32_t MaximumLength() const;
         void MaximumLength(uint32_t value);
 
-        Windows::Foundation::IInspectable MinimumValue();
+        Windows::Foundation::IInspectable MinimumValue() const;
         void MinimumValue(Windows::Foundation::IInspectable const& value);
 
-        Windows::Foundation::IInspectable MaximumValue();
+        Windows::Foundation::IInspectable MaximumValue() const;
         void MaximumValue(Windows::Foundation::IInspectable const& value);
 
-        Windows::Foundation::IInspectable ProvidedValue();
+        Windows::Foundation::IInspectable ProvidedValue() const;
         void ProvidedValue(Windows::Foundation::IInspectable const& value);
 
         HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher);
