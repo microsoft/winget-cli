@@ -2896,13 +2896,13 @@
     <value>无法获取 Microsoft Store 程序包下载信息。</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE" xml:space="preserve">
-    <value>找不到适用的 Microsoft Store 程序包下载信息。</value>
+    <value>找不到适用于下载的Microsoft Store包。</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED" xml:space="preserve">
     <value>无法检索 Microsoft Store 程序包许可证。</value>
   </data>
-  <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
-    <value>找不到 Microsoft Store 程序包。</value>
+  <data name="MSStoreDownloadNoApplicablePackageFound" xml:space="preserve">
+    <value>找不到适用的 Microsoft Store 程序包。</value>
   </data>
   <data name="MSStoreDownloadPackageHashVerified" xml:space="preserve">
     <value>已成功验证 Microsoft Store 程序包哈希</value>
@@ -2948,7 +2948,8 @@
     <comment>{Locked="--rename"}</comment>
   </data>
   <data name="MSStoreDownloadAuthenticationNotice" xml:space="preserve">
-    <value>Microsoft Store 程序包下载需要 Microsoft Entra ID 身份验证。必要时可能会显示身份验证提示。将与 Microsoft 服务共享经过身份验证的信息以进行访问授权。对于 Microsoft Store 程序包授权，Microsoft Entra ID 帐户需要具有对 Microsoft Entra ID 租户的管理员访问权限。</value>
+    <value>Microsoft Store包下载需要Microsoft Entra ID 身份验证。必要时可能会显示身份验证提示。将与Microsoft 服务共享经过身份验证的信息以进行访问授权。对于Microsoft Store包授权，Microsoft Entra ID 帐户必须是全局管理员、用户管理员或许可证管理员的成员。</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator"}</comment>
   </data>
   <data name="SkipMicrosoftStorePackageLicenseArgumentDescription" xml:space="preserve">
     <value>跳过检索 Microsoft Store 程序包脱机许可证</value>
@@ -3111,5 +3112,22 @@
   </data>
   <data name="ConfigurationSuppressPrologueArgumentDescription" xml:space="preserve">
     <value>尽可能禁止显示初始配置详细信息</value>
+  </data>
+  <data name="MSStoreDownloadMultiplePackagesNotice" xml:space="preserve">
+    <value>可以针对不同的平台和体系结构下载多个Microsoft Store包。--platform，--architecture 可用于筛选包。</value>
+    <comment>{Locked="--platform--architecture"}</comment>
+  </data>
+  <data name="MSStoreDownloadGetLicenseForbidden" xml:space="preserve">
+    <value>无法检索Microsoft Store包许可证。Microsoft Entra ID 帐户不是全局管理员、用户管理员或许可证管理员的成员。使用 --skip-license 跳过检索Microsoft Store包许可证。</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator,--skip-license"}</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadNotSupported" xml:space="preserve">
+    <value>Microsoft Store包不支持下载。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED" xml:space="preserve">
+    <value>Microsoft Store包不支持下载。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
+    <value>无法检索Microsoft Store包许可证。Microsoft Entra ID 帐户没有所需的权限。</value>
   </data>
 </root>
