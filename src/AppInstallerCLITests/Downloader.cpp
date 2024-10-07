@@ -32,6 +32,9 @@ TEST_CASE("DownloadValidFileAndVerifyHash", "[Downloader]")
     REQUIRE(result.SizeInBytes == expectedFileSize);
     REQUIRE(std::filesystem::file_size(tempFile.GetPath()) == expectedFileSize);
 
+    REQUIRE(result.ContentType);
+    REQUIRE(!result.ContentType.value().empty());
+
     // Verify motw content
     std::filesystem::path motwFile(tempFile);
     motwFile += ":Zone.Identifier:$data";
