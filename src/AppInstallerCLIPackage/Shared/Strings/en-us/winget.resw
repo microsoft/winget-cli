@@ -3130,4 +3130,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
     <value>Failed to retrieve Microsoft Store package license. The Microsoft Entra Id account does not have required privilege.</value>
   </data>
+  <data name="FontsCommandShortDescription" xml:space="preserve">
+    <value>Manage fonts</value>
+  </data>
+  <data name="FontsCommandLongDescription" xml:space="preserve">
+    <value>Manage fonts with sub-commands. Fonts can be installed, upgraded, or uninstalled similar to packages. </value>
+  </data>
 </root>

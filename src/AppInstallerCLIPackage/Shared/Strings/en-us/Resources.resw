@@ -121,4 +121,10 @@
     <value>Not Localized</value>
     <comment>{Locked} This file is required to establish the basic expected subresource in the resource map. It is not used to facilitate localization with other projects.</comment>
   </data>
+  <data name="FontsListCommandShortDescription" xml:space="preserve">
+    <value>List installed fonts</value>
+  </data>
+  <data name="FontsListCommandLongDescription" xml:space="preserve">
+    <value>List all installed fonts, or full details of a specific font.</value>
+  </data>
 </root>

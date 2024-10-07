@@ -364,6 +364,7 @@
     <ClInclude Include="Commands\ErrorCommand.h" />
     <ClInclude Include="Commands\ExperimentalCommand.h" />
     <ClInclude Include="Commands\ExportCommand.h" />
+    <ClInclude Include="Commands\FontsCommand.h" />
     <ClInclude Include="Commands\ImportCommand.h" />
     <ClInclude Include="Commands\FeaturesCommand.h" />
     <ClInclude Include="Commands\HashCommand.h" />
@@ -441,6 +442,7 @@
     <ClCompile Include="Commands\DebugCommand.cpp" />
     <ClCompile Include="Commands\DownloadCommand.cpp" />
     <ClCompile Include="Commands\ErrorCommand.cpp" />
+    <ClCompile Include="Commands\FontsCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="Commands\PinCommand.cpp" />
     <ClCompile Include="Commands\RepairCommand.cpp" />
