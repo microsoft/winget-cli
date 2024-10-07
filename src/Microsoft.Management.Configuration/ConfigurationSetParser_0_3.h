@@ -5,6 +5,8 @@
 #include <ConfigurationParameter.h>
 
 #include <winget/Yaml.h>
+#include <optional>
+#include <utility>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -57,4 +59,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         AppInstaller::YAML::Node m_document;
     };
+
+    std::optional<std::pair<Windows::Foundation::PropertyType, bool>> ParseWindowsFoundationPropertyType(std::string_view value);
+    std::string_view ToString(Windows::Foundation::PropertyType value, bool isSecure);
 }

@@ -123,6 +123,38 @@ BeforeAll {
     {
         return Join-Path -Path $env:Temp -ChildPath "WingetPwshTest-$(New-Guid)"
     }
+
+    function Validate-WinGetResultCommonFields([psobject]$result, [psobject]$expected) {
+        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.Id | Should -Be $expected.Id
+        $result.Name | Should -Be $expected.Name
+        $result.Source | Should -Be $expected.Source
+        $result.Status | Should -Be $expected.Status
+    }
+
+    function Validate-WinGetPackageOperationResult([psobject]$result, [psobject]$expected, [string]$operationType)
+    {
+        Validate-WinGetResultCommonFields $result $expected
+        $result.RebootRequired | Should -Be $expected.RebootRequired
+
+        switch ($operationType) {
+            'install' {
+                $result.InstallerErrorCode | Should -Be $expected.InstallerErrorCode
+            }
+            'update' {
+                $result.InstallerErrorCode | Should -Be $expected.InstallerErrorCode
+            }
+            'repair' {
+                $result.RepairErrorCode | Should -Be $expected.RepairErrorCode
+            }
+            'uninstall' {
+                $result.UninstallerErrorCode | Should -Be $expected.UninstallerErrorCode
+            }
+            default {
+                throw "Unknown operation type: $operationType"
+            }
+        }
+    }
 }
 
 Describe 'Get-WinGetVersion' {
@@ -234,76 +266,56 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
         AddTestSource
     }
 
+    BeforeEach {
+        $expectedExeInstallerResult = [PSCustomObject]@{
+            Id = "AppInstallerTest.TestExeInstaller"
+            Name = "TestExeInstaller"
+            Source = "TestSource"
+            Status = 'Ok'
+            RebootRequired = 'False'
+            InstallerErrorCode = 0
+            UninstallerErrorCode = 0
+        }
+
+        $expectedPortableInstallerResult = [PSCustomObject]@{
+            Id = "AppInstallerTest.TestPortableExe"
+            Name = "TestPortableExe"
+            Source = "TestSource"
+            Status = 'Ok'
+            RebootRequired = 'False'
+            InstallerErrorCode = 0
+            UninstallerErrorCode = 0
+        }
+    }
+
     It 'Install by Id' {
         $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
-
-        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
-        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
-        $result.Name | Should -Be "TestExeInstaller"
-        $result.Source | Should -Be "TestSource"
-        $result.InstallerErrorCode | Should -Be 0
-        $result.Status | Should -Be 'Ok'
-        $result.RebootRequired | Should -Be 'False'
+        Validate-WinGetPackageOperationResult $result $expectedExeInstallerResult 'install'
     }
 
     It 'Install by exact Name and Version' {
         $result = Install-WinGetPackage -Name TestPortableExe -Version '2.0.0.0' -MatchOption Equals
-
-        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
-        $result.Id | Should -Be "AppInstallerTest.TestPortableExe"
-        $result.Name | Should -Be "TestPortableExe"
-        $result.Source | Should -Be "TestSource"
-        $result.InstallerErrorCode | Should -Be 0
-        $result.Status | Should -Be 'Ok'
-        $result.RebootRequired | Should -Be 'False'
+        Validate-WinGetPackageOperationResult $result $expectedPortableInstallerResult 'install'
     }
 
     It 'Update by Id' {
         $result = Update-WinGetPackage -Id AppInstallerTest.TestExeInstaller
-
-        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
-        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
-        $result.Name | Should -Be "TestExeInstaller"
-        $result.Source | Should -Be "TestSource"
-        $result.InstallerErrorCode | Should -Be 0
-        $result.Status | Should -Be 'Ok'
-        $result.RebootRequired | Should -Be 'False'
+        Validate-WinGetPackageOperationResult $result $expectedExeInstallerResult 'update'
     }
 
     It 'Update by Name' {
         $result = Update-WinGetPackage -Name TestPortableExe
-
-        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
-        $result.Id | Should -Be "AppInstallerTest.TestPortableExe"
-        $result.Name | Should -Be "TestPortableExe"
-        $result.Source | Should -Be "TestSource"
-        $result.InstallerErrorCode | Should -Be 0
-        $result.Status | Should -Be 'Ok'
-        $result.RebootRequired | Should -Be 'False'
+        Validate-WinGetPackageOperationResult $result $expectedPortableInstallerResult 'update'
     }
 
     It 'Uninstall by Id' {
         $result = Uninstall-WinGetPackage -Id AppInstallerTest.TestExeInstaller
-
-        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
-        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
-        $result.Name | Should -Be "TestExeInstaller"
-        $result.Source | Should -Be "TestSource"
-        $result.UninstallerErrorCode | Should -Be 0
-        $result.Status | Should -Be 'Ok'
-        $result.RebootRequired | Should -Be 'False'
+        Validate-WinGetPackageOperationResult $result $expectedExeInstallerResult 'uninstall'
     }
 
     It 'Uninstall by Name' {
         $result = Uninstall-WinGetPackage -Name TestPortableExe
-
-        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
-        $result.Id | Should -Be "AppInstallerTest.TestPortableExe"
-        $result.Name | Should -Be "TestPortableExe"
-        $result.Source | Should -Be "TestSource"
-        $result.UninstallerErrorCode | Should -Be 0
-        $result.Status | Should -Be 'Ok'
-        $result.RebootRequired | Should -Be 'False'
+        Validate-WinGetPackageOperationResult $result $expectedPortableInstallerResult 'uninstall'
     }
 
     AfterAll {
@@ -319,7 +331,161 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
         {
             Uninstall-WinGetPackage -Id AppInstallerTest.TestPortableExe
         }
-   }
+    }
+}
+
+Describe 'Install|Repair|Uninstall-WinGetPackage' {
+
+    BeforeAll {
+        AddTestSource
+    }
+
+    Context 'MSIX Repair Scenario' {
+        BeforeEach {
+            $expectedResult = [PSCustomObject]@{
+                Id = "AppInstallerTest.TestMsixInstaller"
+                Name = "TestMsixInstaller"
+                Source = "TestSource"
+                Status = 'Ok'
+                RebootRequired = 'False'
+                InstallerErrorCode = 0
+                RepairErrorCode = 0
+                UninstallerErrorCode = 0
+            }
+        }
+
+        It 'Install MSIX By Id' {
+            $result = Install-WinGetPackage -Id AppInstallerTest.TestMsixInstaller
+            Validate-WinGetPackageOperationResult $result $expectedResult 'install'
+        }
+
+        It 'Repair MSIX By Id' {
+            $result = Repair-WinGetPackage -Id AppInstallerTest.TestMsixInstaller
+            Validate-WinGetPackageOperationResult $result $expectedResult 'repair'
+        }
+
+        It 'Uninstall MSIX By Id' {
+            $result = Uninstall-WinGetPackage -Id AppInstallerTest.TestMsixInstaller
+            Validate-WinGetPackageOperationResult $result $expectedResult 'uninstall'
+        }
+    }
+
+    Context 'Burn installer "Modify" Repair Scenario' {
+        BeforeEach {
+            $expectedResult = [PSCustomObject]@{
+                Id = "AppInstallerTest.TestModifyRepair"
+                Name = "TestModifyRepair"
+                Source = "TestSource"
+                Status = 'Ok'
+                RebootRequired = 'False'
+                InstallerErrorCode = 0
+                RepairErrorCode = 0
+                UninstallerErrorCode = 0
+            }
+        }
+
+        It 'Install Burn Installer By Id' {
+            $result = Install-WinGetPackage -Id AppInstallerTest.TestModifyRepair
+            Validate-WinGetPackageOperationResult $result $expectedResult 'install'
+        }
+
+        It 'Repair Burn Installer By Id' {
+            $result = Repair-WinGetPackage -Id AppInstallerTest.TestModifyRepair
+            Validate-WinGetPackageOperationResult $result $expectedResult 'repair'
+        }
+
+        It 'Uninstall Burn Installer By Id' {
+            $result = Uninstall-WinGetPackage -Id AppInstallerTest.TestModifyRepair
+            Validate-WinGetPackageOperationResult $result $expectedResult 'uninstall'
+        }
+    }
+
+    Context 'Exe Installer "Uninstaller" Repair Scenario' {
+        BeforeEach {
+            $expectedResult = [PSCustomObject]@{
+                Id = "AppInstallerTest.UninstallerRepair"
+                Name = "UninstallerRepair"
+                Source = "TestSource"
+                Status = 'Ok'
+                RebootRequired = 'False'
+                InstallerErrorCode = 0
+                RepairErrorCode = 0
+                UninstallerErrorCode = 0
+            }
+        }
+
+        It 'Install Exe Installer By Id' {
+            $result = Install-WinGetPackage -Id AppInstallerTest.UninstallerRepair
+            Validate-WinGetPackageOperationResult $result $expectedResult 'install'
+        }
+
+        It 'Uninstaller Repair Exe Installer By Id' {
+            $result = Repair-WinGetPackage -Id AppInstallerTest.UninstallerRepair
+            Validate-WinGetPackageOperationResult $result $expectedResult 'repair'
+        }
+
+        It "Uninstall Exe Installer By Id" {
+            $result = Uninstall-WinGetPackage -Id AppInstallerTest.UninstallerRepair
+            Validate-WinGetPackageOperationResult $result $expectedResult 'uninstall'
+        }
+    }
+
+    Context 'Inno "Installer" Repair Scenario' {
+        BeforeEach {
+            $expectedResult = [PSCustomObject]@{
+                Id = "AppInstallerTest.TestInstallerRepair"
+                Name = "TestInstallerRepair"
+                Source = "TestSource"
+                Status = 'Ok'
+                RebootRequired = 'False'
+                InstallerErrorCode = 0
+                RepairErrorCode = 0
+                UninstallerErrorCode = 0
+            }
+        }
+
+        It 'Install Exe Installer By Id' {
+            $result = Install-WinGetPackage -Id AppInstallerTest.TestInstallerRepair
+            Validate-WinGetPackageOperationResult $result $expectedResult 'install'
+        }
+
+        It 'Installer Repair Exe Installer By Id' {
+            $result = Repair-WinGetPackage -Id AppInstallerTest.TestInstallerRepair
+            Validate-WinGetPackageOperationResult $result $expectedResult 'repair'
+        }
+
+        It "Uninstall Exe Installer By Id" {
+            $result = Uninstall-WinGetPackage -Id AppInstallerTest.TestInstallerRepair
+            Validate-WinGetPackageOperationResult $result $expectedResult 'uninstall'
+        }
+    }
+
+    AfterAll {
+        # Uninstall all test packages after each  for proper cleanup.
+        $testMsix = Get-WinGetPackage -Id AppInstallerTest.TestMsixInstaller
+        if ($testMsix.Count -gt 0)
+        {
+            Uninstall-WinGetPackage -Id AppInstallerTest.TestMsixInstaller
+        }
+
+        $testBurn = Get-WinGetPackage -Id AppInstallerTest.TestModifyRepair
+        if ($testBurn.Count -gt 0)
+        {
+            Uninstall-WinGetPackage -Id AppInstallerTest.TestModifyRepair
+        }
+
+        $testExe = Get-WinGetPackage -Id AppInstallerTest.UninstallerRepair
+        if ($testExe.Count -gt 0)
+        {
+            Uninstall-WinGetPackage -Id AppInstallerTest.UninstallerRepair
+        }
+
+        $testInno = Get-WinGetPackage -Id AppInstallerTest.TestInstallerRepair
+        if ($testInno.Count -gt 0)
+        {
+            Uninstall-WinGetPackage -Id AppInstallerTest.TestInstallerRepair
+        }
+    }
 }
 
 Describe 'Get-WinGetPackage' {

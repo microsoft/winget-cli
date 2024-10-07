@@ -2896,13 +2896,13 @@
     <value>Microsoft Store パッケージのダウンロード情報を取得できませんでした。</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE" xml:space="preserve">
-    <value>該当する Microsoft Store パッケージのダウンロード情報が見つかりません。</value>
+    <value>ダウンロードする適用可能なMicrosoft Store パッケージが見つかりませんでした。</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED" xml:space="preserve">
     <value>Microsoft Store パッケージ ライセンスを取得できませんでした。</value>
   </data>
-  <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
-    <value>Microsoft Store パッケージが見つかりませんでした。</value>
+  <data name="MSStoreDownloadNoApplicablePackageFound" xml:space="preserve">
+    <value>該当する Microsoft Store パッケージが見つかりません。</value>
   </data>
   <data name="MSStoreDownloadPackageHashVerified" xml:space="preserve">
     <value>Microsoft Store パッケージ ハッシュの検証に成功しました</value>
@@ -2948,7 +2948,8 @@
     <comment>{Locked="--rename"}</comment>
   </data>
   <data name="MSStoreDownloadAuthenticationNotice" xml:space="preserve">
-    <value>Microsoft Store パッケージのダウンロードには、Microsoft Entra ID 認証が必要です。必要に応じて認証プロンプトが表示されることがあります。認証された情報は、アクセス承認のために Microsoft サービスと共有されます。Microsoft Store パッケージのライセンスを管理するには、Microsoft Entra ID アカウントに Microsoft Entra ID テナントへの管理者アクセス権が必要です。</value>
+    <value>Microsoft Store パッケージのダウンロードにはMicrosoft Entra ID 認証が必要です。必要に応じて認証プロンプトが表示されることがあります。認証された情報は、アクセス承認のためにMicrosoft サービスと共有されます。パッケージ ライセンスMicrosoft Storeするには、Microsoft Entra ID アカウントがグローバル管理者、ユーザー管理者、またはライセンス管理者のメンバーである必要があります。</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator"}</comment>
   </data>
   <data name="SkipMicrosoftStorePackageLicenseArgumentDescription" xml:space="preserve">
     <value>Microsoft Store パッケージのオフライン ライセンスの取得をスキップします</value>
@@ -3111,5 +3112,22 @@
   </data>
   <data name="ConfigurationSuppressPrologueArgumentDescription" xml:space="preserve">
     <value>可能な場合は初期設定の詳細を表示しない</value>
+  </data>
+  <data name="MSStoreDownloadMultiplePackagesNotice" xml:space="preserve">
+    <value>異なるプラットフォームとアーキテクチャを対象に、複数のMicrosoft Store パッケージをダウンロードできます。--platform、 --architecture を使用してパッケージをフィルター処理できます。</value>
+    <comment>{Locked="--platform--architecture"}</comment>
+  </data>
+  <data name="MSStoreDownloadGetLicenseForbidden" xml:space="preserve">
+    <value>Microsoft Store パッケージ ライセンスを取得できませんでした。Microsoft Entra ID アカウントは、グローバル管理者、ユーザー管理者、またはライセンス管理者のメンバーではありません。--skip-license を使用して、パッケージ ライセンスの取得Microsoft Storeスキップします。</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator,--skip-license"}</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadNotSupported" xml:space="preserve">
+    <value>Microsoft Store パッケージはダウンロードをサポートしていません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED" xml:space="preserve">
+    <value>Microsoft Store パッケージはダウンロードをサポートしていません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
+    <value>Microsoft Store パッケージ ライセンスを取得できませんでした。Microsoft Entra ID アカウントに必要な特権がありません。</value>
   </data>
 </root>

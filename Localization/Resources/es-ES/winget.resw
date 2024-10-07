@@ -2896,13 +2896,13 @@ Especifique uno de ellos con la opción --source para continuar.</value>
     <value>Error al obtener la información de descarga del paquete Microsoft Store.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE" xml:space="preserve">
-    <value>No se encontró información de descarga del paquete de Microsoft Store aplicable.</value>
+    <value>No se encontró ningún paquete de Microsoft Store aplicable para descargar.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED" xml:space="preserve">
     <value>Error al recuperar la licencia del paquete de Microsoft Store.</value>
   </data>
-  <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
-    <value>No se encontró el paquete de Microsoft Store.</value>
+  <data name="MSStoreDownloadNoApplicablePackageFound" xml:space="preserve">
+    <value>No se encontró ningún paquete de Microsoft Store aplicable.</value>
   </data>
   <data name="MSStoreDownloadPackageHashVerified" xml:space="preserve">
     <value>Hash de paquete de Microsoft Store comprobado correctamente</value>
@@ -2948,7 +2948,8 @@ Especifique uno de ellos con la opción --source para continuar.</value>
     <comment>{Locked="--rename"}</comment>
   </data>
   <data name="MSStoreDownloadAuthenticationNotice" xml:space="preserve">
-    <value>La descarga del paquete de Microsoft Store requiere autenticación de Microsoft Entra ID. La solicitud de autenticación puede aparecer cuando sea necesario. La información autenticada se compartirá con servicios Microsoft para la autorización de acceso. Para la licencia de paquetes de Microsoft Store, la cuenta de Microsoft Entra ID debe tener acceso de administrador al inquilino de Microsoft Entra ID.</value>
+    <value>Microsoft Store descarga del paquete requiere la autenticación de id. de Microsoft Entra. La solicitud de autenticación puede aparecer cuando sea necesario. La información autenticada se compartirá con servicios Microsoft para la autorización de acceso. Para Microsoft Store licencias de paquetes, la cuenta de id. de Microsoft Entra debe ser miembro de Administrador global, Administrador de usuarios o Administrador de licencias.</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator"}</comment>
   </data>
   <data name="SkipMicrosoftStorePackageLicenseArgumentDescription" xml:space="preserve">
     <value>Omite la recuperación de la licencia sin conexión del paquete de Microsoft Store</value>
@@ -3111,5 +3112,22 @@ Especifique uno de ellos con la opción --source para continuar.</value>
   </data>
   <data name="ConfigurationSuppressPrologueArgumentDescription" xml:space="preserve">
     <value>Suprimir la visualización de los detalles de configuración inicial cuando sea posible</value>
+  </data>
+  <data name="MSStoreDownloadMultiplePackagesNotice" xml:space="preserve">
+    <value>Se pueden descargar varios paquetes de Microsoft Store destinados a diferentes plataformas y arquitecturas. --platform, --architecture se puede usar para filtrar los paquetes.</value>
+    <comment>{Locked="--platform--architecture"}</comment>
+  </data>
+  <data name="MSStoreDownloadGetLicenseForbidden" xml:space="preserve">
+    <value>No se pudo recuperar Microsoft Store licencia del paquete. La cuenta de id. de Microsoft Entra no es miembro de Administrador global, Administrador de usuarios o Administrador de licencias. Use --skip-license para omitir la recuperación de Microsoft Store licencia del paquete.</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator,--skip-license"}</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadNotSupported" xml:space="preserve">
+    <value>El paquete Microsoft Store no admite descargas.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED" xml:space="preserve">
+    <value>El paquete Microsoft Store no admite descargas.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
+    <value>No se pudo recuperar Microsoft Store licencia del paquete. La cuenta de id. de Microsoft Entra no tiene el privilegio necesario.</value>
   </data>
 </root>

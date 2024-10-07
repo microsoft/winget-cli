@@ -217,6 +217,8 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\CoCreatableMicrosoftManagementDeploymentClass.h" />
     <ClInclude Include="Public\ComClsids.h" />
+    <ClInclude Include="RepairOptions.h" />
+    <ClInclude Include="RepairResult.h" />
     <ClInclude Include="SourceAgreement.h" />
     <ClInclude Include="UninstallOptions.h" />
     <ClInclude Include="UninstallResult.h" />
@@ -257,6 +259,8 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="RepairOptions.cpp" />
+    <ClCompile Include="RepairResult.cpp" />
     <ClCompile Include="SourceAgreement.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
     <ClCompile Include="UninstallOptions.cpp" />

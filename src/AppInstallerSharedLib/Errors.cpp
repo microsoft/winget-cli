@@ -272,6 +272,7 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_TEST_NOT_RUN, "Configuration state was not tested."),
             WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_GET_FAILED, "The configuration unit failed getting its properties."),
             WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND, "The specified configuration could not be found."),
+            WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY, "Parameter cannot be passed across integrity boundary."),
 
             // Configuration Processor Errors
             WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED, "The configuration unit was not installed."),

@@ -187,6 +187,7 @@ fundraiser
 fuzzer
 fzanollo
 gcpi
+GDK
 GES
 GESMBH
 getwinget
