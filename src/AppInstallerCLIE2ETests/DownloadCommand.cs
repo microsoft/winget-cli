@@ -152,5 +152,28 @@ namespace AppInstallerCLIE2ETests
             var errorResult = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestExeSha256Mismatch --download-directory {downloadDir}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALLER_HASH_MISMATCH, errorResult.ExitCode);
         }
+
+        /// <summary>
+        /// Downloads the zero byte test installer with a hash mismatch.
+        /// </summary>
+        [Test]
+        public void DownloadZeroByteFileWithHashMismatch()
+        {
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var errorResult = TestCommon.RunAICLICommand("download", $"ZeroByteFile.IncorrectHash --download-directory {downloadDir}");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALLER_ZERO_BYTE_FILE, errorResult.ExitCode);
+        }
+
+        /// <summary>
+        /// Downloads the zero byte test installer.
+        /// </summary>
+        [Test]
+        public void DownloadZeroByteFile()
+        {
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("download", $"ZeroByteFile.CorrectHash --download-directory {downloadDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "ZeroByteFile CorrectHash", "1.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Exe));
+        }
     }
 }

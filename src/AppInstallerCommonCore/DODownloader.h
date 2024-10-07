@@ -15,11 +15,10 @@ namespace AppInstaller::Utility
     //   url: The url to be downloaded from. http->https redirection is allowed.
     //   dest: The stream to be downloaded to.
     //   computeHash: Optional. Indicates if SHA256 hash should be calculated when downloading.
-    std::optional<std::vector<BYTE>> DODownload(
+    DownloadResult DODownload(
         const std::string& url,
         const std::filesystem::path& dest,
         IProgressCallback& progress,
-        bool computeHash,
         std::optional<DownloadInfo> info);
 
     // Returns true if the error from DODownload should be treated as fatal;

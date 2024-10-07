@@ -546,10 +546,14 @@ namespace AppInstaller::Logging
         std::string_view channel,
         const std::vector<uint8_t>& expected,
         const std::vector<uint8_t>& actual,
-        bool overrideHashMismatch) const noexcept
+        bool overrideHashMismatch,
+        uint64_t downloadSizeInBytes,
+        const std::optional<std::string>& contentType) const noexcept
     {
         if (IsTelemetryEnabled())
         {
+            std::string actualContentType = contentType.value_or(std::string{});
+
             AICLI_TraceLoggingWriteActivity(
                 "HashMismatch",
                 TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
@@ -559,6 +563,8 @@ namespace AppInstaller::Logging
                 TraceLoggingBinary(expected.data(), static_cast<ULONG>(expected.size()), "Expected"),
                 TraceLoggingBinary(actual.data(), static_cast<ULONG>(actual.size()), "Actual"),
                 TraceLoggingBool(overrideHashMismatch, "Override"),
+                TraceLoggingUInt64(downloadSizeInBytes, "FileSize"),
+                AICLI_TraceLoggingStringView(actualContentType, "ContentType"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 

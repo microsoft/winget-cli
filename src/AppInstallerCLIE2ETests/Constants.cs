@@ -269,6 +269,8 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_REPAIR_NOT_SUPPORTED = unchecked((int)0x8A15007C);
             public const int ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED = unchecked((int)0x8A15007D);
 
+            public const int ERROR_INSTALLER_ZERO_BYTE_FILE = unchecked((int)0x8A150086);
+
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);
             public const int ERROR_INSTALL_FILE_IN_USE = unchecked((int)0x8A150103);

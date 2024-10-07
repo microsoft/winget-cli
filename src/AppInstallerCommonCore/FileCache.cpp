@@ -51,12 +51,12 @@ namespace AppInstaller::Caching
                 {
                     try
                     {
-                        auto downloadHash = Utility::DownloadToStream(fullPath, *result, Utility::DownloadType::Manifest, emptyCallback, !expectedHash.empty());
+                        auto downloadResult = Utility::DownloadToStream(fullPath, *result, Utility::DownloadType::Manifest, emptyCallback);
 
                         if (!expectedHash.empty() &&
-                            (!downloadHash || !Utility::SHA256::AreEqual(expectedHash, downloadHash.value())))
+                            !Utility::SHA256::AreEqual(expectedHash, downloadResult.Sha256Hash))
                         {
-                            AICLI_LOG(Core, Verbose, << "Invalid hash from [" << fullPath << "]: expected [" << Utility::SHA256::ConvertToString(expectedHash) << "], got [" << (downloadHash ? Utility::SHA256::ConvertToString(*downloadHash) : "null") << "]");
+                            AICLI_LOG(Core, Verbose, << "Invalid hash from [" << fullPath << "]: expected [" << Utility::SHA256::ConvertToString(expectedHash) << "], got [" << Utility::SHA256::ConvertToString(downloadResult.Sha256Hash) << "]");
                             THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
                         }
 

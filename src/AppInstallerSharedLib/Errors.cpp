@@ -221,6 +221,7 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED, "Failed to retrieve Microsoft Store package license."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED, "The Microsoft Store package does not support download."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN, "Failed to retrieve Microsoft Store package license. The Microsoft Entra Id account does not have the required privilege."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALLER_ZERO_BYTE_FILE, "Downloaded zero byte installer; ensure that your network connection is working properly."),
 
             // Install errors.
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, "Application is currently running. Exit the application then try again."),

@@ -232,7 +232,9 @@ namespace AppInstaller::Logging
             std::string_view channel,
             const std::vector<uint8_t>& expected,
             const std::vector<uint8_t>& actual,
-            bool overrideHashMismatch) const noexcept;
+            bool overrideHashMismatch,
+            uint64_t downloadSizeInBytes,
+            const std::optional<std::string>& contentType) const noexcept;
 
         // Logs a failed installation attempt.
         void LogInstallerFailure(std::string_view id, std::string_view version, std::string_view channel, std::string_view type, uint32_t errorCode) const noexcept;

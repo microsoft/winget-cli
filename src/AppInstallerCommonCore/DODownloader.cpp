@@ -15,6 +15,35 @@
 
 namespace AppInstaller::Utility
 {
+    namespace
+    {
+        std::optional<std::string> ExtractContentType(const std::optional<std::string>& headers)
+        {
+            if (!headers)
+            {
+                return std::nullopt;
+            }
+
+            static constexpr std::string_view s_ContentType = "content-type:"sv;
+            auto headerLines = Utility::SplitIntoLines(headers.value());
+
+            for (const auto& header : headerLines)
+            {
+                std::string_view headerView = header;
+                if (header.length() >= s_ContentType.length())
+                {
+                    std::string lowerFragment = ToLower(headerView.substr(0, s_ContentType.length()));
+                    if (s_ContentType == lowerFragment)
+                    {
+                        return Trim(header.substr(s_ContentType.length()));
+                    }
+                }
+            }
+
+            return std::nullopt;
+        }
+    }
+
     namespace DeliveryOptimization
     {
         // Represents a download work item for Delivery Optimization.
@@ -369,11 +398,10 @@ namespace AppInstaller::Utility
     // Debugging tip:
     // From an elevated PowerShell, run:
     // > Get-DeliveryOptimizationLog | Set-Content doLogs.txt
-    std::optional<std::vector<BYTE>> DODownload(
+    DownloadResult DODownload(
         const std::string& url,
         const std::filesystem::path& dest,
         IProgressCallback& progress,
-        bool computeHash,
         std::optional<DownloadInfo> info)
     {
         AICLI_LOG(Core, Info, << "DeliveryOptimization downloading from url: " << url);
@@ -432,11 +460,15 @@ namespace AppInstaller::Utility
             download.Finalize();
             AICLI_LOG(Core, Info, << "Download completed.");
 
-            if (computeHash)
-            {
-                std::ifstream inStream{ dest, std::ifstream::binary };
-                return SHA256::ComputeHash(inStream);
-            }
+            std::ifstream inStream{ dest, std::ifstream::binary };
+            auto hashDetails = SHA256::ComputeHashDetails(inStream);
+
+            DownloadResult result;
+            result.Sha256Hash = std::move(hashDetails.Hash);
+            result.SizeInBytes = hashDetails.SizeInBytes;
+            result.ContentType = ExtractContentType(responseHeaders);
+
+            return result;
         }
 
         return {};

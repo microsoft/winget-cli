@@ -126,6 +126,8 @@ decompressor
 dedupe
 deigh
 deleteifnotneeded
+deliveryoptimization
+deliveryoptimizationerrors
 DENYWR
 desktopappinstaller
 devhome
@@ -404,6 +406,7 @@ PACL
 PARAMETERMAP
 pathparts
 Patil
+pbstr
 pcb
 PCCERT
 PCs

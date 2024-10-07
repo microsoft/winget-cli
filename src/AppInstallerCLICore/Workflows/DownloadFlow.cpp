@@ -293,7 +293,7 @@ namespace AppInstaller::CLI::Workflow
 
         AICLI_LOG(CLI, Info, << "Existing installer file hash matches. Will use existing installer.");
         context.Add<Execution::Data::InstallerPath>(installerPath / installerFilename);
-        context.Add<Execution::Data::HashPair>(std::make_pair(installer.Sha256, fileHash));
+        context.Add<Execution::Data::DownloadHashInfo>(std::make_pair(installer.Sha256, DownloadResult{ fileHash }));
     }
 
     void GetInstallerDownloadPath(Execution::Context& context)
@@ -325,7 +325,7 @@ namespace AppInstaller::CLI::Workflow
 
         context.Reporter.Info() << Resource::String::Downloading << ' ' << Execution::UrlEmphasis << installer.Url << std::endl;
 
-        std::optional<std::vector<BYTE>> hash;
+        DownloadResult downloadResult;
 
         constexpr int MaxRetryCount = 2;
         constexpr std::chrono::seconds maximumWaitTimeAllowed = 60s;
@@ -334,15 +334,22 @@ namespace AppInstaller::CLI::Workflow
             bool success = false;
             try
             {
-                hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
+                downloadResult = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
                     installer.Url,
                     installerPath,
                     Utility::DownloadType::Installer,
                     std::placeholders::_1,
-                    true,
                     downloadInfo));
 
-                success = true;
+                if (downloadResult.SizeInBytes == 0)
+                {
+                    AICLI_LOG(CLI, Info, << "Got zero byte file; retrying download after a short wait...");
+                    std::this_thread::sleep_for(5s);
+                }
+                else
+                {
+                    success = true;
+                }
             }
             catch (const ServiceUnavailableException& sue)
             {
@@ -388,13 +395,13 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        if (!hash)
+        if (downloadResult.Sha256Hash.empty())
         {
             context.Reporter.Info() << Resource::String::Cancelled << std::endl;
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
 
-        context.Add<Execution::Data::HashPair>(std::make_pair(installer.Sha256, hash.value()));
+        context.Add<Execution::Data::DownloadHashInfo>(std::make_pair(installer.Sha256, downloadResult));
     }
 
     void GetMsixSignatureHash(Execution::Context& context)
@@ -410,7 +417,7 @@ namespace AppInstaller::CLI::Workflow
             Msix::MsixInfo msixInfo(installer.Url);
             auto signatureHash = msixInfo.GetSignatureHash();
 
-            context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));
+            context.Add<Execution::Data::DownloadHashInfo>(std::make_pair(installer.SignatureSha256, DownloadResult{ signatureHash }));
             context.Add<Execution::Data::MsixDigests>({ std::make_pair(installer.Url, msixInfo.GetDigest()) });
         }
         catch (...)
@@ -427,17 +434,23 @@ namespace AppInstaller::CLI::Workflow
 
     void VerifyInstallerHash(Execution::Context& context)
     {
-        const auto& hashPair = context.Get<Execution::Data::HashPair>();
+        const auto& [expectedHash, downloadResult] = context.Get<Execution::Data::DownloadHashInfo>();
 
         if (!std::equal(
-            hashPair.first.begin(),
-            hashPair.first.end(),
-            hashPair.second.begin()))
+            expectedHash.begin(),
+            expectedHash.end(),
+            downloadResult.Sha256Hash.begin()))
         {
             bool overrideHashMismatch = context.Args.Contains(Execution::Args::Type::HashOverride);
 
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            Logging::Telemetry().LogInstallerHashMismatch(manifest.Id, manifest.Version, manifest.Channel, hashPair.first, hashPair.second, overrideHashMismatch);
+            Logging::Telemetry().LogInstallerHashMismatch(manifest.Id, manifest.Version, manifest.Channel, expectedHash, downloadResult.Sha256Hash, overrideHashMismatch, downloadResult.SizeInBytes, downloadResult.ContentType);
+
+            if (downloadResult.SizeInBytes == 0)
+            {
+                context.Reporter.Error() << Resource::String::InstallerZeroByteFile << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_ZERO_BYTE_FILE);
+            }
 
             // If running as admin, do not allow the user to override the hash failure.
             if (Runtime::IsRunningAsAdmin())
@@ -527,7 +540,7 @@ namespace AppInstaller::CLI::Workflow
             const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
             std::ifstream inStream{ installerPath, std::ifstream::binary };
             auto existingFileHash = SHA256::ComputeHash(inStream);
-            context.Add<Execution::Data::HashPair>(std::make_pair(installer.Sha256, existingFileHash));
+            context.Add<Execution::Data::DownloadHashInfo>(std::make_pair(installer.Sha256, DownloadResult{ existingFileHash }));
         }
         else if (installer.EffectiveInstallerType() == InstallerTypeEnum::MSStore)
         {

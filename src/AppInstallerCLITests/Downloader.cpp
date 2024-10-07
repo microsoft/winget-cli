@@ -17,10 +17,10 @@ TEST_CASE("DownloadValidFileAndVerifyHash", "[Downloader]")
 
     // Todo: point to files from our repo when the repo goes public
     ProgressCallback callback;
-    auto result = Download("https://raw.githubusercontent.com/microsoft/msix-packaging/master/LICENSE", tempFile.GetPath(), DownloadType::Manifest, callback, true);
+    auto result = Download("https://raw.githubusercontent.com/microsoft/msix-packaging/master/LICENSE", tempFile.GetPath(), DownloadType::Manifest, callback);
 
-    REQUIRE(result.has_value());
-    auto resultHash = result.value();
+    REQUIRE(!result.Sha256Hash.empty());
+    auto resultHash = result.Sha256Hash;
 
     auto expectedHash = SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b759");
     REQUIRE(std::equal(
@@ -28,7 +28,9 @@ TEST_CASE("DownloadValidFileAndVerifyHash", "[Downloader]")
         expectedHash.end(),
         resultHash.begin()));
 
-    REQUIRE(std::filesystem::file_size(tempFile.GetPath()) > 0);
+    uint64_t expectedFileSize = 1119;
+    REQUIRE(result.SizeInBytes == expectedFileSize);
+    REQUIRE(std::filesystem::file_size(tempFile.GetPath()) == expectedFileSize);
 
     // Verify motw content
     std::filesystem::path motwFile(tempFile);
@@ -47,17 +49,17 @@ TEST_CASE("DownloadValidFileAndCancel", "[Downloader]")
 
     ProgressCallback callback;
 
-    std::optional<std::vector<BYTE>> waitResult;
+    DownloadResult waitResult;
     std::thread waitThread([&]
         {
-            waitResult = Download("https://aka.ms/win32-x64-user-stable", tempFile.GetPath(), DownloadType::Installer, callback, true);
+            waitResult = Download("https://aka.ms/win32-x64-user-stable", tempFile.GetPath(), DownloadType::Installer, callback);
         });
 
     callback.Cancel();
 
     waitThread.join();
 
-    REQUIRE(!waitResult.has_value());
+    REQUIRE(waitResult.Sha256Hash.empty());
 }
 
 TEST_CASE("DownloadInvalidUrl", "[Downloader]")
@@ -67,7 +69,7 @@ TEST_CASE("DownloadInvalidUrl", "[Downloader]")
 
     ProgressCallback callback;
 
-    REQUIRE_THROWS(Download("blargle-flargle-fluff", tempFile.GetPath(), DownloadType::Installer, callback, true));
+    REQUIRE_THROWS(Download("blargle-flargle-fluff", tempFile.GetPath(), DownloadType::Installer, callback));
 }
 
 TEST_CASE("HttpStream_ReadLastFullPage", "[HttpStream]")

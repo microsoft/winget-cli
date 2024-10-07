@@ -36,6 +36,14 @@ namespace AppInstaller::Utility
         std::string ContentId;
     };
 
+    // Properties about the downloaded file.
+    struct DownloadResult
+    {
+        std::vector<BYTE> Sha256Hash;
+        uint64_t SizeInBytes = 0;
+        std::optional<std::string> ContentType;
+    };
+
     // An exception that indicates that a remote service is too busy/unavailable and may contain data on when to try again.
     struct ServiceUnavailableException : public wil::ResultException
     {
@@ -52,12 +60,11 @@ namespace AppInstaller::Utility
     //   dest: The stream to be downloaded to.
     //   computeHash: Optional. Indicates if SHA256 hash should be calculated when downloading.
     //   downloadInfo: Optional. Currently only used by DO to identify the download.
-    std::optional<std::vector<BYTE>> DownloadToStream(
+    DownloadResult DownloadToStream(
         const std::string& url,
         std::ostream& dest,
         DownloadType type,
         IProgressCallback& progress,
-        bool computeHash = false,
         std::optional<DownloadInfo> downloadInfo = {});
 
     // Downloads a file from the given URL and places it in the given location.
@@ -65,12 +72,11 @@ namespace AppInstaller::Utility
     //   dest: The path to local file to be downloaded to.
     //   computeHash: Optional. Indicates if SHA256 hash should be calculated when downloading.
     //   downloadInfo: Optional. Currently only used by DO to identify the download.
-    std::optional<std::vector<BYTE>> Download(
+    DownloadResult Download(
         const std::string& url,
         const std::filesystem::path& dest,
         DownloadType type,
         IProgressCallback& progress,
-        bool computeHash = false,
         std::optional<DownloadInfo> downloadInfo = {});
 
     // Gets the headers for the given URL.
