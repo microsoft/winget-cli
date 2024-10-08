@@ -340,6 +340,7 @@ msft
 msftrubengu
 MSIHASH
 MSIXHASH
+MSIXSTRM
 msstore
 MSZIP
 mszyml
