@@ -388,7 +388,7 @@ namespace AppInstaller::CLI::Workflow
         return authArgs;
     }
 
-    HRESULT HandleException(Execution::Context& context, std::exception_ptr exception)
+    HRESULT HandleException(Execution::Context* context, std::exception_ptr exception)
     {
         try
         {
@@ -399,45 +399,65 @@ namespace AppInstaller::CLI::Workflow
         {
             // Even though they are logged at their source, log again here for completeness.
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::ResultException, re.what());
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                GetUserPresentableMessage(re) << std::endl;
+            if (context)
+            {
+                context->Reporter.Error() <<
+                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                    GetUserPresentableMessage(re) << std::endl;
+            }
             return re.GetErrorCode();
         }
         catch (const winrt::hresult_error& hre)
         {
             std::string message = GetUserPresentableMessage(hre);
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::WinrtHResultError, message);
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                message << std::endl;
+            if (context)
+            {
+                context->Reporter.Error() <<
+                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                    message << std::endl;
+            }
             return hre.code();
         }
         catch (const Settings::GroupPolicyException& e)
         {
-            auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
-            auto policyNameId = policy.PolicyName();
-            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy(policyNameId) << std::endl;
+            if (context)
+            {
+                auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
+                auto policyNameId = policy.PolicyName();
+                context->Reporter.Error() << Resource::String::DisabledByGroupPolicy(policyNameId) << std::endl;
+            }
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
         catch (const std::exception& e)
         {
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::StdException, e.what());
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                GetUserPresentableMessage(e) << std::endl;
+            if (context)
+            {
+                context->Reporter.Error() <<
+                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                    GetUserPresentableMessage(e) << std::endl;
+            }
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
         catch (...)
         {
             LOG_CAUGHT_EXCEPTION();
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::Unknown, {});
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
+            if (context)
+            {
+                context->Reporter.Error() <<
+                    Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
+            }
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
 
         return E_UNEXPECTED;
+    }
+
+    HRESULT HandleException(Execution::Context& context, std::exception_ptr exception)
+    {
+        return HandleException(&context, exception);
     }
 
     void OpenSource::operator()(Execution::Context& context) const

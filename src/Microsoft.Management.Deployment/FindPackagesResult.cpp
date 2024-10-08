@@ -10,11 +10,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     void FindPackagesResult::Initialize(
         winrt::Microsoft::Management::Deployment::FindPackagesResultStatus status,
         bool wasLimitExceeded, 
-        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::MatchResult> matches)
+        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::MatchResult> matches,
+        winrt::hresult extendedErrorCode)
     {
         m_status = status;
         m_matches = matches;
         m_wasLimitExceeded = wasLimitExceeded;
+        m_extendedErrorCode = extendedErrorCode;
     }
     winrt::Microsoft::Management::Deployment::FindPackagesResultStatus FindPackagesResult::Status()
     {
@@ -27,5 +29,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     bool FindPackagesResult::WasLimitExceeded()
     {
         return m_wasLimitExceeded;
+    }
+
+    winrt::hresult FindPackagesResult::ExtendedErrorCode()
+    {
+        return m_extendedErrorCode;
     }
 }
