@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(12)] // For version 1.10
+    [contractversion(11)] // For version 1.9
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -664,7 +664,7 @@ namespace Microsoft.Management.Deployment
         /// getting more results.
         Boolean WasLimitExceeded { get; };
 
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
         {
             /// The error code of the operation.
             HRESULT ExtendedErrorCode{ get; };
@@ -789,7 +789,7 @@ namespace Microsoft.Management.Deployment
 
         PackageCatalog PackageCatalog { get; };
 
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
         {
             /// The error code of the operation.
             HRESULT ExtendedErrorCode{ get; };
