@@ -550,10 +550,10 @@ namespace AppInstaller::Logging
         uint64_t downloadSizeInBytes,
         const std::optional<std::string>& contentType) const noexcept
     {
+        std::string actualContentType = contentType.value_or(std::string{});
+
         if (IsTelemetryEnabled())
         {
-            std::string actualContentType = contentType.value_or(std::string{});
-
             AICLI_TraceLoggingWriteActivity(
                 "HashMismatch",
                 TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
@@ -563,7 +563,7 @@ namespace AppInstaller::Logging
                 TraceLoggingBinary(expected.data(), static_cast<ULONG>(expected.size()), "Expected"),
                 TraceLoggingBinary(actual.data(), static_cast<ULONG>(actual.size()), "Actual"),
                 TraceLoggingBool(overrideHashMismatch, "Override"),
-                TraceLoggingUInt64(downloadSizeInBytes, "FileSize"),
+                TraceLoggingUInt64(downloadSizeInBytes, "ActualSize"),
                 AICLI_TraceLoggingStringView(actualContentType, "ContentType"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
@@ -576,6 +576,8 @@ namespace AppInstaller::Logging
                 m_summary.HashMismatchExpected = expected;
                 m_summary.HashMismatchActual = actual;
                 m_summary.HashMismatchOverride = overrideHashMismatch;
+                m_summary.HashMismatchActualSize = downloadSizeInBytes;
+                m_summary.HashMismatchContentType = actualContentType;
             }
         }
 
@@ -584,7 +586,7 @@ namespace AppInstaller::Logging
             << Utility::SHA256::ConvertToString(expected)
             << "] does not match download ["
             << Utility::SHA256::ConvertToString(actual)
-            << ']');
+            << "] with file size [" << downloadSizeInBytes << "] and content type [" << actualContentType << "]");
     }
 
     void TelemetryTraceLogger::LogInstallerFailure(std::string_view id, std::string_view version, std::string_view channel, std::string_view type, uint32_t errorCode) const noexcept
@@ -818,6 +820,8 @@ namespace AppInstaller::Logging
                     TraceLoggingBinary(m_summary.HashMismatchExpected.data(), static_cast<ULONG>(m_summary.HashMismatchExpected.size()), "HashMismatchExpected"),
                     TraceLoggingBinary(m_summary.HashMismatchActual.data(), static_cast<ULONG>(m_summary.HashMismatchActual.size()), "HashMismatchActual"),
                     TraceLoggingBool(m_summary.HashMismatchOverride, "HashMismatchOverride"),
+                    TraceLoggingUInt64(m_summary.HashMismatchActualSize, "HashMismatchActualSize"),
+                    AICLI_TraceLoggingStringView(m_summary.HashMismatchContentType, "HashMismatchContentType"),
                     AICLI_TraceLoggingStringView(m_summary.InstallerExecutionType, "InstallerExecutionType"),
                     TraceLoggingUInt32(m_summary.InstallerErrorCode, "InstallerErrorCode"),
                     AICLI_TraceLoggingStringView(m_summary.UninstallerExecutionType, "UninstallerExecutionType"),

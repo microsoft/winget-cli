@@ -101,6 +101,8 @@ namespace AppInstaller::Logging
         std::vector<uint8_t> HashMismatchExpected;
         std::vector<uint8_t> HashMismatchActual;
         bool HashMismatchOverride = false;
+        uint64_t HashMismatchActualSize = 0;
+        std::string HashMismatchContentType;
 
         // LogInstallerFailure
         std::string InstallerExecutionType;
