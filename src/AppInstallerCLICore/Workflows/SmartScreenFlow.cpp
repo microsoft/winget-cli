@@ -87,25 +87,51 @@ namespace AppInstaller::CLI::Workflow
         return S_OK;
     }
 
+    HRESULT EvaluateConfigurationUri(Execution::Context& context)
+    {
+        std::string argPath{ context.Args.GetArg(Execution::Args::Type::ConfigurationFile) };
+        if (Utility::IsUrlRemote(argPath))
+        {
+            context.Reporter.Info() << "Validating Uri: " << argPath;
+            AICLI_LOG(Config, Error, << "URI validation blocked this uri: " << argPath);
+            return EvaluateUri(context, argPath);
+        }
+
+        AICLI_LOG(Config, Info, << "Skipping Uri validation for local file: " << argPath);
+        return S_OK;
+    }
+
+    HRESULT EvaluateDownloadUri(Execution::Context& context)
+    {
+        const auto packageVersion = context.Get<Execution::Data::PackageVersion>();
+        const auto source = packageVersion->GetSource();
+        const auto isTrusted = WI_IsFlagSet(source.GetDetails().TrustLevel, Repository::SourceTrustLevel::Trusted);
+        if (!isTrusted)
+        {
+            const auto installer = context.Get<Execution::Data::Installer>();
+            return EvaluateUri(context, installer->Url);
+        }
+
+        return S_OK;
+    }
+
     void EvaluateUri(Execution::Context& context)
     {
+        // DSC
         if (context.Args.Contains(Execution::Args::Type::ConfigurationFile))
         {
-            std::string argPath{ context.Args.GetArg(Execution::Args::Type::ConfigurationFile) };
-
-            if (Utility::IsUrlRemote(argPath))
+            auto uriValidation = EvaluateConfigurationUri(context);
+            if(FAILED(uriValidation))
             {
-                context.Reporter.Info() << "Validating Uri: " << argPath;
-                auto uriValidation = EvaluateUri(context, argPath);
-                if (FAILED(uriValidation))
-                {
-                    AICLI_LOG(Config, Error, << "URI validation blocked this uri: " << argPath);
-                    AICLI_TERMINATE_CONTEXT(uriValidation);
-                }
+                AICLI_TERMINATE_CONTEXT(uriValidation);
             }
-            else
+        }
+        else
+        {
+            auto uriValidation = EvaluateDownloadUri(context);
+            if (FAILED(uriValidation))
             {
-                AICLI_LOG(Config, Info, << "Skipping Uri validation for local file: " << argPath);
+                AICLI_TERMINATE_CONTEXT(uriValidation);
             }
         }
     }
