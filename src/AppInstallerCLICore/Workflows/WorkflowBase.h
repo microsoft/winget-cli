@@ -85,6 +85,10 @@ namespace AppInstaller::CLI::Workflow
     Authentication::AuthenticationArguments GetAuthenticationArguments(const Execution::Context& context);
 
     // Helper to report exceptions and return the HRESULT.
+    // If context is null, no output will be attempted.
+    HRESULT HandleException(Execution::Context* context, std::exception_ptr exception);
+
+    // Helper to report exceptions and return the HRESULT.
     HRESULT HandleException(Execution::Context& context, std::exception_ptr exception);
 
     // Creates the source object.

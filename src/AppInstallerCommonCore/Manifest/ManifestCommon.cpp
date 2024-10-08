@@ -658,20 +658,20 @@ namespace AppInstaller::Manifest
         return "unknown"sv;
     }
 
-    std::string_view PlatformToString(PlatformEnum platform)
+    std::string_view PlatformToString(PlatformEnum platform, bool shortString)
     {
         switch (platform)
         {
         case PlatformEnum::Desktop:
-            return "Windows.Desktop"sv;
+            return shortString ? "Desktop" : "Windows.Desktop"sv;
         case PlatformEnum::Universal:
-            return "Windows.Universal"sv;
+            return shortString ? "Universal" : "Windows.Universal"sv;
         case PlatformEnum::IoT:
-            return "Windows.IoT"sv;
+            return shortString ? "IoT" : "Windows.IoT"sv;
         case PlatformEnum::Holographic:
-            return "Windows.Holographic"sv;
+            return shortString ? "Holographic" : "Windows.Holographic"sv;
         case PlatformEnum::Team:
-            return "Windows.Team"sv;
+            return shortString ? "Team" : "Windows.Team"sv;
         }
 
         return "Unknown"sv;

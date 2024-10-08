@@ -143,6 +143,8 @@ ms.localizationpriority: medium
 | 0x8A150081 | -1978335103 | APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED | Failed to get Microsoft Store package download information. |
 | 0x8A150082 | -1978335102 | APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE | No applicable Microsoft Store package download information found. |
 | 0x8A150083 | -1978335101 | APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED | Failed to retrieve Microsoft Store package license. |
+| 0x8A150084 | -1978335100 | APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED | The Microsoft Store package does not support download command. |
+| 0x8A150085 | -1978335099 | APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN | Failed to retrieve Microsoft Store package license. The Microsoft Entra Id account does not have required privilege. |
 
 ## Install errors.
 
@@ -203,6 +205,8 @@ Installation failed. Restart your PC then try again. |
 | 0x8A15C00F | -1978286065 | WINGET_CONFIG_ERROR_TEST_FAILED | Some of the configuration units failed while testing their state. |
 | 0x8A15C010 | -1978286064 | WINGET_CONFIG_ERROR_TEST_NOT_RUN | Configuration state was not tested. |
 | 0x8A15C011 | -1978286063 | WINGET_CONFIG_ERROR_GET_FAILED | The configuration unit failed getting its properties. |
+| 0x8A15C012 | -1978286062 | WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND | The specified configuration could not be found. |
+| 0x8A15C013 | -1978286061 | WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY | Parameter cannot be passed across integrity boundary. |
 
 ## Configuration Processor Errors
 

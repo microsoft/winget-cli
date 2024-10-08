@@ -7,7 +7,7 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    hstring ConfigurationParameter::Name()
+    hstring ConfigurationParameter::Name() const
     {
         return m_name;
     }
@@ -17,7 +17,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_name = value;
     }
 
-    hstring ConfigurationParameter::Description()
+    hstring ConfigurationParameter::Description() const
     {
         return m_description;
     }
@@ -27,7 +27,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_description = value;
     }
 
-    Windows::Foundation::Collections::ValueSet ConfigurationParameter::Metadata()
+    Windows::Foundation::Collections::ValueSet ConfigurationParameter::Metadata() const
     {
         return m_metadata;
     }
@@ -38,7 +38,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_metadata = value;
     }
 
-    bool ConfigurationParameter::IsSecure()
+    bool ConfigurationParameter::IsSecure() const
     {
         return m_isSecure;
     }
@@ -48,7 +48,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_isSecure = value;
     }
 
-    Windows::Foundation::PropertyType ConfigurationParameter::Type()
+    Windows::Foundation::PropertyType ConfigurationParameter::Type() const
     {
         return m_type;
     }
@@ -59,7 +59,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_type = value;
     }
 
-    Windows::Foundation::IInspectable ConfigurationParameter::DefaultValue()
+    Windows::Foundation::IInspectable ConfigurationParameter::DefaultValue() const
     {
         return m_defaultValue;
     }
@@ -74,7 +74,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_defaultValue = value;
     }
 
-    Windows::Foundation::Collections::IVector<Windows::Foundation::IInspectable> ConfigurationParameter::AllowedValues()
+    Windows::Foundation::Collections::IVector<Windows::Foundation::IInspectable> ConfigurationParameter::AllowedValues() const
     {
         return m_allowedValues;
     }
@@ -100,7 +100,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_allowedValues = winrt::multi_threaded_vector<Windows::Foundation::IInspectable>(std::move(value));
     }
 
-    uint32_t ConfigurationParameter::MinimumLength()
+    uint32_t ConfigurationParameter::MinimumLength() const
     {
         return m_minimumLength;
     }
@@ -111,7 +111,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_minimumLength = value;
     }
 
-    uint32_t ConfigurationParameter::MaximumLength()
+    uint32_t ConfigurationParameter::MaximumLength() const
     {
         return m_maximumLength;
     }
@@ -122,7 +122,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_maximumLength = value;
     }
 
-    Windows::Foundation::IInspectable ConfigurationParameter::MinimumValue()
+    Windows::Foundation::IInspectable ConfigurationParameter::MinimumValue() const
     {
         return m_minimumValue;
     }
@@ -138,7 +138,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_minimumValue = value;
     }
 
-    Windows::Foundation::IInspectable ConfigurationParameter::MaximumValue()
+    Windows::Foundation::IInspectable ConfigurationParameter::MaximumValue() const
     {
         return m_maximumValue;
     }
@@ -154,7 +154,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_maximumValue = value;
     }
 
-    Windows::Foundation::IInspectable ConfigurationParameter::ProvidedValue()
+    Windows::Foundation::IInspectable ConfigurationParameter::ProvidedValue() const
     {
         return m_providedValue;
     }

@@ -235,27 +235,33 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_SIGNATURE(ProgressBarVisualStyle)
         {
-            // progressBar property possible values
-            static constexpr std::string_view s_progressBar_Accent = "accent";
-            static constexpr std::string_view s_progressBar_Rainbow = "rainbow";
-            static constexpr std::string_view s_progressBar_Retro = "retro";
+            std::string lowerValue = ToLower(value);
 
-            if (Utility::CaseInsensitiveEquals(value, s_progressBar_Accent))
+            if (value == "accent")
             {
                 return VisualStyle::Accent;
             }
-            else if (Utility::CaseInsensitiveEquals(value, s_progressBar_Rainbow))
+            else if (value == "rainbow")
             {
                 return VisualStyle::Rainbow;
             }
-            else if (Utility::CaseInsensitiveEquals(value, s_progressBar_Retro))
+            else if (value == "retro")
             {
                 return VisualStyle::Retro;
+            }
+            else if (value == "sixel")
+            {
+                return VisualStyle::Sixel;
+            }
+            else if (value == "disabled")
+            {
+                return VisualStyle::Disabled;
             }
 
             return {};
         }
 
+        WINGET_VALIDATE_PASS_THROUGH(EnableSixelDisplay)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalCmd)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)

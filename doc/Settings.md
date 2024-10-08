@@ -55,6 +55,16 @@ Replaces some known folder paths with their respective environment variable. Def
     },
 ```
 
+### enableSixels
+
+Enables output of sixel images in certain contexts. Defaults to false.
+
+```json
+    "visual": {
+        "enableSixels": true
+    },
+```
+
 ## Install Behavior
 
 The `installBehavior` settings affect the default behavior of installing and upgrading (where applicable) packages.

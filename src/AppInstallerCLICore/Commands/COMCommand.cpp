@@ -8,6 +8,7 @@
 #include "Workflows/UninstallFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
+#include "Workflows/RepairFlow.h"
 
 namespace AppInstaller::CLI
 {
@@ -44,5 +45,13 @@ namespace AppInstaller::CLI
     {
         context <<
             Workflow::UninstallSinglePackage;
+    }
+
+    // IMPORTANT: To use this command, the caller should have already retrieved the InstalledPackageVersion and added it to the Context Data
+    void COMRepairCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        context <<
+            Workflow::SelectApplicableInstallerIfNecessary <<
+            Workflow::RepairSinglePackage;
     }
 }

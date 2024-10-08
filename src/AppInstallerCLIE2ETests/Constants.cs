@@ -60,6 +60,7 @@ namespace AppInstallerCLIE2ETests
         public const string MsiInstallerV2FileName = "AppInstallerTestMsiInstallerV2.msi";
         public const string MsixInstallerFileName = "AppInstallerTestMsixInstaller.msix";
         public const string ZipInstallerFileName = "AppInstallerTestZipInstaller.zip";
+        public const string ModifyRepairInstaller = "AppInstallerTest.TestModifyRepair";
         public const string IndexPackage = "source.msix";
         public const string MakeAppx = "makeappx.exe";
         public const string SignTool = "signtool.exe";

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PSEnumHelpers.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 {
     using System;
     using Microsoft.Management.Deployment;
+    using Newtonsoft.Json.Linq;
     using Windows.System;
 
     /// <summary>
@@ -129,6 +130,22 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 "Burn" => PackageInstallerType.Burn,
                 "MSStore" => PackageInstallerType.MSStore,
                 "Portable" => PackageInstallerType.Portable,
+                _ => throw new InvalidOperationException(),
+            };
+        }
+
+        /// <summary>
+        /// Converts PSPackageRepairMode string value to PackageRepairMode.
+        /// </summary>
+        /// <param name="value">PSPackageRepairMode string value.</param>
+        /// <returns>PackageRepairMode.</returns>
+        public static PackageRepairMode ToPackageRepairMode(string value)
+        {
+            return value switch
+            {
+                "Default" => PackageRepairMode.Default,
+                "Silent" => PackageRepairMode.Silent,
+                "Interactive" => PackageRepairMode.Interactive,
                 _ => throw new InvalidOperationException(),
             };
         }

@@ -2874,7 +2874,7 @@
   <data name="SettingsSetCommandShortDescription" xml:space="preserve">
     <value>設定系統管理設定的值。</value>
   </data>
-  <data name="SourceRequireExplicitArgumentDescription" xml:space="preserve">
+  <data name="SourceExplicitArgumentDescription" xml:space="preserve">
     <value>除非指定，否則將來源排除在探索之外</value>
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
@@ -2896,13 +2896,13 @@
     <value>無法取得 Microsoft Store 套件下載資訊。</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE" xml:space="preserve">
-    <value>找不到適用 Microsoft Store 套件下載資訊。</value>
+    <value>找不到適用於下載Microsoft Store套件。</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED" xml:space="preserve">
     <value>無法擷取 Microsoft Store 套件授權。</value>
   </data>
-  <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
-    <value>找不到 Microsoft Store 封裝。</value>
+  <data name="MSStoreDownloadNoApplicablePackageFound" xml:space="preserve">
+    <value>找不到適用的 Microsoft Store 套件。</value>
   </data>
   <data name="MSStoreDownloadPackageHashVerified" xml:space="preserve">
     <value>已成功驗證 Microsoft Store 套件雜湊</value>
@@ -2948,7 +2948,8 @@
     <comment>{Locked="--rename"}</comment>
   </data>
   <data name="MSStoreDownloadAuthenticationNotice" xml:space="preserve">
-    <value>Microsoft Store 套件下載需要 Microsoft Entra ID 驗證。必要時可能會顯示驗證提示。將與 Microsoft 服務共用已驗證的資訊，以進行存取授權。若要 Microsoft Store 套件授權，Microsoft Entra ID 帳戶必須具有 Microsoft Entra ID 租用戶的系統管理員存取權。</value>
+    <value>Microsoft Store套件下載需要 Microsoft Entra 標識符驗證。必要時可能會顯示驗證提示。將與Microsoft 服務共享已驗證的信息，以進行存取授權。對於Microsoft Store套件授權，Microsoft Entra 標識符帳戶必須是全域管理員、用戶系統管理員或授權系統管理員的成員。</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator"}</comment>
   </data>
   <data name="SkipMicrosoftStorePackageLicenseArgumentDescription" xml:space="preserve">
     <value>略過擷取 Microsoft Store 套件離線授權</value>
@@ -3044,5 +3045,89 @@
   </data>
   <data name="WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND" xml:space="preserve">
     <value>找不到指定的設定。</value>
+  </data>
+  <data name="ConfigurationSetStateCompleted" xml:space="preserve">
+    <value>已完成</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStateInProgress" xml:space="preserve">
+    <value>進行中</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStatePending" xml:space="preserve">
+    <value>擱置中</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStateUnknown" xml:space="preserve">
+    <value>未知</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationStatusWatchArgumentDescription" xml:space="preserve">
+    <value>監視設定狀態。</value>
+    <comment>As in "to monitor the status of a configuration being applied".</comment>
+  </data>
+  <data name="ConfigurationUnitStateCompleted" xml:space="preserve">
+    <value>已完成</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateInProgress" xml:space="preserve">
+    <value>進行中</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStatePending" xml:space="preserve">
+    <value>擱置中</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateSkipped" xml:space="preserve">
+    <value>已略過</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateUnknown" xml:space="preserve">
+    <value>未知</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigureListApplyBegun" xml:space="preserve">
+    <value>已啟動套用</value>
+    <comment>When the configuration application started.</comment>
+  </data>
+  <data name="ConfigureListApplyEnded" xml:space="preserve">
+    <value>已結束套用</value>
+    <comment>When the configuration application ended.</comment>
+  </data>
+  <data name="ConfigureListResult" xml:space="preserve">
+    <value>結果</value>
+  </data>
+  <data name="ConfigureListResultDescription" xml:space="preserve">
+    <value>詳細資料</value>
+  </data>
+  <data name="ConfigureListState" xml:space="preserve">
+    <value>狀態</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigureListUnit" xml:space="preserve">
+    <value>單位</value>
+  </data>
+  <data name="StoreInstall_PackageNotAvailableForCurrentSystem" xml:space="preserve">
+    <value>套件與目前的 Windows 版本或平台不相容。</value>
+  </data>
+  <data name="ConfigurationSuppressPrologueArgumentDescription" xml:space="preserve">
+    <value>盡可能隱藏顯示初始設定詳細資料</value>
+  </data>
+  <data name="MSStoreDownloadMultiplePackagesNotice" xml:space="preserve">
+    <value>可能會下載多個以不同平臺和架構為目標的Microsoft Store套件。--platform， --architecture 可以用來篩選封裝。</value>
+    <comment>{Locked="--platform--architecture"}</comment>
+  </data>
+  <data name="MSStoreDownloadGetLicenseForbidden" xml:space="preserve">
+    <value>無法擷取Microsoft Store套件授權。Microsoft Entra標識子帳戶不是全域管理員、用戶系統管理員或授權管理員的成員。使用 --skip-license 略過擷取Microsoft Store套件授權。</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator,--skip-license"}</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadNotSupported" xml:space="preserve">
+    <value>Microsoft Store套件不支持下載。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED" xml:space="preserve">
+    <value>Microsoft Store套件不支持下載。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
+    <value>無法擷取Microsoft Store套件授權。Microsoft Entra識別子帳戶沒有所需的許可權。</value>
   </data>
 </root>

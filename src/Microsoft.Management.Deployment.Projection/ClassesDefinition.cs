@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace Microsoft.Management.Deployment.Projection
@@ -113,6 +113,18 @@ namespace Microsoft.Management.Deployment.Projection
                 Clsids = new Dictionary<ClsidContext, Guid>()
                 {
                     [ClsidContext.InProc] = new Guid("80CF9D63-5505-4342-B9B4-BB87895CA8BB"),
+                }
+            },
+
+            [typeof(RepairOptions)] = new ()
+            {
+                ProjectedClassType = typeof(RepairOptions),
+                InterfaceType = typeof(IRepairOptions),
+                Clsids = new Dictionary<ClsidContext, Guid>()
+                {
+                    [ClsidContext.InProc] = new Guid("30C024C4-852C-4DD4-9810-1348C51EF9BB"),
+                    [ClsidContext.OutOfProc] = new Guid("0498F441-3097-455F-9CAF-148F28293865"),
+                    [ClsidContext.OutOfProcDev] = new Guid("E62BB1E7-C7B2-4AEC-9E28-FB649B30FF03"),
                 }
             }
         };

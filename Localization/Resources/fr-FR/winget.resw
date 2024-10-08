@@ -2874,7 +2874,7 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   <data name="SettingsSetCommandShortDescription" xml:space="preserve">
     <value>Définit la valeur d'un paramètre administratif.</value>
   </data>
-  <data name="SourceRequireExplicitArgumentDescription" xml:space="preserve">
+  <data name="SourceExplicitArgumentDescription" xml:space="preserve">
     <value>Exclut une source de la recherche, sauf indication contraire</value>
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
@@ -2896,13 +2896,13 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
     <value>Échec de l'obtention des informations de téléchargement du paquet Microsoft Store.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE" xml:space="preserve">
-    <value>Aucune information sur le téléchargement du paquet Microsoft Store n'a été trouvée.</value>
+    <value>Aucun package Microsoft Store applicable n’a été trouvé pour le téléchargement.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED" xml:space="preserve">
     <value>Échec de la récupération de la licence du paquet Microsoft Store.</value>
   </data>
-  <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
-    <value>Le paquet Microsoft Store n'a pas pu être trouvé.</value>
+  <data name="MSStoreDownloadNoApplicablePackageFound" xml:space="preserve">
+    <value>Aucun paquet Microsoft Store applicable n’a été trouvé.</value>
   </data>
   <data name="MSStoreDownloadPackageHashVerified" xml:space="preserve">
     <value>Vérification réussie du hachage du paquet Microsoft Store</value>
@@ -2948,7 +2948,8 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
     <comment>{Locked="--rename"}</comment>
   </data>
   <data name="MSStoreDownloadAuthenticationNotice" xml:space="preserve">
-    <value>Le téléchargement des paquets Microsoft Store nécessite l'authentification Microsoft Entra Id. Une demande d'authentification peut apparaître si nécessaire. Les informations authentifiées seront partagées avec les services Microsoft pour l'autorisation d'accès. Pour l'octroi de licences de paquets Microsoft Store, le compte Microsoft Entra Id doit disposer d'un accès administrateur au locataire Microsoft Entra Id.</value>
+    <value>Microsoft Store téléchargement du package nécessite une authentification par ID Microsoft Entra. L’invite d’authentification peut s’afficher en cas de besoin. Les informations authentifiées seront partagées avec services Microsoft pour l’autorisation d’accès. Pour Microsoft Store licence de package, le compte d’ID Microsoft Entra doit être membre de l’administrateur général, de l’administrateur utilisateur ou de l’administrateur de licences.</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator"}</comment>
   </data>
   <data name="SkipMicrosoftStorePackageLicenseArgumentDescription" xml:space="preserve">
     <value>Ne pas récupérer la licence hors ligne du paquet Microsoft Store</value>
@@ -3044,5 +3045,89 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   </data>
   <data name="WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND" xml:space="preserve">
     <value>La configuration spécifiée est introuvable.</value>
+  </data>
+  <data name="ConfigurationSetStateCompleted" xml:space="preserve">
+    <value>Terminé</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStateInProgress" xml:space="preserve">
+    <value>En cours</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStatePending" xml:space="preserve">
+    <value>En attente</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStateUnknown" xml:space="preserve">
+    <value>Inconnu</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationStatusWatchArgumentDescription" xml:space="preserve">
+    <value>Surveiller l’état de la configuration.</value>
+    <comment>As in "to monitor the status of a configuration being applied".</comment>
+  </data>
+  <data name="ConfigurationUnitStateCompleted" xml:space="preserve">
+    <value>Terminé</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateInProgress" xml:space="preserve">
+    <value>En cours</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStatePending" xml:space="preserve">
+    <value>En attente</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateSkipped" xml:space="preserve">
+    <value>Ignoré</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateUnknown" xml:space="preserve">
+    <value>Inconnu</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigureListApplyBegun" xml:space="preserve">
+    <value>Application démarrée</value>
+    <comment>When the configuration application started.</comment>
+  </data>
+  <data name="ConfigureListApplyEnded" xml:space="preserve">
+    <value>Fin de l’application</value>
+    <comment>When the configuration application ended.</comment>
+  </data>
+  <data name="ConfigureListResult" xml:space="preserve">
+    <value>Résultat</value>
+  </data>
+  <data name="ConfigureListResultDescription" xml:space="preserve">
+    <value>Détails</value>
+  </data>
+  <data name="ConfigureListState" xml:space="preserve">
+    <value>État</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigureListUnit" xml:space="preserve">
+    <value>Unité</value>
+  </data>
+  <data name="StoreInstall_PackageNotAvailableForCurrentSystem" xml:space="preserve">
+    <value>Le package n’est pas compatible avec la version ou la plateforme Windows actuelle.</value>
+  </data>
+  <data name="ConfigurationSuppressPrologueArgumentDescription" xml:space="preserve">
+    <value>Supprimer l’affichage des détails de configuration initiale lorsque cela est possible</value>
+  </data>
+  <data name="MSStoreDownloadMultiplePackagesNotice" xml:space="preserve">
+    <value>Vous pouvez télécharger plusieurs packages Microsoft Store ciblant différentes plateformes et architectures. --platform, --architecture peuvent être utilisés pour filtrer les packages.</value>
+    <comment>{Locked="--platform--architecture"}</comment>
+  </data>
+  <data name="MSStoreDownloadGetLicenseForbidden" xml:space="preserve">
+    <value>Échec de la récupération de Microsoft Store licence de package. Le compte d’ID Microsoft Entra n’est pas membre de l’administrateur général, de l’administrateur d’utilisateurs ou de l’administrateur de licences. Utilisez --skip-license pour ignorer la récupération Microsoft Store licence de package.</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator,--skip-license"}</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadNotSupported" xml:space="preserve">
+    <value>Le package Microsoft Store ne prend pas en charge le téléchargement.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED" xml:space="preserve">
+    <value>Le package Microsoft Store ne prend pas en charge le téléchargement.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
+    <value>Échec de la récupération de Microsoft Store licence de package. Le compte d’ID Microsoft Entra ne dispose pas des privilèges requis.</value>
   </data>
 </root>

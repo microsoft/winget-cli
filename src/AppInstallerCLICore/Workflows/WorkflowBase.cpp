@@ -5,11 +5,14 @@
 #include "ExecutionContext.h"
 #include "ManifestComparator.h"
 #include "PromptFlow.h"
+#include "Sixel.h"
 #include "TableOutput.h"
+#include <winget/FileCache.h>
 #include <winget/ExperimentalFeature.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/Pin.h>
 #include <winget/PinningData.h>
+#include <AppInstallerSHA256.h>
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
 
@@ -65,6 +68,77 @@ namespace AppInstaller::CLI::Workflow
 
             out << std::endl;
         }
+
+        // Determines icon fit given two options.
+        // Targets an 80x80 icon as the best resolution for this use case.
+        // TODO: Consider theme based on current background color.
+        bool IsSecondIconBetter(const Manifest::Icon& current, const Manifest::Icon& alternative)
+        {
+            static constexpr std::array<uint8_t, ToIntegral(Manifest::IconResolutionEnum::Square256) + 1> s_iconResolutionOrder
+            {
+                9, // Unknown
+                8, // Custom
+                15, // Square16
+                14, // Square20
+                13, // Square24
+                12, // Square30
+                11, // Square32
+                10, // Square36
+                6, // Square40
+                5, // Square48
+                4, // Square60
+                3, // Square64
+                2, // Square72
+                0, // Square80
+                1, // Square96
+                7, // Square256
+            };
+
+            return s_iconResolutionOrder.at(ToIntegral(alternative.Resolution)) < s_iconResolutionOrder.at(ToIntegral(current.Resolution));
+        }
+
+        void ShowManifestIcon(Execution::Context& context, const Manifest::Manifest& manifest) try
+        {
+            if (!context.Reporter.SixelsEnabled())
+            {
+                return;
+            }
+
+            auto icons = manifest.CurrentLocalization.Get<Manifest::Localization::Icons>();
+            const Manifest::Icon* bestFitIcon = nullptr;
+
+            for (const auto& icon : icons)
+            {
+                if (!bestFitIcon || IsSecondIconBetter(*bestFitIcon, icon))
+                {
+                    bestFitIcon = &icon;
+                }
+            }
+
+            if (!bestFitIcon)
+            {
+                return;
+            }
+
+            // Use a cache to hold the icons
+            auto splitUri = Utility::SplitFileNameFromURI(bestFitIcon->Url);
+            Caching::FileCache fileCache{ Caching::FileCache::Type::Icon, Utility::SHA256::ConvertToString(bestFitIcon->Sha256), { splitUri.first } };
+            auto iconStream = fileCache.GetFile(splitUri.second, bestFitIcon->Sha256);
+
+            VirtualTerminal::Sixel::Image sixelIcon{ *iconStream, bestFitIcon->FileType };
+
+            // Using a height of 4 arbitrarily; allow width up to the entire console.
+            UINT imageHeightCells = 4;
+            UINT imageWidthCells = static_cast<UINT>(Execution::GetConsoleWidth());
+
+            sixelIcon.RenderSizeInCells(imageWidthCells, imageHeightCells);
+            auto infoOut = context.Reporter.Info();
+            sixelIcon.RenderTo(infoOut);
+
+            // Force the final sixel line to not be overwritten
+            infoOut << std::endl;
+        }
+        CATCH_LOG();
 
         Repository::Source OpenNamedSource(Execution::Context& context, Utility::LocIndView sourceName)
         {
@@ -314,7 +388,7 @@ namespace AppInstaller::CLI::Workflow
         return authArgs;
     }
 
-    HRESULT HandleException(Execution::Context& context, std::exception_ptr exception)
+    HRESULT HandleException(Execution::Context* context, std::exception_ptr exception)
     {
         try
         {
@@ -325,45 +399,65 @@ namespace AppInstaller::CLI::Workflow
         {
             // Even though they are logged at their source, log again here for completeness.
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::ResultException, re.what());
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                GetUserPresentableMessage(re) << std::endl;
+            if (context)
+            {
+                context->Reporter.Error() <<
+                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                    GetUserPresentableMessage(re) << std::endl;
+            }
             return re.GetErrorCode();
         }
         catch (const winrt::hresult_error& hre)
         {
             std::string message = GetUserPresentableMessage(hre);
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::WinrtHResultError, message);
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                message << std::endl;
+            if (context)
+            {
+                context->Reporter.Error() <<
+                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                    message << std::endl;
+            }
             return hre.code();
         }
         catch (const Settings::GroupPolicyException& e)
         {
-            auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
-            auto policyNameId = policy.PolicyName();
-            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy(policyNameId) << std::endl;
+            if (context)
+            {
+                auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
+                auto policyNameId = policy.PolicyName();
+                context->Reporter.Error() << Resource::String::DisabledByGroupPolicy(policyNameId) << std::endl;
+            }
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
         catch (const std::exception& e)
         {
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::StdException, e.what());
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                GetUserPresentableMessage(e) << std::endl;
+            if (context)
+            {
+                context->Reporter.Error() <<
+                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                    GetUserPresentableMessage(e) << std::endl;
+            }
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
         catch (...)
         {
             LOG_CAUGHT_EXCEPTION();
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::Unknown, {});
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
+            if (context)
+            {
+                context->Reporter.Error() <<
+                    Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
+            }
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
 
         return E_UNEXPECTED;
+    }
+
+    HRESULT HandleException(Execution::Context& context, std::exception_ptr exception)
+    {
+        return HandleException(&context, exception);
     }
 
     void OpenSource::operator()(Execution::Context& context) const
@@ -1258,12 +1352,14 @@ namespace AppInstaller::CLI::Workflow
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
         ReportIdentity(context, {}, Resource::String::ReportIdentityFound, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id);
+        ShowManifestIcon(context, manifest);
     }
 
     void ReportManifestIdentityWithVersion::operator()(Execution::Context& context) const
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
         ReportIdentity(context, m_prefix, m_label, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id, manifest.Version, m_level);
+        ShowManifestIcon(context, manifest);
     }
 
     void SelectInstaller(Execution::Context& context)

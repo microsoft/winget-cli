@@ -63,6 +63,9 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Images\progress-sixel\arrow_only.png" />
+    <Content Include="Images\progress-sixel\conveyor.png" />
+    <Content Include="Images\progress-sixel\folders_only.png" />
     <Content Include="Images\SplashScreen.scale-200_altform-colorful_theme-dark.png" />
     <Content Include="Images\SplashScreen.scale-200_altform-colorful_theme-light.png" />
     <Content Include="Images\SplashScreen.scale-400.png" />

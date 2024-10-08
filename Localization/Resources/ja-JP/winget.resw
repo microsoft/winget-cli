@@ -2874,7 +2874,7 @@
   <data name="SettingsSetCommandShortDescription" xml:space="preserve">
     <value>管理者設定の値を設定します。</value>
   </data>
-  <data name="SourceRequireExplicitArgumentDescription" xml:space="preserve">
+  <data name="SourceExplicitArgumentDescription" xml:space="preserve">
     <value>指定しない限り、ソースを検出から除外します</value>
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
@@ -2896,13 +2896,13 @@
     <value>Microsoft Store パッケージのダウンロード情報を取得できませんでした。</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE" xml:space="preserve">
-    <value>該当する Microsoft Store パッケージのダウンロード情報が見つかりません。</value>
+    <value>ダウンロードする適用可能なMicrosoft Store パッケージが見つかりませんでした。</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED" xml:space="preserve">
     <value>Microsoft Store パッケージ ライセンスを取得できませんでした。</value>
   </data>
-  <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
-    <value>Microsoft Store パッケージが見つかりませんでした。</value>
+  <data name="MSStoreDownloadNoApplicablePackageFound" xml:space="preserve">
+    <value>該当する Microsoft Store パッケージが見つかりません。</value>
   </data>
   <data name="MSStoreDownloadPackageHashVerified" xml:space="preserve">
     <value>Microsoft Store パッケージ ハッシュの検証に成功しました</value>
@@ -2948,7 +2948,8 @@
     <comment>{Locked="--rename"}</comment>
   </data>
   <data name="MSStoreDownloadAuthenticationNotice" xml:space="preserve">
-    <value>Microsoft Store パッケージのダウンロードには、Microsoft Entra ID 認証が必要です。必要に応じて認証プロンプトが表示されることがあります。認証された情報は、アクセス承認のために Microsoft サービスと共有されます。Microsoft Store パッケージのライセンスを管理するには、Microsoft Entra ID アカウントに Microsoft Entra ID テナントへの管理者アクセス権が必要です。</value>
+    <value>Microsoft Store パッケージのダウンロードにはMicrosoft Entra ID 認証が必要です。必要に応じて認証プロンプトが表示されることがあります。認証された情報は、アクセス承認のためにMicrosoft サービスと共有されます。パッケージ ライセンスMicrosoft Storeするには、Microsoft Entra ID アカウントがグローバル管理者、ユーザー管理者、またはライセンス管理者のメンバーである必要があります。</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator"}</comment>
   </data>
   <data name="SkipMicrosoftStorePackageLicenseArgumentDescription" xml:space="preserve">
     <value>Microsoft Store パッケージのオフライン ライセンスの取得をスキップします</value>
@@ -3044,5 +3045,89 @@
   </data>
   <data name="WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND" xml:space="preserve">
     <value>指定された構成が見つかりませんでした。</value>
+  </data>
+  <data name="ConfigurationSetStateCompleted" xml:space="preserve">
+    <value>完了済み</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStateInProgress" xml:space="preserve">
+    <value>処理中</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStatePending" xml:space="preserve">
+    <value>保留中</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStateUnknown" xml:space="preserve">
+    <value>不明</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationStatusWatchArgumentDescription" xml:space="preserve">
+    <value>構成状態を監視します。</value>
+    <comment>As in "to monitor the status of a configuration being applied".</comment>
+  </data>
+  <data name="ConfigurationUnitStateCompleted" xml:space="preserve">
+    <value>完了済み</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateInProgress" xml:space="preserve">
+    <value>処理中</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStatePending" xml:space="preserve">
+    <value>保留中</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateSkipped" xml:space="preserve">
+    <value>スキップ済み</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateUnknown" xml:space="preserve">
+    <value>不明</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigureListApplyBegun" xml:space="preserve">
+    <value>適用を開始しました</value>
+    <comment>When the configuration application started.</comment>
+  </data>
+  <data name="ConfigureListApplyEnded" xml:space="preserve">
+    <value>適用が終了しました</value>
+    <comment>When the configuration application ended.</comment>
+  </data>
+  <data name="ConfigureListResult" xml:space="preserve">
+    <value>結果</value>
+  </data>
+  <data name="ConfigureListResultDescription" xml:space="preserve">
+    <value>詳細</value>
+  </data>
+  <data name="ConfigureListState" xml:space="preserve">
+    <value>状態</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigureListUnit" xml:space="preserve">
+    <value>単位数</value>
+  </data>
+  <data name="StoreInstall_PackageNotAvailableForCurrentSystem" xml:space="preserve">
+    <value>パッケージは現在の Windows バージョンまたはプラットフォームと互換性がありません。</value>
+  </data>
+  <data name="ConfigurationSuppressPrologueArgumentDescription" xml:space="preserve">
+    <value>可能な場合は初期設定の詳細を表示しない</value>
+  </data>
+  <data name="MSStoreDownloadMultiplePackagesNotice" xml:space="preserve">
+    <value>異なるプラットフォームとアーキテクチャを対象に、複数のMicrosoft Store パッケージをダウンロードできます。--platform、 --architecture を使用してパッケージをフィルター処理できます。</value>
+    <comment>{Locked="--platform--architecture"}</comment>
+  </data>
+  <data name="MSStoreDownloadGetLicenseForbidden" xml:space="preserve">
+    <value>Microsoft Store パッケージ ライセンスを取得できませんでした。Microsoft Entra ID アカウントは、グローバル管理者、ユーザー管理者、またはライセンス管理者のメンバーではありません。--skip-license を使用して、パッケージ ライセンスの取得Microsoft Storeスキップします。</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator,--skip-license"}</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadNotSupported" xml:space="preserve">
+    <value>Microsoft Store パッケージはダウンロードをサポートしていません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED" xml:space="preserve">
+    <value>Microsoft Store パッケージはダウンロードをサポートしていません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
+    <value>Microsoft Store パッケージ ライセンスを取得できませんでした。Microsoft Entra ID アカウントに必要な特権がありません。</value>
   </data>
 </root>

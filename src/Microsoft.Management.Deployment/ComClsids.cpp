@@ -14,6 +14,7 @@
 #include "PackageManagerSettings.h"
 #include "DownloadOptions.h"
 #include "AuthenticationArguments.h"
+#include "RepairOptions.h"
 #pragma warning( pop )
 
 namespace winrt::Microsoft::Management::Deployment
@@ -55,6 +56,10 @@ namespace winrt::Microsoft::Management::Deployment
         else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_PackageManagerSettings))
         {
             return __uuidof(winrt::Microsoft::Management::Deployment::implementation::PackageManagerSettings);
+        }
+        else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_RepairOptions))
+        {
+           return __uuidof(winrt::Microsoft::Management::Deployment::implementation::RepairOptions);
         }
         else
         {

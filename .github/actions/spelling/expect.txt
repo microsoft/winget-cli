@@ -185,6 +185,7 @@ fundraiser
 fuzzer
 fzanollo
 gcpi
+GDK
 GES
 GESMBH
 getwinget
@@ -252,6 +253,7 @@ ISQ
 ISVs
 iswgp
 itr
+IWIC
 iwr
 iwgc
 JArray
@@ -615,8 +617,10 @@ wesome
 wfsopen
 wgetenv
 Whatif
+WIC
 wildcards
 WINAPI
+wincodec
 windir
 windowsdeveloper
 winerror

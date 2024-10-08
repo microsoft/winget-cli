@@ -115,7 +115,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             winrt::Microsoft::Management::Deployment::implementation::FindPackagesResult>>();
         // TODO: Add search timeout and error code.
         winrt::Microsoft::Management::Deployment::FindPackagesResultStatus status = FindPackagesResultStatus(hr);
-        findPackagesResult->Initialize(status, isTruncated, matches);
+        findPackagesResult->Initialize(status, isTruncated, matches, hr);
         return *findPackagesResult;
     }
 

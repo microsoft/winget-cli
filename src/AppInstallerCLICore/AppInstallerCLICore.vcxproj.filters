@@ -260,6 +260,9 @@
     <ClInclude Include="Workflows\SmartScreenFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="Sixel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -489,6 +492,9 @@
     </ClCompile>
     <ClCompile Include="Workflows\SmartScreenFlow.cpp">
       <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Sixel.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

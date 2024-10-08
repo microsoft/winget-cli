@@ -2874,7 +2874,7 @@
   <data name="SettingsSetCommandShortDescription" xml:space="preserve">
     <value>관리자 설정의 값을 설정합니다.</value>
   </data>
-  <data name="SourceRequireExplicitArgumentDescription" xml:space="preserve">
+  <data name="SourceExplicitArgumentDescription" xml:space="preserve">
     <value>지정하지 않는 한 검색에서 원본 제외</value>
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
@@ -2896,13 +2896,13 @@
     <value>Microsoft Store 패키지 다운로드 정보를 가져오지 못했습니다.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE" xml:space="preserve">
-    <value>적용 가능한 Microsoft Store 패키지 다운로드 정보를 찾을 수 없습니다.</value>
+    <value>다운로드할 적용 가능한 Microsoft Store 패키지를 찾을 수 없습니다.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED" xml:space="preserve">
     <value>Microsoft Store 패키지 라이선스를 검색하지 못했습니다.</value>
   </data>
-  <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
-    <value>Microsoft Store 패키지를 찾을 수 없습니다.</value>
+  <data name="MSStoreDownloadNoApplicablePackageFound" xml:space="preserve">
+    <value>해당하는 Microsoft Store 패키지를 찾을 수 없습니다.</value>
   </data>
   <data name="MSStoreDownloadPackageHashVerified" xml:space="preserve">
     <value>Microsoft Store 패키지 해시가 성공적으로 확인되었습니다.</value>
@@ -2948,7 +2948,8 @@
     <comment>{Locked="--rename"}</comment>
   </data>
   <data name="MSStoreDownloadAuthenticationNotice" xml:space="preserve">
-    <value>Microsoft Store 패키지를 다운로드하려면 Microsoft Entra ID 인증이 필요합니다. 필요한 경우 인증 프롬프트가 표시될 수 있습니다. 인증된 정보는 액세스 권한 부여를 위해 Microsoft 서비스 공유됩니다. Microsoft Store 패키지 라이선스의 경우 Microsoft Entra ID 계정에 Microsoft Entra ID 테넌트에 대한 관리자 액세스 권한이 있어야 합니다.</value>
+    <value>Microsoft Store 패키지를 다운로드하려면 Microsoft Entra ID 인증이 필요합니다. 필요한 경우 인증 프롬프트가 표시될 수 있습니다. 인증된 정보는 액세스 권한 부여를 위해 Microsoft 서비스 공유됩니다. Microsoft Store 패키지 라이선스의 경우 Microsoft Entra ID 계정은 전역 관리자, 사용자 관리자 또는 라이선스 관리자의 구성원이어야 합니다.</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator"}</comment>
   </data>
   <data name="SkipMicrosoftStorePackageLicenseArgumentDescription" xml:space="preserve">
     <value>Microsoft Store 패키지 오프라인 라이선스 검색 건너뛰기</value>
@@ -3044,5 +3045,89 @@
   </data>
   <data name="WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND" xml:space="preserve">
     <value>지정한 구성을 찾을 수 없습니다.</value>
+  </data>
+  <data name="ConfigurationSetStateCompleted" xml:space="preserve">
+    <value>완료</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStateInProgress" xml:space="preserve">
+    <value>진행 중</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStatePending" xml:space="preserve">
+    <value>보류 중</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStateUnknown" xml:space="preserve">
+    <value>알 수 없음</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationStatusWatchArgumentDescription" xml:space="preserve">
+    <value>구성 상태를 모니터링합니다.</value>
+    <comment>As in "to monitor the status of a configuration being applied".</comment>
+  </data>
+  <data name="ConfigurationUnitStateCompleted" xml:space="preserve">
+    <value>완료</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateInProgress" xml:space="preserve">
+    <value>진행 중</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStatePending" xml:space="preserve">
+    <value>보류 중</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateSkipped" xml:space="preserve">
+    <value>건너뜀</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateUnknown" xml:space="preserve">
+    <value>알 수 없음</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigureListApplyBegun" xml:space="preserve">
+    <value>적용 시작됨</value>
+    <comment>When the configuration application started.</comment>
+  </data>
+  <data name="ConfigureListApplyEnded" xml:space="preserve">
+    <value>적용 종료됨</value>
+    <comment>When the configuration application ended.</comment>
+  </data>
+  <data name="ConfigureListResult" xml:space="preserve">
+    <value>결과</value>
+  </data>
+  <data name="ConfigureListResultDescription" xml:space="preserve">
+    <value>세부 정보</value>
+  </data>
+  <data name="ConfigureListState" xml:space="preserve">
+    <value>상태</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigureListUnit" xml:space="preserve">
+    <value>단위</value>
+  </data>
+  <data name="StoreInstall_PackageNotAvailableForCurrentSystem" xml:space="preserve">
+    <value>패키지가 현재 Windows 버전 또는 플랫폼과 호환되지 않습니다.</value>
+  </data>
+  <data name="ConfigurationSuppressPrologueArgumentDescription" xml:space="preserve">
+    <value>가능한 경우 초기 구성 세부 정보를 표시하지 않음</value>
+  </data>
+  <data name="MSStoreDownloadMultiplePackagesNotice" xml:space="preserve">
+    <value>여러 플랫폼 및 아키텍처를 대상으로 하는 여러 Microsoft Store 패키지를 다운로드할 수 있습니다. --platform, --architecture를 사용하여 패키지를 필터링할 수 있습니다.</value>
+    <comment>{Locked="--platform--architecture"}</comment>
+  </data>
+  <data name="MSStoreDownloadGetLicenseForbidden" xml:space="preserve">
+    <value>Microsoft Store 패키지 라이선스를 검색하지 못했습니다. Microsoft Entra ID 계정이 전역 관리자, 사용자 관리자 또는 라이선스 관리자의 구성원이 아닙니다. --skip-license를 사용하여 Microsoft Store 패키지 라이선스 검색을 건너뜁니다.</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator,--skip-license"}</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadNotSupported" xml:space="preserve">
+    <value>Microsoft Store 패키지는 다운로드를 지원하지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED" xml:space="preserve">
+    <value>Microsoft Store 패키지는 다운로드를 지원하지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
+    <value>Microsoft Store 패키지 라이선스를 검색하지 못했습니다. Microsoft Entra ID 계정에 필요한 권한이 없습니다.</value>
   </data>
 </root>

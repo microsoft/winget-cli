@@ -150,6 +150,9 @@
     <ClCompile Include="Database\Schema\0_3\StatusItemTable.cpp">
       <Filter>Database\Schema\0_3</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigurationSetSerializer_0_3.cpp">
+      <Filter>Parser</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -308,6 +311,9 @@
     </ClInclude>
     <ClInclude Include="Database\Schema\0_3\StatusItemTable.h">
       <Filter>Database\Schema\0_3</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSetSerializer_0_3.h">
+      <Filter>Parser</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

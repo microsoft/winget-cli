@@ -289,7 +289,7 @@ class E2ETestResourceCrash
     }
 }
 
-# This resource writes the current PID to the provided file path. 
+# This resource writes the current PID to the provided file path.
 [DscResource()]
 class E2ETestResourcePID
 {
@@ -322,5 +322,36 @@ class E2ETestResourcePID
             $filePath = Join-Path -Path $this.directoryPath -ChildPath "$processId.txt"
             New-Item -Path $filePath -ItemType File -Force  
         }
+    }
+}
+
+# This resource writes the current PSModulePath to the provided file path.
+[DscResource()]
+class E2ETestResourcePSModulePath
+{
+    [DscProperty(Key)]
+    [string] $key
+
+    [DscProperty(Mandatory)]
+    [string] $outputPath
+
+    [E2ETestResourcePSModulePath] Get()
+    {
+        $result = @{
+            key = "E2ETestResourcePSModulePath"
+            outputPath = $this.outputPath
+        }
+
+        return $result
+    }
+
+    [bool] Test()
+    {
+        return $false
+    }
+
+    [void] Set()
+    {
+        Set-Content -Path $this.outputPath -Value $env:PSModulePath -Force
     }
 }

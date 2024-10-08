@@ -694,6 +694,12 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    std::pair<std::string, std::filesystem::path> SplitFileNameFromURI(std::string_view uri)
+    {
+        std::filesystem::path filename = GetFileNameFromURI(uri);
+        return { std::string{ uri.substr(0, uri.size() - filename.u8string().size()) }, filename };
+    }
+
     std::filesystem::path GetFileNameFromURI(std::string_view uri)
     {
         winrt::Windows::Foundation::Uri winrtUri{ winrt::hstring{ ConvertToUTF16(uri) } };

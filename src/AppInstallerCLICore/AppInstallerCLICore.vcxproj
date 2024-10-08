@@ -390,6 +390,7 @@
     <ClInclude Include="COMContext.h" />
     <ClInclude Include="Public\ConfigurationSetProcessorFactoryRemoting.h" />
     <ClInclude Include="Workflows\SmartScreenFlow.h" />
+    <ClInclude Include="Sixel.h" />
     <ClInclude Include="Workflows\ConfigurationFlow.h" />
     <ClInclude Include="Workflows\DependenciesFlow.h" />
     <ClInclude Include="ExecutionArgs.h" />
@@ -453,6 +454,7 @@
     <ClCompile Include="ConfigureExportCommand.cpp" />
     <ClCompile Include="ContextOrchestrator.cpp" />
     <ClCompile Include="Workflows\SmartScreenFlow.cpp" />
+    <ClCompile Include="Sixel.cpp" />
     <ClCompile Include="Workflows\ConfigurationFlow.cpp" />
     <ClCompile Include="Workflows\DependenciesFlow.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
