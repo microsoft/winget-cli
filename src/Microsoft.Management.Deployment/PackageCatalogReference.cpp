@@ -296,17 +296,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         // TODO: Add Admin check
 
-        if (options == RemovePackageCatalogOptions::Drop)
-        {
-            this->m_sourceReference.DropSource("");
-        }
-        else
-        {
-            ::AppInstaller::ProgressCallback progress;
-            this->m_sourceReference.Remove(progress);
-        }
-
-        // TODO: Associate above progress with the async operation winrt progress
 
         // TODO: Implement RemovePackageCatalogAsync
         return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double>();
@@ -317,10 +306,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // TODO: Add PackageQuery capability check
 
         // TODO: Add Admin check
-        ::AppInstaller::ProgressCallback progress;
-        this->m_sourceReference.Update(progress);
-
-        // TODO: Associate above progress with the async operation winrt progress
 
         // TODO: Implement UpdatePackageCatalogAsync
         return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::UpdatePackageCatalogResult, double>();
