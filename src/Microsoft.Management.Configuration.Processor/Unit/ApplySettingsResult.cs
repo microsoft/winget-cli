@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ApplySettingsResult.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -11,7 +11,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     /// <summary>
     /// Implements IApplySettingsResult.
     /// </summary>
-    internal sealed class ApplySettingsResult : IApplySettingsResult
+    internal sealed partial class ApplySettingsResult : IApplySettingsResult
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplySettingsResult"/> class.
