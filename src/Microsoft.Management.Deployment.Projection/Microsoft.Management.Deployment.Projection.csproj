@@ -7,6 +7,12 @@
     <Platforms>x64;x86;arm64</Platforms>
     <OutputType>Library</OutputType>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
+    <!--
+    Forcing this version as the minimum based on the CsWinRT release.
+    https://github.com/microsoft/CsWinRT/releases/tag/2.1.5.241003.1
+    !!! Remove this on the next Microsoft.Windows.CsWinRT package version update. !!!
+    -->
+    <WindowsSdkPackageVersion>10.0.22000.46</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
