@@ -42,7 +42,7 @@ namespace Microsoft::Management::Deployment::OutOfProc
             GUID CLSID;
         };
 
-        constexpr std::array<NameCLSIDPair, 9> s_nameCLSIDPairs
+        constexpr std::array<NameCLSIDPair, 10> s_nameCLSIDPairs
         {
             NameCLSIDPair{ L"Microsoft.Management.Deployment.PackageManager"sv, CLSID_PackageManager },
             NameCLSIDPair{ L"Microsoft.Management.Deployment.InstallOptions"sv, CLSID_InstallOptions },
@@ -52,7 +52,7 @@ namespace Microsoft::Management::Deployment::OutOfProc
             NameCLSIDPair{ L"Microsoft.Management.Deployment.CreateCompositePackageCatalogOptions"sv, CLSID_CreateCompositePackageCatalogOptions },
             NameCLSIDPair{ L"Microsoft.Management.Deployment.DownloadOptions"sv, CLSID_DownloadOptions },
             NameCLSIDPair{ L"Microsoft.Management.Deployment.AuthenticationArguments"sv, CLSID_AuthenticationArguments },
-            NameCLSIDPair{ L"Microsoft.Management.Deployment.RepairOptions"sv, CLSID_RepairOptions }
+            NameCLSIDPair{ L"Microsoft.Management.Deployment.RepairOptions"sv, CLSID_RepairOptions },
             NameCLSIDPair{ L"Microsoft.Management.Deployment.AddPackageCatalogOptions"sv, CLSID_AddPackageCatalogOptions }
         };
 
