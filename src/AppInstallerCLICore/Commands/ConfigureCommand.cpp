@@ -16,7 +16,7 @@ using namespace AppInstaller::CLI::Workflow;
 namespace AppInstaller::CLI
 {
     ConfigureCommand::ConfigureCommand(std::string_view parent) :
-        Command("configure", { "configuration" }, parent, Settings::TogglePolicy::Policy::Configuration)
+        Command("configure", { "configuration", "dsc"}, parent, Settings::TogglePolicy::Policy::Configuration)
     {
         SelectCurrentCommandIfUnrecognizedSubcommandFound(true);
     }

@@ -271,6 +271,7 @@ namespace AppInstaller::CLI::Workflow
 
         // Authentication notice
         context.Reporter.Warn() << Resource::String::MSStoreDownloadAuthenticationNotice << std::endl;
+        context.Reporter.Warn() << Resource::String::MSStoreDownloadMultiplePackagesNotice << std::endl;
 
         const auto& installer = context.Get<Execution::Data::Installer>().value();
 
@@ -307,13 +308,16 @@ namespace AppInstaller::CLI::Workflow
             {
             case APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE:
             case APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE:
-                context.Reporter.Error() << Resource::String::MSStoreDownloadPackageNotFound << std::endl;
+                context.Reporter.Error() << Resource::String::MSStoreDownloadNoApplicablePackageFound << std::endl;
+                break;
+            case APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED:
+                context.Reporter.Error() << Resource::String::MSStoreDownloadPackageDownloadNotSupported << std::endl;
                 break;
             default:
                 context.Reporter.Error() << Resource::String::MSStoreDownloadGetDownloadInfoFailed << std::endl;
             }
 
-            throw;
+            AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
         }
 
         bool skipDependencies = context.Args.Contains(Execution::Args::Type::SkipDependencies);
@@ -368,9 +372,18 @@ namespace AppInstaller::CLI::Workflow
             }
             catch (const wil::ResultException& re)
             {
-                AICLI_LOG(CLI, Error, << "Getting MSStore package license failed. Error code: " << re.GetErrorCode());
-                context.Reporter.Error() << Resource::String::MSStoreDownloadGetLicenseFailed << std::endl;
-                throw;
+                if (re.GetErrorCode() == APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN)
+                {
+                    AICLI_LOG(CLI, Warning, << "Getting MSStore package license failed. The Microsoft Entra Id account does not have privilege.");
+                    context.Reporter.Warn() << Resource::String::MSStoreDownloadGetLicenseForbidden << std::endl;
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Warning, << "Getting MSStore package license failed. Error code: " << re.GetErrorCode());
+                    context.Reporter.Warn() << Resource::String::MSStoreDownloadGetLicenseFailed << std::endl;
+                }
+
+                AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
             }
 
             std::filesystem::path licenseFilePath = downloadDirectory / Utility::ConvertToUTF16(installer.ProductId + "_License.xml");

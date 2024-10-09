@@ -63,7 +63,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::ArpValidationError, "Arp Validation Error."sv },
                 { AppInstaller::Manifest::ManifestError::SchemaError, "Schema Error."sv },
                 { AppInstaller::Manifest::ManifestError::MsixSignatureHashFailed, "Failed to calculate MSIX signature hash.Please verify that the input file is a valid, signed MSIX."sv },
-                { AppInstaller::Manifest::ManifestError::ShadowManifestNotAllowed, "Shadow manifest is not allowed."}
+                { AppInstaller::Manifest::ManifestError::ShadowManifestNotAllowed, "Shadow manifest is not allowed." }
             };
 
             return ErrorIdToMessageMap;

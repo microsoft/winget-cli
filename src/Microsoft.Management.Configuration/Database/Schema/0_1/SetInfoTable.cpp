@@ -113,7 +113,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         Savepoint savepoint = Savepoint::Create(m_connection, "SetInfoTable_Add_0_1");
 
         hstring schemaVersion = configurationSet.SchemaVersion();
-        auto serializer = ConfigurationSetSerializer::CreateSerializer(schemaVersion, true);
+        auto serializer = ConfigurationSetSerializer::CreateSerializer(schemaVersion);
 
         StatementBuilder builder;
         builder.InsertInto(s_SetInfoTable_Table).Columns({
@@ -163,7 +163,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         Savepoint savepoint = Savepoint::Create(m_connection, "SetInfoTable_Update_0_1");
 
         hstring schemaVersion = configurationSet.SchemaVersion();
-        auto serializer = ConfigurationSetSerializer::CreateSerializer(schemaVersion, true);
+        auto serializer = ConfigurationSetSerializer::CreateSerializer(schemaVersion);
 
         StatementBuilder builder;
         builder.Update(s_SetInfoTable_Table).Set().

@@ -81,6 +81,8 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ShowDetails_Schema0_3_Fails()
         {
+            WinGetSettingsHelper.ConfigureFeature("configuration03", false);
+
             var result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo_0_3.yml"));
             Assert.AreEqual(Constants.ErrorCode.ERROR_EXPERIMENTAL_FEATURE_DISABLED, result.ExitCode);
         }

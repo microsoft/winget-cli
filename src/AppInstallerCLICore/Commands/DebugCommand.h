@@ -57,6 +57,34 @@ namespace AppInstaller::CLI
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
     };
+
+    // Outputs a sixel image.
+    struct ShowSixelCommand final : public Command
+    {
+        ShowSixelCommand(std::string_view parent) : Command("sixel", {}, parent) {}
+
+        std::vector<Argument> GetArguments() const override;
+
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
+
+    protected:
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
+
+    // Invokes progress display.
+    struct ProgressCommand final : public Command
+    {
+        ProgressCommand(std::string_view parent) : Command("progress", {}, parent) {}
+
+        std::vector<Argument> GetArguments() const override;
+
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
+
+    protected:
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
 }
 
 #endif

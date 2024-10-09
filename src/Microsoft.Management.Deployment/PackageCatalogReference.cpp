@@ -60,124 +60,124 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         co_return Connect();
     }
-    winrt::Microsoft::Management::Deployment::ConnectResult GetConnectCatalogErrorResult()
+    winrt::Microsoft::Management::Deployment::ConnectResult GetConnectCatalogErrorResult(hresult hr)
     {
         auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
-        connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::CatalogError, nullptr);
+        connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::CatalogError, nullptr, hr);
         return *connectResult;
     }
     winrt::Microsoft::Management::Deployment::ConnectResult GetConnectSourceAgreementsNotAcceptedErrorResult()
     {
         auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
-        connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::SourceAgreementsNotAccepted, nullptr);
+        connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::SourceAgreementsNotAccepted, nullptr, APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED);
         return *connectResult;
     }
-    winrt::Microsoft::Management::Deployment::ConnectResult PackageCatalogReference::Connect()
+    winrt::Microsoft::Management::Deployment::ConnectResult PackageCatalogReference::Connect() try
     {
-        try
+        HRESULT hr = EnsureComCallerHasCapability(Capability::PackageQuery);
+        if (FAILED(hr))
         {
-            if (FAILED(EnsureComCallerHasCapability(Capability::PackageQuery)))
+            // TODO: When more error codes are added, this should go back as something other than CatalogError.
+            return GetConnectCatalogErrorResult(hr);
+        }
+
+        std::string callerName = GetCallerName();
+
+        ::AppInstaller::ProgressCallback progress;
+        ::AppInstaller::Repository::Source source;
+        if (m_compositePackageCatalogOptions)
+        {
+            std::vector<::AppInstaller::Repository::Source> remoteSources;
+
+            for (uint32_t i = 0; i < m_compositePackageCatalogOptions.Catalogs().Size(); ++i)
             {
-                // TODO: When more error codes are added, this should go back as something other than CatalogError.
-                return GetConnectCatalogErrorResult();
-            }
-
-            std::string callerName = GetCallerName();
-
-            ::AppInstaller::ProgressCallback progress;
-            ::AppInstaller::Repository::Source source;
-            if (m_compositePackageCatalogOptions)
-            {
-                std::vector<::AppInstaller::Repository::Source> remoteSources;
-
-                for (uint32_t i = 0; i < m_compositePackageCatalogOptions.Catalogs().Size(); ++i)
-                {
-                    auto catalog = m_compositePackageCatalogOptions.Catalogs().GetAt(i);
-                    if (!catalog.AcceptSourceAgreements() && catalog.SourceAgreements().Size() != 0)
-                    {
-                        return GetConnectSourceAgreementsNotAcceptedErrorResult();
-                    }
-
-                    winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference* catalogImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>(catalog);
-                    auto copy = catalogImpl->m_sourceReference;
-                    copy.SetCaller(callerName);
-                    copy.SetBackgroundUpdateInterval(catalog.PackageCatalogBackgroundUpdateInterval());
-                    copy.InstalledPackageInformationOnly(catalog.InstalledPackageInformationOnly());
-                    if (catalog.AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None)
-                    {
-                        copy.SetAuthenticationArguments(GetAuthenticationArguments(catalog.AuthenticationArguments()));
-                    }
-                    copy.Open(progress);
-                    remoteSources.emplace_back(std::move(copy));
-                }
-
-                // Create the aggregated source.
-                source = ::AppInstaller::Repository::Source{ remoteSources };
-
-                // Create composite with installed source if needed.
-                ::AppInstaller::Repository::CompositeSearchBehavior searchBehavior = GetRepositoryCompositeSearchBehavior(m_compositePackageCatalogOptions.CompositeSearchBehavior());
-
-                // Check if search behavior indicates that the caller does not want to do local correlation.
-                if (m_compositePackageCatalogOptions.CompositeSearchBehavior() != Microsoft::Management::Deployment::CompositeSearchBehavior::RemotePackagesFromRemoteCatalogs)
-                {
-                    ::AppInstaller::Repository::Source installedSource;
-                    auto manifestInstalledScope = GetManifestScope(m_compositePackageCatalogOptions.InstalledScope()).first;
-                    if (manifestInstalledScope == ::AppInstaller::Manifest::ScopeEnum::User)
-                    {
-                        installedSource = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::PredefinedSource::InstalledUser };
-                    }
-                    else if (manifestInstalledScope == ::AppInstaller::Manifest::ScopeEnum::Machine)
-                    {
-                        installedSource = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::PredefinedSource::InstalledMachine };
-                    }
-                    else
-                    {
-                        installedSource = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::PredefinedSource::Installed };
-                    }
-
-                    installedSource.Open(progress);
-                    source = ::AppInstaller::Repository::Source{ installedSource, source, searchBehavior };
-                }
-            }
-            else
-            {
-                if (!AcceptSourceAgreements() && SourceAgreements().Size() != 0)
+                auto catalog = m_compositePackageCatalogOptions.Catalogs().GetAt(i);
+                if (!catalog.AcceptSourceAgreements() && catalog.SourceAgreements().Size() != 0)
                 {
                     return GetConnectSourceAgreementsNotAcceptedErrorResult();
                 }
 
-                source = m_sourceReference;
-                source.SetCaller(callerName);
-                source.SetBackgroundUpdateInterval(PackageCatalogBackgroundUpdateInterval());
-                source.InstalledPackageInformationOnly(m_installedPackageInformationOnly);
-                if (AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None)
+                winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference* catalogImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>(catalog);
+                auto copy = catalogImpl->m_sourceReference;
+                copy.SetCaller(callerName);
+                copy.SetBackgroundUpdateInterval(catalog.PackageCatalogBackgroundUpdateInterval());
+                copy.InstalledPackageInformationOnly(catalog.InstalledPackageInformationOnly());
+                if (catalog.AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None)
                 {
-                    source.SetAuthenticationArguments(GetAuthenticationArguments(m_authenticationArguments));
+                    copy.SetAuthenticationArguments(GetAuthenticationArguments(catalog.AuthenticationArguments()));
                 }
-                source.Open(progress);
+                copy.Open(progress);
+                remoteSources.emplace_back(std::move(copy));
             }
 
-            if (!source)
+            // Create the aggregated source.
+            source = ::AppInstaller::Repository::Source{ remoteSources };
+
+            // Create composite with installed source if needed.
+            ::AppInstaller::Repository::CompositeSearchBehavior searchBehavior = GetRepositoryCompositeSearchBehavior(m_compositePackageCatalogOptions.CompositeSearchBehavior());
+
+            // Check if search behavior indicates that the caller does not want to do local correlation.
+            if (m_compositePackageCatalogOptions.CompositeSearchBehavior() != Microsoft::Management::Deployment::CompositeSearchBehavior::RemotePackagesFromRemoteCatalogs)
             {
-                // If source is null, return the error. There's no way to get the hresult that caused the error right now.
-                return GetConnectCatalogErrorResult();
+                ::AppInstaller::Repository::Source installedSource;
+                auto manifestInstalledScope = GetManifestScope(m_compositePackageCatalogOptions.InstalledScope()).first;
+                if (manifestInstalledScope == ::AppInstaller::Manifest::ScopeEnum::User)
+                {
+                    installedSource = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::PredefinedSource::InstalledUser };
+                }
+                else if (manifestInstalledScope == ::AppInstaller::Manifest::ScopeEnum::Machine)
+                {
+                    installedSource = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::PredefinedSource::InstalledMachine };
+                }
+                else
+                {
+                    installedSource = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::PredefinedSource::Installed };
+                }
+
+                installedSource.Open(progress);
+                source = ::AppInstaller::Repository::Source{ installedSource, source, searchBehavior };
+            }
+        }
+        else
+        {
+            if (!AcceptSourceAgreements() && SourceAgreements().Size() != 0)
+            {
+                return GetConnectSourceAgreementsNotAcceptedErrorResult();
             }
 
-            // Have to make another package catalog info because source->GetDetails has more fields than m_info does.
-            // Specifically, Rest sources do not have the Ids filled in m_info since they only get the id from the rest server after being Opened.
-            auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
-            packageCatalogInfo->Initialize(source.GetDetails());
-            auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
-            auto packageCatalog = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalog>>();
-            packageCatalog->Initialize(*packageCatalogInfo, source, (m_compositePackageCatalogOptions != nullptr));
-            connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::Ok, *packageCatalog);
-            return *connectResult;
+            source = m_sourceReference;
+            source.SetCaller(callerName);
+            source.SetBackgroundUpdateInterval(PackageCatalogBackgroundUpdateInterval());
+            source.InstalledPackageInformationOnly(m_installedPackageInformationOnly);
+            if (AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None)
+            {
+                source.SetAuthenticationArguments(GetAuthenticationArguments(m_authenticationArguments));
+            }
+            source.Open(progress);
         }
-        catch (...)
+
+        if (!source)
         {
+            // We call `Open` on each individual source above, meaning that they should throw any error that occurs.
+            // If the source is still not open at this point it is a bug.
+            return GetConnectCatalogErrorResult(E_UNEXPECTED);
         }
-        return GetConnectCatalogErrorResult();
+
+        // Have to make another package catalog info because source->GetDetails has more fields than m_info does.
+        // Specifically, Rest sources do not have the Ids filled in m_info since they only get the id from the rest server after being Opened.
+        auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
+        packageCatalogInfo->Initialize(source.GetDetails());
+        auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
+        auto packageCatalog = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalog>>();
+        packageCatalog->Initialize(*packageCatalogInfo, source, (m_compositePackageCatalogOptions != nullptr));
+        connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::Ok, *packageCatalog, S_OK);
+        return *connectResult;
     }
+    catch (...)
+    {
+        return GetConnectCatalogErrorResult(AppInstaller::CLI::Workflow::HandleException(nullptr, std::current_exception()));
+    }
+
     winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::SourceAgreement> PackageCatalogReference::SourceAgreements()
     {
         std::call_once(m_sourceAgreementsOnceFlag,

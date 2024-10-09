@@ -185,6 +185,7 @@ fundraiser
 fuzzer
 fzanollo
 gcpi
+GDK
 GES
 GESMBH
 getwinget
@@ -252,6 +253,7 @@ ISQ
 ISVs
 iswgp
 itr
+IWIC
 iwr
 iwgc
 JArray
@@ -476,7 +478,6 @@ ronomon
 Roronoa
 rosoft
 rowid
-rowids
 roy
 rpwgpm
 RRF
@@ -556,7 +557,6 @@ taskhostw
 tcs
 TEMPDIRECTORY
 templating
-Templating
 temppath
 testexampleinstaller
 thiscouldbeapc
@@ -613,13 +613,14 @@ WDAG
 webpages
 Webserver
 website
-websites
 wesome
 wfsopen
 wgetenv
 Whatif
+WIC
 wildcards
 WINAPI
+wincodec
 windir
 windowsdeveloper
 winerror

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -236,5 +236,32 @@
   <data name="ProgressRecordActivityExporting" xml:space="preserve">
     <value>Exporting '{0}'</value>
     <comment>{Locked="{0}"} {0} - The name of the package being exported.</comment>
+  </data>
+  <data name="ProgressRecordActivityRepairing" xml:space="preserve">
+    <value>Repairing '{0}'</value>
+    <comment>{Locked="{0}"} {0} - The name of the package being repaired.</comment>
+  </data>
+  <data name="Repairing" xml:space="preserve">
+    <value>Repairing</value>
+  </data>
+  <data name="NoRepairInfoFound" xml:space="preserve">
+    <value>The repair command for this package is not available in the Package Manifest. Please reach out to the package publisher for assistance.</value>
+  </data>
+  <data name="RepairDifferentInstallTechnology" xml:space="preserve">
+    <value>The installer technology in use does not match the version currently installed.</value>
+  </data>
+  <data name="RepairerFailure" xml:space="preserve">
+    <value>The repair operation was unsuccessful, exiting with Repairer error code: {0}.</value>
+     <comment>{Locked="{0}"} {0} - The error code of the repairer.</comment>
+  </data>
+  <data name="RepairOperationNotSupported" xml:space="preserve">
+    <value>The current installer technology does not support repair. Please reach out to the package vendor for assistance.</value>
+  </data>
+  <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
+    <value>Repair operations involving administrator privileges are not permitted on packages installed within the user scope.</value>
+  </data>
+  <data name="UnknownRepairFailure" xml:space="preserve">
+    <value>An unexpected error happened while trying to repair the package. Error code:{0}</value>
+    <comment>{Locked="{0}"} {0} - The error code from the repair operation.</comment>
   </data>
 </root>

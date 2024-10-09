@@ -199,6 +199,20 @@ TEST_CASE("GetFileNameFromURI", "[strings]")
     REQUIRE(GetFileNameFromURI("https://microsoft.com/").u8string() == "");
 }
 
+void ValidateSplitFileName(std::string_view uri, std::string_view base, std::string_view fileName)
+{
+    auto split = SplitFileNameFromURI(uri);
+    REQUIRE(split.first == base);
+    REQUIRE(split.second.u8string() == fileName);
+}
+
+TEST_CASE("SplitFileNameFromURI", "[strings]")
+{
+    ValidateSplitFileName("https://github.com/microsoft/winget-cli/pull/1722", "https://github.com/microsoft/winget-cli/pull/", "1722");
+    ValidateSplitFileName("https://github.com/microsoft/winget-cli/README.md", "https://github.com/microsoft/winget-cli/", "README.md");
+    ValidateSplitFileName("https://microsoft.com/", "https://microsoft.com/", "");
+}
+
 TEST_CASE("SplitIntoWords", "[strings]")
 {
     REQUIRE(SplitIntoWords("A B") == std::vector<std::string>{ "A", "B" });

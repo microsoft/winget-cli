@@ -261,6 +261,11 @@ namespace
                 REQUIRE(defaultSwitches.at(InstallerSwitchType::Repair) == "/repair");
                 REQUIRE(manifest.DefaultInstallerInfo.RepairBehavior == RepairBehaviorEnum::Modify);
             }
+
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_9 })
+            {
+                REQUIRE(manifest.DefaultInstallerInfo.ArchiveBinariesDependOnPath);
+            }
         }
 
         if (isSingleton || isExported)
@@ -375,6 +380,11 @@ namespace
             REQUIRE(installer1.RepairBehavior == RepairBehaviorEnum::Modify);
         }
 
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_9 })
+        {
+            REQUIRE_FALSE(installer1.ArchiveBinariesDependOnPath);
+        }
+
         if (!isSingleton)
         {
             if (!isExported)
@@ -466,6 +476,12 @@ namespace
                     REQUIRE(installer5.ProductCode == "{Bar}");
                     REQUIRE(installer5.Switches.at(InstallerSwitchType::Repair) == "/repair");
                     REQUIRE(installer5.RepairBehavior == RepairBehaviorEnum::Modify);
+                }
+
+                if (manifestVer >= ManifestVer{ s_ManifestVersionV1_9 })
+                {
+                    ManifestInstaller installer4 = manifest.Installers.at(3);
+                    REQUIRE(installer4.ArchiveBinariesDependOnPath);
                 }
             }
 
@@ -1070,6 +1086,31 @@ TEST_CASE("ValidateV1_7GoodManifestAndVerifyContents", "[ManifestValidation]")
     // Read from merged manifest should have the same content as multi file manifest
     Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
     VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_7 });
+}
+
+TEST_CASE("ValidateV1_9GoodManifestAndVerifyContents", "[ManifestValidation]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_9-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
+    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{ s_ManifestVersionV1_9 });
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_9-MultiFile-Version.yaml",
+        "ManifestV1_9-MultiFile-Installer.yaml",
+        "ManifestV1_9-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_9-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
+    VerifyV1ManifestContent(multiFileManifest, false, ManifestVer{ s_ManifestVersionV1_9 });
+
+    // Read from merged manifest should have the same content as multi file manifest
+    Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
+    VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_9 });
 }
 
 TEST_CASE("WriteV1SingletonManifestAndVerifyContents", "[ManifestCreation]")

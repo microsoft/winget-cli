@@ -20,7 +20,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         hstring Serialize(ConfigurationSet* configurationSet) override;
 
     protected:
-        winrt::hstring GetResourceName(const ConfigurationUnit& unit) override;
-        void WriteResourceDirectives(AppInstaller::YAML::Emitter& emitter, const ConfigurationUnit& unit) override;
+        void WriteYamlConfigurationUnits(AppInstaller::YAML::Emitter& emitter, const std::vector<ConfigurationUnit>& units);
+
+        virtual winrt::hstring GetResourceName(const ConfigurationUnit& unit);
+        virtual void WriteResourceDirectives(AppInstaller::YAML::Emitter& emitter, const ConfigurationUnit& unit);
     };
 }

@@ -44,6 +44,9 @@ namespace AppInstaller::Manifest
     // V1.7 manifest version
     constexpr std::string_view s_ManifestVersionV1_7 = "1.7.0"sv;
 
+    // V1.9 manifest version
+    constexpr std::string_view s_ManifestVersionV1_9 = "1.9.0"sv;
+
     // The manifest extension for the MS Store
     constexpr std::string_view s_MSStoreExtension = "msstore"sv;
 
@@ -403,7 +406,8 @@ namespace AppInstaller::Manifest
 
     std::string_view RepairBehaviorToString(RepairBehaviorEnum repairBehavior);
 
-    std::string_view PlatformToString(PlatformEnum platform);
+    // Short string representation does not contain "Windows."
+    std::string_view PlatformToString(PlatformEnum platform, bool shortString = false);
 
     std::string_view ScopeToString(ScopeEnum scope);
 

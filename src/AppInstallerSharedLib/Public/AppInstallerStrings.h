@@ -186,6 +186,9 @@ namespace AppInstaller::Utility
     // Converts the candidate path part into one suitable for the actual file system
     std::string MakeSuitablePathPart(std::string_view candidate);
 
+    // Splits the file name part off of the given URI.
+    std::pair<std::string, std::filesystem::path> SplitFileNameFromURI(std::string_view uri);
+
     // Gets the file name part of the given URI.
     std::filesystem::path GetFileNameFromURI(std::string_view uri);
 

@@ -219,6 +219,8 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED, "Failed to get Microsoft Store package download information."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE, "No applicable Microsoft Store package download information found."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED, "Failed to retrieve Microsoft Store package license."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED, "The Microsoft Store package does not support download."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN, "Failed to retrieve Microsoft Store package license. The Microsoft Entra Id account does not have the required privilege."),
 
             // Install errors.
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, "Application is currently running. Exit the application then try again."),
@@ -269,6 +271,7 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_TEST_NOT_RUN, "Configuration state was not tested."),
             WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_GET_FAILED, "The configuration unit failed getting its properties."),
             WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND, "The specified configuration could not be found."),
+            WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY, "Parameter cannot be passed across integrity boundary."),
 
             // Configuration Processor Errors
             WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED, "The configuration unit was not installed."),

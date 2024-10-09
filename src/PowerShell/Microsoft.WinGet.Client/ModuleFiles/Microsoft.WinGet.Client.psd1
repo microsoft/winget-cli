@@ -94,6 +94,7 @@ CmdletsToExport = @(
     'Remove-WinGetSource'
     'Reset-WinGetSource'
     'Export-WinGetPackage'
+    'Repair-WinGetPackage'
 )
 
 # Variables to export from this module
@@ -160,7 +161,7 @@ PrivateData = @{
         # ReleaseNotes = ''
 
         # Prerelease string of this module
-        # Prerelease = 'alpha'
+        Prerelease = 'alpha'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false

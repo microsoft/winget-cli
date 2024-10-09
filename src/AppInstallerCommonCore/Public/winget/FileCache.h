@@ -21,6 +21,8 @@ namespace AppInstaller::Caching
             IndexV2_PackageVersionData,
             // Manifests for index V2.
             IndexV2_Manifest,
+            // Icon for use during show command when sixel rendering is enabled.
+            Icon,
 #ifndef AICLI_DISABLE_TEST_HOOKS
             // The test type.
             Tests,

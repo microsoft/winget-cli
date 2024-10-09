@@ -353,6 +353,21 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return ::AppInstaller::Manifest::ScopeEnum::Unknown;
     }
 
+    ::AppInstaller::Manifest::ScopeEnum GetManifestRepairScope(winrt::Microsoft::Management::Deployment::PackageRepairScope scope)
+    {
+        switch (scope)
+        {
+        case winrt::Microsoft::Management::Deployment::PackageRepairScope::Any:
+            return ::AppInstaller::Manifest::ScopeEnum::Unknown;
+        case winrt::Microsoft::Management::Deployment::PackageRepairScope::User:
+            return ::AppInstaller::Manifest::ScopeEnum::User;
+        case winrt::Microsoft::Management::Deployment::PackageRepairScope::System:
+            return ::AppInstaller::Manifest::ScopeEnum::Machine;
+        }
+
+        return ::AppInstaller::Manifest::ScopeEnum::Unknown;
+    }
+
     winrt::Microsoft::Management::Deployment::ElevationRequirement GetDeploymentElevationRequirement(::AppInstaller::Manifest::ElevationRequirementEnum elevationRequirement)
     {
         switch (elevationRequirement)
