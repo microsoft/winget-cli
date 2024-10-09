@@ -1197,5 +1197,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString));
     }
 
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::AddPackageCatalogResult, double> PackageManager::AddPackageCatalogAsync(winrt::Microsoft::Management::Deployment::AddPackageCatalogOptions options)
+    {
+        // TODO: Implement AddPackageCatalogAsync
+        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::AddPackageCatalogResult, double>();
+    }
+
     CoCreatableMicrosoftManagementDeploymentClass(PackageManager);
 }

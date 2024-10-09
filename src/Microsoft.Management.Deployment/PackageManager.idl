@@ -863,6 +863,56 @@ namespace Microsoft.Management.Deployment
         }
     }
 
+    /// IMPLEMENTATION NOTE: RemovePackageCatalogOptions
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    enum RemovePackageCatalogOptions
+    {
+        /// Removes the package catalog from the Windows Package Catalogs list without performing any cleanup. This is similar to the WinGet source reset operation on a specific Package Catalog.
+        Drop = 0x1,
+        /// Removes the package catalog from the Windows Package Catalogs list and clears any data written to the system by the package catalog.
+        Remove = 0x2,
+    };
+
+    /// IMPLEMENTATION NOTE: RemovePackageCatalogStatus
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    enum RemovePackageCatalogStatus
+    {
+        Ok,
+        GroupPolicyError,
+        CatalogError,
+        InternalError,
+    };
+
+    /// IMPLEMENTATION NOTE: RemovePackageCatalogResult
+    /// Result of removing a package catalog.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    runtimeclass RemovePackageCatalogResult
+    {
+        RemovePackageCatalogStatus Status { get; };
+
+        /// Error codes
+        HRESULT ExtendedErrorCode { get; };
+    };
+
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    enum UpdatePackageCatalogStatus
+    {
+        Ok,
+        GroupPolicyError,
+        CatalogError,
+        InternalError,
+    };
+
+    /// IMPLEMENTATION NOTE: UpdatePackageCatalogResult
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    runtimeclass UpdatePackageCatalogResult
+    {
+        UpdatePackageCatalogStatus Status { get; };
+
+        /// Error codes
+        HRESULT ExtendedErrorCode { get; };
+    };
+
     /// A reference to a catalog that callers can try to Connect.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageCatalogReference
@@ -916,6 +966,15 @@ namespace Microsoft.Management.Deployment
             /// Authentication info from the package catalog.
             /// This is defined by individual package catalog.
             AuthenticationInfo AuthenticationInfo { get; };
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+        {
+            /// Removes a catalog from the Windows Package Catalogs.
+            Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, Double> RemovePackageCatalogAsync(RemovePackageCatalogOptions options);
+
+            /// Updates the package catalog.
+            Windows.Foundation.IAsyncOperationWithProgress<UpdatePackageCatalogResult, Double> UpdatePackageCatalogAsync();
         }
     }
 
@@ -1351,6 +1410,57 @@ namespace Microsoft.Management.Deployment
         String InstallationNotes { get; };
     }
 
+    /// IMPLEMENTATION NOTE: AddPackageCatalogOptions
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    runtimeclass AddPackageCatalogOptions
+    {
+        AddPackageCatalogOptions();
+
+        /// The name of the package catalog. 
+        /// SAMPLE VALUES: For OpenWindowsCatalog "winget".
+        /// For contoso sample on msdn "contoso"
+        String Name;
+
+        /// The SourceUri used when adding the package catalog.
+        /// SAMPLE VALUES: For OpenWindowsCatalog "https://winget.azureedge.net/cache"
+        /// For contoso sample on msdn "https://pkgmgr-int.azureedge.net/cache"
+        String SourceUri;
+
+        /// ALLOWED VALUES: "Microsoft.Rest", "Microsoft.PreIndexed.Package"
+        /// SAMPLE VALUES: For OpenWindowsCatalog "Microsoft.PreIndexed.Package".
+        /// For contoso sample on msdn "Microsoft.PreIndexed.Package"
+        String Type;
+
+        /// The trust level of the catalog to add.
+        PackageCatalogTrustLevel TrustLevel;
+
+        /// Custom header to pass to the catalog.
+        String CustomHeader;
+
+        /// Excludes a source from discovery unless specified.
+        Boolean Explicit;
+    };
+
+    /// IMPLEMENTATION NOTE: AddPackageCatalogStatus
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    enum AddPackageCatalogStatus
+    {
+        Ok,
+        GroupPolicyError,
+        CatalogError,
+        InternalError,
+    };
+
+    /// IMPLEMENTATION NOTE: AddPackageCatalogResult
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    runtimeclass AddPackageCatalogResult
+    {
+        AddPackageCatalogStatus Status { get; };
+
+        /// Error codes
+        HRESULT ExtendedErrorCode { get; };
+    };
+
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageManager
     {
@@ -1369,6 +1479,11 @@ namespace Microsoft.Management.Deployment
         /// Get a composite catalog to allow searching a user defined or pre defined source and a local source
         /// (Installing, Installed) together at the same time.
         PackageCatalogReference CreateCompositePackageCatalog(CreateCompositePackageCatalogOptions options);
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+        {
+            Windows.Foundation.IAsyncOperationWithProgress<AddPackageCatalogResult, Double> AddPackageCatalogAsync(AddPackageCatalogOptions options);
+        }
 
         /// Install the specified package
         Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackageAsync(CatalogPackage package, InstallOptions options);

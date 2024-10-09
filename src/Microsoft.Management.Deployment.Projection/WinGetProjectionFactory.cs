@@ -36,5 +36,7 @@ namespace Microsoft.Management.Deployment.Projection
         public PackageManagerSettings CreatePackageManagerSettings() => InstanceInitializer.CreateInstance<PackageManagerSettings>();
 
         public RepairOptions CreateRepairOptions() => InstanceInitializer.CreateInstance<RepairOptions>();
+
+        public AddPackageCatalogOptions CreateAddPackageCatalogOptions() => InstanceInitializer.CreateInstance<AddPackageCatalogOptions>();
     }
 }
