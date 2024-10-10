@@ -23,7 +23,18 @@ namespace AppInstaller::Settings
         AdditionalSources,
         AllowedSources,
         DefaultProxy,
+        ConfigurationAllowedZones,
         Max,
+    };
+
+    // Enum for the configurable zones for the configuration policy.
+    enum class ConfigurationAllowedZonesOptions : DWORD
+    {
+        LocalMachine = 0,
+        Intranet = 1,
+        TrustedSites = 2,
+        Internet = 3,
+        UntrustedSites = 4,
     };
 
     // A policy that acts as a toggle to enable or disable a feature.
@@ -113,6 +124,12 @@ namespace AppInstaller::Settings
             //  item_t - Type of each item
             //  KeyName -- Name of the sub-key containing the list
             //  ReadAndValidateItem() - Function that reads a single item from a subkey
+
+            // For enums:
+            //  keyItem_t - Type of the key
+            //  valueItem_t - Type of the value
+            //  KeyName -- Name of the sub-key containing the list
+            //  ReadAndValidateItem() - Function that reads a single item from a subkey
         };
 
         template<>
@@ -149,11 +166,20 @@ namespace AppInstaller::Settings
             static std::optional<item_t> ReadAndValidateItem(const Registry::Value& item); \
         )
 
+#define POLICY_MAPPING_ENUM_SPECIALIZATION(_policy_, _mapType_, _keyName_) \
+        POLICY_MAPPING_SPECIALIZATION(_policy_, _mapType_, \
+            static constexpr std::string_view KeyName = _keyName_; \
+            static std::optional<typename _mapType_::value_type> ReadAndValidateItem(const Registry::ValueList::ValueRef& item); \
+        )
+
         POLICY_MAPPING_VALUE_SPECIALIZATION(ValuePolicy::SourceAutoUpdateIntervalInMinutes, uint32_t, "SourceAutoUpdateInterval"sv, Registry::Value::Type::DWord);
         POLICY_MAPPING_VALUE_SPECIALIZATION(ValuePolicy::DefaultProxy, std::string, "DefaultProxy"sv, Registry::Value::Type::String);
 
         POLICY_MAPPING_LIST_SPECIALIZATION(ValuePolicy::AdditionalSources, SourceFromPolicy, "AdditionalSources"sv);
         POLICY_MAPPING_LIST_SPECIALIZATION(ValuePolicy::AllowedSources, SourceFromPolicy, "AllowedSources"sv);
+
+        typedef std::map<ConfigurationAllowedZonesOptions, bool> ConfigurationAllowedZonesMap_t;
+        POLICY_MAPPING_ENUM_SPECIALIZATION(ValuePolicy::ConfigurationAllowedZones, ConfigurationAllowedZonesMap_t, "DSCAllowedZones"sv);
     }
 
     // Representation of the policies read from the registry.

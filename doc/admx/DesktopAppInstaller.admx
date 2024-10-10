@@ -183,5 +183,77 @@
         <text id="WindowsPackageManagerDefaultProxy" valueName="DefaultProxy"  />
       </elements>
     </policy>
+    <policy name="EnableDSCAllowedZones" class="Machine" displayName="$(string.EnableDSCAllowedZones)" explainText="$(string.EnableDSCAllowedZonesExplanation)" presentation="$(presentation.DSCAllowedZones)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableDSCAllowedZones">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+      <elements>
+        <enum id="LocalMachine" key="Software\Policies\Microsoft\Windows\AppInstaller\DSCAllowedZones" valueName="LocalMachine" required="false">
+          <item displayName="$(string.ZoneBlocked)">
+            <value>
+              <decimal value="0" />
+            </value>
+          </item>
+          <item displayName="$(string.ZoneAllowed)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+        </enum>
+        <enum id="Intranet" key="Software\Policies\Microsoft\Windows\AppInstaller\DSCAllowedZones" valueName="Intranet">
+          <item displayName="$(string.ZoneBlocked)">
+            <value>
+              <decimal value="0" />
+            </value>
+          </item>
+          <item displayName="$(string.ZoneAllowed)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+        </enum>
+        <enum id="TrustedSites" key="Software\Policies\Microsoft\Windows\AppInstaller\DSCAllowedZones" valueName="TrustedSites">
+          <item displayName="$(string.ZoneBlocked)">
+            <value>
+              <decimal value="0" />
+            </value>
+          </item>
+          <item displayName="$(string.ZoneAllowed)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+        </enum>
+        <enum id="Internet" key="Software\Policies\Microsoft\Windows\AppInstaller\DSCAllowedZones" valueName="Internet">
+          <item displayName="$(string.ZoneBlocked)">
+            <value>
+              <decimal value="0" />
+            </value>
+          </item>
+          <item displayName="$(string.ZoneAllowed)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+        </enum>
+        <enum id="UntrustedSites" key="Software\Policies\Microsoft\Windows\AppInstaller\DSCAllowedZones" valueName="UntrustedSites">
+          <item displayName="$(string.ZoneBlocked)">
+            <value>
+              <decimal value="0" />
+            </value>
+          </item>
+          <item displayName="$(string.ZoneAllowed)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+        </enum>
+      </elements>
+    </policy>
   </policies>
 </policyDefinitions>
