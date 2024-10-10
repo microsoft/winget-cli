@@ -118,7 +118,7 @@ namespace AppInstaller::CLI::VirtualTerminal
             SoftCharacterSet = 7,
             UserDefinedKeys = 8,
             NationalReplacementCharacterSets = 9,
-            Yugoslavian = 12,
+            SoftCharacterSet2 = 12,
             EightBitInterface = 14,
             TechnicalCharacterSet = 15,
             WindowingCapability = 18,
