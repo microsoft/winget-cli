@@ -27,8 +27,8 @@ namespace AppInstaller::Settings
         Max,
     };
 
-    // Enum for the configurable zones for the configuration policy.
-    enum class ConfigurationAllowedZonesOptions : DWORD
+    // Enum for the configurable security zones
+    enum class SecurityZoneOptions : DWORD
     {
         LocalMachine = 0,
         Intranet = 1,
@@ -178,7 +178,7 @@ namespace AppInstaller::Settings
         POLICY_MAPPING_LIST_SPECIALIZATION(ValuePolicy::AdditionalSources, SourceFromPolicy, "AdditionalSources"sv);
         POLICY_MAPPING_LIST_SPECIALIZATION(ValuePolicy::AllowedSources, SourceFromPolicy, "AllowedSources"sv);
 
-        typedef std::map<ConfigurationAllowedZonesOptions, bool> ConfigurationAllowedZonesMap_t;
+        typedef std::map<SecurityZoneOptions, bool> ConfigurationAllowedZonesMap_t;
         POLICY_MAPPING_ENUM_SPECIALIZATION(ValuePolicy::ConfigurationAllowedZones, ConfigurationAllowedZonesMap_t, "DSCAllowedZones"sv);
     }
 

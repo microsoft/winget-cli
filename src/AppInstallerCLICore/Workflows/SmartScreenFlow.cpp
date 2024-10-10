@@ -7,16 +7,16 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    bool IsSmartScreenRequired(Settings::ConfigurationAllowedZonesOptions zone)
+    bool IsSmartScreenRequired(Settings::SecurityZoneOptions zone)
     {
-        return zone == Settings::ConfigurationAllowedZonesOptions::Internet
-            || zone == Settings::ConfigurationAllowedZonesOptions::UntrustedSites;
+        return zone == Settings::SecurityZoneOptions::Internet
+            || zone == Settings::SecurityZoneOptions::UntrustedSites;
     }
 
     // Validate smart screen for a given url.
     bool IsBlockedBySmartScreen(Execution::Context& context, const std::string& url)
     {
-        auto response = AppInstaller::UriValidation::UriValidation(url);
+        auto response = AppInstaller::UriValidation::ValidateUri(url);
         switch (response.Decision())
         {
         case AppInstaller::UriValidation::UriValidationDecision::Block:
@@ -29,23 +29,23 @@ namespace AppInstaller::CLI::Workflow
     }
 
     // Get Uri zone for a given uri or file path.
-    Settings::ConfigurationAllowedZonesOptions GetUriZone(const std::string& uri)
+    Settings::SecurityZoneOptions GetUriZone(const std::string& uri)
     {
         DWORD dwZone;
         auto pInternetSecurityManager = winrt::create_instance<IInternetSecurityManager>(CLSID_InternetSecurityManager, CLSCTX_ALL);
         pInternetSecurityManager->MapUrlToZone(AppInstaller::Utility::ConvertToUTF16(uri).c_str(), &dwZone, 0);
 
         // Treat all zones higher than untrusted as untrusted
-        if (dwZone > static_cast<DWORD>(Settings::ConfigurationAllowedZonesOptions::UntrustedSites))
+        if (dwZone > static_cast<DWORD>(Settings::SecurityZoneOptions::UntrustedSites))
         {
-            return Settings::ConfigurationAllowedZonesOptions::UntrustedSites;
+            return Settings::SecurityZoneOptions::UntrustedSites;
         }
 
-        return static_cast<Settings::ConfigurationAllowedZonesOptions>(dwZone);
+        return static_cast<Settings::SecurityZoneOptions>(dwZone);
     }
 
     // Validate group policy for a given zone.
-    bool IsBlockedByGroupPolicy(Execution::Context& context, const Settings::ConfigurationAllowedZonesOptions zone)
+    bool IsBlockedByGroupPolicy(Execution::Context& context, const Settings::SecurityZoneOptions zone)
     {
         auto configurationPolicies = Settings::GroupPolicies().GetValue<Settings::ValuePolicy::ConfigurationAllowedZones>();
         if (!configurationPolicies.has_value())

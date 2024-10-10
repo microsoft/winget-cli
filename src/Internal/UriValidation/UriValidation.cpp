@@ -1,13 +1,32 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#include "pch.h"
 #include "UriValidation.h"
 
 namespace AppInstaller::UriValidation
 {
-    UriValidationResult UriValidation(const std::string&)
+    namespace
     {
+        bool EndsWith(const std::string& value, const std::string& ending)
+        {
+            if (ending.size() > value.size())
+            {
+                return false;
+            }
+
+            return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+        }
+    }
+
+    UriValidationResult ValidateUri(const std::string& uri)
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (EndsWith(uri, "/block"))
+        {
+            return UriValidationResult(UriValidationDecision::Block, std::string());
+        }
+#endif
+
         // In Dev mode, allow all URIs
         return UriValidationResult(UriValidationDecision::Allow, std::string());
     }

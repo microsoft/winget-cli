@@ -338,14 +338,14 @@ namespace AppInstaller::Settings
             return ReadSourceFromRegistryValue(item);
         }
 
-        std::optional<std::pair<const ConfigurationAllowedZonesOptions, bool>> ValuePolicyMapping<ValuePolicy::ConfigurationAllowedZones>::ReadAndValidateItem(const Registry::ValueList::ValueRef& entry)
+        std::optional<std::pair<const SecurityZoneOptions, bool>> ValuePolicyMapping<ValuePolicy::ConfigurationAllowedZones>::ReadAndValidateItem(const Registry::ValueList::ValueRef& entry)
         {
 #define CONFIGURATION_ALLOWED_ZONES_READ(_zone_) \
             if (entry.Name() == #_zone_) \
             { \
                 auto data = entry.Value()->TryGetValue<Registry::Value::Type::DWord>(); \
                 auto value = data.value_or(true); \
-                return std::make_pair(ConfigurationAllowedZonesOptions::_zone_, value); \
+                return std::make_pair(SecurityZoneOptions::_zone_, value); \
             }
 
             CONFIGURATION_ALLOWED_ZONES_READ(LocalMachine);
