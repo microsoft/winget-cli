@@ -260,8 +260,11 @@
     <ClInclude Include="Sixel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Commands\FontsCommand.h">
+    <ClInclude Include="Commands\FontCommand.h">
       <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\FontFlow.h">
+      <Filter>Workflows</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -493,8 +496,11 @@
     <ClCompile Include="Sixel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Commands\FontsCommand.cpp">
+    <ClCompile Include="Commands\FontCommand.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\FontFlow.cpp">
+      <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

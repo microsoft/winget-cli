@@ -48,8 +48,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFConfigureSelfElevation>();
             case ExperimentalFeature::Feature::ConfigureExport:
                 return userSettings.Get<Setting::EFConfigureExport>();
-            case ExperimentalFeature::Feature::Fonts:
-                return userSettings.Get<Setting::EFFonts>();
+            case ExperimentalFeature::Feature::Font:
+                return userSettings.Get<Setting::EFFont>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -87,8 +87,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Configure Self Elevation", "configureSelfElevate", "https://aka.ms/winget-settings", Feature::ConfigureSelfElevation };
         case Feature::ConfigureExport:
             return ExperimentalFeature{ "Configure Export", "configureExport", "https://aka.ms/winget-settings", Feature::ConfigureExport };
-        case Feature::Fonts:
-            return ExperimentalFeature{ "Fonts", "fonts", "https://aka.ms/winget-settings", Feature::Fonts };
+        case Feature::Font:
+            return ExperimentalFeature{ "Font", "Font", "https://aka.ms/winget-settings", Feature::Font };
             
         default:
             THROW_HR(E_UNEXPECTED);

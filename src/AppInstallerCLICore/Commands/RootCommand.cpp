@@ -15,7 +15,7 @@
 #include "ValidateCommand.h"
 #include "SettingsCommand.h"
 #include "FeaturesCommand.h"
-#include "FontsCommand.h"
+#include "FontCommand.h"
 #include "ExperimentalCommand.h"
 #include "CompleteCommand.h"
 #include "ExportCommand.h"
@@ -195,7 +195,7 @@ namespace AppInstaller::CLI
             std::make_unique<ErrorCommand>(FullName()),
             std::make_unique<ResumeCommand>(FullName()),
             std::make_unique<RepairCommand>(FullName()),
-            std::make_unique<FontsCommand>(FullName()),
+            std::make_unique<FontCommand>(FullName()),
 #if _DEBUG
             std::make_unique<DebugCommand>(FullName()),
 #endif

@@ -6,9 +6,9 @@
 
 namespace AppInstaller::CLI
 {
-    struct FontsCommand final : public Command
+    struct FontCommand final : public Command
     {
-        FontsCommand(std::string_view parent) : Command("fonts", {} /* aliases */, parent) {}
+        FontCommand(std::string_view parent) : Command("Font", {} /* aliases */, parent) {}
 
         std::vector<std::unique_ptr<Command>> GetCommands() const override;
 
@@ -21,9 +21,9 @@ namespace AppInstaller::CLI
         void ExecuteInternal(Execution::Context& context) const override;
     };
 
-    struct FontsListCommand final : public Command
+    struct FontListCommand final : public Command
     {
-        FontsListCommand(std::string_view parent) : Command("list", parent) {}
+        FontListCommand(std::string_view parent) : Command("list", parent) {}
 
         std::vector<Argument> GetArguments() const override;
 

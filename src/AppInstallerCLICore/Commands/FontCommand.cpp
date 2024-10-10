@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "FontsCommand.h"
+#include "FontCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/WorkflowBase.h"
+#include "Workflows/FontFlow.h"
 #include "Resources.h"
 
 namespace AppInstaller::CLI
@@ -13,36 +14,36 @@ namespace AppInstaller::CLI
     using namespace AppInstaller::Utility::literals;
     using namespace std::string_view_literals;
 
-    Utility::LocIndView s_FontsCommand_HelpLink = "https://aka.ms/winget-command-fonts"_liv;
+    Utility::LocIndView s_FontCommand_HelpLink = "https://aka.ms/winget-command-Font"_liv;
 
-    std::vector<std::unique_ptr<Command>> FontsCommand::GetCommands() const
+    std::vector<std::unique_ptr<Command>> FontCommand::GetCommands() const
     {
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
-            std::make_unique<FontsListCommand>(FullName()),
+            std::make_unique<FontListCommand>(FullName()),
         });
     }
 
-    Resource::LocString FontsCommand::ShortDescription() const
+    Resource::LocString FontCommand::ShortDescription() const
     {
-        return { Resource::String::FontsCommandShortDescription };
+        return { Resource::String::FontCommandShortDescription };
     }
 
-    Resource::LocString FontsCommand::LongDescription() const
+    Resource::LocString FontCommand::LongDescription() const
     {
-        return { Resource::String::FontsCommandLongDescription };
+        return { Resource::String::FontCommandLongDescription };
     }
 
-    Utility::LocIndView FontsCommand::HelpLink() const
+    Utility::LocIndView FontCommand::HelpLink() const
     {
-        return s_FontsCommand_HelpLink;
+        return s_FontCommand_HelpLink;
     }
 
-    void FontsCommand::ExecuteInternal(Execution::Context& context) const
+    void FontCommand::ExecuteInternal(Execution::Context& context) const
     {
         OutputHelp(context.Reporter);
     }
 
-    std::vector<Argument> FontsListCommand::GetArguments() const
+    std::vector<Argument> FontListCommand::GetArguments() const
     {
         return {
             Argument::ForType(Args::Type::Query),
@@ -60,17 +61,17 @@ namespace AppInstaller::CLI
         };
     }
 
-    Resource::LocString FontsListCommand::ShortDescription() const
+    Resource::LocString FontListCommand::ShortDescription() const
     {
-        return { Resource::String::FontsListCommandShortDescription };
+        return { Resource::String::FontListCommandShortDescription };
     }
 
-    Resource::LocString FontsListCommand::LongDescription() const
+    Resource::LocString FontListCommand::LongDescription() const
     {
-        return { Resource::String::FontsListCommandLongDescription };
+        return { Resource::String::FontListCommandLongDescription };
     }
 
-    void FontsListCommand::Complete(Execution::Context& context, Args::Type valueType) const
+    void FontListCommand::Complete(Execution::Context& context, Args::Type valueType) const
     {
         context <<
             Workflow::OpenSource() <<
@@ -96,15 +97,13 @@ namespace AppInstaller::CLI
         }
     }
 
-    Utility::LocIndView FontsListCommand::HelpLink() const
+    Utility::LocIndView FontListCommand::HelpLink() const
     {
-        return s_FontsCommand_HelpLink;
+        return s_FontCommand_HelpLink;
     }
 
-    void FontsListCommand::ExecuteInternal(Execution::Context& context) const
+    void FontListCommand::ExecuteInternal(Execution::Context& context) const
     {
-        context <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+        context << Workflow::ReportInstalledFontFamiliesResult;
     }
 }

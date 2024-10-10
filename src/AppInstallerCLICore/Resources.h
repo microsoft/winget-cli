@@ -248,10 +248,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FileNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(FilesRemainInInstallDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(FlagContainAdjoinedError);
-        WINGET_DEFINE_RESOURCE_STRINGID(FontsCommandLongDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(FontsCommandShortDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(FontsListCommandLongDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(FontsListCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontListCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontListCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ForceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(GatedVersionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(GetManifestResultVersionNotFound);
