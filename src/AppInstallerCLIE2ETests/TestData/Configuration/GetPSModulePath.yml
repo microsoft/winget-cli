@@ -1,0 +1,11 @@
+$schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
+metadata:
+  1e62d683-2999-44e7-81f7-6f8f35e8d731: true
+resources:
+  - name: Name1
+    type: xE2ETestResource/E2ETestResourcePSModulePath
+    metadata:
+      repository: AppInstallerCLIE2ETestsRepo
+      securityContext: elevated
+    properties:
+      outputPath: ${WinGetConfigRoot}\PSModulePath.txt

@@ -7,12 +7,13 @@
 
 #include <winget/Yaml.h>
 #include <initializer_list>
+#include <string_view>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
     struct ConfigurationSetSerializer
     {
-        static std::unique_ptr<ConfigurationSetSerializer> CreateSerializer(hstring version, bool forHistory = false);
+        static std::unique_ptr<ConfigurationSetSerializer> CreateSerializer(hstring version, bool strictVersionMatching = false);
 
         virtual ~ConfigurationSetSerializer() noexcept = default;
 
@@ -33,14 +34,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     protected:
         ConfigurationSetSerializer() = default;
 
-        void WriteYamlConfigurationUnits(AppInstaller::YAML::Emitter& emitter, const std::vector<ConfigurationUnit>& units);
         void WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, std::initializer_list<ConfigurationField> exclusions = {});
-        void WriteYamlStringArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<hstring>& values);
-        void WriteYamlValue(AppInstaller::YAML::Emitter& emitter, const winrt::Windows::Foundation::IInspectable& value);
+        void WriteYamlValueSetIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, const Windows::Foundation::Collections::ValueSet& valueSet);
         void WriteYamlValueSetAsArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSetArray);
-        winrt::hstring GetSchemaVersionComment(winrt::hstring version);
 
-        virtual winrt::hstring GetResourceName(const ConfigurationUnit& unit) = 0;
-        virtual void WriteResourceDirectives(AppInstaller::YAML::Emitter& emitter, const ConfigurationUnit& unit) = 0;
+        void WriteYamlStringArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<hstring>& values);
+
+        void WriteYamlValue(AppInstaller::YAML::Emitter& emitter, const winrt::Windows::Foundation::IInspectable& value);
+        void WriteYamlValueIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, const winrt::Windows::Foundation::IInspectable& value);
+        void WriteYamlStringValueIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, hstring value);
+
+        std::wstring_view GetSchemaVersionCommentPrefix();
     };
 }

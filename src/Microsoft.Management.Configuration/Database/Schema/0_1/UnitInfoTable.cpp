@@ -106,7 +106,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
         std::queue<UnitsToInsert> unitsToInsert;
         unitsToInsert.emplace(UnitsToInsert{ std::nullopt, configurationUnit });
-        auto serializer = ConfigurationSetSerializer::CreateSerializer(schemaVersion, true);
+        auto serializer = ConfigurationSetSerializer::CreateSerializer(schemaVersion);
 
         while (!unitsToInsert.empty())
         {

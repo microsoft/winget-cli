@@ -52,6 +52,10 @@ namespace AppInstallerCLIE2ETests.Helpers
             var settingsJson = new Hashtable()
             {
                 {
+                    "$schema",
+                    "https://aka.ms/winget-settings.schema.json"
+                },
+                {
                     "experimentalFeatures",
                     experimentalFeatures
                 },

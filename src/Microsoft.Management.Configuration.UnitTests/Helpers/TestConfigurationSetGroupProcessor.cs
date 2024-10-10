@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="TestConfigurationSetGroupProcessor.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -18,7 +18,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// <summary>
     /// A test implementation of IConfigurationGroupProcessor.
     /// </summary>
-    internal class TestConfigurationSetGroupProcessor : TestConfigurationSetProcessor, IConfigurationGroupProcessor
+    internal partial class TestConfigurationSetGroupProcessor : TestConfigurationSetProcessor, IConfigurationGroupProcessor
     {
         /// <summary>
         /// The event that is waited on before actually processing the async operations.

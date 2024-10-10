@@ -102,6 +102,9 @@ namespace AppInstaller::CLI
         OutputProxyStubInterfaceRegistration<winrt::Windows::Foundation::Collections::IIterable<winrt::Microsoft::Management::Configuration::TestConfigurationUnitResult>>(context);
         OutputProxyStubInterfaceRegistration<winrt::Windows::Foundation::Collections::IIterable<winrt::Microsoft::Management::Configuration::IApplyGroupMemberSettingsResult>>(context);
         OutputProxyStubInterfaceRegistration<winrt::Windows::Foundation::Collections::IIterable<winrt::Microsoft::Management::Configuration::ITestSettingsResult>>(context);
+        OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IConfigurationUnitProcessorDetails2>(context);
+        OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IGetAllSettingsConfigurationUnitProcessor>(context);
+        OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IConfigurationStatics2>(context);
 
         // TODO: Fix the layering inversion created by the COM deployment API (probably in order to operate winget.exe against the COM server).
         //       Then this code can just have a CppWinRT reference to the deployment API and spit out the interface registrations just like for configuration.
@@ -127,6 +130,7 @@ namespace AppInstaller::CLI
     void DumpInterestingIIDsCommand::ExecuteInternal(Execution::Context& context) const
     {
         OutputIIDMapping<winrt::Microsoft::Management::Configuration::IConfigurationStatics>(context);
+        OutputIIDMapping<winrt::Microsoft::Management::Configuration::IConfigurationStatics2>(context);
     }
 
     Resource::LocString DumpErrorResourceCommand::ShortDescription() const

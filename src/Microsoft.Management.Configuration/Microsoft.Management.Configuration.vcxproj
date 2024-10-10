@@ -218,6 +218,7 @@
     <ClInclude Include="ConfigurationSetParser_0_3.h" />
     <ClInclude Include="ConfigurationSetSerializer.h" />
     <ClInclude Include="ConfigurationSetSerializer_0_2.h" />
+    <ClInclude Include="ConfigurationSetSerializer_0_3.h" />
     <ClInclude Include="ConfigurationSetUtilities.h" />
     <ClInclude Include="ConfigurationStaticFunctions.h" />
     <ClInclude Include="ConfigurationStatus.h" />
@@ -272,6 +273,7 @@
     <ClCompile Include="ConfigurationSetParser_0_3.cpp" />
     <ClCompile Include="ConfigurationSetSerializer.cpp" />
     <ClCompile Include="ConfigurationSetSerializer_0_2.cpp" />
+    <ClCompile Include="ConfigurationSetSerializer_0_3.cpp" />
     <ClCompile Include="ConfigurationSetUtilities.cpp" />
     <ClCompile Include="ConfigurationStaticFunctions.cpp" />
     <ClCompile Include="ConfigurationStatus.cpp" />

@@ -730,6 +730,12 @@ namespace Microsoft.Management.Deployment
         /// USAGE NOTE: Windows Package Manager does not support result pagination, there is no way to continue 
         /// getting more results.
         Boolean WasLimitExceeded { get; };
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+        {
+            /// The error code of the operation.
+            HRESULT ExtendedErrorCode{ get; };
+        }
     }
 
     /// Options for FindPackages
@@ -849,6 +855,12 @@ namespace Microsoft.Management.Deployment
         ConnectResultStatus Status { get; };
 
         PackageCatalog PackageCatalog { get; };
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+        {
+            /// The error code of the operation.
+            HRESULT ExtendedErrorCode{ get; };
+        }
     }
 
     /// A reference to a catalog that callers can try to Connect.

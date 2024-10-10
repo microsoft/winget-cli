@@ -2896,13 +2896,13 @@
     <value>Microsoft Store 패키지 다운로드 정보를 가져오지 못했습니다.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE" xml:space="preserve">
-    <value>적용 가능한 Microsoft Store 패키지 다운로드 정보를 찾을 수 없습니다.</value>
+    <value>다운로드할 적용 가능한 Microsoft Store 패키지를 찾을 수 없습니다.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED" xml:space="preserve">
     <value>Microsoft Store 패키지 라이선스를 검색하지 못했습니다.</value>
   </data>
-  <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
-    <value>Microsoft Store 패키지를 찾을 수 없습니다.</value>
+  <data name="MSStoreDownloadNoApplicablePackageFound" xml:space="preserve">
+    <value>해당하는 Microsoft Store 패키지를 찾을 수 없습니다.</value>
   </data>
   <data name="MSStoreDownloadPackageHashVerified" xml:space="preserve">
     <value>Microsoft Store 패키지 해시가 성공적으로 확인되었습니다.</value>
@@ -2948,7 +2948,8 @@
     <comment>{Locked="--rename"}</comment>
   </data>
   <data name="MSStoreDownloadAuthenticationNotice" xml:space="preserve">
-    <value>Microsoft Store 패키지를 다운로드하려면 Microsoft Entra ID 인증이 필요합니다. 필요한 경우 인증 프롬프트가 표시될 수 있습니다. 인증된 정보는 액세스 권한 부여를 위해 Microsoft 서비스 공유됩니다. Microsoft Store 패키지 라이선스의 경우 Microsoft Entra ID 계정에 Microsoft Entra ID 테넌트에 대한 관리자 액세스 권한이 있어야 합니다.</value>
+    <value>Microsoft Store 패키지를 다운로드하려면 Microsoft Entra ID 인증이 필요합니다. 필요한 경우 인증 프롬프트가 표시될 수 있습니다. 인증된 정보는 액세스 권한 부여를 위해 Microsoft 서비스 공유됩니다. Microsoft Store 패키지 라이선스의 경우 Microsoft Entra ID 계정은 전역 관리자, 사용자 관리자 또는 라이선스 관리자의 구성원이어야 합니다.</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator"}</comment>
   </data>
   <data name="SkipMicrosoftStorePackageLicenseArgumentDescription" xml:space="preserve">
     <value>Microsoft Store 패키지 오프라인 라이선스 검색 건너뛰기</value>
@@ -3111,5 +3112,22 @@
   </data>
   <data name="ConfigurationSuppressPrologueArgumentDescription" xml:space="preserve">
     <value>가능한 경우 초기 구성 세부 정보를 표시하지 않음</value>
+  </data>
+  <data name="MSStoreDownloadMultiplePackagesNotice" xml:space="preserve">
+    <value>여러 플랫폼 및 아키텍처를 대상으로 하는 여러 Microsoft Store 패키지를 다운로드할 수 있습니다. --platform, --architecture를 사용하여 패키지를 필터링할 수 있습니다.</value>
+    <comment>{Locked="--platform--architecture"}</comment>
+  </data>
+  <data name="MSStoreDownloadGetLicenseForbidden" xml:space="preserve">
+    <value>Microsoft Store 패키지 라이선스를 검색하지 못했습니다. Microsoft Entra ID 계정이 전역 관리자, 사용자 관리자 또는 라이선스 관리자의 구성원이 아닙니다. --skip-license를 사용하여 Microsoft Store 패키지 라이선스 검색을 건너뜁니다.</value>
+    <comment>{Locked="Global Administrator,User Administrator,License Administrator,--skip-license"}</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadNotSupported" xml:space="preserve">
+    <value>Microsoft Store 패키지는 다운로드를 지원하지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED" xml:space="preserve">
+    <value>Microsoft Store 패키지는 다운로드를 지원하지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
+    <value>Microsoft Store 패키지 라이선스를 검색하지 못했습니다. Microsoft Entra ID 계정에 필요한 권한이 없습니다.</value>
   </data>
 </root>

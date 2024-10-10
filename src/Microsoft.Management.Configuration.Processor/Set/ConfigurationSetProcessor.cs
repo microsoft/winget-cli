@@ -22,7 +22,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
     /// <summary>
     /// Configuration set processor.
     /// </summary>
-    internal sealed class ConfigurationSetProcessor : IConfigurationSetProcessor
+    internal sealed partial class ConfigurationSetProcessor : IConfigurationSetProcessor
     {
         private readonly ConfigurationSet? configurationSet;
         private List<ConfigurationUnit> limitUnitList = new List<ConfigurationUnit>();

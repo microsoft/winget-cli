@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="TestConfigurationUnitGroupProcessor.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -18,7 +18,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// <summary>
     /// A test implementation of IConfigurationGroupProcessor.
     /// </summary>
-    internal class TestConfigurationUnitGroupProcessor : TestConfigurationUnitProcessor, IConfigurationGroupProcessor
+    internal partial class TestConfigurationUnitGroupProcessor : TestConfigurationUnitProcessor, IConfigurationGroupProcessor
     {
         /// <summary>
         /// The Setting key that will be used to set the TestResult of the unit.
