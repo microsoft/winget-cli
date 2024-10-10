@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="DiagnosticInformation.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -12,7 +12,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     /// <summary>
     /// Implements IDiagnosticInformation.
     /// </summary>
-    internal sealed class DiagnosticInformation : IDiagnosticInformation
+    internal sealed partial class DiagnosticInformation : IDiagnosticInformation
     {
         /// <inheritdoc/>
         public DiagnosticLevel Level { get; internal set; }

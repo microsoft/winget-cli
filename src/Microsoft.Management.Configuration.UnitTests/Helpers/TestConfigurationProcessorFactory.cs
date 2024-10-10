@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="TestConfigurationProcessorFactory.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -12,7 +12,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// <summary>
     /// A test implementation of IConfigurationSetProcessorFactory.
     /// </summary>
-    internal class TestConfigurationProcessorFactory : IConfigurationSetProcessorFactory
+    internal partial class TestConfigurationProcessorFactory : IConfigurationSetProcessorFactory
     {
         /// <summary>
         /// Delegate type for CreateSetProcessor.

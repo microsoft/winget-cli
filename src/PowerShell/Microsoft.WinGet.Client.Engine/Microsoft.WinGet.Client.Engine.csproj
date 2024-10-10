@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <!-- If these target frameworks are updated, make sure to also update the .psd1 and .nuspec files.-->
@@ -8,6 +8,11 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DesktopFramework>net48</DesktopFramework>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
+    <!--
+    Forcing this version to continue using an older CsWinRT release while issues are resolved.
+    !!! Remove this on the next Microsoft.Windows.CsWinRT package version update. !!!
+    -->
+    <WindowsSdkPackageVersion>10.0.22000.34</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>
