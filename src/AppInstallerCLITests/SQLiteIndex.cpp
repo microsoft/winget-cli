@@ -3835,3 +3835,24 @@ TEST_CASE("SQLiteIndex_V2_0_UsageFlow_ComplexMigration", "[sqliteindex][V2_0]")
 
     MigratePrepareAndCheckIntermediates(baseFile, preparedFile, { { manifest2 }, { manifest1, manifest3, manifest4 } });
 }
+
+TEST_CASE("SQLiteIndex_DependencyWithCaseMismatch", "[sqliteindex][V1_4]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest dependencyManifest1, dependencyManifest2, manifest;
+    SQLiteIndex index = SimpleTestSetup(tempFile, dependencyManifest1, SQLiteVersion::Latest());
+
+    // Must contain some upper case
+    auto& publisher2 = "Test2";
+    CreateFakeManifest(dependencyManifest2, publisher2);
+    index.AddManifest(dependencyManifest2, GetPathFromManifest(dependencyManifest2));
+
+    auto& publisher3 = "Test3";
+    CreateFakeManifest(manifest, publisher3);
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest1.Id, "1.0.0"));
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, ToLower(dependencyManifest2.Id), "1.0.0"));
+
+    index.AddManifest(manifest, GetPathFromManifest(manifest));
+}
