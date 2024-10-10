@@ -27,8 +27,8 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.PackageDependency --download-directory {downloadDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             var dependenciesDir = Path.Combine(downloadDir, Constants.Dependencies);
-            Assert.True(TestCommon.VerifyInstallerDownload(dependenciesDir, "TestPortableExe", "3.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.Unknown, PackageInstallerType.Portable, "en-US"));
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "TestPackageDependency", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.Unknown, PackageInstallerType.Exe, "en-US"));
+            TestCommon.AssertInstallerDownload(dependenciesDir, "TestPortableExe", "3.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.Unknown, PackageInstallerType.Portable, "en-US");
+            TestCommon.AssertInstallerDownload(downloadDir, "TestPackageDependency", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.Unknown, PackageInstallerType.Exe, "en-US");
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Dependencies skipped."));
             Assert.IsFalse(Directory.Exists(Path.Combine(downloadDir, Constants.Dependencies)));
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "TestPackageDependency", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.Unknown, PackageInstallerType.Exe, "en-US"));
+            TestCommon.AssertInstallerDownload(downloadDir, "TestPackageDependency", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.Unknown, PackageInstallerType.Exe, "en-US");
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("download", $"{Constants.ExeInstallerPackageId} --version {packageVersion}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             string downloadDir = Path.Combine(TestCommon.GetDefaultDownloadDirectory(), $"{Constants.ExeInstallerPackageId}_{packageVersion}");
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "TestExeInstaller", packageVersion, ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Exe));
+            TestCommon.AssertInstallerDownload(downloadDir, "TestExeInstaller", packageVersion, ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Exe);
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace AppInstallerCLIE2ETests
             var downloadDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("download", $"{Constants.ExeInstallerPackageId} --download-directory {downloadDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "TestExeInstaller", "2.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Exe));
+            TestCommon.AssertInstallerDownload(downloadDir, "TestExeInstaller", "2.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Exe);
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace AppInstallerCLIE2ETests
             var downloadDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestMultipleInstallers --scope user --download-directory {downloadDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.User, PackageInstallerType.Nullsoft, "en-US"));
+            TestCommon.AssertInstallerDownload(downloadDir, "TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.User, PackageInstallerType.Nullsoft, "en-US");
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace AppInstallerCLIE2ETests
             var downloadDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestMultipleInstallers --scope machine --download-directory {downloadDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.Machine, PackageInstallerType.Msi, "en-US"));
+            TestCommon.AssertInstallerDownload(downloadDir, "TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.Machine, PackageInstallerType.Msi, "en-US");
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace AppInstallerCLIE2ETests
             var downloadDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestMultipleInstallers --installer-type zip --download-directory {downloadDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.Unknown, PackageInstallerType.Exe, "zh-CN", true));
+            TestCommon.AssertInstallerDownload(downloadDir, "TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.Unknown, PackageInstallerType.Exe, "zh-CN", true);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace AppInstallerCLIE2ETests
             var downloadDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestMultipleInstallers --installer-type msi --download-directory {downloadDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.Machine, PackageInstallerType.Msi, "en-US"));
+            TestCommon.AssertInstallerDownload(downloadDir, "TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.Machine, PackageInstallerType.Msi, "en-US");
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace AppInstallerCLIE2ETests
             var downloadDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestMultipleInstallers --architecture x86 --download-directory {downloadDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.Machine, PackageInstallerType.Msi, "en-US"));
+            TestCommon.AssertInstallerDownload(downloadDir, "TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.Machine, PackageInstallerType.Msi, "en-US");
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace AppInstallerCLIE2ETests
             var downloadDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestMultipleInstallers --locale zh-CN --download-directory {downloadDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.Unknown, PackageInstallerType.Exe, "zh-CN", true));
+            TestCommon.AssertInstallerDownload(downloadDir, "TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.Unknown, PackageInstallerType.Exe, "zh-CN", true);
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace AppInstallerCLIE2ETests
             var downloadDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("download", $"ZeroByteFile.CorrectHash --download-directory {downloadDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "ZeroByteFile CorrectHash", "1.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Exe));
+            TestCommon.AssertInstallerDownload(downloadDir, "ZeroByteFile-CorrectHash", "1.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Exe, "en-US");
         }
     }
 }

@@ -1,7 +1,7 @@
 PackageIdentifier: ZeroByteFile.CorrectHash
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
-PackageName: ZeroByteFile CorrectHash
+PackageName: ZeroByteFile-CorrectHash
 ShortDescription: Points to a zero byte installer file using the correct hash
 Publisher: Microsoft Corporation
 License: Test
