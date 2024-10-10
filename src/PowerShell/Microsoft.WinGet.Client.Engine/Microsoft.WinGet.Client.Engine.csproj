@@ -9,11 +9,10 @@
     <DesktopFramework>net48</DesktopFramework>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
     <!--
-    Forcing this version as the minimum based on the CsWinRT release.
-    https://github.com/microsoft/CsWinRT/releases/tag/2.1.5.241003.1
+    Forcing this version to continue using an older CsWinRT release while issues are resolved.
     !!! Remove this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
-    <WindowsSdkPackageVersion>10.0.22000.46</WindowsSdkPackageVersion>
+    <WindowsSdkPackageVersion>10.0.22000.34</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -55,7 +54,7 @@
     <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.5" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22000.196" PrivateAssets="all" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
   </ItemGroup>

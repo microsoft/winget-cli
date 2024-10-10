@@ -8,11 +8,10 @@
     <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
     <!--
-    Forcing this version as the minimum based on the CsWinRT release.
-    https://github.com/microsoft/CsWinRT/releases/tag/2.1.5.241003.1
+    Forcing this version to continue using an older CsWinRT release while issues are resolved.
     !!! Remove this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
-    <WindowsSdkPackageVersion>10.0.22000.46</WindowsSdkPackageVersion>
+    <WindowsSdkPackageVersion>10.0.22000.34</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -29,7 +28,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.5" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" />
   </ItemGroup>
 
   <ItemGroup>
