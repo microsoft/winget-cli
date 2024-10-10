@@ -45,7 +45,7 @@ TEST_CASE("VerifyInstallerTrustLevelAndUpdateInstallerFileMotw", "[DownloadInsta
     std::ostringstream updateMotwOutput;
     TestContext context{ updateMotwOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    context.Add<Data::HashPair>({ {}, {} });
+    context.Add<Data::DownloadHashInfo>({ {}, {} });
     context.Add<Data::InstallerPath>(testInstallerPath);
     auto packageVersion = std::make_shared<TestPackageVersion>(Manifest{});
     auto testSource = std::make_shared<TestSource>();

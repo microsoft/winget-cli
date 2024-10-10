@@ -1,0 +1,14 @@
+PackageIdentifier: ZeroByteFile.CorrectHash
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: ZeroByteFile-CorrectHash
+ShortDescription: Points to a zero byte installer file using the correct hash
+Publisher: Microsoft Corporation
+License: Test
+Installers:
+  - Architecture: x86
+    InstallerUrl: https://localhost:5001/TestKit/TestData/empty
+    InstallerType: exe
+    InstallerSha256: E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855
+ManifestType: singleton
+ManifestVersion: 1.6.0

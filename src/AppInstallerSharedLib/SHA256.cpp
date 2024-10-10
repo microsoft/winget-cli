@@ -122,6 +122,11 @@ namespace AppInstaller::Utility {
 
     SHA256::HashBuffer SHA256::ComputeHash(std::istream& in)
     {
+        return ComputeHashDetails(in).Hash;
+    }
+
+    SHA256::HashDetails SHA256::ComputeHashDetails(std::istream& in)
+    {
         // Throw exceptions on badbit
         auto excState = in.exceptions();
         auto revertExcState = wil::scope_exit([excState, &in]() { in.exceptions(excState); });
@@ -131,26 +136,31 @@ namespace AppInstaller::Utility {
         auto buffer = std::make_unique<uint8_t[]>(bufferSize);
 
         SHA256 hasher;
+        uint64_t totalSize = 0;
 
         while (in.good())
         {
             in.read((char*)(buffer.get()), bufferSize);
-            if (in.gcount())
+            std::streamsize bytesRead = in.gcount();
+            if (bytesRead)
             {
-                hasher.Add(buffer.get(), static_cast<size_t>(in.gcount()));
+                hasher.Add(buffer.get(), static_cast<size_t>(bytesRead));
+                totalSize += static_cast<uint64_t>(bytesRead);
             }
         }
 
         if (in.eof())
         {
-            return hasher.Get();
+            HashDetails result;
+            result.Hash = hasher.Get();
+            result.SizeInBytes = totalSize;
+            return result;
         }
         else
         {
             THROW_HR(APPINSTALLER_CLI_ERROR_STREAM_READ_FAILURE);
         }
     }
-
 
     SHA256::HashBuffer SHA256::ComputeHashFromFile(const std::filesystem::path& path)
     {

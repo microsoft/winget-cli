@@ -16,6 +16,8 @@
 #include <SoftPub.h>
 #include <WinTrust.h>
 #include <wincrypt.h>
+#include <deliveryoptimization.h>
+#include <deliveryoptimizationerrors.h>
 
 #include "TraceLogging.h"
 

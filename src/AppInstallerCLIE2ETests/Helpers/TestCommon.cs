@@ -499,7 +499,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
-        /// Verify installer and manifest downloaded correctly and cleanup.
+        /// Assert installer and manifest downloaded correctly and cleanup.
         /// </summary>
         /// <param name="downloadDir">Download directory.</param>
         /// <param name="name">Package name.</param>
@@ -510,8 +510,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="locale">Installer locale.</param>
         /// <param name="isArchive">Boolean value indicating whether the installer is an archive.</param>
         /// <param name="cleanup">Boolean value indicating whether to remove the installer file and directory.</param>
-        /// <returns>True if success.</returns>
-        public static bool VerifyInstallerDownload(
+        public static void AssertInstallerDownload(
             string downloadDir,
             string name,
             string version,
@@ -554,21 +553,14 @@ namespace AppInstallerCLIE2ETests.Helpers
             string installerDownloadPath = Path.Combine(downloadDir, expectedFileName + installerExtension);
             string manifestDownloadPath = Path.Combine(downloadDir, expectedFileName + ".yaml");
 
-            bool downloadResult = false;
+            Assert.IsTrue(Directory.Exists(downloadDir), $"Download directory does not exist: {downloadDir}");
+            Assert.IsTrue(File.Exists(installerDownloadPath), $"Installer file does not exist: {installerDownloadPath}");
+            Assert.IsTrue(File.Exists(manifestDownloadPath), $"Manifest file does not exist: {manifestDownloadPath}");
 
-            if (Directory.Exists(downloadDir) && File.Exists(installerDownloadPath) && File.Exists(manifestDownloadPath))
+            if (cleanup)
             {
-                downloadResult = true;
-
-                if (cleanup)
-                {
-                    File.Delete(installerDownloadPath);
-                    File.Delete(manifestDownloadPath);
-                    Directory.Delete(downloadDir, true);
-                }
+                Directory.Delete(downloadDir, true);
             }
-
-            return downloadResult;
         }
 
         /// <summary>

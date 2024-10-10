@@ -158,7 +158,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
             var packageVersion = "2.0.0.0";
             string downloadDir = Path.Combine(TestCommon.GetDefaultDownloadDirectory(), $"{Constants.ModifyRepairInstaller}_{packageVersion}");
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "TestModifyRepair", packageVersion, ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Burn, "en-US"));
+            TestCommon.AssertInstallerDownload(downloadDir, "TestModifyRepair", packageVersion, ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Burn, "en-US");
         }
     }
 }

@@ -126,6 +126,8 @@ decompressor
 dedupe
 deigh
 deleteifnotneeded
+deliveryoptimization
+deliveryoptimizationerrors
 DENYWR
 desktopappinstaller
 devhome
@@ -338,6 +340,7 @@ msft
 msftrubengu
 MSIHASH
 MSIXHASH
+MSIXSTRM
 msstore
 MSZIP
 mszyml
@@ -405,6 +408,7 @@ PACL
 PARAMETERMAP
 pathparts
 Patil
+pbstr
 pcb
 PCCERT
 PCs

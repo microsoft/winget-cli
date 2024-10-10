@@ -101,8 +101,8 @@ namespace AppInstaller::CLI::Workflow
                 }
 
                 // Verify hash
-                const auto& hashPair = subContext.Get<Execution::Data::HashPair>();
-                if (std::equal(hashPair.first.begin(), hashPair.first.end(), hashPair.second.begin()))
+                const auto& hashPair = subContext.Get<Execution::Data::DownloadHashInfo>();
+                if (std::equal(hashPair.first.begin(), hashPair.first.end(), hashPair.second.Sha256Hash.begin()))
                 {
                     AICLI_LOG(CLI, Info, << "Microsoft Store package hash verified");
                     subContext.Reporter.Info() << Resource::String::MSStoreDownloadPackageHashVerified << std::endl;
