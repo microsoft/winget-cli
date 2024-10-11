@@ -60,6 +60,7 @@
   <ItemGroup>
     <None Remove="TestData\Configuration\ShowDetails_TestRepo_0_3.yml" />
     <None Remove="TestData\Configuration\WithParameters_0_3.yml" />
+    <None Remove="TestData\empty" />
     <None Remove="TestData\Manifests\TestUpgradeAddsDependency.1.0.yaml" />
     <None Remove="TestData\Manifests\TestUpgradeAddsDependency.2.0.yaml" />
     <None Remove="TestData\Manifests\TestUpgradeAddsDependencyDependent.1.0.yaml" />

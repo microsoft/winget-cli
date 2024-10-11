@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerDownloader.h>
 #include <winget/RepositorySource.h>
 #include <winget/Manifest.h>
 #include <winget/ARPCorrelation.h>
@@ -34,7 +35,7 @@ namespace AppInstaller::CLI::Execution
         Manifest,
         PackageVersion,
         Installer,
-        HashPair,
+        DownloadHashInfo,
         InstallerPath,
         LogPath,
         InstallerArgs,
@@ -128,9 +129,9 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::HashPair>
+        struct DataMapping<Data::DownloadHashInfo>
         {
-            using value_t = std::pair<std::vector<uint8_t>, std::vector<uint8_t>>;
+            using value_t = std::pair<std::vector<uint8_t>, Utility::DownloadResult>;
         };
 
         template <>

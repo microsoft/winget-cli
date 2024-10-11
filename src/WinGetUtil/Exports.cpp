@@ -529,12 +529,12 @@ extern "C"
         THROW_HR_IF(E_INVALIDARG, computeHash && sha256HashLength != 32);
 
         AppInstaller::ProgressCallback callback;
-        auto hashValue = Download(ConvertToUTF8(url), filePath, DownloadType::WinGetUtil, callback, computeHash);
+        auto downloadResult = Download(ConvertToUTF8(url), filePath, DownloadType::WinGetUtil, callback);
 
         // At this point, if computeHash is set we have verified that the buffer is valid and 32 bytes.
         if (computeHash)
         {
-            const auto& hash = hashValue.value();
+            const auto& hash = downloadResult.Sha256Hash;
 
             // The SHA 256 hash length should always be 32 bytes.
             THROW_HR_IF(E_UNEXPECTED, hash.size() != sha256HashLength);
