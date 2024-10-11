@@ -398,13 +398,6 @@
   <ItemGroup>
     <None Include="packages.config" Condition="Exists('$(MSBuildProjectDirectory)\packages.config')" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.CppWinRT" Version="2.0.230706.1" TargetFramework="native" />
-    <PackageReference Include="Microsoft.Windows.ImplementationLibrary" Version="1.0.231028.1" TargetFramework="native" />
-    <ProjectReference Include="..\..\AppInstallerSharedLib\AppInstallerSharedLib.vcxproj">
-      <Project>{f3f6e699-bc5d-4950-8a05-e49dd9eb0d51}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.231028.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.231028.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
