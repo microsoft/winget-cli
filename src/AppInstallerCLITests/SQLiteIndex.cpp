@@ -3870,3 +3870,47 @@ TEST_CASE("SQLiteIndex_V2_0_UsageFlow_ComplexMigration", "[sqliteindex][V2_0]")
 
     MigratePrepareAndCheckIntermediates(baseFile, preparedFile, { { manifest2 }, { manifest1, manifest3, manifest4 } });
 }
+
+TEST_CASE("SQLiteIndex_AddOrUpdateManifest", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string manifestPath = "test/id/test.id-1.0.0.yaml";
+    Manifest manifest;
+    manifest.Installers.push_back({});
+    manifest.Id = "test.id";
+    manifest.DefaultLocalization.Add < Localization::PackageName>("Test Name");
+    manifest.Moniker = "testmoniker";
+    manifest.Version = "1.0.0";
+    manifest.Channel = "test";
+    manifest.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2" });
+    manifest.Installers[0].Commands = { "test1", "test2" };
+
+    {
+        auto version = GENERATE(SQLiteVersion{ 1, 0 }, SQLiteVersion::Latest());
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, version);
+
+        REQUIRE(index.AddOrUpdateManifest(manifest, manifestPath));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+
+        // Update with no updates should return false
+        REQUIRE(!index.AddOrUpdateManifest(manifest, manifestPath));
+
+        manifest.DefaultLocalization.Add<Localization::Description>("description2");
+
+        // Update with no indexed updates should return false
+        REQUIRE(!index.AddOrUpdateManifest(manifest, manifestPath));
+
+        // Update with indexed changes
+        manifest.DefaultLocalization.Add<Localization::PackageName>("Test Name2");
+        manifest.Moniker = "testmoniker2";
+        manifest.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2", "t3" });
+        manifest.Installers[0].Commands = {};
+
+        REQUIRE(index.AddOrUpdateManifest(manifest, manifestPath));
+    }
+}
