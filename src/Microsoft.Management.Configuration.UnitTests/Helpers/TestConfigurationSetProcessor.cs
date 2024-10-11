@@ -12,7 +12,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// <summary>
     /// A test implementation of IConfigurationSetProcessor.
     /// </summary>
-    internal class TestConfigurationSetProcessor : IConfigurationSetProcessor
+    internal partial class TestConfigurationSetProcessor : IConfigurationSetProcessor
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TestConfigurationSetProcessor"/> class.

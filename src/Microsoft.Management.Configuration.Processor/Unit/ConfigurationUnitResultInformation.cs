@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigurationUnitResultInformation.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -12,7 +12,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     /// <summary>
     /// Implements IConfigurationUnitResultInformation.
     /// </summary>
-    internal sealed class ConfigurationUnitResultInformation : IConfigurationUnitResultInformation
+    internal sealed partial class ConfigurationUnitResultInformation : IConfigurationUnitResultInformation
     {
         /// <inheritdoc/>
         public string? Description { get; internal set; }

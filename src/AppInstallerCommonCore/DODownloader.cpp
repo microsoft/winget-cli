@@ -8,20 +8,44 @@
 #include "winget/UserSettings.h"
 
 // TODO: Get this from the Windows SDK when available
-#include "external/do.h"
+#define DODownloadProperty_HttpRedirectionTarget static_cast<DODownloadProperty>(DODownloadProperty_NonVolatile + 1)
+#define DODownloadProperty_HttpResponseHeaders static_cast<DODownloadProperty>(DODownloadProperty_HttpRedirectionTarget + 1)
+#define DODownloadProperty_HttpServerIPAddress static_cast<DODownloadProperty>(DODownloadProperty_HttpResponseHeaders + 1)
+#define DODownloadProperty_HttpStatusCode static_cast<DODownloadProperty>(DODownloadProperty_HttpServerIPAddress + 1)
 
 namespace AppInstaller::Utility
 {
+    namespace
+    {
+        std::optional<std::string> ExtractContentType(const std::optional<std::string>& headers)
+        {
+            if (!headers)
+            {
+                return std::nullopt;
+            }
+
+            static constexpr std::string_view s_ContentType = "content-type:"sv;
+            auto headerLines = Utility::SplitIntoLines(headers.value());
+
+            for (const auto& header : headerLines)
+            {
+                std::string_view headerView = header;
+                if (header.length() >= s_ContentType.length())
+                {
+                    std::string lowerFragment = ToLower(headerView.substr(0, s_ContentType.length()));
+                    if (s_ContentType == lowerFragment)
+                    {
+                        return Trim(header.substr(s_ContentType.length()));
+                    }
+                }
+            }
+
+            return std::nullopt;
+        }
+    }
+
     namespace DeliveryOptimization
     {
-// TODO: Once the SDK headers are available, remove these defines
-#define DO_E_DOWNLOAD_NO_PROGRESS               HRESULT(0x80D02002L)    // Download of a file saw no progress within the defined period
-
-#define DO_E_BLOCKED_BY_COST_TRANSFER_POLICY    HRESULT(0x80D03801L)    // DO core paused the job due to cost policy restrictions
-#define DO_E_BLOCKED_BY_CELLULAR_POLICY         HRESULT(0x80D03803L)    // DO core paused the job due to detection of cellular network and policy restrictions
-#define DO_E_BLOCKED_BY_POWER_STATE             HRESULT(0x80D03804L)    // DO core paused the job due to detection of power state change into non-AC mode
-#define DO_E_BLOCKED_BY_NO_NETWORK              HRESULT(0x80D03805L)    // DO core paused the job due to loss of network connectivity
-
         // Represents a download work item for Delivery Optimization.
         struct Download
         {
@@ -106,6 +130,23 @@ namespace AppInstaller::Utility
                 THROW_IF_FAILED(m_download->SetProperty(prop, &var));
             }
 
+            template<typename T>
+            std::optional<T> TryGetProperty(DODownloadProperty prop)
+            {
+                std::optional<T> result;
+                wil::unique_variant var;
+                HRESULT hr = m_download->GetProperty(prop, &var);
+                if (SUCCEEDED(hr))
+                {
+                    T value;
+                    if (ExtractFromVariant(var, value))
+                    {
+                        result = std::move(value);
+                    }
+                }
+                return result;
+            }
+
             void Uri(std::string_view uri)
             {
                 SetProperty(DODownloadProperty_Uri, uri);
@@ -186,6 +227,22 @@ namespace AppInstaller::Utility
             }
 
         private:
+            bool ExtractFromVariant(const VARIANT& var, std::string& value)
+            {
+                if (var.vt == VT_BSTR && var.bstrVal != nullptr)
+                {
+                    value = Utility::ConvertToUTF8(var.bstrVal);
+                    return true;
+                }
+                else if (var.vt == (VT_BSTR | VT_BYREF) && var.pbstrVal != nullptr && *var.pbstrVal != nullptr)
+                {
+                    value = Utility::ConvertToUTF8(*var.pbstrVal);
+                    return true;
+                }
+
+                return false;
+            }
+
             wil::com_ptr<IDODownload> m_download;
         };
 
@@ -221,7 +278,7 @@ namespace AppInstaller::Utility
             {
             }
 
-            IFACEMETHOD(OnStatusChange)(IDODownload*, DO_DOWNLOAD_STATUS* status)
+            IFACEMETHOD(OnStatusChange)(IDODownload*, const DO_DOWNLOAD_STATUS* status)
             {
                 {
                     std::lock_guard<std::mutex> guard(m_statusMutex);
@@ -341,11 +398,10 @@ namespace AppInstaller::Utility
     // Debugging tip:
     // From an elevated PowerShell, run:
     // > Get-DeliveryOptimizationLog | Set-Content doLogs.txt
-    std::optional<std::vector<BYTE>> DODownload(
+    DownloadResult DODownload(
         const std::string& url,
         const std::filesystem::path& dest,
         IProgressCallback& progress,
-        bool computeHash,
         std::optional<DownloadInfo> info)
     {
         AICLI_LOG(Core, Info, << "DeliveryOptimization downloading from url: " << url);
@@ -397,15 +453,22 @@ namespace AppInstaller::Utility
         // Wait returns true for success, false for cancellation, and throws on error.
         if (callback->Wait())
         {
+            // Grab the headers so that we can use them later
+            std::optional<std::string> responseHeaders = download.TryGetProperty<std::string>(DODownloadProperty_HttpResponseHeaders);
+
             // Finalize is required to flush the data and change the file name.
             download.Finalize();
             AICLI_LOG(Core, Info, << "Download completed.");
 
-            if (computeHash)
-            {
-                std::ifstream inStream{ dest, std::ifstream::binary };
-                return SHA256::ComputeHash(inStream);
-            }
+            std::ifstream inStream{ dest, std::ifstream::binary };
+            auto hashDetails = SHA256::ComputeHashDetails(inStream);
+
+            DownloadResult result;
+            result.Sha256Hash = std::move(hashDetails.Hash);
+            result.SizeInBytes = hashDetails.SizeInBytes;
+            result.ContentType = ExtractContentType(responseHeaders);
+
+            return result;
         }
 
         return {};

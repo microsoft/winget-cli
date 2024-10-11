@@ -70,7 +70,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
             {
                 installer.Dependencies.ApplyToType(dependencyType, [&](Manifest::Dependency dependency)
                 {
-                    auto packageRowId = IdTable::SelectIdByValue(connection, dependency.Id());
+                    auto packageRowId = IdTable::SelectIdByValue(connection, dependency.Id(), true);
                     std::optional<Utility::NormalizedString> version;
 
                     if (!packageRowId.has_value())

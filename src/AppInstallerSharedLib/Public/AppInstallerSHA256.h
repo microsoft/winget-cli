@@ -23,6 +23,12 @@ namespace AppInstaller::Utility {
         constexpr static size_t HashBufferSizeInBytes = 32;
         constexpr static size_t HashStringSizeInChars = 64;
 
+        struct HashDetails
+        {
+            HashBuffer Hash;
+            uint64_t SizeInBytes = 0;
+        };
+
         SHA256();
 
         // Adds the next chunk of data to the hash.
@@ -55,6 +61,9 @@ namespace AppInstaller::Utility {
 
         // Computes the hash from a given stream.
         static HashBuffer ComputeHash(std::istream& in);
+
+        // Computes the hash from a given stream.
+        static HashDetails ComputeHashDetails(std::istream& in);
 
         // Computes the hash from a given file path.
         static HashBuffer ComputeHashFromFile(const std::filesystem::path& path);

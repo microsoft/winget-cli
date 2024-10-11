@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ApplyGroupSettingsResultInstance.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -11,7 +11,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// <summary>
     /// Implements IApplyGroupSettingsResult.
     /// </summary>
-    internal sealed class ApplyGroupSettingsResultInstance : IApplyGroupSettingsResult
+    internal sealed partial class ApplyGroupSettingsResultInstance : IApplyGroupSettingsResult
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplyGroupSettingsResultInstance"/> class.

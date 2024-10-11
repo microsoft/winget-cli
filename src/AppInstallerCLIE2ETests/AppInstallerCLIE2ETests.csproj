@@ -8,6 +8,11 @@
     <OutputType>Library</OutputType>
     <DocumentationFile>$(OutDir)\AppInstallerCLIE2ETests.xml</DocumentationFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!--
+    Forcing this version to continue using an older CsWinRT release while issues are resolved.
+    !!! Remove this on the next Microsoft.Windows.CsWinRT package version update. !!!
+    -->
+    <WindowsSdkPackageVersion>10.0.22000.34</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -55,6 +60,7 @@
   <ItemGroup>
     <None Remove="TestData\Configuration\ShowDetails_TestRepo_0_3.yml" />
     <None Remove="TestData\Configuration\WithParameters_0_3.yml" />
+    <None Remove="TestData\empty" />
     <None Remove="TestData\Manifests\TestUpgradeAddsDependency.1.0.yaml" />
     <None Remove="TestData\Manifests\TestUpgradeAddsDependency.2.0.yaml" />
     <None Remove="TestData\Manifests\TestUpgradeAddsDependencyDependent.1.0.yaml" />

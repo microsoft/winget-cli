@@ -71,6 +71,7 @@ The **add** sub-command also supports the optional **type** parameter. The **typ
 | Type  | Description |
 |--------------|-------------|
 | **Microsoft.PreIndexed.Package** | The type of source \<default>. |
+| **Microsoft.Rest** | A Microsoft REST API source. |
 
 ## list
 
