@@ -3241,7 +3241,7 @@ TEST_CASE("SQLiteIndex_RemoveManifestArpVersionKeepUsedDeleteUnused", "[sqlitein
     }
 }
 
-TEST_CASE("SQLiteIndex_ManifestArpVersion_CheckConsistency", "[sqliteindex]")
+TEST_CASE("SQLiteIndex_ManifestArpVersionConflict_AddThrows", "[sqliteindex]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -3267,9 +3267,44 @@ TEST_CASE("SQLiteIndex_ManifestArpVersion_CheckConsistency", "[sqliteindex]")
     // Add a conflicting one
     manifest.Version = "10.1";
 
-    index.AddManifest(manifest, "path2");
+    REQUIRE_THROWS_HR(index.AddManifest(manifest, "path2"), APPINSTALLER_CLI_ERROR_ARP_VERSION_VALIDATION_FAILED);
+}
 
-    REQUIRE_FALSE(index.CheckConsistency(true));
+TEST_CASE("SQLiteIndex_ManifestArpVersionConflict_UpdateThrows", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = CreateTestIndex(tempFile, SQLiteVersion::Latest());
+
+    Manifest manifest;
+    manifest.Id = "Foo";
+    manifest.Version = "10.0";
+    manifest.DefaultLocalization.Add<Localization::PackageName>("ArpVersionCheckConsistencyTest");
+    manifest.Moniker = "testmoniker";
+    manifest.Installers.push_back({});
+    manifest.Installers[0].BaseInstallerType = InstallerTypeEnum::Exe;
+    manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+    manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
+    manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+    manifest.Installers[0].AppsAndFeaturesEntries[1].DisplayVersion = "1.1";
+
+    index.AddManifest(manifest, "path");
+    REQUIRE(index.CheckConsistency(true));
+
+    // Add another version
+    manifest.Version = "10.1";
+    manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "2.0";
+    manifest.Installers[0].AppsAndFeaturesEntries[1].DisplayVersion = "2.1";
+
+    index.AddManifest(manifest, "path2");
+    REQUIRE(index.CheckConsistency(true));
+
+    // Update to a conflict
+    manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
+    manifest.Installers[0].AppsAndFeaturesEntries[1].DisplayVersion = "2.1";
+
+    REQUIRE_THROWS_HR(index.UpdateManifest(manifest, "path2"), APPINSTALLER_CLI_ERROR_ARP_VERSION_VALIDATION_FAILED);
 }
 
 TEST_CASE("SQLiteIndex_ManifestArpVersion_ValidateManifestAgainstIndex", "[sqliteindex]")
