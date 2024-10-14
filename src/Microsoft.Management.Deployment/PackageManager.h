@@ -47,7 +47,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // Contract 11.0
         winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::AddPackageCatalogResult, double>
             AddPackageCatalogAsync(winrt::Microsoft::Management::Deployment::AddPackageCatalogOptions options);
-        winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double> RemovePackageCatalogAsync(RemovePackageCatalogOptions options);
+        winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double>
+            RemovePackageCatalogAsync(winrt::Microsoft::Management::Deployment::RemovePackageCatalogOptions options);
     };
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
