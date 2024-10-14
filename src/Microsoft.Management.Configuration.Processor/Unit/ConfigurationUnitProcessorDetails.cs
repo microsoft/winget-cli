@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigurationUnitProcessorDetails.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -18,7 +18,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     /// <summary>
     /// Provides information for a specific configuration unit within the runtime.
     /// </summary>
-    internal sealed class ConfigurationUnitProcessorDetails : IConfigurationUnitProcessorDetails
+    internal sealed partial class ConfigurationUnitProcessorDetails : IConfigurationUnitProcessorDetails
     {
         private static readonly IEnumerable<string> PublicRepositories = new string[]
         {

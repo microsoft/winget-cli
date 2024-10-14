@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="GetAllSettingsResult.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -13,7 +13,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     /// <summary>
     /// Implements IGetAllSettingsResult.
     /// </summary>
-    internal class GetAllSettingsResult : IGetAllSettingsResult
+    internal partial class GetAllSettingsResult : IGetAllSettingsResult
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="GetAllSettingsResult"/> class.

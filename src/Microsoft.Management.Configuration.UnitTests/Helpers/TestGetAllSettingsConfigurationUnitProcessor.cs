@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="TestGetAllSettingsConfigurationUnitProcessor.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -9,7 +9,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// <summary>
     /// A test implementation of IConfigurationProcessorFactory.
     /// </summary>
-    internal class TestGetAllSettingsConfigurationUnitProcessor : TestConfigurationUnitProcessor, IGetAllSettingsConfigurationUnitProcessor
+    internal partial class TestGetAllSettingsConfigurationUnitProcessor : TestConfigurationUnitProcessor, IGetAllSettingsConfigurationUnitProcessor
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TestGetAllSettingsConfigurationUnitProcessor"/> class.

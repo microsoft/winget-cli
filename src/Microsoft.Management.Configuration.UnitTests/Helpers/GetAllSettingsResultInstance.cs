@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="GetAllSettingsResultInstance.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -13,7 +13,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// <summary>
     /// Implements IGetAllSettingsResult.
     /// </summary>
-    internal sealed class GetAllSettingsResultInstance : IGetAllSettingsResult
+    internal sealed partial class GetAllSettingsResultInstance : IGetAllSettingsResult
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="GetAllSettingsResultInstance"/> class.

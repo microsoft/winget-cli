@@ -18,7 +18,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     /// <summary>
     /// Provides access to a specific configuration unit within the runtime.
     /// </summary>
-    internal sealed class ConfigurationUnitProcessor : IConfigurationUnitProcessor
+    internal sealed partial class ConfigurationUnitProcessor : IConfigurationUnitProcessor
     {
         private readonly IProcessorEnvironment processorEnvironment;
         private readonly ConfigurationUnitAndResource unitResource;

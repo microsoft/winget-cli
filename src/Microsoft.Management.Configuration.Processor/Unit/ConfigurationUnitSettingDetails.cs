@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigurationUnitSettingDetails.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -13,7 +13,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     /// <summary>
     /// Provides information for a specific configuration unit setting.
     /// </summary>
-    internal sealed class ConfigurationUnitSettingDetails : IConfigurationUnitSettingDetails
+    internal sealed partial class ConfigurationUnitSettingDetails : IConfigurationUnitSettingDetails
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationUnitSettingDetails"/> class.

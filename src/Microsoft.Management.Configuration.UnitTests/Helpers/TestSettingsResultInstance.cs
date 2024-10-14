@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="TestSettingsResultInstance.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -11,7 +11,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// <summary>
     /// Implements ITestSettingsResult.
     /// </summary>
-    internal sealed class TestSettingsResultInstance : ITestSettingsResult
+    internal sealed partial class TestSettingsResultInstance : ITestSettingsResult
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TestSettingsResultInstance"/> class.

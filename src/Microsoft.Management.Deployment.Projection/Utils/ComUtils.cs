@@ -1,14 +1,16 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace Microsoft.Management.Deployment.Projection
 {
     using System;
     using System.Runtime.InteropServices;
-    using WinRT;
 
     internal static class ComUtils
     {
+        [DllImport("api-ms-win-core-com-l1-1-0.dll")]
+        private static extern unsafe int CoCreateInstance(ref Guid clsid, IntPtr outer, uint clsContext, ref Guid iid, IntPtr* instance);
+
         /// <summary>
         /// CLSCTX enumeration
         /// https://docs.microsoft.com/en-us/windows/win32/api/wtypesbase/ne-wtypesbase-clsctx
@@ -31,7 +33,7 @@ namespace Microsoft.Management.Deployment.Projection
         private static unsafe IntPtr CoCreateInstance(Guid clsid, CLSCTX clsContext, Guid iid)
         {
             IntPtr instanceIntPtr;
-            int hr = Platform.CoCreateInstance(ref clsid, IntPtr.Zero, (uint)clsContext, ref iid, &instanceIntPtr);
+            int hr = CoCreateInstance(ref clsid, IntPtr.Zero, (uint)clsContext, ref iid, &instanceIntPtr);
             Marshal.ThrowExceptionForHR(hr);
             return instanceIntPtr;
         }

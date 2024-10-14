@@ -158,6 +158,14 @@ extern "C"
         WINGET_STRING relativePath,
         BOOL* indexModified);
 
+    // Adds or Updates the manifest with matching { Id, Version, Channel } in the index.
+    // The return value indicates whether the index was modified by the function.
+    WINGET_UTIL_API WinGetSQLiteIndexAddOrUpdateManifest(
+        WINGET_SQLITE_INDEX_HANDLE index,
+        WINGET_STRING manifestPath,
+        WINGET_STRING relativePath,
+        BOOL* indexModified);
+
     // Removes the manifest with matching { Id, Version, Channel } from the index.
     // Path is currently ignored.
     WINGET_UTIL_API WinGetSQLiteIndexRemoveManifest(

@@ -3241,7 +3241,7 @@ TEST_CASE("SQLiteIndex_RemoveManifestArpVersionKeepUsedDeleteUnused", "[sqlitein
     }
 }
 
-TEST_CASE("SQLiteIndex_ManifestArpVersion_CheckConsistency", "[sqliteindex]")
+TEST_CASE("SQLiteIndex_ManifestArpVersionConflict_AddThrows", "[sqliteindex]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -3267,9 +3267,44 @@ TEST_CASE("SQLiteIndex_ManifestArpVersion_CheckConsistency", "[sqliteindex]")
     // Add a conflicting one
     manifest.Version = "10.1";
 
-    index.AddManifest(manifest, "path2");
+    REQUIRE_THROWS_HR(index.AddManifest(manifest, "path2"), APPINSTALLER_CLI_ERROR_ARP_VERSION_VALIDATION_FAILED);
+}
 
-    REQUIRE_FALSE(index.CheckConsistency(true));
+TEST_CASE("SQLiteIndex_ManifestArpVersionConflict_UpdateThrows", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = CreateTestIndex(tempFile, SQLiteVersion::Latest());
+
+    Manifest manifest;
+    manifest.Id = "Foo";
+    manifest.Version = "10.0";
+    manifest.DefaultLocalization.Add<Localization::PackageName>("ArpVersionCheckConsistencyTest");
+    manifest.Moniker = "testmoniker";
+    manifest.Installers.push_back({});
+    manifest.Installers[0].BaseInstallerType = InstallerTypeEnum::Exe;
+    manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+    manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
+    manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+    manifest.Installers[0].AppsAndFeaturesEntries[1].DisplayVersion = "1.1";
+
+    index.AddManifest(manifest, "path");
+    REQUIRE(index.CheckConsistency(true));
+
+    // Add another version
+    manifest.Version = "10.1";
+    manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "2.0";
+    manifest.Installers[0].AppsAndFeaturesEntries[1].DisplayVersion = "2.1";
+
+    index.AddManifest(manifest, "path2");
+    REQUIRE(index.CheckConsistency(true));
+
+    // Update to a conflict
+    manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
+    manifest.Installers[0].AppsAndFeaturesEntries[1].DisplayVersion = "2.1";
+
+    REQUIRE_THROWS_HR(index.UpdateManifest(manifest, "path2"), APPINSTALLER_CLI_ERROR_ARP_VERSION_VALIDATION_FAILED);
 }
 
 TEST_CASE("SQLiteIndex_ManifestArpVersion_ValidateManifestAgainstIndex", "[sqliteindex]")
@@ -3834,4 +3869,69 @@ TEST_CASE("SQLiteIndex_V2_0_UsageFlow_ComplexMigration", "[sqliteindex][V2_0]")
     }
 
     MigratePrepareAndCheckIntermediates(baseFile, preparedFile, { { manifest2 }, { manifest1, manifest3, manifest4 } });
+}
+
+TEST_CASE("SQLiteIndex_DependencyWithCaseMismatch", "[sqliteindex][V1_4]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest dependencyManifest1, dependencyManifest2, manifest;
+    SQLiteIndex index = SimpleTestSetup(tempFile, dependencyManifest1, SQLiteVersion::Latest());
+
+    // Must contain some upper case
+    auto& publisher2 = "Test2";
+    CreateFakeManifest(dependencyManifest2, publisher2);
+    index.AddManifest(dependencyManifest2, GetPathFromManifest(dependencyManifest2));
+
+    auto& publisher3 = "Test3";
+    CreateFakeManifest(manifest, publisher3);
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, dependencyManifest1.Id, "1.0.0"));
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, ToLower(dependencyManifest2.Id), "1.0.0"));
+
+    index.AddManifest(manifest, GetPathFromManifest(manifest));
+}
+
+TEST_CASE("SQLiteIndex_AddOrUpdateManifest", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string manifestPath = "test/id/test.id-1.0.0.yaml";
+    Manifest manifest;
+    manifest.Installers.push_back({});
+    manifest.Id = "test.id";
+    manifest.DefaultLocalization.Add < Localization::PackageName>("Test Name");
+    manifest.Moniker = "testmoniker";
+    manifest.Version = "1.0.0";
+    manifest.Channel = "test";
+    manifest.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2" });
+    manifest.Installers[0].Commands = { "test1", "test2" };
+
+    {
+        auto version = GENERATE(SQLiteVersion{ 1, 0 }, SQLiteVersion::Latest());
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, version);
+
+        REQUIRE(index.AddOrUpdateManifest(manifest, manifestPath));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+
+        // Update with no updates should return false
+        REQUIRE(!index.AddOrUpdateManifest(manifest, manifestPath));
+
+        manifest.DefaultLocalization.Add<Localization::Description>("description2");
+
+        // Update with no indexed updates should return false
+        REQUIRE(!index.AddOrUpdateManifest(manifest, manifestPath));
+
+        // Update with indexed changes
+        manifest.DefaultLocalization.Add<Localization::PackageName>("Test Name2");
+        manifest.Moniker = "testmoniker2";
+        manifest.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2", "t3" });
+        manifest.Installers[0].Commands = {};
+
+        REQUIRE(index.AddOrUpdateManifest(manifest, manifestPath));
+    }
 }

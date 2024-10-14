@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="TestConfigurationUnitResultInformation.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -12,7 +12,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// <summary>
     /// A test implementation of IConfigurationSetProcessorFactory.
     /// </summary>
-    internal class TestConfigurationUnitResultInformation : IConfigurationUnitResultInformation
+    internal partial class TestConfigurationUnitResultInformation : IConfigurationUnitResultInformation
     {
         /// <summary>
         /// Gets or sets the description.
