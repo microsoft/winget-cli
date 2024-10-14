@@ -5,7 +5,6 @@
 #include "Workflows/DownloadFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/PromptFlow.h"
-#include "Workflows/SmartScreenFlow.h"
 #include "Resources.h"
 #include <AppInstallerRuntime.h>
 #include <winget/ManifestCommon.h>
@@ -105,7 +104,6 @@ namespace AppInstaller::CLI
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::DownloadPackageDependencies <<
-            Workflow::EvaluateUri <<
             Workflow::DownloadInstaller;
     }
 }

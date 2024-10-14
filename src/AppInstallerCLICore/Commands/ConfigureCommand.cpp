@@ -8,7 +8,6 @@
 #include "ConfigureValidateCommand.h"
 #include "ConfigureExportCommand.h"
 #include "Workflows/ConfigurationFlow.h"
-#include "Workflows/SmartScreenFlow.h"
 #include "Workflows/MSStoreInstallerHandler.h"
 #include "ConfigurationCommon.h"
 
@@ -78,7 +77,6 @@ namespace AppInstaller::CLI
             context <<
                 VerifyIsFullPackage <<
                 VerifyFileOrUri(Execution::Args::Type::ConfigurationFile) <<
-                EvaluateUri <<
                 CreateConfigurationProcessor <<
                 OpenConfigurationSet <<
                 ShowConfigurationSet <<

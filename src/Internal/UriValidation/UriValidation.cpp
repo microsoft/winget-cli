@@ -21,6 +21,7 @@ namespace AppInstaller::UriValidation
     UriValidationResult ValidateUri(const std::string& uri)
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
+        // For testing purposes, block all URIs that end with "/block"
         if (EndsWith(uri, "/block"))
         {
             return UriValidationResult(UriValidationDecision::Block, std::string());

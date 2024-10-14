@@ -115,10 +115,9 @@ namespace AppInstaller::CLI::Workflow
         return S_OK;
     }
 
-    void EvaluateUri(Execution::Context& context)
+    void ExecuteSmartScreen::operator()(Execution::Context& context) const
     {
-        // DSC
-        if (context.Args.Contains(Execution::Args::Type::ConfigurationFile))
+        if (m_isConfigurationFlow)
         {
             auto uriValidation = EvaluateConfigurationUri(context);
             if(FAILED(uriValidation))
