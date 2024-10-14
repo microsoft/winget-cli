@@ -62,6 +62,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_explicit = value;
     }
+    bool AddPackageCatalogOptions::AcceptSourceAgreements()
+    {
+        return m_acceptSourceAgreements;
+    }
+    void AddPackageCatalogOptions::AcceptSourceAgreements(bool const& value)
+    {
+        m_acceptSourceAgreements = value;
+    }
 
     CoCreatableMicrosoftManagementDeploymentClass(AddPackageCatalogOptions);
 }

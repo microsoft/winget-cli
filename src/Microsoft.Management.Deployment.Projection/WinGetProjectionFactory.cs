@@ -38,5 +38,7 @@ namespace Microsoft.Management.Deployment.Projection
         public RepairOptions CreateRepairOptions() => InstanceInitializer.CreateInstance<RepairOptions>();
 
         public AddPackageCatalogOptions CreateAddPackageCatalogOptions() => InstanceInitializer.CreateInstance<AddPackageCatalogOptions>();
+
+        public RemovePackageCatalogOptions CreateRemovePackageCatalogOptions() => InstanceInitializer.CreateInstance<RemovePackageCatalogOptions>();
     }
 }

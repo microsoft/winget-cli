@@ -290,24 +290,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return m_authenticationInfo;
     }
 
-    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double>PackageCatalogReference::RemovePackageCatalogAsync(RemovePackageCatalogOptions options)
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult, double> PackageCatalogReference::RefreshPackageCatalogAsync()
     {
         // TODO: Add PackageQuery capability check
 
-        // TODO: Add Admin check
-
-
-        // TODO: Implement RemovePackageCatalogAsync
-        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double>();
-    }
-
-    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::UpdatePackageCatalogResult, double> PackageCatalogReference::UpdatePackageCatalogAsync()
-    {
-        // TODO: Add PackageQuery capability check
-
-        // TODO: Add Admin check
-
-        // TODO: Implement UpdatePackageCatalogAsync
-        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::UpdatePackageCatalogResult, double>();
+        // TODO: Implement RefreshPackageCatalogAsync
+        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult, double>();
     }
 }

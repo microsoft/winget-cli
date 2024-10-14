@@ -863,19 +863,8 @@ namespace Microsoft.Management.Deployment
         }
     }
 
-    /// IMPLEMENTATION NOTE: RemovePackageCatalogOptions
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    enum RemovePackageCatalogOptions
-    {
-        /// Removes the package catalog from the Windows Package Catalogs list without performing any cleanup. This is similar to the WinGet source reset operation on a specific Package Catalog.
-        Drop = 0x1,
-        /// Removes the package catalog from the Windows Package Catalogs list and clears any data written to the system by the package catalog.
-        Remove = 0x2,
-    };
-
-    /// IMPLEMENTATION NOTE: RemovePackageCatalogStatus
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    enum RemovePackageCatalogStatus
+    enum RefreshPackageCatalogStatus
     {
         Ok,
         GroupPolicyError,
@@ -883,31 +872,11 @@ namespace Microsoft.Management.Deployment
         InternalError,
     };
 
-    /// IMPLEMENTATION NOTE: RemovePackageCatalogResult
-    /// Result of removing a package catalog.
+    /// IMPLEMENTATION NOTE: RefreshPackageCatalogResult
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    runtimeclass RemovePackageCatalogResult
+    runtimeclass RefreshPackageCatalogResult
     {
-        RemovePackageCatalogStatus Status { get; };
-
-        /// Error codes
-        HRESULT ExtendedErrorCode { get; };
-    };
-
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    enum UpdatePackageCatalogStatus
-    {
-        Ok,
-        GroupPolicyError,
-        CatalogError,
-        InternalError,
-    };
-
-    /// IMPLEMENTATION NOTE: UpdatePackageCatalogResult
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
-    runtimeclass UpdatePackageCatalogResult
-    {
-        UpdatePackageCatalogStatus Status { get; };
+        RefreshPackageCatalogStatus Status { get; };
 
         /// Error codes
         HRESULT ExtendedErrorCode { get; };
@@ -970,11 +939,8 @@ namespace Microsoft.Management.Deployment
 
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
         {
-            /// Removes a catalog from the Windows Package Catalogs.
-            Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, Double> RemovePackageCatalogAsync(RemovePackageCatalogOptions options);
-
             /// Updates the package catalog.
-            Windows.Foundation.IAsyncOperationWithProgress<UpdatePackageCatalogResult, Double> UpdatePackageCatalogAsync();
+            Windows.Foundation.IAsyncOperationWithProgress<RefreshPackageCatalogResult, Double> RefreshPackageCatalogAsync();
         }
     }
 
@@ -1439,6 +1405,9 @@ namespace Microsoft.Management.Deployment
 
         /// Excludes a source from discovery unless specified.
         Boolean Explicit;
+
+        /// PacakageCatalog Source agreement.
+        Boolean AcceptSourceAgreements;
     };
 
     /// IMPLEMENTATION NOTE: AddPackageCatalogStatus
@@ -1449,6 +1418,8 @@ namespace Microsoft.Management.Deployment
         GroupPolicyError,
         CatalogError,
         InternalError,
+        InvalidOptions,
+        AccessDenied,
     };
 
     /// IMPLEMENTATION NOTE: AddPackageCatalogResult
@@ -1456,6 +1427,48 @@ namespace Microsoft.Management.Deployment
     runtimeclass AddPackageCatalogResult
     {
         AddPackageCatalogStatus Status { get; };
+
+        /// Error codes
+        HRESULT ExtendedErrorCode { get; };
+    };
+
+    /// IMPLEMENTATION NOTE: RemovePackageCatalogOptions
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    runtimeclass RemovePackageCatalogOptions
+    {
+        RemovePackageCatalogOptions();
+
+        /// The name of the package catalog. 
+        /// SAMPLE VALUES: For OpenWindowsCatalog "winget".
+        /// For contoso sample on msdn "contoso"
+        String Name;
+
+        /// By default, the value is 'false', resulting in the removal of the package catalog registration
+        /// from the winget Package catalogs list and the deletion of all associated system artifacts. This 
+        /// mirrors the WinGet Source remove operation on a specific Package Catalog. 
+        /// If set to 'true', it removes the package catalog registration from the Windows Package Catalogs
+        /// list without any cleanup, similar to the WinGet source reset operation on a specific Package
+        /// Catalog.
+        Boolean PreserveData;
+    };
+
+    /// IMPLEMENTATION NOTE: RemovePackageCatalogStatus
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    enum RemovePackageCatalogStatus
+    {
+        Ok,
+        GroupPolicyError,
+        CatalogError,
+        InternalError,
+        AccessDenied,
+    };
+
+    /// IMPLEMENTATION NOTE: RemovePackageCatalogResult
+/// Result of removing a package catalog.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    runtimeclass RemovePackageCatalogResult
+    {
+        RemovePackageCatalogStatus Status { get; };
 
         /// Error codes
         HRESULT ExtendedErrorCode { get; };
@@ -1482,7 +1495,11 @@ namespace Microsoft.Management.Deployment
 
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
         {
+            /// Add a catalog to the Windows Package Catalogs.
             Windows.Foundation.IAsyncOperationWithProgress<AddPackageCatalogResult, Double> AddPackageCatalogAsync(AddPackageCatalogOptions options);
+
+            /// Removes a catalog from the Windows Package Catalogs.
+            Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, Double> RemovePackageCatalogAsync(RemovePackageCatalogOptions options);
         }
 
         /// Install the specified package

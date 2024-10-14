@@ -1199,8 +1199,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::AddPackageCatalogResult, double> PackageManager::AddPackageCatalogAsync(winrt::Microsoft::Management::Deployment::AddPackageCatalogOptions options)
     {
+        UNREFERENCED_PARAMETER(options);
+
         // TODO: Implement AddPackageCatalogAsync
         return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::AddPackageCatalogResult, double>();
+    }
+
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double> PackageManager::RemovePackageCatalogAsync(winrt::Microsoft::Management::Deployment::RemovePackageCatalogOptions options)
+    {
+        UNREFERENCED_PARAMETER(options);
+
+        // TODO: Implement RemovePackageCatalogAsync
+        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double>();
     }
 
     CoCreatableMicrosoftManagementDeploymentClass(PackageManager);

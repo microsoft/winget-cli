@@ -219,13 +219,14 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\CoCreatableMicrosoftManagementDeploymentClass.h" />
     <ClInclude Include="Public\ComClsids.h" />
+    <ClInclude Include="RemovePackageCatalogOptions.h" />
     <ClInclude Include="RepairOptions.h" />
     <ClInclude Include="RepairResult.h" />
     <ClInclude Include="RemovePackageCatalogResult.h" />
     <ClInclude Include="SourceAgreement.h" />
     <ClInclude Include="UninstallOptions.h" />
     <ClInclude Include="UninstallResult.h" />
-    <ClInclude Include="UpdatePackageCatalogResult.h" />
+    <ClInclude Include="RefreshPackageCatalogResult.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AddPackageCatalogOptions.cpp" />
@@ -265,6 +266,7 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="RemovePackageCatalogOptions.cpp" />
     <ClCompile Include="RepairOptions.cpp" />
     <ClCompile Include="RepairResult.cpp" />
     <ClCompile Include="RemovePackageCatalogResult.cpp" />
@@ -272,7 +274,7 @@
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
     <ClCompile Include="UninstallOptions.cpp" />
     <ClCompile Include="UninstallResult.cpp" />
-    <ClCompile Include="UpdatePackageCatalogResult.cpp" />
+    <ClCompile Include="RefreshPackageCatalogResult.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Microsoft_Management_Deployment.def" />

@@ -1,26 +1,26 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "UpdatePackageCatalogResult.h"
-#include "UpdatePackageCatalogResult.g.cpp"
+#include "RefreshPackageCatalogResult.h"
+#include "RefreshPackageCatalogResult.g.cpp"
 #include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    void UpdatePackageCatalogResult::Initialize(
-        winrt::Microsoft::Management::Deployment::UpdatePackageCatalogStatus status,
+    void RefreshPackageCatalogResult::Initialize(
+        winrt::Microsoft::Management::Deployment::RefreshPackageCatalogStatus status,
         winrt::hresult extendedErrorCode)
     {
         m_status = status;
         m_extendedErrorCode = extendedErrorCode;
     }
 
-    winrt::Microsoft::Management::Deployment::UpdatePackageCatalogStatus UpdatePackageCatalogResult::Status()
+    winrt::Microsoft::Management::Deployment::RefreshPackageCatalogStatus RefreshPackageCatalogResult::Status()
     {
         return m_status;
     }
 
-    winrt::hresult UpdatePackageCatalogResult::ExtendedErrorCode()
+    winrt::hresult RefreshPackageCatalogResult::ExtendedErrorCode()
     {
         return m_extendedErrorCode;
     }

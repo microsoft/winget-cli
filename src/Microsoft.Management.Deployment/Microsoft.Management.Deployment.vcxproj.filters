@@ -43,7 +43,8 @@
     <ClCompile Include="AddPackageCatalogOptions.cpp" />
     <ClCompile Include="AddPackageCatalogResult.cpp" />
     <ClCompile Include="RemovePackageCatalogResult.cpp" />
-    <ClCompile Include="UpdatePackageCatalogResult.cpp" />
+    <ClCompile Include="RefreshPackageCatalogResult.cpp" />
+    <ClCompile Include="RemovePackageCatalogOptions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
@@ -92,7 +93,8 @@
     <ClInclude Include="AddPackageCatalogOptions.h" />
     <ClInclude Include="AddPackageCatalogResult.h" />
     <ClInclude Include="RemovePackageCatalogResult.h" />
-    <ClInclude Include="UpdatePackageCatalogResult.h" />
+    <ClInclude Include="RefreshPackageCatalogResult.h" />
+    <ClInclude Include="RemovePackageCatalogOptions.h" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="PackageManager.idl" />
@@ -106,5 +108,8 @@
     <Filter Include="Public">
       <UniqueIdentifier>{9c3907ed-84d9-4485-9b15-04c50717f0ab}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>
