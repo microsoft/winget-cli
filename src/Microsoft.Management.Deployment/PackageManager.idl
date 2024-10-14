@@ -1406,7 +1406,7 @@ namespace Microsoft.Management.Deployment
         /// Excludes a source from discovery unless specified.
         Boolean Explicit;
 
-        /// PacakageCatalog Source agreement.
+        /// PackageCatalog Source agreement.
         Boolean AcceptSourceAgreements;
     };
 
