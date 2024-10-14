@@ -683,6 +683,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeRequireExplicitCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionExplanation);
+        WINGET_DEFINE_RESOURCE_STRINGID(UriBlockedBySmartScreen);
+        WINGET_DEFINE_RESOURCE_STRINGID(UriZoneBlockedByPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(UriNotWellFormed);
         WINGET_DEFINE_RESOURCE_STRINGID(UriSchemeNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(Usage);

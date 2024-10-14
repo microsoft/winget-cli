@@ -7,20 +7,22 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    // Check if smart screen is required for a given zone.
     bool IsSmartScreenRequired(Settings::SecurityZoneOptions zone)
     {
         return zone == Settings::SecurityZoneOptions::Internet
             || zone == Settings::SecurityZoneOptions::UntrustedSites;
     }
 
-    // Validate smart screen for a given url.
-    bool IsBlockedBySmartScreen(Execution::Context& context, const std::string& url)
+    // Check if the given uri is blocked by smart screen.
+    bool IsBlockedBySmartScreen(Execution::Context& context, const std::string& uri)
     {
-        auto response = AppInstaller::UriValidation::ValidateUri(url);
+        auto response = AppInstaller::UriValidation::ValidateUri(uri);
         switch (response.Decision())
         {
         case AppInstaller::UriValidation::UriValidationDecision::Block:
-            context.Reporter.Error() << std::endl << "Blocked by smart screen" << std::endl << "Feedback: " << response.Feedback() << std::endl;
+            AICLI_LOG(Config, Error, << "URI '" << uri << "' was blocked by smart screen. Feedback URL: " << response.Feedback());
+            context.Reporter.Error() << Resource::String::UriBlockedBySmartScreen << std::endl;
             return true;
         case AppInstaller::UriValidation::UriValidationDecision::Allow:
         default:
@@ -33,7 +35,13 @@ namespace AppInstaller::CLI::Workflow
     {
         DWORD dwZone;
         auto pInternetSecurityManager = winrt::create_instance<IInternetSecurityManager>(CLSID_InternetSecurityManager, CLSCTX_ALL);
-        pInternetSecurityManager->MapUrlToZone(AppInstaller::Utility::ConvertToUTF16(uri).c_str(), &dwZone, 0);
+        auto mapResult = pInternetSecurityManager->MapUrlToZone(AppInstaller::Utility::ConvertToUTF16(uri).c_str(), &dwZone, 0);
+
+        // Treat invalid uri argument as local machine
+        if (mapResult == E_INVALIDARG)
+        {
+            return Settings::SecurityZoneOptions::LocalMachine;
+        }
 
         // Treat all zones higher than untrusted as untrusted
         if (dwZone > static_cast<DWORD>(Settings::SecurityZoneOptions::UntrustedSites))
@@ -63,7 +71,7 @@ namespace AppInstaller::CLI::Workflow
         auto isAllowed = configurationPolicies->at(zone);
         if(!isAllowed)
         {
-            context.Reporter.Error() << "Configuration is disabled for Zone: " << zone << std::endl;
+            context.Reporter.Error() << Resource::String::UriZoneBlockedByPolicy << std::endl;
             return true;
         }
 
@@ -71,6 +79,7 @@ namespace AppInstaller::CLI::Workflow
         return false;
     }
 
+    // Evaluate the given uri for group policy and smart screen.
     HRESULT EvaluateUri(Execution::Context& context, const std::string& uri)
     {
         auto zone = GetUriZone(uri);
@@ -87,6 +96,7 @@ namespace AppInstaller::CLI::Workflow
         return S_OK;
     }
 
+    // Evaluate the configuration uri for group policy and smart screen.
     HRESULT EvaluateConfigurationUri(Execution::Context& context)
     {
         std::string argPath{ context.Args.GetArg(Execution::Args::Type::ConfigurationFile) };
@@ -101,6 +111,7 @@ namespace AppInstaller::CLI::Workflow
         return S_OK;
     }
 
+    // Evaluate the download uri for group policy and smart screen.
     HRESULT EvaluateDownloadUri(Execution::Context& context)
     {
         const auto packageVersion = context.Get<Execution::Data::PackageVersion>();
@@ -108,13 +119,14 @@ namespace AppInstaller::CLI::Workflow
         const auto isTrusted = WI_IsFlagSet(source.GetDetails().TrustLevel, Repository::SourceTrustLevel::Trusted);
         if (!isTrusted)
         {
-            const auto installer = context.Get<Execution::Data::Installer>();
+            auto installer = context.Get<Execution::Data::Installer>();
             return EvaluateUri(context, installer->Url);
         }
 
         return S_OK;
     }
 
+    // Execute the smart screen flow.
     void ExecuteSmartScreen::operator()(Execution::Context& context) const
     {
         if (m_isConfigurationFlow)

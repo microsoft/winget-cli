@@ -2685,6 +2685,14 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Uri not well formed: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when the provided uri is not well formed. {0} is a placeholder replaced by the provided uri.</comment>
   </data>
+  <data name="UriBlockedBySmartScreen" xml:space="preserve">
+    <value>This operation was blocked as unsafe by Microsoft Defender SmartScreen.</value>
+    <comment>Error message displayed when an operation is using a URI that was blocked by Microsoft Defender SmartScreen.</comment>
+  </data>
+  <data name="UriZoneBlockedByPolicy" xml:space="preserve">
+    <value>The operation you are attempting to apply has been blocked by your administrator.></value>
+    <comment>Error message displayed when an operation is using a URI zone that was blocked by group policy.</comment>
+  </data>
   <data name="WinGetResourceUnitEmptyContent" xml:space="preserve">
     <value>Failed to parse {0} configuration unit settings content or settings content is empty.</value>
     <comment>{Locked="{0}"} {0} is a placeholder replaced by the input winget configure resource unit type.</comment>
