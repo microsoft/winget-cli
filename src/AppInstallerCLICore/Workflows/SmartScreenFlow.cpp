@@ -21,7 +21,7 @@ namespace AppInstaller::CLI::Workflow
         switch (response.Decision())
         {
         case AppInstaller::UriValidation::UriValidationDecision::Block:
-            AICLI_LOG(Config, Error, << "URI '" << uri << "' was blocked by smart screen. Feedback URL: " << response.Feedback());
+            AICLI_LOG(Core, Error, << "URI '" << uri << "' was blocked by smart screen. Feedback URL: " << response.Feedback());
             context.Reporter.Error() << Resource::String::UriBlockedBySmartScreen << std::endl;
             return true;
         case AppInstaller::UriValidation::UriValidationDecision::Allow:
@@ -58,30 +58,32 @@ namespace AppInstaller::CLI::Workflow
         auto configurationPolicies = Settings::GroupPolicies().GetValue<Settings::ValuePolicy::ConfigurationAllowedZones>();
         if (!configurationPolicies.has_value())
         {
-            AICLI_LOG(Config, Warning, << "ConfigurationAllowedZones policy is not set");
+            AICLI_LOG(Core, Warning, << "ConfigurationAllowedZones policy is not set");
             return false;
         }
 
         if (configurationPolicies->find(zone) == configurationPolicies->end())
         {
-            AICLI_LOG(Config, Warning, << "Configuration is not configured in the zone " << zone);
+            AICLI_LOG(Core, Warning, << "Configuration is not configured in the zone " << zone);
             return false;
         }
 
         auto isAllowed = configurationPolicies->at(zone);
         if(!isAllowed)
         {
+            AICLI_LOG(Core, Error, << "Security zone " << zone << " is blocked by group policy");
             context.Reporter.Error() << Resource::String::UriZoneBlockedByPolicy << std::endl;
             return true;
         }
 
-        AICLI_LOG(Config, Info, << "Configuration is configured in zone " << zone << " with value " << (isAllowed ? "allowed" : "blocked"));
+        AICLI_LOG(Core, Info, << "Configuration is configured in zone " << zone << " with value " << (isAllowed ? "allowed" : "blocked"));
         return false;
     }
 
     // Evaluate the given uri for group policy and smart screen.
     HRESULT EvaluateUri(Execution::Context& context, const std::string& uri)
     {
+        AICLI_LOG(Core, Info, << "Validating URI: " << uri);
         auto zone = GetUriZone(uri);
         if(IsBlockedByGroupPolicy(context, zone))
         {
@@ -102,12 +104,10 @@ namespace AppInstaller::CLI::Workflow
         std::string argPath{ context.Args.GetArg(Execution::Args::Type::ConfigurationFile) };
         if (Utility::IsUrlRemote(argPath))
         {
-            context.Reporter.Info() << "Validating Uri: " << argPath;
-            AICLI_LOG(Config, Error, << "URI validation blocked this uri: " << argPath);
             return EvaluateUri(context, argPath);
         }
 
-        AICLI_LOG(Config, Info, << "Skipping Uri validation for local file: " << argPath);
+        AICLI_LOG(Core, Info, << "Skipping Uri validation for local file: " << argPath);
         return S_OK;
     }
 

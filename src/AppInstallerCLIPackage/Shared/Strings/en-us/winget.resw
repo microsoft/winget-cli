@@ -2690,7 +2690,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>Error message displayed when an operation is using a URI that was blocked by Microsoft Defender SmartScreen.</comment>
   </data>
   <data name="UriZoneBlockedByPolicy" xml:space="preserve">
-    <value>The operation you are attempting to apply has been blocked by your administrator.></value>
+    <value>The operation you are attempting to apply has been blocked by your administrator.</value>
     <comment>Error message displayed when an operation is using a URI zone that was blocked by group policy.</comment>
   </data>
   <data name="WinGetResourceUnitEmptyContent" xml:space="preserve">
