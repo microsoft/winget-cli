@@ -3139,8 +3139,8 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="FontCommandLongDescription" xml:space="preserve">
     <value>Manage Font with sub-commands. Font can be installed, upgraded, or uninstalled similar to packages. </value>
   </data>
-  <data name="FontFamilyName" xml:space="preserve">
-    <value>Family Name</value>
+  <data name="FontFamily" xml:space="preserve">
+    <value>Family</value>
   </data>
   <data name="FontFaceCount" xml:space="preserve">
     <value>Face Count</value>
@@ -3148,10 +3148,13 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
     <value>Filter results by family name</value>
   </data>
-  <data name="FontFaceName" xml:space="preserve">
-    <value>Face Name</value>
+  <data name="FontFace" xml:space="preserve">
+    <value>Face</value>
   </data>
   <data name="FontFilePaths" xml:space="preserve">
-    <value>File Paths</value>
+    <value>Paths</value>
+  </data>
+  <data name="NoInstalledFontFound" xml:space="preserve">
+    <value>No installed font found matching input criteria.</value>
   </data>
 </root>

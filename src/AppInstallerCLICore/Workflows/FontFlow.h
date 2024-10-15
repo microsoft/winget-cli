@@ -5,9 +5,9 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    // Reports the installed font families as a table.
+    // Reports the installed fonts as a table.
     // Required Args: None
     // Inputs: None
     // Outputs: None
-    void ReportInstalledFontFamiliesResult(Execution::Context& context);
+    void ReportInstalledFontsResult(Execution::Context& context);
 }

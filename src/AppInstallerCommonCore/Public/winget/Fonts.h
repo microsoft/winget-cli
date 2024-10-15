@@ -8,14 +8,14 @@ namespace AppInstaller::Fonts
 {
     struct FontFace
     {
-        std::wstring FaceName;
-        std::vector<std::wstring> FilePaths;
+        std::wstring Name;
+        std::vector<std::filesystem::path> FilePaths;
     };
 
     struct FontFamily
     {
-        std::wstring FamilyName;
-        std::vector<FontFace> FontFaces;
+        std::wstring Name;
+        std::vector<FontFace> Faces;
     };
 
     /// <summary>
@@ -27,7 +27,7 @@ namespace AppInstaller::Fonts
     /// <summary>
     /// Gets the installed font family from the provided family name.
     /// </summary>
-    /// <param name="familyName"></param>
-    /// <returns></returns>
-    FontFamily GetInstalledFontFamily(const std::wstring& familyName);
+    /// <param name="familyName">The font family name.</param>
+    /// <returns>The Font Family.</returns>
+    std::optional<FontFamily> GetInstalledFontFamily(const std::wstring& familyName);
 }

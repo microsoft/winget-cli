@@ -251,8 +251,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FontCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FontCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FontFaceCount);
-        WINGET_DEFINE_RESOURCE_STRINGID(FontFaceName);
-        WINGET_DEFINE_RESOURCE_STRINGID(FontFamilyName);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontFace);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontFamily);
         WINGET_DEFINE_RESOURCE_STRINGID(FontFamilyNameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FontFilePaths);
         WINGET_DEFINE_RESOURCE_STRINGID(FontListCommandLongDescription);
@@ -411,6 +411,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NoAdminRepairForUserScopePackage);
         WINGET_DEFINE_RESOURCE_STRINGID(NoApplicableInstallers);
         WINGET_DEFINE_RESOURCE_STRINGID(NoExperimentalFeaturesMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoInstalledFontFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoInstalledPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageSelectionArgumentProvided);

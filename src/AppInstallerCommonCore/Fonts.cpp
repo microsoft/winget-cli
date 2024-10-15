@@ -1,14 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Public/winget/Fonts.h"
 #include <dwrite_3.h>
+#include <AppInstallerStrings.h>
+#include <winget/Fonts.h>
 
 namespace AppInstaller::Fonts
 {
     namespace
     {
-        std::vector<std::wstring> GetFontFilePaths(const wil::com_ptr<IDWriteFontFace>& fontFace)
+        std::vector<std::filesystem::path> GetFontFilePaths(const wil::com_ptr<IDWriteFontFace>& fontFace)
         {
             UINT32 fileCount = 0;
             THROW_IF_FAILED(fontFace->GetFiles(&fileCount, nullptr));
@@ -17,7 +18,7 @@ namespace AppInstaller::Fonts
             THROW_HR_IF(E_OUTOFMEMORY, fileCount > ARRAYSIZE(fontFiles));
             THROW_IF_FAILED(fontFace->GetFiles(&fileCount, fontFiles[0].addressof()));
 
-            std::vector<std::wstring> filePaths;
+            std::vector<std::filesystem::path> filePaths;
             for (UINT32 i = 0; i < fileCount; ++i) {
                 wil::com_ptr<IDWriteFontFileLoader> loader;
                 THROW_IF_FAILED(fontFiles[i]->GetLoader(loader.addressof()));
@@ -31,14 +32,15 @@ namespace AppInstaller::Fonts
                     THROW_IF_FAILED(localLoader->GetFilePathLengthFromKey(fontFileReferenceKey, fontFileReferenceKeySize, &pathLength));
                     pathLength += 1; // Account for the trailing null terminator during allocation.
 
-                    wchar_t path[512];
+                    wchar_t path[MAX_PATH];
                     THROW_HR_IF(E_OUTOFMEMORY, pathLength > ARRAYSIZE(path));
                     THROW_IF_FAILED(localLoader->GetFilePathFromKey(fontFileReferenceKey, fontFileReferenceKeySize, &path[0], pathLength));
-                    filePaths.emplace_back(std::wstring(path));
+                    std::filesystem::path fontFilePath = { AppInstaller::Utility::Normalize(std::wstring(path)) };
+                    filePaths.push_back(std::move(fontFilePath));
                 }
             }
 
-            return filePaths;
+            return std::move(filePaths);
         }
 
         std::wstring GetFontFaceName(const wil::com_ptr<IDWriteFont>& font)
@@ -122,24 +124,24 @@ namespace AppInstaller::Fonts
                 wil::com_ptr<IDWriteFontFace> fontFace;
                 THROW_IF_FAILED(font->CreateFontFace(fontFace.addressof()));
 
-                std::vector<std::wstring> filePaths = GetFontFilePaths(fontFace);
+                const auto& filePaths = GetFontFilePaths(fontFace);
 
                 FontFace fontFaceEntry;
-                fontFaceEntry.FaceName = std::wstring(faceName);
-                fontFaceEntry.FilePaths = std::move(filePaths);
+                fontFaceEntry.Name = std::wstring(faceName);
+                fontFaceEntry.FilePaths = filePaths;
                 fontFaces.emplace_back(fontFaceEntry);
             }
 
             FontFamily fontFamily;
-            fontFamily.FamilyName = familyName;
-            fontFamily.FontFaces = fontFaces;
+            fontFamily.Name = familyName;
+            fontFamily.Faces = fontFaces;
             fontFamilies.emplace_back(std::move(fontFamily));
         }
 
         return fontFamilies;
     }
 
-    FontFamily GetInstalledFontFamily(const std::wstring& familyName)
+    std::optional<FontFamily> GetInstalledFontFamily(const std::wstring& familyName)
     {
         wil::com_ptr<IDWriteFactory7> factory;
         THROW_IF_FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(factory), factory.put_unknown()));
@@ -150,6 +152,11 @@ namespace AppInstaller::Fonts
         UINT32 familyIndex;
         BOOL familyExists;
         THROW_IF_FAILED(collection->FindFamilyName(familyName.c_str(), &familyIndex, &familyExists));
+
+        if (!familyExists)
+        {
+            return {};
+        }
 
         wil::com_ptr<IDWriteFontFamily> family;
         THROW_IF_FAILED(collection->GetFontFamily(familyIndex, family.addressof()));
@@ -165,17 +172,17 @@ namespace AppInstaller::Fonts
             wil::com_ptr<IDWriteFontFace> fontFace;
             THROW_IF_FAILED(font->CreateFontFace(fontFace.addressof()));
 
-            std::vector<std::wstring> filePaths = GetFontFilePaths(fontFace);
+            const auto& filePaths = GetFontFilePaths(fontFace);
 
             FontFace fontFaceEntry;
-            fontFaceEntry.FaceName = std::wstring(faceName);
-            fontFaceEntry.FilePaths = std::move(filePaths);
+            fontFaceEntry.Name = std::wstring(faceName);
+            fontFaceEntry.FilePaths = filePaths;
             fontFaces.emplace_back(fontFaceEntry);
         }
 
         FontFamily fontFamily;
-        fontFamily.FamilyName = familyName;
-        fontFamily.FontFaces = std::move(fontFaces);
+        fontFamily.Name = familyName;
+        fontFamily.Faces = std::move(fontFaces);
         return fontFamily;
     }
 }

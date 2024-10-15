@@ -14,7 +14,7 @@ namespace AppInstaller::CLI
     using namespace AppInstaller::Utility::literals;
     using namespace std::string_view_literals;
 
-    Utility::LocIndView s_FontCommand_HelpLink = "https://aka.ms/winget-command-Font"_liv;
+    Utility::LocIndView s_FontCommand_HelpLink = "https://aka.ms/winget-command-help"_liv;
 
     std::vector<std::unique_ptr<Command>> FontCommand::GetCommands() const
     {
@@ -50,9 +50,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Moniker),
             Argument::ForType(Args::Type::Source),
             Argument::ForType(Args::Type::Tag),
-            Argument::ForType(Args::Type::Command),
             Argument::ForType(Args::Type::Exact),
-            Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AuthenticationMode),
             Argument::ForType(Args::Type::AuthenticationAccount),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
@@ -71,28 +69,9 @@ namespace AppInstaller::CLI
 
     void FontListCommand::Complete(Execution::Context& context, Args::Type valueType) const
     {
-        context <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
-
-        switch (valueType)
-        {
-        case Execution::Args::Type::Query:
-            context <<
-                Workflow::RequireCompletionWordNonEmpty <<
-                Workflow::SearchSourceForManyCompletion <<
-                Workflow::CompleteWithMatchedField;
-            break;
-        case Execution::Args::Type::Id:
-        case Execution::Args::Type::Name:
-        case Execution::Args::Type::Moniker:
-        case Execution::Args::Type::Source:
-        case Execution::Args::Type::Tag:
-        case Execution::Args::Type::Command:
-            context <<
-                Workflow::CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
-            break;
-        }
+        UNREFERENCED_PARAMETER(valueType);
+        context.Reporter.Error() << Resource::String::PendingWorkError << std::endl;
+        THROW_HR(E_NOTIMPL);
     }
 
     Utility::LocIndView FontListCommand::HelpLink() const
@@ -102,6 +81,6 @@ namespace AppInstaller::CLI
 
     void FontListCommand::ExecuteInternal(Execution::Context& context) const
     {
-        context << Workflow::ReportInstalledFontFamiliesResult;
+        context << Workflow::ReportInstalledFontsResult;
     }
 }
