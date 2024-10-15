@@ -7,51 +7,51 @@
   <resources>
     <stringTable>
       <string id="AppInstaller">Desktop App Installer</string>
-      <string id="EnableAppInstaller">Enable App Installer</string>
+      <string id="EnableAppInstaller">Enable Windows Package Manager</string>
       <string id="EnableAppInstallerExplanation">This policy controls whether the Windows Package Manager can be used by users.
 
 If you enable or do not configure this setting, users will be able to use the Windows Package Manager.
 
 If you disable this setting, users will not be able to use the Windows Package Manager.</string>
-      <string id="EnableSettings">Enable App Installer Settings</string>
+      <string id="EnableSettings">Enable Windows Package Manager Settings</string>
       <string id="EnableSettingsExplanation">This policy controls whether users can change their settings.
 
 If you enable or do not configure this setting, users will be able to change settings for the Windows Package Manager.
 
 If you disable this setting, users will not be able to change settings for the Windows Package Manager.</string>
-      <string id="EnableExperimentalFeatures">Enable App Installer Experimental Features</string>
+      <string id="EnableExperimentalFeatures">Enable Windows Package Manager Experimental Features</string>
       <string id="EnableExperimentalFeaturesExplanation">This policy controls whether users can enable experimental features in the Windows Package Manager.
 
 If you enable or do not configure this setting, users will be able to enable experimental features for the Windows Package Manager.
 
 If you disable this setting, users will not be able to enable experimental features for the Windows Package Manager.</string>
-      <string id="EnableLocalManifestFiles">Enable App Installer Local Manifest Files</string>
+      <string id="EnableLocalManifestFiles">Enable Windows Package Manager Local Manifest Files</string>
       <string id="EnableLocalManifestFilesExplanation">This policy controls whether users can install packages with local manifest files.
 
 If you enable or do not configure this setting, users will be able to install packages with local manifests using the Windows Package Manager.
 
 If you disable this setting, users will not be able to install packages with local manifests using the Windows Package Manager.</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable App Installer Microsoft Store Source Certificate Validation Bypass</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable Windows Package Manager Microsoft Store Source Certificate Validation Bypass</string>
       <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager will validate the Microsoft Store certificate hash matches to a known Microsoft Store certificate when initiating a connection to the Microsoft Store Source. 
 If you enable this policy, the Windows Package Manager will bypass the Microsoft Store certificate validation. 
 
 If you disable this policy, the Windows Package Manager will validate the Microsoft Store certificate used is valid and belongs to the Microsoft Store before communicating with the Microsoft Store source.
 
 If you do not configure this policy, the Windows Package Manager administrator settings will be adhered to.</string>
-      <string id="EnableHashOverride">Enable App Installer Hash Override</string>
+      <string id="EnableHashOverride">Enable Windows Package Manager Hash Override</string>
       <string id="EnableHashOverrideExplanation">This policy controls whether or not the Windows Package Manager can be configured to enable the ability override the SHA256 security validation in settings.
 
 If you enable or do not configure this policy, users will be able to enable the ability override the SHA256 security validation in the Windows Package Manager settings.
 
 If you disable this policy, users will not be able to enable the ability override the SHA256 security validation in the Windows Package Manager settings.</string>
-      <string id="EnableLocalArchiveMalwareScanOverride">Enable App Installer Local Archive Malware Scan Override</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">Enable Windows Package Manager Local Archive Malware Scan Override</string>
       <string id="EnableLocalArchiveMalwareScanOverrideExplanation">This policy controls the ability to override malware vulnerability scans when installing an archive file using a local manifest using the command line arguments.
 If you enable this policy, users can override the malware scan when performing a local manifest install of an archive file.
 
 If you disable this policy, users will be unable to override the malware scan of an archive file when installing using a local manifest.
 
 If you do not configure this policy, the Windows Package Manager administrator settings will be adhered to.</string>
-      <string id="EnableDefaultSource">Enable App Installer Default Source</string>
+      <string id="EnableDefaultSource">Enable Windows Package Manager Default Source</string>
       <string id="EnableDefaultSourceExplanation">This policy controls the default source included with the Windows Package Manager.
 
 If you do not configure this setting, the default source for the Windows Package Manager will be available and can be removed.
@@ -59,7 +59,7 @@ If you do not configure this setting, the default source for the Windows Package
 If you enable this setting, the default source for the Windows Package Manager will be available and cannot be removed.
 
 If you disable this setting the default source for the Windows Package Manager will not be available.</string>
-      <string id="EnableMicrosoftStoreSource">Enable App Installer Microsoft Store Source</string>
+      <string id="EnableMicrosoftStoreSource">Enable Windows Package Manager Microsoft Store Source</string>
       <string id="EnableMicrosoftStoreSourceExplanation">This policy controls the Microsoft Store source included with the Windows Package Manager.
 
 If you do not configure this setting, the Microsoft Store source for the Windows Package manager will be available and can be removed.
@@ -67,13 +67,13 @@ If you do not configure this setting, the Microsoft Store source for the Windows
 If you enable this setting, the Microsoft Store source for the Windows Package Manager will be available and cannot be removed.
 
 If you disable this setting the Microsoft Store source for the Windows Package Manager will not be available.</string>
-      <string id="SourceAutoUpdateInterval">Set App Installer Source Auto Update Interval In Minutes</string>
+      <string id="SourceAutoUpdateInterval">Set Windows Package Manager Source Auto Update Interval In Minutes</string>
       <string id="SourceAutoUpdateIntervalExplanation">This policy controls the auto-update interval for package-based sources. The default source for Windows Package Manager is configured such that an index of the packages is cached on the local machine. The index is downloaded when a user invokes a command, and the interval has passed.
 
 If you disable or do not configure this setting, the default interval or the value specified in the Windows Package Manager settings will be used.
 
 If you enable this setting, the number of minutes specified will be used by the Windows Package Manager.</string>
-      <string id="EnableAdditionalSources">Enable App Installer Additional Sources</string>
+      <string id="EnableAdditionalSources">Enable Windows Package Manager Additional Sources</string>
       <string id="EnableAdditionalSourcesExplanation">This policy controls additional sources provided by the enterprise IT administrator.
 
 If you do not configure this policy, no additional sources will be configured for the Windows Package Manager.
@@ -81,7 +81,7 @@ If you do not configure this policy, no additional sources will be configured fo
 If you enable this policy, the additional sources will be added to the Windows Package Manager and cannot be removed. The representation for each additional source can be obtained from installed sources using 'winget source export'.
 
 If you disable this policy, no additional sources can be configured for the Windows Package Manager.</string>
-      <string id="EnableAllowedSources">Enable App Installer Allowed Sources</string>
+      <string id="EnableAllowedSources">Enable Windows Package Manager Allowed Sources</string>
       <string id="EnableAllowedSourcesExplanation">This policy controls additional sources allowed by the enterprise IT administrator.
 
 If you do not configure this policy, users will be able to add or remove additional sources other than those configured by policy.
@@ -122,6 +122,20 @@ If you disable this setting, users will not be able to use the Windows Package M
 If you disable or do not configure this setting, no proxy will be used by default.
 
 If you enable this setting, the specified proxy will be used by default.</string>
+      <string id="EnableMsixAllowedZones">Enable App Installer Allowed Zones for MSIX Packages</string>
+      <string id="EnableMsixAllowedZonesExplanation">This policy controls whether App Installer allows installing packages originating from specific URL Zones. A package's origin is determined by its URI and whether a Mart-of-the-Web (MotW) is present. If multiple URIs are involved, all of them are considered; for example, when using a .appinstaller file that involves redirection.
+
+If you enable this policy, users will be able to install MSIX packages according to the configuration for each zone.
+
+If you disable or do not configure this policy, users will be able to install MSIX packages from any zone except for Untrusted.</string>
+      <string id="ZoneAllowed">Allow</string>
+      <string id="ZoneBlocked">Block</string>
+      <string id="EnableMsixSmartScreenCheck">Enable Microsoft SmartScreen checks for MSIX Packages</string>
+      <string id="EnableMsixSmartScreenCheckExplanation">This policy controls whether App Installer performs Microsoft SmartScreen checks when installing MSIX packages.
+
+If you enable or do not configure this policy, the package URI will be evaluated with Microsoft SmartScreen before installation. This check is only done for packages that come from the internet.
+
+If you disable, Microsoft SmartScreen will not be consulted before installing a package.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
@@ -137,6 +151,13 @@ If you enable this setting, the specified proxy will be used by default.</string
         <textBox refId="WindowsPackageManagerDefaultProxy">
           <label>Default Proxy</label>
         </textBox>
+      </presentation>
+      <presentation id="MsixAllowedZones">
+        <dropdownList refId="LocalMachine" noSort="true" defaultItem="1">Local Machine</dropdownList>
+        <dropdownList refId="Intranet" noSort="true" defaultItem="1">Intranet</dropdownList>
+        <dropdownList refId="TrustedSites" noSort="true" defaultItem="1">Trusted Sites</dropdownList>
+        <dropdownList refId="Internet" noSort="true" defaultItem="1">Internet</dropdownList>
+        <dropdownList refId="UntrustedSites" noSort="true" defaultItem="0">Untrusted Sites</dropdownList>
       </presentation>
     </presentationTable>
   </resources>
