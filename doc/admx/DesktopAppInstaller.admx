@@ -255,5 +255,15 @@
         </enum>
       </elements>
     </policy>
+    <policy name="EnableMsixSmartScreenCheck" class="Machine" displayName="$(string.EnableMsixSmartScreenCheck)" explainText="$(string.EnableMsixSmartScreenCheckExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableMsixSmartScreenCheck">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
   </policies>
 </policyDefinitions>

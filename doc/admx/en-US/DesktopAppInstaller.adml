@@ -6,7 +6,7 @@
   <description>App Installer</description>
   <resources>
     <stringTable>
-      <string id="AppInstaller">Desktop Windows Package Manager</string>
+      <string id="AppInstaller">Desktop App Installer</string>
       <string id="EnableAppInstaller">Enable Windows Package Manager</string>
       <string id="EnableAppInstallerExplanation">This policy controls whether the Windows Package Manager can be used by users.
 
@@ -130,6 +130,12 @@ If you enable this policy, users will be able to install MSIX packages according
 If you disable or do not configure this policy, users will be able to install MSIX packages from any zone except for Untrusted.</string>
       <string id="ZoneAllowed">Allow</string>
       <string id="ZoneBlocked">Block</string>
+      <string id="EnableMsixSmartScreenCheck">Enable Microsoft SmartScreen checks for MSIX Packages</string>
+      <string id="EnableMsixSmartScreenCheckExplanation">This policy controls whether App Installer performs Microsoft SmartScreen checks when installing MSIX packages.
+
+If you enable or do not configure this policy, the package URI will be evaluated with Microsoft SmartScreen before installation. This check is only done for packages that come from the internet.
+
+If you disable, Microsoft SmartScreen will not be consulted before installing a package.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
