@@ -3139,4 +3139,19 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="FontCommandLongDescription" xml:space="preserve">
     <value>Manage Font with sub-commands. Font can be installed, upgraded, or uninstalled similar to packages. </value>
   </data>
+  <data name="FontFamilyName" xml:space="preserve">
+    <value>Family Name</value>
+  </data>
+  <data name="FontFaceCount" xml:space="preserve">
+    <value>Face Count</value>
+  </data>
+  <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
+    <value>Filter results by family name</value>
+  </data>
+  <data name="FontFaceName" xml:space="preserve">
+    <value>Face Name</value>
+  </data>
+  <data name="FontFilePaths" xml:space="preserve">
+    <value>File Paths</value>
+  </data>
 </root>

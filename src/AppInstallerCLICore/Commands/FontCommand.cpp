@@ -46,9 +46,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> FontListCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Args::Type::Query),
-            Argument::ForType(Args::Type::Id),
-            Argument::ForType(Args::Type::Name),
+            Argument::ForType(Args::Type::FamilyName),
             Argument::ForType(Args::Type::Moniker),
             Argument::ForType(Args::Type::Source),
             Argument::ForType(Args::Type::Tag),

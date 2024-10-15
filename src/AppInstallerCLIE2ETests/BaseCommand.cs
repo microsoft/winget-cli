@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="BaseCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -6,10 +6,7 @@
 
 namespace AppInstallerCLIE2ETests
 {
-    using System;
-    using System.IO;
     using AppInstallerCLIE2ETests.Helpers;
-    using Newtonsoft.Json.Linq;
     using NUnit.Framework;
 
     /// <summary>
