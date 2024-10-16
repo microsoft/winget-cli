@@ -23,13 +23,13 @@ namespace AppInstaller::Fonts
     /// <summary>
     /// Gets all installed font families on the system.
     /// </summary>
-    /// <returns>A list of installed font family names.</returns>
+    /// <returns>A list of installed font families.</returns>
     std::vector<FontFamily> GetInstalledFontFamilies();
 
     /// <summary>
     /// Gets the installed font family from the provided family name.
     /// </summary>
     /// <param name="familyName">The font family name.</param>
-    /// <returns>The Font Family.</returns>
+    /// <returns>The specified font family if found.</returns>
     std::optional<FontFamily> GetInstalledFontFamily(const std::wstring& familyName);
 }
