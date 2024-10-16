@@ -61,31 +61,31 @@ namespace AppInstaller::CLI::VirtualTerminal
         // Extracts a VT sequence, expected one of the form ESCAPE + prefix + result + suffix, returning the result part.
         std::string ExtractSequence(std::istream& inStream, std::string_view prefix, std::string_view suffix)
         {
-            std::string result;
+            // Force discovery of available input
+            std::ignore = inStream.peek();
 
-            if (inStream.peek() == AICLI_VT_ESCAPE[0])
+            static constexpr std::streamsize s_bufferSize = 1024;
+            char buffer[s_bufferSize];
+            std::streamsize bytesRead = inStream.readsome(buffer, s_bufferSize);
+            THROW_HR_IF(E_UNEXPECTED, bytesRead >= s_bufferSize);
+
+            std::string_view resultView{ buffer, static_cast<size_t>(bytesRead) };
+            size_t escapeIndex = resultView.find(AICLI_VT_ESCAPE[0]);
+            if (escapeIndex == std::string_view::npos)
             {
-                result.resize(4095);
-                inStream.readsome(&result[0], result.size());
-                THROW_HR_IF(E_UNEXPECTED, static_cast<size_t>(inStream.gcount()) >= result.size());
-
-                result.resize(static_cast<size_t>(inStream.gcount()));
-
-                std::string_view resultView = result;
-                size_t overheadLength = 1 + prefix.length() + suffix.length();
-                if (resultView.length() <= overheadLength ||
-                    resultView.substr(1, prefix.length()) != prefix ||
-                    resultView.substr(resultView.length() - suffix.length()) != suffix)
-                {
-                    result.clear();
-                }
-                else
-                {
-                    result = result.substr(1 + prefix.length(), result.length() - overheadLength);
-                }
+                return {};
             }
 
-            return result;
+            resultView = resultView.substr(escapeIndex);
+            size_t overheadLength = 1 + prefix.length() + suffix.length();
+            if (resultView.length() <= overheadLength ||
+                resultView.substr(1, prefix.length()) != prefix ||
+                resultView.substr(resultView.length() - suffix.length()) != suffix)
+            {
+                return {};
+            }
+
+            return std::string{ resultView.substr(1 + prefix.length(), resultView.length() - overheadLength) };
         }
     }
 
