@@ -62,7 +62,7 @@ namespace AppInstaller::Fonts
             THROW_IF_FAILED(faceNames->GetStringLength(faceNameIndex, &faceNameLength));
             faceNameLength += 1; // Account for the trailing null terminator during allocation.
 
-            wchar_t faceName[512];
+            wchar_t faceName[32]; // Max size for font name including null terminator is 32.
             THROW_HR_IF(E_OUTOFMEMORY, faceNameLength > ARRAYSIZE(faceName));
             THROW_IF_FAILED(faceNames->GetString(faceNameIndex, &faceName[0], faceNameLength));
             return std::wstring(faceName);
@@ -88,7 +88,7 @@ namespace AppInstaller::Fonts
             THROW_IF_FAILED(familyNames->GetStringLength(familyNameIndex, &familyNameLength));
             familyNameLength += 1; // Account for the trailing null terminator during allocation.
 
-            wchar_t familyName[512];
+            wchar_t familyName[32]; // Max size for font name including null terminator is 32.
             THROW_HR_IF(E_OUTOFMEMORY, familyNameLength > ARRAYSIZE(familyName));
             THROW_IF_FAILED(familyNames->GetString(0, &familyName[0], familyNameLength));
             return std::wstring(familyName);
@@ -181,7 +181,7 @@ namespace AppInstaller::Fonts
         }
 
         FontFamily fontFamily;
-        fontFamily.Name = familyName;
+        fontFamily.Name = GetFontFamilyName(family);
         fontFamily.Faces = std::move(fontFaces);
         return fontFamily;
     }

@@ -69,7 +69,7 @@ namespace AppInstaller::CLI::Workflow
                 return;
             }
 
-            const auto& familyName = Utility::LocIndString(familyNameArg);
+            const auto& familyName = Utility::LocIndString(Utility::ConvertToUTF8(fontFamily->Name));
             std::vector<InstalledFontFacesTableLine> lines;
 
             for (const auto& fontFace : fontFamily->Faces)
