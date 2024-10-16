@@ -121,6 +121,9 @@ namespace AppInstaller::CLI::Execution
             ResumeId,
             IgnoreResumeLimit,
 
+            // Font Command
+            FamilyName,
+
             // Configuration
             ConfigurationFile,
             ConfigurationAcceptWarning,

@@ -198,6 +198,10 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::IgnoreResumeLimit:
             return { type, "ignore-resume-limit"_liv, ArgTypeCategory::None };
 
+        // Font command
+        case Execution::Args::Type::FamilyName:
+            return { type, "family-name"_liv, ArgTypeCategory::None };
+
         // Configuration commands
         case Execution::Args::Type::ConfigurationFile:
             return { type, "file"_liv, 'f', ArgTypeCategory::ConfigurationSetChoice, ArgTypeExclusiveSet::ConfigurationSetChoice };
@@ -430,6 +434,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::ProxyArgumentDescription, ArgumentType::Standard, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
         case Args::Type::NoProxy:
             return Argument{ type, Resource::String::NoProxyArgumentDescription, ArgumentType::Flag, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
+        case Args::Type::FamilyName:
+            return Argument{ type, Resource::String::FontFamilyNameArgumentDescription, ArgumentType::Standard, false };
         default:
             THROW_HR(E_UNEXPECTED);
         }
