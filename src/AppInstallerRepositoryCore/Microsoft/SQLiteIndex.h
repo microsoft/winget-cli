@@ -95,15 +95,15 @@ namespace AppInstaller::Repository::Microsoft
         bool UpdateManifest(const Manifest::Manifest& manifest);
 
         // Adds or updates the manifest with matching { Id, Version, Channel } in the index.
-        // The return value indicates whether the index was modified by the function.
+        // The return value indicates whether the manifest was added (true) or updated (false).
         bool AddOrUpdateManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
 
         // Updates the manifest with matching { Id, Version, Channel } in the index.
-        // The return value indicates whether the index was modified by the function.
+        // The return value indicates whether the manifest was added (true) or updated (false).
         bool AddOrUpdateManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
 
         // Updates the manifest with matching { Id, Version, Channel } in the index.
-        // The return value indicates whether the index was modified by the function.
+        // The return value indicates whether the manifest was added (true) or updated (false).
         bool AddOrUpdateManifest(const Manifest::Manifest& manifest);
 
         // Removes the manifest with matching { Id, Version, Channel } from the index.
