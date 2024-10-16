@@ -257,7 +257,7 @@
     <ClInclude Include="Commands\ConfigureListCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
-    <ClInclude Include="Workflows\SmartScreenFlow.h">
+    <ClInclude Include="Workflows\UriValidationFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
     <ClInclude Include="Sixel.h">
@@ -490,7 +490,7 @@
     <ClCompile Include="Commands\ConfigureListCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
-    <ClCompile Include="Workflows\SmartScreenFlow.cpp">
+    <ClCompile Include="Workflows\UriValidationFlow.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="Sixel.cpp">

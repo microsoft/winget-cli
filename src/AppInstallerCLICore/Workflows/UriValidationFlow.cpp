@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "SmartScreenFlow.h"
+#include "UriValidationFlow.h"
 #include <AppInstallerDownloader.h>
 #include <UriValidation/UriValidation.h>
 
@@ -10,8 +10,9 @@ namespace AppInstaller::CLI::Workflow
     // Check if smart screen is required for a given zone.
     bool IsSmartScreenRequired(Settings::SecurityZoneOptions zone)
     {
-        return zone == Settings::SecurityZoneOptions::Internet
-            || zone == Settings::SecurityZoneOptions::UntrustedSites;
+        auto isSmartScreenEnabled = Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::SmartScreenValidation);
+        auto isSecurityZoneCheckRequired = zone == Settings::SecurityZoneOptions::Internet || zone == Settings::SecurityZoneOptions::UntrustedSites;
+        return isSmartScreenEnabled && isSecurityZoneCheckRequired;
     }
 
     // Check if the given uri is blocked by smart screen.
@@ -31,48 +32,57 @@ namespace AppInstaller::CLI::Workflow
     }
 
     // Get Uri zone for a given uri or file path.
-    Settings::SecurityZoneOptions GetUriZone(const std::string& uri)
+    HRESULT GetUriZone(const std::string& uri, Settings::SecurityZoneOptions* zone)
     {
+        if (!zone)
+        {
+            return E_INVALIDARG;
+        }
+
         DWORD dwZone;
         auto pInternetSecurityManager = winrt::create_instance<IInternetSecurityManager>(CLSID_InternetSecurityManager, CLSCTX_ALL);
         auto mapResult = pInternetSecurityManager->MapUrlToZone(AppInstaller::Utility::ConvertToUTF16(uri).c_str(), &dwZone, 0);
 
-        // Treat invalid uri argument as local machine
-        if (mapResult == E_INVALIDARG)
+        // Ensure MapUrlToZone was successful and the zone value is valid
+        if (FAILED(mapResult))
         {
-            return Settings::SecurityZoneOptions::LocalMachine;
+            return mapResult;
         }
 
         // Treat all zones higher than untrusted as untrusted
         if (dwZone > static_cast<DWORD>(Settings::SecurityZoneOptions::UntrustedSites))
         {
-            return Settings::SecurityZoneOptions::UntrustedSites;
+            *zone = Settings::SecurityZoneOptions::UntrustedSites;
+        }
+        else
+        {
+            *zone = static_cast<Settings::SecurityZoneOptions>(dwZone);
         }
 
-        return static_cast<Settings::SecurityZoneOptions>(dwZone);
+        return S_OK;
     }
 
     // Validate group policy for a given zone.
     bool IsBlockedByGroupPolicy(Execution::Context& context, const Settings::SecurityZoneOptions zone)
     {
-        auto configurationPolicies = Settings::GroupPolicies().GetValue<Settings::ValuePolicy::ConfigurationAllowedZones>();
-        if (!configurationPolicies.has_value())
+        auto allowedSecurityZones = Settings::GroupPolicies().GetValue<Settings::ValuePolicy::AllowedSecurityZones>();
+        if (!allowedSecurityZones.has_value())
         {
-            AICLI_LOG(Core, Warning, << "ConfigurationAllowedZones policy is not set");
+            AICLI_LOG(Core, Warning, << "AllowedSecurityZones policy is not set");
             return false;
         }
 
-        if (configurationPolicies->find(zone) == configurationPolicies->end())
+        if (allowedSecurityZones->find(zone) == allowedSecurityZones->end())
         {
-            AICLI_LOG(Core, Warning, << "Configuration is not configured in the zone " << zone);
+            AICLI_LOG(Core, Warning, << "Security zone " << zone << " was not found in the group policy AllowedSecurityZones");
             return false;
         }
 
-        auto isAllowed = configurationPolicies->at(zone);
+        auto isAllowed = allowedSecurityZones->at(zone);
         if(!isAllowed)
         {
             AICLI_LOG(Core, Error, << "Security zone " << zone << " is blocked by group policy");
-            context.Reporter.Error() << Resource::String::UriZoneBlockedByPolicy << std::endl;
+            context.Reporter.Error() << Resource::String::UriSecurityZoneBlockedByPolicy << std::endl;
             return true;
         }
 
@@ -84,15 +94,25 @@ namespace AppInstaller::CLI::Workflow
     HRESULT EvaluateUri(Execution::Context& context, const std::string& uri)
     {
         AICLI_LOG(Core, Info, << "Validating URI: " << uri);
-        auto zone = GetUriZone(uri);
-        if(IsBlockedByGroupPolicy(context, zone))
-        {
-            return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
-        }
 
-        if (IsSmartScreenRequired(zone) && IsBlockedBySmartScreen(context, uri))
+        Settings::SecurityZoneOptions zone;
+        auto zoneResult = GetUriZone(uri, &zone);
+
+        if (SUCCEEDED(zoneResult))
         {
-            return APPINSTALLER_CLI_ERROR_BLOCKED_BY_REPUTATION_SERVICE;
+            if(IsBlockedByGroupPolicy(context, zone))
+            {
+                return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
+            }
+
+            if (IsSmartScreenRequired(zone) && IsBlockedBySmartScreen(context, uri))
+            {
+                return APPINSTALLER_CLI_ERROR_BLOCKED_BY_REPUTATION_SERVICE;
+            }
+        }
+        else
+        {
+            AICLI_LOG(Core, Warning, << "Failed to get zone for URI: " << uri << " with error: " << zoneResult << ". Skipping validation.");
         }
 
         return S_OK;
@@ -102,13 +122,7 @@ namespace AppInstaller::CLI::Workflow
     HRESULT EvaluateConfigurationUri(Execution::Context& context)
     {
         std::string argPath{ context.Args.GetArg(Execution::Args::Type::ConfigurationFile) };
-        if (Utility::IsUrlRemote(argPath))
-        {
-            return EvaluateUri(context, argPath);
-        }
-
-        AICLI_LOG(Core, Info, << "Skipping Uri validation for local file: " << argPath);
-        return S_OK;
+        return EvaluateUri(context, argPath);
     }
 
     // Evaluate the download uri for group policy and smart screen.
@@ -127,7 +141,7 @@ namespace AppInstaller::CLI::Workflow
     }
 
     // Execute the smart screen flow.
-    void ExecuteSmartScreen::operator()(Execution::Context& context) const
+    void ExecuteUriValidation::operator()(Execution::Context& context) const
     {
         if (m_isConfigurationFlow)
         {

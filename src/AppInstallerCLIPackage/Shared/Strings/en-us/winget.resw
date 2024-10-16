@@ -2689,7 +2689,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>This operation was blocked as unsafe by Microsoft Defender SmartScreen.</value>
     <comment>Error message displayed when an operation is using a URI that was blocked by Microsoft Defender SmartScreen.</comment>
   </data>
-  <data name="UriZoneBlockedByPolicy" xml:space="preserve">
+  <data name="UriSecurityZoneBlockedByPolicy" xml:space="preserve">
     <value>The operation you are attempting to apply has been blocked by your administrator.</value>
     <comment>Error message displayed when an operation is using a URI zone that was blocked by group policy.</comment>
   </data>
@@ -2841,6 +2841,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PolicyEnableProxyCommandLineOptions" xml:space="preserve">
     <value>Enable Windows Package Manager proxy command line options</value>
     <comment>Describes a Group Policy that can enable the use of the --proxy option to set a proxy</comment>
+  </data>
+  <data name="PolicyEnableSmartScreenValidation" xml:space="preserve">
+    <value>Enable Windows Package Manager smart screen validation</value>
+    <comment></comment>
   </data>
   <data name="ProxyArgumentDescription" xml:space="preserve">
     <value>Set a proxy to use for this execution</value>

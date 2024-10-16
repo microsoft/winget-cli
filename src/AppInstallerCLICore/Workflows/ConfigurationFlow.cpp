@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ConfigurationFlow.h"
-#include "SmartScreenFlow.h"
+#include "UriValidationFLow.h"
 #include "PromptFlow.h"
 #include "TableOutput.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
@@ -1301,7 +1301,7 @@ namespace AppInstaller::CLI::Workflow
 
     void CreateConfigurationProcessor(Context& context)
     {
-        context << ExecuteSmartScreen(true);
+        context << ExecuteUriValidation(true /*isConfigurationFlow*/);
         auto progressScope = context.Reporter.BeginAsyncProgress(true);
         progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
 

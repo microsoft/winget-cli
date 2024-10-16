@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "DownloadFlow.h"
-#include "SmartScreenFlow.h"
+#include "UriValidationFlow.h"
 #include "MSStoreInstallerHandler.h"
 #include <winget/Filesystem.h>
 #include <AppInstallerDeployment.h>
@@ -209,7 +209,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         bool installerDownloadOnly = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
-        context << ExecuteSmartScreen(false);
+        context << ExecuteUriValidation(false /*isConfigurationFlow*/);
 
         // CheckForExistingInstaller will set the InstallerPath if found
         if (!context.Contains(Execution::Data::InstallerPath))

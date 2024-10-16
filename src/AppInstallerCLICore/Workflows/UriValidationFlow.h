@@ -10,9 +10,9 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: IsConfigurationFlow
     // Outputs: None
-    struct ExecuteSmartScreen : public WorkflowTask
+    struct ExecuteUriValidation: public WorkflowTask
     {
-        ExecuteSmartScreen(bool isConfigurationFlow) : WorkflowTask("ExecuteSmartScreen"), m_isConfigurationFlow(isConfigurationFlow) {}
+        ExecuteUriValidation(bool isConfigurationFlow) : WorkflowTask("ExecuteUriValidation"), m_isConfigurationFlow(isConfigurationFlow) {}
 
         void operator()(Execution::Context& context) const override;
 

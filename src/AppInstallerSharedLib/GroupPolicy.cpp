@@ -302,7 +302,7 @@ namespace AppInstaller::Settings
         POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AdditionalSources);
         POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AllowedSources);
         POLICY_MAPPING_DEFAULT_READ(ValuePolicy::DefaultProxy);
-        POLICY_MAPPING_DEFAULT_ENUM_READ(ValuePolicy::ConfigurationAllowedZones);
+        POLICY_MAPPING_DEFAULT_ENUM_READ(ValuePolicy::AllowedSecurityZones);
 
         std::nullopt_t ValuePolicyMapping<ValuePolicy::None>::ReadAndValidate(const Registry::Key&)
         {
@@ -338,7 +338,7 @@ namespace AppInstaller::Settings
             return ReadSourceFromRegistryValue(item);
         }
 
-        std::optional<std::pair<const SecurityZoneOptions, bool>> ValuePolicyMapping<ValuePolicy::ConfigurationAllowedZones>::ReadAndValidateItem(const Registry::ValueList::ValueRef& entry)
+        std::optional<std::pair<const SecurityZoneOptions, bool>> ValuePolicyMapping<ValuePolicy::AllowedSecurityZones>::ReadAndValidateItem(const Registry::ValueList::ValueRef& entry)
         {
 #define CONFIGURATION_ALLOWED_ZONES_READ(_zone_) \
             if (entry.Name() == #_zone_) \
@@ -355,7 +355,7 @@ namespace AppInstaller::Settings
             CONFIGURATION_ALLOWED_ZONES_READ(UntrustedSites);
 #undef CONFIGURATION_ALLOWED_ZONES_READ
 
-            AICLI_LOG(Core, Warning, << "Unknown value in ConfigurationAllowedZones: " << entry.Name());
+            AICLI_LOG(Core, Warning, << "Unknown value in AllowedSecurityZones: " << entry.Name());
             return std::nullopt;
         }
     }
@@ -392,6 +392,8 @@ namespace AppInstaller::Settings
             return TogglePolicy(policy, "EnableWindowsPackageManagerConfiguration"sv, String::PolicyEnableWinGetConfiguration);
         case TogglePolicy::Policy::ProxyCommandLineOptions:
             return TogglePolicy(policy, "EnableWindowsPackageManagerProxyCommandLineOptions"sv, String::PolicyEnableProxyCommandLineOptions);
+        case TogglePolicy::Policy::SmartScreenValidation:
+            return TogglePolicy(policy, "EnableSmartScreenValidation"sv, String::PolicyEnableSmartScreenValidation);
         default:
             THROW_HR(E_UNEXPECTED);
         }
