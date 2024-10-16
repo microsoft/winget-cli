@@ -67,7 +67,7 @@ namespace Microsoft.WinGetUtil.Interfaces
         /// </summary>
         /// <param name="manifestPath">Path to manifest.</param>
         /// <param name="relativePath">Path of the manifest in the repository.</param>
-        /// <returns>True if index was modified.</returns>
+        /// <returns>True if added; false if updated.</returns>
         bool AddOrUpdateManifest(string manifestPath, string relativePath);
 
         /// <summary>
