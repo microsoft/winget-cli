@@ -66,12 +66,12 @@ CopyFile "$BuildRoot\x86\$Configuration\WinGetUtil\WinGetUtil.pdb" "$x86NugetPat
 CopyFile "$repoPath\src\WinGetUtilInterop\bin\$Configuration\netstandard2.1\WinGetUtilInterop.dll" "$interopNugetPath\WinGetUtilInterop.dll"
 CopyFile "$repoPath\src\WinGetUtilInterop\bin\$Configuration\netstandard2.1\WinGetUtilInterop.pdb" "$interopNugetPath\WinGetUtilInterop.pdb"
 CopyFile "$repoPath\src\WinGetUtilInterop\build\Microsoft.WindowsPackageManager.Utils.targets" "$targetsNugetPath\Microsoft.WindowsPackageManager.Utils.targets"
-CopyFile "$repoPath\WinGetUtil.nuspec" "$nugetWorkingDir\WinGetUtil.nuspec"
+CopyFile "$PSScriptRoot\WinGetUtilDev.nuspec" "$nugetWorkingDir\WinGetUtilDev.nuspec"
 Copy-Item "$repoPath\schemas\JSON\manifests" $manifestsNugetPath -Recurse
 
 # Create nuget
 Write-Host "Creating nuget package"
-$local:result = nuget pack .\NugetFiles\WinGetUtil.nuspec -Version $NugetVersion -OutputDirectory NugetOut
+$local:result = nuget pack .\NugetFiles\WinGetUtilDev.nuspec -Version $NugetVersion -OutputDirectory NugetOut
 $local:outFile = $result -match "nupkg"
 $outFile = $outFile[0]
 $outFile = $outFile.Substring($outFile.IndexOf("'") + 1, $outFile.LastIndexOf("'") - $outFile.IndexOf("'") - 1)
