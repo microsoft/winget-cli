@@ -11,7 +11,11 @@ namespace AppInstaller::CLI::Workflow
     bool IsSmartScreenRequired(Settings::SecurityZoneOptions zone)
     {
         auto isSmartScreenEnabled = Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::SmartScreenValidation);
+        AICLI_LOG(Core, Info, << "SmartScreen validation is " << (isSmartScreenEnabled ? "enabled" : "disabled"));
+
         auto isSecurityZoneCheckRequired = zone == Settings::SecurityZoneOptions::Internet || zone == Settings::SecurityZoneOptions::UntrustedSites;
+        AICLI_LOG(Core, Info, << "Security zone check is " << (isSecurityZoneCheckRequired ? "required" : "not required"));
+
         return isSmartScreenEnabled && isSecurityZoneCheckRequired;
     }
 
@@ -143,13 +147,14 @@ namespace AppInstaller::CLI::Workflow
     // Execute the smart screen flow.
     void ExecuteUriValidation::operator()(Execution::Context& context) const
     {
-        if (m_isConfigurationFlow)
+        if (m_uriValidationSource == UriValidationSource::ConfigurationSource)
         {
             auto uriValidation = EvaluateConfigurationUri(context);
-            if(FAILED(uriValidation))
+            if (FAILED(uriValidation))
             {
                 AICLI_TERMINATE_CONTEXT(uriValidation);
             }
+
         }
         else
         {

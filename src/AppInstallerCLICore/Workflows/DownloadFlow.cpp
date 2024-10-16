@@ -209,7 +209,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         bool installerDownloadOnly = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
-        context << ExecuteUriValidation(false /*isConfigurationFlow*/);
+        context << ExecuteUriValidation(UriValidationSource::PackageCatalogSource);
 
         // CheckForExistingInstaller will set the InstallerPath if found
         if (!context.Contains(Execution::Data::InstallerPath))

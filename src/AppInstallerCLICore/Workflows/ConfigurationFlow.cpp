@@ -1301,7 +1301,7 @@ namespace AppInstaller::CLI::Workflow
 
     void CreateConfigurationProcessor(Context& context)
     {
-        context << ExecuteUriValidation(true /*isConfigurationFlow*/);
+        context << ExecuteUriValidation(UriValidationSource::ConfigurationSource);
         auto progressScope = context.Reporter.BeginAsyncProgress(true);
         progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
 

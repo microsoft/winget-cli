@@ -5,6 +5,12 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    enum UriValidationSource
+    {
+        ConfigurationSource,
+        PackageCatalogSource,
+    };
+
     // Composite flow that chooses what to do based on whether or not the
     // configuration flow is being run.
     // Required Args: None
@@ -12,12 +18,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct ExecuteUriValidation: public WorkflowTask
     {
-        ExecuteUriValidation(bool isConfigurationFlow) : WorkflowTask("ExecuteUriValidation"), m_isConfigurationFlow(isConfigurationFlow) {}
+        ExecuteUriValidation(UriValidationSource uriValidationSource) : WorkflowTask("ExecuteUriValidation"), m_uriValidationSource(uriValidationSource) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        bool m_isConfigurationFlow;
+        UriValidationSource m_uriValidationSource;
     };
 }
 
