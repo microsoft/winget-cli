@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Microsoft.WindowsPackageManager.Utils</id>
+    <version>$version$</version>
+    <title></title>
+    <authors>Microsoft</authors>
+    <owners></owners>
+    <projectUrl>https://github.com/microsoft/winget-cli</projectUrl>
+    <license type="expression">MIT</license>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>The utility binary for use with the WinGet CLI.</description>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>winget</tags>
+    <dependencies>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="YamlDotNet" version="8.1.2" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Build.x64release\src\x64\Release\WinGetUtil\WinGetUtil.dll" target="runtimes\win-x64\native\WinGetUtil.dll"/>
+    <file src="Build.x64release\src\x64\Release\WinGetUtil\WinGetUtil.pdb" target="runtimes\win-x64\native\WinGetUtil.pdb"/>
+    <file src="Build.x86release\src\x86\Release\WinGetUtil\WinGetUtil.dll" target="runtimes\win-x86\native\WinGetUtil.dll"/>
+    <file src="Build.x86release\src\x86\Release\WinGetUtil\WinGetUtil.pdb" target="runtimes\win-x86\native\WinGetUtil.pdb"/>
+    <file src="Build.x64release\schemas\JSON\manifests\**" target="content\schemas\JSON\manifests" />
+    <file src="Build.x64release\src\WinGetUtilInterop\bin\Release\netstandard2.1\WinGetUtilInterop.dll" target="lib/netstandard2.1/WinGetUtilInterop.dll" />
+    <file src="Build.x64release\src\WinGetUtilInterop\bin\Release\netstandard2.1\WinGetUtilInterop.pdb" target="lib/netstandard2.1/WinGetUtilInterop.pdb" />
+    <file src="Build.x64release\src\WinGetUtilInterop\build\Microsoft.WindowsPackageManager.Utils.targets" target="build/Microsoft.WindowsPackageManager.Utils.targets" />
+  </files>
+</package>
