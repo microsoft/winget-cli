@@ -40,6 +40,7 @@
     </PackageReference>
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     <PackageReference Include="System.Formats.Asn1" Version="6.0.1" />
+    <PackageReference Include="System.IO.Packaging" Version="6.0.1" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="6.0.4" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.8" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="6.0.1" />
@@ -60,6 +61,7 @@
   <ItemGroup>
     <None Remove="TestData\Configuration\ShowDetails_TestRepo_0_3.yml" />
     <None Remove="TestData\Configuration\WithParameters_0_3.yml" />
+    <None Remove="TestData\empty" />
     <None Remove="TestData\Manifests\TestUpgradeAddsDependency.1.0.yaml" />
     <None Remove="TestData\Manifests\TestUpgradeAddsDependency.2.0.yaml" />
     <None Remove="TestData\Manifests\TestUpgradeAddsDependencyDependent.1.0.yaml" />

@@ -34,7 +34,7 @@ void OverrideForDirectMsi(TestContext& context)
 
     context.Override({ DownloadInstallerFile, [](TestContext& context)
     {
-        context.Add<Data::HashPair>({ {}, {} });
+        context.Add<Data::DownloadHashInfo>({ {}, {} });
         // We don't have an msi installer for tests, but we won't execute it anyway
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
     } });
@@ -92,7 +92,7 @@ TEST_CASE("InstallFlow_RenameFromEncodedUrl", "[InstallFlow][workflow]")
     OverrideForCheckExistingInstaller(context);
     context.Override({ DownloadInstallerFile, [](TestContext& context)
     {
-        context.Add<Data::HashPair>({ {}, {} });
+        context.Add<Data::DownloadHashInfo>({ {}, {} });
         auto installerPath = std::filesystem::temp_directory_path();
         installerPath /= "EncodedUrlTest.exe";
         std::filesystem::copy(TestDataFile("AppInstallerTestExeInstaller.exe"), installerPath, std::filesystem::copy_options::overwrite_existing);
@@ -124,7 +124,7 @@ TEST_CASE("InstallFlow_RenameFromInvalidFileCharacterUrl", "[InstallFlow][workfl
     OverrideForCheckExistingInstaller(context);
     context.Override({ DownloadInstallerFile, [](TestContext& context)
     {
-        context.Add<Data::HashPair>({ {}, {} });
+        context.Add<Data::DownloadHashInfo>({ {}, {} });
         auto installerPath = std::filesystem::temp_directory_path();
         installerPath /= "InvalidFileCharacterUrlTest.exe";
         std::filesystem::copy(TestDataFile("AppInstallerTestExeInstaller.exe"), installerPath, std::filesystem::copy_options::overwrite_existing);

@@ -192,6 +192,26 @@ extern "C"
     }
     CATCH_RETURN()
 
+    WINGET_UTIL_API WinGetSQLiteIndexAddOrUpdateManifest(
+        WINGET_SQLITE_INDEX_HANDLE index,
+        WINGET_STRING manifestPath,
+        WINGET_STRING relativePath,
+        BOOL* indexModified) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !index);
+        THROW_HR_IF(E_INVALIDARG, !manifestPath);
+        THROW_HR_IF(E_INVALIDARG, !relativePath);
+
+        bool result = reinterpret_cast<SQLiteIndex*>(index)->AddOrUpdateManifest(manifestPath, relativePath);
+        if (indexModified)
+        {
+            *indexModified = (result ? TRUE : FALSE);
+        }
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
     WINGET_UTIL_API WinGetSQLiteIndexRemoveManifest(
         WINGET_SQLITE_INDEX_HANDLE index, 
         WINGET_STRING manifestPath,
@@ -529,12 +549,12 @@ extern "C"
         THROW_HR_IF(E_INVALIDARG, computeHash && sha256HashLength != 32);
 
         AppInstaller::ProgressCallback callback;
-        auto hashValue = Download(ConvertToUTF8(url), filePath, DownloadType::WinGetUtil, callback, computeHash);
+        auto downloadResult = Download(ConvertToUTF8(url), filePath, DownloadType::WinGetUtil, callback);
 
         // At this point, if computeHash is set we have verified that the buffer is valid and 32 bytes.
         if (computeHash)
         {
-            const auto& hash = hashValue.value();
+            const auto& hash = downloadResult.Sha256Hash;
 
             // The SHA 256 hash length should always be 32 bytes.
             THROW_HR_IF(E_UNEXPECTED, hash.size() != sha256HashLength);

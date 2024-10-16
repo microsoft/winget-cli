@@ -317,6 +317,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallersAbortTerminal);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallersRequireInstallLocation);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerTypeArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerZeroByteFile);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowInstallSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowRegistrationDeferred);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeAlreadyInstalled);

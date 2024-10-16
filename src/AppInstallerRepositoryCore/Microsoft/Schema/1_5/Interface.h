@@ -27,6 +27,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
         std::optional<std::string> GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const override;
 
     private:
+        // Gets the ARP version ranges for the given package identifier.
+        std::vector<Utility::VersionRange> GetArpVersionRanges(const SQLite::Connection& connection, SQLite::rowid_t packageIdentifier) const;
+
         // Semantic check to validate all arp version ranges within the index
         bool ValidateArpVersionConsistency(const SQLite::Connection& connection, bool log) const;
     };

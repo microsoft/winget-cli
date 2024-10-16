@@ -3133,6 +3133,12 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY" xml:space="preserve">
     <value>Parameter cannot be passed across integrity boundary.</value>
   </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALLER_ZERO_BYTE_FILE" xml:space="preserve">
+    <value>Downloaded zero byte installer; ensure that your network connection is working properly.</value>
+  </data>
+  <data name="InstallerZeroByteFile" xml:space="preserve">
+    <value>Downloaded zero byte installer; ensure that your network connection is working properly.</value>
+  </data>
   <data name="FontCommandShortDescription" xml:space="preserve">
     <value>Manage Font</value>
   </data>
