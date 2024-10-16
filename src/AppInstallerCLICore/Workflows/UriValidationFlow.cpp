@@ -125,20 +125,28 @@ namespace AppInstaller::CLI::Workflow
     // Evaluate the configuration uri for group policy and smart screen.
     HRESULT EvaluateConfigurationUri(Execution::Context& context)
     {
-        std::string argPath{ context.Args.GetArg(Execution::Args::Type::ConfigurationFile) };
-        return EvaluateUri(context, argPath);
+        if (context.Args.Contains(Execution::Args::Type::ConfigurationFile))
+        {
+            std::string argPath{ context.Args.GetArg(Execution::Args::Type::ConfigurationFile) };
+            return EvaluateUri(context, argPath);
+        }
+
+        return S_OK;
     }
 
     // Evaluate the download uri for group policy and smart screen.
     HRESULT EvaluateDownloadUri(Execution::Context& context)
     {
-        const auto packageVersion = context.Get<Execution::Data::PackageVersion>();
-        const auto source = packageVersion->GetSource();
-        const auto isTrusted = WI_IsFlagSet(source.GetDetails().TrustLevel, Repository::SourceTrustLevel::Trusted);
-        if (!isTrusted)
+        if (context.Contains(Execution::Data::PackageVersion))
         {
-            auto installer = context.Get<Execution::Data::Installer>();
-            return EvaluateUri(context, installer->Url);
+            const auto packageVersion = context.Get<Execution::Data::PackageVersion>();
+            const auto source = packageVersion->GetSource();
+            const auto isTrusted = WI_IsFlagSet(source.GetDetails().TrustLevel, Repository::SourceTrustLevel::Trusted);
+            if (!isTrusted)
+            {
+                auto installer = context.Get<Execution::Data::Installer>();
+                return EvaluateUri(context, installer->Url);
+            }
         }
 
         return S_OK;
