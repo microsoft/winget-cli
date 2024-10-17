@@ -54,10 +54,9 @@ TEST_CASE("UriValidationFlow_Configuration_SecurityZonePolicy", "[UriValidationF
 {
     SECTION("Not configured")
     {
-        SET_ZONE_POLICY_STATE_AND_BLOCK_ZONE(PolicyState::NotConfigured, SecurityZoneOptions::Internet);
+        SET_POLICY_STATE(TogglePolicy::Policy::AllowedSecurityZones, PolicyState::NotConfigured);
         EXECUTE_CONTEXT_FOR_CONFIGURATION(InternetAllow);
-        REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY);
-        REQUIRE_OUTPUT_HAS_LOC(uriValidationOutput, Resource::String::UriSecurityZoneBlockedByPolicy);
+        REQUIRE(S_OK == context.GetTerminationHR());
     }
 
     SECTION("Enabled")
@@ -106,10 +105,9 @@ TEST_CASE("UriValidationFlow_PackageCatalogSource_SecurityZonePolicy", "[UriVali
 {
     SECTION("Not configured")
     {
-        SET_ZONE_POLICY_STATE_AND_BLOCK_ZONE(PolicyState::NotConfigured, SecurityZoneOptions::Internet);
+        SET_POLICY_STATE(TogglePolicy::Policy::AllowedSecurityZones, PolicyState::NotConfigured);
         EXECUTE_CONTEXT_FOR_PACKAGE_CATALOG_SOURCE(InternetAllow);
-        REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY);
-        REQUIRE_OUTPUT_HAS_LOC(uriValidationOutput, Resource::String::UriSecurityZoneBlockedByPolicy);
+        REQUIRE(S_OK == context.GetTerminationHR());
     }
 
     SECTION("Enabled")
