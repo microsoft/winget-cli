@@ -392,6 +392,8 @@ namespace AppInstaller::Settings
             return TogglePolicy(policy, "EnableWindowsPackageManagerConfiguration"sv, String::PolicyEnableWinGetConfiguration);
         case TogglePolicy::Policy::ProxyCommandLineOptions:
             return TogglePolicy(policy, "EnableWindowsPackageManagerProxyCommandLineOptions"sv, String::PolicyEnableProxyCommandLineOptions);
+        case TogglePolicy::Policy::AllowedSecurityZones:
+            return TogglePolicy(policy, "EnableAllowedSecurityZones"sv, String::PolicyEnableAllowedSecurityZones);
         case TogglePolicy::Policy::SmartScreenValidation:
             return TogglePolicy(policy, "EnableSmartScreenValidation"sv, String::PolicyEnableSmartScreenValidation);
         default:

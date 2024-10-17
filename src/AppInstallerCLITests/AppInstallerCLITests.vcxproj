@@ -338,6 +338,7 @@
     <ClCompile Include="TestSource.cpp" />
     <ClCompile Include="UninstallFlow.cpp" />
     <ClCompile Include="UpdateFlow.cpp" />
+    <ClCompile Include="UriValidationFlow.cpp" />
     <ClCompile Include="UserSettings.cpp" />
     <ClCompile Include="Versions.cpp" />
     <ClCompile Include="WindowsFeature.cpp" />

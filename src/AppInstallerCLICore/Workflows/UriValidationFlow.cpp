@@ -4,6 +4,7 @@
 #include "UriValidationFlow.h"
 #include <AppInstallerDownloader.h>
 #include <UriValidation/UriValidation.h>
+#include <regex>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -43,6 +44,17 @@ namespace AppInstaller::CLI::Workflow
             return E_INVALIDARG;
         }
 
+        #ifndef AICLI_DISABLE_TEST_HOOKS
+        // For testing purposes, allow the zone to be set via the uri
+        std::smatch match;
+        if (std::regex_search(uri, match, std::regex("/zone(\\d+)/")))
+        {
+            std::string number = match[1].str();
+            *zone = static_cast<Settings::SecurityZoneOptions>(std::stoul(number));
+            return S_OK;
+        }
+        #endif
+
         DWORD dwZone;
         auto pInternetSecurityManager = winrt::create_instance<IInternetSecurityManager>(CLSID_InternetSecurityManager, CLSCTX_ALL);
         auto mapResult = pInternetSecurityManager->MapUrlToZone(AppInstaller::Utility::ConvertToUTF16(uri).c_str(), &dwZone, 0);
@@ -69,6 +81,12 @@ namespace AppInstaller::CLI::Workflow
     // Validate group policy for a given zone.
     bool IsBlockedByGroupPolicy(Execution::Context& context, const Settings::SecurityZoneOptions zone)
     {
+        if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::AllowedSecurityZones))
+        {
+            AICLI_LOG(Core, Info, << "AllowedSecurityZones policy is disabled");
+            return false;
+        }
+
         auto allowedSecurityZones = Settings::GroupPolicies().GetValue<Settings::ValuePolicy::AllowedSecurityZones>();
         if (!allowedSecurityZones.has_value())
         {
@@ -142,7 +160,7 @@ namespace AppInstaller::CLI::Workflow
             const auto packageVersion = context.Get<Execution::Data::PackageVersion>();
             const auto source = packageVersion->GetSource();
             const auto isTrusted = WI_IsFlagSet(source.GetDetails().TrustLevel, Repository::SourceTrustLevel::Trusted);
-            if (!isTrusted)
+            if (!isTrusted && context.Contains(Execution::Data::Installer))
             {
                 auto installer = context.Get<Execution::Data::Installer>();
                 return EvaluateUri(context, installer->Url);

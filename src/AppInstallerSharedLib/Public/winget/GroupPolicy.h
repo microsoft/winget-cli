@@ -58,6 +58,7 @@ namespace AppInstaller::Settings
             WinGetCommandLineInterfaces,
             Configuration,
             ProxyCommandLineOptions,
+            AllowedSecurityZones,
             SmartScreenValidation,
             Max,
         };

@@ -2846,6 +2846,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Enable Windows Package Manager smart screen validation</value>
     <comment></comment>
   </data>
+  <data name="PolicyEnableAllowedSecurityZones" xml:space="preserve">
+    <value>Enable Windows App Installer Allowed Security Zones</value>
+    <comment></comment>
+  </data>
   <data name="ProxyArgumentDescription" xml:space="preserve">
     <value>Set a proxy to use for this execution</value>
   </data>
