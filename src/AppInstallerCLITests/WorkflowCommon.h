@@ -13,6 +13,9 @@
     REQUIRE(_context_.IsTerminated()); \
     REQUIRE(_hr_ == _context_.GetTerminationHR())
 
+#define REQUIRE_OUTPUT_HAS_LOC(_output_, _resource_) \
+    REQUIRE(_output_.str().find(Resource::LocString(_resource_).get()) != std::string::npos);
+
 namespace TestCommon
 {
     using namespace std::string_view_literals;
