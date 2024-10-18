@@ -364,6 +364,7 @@
     <ClInclude Include="Commands\ErrorCommand.h" />
     <ClInclude Include="Commands\ExperimentalCommand.h" />
     <ClInclude Include="Commands\ExportCommand.h" />
+    <ClInclude Include="Commands\FontCommand.h" />
     <ClInclude Include="Commands\ImportCommand.h" />
     <ClInclude Include="Commands\FeaturesCommand.h" />
     <ClInclude Include="Commands\HashCommand.h" />
@@ -410,6 +411,7 @@
     <ClInclude Include="Workflows\CompletionFlow.h" />
     <ClInclude Include="Workflows\DependencyNodeProcessor.h" />
     <ClInclude Include="Workflows\DownloadFlow.h" />
+    <ClInclude Include="Workflows\FontFlow.h" />
     <ClInclude Include="Workflows\ImportExportFlow.h" />
     <ClInclude Include="Workflows\MsiInstallFlow.h" />
     <ClInclude Include="Workflows\MSStoreInstallerHandler.h" />
@@ -441,6 +443,7 @@
     <ClCompile Include="Commands\DebugCommand.cpp" />
     <ClCompile Include="Commands\DownloadCommand.cpp" />
     <ClCompile Include="Commands\ErrorCommand.cpp" />
+    <ClCompile Include="Commands\FontCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="Commands\PinCommand.cpp" />
     <ClCompile Include="Commands\RepairCommand.cpp" />
@@ -490,6 +493,7 @@
     <ClCompile Include="Workflows\CompletionFlow.cpp" />
     <ClCompile Include="Workflows\DependencyNodeProcessor.cpp" />
     <ClCompile Include="Workflows\DownloadFlow.cpp" />
+    <ClCompile Include="Workflows\FontFlow.cpp" />
     <ClCompile Include="Workflows\ImportExportFlow.cpp" />
     <ClCompile Include="Workflows\MsiInstallFlow.cpp" />
     <ClCompile Include="Workflows\MSStoreInstallerHandler.cpp" />
