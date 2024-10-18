@@ -9,6 +9,8 @@
 #include "RemovePackageCatalogOptions.h"
 #pragma warning( pop )
 #include "RemovePackageCatalogOptions.g.cpp"
+#include "Converters.h"
+#include "Helpers.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {

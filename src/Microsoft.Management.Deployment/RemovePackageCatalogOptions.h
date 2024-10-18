@@ -1,14 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "public/ComClsids.h"
 #include "RemovePackageCatalogOptions.g.h"
-#include "Public/CoCreatableMicrosoftManagementDeploymentClass.h"
+#include "public/ComClsids.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     [uuid(WINGET_OUTOFPROC_COM_CLSID_RemovePackageCatalogOptions)]
-        struct RemovePackageCatalogOptions : RemovePackageCatalogOptionsT<RemovePackageCatalogOptions>
+    struct RemovePackageCatalogOptions : RemovePackageCatalogOptionsT<RemovePackageCatalogOptions>
     {
         RemovePackageCatalogOptions() = default;
 

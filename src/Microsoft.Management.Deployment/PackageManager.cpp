@@ -30,9 +30,12 @@
 #include "PackageCatalogReference.h"
 #include "PackageVersionInfo.h"
 #include "PackageVersionId.h"
+#include "AddPackageCatalogResult.h"
+#include "RemovePackageCatalogResult.h"
 #include "Converters.h"
 #include "Helpers.h"
 #include "ContextOrchestrator.h"
+#include "AppInstallerRuntime.h"
 
 using namespace std::literals::chrono_literals;
 using namespace ::AppInstaller::CLI;
@@ -843,7 +846,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 }
                 else if constexpr (std::is_same_v<TProgress, winrt::Microsoft::Management::Deployment::PackageUninstallProgressState>)
                 {
-                    TProgress queuedProgress{ TProgressState::Queued, 0};
+                    TProgress queuedProgress{ TProgressState::Queued, 0 };
                     report_progress(queuedProgress);
                 }
                 else if constexpr (std::is_same_v<TProgress, winrt::Microsoft::Management::Deployment::PackageDownloadProgressState>)
@@ -1197,20 +1200,257 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             true /*canCancelQueueItem*/, nullptr /*queueItem*/, package, options, std::move(callerProcessInfoString));
     }
 
+    winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus GetAddPackageCatalogStatus(winrt::hresult terminationStatus)
+    {
+        switch (terminationStatus)
+        {
+        case S_OK:
+            return winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus::Ok;
+        case APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS:
+            return winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus::InvalidOptions;
+        case APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY:
+            return winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus::GroupPolicyError;
+        case APPINSTALLER_CLI_ERROR_SOURCES_INVALID:
+        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST:
+        case APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED:
+            return winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus::CatalogError;
+        case APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN:
+        case E_ACCESSDENIED:
+            return winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus::AccessDenied;
+        case APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED:
+            return winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus::SourceAgreementsNotAccepted;
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED:
+            return winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus::AuthenticationError;
+        case APPINSTALLER_CLI_ERROR_INTERNAL_ERROR:
+        default:
+            return winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus::InternalError;
+        }
+    }
+
+    winrt::Microsoft::Management::Deployment::AddPackageCatalogResult GetAddPackageCatalogResult(winrt::hresult terminationStatus)
+    {
+        winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus status = GetAddPackageCatalogStatus(terminationStatus);
+        auto addPackageCatalogResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AddPackageCatalogResult>>();
+        addPackageCatalogResult->Initialize(status, terminationStatus);
+        return *addPackageCatalogResult;
+    }
+
+    void CheckForDuplicateSource(const std::string& name, const std::string& type, const std::string& sourceUri)
+    {
+        auto sourceList = ::AppInstaller::Repository::Source::GetCurrentSources();
+
+        std::string sourceType = type;
+
+        // [NOTE:] If the source type is not specified, the default source type will be used for validation.In cases where the source type is empty,
+        // it remains unassigned until the add operation, at which point it is assigned.Without this default assignment, an empty string could be
+        // compared to the default type, potentially allowing different source names with the same URI to be seen as unique.
+        // To avoid this, assign the default source type prior to comparison.
+        if (sourceType.empty())
+        {
+            // This method of obtaining the default source type is slightly expensive as it requires creating a SourceFactory object
+            // and fetching the type name.Nonetheless, it future - proofs the code against any changes in the SourceFactory's default type.
+            sourceType = ::AppInstaller::Repository::ISourceFactory::GetForType("")->TypeName();
+        }
+
+        for (const auto& source : sourceList)
+        {
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, ::AppInstaller::Utility::ICUCaseInsensitiveEquals(source.Name, name));
+
+            bool sourceUriAlreadyExists = !source.Arg.empty() && source.Arg == sourceUri && source.Type == sourceType;
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS, sourceUriAlreadyExists);
+        }
+    }
+
+    ::AppInstaller::Repository::Source CreateSourceFromOptions(const winrt::Microsoft::Management::Deployment::AddPackageCatalogOptions& options)
+    {
+        std::string name = winrt::to_string(options.Name());
+        std::string type = winrt::to_string(options.Type());
+        std::string sourceUri = winrt::to_string(options.SourceUri());
+
+        AppInstaller::Repository::SourceTrustLevel trustLevel = AppInstaller::Repository::SourceTrustLevel::None;
+        if (options.TrustLevel() == winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel::Trusted)
+        {
+            trustLevel = AppInstaller::Repository::SourceTrustLevel::Trusted;
+        }
+
+        CheckForDuplicateSource(name, type, sourceUri);
+
+        ::AppInstaller::Repository::Source source = ::AppInstaller::Repository::Source{ name, sourceUri, type, trustLevel, options.Explicit() };
+
+        // This will throw if the source details are not initialized properly, acting as a validation check for the source object.
+        source.GetDetails();
+
+        std::string customHeader = winrt::to_string(options.CustomHeader());
+        if (!customHeader.empty())
+        {
+            source.SetCustomHeader(customHeader);
+        }
+
+        return source;
+    }
+
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::AddPackageCatalogResult, double> PackageManager::AddPackageCatalogAsync(winrt::Microsoft::Management::Deployment::AddPackageCatalogOptions options)
     {
-        UNREFERENCED_PARAMETER(options);
+        LogStartupIfApplicable();
 
-        // TODO: Implement AddPackageCatalogAsync
-        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::AddPackageCatalogResult, double>();
+        // options must be set.
+        if (!options)
+        {
+            co_return GetAddPackageCatalogResult(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS);
+        }
+
+        if (options.Name().empty() || options.SourceUri().empty())
+        {
+            co_return GetAddPackageCatalogResult(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS);
+        }
+
+        HRESULT terminationHR = S_OK;
+        try {
+
+            // Check if running as admin
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN, !AppInstaller::Runtime::IsRunningAsAdmin());
+
+            ::AppInstaller::Repository::Source sourceToAdd = CreateSourceFromOptions(options);
+
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED, sourceToAdd.GetInformation().Authentication.Type == ::AppInstaller::Authentication::AuthenticationType::Unknown);
+
+            if (!sourceToAdd.CheckSourceAgreements())
+            {
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED, !options.AcceptSourceAgreements());
+                sourceToAdd.SaveAcceptedSourceAgreements();
+            }
+
+            auto report_progress{ co_await winrt::get_progress_token() };
+            co_await winrt::resume_background();
+
+            AppInstaller::CallbackDispatcherSink progressCallback;
+
+            progressCallback.AddCallback([&report_progress](uint64_t current, uint64_t maximum, AppInstaller::ProgressType type)
+                {
+                    UNREFERENCED_PARAMETER(type);
+                    report_progress(static_cast<double>(current) / static_cast<double>(maximum));
+                });
+
+            ::AppInstaller::ProgressCallback progress(&progressCallback);
+
+            sourceToAdd.Add(progress);
+        }
+        WINGET_CATALOG_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
+
+        co_return GetAddPackageCatalogResult(terminationHR);
+    }
+
+    winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus GetRemoveCatalogStatus(winrt::hresult terminationStatus)
+    {
+        switch (terminationStatus)
+        {
+        case S_OK:
+            return winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus::Ok;
+        case APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS:
+            return winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus::InvalidOptions;
+        case APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY:
+            return winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus::GroupPolicyError;
+        case APPINSTALLER_CLI_ERROR_SOURCES_INVALID:
+        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST:
+        case APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED:
+            return winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus::CatalogError;
+        case APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN:
+        case E_ACCESSDENIED:
+            return winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus::AccessDenied;
+        case APPINSTALLER_CLI_ERROR_INTERNAL_ERROR:
+        default:
+            return winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus::InternalError;
+        }
+    }
+
+    winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult GetRemovePackageCatalogResult(winrt::hresult terminationStatus)
+    {
+        winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus status = GetRemoveCatalogStatus(terminationStatus);
+        auto removeResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::RemovePackageCatalogResult>>();
+        removeResult->Initialize(status, terminationStatus);
+        return *removeResult;
+    }
+
+    #include <optional>
+    std::optional<::AppInstaller::Repository::SourceDetails> GetMatchingSource(const std::string& name)
+    {
+        auto sourceList = ::AppInstaller::Repository::Source::GetCurrentSources();
+
+        for (const auto& source : sourceList)
+        {
+            if (::AppInstaller::Utility::ICUCaseInsensitiveEquals(source.Name, name))
+            {
+                return source; // Return the first matching source
+            }
+        }
+
+        return std::nullopt; // Return std::nullopt if no matching source is found
     }
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double> PackageManager::RemovePackageCatalogAsync(winrt::Microsoft::Management::Deployment::RemovePackageCatalogOptions options)
     {
-        UNREFERENCED_PARAMETER(options);
+        LogStartupIfApplicable();
 
-        // TODO: Implement RemovePackageCatalogAsync
-        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double>();
+        // options must be set.
+        if (!options)
+        {
+            co_return GetRemovePackageCatalogResult(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS);
+        }
+
+        if (options.Name().empty())
+        {
+            co_return GetRemovePackageCatalogResult(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS);
+        }
+
+        HRESULT terminationHR = S_OK;
+        try {
+            // Check if running as admin
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN, !AppInstaller::Runtime::IsRunningAsAdmin());
+
+            auto matchingSource = GetMatchingSource(winrt::to_string(options.Name()));
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, !matchingSource.has_value());
+
+            auto report_progress{ co_await winrt::get_progress_token() };
+            co_await winrt::resume_background();
+
+            AppInstaller::CallbackDispatcherSink progressCallback;
+            ::AppInstaller::Repository::Source sourceToRemove = ::AppInstaller::Repository::Source{ matchingSource.value().Name };
+
+            progressCallback.AddCallback([&report_progress](uint64_t current, uint64_t maximum, AppInstaller::ProgressType type)
+                {
+                    UNREFERENCED_PARAMETER(type);
+                    report_progress(static_cast<double>(current) / static_cast<double>(maximum));
+                });
+
+            ::AppInstaller::ProgressCallback progress(&progressCallback);
+
+            // If the PreserveData option is set, this is equivalent to the WinGet CLI Reset command on a single source; otherwise, it removes the source.
+            if (options.PreserveData())
+            {
+                progressCallback.BeginProgress();
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, !sourceToRemove.DropSource(matchingSource.value().Name));
+                progressCallback.OnProgress(100, 100, AppInstaller::ProgressType::Percent);
+            }
+            else
+            {
+                sourceToRemove.Remove(progress);
+            }
+        }
+        WINGET_CATALOG_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
+
+        co_return GetRemovePackageCatalogResult(terminationHR);
     }
 
     CoCreatableMicrosoftManagementDeploymentClass(PackageManager);

@@ -18,6 +18,8 @@
 #include <AppInstallerStrings.h>
 #include <winget/UserSettings.h>
 #include <Helpers.h>
+#include <ExecutionContext.h>
+#include <RefreshPackageCatalogResult.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -290,11 +292,66 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return m_authenticationInfo;
     }
 
+    RefreshPackageCatalogStatus GetCatalogStatus(winrt::hresult terminationStatus)
+    {
+        switch (terminationStatus)
+        {
+        case S_OK:
+            return RefreshPackageCatalogStatus::Ok;
+        case APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY:
+            return RefreshPackageCatalogStatus::GroupPolicyError;
+        case APPINSTALLER_CLI_ERROR_SOURCES_INVALID:
+        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST:
+        case APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED:
+            return RefreshPackageCatalogStatus::CatalogError;
+        case APPINSTALLER_CLI_ERROR_INTERNAL_ERROR:
+        default:
+            return RefreshPackageCatalogStatus::InternalError;
+        }
+    }
+
+    winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult GetRefreshPackageCatalogResult(winrt::hresult terminationStatus)
+    {
+        winrt::Microsoft::Management::Deployment::RefreshPackageCatalogStatus status = GetCatalogStatus(terminationStatus);
+        auto updateResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::RefreshPackageCatalogResult>>();
+        updateResult->Initialize(status, terminationStatus);
+        return *updateResult;
+    }
+
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult, double> PackageCatalogReference::RefreshPackageCatalogAsync()
     {
-        // TODO: Add PackageQuery capability check
+        ::AppInstaller::Logging::Telemetry().SetCaller(GetCallerName());
+        ::AppInstaller::Logging::Telemetry().LogStartup(true);
 
-        // TODO: Implement RefreshPackageCatalogAsync
-        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult, double>();
+        HRESULT terminationHR = S_OK;
+        try
+        {
+            // Check for permissions and get caller info for telemetry
+            THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageQuery));
+
+            auto report_progress{ co_await winrt::get_progress_token() };
+            co_await winrt::resume_background();
+
+            AppInstaller::CallbackDispatcherSink progressCallback;
+
+            progressCallback.AddCallback([&report_progress](uint64_t current, uint64_t maximum, AppInstaller::ProgressType type)
+                {
+                    UNREFERENCED_PARAMETER(type);
+                    report_progress(static_cast<double>(current) / static_cast<double>(maximum));
+                });
+
+            ::AppInstaller::ProgressCallback progress(&progressCallback);
+
+            this->m_sourceReference.Update(progress);
+        }
+        WINGET_CATALOG_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
+
+        co_return GetRefreshPackageCatalogResult(terminationHR);
     }
 }
