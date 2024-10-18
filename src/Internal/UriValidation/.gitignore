@@ -1,0 +1,4 @@
+# The following files are injected in the pipeline build
+packages.config
+UriValidation.props
+UriValidation_internal.cpp

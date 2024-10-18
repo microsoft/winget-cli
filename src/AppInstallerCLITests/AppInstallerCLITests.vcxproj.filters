@@ -365,6 +365,9 @@
     <ClCompile Include="Sixel.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
+    <ClCompile Include="UriValidationFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
