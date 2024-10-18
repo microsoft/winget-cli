@@ -134,4 +134,43 @@ namespace AppInstaller
         m_rangeMin = rangeMin;
         m_rangeMax = rangeMax;
     }
+
+    void CallbackDispatcherSink::BeginProgress()
+    {
+        FireCallbacks(0, 0, ProgressType::None);
+    }
+
+    void CallbackDispatcherSink::OnProgress(uint64_t current, uint64_t maximum, ProgressType type)
+    {
+        FireCallbacks(current, maximum, type);
+    }
+
+    void CallbackDispatcherSink::SetProgressMessage(std::string_view message)
+    {
+        UNREFERENCED_PARAMETER(message);
+        // No-op
+    }
+
+    void CallbackDispatcherSink::EndProgress(bool hideProgressWhenDone)
+    {
+        UNREFERENCED_PARAMETER(hideProgressWhenDone);
+        FireCallbacks(0, 0, ProgressType::None);
+    }
+
+    void CallbackDispatcherSink::AddCallback(ProgressCallBack&& callback)
+    {
+        std::lock_guard<std::mutex> lock{ m_progressCallbackMutex };
+        m_progressCallbacks.push_back(std::move(callback));
+    }
+
+    void CallbackDispatcherSink::FireCallbacks(uint64_t current, uint64_t maximum, ProgressType type)
+    {
+        // Lock around iterating through the list. Callbacks should not do long running tasks.
+        std::lock_guard<std::mutex> lock{ m_progressCallbackMutex };
+
+        for (auto& callback : m_progressCallbacks)
+        {
+            callback(current, maximum, type);
+        }
+    }
 }
