@@ -236,7 +236,7 @@ namespace AppInstallerCLIE2ETests.Interop
         }
 
         /// <summary>
-        /// Remove a non-existent package catalog.
+        /// Remove a package catalog that is not present.
         /// </summary>
         /// <returns>representing the asynchronous unit test.</returns>
         [Test]
