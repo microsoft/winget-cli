@@ -292,33 +292,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return m_authenticationInfo;
     }
 
-    RefreshPackageCatalogStatus GetCatalogStatus(winrt::hresult terminationStatus)
-    {
-        switch (terminationStatus)
-        {
-        case S_OK:
-            return RefreshPackageCatalogStatus::Ok;
-        case APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY:
-            return RefreshPackageCatalogStatus::GroupPolicyError;
-        case APPINSTALLER_CLI_ERROR_SOURCES_INVALID:
-        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING:
-        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS:
-        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST:
-        case APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS:
-        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE:
-        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE:
-        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE:
-        case APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED:
-            return RefreshPackageCatalogStatus::CatalogError;
-        case APPINSTALLER_CLI_ERROR_INTERNAL_ERROR:
-        default:
-            return RefreshPackageCatalogStatus::InternalError;
-        }
-    }
-
     winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult GetRefreshPackageCatalogResult(winrt::hresult terminationStatus)
     {
-        winrt::Microsoft::Management::Deployment::RefreshPackageCatalogStatus status = GetCatalogStatus(terminationStatus);
+        winrt::Microsoft::Management::Deployment::RefreshPackageCatalogStatus status = GetPackageCatalogOperationStatus<RefreshPackageCatalogStatus>(terminationStatus);
         auto updateResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::RefreshPackageCatalogResult>>();
         updateResult->Initialize(status, terminationStatus);
         return *updateResult;
@@ -343,7 +319,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             progressCallback.AddCallback([&report_progress](uint64_t current, uint64_t maximum, AppInstaller::ProgressType type)
                 {
                     UNREFERENCED_PARAMETER(type);
-                    report_progress(static_cast<double>(current) / static_cast<double>(maximum));
+                    UNREFERENCED_PARAMETER(maximum);
+                    report_progress(static_cast<double>(current));
                 });
 
             ::AppInstaller::ProgressCallback progress(&progressCallback);
