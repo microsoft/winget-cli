@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(11)] // For version 1.9
+    [contractversion(12)] // For version 1.10
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -863,7 +863,7 @@ namespace Microsoft.Management.Deployment
         }
     }
 
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
     enum RefreshPackageCatalogStatus
     {
         Ok,
@@ -873,7 +873,7 @@ namespace Microsoft.Management.Deployment
     };
 
     /// IMPLEMENTATION NOTE: RefreshPackageCatalogResult
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
     runtimeclass RefreshPackageCatalogResult
     {
         RefreshPackageCatalogStatus Status { get; };
@@ -937,7 +937,7 @@ namespace Microsoft.Management.Deployment
             AuthenticationInfo AuthenticationInfo { get; };
         }
 
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
         {
             /// Updates the package catalog.
             Windows.Foundation.IAsyncOperationWithProgress<RefreshPackageCatalogResult, Double> RefreshPackageCatalogAsync();
@@ -1377,7 +1377,7 @@ namespace Microsoft.Management.Deployment
     }
 
     /// IMPLEMENTATION NOTE: AddPackageCatalogOptions
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
     runtimeclass AddPackageCatalogOptions
     {
         AddPackageCatalogOptions();
@@ -1411,7 +1411,7 @@ namespace Microsoft.Management.Deployment
     };
 
     /// IMPLEMENTATION NOTE: AddPackageCatalogStatus
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
     enum AddPackageCatalogStatus
     {
         Ok,
@@ -1425,7 +1425,7 @@ namespace Microsoft.Management.Deployment
     };
 
     /// IMPLEMENTATION NOTE: AddPackageCatalogResult
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
     runtimeclass AddPackageCatalogResult
     {
         AddPackageCatalogStatus Status { get; };
@@ -1435,7 +1435,7 @@ namespace Microsoft.Management.Deployment
     };
 
     /// IMPLEMENTATION NOTE: RemovePackageCatalogOptions
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
     runtimeclass RemovePackageCatalogOptions
     {
         RemovePackageCatalogOptions();
@@ -1455,7 +1455,7 @@ namespace Microsoft.Management.Deployment
     };
 
     /// IMPLEMENTATION NOTE: RemovePackageCatalogStatus
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
     enum RemovePackageCatalogStatus
     {
         Ok,
@@ -1467,8 +1467,8 @@ namespace Microsoft.Management.Deployment
     };
 
     /// IMPLEMENTATION NOTE: RemovePackageCatalogResult
-/// Result of removing a package catalog.
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    /// Result of removing a package catalog.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
     runtimeclass RemovePackageCatalogResult
     {
         RemovePackageCatalogStatus Status { get; };
@@ -1496,7 +1496,7 @@ namespace Microsoft.Management.Deployment
         /// (Installing, Installed) together at the same time.
         PackageCatalogReference CreateCompositePackageCatalog(CreateCompositePackageCatalogOptions options);
 
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
         {
             /// Add a catalog to the Windows Package Catalogs.
             Windows.Foundation.IAsyncOperationWithProgress<AddPackageCatalogResult, Double> AddPackageCatalogAsync(AddPackageCatalogOptions options);
