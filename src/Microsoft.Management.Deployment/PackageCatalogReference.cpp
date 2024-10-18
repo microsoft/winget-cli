@@ -289,4 +289,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             });
         return m_authenticationInfo;
     }
+
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult, double> PackageCatalogReference::RefreshPackageCatalogAsync()
+    {
+        // TODO: Add PackageQuery capability check
+
+        // TODO: Implement RefreshPackageCatalogAsync
+        return winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult, double>();
+    }
 }
