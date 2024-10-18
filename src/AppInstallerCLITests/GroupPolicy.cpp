@@ -402,6 +402,8 @@ TEST_CASE("GroupPolicy_AllEnabled", "[groupPolicy]")
     SetRegistryValue(policiesKey.get(), EnableWindowsPackageManagerCommandLineInterfaces, 1);
     SetRegistryValue(policiesKey.get(), ConfigurationPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), ProxyCommandLineOptionsPolicyValueName, 1);
+    SetRegistryValue(policiesKey.get(), AllowedSecurityZonesPolicyValueName, 1);
+    SetRegistryValue(policiesKey.get(), SmartScreenValidationPolicyValueName, 1);
 
     GroupPolicy groupPolicy{ policiesKey.get() };
     for (const auto& policy : TogglePolicy::GetAllPolicies())
