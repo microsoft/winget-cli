@@ -8,7 +8,7 @@ namespace AppInstaller::CLI
 {
     struct FontCommand final : public Command
     {
-        FontCommand(std::string_view parent) : Command("font", {} /* aliases */, parent, Settings::ExperimentalFeature::Feature::Font) {}
+        FontCommand(std::string_view parent) : Command("font", { "fonts" }, parent, Settings::ExperimentalFeature::Feature::Font) {}
 
         std::vector<std::unique_ptr<Command>> GetCommands() const override;
 

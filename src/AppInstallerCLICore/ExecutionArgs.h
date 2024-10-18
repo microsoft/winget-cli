@@ -122,7 +122,7 @@ namespace AppInstaller::CLI::Execution
             IgnoreResumeLimit,
 
             // Font Command
-            FamilyName,
+            Family,
 
             // Configuration
             ConfigurationFile,

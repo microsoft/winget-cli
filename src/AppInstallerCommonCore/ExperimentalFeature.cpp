@@ -49,7 +49,7 @@ namespace AppInstaller::Settings
             case ExperimentalFeature::Feature::ConfigureExport:
                 return userSettings.Get<Setting::EFConfigureExport>();
             case ExperimentalFeature::Feature::Font:
-                return userSettings.Get<Setting::EFFont>();
+                return userSettings.Get<Setting::EFFonts>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }

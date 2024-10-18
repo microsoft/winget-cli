@@ -288,8 +288,8 @@
           "type": "boolean",
           "default": false
         },
-        "Font": {
-          "description": "Enable support for managing Font",
+        "fonts": {
+          "description": "Enable support for managing fonts",
           "type": "boolean",
           "default":  false
         }

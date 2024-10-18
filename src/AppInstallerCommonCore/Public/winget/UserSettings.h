@@ -78,7 +78,7 @@ namespace AppInstaller::Settings
         EFConfiguration03,
         EFConfigureSelfElevation,
         EFConfigureExport,
-        EFFont,
+        EFFonts,
         // Telemetry
         TelemetryDisable,
         // Install behavior
@@ -162,7 +162,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfiguration03, bool, bool, false, ".experimentalFeatures.configuration03"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfigureSelfElevation, bool, bool, false, ".experimentalFeatures.configureSelfElevate"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfigureExport, bool, bool, false, ".experimentalFeatures.configureExport"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFFont, bool, bool, false, ".experimentalFeatures.font"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFFonts, bool, bool, false, ".experimentalFeatures.fonts"sv);
         // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         // Install behavior

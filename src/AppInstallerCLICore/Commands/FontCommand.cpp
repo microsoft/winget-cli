@@ -14,7 +14,7 @@ namespace AppInstaller::CLI
     using namespace AppInstaller::Utility::literals;
     using namespace std::string_view_literals;
 
-    Utility::LocIndView s_FontCommand_HelpLink = "https://aka.ms/winget-command-help"_liv;
+    Utility::LocIndView s_FontCommand_HelpLink = "https://aka.ms/winget-command-font"_liv;
 
     std::vector<std::unique_ptr<Command>> FontCommand::GetCommands() const
     {
@@ -46,7 +46,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> FontListCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Args::Type::FamilyName),
+            Argument::ForType(Args::Type::Family),
             Argument::ForType(Args::Type::Moniker),
             Argument::ForType(Args::Type::Source),
             Argument::ForType(Args::Type::Tag),
@@ -81,6 +81,6 @@ namespace AppInstaller::CLI
 
     void FontListCommand::ExecuteInternal(Execution::Context& context) const
     {
-        context << Workflow::ReportInstalledFontsResult;
+        context << Workflow::ReportInstalledFonts;
     }
 }

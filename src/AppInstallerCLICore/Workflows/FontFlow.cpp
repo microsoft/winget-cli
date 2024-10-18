@@ -55,12 +55,12 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void ReportInstalledFontsResult(Execution::Context& context)
+    void ReportInstalledFonts(Execution::Context& context)
     {
-        if (context.Args.Contains(Args::Type::FamilyName))
+        if (context.Args.Contains(Args::Type::Family))
         {
-            // TODO: Utilize font index for better searching capabitility.
-            const auto& familyNameArg = context.Args.GetArg(Args::Type::FamilyName);
+            // TODO: Utilize font index for better searching capability.
+            const auto& familyNameArg = context.Args.GetArg(Args::Type::Family);
             const auto& fontFamily = AppInstaller::Fonts::GetInstalledFontFamily(AppInstaller::Utility::ConvertToUTF16(familyNameArg));
 
             if (!fontFamily.has_value())

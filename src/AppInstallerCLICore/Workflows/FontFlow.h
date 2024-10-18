@@ -9,5 +9,5 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: None
     // Outputs: None
-    void ReportInstalledFontsResult(Execution::Context& context);
+    void ReportInstalledFonts(Execution::Context& context);
 }
