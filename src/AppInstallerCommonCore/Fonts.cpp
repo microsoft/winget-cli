@@ -4,6 +4,7 @@
 #include <dwrite_3.h>
 #include <AppInstallerStrings.h>
 #include <winget/Fonts.h>
+#include <winget/Locale.h>
 
 namespace AppInstaller::Fonts
 {
@@ -34,12 +35,9 @@ namespace AppInstaller::Fonts
                     THROW_IF_FAILED(localLoader->GetFilePathLengthFromKey(fontFileReferenceKey, fontFileReferenceKeySize, &pathLength));
                     pathLength += 1; // Account for the trailing null terminator during allocation.
 
-                    std::wstring path;
-                    path.reserve(pathLength);
-
+                    wchar_t* path = new wchar_t[pathLength];
                     THROW_IF_FAILED(localLoader->GetFilePathFromKey(fontFileReferenceKey, fontFileReferenceKeySize, &path[0], pathLength));
-                    std::filesystem::path fontFilePath = { std::move(path) };
-                    filePaths.push_back(std::move(fontFilePath));
+                    filePaths.push_back(std::move(std::wstring(path)));
                 }
             }
 
@@ -48,12 +46,13 @@ namespace AppInstaller::Fonts
 
         std::wstring GetLocalizedStringFromFont(const wil::com_ptr<IDWriteLocalizedStrings>& localizedStringCollection)
         {
-            wchar_t localeNameBuffer[LOCALE_NAME_MAX_LENGTH];
-            const auto localeName = GetUserDefaultLocaleName(localeNameBuffer, LOCALE_NAME_MAX_LENGTH) ? localeNameBuffer : L"en-US";
+            std::vector<std::string> locales = AppInstaller::Locale::GetUserPreferredLanguages();
+            std::wstring preferredLocale = Utility::ConvertToUTF16(!locales.empty() ? locales[0] : "en-US");
 
             UINT32 index;
             BOOL exists;
-            if (FAILED(localizedStringCollection->FindLocaleName(localeName, &index, &exists)) || !exists)
+            // TODO: Aggregrate available locales and find best alternative locale if preferred locale does not exist.
+            if (FAILED(localizedStringCollection->FindLocaleName(preferredLocale.c_str(), &index, &exists)) || !exists)
             {
                 index = 0;
             }
@@ -63,8 +62,7 @@ namespace AppInstaller::Fonts
             length += 1; // Account for the trailing null terminator during allocation.
 
             wchar_t* localizedString = new wchar_t[length];
-            HRESULT hr = localizedStringCollection->GetString(index, localizedString, length);
-            THROW_IF_FAILED(hr);
+            THROW_IF_FAILED(localizedStringCollection->GetString(index, localizedString, length));
             return std::wstring(localizedString);
         }
 

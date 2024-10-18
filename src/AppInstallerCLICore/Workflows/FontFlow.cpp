@@ -4,6 +4,7 @@
 #include "FontFlow.h"
 #include "TableOutput.h"
 #include <winget/Fonts.h>
+#include <AppInstallerRuntime.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -46,8 +47,15 @@ namespace AppInstaller::CLI::Workflow
         {
             Execution::TableOutput<3> table(context.Reporter, { Resource::String::FontFace, Resource::String::FontFamily, Resource::String::FontFilePaths });
 
-            for (const auto& line : lines)
+            bool anonymizePath = Settings::User().Get<Settings::Setting::AnonymizePathForDisplay>();
+
+            for (auto line : lines)
             {
+                if (anonymizePath)
+                {
+                    AppInstaller::Runtime::ReplaceProfilePathsWithEnvironmentVariable(line.FilePath);
+                }
+
                 table.OutputLine({ line.FaceName, line.FamilyName, line.FilePath.u8string() });
             }
 

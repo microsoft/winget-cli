@@ -154,6 +154,13 @@ namespace AppInstaller::CLI
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRoot }, Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRoot, true).u8string() });
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRoot86 }, Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX86, true).u8string() });
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::InstallerDownloads }, Runtime::GetPathTo(Runtime::PathName::UserProfileDownloads, true).u8string() });
+
+            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Font))
+            {
+                keyDirectories.OutputLine({ Resource::LocString{ Resource::String::FontsInstallLocationUser }, Runtime::GetPathTo(Runtime::PathName::FontsUserInstallLocation, true).u8string() });
+                keyDirectories.OutputLine({ Resource::LocString{ Resource::String::FontsInstallLocationMachine }, Runtime::GetPathTo(Runtime::PathName::FontsMachineInstallLocation, true).u8string() });
+            }
+
             keyDirectories.Complete();
             context.Reporter.Info() << std::endl;
         }
