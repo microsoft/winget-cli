@@ -47,5 +47,9 @@
          clsid="{30C024C4-852C-4DD4-9810-1348C51EF9BB}"
         threadingModel="Both"
         description="RepairOptions"/>
+    <comClass
+        clsid="{24E6F1FA-E4C3-4ACD-965D-DF213FD58F15}"
+        threadingModel="Both"
+        description="AddPackageCatalogOptions"/>
   </file>
 </assembly>

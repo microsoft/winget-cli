@@ -30,6 +30,8 @@ CoCreatableClassWrlCreatorMapInclude(PackageMatchFilter);
 CoCreatableClassWrlCreatorMapInclude(AuthenticationArguments);
 CoCreatableClassWrlCreatorMapInclude(PackageManagerSettings);
 CoCreatableClassWrlCreatorMapInclude(RepairOptions);
+CoCreatableClassWrlCreatorMapInclude(AddPackageCatalogOptions);
+CoCreatableClassWrlCreatorMapInclude(RemovePackageCatalogOptions);
 
 // Shim for configuration static functions
 CoCreatableClassWrlCreatorMapInclude(ConfigurationStaticFunctionsShim);

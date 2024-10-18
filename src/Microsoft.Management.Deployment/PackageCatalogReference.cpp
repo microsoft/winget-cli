@@ -18,6 +18,8 @@
 #include <AppInstallerStrings.h>
 #include <winget/UserSettings.h>
 #include <Helpers.h>
+#include <ExecutionContext.h>
+#include <RefreshPackageCatalogResult.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -288,5 +290,45 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 }
             });
         return m_authenticationInfo;
+    }
+
+    winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult GetRefreshPackageCatalogResult(winrt::hresult terminationStatus)
+    {
+        winrt::Microsoft::Management::Deployment::RefreshPackageCatalogStatus status = GetPackageCatalogOperationStatus<RefreshPackageCatalogStatus>(terminationStatus);
+        auto updateResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::RefreshPackageCatalogResult>>();
+        updateResult->Initialize(status, terminationStatus);
+        return *updateResult;
+    }
+
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult, double> PackageCatalogReference::RefreshPackageCatalogAsync()
+    {
+        ::AppInstaller::Logging::Telemetry().SetCaller(GetCallerName());
+        ::AppInstaller::Logging::Telemetry().LogStartup(true);
+
+        HRESULT terminationHR = S_OK;
+        try
+        {
+            // Check for permissions and get caller info for telemetry
+            THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageQuery));
+
+            auto report_progress{ co_await winrt::get_progress_token() };
+            co_await winrt::resume_background();
+
+            AppInstaller::CallbackDispatcherSink progressCallback;
+
+            progressCallback.AddCallback([&report_progress](uint64_t current, uint64_t maximum, AppInstaller::ProgressType type)
+                {
+                    UNREFERENCED_PARAMETER(type);
+                    UNREFERENCED_PARAMETER(maximum);
+                    report_progress(static_cast<double>(current));
+                });
+
+            ::AppInstaller::ProgressCallback progress(&progressCallback);
+
+            this->m_sourceReference.Update(progress);
+        }
+        WINGET_CATALOG_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
+
+        co_return GetRefreshPackageCatalogResult(terminationHR);
     }
 }
