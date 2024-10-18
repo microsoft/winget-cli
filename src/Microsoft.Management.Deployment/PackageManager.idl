@@ -1501,7 +1501,7 @@ namespace Microsoft.Management.Deployment
             /// Add a catalog to the Windows Package Catalogs.
             Windows.Foundation.IAsyncOperationWithProgress<AddPackageCatalogResult, Double> AddPackageCatalogAsync(AddPackageCatalogOptions options);
 
-            /// Unregisters a Packagecatalog from the Windows Package Catalogs and eliminates the system artifacts based on the provided options.
+            /// Unregisters a Package Catalog from the Windows Package Catalogs and eliminates the system artifacts based on the provided options.
             Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, Double> RemovePackageCatalogAsync(RemovePackageCatalogOptions options);
         }
 
