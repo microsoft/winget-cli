@@ -3130,4 +3130,13 @@
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
     <value>Не удалось получить Microsoft Store пакета. Учетная Microsoft Entra идентификатора учетной записи не имеет необходимых привилегий.</value>
   </data>
+  <data name="WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY" xml:space="preserve">
+    <value>Параметр нельзя передать через границу целостности.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALLER_ZERO_BYTE_FILE" xml:space="preserve">
+    <value>Скачан установщик нулевого байта. Убедитесь, что ваше сетевое подключение работает правильно.</value>
+  </data>
+  <data name="InstallerZeroByteFile" xml:space="preserve">
+    <value>Скачан установщик нулевого байта. Убедитесь, что ваше сетевое подключение работает правильно.</value>
+  </data>
 </root>

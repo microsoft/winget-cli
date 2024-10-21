@@ -10,14 +10,14 @@ namespace AppInstaller::Fonts
     {
         std::wstring Name;
         std::vector<std::filesystem::path> FilePaths;
-
-        // TODO: Add support for font face versions.
+        std::wstring Version;
     };
 
     struct FontFamily
     {
         std::wstring Name;
         std::vector<FontFace> Faces;
+        std::wstring Version;
     };
 
     /// <summary>

@@ -3169,4 +3169,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="FontsInstallLocationMachine" xml:space="preserve">
     <value>Fonts Install Location (Machine)</value>
   </data>
+  <data name="FontVersion" xml:space="preserve">
+    <value>Version</value>
+  </data>
 </root>

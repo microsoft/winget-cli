@@ -80,6 +80,35 @@ namespace AppInstaller::Fonts
             return GetLocalizedStringFromFont(familyNames);
         }
 
+        std::wstring GetFontFaceVersion(const wil::com_ptr<IDWriteFont>& font)
+        {
+            wil::com_ptr<IDWriteLocalizedStrings> fontVersion;
+            BOOL exists;
+            THROW_IF_FAILED(font->GetInformationalStrings(DWRITE_INFORMATIONAL_STRING_VERSION_STRINGS, fontVersion.addressof(), &exists));
+            if (!exists)
+            {
+                return {};
+            }
+
+            std::string value = Utility::ConvertToUTF8(GetLocalizedStringFromFont(fontVersion));
+
+            // Version is returned in the format of 'Version 2.137 ;2017'
+            // Extract out the parts between 'Version' and ';'
+            if (Utility::CaseInsensitiveContainsSubstring(value, "Version"))
+            {
+                Utility::FindAndReplace(value, "Version", "");
+            }
+
+            if (Utility::CaseInsensitiveContainsSubstring(value, ";"))
+            {
+                Utility::FindAndReplace(value, ";", "");
+            }
+
+            Utility::Trim(value);
+            std::vector<std::string> items = Utility::Split(value, ' ', true);
+            return Utility::ConvertToUTF16(items[0]);
+        }
+
         wil::com_ptr<IDWriteFontFamily> CreateFontFamily(const wil::com_ptr<IDWriteFontCollection>& collection, UINT32 index)
         {
             wil::com_ptr<IDWriteFontFamily> family;
@@ -164,6 +193,7 @@ namespace AppInstaller::Fonts
             FontFace fontFaceEntry;
             fontFaceEntry.Name = faceName;
             fontFaceEntry.FilePaths = GetFontFilePaths(fontFace);
+            fontFaceEntry.Version = GetFontFaceVersion(font);
             fontFaces.emplace_back(std::move(fontFaceEntry));
         }
 

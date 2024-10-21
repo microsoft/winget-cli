@@ -23,10 +23,11 @@ namespace AppInstaller::CLI::Workflow
 
         struct InstalledFontFacesTableLine
         {
-            InstalledFontFacesTableLine(Utility::LocIndString faceName, Utility::LocIndString familyName, std::filesystem::path filePath)
-                : FaceName(faceName), FamilyName(familyName), FilePath(filePath) {}
+            InstalledFontFacesTableLine(Utility::LocIndString faceName, Utility::LocIndString faceVersion, Utility::LocIndString familyName, std::filesystem::path filePath)
+                : FaceName(faceName), FaceVersion(faceVersion), FamilyName(familyName), FilePath(filePath) {}
 
             Utility::LocIndString FaceName;
+            Utility::LocIndString FaceVersion;
             Utility::LocIndString FamilyName;
             std::filesystem::path FilePath;
         };
@@ -45,7 +46,7 @@ namespace AppInstaller::CLI::Workflow
 
         void OutputInstalledFontFacesTable(Execution::Context& context, const std::vector<InstalledFontFacesTableLine>& lines)
         {
-            Execution::TableOutput<3> table(context.Reporter, { Resource::String::FontFace, Resource::String::FontFamily, Resource::String::FontFilePaths });
+            Execution::TableOutput<4> table(context.Reporter, { Resource::String::FontFace, Resource::String::FontVersion, Resource::String::FontFamily, Resource::String::FontFilePaths });
 
             bool anonymizePath = Settings::User().Get<Settings::Setting::AnonymizePathForDisplay>();
 
@@ -56,7 +57,7 @@ namespace AppInstaller::CLI::Workflow
                     AppInstaller::Runtime::ReplaceProfilePathsWithEnvironmentVariable(line.FilePath);
                 }
 
-                table.OutputLine({ line.FaceName, line.FamilyName, line.FilePath.u8string() });
+                table.OutputLine({ line.FaceName, line.FaceVersion, line.FamilyName, line.FilePath.u8string() });
             }
 
             table.Complete();
@@ -89,6 +90,7 @@ namespace AppInstaller::CLI::Workflow
                     {
                         InstalledFontFacesTableLine line(
                             Utility::LocIndString(Utility::ToLower(Utility::ConvertToUTF8(fontFace.Name))),
+                            Utility::LocIndString(Utility::ConvertToUTF8(fontFace.Version)),
                             familyName,
                             filePath.u8string()
                         );
@@ -97,7 +99,7 @@ namespace AppInstaller::CLI::Workflow
                     }
                     else
                     {
-                        InstalledFontFacesTableLine line({}, {}, filePath.u8string());
+                        InstalledFontFacesTableLine line({}, {}, {}, filePath.u8string());
                         lines.push_back(std::move(line));
                     }
                 }
