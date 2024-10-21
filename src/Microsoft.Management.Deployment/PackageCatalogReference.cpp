@@ -302,12 +302,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult, double> PackageCatalogReference::RefreshPackageCatalogAsync()
     {
-        ::AppInstaller::Logging::Telemetry().SetCaller(GetCallerName());
-        ::AppInstaller::Logging::Telemetry().LogStartup(true);
-
         HRESULT terminationHR = S_OK;
-        try
-        {
+        try {
             // Check for permissions and get caller info for telemetry
             THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageQuery));
 
@@ -327,7 +323,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
             this->m_sourceReference.Update(progress);
         }
-        WINGET_CATALOG_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
+        catch (...)
+        {
+            terminationHR = AppInstaller::CLI::Workflow::HandleException(nullptr, std::current_exception());
+        }
 
         co_return GetRefreshPackageCatalogResult(terminationHR);
     }

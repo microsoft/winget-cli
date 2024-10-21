@@ -143,59 +143,93 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
 
     template <typename TStatus>
-    TStatus GetPackageCatalogOperationStatus(winrt::hresult hresult)
+    TStatus HandleCommonCatalogOperationStatus(winrt::hresult hresult)
     {
-        // Applicable only for AddPackageCatalogStatus
-        if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus>)
+        // Common status handling for AddPackageCatalogStatus and RemovePackageCatalogStatus.
+        if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus> || std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus>)
         {
             switch (hresult)
             {
-            case APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED:
-                return TStatus::SourceAgreementsNotAccepted;
-            case APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED:
-                return TStatus::AuthenticationError;
-            default:
-                break;
-            }
-        }
-
-        // Applicable only for AddPackageCatalogStatus and RemovePackageCatalogStatus
-        if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus>
-            || std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus>)
-        {
-            switch (hresult)
-            {
-            case APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS:
-            case E_INVALIDARG:
-                return TStatus::InvalidOptions;
             case APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN:
             case E_ACCESSDENIED:
                 return TStatus::AccessDenied;
+            case APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS:
+            case E_INVALIDARG:
+                return TStatus::InvalidOptions;
             default:
                 break;
             }
         }
 
-        // Handle the common status codes across add, remove and refresh operations.
+        // Common status handling for AddPackageCatalogStatus, RemovePackageCatalogStatus, and RefreshPackageCatalogStatus.
         switch (hresult)
         {
         case S_OK:
             return TStatus::Ok;
         case APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY:
             return TStatus::GroupPolicyError;
-        case APPINSTALLER_CLI_ERROR_SOURCES_INVALID:
-        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING:
-        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS:
-        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST:
-        case APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS:
-        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE:
-        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE:
         case APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE:
-        case APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED:
             return TStatus::CatalogError;
         case APPINSTALLER_CLI_ERROR_INTERNAL_ERROR:
         default:
             return TStatus::InternalError;
+        }
+    }
+
+    template <typename TStatus>
+    TStatus GetAddPackageCatalogOperationStatus(winrt::hresult hresult)
+    {
+        switch (hresult)
+        {
+        case APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED:
+            return TStatus::SourceAgreementsNotAccepted;
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED:
+            return TStatus::AuthenticationError;
+        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE:
+        case APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS:
+        case APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS:
+            return TStatus::InvalidOptions;
+        case APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED:
+            return TStatus::CatalogError;
+        default:
+            return HandleCommonCatalogOperationStatus<TStatus>(hresult);
+        }
+    }
+
+    template <typename TStatus>
+    TStatus GetRemovePackageCatalogOperationStatus(winrt::hresult hresult)
+    {
+        switch (hresult)
+        {
+        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST:
+            return TStatus::InvalidOptions;
+        case APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE:
+            return TStatus::CatalogError;
+        default:
+            return HandleCommonCatalogOperationStatus<TStatus>(hresult);
+        }
+    }
+
+    template <typename TStatus>
+    TStatus GetPackageCatalogOperationStatus(winrt::hresult hresult)
+    {
+        if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus>)
+        {
+            return GetAddPackageCatalogOperationStatus<AddPackageCatalogStatus>(hresult);
+        }
+        else if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus>)
+        {
+            return GetRemovePackageCatalogOperationStatus<RemovePackageCatalogStatus>(hresult);
+        }
+        else if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::RefreshPackageCatalogStatus>)
+        {
+            return HandleCommonCatalogOperationStatus<RefreshPackageCatalogStatus>(hresult);
+        }
+        else
+        {
+            throw winrt::hresult_error(E_UNEXPECTED);
         }
     }
 }

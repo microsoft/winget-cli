@@ -25,13 +25,6 @@
         WINGET_CATCH_STD_EXCEPTION_STORE(exceptionHR, genericHR) \
         WINGET_CATCH_ALL_EXCEPTION_STORE(exceptionHR, genericHR)
 
-#define WINGET_CATALOG_CATCH_STORE(exceptionHR, genericHR) \
-        WINGET_CATCH_RESULT_EXCEPTION_STORE(exceptionHR) \
-        WINGET_CATCH_HRESULT_EXCEPTION_STORE(exceptionHR) \
-        WINGET_CATCH_POLICY_EXCEPTION_STORE(exceptionHR) \
-        WINGET_CATCH_STD_EXCEPTION_STORE(exceptionHR, genericHR) \
-        WINGET_CATCH_ALL_EXCEPTION_STORE(exceptionHR, genericHR)
-
 // Terminates the Context with some logging to indicate the location.
 // Also returns from the current function.
 #define AICLI_TERMINATE_CONTEXT_ARGS(_context_,_hr_,_ret_) \

@@ -1013,13 +1013,49 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         ::AppInstaller::Repository::Source source = ::AppInstaller::Repository::Source{ name, sourceUri, type, trustLevel, options.Explicit() };
 
-        // This will throw if the source details are not initialized properly, acting as a validation check for the source object.
-        source.GetDetails();
-
         std::string customHeader = winrt::to_string(options.CustomHeader());
         if (!customHeader.empty())
         {
             source.SetCustomHeader(customHeader);
+        }
+
+        try
+        {
+            auto sourceInfo = source.GetInformation();
+
+            if (sourceInfo.Authentication.Type == ::AppInstaller::Authentication::AuthenticationType::Unknown)
+            {
+                throw winrt::hresult_error(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
+            }
+
+            if (!source.CheckSourceAgreements())
+            {
+                if(!options.AcceptSourceAgreements())
+                {
+                    throw winrt::hresult_error(APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED);
+                }
+
+                source.SaveAcceptedSourceAgreements();
+            }
+        }
+        catch (const winrt::hresult_error& hre)
+        {
+            if (hre.code() == APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED)
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
+            }
+            else if (hre.code() == APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED)
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED);
+            }
+            else
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+            }
+        }
+        catch (...) // Catch all exceptions
+        {
+            THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
         }
 
         return source;
@@ -1305,17 +1341,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         try {
 
             // Check if running as admin
+            // [NOTE:] For OutOfProc calls, the Windows Package Manager Service executes in the context initiated by the caller process,
+            //so the same admin validation check is applicable for both InProc and OutOfProc calls.
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN, !AppInstaller::Runtime::IsRunningAsAdmin());
 
             ::AppInstaller::Repository::Source sourceToAdd = CreateSourceFromOptions(options);
-
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED, sourceToAdd.GetInformation().Authentication.Type == ::AppInstaller::Authentication::AuthenticationType::Unknown);
-
-            if (!sourceToAdd.CheckSourceAgreements())
-            {
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED, !options.AcceptSourceAgreements());
-                sourceToAdd.SaveAcceptedSourceAgreements();
-            }
 
             auto report_progress{ co_await winrt::get_progress_token() };
             co_await winrt::resume_background();
@@ -1333,7 +1363,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
             sourceToAdd.Add(progress);
         }
-        WINGET_CATALOG_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
+        catch (...)
+        {
+            terminationHR = AppInstaller::CLI::Workflow::HandleException(nullptr, std::current_exception());
+        }
 
         co_return GetAddPackageCatalogResult(terminationHR);
     }
@@ -1356,6 +1389,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         HRESULT terminationHR = S_OK;
         try {
             // Check if running as admin
+            // [NOTE:] For OutOfProc calls, the Windows Package Manager Service executes in the context initiated by the caller process,
+            //so the same admin validation check is applicable for both InProc and OutOfProc calls.
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN, !AppInstaller::Runtime::IsRunningAsAdmin());
 
             auto matchingSource = GetMatchingSource(winrt::to_string(options.Name()));
@@ -1388,7 +1423,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 sourceToRemove.Remove(progress);
             }
         }
-        WINGET_CATALOG_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
+        catch (...)
+        {
+            terminationHR = AppInstaller::CLI::Workflow::HandleException(nullptr, std::current_exception());
+        }
 
         co_return GetRemovePackageCatalogResult(terminationHR);
     }

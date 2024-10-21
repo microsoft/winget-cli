@@ -101,7 +101,7 @@ namespace AppInstallerCLIE2ETests.Interop
             await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.Ok);
 
             // Add the same package catalog again.
-            await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.CatalogError, Constants.ErrorCode.ERROR_SOURCE_NAME_ALREADY_EXISTS);
+            await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.InvalidOptions, Constants.ErrorCode.ERROR_SOURCE_NAME_ALREADY_EXISTS);
 
             // Remove the tests source if it exists.
             RemovePackageCatalogOptions removePackageCatalogOptions = this.TestFactory.CreateRemovePackageCatalogOptions();
@@ -126,7 +126,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Add the same package catalog again.
             options.Name = "TestSource2";
-            await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.CatalogError, Constants.ErrorCode.ERROR_SOURCE_ARG_ALREADY_EXISTS);
+            await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.InvalidOptions, Constants.ErrorCode.ERROR_SOURCE_ARG_ALREADY_EXISTS);
 
             // Remove the tests source if it exists.
             RemovePackageCatalogOptions removePackageCatalogOptions = this.TestFactory.CreateRemovePackageCatalogOptions();
@@ -148,6 +148,37 @@ namespace AppInstallerCLIE2ETests.Interop
             options.AcceptSourceAgreements = true;
 
             await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.InternalError);
+        }
+
+        /// <summary>
+        /// Add package catalog with insecure source uri.
+        /// </summary>
+        /// <returns>representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task AddPackageCatalogWithHttpSourceUri()
+        {
+            AddPackageCatalogOptions options = this.TestFactory.CreateAddPackageCatalogOptions();
+            options.SourceUri = "http://microsoft.com";
+            options.Name = "Insecure";
+            options.TrustLevel = PackageCatalogTrustLevel.Trusted;
+            options.AcceptSourceAgreements = true;
+
+            await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.InvalidOptions, Constants.ErrorCode.ERROR_SOURCE_NOT_SECURE);
+        }
+
+        /// <summary>
+        /// Add package catalog with invalid type.
+        /// </summary>
+        /// <returns>representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task AddPackageCatalogWithInvalidType()
+        {
+            AddPackageCatalogOptions options = this.TestFactory.CreateAddPackageCatalogOptions();
+            options.SourceUri = Constants.TestSourceUrl;
+            options.Name = Constants.TestSourceName;
+            options.Type = "InvalidType";
+
+            await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.InvalidOptions, Constants.ErrorCode.ERROR_INVALID_SOURCE_TYPE);
         }
 
         /// <summary>
@@ -245,7 +276,7 @@ namespace AppInstallerCLIE2ETests.Interop
             RemovePackageCatalogOptions removePackageCatalogOptions = this.TestFactory.CreateRemovePackageCatalogOptions();
             removePackageCatalogOptions.Name = Constants.TestSourceName;
 
-            await this.RemoveAndValidatePackageCatalogAsync(removePackageCatalogOptions, RemovePackageCatalogStatus.CatalogError, Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST);
+            await this.RemoveAndValidatePackageCatalogAsync(removePackageCatalogOptions, RemovePackageCatalogStatus.InvalidOptions, Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST);
         }
 
         /// <summary>
