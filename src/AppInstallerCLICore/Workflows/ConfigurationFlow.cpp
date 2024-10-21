@@ -1299,13 +1299,19 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void CreateConfigurationProcessor(Context& context)
+    void CreateConfigurationProcessorInternal(Context& context)
     {
-        context << ExecuteUriValidation(UriValidationSource::ConfigurationSource);
         auto progressScope = context.Reporter.BeginAsyncProgress(true);
         progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
 
         anon::ConfigureProcessorForUse(context, ConfigurationProcessor{ anon::CreateConfigurationSetProcessorFactory(context) });
+    }
+
+    void CreateConfigurationProcessor(Context& context)
+    {
+        context <<
+            ExecuteUriValidation(UriValidationSource::ConfigurationSource) <<
+            CreateConfigurationProcessorInternal;
     }
 
     void CreateConfigurationProcessorWithoutFactory(Execution::Context& context)

@@ -194,22 +194,9 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void DownloadInstaller(Execution::Context& context)
+    void DownloadInstallerInternal(Execution::Context& context)
     {
-        // Check if file was already downloaded.
-        // This may happen after a failed installation or if the download was done
-        // separately before, e.g. on COM scenarios.
-        context <<
-            ReportExecutionStage(ExecutionStage::Download) <<
-            CheckForExistingInstaller;
-
-        if (context.IsTerminated())
-        {
-            return;
-        }
-
         bool installerDownloadOnly = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
-        context << ExecuteUriValidation(UriValidationSource::PackageCatalogSource);
 
         // CheckForExistingInstaller will set the InstallerPath if found
         if (!context.Contains(Execution::Data::InstallerPath))
@@ -268,6 +255,25 @@ namespace AppInstaller::CLI::Workflow
         {
             context << ExportManifest;
         }
+    }
+
+    void DownloadInstaller(Execution::Context& context)
+    {
+        // Check if file was already downloaded.
+        // This may happen after a failed installation or if the download was done
+        // separately before, e.g. on COM scenarios.
+        context <<
+            ReportExecutionStage(ExecutionStage::Download) <<
+            CheckForExistingInstaller;
+
+        if (context.IsTerminated())
+        {
+            return;
+        }
+
+        context <<
+            ExecuteUriValidation(UriValidationSource::PackageCatalogSource) <<
+            DownloadInstallerInternal;
     }
 
     void CheckForExistingInstaller(Execution::Context& context)
