@@ -984,8 +984,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         if (sourceType.empty())
         {
             // This method of obtaining the default source type is slightly expensive as it requires creating a SourceFactory object
-            // and fetching the type name.Nonetheless, it future - proofs the code against any changes in the SourceFactory's default type.
-            sourceType = ::AppInstaller::Repository::ISourceFactory::GetForType("")->TypeName();
+            // and fetching the type name.Nonetheless, it future-proofs the code against any changes in the SourceFactory's default type.
+            sourceType = ::AppInstaller::Repository::Source::GetDefaultSourceType();
         }
 
         for (const auto& source : sourceList)
