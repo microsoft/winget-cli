@@ -45,6 +45,9 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void SourceAddWithTrustLevel()
         {
+            // Remove the test source.
+            TestCommon.RunAICLICommand("source remove", Constants.TestSourceName);
+
             var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl} --trust-level trusted");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
@@ -62,6 +65,9 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void SourceAddWithStoreOriginTrustLevel()
         {
+            // Remove the test source.
+            TestCommon.RunAICLICommand("source remove", Constants.TestSourceName);
+
             var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl} --trust-level storeOrigin");
             Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_DATA_INTEGRITY_FAILURE, result.ExitCode);
             Assert.True(result.StdOut.Contains("The source data is corrupted or tampered"));
@@ -101,6 +107,18 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} https://microsoft.com");
             Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_ALREADY_EXISTS, result.ExitCode);
             Assert.True(result.StdOut.Contains("A source with the given name already exists and refers to a different location"));
+        }
+
+        /// <summary>
+        /// Test source add with duplicate source url.
+        /// </summary>
+        [Test]
+        public void SourceAddWithDuplicateSourceUrl()
+        {
+            // Add source with duplicate url should fail
+            var result = TestCommon.RunAICLICommand("source add", $"TestSource2 {Constants.TestSourceUrl}");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_ARG_ALREADY_EXISTS, result.ExitCode);
+            Assert.True(result.StdOut.Contains("A source with a different name already refers to this location"));
         }
 
         /// <summary>
