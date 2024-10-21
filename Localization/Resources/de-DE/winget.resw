@@ -3130,4 +3130,13 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
     <value>Fehler beim Abrufen Microsoft Store Paketlizenz. Das Microsoft Entra-ID-Konto verfügt nicht über die erforderlichen Berechtigungen.</value>
   </data>
+  <data name="WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY" xml:space="preserve">
+    <value>Der Parameter kann nicht über die Integritätsgrenze hinweg übergeben werden.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALLER_ZERO_BYTE_FILE" xml:space="preserve">
+    <value>Das Zero-Byte-Installationsprogramm wurde heruntergeladen. stellen Sie sicher, dass die Netzwerkverbindung ordnungsgemäß funktioniert.</value>
+  </data>
+  <data name="InstallerZeroByteFile" xml:space="preserve">
+    <value>Das Zero-Byte-Installationsprogramm wurde heruntergeladen. stellen Sie sicher, dass die Netzwerkverbindung ordnungsgemäß funktioniert.</value>
+  </data>
 </root>
