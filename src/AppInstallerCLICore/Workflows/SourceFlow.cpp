@@ -57,8 +57,8 @@ namespace AppInstaller::CLI::Workflow
         // This is necessary for the comparison to function correctly; otherwise, it would allow the addition of multiple
         // sources with different names but the same argument for all default type cases.
         // For example, the following commands would be allowed, but they acts as different alias to same source:
-        //      winget source add "TestSource1" "https:\\testsource1" --trust - level trusted
-        //      winget source add "TestSource2" "https:\\testsource1" --trust - level trusted
+        //      winget source add "mysource1" "https:\\mysource" --trust - level trusted
+        //      winget source add "mysource2" "https:\\mysource" --trust - level trusted
         if (type.empty())
         {
             type = Repository::Source::GetDefaultSourceType();
