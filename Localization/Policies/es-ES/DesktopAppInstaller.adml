@@ -7,51 +7,51 @@
   <resources>
     <stringTable>
       <string id="AppInstaller">Instalador de aplicaciones de escritorio</string>
-      <string id="EnableAppInstaller">Habilitar el instalador de aplicaciones</string>
+      <string id="EnableAppInstaller">Habilitar el Administrador de paquetes de Windows</string>
       <string id="EnableAppInstallerExplanation">Esta directiva controla si los usuarios pueden usar el administrador de paquetes de Windows.
 
 Si habilitas o no estableces esta configuración, los usuarios podrán usar el administrador de paquetes de Windows.
 
 Si deshabilitas esta configuración, los usuarios no podrán usar el administrador de paquetes de Windows.</string>
-      <string id="EnableSettings">Habilitar la configuración del instalador de aplicaciones</string>
+      <string id="EnableSettings">Habilitar la configuración del Administrador de paquetes de Windows</string>
       <string id="EnableSettingsExplanation">Esta directiva controla si los usuarios pueden cambiar su configuración.
 
 Si habilita o no establece esta configuración, los usuarios podrán cambiar la configuración del administrador de paquetes de Windows.
 
 Si deshabilitas esta configuración, los usuarios no podrán cambiar la configuración del administrador de paquetes de Windows.</string>
-      <string id="EnableExperimentalFeatures">Habilitar las funciones experimentales del instalador de aplicaciones</string>
+      <string id="EnableExperimentalFeatures">Habilitar Administrador de paquetes de Windows características experimentales</string>
       <string id="EnableExperimentalFeaturesExplanation">Esta directiva controla si los usuarios pueden habilitar características experimentales en el administrador de paquetes de Windows.
 
 Si habilitas o no configuras esta opción, los usuarios podrán habilitar las características experimentales para el administrador de paquetes de Windows.
 
 Si deshabilitas esta configuración, los usuarios no podrán habilitar las características experimentales para el administrador de paquetes de Windows.</string>
-      <string id="EnableLocalManifestFiles">Habilitar los archivos de manifiesto locales del instalador de aplicaciones</string>
+      <string id="EnableLocalManifestFiles">Habilitar Administrador de paquetes de Windows archivos de manifiesto local</string>
       <string id="EnableLocalManifestFilesExplanation">Esta directiva controla si los usuarios pueden instalar paquetes con archivos de manifiesto locales.
 
 Si habilitas o no configuras esta opción, los usuarios podrán instalar paquetes con manifiestos locales mediante el administrador de paquetes de Windows.
 
 Si deshabilitas esta configuración, los usuarios no podrán instalar paquetes con manifiestos locales mediante el administrador de paquetes de Windows.</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStore">Habilitación de la omisión de validación de certificados de origen del Instalador de aplicación para Microsoft Store</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Habilitar Administrador de paquetes de Windows Microsoft Store omisión de validación de certificado de origen</string>
       <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">Esta directiva controla si el Administrador de paquetes de Windows validará las coincidencias del hash del certificado de Microsoft Store con un certificado de Microsoft Store conocido al iniciar una conexión con el origen de Microsoft Store. 
 Si habilita esta directiva, el Administrador de paquetes de Windows omitirá la validación del certificado de Microsoft Store. 
 
 Si deshabilita esta directiva, el Administrador de paquetes de Windows validará que el certificado de Microsoft Store usado es válido y pertenece a Microsoft Store antes de comunicarse con el origen de Microsoft Store.
 
 Si no establece esta directiva, se usará la configuración de administrador del Administrador de paquetes de Windows.</string>
-      <string id="EnableHashOverride">Habilitar la anulación del hash del instalador de la aplicación</string>
+      <string id="EnableHashOverride">Habilitar invalidación de hash de Administrador de paquetes de Windows</string>
       <string id="EnableHashOverrideExplanation">Esta directiva controla si se puede configurar el administrador de paquetes de Windows para que permita revertir la validación de seguridad SHA256 en la configuración.
 
 Si habilita o no configura esta directiva, los usuarios podrán habilitar la capacidad de revertir la validación de seguridad SHA256 en la configuración del administrador de paquetes de Windows.
 
 Si deshabilita esta directiva, los usuarios no podrán habilitar la capacidad de revertir la validación de seguridad SHA256 en la configuración del administrador de paquetes de Windows.</string>
-      <string id="EnableLocalArchiveMalwareScanOverride">Habilitación de la omisión de detección de malware de archivos locales del Instalador de aplicación</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">Habilitar Administrador de paquetes de Windows invalidación del examen de malware de archivo local</string>
       <string id="EnableLocalArchiveMalwareScanOverrideExplanation">Esta directiva controla la capacidad de invalidar los exámenes de vulnerabilidades de malware al instalar un archivo de almacenamiento mediante un manifiesto local mediante los argumentos de la línea de comandos.
 Si habilita esta directiva, los usuarios pueden invalidar el examen de malware al realizar una instalación de manifiesto local de un archivo de almacenamiento.
 
 Si deshabilita esta directiva, los usuarios no podrán invalidar el examen de malware de un archivo de almacenamiento al instalarlo mediante un manifiesto local.
 
 Si no establece esta directiva, se cumplirá la configuración de administrador de Administrador de paquetes de Windows.</string>
-      <string id="EnableDefaultSource">Habilitar el origen predeterminado del instalador de aplicaciones</string>
+      <string id="EnableDefaultSource">Habilitar Administrador de paquetes de Windows origen predeterminado</string>
       <string id="EnableDefaultSourceExplanation">Esta directiva controla la fuente predeterminada incluida con el Administrador de paquetes de Windows.
 
 Si no configura esta opción, el origen predeterminado para el Administrador de paquetes de Windows estará disponible y podrá eliminarse.
@@ -59,7 +59,7 @@ Si no configura esta opción, el origen predeterminado para el Administrador de 
 Si habilita esta configuración, el origen predeterminado para el Administrador de paquetes de Windows estará disponible y no se podrá eliminar.
 
 Si desactiva esta configuración, la fuente por defecto para el Administrador de Paquetes de Windows no estará disponible.</string>
-      <string id="EnableMicrosoftStoreSource">Habilitar el instalador de aplicaciones de origen de Microsoft Store</string>
+      <string id="EnableMicrosoftStoreSource">Habilitar Administrador de paquetes de Windows origen de Microsoft Store</string>
       <string id="EnableMicrosoftStoreSourceExplanation">Esta directiva controla la fuente de la Tienda Microsoft incluida en el Administrador de paquetes de Windows.
 
 Si no configura esta opción, el origen de la Tienda Microsoft para el Administrador de paquetes de Windows estará disponible y se podrá elimina.
@@ -67,13 +67,13 @@ Si no configura esta opción, el origen de la Tienda Microsoft para el Administr
 Si habilita esta configuración, el origen de Microsoft Store para el Administrador de paquetes de Windows estará disponible y no se podrá eliminar.
 
 Si desactiva esta configuración, el origen de la Tienda Microsoft para el Administrador de paquetes de Windows no estará disponible.</string>
-      <string id="SourceAutoUpdateInterval">Establecer el intervalo de actualización automática de la fuente del instalador de aplicaciones en minutos</string>
+      <string id="SourceAutoUpdateInterval">Establecer el intervalo de actualización automática del origen del Administrador de paquetes de Windows en minutos</string>
       <string id="SourceAutoUpdateIntervalExplanation">Esta directiva controla el intervalo de actualización automática para orígenes basados en paquetes. El origen predeterminado para Administrador de paquetes de Windows está configurado de forma que un índice de los paquetes se almacena en caché en el equipo local. El índice se descarga cuando un usuario invoca un comando y el intervalo ha pasado.
 
 Si deshabilita o no establece esta configuración, se usará el intervalo predeterminado o el valor especificado en la configuración de Administrador de paquetes de Windows.
 
 Si habilita esta configuración, el Administrador de paquetes de Windows usará el número de minutos especificado.</string>
-      <string id="EnableAdditionalSources">Habilitar orígenes adicionales del instalador de aplicaciones</string>
+      <string id="EnableAdditionalSources">Habilitar Administrador de paquetes de Windows orígenes adicionales</string>
       <string id="EnableAdditionalSourcesExplanation">Esta directiva controla los orígenes adicionales proporcionados por el administrador de TI de la empresa.
 
 Si no configura esta directiva, los orígenes adicionales no se podrán configurar para el Administrador de paquetes de Windows.
@@ -81,7 +81,7 @@ Si no configura esta directiva, los orígenes adicionales no se podrán configur
 Si habilita esta directiva, los orígenes adicionales se agregarán al Administrador de paquetes de Windows y no se podrán eliminar. La representación de cada origen adicional puede obtenerse de las fuentes instaladas mediante "winget source export".
 
 Si desactiva esta directiva, no se podrán configurar orígenes adicionales para el Administrador de paquetes de Windows.</string>
-      <string id="EnableAllowedSources">Habilitar los orígenes permitidos del instalador de aplicaciones</string>
+      <string id="EnableAllowedSources">Habilitar Administrador de paquetes de Windows orígenes permitidos</string>
       <string id="EnableAllowedSourcesExplanation">Esta directiva controla los orígenes adicionales permitidos por el administrador de TI de la empresa
 
 Si no configura esta directiva, los usuarios podrán agregar o eliminar fuentes adicionales distintas de las configuradas por la directiva.
@@ -122,6 +122,20 @@ Si deshabilita o no establece esta configuración, los usuarios no podrán confi
 Si deshabilita o no establece esta configuración, no se usará ningún proxy de forma predeterminada.
 
 Si habilita esta configuración, el proxy especificado se usará de forma predeterminada.</string>
+      <string id="EnableMsixAllowedZones">Habilitar Instalador de aplicación zonas permitidas para paquetes MSIX</string>
+      <string id="EnableMsixAllowedZonesExplanation">Esta directiva controla si Instalador de aplicación permite instalar paquetes procedentes de zonas URL específicas. El origen de un paquete está determinado por su URI y si hay presente un Mart-of-the-Web (MotW). Si hay varios URI implicados, se consideran todos; por ejemplo, cuando se usa un archivo .appinstaller que implica redirección.
+
+Si habilita esta directiva, los usuarios podrán instalar paquetes MSIX según la configuración de cada zona.
+
+Si deshabilitas o no configuras esta directiva, los usuarios podrán instalar paquetes MSIX desde cualquier zona excepto si no son de confianza.</string>
+      <string id="ZoneAllowed">Permitir</string>
+      <string id="ZoneBlocked">Bloquear</string>
+      <string id="EnableMsixSmartScreenCheck">Habilitar las comprobaciones de Microsoft SmartScreen para paquetes MSIX</string>
+      <string id="EnableMsixSmartScreenCheckExplanation">Esta directiva controla si Instalador de aplicación realiza comprobaciones de SmartScreen de Microsoft al instalar paquetes MSIX.
+
+Si habilitas o no configuras esta directiva, el URI del paquete se evaluará con Microsoft SmartScreen antes de la instalación. Esta comprobación solo se realiza para los paquetes procedentes de Internet.
+
+Si lo deshabilita, no se consultará a Microsoft SmartScreen antes de instalar un paquete.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
@@ -137,6 +151,13 @@ Si habilita esta configuración, el proxy especificado se usará de forma predet
         <textBox refId="WindowsPackageManagerDefaultProxy">
           <label>Proxy predeterminado</label>
         </textBox>
+      </presentation>
+      <presentation id="MsixAllowedZones">
+        <dropdownList refId="LocalMachine" noSort="true" defaultItem="1">Equipo local</dropdownList>
+        <dropdownList refId="Intranet" noSort="true" defaultItem="1">Intranet</dropdownList>
+        <dropdownList refId="TrustedSites" noSort="true" defaultItem="1">Sitios de confianza</dropdownList>
+        <dropdownList refId="Internet" noSort="true" defaultItem="1">Internet</dropdownList>
+        <dropdownList refId="UntrustedSites" noSort="true" defaultItem="0">Sitio que no es de confianza</dropdownList>
       </presentation>
     </presentationTable>
   </resources>
