@@ -3130,4 +3130,13 @@
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
     <value>Microsoft Store 패키지 라이선스를 검색하지 못했습니다. Microsoft Entra ID 계정에 필요한 권한이 없습니다.</value>
   </data>
+  <data name="WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY" xml:space="preserve">
+    <value>무결성 경계를 넘어 매개 변수를 전달할 수 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALLER_ZERO_BYTE_FILE" xml:space="preserve">
+    <value>0 바이트 설치 관리자 다운로드됨; 네트워크 연결이 제대로 작동하는지 확인하십시오.</value>
+  </data>
+  <data name="InstallerZeroByteFile" xml:space="preserve">
+    <value>0 바이트 설치 관리자 다운로드됨; 네트워크 연결이 제대로 작동하는지 확인하십시오.</value>
+  </data>
 </root>
