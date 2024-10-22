@@ -7,7 +7,6 @@ EXPORTS
     WinGetSQLiteIndexClose
     WinGetSQLiteIndexAddManifest
     WinGetSQLiteIndexUpdateManifest
-    WinGetSQLiteIndexAddOrUpdateManifest
     WinGetSQLiteIndexRemoveManifest
     WinGetSQLiteIndexPrepareForPackaging
     WinGetSQLiteIndexCheckConsistency

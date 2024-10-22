@@ -90,27 +90,6 @@ namespace Microsoft.WinGetUtil.Api
         }
 
         /// <inheritdoc/>
-        public bool AddOrUpdateManifest(string manifestPath, string relativePath)
-        {
-            try
-            {
-                // For now, modifying a manifest implies that the file didn't got moved in the repository. So only
-                // contents of the file are modified. However, in the future we might support moving which requires
-                // oldManifestPath, oldRelativePath, newManifestPath and oldManifestPath.
-                WinGetSQLiteIndexAddOrUpdateManifest(
-                    this.indexHandle,
-                    manifestPath,
-                    relativePath,
-                    out bool indexModified);
-                return indexModified;
-            }
-            catch (Exception e)
-            {
-                throw new WinGetSQLiteIndexException(e);
-            }
-        }
-
-        /// <inheritdoc/>
         public void RemoveManifest(string manifestPath, string relativePath)
         {
             try
@@ -232,22 +211,6 @@ namespace Microsoft.WinGetUtil.Api
         /// <returns>HRESULT.</returns>
         [DllImport(Constants.DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
         private static extern IntPtr WinGetSQLiteIndexUpdateManifest(
-            IntPtr index,
-            string manifestPath,
-            string relativePath,
-            [MarshalAs(UnmanagedType.U1)] out bool indexModified);
-
-        /// <summary>
-        /// Adds or Updates the manifest at the repository relative path in the index.
-        /// The out value indicates whether the index was modified by the function.
-        /// </summary>
-        /// <param name="index">Handle of the index.</param>
-        /// <param name="manifestPath">Manifest path.</param>
-        /// <param name="relativePath">Relative path in the container.</param>
-        /// <param name="indexModified">Out bool if the index is modified.</param>
-        /// <returns>HRESULT.</returns>
-        [DllImport(Constants.DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        private static extern IntPtr WinGetSQLiteIndexAddOrUpdateManifest(
             IntPtr index,
             string manifestPath,
             string relativePath,
