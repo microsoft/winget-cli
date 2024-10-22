@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="SQLiteIndexUnitTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -174,27 +174,6 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
                 // Update manifest. name is different, should return true.
                 string updateManifest = Path.Combine(this.indexTestDataPath, PackageTestNewName);
                 Assert.True(wrapper.UpdateManifest(updateManifest, PackageTestRelativePath));
-
-                return true;
-            });
-        }
-
-        /// <summary>
-        ///  Verify that add or update works both times.
-        /// </summary>
-        [Fact]
-        [DisplayTestMethodName]
-        public void AddOrUpdateManifest()
-        {
-            this.CreateIndexHelperForIndexTest((wrapper) =>
-            {
-                // Add manifest; should return true.
-                string addManifest = Path.Combine(this.indexTestDataPath, PackageTest);
-                Assert.True(wrapper.AddOrUpdateManifest(addManifest, PackageTestRelativePath));
-
-                // Update manifest. name is different, should return false.
-                string updateManifest = Path.Combine(this.indexTestDataPath, PackageTestNewName);
-                Assert.False(wrapper.AddOrUpdateManifest(updateManifest, PackageTestRelativePath));
 
                 return true;
             });

@@ -109,11 +109,6 @@ namespace AppInstaller::Repository::Microsoft
     SQLiteIndex::IdType SQLiteIndex::AddManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        return AddManifestInternalHoldingLock(manifest, relativePath);
-    }
-
-    SQLiteIndex::IdType SQLiteIndex::AddManifestInternalHoldingLock(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
-    {
         AICLI_LOG(Repo, Verbose, << "Adding manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath.value_or("") << "]");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_addmanifest");
@@ -148,11 +143,6 @@ namespace AppInstaller::Repository::Microsoft
     bool SQLiteIndex::UpdateManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        return UpdateManifestInternalHoldingLock(manifest, relativePath);
-    }
-
-    bool SQLiteIndex::UpdateManifestInternalHoldingLock(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
-    {
         AICLI_LOG(Repo, Verbose, << "Updating manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath.value_or("") << "]");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_updatemanifest");
@@ -167,41 +157,6 @@ namespace AppInstaller::Repository::Microsoft
         }
 
         return result;
-    }
-
-    bool SQLiteIndex::AddOrUpdateManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
-    {
-        AICLI_LOG(Repo, Verbose, << "Adding or Updating manifest from file [" << manifestPath << "]");
-
-        Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(manifestPath);
-        return AddOrUpdateManifestInternal(manifest, relativePath);
-    }
-
-    bool SQLiteIndex::AddOrUpdateManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
-    {
-        return AddOrUpdateManifestInternal(manifest, relativePath);
-    }
-
-    bool SQLiteIndex::AddOrUpdateManifest(const Manifest::Manifest& manifest)
-    {
-        return AddOrUpdateManifestInternal(manifest, {});
-    }
-
-    bool SQLiteIndex::AddOrUpdateManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
-    {
-        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        AICLI_LOG(Repo, Verbose, << "Adding or Updating manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath.value_or("") << "]");
-
-        if (m_interface->GetManifestIdByManifest(m_dbconn, manifest))
-        {
-            UpdateManifestInternalHoldingLock(manifest, relativePath);
-            return false;
-        }
-        else
-        {
-            AddManifestInternalHoldingLock(manifest, relativePath);
-            return true;
-        }
     }
 
     void SQLiteIndex::RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)

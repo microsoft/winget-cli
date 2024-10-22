@@ -63,14 +63,6 @@ namespace Microsoft.WinGetUtil.Interfaces
         bool UpdateManifest(string manifestPath, string relativePath);
 
         /// <summary>
-        /// Adds or Updates manifest in the index.
-        /// </summary>
-        /// <param name="manifestPath">Path to manifest.</param>
-        /// <param name="relativePath">Path of the manifest in the repository.</param>
-        /// <returns>True if added; false if updated.</returns>
-        bool AddOrUpdateManifest(string manifestPath, string relativePath);
-
-        /// <summary>
         /// Delete manifest from index.
         /// </summary>
         /// <param name="manifestPath">Path to manifest to modify.</param>

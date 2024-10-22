@@ -192,26 +192,6 @@ extern "C"
     }
     CATCH_RETURN()
 
-    WINGET_UTIL_API WinGetSQLiteIndexAddOrUpdateManifest(
-        WINGET_SQLITE_INDEX_HANDLE index,
-        WINGET_STRING manifestPath,
-        WINGET_STRING relativePath,
-        BOOL* indexModified) try
-    {
-        THROW_HR_IF(E_INVALIDARG, !index);
-        THROW_HR_IF(E_INVALIDARG, !manifestPath);
-        THROW_HR_IF(E_INVALIDARG, !relativePath);
-
-        bool result = reinterpret_cast<SQLiteIndex*>(index)->AddOrUpdateManifest(manifestPath, relativePath);
-        if (indexModified)
-        {
-            *indexModified = (result ? TRUE : FALSE);
-        }
-
-        return S_OK;
-    }
-    CATCH_RETURN()
-
     WINGET_UTIL_API WinGetSQLiteIndexRemoveManifest(
         WINGET_SQLITE_INDEX_HANDLE index, 
         WINGET_STRING manifestPath,

@@ -94,18 +94,6 @@ namespace AppInstaller::Repository::Microsoft
         // The return value indicates whether the index was modified by the function.
         bool UpdateManifest(const Manifest::Manifest& manifest);
 
-        // Adds or updates the manifest with matching { Id, Version, Channel } in the index.
-        // The return value indicates whether the manifest was added (true) or updated (false).
-        bool AddOrUpdateManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
-
-        // Updates the manifest with matching { Id, Version, Channel } in the index.
-        // The return value indicates whether the manifest was added (true) or updated (false).
-        bool AddOrUpdateManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
-
-        // Updates the manifest with matching { Id, Version, Channel } in the index.
-        // The return value indicates whether the manifest was added (true) or updated (false).
-        bool AddOrUpdateManifest(const Manifest::Manifest& manifest);
-
         // Removes the manifest with matching { Id, Version, Channel } from the index.
         void RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
 
@@ -188,10 +176,7 @@ namespace AppInstaller::Repository::Microsoft
 
         // Internal functions to normalize on the relativePath being present.
         IdType AddManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
-        IdType AddManifestInternalHoldingLock(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
         bool UpdateManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
-        bool UpdateManifestInternalHoldingLock(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
-        bool AddOrUpdateManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
 
         std::unique_ptr<Schema::ISQLiteIndex> m_interface;
         Schema::SQLiteIndexContextData m_contextData;

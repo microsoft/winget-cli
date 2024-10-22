@@ -4,7 +4,6 @@
 #include "Microsoft/Schema/1_5/Interface.h"
 #include "Microsoft/Schema/1_5/ArpVersionVirtualTable.h"
 #include "Microsoft/Schema/1_0/ManifestTable.h"
-#include "Microsoft/Schema/1_0/IdTable.h"
 #include "Microsoft/Schema/1_0/VersionTable.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_5
@@ -37,32 +36,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
         SQLite::rowid_t manifestId = V1_4::Interface::AddManifest(connection, manifest, relativePath);
 
         auto arpVersionRange = manifest.GetArpVersionRange();
-        Manifest::string_t arpMinVersion, arpMaxVersion;
-
-        if (!arpVersionRange.IsEmpty())
-        {
-            // Check to see if adding this version range will create a conflict
-            SQLite::rowid_t packageIdentifier = V1_0::ManifestTable::GetIdById<V1_0::IdTable>(connection, manifestId).value();
-            std::vector<Utility::VersionRange> ranges = GetArpVersionRanges(connection, packageIdentifier);
-            ranges.push_back(arpVersionRange);
-
-            if (Utility::HasOverlapInVersionRanges(ranges))
-            {
-                AICLI_LOG(Repo, Error, << "Overlapped Arp version ranges found for package. All ranges currently in index followed by new range:\n" << [&]() {
-                        std::stringstream stream;
-                        for (const auto& range : ranges)
-                        {
-                            stream << '[' << range.GetMinVersion().ToString() << "] - [" << range.GetMaxVersion().ToString() << "]\n";
-                        }
-                        return std::move(stream).str();
-                    }());
-                THROW_HR(APPINSTALLER_CLI_ERROR_ARP_VERSION_VALIDATION_FAILED);
-            }
-
-            arpMinVersion = arpVersionRange.GetMinVersion().ToString();
-            arpMaxVersion = arpVersionRange.GetMaxVersion().ToString();
-        }
-
+        Manifest::string_t arpMinVersion = arpVersionRange.IsEmpty() ? "" : arpVersionRange.GetMinVersion().ToString();
+        Manifest::string_t arpMaxVersion = arpVersionRange.IsEmpty() ? "" : arpVersionRange.GetMaxVersion().ToString();
         SQLite::rowid_t arpMinVersionId = V1_0::VersionTable::EnsureExists(connection, arpMinVersion);
         SQLite::rowid_t arpMaxVersionId = V1_0::VersionTable::EnsureExists(connection, arpMaxVersion);
         V1_0::ManifestTable::UpdateValueIdById<ArpMinVersionVirtualTable>(connection, manifestId, arpMinVersionId);
@@ -105,27 +80,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
             V1_0::ManifestTable::UpdateValueIdById<ArpMaxVersionVirtualTable>(connection, manifestId, arpMaxVersionId);
             cleanOldMaxVersionId = true;
             indexModified = true;
-        }
-
-        if (!arpVersionRange.IsEmpty())
-        {
-            // Check to see if the new set of version ranges created a conflict.
-            // We could have done this before attempting the update but it would be more complex and SQLite gives us easy rollback.
-            SQLite::rowid_t packageIdentifier = V1_0::ManifestTable::GetIdById<V1_0::IdTable>(connection, manifestId).value();
-            std::vector<Utility::VersionRange> ranges = GetArpVersionRanges(connection, packageIdentifier);
-
-            if (Utility::HasOverlapInVersionRanges(ranges))
-            {
-                AICLI_LOG(Repo, Error, << "Overlapped Arp version ranges found for package. Ranges that would be present with attempted upgrade:\n" << [&]() {
-                        std::stringstream stream;
-                        for (const auto& range : ranges)
-                        {
-                            stream << '[' << range.GetMinVersion().ToString() << "] - [" << range.GetMaxVersion().ToString() << "]\n";
-                        }
-                        return std::move(stream).str();
-                    }());
-                THROW_HR(APPINSTALLER_CLI_ERROR_ARP_VERSION_VALIDATION_FAILED);
-            }
         }
 
         if (cleanOldMinVersionId && NotNeeded(connection, V1_0::VersionTable::TableName(), V1_0::VersionTable::ValueName(), oldMinVersionId))
@@ -227,26 +181,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
         }
     }
 
-    std::vector<Utility::VersionRange> Interface::GetArpVersionRanges(const SQLite::Connection& connection, SQLite::rowid_t packageIdentifier) const
-    {
-        std::vector<Utility::VersionRange> ranges;
-        auto versionKeys = GetVersionKeysById(connection, packageIdentifier);
-        for (auto const& versionKey : versionKeys)
-        {
-            auto arpMinVersion = GetPropertyByPrimaryId(connection, versionKey.ManifestId, PackageVersionProperty::ArpMinVersion).value_or("");
-            auto arpMaxVersion = GetPropertyByPrimaryId(connection, versionKey.ManifestId, PackageVersionProperty::ArpMaxVersion).value_or("");
-
-            // Either both empty or both not empty
-            THROW_HR_IF(E_UNEXPECTED, arpMinVersion.empty() != arpMaxVersion.empty());
-
-            if (!arpMinVersion.empty() && !arpMaxVersion.empty())
-            {
-                ranges.emplace_back(Utility::VersionRange{ Utility::Version{ std::move(arpMinVersion) }, Utility::Version{ std::move(arpMaxVersion) } });
-            }
-        }
-        return ranges;
-    }
-
     bool Interface::ValidateArpVersionConsistency(const SQLite::Connection& connection, bool log) const
     {
         try
@@ -259,7 +193,21 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
             for (auto const& match : searchResult.Matches)
             {
                 // Get arp version ranges for each package to check
-                std::vector<Utility::VersionRange> ranges = GetArpVersionRanges(connection, match.first);
+                std::vector<Utility::VersionRange> ranges;
+                auto versionKeys = GetVersionKeysById(connection, match.first);
+                for (auto const& versionKey : versionKeys)
+                {
+                    auto arpMinVersion = GetPropertyByPrimaryId(connection, versionKey.ManifestId, PackageVersionProperty::ArpMinVersion).value_or("");
+                    auto arpMaxVersion = GetPropertyByPrimaryId(connection, versionKey.ManifestId, PackageVersionProperty::ArpMaxVersion).value_or("");
+
+                    // Either both empty or both not empty
+                    THROW_HR_IF(E_UNEXPECTED, arpMinVersion.empty() != arpMaxVersion.empty());
+
+                    if (!arpMinVersion.empty() && !arpMaxVersion.empty())
+                    {
+                        ranges.emplace_back(Utility::VersionRange{ Utility::Version{ std::move(arpMinVersion) }, Utility::Version{ std::move(arpMaxVersion) } });
+                    }
+                }
 
                 // Check overlap
                 if (Utility::HasOverlapInVersionRanges(ranges))
