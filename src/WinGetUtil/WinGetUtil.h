@@ -159,7 +159,7 @@ extern "C"
         BOOL* indexModified);
 
     // Adds or Updates the manifest with matching { Id, Version, Channel } in the index.
-    // The return value indicates whether the manifest was added (true) or updated (false).
+    // The return value indicates whether the index was modified by the function.
     WINGET_UTIL_API WinGetSQLiteIndexAddOrUpdateManifest(
         WINGET_SQLITE_INDEX_HANDLE index,
         WINGET_STRING manifestPath,

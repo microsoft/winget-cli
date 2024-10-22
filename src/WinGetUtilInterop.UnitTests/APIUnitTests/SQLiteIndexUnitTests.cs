@@ -188,13 +188,13 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
         {
             this.CreateIndexHelperForIndexTest((wrapper) =>
             {
-                // Add manifest; should return true.
+                // Add manifest.
                 string addManifest = Path.Combine(this.indexTestDataPath, PackageTest);
-                Assert.True(wrapper.AddOrUpdateManifest(addManifest, PackageTestRelativePath));
+                wrapper.AddOrUpdateManifest(addManifest, PackageTestRelativePath);
 
-                // Update manifest. name is different, should return false.
+                // Update manifest. name is different, should return true.
                 string updateManifest = Path.Combine(this.indexTestDataPath, PackageTestNewName);
-                Assert.False(wrapper.AddOrUpdateManifest(updateManifest, PackageTestRelativePath));
+                Assert.True(wrapper.AddOrUpdateManifest(updateManifest, PackageTestRelativePath));
 
                 return true;
             });

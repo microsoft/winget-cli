@@ -3918,20 +3918,20 @@ TEST_CASE("SQLiteIndex_AddOrUpdateManifest", "[sqliteindex]")
     {
         SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
-        // Update should return false
+        // Update with no updates should return false
         REQUIRE(!index.AddOrUpdateManifest(manifest, manifestPath));
 
         manifest.DefaultLocalization.Add<Localization::Description>("description2");
 
-        // Update should return false
+        // Update with no indexed updates should return false
         REQUIRE(!index.AddOrUpdateManifest(manifest, manifestPath));
 
-        // Update with indexed changes should still return false
+        // Update with indexed changes
         manifest.DefaultLocalization.Add<Localization::PackageName>("Test Name2");
         manifest.Moniker = "testmoniker2";
         manifest.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2", "t3" });
         manifest.Installers[0].Commands = {};
 
-        REQUIRE(!index.AddOrUpdateManifest(manifest, manifestPath));
+        REQUIRE(index.AddOrUpdateManifest(manifest, manifestPath));
     }
 }

@@ -194,8 +194,7 @@ namespace AppInstaller::Repository::Microsoft
 
         if (m_interface->GetManifestIdByManifest(m_dbconn, manifest))
         {
-            UpdateManifestInternalHoldingLock(manifest, relativePath);
-            return false;
+            return UpdateManifestInternalHoldingLock(manifest, relativePath);
         }
         else
         {
