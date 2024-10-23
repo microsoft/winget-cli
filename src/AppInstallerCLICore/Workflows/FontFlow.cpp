@@ -91,26 +91,15 @@ namespace AppInstaller::CLI::Workflow
 
             for (const auto& fontFace : fontFamily->Faces)
             {
-                bool isFirstLine = true;
                 for (const auto& filePath : fontFace.FilePaths)
                 {
-                    if (isFirstLine)
-                    {
-                        InstalledFontFacesTableLine line(
-                            familyName,
-                            Utility::LocIndString(Utility::ToLower(Utility::ConvertToUTF8(fontFace.Name))),
-                            Utility::LocIndString(Utility::ConvertToUTF8(fontFace.Version)),
-                            filePath.u8string());
+                    InstalledFontFacesTableLine line(
+                        familyName,
+                        Utility::LocIndString(Utility::ToLower(Utility::ConvertToUTF8(fontFace.Name))),
+                        Utility::LocIndString(Utility::ConvertToUTF8(fontFace.Version)),
+                        filePath.u8string());
 
-                        lines.push_back(std::move(line));
-                        isFirstLine = false;
-                    }
-                    else
-                    {
-                        // Creates a separate row for faces supported by multiple files. 
-                        InstalledFontFacesTableLine line({}, {}, {}, filePath.u8string());
-                        lines.push_back(std::move(line));
-                    }
+                    lines.push_back(std::move(line));
                 }
             }
 
