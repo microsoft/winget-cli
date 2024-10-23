@@ -51,7 +51,7 @@ namespace AppInstaller::Fonts
 
             UINT32 index;
             BOOL exists;
-            // TODO: Aggregrate available locales and find best alternative locale if preferred locale does not exist.
+            // TODO: Aggregate available locales and find best alternative locale if preferred locale does not exist.
             if (FAILED(localizedStringCollection->FindLocaleName(preferredLocale.c_str(), &index, &exists)) || !exists)
             {
                 index = 0;
@@ -92,7 +92,7 @@ namespace AppInstaller::Fonts
 
             std::string value = Utility::ConvertToUTF8(GetLocalizedStringFromFont(fontVersion));
 
-            // Version is returned in the format of 'Version 2.137 ;2017'
+            // Version is returned in the format of ex: 'Version 2.137 ;2017'
             // Extract out the parts between 'Version' and ';'
             if (Utility::CaseInsensitiveContainsSubstring(value, "Version"))
             {
@@ -140,13 +140,11 @@ namespace AppInstaller::Fonts
                 wil::com_ptr<IDWriteFont> font;
                 THROW_IF_FAILED(family->GetFont(fontIndex, font.addressof()));
 
-                std::wstring faceName = GetFontFaceName(font);
-
                 wil::com_ptr<IDWriteFontFace> fontFace;
                 THROW_IF_FAILED(font->CreateFontFace(fontFace.addressof()));
 
                 FontFace fontFaceEntry;
-                fontFaceEntry.Name = faceName;
+                fontFaceEntry.Name = GetFontFaceName(font);
                 fontFaceEntry.FilePaths = GetFontFilePaths(fontFace);
                 fontFaces.emplace_back(std::move(fontFaceEntry));
             }

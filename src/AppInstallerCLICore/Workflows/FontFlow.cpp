@@ -23,22 +23,30 @@ namespace AppInstaller::CLI::Workflow
 
         struct InstalledFontFacesTableLine
         {
-            InstalledFontFacesTableLine(Utility::LocIndString faceName, Utility::LocIndString faceVersion, Utility::LocIndString familyName, std::filesystem::path filePath)
-                : FaceName(faceName), FaceVersion(faceVersion), FamilyName(familyName), FilePath(filePath) {}
+            InstalledFontFacesTableLine(Utility::LocIndString familyName, Utility::LocIndString faceName, Utility::LocIndString faceVersion, std::filesystem::path filePath)
+                : FamilyName(familyName), FaceName(faceName), FaceVersion(faceVersion), FilePath(filePath) {}
 
+            Utility::LocIndString FamilyName;
             Utility::LocIndString FaceName;
             Utility::LocIndString FaceVersion;
-            Utility::LocIndString FamilyName;
             std::filesystem::path FilePath;
         };
 
         void OutputInstalledFontFamiliesTable(Execution::Context& context, const std::vector<InstalledFontFamiliesTableLine>& lines)
         {
-            Execution::TableOutput<2> table(context.Reporter, { Resource::String::FontFamily, Resource::String::FontFaceCount });
+            Execution::TableOutput<4> table(context.Reporter, { Resource::String::FontFamily, Resource::String::FontFaces, Resource::String::FontFamily, Resource::String::FontFaces });
 
-            for (const auto& line : lines)
+            for (size_t i = 0; i < lines.size(); i += 2)
             {
-                table.OutputLine({ line.FamilyName, std::to_string(line.FaceCount) });
+                // Displays 2 font families per line for better readability.
+                if ((i + 1) < lines.size())
+                {
+                    table.OutputLine({ lines[i].FamilyName, std::to_string(lines[i].FaceCount), lines[i+1].FamilyName, std::to_string(lines[i+1].FaceCount) });
+                }
+                else
+                {
+                    table.OutputLine({ lines[i].FamilyName, std::to_string(lines[i].FaceCount), {}, {} });
+                }
             }
 
             table.Complete();
@@ -46,7 +54,7 @@ namespace AppInstaller::CLI::Workflow
 
         void OutputInstalledFontFacesTable(Execution::Context& context, const std::vector<InstalledFontFacesTableLine>& lines)
         {
-            Execution::TableOutput<4> table(context.Reporter, { Resource::String::FontFace, Resource::String::FontVersion, Resource::String::FontFamily, Resource::String::FontFilePaths });
+            Execution::TableOutput<4> table(context.Reporter, { Resource::String::FontFamily, Resource::String::FontFace, Resource::String::FontVersion, Resource::String::FontFilePaths });
 
             bool anonymizePath = Settings::User().Get<Settings::Setting::AnonymizePathForDisplay>();
 
@@ -57,7 +65,7 @@ namespace AppInstaller::CLI::Workflow
                     AppInstaller::Runtime::ReplaceProfilePathsWithEnvironmentVariable(line.FilePath);
                 }
 
-                table.OutputLine({ line.FaceName, line.FaceVersion, line.FamilyName, line.FilePath.u8string() });
+                table.OutputLine({ line.FamilyName, line.FaceName, line.FaceVersion, line.FilePath.u8string() });
             }
 
             table.Complete();
@@ -68,7 +76,7 @@ namespace AppInstaller::CLI::Workflow
     {
         if (context.Args.Contains(Args::Type::Family))
         {
-            // TODO: Utilize font index for better searching capability.
+            // TODO: Create custom source and search mechanism for fonts.
             const auto& familyNameArg = context.Args.GetArg(Args::Type::Family);
             const auto& fontFamily = AppInstaller::Fonts::GetInstalledFontFamily(AppInstaller::Utility::ConvertToUTF16(familyNameArg));
 
@@ -89,16 +97,17 @@ namespace AppInstaller::CLI::Workflow
                     if (isFirstLine)
                     {
                         InstalledFontFacesTableLine line(
+                            familyName,
                             Utility::LocIndString(Utility::ToLower(Utility::ConvertToUTF8(fontFace.Name))),
                             Utility::LocIndString(Utility::ConvertToUTF8(fontFace.Version)),
-                            familyName,
-                            filePath.u8string()
-                        );
-                        isFirstLine = false;
+                            filePath.u8string());
+
                         lines.push_back(std::move(line));
+                        isFirstLine = false;
                     }
                     else
                     {
+                        // Creates a separate row for faces supported by multiple files. 
                         InstalledFontFacesTableLine line({}, {}, {}, filePath.u8string());
                         lines.push_back(std::move(line));
                     }

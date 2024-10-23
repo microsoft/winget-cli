@@ -250,8 +250,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FlagContainAdjoinedError);
         WINGET_DEFINE_RESOURCE_STRINGID(FontCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FontCommandShortDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(FontFaceCount);
         WINGET_DEFINE_RESOURCE_STRINGID(FontFace);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontFaces);
         WINGET_DEFINE_RESOURCE_STRINGID(FontFamily);
         WINGET_DEFINE_RESOURCE_STRINGID(FontFamilyNameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FontFilePaths);

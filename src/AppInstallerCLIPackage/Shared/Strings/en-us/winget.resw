@@ -3142,14 +3142,16 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="FontFamily" xml:space="preserve">
     <value>Family</value>
   </data>
-  <data name="FontFaceCount" xml:space="preserve">
-    <value>Face Count</value>
+  <data name="FontFaces" xml:space="preserve">
+    <value>Faces</value>
+    <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
   </data>
   <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
     <value>Filter results by family name</value>
   </data>
   <data name="FontFace" xml:space="preserve">
     <value>Face</value>
+    <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
   </data>
   <data name="FontFilePaths" xml:space="preserve">
     <value>Paths</value>
