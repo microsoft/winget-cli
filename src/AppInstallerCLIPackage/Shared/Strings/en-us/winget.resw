@@ -3133,10 +3133,45 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY" xml:space="preserve">
     <value>Parameter cannot be passed across integrity boundary.</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_INSTALLER_ZERO_BYTE_FILE" xml:space="preserve">
-    <value>Downloaded zero byte installer; ensure that your network connection is working properly.</value>
+  <data name="FontCommandShortDescription" xml:space="preserve">
+    <value>Manage fonts</value>
   </data>
-  <data name="InstallerZeroByteFile" xml:space="preserve">
-    <value>Downloaded zero byte installer; ensure that your network connection is working properly.</value>
+  <data name="FontCommandLongDescription" xml:space="preserve">
+    <value>Manage fonts with sub-commands. Fonts can be installed, upgraded, or uninstalled similar to packages. </value>
+  </data>
+  <data name="FontFamily" xml:space="preserve">
+    <value>Family</value>
+  </data>
+  <data name="FontFaces" xml:space="preserve">
+    <value>Faces</value>
+    <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
+    <value>Filter results by family name</value>
+  </data>
+  <data name="FontFace" xml:space="preserve">
+    <value>Face</value>
+    <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFilePaths" xml:space="preserve">
+    <value>Paths</value>
+  </data>
+  <data name="NoInstalledFontFound" xml:space="preserve">
+    <value>No installed font found matching input criteria.</value>
+  </data>
+  <data name="FontListCommandShortDescription" xml:space="preserve">
+    <value>List installed fonts</value>
+  </data>
+  <data name="FontListCommandLongDescription" xml:space="preserve">
+    <value>List all installed fonts, or full details of a specific font.</value>
+  </data>
+  <data name="FontsInstallLocationUser" xml:space="preserve">
+    <value>Fonts Install Location (User)</value>
+  </data>
+  <data name="FontsInstallLocationMachine" xml:space="preserve">
+    <value>Fonts Install Location (Machine)</value>
+  </data>
+  <data name="FontVersion" xml:space="preserve">
+    <value>Version</value>
   </data>
 </root>
