@@ -78,10 +78,10 @@ namespace AppInstallerCLIE2ETests.Interop
         public async Task AddPackageCatalogWithInvalidOptions()
         {
             // Add package catalog with null options.
-            await this.AddAndValidatePackageCatalogAsync(null, AddPackageCatalogStatus.InvalidOptions, Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS);
+            await this.AddAndValidatePackageCatalogAsync(null, AddPackageCatalogStatus.InvalidOptions, Constants.ErrorCode.E_INVALIDARG);
 
             // Add package catalog with empty options.
-            await this.AddAndValidatePackageCatalogAsync(this.TestFactory.CreateAddPackageCatalogOptions(), AddPackageCatalogStatus.InvalidOptions, Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS);
+            await this.AddAndValidatePackageCatalogAsync(this.TestFactory.CreateAddPackageCatalogOptions(), AddPackageCatalogStatus.InvalidOptions, Constants.ErrorCode.E_INVALIDARG);
         }
 
         /// <summary>
@@ -237,10 +237,10 @@ namespace AppInstallerCLIE2ETests.Interop
         public async Task RemovePackageCatalogWithInvalidOptions()
         {
             // Remove package catalog with null options.
-            await this.RemoveAndValidatePackageCatalogAsync(null, RemovePackageCatalogStatus.InvalidOptions, Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS);
+            await this.RemoveAndValidatePackageCatalogAsync(null, RemovePackageCatalogStatus.InvalidOptions, Constants.ErrorCode.E_INVALIDARG);
 
             // Remove package catalog with empty options.
-            await this.RemoveAndValidatePackageCatalogAsync(this.TestFactory.CreateRemovePackageCatalogOptions(), RemovePackageCatalogStatus.InvalidOptions, Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS);
+            await this.RemoveAndValidatePackageCatalogAsync(this.TestFactory.CreateRemovePackageCatalogOptions(), RemovePackageCatalogStatus.InvalidOptions, Constants.ErrorCode.E_INVALIDARG);
         }
 
         /// <summary>

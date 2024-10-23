@@ -56,6 +56,113 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     ::AppInstaller::Logging::Telemetry().LogStartup(true);
                 });
         }
+
+        winrt::Microsoft::Management::Deployment::AddPackageCatalogResult GetAddPackageCatalogResult(winrt::hresult terminationStatus)
+        {
+            winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus status = GetPackageCatalogOperationStatus<AddPackageCatalogStatus>(terminationStatus);
+            auto addPackageCatalogResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AddPackageCatalogResult>>();
+            addPackageCatalogResult->Initialize(status, terminationStatus);
+            return *addPackageCatalogResult;
+        }
+
+        void CheckForDuplicateSource(const std::string& name, const std::string& type, const std::string& sourceUri)
+        {
+            auto sourceList = ::AppInstaller::Repository::Source::GetCurrentSources();
+
+            std::string sourceType = type;
+
+            // [NOTE:] If the source type is not specified, the default source type will be used for validation.In cases where the source type is empty,
+            // it remains unassigned until the add operation, at which point it is assigned.Without this default assignment, an empty string could be
+            // compared to the default type, potentially allowing different source names with the same URI to be seen as unique.
+            // To avoid this, assign the default source type prior to comparison.
+            if (sourceType.empty())
+            {
+                // This method of obtaining the default source type is slightly expensive as it requires creating a SourceFactory object
+                // and fetching the type name.Nonetheless, it future-proofs the code against any changes in the SourceFactory's default type.
+                sourceType = ::AppInstaller::Repository::Source::GetDefaultSourceType();
+            }
+
+            for (const auto& source : sourceList)
+            {
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, ::AppInstaller::Utility::ICUCaseInsensitiveEquals(source.Name, name));
+
+                bool sourceUriAlreadyExists = !source.Arg.empty() && source.Arg == sourceUri && source.Type == sourceType;
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS, sourceUriAlreadyExists);
+            }
+        }
+
+        ::AppInstaller::Repository::Source CreateSourceFromOptions(const winrt::Microsoft::Management::Deployment::AddPackageCatalogOptions& options)
+        {
+            std::string name = winrt::to_string(options.Name());
+            std::string type = winrt::to_string(options.Type());
+            std::string sourceUri = winrt::to_string(options.SourceUri());
+
+            AppInstaller::Repository::SourceTrustLevel trustLevel = AppInstaller::Repository::SourceTrustLevel::None;
+            if (options.TrustLevel() == winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel::Trusted)
+            {
+                trustLevel = AppInstaller::Repository::SourceTrustLevel::Trusted;
+            }
+
+            CheckForDuplicateSource(name, type, sourceUri);
+
+            ::AppInstaller::Repository::Source source = ::AppInstaller::Repository::Source{ name, sourceUri, type, trustLevel, options.Explicit() };
+
+            std::string customHeader = winrt::to_string(options.CustomHeader());
+            if (!customHeader.empty())
+            {
+                source.SetCustomHeader(customHeader);
+            }
+
+            try
+            {
+                auto sourceInfo = source.GetInformation();
+
+                if (sourceInfo.Authentication.Type == ::AppInstaller::Authentication::AuthenticationType::Unknown)
+                {
+                    throw winrt::hresult_error(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
+                }
+            }
+            catch (const winrt::hresult_error& hre)
+            {
+                if (hre.code() == APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED)
+                {
+                    THROW_HR(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
+                }
+                else
+                {
+                    THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+                }
+            }
+            catch (...) // Catch all exceptions
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+            }
+
+            return source;
+        }
+
+        winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult GetRemovePackageCatalogResult(winrt::hresult terminationStatus)
+        {
+            winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus status = GetPackageCatalogOperationStatus<RemovePackageCatalogStatus>(terminationStatus);
+            auto removeResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::RemovePackageCatalogResult>>();
+            removeResult->Initialize(status, terminationStatus);
+            return *removeResult;
+        }
+
+        std::optional<::AppInstaller::Repository::SourceDetails> GetMatchingSource(const std::string& name)
+        {
+            auto sourceList = ::AppInstaller::Repository::Source::GetCurrentSources();
+
+            for (const auto& source : sourceList)
+            {
+                if (::AppInstaller::Utility::ICUCaseInsensitiveEquals(source.Name, name))
+                {
+                    return source; // Return the first matching source
+                }
+            }
+
+            return std::nullopt; // Return std::nullopt if no matching source is found
+        }
     }
 
     winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> PackageManager::GetPackageCatalogs()
@@ -963,113 +1070,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         co_return GetOperationResult<TResult>(::Workflow::ExecutionStage::Initial, hr, 0, correlationData, false);
     }
 
-    winrt::Microsoft::Management::Deployment::AddPackageCatalogResult GetAddPackageCatalogResult(winrt::hresult terminationStatus)
-    {
-        winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus status = GetPackageCatalogOperationStatus<AddPackageCatalogStatus>(terminationStatus);
-        auto addPackageCatalogResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AddPackageCatalogResult>>();
-        addPackageCatalogResult->Initialize(status, terminationStatus);
-        return *addPackageCatalogResult;
-    }
-
-    void CheckForDuplicateSource(const std::string& name, const std::string& type, const std::string& sourceUri)
-    {
-        auto sourceList = ::AppInstaller::Repository::Source::GetCurrentSources();
-
-        std::string sourceType = type;
-
-        // [NOTE:] If the source type is not specified, the default source type will be used for validation.In cases where the source type is empty,
-        // it remains unassigned until the add operation, at which point it is assigned.Without this default assignment, an empty string could be
-        // compared to the default type, potentially allowing different source names with the same URI to be seen as unique.
-        // To avoid this, assign the default source type prior to comparison.
-        if (sourceType.empty())
-        {
-            // This method of obtaining the default source type is slightly expensive as it requires creating a SourceFactory object
-            // and fetching the type name.Nonetheless, it future-proofs the code against any changes in the SourceFactory's default type.
-            sourceType = ::AppInstaller::Repository::Source::GetDefaultSourceType();
-        }
-
-        for (const auto& source : sourceList)
-        {
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, ::AppInstaller::Utility::ICUCaseInsensitiveEquals(source.Name, name));
-
-            bool sourceUriAlreadyExists = !source.Arg.empty() && source.Arg == sourceUri && source.Type == sourceType;
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS, sourceUriAlreadyExists);
-        }
-    }
-
-    ::AppInstaller::Repository::Source CreateSourceFromOptions(const winrt::Microsoft::Management::Deployment::AddPackageCatalogOptions& options)
-    {
-        std::string name = winrt::to_string(options.Name());
-        std::string type = winrt::to_string(options.Type());
-        std::string sourceUri = winrt::to_string(options.SourceUri());
-
-        AppInstaller::Repository::SourceTrustLevel trustLevel = AppInstaller::Repository::SourceTrustLevel::None;
-        if (options.TrustLevel() == winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel::Trusted)
-        {
-            trustLevel = AppInstaller::Repository::SourceTrustLevel::Trusted;
-        }
-
-        CheckForDuplicateSource(name, type, sourceUri);
-
-        ::AppInstaller::Repository::Source source = ::AppInstaller::Repository::Source{ name, sourceUri, type, trustLevel, options.Explicit() };
-
-        std::string customHeader = winrt::to_string(options.CustomHeader());
-        if (!customHeader.empty())
-        {
-            source.SetCustomHeader(customHeader);
-        }
-
-        try
-        {
-            auto sourceInfo = source.GetInformation();
-
-            if (sourceInfo.Authentication.Type == ::AppInstaller::Authentication::AuthenticationType::Unknown)
-            {
-                throw winrt::hresult_error(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
-            }
-        }
-        catch (const winrt::hresult_error& hre)
-        {
-            if (hre.code() == APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED)
-            {
-                THROW_HR(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
-            }
-            else
-            {
-                THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
-            }
-        }
-        catch (...) // Catch all exceptions
-        {
-            THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
-        }
-
-        return source;
-    }
-
-    winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult GetRemovePackageCatalogResult(winrt::hresult terminationStatus)
-    {
-        winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus status = GetPackageCatalogOperationStatus<RemovePackageCatalogStatus>(terminationStatus);
-        auto removeResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::RemovePackageCatalogResult>>();
-        removeResult->Initialize(status, terminationStatus);
-        return *removeResult;
-    }
-
-    std::optional<::AppInstaller::Repository::SourceDetails> GetMatchingSource(const std::string& name)
-    {
-        auto sourceList = ::AppInstaller::Repository::Source::GetCurrentSources();
-
-        for (const auto& source : sourceList)
-        {
-            if (::AppInstaller::Utility::ICUCaseInsensitiveEquals(source.Name, name))
-            {
-                return source; // Return the first matching source
-            }
-        }
-
-        return std::nullopt; // Return std::nullopt if no matching source is found
-    }
-
 #define WINGET_RETURN_INSTALL_RESULT_HR_IF(hr, boolVal) { if(boolVal) { return GetEmptyAsynchronousResultForOperation<Deployment::InstallResult, Deployment::InstallProgress>(hr, correlationData); }}
 #define WINGET_RETURN_INSTALL_RESULT_HR_IF_FAILED(hr) { WINGET_RETURN_INSTALL_RESULT_HR_IF(hr, FAILED(hr)) }
 
@@ -1312,24 +1312,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         LogStartupIfApplicable();
 
-        // options must be set.
-        if (!options)
-        {
-            co_return GetAddPackageCatalogResult(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS);
-        }
-
-        if (options.Name().empty() || options.SourceUri().empty())
-        {
-            co_return GetAddPackageCatalogResult(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS);
-        }
-
         HRESULT terminationHR = S_OK;
         try {
 
-            // Check if running as admin
+            // options must be set.
+            THROW_HR_IF_NULL(E_INVALIDARG, options);
+            THROW_HR_IF(E_INVALIDARG, options.Name().empty());
+            THROW_HR_IF(E_INVALIDARG, options.SourceUri().empty());
+
+            // Check if running as admin/system.
             // [NOTE:] For OutOfProc calls, the Windows Package Manager Service executes in the context initiated by the caller process,
-            //so the same admin validation check is applicable for both InProc and OutOfProc calls.
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN, !AppInstaller::Runtime::IsRunningAsAdmin());
+            // so the same admin/system validation check is applicable for both InProc and OutOfProc calls.
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN, !AppInstaller::Runtime::IsRunningAsAdminOrSystem());
 
             ::AppInstaller::Repository::Source sourceToAdd = CreateSourceFromOptions(options);
 
@@ -1361,23 +1355,17 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         LogStartupIfApplicable();
 
-        // options must be set.
-        if (!options)
-        {
-            co_return GetRemovePackageCatalogResult(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS);
-        }
-
-        if (options.Name().empty())
-        {
-            co_return GetRemovePackageCatalogResult(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS);
-        }
-
         HRESULT terminationHR = S_OK;
         try {
-            // Check if running as admin
+
+            // options must be set.
+            THROW_HR_IF_NULL(E_INVALIDARG, options);
+            THROW_HR_IF(E_INVALIDARG, options.Name().empty());
+
+            // Check if running as admin/system.
             // [NOTE:] For OutOfProc calls, the Windows Package Manager Service executes in the context initiated by the caller process,
-            //so the same admin validation check is applicable for both InProc and OutOfProc calls.
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN, !AppInstaller::Runtime::IsRunningAsAdmin());
+            // so the same admin/system validation check is applicable for both InProc and OutOfProc calls.
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN, !AppInstaller::Runtime::IsRunningAsAdminOrSystem());
 
             auto matchingSource = GetMatchingSource(winrt::to_string(options.Name()));
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, !matchingSource.has_value());

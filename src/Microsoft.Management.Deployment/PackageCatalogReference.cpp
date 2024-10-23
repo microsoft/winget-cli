@@ -23,6 +23,17 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    namespace
+    {
+        winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult GetRefreshPackageCatalogResult(winrt::hresult terminationStatus)
+        {
+            winrt::Microsoft::Management::Deployment::RefreshPackageCatalogStatus status = GetPackageCatalogOperationStatus<RefreshPackageCatalogStatus>(terminationStatus);
+            auto updateResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::RefreshPackageCatalogResult>>();
+            updateResult->Initialize(status, terminationStatus);
+            return *updateResult;
+        }
+    }
+
     void PackageCatalogReference::Initialize(winrt::Microsoft::Management::Deployment::PackageCatalogInfo packageCatalogInfo, ::AppInstaller::Repository::Source sourceReference)
     {
         m_info = packageCatalogInfo;
@@ -290,14 +301,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 }
             });
         return m_authenticationInfo;
-    }
-
-    winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult GetRefreshPackageCatalogResult(winrt::hresult terminationStatus)
-    {
-        winrt::Microsoft::Management::Deployment::RefreshPackageCatalogStatus status = GetPackageCatalogOperationStatus<RefreshPackageCatalogStatus>(terminationStatus);
-        auto updateResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::RefreshPackageCatalogResult>>();
-        updateResult->Initialize(status, terminationStatus);
-        return *updateResult;
     }
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult, double> PackageCatalogReference::RefreshPackageCatalogAsync()

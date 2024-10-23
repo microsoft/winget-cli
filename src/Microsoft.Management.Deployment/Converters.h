@@ -31,6 +31,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     ::AppInstaller::Authentication::AuthenticationMode GetAuthenticationMode(winrt::Microsoft::Management::Deployment::AuthenticationMode authMode);
     ::AppInstaller::Authentication::AuthenticationArguments GetAuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments authArgs);
     ::AppInstaller::Manifest::ScopeEnum GetManifestRepairScope(winrt::Microsoft::Management::Deployment::PackageRepairScope scope);
+    winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus GetAddPackageCatalogOperationStatus(winrt::hresult hresult);
+    winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus GetRemovePackageCatalogOperationStatus(winrt::hresult hresult);
 
 #define WINGET_GET_OPERATION_RESULT_STATUS(_installResultStatus_, _uninstallResultStatus_, _downloadResultStatus_, _repairResultStatus_) \
     if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::InstallResultStatus>) \
@@ -177,49 +179,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
 
     template <typename TStatus>
-    TStatus GetAddPackageCatalogOperationStatus(winrt::hresult hresult)
-    {
-        switch (hresult)
-        {
-        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED:
-            return TStatus::AuthenticationError;
-        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE:
-        case APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE:
-        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE:
-        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS:
-        case APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS:
-            return TStatus::InvalidOptions;
-        case APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED:
-            return TStatus::CatalogError;
-        default:
-            return HandleCommonCatalogOperationStatus<TStatus>(hresult);
-        }
-    }
-
-    template <typename TStatus>
-    TStatus GetRemovePackageCatalogOperationStatus(winrt::hresult hresult)
-    {
-        switch (hresult)
-        {
-        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST:
-            return TStatus::InvalidOptions;
-        case APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE:
-            return TStatus::CatalogError;
-        default:
-            return HandleCommonCatalogOperationStatus<TStatus>(hresult);
-        }
-    }
-
-    template <typename TStatus>
     TStatus GetPackageCatalogOperationStatus(winrt::hresult hresult)
     {
         if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus>)
         {
-            return GetAddPackageCatalogOperationStatus<AddPackageCatalogStatus>(hresult);
+            return GetAddPackageCatalogOperationStatus(hresult);
         }
         else if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus>)
         {
-            return GetRemovePackageCatalogOperationStatus<RemovePackageCatalogStatus>(hresult);
+            return GetRemovePackageCatalogOperationStatus(hresult);
         }
         else if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::RefreshPackageCatalogStatus>)
         {

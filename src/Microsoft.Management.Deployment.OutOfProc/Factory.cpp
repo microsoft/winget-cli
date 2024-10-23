@@ -57,7 +57,7 @@ namespace Microsoft::Management::Deployment::OutOfProc
             NameCLSIDPair{ L"Microsoft.Management.Deployment.AuthenticationArguments"sv, CLSID_AuthenticationArguments },
             NameCLSIDPair{ L"Microsoft.Management.Deployment.RepairOptions"sv, CLSID_RepairOptions },
             NameCLSIDPair{ L"Microsoft.Management.Deployment.AddPackageCatalogOptions"sv, CLSID_AddPackageCatalogOptions },
-            NameCLSIDPair{ L"Microsoft.Management.Deployment.RemovePackageCatalogOptions"sv, CLSID_RemovePackageCatalogOptions }
+            NameCLSIDPair{ L"Microsoft.Management.Deployment.RemovePackageCatalogOptions"sv, CLSID_RemovePackageCatalogOptions },
         };
 
         bool IsCLSIDPresent(const GUID& clsid)
