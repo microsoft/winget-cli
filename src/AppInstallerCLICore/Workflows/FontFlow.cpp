@@ -77,29 +77,33 @@ namespace AppInstaller::CLI::Workflow
         if (context.Args.Contains(Args::Type::Family))
         {
             // TODO: Create custom source and search mechanism for fonts.
-            const auto& familyNameArg = context.Args.GetArg(Args::Type::Family);
-            const auto& fontFamily = AppInstaller::Fonts::GetInstalledFontFamily(AppInstaller::Utility::ConvertToUTF16(familyNameArg));
+            const auto& familyNameArg = AppInstaller::Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::Family));
+            const auto& fontFamilies = AppInstaller::Fonts::GetInstalledFontFamilies(familyNameArg);
 
-            if (!fontFamily.has_value())
+            if (fontFamilies.empty())
             {
                 context.Reporter.Info() << Resource::String::NoInstalledFontFound << std::endl;
                 return;
             }
 
-            const auto& familyName = Utility::LocIndString(Utility::ConvertToUTF8(fontFamily->Name));
             std::vector<InstalledFontFacesTableLine> lines;
 
-            for (const auto& fontFace : fontFamily->Faces)
+            for (const auto& fontFamily : fontFamilies)
             {
-                for (const auto& filePath : fontFace.FilePaths)
-                {
-                    InstalledFontFacesTableLine line(
-                        familyName,
-                        Utility::LocIndString(Utility::ToLower(Utility::ConvertToUTF8(fontFace.Name))),
-                        Utility::LocIndString(Utility::ConvertToUTF8(fontFace.Version)),
-                        filePath.u8string());
+                const auto& familyName = Utility::LocIndString(Utility::ConvertToUTF8(fontFamily.Name));
 
-                    lines.push_back(std::move(line));
+                for (const auto& fontFace : fontFamily.Faces)
+                {
+                    for (const auto& filePath : fontFace.FilePaths)
+                    {
+                        InstalledFontFacesTableLine line(
+                            familyName,
+                            Utility::LocIndString(Utility::ToLower(Utility::ConvertToUTF8(fontFace.Name))),
+                            Utility::LocIndString(Utility::ConvertToUTF8(fontFace.Version)),
+                            filePath.u8string());
+
+                        lines.push_back(std::move(line));
+                    }
                 }
             }
 

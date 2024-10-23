@@ -18,16 +18,17 @@ TEST_CASE("GetInstalledFonts", "[fonts]")
 
 TEST_CASE("GetSingleFontFamily", "[fonts]")
 {
-    std::optional<FontFamily> fontFamily;
-    REQUIRE_NOTHROW(fontFamily = GetInstalledFontFamily(std::wstring(s_testFontName)));
-    REQUIRE(fontFamily.has_value());
-    REQUIRE(AppInstaller::Utility::CaseInsensitiveEquals(fontFamily->Name, s_testFontName));
-    REQUIRE(fontFamily->Faces.size() > 0);
+    std::vector<FontFamily> fontFamily;
+    REQUIRE_NOTHROW(fontFamily = GetInstalledFontFamilies(std::wstring(s_testFontName)));
+    REQUIRE_FALSE(fontFamily.empty());
+    FontFamily singleFontFamily = fontFamily[0];
+    REQUIRE(AppInstaller::Utility::CaseInsensitiveEquals(singleFontFamily.Name, s_testFontName));
+    REQUIRE(singleFontFamily.Faces.size() > 0);
 }
 
 TEST_CASE("GetInvalidFontFamily", "[fonts]")
 {
-    std::optional<FontFamily> fontFamily;
-    REQUIRE_NOTHROW(fontFamily = GetInstalledFontFamily(L"Invalid Font"));
-    REQUIRE_FALSE(fontFamily.has_value());
+    std::vector<FontFamily> fontFamily;
+    REQUIRE_NOTHROW(fontFamily = GetInstalledFontFamilies(L"Invalid Font"));
+    REQUIRE(fontFamily.empty());
 }

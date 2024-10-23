@@ -109,28 +109,10 @@ namespace AppInstaller::Fonts
             return Utility::ConvertToUTF16(items[0]);
         }
 
-        wil::com_ptr<IDWriteFontFamily> CreateFontFamily(const wil::com_ptr<IDWriteFontCollection>& collection, UINT32 index)
+        FontFamily GetFontFamilyByIndex(const wil::com_ptr<IDWriteFontCollection>& collection, UINT32 index)
         {
             wil::com_ptr<IDWriteFontFamily> family;
             THROW_IF_FAILED(collection->GetFontFamily(index, family.addressof()));
-            return family;
-        }
-    }
-
-    std::vector<FontFamily> GetInstalledFontFamilies()
-    {
-        wil::com_ptr<IDWriteFactory7> factory;
-        THROW_IF_FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(factory), factory.put_unknown()));
-
-        wil::com_ptr<IDWriteFontCollection> collection;
-        THROW_IF_FAILED(factory->GetSystemFontCollection(collection.addressof(), FALSE));
-
-        UINT32 familyCount = collection->GetFontFamilyCount();
-
-        std::vector<FontFamily> fontFamilies;
-        for (UINT32 index = 0; index < familyCount; index++)
-        {
-            wil::com_ptr<IDWriteFontFamily> family = CreateFontFamily(collection, index);
             std::wstring familyName = GetFontFamilyName(family);
 
             std::vector<FontFace> fontFaces;
@@ -145,6 +127,7 @@ namespace AppInstaller::Fonts
 
                 FontFace fontFaceEntry;
                 fontFaceEntry.Name = GetFontFaceName(font);
+                fontFaceEntry.Version = GetFontFaceVersion(font);
                 fontFaceEntry.FilePaths = GetFontFilePaths(fontFace);
                 fontFaces.emplace_back(std::move(fontFaceEntry));
             }
@@ -152,13 +135,11 @@ namespace AppInstaller::Fonts
             FontFamily fontFamily;
             fontFamily.Name = std::move(familyName);
             fontFamily.Faces = std::move(fontFaces);
-            fontFamilies.emplace_back(std::move(fontFamily));
+            return fontFamily;
         }
-
-        return fontFamilies;
     }
 
-    std::optional<FontFamily> GetInstalledFontFamily(const std::wstring& familyName)
+    std::vector<FontFamily> GetInstalledFontFamilies(std::optional<std::wstring> familyName)
     {
         wil::com_ptr<IDWriteFactory7> factory;
         THROW_IF_FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(factory), factory.put_unknown()));
@@ -166,38 +147,31 @@ namespace AppInstaller::Fonts
         wil::com_ptr<IDWriteFontCollection> collection;
         THROW_IF_FAILED(factory->GetSystemFontCollection(collection.addressof(), FALSE));
 
-        UINT32 index;
-        BOOL exists;
-        THROW_IF_FAILED(collection->FindFamilyName(familyName.c_str(), &index, &exists));
+        std::vector<FontFamily> installedFontFamilies;
 
-        if (!exists)
+        if (familyName.has_value())
         {
-            return {};
+            UINT32 index;
+            BOOL exists;
+            THROW_IF_FAILED(collection->FindFamilyName(familyName.value().c_str(), &index, &exists));
+
+            if (!exists)
+            {
+                return {};
+            }
+
+            installedFontFamilies.emplace_back(GetFontFamilyByIndex(collection, index));
+        }
+        else
+        {
+            UINT32 familyCount = collection->GetFontFamilyCount();
+
+            for (UINT32 index = 0; index < familyCount; index++)
+            {
+                installedFontFamilies.emplace_back(GetFontFamilyByIndex(collection, index));
+            }
         }
 
-        wil::com_ptr<IDWriteFontFamily> family = CreateFontFamily(collection, index);
-        UINT32 fontCount = family->GetFontCount();
-
-        std::vector<FontFace> fontFaces;
-        for (UINT32 fontIndex = 0; fontIndex < fontCount; fontIndex++)
-        {
-            wil::com_ptr<IDWriteFont> font;
-            THROW_IF_FAILED(family->GetFont(fontIndex, font.addressof()));
-            std::wstring faceName = GetFontFaceName(font);
-
-            wil::com_ptr<IDWriteFontFace> fontFace;
-            THROW_IF_FAILED(font->CreateFontFace(fontFace.addressof()));
-
-            FontFace fontFaceEntry;
-            fontFaceEntry.Name = faceName;
-            fontFaceEntry.FilePaths = GetFontFilePaths(fontFace);
-            fontFaceEntry.Version = GetFontFaceVersion(font);
-            fontFaces.emplace_back(std::move(fontFaceEntry));
-        }
-
-        FontFamily fontFamily;
-        fontFamily.Name = GetFontFamilyName(family);
-        fontFamily.Faces = std::move(fontFaces);
-        return fontFamily;
+        return installedFontFamilies;
     }
 }
