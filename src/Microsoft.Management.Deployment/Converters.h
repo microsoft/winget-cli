@@ -181,8 +181,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         switch (hresult)
         {
-        case APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED:
-            return TStatus::SourceAgreementsNotAccepted;
         case APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED:
             return TStatus::AuthenticationError;
         case APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE:

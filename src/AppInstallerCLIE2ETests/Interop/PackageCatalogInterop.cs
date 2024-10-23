@@ -57,7 +57,6 @@ namespace AppInstallerCLIE2ETests.Interop
             options.SourceUri = Constants.TestSourceUrl;
             options.Name = Constants.TestSourceName;
             options.TrustLevel = PackageCatalogTrustLevel.Trusted;
-            options.AcceptSourceAgreements = true;
 
             await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.Ok);
 
@@ -96,7 +95,6 @@ namespace AppInstallerCLIE2ETests.Interop
             options.SourceUri = Constants.TestSourceUrl;
             options.Name = Constants.TestSourceName;
             options.TrustLevel = PackageCatalogTrustLevel.Trusted;
-            options.AcceptSourceAgreements = true;
 
             await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.Ok);
 
@@ -120,7 +118,6 @@ namespace AppInstallerCLIE2ETests.Interop
             options.SourceUri = Constants.TestSourceUrl;
             options.Name = Constants.TestSourceName;
             options.TrustLevel = PackageCatalogTrustLevel.Trusted;
-            options.AcceptSourceAgreements = true;
 
             await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.Ok);
 
@@ -145,7 +142,6 @@ namespace AppInstallerCLIE2ETests.Interop
             options.SourceUri = "InvalidUri";
             options.Name = Constants.TestSourceName;
             options.TrustLevel = PackageCatalogTrustLevel.Trusted;
-            options.AcceptSourceAgreements = true;
 
             await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.InternalError);
         }
@@ -161,7 +157,6 @@ namespace AppInstallerCLIE2ETests.Interop
             options.SourceUri = "http://microsoft.com";
             options.Name = "Insecure";
             options.TrustLevel = PackageCatalogTrustLevel.Trusted;
-            options.AcceptSourceAgreements = true;
 
             await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.InvalidOptions, Constants.ErrorCode.ERROR_SOURCE_NOT_SECURE);
         }
@@ -182,22 +177,6 @@ namespace AppInstallerCLIE2ETests.Interop
         }
 
         /// <summary>
-        /// Add package catalog with source agreement not accepted.
-        /// </summary>
-        /// <returns>representing the asynchronous unit test.</returns>
-        [Test]
-        public async Task AddPackageCatalogWithSourceAgreementNotAccepted()
-        {
-            AddPackageCatalogOptions options = this.TestFactory.CreateAddPackageCatalogOptions();
-            options.SourceUri = Constants.DefaultMSStoreSourceUrl;
-            options.Name = Constants.DefaultMSStoreSourceName;
-            options.Type = Constants.DefaultMSStoreSourceType;
-            options.TrustLevel = PackageCatalogTrustLevel.Trusted;
-
-            await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.SourceAgreementsNotAccepted, Constants.ErrorCode.ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED);
-        }
-
-        /// <summary>
         /// Add, update and remove package catalog.
         /// </summary>
         /// <returns> representing the asynchronous unit test.</returns>
@@ -208,7 +187,6 @@ namespace AppInstallerCLIE2ETests.Interop
             options.SourceUri = Constants.TestSourceUrl;
             options.Name = Constants.TestSourceName;
             options.TrustLevel = PackageCatalogTrustLevel.Trusted;
-            options.AcceptSourceAgreements = true;
 
             await this.AddCatalogAndVerifyStatusAsync(options, AddPackageCatalogStatus.Ok);
 
@@ -241,7 +219,6 @@ namespace AppInstallerCLIE2ETests.Interop
             options.SourceUri = Constants.TestSourceUrl;
             options.Name = Constants.TestSourceName;
             options.TrustLevel = PackageCatalogTrustLevel.Trusted;
-            options.AcceptSourceAgreements = true;
 
             await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.Ok);
 

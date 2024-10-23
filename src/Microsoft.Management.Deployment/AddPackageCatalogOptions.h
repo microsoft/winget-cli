@@ -29,9 +29,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool Explicit();
         void Explicit(bool const& value);
 
-        bool AcceptSourceAgreements();
-        void AcceptSourceAgreements(bool const& value);
-
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         std::wstring m_name = L"";
@@ -40,7 +37,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel m_trustLevel = winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel::None;
         std::wstring m_customHeader = L"";
         bool m_explicit = false;
-        bool m_acceptSourceAgreements = false;
 #endif
     };
 }

@@ -1027,26 +1027,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 throw winrt::hresult_error(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
             }
-
-            if (!source.CheckSourceAgreements())
-            {
-                if(!options.AcceptSourceAgreements())
-                {
-                    throw winrt::hresult_error(APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED);
-                }
-
-                source.SaveAcceptedSourceAgreements();
-            }
         }
         catch (const winrt::hresult_error& hre)
         {
             if (hre.code() == APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED)
             {
                 THROW_HR(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
-            }
-            else if (hre.code() == APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED)
-            {
-                THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED);
             }
             else
             {

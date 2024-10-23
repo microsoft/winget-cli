@@ -1405,9 +1405,6 @@ namespace Microsoft.Management.Deployment
 
         /// Excludes a source from discovery unless specified.
         Boolean Explicit;
-
-        /// PackageCatalog Source agreement.
-        Boolean AcceptSourceAgreements;
     };
 
     /// IMPLEMENTATION NOTE: AddPackageCatalogStatus
@@ -1420,7 +1417,6 @@ namespace Microsoft.Management.Deployment
         InternalError,
         InvalidOptions,
         AccessDenied,
-        SourceAgreementsNotAccepted,
         AuthenticationError,
     };
 

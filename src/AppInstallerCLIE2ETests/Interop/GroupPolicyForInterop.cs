@@ -195,7 +195,6 @@ namespace AppInstallerCLIE2ETests.Interop
             options.SourceUri = Constants.TestSourceUrl;
             options.Name = Constants.TestSourceName;
             options.TrustLevel = PackageCatalogTrustLevel.Trusted;
-            options.AcceptSourceAgreements = true;
 
             var addCatalogResult = await packageManager.AddPackageCatalogAsync(options);
             Assert.IsNotNull(addCatalogResult);
