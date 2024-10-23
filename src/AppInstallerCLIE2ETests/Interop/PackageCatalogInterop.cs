@@ -73,15 +73,14 @@ namespace AppInstallerCLIE2ETests.Interop
         /// <summary>
         /// Add package catalog with invalid options.
         /// </summary>
-        /// <returns>representing the asynchronous unit test.</returns>
         [Test]
-        public async Task AddPackageCatalogWithInvalidOptions()
+        public void AddPackageCatalogWithInvalidOptions()
         {
             // Add package catalog with null options.
-            await this.AddAndValidatePackageCatalogAsync(null, AddPackageCatalogStatus.InvalidOptions, Constants.ErrorCode.E_INVALIDARG);
+            Assert.ThrowsAsync<ArgumentException>(async () => await this.packageManager.AddPackageCatalogAsync(null));
 
             // Add package catalog with empty options.
-            await this.AddAndValidatePackageCatalogAsync(this.TestFactory.CreateAddPackageCatalogOptions(), AddPackageCatalogStatus.InvalidOptions, Constants.ErrorCode.E_INVALIDARG);
+            Assert.ThrowsAsync<ArgumentException>(async () => await this.packageManager.AddPackageCatalogAsync(this.TestFactory.CreateAddPackageCatalogOptions()));
         }
 
         /// <summary>
@@ -232,15 +231,14 @@ namespace AppInstallerCLIE2ETests.Interop
         /// <summary>
         /// Remove package catalog with invalid options.
         /// </summary>
-        /// <returns> representing the asynchronous unit test.</returns>
         [Test]
-        public async Task RemovePackageCatalogWithInvalidOptions()
+        public void RemovePackageCatalogWithInvalidOptions()
         {
             // Remove package catalog with null options.
-            await this.RemoveAndValidatePackageCatalogAsync(null, RemovePackageCatalogStatus.InvalidOptions, Constants.ErrorCode.E_INVALIDARG);
+            Assert.ThrowsAsync<ArgumentException>(async () => await this.packageManager.RemovePackageCatalogAsync(null));
 
             // Remove package catalog with empty options.
-            await this.RemoveAndValidatePackageCatalogAsync(this.TestFactory.CreateRemovePackageCatalogOptions(), RemovePackageCatalogStatus.InvalidOptions, Constants.ErrorCode.E_INVALIDARG);
+            Assert.ThrowsAsync<ArgumentException>(async () => await this.packageManager.RemovePackageCatalogAsync(this.TestFactory.CreateRemovePackageCatalogOptions()));
         }
 
         /// <summary>

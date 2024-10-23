@@ -1312,13 +1312,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         LogStartupIfApplicable();
 
+        // options must be set.
+        THROW_HR_IF_NULL(E_INVALIDARG, options);
+        THROW_HR_IF(E_INVALIDARG, options.Name().empty());
+        THROW_HR_IF(E_INVALIDARG, options.SourceUri().empty());
+
         HRESULT terminationHR = S_OK;
         try {
-
-            // options must be set.
-            THROW_HR_IF_NULL(E_INVALIDARG, options);
-            THROW_HR_IF(E_INVALIDARG, options.Name().empty());
-            THROW_HR_IF(E_INVALIDARG, options.SourceUri().empty());
 
             // Check if running as admin/system.
             // [NOTE:] For OutOfProc calls, the Windows Package Manager Service executes in the context initiated by the caller process,
@@ -1355,12 +1355,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         LogStartupIfApplicable();
 
+        // options must be set.
+        THROW_HR_IF_NULL(E_INVALIDARG, options);
+        THROW_HR_IF(E_INVALIDARG, options.Name().empty());
+
         HRESULT terminationHR = S_OK;
         try {
-
-            // options must be set.
-            THROW_HR_IF_NULL(E_INVALIDARG, options);
-            THROW_HR_IF(E_INVALIDARG, options.Name().empty());
 
             // Check if running as admin/system.
             // [NOTE:] For OutOfProc calls, the Windows Package Manager Service executes in the context initiated by the caller process,
