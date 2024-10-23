@@ -335,6 +335,9 @@ namespace AppInstaller::Repository
         // Get a list of all available SourceDetails.
         static std::vector<SourceDetails> GetCurrentSources();
 
+        // Get a default source type is the source type used when adding a source without specifying a type.
+        static std::string_view GetDefaultSourceType();
+
     private:
         void InitializeSourceReference(std::string_view name);
 
