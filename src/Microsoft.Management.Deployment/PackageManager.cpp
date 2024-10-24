@@ -37,6 +37,7 @@
 #include "ContextOrchestrator.h"
 #include "AppInstallerRuntime.h"
 #include <optional>
+#include <PackageCatalogProgress.h>
 
 using namespace std::literals::chrono_literals;
 using namespace ::AppInstaller::CLI;
@@ -1330,18 +1331,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto report_progress{ co_await winrt::get_progress_token() };
             co_await winrt::resume_background();
 
-            AppInstaller::CallbackDispatcherSink progressCallback;
+            std::string type = winrt::to_string(options.Type());
+            auto packageCatalogProgressSink = winrt::Microsoft::Management::Deployment::ProgressSinkFactory::CreatePackageCatalogProgressSink(type, report_progress );
 
-            progressCallback.AddCallback([&report_progress](uint64_t current, uint64_t maximum, AppInstaller::ProgressType type)
-                {
-                    UNREFERENCED_PARAMETER(type);
-                    UNREFERENCED_PARAMETER(maximum);
-                    report_progress(static_cast<double>(current));
-                });
-
-            ::AppInstaller::ProgressCallback progress(&progressCallback);
-
+            packageCatalogProgressSink->BeginProgress();
+            ::AppInstaller::ProgressCallback progress(packageCatalogProgressSink.get());
             sourceToAdd.Add(progress);
+            packageCatalogProgressSink->EndProgress(false);
         }
         catch (...)
         {
@@ -1373,29 +1369,23 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto report_progress{ co_await winrt::get_progress_token() };
             co_await winrt::resume_background();
 
-            AppInstaller::CallbackDispatcherSink progressCallback;
+            auto packageCatalogProgressSink = winrt::Microsoft::Management::Deployment::ProgressSinkFactory::CreatePackageCatalogProgressSink(matchingSource.value().Type, report_progress, true);
+
+            packageCatalogProgressSink->BeginProgress();
             ::AppInstaller::Repository::Source sourceToRemove = ::AppInstaller::Repository::Source{ matchingSource.value().Name };
-
-            progressCallback.AddCallback([&report_progress](uint64_t current, uint64_t maximum, AppInstaller::ProgressType type)
-                {
-                    UNREFERENCED_PARAMETER(type);
-                    UNREFERENCED_PARAMETER(maximum);
-                    report_progress(static_cast<double>(current));
-                });
-
-            ::AppInstaller::ProgressCallback progress(&progressCallback);
+            ::AppInstaller::ProgressCallback progress(packageCatalogProgressSink.get());
 
             // If the PreserveData option is set, this is equivalent to the WinGet CLI Reset command on a single source; otherwise, it removes the source.
             if (options.PreserveData())
             {
-                progressCallback.BeginProgress();
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, !sourceToRemove.DropSource(matchingSource.value().Name));
-                progressCallback.OnProgress(100, 100, AppInstaller::ProgressType::Percent);
+                packageCatalogProgressSink->OnProgress(100, 100, AppInstaller::ProgressType::Percent);
             }
             else
             {
                 sourceToRemove.Remove(progress);
             }
+            packageCatalogProgressSink->EndProgress(false);
         }
         catch (...)
         {

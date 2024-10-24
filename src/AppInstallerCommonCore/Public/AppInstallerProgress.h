@@ -127,32 +127,6 @@ namespace AppInstaller
         uint64_t m_globalMax = 0;
     };
 
-    using ProgressCallBack = std::function<void(uint64_t current, uint64_t maximum, ProgressType progressType)>;
-
-    // A sink that dispatches progress to a set of callbacks.
-    struct CallbackDispatcherSink : public IProgressSink
-    {
-        CallbackDispatcherSink() = default;
-
-        ~CallbackDispatcherSink() = default;
-
-        void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
-
-        void SetProgressMessage(std::string_view message) override;
-
-        void BeginProgress() override;
-
-        void EndProgress(bool hideProgressWhenDone) override;
-
-        void AddCallback(ProgressCallBack&& callback);
-
-    private:
-        void FireCallbacks(uint64_t current, uint64_t maximum, ProgressType type);
-
-        std::vector<ProgressCallBack> m_progressCallbacks;
-        std::mutex m_progressCallbackMutex;
-    };
-
     namespace details
     {
         inline void RemoveCancellationFunction(IProgressCallback* callback)

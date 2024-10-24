@@ -20,6 +20,7 @@
 #include <Helpers.h>
 #include <ExecutionContext.h>
 #include <RefreshPackageCatalogResult.h>
+#include <PackageCatalogProgress.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -313,18 +314,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto report_progress{ co_await winrt::get_progress_token() };
             co_await winrt::resume_background();
 
-            AppInstaller::CallbackDispatcherSink progressCallback;
+            auto packageCatalogProgressSink = winrt::Microsoft::Management::Deployment::ProgressSinkFactory::CreatePackageCatalogProgressSink(this->m_sourceReference.GetDetails().Type, report_progress);
 
-            progressCallback.AddCallback([&report_progress](uint64_t current, uint64_t maximum, AppInstaller::ProgressType type)
-                {
-                    UNREFERENCED_PARAMETER(type);
-                    UNREFERENCED_PARAMETER(maximum);
-                    report_progress(static_cast<double>(current));
-                });
-
-            ::AppInstaller::ProgressCallback progress(&progressCallback);
-
+            packageCatalogProgressSink->BeginProgress();
+            ::AppInstaller::ProgressCallback progress(packageCatalogProgressSink.get());
             this->m_sourceReference.Update(progress);
+            packageCatalogProgressSink->EndProgress(false);
         }
         catch (...)
         {

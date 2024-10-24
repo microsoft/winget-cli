@@ -207,6 +207,7 @@
     <ClInclude Include="PackageAgreement.h" />
     <ClInclude Include="PackageCatalog.h" />
     <ClInclude Include="PackageCatalogInfo.h" />
+    <ClInclude Include="PackageCatalogProgress.h" />
     <ClInclude Include="PackageCatalogReference.h" />
     <ClInclude Include="PackageInstallerInfo.h" />
     <ClInclude Include="PackageInstallerInstalledStatus.h" />
@@ -254,6 +255,7 @@
     <ClCompile Include="PackageAgreement.cpp" />
     <ClCompile Include="PackageCatalog.cpp" />
     <ClCompile Include="PackageCatalogInfo.cpp" />
+    <ClCompile Include="PackageCatalogProgress.cpp" />
     <ClCompile Include="PackageCatalogReference.cpp" />
     <ClCompile Include="PackageInstallerInfo.cpp" />
     <ClCompile Include="PackageInstallerInstalledStatus.cpp" />
