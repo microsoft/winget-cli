@@ -58,7 +58,7 @@ namespace winrt::Microsoft::Management::Deployment
         /// Reports combined progress to caller when configured for multiple progress types.
         /// </summary>
         /// <param name="current">The current progress value.</param>
-        /// <param name="maximum">The maximum progres value.</param>
+        /// <param name="maximum">The maximum progress value.</param>
         /// <param name="type">ProgressType for which progress is applicable.</param>
         void OnProgress(uint64_t current, uint64_t maximum, AppInstaller::ProgressType type) override;
         void SetProgressMessage(std::string_view message) override;
