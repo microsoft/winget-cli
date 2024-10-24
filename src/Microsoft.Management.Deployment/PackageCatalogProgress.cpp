@@ -46,6 +46,10 @@ namespace winrt::Microsoft::Management::Deployment
     CompletionOnlyProgressSink::CompletionOnlyProgressSink(std::function<void(double)> progressReporter) :
         m_progressReporter(progressReporter)
     {
+        if (!m_progressReporter)
+        {
+            THROW_HR(E_INVALIDARG);
+        }
     }
 
     void CompletionOnlyProgressSink::OnProgress(uint64_t current, uint64_t maximum, AppInstaller::ProgressType type)
@@ -74,10 +78,15 @@ namespace winrt::Microsoft::Management::Deployment
     PreIndexedPackageCatalogProgressSink::PreIndexedPackageCatalogProgressSink(std::unordered_map<AppInstaller::ProgressType, double> progressWeights, std::function<void(double)> progressReporter) :
         m_progressWeights(progressWeights), m_progressReporter(progressReporter)
     {
+        if (!m_progressReporter)
+        {
+            THROW_HR(E_INVALIDARG);
+        }
+
         // If no weights are provided, default to percent.
         if (m_progressWeights.empty())
         {
-            m_progressWeights[AppInstaller::ProgressType::Percent] = 1;
+            m_progressWeights.insert_or_assign(AppInstaller::ProgressType::Percent, 1.0);
         }
 
         // Calculate the total weight.
