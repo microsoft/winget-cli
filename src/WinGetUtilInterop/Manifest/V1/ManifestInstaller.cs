@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ManifestInstaller.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -197,6 +197,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// Gets or sets a value indicating whether the installer is prohibited from being downloaded for offline installation.
         /// </summary>
         public bool DownloadCommandProhibited { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the install location should be added directly to the PATH environment variable.
+        /// </summary>
+        public bool ArchiveBinariesDependOnPath { get; set; }
 
         /// <summary>
         /// Gets or sets the repair behavior.
