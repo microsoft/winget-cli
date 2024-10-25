@@ -31,6 +31,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     ::AppInstaller::Authentication::AuthenticationMode GetAuthenticationMode(winrt::Microsoft::Management::Deployment::AuthenticationMode authMode);
     ::AppInstaller::Authentication::AuthenticationArguments GetAuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments authArgs);
     ::AppInstaller::Manifest::ScopeEnum GetManifestRepairScope(winrt::Microsoft::Management::Deployment::PackageRepairScope scope);
+    winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus GetAddPackageCatalogOperationStatus(winrt::hresult hresult);
+    winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus GetRemovePackageCatalogOperationStatus(winrt::hresult hresult);
 
 #define WINGET_GET_OPERATION_RESULT_STATUS(_installResultStatus_, _uninstallResultStatus_, _downloadResultStatus_, _repairResultStatus_) \
     if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::InstallResultStatus>) \
@@ -140,5 +142,60 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
 
         return resultStatus;
+    }
+
+    template <typename TStatus>
+    TStatus HandleCommonCatalogOperationStatus(winrt::hresult hresult)
+    {
+        // Common status handling for AddPackageCatalogStatus and RemovePackageCatalogStatus.
+        if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus> || std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus>)
+        {
+            switch (hresult)
+            {
+            case APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN:
+            case E_ACCESSDENIED:
+                return TStatus::AccessDenied;
+            case APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS:
+            case E_INVALIDARG:
+                return TStatus::InvalidOptions;
+            default:
+                break;
+            }
+        }
+
+        // Common status handling for AddPackageCatalogStatus, RemovePackageCatalogStatus, and RefreshPackageCatalogStatus.
+        switch (hresult)
+        {
+        case S_OK:
+            return TStatus::Ok;
+        case APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY:
+            return TStatus::GroupPolicyError;
+        case APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE:
+            return TStatus::CatalogError;
+        case APPINSTALLER_CLI_ERROR_INTERNAL_ERROR:
+        default:
+            return TStatus::InternalError;
+        }
+    }
+
+    template <typename TStatus>
+    TStatus GetPackageCatalogOperationStatus(winrt::hresult hresult)
+    {
+        if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus>)
+        {
+            return GetAddPackageCatalogOperationStatus(hresult);
+        }
+        else if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus>)
+        {
+            return GetRemovePackageCatalogOperationStatus(hresult);
+        }
+        else if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::RefreshPackageCatalogStatus>)
+        {
+            return HandleCommonCatalogOperationStatus<RefreshPackageCatalogStatus>(hresult);
+        }
+        else
+        {
+            throw winrt::hresult_error(E_UNEXPECTED);
+        }
     }
 }

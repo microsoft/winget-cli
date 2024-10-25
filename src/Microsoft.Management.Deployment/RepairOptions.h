@@ -7,7 +7,7 @@
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     [uuid(WINGET_OUTOFPROC_COM_CLSID_RepairOptions)]
-        struct RepairOptions : RepairOptionsT<RepairOptions>
+    struct RepairOptions : RepairOptionsT<RepairOptions>
     {
         RepairOptions();
 

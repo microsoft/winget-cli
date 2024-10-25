@@ -19,7 +19,7 @@ namespace AppInstaller
     }
 
     // The semantic meaning of the progress values.
-    enum class ProgressType: uint32_t
+    enum class ProgressType : uint32_t
     {
         // Progress will not be sent.
         None,

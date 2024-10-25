@@ -497,4 +497,35 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         return result;
     }
+
+    AddPackageCatalogStatus GetAddPackageCatalogOperationStatus(winrt::hresult hresult)
+    {
+        switch (hresult)
+        {
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED:
+            return AddPackageCatalogStatus::AuthenticationError;
+        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE:
+        case APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE:
+        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS:
+        case APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS:
+            return AddPackageCatalogStatus::InvalidOptions;
+        default:
+            return HandleCommonCatalogOperationStatus<AddPackageCatalogStatus>(hresult);
+        }
+    }
+
+    RemovePackageCatalogStatus GetRemovePackageCatalogOperationStatus(winrt::hresult hresult)
+    {
+        switch (hresult)
+        {
+        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST:
+            return RemovePackageCatalogStatus::InvalidOptions;
+        case APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE:
+            return RemovePackageCatalogStatus::CatalogError;
+        default:
+            return HandleCommonCatalogOperationStatus<RemovePackageCatalogStatus>(hresult);
+        }
+    }
+
 }

@@ -183,6 +183,8 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AddPackageCatalogOptions.h" />
+    <ClInclude Include="AddPackageCatalogResult.h" />
     <ClInclude Include="AuthenticationArguments.h" />
     <ClInclude Include="AuthenticationInfo.h" />
     <ClInclude Include="CatalogPackage.h" />
@@ -205,6 +207,7 @@
     <ClInclude Include="PackageAgreement.h" />
     <ClInclude Include="PackageCatalog.h" />
     <ClInclude Include="PackageCatalogInfo.h" />
+    <ClInclude Include="PackageCatalogProgress.h" />
     <ClInclude Include="PackageCatalogReference.h" />
     <ClInclude Include="PackageInstallerInfo.h" />
     <ClInclude Include="PackageInstallerInstalledStatus.h" />
@@ -217,13 +220,18 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\CoCreatableMicrosoftManagementDeploymentClass.h" />
     <ClInclude Include="Public\ComClsids.h" />
+    <ClInclude Include="RemovePackageCatalogOptions.h" />
     <ClInclude Include="RepairOptions.h" />
     <ClInclude Include="RepairResult.h" />
+    <ClInclude Include="RemovePackageCatalogResult.h" />
     <ClInclude Include="SourceAgreement.h" />
     <ClInclude Include="UninstallOptions.h" />
     <ClInclude Include="UninstallResult.h" />
+    <ClInclude Include="RefreshPackageCatalogResult.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AddPackageCatalogOptions.cpp" />
+    <ClCompile Include="AddPackageCatalogResult.cpp" />
     <ClCompile Include="AuthenticationArguments.cpp" />
     <ClCompile Include="AuthenticationInfo.cpp" />
     <ClCompile Include="CatalogPackage.cpp" />
@@ -247,6 +255,7 @@
     <ClCompile Include="PackageAgreement.cpp" />
     <ClCompile Include="PackageCatalog.cpp" />
     <ClCompile Include="PackageCatalogInfo.cpp" />
+    <ClCompile Include="PackageCatalogProgress.cpp" />
     <ClCompile Include="PackageCatalogReference.cpp" />
     <ClCompile Include="PackageInstallerInfo.cpp" />
     <ClCompile Include="PackageInstallerInstalledStatus.cpp" />
@@ -259,12 +268,15 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="RemovePackageCatalogOptions.cpp" />
     <ClCompile Include="RepairOptions.cpp" />
     <ClCompile Include="RepairResult.cpp" />
+    <ClCompile Include="RemovePackageCatalogResult.cpp" />
     <ClCompile Include="SourceAgreement.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
     <ClCompile Include="UninstallOptions.cpp" />
     <ClCompile Include="UninstallResult.cpp" />
+    <ClCompile Include="RefreshPackageCatalogResult.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Microsoft_Management_Deployment.def" />
