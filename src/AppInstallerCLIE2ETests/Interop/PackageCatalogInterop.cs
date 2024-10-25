@@ -77,7 +77,7 @@ namespace AppInstallerCLIE2ETests.Interop
         public void AddPackageCatalogWithInvalidOptions()
         {
             // Add package catalog with null options.
-            Assert.ThrowsAsync<ArgumentException>(async () => await this.packageManager.AddPackageCatalogAsync(null));
+            Assert.ThrowsAsync<NullReferenceException>(async () => await this.packageManager.AddPackageCatalogAsync(null));
 
             // Add package catalog with empty options.
             Assert.ThrowsAsync<ArgumentException>(async () => await this.packageManager.AddPackageCatalogAsync(this.TestFactory.CreateAddPackageCatalogOptions()));
@@ -235,7 +235,7 @@ namespace AppInstallerCLIE2ETests.Interop
         public void RemovePackageCatalogWithInvalidOptions()
         {
             // Remove package catalog with null options.
-            Assert.ThrowsAsync<ArgumentException>(async () => await this.packageManager.RemovePackageCatalogAsync(null));
+            Assert.ThrowsAsync<NullReferenceException>(async () => await this.packageManager.RemovePackageCatalogAsync(null));
 
             // Remove package catalog with empty options.
             Assert.ThrowsAsync<ArgumentException>(async () => await this.packageManager.RemovePackageCatalogAsync(this.TestFactory.CreateRemovePackageCatalogOptions()));

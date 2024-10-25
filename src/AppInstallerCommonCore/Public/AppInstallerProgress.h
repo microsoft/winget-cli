@@ -5,7 +5,6 @@
 #include <atomic>
 #include <functional>
 #include <string_view>
-#include <mutex>
 
 namespace AppInstaller
 {

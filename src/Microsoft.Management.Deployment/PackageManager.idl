@@ -940,6 +940,11 @@ namespace Microsoft.Management.Deployment
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
         {
             /// Updates the package catalog.
+            /// The progress value, represented as a double, indicates the percentage of operation completion.
+            /// For "Microsoft.PreIndexed.Package" Package Catalogs, it reflects the progress of downloading and
+            /// installing the index. When there is no meaningful progress to report for other Package Catalogs,
+            /// the progress will be set to 0% at the start and will be updated to 100% upon the operation's completion.
+            /// The progress range is from 0 to 100.
             Windows.Foundation.IAsyncOperationWithProgress<RefreshPackageCatalogResult, Double> RefreshPackageCatalogAsync();
         }
     }
@@ -1495,9 +1500,18 @@ namespace Microsoft.Management.Deployment
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
         {
             /// Add a catalog to the Windows Package Catalogs.
+            /// The progress value, represented as a double, indicates the percentage of operation completion.
+            /// For "Microsoft.PreIndexed.Package" Package Catalogs, it reflects the progress of downloading and
+            /// installing the index. When there is no meaningful progress to report for other Package Catalogs,
+            /// the progress will be set to 0% at the start and will be updated to 100% upon the operation's completion.
+            /// The progress range is from 0 to 100.
             Windows.Foundation.IAsyncOperationWithProgress<AddPackageCatalogResult, Double> AddPackageCatalogAsync(AddPackageCatalogOptions options);
 
             /// Unregisters a Package Catalog from the Windows Package Catalogs and eliminates the system artifacts based on the provided options.
+            /// The progress value, represented as a double, indicates the percentage of operation completion.For "Microsoft.PreIndexed.Package"
+            /// Package Catalogs, it reflects the progress of uninstalling the index. When there is no meaningful progress to report for
+            /// other Package Catalogs, the progress will be set to 0% at the start and will be updated to 100% upon the operation's completion.
+            /// The progress range is from 0 to 100.
             Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, Double> RemovePackageCatalogAsync(RemovePackageCatalogOptions options);
         }
 

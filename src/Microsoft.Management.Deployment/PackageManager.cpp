@@ -114,29 +114,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 source.SetCustomHeader(customHeader);
             }
 
-            try
-            {
-                auto sourceInfo = source.GetInformation();
+            auto sourceInfo = source.GetInformation();
 
-                if (sourceInfo.Authentication.Type == ::AppInstaller::Authentication::AuthenticationType::Unknown)
-                {
-                    throw winrt::hresult_error(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
-                }
-            }
-            catch (const winrt::hresult_error& hre)
+            if (sourceInfo.Authentication.Type == ::AppInstaller::Authentication::AuthenticationType::Unknown)
             {
-                if (hre.code() == APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED)
-                {
-                    THROW_HR(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
-                }
-                else
-                {
-                    THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
-                }
-            }
-            catch (...) // Catch all exceptions
-            {
-                THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+                THROW_HR(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
             }
 
             return source;
@@ -1314,7 +1296,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         LogStartupIfApplicable();
 
         // options must be set.
-        THROW_HR_IF_NULL(E_INVALIDARG, options);
+        THROW_HR_IF_NULL(E_POINTER, options);
         THROW_HR_IF(E_INVALIDARG, options.Name().empty());
         THROW_HR_IF(E_INVALIDARG, options.SourceUri().empty());
 
@@ -1352,7 +1334,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         LogStartupIfApplicable();
 
         // options must be set.
-        THROW_HR_IF_NULL(E_INVALIDARG, options);
+        THROW_HR_IF_NULL(E_POINTER, options);
         THROW_HR_IF(E_INVALIDARG, options.Name().empty());
 
         HRESULT terminationHR = S_OK;
@@ -1379,7 +1361,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             if (options.PreserveData())
             {
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, !sourceToRemove.DropSource(matchingSource.value().Name));
-                packageCatalogProgressSink->OnProgress(100, 100, AppInstaller::ProgressType::Percent);
             }
             else
             {

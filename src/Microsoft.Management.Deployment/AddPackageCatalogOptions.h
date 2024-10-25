@@ -31,11 +31,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
-        std::wstring m_name = L"";
-        std::wstring m_sourceUri = L"";
-        std::wstring m_type = L"";
+        hstring m_name = L"";
+        hstring m_sourceUri = L"";
+        hstring m_type = L"";
         winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel m_trustLevel = winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel::None;
-        std::wstring m_customHeader = L"";
+        hstring m_customHeader = L"";
         bool m_explicit = false;
 #endif
     };

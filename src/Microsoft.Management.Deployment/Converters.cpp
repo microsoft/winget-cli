@@ -510,8 +510,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS:
         case APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS:
             return AddPackageCatalogStatus::InvalidOptions;
-        case APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED:
-            return AddPackageCatalogStatus::CatalogError;
         default:
             return HandleCommonCatalogOperationStatus<AddPackageCatalogStatus>(hresult);
         }

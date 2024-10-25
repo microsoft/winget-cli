@@ -52,7 +52,7 @@ namespace winrt::Microsoft::Management::Deployment
         /// </summary>
         /// <param name="progressWeights">ProgressType weight map.</param>
         /// <param name="progressReporter">Callback function that reports progress to caller.</param>
-        PreIndexedPackageCatalogProgressSink(std::unordered_map<AppInstaller::ProgressType, double> progressWeights, std::function<void(double)> progressReporter);
+        PreIndexedPackageCatalogProgressSink(std::vector<std::pair<AppInstaller::ProgressType, double>> progressWeights, std::function<void(double)> progressReporter);
 
         /// <summary>
         /// Reports combined progress to caller when configured for multiple progress types.
@@ -66,7 +66,7 @@ namespace winrt::Microsoft::Management::Deployment
         void EndProgress(bool hideProgressWhenDone) override;
 
     private:
-        std::unordered_map<AppInstaller::ProgressType, double> m_progressWeights;
+        std::vector<std::pair<AppInstaller::ProgressType, double>> m_progressWeights;
         std::function<void(double)> m_progressReporter;
         std::unordered_map<AppInstaller::ProgressType, double> m_progressValues;
     };

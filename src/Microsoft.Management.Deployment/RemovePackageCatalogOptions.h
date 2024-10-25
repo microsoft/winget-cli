@@ -19,7 +19,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
-        std::wstring m_name = L"";
+        hstring m_name = L"";
         bool m_preserveData = false;
 #endif
     };
