@@ -661,4 +661,64 @@ namespace AppInstaller::Utility
 
         return false;
     }
+
+    OpenTypeFontVersion::OpenTypeFontVersion(std::string&& version)
+    {
+        Assign(std::move(version), DefaultSplitChars);
+    }
+
+    void OpenTypeFontVersion::Assign(std::string version, std::string_view splitChars)
+    {
+        // Open type version requires using the default split character
+        THROW_HR_IF(E_INVALIDARG, splitChars != DefaultSplitChars);
+
+        // Split on default split character.
+        std::vector<std::string> parts = Split(version, '.', true);
+
+        std::string majorString;
+        std::string minorString;
+
+        // Font version must have a "major.minor" part.
+        if (parts.size() >= 2)
+        {
+            // Find first digit and trim all preceding characters. 
+            std::string firstPart = parts[0];
+            size_t majorStartIndex = firstPart.find_first_of(s_Digit_Characters);
+
+            if (majorStartIndex != std::string::npos)
+            {
+                firstPart.erase(0, majorStartIndex);
+            }
+
+            size_t majorEndIndex = firstPart.find_last_of(s_Digit_Characters);
+            majorString = firstPart.substr(0, majorEndIndex + 1);
+
+            // Parse and verify minor part.
+            std::string secondPart = parts[1];
+            size_t endPos = secondPart.find_first_not_of(s_Digit_Characters);
+
+            // If a non-digit character exists, trim off the remainder.
+            if (endPos != std::string::npos)
+            {
+                secondPart.erase(endPos, secondPart.length());
+            }
+
+            minorString = secondPart;
+        }
+
+        // Verify results.
+        if (!majorString.empty() && !minorString.empty())
+        {
+            m_parts.emplace_back(majorString);
+            m_parts.emplace_back(minorString);
+            m_version = Utility::Join(DefaultSplitChars, { majorString, minorString });
+
+            Trim();
+        }
+        else
+        {
+            m_version = s_Version_Part_Unknown;
+            m_parts.emplace_back(0, std::string{ s_Version_Part_Unknown });
+        }
+    }
 }

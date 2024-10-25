@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerVersions.h>
 #include <string>
 #include <vector>
 
@@ -10,14 +11,13 @@ namespace AppInstaller::Fonts
     {
         std::wstring Name;
         std::vector<std::filesystem::path> FilePaths;
-        std::wstring Version;
+        Utility::OpenTypeFontVersion Version;
     };
 
     struct FontFamily
     {
         std::wstring Name;
         std::vector<FontFace> Faces;
-        std::wstring Version;
     };
 
     /// <summary>

@@ -257,8 +257,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FontFilePaths);
         WINGET_DEFINE_RESOURCE_STRINGID(FontListCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FontListCommandShortDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(FontsInstallLocationUser);
-        WINGET_DEFINE_RESOURCE_STRINGID(FontsInstallLocationMachine);
         WINGET_DEFINE_RESOURCE_STRINGID(FontVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(ForceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(GatedVersionArgumentDescription);

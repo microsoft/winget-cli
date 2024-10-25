@@ -10,6 +10,8 @@ namespace AppInstaller::Fonts
 {
     namespace
     {
+        std::vector<std::wstring> preferredLocales = AppInstaller::Locale::GetUserPreferredLanguagesUTF16();
+
         std::vector<std::filesystem::path> GetFontFilePaths(const wil::com_ptr<IDWriteFontFace>& fontFace)
         {
             UINT32 fileCount = 0;
@@ -35,9 +37,11 @@ namespace AppInstaller::Fonts
                     THROW_IF_FAILED(localLoader->GetFilePathLengthFromKey(fontFileReferenceKey, fontFileReferenceKeySize, &pathLength));
                     pathLength += 1; // Account for the trailing null terminator during allocation.
 
-                    wchar_t* path = new wchar_t[pathLength];
+                    std::wstring path;
+                    path.resize(pathLength);
                     THROW_IF_FAILED(localLoader->GetFilePathFromKey(fontFileReferenceKey, fontFileReferenceKeySize, &path[0], pathLength));
-                    filePaths.push_back(std::move(std::wstring(path)));
+                    path.resize(pathLength - 1); // Remove the null char.
+                    filePaths.emplace_back(std::move(path));
                 }
             }
 
@@ -46,13 +50,19 @@ namespace AppInstaller::Fonts
 
         std::wstring GetLocalizedStringFromFont(const wil::com_ptr<IDWriteLocalizedStrings>& localizedStringCollection)
         {
-            std::vector<std::string> locales = AppInstaller::Locale::GetUserPreferredLanguages();
-            std::wstring preferredLocale = Utility::ConvertToUTF16(!locales.empty() ? locales[0] : "en-US");
+            UINT32 index = 0;
+            BOOL exists = false;
 
-            UINT32 index;
-            BOOL exists;
-            // TODO: Aggregate available locales and find best alternative locale if preferred locale does not exist.
-            if (FAILED(localizedStringCollection->FindLocaleName(preferredLocale.c_str(), &index, &exists)) || !exists)
+            for (const auto& locale : preferredLocales)
+            {
+                if (FAILED(localizedStringCollection->FindLocaleName(locale.c_str(), &index, &exists)) || exists)
+                {
+                    break;
+                }
+            }
+
+            // If the locale does not exist, resort to the default value at the 0 index.
+            if (!exists)
             {
                 index = 0;
             }
@@ -61,9 +71,11 @@ namespace AppInstaller::Fonts
             THROW_IF_FAILED(localizedStringCollection->GetStringLength(index, &length));
             length += 1; // Account for the trailing null terminator during allocation.
 
-            wchar_t* localizedString = new wchar_t[length];
-            THROW_IF_FAILED(localizedStringCollection->GetString(index, localizedString, length));
-            return std::wstring(localizedString);
+            std::wstring localizedString;
+            localizedString.resize(length);
+            THROW_IF_FAILED(localizedStringCollection->GetString(index, &localizedString[0], length));
+            localizedString.resize(length - 1); // Remove the null char.
+            return localizedString;
         }
 
         std::wstring GetFontFaceName(const wil::com_ptr<IDWriteFont>& font)
@@ -80,7 +92,7 @@ namespace AppInstaller::Fonts
             return GetLocalizedStringFromFont(familyNames);
         }
 
-        std::wstring GetFontFaceVersion(const wil::com_ptr<IDWriteFont>& font)
+        Utility::OpenTypeFontVersion GetFontFaceVersion(const wil::com_ptr<IDWriteFont>& font)
         {
             wil::com_ptr<IDWriteLocalizedStrings> fontVersion;
             BOOL exists;
@@ -90,23 +102,9 @@ namespace AppInstaller::Fonts
                 return {};
             }
 
-            std::string value = Utility::ConvertToUTF8(GetLocalizedStringFromFont(fontVersion));
-
-            // Version is returned in the format of ex: 'Version 2.137 ;2017'
-            // Extract out the parts between 'Version' and ';'
-            if (Utility::CaseInsensitiveContainsSubstring(value, "Version"))
-            {
-                Utility::FindAndReplace(value, "Version", "");
-            }
-
-            if (Utility::CaseInsensitiveContainsSubstring(value, ";"))
-            {
-                Utility::FindAndReplace(value, ";", "");
-            }
-
-            Utility::Trim(value);
-            std::vector<std::string> items = Utility::Split(value, ' ', true);
-            return Utility::ConvertToUTF16(items[0]);
+            std::string value = AppInstaller::Utility::ConvertToUTF8(GetLocalizedStringFromFont(fontVersion));
+            Utility::OpenTypeFontVersion openTypeFontVersion { value };
+            return openTypeFontVersion;
         }
 
         FontFamily GetFontFamilyByIndex(const wil::com_ptr<IDWriteFontCollection>& collection, UINT32 index)
@@ -155,12 +153,10 @@ namespace AppInstaller::Fonts
             BOOL exists;
             THROW_IF_FAILED(collection->FindFamilyName(familyName.value().c_str(), &index, &exists));
 
-            if (!exists)
+            if (exists)
             {
-                return {};
+                installedFontFamilies.emplace_back(GetFontFamilyByIndex(collection, index));
             }
-
-            installedFontFamilies.emplace_back(GetFontFamilyByIndex(collection, index));
         }
         else
         {
