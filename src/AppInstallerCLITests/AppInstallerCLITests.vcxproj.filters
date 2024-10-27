@@ -633,6 +633,9 @@
     <CopyFileToFolders Include="TestData\TestZip.zip">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestTarGz.tar.gz">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\DownloadFlowTest_DownloadCommandProhibited.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

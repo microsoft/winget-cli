@@ -3,11 +3,6 @@
 #include "pch.h"
 #include "Public/winget/Archive.h"
 
-#include <amsi.h>
-#include <comdef.h>
-#include <fstream>
-#include <vector>
-
 namespace AppInstaller::Archive
 {
     using unique_pidlist_absolute = wil::unique_any<PIDLIST_ABSOLUTE, decltype(&::CoTaskMemFree), ::CoTaskMemFree>;
@@ -67,8 +62,8 @@ namespace AppInstaller::Archive
 #endif
 
         HRESULT hr = S_OK;
-        wil::com_ptr_nothrow<IUnknown> amsiContext;
-        wil::com_ptr_nothrow<IUnknown> amsiSession;
+        HAMSICONTEXT amsiContext;
+        HAMSISESSION amsiSession;
 
         hr = AmsiInitialize(L"WinGet", &amsiContext);
         if (FAILED(hr))
@@ -76,10 +71,10 @@ namespace AppInstaller::Archive
             return false;
         }
 
-        hr = AmsiOpenSession(amsiContext.get(), &amsiSession);
+        hr = AmsiOpenSession(amsiContext, &amsiSession);
         if (FAILED(hr))
         {
-            AmsiUninitialize(amsiContext.get());
+            AmsiUninitialize(amsiContext);
             return false;
         }
 
@@ -87,10 +82,10 @@ namespace AppInstaller::Archive
         std::vector<uint8_t> data{ { std::istreambuf_iterator<char>{ instream } }, std::istreambuf_iterator<char>{} };
 
         AMSI_RESULT result = AMSI_RESULT_CLEAN;
-        hr = AmsiScanBuffer(amsiContext.get(), data.data(), data.size(), zipPath.filename().c_str(), amsiSession.get(), &result);
+        hr = AmsiScanBuffer(amsiContext, data.data(), static_cast<ULONG>(data.size()), zipPath.filename().c_str(), amsiSession, &result);
 
-        AmsiCloseSession(amsiContext.get(), amsiSession.get());
-        AmsiUninitialize(amsiContext.get());
+        AmsiCloseSession(amsiContext, amsiSession);
+        AmsiUninitialize(amsiContext);
 
         return SUCCEEDED(hr) && (result == AMSI_RESULT_CLEAN || result == AMSI_RESULT_NOT_DETECTED);
     }
