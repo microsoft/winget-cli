@@ -3,11 +3,10 @@
 #include "pch.h"
 #include "Public/winget/Archive.h"
 
-// TODO: Move include statement to pch.h and resolve build errors
-#pragma warning( push )
-#pragma warning ( disable : 4189 4244 26451 )
-#include <pure.h>
-#pragma warning ( pop )
+#include <amsi.h>
+#include <comdef.h>
+#include <fstream>
+#include <vector>
 
 namespace AppInstaller::Archive
 {
@@ -67,13 +66,33 @@ namespace AppInstaller::Archive
         }
 #endif
 
+        HRESULT hr = S_OK;
+        wil::com_ptr_nothrow<IUnknown> amsiContext;
+        wil::com_ptr_nothrow<IUnknown> amsiSession;
+
+        hr = AmsiInitialize(L"WinGet", &amsiContext);
+        if (FAILED(hr))
+        {
+            return false;
+        }
+
+        hr = AmsiOpenSession(amsiContext.get(), &amsiSession);
+        if (FAILED(hr))
+        {
+            AmsiUninitialize(amsiContext.get());
+            return false;
+        }
+
         std::ifstream instream{ zipPath, std::ios::in | std::ios::binary };
         std::vector<uint8_t> data{ { std::istreambuf_iterator<char>{ instream } }, std::istreambuf_iterator<char>{} };
 
-        uint8_t* buffer = &data[0];
-        uint64_t flag = 0;
-        int scanResult = pure_zip(buffer, data.size(), flag);
+        AMSI_RESULT result = AMSI_RESULT_CLEAN;
+        hr = AmsiScanBuffer(amsiContext.get(), data.data(), data.size(), zipPath.filename().c_str(), amsiSession.get(), &result);
 
-        return scanResult == 0;
+        AmsiCloseSession(amsiContext.get(), amsiSession.get());
+        AmsiUninitialize(amsiContext.get());
+
+        return SUCCEEDED(hr) && (result == AMSI_RESULT_CLEAN || result == AMSI_RESULT_NOT_DETECTED);
     }
 }
+
