@@ -80,6 +80,10 @@
               </com:Class>
               <com:Class Id ="E62BB1E7-C7B2-4AEC-9E28-FB649B30FF03" DisplayName="RepairOptions Server">
               </com:Class>
+              <com:Class Id="D58C7E4C-70E6-476C-A5D4-80341ED80252" DisplayName="AddPackageCatalogOptions Server">
+              </com:Class>
+              <com:Class Id="87A96609-1A39-4955-BE72-7174E147B7DC" DisplayName="RemovePackageCatalogOptions Server">
+              </com:Class>
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>

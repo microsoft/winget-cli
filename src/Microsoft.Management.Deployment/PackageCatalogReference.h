@@ -33,6 +33,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::AuthenticationArguments AuthenticationArguments();
         void AuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments const& value);
         winrt::Microsoft::Management::Deployment::AuthenticationInfo AuthenticationInfo();
+        // Contract 12.0
+        winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult, double> RefreshPackageCatalogAsync();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
