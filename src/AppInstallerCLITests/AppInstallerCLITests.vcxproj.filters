@@ -365,6 +365,9 @@
     <ClCompile Include="Sixel.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
+    <ClCompile Include="RestInterface_1_9.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
     <ClCompile Include="Fonts.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
