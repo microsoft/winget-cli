@@ -120,6 +120,18 @@ namespace AppInstaller::Locale
         return result;
     }
 
+    std::vector<std::wstring> GetUserPreferredLanguagesUTF16()
+    {
+        std::vector<std::wstring> result;
+
+        for (const auto& lang : winrt::Windows::System::UserProfile::GlobalizationPreferences::Languages())
+        {
+            result.emplace_back(std::wstring(lang));
+        }
+
+        return result;
+    }
+
     std::string LocaleIdToBcp47Tag(LCID localeId)
     {
         WCHAR localeName[MAX_LOCALE_SNAME_LEN] = {0};

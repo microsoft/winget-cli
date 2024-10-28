@@ -56,6 +56,10 @@ namespace AppInstaller::Runtime
         CLIExecutable,
         // The location of the image assets, if it exists.
         ImageAssets,
+        // The location where fonts are installed with user scope.
+        FontsUserInstallLocation,
+        // The location where fonts are installed with machine scope.
+        FontsMachineInstallLocation,
         // Always one more than the last path; for being able to iterate paths in tests.
         Max
     };
@@ -69,6 +73,9 @@ namespace AppInstaller::Runtime
     {
         return Filesystem::GetPathTo(path, forDisplay);
     }
+
+    // Replaces the substring in the path with the user profile environment variable.
+    void ReplaceProfilePathsWithEnvironmentVariable(std::filesystem::path& path);
 
     // Gets a new temp file path.
     std::filesystem::path GetNewTempFilePath();

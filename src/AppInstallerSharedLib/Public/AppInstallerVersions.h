@@ -281,4 +281,20 @@ namespace AppInstaller::Utility
 
     // Checks if there are overlaps within the list of version ranges
     bool HasOverlapInVersionRanges(const std::vector<VersionRange>& ranges);
+
+    // The OpenType font version.
+    // The format of this version type is 'Version 1.234 ;567'
+    // The only part that is of importance is the 'Major.Minor' parts.
+    // The 'Version' string is typically found at the beginning of the version string.
+    // Any value after a digit that is not a '.' represents some other meaning.
+    struct OpenTypeFontVersion : Version
+    {
+        OpenTypeFontVersion() = default;
+
+        OpenTypeFontVersion(std::string&& version);
+        OpenTypeFontVersion(const std::string& version) :
+            OpenTypeFontVersion(std::string(version)) {}
+
+        void Assign(std::string version, std::string_view splitChars = DefaultSplitChars) override;
+    };
 }
