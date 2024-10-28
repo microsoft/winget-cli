@@ -3136,6 +3136,9 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="APPINSTALLER_CLI_ERROR_INSTALLER_ZERO_BYTE_FILE" xml:space="preserve">
     <value>Downloaded zero byte installer; ensure that your network connection is working properly.</value>
   </data>
+  <data name="InstallerZeroByteFile" xml:space="preserve">
+    <value>Downloaded zero byte installer; ensure that your network connection is working properly.</value>
+  </data>  
   <data name="FontCommandShortDescription" xml:space="preserve">
     <value>Manage fonts</value>
   </data>

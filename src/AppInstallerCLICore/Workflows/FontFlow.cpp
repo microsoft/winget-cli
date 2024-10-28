@@ -66,11 +66,13 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportInstalledFonts(Execution::Context& context)
     {
+        Fonts::FontCatalog fontCatalog;
+
         if (context.Args.Contains(Args::Type::Family))
         {
             // TODO: Create custom source and search mechanism for fonts.
             const auto& familyNameArg = AppInstaller::Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::Family));
-            const auto& fontFamilies = AppInstaller::Fonts::GetInstalledFontFamilies(familyNameArg);
+            const auto& fontFamilies = fontCatalog.GetInstalledFontFamilies(familyNameArg);
 
             if (fontFamilies.empty())
             {
@@ -103,7 +105,7 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            const auto& fontFamilies = AppInstaller::Fonts::GetInstalledFontFamilies();
+            const auto& fontFamilies = fontCatalog.GetInstalledFontFamilies();
             std::vector<InstalledFontFamiliesTableLine> lines;
 
             for (const auto& fontFamily : fontFamilies)

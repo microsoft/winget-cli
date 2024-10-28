@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include <dwrite_3.h>
 #include <AppInstallerStrings.h>
 #include <winget/Fonts.h>
 #include <winget/Locale.h>
@@ -10,8 +9,6 @@ namespace AppInstaller::Fonts
 {
     namespace
     {
-        std::vector<std::wstring> preferredLocales = AppInstaller::Locale::GetUserPreferredLanguagesUTF16();
-
         std::vector<std::filesystem::path> GetFontFilePaths(const wil::com_ptr<IDWriteFontFace>& fontFace)
         {
             UINT32 fileCount = 0;
@@ -47,97 +44,14 @@ namespace AppInstaller::Fonts
 
             return filePaths;
         }
-
-        std::wstring GetLocalizedStringFromFont(const wil::com_ptr<IDWriteLocalizedStrings>& localizedStringCollection)
-        {
-            UINT32 index = 0;
-            BOOL exists = false;
-
-            for (const auto& locale : preferredLocales)
-            {
-                if (FAILED(localizedStringCollection->FindLocaleName(locale.c_str(), &index, &exists)) || exists)
-                {
-                    break;
-                }
-            }
-
-            // If the locale does not exist, resort to the default value at the 0 index.
-            if (!exists)
-            {
-                index = 0;
-            }
-
-            UINT32 length = 0;
-            THROW_IF_FAILED(localizedStringCollection->GetStringLength(index, &length));
-            length += 1; // Account for the trailing null terminator during allocation.
-
-            std::wstring localizedString;
-            localizedString.resize(length);
-            THROW_IF_FAILED(localizedStringCollection->GetString(index, &localizedString[0], length));
-            localizedString.resize(length - 1); // Remove the null char.
-            return localizedString;
-        }
-
-        std::wstring GetFontFaceName(const wil::com_ptr<IDWriteFont>& font)
-        {
-            wil::com_ptr<IDWriteLocalizedStrings> faceNames;
-            THROW_IF_FAILED(font->GetFaceNames(faceNames.addressof()));
-            return GetLocalizedStringFromFont(faceNames);
-        }
-
-        std::wstring GetFontFamilyName(const wil::com_ptr<IDWriteFontFamily>& fontFamily)
-        {
-            wil::com_ptr<IDWriteLocalizedStrings> familyNames;
-            THROW_IF_FAILED(fontFamily->GetFamilyNames(familyNames.addressof()));
-            return GetLocalizedStringFromFont(familyNames);
-        }
-
-        Utility::OpenTypeFontVersion GetFontFaceVersion(const wil::com_ptr<IDWriteFont>& font)
-        {
-            wil::com_ptr<IDWriteLocalizedStrings> fontVersion;
-            BOOL exists;
-            THROW_IF_FAILED(font->GetInformationalStrings(DWRITE_INFORMATIONAL_STRING_VERSION_STRINGS, fontVersion.addressof(), &exists));
-            if (!exists)
-            {
-                return {};
-            }
-
-            std::string value = AppInstaller::Utility::ConvertToUTF8(GetLocalizedStringFromFont(fontVersion));
-            Utility::OpenTypeFontVersion openTypeFontVersion { value };
-            return openTypeFontVersion;
-        }
-
-        FontFamily GetFontFamilyByIndex(const wil::com_ptr<IDWriteFontCollection>& collection, UINT32 index)
-        {
-            wil::com_ptr<IDWriteFontFamily> family;
-            THROW_IF_FAILED(collection->GetFontFamily(index, family.addressof()));
-            std::wstring familyName = GetFontFamilyName(family);
-
-            std::vector<FontFace> fontFaces;
-            UINT32 fontCount = family->GetFontCount();
-            for (UINT32 fontIndex = 0; fontIndex < fontCount; fontIndex++)
-            {
-                wil::com_ptr<IDWriteFont> font;
-                THROW_IF_FAILED(family->GetFont(fontIndex, font.addressof()));
-
-                wil::com_ptr<IDWriteFontFace> fontFace;
-                THROW_IF_FAILED(font->CreateFontFace(fontFace.addressof()));
-
-                FontFace fontFaceEntry;
-                fontFaceEntry.Name = GetFontFaceName(font);
-                fontFaceEntry.Version = GetFontFaceVersion(font);
-                fontFaceEntry.FilePaths = GetFontFilePaths(fontFace);
-                fontFaces.emplace_back(std::move(fontFaceEntry));
-            }
-
-            FontFamily fontFamily;
-            fontFamily.Name = std::move(familyName);
-            fontFamily.Faces = std::move(fontFaces);
-            return fontFamily;
-        }
     }
 
-    std::vector<FontFamily> GetInstalledFontFamilies(std::optional<std::wstring> familyName)
+    FontCatalog::FontCatalog()
+    {
+        m_preferredLocales = AppInstaller::Locale::GetUserPreferredLanguagesUTF16();
+    }
+
+    std::vector<FontFamily> FontCatalog::GetInstalledFontFamilies(std::optional<std::wstring> familyName)
     {
         wil::com_ptr<IDWriteFactory7> factory;
         THROW_IF_FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(factory), factory.put_unknown()));
@@ -169,5 +83,93 @@ namespace AppInstaller::Fonts
         }
 
         return installedFontFamilies;
+    }
+
+    std::wstring FontCatalog::GetLocalizedStringFromFont(const wil::com_ptr<IDWriteLocalizedStrings>& localizedStringCollection)
+    {
+        UINT32 index = 0;
+        BOOL exists = false;
+
+        for (const auto& locale : m_preferredLocales)
+        {
+            if (SUCCEEDED_LOG(localizedStringCollection->FindLocaleName(locale.c_str(), &index, &exists)) && exists)
+            {
+                break;
+            }
+        }
+
+        // If the locale does not exist, resort to the default value at the 0 index.
+        if (!exists)
+        {
+            index = 0;
+        }
+
+        UINT32 length = 0;
+        THROW_IF_FAILED(localizedStringCollection->GetStringLength(index, &length));
+        length += 1; // Account for the trailing null terminator during allocation.
+
+        std::wstring localizedString;
+        localizedString.resize(length);
+        THROW_IF_FAILED(localizedStringCollection->GetString(index, &localizedString[0], length));
+        localizedString.resize(length - 1); // Remove the null char.
+        return localizedString;
+    }
+
+    std::wstring FontCatalog::GetFontFaceName(const wil::com_ptr<IDWriteFont>& font)
+    {
+        wil::com_ptr<IDWriteLocalizedStrings> faceNames;
+        THROW_IF_FAILED(font->GetFaceNames(faceNames.addressof()));
+        return GetLocalizedStringFromFont(faceNames);
+    }
+
+    std::wstring FontCatalog::GetFontFamilyName(const wil::com_ptr<IDWriteFontFamily>& fontFamily)
+    {
+        wil::com_ptr<IDWriteLocalizedStrings> familyNames;
+        THROW_IF_FAILED(fontFamily->GetFamilyNames(familyNames.addressof()));
+        return GetLocalizedStringFromFont(familyNames);
+    }
+
+    Utility::OpenTypeFontVersion FontCatalog::GetFontFaceVersion(const wil::com_ptr<IDWriteFont>& font)
+    {
+        wil::com_ptr<IDWriteLocalizedStrings> fontVersion;
+        BOOL exists;
+        THROW_IF_FAILED(font->GetInformationalStrings(DWRITE_INFORMATIONAL_STRING_VERSION_STRINGS, fontVersion.addressof(), &exists));
+        if (!exists)
+        {
+            return {};
+        }
+
+        std::string value = AppInstaller::Utility::ConvertToUTF8(GetLocalizedStringFromFont(fontVersion));
+        Utility::OpenTypeFontVersion openTypeFontVersion{ value };
+        return openTypeFontVersion;
+    }
+
+    FontFamily FontCatalog::GetFontFamilyByIndex(const wil::com_ptr<IDWriteFontCollection>& collection, UINT32 index)
+    {
+        wil::com_ptr<IDWriteFontFamily> family;
+        THROW_IF_FAILED(collection->GetFontFamily(index, family.addressof()));
+        std::wstring familyName = GetFontFamilyName(family);
+
+        std::vector<FontFace> fontFaces;
+        UINT32 fontCount = family->GetFontCount();
+        for (UINT32 fontIndex = 0; fontIndex < fontCount; fontIndex++)
+        {
+            wil::com_ptr<IDWriteFont> font;
+            THROW_IF_FAILED(family->GetFont(fontIndex, font.addressof()));
+
+            wil::com_ptr<IDWriteFontFace> fontFace;
+            THROW_IF_FAILED(font->CreateFontFace(fontFace.addressof()));
+
+            FontFace fontFaceEntry;
+            fontFaceEntry.Name = GetFontFaceName(font);
+            fontFaceEntry.Version = GetFontFaceVersion(font);
+            fontFaceEntry.FilePaths = GetFontFilePaths(fontFace);
+            fontFaces.emplace_back(std::move(fontFaceEntry));
+        }
+
+        FontFamily fontFamily;
+        fontFamily.Name = std::move(familyName);
+        fontFamily.Faces = std::move(fontFaces);
+        return fontFamily;
     }
 }
