@@ -67,7 +67,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
         // Assets
         private const string MsixBundleName = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle";
-        private const string DependenciesAssetName = "DesktopAppInstaller_Dependencies";
         private const string DependenciesJsonName = "DesktopAppInstaller_Dependencies.json";
         private const string DependenciesZipName = "DesktopAppInstaller_Dependencies.zip";
         private const string License = "License1.xml";
@@ -503,7 +502,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
                 foreach (var entry in missingDependencies)
                 {
-                    string fullPath = System.IO.Path.Combine(extractedDirectory.FullDirectoryPath, DependenciesAssetName, entry);
+                    string fullPath = System.IO.Path.Combine(extractedDirectory.FullDirectoryPath, entry);
                     if (!File.Exists(fullPath))
                     {
                         this.pwshCmdlet.Write(StreamType.Verbose, $"Package dependency not found in archive: {fullPath}");
