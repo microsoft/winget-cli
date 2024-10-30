@@ -122,6 +122,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
                     if (seenCategories.Contains(currentCategory))
                     {
+                        this.Write(StreamType.Verbose, $"{currentCategory} encountered previously");
                         throw;
                     }
 
