@@ -340,7 +340,8 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 // Here we should: if we are in Windows Powershell then run Add-AppxPackage with -DependencyPath
                 // if we are in Core, then start powershell.exe and run the same command. Right now, we just
                 // do Add-AppxPackage for each one.
-                await this.InstallVCLibsDependenciesAsync();
+                // This method no longer works for versions >1.9 as the vclibs url has been deprecated.
+                await this.InstallVCLibsDependenciesFromUriAsync();
                 await this.InstallUiXamlAsync(releaseTag);
             }
         }
@@ -430,7 +431,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private async Task InstallVCLibsDependenciesAsync()
+        private async Task InstallVCLibsDependenciesFromUriAsync()
         {
             Dictionary<string, string> vcLibsDependencies = this.GetVCLibsDependencies();
             this.FindMissingDependencies(vcLibsDependencies, VCLibsUWPDesktop, VCLibsUWPDesktopVersion);
