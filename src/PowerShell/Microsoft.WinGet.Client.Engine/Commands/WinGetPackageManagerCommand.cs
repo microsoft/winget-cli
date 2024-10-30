@@ -122,7 +122,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
                     if (seenCategories.Contains(currentCategory))
                     {
-                        this.Write(StreamType.Verbose, $"{currentCategory} encountered previously");
                         throw;
                     }
 
@@ -169,7 +168,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
         private async Task InstallDifferentVersionAsync(WinGetVersion toInstallVersion, bool allUsers, bool force)
         {
-            var installedVersion = WinGetVersion.InstalledWinGetVersion;
+            var installedVersion = WinGetVersion.InstalledWinGetVersion(this);
             bool isDowngrade = installedVersion.CompareAsDeployment(toInstallVersion) > 0;
 
             string message = $"Installed WinGet version '{installedVersion.TagVersion}' " +

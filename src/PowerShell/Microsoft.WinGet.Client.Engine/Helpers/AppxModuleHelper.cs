@@ -72,6 +72,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string DependenciesZipName = "DesktopAppInstaller_Dependencies.zip";
         private const string License = "License1.xml";
 
+        // Format of a dependency package such as 'x64\Microsoft.VCLibs.140.00.UWPDesktop_14.0.33728.0_x64.appx'
+        private const string ExtractedDependencyPath = "{0}\\{1}_{2}_{3}.appx";
+
         // Dependencies
         // VCLibs
         private const string VCLibsUWPDesktop = "Microsoft.VCLibs.140.00.UWPDesktop";
@@ -81,11 +84,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string VCLibsUWPDesktopArm = "https://aka.ms/Microsoft.VCLibs.arm.14.00.Desktop.appx";
         private const string VCLibsUWPDesktopArm64 = "https://aka.ms/Microsoft.VCLibs.arm64.14.00.Desktop.appx";
 
-        private const string AppxPackageTemplate = "{0}_{1}_{2}__8wekyb3d8bbwe.appx";
-
         // Xaml
-        private const string XamlPackageName = "Microsoft.UI.Xaml.2.8";
-
         private const string XamlPackage28 = "Microsoft.UI.Xaml.2.8";
         private const string XamlReleaseTag286 = "v2.8.6";
         private const string MinimumWinGetReleaseTagForXaml28 = "v1.7.10514";
@@ -330,7 +329,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
         private async Task InstallDependenciesAsync(string releaseTag)
         {
-            bool result = await this.TryInstallDependenciesFromGitHubArchive(releaseTag);
+            bool result = await this.InstallDependenciesFromGitHubArchive(releaseTag);
 
             if (!result)
             {
@@ -351,10 +350,10 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             Dictionary<string, string> appxPackages = new Dictionary<string, string>();
             var arch = RuntimeInformation.OSArchitecture;
 
-            string appxPackageX64 = string.Format(AppxPackageTemplate, dependencies.Name, dependencies.Version, "x64");
-            string appxPackageX86 = string.Format(AppxPackageTemplate, dependencies.Name, dependencies.Version, "x86");
-            string appxPackageArm = string.Format(AppxPackageTemplate, dependencies.Name, dependencies.Version, "arm");
-            string appxPackageArm64 = string.Format(AppxPackageTemplate, dependencies.Name, dependencies.Version, "arm64");
+            string appxPackageX64 = string.Format(ExtractedDependencyPath, "x64", dependencies.Name, dependencies.Version, "x64");
+            string appxPackageX86 = string.Format(ExtractedDependencyPath, "x86", dependencies.Name, dependencies.Version, "x86");
+            string appxPackageArm = string.Format(ExtractedDependencyPath, "arm", dependencies.Name, dependencies.Version, "arm");
+            string appxPackageArm64 = string.Format(ExtractedDependencyPath, "arm", dependencies.Name, dependencies.Version, "arm64");
 
             if (arch == Architecture.X64)
             {
@@ -389,8 +388,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                     { Name, packageName },
                 });
 
-            // See if the minimum (or greater) version is installed.
-            // TODO: Pull the minimum version from the target package
             Version minimumVersion = new Version(requiredVersion);
 
             if (result != null &&
@@ -452,79 +449,78 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private async Task<bool> TryInstallDependenciesFromGitHubArchive(string releaseTag)
+        // Returns a boolean value indicating whether dependencies were successfully installed from the GitHub release assets.
+        private async Task<bool> InstallDependenciesFromGitHubArchive(string releaseTag)
         {
-            try
+            var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+            var release = await githubClient.GetReleaseAsync(releaseTag);
+
+            ReleaseAsset? dependenciesJsonAsset = release.TryGetAsset(DependenciesJsonName);
+            if (dependenciesJsonAsset is null)
             {
-                var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
-                var release = await githubClient.GetReleaseAsync(releaseTag);
+                return false;
+            }
 
-                var dependenciesJsonAsset = release.GetAsset(DependenciesJsonName);
-                var dependenciesZipAsset = release.GetAsset(DependenciesZipName);
+            using var dependenciesJsonFile = new TempFile();
+            await this.httpClientHelper.DownloadUrlWithProgressAsync(dependenciesJsonAsset.BrowserDownloadUrl, dependenciesJsonFile.FullPath, this.pwshCmdlet);
 
-                using var dependenciesJsonFile = new TempFile();
-                await this.httpClientHelper.DownloadUrlWithProgressAsync(dependenciesJsonAsset.BrowserDownloadUrl, dependenciesJsonFile.FullPath, this.pwshCmdlet);
+            using StreamReader r = new StreamReader(dependenciesJsonFile.FullPath);
+            string json = r.ReadToEnd();
+            WingetDependencies? wingetDependencies = JsonConvert.DeserializeObject<WingetDependencies>(json);
 
-                using StreamReader r = new StreamReader(dependenciesJsonFile.FullPath);
-                string json = r.ReadToEnd();
-                WingetDependencies? wingetDependencies = JsonConvert.DeserializeObject<WingetDependencies>(json);
+            if (wingetDependencies is null)
+            {
+                this.pwshCmdlet.Write(StreamType.Verbose, $"Failed to deserialize dependencies json file.");
+                return false;
+            }
 
-                if (wingetDependencies is null)
+            List<string> missingDependencies = new List<string>();
+            foreach (var dependency in wingetDependencies.Dependencies)
+            {
+                Dictionary<string, string> dependenciesByArch = this.GetDependenciesByArch(dependency);
+                this.FindMissingDependencies(dependenciesByArch, dependency.Name, dependency.Version);
+
+                foreach (var pair in dependenciesByArch)
                 {
-                    this.pwshCmdlet.Write(StreamType.Verbose, $"Failed to deserialize dependencies json file.");
+                    missingDependencies.Add(pair.Value);
+                }
+            }
+
+            if (missingDependencies.Count != 0)
+            {
+                using var dependenciesZipFile = new TempFile();
+                using var extractedDirectory = new TempDirectory();
+
+                ReleaseAsset? dependenciesZipAsset = release.TryGetAsset(DependenciesZipName);
+                if (dependenciesZipAsset is null)
+                {
+                    this.pwshCmdlet.Write(StreamType.Verbose, $"Dependencies zip asset not found on GitHub asset.");
                     return false;
                 }
 
-                List<string> missingDependencies = new List<string>();
-                foreach (var dependency in wingetDependencies.Dependencies)
+                await this.httpClientHelper.DownloadUrlWithProgressAsync(dependenciesZipAsset.BrowserDownloadUrl, dependenciesZipFile.FullPath, this.pwshCmdlet);
+                ZipFile.ExtractToDirectory(dependenciesZipFile.FullPath, extractedDirectory.FullDirectoryPath);
+
+                foreach (var entry in missingDependencies)
                 {
-                    Dictionary<string, string> dependenciesByArch = this.GetDependenciesByArch(dependency);
-                    this.FindMissingDependencies(dependenciesByArch, dependency.Name, dependency.Version);
-
-                    foreach (var pair in dependenciesByArch)
+                    string fullPath = System.IO.Path.Combine(extractedDirectory.FullDirectoryPath, DependenciesAssetName, entry);
+                    if (!File.Exists(fullPath))
                     {
-                        missingDependencies.Add(pair.Value);
+                        this.pwshCmdlet.Write(StreamType.Verbose, $"Package dependency not found in archive: {fullPath}");
+                        return false;
                     }
+
+                    _ = this.ExecuteAppxCmdlet(
+                            AddAppxPackage,
+                            new Dictionary<string, object>
+                            {
+                            { Path, fullPath },
+                            { ErrorAction, Stop },
+                            });
                 }
-
-                if (missingDependencies.Count != 0)
-                {
-                    using var dependenciesZipFile = new TempFile();
-                    using var extractedDirectory = new TempDirectory();
-                    await this.httpClientHelper.DownloadUrlWithProgressAsync(dependenciesZipAsset.BrowserDownloadUrl, dependenciesZipFile.FullPath, this.pwshCmdlet);
-                    ZipFile.ExtractToDirectory(dependenciesZipFile.FullPath, extractedDirectory.FullDirectoryPath);
-
-                    foreach (var entry in missingDependencies)
-                    {
-                        string fullPath = entry;
-                        if (!File.Exists(fullPath))
-                        {
-                            this.pwshCmdlet.Write(StreamType.Verbose, $"Package dependency not found in archive: {fullPath}");
-                            return false;
-                        }
-
-                        _ = this.ExecuteAppxCmdlet(
-                                AddAppxPackage,
-                                new Dictionary<string, object>
-                                {
-                                { Path, fullPath },
-                                { ErrorAction, Stop },
-                                });
-                    }
-                }
-
-                return true;
-            }
-            catch (WinGetRepairException e)
-            {
-                this.pwshCmdlet.Write(StreamType.Verbose, $"Dependency assets not found in GitHub release.");
-            }
-            catch (Exception e)
-            {
-                this.pwshCmdlet.Write(StreamType.Verbose, $"Failed to install dependencies from GitHub release. {e.ToString()}");
             }
 
-            return false;
+            return true;
         }
 
         private Dictionary<string, string> GetVCLibsDependencies()
