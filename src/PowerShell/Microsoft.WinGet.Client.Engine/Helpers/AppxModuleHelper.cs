@@ -379,13 +379,13 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             return appxPackages;
         }
 
-        private void GetMissingVCLibsDependencies(Dictionary<string, string> vcLibsDependencies, string requiredVersion = VCLibsUWPDesktopVersion)
+        private void FindMissingDependencies(Dictionary<string, string> dependencies, string packageName, string requiredVersion)
         {
             var result = this.ExecuteAppxCmdlet(
                 GetAppxPackage,
                 new Dictionary<string, object>
                 {
-                    { Name, VCLibsUWPDesktop },
+                    { Name, packageName },
                 });
 
             // See if the minimum (or greater) version is installed.
@@ -410,21 +410,21 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                         string? architectureString = psobject?.Architecture?.ToString();
                         if (architectureString == null)
                         {
-                            this.pwshCmdlet.Write(StreamType.Verbose, $"VCLibs dependency has no architecture value: {psobject?.PackageFullName ?? "<null>"}");
+                            this.pwshCmdlet.Write(StreamType.Verbose, $"{packageName} dependency has no architecture value: {psobject?.PackageFullName ?? "<null>"}");
                             continue;
                         }
 
                         architectureString = architectureString.ToLower();
 
-                        if (vcLibsDependencies.ContainsKey(architectureString))
+                        if (dependencies.ContainsKey(architectureString))
                         {
-                            this.pwshCmdlet.Write(StreamType.Verbose, $"VCLibs {architectureString} dependency satisfied by: {psobject?.PackageFullName ?? "<null>"}");
-                            vcLibsDependencies.Remove(architectureString);
+                            this.pwshCmdlet.Write(StreamType.Verbose, $"{packageName} {architectureString} dependency satisfied by: {psobject?.PackageFullName ?? "<null>"}");
+                            dependencies.Remove(architectureString);
                         }
                     }
                     else
                     {
-                        this.pwshCmdlet.Write(StreamType.Verbose, $"VCLibs is lower than minimum required version [{minimumVersion}]: {psobject?.PackageFullName ?? "<null>"}");
+                        this.pwshCmdlet.Write(StreamType.Verbose, $"{packageName} is lower than minimum required version [{minimumVersion}]: {psobject?.PackageFullName ?? "<null>"}");
                     }
                 }
             }
@@ -433,7 +433,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private async Task InstallVCLibsDependenciesAsync()
         {
             Dictionary<string, string> vcLibsDependencies = this.GetVCLibsDependencies();
-            this.GetMissingVCLibsDependencies(vcLibsDependencies);
+            this.FindMissingDependencies(vcLibsDependencies, VCLibsUWPDesktop, VCLibsUWPDesktopVersion);
 
             if (vcLibsDependencies.Count != 0)
             {
@@ -459,11 +459,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 var release = await githubClient.GetReleaseAsync(releaseTag);
 
                 var dependenciesJsonAsset = release.GetAsset(DependenciesJsonName);
-                if (dependenciesJsonAsset is null)
-                {
-                    this.pwshCmdlet.Write(StreamType.Verbose, $"{DependenciesJsonName} asset not found on GitHub release {releaseTag}.");
-                    return false;
-                }
+                var dependenciesZipAsset = release.GetAsset(DependenciesZipName);
 
                 using var dependenciesJsonFile = new TempFile();
                 await this.httpClientHelper.DownloadUrlWithProgressAsync(dependenciesJsonAsset.BrowserDownloadUrl, dependenciesJsonFile.FullPath, this.pwshCmdlet);
@@ -478,47 +474,28 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                     return false;
                 }
 
-                Dictionary<string, string> missingDependencies = new Dictionary<string, string>();
-                var packageDependencies = wingetDependencies.Dependencies;
-                foreach (var dependency in packageDependencies)
+                List<string> missingDependencies = new List<string>();
+                foreach (var dependency in wingetDependencies.Dependencies)
                 {
-                    if (string.Equals(dependency.Name, VCLibsUWPDesktop))
-                    {
-                        Dictionary<string, string> vcLibsDependencies = this.GetDependenciesByArch(dependency);
-                        this.GetMissingVCLibsDependencies(vcLibsDependencies, dependency.Version);
+                    Dictionary<string, string> dependenciesByArch = this.GetDependenciesByArch(dependency);
+                    this.FindMissingDependencies(dependenciesByArch, dependency.Name, dependency.Version);
 
-                        foreach (var pair in vcLibsDependencies)
-                        {
-                            missingDependencies.Add(pair.Key, pair.Value);
-                        }
-                    }
-                    else if (string.Equals(dependency.Name, XamlPackageName))
+                    foreach (var pair in dependenciesByArch)
                     {
-                        Dictionary<string, string> uiXamlDependencies = this.GetDependenciesByArch(dependency);
-                        foreach (var pair in uiXamlDependencies)
-                        {
-                            missingDependencies.Add(pair.Key, pair.Value);
-                        }
+                        missingDependencies.Add(pair.Value);
                     }
                 }
 
-                //foreach (var pair in missingDependencies)
-                //{
-                //    this.pwshCmdlet.Write(StreamType.Verbose, $"{pair.Key} and {pair.Value}");
-                //}
-
                 if (missingDependencies.Count != 0)
                 {
-                    // Get all missing dependencies and install them:
                     using var dependenciesZipFile = new TempFile();
                     using var extractedDirectory = new TempDirectory();
-                    var dependenciesZipAsset = release.GetAsset(DependenciesZipName);
                     await this.httpClientHelper.DownloadUrlWithProgressAsync(dependenciesZipAsset.BrowserDownloadUrl, dependenciesZipFile.FullPath, this.pwshCmdlet);
                     ZipFile.ExtractToDirectory(dependenciesZipFile.FullPath, extractedDirectory.FullDirectoryPath);
 
                     foreach (var entry in missingDependencies)
                     {
-                        string fullPath = entry.Value;
+                        string fullPath = entry;
                         if (!File.Exists(fullPath))
                         {
                             this.pwshCmdlet.Write(StreamType.Verbose, $"Package dependency not found in archive: {fullPath}");
@@ -534,13 +511,19 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                                 });
                     }
                 }
+
+                return true;
             }
-            catch (WinGetRepairException)
+            catch (WinGetRepairException e)
             {
                 this.pwshCmdlet.Write(StreamType.Verbose, $"Dependency assets not found in GitHub release.");
             }
+            catch (Exception e)
+            {
+                this.pwshCmdlet.Write(StreamType.Verbose, $"Failed to install dependencies from GitHub release. {e.ToString()}");
+            }
 
-            return true;
+            return false;
         }
 
         private Dictionary<string, string> GetVCLibsDependencies()
