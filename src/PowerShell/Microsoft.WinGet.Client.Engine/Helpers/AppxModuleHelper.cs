@@ -73,7 +73,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string License = "License1.xml";
 
         // Format of a dependency package such as 'x64\Microsoft.VCLibs.140.00.UWPDesktop_14.0.33728.0_x64.appx'
-        private const string ExtractedDependencyPath = "{0}\\{1}_{2}_{3}.appx";
+        private const string ExtractedDependencyPath = "{0}\\{1}_{2}_{0}.appx";
 
         // Dependencies
         // VCLibs
@@ -350,10 +350,10 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             Dictionary<string, string> appxPackages = new Dictionary<string, string>();
             var arch = RuntimeInformation.OSArchitecture;
 
-            string appxPackageX64 = string.Format(ExtractedDependencyPath, "x64", dependencies.Name, dependencies.Version, "x64");
-            string appxPackageX86 = string.Format(ExtractedDependencyPath, "x86", dependencies.Name, dependencies.Version, "x86");
-            string appxPackageArm = string.Format(ExtractedDependencyPath, "arm", dependencies.Name, dependencies.Version, "arm");
-            string appxPackageArm64 = string.Format(ExtractedDependencyPath, "arm", dependencies.Name, dependencies.Version, "arm64");
+            string appxPackageX64 = string.Format(ExtractedDependencyPath, "x64", dependencies.Name, dependencies.Version);
+            string appxPackageX86 = string.Format(ExtractedDependencyPath, "x86", dependencies.Name, dependencies.Version);
+            string appxPackageArm = string.Format(ExtractedDependencyPath, "arm", dependencies.Name, dependencies.Version);
+            string appxPackageArm64 = string.Format(ExtractedDependencyPath, "arm", dependencies.Name, dependencies.Version);
 
             if (arch == Architecture.X64)
             {
