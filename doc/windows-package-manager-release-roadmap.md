@@ -24,7 +24,7 @@ The Windows Package Manager project is engineered and delivered as described bel
 
 #### Release
 
-* Available from to Windows Insiders through the [Microsoft Store](https://www.microsoft.com/p/app-installer/9nblggh4nns1) & [GitHub Releases](https://github.com/microsoft/winget-cli/releases)
+* Available from to Windows Insiders through the [Microsoft Store](https://apps.microsoft.com/detail/9nblggh4nns1) & [GitHub Releases](https://github.com/microsoft/winget-cli/releases)
 * Release Notes & Announcement Blog published
 * Engineering System Maintenance
 * Community Engagement
