@@ -16,7 +16,7 @@ If you are new to the Windows Package Manager, you might want to [Explore the Wi
 
 ### Microsoft Store [Recommended]
 
-The client is distributed within the [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) package.
+The client is distributed within the [App Installer](https://apps.microsoft.com/detail/9nblggh4nns1) package.
 
 ### Development Releases
 
