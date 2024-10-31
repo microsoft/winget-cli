@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="UserSettingsCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -42,7 +42,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             if (winGetSettingsFilePath == null)
             {
                 var wingetCliWrapper = new WingetCLIWrapper();
-                var settingsResult = wingetCliWrapper.RunCommand("settings", "export");
+                var settingsResult = wingetCliWrapper.RunCommand(this, "settings", "export");
 
                 // Read the user settings file property.
                 var userSettingsFile = Utilities.ConvertToHashtable(settingsResult.StdOut)["userSettingsFile"] ?? throw new ArgumentNullException("userSettingsFile");
