@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="WinGetIntegrity.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -44,7 +44,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
                 // Start by calling winget without its WindowsApp PFN path.
                 // If it succeeds and the exit code is 0 then we are good.
                 var wingetCliWrapper = new WingetCLIWrapper(false);
-                var result = wingetCliWrapper.RunCommand("--version");
+                var result = wingetCliWrapper.RunCommand(pwshCmdlet, "--version");
                 result.VerifyExitCode();
             }
             catch (Win32Exception e)
@@ -68,7 +68,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
             {
                 // This assumes caller knows that the version exist.
                 WinGetVersion expectedWinGetVersion = new WinGetVersion(expectedVersion);
-                var installedVersion = WinGetVersion.InstalledWinGetVersion;
+                var installedVersion = WinGetVersion.InstalledWinGetVersion(pwshCmdlet);
                 if (expectedWinGetVersion.CompareTo(installedVersion) != 0)
                 {
                     throw new WinGetIntegrityException(

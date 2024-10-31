@@ -127,7 +127,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         private WinGetCLICommandResult Run(string command, string parameters, int timeOut = 60000)
         {
             var wingetCliWrapper = new WingetCLIWrapper();
-            var result = wingetCliWrapper.RunCommand(command, parameters, timeOut);
+            var result = wingetCliWrapper.RunCommand(this, command, parameters, timeOut);
             result.VerifyExitCode();
 
             return result;

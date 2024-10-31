@@ -66,7 +66,7 @@ class WinGetModule
     [void]PrepareBinaryFiles([string] $buildRoot, [string] $config)
     {
         $copyErrors = $null
-        Copy-Item "$buildRoot\AnyCpu\$config\PowerShell\$($this.Name)\*" $this.Output -Force -Recurse -ErrorVariable copyErrors -ErrorAction SilentlyContinue
+        Copy-Item "$buildRoot\AnyCpu\$config\PowerShell\$($this.Name)" $this.Output -Force -Recurse -ErrorVariable copyErrors -ErrorAction SilentlyContinue
         $copyErrors | ForEach-Object { Write-Warning $_ }
     }
 

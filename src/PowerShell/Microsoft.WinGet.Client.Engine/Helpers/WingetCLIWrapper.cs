@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="WingetCLIWrapper.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -11,6 +11,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     using System.IO;
     using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Exceptions;
+    using Microsoft.WinGet.Common.Command;
 
     /// <summary>
     /// Calls winget directly.
@@ -65,17 +66,20 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <summary>
         /// Runs winget command with parameters.
         /// </summary>
+        /// <param name="pwshCmdlet">PowerShell cmdlet.</param>
         /// <param name="command">Command.</param>
         /// <param name="parameters">Parameters.</param>
         /// <param name="timeOut">Time out.</param>
         /// <returns>WinGetCommandResult.</returns>
-        public WinGetCLICommandResult RunCommand(string command, string? parameters = null, int timeOut = 60000)
+        public WinGetCLICommandResult RunCommand(PowerShellCmdlet pwshCmdlet, string command, string? parameters = null, int timeOut = 60000)
         {
             string args = command;
             if (!string.IsNullOrEmpty(parameters))
             {
                 args += ' ' + parameters;
             }
+
+            pwshCmdlet.Write(StreamType.Verbose, $"Running {this.wingetPath} with {args}");
 
             Process p = new ()
             {

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="WinGetVersion.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -7,6 +7,7 @@
 namespace Microsoft.WinGet.Client.Engine.Helpers
 {
     using System;
+    using Microsoft.WinGet.Common.Command;
 
     /// <summary>
     /// WinGetVersion. Parse the string version returned by winget --version to allow comparisons.
@@ -49,19 +50,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
-        /// Gets the version of the installed winget.
-        /// </summary>
-        public static WinGetVersion InstalledWinGetVersion
-        {
-            get
-            {
-                var wingetCliWrapper = new WingetCLIWrapper();
-                var result = wingetCliWrapper.RunCommand("--version");
-                return new WinGetVersion(result.StdOut.Replace(Environment.NewLine, string.Empty));
-            }
-        }
-
-        /// <summary>
         /// Gets the version as it appears as a tag.
         /// </summary>
         public string TagVersion { get; }
@@ -75,6 +63,18 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Gets a value indicating whether is this version is a prerelease.
         /// </summary>
         public bool IsPrerelease { get; }
+
+        /// <summary>
+        /// Gets the version of the installed winget.
+        /// </summary>
+        /// <param name="pwshCmdlet">PowerShell cmdlet.</param>
+        /// <returns>The WinGetVersion.</returns>
+        public static WinGetVersion InstalledWinGetVersion(PowerShellCmdlet pwshCmdlet)
+        {
+            var wingetCliWrapper = new WingetCLIWrapper();
+            var result = wingetCliWrapper.RunCommand(pwshCmdlet, "--version");
+            return new WinGetVersion(result.StdOut.Replace(Environment.NewLine, string.Empty));
+        }
 
         /// <summary>
         /// Version.CompareTo taking into account prerelease.
