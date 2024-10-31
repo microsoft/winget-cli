@@ -190,7 +190,6 @@ class WinGetAdminSettings
 class WinGetSource
 {
     [DscProperty(Key, Mandatory)]
-    [ValidateNotNullOrWhiteSpace()]
     [string]$Name
     
     [DscProperty(Mandatory)]
@@ -210,6 +209,11 @@ class WinGetSource
 
     [WinGetSource] Get()
     {
+        if ([String]::IsNullOrWhiteSpace($this.Name))
+        {
+            throw "A value must be provided for WinGetSource::Name"
+        }
+
         $currentSource = $null
 
         try {
@@ -446,7 +450,6 @@ class WinGetPackageManager
 class WinGetPackage
 {
     [DscProperty(Key, Mandatory)]
-    [ValidateNotNullOrWhiteSpace()]
     [string]$Id
 
     [DscProperty(Key)]
@@ -471,6 +474,11 @@ class WinGetPackage
 
     [WinGetPackage] Get()
     {
+        if ([String]::IsNullOrWhiteSpace($this.Name))
+        {
+            throw "A value must be provided for WinGetPackage::Id"
+        }
+
         $result = [WinGetPackage]::new()
 
         $hashArgs = @{
