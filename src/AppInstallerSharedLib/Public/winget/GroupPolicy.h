@@ -59,7 +59,7 @@ namespace AppInstaller::Settings
             Configuration,
             ProxyCommandLineOptions,
             AllowedSecurityZones,
-            SmartScreenValidation,
+            SmartScreenCheck,
             Max,
         };
 
@@ -181,7 +181,7 @@ namespace AppInstaller::Settings
         POLICY_MAPPING_LIST_SPECIALIZATION(ValuePolicy::AdditionalSources, SourceFromPolicy, "AdditionalSources"sv);
         POLICY_MAPPING_LIST_SPECIALIZATION(ValuePolicy::AllowedSources, SourceFromPolicy, "AllowedSources"sv);
 
-        POLICY_MAPPING_ENUM_SPECIALIZATION(ValuePolicy::AllowedSecurityZones, SecurityZoneMap_t, SecurityZoneOptions, bool, "AllowedSecurityZones"sv);
+        POLICY_MAPPING_ENUM_SPECIALIZATION(ValuePolicy::AllowedSecurityZones, SecurityZoneMap_t, SecurityZoneOptions, bool, "WindowsPackageManagerAllowedSecurityZones"sv);
     }
 
     // Representation of the policies read from the registry.

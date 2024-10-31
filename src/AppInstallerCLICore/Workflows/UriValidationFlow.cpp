@@ -11,7 +11,7 @@ namespace AppInstaller::CLI::Workflow
     // Check if smart screen is required for a given zone.
     bool IsSmartScreenRequired(Settings::SecurityZoneOptions zone)
     {
-        auto isSmartScreenEnabled = Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::SmartScreenValidation);
+        auto isSmartScreenEnabled = Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::SmartScreenCheck);
         AICLI_LOG(Core, Info, << "SmartScreen validation is " << (isSmartScreenEnabled ? "enabled" : "disabled"));
 
         auto isSecurityZoneCheckRequired = zone == Settings::SecurityZoneOptions::Internet || zone == Settings::SecurityZoneOptions::UntrustedSites;
@@ -83,20 +83,20 @@ namespace AppInstaller::CLI::Workflow
     {
         if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::AllowedSecurityZones))
         {
-            AICLI_LOG(Core, Info, << "AllowedSecurityZones policy is disabled");
+            AICLI_LOG(Core, Info, << "WindowsPackageManagerAllowedSecurityZones policy is disabled");
             return false;
         }
 
         auto allowedSecurityZones = Settings::GroupPolicies().GetValue<Settings::ValuePolicy::AllowedSecurityZones>();
         if (!allowedSecurityZones.has_value())
         {
-            AICLI_LOG(Core, Warning, << "AllowedSecurityZones policy is not set");
+            AICLI_LOG(Core, Warning, << "WindowsPackageManagerAllowedSecurityZones policy is not set");
             return false;
         }
 
         if (allowedSecurityZones->find(zone) == allowedSecurityZones->end())
         {
-            AICLI_LOG(Core, Warning, << "Security zone " << zone << " was not found in the group policy AllowedSecurityZones");
+            AICLI_LOG(Core, Warning, << "Security zone " << zone << " was not found in the group policy WindowsPackageManagerAllowedSecurityZones");
             return false;
         }
 

@@ -183,7 +183,7 @@
         <text id="WindowsPackageManagerDefaultProxy" valueName="DefaultProxy"  />
       </elements>
     </policy>
-    <policy name="EnableSmartScreenValidation" class="Machine" displayName="$(string.EnableSmartScreenValidation)" explainText="$(string.EnableSmartScreenValidationExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableSmartScreenValidation">
+    <policy name="EnableWindowsPackageManagerSmartScreenCheck" class="Machine" displayName="$(string.EnableWindowsPackageManagerSmartScreenCheck)" explainText="$(string.EnableWindowsPackageManagerSmartScreenCheckExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerSmartScreenCheck">
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
       <enabledValue>
@@ -193,7 +193,7 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
-    <policy name="EnableAllowedSecurityZones" class="Machine" displayName="$(string.EnableAllowedSecurityZones)" explainText="$(string.EnableAllowedSecurityZonesExplanation)" presentation="$(presentation.AllowedSecurityZones)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableAllowedSecurityZones">
+    <policy name="EnableWindowsPackageManagerAllowedSecurityZones" class="Machine" displayName="$(string.EnableWindowsPackageManagerAllowedSecurityZones)" explainText="$(string.EnableWindowsPackageManagerAllowedSecurityZonesExplanation)" presentation="$(presentation.WindowsPackageManagerAllowedSecurityZones)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerAllowedSecurityZones">
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
       <enabledValue>
@@ -203,7 +203,7 @@
         <decimal value="0" />
       </disabledValue>
       <elements>
-        <enum id="LocalMachine" key="Software\Policies\Microsoft\Windows\AppInstaller\AllowedSecurityZones" valueName="LocalMachine" required="false">
+        <enum id="LocalMachine" key="Software\Policies\Microsoft\Windows\AppInstaller\WindowsPackageManagerAllowedSecurityZones" valueName="LocalMachine" required="false">
           <item displayName="$(string.SecurityZoneBlocked)">
             <value>
               <decimal value="0" />
@@ -215,7 +215,7 @@
             </value>
           </item>
         </enum>
-        <enum id="Intranet" key="Software\Policies\Microsoft\Windows\AppInstaller\AllowedSecurityZones" valueName="Intranet">
+        <enum id="Intranet" key="Software\Policies\Microsoft\Windows\AppInstaller\WindowsPackageManagerAllowedSecurityZones" valueName="Intranet">
           <item displayName="$(string.SecurityZoneBlocked)">
             <value>
               <decimal value="0" />
@@ -227,7 +227,7 @@
             </value>
           </item>
         </enum>
-        <enum id="TrustedSites" key="Software\Policies\Microsoft\Windows\AppInstaller\AllowedSecurityZones" valueName="TrustedSites">
+        <enum id="TrustedSites" key="Software\Policies\Microsoft\Windows\AppInstaller\WindowsPackageManagerAllowedSecurityZones" valueName="TrustedSites">
           <item displayName="$(string.SecurityZoneBlocked)">
             <value>
               <decimal value="0" />
@@ -239,7 +239,7 @@
             </value>
           </item>
         </enum>
-        <enum id="Internet" key="Software\Policies\Microsoft\Windows\AppInstaller\AllowedSecurityZones" valueName="Internet">
+        <enum id="Internet" key="Software\Policies\Microsoft\Windows\AppInstaller\WindowsPackageManagerAllowedSecurityZones" valueName="Internet">
           <item displayName="$(string.SecurityZoneBlocked)">
             <value>
               <decimal value="0" />
@@ -251,7 +251,7 @@
             </value>
           </item>
         </enum>
-        <enum id="UntrustedSites" key="Software\Policies\Microsoft\Windows\AppInstaller\AllowedSecurityZones" valueName="UntrustedSites">
+        <enum id="UntrustedSites" key="Software\Policies\Microsoft\Windows\AppInstaller\WindowsPackageManagerAllowedSecurityZones" valueName="UntrustedSites">
           <item displayName="$(string.SecurityZoneBlocked)">
             <value>
               <decimal value="0" />

@@ -355,7 +355,7 @@ namespace AppInstaller::Settings
             CONFIGURATION_ALLOWED_ZONES_READ(UntrustedSites);
 #undef CONFIGURATION_ALLOWED_ZONES_READ
 
-            AICLI_LOG(Core, Warning, << "Unknown value in AllowedSecurityZones: " << entry.Name());
+            AICLI_LOG(Core, Warning, << "Unknown value in WindowsPackageManagerAllowedSecurityZones: " << entry.Name());
             return std::nullopt;
         }
     }
@@ -393,9 +393,9 @@ namespace AppInstaller::Settings
         case TogglePolicy::Policy::ProxyCommandLineOptions:
             return TogglePolicy(policy, "EnableWindowsPackageManagerProxyCommandLineOptions"sv, String::PolicyEnableProxyCommandLineOptions);
         case TogglePolicy::Policy::AllowedSecurityZones:
-            return TogglePolicy(policy, "EnableAllowedSecurityZones"sv, String::PolicyEnableAllowedSecurityZones);
-        case TogglePolicy::Policy::SmartScreenValidation:
-            return TogglePolicy(policy, "EnableSmartScreenValidation"sv, String::PolicyEnableSmartScreenValidation);
+            return TogglePolicy(policy, "EnableWindowsPackageManagerAllowedSecurityZones"sv, String::PolicyEnableAllowedSecurityZones);
+        case TogglePolicy::Policy::SmartScreenCheck:
+            return TogglePolicy(policy, "EnableWindowsPackageManagerSmartScreenCheck"sv, String::PolicyEnableSmartScreenValidation);
         default:
             THROW_HR(E_UNEXPECTED);
         }
