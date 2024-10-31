@@ -474,7 +474,7 @@ class WinGetPackage
 
     [WinGetPackage] Get()
     {
-        if ([String]::IsNullOrWhiteSpace($this.Name))
+        if ([String]::IsNullOrWhiteSpace($this.Id))
         {
             throw "A value must be provided for WinGetPackage::Id"
         }
