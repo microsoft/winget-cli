@@ -384,6 +384,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             if (manifestVersion >= TestManifestVersion.V190)
             {
                 Assert.False(installer1.ArchiveBinariesDependOnPath);
+                Assert.Equal("fakeIdentifier", installer2.ProductId);
             }
 
             // Additional Localizations

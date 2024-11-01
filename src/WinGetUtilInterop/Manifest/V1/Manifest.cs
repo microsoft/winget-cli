@@ -278,17 +278,17 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// <summary>
         /// Gets or sets a value indicating whether the default installer behavior aborts terminal.
         /// </summary>
-        public bool InstallerAbortsTerminal { get; set; }
+        public bool? InstallerAbortsTerminal { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the default installer behavior requires explicit install location.
         /// </summary>
-        public bool InstallLocationRequired { get; set; }
+        public bool? InstallLocationRequired { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the default installer behavior requires explicit upgrade.
         /// </summary>
-        public bool RequireExplicitUpgrade { get; set; }
+        public bool? RequireExplicitUpgrade { get; set; }
 
         /// <summary>
         /// Gets or sets the default installer release date.
@@ -303,7 +303,7 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// <summary>
         /// Gets or sets a value indicating whether to display install warnings.
         /// </summary>
-        public bool DisplayInstallWarnings { get; set; }
+        public bool? DisplayInstallWarnings { get; set; }
 
         /// <summary>
         /// Gets or sets the default list of apps and features entries.
@@ -321,6 +321,21 @@ namespace Microsoft.WinGetUtil.Models.V1
         public List<InstallerExpectedReturnCode> ExpectedReturnCodes { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the installer is prohibited from being downloaded for offline installation.
+        /// </summary>
+        public bool? DownloadCommandProhibited { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the install location should be added directly to the PATH environment variable.
+        /// </summary>
+        public bool? ArchiveBinariesDependOnPath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the default repair behavior.
+        /// </summary>
+        public string RepairBehavior { get; set; }
+
+        /// <summary>
         /// Gets or sets collection of ManifestInstaller. At least one is required.
         /// </summary>
         public List<ManifestInstaller> Installers { get; set; }
@@ -329,21 +344,6 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// Gets or sets collection of additional ManifestLocalization.
         /// </summary>
         public List<ManifestLocalization> Localization { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the installer is prohibited from being downloaded for offline installation.
-        /// </summary>
-        public bool DownloadCommandProhibited { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the install location should be added directly to the PATH environment variable.
-        /// </summary>
-        public bool ArchiveBinariesDependOnPath { get; set; }
-
-        /// <summary>
-        /// Gets or sets the default repair behavior.
-        /// </summary>
-        public string RepairBehavior { get; set; }
 
         /// <summary>
         /// Deserialize a stream reader into a Manifest object.

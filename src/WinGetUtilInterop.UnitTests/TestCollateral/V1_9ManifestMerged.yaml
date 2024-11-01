@@ -247,5 +247,6 @@ Installers:
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
     InstallerType: exe
     ProductCode: '{Bar}'
+    MSStoreProductIdentifier: fakeIdentifier
 ManifestType: merged
 ManifestVersion: 1.7.0
