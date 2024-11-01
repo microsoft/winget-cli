@@ -1285,7 +1285,7 @@ Do you agree to the terms?</value>
     <value>The current system configuration does not support the installation of this package.</value>
   </data>
   <data name="InstallFlowReturnCodeCustomError" xml:space="preserve">
-    <value>Installation failed with installer custom error. Contact package support.</value>
+    <value>Installation failed with a custom installer error. Contact package support.</value>
   </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>Installation abandoned</value>
@@ -2525,7 +2525,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The installer does not support upgrading an existing package.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_INSTALL_CUSTOM_ERROR" xml:space="preserve">
-    <value>Installation failed with installer custom error.</value>
+    <value>Installation failed with a custom installer error.</value>
   </data>
   <data name="WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND" xml:space="preserve">
     <value>The Apps and Features Entry for the package could not be found.</value>
