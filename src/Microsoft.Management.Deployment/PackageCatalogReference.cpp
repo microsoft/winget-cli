@@ -18,9 +18,23 @@
 #include <AppInstallerStrings.h>
 #include <winget/UserSettings.h>
 #include <Helpers.h>
+#include <ExecutionContext.h>
+#include <RefreshPackageCatalogResult.h>
+#include <PackageCatalogProgress.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    namespace
+    {
+        winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult GetRefreshPackageCatalogResult(winrt::hresult terminationStatus)
+        {
+            winrt::Microsoft::Management::Deployment::RefreshPackageCatalogStatus status = GetPackageCatalogOperationStatus<RefreshPackageCatalogStatus>(terminationStatus);
+            auto updateResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::RefreshPackageCatalogResult>>();
+            updateResult->Initialize(status, terminationStatus);
+            return *updateResult;
+        }
+    }
+
     void PackageCatalogReference::Initialize(winrt::Microsoft::Management::Deployment::PackageCatalogInfo packageCatalogInfo, ::AppInstaller::Repository::Source sourceReference)
     {
         m_info = packageCatalogInfo;
@@ -288,5 +302,30 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 }
             });
         return m_authenticationInfo;
+    }
+
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult, double> PackageCatalogReference::RefreshPackageCatalogAsync()
+    {
+        HRESULT terminationHR = S_OK;
+        try {
+            // Check for permissions and get caller info for telemetry
+            THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageQuery));
+
+            auto report_progress{ co_await winrt::get_progress_token() };
+            co_await winrt::resume_background();
+
+            auto packageCatalogProgressSink = winrt::Microsoft::Management::Deployment::ProgressSinkFactory::CreatePackageCatalogProgressSink(this->m_sourceReference.GetDetails().Type, report_progress);
+
+            packageCatalogProgressSink->BeginProgress();
+            ::AppInstaller::ProgressCallback progress(packageCatalogProgressSink.get());
+            this->m_sourceReference.Update(progress);
+            packageCatalogProgressSink->EndProgress(false);
+        }
+        catch (...)
+        {
+            terminationHR = AppInstaller::CLI::Workflow::HandleException(nullptr, std::current_exception());
+        }
+
+        co_return GetRefreshPackageCatalogResult(terminationHR);
     }
 }

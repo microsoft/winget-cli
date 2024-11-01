@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="VersionCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -30,7 +30,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// </summary>
         public void Get()
         {
-            this.Write(StreamType.Object, WinGetVersion.InstalledWinGetVersion.TagVersion);
+            this.Write(StreamType.Object, WinGetVersion.InstalledWinGetVersion(this).TagVersion);
         }
     }
 }

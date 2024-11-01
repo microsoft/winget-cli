@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ReleaseExtensions.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -24,14 +24,26 @@ namespace Microsoft.WinGet.Client.Engine.Extensions
         /// <returns>The asset.</returns>
         public static ReleaseAsset GetAsset(this Release release, string name)
         {
-            var assets = release.Assets.Where(a => a.Name == name);
+            var asset = TryGetAsset(release, name);
 
-            if (assets.Any())
+            if (asset != null)
             {
-                return assets.First();
+                return asset;
             }
 
             throw new WinGetRepairException(string.Format(Resources.ReleaseAssetNotFound, name));
+        }
+
+        /// <summary>
+        /// Gets the Asset if present.
+        /// </summary>
+        /// <param name="release">GitHub release.</param>
+        /// <param name="name">Name of asset.</param>
+        /// <returns>The asset, or null if not found.</returns>
+        public static ReleaseAsset? TryGetAsset(this Release release, string name)
+        {
+            var assets = release.Assets.Where(a => a.Name == name);
+            return assets.Any() ? assets.First() : null;
         }
 
         /// <summary>

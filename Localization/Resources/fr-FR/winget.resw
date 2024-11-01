@@ -3130,4 +3130,13 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
     <value>Échec de la récupération de Microsoft Store licence de package. Le compte d’ID Microsoft Entra ne dispose pas des privilèges requis.</value>
   </data>
+  <data name="WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY" xml:space="preserve">
+    <value>Le paramètre ne peut pas être transmis au-delà de la limite d’intégrité.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALLER_ZERO_BYTE_FILE" xml:space="preserve">
+    <value>Programme d’installation zéro octet téléchargé ; vérifiez que votre connexion réseau fonctionne correctement.</value>
+  </data>
+  <data name="InstallerZeroByteFile" xml:space="preserve">
+    <value>Programme d’installation zéro octet téléchargé ; vérifiez que votre connexion réseau fonctionne correctement.</value>
+  </data>
 </root>

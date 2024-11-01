@@ -285,6 +285,7 @@
     <ClCompile Include="FileCache.cpp" />
     <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="FolderFileWatcher.cpp" />
+    <ClCompile Include="Fonts.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />
     <ClCompile Include="HashCommand.cpp" />
     <ClCompile Include="HttpClientHelper.cpp" />
@@ -323,6 +324,7 @@
     <ClCompile Include="RestInterface_1_5.cpp" />
     <ClCompile Include="RestInterface_1_6.cpp" />
     <ClCompile Include="RestInterface_1_7.cpp" />
+    <ClCompile Include="RestInterface_1_9.cpp" />
     <ClCompile Include="ResumeFlow.cpp" />
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="SearchRequestSerializer.cpp" />

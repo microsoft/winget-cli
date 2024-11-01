@@ -880,7 +880,7 @@ namespace AppInstaller::Repository
         // AddSourceForDetails will also check for empty, but we need the actual type before that for validation.
         if (sourceDetails.Type.empty())
         {
-            sourceDetails.Type = ISourceFactory::GetForType("")->TypeName();
+            sourceDetails.Type = GetDefaultSourceType();
         }
 
         AICLI_LOG(Repo, Info, << "Adding source: Name[" << sourceDetails.Name << "], Type[" << sourceDetails.Type << "], Arg[" << sourceDetails.Arg << "]");
@@ -1038,6 +1038,11 @@ namespace AppInstaller::Repository
                 return true;
             }
         }
+    }
+
+    std::string_view Source::GetDefaultSourceType()
+    {
+        return ISourceFactory::GetForType("")->TypeName();
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

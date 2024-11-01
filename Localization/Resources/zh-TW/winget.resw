@@ -3130,4 +3130,13 @@
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
     <value>無法擷取Microsoft Store套件授權。Microsoft Entra識別子帳戶沒有所需的許可權。</value>
   </data>
+  <data name="WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY" xml:space="preserve">
+    <value>參數無法通過完整性邊界。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALLER_ZERO_BYTE_FILE" xml:space="preserve">
+    <value>已下載零位元組安裝程式;請確認您的網路連線正常運作。</value>
+  </data>
+  <data name="InstallerZeroByteFile" xml:space="preserve">
+    <value>已下載零位元組安裝程式;請確認您的網路連線正常運作。</value>
+  </data>
 </root>

@@ -421,3 +421,30 @@ TEST_CASE("SemanticVersion", "[versions]")
     REQUIRE(version.BuildMetadata() == Version("4.5.6"));
     REQUIRE(version.PartAt(2).Other == "-beta+4.5.6");
 }
+
+TEST_CASE("OpenTypeFontVersion", "[versions]")
+{
+    // Valid font version.
+    OpenTypeFontVersion version = OpenTypeFontVersion("Version 1.234");
+    REQUIRE(version.ToString() == "1.234");
+    REQUIRE(version.GetParts().size() == 2);
+    REQUIRE(version.PartAt(0).Integer == 1);
+    REQUIRE(version.PartAt(1).Integer == 234);
+
+    // Font version with additional metadata.
+    version = OpenTypeFontVersion("Version 9.876.54 ;2024");
+    REQUIRE(version.ToString() == "9.876");
+    REQUIRE(version.GetParts().size() == 2);
+    REQUIRE(version.PartAt(0).Integer == 9);
+    REQUIRE(version.PartAt(1).Integer == 876);
+
+    // Invalid version. Font version must have at least 2 parts.
+    REQUIRE_NOTHROW(version = OpenTypeFontVersion("1234567"));
+    REQUIRE(version.IsUnknown());
+    REQUIRE(version.ToString() == "Unknown");
+
+    // Major and minor parts must have digits.
+    REQUIRE_NOTHROW(version = OpenTypeFontVersion(" abc.def "));
+    REQUIRE(version.IsUnknown());
+    REQUIRE(version.ToString() == "Unknown");
+}

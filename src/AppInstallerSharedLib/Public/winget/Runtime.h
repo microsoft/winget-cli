@@ -40,6 +40,9 @@ namespace AppInstaller::Runtime
     // Determines whether the process is running with local system context.
     bool IsRunningAsSystem();
 
+    // Determines whether the process is running with administrator or system privileges.
+    bool IsRunningAsAdminOrSystem();
+
     // Returns true if this is a release build; false if not.
     inline constexpr bool IsReleaseBuild()
     {

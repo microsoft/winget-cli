@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(11)] // For version 1.9
+    [contractversion(12)] // For version 1.10
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -863,6 +863,25 @@ namespace Microsoft.Management.Deployment
         }
     }
 
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+    enum RefreshPackageCatalogStatus
+    {
+        Ok,
+        GroupPolicyError,
+        CatalogError,
+        InternalError,
+    };
+
+    /// IMPLEMENTATION NOTE: RefreshPackageCatalogResult
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+    runtimeclass RefreshPackageCatalogResult
+    {
+        RefreshPackageCatalogStatus Status { get; };
+
+        /// Error codes
+        HRESULT ExtendedErrorCode { get; };
+    };
+
     /// A reference to a catalog that callers can try to Connect.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageCatalogReference
@@ -916,6 +935,14 @@ namespace Microsoft.Management.Deployment
             /// Authentication info from the package catalog.
             /// This is defined by individual package catalog.
             AuthenticationInfo AuthenticationInfo { get; };
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+        {
+            /// Updates the package catalog.
+            /// The progress value, represented as a double, indicates the percentage of update package catalog operation completion.
+            /// The progress range is from 0 to 100.
+            Windows.Foundation.IAsyncOperationWithProgress<RefreshPackageCatalogResult, Double> RefreshPackageCatalogAsync();
         }
     }
 
@@ -1351,6 +1378,103 @@ namespace Microsoft.Management.Deployment
         String InstallationNotes { get; };
     }
 
+    /// IMPLEMENTATION NOTE: AddPackageCatalogOptions
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+    runtimeclass AddPackageCatalogOptions
+    {
+        AddPackageCatalogOptions();
+
+        /// The name of the package catalog. 
+        /// SAMPLE VALUES: For OpenWindowsCatalog "winget".
+        /// For contoso sample on msdn "contoso"
+        String Name;
+
+        /// The SourceUri used when adding the package catalog.
+        /// SAMPLE VALUES: For OpenWindowsCatalog "https://winget.azureedge.net/cache"
+        /// For contoso sample on msdn "https://pkgmgr-int.azureedge.net/cache"
+        String SourceUri;
+
+        /// ALLOWED VALUES: "Microsoft.Rest", "Microsoft.PreIndexed.Package"
+        /// SAMPLE VALUES: For OpenWindowsCatalog "Microsoft.PreIndexed.Package".
+        /// For contoso sample on msdn "Microsoft.PreIndexed.Package"
+        String Type;
+
+        /// The trust level of the catalog to add.
+        PackageCatalogTrustLevel TrustLevel;
+
+        /// Custom header to pass to the catalog.
+        String CustomHeader;
+
+        /// Excludes a source from discovery unless specified.
+        Boolean Explicit;
+    };
+
+    /// IMPLEMENTATION NOTE: AddPackageCatalogStatus
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+    enum AddPackageCatalogStatus
+    {
+        Ok,
+        GroupPolicyError,
+        CatalogError,
+        InternalError,
+        InvalidOptions,
+        AccessDenied,
+        AuthenticationError,
+    };
+
+    /// IMPLEMENTATION NOTE: AddPackageCatalogResult
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+    runtimeclass AddPackageCatalogResult
+    {
+        AddPackageCatalogStatus Status { get; };
+
+        /// Error codes
+        HRESULT ExtendedErrorCode { get; };
+    };
+
+    /// IMPLEMENTATION NOTE: RemovePackageCatalogOptions
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+    runtimeclass RemovePackageCatalogOptions
+    {
+        RemovePackageCatalogOptions();
+
+        /// The name of the package catalog. 
+        /// SAMPLE VALUES: For OpenWindowsCatalog "winget".
+        /// For contoso sample on msdn "contoso"
+        String Name;
+
+        /// By default, the value is 'false', resulting in the removal of the package catalog registration
+        /// from the winget Package catalogs list and the deletion of all associated system artifacts. This 
+        /// mirrors the WinGet Source remove operation on a specific Package Catalog. 
+        /// If set to 'true', it removes the package catalog registration from the Windows Package Catalogs
+        /// list without any cleanup, similar to the WinGet source reset operation on a specific Package
+        /// Catalog.
+        Boolean PreserveData;
+    };
+
+    /// IMPLEMENTATION NOTE: RemovePackageCatalogStatus
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+    enum RemovePackageCatalogStatus
+    {
+        Ok,
+        GroupPolicyError,
+        CatalogError,
+        InternalError,
+        AccessDenied,
+        InvalidOptions,
+    };
+
+    /// IMPLEMENTATION NOTE: RemovePackageCatalogResult
+    /// Result of removing a package catalog.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+    runtimeclass RemovePackageCatalogResult
+    {
+        RemovePackageCatalogStatus Status { get; };
+
+        /// Error codes
+        HRESULT ExtendedErrorCode { get; };
+    };
+
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageManager
     {
@@ -1369,6 +1493,19 @@ namespace Microsoft.Management.Deployment
         /// Get a composite catalog to allow searching a user defined or pre defined source and a local source
         /// (Installing, Installed) together at the same time.
         PackageCatalogReference CreateCompositePackageCatalog(CreateCompositePackageCatalogOptions options);
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+        {
+            /// Add a catalog to the Windows Package Catalogs.
+            /// The progress value, represented as a double, indicates the percentage of add package catalog operation completion.
+            /// The progress range is from 0 to 100.
+            Windows.Foundation.IAsyncOperationWithProgress<AddPackageCatalogResult, Double> AddPackageCatalogAsync(AddPackageCatalogOptions options);
+
+            /// Unregisters a Package Catalog from the Windows Package Catalogs and eliminates the system artifacts based on the provided options.
+            /// The progress value, represented as a double, indicates the percentage of remove package catalog operation completion.
+            /// The progress range is from 0 to 100.
+            Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, Double> RemovePackageCatalogAsync(RemovePackageCatalogOptions options);
+        }
 
         /// Install the specified package
         Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackageAsync(CatalogPackage package, InstallOptions options);

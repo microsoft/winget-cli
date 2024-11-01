@@ -29,6 +29,7 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_PortablePackageRoot = "WinGet"sv;
         constexpr std::string_view s_PortablePackagesDirectory = "Packages"sv;
         constexpr std::string_view s_LinksDirectory = "Links"sv;
+        constexpr std::string_view s_FontsInstallDirectory = "Microsoft\\Windows\\Fonts"sv;
 // Use production CLSIDs as a surrogate for repository location.
 #if USE_PROD_CLSIDS
         constexpr std::string_view s_ImageAssetsDirectoryRelative = "Assets\\WinGet"sv;
@@ -162,15 +163,6 @@ namespace AppInstaller::Runtime
 
             return result;
         }
-
-        // Try to replace LOCALAPPDATA first as it is the likely location, fall back to trying USERPROFILE.
-        void ReplaceProfilePathsWithEnvironmentVariable(std::filesystem::path& path)
-        {
-            if (!ReplaceCommonPathPrefix(path, GetKnownFolderPath(FOLDERID_LocalAppData), s_LocalAppDataEnvironmentVariable))
-            {
-                ReplaceCommonPathPrefix(path, GetKnownFolderPath(FOLDERID_Profile), s_UserProfileEnvironmentVariable);
-            }
-        }
     }
 
     void SetRuntimePathStateName(std::string name)
@@ -239,6 +231,14 @@ namespace AppInstaller::Runtime
         case PathName::UserProfileDownloads:
             result.Path = GetKnownFolderPath(FOLDERID_Downloads);
             mayBeInProfilePath = true;
+            break;
+        case PathName::FontsUserInstallLocation:
+            result.Path = GetKnownFolderPath(FOLDERID_LocalAppData);
+            result.Path /= s_FontsInstallDirectory;
+            mayBeInProfilePath = true;
+            break;
+        case PathName::FontsMachineInstallLocation:
+            result.Path = GetKnownFolderPath(FOLDERID_Fonts);
             break;
         default:
             THROW_HR(E_UNEXPECTED);
@@ -314,6 +314,8 @@ namespace AppInstaller::Runtime
         case PathName::PortableLinksUserLocation:
         case PathName::PortablePackageUserRoot:
         case PathName::UserProfileDownloads:
+        case PathName::FontsUserInstallLocation:
+        case PathName::FontsMachineInstallLocation:
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:
@@ -418,6 +420,8 @@ namespace AppInstaller::Runtime
         case PathName::PortableLinksUserLocation:
         case PathName::PortablePackageUserRoot:
         case PathName::UserProfileDownloads:
+        case PathName::FontsUserInstallLocation:
+        case PathName::FontsMachineInstallLocation:
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:
@@ -474,6 +478,15 @@ namespace AppInstaller::Runtime
 #endif
 
         return result;
+    }
+
+    // Try to replace LOCALAPPDATA first as it is the likely location, fall back to trying USERPROFILE.
+    void ReplaceProfilePathsWithEnvironmentVariable(std::filesystem::path& path)
+    {
+        if (!ReplaceCommonPathPrefix(path, GetKnownFolderPath(FOLDERID_LocalAppData), s_LocalAppDataEnvironmentVariable))
+        {
+            ReplaceCommonPathPrefix(path, GetKnownFolderPath(FOLDERID_Profile), s_UserProfileEnvironmentVariable);
+        }
     }
 
     std::filesystem::path GetNewTempFilePath()

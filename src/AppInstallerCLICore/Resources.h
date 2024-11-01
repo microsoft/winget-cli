@@ -248,6 +248,16 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FileNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(FilesRemainInInstallDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(FlagContainAdjoinedError);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontFace);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontFaces);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontFamily);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontFamilyNameArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontFilePaths);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontListCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontListCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(ForceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(GatedVersionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(GetManifestResultVersionNotFound);
@@ -403,6 +413,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NoAdminRepairForUserScopePackage);
         WINGET_DEFINE_RESOURCE_STRINGID(NoApplicableInstallers);
         WINGET_DEFINE_RESOURCE_STRINGID(NoExperimentalFeaturesMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoInstalledFontFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoInstalledPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageSelectionArgumentProvided);

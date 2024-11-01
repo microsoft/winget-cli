@@ -3130,4 +3130,13 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
     <value>Non è stato possibile recuperare Microsoft Store licenza del pacchetto. L'account id Microsoft Entra non dispone dei privilegi necessari.</value>
   </data>
+  <data name="WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY" xml:space="preserve">
+    <value>Il parametro non può essere passato oltre il limite di integrità.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALLER_ZERO_BYTE_FILE" xml:space="preserve">
+    <value>Programma di installazione a zero byte scaricato; verificare che la connessione di rete funzioni correttamente.</value>
+  </data>
+  <data name="InstallerZeroByteFile" xml:space="preserve">
+    <value>Programma di installazione a zero byte scaricato; verificare che la connessione di rete funzioni correttamente.</value>
+  </data>
 </root>

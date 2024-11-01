@@ -52,6 +52,18 @@ namespace AppInstaller::CLI::Workflow
         std::string_view arg = context.Args.GetArg(Args::Type::SourceArg);
         std::string_view type = context.Args.GetArg(Args::Type::SourceType);
 
+        // In the absence of a specified type, the default is Microsoft.PreIndexed.Package for comparison.
+        // The default type assignment to the source takes place during the add operation (Source::Add in Repository.cpp).
+        // This is necessary for the comparison to function correctly; otherwise, it would allow the addition of multiple
+        // sources with different names but the same argument for all default type cases.
+        // For example, the following commands would be allowed, but they acts as different alias to same source:
+        //      winget source add "mysource1" "https:\\mysource" --trust - level trusted
+        //      winget source add "mysource2" "https:\\mysource" --trust - level trusted
+        if (type.empty())
+        {
+            type = Repository::Source::GetDefaultSourceType();
+        }
+
         for (const auto& details : sourceList)
         {
             if (Utility::ICUCaseInsensitiveEquals(details.Name, name))
