@@ -244,6 +244,7 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_INVALID_PARAMETER, "Invalid parameter."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED, "Package not supported by the system."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED, "The installer does not support upgrading an existing package."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_CUSTOM_ERROR, "Installation failed with installer custom error."),
 
             // Status values for check package installed status results.
             // Partial success has the success bit(first bit) set to 0.

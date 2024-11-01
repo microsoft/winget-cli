@@ -145,6 +145,8 @@ namespace AppInstaller::CLI::Workflow
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_BLOCKED_BY_POLICY, Resource::String::InstallFlowReturnCodeBlockedByPolicy);
                 case ExpectedReturnCodeEnum::SystemNotSupported:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED, Resource::String::InstallFlowReturnCodeSystemNotSupported);
+                case ExpectedReturnCodeEnum::Custom:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_CUSTOM_ERROR, Resource::String::InstallFlowReturnCodeCustomError);
                 default:
                     THROW_HR(E_UNEXPECTED);
                 }
@@ -501,7 +503,7 @@ namespace AppInstaller::CLI::Workflow
                 if (FAILED(terminationHR))
                 {
                     context.Reporter.Error() << returnCode.Message << std::endl;
-                    auto returnResponseUrl = expectedReturnCodeItr->second.ReturnResponseUrl;
+                    const auto& returnResponseUrl = expectedReturnCodeItr->second.ReturnResponseUrl;
                     if (!returnResponseUrl.empty())
                     {
                         context.Reporter.Error() << Resource::String::RelatedLink << ' ' << returnResponseUrl << std::endl;
