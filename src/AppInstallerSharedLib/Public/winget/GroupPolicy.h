@@ -128,10 +128,10 @@ namespace AppInstaller::Settings
             //  ReadAndValidateItem() - Function that reads a single item from a subkey
 
             // For enums:
-            //  keyItem_t - Type of the key
-            //  valueItem_t - Type of the value
-            //  KeyName -- Name of the sub-key containing the list
-            //  ReadAndValidateItem() - Function that reads a single item from a subkey
+            //  KeyName - Name of the sub-key containing the enums
+            // _mapTypeKey_ - Type of the key in the map
+            // _mapTypeValue_ - Type of the value in the map
+            // _mapTypeName_ - Name of the map type
         };
 
         template<>
