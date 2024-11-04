@@ -200,9 +200,10 @@
           },
           "ReturnResponseUrl": {
             "$ref": "#/definitions/Url",
-            "description": "The return response url to provide additional guidance for expected return codes"            
+            "description": "The return response url to provide additional guidance for expected return codes"
           }
-        }
+        },
+        "required": [ "InstallerReturnCode", "ReturnResponse" ]
       },
       "maxItems": 128,
       "description": "Installer exit codes for common errors"

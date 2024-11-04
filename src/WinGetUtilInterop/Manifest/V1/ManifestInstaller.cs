@@ -38,6 +38,14 @@ namespace Microsoft.WinGetUtil.Models.V1
         public string SignatureSha256 { get; set; }
 
         /// <summary>
+        /// Gets or sets the Store ProductId. Only used when InstallerType is MSStore.
+        /// </summary>
+        [YamlMember(Alias = "MSStoreProductIdentifier")]
+        public string ProductId { get; set; }
+
+        // Common installer fields that may have defaults in manifest root level.
+
+        /// <summary>
         /// Gets or sets the installer locale.
         /// </summary>
         public string InstallerLocale { get; set; }
@@ -131,17 +139,17 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// <summary>
         /// Gets or sets a value indicating whether the installer behavior aborts terminal.
         /// </summary>
-        public bool InstallerAbortsTerminal { get; set; }
+        public bool? InstallerAbortsTerminal { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the installer behavior requires explicit install location.
         /// </summary>
-        public bool InstallLocationRequired { get; set; }
+        public bool? InstallLocationRequired { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the installer behavior requires explicit upgrade.
         /// </summary>
-        public bool RequireExplicitUpgrade { get; set; }
+        public bool? RequireExplicitUpgrade { get; set; }
 
         /// <summary>
         /// Gets or sets the installer release date.
@@ -191,17 +199,17 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// <summary>
         /// Gets or sets a value indicating whether to display install warnings.
         /// </summary>
-        public bool DisplayInstallWarnings { get; set; }
+        public bool? DisplayInstallWarnings { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the installer is prohibited from being downloaded for offline installation.
         /// </summary>
-        public bool DownloadCommandProhibited { get; set; }
+        public bool? DownloadCommandProhibited { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the install location should be added directly to the PATH environment variable.
         /// </summary>
-        public bool ArchiveBinariesDependOnPath { get; set; }
+        public bool? ArchiveBinariesDependOnPath { get; set; }
 
         /// <summary>
         /// Gets or sets the repair behavior.

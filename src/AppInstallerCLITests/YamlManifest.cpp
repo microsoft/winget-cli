@@ -1373,6 +1373,20 @@ TEST_CASE("WriteManifestWithMultipleLocale", "[ManifestCreation]")
     REQUIRE(generatedManifest.Localizations.size() == 2);
 }
 
+TEST_CASE("WriteManifestWithMSStoreInstaller", "[ManifestCreation]")
+{
+    Manifest msstoreManifest = YamlParser::CreateFromPath(TestDataFile("DownloadFlowTest_MSStore.yaml"));
+    TempDirectory exportedDirectory{ "exported" };
+    std::filesystem::path generatedManifestPath = exportedDirectory.GetPath() / "testManifestWithMultipleLocale.yaml";
+    msstoreManifest.ManifestVersion = ManifestVer{ "1.1.0" };
+    YamlWriter::OutputYamlFile(msstoreManifest, msstoreManifest.Installers[0], generatedManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedManifestPath));
+    Manifest generatedManifest = YamlParser::CreateFromPath(generatedManifestPath);
+    REQUIRE(generatedManifest.Installers[0].BaseInstallerType == InstallerTypeEnum::MSStore);
+    REQUIRE(!generatedManifest.Installers[0].ProductId.empty());
+}
+
 YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)
 {
     YamlManifestInfo result;

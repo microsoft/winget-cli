@@ -310,6 +310,8 @@ namespace AppInstaller::Manifest
                         { "InstallerUrl", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->Url = value.as<std::string>(); return {}; } },
                         { "InstallerSha256", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
                         { "SignatureSha256", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->SignatureSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
+                        // No custom validation needed at field populating time since we have semantic validation later to block msstore and productId from community repo.
+                        { "MSStoreProductIdentifier", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->ProductId = value.as<std::string>(); return {}; } },
                     };
 
                     std::move(v1InstallerFields.begin(), v1InstallerFields.end(), std::inserter(result, result.end()));

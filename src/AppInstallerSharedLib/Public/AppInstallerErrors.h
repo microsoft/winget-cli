@@ -174,6 +174,7 @@
 #define APPINSTALLER_CLI_ERROR_INSTALL_INVALID_PARAMETER                ((HRESULT)0x8A150112)
 #define APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED             ((HRESULT)0x8A150113)
 #define APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED            ((HRESULT)0x8A150114)
+#define APPINSTALLER_CLI_ERROR_INSTALL_CUSTOM_ERROR                     ((HRESULT)0x8A150115)
 
 // Status values for check package installed status results.
 // Partial success has the success bit(first bit) set to 0.

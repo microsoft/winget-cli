@@ -325,6 +325,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeBlockedByPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeCancelledByUser);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeContactSupport);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeCustomError);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeDiskFull);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeDowngrade);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeFileInUse);
