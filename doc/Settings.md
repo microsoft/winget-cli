@@ -37,7 +37,7 @@ Style of the progress spinner and bar that WinGet displays when not specified by
 
 |Value|Description|Release|
 |---|---|---|
-|`accent` (default)|Use the [Windows Accent color](ms-settings:personalization-colors)|1.0|
+|`accent` (default)|Use the [Windows Accent color](https://support.microsoft.com/en-us/windows/change-colors-in-windows-d26ef4d6-819a-581c-1581-493cfcc005fe)|1.0|
 |`retro`|Use the current foreground terminal color|1.0|
 |`rainbow`|Progress through a rainbow of colors|1.0|
 |`sixel`|Use sixel images; requires a terminal that supports displaying sixels, such as [Windows Terminal](https://github.com/microsoft/terminal/releases) 1.22.2362 or later|1.9|
