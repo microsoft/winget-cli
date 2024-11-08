@@ -23,7 +23,7 @@ The `source` settings involve configuration to the WinGet source.
 A positive integer represents the update interval in minutes. The check for updates only happens when a source is used. A zero will disable the check for updates to a source. Any other values are invalid.
 
 - Disable: 0
-- Default: 5
+- Default: 15
 
 To manually update the source use `winget source update`
 
@@ -33,11 +33,15 @@ The `visual` settings involve visual elements that are displayed by WinGet
 
 ### progressBar
 
-Color of the progress bar that WinGet displays when not specified by arguments.
+Style of the progress spinner and bar that WinGet displays when not specified by arguments. In addition, all options except `disabled` send [Virtual Terminal progress](https://conemu.github.io/en/AnsiEscapeCodes.html#ConEmu_specific_OSC) updates that any supporting terminal may display visually.
 
-- accent (default)
-- retro
-- rainbow
+|Value|Description|Release|
+|---|---|---|
+|`accent` (default)|Use the [Windows Accent color](ms-settings:personalization-colors)|1.0|
+|`retro`|Use the current foreground terminal color|1.0|
+|`rainbow`|Progress through a rainbow of colors|1.0|
+|`sixel`|Use sixel images; requires a terminal that supports displaying sixels, such as [Windows Terminal](https://github.com/microsoft/terminal/releases) 1.22.2362 or later|1.9|
+|`disabled`|No progress will be displayed|1.9|
 
 ```json
     "visual": {
