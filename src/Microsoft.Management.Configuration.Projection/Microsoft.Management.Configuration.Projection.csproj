@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
     <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <!--
     Forcing this version to continue using an older CsWinRT release while issues are resolved.
     !!! Remove this on the next Microsoft.Windows.CsWinRT package version update. !!!
