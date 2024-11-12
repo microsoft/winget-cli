@@ -82,7 +82,7 @@ namespace Microsoft.WinGet.Resolver
         }
 
         /// <summary>
-        /// Handler to resolve unamanged assemblies.
+        /// Handler to resolve unmanaged assemblies.
         /// </summary>
         /// <param name="assembly">Assembly initiating the unmanaged load.</param>
         /// <param name="unmanagedDllName">Unmanaged dll name.</param>
