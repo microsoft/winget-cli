@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ModuleInit.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -30,11 +30,13 @@ namespace Microsoft.WinGet.Resolver
             }
 
             AssemblyLoadContext.Default.Resolving += WinGetAssemblyLoadContext.ResolvingHandler;
+            AssemblyLoadContext.Default.ResolvingUnmanagedDll += WinGetAssemblyLoadContext.ResolvingUnmanagedDllHandler;
         }
 
         /// <inheritdoc/>
         public void OnRemove(PSModuleInfo module)
         {
+            AssemblyLoadContext.Default.ResolvingUnmanagedDll -= WinGetAssemblyLoadContext.ResolvingUnmanagedDllHandler;
             AssemblyLoadContext.Default.Resolving -= WinGetAssemblyLoadContext.ResolvingHandler;
         }
     }

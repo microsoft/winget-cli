@@ -18,6 +18,10 @@
     <NoWarn>1591,8785</NoWarn>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
     <CsWinRTEnableLogging>true</CsWinRTEnableLogging>
+    <!--
+    !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
+    -->
+    <WindowsSdkPackageVersion>10.0.22000.52</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">

@@ -50,6 +50,7 @@ class WinGetModule
         $this.Name = $n
         $this.ModuleRoot = $m
         $this.Output = Join-Path $o $this.Name
+        New-Item $this.Output -ItemType Directory -ErrorAction SilentlyContinue
 
         if (Get-Module -Name $this.Name)
         {
@@ -67,7 +68,6 @@ class WinGetModule
     {
         Write-Verbose "Copying binary files: $buildRoot\AnyCpu\$config\PowerShell\$($this.Name)\* -> $($this.Output)"
         $copyErrors = $null
-        New-Item $this.Output -ItemType Directory -ErrorAction SilentlyContinue
         Copy-Item "$buildRoot\AnyCpu\$config\PowerShell\$($this.Name)\*" $this.Output -Force -Recurse -ErrorVariable copyErrors -ErrorAction SilentlyContinue
         $copyErrors | ForEach-Object { Write-Warning $_ }
     }
