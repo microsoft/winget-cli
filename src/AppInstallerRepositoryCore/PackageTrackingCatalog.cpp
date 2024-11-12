@@ -223,16 +223,35 @@ namespace AppInstaller::Repository
 
         auto& index = m_implementation->Source->GetIndex();
 
+        // Strip ARP version information from the manifest if it is present
+        const Manifest::Manifest* effectiveManifest = &manifest;
+        Manifest::Manifest arpRangeRemovedManifest;
+
+        auto arpVersionRange = manifest.GetArpVersionRange();
+        if (!arpVersionRange.IsEmpty())
+        {
+            arpRangeRemovedManifest = manifest;
+            effectiveManifest = &arpRangeRemovedManifest;
+
+            for (auto& arpRangeRemovedInstaller : arpRangeRemovedManifest.Installers)
+            {
+                for (auto& arpRangeRemovedEntry : arpRangeRemovedInstaller.AppsAndFeaturesEntries)
+                {
+                    arpRangeRemovedEntry.DisplayVersion.clear();
+                }
+            }
+        }
+
         // Check for an existing manifest that matches this one (could be reinstalling)
-        auto manifestIdOpt = index.GetManifestIdByManifest(manifest);
+        auto manifestIdOpt = index.GetManifestIdByManifest(*effectiveManifest);
 
         if (manifestIdOpt)
         {
-            index.UpdateManifest(manifest);
+            index.UpdateManifest(*effectiveManifest);
         }
         else
         {
-            manifestIdOpt = index.AddManifest(manifest);
+            manifestIdOpt = index.AddManifest(*effectiveManifest);
         }
 
         SQLiteIndex::IdType manifestId = manifestIdOpt.value();
