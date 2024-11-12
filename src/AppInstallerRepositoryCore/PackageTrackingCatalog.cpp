@@ -214,7 +214,7 @@ namespace AppInstaller::Repository
     }
 
     PackageTrackingCatalog::Version PackageTrackingCatalog::RecordInstall(
-        const Manifest::Manifest& manifest,
+        Manifest::Manifest& manifest,
         const Manifest::ManifestInstaller& installer,
         bool isUpgrade)
     {
@@ -224,16 +224,10 @@ namespace AppInstaller::Repository
         auto& index = m_implementation->Source->GetIndex();
 
         // Strip ARP version information from the manifest if it is present
-        const Manifest::Manifest* effectiveManifest = &manifest;
-        Manifest::Manifest arpRangeRemovedManifest;
-
         auto arpVersionRange = manifest.GetArpVersionRange();
         if (!arpVersionRange.IsEmpty())
         {
-            arpRangeRemovedManifest = manifest;
-            effectiveManifest = &arpRangeRemovedManifest;
-
-            for (auto& arpRangeRemovedInstaller : arpRangeRemovedManifest.Installers)
+            for (auto& arpRangeRemovedInstaller : manifest.Installers)
             {
                 for (auto& arpRangeRemovedEntry : arpRangeRemovedInstaller.AppsAndFeaturesEntries)
                 {
@@ -243,15 +237,15 @@ namespace AppInstaller::Repository
         }
 
         // Check for an existing manifest that matches this one (could be reinstalling)
-        auto manifestIdOpt = index.GetManifestIdByManifest(*effectiveManifest);
+        auto manifestIdOpt = index.GetManifestIdByManifest(manifest);
 
         if (manifestIdOpt)
         {
-            index.UpdateManifest(*effectiveManifest);
+            index.UpdateManifest(manifest);
         }
         else
         {
-            manifestIdOpt = index.AddManifest(*effectiveManifest);
+            manifestIdOpt = index.AddManifest(manifest);
         }
 
         SQLiteIndex::IdType manifestId = manifestIdOpt.value();

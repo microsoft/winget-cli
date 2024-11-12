@@ -59,7 +59,7 @@ namespace AppInstaller::Repository
         };
 
         // Records an installation of the given package.
-        Version RecordInstall(const Manifest::Manifest& manifest, const Manifest::ManifestInstaller& installer, bool isUpgrade);
+        Version RecordInstall(Manifest::Manifest& manifest, const Manifest::ManifestInstaller& installer, bool isUpgrade);
 
         // Records an uninstall of the given package.
         void RecordUninstall(const Utility::LocIndString& packageIdentifier);
