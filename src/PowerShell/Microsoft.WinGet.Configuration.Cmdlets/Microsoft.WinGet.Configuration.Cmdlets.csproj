@@ -11,6 +11,7 @@
     <BuildOutputDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</BuildOutputDirectory>
     <RootNamespace>Microsoft.WinGet.Configuration</RootNamespace>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
+    <CsWinRTCcwLookupTableGeneratorEnabled>false</CsWinRTCcwLookupTableGeneratorEnabled>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">

@@ -49,7 +49,7 @@ class WinGetModule
     {
         $this.Name = $n
         $this.ModuleRoot = $m
-        $this.Output = "$o\$($this.Name)\"
+        $this.Output = Join-Path $o $this.Name
 
         if (Get-Module -Name $this.Name)
         {
@@ -59,14 +59,16 @@ class WinGetModule
 
     [void]PrepareScriptFiles()
     {
-        Write-Verbose "Copying files: $($this.ModuleRoot) -> $($this.Output)"
+        Write-Verbose "Copying script files: $($this.ModuleRoot) -> $($this.Output)"
         xcopy $this.ModuleRoot $this.Output /d /s /f /y
     }
 
     [void]PrepareBinaryFiles([string] $buildRoot, [string] $config)
     {
+        Write-Verbose "Copying binary files: $buildRoot\AnyCpu\$config\PowerShell\$($this.Name)\* -> $($this.Output)"
         $copyErrors = $null
-        Copy-Item "$buildRoot\AnyCpu\$config\PowerShell\$($this.Name)" $this.Output -Force -Recurse -ErrorVariable copyErrors -ErrorAction SilentlyContinue
+        New-Item $this.Output -ItemType Directory -ErrorAction SilentlyContinue
+        Copy-Item "$buildRoot\AnyCpu\$config\PowerShell\$($this.Name)\*" $this.Output -Force -Recurse -ErrorVariable copyErrors -ErrorAction SilentlyContinue
         $copyErrors | ForEach-Object { Write-Warning $_ }
     }
 
