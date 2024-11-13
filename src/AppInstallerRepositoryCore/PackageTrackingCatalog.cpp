@@ -224,15 +224,11 @@ namespace AppInstaller::Repository
         auto& index = m_implementation->Source->GetIndex();
 
         // Strip ARP version information from the manifest if it is present
-        auto arpVersionRange = manifest.GetArpVersionRange();
-        if (!arpVersionRange.IsEmpty())
+        for (auto& arpRangeRemovedInstaller : manifest.Installers)
         {
-            for (auto& arpRangeRemovedInstaller : manifest.Installers)
+            for (auto& arpRangeRemovedEntry : arpRangeRemovedInstaller.AppsAndFeaturesEntries)
             {
-                for (auto& arpRangeRemovedEntry : arpRangeRemovedInstaller.AppsAndFeaturesEntries)
-                {
-                    arpRangeRemovedEntry.DisplayVersion.clear();
-                }
+                arpRangeRemovedEntry.DisplayVersion.clear();
             }
         }
 
