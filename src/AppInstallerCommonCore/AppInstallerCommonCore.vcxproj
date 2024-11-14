@@ -448,6 +448,7 @@
     </ClInclude>
     <ClInclude Include="Public\winget\NameNormalization.h" />
     <ClInclude Include="Public\winget\NetworkSettings.h" />
+    <ClInclude Include="Public\winget\OutputDebugStringLogger.h" />
     <ClInclude Include="Public\winget\PackageDependenciesValidationUtil.h" />
     <ClInclude Include="Public\winget\PackageVersionDataManifest.h" />
     <ClInclude Include="Public\winget\Pin.h" />
@@ -504,6 +505,7 @@
     </ClCompile>
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="NetworkSettings.cpp" />
+    <ClCompile Include="OutputDebugStringLogger.cpp" />
     <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
     <ClCompile Include="PackageVersionDataManifest.cpp" />
     <ClCompile Include="Pin.cpp" />
