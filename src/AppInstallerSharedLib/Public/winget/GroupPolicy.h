@@ -23,7 +23,18 @@ namespace AppInstaller::Settings
         AdditionalSources,
         AllowedSources,
         DefaultProxy,
+        AllowedSecurityZones,
         Max,
+    };
+
+    // Enum for the configurable security zones
+    enum class SecurityZoneOptions : DWORD
+    {
+        LocalMachine = 0,
+        Intranet = 1,
+        TrustedSites = 2,
+        Internet = 3,
+        UntrustedSites = 4,
     };
 
     // A policy that acts as a toggle to enable or disable a feature.
@@ -47,6 +58,8 @@ namespace AppInstaller::Settings
             WinGetCommandLineInterfaces,
             Configuration,
             ProxyCommandLineOptions,
+            AllowedSecurityZones,
+            SmartScreenCheck,
             Max,
         };
 
@@ -113,6 +126,12 @@ namespace AppInstaller::Settings
             //  item_t - Type of each item
             //  KeyName -- Name of the sub-key containing the list
             //  ReadAndValidateItem() - Function that reads a single item from a subkey
+
+            // For enums:
+            //  KeyName - Name of the sub-key containing the enums
+            // _mapTypeKey_ - Type of the key in the map
+            // _mapTypeValue_ - Type of the value in the map
+            // _mapTypeName_ - Name of the map type
         };
 
         template<>
@@ -149,11 +168,20 @@ namespace AppInstaller::Settings
             static std::optional<item_t> ReadAndValidateItem(const Registry::Value& item); \
         )
 
+#define POLICY_MAPPING_ENUM_SPECIALIZATION(_policy_, _mapTypeName_, _mapTypeKey_, _mapTypeValue_, _keyName_) \
+        typedef std::map<_mapTypeKey_, _mapTypeValue_> _mapTypeName_; \
+        POLICY_MAPPING_SPECIALIZATION(_policy_, _mapTypeName_, \
+            static constexpr std::string_view KeyName = _keyName_; \
+            static std::optional<typename _mapTypeName_::value_type> ReadAndValidateItem(const Registry::ValueList::ValueRef& item); \
+        )
+
         POLICY_MAPPING_VALUE_SPECIALIZATION(ValuePolicy::SourceAutoUpdateIntervalInMinutes, uint32_t, "SourceAutoUpdateInterval"sv, Registry::Value::Type::DWord);
         POLICY_MAPPING_VALUE_SPECIALIZATION(ValuePolicy::DefaultProxy, std::string, "DefaultProxy"sv, Registry::Value::Type::String);
 
         POLICY_MAPPING_LIST_SPECIALIZATION(ValuePolicy::AdditionalSources, SourceFromPolicy, "AdditionalSources"sv);
         POLICY_MAPPING_LIST_SPECIALIZATION(ValuePolicy::AllowedSources, SourceFromPolicy, "AllowedSources"sv);
+
+        POLICY_MAPPING_ENUM_SPECIALIZATION(ValuePolicy::AllowedSecurityZones, SecurityZoneMap_t, SecurityZoneOptions, bool, "WindowsPackageManagerAllowedSecurityZones"sv);
     }
 
     // Representation of the policies read from the registry.

@@ -183,6 +183,88 @@
         <text id="WindowsPackageManagerDefaultProxy" valueName="DefaultProxy"  />
       </elements>
     </policy>
+    <policy name="EnableWindowsPackageManagerSmartScreenCheck" class="Machine" displayName="$(string.EnableWindowsPackageManagerSmartScreenCheck)" explainText="$(string.EnableWindowsPackageManagerSmartScreenCheckExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerSmartScreenCheck">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableWindowsPackageManagerAllowedSecurityZones" class="Machine" displayName="$(string.EnableWindowsPackageManagerAllowedSecurityZones)" explainText="$(string.EnableWindowsPackageManagerAllowedSecurityZonesExplanation)" presentation="$(presentation.WindowsPackageManagerAllowedSecurityZones)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerAllowedSecurityZones">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+      <elements>
+        <enum id="LocalMachine" key="Software\Policies\Microsoft\Windows\AppInstaller\WindowsPackageManagerAllowedSecurityZones" valueName="LocalMachine" required="false">
+          <item displayName="$(string.SecurityZoneBlocked)">
+            <value>
+              <decimal value="0" />
+            </value>
+          </item>
+          <item displayName="$(string.SecurityZoneAllowed)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+        </enum>
+        <enum id="Intranet" key="Software\Policies\Microsoft\Windows\AppInstaller\WindowsPackageManagerAllowedSecurityZones" valueName="Intranet">
+          <item displayName="$(string.SecurityZoneBlocked)">
+            <value>
+              <decimal value="0" />
+            </value>
+          </item>
+          <item displayName="$(string.SecurityZoneAllowed)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+        </enum>
+        <enum id="TrustedSites" key="Software\Policies\Microsoft\Windows\AppInstaller\WindowsPackageManagerAllowedSecurityZones" valueName="TrustedSites">
+          <item displayName="$(string.SecurityZoneBlocked)">
+            <value>
+              <decimal value="0" />
+            </value>
+          </item>
+          <item displayName="$(string.SecurityZoneAllowed)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+        </enum>
+        <enum id="Internet" key="Software\Policies\Microsoft\Windows\AppInstaller\WindowsPackageManagerAllowedSecurityZones" valueName="Internet">
+          <item displayName="$(string.SecurityZoneBlocked)">
+            <value>
+              <decimal value="0" />
+            </value>
+          </item>
+          <item displayName="$(string.SecurityZoneAllowed)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+        </enum>
+        <enum id="UntrustedSites" key="Software\Policies\Microsoft\Windows\AppInstaller\WindowsPackageManagerAllowedSecurityZones" valueName="UntrustedSites">
+          <item displayName="$(string.SecurityZoneBlocked)">
+            <value>
+              <decimal value="0" />
+            </value>
+          </item>
+          <item displayName="$(string.SecurityZoneAllowed)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+        </enum>
+      </elements>
+    </policy>
     <policy name="EnableMsixAllowedZones" class="Machine" displayName="$(string.EnableMsixAllowedZones)" explainText="$(string.EnableMsixAllowedZonesExplanation)" presentation="$(presentation.MsixAllowedZones)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableMsixAllowedZones">
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
@@ -194,60 +276,60 @@
       </disabledValue>
       <elements>
         <enum id="LocalMachine" key="Software\Policies\Microsoft\Windows\AppInstaller\MsixAllowedZones" valueName="LocalMachine" required="false">
-          <item displayName="$(string.ZoneBlocked)">
+          <item displayName="$(string.SecurityZoneBlocked)">
             <value>
               <decimal value="0" />
             </value>
           </item>
-          <item displayName="$(string.ZoneAllowed)">
+          <item displayName="$(string.SecurityZoneAllowed)">
             <value>
               <decimal value="1" />
             </value>
           </item>
         </enum>
         <enum id="Intranet" key="Software\Policies\Microsoft\Windows\AppInstaller\MsixAllowedZones" valueName="Intranet">
-          <item displayName="$(string.ZoneBlocked)">
+          <item displayName="$(string.SecurityZoneBlocked)">
             <value>
               <decimal value="0" />
             </value>
           </item>
-          <item displayName="$(string.ZoneAllowed)">
+          <item displayName="$(string.SecurityZoneAllowed)">
             <value>
               <decimal value="1" />
             </value>
           </item>
         </enum>
         <enum id="TrustedSites" key="Software\Policies\Microsoft\Windows\AppInstaller\MsixAllowedZones" valueName="TrustedSites">
-          <item displayName="$(string.ZoneBlocked)">
+          <item displayName="$(string.SecurityZoneBlocked)">
             <value>
               <decimal value="0" />
             </value>
           </item>
-          <item displayName="$(string.ZoneAllowed)">
+          <item displayName="$(string.SecurityZoneAllowed)">
             <value>
               <decimal value="1" />
             </value>
           </item>
         </enum>
         <enum id="Internet" key="Software\Policies\Microsoft\Windows\AppInstaller\MsixAllowedZones" valueName="Internet">
-          <item displayName="$(string.ZoneBlocked)">
+          <item displayName="$(string.SecurityZoneBlocked)">
             <value>
               <decimal value="0" />
             </value>
           </item>
-          <item displayName="$(string.ZoneAllowed)">
+          <item displayName="$(string.SecurityZoneAllowed)">
             <value>
               <decimal value="1" />
             </value>
           </item>
         </enum>
         <enum id="UntrustedSites" key="Software\Policies\Microsoft\Windows\AppInstaller\MsixAllowedZones" valueName="UntrustedSites">
-          <item displayName="$(string.ZoneBlocked)">
+          <item displayName="$(string.SecurityZoneBlocked)">
             <value>
               <decimal value="0" />
             </value>
           </item>
-          <item displayName="$(string.ZoneAllowed)">
+          <item displayName="$(string.SecurityZoneAllowed)">
             <value>
               <decimal value="1" />
             </value>
