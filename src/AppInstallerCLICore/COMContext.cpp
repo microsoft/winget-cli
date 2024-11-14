@@ -4,6 +4,7 @@
 #include "COMContext.h"
 #include <AppInstallerFileLogger.h>
 #include <winget/TraceLogger.h>
+#include <winget/OutputDebugStringLogger.h>
 
 namespace AppInstaller::CLI::Execution
 {
@@ -77,11 +78,18 @@ namespace AppInstaller::CLI::Execution
 
     void COMContext::SetLoggers(std::optional<AppInstaller::Logging::Channel> channel, std::optional<AppInstaller::Logging::Level> level)
     {
+        // Set up debug string logging during initialization
+        Logging::OutputDebugStringLogger::Add();
+        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().SetLevel(Logging::Level::Verbose);
+
         Logging::Log().EnableChannel(channel.has_value() ? channel.value() : Settings::User().Get<Settings::Setting::LoggingChannelPreference>());
         Logging::Log().SetLevel(level.has_value() ? level.value() : Settings::User().Get<Settings::Setting::LoggingLevelPreference>());
 
         // TODO: Log to file for COM API calls only when debugging in visual studio
         Logging::FileLogger::Add(s_comLogFileNamePrefix);
+
+        Logging::OutputDebugStringLogger::Remove();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (!Settings::User().Get<Settings::Setting::KeepAllLogFiles>())
