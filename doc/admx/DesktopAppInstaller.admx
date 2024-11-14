@@ -43,6 +43,16 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
+    <policy name="EnableExperiments" class="Machine" displayName="$(string.EnableExperiments)" explainText="$(string.EnableExperimentsExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableExperiments">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
     <policy name="EnableLocalManifestFiles" class="Machine" displayName="$(string.EnableLocalManifestFiles)" explainText="$(string.EnableLocalManifestFilesExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableLocalManifestFiles">
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />

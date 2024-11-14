@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="EnumPolicyExtension.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -50,6 +50,8 @@ namespace Microsoft.WinGet.SharedLib.Extensions
                     return GroupPolicyResource.PolicyEnableWindowsPackageManagerCommandLineInterfaces;
                 case Policy.Configuration:
                     return GroupPolicyResource.PolicyEnableWinGetConfiguration;
+                case Policy.Experiments:
+                    return GroupPolicyResource.PolicyEnableExperiments;
                 default:
                     return string.Empty;
             }

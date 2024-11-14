@@ -5,8 +5,8 @@
 
 namespace AppInstaller::Experiment
 {
-    bool IsEnabled(const std::string&, bool overrideResult)
+    bool IsEnabled(const std::string&)
     {
-        return overrideResult;
+        return true;
     }
 }
