@@ -205,7 +205,7 @@ namespace AppInstaller::Settings
 
         // Experiments
         using Experiments_t = std::map<std::string, bool>;
-        SETTINGMAPPING_SPECIALIZATION(Setting::Experiments, std::string, Experiments_t, {}, ".experiments"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::Experiments, Experiments_t, Experiments_t, {}, ".experiments"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>

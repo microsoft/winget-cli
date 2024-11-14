@@ -68,6 +68,27 @@ namespace AppInstaller::JSON
         return std::nullopt;
     }
 
+    template<>
+    std::optional<std::map<std::string, bool>> GetValue(const Json::Value& node)
+    {
+        std::map<std::string, bool> result;
+
+        if (node.isObject())
+        {
+            for (const auto& entry : node.getMemberNames())
+            {
+                if (node[entry].isBool())
+                {
+                    result[entry] = node[entry].asBool();
+                }
+            }
+
+            return result;
+        }
+
+        return std::nullopt;
+    }
+
 #ifndef WINGET_DISABLE_FOR_FUZZING
     utility::string_t GetUtilityString(std::string_view nodeName)
     {

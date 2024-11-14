@@ -75,6 +75,32 @@ namespace AppInstaller::Settings
             return convertedValue;
         }
 
+        template<>
+        std::string GetValueString(std::map<std::string, bool> value)
+        {
+            std::stringstream convertedValue;
+            convertedValue << "{";
+
+            bool first = true;
+            for (auto const& entry : value)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    convertedValue << ", ";
+                }
+
+                convertedValue << "'" << entry.first << "' = " << entry.second;
+            }
+
+            convertedValue << "}";
+
+            return convertedValue.str();
+        }
+
         std::optional<Json::Value> ParseSettingsContent(const std::string& content, std::string_view settingName, std::vector<UserSettings::Warning>& warnings)
         {
             Json::Value root;
@@ -278,6 +304,7 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortablePackage)
         WINGET_VALIDATE_PASS_THROUGH(NetworkWingetAlternateSourceURL)
         WINGET_VALIDATE_PASS_THROUGH(MaxResumes)
+        WINGET_VALIDATE_PASS_THROUGH(Experiments)
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
