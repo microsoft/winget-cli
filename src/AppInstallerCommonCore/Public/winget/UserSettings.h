@@ -108,7 +108,7 @@ namespace AppInstaller::Settings
         UninstallPurgePortablePackage,
         // Download behavior
         DownloadDefaultDirectory,
-        // Configuration behavior
+        // Configure behavior
         ConfigureDefaultModuleRoot,
         // Interactivity
         InteractivityDisable,
