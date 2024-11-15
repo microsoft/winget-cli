@@ -48,6 +48,13 @@ namespace AppInstaller::CLI
                 }
             }
 
+            std::filesystem::path defaultModuleRoot = Settings::User().Get<Settings::Setting::ConfigurationDefaultModuleRoot>();
+
+            if (!defaultModuleRoot.empty())
+            {
+                return { SetProcessorFactory::PwshConfigurationProcessorLocation::Custom, defaultModuleRoot.u8string() };
+            }
+
             return { SetProcessorFactory::PwshConfigurationProcessorLocation::WinGetModulePath, {} };
         }
     }

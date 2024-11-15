@@ -116,6 +116,24 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Simple test to confirm that the module was installed to the location specified in the DefaultModuleRoot settings.
+        /// </summary>
+        [Test]
+        public void ConfigureFromTestRepo_SettingsDefaultModuleRoot()
+        {
+            TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
+
+            string moduleTestDir = TestCommon.GetRandomTestDir();
+            WinGetSettingsHelper.ConfigureConfigurationBehavior(Constants.DefaultModuleRoot, moduleTestDir);
+
+            string args = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo_Location.yml");
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, args);
+            Assert.AreEqual(0, result.ExitCode);
+
+            Assert.True(Directory.Exists(Path.Combine(moduleTestDir, Constants.SimpleTestModuleName)));
+        }
+
+        /// <summary>
         /// One resource fails, but the other is not dependent and should be executed.
         /// </summary>
         [Test]

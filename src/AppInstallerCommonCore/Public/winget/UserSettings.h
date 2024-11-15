@@ -108,6 +108,8 @@ namespace AppInstaller::Settings
         UninstallPurgePortablePackage,
         // Download behavior
         DownloadDefaultDirectory,
+        // Configuration behavior
+        ConfigurationDefaultModuleRoot,
         // Interactivity
         InteractivityDisable,
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -185,6 +187,8 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::UninstallPurgePortablePackage, bool, bool, false, ".uninstallBehavior.purgePortablePackage"sv);
         // Download behavior
         SETTINGMAPPING_SPECIALIZATION(Setting::DownloadDefaultDirectory, std::string, std::filesystem::path, {}, ".downloadBehavior.defaultDownloadDirectory"sv);
+        // Configuration behavior
+        SETTINGMAPPING_SPECIALIZATION(Setting::ConfigurationDefaultModuleRoot, std::string, std::filesystem::path, {}, ".configurationBehavior.defaultModuleRoot"sv);
 
         // Network
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDownloader, std::string, InstallerDownloader, InstallerDownloader::Default, ".network.downloader"sv);

@@ -109,6 +109,20 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
+        /// Configure the configuration behavior.
+        /// </summary>
+        /// <param name="settingName">Setting name.</param>
+        /// <param name="value">Setting value.</param>
+        public static void ConfigureConfigurationBehavior(string settingName, string value)
+        {
+            JObject settingsJson = GetJsonSettingsObject("configureBehavior");
+            var configureBehavior = settingsJson["configureBehavior"];
+            configureBehavior[settingName] = value;
+
+            SetWingetSettings(settingsJson);
+        }
+
+        /// <summary>
         /// Configure the install behavior preferences.
         /// </summary>
         /// <param name="settingName">Setting name.</param>
