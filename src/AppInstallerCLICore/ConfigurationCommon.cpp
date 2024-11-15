@@ -48,7 +48,7 @@ namespace AppInstaller::CLI
                 }
             }
 
-            std::filesystem::path defaultModuleRoot = Settings::User().Get<Settings::Setting::ConfigurationDefaultModuleRoot>();
+            std::filesystem::path defaultModuleRoot = Settings::User().Get<Settings::Setting::ConfigureDefaultModuleRoot>();
 
             if (!defaultModuleRoot.empty())
             {

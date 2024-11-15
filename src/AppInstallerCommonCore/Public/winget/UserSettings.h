@@ -109,7 +109,7 @@ namespace AppInstaller::Settings
         // Download behavior
         DownloadDefaultDirectory,
         // Configuration behavior
-        ConfigurationDefaultModuleRoot,
+        ConfigureDefaultModuleRoot,
         // Interactivity
         InteractivityDisable,
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -188,7 +188,7 @@ namespace AppInstaller::Settings
         // Download behavior
         SETTINGMAPPING_SPECIALIZATION(Setting::DownloadDefaultDirectory, std::string, std::filesystem::path, {}, ".downloadBehavior.defaultDownloadDirectory"sv);
         // Configuration behavior
-        SETTINGMAPPING_SPECIALIZATION(Setting::ConfigurationDefaultModuleRoot, std::string, std::filesystem::path, {}, ".configurationBehavior.defaultModuleRoot"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::ConfigureDefaultModuleRoot, std::string, std::filesystem::path, {}, ".configureBehavior.defaultModuleRoot"sv);
 
         // Network
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDownloader, std::string, InstallerDownloader, InstallerDownloader::Default, ".network.downloader"sv);

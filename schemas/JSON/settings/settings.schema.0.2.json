@@ -198,8 +198,8 @@
         }
       }
     },
-    "ConfigurationBehavior": {
-      "description": "Configuration settings",
+    "ConfigureBehavior": {
+      "description": "Configure settings",
       "type": "object",
       "properties": {
         "defaultModuleRoot": {
@@ -208,7 +208,7 @@
           "maxLength": 32767
         }
       }
-    }
+    },
     "DownloadBehavior": {
       "description": "Download settings",
       "type": "object",

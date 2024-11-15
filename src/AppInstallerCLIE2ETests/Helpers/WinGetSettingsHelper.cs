@@ -113,7 +113,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// </summary>
         /// <param name="settingName">Setting name.</param>
         /// <param name="value">Setting value.</param>
-        public static void ConfigureConfigurationBehavior(string settingName, string value)
+        public static void ConfigureConfigureBehavior(string settingName, string value)
         {
             JObject settingsJson = GetJsonSettingsObject("configureBehavior");
             var configureBehavior = settingsJson["configureBehavior"];

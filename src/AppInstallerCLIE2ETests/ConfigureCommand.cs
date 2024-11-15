@@ -124,7 +124,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
 
             string moduleTestDir = TestCommon.GetRandomTestDir();
-            WinGetSettingsHelper.ConfigureConfigurationBehavior(Constants.DefaultModuleRoot, moduleTestDir);
+            WinGetSettingsHelper.ConfigureConfigureBehavior(Constants.DefaultModuleRoot, moduleTestDir);
 
             string args = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo_Location.yml");
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, args);

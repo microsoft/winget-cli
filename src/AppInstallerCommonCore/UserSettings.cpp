@@ -401,7 +401,7 @@ namespace AppInstaller::Settings
             return ValidatePathValue(value);
         }
 
-        WINGET_VALIDATE_SIGNATURE(ConfigurationDefaultModuleRoot)
+        WINGET_VALIDATE_SIGNATURE(ConfigureDefaultModuleRoot)
         {
             return ValidatePathValue(value);
         }
