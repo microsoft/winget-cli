@@ -122,14 +122,14 @@ namespace AppInstallerCLIE2ETests
         public void ConfigureFromTestRepo_SettingsDefaultModuleRoot()
         {
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
-
             string moduleTestDir = TestCommon.GetRandomTestDir();
             WinGetSettingsHelper.ConfigureConfigureBehavior(Constants.DefaultModuleRoot, moduleTestDir);
 
             string args = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo_Location.yml");
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, args);
-            Assert.AreEqual(0, result.ExitCode);
 
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.DefaultModuleRoot, string.Empty);
+            Assert.AreEqual(0, result.ExitCode);
             Assert.True(Directory.Exists(Path.Combine(moduleTestDir, Constants.SimpleTestModuleName)));
         }
 
