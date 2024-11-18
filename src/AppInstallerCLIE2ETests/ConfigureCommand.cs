@@ -129,8 +129,15 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, args);
 
             WinGetSettingsHelper.ConfigureInstallBehavior(Constants.DefaultModuleRoot, string.Empty);
+            bool moduleExists = Directory.Exists(Path.Combine(moduleTestDir, Constants.SimpleTestModuleName));
+            if (moduleExists)
+            {
+                // Clean test directory to avoid impacting other tests.
+                Directory.Delete(moduleTestDir, true);
+            }
+
             Assert.AreEqual(0, result.ExitCode);
-            Assert.True(Directory.Exists(Path.Combine(moduleTestDir, Constants.SimpleTestModuleName)));
+            Assert.True(moduleExists);
         }
 
         /// <summary>
