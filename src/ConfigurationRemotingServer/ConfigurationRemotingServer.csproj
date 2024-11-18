@@ -11,10 +11,9 @@
     <SelfContained>true</SelfContained>
     <RuntimeIdentifiers>win10-x64;win10-x86;win10-arm;win10-arm64</RuntimeIdentifiers>
     <!--
-    Forcing this version to continue using an older CsWinRT release while issues are resolved.
-    !!! Remove this on the next Microsoft.Windows.CsWinRT package version update. !!!
+    !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
-    <WindowsSdkPackageVersion>10.0.22000.34</WindowsSdkPackageVersion>
+    <WindowsSdkPackageVersion>10.0.22000.52</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Platform)' == 'x64' ">
@@ -34,7 +33,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.6" />
   </ItemGroup>
 
   <ItemGroup>
