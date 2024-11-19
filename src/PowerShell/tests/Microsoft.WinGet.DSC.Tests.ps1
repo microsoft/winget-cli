@@ -244,66 +244,34 @@ Describe 'WinGetPackageManager' {
 }
 
 Describe 'WinGetConfigRoot' {
-    It 'WinGetConfigRoot User Variable' {
-        $get = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{}
+    It 'Sets and removes $WinGetConfigRoot by scope' -ForEach 'User','Machine' {
+        $get = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{ WinGetScope = $_ }
         $get.WinGetConfigRoot = "WinGetConfigRoot"
         $get.Exist | Should -Be $false
         $get.Path | Should -Be ""
-        $get.Scope | Should -Be 'User'
+        $get.WinGetScope | Should -Be $_
 
-        $test = InvokeWinGetDSC -Name WinGetConfigRoot -Method Test -Property @{ Exist = $true; Path = 'C:\Foo\Bar' }
+        $test = InvokeWinGetDSC -Name WinGetConfigRoot -Method Test -Property @{ Exist = $true; Path = 'C:\Foo\Bar'; WinGetScope = $_ }
         $test.InDesiredState | Should -Be $false
 
-        InvokeWinGetDSC -Name WinGetConfigRoot -Method Set -Property @{ Exist = $true; Path = 'C:\Foo\Bar' }
+        InvokeWinGetDSC -Name WinGetConfigRoot -Method Set -Property @{ Exist = $true; Path = 'C:\Foo\Bar'; WinGetScope = $_ }
 
         # Verify that $WinGetConfigRoot variable is set.
-        $result = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{}
+        $result = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{WinGetScope = $_}
         $result.Exists | Should -Be $true
         $result.Path | Should -Be 'C:\Foo\Bar'
-        $result.Scope | Should -Be 'User'
+        $result.WinGetScope | Should -Be $_
 
         # Remove $WinGetConfigRoot variable.
-        $test2 = InvokeWinGetDSC -Name WinGetConfigRoot -Method Test -Property @{ Exist = $false }
+        $test2 = InvokeWinGetDSC -Name WinGetConfigRoot -Method Test -Property @{ Exist = $false; WinGetScope = $_ }
         $test2.InDesiredState | Should -Be $false
 
-        InvokeWinGetDSC -Name WinGetConfigRoot -Method Set -Property @{ Exist = $false }
+        InvokeWinGetDSC -Name WinGetConfigRoot -Method Set -Property @{ Exist = $false; WinGetScope = $_ }
 
-        $result2 = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{}
+        $result2 = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{WinGetScope = $_}
         $result2.WinGetConfigRoot = "WinGetConfigRoot"
         $result2.Exists | Should -Be $false
         $result2.Path | Should -Be ""
-        $result2.Scope | Should -Be 'User'
-    }
-
-    It 'WinGetConfigRoot Machine Variable' {
-        $get = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{ WinGetScope = 'Machine'}
-        $get.WinGetConfigRoot = "WinGetConfigRoot"
-        $get.Exist | Should -Be $false
-        $get.Path | Should -Be ""
-        $get.Scope | Should -Be 'Machine'
-
-        $test = InvokeWinGetDSC -Name WinGetConfigRoot -Method Test -Property @{ Exist = $true; Path = 'C:\Hello\World'; WinGetScope = 'Machine' }
-        $test.InDesiredState | Should -Be $false
-
-        InvokeWinGetDSC -Name WinGetConfigRoot -Method Set -Property @{ Exist = $true; Path = 'C:\Hello\World'; WinGetScope = 'Machine' }
-
-        # Verify that $WinGetConfigRoot variable is set.
-        $result = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{ WinGetScope = 'Machine' }
-        $result.WinGetConfigRoot = "WinGetConfigRoot"
-        $result.Exists | Should -Be $true
-        $result.Path | Should -Be 'C:\Hello\World'
-        $result.Scope | Should -Be 'Machine'
-
-        # Remove $WinGetConfigRoot variable.
-        $test2 = InvokeWinGetDSC -Name WinGetConfigRoot -Method Test -Property @{ Exist = $false; WinGetScope = 'Machine' }
-        $test2.InDesiredState | Should -Be $false
-
-        InvokeWinGetDSC -Name WinGetConfigRoot -Method Set -Property @{ Exist = $false; WinGetScope = 'Machine' }
-
-        $result2 = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{WinGetScope = 'Machine'}
-        $result2.WinGetConfigRoot = "WinGetConfigRoot"
-        $result2.Exists | Should -Be $false
-        $result2.Path | Should -Be ""
-        $result2.Scope | Should -Be 'Machine'
+        $result2.WinGetScope | Should -Be $_
     }
 }
