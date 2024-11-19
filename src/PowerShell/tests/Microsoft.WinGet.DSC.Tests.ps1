@@ -32,9 +32,9 @@ BeforeAll {
 
 Describe 'List available DSC resources'{
     It 'Shows DSC Resources'{
-        $expectedDSCResources = "WinGetAdminSettings", "WinGetPackage", "WinGetPackageManager", "WinGetSource", "WinGetUserSettings"
+        $expectedDSCResources = "WinGetAdminSettings", "WinGetPackage", "WinGetPackageManager", "WinGetSource", "WinGetUserSettings", "WinGetConfigRoot"
         $availableDSCResources = (Get-DscResource -Module Microsoft.WinGet.DSC).Name
-        $availableDSCResources.length | Should -Be 5
+        $availableDSCResources.length | Should -Be 6
         $availableDSCResources | Where-Object {$expectedDSCResources -notcontains $_} | Should -BeNullOrEmpty -ErrorAction Stop
     }
 }
@@ -258,7 +258,7 @@ Describe 'WinGetConfigRoot' {
 
         # Verify that $WinGetConfigRoot variable is set.
         $result = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{WinGetScope = $_}
-        $result.Exists | Should -Be $true
+        $result.Exist | Should -Be $true
         $result.Path | Should -Be 'C:\Foo\Bar'
         $result.WinGetScope | Should -Be $_
 
@@ -270,7 +270,7 @@ Describe 'WinGetConfigRoot' {
 
         $result2 = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{WinGetScope = $_}
         $result2.WinGetConfigRoot = "WinGetConfigRoot"
-        $result2.Exists | Should -Be $false
+        $result2.Exist | Should -Be $false
         $result2.Path | Should -Be ""
         $result2.WinGetScope | Should -Be $_
     }
