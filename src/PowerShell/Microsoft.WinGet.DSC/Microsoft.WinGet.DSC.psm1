@@ -52,6 +52,12 @@ enum WinGetTrustLevel
     Trusted
 }
 
+enum Scope
+{
+    User
+    Machine
+}
+
 #endregion enums
 
 #region DscResources
@@ -441,6 +447,65 @@ class WinGetPackageManager
             {
                 # TODO: Localize.
                 throw "Failed to repair winget. Result $result"
+            }
+        }
+    }
+}
+
+[DSCResource()]
+class WinGetConfigRoot
+{
+    # We need a key. Do not set.
+    [DscProperty(Key)]
+    [string]$SID
+
+    [DscProperty()]
+    [bool]$Exists
+
+    [DscProperty()]
+    [string]$Path
+
+    [DscProperty()]
+    [Scope]$Scope = [Scope]::User
+
+    hidden [string] $WinGetConfigRoot = 'WinGetConfigRoot'
+
+    [WinGetConfigRoot] Get()
+    {
+        $currentState = [WinGetConfigRoot]::new()
+        $currentState.SID = ''
+        $wingetConfigRootValue = [System.Environment]::GetEnvironmentVariable($this.WinGetConfigRoot, $this.Scope)
+
+        if ([string]::IsNullOrEmpty($wingetConfigRootValue))
+        {
+            $currentState.Exists = $false
+        }
+        else
+        {
+            $currentState.Exists = $true
+            $currentState.Path = $wingetConfigRootValue
+        }
+
+        return $currentState
+    }
+
+    [bool] Test()
+    {
+        $currentState = $this.Get()
+        return $this.Exists -eq $currentState.Exists
+    }
+
+    [void] Set()
+    {
+        if (-not $this.Test)
+        {
+            if ($this.Exists)
+            {
+                [System.Environment]::SetEnvironmentVariable($this.WinGetConfigRoot, $this.Path, $this.Scope)
+            }
+            else
+            {
+                [System.Environment]::SetEnvironmentVariable($this.WinGetConfigRoot, "", $this.Scope)
             }
         }
     }

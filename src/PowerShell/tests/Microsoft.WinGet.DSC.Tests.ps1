@@ -242,3 +242,31 @@ Describe 'WinGetPackageManager' {
 
     # TODO: Add test to verify Set method for WinGetPackageManager
 }
+
+Describe 'WinGetConfigRoot' {
+    It 'Get WinGetConfigRoot' {
+        $result = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{}
+        $result.Exists | Should -Be $false
+        $result.Path | Should -Be $null
+        $result.Scope | Should -Be 'User'
+    }
+
+    It 'Test WinGetConfigRoot' {
+        $result = InvokeWinGetDSC -Name WinGetConfigRoot -Method Test -Property @{ Exists = $true; Path = 'C:\Foo\Bar' }
+        $result.InDesiredState | Should -Be $false
+    }
+
+    It 'Set WinGetConfigRoot' {
+        InvokeWinGetDSC -Name WinGetConfigRoot -Method Set -Property @{ Exists = $true; Path = 'C:\Foo\Bar' }
+
+        # Verify $winGetConfigRoot is set
+        $result = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{ Exists = $true; Path = 'C:\Foo\Bar' }
+        $result.Exists | Should -Be $true
+        $result.Path | Should -Be 'C:\Foo\Bar'
+        $result.Scope | Should -Be 'User'
+    }
+
+    AfterAll {
+        InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Ensure = 'Absent' }
+    }
+}
