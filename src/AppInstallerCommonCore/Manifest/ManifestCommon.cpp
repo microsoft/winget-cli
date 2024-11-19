@@ -1113,22 +1113,11 @@ namespace AppInstaller::Manifest
     {
         Dependency* existingDependency = this->HasDependency(newDependency);
 
-        if (existingDependency != NULL) {
-            if (newDependency.MinVersion)
+        if (existingDependency != NULL)
+        {
+            if (newDependency.MinVersion > existingDependency->MinVersion)
             {
-                if (existingDependency->MinVersion)
-                {
-                    const auto& newDependencyVersion = Utility::Version(newDependency.MinVersion.value());
-                    const auto& existingDependencyVersion = Utility::Version(existingDependency->MinVersion.value());
-                    if (newDependencyVersion > existingDependencyVersion)
-                    {
-                        existingDependency->MinVersion.value() = newDependencyVersion.ToString();
-                    }
-                }
-                else
-                {
-                    existingDependency->MinVersion.value() = newDependency.MinVersion.value();
-                }
+                existingDependency->MinVersion = newDependency.MinVersion;
             }
         }
         else
@@ -1168,7 +1157,7 @@ namespace AppInstaller::Manifest
     }
 
     // for testing purposes
-    bool DependencyList::HasExactDependency(DependencyType type, string_t id, string_t minVersion)
+    bool DependencyList::HasExactDependency(DependencyType type, const string_t& id, const string_t& minVersion)
     {
         for (const auto& dependency : m_dependencies)
         {
@@ -1176,7 +1165,7 @@ namespace AppInstaller::Manifest
             {
                 if (!minVersion.empty())
                 {
-                    return dependency.MinVersion.has_value() && dependency.MinVersion.value() == Utility::Version{ minVersion };
+                    return dependency.MinVersion == Utility::Version{ minVersion };
                 }
                 else
                 {
