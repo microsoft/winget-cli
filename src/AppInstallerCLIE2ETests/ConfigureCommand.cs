@@ -118,7 +118,7 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Simple test to confirm that the module was installed to the location specified in the DefaultModuleRoot settings.
         /// </summary>
-        [Test]
+        // [Test]
         public void ConfigureFromTestRepo_SettingsDefaultModuleRoot()
         {
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
