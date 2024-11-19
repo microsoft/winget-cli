@@ -244,29 +244,66 @@ Describe 'WinGetPackageManager' {
 }
 
 Describe 'WinGetConfigRoot' {
-    It 'Get WinGetConfigRoot' {
+    It 'WinGetConfigRoot User Variable' {
+        $get = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{}
+        $get.WinGetConfigRoot = "WinGetConfigRoot"
+        $get.Exist | Should -Be $false
+        $get.Path | Should -Be ""
+        $get.Scope | Should -Be 'User'
+
+        $test = InvokeWinGetDSC -Name WinGetConfigRoot -Method Test -Property @{ Exist = $true; Path = 'C:\Foo\Bar' }
+        $test.InDesiredState | Should -Be $false
+
+        InvokeWinGetDSC -Name WinGetConfigRoot -Method Set -Property @{ Exist = $true; Path = 'C:\Foo\Bar' }
+
+        # Verify that $WinGetConfigRoot variable is set.
         $result = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{}
-        $result.Exists | Should -Be $false
-        $result.Path | Should -Be $null
-        $result.Scope | Should -Be 'User'
-    }
-
-    It 'Test WinGetConfigRoot' {
-        $result = InvokeWinGetDSC -Name WinGetConfigRoot -Method Test -Property @{ Exists = $true; Path = 'C:\Foo\Bar' }
-        $result.InDesiredState | Should -Be $false
-    }
-
-    It 'Set WinGetConfigRoot' {
-        InvokeWinGetDSC -Name WinGetConfigRoot -Method Set -Property @{ Exists = $true; Path = 'C:\Foo\Bar' }
-
-        # Verify $winGetConfigRoot is set
-        $result = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{ Exists = $true; Path = 'C:\Foo\Bar' }
         $result.Exists | Should -Be $true
         $result.Path | Should -Be 'C:\Foo\Bar'
         $result.Scope | Should -Be 'User'
+
+        # Remove $WinGetConfigRoot variable.
+        $test2 = InvokeWinGetDSC -Name WinGetConfigRoot -Method Test -Property @{ Exist = $false }
+        $test2.InDesiredState | Should -Be $false
+
+        InvokeWinGetDSC -Name WinGetConfigRoot -Method Set -Property @{ Exist = $false }
+
+        $result2 = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{}
+        $result2.WinGetConfigRoot = "WinGetConfigRoot"
+        $result2.Exists | Should -Be $false
+        $result2.Path | Should -Be ""
+        $result2.Scope | Should -Be 'User'
     }
 
-    AfterAll {
-        InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Ensure = 'Absent' }
+    It 'WinGetConfigRoot Machine Variable' {
+        $get = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{ WinGetScope = 'Machine'}
+        $get.WinGetConfigRoot = "WinGetConfigRoot"
+        $get.Exist | Should -Be $false
+        $get.Path | Should -Be ""
+        $get.Scope | Should -Be 'Machine'
+
+        $test = InvokeWinGetDSC -Name WinGetConfigRoot -Method Test -Property @{ Exist = $true; Path = 'C:\Hello\World'; WinGetScope = 'Machine' }
+        $test.InDesiredState | Should -Be $false
+
+        InvokeWinGetDSC -Name WinGetConfigRoot -Method Set -Property @{ Exist = $true; Path = 'C:\Hello\World'; WinGetScope = 'Machine' }
+
+        # Verify that $WinGetConfigRoot variable is set.
+        $result = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{ WinGetScope = 'Machine' }
+        $result.WinGetConfigRoot = "WinGetConfigRoot"
+        $result.Exists | Should -Be $true
+        $result.Path | Should -Be 'C:\Hello\World'
+        $result.Scope | Should -Be 'Machine'
+
+        # Remove $WinGetConfigRoot variable.
+        $test2 = InvokeWinGetDSC -Name WinGetConfigRoot -Method Test -Property @{ Exist = $false; WinGetScope = 'Machine' }
+        $test2.InDesiredState | Should -Be $false
+
+        InvokeWinGetDSC -Name WinGetConfigRoot -Method Set -Property @{ Exist = $false; WinGetScope = 'Machine' }
+
+        $result2 = InvokeWinGetDSC -Name WinGetConfigRoot -Method Get -Property @{WinGetScope = 'Machine'}
+        $result2.WinGetConfigRoot = "WinGetConfigRoot"
+        $result2.Exists | Should -Be $false
+        $result2.Path | Should -Be ""
+        $result2.Scope | Should -Be 'Machine'
     }
 }

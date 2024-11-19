@@ -52,7 +52,7 @@ enum WinGetTrustLevel
     Trusted
 }
 
-enum Scope
+enum WinGetScope
 {
     User
     Machine
@@ -455,57 +455,70 @@ class WinGetPackageManager
 [DSCResource()]
 class WinGetConfigRoot
 {
-    # We need a key. Do not set.
     [DscProperty(Key)]
-    [string]$SID
+    [string]$WinGetConfigRoot = "WinGetConfigRoot"
 
     [DscProperty()]
-    [bool]$Exists
+    [string]$Path = ""
 
     [DscProperty()]
-    [string]$Path
+    [bool]$Exist = $false
 
     [DscProperty()]
-    [Scope]$Scope = [Scope]::User
-
-    hidden [string] $WinGetConfigRoot = 'WinGetConfigRoot'
+    [WinGetScope]$WinGetScope = [WinGetScope]::User
 
     [WinGetConfigRoot] Get()
     {
         $currentState = [WinGetConfigRoot]::new()
-        $currentState.SID = ''
-        $wingetConfigRootValue = [System.Environment]::GetEnvironmentVariable($this.WinGetConfigRoot, $this.Scope)
+        $wingetConfigRootValue = [System.Environment]::GetEnvironmentVariable($this.WinGetConfigRoot, $this.WinGetScope)
 
-        if ([string]::IsNullOrEmpty($wingetConfigRootValue))
+        if (-not [string]::IsNullOrEmpty($wingetConfigRootValue))
         {
-            $currentState.Exists = $false
-        }
-        else
-        {
-            $currentState.Exists = $true
+            $currentState.Exist = $true
             $currentState.Path = $wingetConfigRootValue
         }
 
+        $currentState.WinGetScope = $this.WinGetScope
         return $currentState
     }
 
     [bool] Test()
     {
         $currentState = $this.Get()
-        return $this.Exists -eq $currentState.Exists
+        if ($this.Exist -ne $currentState.Exist)
+        {
+            return $false
+        }
+
+        if ($this.Path -ne $currentState.Path)
+        {
+            return $false
+        }
+
+        if ($this.WinGetScope -ne $currentState.WinGetScope)
+        {
+            return $false
+        }
+
+        if ($this.WinGetConfigRoot -ne $currentState.WinGetConfigRoot)
+        {
+            return $false
+        }
+
+        return $true
     }
 
     [void] Set()
     {
-        if (-not $this.Test)
+        if (-not $this.Test())
         {
-            if ($this.Exists)
+            if ($this.Exist)
             {
-                [System.Environment]::SetEnvironmentVariable($this.WinGetConfigRoot, $this.Path, $this.Scope)
+                [System.Environment]::SetEnvironmentVariable($this.WinGetConfigRoot, $this.Path, $this.WinGetScope)
             }
             else
             {
-                [System.Environment]::SetEnvironmentVariable($this.WinGetConfigRoot, "", $this.Scope)
+                [System.Environment]::SetEnvironmentVariable($this.WinGetConfigRoot, "", $this.WinGetScope)
             }
         }
     }
