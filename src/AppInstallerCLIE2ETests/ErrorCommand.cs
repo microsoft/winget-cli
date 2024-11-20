@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ErrorCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -14,6 +14,15 @@ namespace AppInstallerCLIE2ETests
     /// </summary>
     public class ErrorCommand
     {
+        /// <summary>
+        /// Reset settings file to avoid affecting output from error command.
+        /// </summary>
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            WinGetSettingsHelper.InitializeWingetSettings();
+        }
+
         /// <summary>
         /// Tests 0.
         /// </summary>
