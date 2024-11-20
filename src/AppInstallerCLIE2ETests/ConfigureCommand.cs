@@ -77,6 +77,31 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Simple test to confirm that the module was installed to the location specified in the DefaultModuleRoot settings.
+        /// </summary>
+        [Test]
+        public void ConfigureFromTestRepo_DefaultModuleRootSetting()
+        {
+            TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
+            string moduleTestDir = TestCommon.GetRandomTestDir();
+            WinGetSettingsHelper.ConfigureConfigureBehavior(Constants.DefaultModuleRoot, moduleTestDir);
+
+            string args = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo_Location.yml");
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, args);
+
+            WinGetSettingsHelper.ConfigureConfigureBehavior(Constants.DefaultModuleRoot, string.Empty);
+            bool moduleExists = Directory.Exists(Path.Combine(moduleTestDir, Constants.SimpleTestModuleName));
+            if (moduleExists)
+            {
+                // Clean test directory to avoid impacting other tests.
+                Directory.Delete(moduleTestDir, true);
+            }
+
+            Assert.AreEqual(0, result.ExitCode);
+            Assert.True(moduleExists);
+        }
+
+        /// <summary>
         /// Simple test to confirm that the module was installed in the right location.
         /// </summary>
         /// <param name="location">Location to pass.</param>
@@ -113,31 +138,6 @@ namespace AppInstallerCLIE2ETests
             Assert.True(Directory.Exists(Path.Combine(
                 TestCommon.GetExpectedModulePath(location),
                 Constants.SimpleTestModuleName)));
-        }
-
-        /// <summary>
-        /// Simple test to confirm that the module was installed to the location specified in the DefaultModuleRoot settings.
-        /// </summary>
-        // [Test]
-        public void ConfigureFromTestRepo_SettingsDefaultModuleRoot()
-        {
-            TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
-            string moduleTestDir = TestCommon.GetRandomTestDir();
-            WinGetSettingsHelper.ConfigureConfigureBehavior(Constants.DefaultModuleRoot, moduleTestDir);
-
-            string args = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo_Location.yml");
-            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, args);
-
-            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.DefaultModuleRoot, string.Empty);
-            bool moduleExists = Directory.Exists(Path.Combine(moduleTestDir, Constants.SimpleTestModuleName));
-            if (moduleExists)
-            {
-                // Clean test directory to avoid impacting other tests.
-                Directory.Delete(moduleTestDir, true);
-            }
-
-            Assert.AreEqual(0, result.ExitCode);
-            Assert.True(moduleExists);
         }
 
         /// <summary>
