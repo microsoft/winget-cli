@@ -73,6 +73,12 @@ namespace AppInstallerCLIE2ETests.Helpers
                     {
                     }
                 },
+                {
+                    "configureBehavior",
+                    new Hashtable()
+                    {
+                    }
+                },
             };
 
             // Run winget one time to initialize settings directory
