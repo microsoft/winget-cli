@@ -156,9 +156,9 @@ TEST_CASE("VersionCompare", "[versions]")
 
     // Ensure that versions with non-digit characters in their parts are sorted correctly
     RequireLessThan("1-rc", "1");
-    RequireLessThan("1.0.0-rc", "1");
     RequireLessThan("1.2-rc", "1.2");
     RequireLessThan("1.0-rc", "1.0");
+    RequireLessThan("1.0.0-rc", "1");
     RequireLessThan("22.0.0-rc.1", "22.0.0");
     RequireLessThan("22.0.0-rc.1", "22.0.0.1");
     RequireLessThan("22.0.0-rc.1", "22.0.0.1-rc");
