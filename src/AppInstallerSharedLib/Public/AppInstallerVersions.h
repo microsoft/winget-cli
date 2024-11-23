@@ -18,7 +18,7 @@ namespace AppInstaller::Utility
     //
     // Versions are compared by:
     //  for each part in each version
-    //      if one side has no more parts, perform the remaining comparisons against an empty 
+    //      if one side has no more parts, perform the remaining comparisons against an empty part
     //      if integers not equal, return comparison of integers
     //      else if only one side has a non-empty string part, it is less
     //      else if string parts not equal, return comparison of strings
