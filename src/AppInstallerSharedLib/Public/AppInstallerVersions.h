@@ -18,12 +18,11 @@ namespace AppInstaller::Utility
     //
     // Versions are compared by:
     //  for each part in each version
-    //      if both sides have no more parts, return equal
-    //      else if one side has no more parts, it is less
-    //      else if integers not equal, return comparison of integers
+    //      if one side has no more parts, perform the remaining comparisons against an empty 
+    //      if integers not equal, return comparison of integers
     //      else if only one side has a non-empty string part, it is less
     //      else if string parts not equal, return comparison of strings
-    //  if all parts are same, use approximate comparator if applicable
+    //  if each part has been compared, use approximate comparator if applicable
     //
     //  Note: approximate to another approximate version is invalid.
     //        approximate to Unknown is invalid.
