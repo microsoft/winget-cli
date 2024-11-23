@@ -1911,8 +1911,8 @@ TEST_CASE("SQLiteIndex_Search_VersionSorting", "[sqliteindex]")
     {
         { UtilityVersion("15.0.0"), Channel("") },
         { UtilityVersion("14.0.0"), Channel("") },
-        { UtilityVersion("13.2.0-bugfix"), Channel("") },
         { UtilityVersion("13.2.0"), Channel("") },
+        { UtilityVersion("13.2.0-bugfix"), Channel("") },
         { UtilityVersion("13.0.0"), Channel("") },
         { UtilityVersion("16.0.0"), Channel("alpha") },
         { UtilityVersion("15.8.0"), Channel("alpha") },
@@ -1966,8 +1966,8 @@ TEST_CASE("SQLiteIndex_PathString_VersionSorting", "[sqliteindex]")
     {
         { UtilityVersion("15.0.0"), Channel("") },
         { UtilityVersion("14.0.0"), Channel("") },
-        { UtilityVersion("13.2.0-bugfix"), Channel("") },
         { UtilityVersion("13.2.0"), Channel("") },
+        { UtilityVersion("13.2.0-bugfix"), Channel("") },
         { UtilityVersion("13.0.0"), Channel("") },
         { UtilityVersion("16.0.0"), Channel("alpha") },
         { UtilityVersion("15.8.0"), Channel("alpha") },

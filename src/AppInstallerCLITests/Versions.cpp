@@ -154,6 +154,20 @@ TEST_CASE("VersionCompare", "[versions]")
     RequireLessThan("0.0.1-beta", "0.0.2-alpha");
     RequireLessThan("13.9.8", "14.1");
 
+    // Ensure that versions with non-digit characters in their parts are sorted correctly
+    RequireLessThan("1-rc", "1");
+    RequireLessThan("1.2-rc", "1.2");
+    RequireLessThan("1.0-rc", "1.0");
+    RequireLessThan("1.0.0-rc", "1");
+    RequireLessThan("22.0.0-rc.1", "22.0.0");
+    RequireLessThan("22.0.0-rc.1", "22.0.0.1");
+    RequireLessThan("22.0.0-rc.1", "22.0.0.1-rc");
+
+    // Ensure that Sub-RC versions are sorted correctly
+    RequireLessThan("22.0.0-rc.1", "22.0.0-rc.1.1");
+    RequireLessThan("22.0.0-rc.1.1", "22.0.0-rc.1.2");
+    RequireLessThan("22.0.0-rc.1.2", "22.0.0-rc.2");
+
     RequireEqual("1.0", "1.0.0");
 
     // Ensure whitespace doesn't affect equality
@@ -175,15 +189,16 @@ TEST_CASE("VersionAndChannelSort", "[versions]")
     {
         { Version("15.0.0"), Channel("") },
         { Version("14.0.0"), Channel("") },
-        { Version("13.2.0-bugfix"), Channel("") },
+        { Version("13.2.1-bugfix"), Channel("") },
         { Version("13.2.0"), Channel("") },
+        { Version("13.2.0-rc"), Channel("") },
         { Version("13.0.0"), Channel("") },
         { Version("16.0.0"), Channel("alpha") },
         { Version("15.8.0"), Channel("alpha") },
         { Version("15.1.0"), Channel("beta") },
     };
 
-    std::vector<size_t> reorderList = { 4, 2, 1, 7, 6, 3, 5, 0 };
+    std::vector<size_t> reorderList = { 4, 2, 1, 7, 6, 3, 8, 5, 0 };
     REQUIRE(sortedList.size() == reorderList.size());
 
     std::vector<VersionAndChannel> jumbledList;
