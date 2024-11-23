@@ -1812,6 +1812,9 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
     <value>Configuration successfully applied.</value>
   </data>
+	<data name="ConfigurationUnitSuccessfullyApplied" xml:space="preserve">
+    <value>Unit successfully applied.</value>
+  </data>
   <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
     <value>Another configuration is being applied to the system. This configuration will continue as soon as is possible...</value>
   </data>
