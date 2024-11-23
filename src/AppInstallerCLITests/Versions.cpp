@@ -163,6 +163,11 @@ TEST_CASE("VersionCompare", "[versions]")
     RequireLessThan("22.0.0-rc.1", "22.0.0.1");
     RequireLessThan("22.0.0-rc.1", "22.0.0.1-rc");
 
+    // Ensure that Sub-RC versions are sorted correctly
+    RequireLessThan("22.0.0-rc.1", "22.0.0-rc.1.1");
+    RequireLessThan("22.0.0-rc.1.1", "22.0.0-rc.1.2");
+    RequireLessThan("22.0.0-rc.1.2", "22.0.0-rc.2");
+
     RequireEqual("1.0", "1.0.0");
 
     // Ensure whitespace doesn't affect equality
