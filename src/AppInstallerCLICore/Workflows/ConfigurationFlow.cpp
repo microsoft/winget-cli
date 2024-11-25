@@ -790,7 +790,7 @@ namespace AppInstaller::CLI::Workflow
                     EndProgress();
                     if (SUCCEEDED(resultInformation.ResultCode()))
                     {
-                        m_context.Reporter.Info() << "  "_liv << Resource::String::ConfigurationSuccessfullyApplied << std::endl;
+                        m_context.Reporter.Info() << "  "_liv << Resource::String::ConfigurationUnitSuccessfullyApplied << std::endl;
                     }
                     else
                     {
