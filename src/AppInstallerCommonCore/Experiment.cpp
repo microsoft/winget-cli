@@ -20,8 +20,8 @@ namespace AppInstaller::Settings
             if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::Experiments))
             {
                 AICLI_LOG(Core, Info, <<
-                    "Experiments '" << Experiment::GetExperiment(key).Name() <<
-                    "' is disabled due to group policy: " << TogglePolicy::GetPolicy(TogglePolicy::Policy::Experiments).RegValueName());
+                    "Experiment " << Experiment::GetExperiment(key).Name() <<
+                    " is disabled due to group policy: " << TogglePolicy::GetPolicy(TogglePolicy::Policy::Experiments).RegValueName());
                 return false;
             }
 
@@ -30,10 +30,18 @@ namespace AppInstaller::Settings
             auto jsonName = std::string(experiment.JsonName());
             if (experiments.find(jsonName) != experiments.end())
             {
-                return experiments[jsonName];
+                auto isEnabled = experiments[jsonName];
+                AICLI_LOG(Core, Info, <<
+                    "Experiment " << Experiment::GetExperiment(key).Name() <<
+                    " is set to " << isEnabled << " in user settings");
+                return isEnabled;
             }
 
-            return AppInstaller::Experiment::IsEnabled(experiment.GetKey());
+            auto isEnabled = AppInstaller::Experiment::IsEnabled(experiment.GetKey());
+            AICLI_LOG(Core, Info, <<
+                "Experiment " << Experiment::GetExperiment(key).Name() <<
+                " is set to " << isEnabled);
+            return isEnabled;
         }
     }
 
