@@ -31,7 +31,7 @@
     <Filter Include="schema\v1.9.0">
       <UniqueIdentifier>{f7069050-9235-44e0-ab07-72e4addfd765}</UniqueIdentifier>
     </Filter>
-    <Filter Include="schema\v1.9.0">
+    <Filter Include="schema\v1.10.0">
       <UniqueIdentifier>{9c132cfd-cf4c-48d0-a32b-c52213f742fe}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
