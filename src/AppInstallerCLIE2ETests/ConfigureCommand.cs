@@ -93,7 +93,6 @@ namespace AppInstallerCLIE2ETests
             bool moduleExists = Directory.Exists(Path.Combine(moduleTestDir, Constants.SimpleTestModuleName));
             if (moduleExists)
             {
-                // Clean test directory to avoid impacting other tests.
                 Directory.Delete(moduleTestDir, true);
             }
 
