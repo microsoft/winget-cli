@@ -200,6 +200,21 @@ The `purgePortablePackage` behavior affects the default behavior for uninstallin
     },
 ```
 
+## Configure Behavior
+
+The `configureBehavior` settings affect the default behavior of applying a configuration.
+
+### Default Module Root
+The `defaultModuleRoot` behavior affects the default root directory where modules are installed to. Defaults to `%LOCALAPPDATA%/Microsoft/WinGet/Configuration/Modules` if value is not set or is invalid.
+
+> Note: This setting value must be an absolute path.
+
+```json
+    "configureBehavior": {
+        "defaultModuleRoot": "C:/Program Files/Modules/"
+    },
+```
+
 ## Telemetry
 
 The `telemetry` settings control whether winget writes ETW events that may be sent to Microsoft on a default installation of Windows.
