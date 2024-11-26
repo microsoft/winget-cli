@@ -1,7 +1,7 @@
 {
   "$id": "https://aka.ms/winget-manifest.singleton.1.9.0.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "description": "A representation of a single-file manifest representing an app in the OWC. v1.9.0",
+  "description": "A representation of a single-file manifest representing an app in the OWC. v1.10.0",
   "definitions": {
     "PackageIdentifier": {
       "type": "string",
