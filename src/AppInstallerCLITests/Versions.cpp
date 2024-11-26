@@ -170,6 +170,12 @@ TEST_CASE("VersionCompare", "[versions]")
 
     RequireEqual("1.0", "1.0.0");
 
+    // Ensure that integers are parsed correctly when there is a leading zero
+    RequireEqual("1.2.00.3", "1.2.0.3");
+    RequireEqual("1.2.003.4", "1.2.3.4");
+    RequireEqual("01.02.03.04", "1.2.3.4");
+    RequireEqual("1.2.03-beta", "1.2.3-beta");
+
     // Ensure whitespace doesn't affect equality
     RequireEqual("1.0", "1.0 ");
     RequireEqual("1.0", "1. 0");
