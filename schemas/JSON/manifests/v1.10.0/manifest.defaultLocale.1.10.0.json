@@ -1,5 +1,5 @@
 {
-  "$id": "https://aka.ms/winget-manifest.defaultlocale.1.9.0.schema.json",
+  "$id": "https://aka.ms/winget-manifest.defaultlocale.1.10.0.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "description": "A representation of a multiple-file manifest representing a default app metadata in the OWC. v1.10.0",
   "definitions": {
