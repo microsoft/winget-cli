@@ -179,6 +179,7 @@ TEST_CASE("VersionCompare", "[versions]")
     // Ensure whitespace doesn't affect equality
     RequireEqual("1.0", "1.0 ");
     RequireEqual("1.0", "1. 0");
+    RequireEqual("1.0", "1.0.");
 
     // Ensure versions with preambles are sorted correctly
     RequireEqual("1.0", "Version 1.0");
