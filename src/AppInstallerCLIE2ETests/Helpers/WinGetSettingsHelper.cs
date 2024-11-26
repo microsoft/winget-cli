@@ -73,6 +73,12 @@ namespace AppInstallerCLIE2ETests.Helpers
                     {
                     }
                 },
+                {
+                    "configureBehavior",
+                    new Hashtable()
+                    {
+                    }
+                },
             };
 
             // Run winget one time to initialize settings directory
@@ -104,6 +110,20 @@ namespace AppInstallerCLIE2ETests.Helpers
             JObject settingsJson = GetJsonSettingsObject("installBehavior");
             var installBehavior = settingsJson["installBehavior"];
             installBehavior[settingName] = value;
+
+            SetWingetSettings(settingsJson);
+        }
+
+        /// <summary>
+        /// Configure the configuration behavior.
+        /// </summary>
+        /// <param name="settingName">Setting name.</param>
+        /// <param name="value">Setting value.</param>
+        public static void ConfigureConfigureBehavior(string settingName, string value)
+        {
+            JObject settingsJson = GetJsonSettingsObject("configureBehavior");
+            var configureBehavior = settingsJson["configureBehavior"];
+            configureBehavior[settingName] = value;
 
             SetWingetSettings(settingsJson);
         }

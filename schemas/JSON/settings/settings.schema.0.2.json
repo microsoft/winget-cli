@@ -198,6 +198,17 @@
         }
       }
     },
+    "ConfigureBehavior": {
+      "description": "Configure settings",
+      "type": "object",
+      "properties": {
+        "defaultModuleRoot": {
+          "description": "The default root directory where PowerShell modules are installed to when applying a configuration.",
+          "type": "string",
+          "maxLength": 32767
+        }
+      }
+    },
     "DownloadBehavior": {
       "description": "Download settings",
       "type": "object",
