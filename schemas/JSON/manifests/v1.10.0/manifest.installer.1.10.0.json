@@ -65,7 +65,8 @@
         "wix",
         "burn",
         "pwa",
-        "portable"
+        "portable",
+        "font"
       ],
       "description": "Enumeration of supported installer types. InstallerType is required in either root level or individual Installer level"
     },
@@ -80,7 +81,8 @@
         "nullsoft",
         "wix",
         "burn",
-        "portable"
+        "portable",
+        "font"
       ],
       "description": "Enumeration of supported nested installer types contained inside an archive file"
     },

@@ -10,4 +10,16 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: None
     // Outputs: None
     void ReportInstalledFonts(Execution::Context& context);
+
+    // Installs the font package.
+    // Required Args: None
+    // Inputs: Manifest, Scope, Rename, Location
+    // Outputs: None
+    void FontInstallImpl(Execution::Context& context);
+
+    // Initializes the font installer.
+    // Required Args: None
+    // Inputs: Scope, Manifest, Installer
+    // Outputs: None
+    void InitializeFontInstaller(Execution::Context& context);
 }

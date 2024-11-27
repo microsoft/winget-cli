@@ -276,6 +276,18 @@ namespace AppInstaller::CLI::Workflow
                 VerifyAndSetNestedInstaller <<
                 ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().NestedInstallerType);
         }
+
+        // Runs the flow for installing a font package.
+        // Required Args: None
+        // Inputs: Installer, InstallerPath
+        // Outputs: None
+        void FontInstall(Execution::Context& context)
+        {
+            context <<
+                InitializeFontInstaller <<
+                FontInstallImpl <<
+                ReportInstallerResult("Font"sv, APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED, true);
+        }
     }
 
     bool ExemptFromSingleInstallLocking(InstallerTypeEnum type)
@@ -443,6 +455,8 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Zip:
             context << details::ArchiveInstall;
             break;
+        case InstallerTypeEnum::Font:
+            context << details::FontInstall;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }

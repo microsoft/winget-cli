@@ -121,4 +121,8 @@ namespace AppInstaller::CLI::Workflow
             OutputInstalledFontFamiliesTable(context, lines);
         }
     }
+
+    void FontInstallImpl(Execution::Context& context)
+    {
+    }
 }

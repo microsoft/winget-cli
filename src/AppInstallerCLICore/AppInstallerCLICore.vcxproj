@@ -398,6 +398,7 @@
     <ClInclude Include="ExecutionContext.h" />
     <ClInclude Include="ExecutionProgress.h" />
     <ClInclude Include="ExecutionReporter.h" />
+    <ClInclude Include="FontInstaller.h" />    
     <ClInclude Include="Invocation.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PortableInstaller.h" />
@@ -483,6 +484,7 @@
     <ClCompile Include="ExecutionContext.cpp" />
     <ClCompile Include="ExecutionProgress.cpp" />
     <ClCompile Include="ExecutionReporter.cpp" />
+    <ClCompile Include="FontInstaller.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

@@ -223,6 +223,7 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Portable: 
             case InstallerTypeEnum::Wix:
             case InstallerTypeEnum::Zip:
+            case InstallerTypeEnum::Font:
                 context << DownloadInstallerFile;
                 break;
             case InstallerTypeEnum::Msix:
