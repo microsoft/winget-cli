@@ -8,7 +8,7 @@ ms.localizationpriority: medium
 
 # export command (winget)
 
-The **export** command of the [winget](index.md) tool exports a JSON file of apps to a specified file.  The **export** command users JSON as the format.  The JSON schema used by **winget** can be found [here](https://aka.ms/winget-packages.schema.1.0.json).
+The **export** command of the [winget](index.md) tool exports a JSON file of apps to a specified file.  The **export** command users JSON as the format.  See [the JSON schema used by **winget**](https://aka.ms/winget-packages.schema.1.0.json).
 
 The **export** combined with the [**import**](import.md) command allows you to batch install applications on your PC.
 
