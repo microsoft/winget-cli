@@ -3185,5 +3185,6 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="ConfigurationModules" xml:space="preserve">
     <value>Configuration Modules</value>
+    <comment>PowerShell Modules that are used for the Configuration feature</comment>
   </data>
 </root>
