@@ -264,6 +264,8 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
 
                 Assert.True(manifest.DisplayInstallWarnings);
                 Assert.True(manifest.DownloadCommandProhibited);
+
+                Assert.Equal("https://defaultReturnResponseUrl.com", manifest.ExpectedReturnCodes[0].ReturnResponseUrl);
             }
 
             if (manifestVersion >= TestManifestVersion.V170)
@@ -373,6 +375,8 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
 
                 Assert.True(installer1.DisplayInstallWarnings);
                 Assert.True(installer1.DownloadCommandProhibited);
+
+                Assert.Equal("https://returnResponseUrl.com", installer1.ExpectedReturnCodes[0].ReturnResponseUrl);
             }
 
             if (manifestVersion >= TestManifestVersion.V170)

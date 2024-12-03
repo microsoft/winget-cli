@@ -106,9 +106,9 @@ Markets:
 ExpectedReturnCodes:
     - InstallerReturnCode: 2
       ReturnResponse: contactSupport
+      ReturnResponseUrl: https://defaultReturnResponseUrl.com
     - InstallerReturnCode: 3
       ReturnResponse: custom
-      ReturnResponseUrl: https://defaultReturnResponseUrl.com
 UnsupportedArguments:
   - log
 NestedInstallerType: msi
@@ -225,8 +225,9 @@ Installers:
       ExcludedMarkets:
         - "US"
     ExpectedReturnCodes:
-    - InstallerReturnCode: 2
-      ReturnResponse: contactSupport
+      - InstallerReturnCode: 2
+        ReturnResponse: contactSupport
+        ReturnResponseUrl: https://returnResponseUrl.com
     DownloadCommandProhibited: true
     InstallationMetadata:
       DefaultInstallLocation: "%ProgramFiles%\\TestApp"
