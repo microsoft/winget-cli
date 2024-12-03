@@ -5,17 +5,17 @@
 
 namespace AppInstaller::CLI::Font
 {
-    // Object representation of the metadata and functionality required for installing a font package. 
     struct FontInstaller
     {
+        FontInstaller(Manifest::ScopeEnum scope);
+
         std::filesystem::path FontFileLocation;
 
-        FontInstaller(const std::string& familyName, Manifest::ScopeEnum scope);
-
-        void Install();
+        void Install(const std::map<std::wstring, std::filesystem::path> fontFiles);
 
     private:
         Manifest::ScopeEnum m_scope;
-        std::string m_familyName;
+        std::filesystem::path m_installLocation;
+        Registry::Key m_key;
     };
 }

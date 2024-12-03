@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "InstallFlow.h"
 #include "DownloadFlow.h"
+#include "FontFlow.h"
 #include "UninstallFlow.h"
 #include "UpdateFlow.h"
 #include "ResumeFlow.h"
@@ -284,7 +285,6 @@ namespace AppInstaller::CLI::Workflow
         void FontInstall(Execution::Context& context)
         {
             context <<
-                InitializeFontInstaller <<
                 FontInstallImpl <<
                 ReportInstallerResult("Font"sv, APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED, true);
         }
@@ -457,6 +457,7 @@ namespace AppInstaller::CLI::Workflow
             break;
         case InstallerTypeEnum::Font:
             context << details::FontInstall;
+            break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }

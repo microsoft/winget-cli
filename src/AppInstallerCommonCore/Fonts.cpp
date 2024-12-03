@@ -4,6 +4,8 @@
 #include <AppInstallerStrings.h>
 #include <winget/Fonts.h>
 #include <winget/Locale.h>
+#include <ShObjIdl_core.h>
+#include <propkey.h>
 
 namespace AppInstaller::Fonts
 {
@@ -49,15 +51,13 @@ namespace AppInstaller::Fonts
     FontCatalog::FontCatalog()
     {
         m_preferredLocales = AppInstaller::Locale::GetUserPreferredLanguagesUTF16();
+        THROW_IF_FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(m_factory), m_factory.put_unknown()));
     }
 
     std::vector<FontFamily> FontCatalog::GetInstalledFontFamilies(std::optional<std::wstring> familyName)
     {
-        wil::com_ptr<IDWriteFactory7> factory;
-        THROW_IF_FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(factory), factory.put_unknown()));
-
         wil::com_ptr<IDWriteFontCollection> collection;
-        THROW_IF_FAILED(factory->GetSystemFontCollection(collection.addressof(), FALSE));
+        THROW_IF_FAILED(m_factory->GetSystemFontCollection(collection.addressof(), FALSE));
 
         std::vector<FontFamily> installedFontFamilies;
 
@@ -83,6 +83,20 @@ namespace AppInstaller::Fonts
         }
 
         return installedFontFamilies;
+    }
+
+    bool FontCatalog::IsValidFontFile(const std::filesystem::path& filePath)
+    {
+        wil::com_ptr<IDWriteFontFile> fontFile;
+        THROW_IF_FAILED(m_factory->CreateFontFileReference(filePath.c_str(), NULL, &fontFile));
+
+        BOOL isValid;
+        DWRITE_FONT_FILE_TYPE fileType;
+        DWRITE_FONT_FACE_TYPE faceType;
+        UINT32 numOfFaces;
+        THROW_IF_FAILED(fontFile->Analyze(&isValid, &fileType, &faceType, &numOfFaces));
+
+        return isValid;
     }
 
     std::wstring FontCatalog::GetLocalizedStringFromFont(const wil::com_ptr<IDWriteLocalizedStrings>& localizedStringCollection)
@@ -171,5 +185,27 @@ namespace AppInstaller::Fonts
         fontFamily.Name = std::move(familyName);
         fontFamily.Faces = std::move(fontFaces);
         return fontFamily;
+    }
+
+    std::wstring GetFontFileTitle(const std::filesystem::path& fontFilePath)
+    {
+        auto co_unitialize = wil::CoInitializeEx();
+        IPropertyStore* pps = nullptr;
+        std::wstring title;
+        HRESULT hr = SHGetPropertyStoreFromParsingName(fontFilePath.c_str(), nullptr, GPS_DEFAULT, IID_PPV_ARGS(&pps));
+        if (SUCCEEDED(hr)) {
+            PROPVARIANT prop;
+            PropVariantInit(&prop);
+            hr = pps->GetValue(PKEY_Title, &prop);
+            if (SUCCEEDED(hr)) {
+                title = prop.pwszVal;
+                PropVariantClear(&prop);
+                pps->Release();
+            }
+            PropVariantClear(&prop);
+            pps->Release();
+        }
+
+        return title;
     }
 }

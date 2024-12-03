@@ -16,10 +16,4 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Manifest, Scope, Rename, Location
     // Outputs: None
     void FontInstallImpl(Execution::Context& context);
-
-    // Initializes the font installer.
-    // Required Args: None
-    // Inputs: Scope, Manifest, Installer
-    // Outputs: None
-    void InitializeFontInstaller(Execution::Context& context);
 }

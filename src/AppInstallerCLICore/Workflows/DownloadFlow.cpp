@@ -57,6 +57,8 @@ namespace AppInstaller::CLI::Workflow
                 return L".msix"sv;
             case InstallerTypeEnum::Zip:
                 return L".zip"sv;
+            case InstallerTypeEnum::Font:
+                return L".ttf"sv;
             default:
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }

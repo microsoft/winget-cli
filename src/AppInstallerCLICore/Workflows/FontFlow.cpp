@@ -5,10 +5,12 @@
 #include "TableOutput.h"
 #include <winget/Fonts.h>
 #include <AppInstallerRuntime.h>
+#include <FontInstaller.h>
 
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::CLI::Font;
 
     namespace
     {
@@ -124,5 +126,39 @@ namespace AppInstaller::CLI::Workflow
 
     void FontInstallImpl(Execution::Context& context)
     {
+        Manifest::ScopeEnum scope = AppInstaller::Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+        FontInstaller fontInstaller = FontInstaller(scope);
+        std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
+        std::map<std::wstring, std::filesystem::path> fontFileMap{};
+
+        try
+        {
+            context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+
+            // InstallerPath will point to a directory if it is extracted from an archive.
+            if (std::filesystem::is_directory(installerPath))
+            {
+                const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles = context.Get<Execution::Data::Installer>()->NestedInstallerFiles;
+
+                for (const auto& nestedInstallerFile : nestedInstallerFiles)
+                { 
+                    const std::filesystem::path& fontFilePath = installerPath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
+                    auto fontFileEntryName = AppInstaller::Fonts::GetFontFileTitle(fontFilePath);
+                    fontFileMap.emplace(fontFileEntryName, fontFilePath);
+                }
+            }
+            else
+            {
+                auto fontName = AppInstaller::Fonts::GetFontFileTitle(installerPath);
+                fontFileMap.emplace(fontName, installerPath);
+            }
+
+            fontInstaller.Install(fontFileMap);
+            context.Add<Execution::Data::OperationReturnCode>(ERROR_SUCCESS);
+        }
+        catch (...)
+        {
+            context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
+        }
     }
 }

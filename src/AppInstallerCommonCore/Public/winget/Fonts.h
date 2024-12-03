@@ -20,12 +20,17 @@ namespace AppInstaller::Fonts
         std::vector<FontFace> Faces;
     };
 
+    std::wstring GetFontFileTitle(const std::filesystem::path& fontFilePath);
+
     struct FontCatalog
     {
         FontCatalog();
 
         // Gets all installed font families on the system. If an exact family name is provided and found, returns the installed font family.
         std::vector<FontFamily> GetInstalledFontFamilies(std::optional<std::wstring> familyName = {});
+
+        // Returns a boolean value indicating whether the specified file path is a valid font file.
+        bool IsValidFontFile(const std::filesystem::path& filePath);
 
     private:
         FontFamily GetFontFamilyByIndex(const wil::com_ptr<IDWriteFontCollection>& collection, UINT32 index);
@@ -34,6 +39,7 @@ namespace AppInstaller::Fonts
         std::wstring GetFontFaceName(const wil::com_ptr<IDWriteFont>& font);
         Utility::OpenTypeFontVersion GetFontFaceVersion(const wil::com_ptr<IDWriteFont>& font);
 
+        wil::com_ptr<IDWriteFactory7> m_factory;
         std::vector<std::wstring> m_preferredLocales;
     };
 }
