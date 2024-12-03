@@ -36,5 +36,7 @@ namespace AppInstaller::Settings
         Utility::LocIndView m_jsonName;
         std::string_view m_link;
         std::string m_key;
+        static std::map<Key, bool> m_isEnabledCache;
+        static std::mutex m_mutex;
     };
 }

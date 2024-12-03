@@ -45,9 +45,19 @@ namespace AppInstaller::Settings
         }
     }
 
+    // Define static members
+    std::map<Experiment::Key, bool> Experiment::m_isEnabledCache;
+    std::mutex Experiment::m_mutex;
+
     bool Experiment::IsEnabled(Key key)
     {
-        return IsEnabledInternal(key, User());
+        std::lock_guard lock(m_mutex);
+        if (m_isEnabledCache.find(key) == m_isEnabledCache.end())
+        {
+            m_isEnabledCache[key] = IsEnabledInternal(key, User());
+        }
+
+        return m_isEnabledCache[key];
     }
 
     Experiment Experiment::GetExperiment(Key key)

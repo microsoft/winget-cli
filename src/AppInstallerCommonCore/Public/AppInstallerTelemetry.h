@@ -128,6 +128,8 @@ namespace AppInstaller::Logging
         // LogNonFatalDOError
         std::string DOUrl;
         HRESULT DOHResult = S_OK;
+
+        // TODO Add experiments telemetry
     };
 
     // This type contains the registration lifetime of the telemetry trace logging provider.
