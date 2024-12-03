@@ -52,6 +52,11 @@ namespace AppInstaller::Settings
     bool Experiment::IsEnabled(Key key)
     {
         std::lock_guard lock(m_mutex);
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        m_isEnabledCache.clear();
+#endif
+
         if (m_isEnabledCache.find(key) == m_isEnabledCache.end())
         {
             m_isEnabledCache[key] = IsEnabledInternal(key, User());
@@ -66,7 +71,12 @@ namespace AppInstaller::Settings
         {
         case Key::CDN:
             return Experiment{ "CDN experiment", "CDN", "https://aka.ms/winget-settings", "CDN"};
-            
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        case Key::TestExperimentDisabledByDefault:
+            return Experiment{ "Test experiment disabled by default", "TestExperimentDisabledByDefault", "https://aka.ms/winget-settings", "TestExperimentDisabledByDefault" };
+        case Key::TestExperimentEnabledByDefault:
+            return Experiment{ "Test experiment enabled by default", "TestExperimentEnabledByDefault", "https://aka.ms/winget-settings", "TestExperimentEnabledByDefault" };
+#endif
         default:
             THROW_HR(E_UNEXPECTED);
         }

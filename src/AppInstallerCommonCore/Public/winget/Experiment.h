@@ -14,6 +14,11 @@ namespace AppInstaller::Settings
             None = 0x0,
             CDN = 0x1,
             Max,
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            TestExperimentDisabledByDefault = 0xFFFFFFFE,
+            TestExperimentEnabledByDefault = 0xFFFFFFFF,
+#endif
         };
 
         using Key_t = std::underlying_type_t<Key>;
