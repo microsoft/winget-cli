@@ -1812,7 +1812,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
     <value>Configuration successfully applied.</value>
   </data>
-	<data name="ConfigurationUnitSuccessfullyApplied" xml:space="preserve">
+  <data name="ConfigurationUnitSuccessfullyApplied" xml:space="preserve">
     <value>Unit successfully applied.</value>
   </data>
   <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
@@ -3147,7 +3147,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="InstallerZeroByteFile" xml:space="preserve">
     <value>Downloaded zero byte installer; ensure that your network connection is working properly.</value>
-  </data>  
+  </data>
   <data name="FontCommandShortDescription" xml:space="preserve">
     <value>Manage fonts</value>
   </data>
@@ -3182,5 +3182,9 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>Version</value>
+  </data>
+  <data name="ConfigurationModules" xml:space="preserve">
+    <value>Configuration Modules</value>
+    <comment>PowerShell Modules that are used for the Configuration feature</comment>
   </data>
 </root>
