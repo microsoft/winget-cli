@@ -926,6 +926,7 @@ namespace AppInstaller::Manifest
     bool DoesInstallerTypeIgnoreScopeFromManifest(InstallerTypeEnum installerType)
     {
         return
+            installerType == InstallerTypeEnum::Font ||
             installerType == InstallerTypeEnum::Portable ||
             installerType == InstallerTypeEnum::Msix ||
             installerType == InstallerTypeEnum::MSStore;
@@ -934,6 +935,7 @@ namespace AppInstaller::Manifest
     bool DoesInstallerTypeRequireAdminForMachineScopeInstall(InstallerTypeEnum installerType)
     {
         return
+            installerType == InstallerTypeEnum::Font ||
             installerType == InstallerTypeEnum::Portable ||
             installerType == InstallerTypeEnum::MSStore ||
             installerType == InstallerTypeEnum::Msix;

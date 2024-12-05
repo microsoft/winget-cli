@@ -29,6 +29,12 @@
       "Input": "%BUILD_ARTIFACTSTAGINGDIRECTORY%/AppInstallerTestMsixInstaller.msix",
       "HashToken": "<MSIXHASH>",
       "SignatureToken": "<SIGNATUREHASH>"
+    },
+    {
+      "Type": "font",
+      "Name": "AppInstallerTestFont/AppInstallerTestFont.ttf",
+      "Input": "%BUILD_ARTIFACTSTAGINGDIRECTORY%/AppInstallerTestFont.ttf",
+      "HashToken": "<FONTHASH>"
     }
   ],
   "DynamicInstallers": [

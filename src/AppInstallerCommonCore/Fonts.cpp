@@ -85,18 +85,16 @@ namespace AppInstaller::Fonts
         return installedFontFamilies;
     }
 
-    bool FontCatalog::IsValidFontFile(const std::filesystem::path& filePath)
+    bool FontCatalog::IsFontFileSupported(const std::filesystem::path& filePath, DWRITE_FONT_FILE_TYPE& fileType)
     {
         wil::com_ptr<IDWriteFontFile> fontFile;
         THROW_IF_FAILED(m_factory->CreateFontFileReference(filePath.c_str(), NULL, &fontFile));
 
-        BOOL isValid;
-        DWRITE_FONT_FILE_TYPE fileType;
+        BOOL isSupported;
         DWRITE_FONT_FACE_TYPE faceType;
         UINT32 numOfFaces;
-        THROW_IF_FAILED(fontFile->Analyze(&isValid, &fileType, &faceType, &numOfFaces));
-
-        return isValid;
+        THROW_IF_FAILED(fontFile->Analyze(&isSupported, &fileType, &faceType, &numOfFaces));
+        return isSupported;
     }
 
     std::wstring FontCatalog::GetLocalizedStringFromFont(const wil::com_ptr<IDWriteLocalizedStrings>& localizedStringCollection)
@@ -189,23 +187,13 @@ namespace AppInstaller::Fonts
 
     std::wstring GetFontFileTitle(const std::filesystem::path& fontFilePath)
     {
-        auto co_unitialize = wil::CoInitializeEx();
-        IPropertyStore* pps = nullptr;
-        std::wstring title;
-        HRESULT hr = SHGetPropertyStoreFromParsingName(fontFilePath.c_str(), nullptr, GPS_DEFAULT, IID_PPV_ARGS(&pps));
-        if (SUCCEEDED(hr)) {
-            PROPVARIANT prop;
-            PropVariantInit(&prop);
-            hr = pps->GetValue(PKEY_Title, &prop);
-            if (SUCCEEDED(hr)) {
-                title = prop.pwszVal;
-                PropVariantClear(&prop);
-                pps->Release();
-            }
-            PropVariantClear(&prop);
-            pps->Release();
-        }
-
+        wil::com_ptr<IPropertyStore> pPropertyStore;
+        THROW_IF_FAILED(SHGetPropertyStoreFromParsingName(fontFilePath.c_str(), nullptr, GPS_DEFAULT, IID_PPV_ARGS(&pPropertyStore)));
+        PROPVARIANT prop;
+        PropVariantInit(&prop);
+        THROW_IF_FAILED(pPropertyStore->GetValue(PKEY_Title, &prop));
+        std::wstring title = prop.pwszVal;
+        THROW_IF_FAILED(PropVariantClear(&prop));
         return title;
     }
 }

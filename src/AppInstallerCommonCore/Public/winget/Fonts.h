@@ -30,7 +30,7 @@ namespace AppInstaller::Fonts
         std::vector<FontFamily> GetInstalledFontFamilies(std::optional<std::wstring> familyName = {});
 
         // Returns a boolean value indicating whether the specified file path is a valid font file.
-        bool IsValidFontFile(const std::filesystem::path& filePath);
+        bool IsFontFileSupported(const std::filesystem::path& filePath, DWRITE_FONT_FILE_TYPE& fileType);
 
     private:
         FontFamily GetFontFamilyByIndex(const wil::com_ptr<IDWriteFontCollection>& collection, UINT32 index);

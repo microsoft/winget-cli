@@ -44,6 +44,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             this.MsiInstallerPath = this.InitializeFileParam(Constants.MsiInstallerPathParameter);
             this.MsixInstallerPath = this.InitializeFileParam(Constants.MsixInstallerPathParameter);
             this.MsiInstallerV2Path = this.InitializeFileParam(Constants.MsiInstallerV2PathParameter);
+            this.MsiInstallerV2Path = this.InitializeFileParam(Constants.FontPathParameter);
 
             this.ForcedExperimentalFeatures = this.InitializeStringArrayParam(Constants.ForcedExperimentalFeaturesParameter);
         }
@@ -118,6 +119,11 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// Gets the zip installer path.
         /// </summary>
         public string ZipInstallerPath { get; }
+
+        /// <summary>
+        /// Gets the font path.
+        /// </summary>
+        public string FontPath { get; }
 
         /// <summary>
         /// Gets the package cert path.

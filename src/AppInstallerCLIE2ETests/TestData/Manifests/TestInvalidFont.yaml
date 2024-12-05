@@ -1,0 +1,14 @@
+PackageIdentifier: AppInstallerTest.TestInvalidFont
+PackageVersion: 1.0.0.0
+PackageName: TestInvalidFont
+PackageLocale: en-US
+Publisher: AppInstallerTest
+License: Test
+ShortDescription: E2E test for installing an invalid font.
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInsatller/AppInstallerTestExeInstaller.exe
+    InstallerType: font
+    InstallerSha256: <EXEHASH>
+ManifestType: singleton
+ManifestVersion: 1.10.0

@@ -345,13 +345,71 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
+        /// Gets the fonts directory based on scope.
+        /// </summary>
+        /// <param name="scope">Scope.</param>
+        /// <returns>The path of the fonts directory.</returns>
+        public static string GetFontsDirectory(Scope scope)
+        {
+            if (scope == Scope.Machine)
+            {
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Fonts");
+            }
+            else
+            {
+                return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "Windows", "Fonts");
+            }
+        }
+
+        /// <summary>
+        /// Verify font package.
+        /// </summary>
+        /// <param name="fontSubKeyName">Name of the font registry subkey entry.</param>
+        /// <param name="fontFileName">Filename of the installed font file.</param>
+        /// <param name="scope">Scope.</param>
+        /// <param name="shouldExist">Should exist.</param>
+        public static void VerifyFontPackage(
+            string fontSubKeyName,
+            string fontFileName,
+            Scope scope = Scope.User,
+            bool shouldExist = true)
+        {
+            // TODO: Update this function to be able to handle the font uninstall scenario.
+            string expectedFontInstallPath = Path.Combine(GetFontsDirectory(scope), fontFileName);
+            bool fontFileExists = File.Exists(expectedFontInstallPath);
+
+            bool fontEntryExists;
+            RegistryKey baseKey = scope == Scope.Machine ? Registry.LocalMachine : Registry.CurrentUser;
+            using (RegistryKey fontsRegistryKey = baseKey.OpenSubKey(Constants.FontsSubKey, true))
+            {
+                RegistryKey fontEntry = fontsRegistryKey.OpenSubKey(fontSubKeyName, true);
+                fontEntryExists = fontEntry != null;
+            }
+
+            if (shouldExist)
+            {
+                // TODO: Replace with font uninstall when implemented.
+                File.Delete(expectedFontInstallPath);
+
+                using (RegistryKey fontsRegistryKey = baseKey.OpenSubKey(Constants.FontsSubKey, true))
+                {
+                    fontsRegistryKey.DeleteSubKey(fontSubKeyName);
+                    RegistryKey fontEntry = fontsRegistryKey.OpenSubKey(fontSubKeyName, true);
+                }
+            }
+
+            Assert.AreEqual(shouldExist, fontFileExists, $"Expected font path: {expectedFontInstallPath}");
+            Assert.AreEqual(shouldExist, fontEntryExists, $"Expected {fontSubKeyName} subkey in registry path: {Constants.FontsSubKey}");
+        }
+
+        /// <summary>
         /// Verify portable package.
         /// </summary>
         /// <param name="installDir">Install dir.</param>
         /// <param name="commandAlias">Command alias.</param>
         /// <param name="filename">File name.</param>
         /// <param name="productCode">Product code.</param>
-        /// <param name="shouldExist">Should exists.</param>
+        /// <param name="shouldExist">Should exist.</param>
         /// <param name="scope">Scope.</param>
         /// <param name="installDirectoryAddedToPath">Install directory added to path instead of the symlink directory.</param>
         public static void VerifyPortablePackage(

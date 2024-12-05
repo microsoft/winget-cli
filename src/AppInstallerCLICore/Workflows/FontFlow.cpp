@@ -126,34 +126,50 @@ namespace AppInstaller::CLI::Workflow
 
     void FontInstallImpl(Execution::Context& context)
     {
-        Manifest::ScopeEnum scope = AppInstaller::Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-        FontInstaller fontInstaller = FontInstaller(scope);
-        std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
-        std::map<std::wstring, std::filesystem::path> fontFileMap{};
-
         try
         {
-            context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+            const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
+            std::vector<std::filesystem::path> filePaths;
 
-            // InstallerPath will point to a directory if it is extracted from an archive.
+            // InstallerPath will point to a directory if extracted from an archive.
             if (std::filesystem::is_directory(installerPath))
             {
                 const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles = context.Get<Execution::Data::Installer>()->NestedInstallerFiles;
-
                 for (const auto& nestedInstallerFile : nestedInstallerFiles)
-                { 
-                    const std::filesystem::path& fontFilePath = installerPath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
-                    auto fontFileEntryName = AppInstaller::Fonts::GetFontFileTitle(fontFilePath);
-                    fontFileMap.emplace(fontFileEntryName, fontFilePath);
+                {
+                    filePaths.emplace_back(installerPath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath));
                 }
             }
             else
             {
-                auto fontName = AppInstaller::Fonts::GetFontFileTitle(installerPath);
-                fontFileMap.emplace(fontName, installerPath);
+                filePaths.emplace_back(installerPath);
             }
 
-            fontInstaller.Install(fontFileMap);
+            std::vector<FontFile> fontFiles;
+            Fonts::FontCatalog fontCatalog;
+
+            for (const auto& file : filePaths)
+            {
+                DWRITE_FONT_FILE_TYPE fileType;
+                if (!fontCatalog.IsFontFileSupported(file, fileType))
+                {
+                    AICLI_LOG(CLI, Warning, << "Font file is not supported: " << file);
+                    context.Reporter.Error() << Resource::String::FontFileNotSupported << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Warning, << "Font file is supported: " << file);
+                    fontFiles.emplace_back(FontFile(file, fileType));
+                }
+            }
+
+            context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+
+            Manifest::ScopeEnum scope = AppInstaller::Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            FontInstaller fontInstaller = FontInstaller(scope);
+
+            fontInstaller.Install(fontFiles);
             context.Add<Execution::Data::OperationReturnCode>(ERROR_SUCCESS);
         }
         catch (...)

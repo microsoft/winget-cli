@@ -21,6 +21,7 @@ namespace AppInstaller::CLI
     {
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
             std::make_unique<FontListCommand>(FullName()),
+            std::make_unique<FontInstallCommand>(FullName()),
         });
     }
 
@@ -49,7 +50,6 @@ namespace AppInstaller::CLI
         return {
             Argument::ForType(Args::Type::Manifest),
             Argument{ Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
-            Argument::ForType(Args::Type::Force),
         };
     }
 

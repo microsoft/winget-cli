@@ -1041,5 +1041,8 @@
     <CopyFileToFolders Include="TestData\ContainsEscapeControlCode.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestFont.ttf">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
