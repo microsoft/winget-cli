@@ -8,14 +8,9 @@ namespace AppInstaller::Experiment
     bool IsEnabled(const std::string& key)
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
-        if (key == "TestExperimentEnabledByDefault")
+        if (key == "TestExperiment")
         {
             return true;
-        }
-
-        if (key == "TestExperimentDisabledByDefault")
-        {
-            return false;
         }
 #endif
         return false;

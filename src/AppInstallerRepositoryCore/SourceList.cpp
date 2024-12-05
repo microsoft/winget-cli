@@ -212,7 +212,7 @@ namespace AppInstaller::Repository
 
         std::string_view GetWingetCommunitySource()
         {
-            if (Settings::Experiment::IsEnabled(Settings::Experiment::Key::CDN))
+            if (Settings::Experiment::GetState(Settings::Experiment::Key::CDN).IsEnabled())
             {
                 return s_Source_WingetCommunityExperimental_Arg;
             }
