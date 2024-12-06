@@ -180,6 +180,7 @@ FOF
 foldc
 foldcase
 FOLDERID
+FONTHASH
 FORPARSING
 foundfr
 fsanitize
