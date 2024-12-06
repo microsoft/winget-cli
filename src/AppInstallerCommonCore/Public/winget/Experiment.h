@@ -20,6 +20,7 @@ namespace AppInstaller::Settings
         ExperimentState(bool isEnabled, ExperimentToggleSource toggleSource) : m_isEnabled(isEnabled), m_toggleSource(toggleSource) {}
         bool IsEnabled() const { return m_isEnabled; }
         ExperimentToggleSource ToggleSource() const { return m_toggleSource; }
+        std::wstring ToJson() const;
     private:
         ExperimentToggleSource m_toggleSource;
         bool m_isEnabled;
@@ -44,6 +45,7 @@ namespace AppInstaller::Settings
             m_name(name), m_jsonName(jsonName), m_link(link), m_key(key) {}
 
         static ExperimentState GetState(Key feature);
+        static ExperimentState GetStateInternal(Key feature);
         static Experiment GetExperiment(Key key);
         static std::vector<Experiment> GetAllExperiments();
 
@@ -57,7 +59,5 @@ namespace AppInstaller::Settings
         Utility::LocIndView m_jsonName;
         std::string_view m_link;
         std::string m_key;
-        static std::map<Key, ExperimentState> m_experimentStateCache;
-        static std::mutex m_mutex;
     };
 }

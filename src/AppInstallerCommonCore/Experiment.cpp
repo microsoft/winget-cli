@@ -5,6 +5,7 @@
 #include "winget/Experiment.h"
 #include "winget/UserSettings.h"
 #include "Experiment/Experiment.h"
+#include "AppInstallerTelemetry.h"
 
 namespace AppInstaller::Settings
 {
@@ -45,24 +46,22 @@ namespace AppInstaller::Settings
         }
     }
 
-    // Define static members
-    std::map<Experiment::Key, ExperimentState> Experiment::m_experimentStateCache;
-    std::mutex Experiment::m_mutex;
+    std::wstring ExperimentState::ToJson() const
+    {
+        std::wstringstream ss;
+        ss << L"{\"IsEnabled\":" << (m_isEnabled ? L"true" : L"false")
+            << L",\"ToggleSource\":" << m_toggleSource << L"}";
+        return ss.str();
+    }
+
+    ExperimentState Experiment::GetStateInternal(Key key)
+    {
+        return GetExperimentStateInternal(key, User());
+    }
 
     ExperimentState Experiment::GetState(Key key)
     {
-        std::lock_guard lock(m_mutex);
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        m_experimentStateCache.clear();
-#endif
-
-        if (m_experimentStateCache.find(key) == m_experimentStateCache.end())
-        {
-            m_experimentStateCache[key] = GetExperimentStateInternal(key, User());
-        }
-
-        return m_experimentStateCache[key];
+        return Logging::Telemetry().GetExperimentState(key);
     }
 
     Experiment Experiment::GetExperiment(Key key)

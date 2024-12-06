@@ -3,6 +3,7 @@
 #pragma once
 #include <AppInstallerLanguageUtilities.h>
 #include <wil/result_macros.h>
+#include <winget/Experiment.h>
 
 #include <string_view>
 #include <vector>
@@ -129,7 +130,8 @@ namespace AppInstaller::Logging
         std::string DOUrl;
         HRESULT DOHResult = S_OK;
 
-        // TODO Add experiments telemetry
+        // LogExperiment
+        std::map<Settings::Experiment::Key, Settings::ExperimentState> Experiments;
     };
 
     // This type contains the registration lifetime of the telemetry trace logging provider.
@@ -268,6 +270,8 @@ namespace AppInstaller::Logging
             std::string_view arpLanguage) const noexcept;
 
         void LogNonFatalDOError(std::string_view url, HRESULT hr) const noexcept;
+
+        Settings::ExperimentState GetExperimentState(Settings::Experiment::Key key);
 
     protected:
         bool IsTelemetryEnabled() const noexcept;
