@@ -913,7 +913,7 @@ namespace AppInstaller::MSStore
                 sfsClientRequest.productRequests = { {std::string{ wuCategoryId }, {}} };
                 if (AppInstaller::Settings::Network().GetProxyUri())
                 {
-                    std::string proxyUri = AppInstaller::Settings::Network().GetProxyUri().value();
+                    const auto& proxyUri = AppInstaller::Settings::Network().GetProxyUri().value();
 
                     sfsClientRequest.proxy = proxyUri;
                     AICLI_LOG(Core, Info, << "Passing proxy to SFS client " << proxyUri);
