@@ -17,10 +17,23 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// One time set up.
         /// </summary>
-        [SetUp]
+        [OneTimeSetUp]
         public void OneTimeSetup()
         {
             WinGetSettingsHelper.ConfigureFeature("fonts", true);
+
+            // TODO: Remove once font manifests can be installed from a source.
+            TestCommon.RunAICLICommand("settings", "--enable LocalManifestFiles");
+        }
+
+        /// <summary>
+        /// One time tear down.
+        /// </summary>
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            // TODO: Remove once font manifests can be installed from a source.
+            TestCommon.RunAICLICommand("settings", "--disable LocalManifestFiles");
         }
 
         /// <summary>
