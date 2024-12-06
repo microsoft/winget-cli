@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #include "../mock/MockWebServer.h"
+#include "../mock/ProxyServer.h"
 #include "../util/TestHelper.h"
 #include "TestOverride.h"
 #include "sfsclient/SFSClient.h"
@@ -112,6 +113,19 @@ TEST("Testing SFSClient::GetLatestDownloadInfo()")
             CheckMockContent(contents[0], c_version);
         }
 
+        SECTION("No attributes + proxy")
+        {
+            test::ProxyServer proxy;
+
+            params.productRequests = {{c_productName, {}}};
+            params.proxy = proxy.GetBaseUrl();
+            REQUIRE(sfsClient->GetLatestDownloadInfo(params, contents) == Result::Success);
+            REQUIRE(contents.size() == 1);
+            CheckMockContent(contents[0], c_version);
+
+            REQUIRE(proxy.Stop() == Result::Success);
+        }
+
         SECTION("With attributes")
         {
             const TargetingAttributes attributes{{"attr1", "value"}};
@@ -143,6 +157,8 @@ TEST("Testing SFSClient::GetLatestDownloadInfo()")
             CheckMockContent(contents[0], c_nextVersion);
         }
     }
+
+    REQUIRE(server.Stop() == Result::Success);
 }
 
 TEST("Testing SFSClient::GetLatestAppDownloadInfo()")
@@ -240,10 +256,13 @@ TEST("Testing SFSClient::GetLatestAppDownloadInfo()")
         params.productRequests = {{c_productName, {}}};
         auto result = sfsClient->GetLatestAppDownloadInfo(params, contents);
         REQUIRE(result.GetCode() == Result::ServiceUnexpectedContentType);
-        REQUIRE(result.GetMsg() ==
-                "Unexpected content type [Generic] returned by the service does not match the expected [App]");
+        REQUIRE(
+            result.GetMsg() ==
+            R"(The service returned entity "testProduct" with content type [Generic] while the expected type was [App])");
         REQUIRE(contents.empty());
     }
+
+    REQUIRE(server.Stop() == Result::Success);
 }
 
 TEST("Testing SFSClient retry behavior")
@@ -437,4 +456,6 @@ TEST("Testing SFSClient retry behavior")
             }
         }
     }
+
+    REQUIRE(server.Stop() == Result::Success);
 }

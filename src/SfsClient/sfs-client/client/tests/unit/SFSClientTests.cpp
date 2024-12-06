@@ -261,6 +261,44 @@ void TestProductInRequestParams(const std::function<Result(const RequestParams&)
         REQUIRE(result.GetMsg().find("baseCV is not a valid correlation vector:") == 0);
         checkContents();
     }
+
+    SECTION("Fails if proxy is setup incorrectly")
+    {
+        params.productRequests = {{"p1", {}}};
+        params.proxy = "bad://";
+        auto result = apiCall(params);
+        REQUIRE(result.GetCode() == Result::ConnectionUnexpectedError);
+        REQUIRE(result.GetMsg() == "Unsupported proxy syntax in 'bad://': No host part in the URL");
+        checkContents();
+
+        params.proxy = "bad://bad.com";
+        result = apiCall(params);
+        REQUIRE(result.GetCode() == Result::ConnectionUnexpectedError);
+        REQUIRE(result.GetMsg() == "Unsupported proxy scheme for 'bad://bad.com'");
+        checkContents();
+
+        params.proxy = ":";
+        result = apiCall(params);
+        REQUIRE(result.GetCode() == Result::ConnectionUnexpectedError);
+        REQUIRE(result.GetMsg() ==
+                "Unsupported proxy syntax in ':': Port number was not a decimal number between 0 and 65535");
+        checkContents();
+
+        params.proxy = "http://bad:bad";
+        result = apiCall(params);
+        REQUIRE(result.GetCode() == Result::ConnectionUnexpectedError);
+        REQUIRE(
+            result.GetMsg() ==
+            "Unsupported proxy syntax in 'http://bad:bad': Port number was not a decimal number between 0 and 65535");
+        checkContents();
+
+        params.proxy = "bad:bad";
+        result = apiCall(params);
+        REQUIRE(result.GetCode() == Result::ConnectionUnexpectedError);
+        REQUIRE(result.GetMsg() ==
+                "Unsupported proxy syntax in 'bad:bad': Port number was not a decimal number between 0 and 65535");
+        checkContents();
+    }
 }
 } // namespace
 

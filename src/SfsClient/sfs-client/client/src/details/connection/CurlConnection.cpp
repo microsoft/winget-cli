@@ -284,6 +284,11 @@ CurlConnection::CurlConnection(const ConnectionConfig& config, const ReportingHa
                           m_handler,
                           "Failed to set up curl");
 
+    if (config.proxy)
+    {
+        THROW_IF_CURL_SETUP_ERROR(curl_easy_setopt(m_handle, CURLOPT_PROXY, config.proxy->c_str()));
+    }
+
     // TODO #41: Pass AAD token in the header if it is available
     // TODO #42: Cert pinning with service
 }

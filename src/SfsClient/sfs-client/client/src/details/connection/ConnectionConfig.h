@@ -22,6 +22,9 @@ struct ConnectionConfig
 
     /// @brief The correlation vector to use for requests
     std::optional<std::string> baseCV;
+
+    /// @brief Proxy setting which can be used to establish connections with the server
+    std::optional<std::string> proxy;
 };
 } // namespace details
 } // namespace SFS

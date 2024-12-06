@@ -12,9 +12,6 @@ Use this on Windows platforms in a PowerShell session.
 .EXAMPLE
 PS> .\scripts\Setup.ps1
 #>
-param (
-    [switch] $NoBuildTools
-)
 
 $ErrorActionPreference = "Stop"
 
@@ -71,19 +68,33 @@ function Install-CMake {
 }
 
 function Install-CppBuildTools {
-    if ($NoBuildTools) {
-        Write-Host -ForegroundColor Yellow "`nSkipping C++ Build Tools installation"
-        return
+    Write-Host -ForegroundColor Cyan "`nInstalling C++ Builds tools if they are not installed"
+
+    # Instaling vswhere, which will be used to query for the required build tools
+    try {
+        vswhere -? 2>&1 | Out-Null
+    }
+    catch {
+        winget install vswhere
+        if (!$?) {
+            Write-Host -ForegroundColor Red "Failed to install vswhere"
+            exit 1
+        }
     }
 
-    Write-Host -ForegroundColor Cyan "`nInstalling C++ Build Tools"
-
     # - Microsoft.VisualStudio.Workload.VCTools is the C++ workload in the Visual Studio Build Tools
-    # --wait makes the install synchronous
-    winget install Microsoft.VisualStudio.2022.BuildTools --silent --override "--wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project"
-    if (!$?) {
-        Write-Host -ForegroundColor Red "Failed to install build tools"
-        exit 1
+    # - Microsoft.VisualStudio.Workload.NativeDesktop is the C++ workload that comes pre-installed in the github runner image
+    $ExistingBuildTools = vswhere -products * -requires Microsoft.VisualStudio.Workload.VCTools Microsoft.VisualStudio.Workload.NativeDesktop -requiresAny -format json | ConvertFrom-Json
+    if ($null -eq $ExistingBuildTools)
+    {
+        Write-Host "`nTools not found, installing..."
+
+        # --wait makes the install synchronous
+        winget install Microsoft.VisualStudio.2022.BuildTools --silent --override "--wait --quiet --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project"
+        if (!$?) {
+            Write-Host -ForegroundColor Red "Failed to install build tools"
+            exit 1
+        }
     }
 }
 
@@ -93,13 +104,15 @@ function Install-Vcpkg {
     if (!(Test-Path vcpkg)) {
         Write-Host "Cloning vcpkg repo"
         git clone https://github.com/microsoft/vcpkg $GitRoot\vcpkg
-        & "$GitRoot\vcpkg\bootstrap-vcpkg.bat"
     }
     else {
         Write-Host "Checking if vcpkg repo has new commits"
         $NoUpdatesString = "Already up to date."
         git -C "$GitRoot\vcpkg" pull --show-forced-updates | Select-String -Pattern $NoUpdatesString -NotMatch
     }
+
+    # Bootstrapping on every setup updates the vcpkg.exe and solves potential issues with VS Build Tools not being found
+    & "$GitRoot\vcpkg\bootstrap-vcpkg.bat"
 }
 
 function Set-GitHooks {

@@ -66,6 +66,16 @@ Architecture ArchitectureFromString(const std::string& arch, const ReportingHand
         return Architecture::None; // Unreachable code, but the compiler doesn't know that.
     }
 }
+
+void ValidateContentType(const FileEntity& entity, ContentType expectedType, const ReportingHandler& handler)
+{
+    THROW_CODE_IF_LOG(Result::ServiceUnexpectedContentType,
+                      entity.GetContentType() != expectedType,
+                      handler,
+                      "The service returned file \"" + entity.fileId + "\" with content type [" +
+                          ToString(entity.GetContentType()) + "] while the expected type was [" +
+                          ToString(expectedType) + "]");
+}
 } // namespace
 
 std::unique_ptr<FileEntity> FileEntity::FromJson(const nlohmann::json& file, const ReportingHandler& handler)
@@ -204,7 +214,7 @@ ContentType GenericFileEntity::GetContentType() const
 
 std::unique_ptr<File> GenericFileEntity::ToFile(FileEntity&& entity, const ReportingHandler& handler)
 {
-    ValidateContentType(entity.GetContentType(), ContentType::Generic, handler);
+    ValidateContentType(entity, ContentType::Generic, handler);
 
     std::unordered_map<HashType, std::string> hashes;
     for (auto& [hashType, hashValue] : entity.hashes)
@@ -237,7 +247,7 @@ ContentType AppFileEntity::GetContentType() const
 
 std::unique_ptr<AppFile> AppFileEntity::ToAppFile(FileEntity&& entity, const ReportingHandler& handler)
 {
-    ValidateContentType(entity.GetContentType(), ContentType::App, handler);
+    ValidateContentType(entity, ContentType::App, handler);
 
     auto appEntity = dynamic_cast<AppFileEntity&&>(entity);
 

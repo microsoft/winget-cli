@@ -35,6 +35,11 @@ struct RequestParams
     /// @note If not provided, a new CorrelationVector will be generated
     std::optional<std::string> baseCV;
 
+    /// @brief Proxy setting which can be used to establish connections with the server (optional)
+    /// @note The string can be a hostname or dotted numerical IP address. It can be suffixed with the port number
+    /// like :[port], and can be prefixed with [scheme]://. If not provided, no proxy will be used.
+    std::optional<std::string> proxy;
+
     /// @brief Retry for a web request after a failed attempt. If true, client will retry up to c_maxRetries times
     bool retryOnError{true};
 };

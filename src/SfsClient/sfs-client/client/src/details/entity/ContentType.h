@@ -3,15 +3,15 @@
 
 #pragma once
 
+#include <string>
+
 namespace SFS::details
 {
-class ReportingHandler;
-
 enum class ContentType
 {
     Generic,
     App,
 };
 
-void ValidateContentType(ContentType currentType, ContentType expectedType, const ReportingHandler& handler);
+std::string ToString(ContentType type);
 } // namespace SFS::details

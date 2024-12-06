@@ -22,12 +22,15 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
+      - name: Initialize CodeQL
+        uses: ./.github/workflows/initialize-codeql
+
       - name: Install Winget
         uses: ./.github/workflows/install-winget
 
       - name: Setup
         shell: pwsh
-        run: .\scripts\Setup.ps1 -NoBuildTools
+        run: .\scripts\Setup.ps1
 
       - name: Check formatting
         shell: pwsh
@@ -45,6 +48,9 @@ jobs:
           .\scripts\Build.ps1 -EnableTestOverrides
           .\scripts\Test.ps1 -OutputOnFailure
 
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
   build-ubuntu:
     runs-on: ubuntu-latest
 
@@ -57,6 +63,9 @@ jobs:
           script: |
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - name: Initialize CodeQL
+        uses: ./.github/workflows/initialize-codeql
 
       - name: Setup
         run: source ./scripts/setup.sh
@@ -73,3 +82,6 @@ jobs:
         run: |
           ./scripts/build.sh --enable-test-overrides
           ./scripts/test.sh --output-on-failure
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
