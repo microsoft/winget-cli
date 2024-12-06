@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Configuration
 {
-    [contractversion(2)]
+    [contractversion(3)]
     apicontract Contract{};
 
     // The current state of a configuration set.
@@ -72,6 +72,32 @@ namespace Microsoft.Management.Configuration
         // The configuration unit was not run due to a precondition not being met.
         // For example, if a dependency fails to be applied, this will be set.
         Precondition,
+    };
+
+    // A security context; typically used to define the context in which a configuration unit should be processed.
+    [contract(Microsoft.Management.Configuration.Contract, 3)]
+    enum SecurityContext
+    {
+        // The default value; indicates that the configuration unit should be processed at the caller's current level.
+        Current,
+        // A standard user without administrator privileges.
+        Restricted,
+        // A user with administrator privileges.
+        Elevated,
+    };
+
+    // Information about the environment in which a configuration is processed.
+    [contract(Microsoft.Management.Configuration.Contract, 3)]
+    runtimeclass ConfigurationEnvironment
+    {
+        // The security context in which a configuration is processed.
+        SecurityContext Context;
+
+        // A string that identifies the processor that should be used for the configuration.
+        String ProcessorIdentifier;
+
+        // The version of the processor that should be used for the configuration.
+        String ProcessorVersion;
     };
 
     // Information on a result for a single unit of configuration.
@@ -256,6 +282,14 @@ namespace Microsoft.Management.Configuration
             // The configuration units that are part of this unit (if IsGroup is true).
             Windows.Foundation.Collections.IVector<ConfigurationUnit> Units;
         }
+
+        [contract(Microsoft.Management.Configuration.Contract, 3)]
+        {
+            // The environment in which to process the configuration unit.
+            // This defines the initial processing environment state used by the configuration system,
+            // and may be overridden by the processor later.
+            ConfigurationEnvironment Environment{ get; };
+        }
     }
 
     // The change event type that has occurred for a configuration set change.
@@ -392,6 +426,12 @@ namespace Microsoft.Management.Configuration
             // Will be set to the schema version when read in, and default to the latest if created manually.
             // Setting SchemaUri to a different value will change SchemaVersion.
             Windows.Foundation.Uri SchemaUri;
+        }
+
+        [contract(Microsoft.Management.Configuration.Contract, 3)]
+        {
+            // Gets the union of environments as defined by all of the units within the set.
+            Windows.Foundation.Collections.IVector<ConfigurationEnvironment> GetUnitEnvironments();
         }
     }
 
@@ -996,6 +1036,37 @@ namespace Microsoft.Management.Configuration
 
             // The custom location. Only applicable for Scope.Custom
             String CustomLocation;
+        };
+
+        // Forward declaration
+        [contract(Microsoft.Management.Configuration.Contract, 3)]
+        interface IMixedEnvironmentUnconfiguredEnvironmentHandler;
+
+        // The interface for Microsoft.Management.Configuration.MixedEnvironmentConfigurationSetProcessorFactory
+        [contract(Microsoft.Management.Configuration.Contract, 3)]
+        interface IMixedEnvironmentConfigurationSetProcessorFactory
+        {
+            // Set the factory to use for the given environment.
+            // Passing in a null factory will remove any existing association.
+            void SetFactoryForEnvironment(Microsoft.Management.Configuration.ConfigurationEnvironment environment, Microsoft.Management.Configuration.IConfigurationSetProcessorFactory factory);
+
+            // Get the factory configured for the given environment.
+            Microsoft.Management.Configuration.IConfigurationSetProcessorFactory GetFactoryForEnvironment(Microsoft.Management.Configuration.ConfigurationEnvironment environment);
+
+            // Create a set processor for the given environment.
+            Microsoft.Management.Configuration.IConfigurationSetProcessor CreateSetProcessorForEnvironment(Microsoft.Management.Configuration.ConfigurationEnvironment environment, Microsoft.Management.Configuration.ConfigurationSet configurationSet);
+
+            // Sets or gets the handler used to create a set processor when no matching environment is configured already.
+            IMixedEnvironmentUnconfiguredEnvironmentHandler UnconfiguredEnvironmentHandler;
+        };
+
+        // Allows a consumer to dynamically handle new environments.
+        [contract(Microsoft.Management.Configuration.Contract, 3)]
+        interface IMixedEnvironmentUnconfiguredEnvironmentHandler
+        {
+            // Create a set processor for the given environment.
+            // If appropriate, one can store the IConfigurationSetProcessorFactory for future use with IMixedEnvironmentConfigurationSetProcessorFactory::SetFactoryForEnvironment.
+            Microsoft.Management.Configuration.IConfigurationSetProcessor CreateSetProcessor(IMixedEnvironmentConfigurationSetProcessorFactory factory, Microsoft.Management.Configuration.ConfigurationEnvironment environment, Microsoft.Management.Configuration.ConfigurationSet configurationSet);
         };
     }
 }
