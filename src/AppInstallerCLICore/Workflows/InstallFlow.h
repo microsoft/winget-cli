@@ -49,6 +49,12 @@ namespace AppInstaller::CLI::Workflow
         // Inputs: Installer, InstallerPath, Manifest
         // Outputs: None
         void ArchiveInstall(Execution::Context& context);
+
+        // Runs the flow for installing a font package.
+        // Required Args: None
+        // Inputs: Installer, InstallerPath, Manifest
+        // Outputs: None
+        void FontInstall(Execution::Context& context);
     }
 
     // Ensures that there is an applicable installer.
