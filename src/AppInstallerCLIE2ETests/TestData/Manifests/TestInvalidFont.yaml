@@ -7,7 +7,7 @@ License: Test
 ShortDescription: E2E test for installing an invalid font.
 Installers:
   - Architecture: x64
-    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInsatller/AppInstallerTestExeInstaller.exe
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
     InstallerType: font
     InstallerSha256: <EXEHASH>
 ManifestType: singleton

@@ -33,7 +33,7 @@
     {
       "Type": "font",
       "Name": "AppInstallerTestFont/AppInstallerTestFont.ttf",
-      "Input": "%BUILD_ARTIFACTSTAGINGDIRECTORY%/AppInstallerTestFont.ttf",
+      "Input": "%BUILD_SOURCESDIRECTORY%/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestFont.ttf",
       "HashToken": "<FONTHASH>"
     }
   ],
