@@ -43,7 +43,7 @@ The options allow you to customize the import experience to meet your needs.
 | **--disable-interactivity** | Disable interactive prompts |
 
 ## JSON Schema
-The driving force behind the **import** command is the JSON file.  You can find the schema for the JSON file [here](https://aka.ms/winget-packages.schema.1.0.json).
+The driving force behind the **import** command is the JSON file.  You can see the [schema for the JSON file](https://aka.ms/winget-packages.schema.1.0.json).
 
 The JSON file includes the following hierarchy:
 | Entry      | Description |

@@ -15,10 +15,14 @@
 \b84600\b(?:.*\bday\b)
 
 # Should probably be `2006-01-02` (yyyy-mm-dd)
-\b2006-01-02\b
+# Assuming that the time is being passed to https://go.dev/src/time/format.go
+\b2006-02-01\b
 
 # Should probably be `YYYYMMDD`
 \b[Yy]{4}[Dd]{2}[Mm]{2}(?!.*[Yy]{4}[Dd]{2}[Mm]{2}).*$
+
+# Should be `a priori` or `and prior`
+(?i)(?<!posteriori)\sand priori\s
 
 # Should only be one of `a`, `an`, or `the`
 \b(?:(?:an?|the)\s+){2,}\b
@@ -32,6 +36,9 @@
 # Should be `briefcase`
 \bbrief-case\b
 
+# Should be `can, not only ..., ... also...`
+\bcan not only.*can also\b
+
 # Should be `cannot` (or `can't`)
 # See https://www.grammarly.com/blog/cannot-or-can-not/
 # > Don't use `can not` when you mean `cannot`. The only time you're likely to see `can not` written as separate words is when the word `can` happens to precede some other phrase that happens to start with `not`.
@@ -41,11 +48,26 @@
 # - if you encounter such a case, add a pattern for that case to patterns.txt.
 \b[Cc]an not\b
 
+# Do not use `(click) here` links
+# For more information, see:
+# * https://www.w3.org/QA/Tips/noClickHere
+# * https://webaim.org/techniques/hypertext/link_text
+# * https://granicus.com/blog/why-click-here-links-are-bad/
+# * https://heyoka.medium.com/dont-use-click-here-f32f445d1021
+(?:>|\[)(?:(?:click |)here|link|(?:read |)more)(?:</|\]\()(?!value>)
+
+# Should be `equals` to `is equal to`
+\bequals to\b
+
 # Should be `GitHub`
-(?<![&*.]|// |\btype )\bGithub\b(?![{)])
+(?<![&*.]|// |\b(?:from|import|type) )\bGithub\b(?![{()])
 
 # Should be `GitLab`
-(?<![&*.]|// |\btype )\bGitlab\b(?![{)])
+(?<![&*.]|// |\b(?:from|import|type) )\bGitlab\b(?![{()])
+
+# Should probably be `https://`...
+# Markdown generally doesn't assume that links are to urls
+\]\(www\.\w
 
 # Should be `JavaScript`
 \bJavascript\b
@@ -80,6 +102,15 @@
 # Should be `greater than`
 \bgreater then\b
 
+# Should be `has`
+\b[Ii]t only have\b
+
+# Should be `here-in`, `the`, `them`, `this`, `these` or reworded in some other way
+\bthe here(?:\.|,| (?!and|defined))
+
+# Should be `greater than`
+#\bhigher than\b
+
 # Should be `ID`
 #\bId\b
 
@@ -106,11 +137,23 @@
 # Should be `log in`
 \blogin to the
 
+# Should be `long-standing`
+\blong standing\b
+
+# Should probably be a person named `Nick` or the abbreviation `NIC`
+\bNic\b
+
+# Should be `not supposed`
+\bsupposed not\b
+
+# Should probably be `much more`
+\bmore much\b
+
 # Should be `perform its`
 \bperform it's\b
 
 # Should be `opt-in`
-#(?<!\sfor)\sopt in\s
+#(?<!\scan|for)(?<!\sif)\sopt in\s
 
 # Should be `less than`
 \bless then\b
@@ -122,7 +165,13 @@
 \bmute point\b
 
 # Should be `one of`
-\bon of\b
+(?<!-)\bon of\b
+
+# Should be `on the other hand`
+\b(?i)on another hand\b
+
+# Most people only have two hands. Reword.
+\b(?i)on the third hand\b
 
 # Should be `otherwise`
 \bother[- ]wise\b
@@ -163,6 +212,9 @@
 # Should be `prepopulate`
 [Pp]re[- ]populate
 
+# Should be `prerequisite`
+[Pp]re[- ]requisite
+
 # Should be `recently changed` or `recent changes`
 [Rr]ecent changed
 
@@ -172,11 +224,32 @@
 # Should be `reentrant`
 [Rr]e[- ]entrant
 
+# Should be `strong suit`
+\b(?:my|his|her|their) strong suite\b
+
 # Should be `understand`
 \bunder stand\b
 
 # Should be `URI` or `uri` unless it refers to a person named `Uri`
-#\bUri\b(?![(])
+#(?<!\.)\bUri\b(?![(])
+
+# Should be `it uses is`
+/\bis uses is\b/
+
+# Should be `uses it as`
+(?:^|\. |and )uses is as (?!an?\b|follows|livestock|[^.]+\s+as\b)
+
+# Should be `was`
+\bhas been(?= removed in v?\d)
+
+# Should be `where`
+\bwere they are\b
+
+# should be `vCenter`
+\bV[Cc]enter\b
+
+# Should be `VM`
+\bVm\b
 
 # Should be `workarounds`
 #\bwork[- ]arounds\b
@@ -187,11 +260,22 @@
 # Should be `worst`
 (?i)worse-case
 
+# Should be `you are not` or reworded
+\byour not\b
+
 # Should be `(coarse|fine)-grained`
 \b(?:coarse|fine) grained\b
 
+# Homoglyph (Cyrillic) should be `A`/`B`/`C`/`E`/`H`/`I`/`I`/`J`/`K`/`M`/`O`/`P`/`S`/`T`/`Y`
+# It's possible that your content is intentionally mixing Cyrllic and Latin scripts, but if it isn't, you definitely want to correct this.
+(?<=[A-Z]{2})[АВСЕНІӀЈКМОРЅТУ]|[АВСЕНІӀЈКМОРЅТУ](?=[A-Z]+(?:\b|[a-z]+)|[a-z]+(?:[^a-z]|$))
+
+# Homoglyph (Cyrillic) should be `a`/`b`/`e`
+# It's possible that your content is intentionally mixing Cyrllic and Latin scripts, but if it isn't, you definitely want to correct this.
+[аве](?=[A-Za-z]{2,})|(?<=[A-Za-z]{2})[аве]|(?<=[A-Za-z])[аве](?=[A-Za-z])
+
 # Should be `neither/nor` -- or reword
-#\bnot\b[^.?!"/(]+\bnor\b
+#(?!<do )\bnot\b([^.?!"/(](?!neither|,.*?,))+\bnor\b
 
 # Should be `neither/nor` (plus rewording the beginning)
 # This is probably a double negative...

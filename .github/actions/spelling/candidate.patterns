@@ -218,7 +218,7 @@ accounts\.binance\.com/[a-z/]*oauth/authorize\?[-0-9a-zA-Z&%]*
 \bmedium\.com/@?[^/\s"]+/[-\w]+
 
 # microsoft
-\b(?:https?://|)(?:(?:download\.visualstudio|docs|msdn2?|research)\.microsoft|blogs\.msdn)\.com/[-_a-zA-Z0-9()=./%]*
+\b(?:https?://|)(?:(?:(?:blogs|download\.visualstudio|docs|msdn2?|research)\.|)microsoft|blogs\.msdn)\.co(?:m|\.\w\w)/[-_a-zA-Z0-9()=./%]*
 # powerbi
 \bapp\.powerbi\.com/reportEmbed/[^"' ]*
 # vs devops
@@ -405,7 +405,7 @@ ipfs://[0-9a-zA-Z]{3,}
 # Punycode
 \bxn--[-0-9a-z]+
 # sha
-sha\d+:[0-9]*[a-f]{3,}[0-9a-f]*
+sha\d+:[0-9a-f]*?[a-f]{3,}[0-9a-f]*
 # sha-... -- uses a fancy capture
 (\\?['"]|&quot;)[0-9a-f]{40,}\g{-1}
 # hex runs
@@ -424,6 +424,9 @@ sha\d+:[0-9]*[a-f]{3,}[0-9a-f]*
 
 # pki
 -----BEGIN.*-----END
+
+# pki (base64)
+LS0tLS1CRUdJT.*
 
 # uuid:
 \b[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}\b
@@ -446,10 +449,22 @@ integrity=(['"])(?:\s*sha\d+-[-a-zA-Z=;:/0-9+]{40,})+\g{-1}
 Name\[[^\]]+\]=.*
 
 # IServiceProvider / isAThing
-(?:\b|_)(?:I|isA)(?=(?:[A-Z][a-z]{2,})+(?:[A-Z]|\b))
+(?:\b|_)(?:(?:ns|)I|isA)(?=(?:[A-Z][a-z]{2,})+(?:[A-Z\d]|\b))
 
 # crypt
 (['"])\$2[ayb]\$.{56}\g{-1}
+
+# apache/old crypt
+(['"]|)\$+(?:apr|)1\$+.{8}\$+.{22}\g{-1}
+
+# sha1 hash
+\{SHA\}[-a-zA-Z=;:/0-9+]{3,}
+
+# machine learning (?)
+#\b(?i)ml(?=[a-z]{2,})
+
+# python
+\b(?i)py(?!gments|gmy|lon|ramid|ro|th)(?=[a-z]{2,})
 
 # scrypt / argon
 \$(?:scrypt|argon\d+[di]*)\$\S+
@@ -463,8 +478,17 @@ Name\[[^\]]+\]=.*
 # scala modules
 ("[^"]+"\s*%%?\s*){2,3}"[^"]+"
 
+# container images
+image: [-\w./:@]+
+
+# Docker images
+^\s*FROM\s+\S+:\S+(?:\s+AS\s+\S+|)
+
+# `docker images` REPOSITORY TAG IMAGE ID CREATED SIZE
+\s*\S+/\S+\s+\S+\s+[0-9a-f]{8,}\s+\d+\s+(?:hour|day|week)s ago\s+[\d.]+[KMGT]B
+
 # Intel intrinsics
-_mm_\w+
+_mm_(?!dd)\w+
 
 # Input to GitHub JSON
 content: (['"])[-a-zA-Z=;:/0-9+]*=\g{-1}
@@ -473,15 +497,15 @@ content: (['"])[-a-zA-Z=;:/0-9+]*=\g{-1}
 # you'll want to remove the `(?=.*?")` suffix.
 # The `(?=.*?")` suffix should limit the false positives rate
 # printf
-#%(?:(?:(?:hh?|ll?|[jzt])?[diuoxn]|l?[cs]|L?[fega]|p)(?=[a-z]{2,})|(?:X|L?[FEGA]|p)(?=[a-zA-Z]{2,}))(?!%)(?=[_a-zA-Z]+(?!%)\b)(?=.*?['"])
+%(?:(?:(?:hh?|ll?|[jzt])?[diuoxn]|l?[cs]|L?[fega]|p)(?=[a-z]{2,})|(?:X|L?[FEGA])(?=[a-zA-Z]{2,}))(?!%)(?=[_a-zA-Z]+(?!%)\b)(?=.*?['"])
 
 # Alternative printf
 # %s
-%(?:s(?=[a-z]{2,}))(?!%)(?=[_a-zA-Z]+(?!%)\b)(?=.*?['"])
+%(?:s(?=[a-z]{2,}))(?!%)(?=[_a-zA-Z]+(?!%[^s])\b)(?=.*?['"])
 
 # Python string prefix / binary prefix
 # Note that there's a high false positive rate, remove the `?=` and search for the regex to see if the matches seem like reasonable strings
-(?<!['"])\b(?:B|BR|Br|F|FR|Fr|R|RB|RF|Rb|Rf|U|UR|Ur|b|bR|br|f|fR|fr|r|rB|rF|rb|rf|u|uR|ur)['"](?=[A-Z]{3,}|[A-Z][a-z]{2,}|[a-z]{3,})
+#(?<!['"])\b(?:B|BR|Br|F|FR|Fr|R|RB|RF|Rb|Rf|U|UR|Ur|b|bR|br|f|fR|fr|r|rB|rF|rb|rf|u|uR|ur)['"](?=[A-Z]{3,}|[A-Z][a-z]{2,}|[a-z]{3,})
 
 # Regular expressions for (P|p)assword
 \([A-Z]\|[a-z]\)[a-z]+
@@ -535,6 +559,9 @@ go install(?:\s+[a-z]+\.[-@\w/.]+)+
 # jetbrains schema https://youtrack.jetbrains.com/issue/RSRP-489571
 urn:shemas-jetbrains-com
 
+# Debian changelog severity
+[-\w]+ \(.*\) (?:\w+|baseline|unstable|experimental); urgency=(?:low|medium|high|emergency|critical)\b
+
 # kubernetes pod status lists
 # https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
 \w+(?:-\w+)+\s+\d+/\d+\s+(?:Running|Pending|Succeeded|Failed|Unknown)\s+
@@ -542,8 +569,14 @@ urn:shemas-jetbrains-com
 # kubectl - pods in CrashLoopBackOff
 \w+-[0-9a-f]+-\w+\s+\d+/\d+\s+CrashLoopBackOff\s+
 
+# kubernetes applications
+\.apps/[-\w]+
+
 # kubernetes object suffix
 -[0-9a-f]{10}-\w{5}\s
+
+# kubernetes crd patterns
+^\s*pattern: .*$
 
 # posthog secrets
 ([`'"])phc_[^"',]+\g{-1}
@@ -575,16 +608,24 @@ PrependWithABINamepsace
 (['"])[Bb]asic [-a-zA-Z=;:/0-9+]{3,}\g{-1}
 
 # base64 encoded content
-([`'"])[-a-zA-Z=;:/0-9+]{3,}=\g{-1}
+#([`'"])[-a-zA-Z=;:/0-9+]{3,}=\g{-1}
 # base64 encoded content in xml/sgml
 >[-a-zA-Z=;:/0-9+]{3,}=</
 # base64 encoded content, possibly wrapped in mime
 #(?:^|[\s=;:?])[-a-zA-Z=;:/0-9+]{50,}(?:[\s=;:?]|$)
 # base64 encoded json
 \beyJ[-a-zA-Z=;:/0-9+]+
+# base64 encoded pkcs
+\bMII[-a-zA-Z=;:/0-9+]+
+
+# DNS rr data
+(?:\d+\s+){3}(?:[-+/=.\w]{2,}\s*){1,2}
 
 # encoded-word
 =\?[-a-zA-Z0-9"*%]+\?[BQ]\?[^?]{0,75}\?=
+
+# numerator
+\bnumer\b(?=.*denom)
 
 # Time Zones
 \b(?:Africa|Atlantic|America|Antarctica|Asia|Australia|Europe|Indian|Pacific)(?:/\w+)+
@@ -605,6 +646,12 @@ systemd.*?running in system mode \([-+].*\)$
 (?:(?:\w|\s|[,.])*\b(?i)(?:amet|consectetur|cursus|dolor|eros|ipsum|lacus|libero|ligula|lorem|magna|neque|nulla|suscipit|tempus)\b(?:\w|\s|[,.])*)
 
 # Non-English
+# Even repositories expecting pure English content can unintentionally have Non-English content... People will occasionally mistakenly enter [homoglyphs](https://en.wikipedia.org/wiki/Homoglyph) which are essentially typos, and using this pattern will mean check-spelling will not complain about them.
+#
+# If the content to be checked should be written in English and the only Non-English items will be people's names, then you can consider adding this.
+#
+# Alternatively, if you're using check-spelling v0.0.25+, and you would like to _check_ the Non-English content for spelling errors, you can. For information on how to do so, see:
+# https://docs.check-spelling.dev/Feature:-Configurable-word-characters.html#unicode
 [a-zA-Z]*[ÀÁÂÃÄÅÆČÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæčçèéêëìíîïðñòóôõöøùúûüýÿĀāŁłŃńŅņŒœŚśŠšŜŝŸŽžź][a-zA-Z]{3}[a-zA-ZÀÁÂÃÄÅÆČÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæčçèéêëìíîïðñòóôõöøùúûüýÿĀāŁłŃńŅņŒœŚśŠšŜŝŸŽžź]*|[a-zA-Z]{3,}[ÀÁÂÃÄÅÆČÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæčçèéêëìíîïðñòóôõöøùúûüýÿĀāŁłŃńŅņŒœŚśŠšŜŝŸŽžź]|[ÀÁÂÃÄÅÆČÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæčçèéêëìíîïðñòóôõöøùúûüýÿĀāŁłŃńŅņŒœŚśŠšŜŝŸŽžź][a-zA-Z]{3,}
 
 # highlighted letters
@@ -613,9 +660,6 @@ systemd.*?running in system mode \([-+].*\)$
 # French
 # This corpus only had capital letters, but you probably want lowercase ones as well.
 \b[LN]'+[a-z]{2,}\b
-
-# latex (check-spelling <= 0.0.21)
-\\(?:n(?:ew|ormal|osub)|r(?:enew)|t(?:able(?:of|)|he|itle))(?=[a-z]+)
 
 # latex (check-spelling >= 0.0.22)
 \\\w{2,}\{
@@ -629,8 +673,14 @@ TeX/AMS
 # eslint
 "varsIgnorePattern": ".+"
 
+# nolint
+nolint:\w+
+
 # Windows short paths
-[/\\][^/\\]{5,6}~\d{1,2}[/\\]
+[/\\][^/\\]{5,6}~\d{1,2}(?=[/\\])
+
+# Windows Resources with accelerators
+\b[A-Z]&[a-z]+\b(?!;)
 
 # cygwin paths
 /cygdrive/[a-zA-Z]/(?:Program Files(?: \(.*?\)| ?)(?:/[-+.~\\/()\w ]+)*|[-+.~\\/()\w])+
@@ -641,11 +691,17 @@ TeX/AMS
 # alternate printf markers if you run into latex and friends
 #(?<!\\)\\[nrt](?=[a-z]{2,})(?=.*['"`])
 
+# Markdown anchor links
+\(#\S*?[a-zA-Z]\S*?\)
+
 # apache
 a2(?:en|dis)
 
 # weak e-tag
 W/"[^"]+"
+
+# authors/credits
+^\*(?: [A-Z](?:\w+|\.)){2,} (?=\[|$)
 
 # the negative lookahead here is to allow catching 'templatesz' as a misspelling
 # but to otherwise recognize a Windows path with \templates\foo.template or similar:
@@ -669,7 +725,7 @@ W/"[^"]+"
 ,-B
 
 # libraries
-\blib(?!erty|rar(?:i(?:an|es)|y))(?=[a-z])
+(?:\b|_)lib(?:re(?=office)|)(?!era[lt]|ero|erty|rar(?:i(?:an|es)|y))(?=[a-z])
 
 # WWNN/WWPN (NAA identifiers)
 \b(?:0x)?10[0-9a-f]{14}\b|\b(?:0x|3)?[25][0-9a-f]{15}\b|\b(?:0x|3)?6[0-9a-f]{31}\b

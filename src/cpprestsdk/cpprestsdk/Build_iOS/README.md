@@ -1,1 +1,1 @@
-Please consult the documentation [here](https://github.com/Microsoft/cpprestsdk/wiki/How-to-build-for-iOS) for iOS compilation.
+Please consult the [documentation for iOS compilation](https://github.com/Microsoft/cpprestsdk/wiki/How-to-build-for-iOS).
