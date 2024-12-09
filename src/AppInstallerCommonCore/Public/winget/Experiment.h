@@ -9,9 +9,9 @@ namespace AppInstaller::Settings
 {
     enum ExperimentToggleSource
     {
-        Default,
-        Policy,
-        UserSetting
+        Default = 0,
+        Policy = 1,
+        UserSetting = 2,
     };
 
     struct ExperimentState
@@ -20,7 +20,7 @@ namespace AppInstaller::Settings
         ExperimentState(bool isEnabled, ExperimentToggleSource toggleSource) : m_isEnabled(isEnabled), m_toggleSource(toggleSource) {}
         bool IsEnabled() const { return m_isEnabled; }
         ExperimentToggleSource ToggleSource() const { return m_toggleSource; }
-        std::wstring ToJson() const;
+        std::string ToJson() const;
     private:
         ExperimentToggleSource m_toggleSource;
         bool m_isEnabled;

@@ -44,14 +44,30 @@ namespace AppInstaller::Settings
                 " is set to " << isEnabled);
             return { isEnabled, ExperimentToggleSource::Default };
         }
+
+        std::string ExperimentToggleSourceToString(ExperimentToggleSource source)
+        {
+            switch (source)
+            {
+            case ExperimentToggleSource::Default:
+                return "Default";
+            case ExperimentToggleSource::Policy:
+                return "Policy";
+            case ExperimentToggleSource::UserSetting:
+                return "UserSetting";
+            default:
+                return "Unknown";
+            }
+        }
     }
 
-    std::wstring ExperimentState::ToJson() const
+    std::string ExperimentState::ToJson() const
     {
-        std::wstringstream ss;
-        ss << L"{\"IsEnabled\":" << (m_isEnabled ? L"true" : L"false")
-            << L",\"ToggleSource\":" << m_toggleSource << L"}";
-        return ss.str();
+        Json::Value root;
+        root["IsEnabled"] = m_isEnabled;
+        root["ToggleSource"] = ExperimentToggleSourceToString(m_toggleSource);
+        Json::StreamWriterBuilder builder;
+        return Json::writeString(builder, root);
     }
 
     ExperimentState Experiment::GetStateInternal(Key key)

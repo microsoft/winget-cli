@@ -12,6 +12,7 @@
 #define AICLI_TraceLoggingStringView(_sv_,_name_) TraceLoggingCountedUtf8String(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
 #define AICLI_TraceLoggingWStringView(_sv_,_name_) TraceLoggingCountedWideString(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
 #define AICLI_TraceLoggingJsonWString(_sv_, _name_) TraceLoggingPackedFieldEx(_sv_.c_str(), static_cast<ULONG>((_sv_.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, _name_)
+#define AICLI_TraceLoggingJsonString(_sv_, _name_) TraceLoggingPackedFieldEx(_sv_.c_str(), static_cast<ULONG>((_sv_.size() + 1) * sizeof(char)), TlgInUNICODESTRING, TlgOutJSON, _name_)
 
 #define AICLI_TraceLoggingWriteActivity(_eventName_,...) TraceLoggingWriteActivity(\
 g_hTraceProvider,\
@@ -80,23 +81,17 @@ namespace AppInstaller::Logging
             }
         }
 
-        std::wstring GetExperimentsJson(const std::map<Experiment::Key, ExperimentState>& experiments)
+        std::string GetExperimentsJson(const std::map<Experiment::Key, ExperimentState>& experiments)
         {
-            std::wstringstream ss;
-            ss << "{";
-            auto first = 0;
+            Json::Value root;
             for (const auto& experiment : experiments)
             {
-                if (first++ != 0)
-                {
-                    ss << L",";
-                }
-
-                ss << L"\"" << Utility::ConvertToUTF16(Experiment::GetExperiment(experiment.first).JsonName())
-                    << L"\":" << experiment.second.ToJson();
+                auto name = std::string(Experiment::GetExperiment(experiment.first).JsonName());
+                root[name] = experiment.second.ToJson();
             }
-            ss << L"}";
-            return ss.str();
+
+            Json::StreamWriterBuilder builder;
+            return Json::writeString(builder, root);
         }
     }
 
@@ -876,7 +871,7 @@ namespace AppInstaller::Logging
                     TraceLoggingUInt32(m_summary.RepairErrorCode, "RepairErrorCode"),
                     TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage | PDT_SoftwareSetupAndInventory),
                     TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES),
-                    AICLI_TraceLoggingJsonWString(experimentsJson, "ExperimentsJson"));
+                    AICLI_TraceLoggingJsonString(experimentsJson, "ExperimentsJson"));
             }
         }
     }
