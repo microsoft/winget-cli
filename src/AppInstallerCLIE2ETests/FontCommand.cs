@@ -21,19 +21,6 @@ namespace AppInstallerCLIE2ETests
         public void OneTimeSetup()
         {
             WinGetSettingsHelper.ConfigureFeature("fonts", true);
-
-            // TODO: Remove once font manifests can be installed from a source.
-            TestCommon.RunAICLICommand("settings", "--enable LocalManifestFiles");
-        }
-
-        /// <summary>
-        /// One time tear down.
-        /// </summary>
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            // TODO: Remove once font manifests can be installed from a source.
-            TestCommon.RunAICLICommand("settings", "--disable LocalManifestFiles");
         }
 
         /// <summary>
@@ -42,7 +29,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallFont()
         {
-            var result = TestCommon.RunAICLICommand("font install", $"-m {TestCommon.GetTestDataFile(@"Manifests\TestFont.yaml")}");
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestFont");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyFontPackage(Constants.TestFontSubKeyName, Constants.FontFileName);
@@ -54,7 +41,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallFont_MachineScope()
         {
-            var result = TestCommon.RunAICLICommand("font install", $"-m {TestCommon.GetTestDataFile(@"Manifests\TestFont.yaml")} --scope Machine");
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestFont --scope Machine");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyFontPackage(Constants.TestFontSubKeyName, Constants.FontFileName, TestCommon.Scope.Machine);
@@ -66,7 +53,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallInvalidFont()
         {
-            var result = TestCommon.RunAICLICommand("font install", $"-m {TestCommon.GetTestDataFile(@"Manifests\TestInvalidFont.yaml")} --scope Machine");
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestInvalidFont");
             Assert.AreEqual(Constants.ErrorCode.ERROR_FONT_FILE_NOT_SUPPORTED, result.ExitCode);
             Assert.True(result.StdOut.Contains("The font file is not supported and cannot be installed."));
         }
