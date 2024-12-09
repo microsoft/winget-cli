@@ -5,6 +5,7 @@
 
 #include "../util/TestHelper.h"
 #include "ErrorHandling.h"
+#include "ServerCommon.h"
 #include "Util.h"
 #include "connection/HttpHeader.h"
 
@@ -13,7 +14,6 @@
 #include <windows.h>
 #endif
 
-#include <httplib.h>
 #include <nlohmann/json.hpp>
 
 #include <chrono>
@@ -27,46 +27,10 @@ using namespace SFS::details;
 using namespace SFS::details::util;
 using namespace SFS::test;
 using namespace SFS::test::details;
-using namespace std::string_literals;
 using json = nlohmann::json;
-
-#define BUILD_BUFFERED_LOG_DATA(message)                                                                               \
-    BufferedLogData                                                                                                    \
-    {                                                                                                                  \
-        message, __FILE__, __LINE__, __FUNCTION__, std::chrono::system_clock::now()                                    \
-    }
-
-#define BUFFER_LOG(message) BufferLog(BUILD_BUFFERED_LOG_DATA(message))
-
-const char* c_listenHostName = "localhost";
 
 namespace
 {
-std::string ToString(httplib::StatusCode status)
-{
-    return std::to_string(status) + " " + std::string(httplib::status_message(status));
-}
-
-class StatusCodeException : public std::exception
-{
-  public:
-    StatusCodeException(httplib::StatusCode status) : m_status(status)
-    {
-    }
-
-    const char* what() const noexcept override
-    {
-        return ToString(m_status).c_str();
-    }
-
-    httplib::StatusCode GetStatusCode() const
-    {
-        return m_status;
-    }
-
-  private:
-    httplib::StatusCode m_status;
-};
 
 struct App
 {
@@ -230,20 +194,6 @@ json GeneratePostAppDownloadInfo(const std::string& name)
     return response;
 }
 
-struct BufferedLogData
-{
-    std::string message;
-    std::string file;
-    unsigned line;
-    std::string function;
-    std::chrono::time_point<std::chrono::system_clock> time;
-};
-
-LogData ToLogData(const BufferedLogData& data)
-{
-    return {LogSeverity::Info, data.message.c_str(), data.file.c_str(), data.line, data.function.c_str(), data.time};
-}
-
 void CheckApiVersion(const httplib::Request& req, std::string_view apiVersion)
 {
     if (util::AreNotEqualI(req.path_params.at("apiVersion"), apiVersion))
@@ -255,7 +205,7 @@ void CheckApiVersion(const httplib::Request& req, std::string_view apiVersion)
 
 namespace SFS::test::details
 {
-class MockWebServerImpl
+class MockWebServerImpl : public BaseServerImpl
 {
   public:
     MockWebServerImpl() = default;
@@ -264,11 +214,6 @@ class MockWebServerImpl
     MockWebServerImpl(const MockWebServerImpl&) = delete;
     MockWebServerImpl& operator=(const MockWebServerImpl&) = delete;
 
-    void Start();
-    Result Stop();
-
-    std::string GetUrl() const;
-
     void RegisterProduct(std::string&& name, std::string&& version);
     void RegisterAppProduct(std::string&& name, std::string&& version, std::vector<MockPrerequisite>&& prerequisites);
     void RegisterExpectedRequestHeader(std::string&& header, std::string&& value);
@@ -276,8 +221,8 @@ class MockWebServerImpl
     void SetResponseHeaders(std::unordered_map<HttpCode, HeaderMap> headersByCode);
 
   private:
-    void ConfigureServerSettings();
-    void ConfigureRequestHandlers();
+    void ConfigureRequestHandlers() override;
+    std::string GetLogIdentifier() override;
 
     void ConfigurePostLatestVersion();
     void ConfigurePostLatestVersionBatch();
@@ -291,16 +236,6 @@ class MockWebServerImpl
                          const std::function<void(const httplib::Request, httplib::Response&)>& callback);
     void CheckRequestHeaders(const httplib::Request& req);
 
-    void BufferLog(const BufferedLogData& data);
-    void ProcessBufferedLogs();
-
-    httplib::Server m_server;
-    int m_port{-1};
-
-    std::optional<Result> m_lastException;
-
-    std::thread m_listenerThread;
-
     using VersionList = std::set<std::string>;
     std::unordered_map<std::string, VersionList> m_products;
 
@@ -310,9 +245,6 @@ class MockWebServerImpl
     std::unordered_map<std::string, std::string> m_expectedRequestHeaders;
     std::queue<HttpCode> m_forcedHttpErrors;
     std::unordered_map<HttpCode, HeaderMap> m_headersByCode;
-
-    std::vector<BufferedLogData> m_bufferedLog;
-    std::mutex m_logMutex;
 };
 } // namespace SFS::test::details
 
@@ -369,55 +301,17 @@ void MockWebServer::SetResponseHeaders(std::unordered_map<HttpCode, HeaderMap> h
     m_impl->SetResponseHeaders(std::move(headersByCode));
 }
 
-void MockWebServerImpl::Start()
-{
-    ConfigureServerSettings();
-    ConfigureRequestHandlers();
-
-    m_port = m_server.bind_to_any_port(c_listenHostName);
-    m_listenerThread = std::thread([&]() { m_server.listen_after_bind(); });
-}
-
-void MockWebServerImpl::ConfigureServerSettings()
-{
-    m_server.set_logger([&](const httplib::Request& req, const httplib::Response& res) {
-        BUFFER_LOG("Request: " + req.method + " " + req.path + " " + req.version);
-        BUFFER_LOG("Request Body: " + req.body);
-
-        BUFFER_LOG("Response: " + res.version + " " + ::ToString(static_cast<httplib::StatusCode>(res.status)) + " " +
-                   res.reason);
-        BUFFER_LOG("Response body: " + res.body);
-    });
-
-    m_server.set_exception_handler([&](const httplib::Request&, httplib::Response& res, std::exception_ptr ep) {
-        try
-        {
-            std::rethrow_exception(ep);
-        }
-        catch (std::exception& e)
-        {
-            m_lastException = Result(Result::HttpUnexpected, e.what());
-        }
-        catch (...)
-        {
-            m_lastException = Result(Result::HttpUnexpected, "Unknown Exception");
-        }
-
-        ProcessBufferedLogs();
-
-        res.status = httplib::StatusCode::InternalServerError_500;
-    });
-
-    // Keeping this interval to a minimum ensures tests run quicker
-    m_server.set_keep_alive_timeout(1); // 1 second
-}
-
 void MockWebServerImpl::ConfigureRequestHandlers()
 {
     ConfigurePostLatestVersion();
     ConfigurePostLatestVersionBatch();
     ConfigureGetSpecificVersion();
     ConfigurePostDownloadInfo();
+}
+
+std::string MockWebServerImpl::GetLogIdentifier()
+{
+    return "MockWebServer";
 }
 
 void MockWebServerImpl::ConfigurePostLatestVersion()
@@ -762,37 +656,6 @@ void MockWebServerImpl::CheckRequestHeaders(const httplib::Request& req)
             throw std::runtime_error(errorMessage->c_str());
         }
     }
-}
-
-void MockWebServerImpl::BufferLog(const BufferedLogData& data)
-{
-    std::lock_guard guard(m_logMutex);
-    m_bufferedLog.push_back(data);
-}
-
-void MockWebServerImpl::ProcessBufferedLogs()
-{
-    for (const auto& data : m_bufferedLog)
-    {
-        LogCallbackToTest(ToLogData(data));
-    }
-    m_bufferedLog.clear();
-}
-
-Result MockWebServerImpl::Stop()
-{
-    if (m_listenerThread.joinable())
-    {
-        m_server.stop();
-        m_listenerThread.join();
-    }
-    ProcessBufferedLogs();
-    return m_lastException.value_or(Result::Success);
-}
-
-std::string MockWebServerImpl::GetUrl() const
-{
-    return "http://"s + c_listenHostName + ":"s + std::to_string(m_port);
 }
 
 void MockWebServerImpl::RegisterProduct(std::string&& name, std::string&& version)

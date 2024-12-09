@@ -11,5 +11,6 @@ using namespace SFS::details;
 ConnectionConfig::ConnectionConfig(const SFS::RequestParams& requestParams)
     : maxRetries(requestParams.retryOnError ? c_maxRetries : 0)
     , baseCV(requestParams.baseCV)
+    , proxy(requestParams.proxy)
 {
 }

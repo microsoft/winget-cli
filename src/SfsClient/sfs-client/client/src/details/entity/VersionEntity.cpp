@@ -16,6 +16,19 @@ using namespace SFS;
 using namespace SFS::details;
 using json = nlohmann::json;
 
+namespace
+{
+void ValidateContentType(const VersionEntity& entity, ContentType expectedType, const ReportingHandler& handler)
+{
+    THROW_CODE_IF_LOG(Result::ServiceUnexpectedContentType,
+                      entity.GetContentType() != expectedType,
+                      handler,
+                      "The service returned entity \"" + entity.contentId.name + "\" with content type [" +
+                          ToString(entity.GetContentType()) + "] while the expected type was [" +
+                          ToString(expectedType) + "]");
+}
+} // namespace
+
 std::unique_ptr<VersionEntity> VersionEntity::FromJson(const nlohmann::json& data, const ReportingHandler& handler)
 {
     // Expected format for a generic version entity:
@@ -135,6 +148,6 @@ ContentType AppVersionEntity::GetContentType() const
 AppVersionEntity* AppVersionEntity::GetAppVersionEntityPtr(std::unique_ptr<VersionEntity>& versionEntity,
                                                            const ReportingHandler& handler)
 {
-    ValidateContentType(versionEntity->GetContentType(), ContentType::App, handler);
+    ValidateContentType(*versionEntity, ContentType::App, handler);
     return dynamic_cast<AppVersionEntity*>(versionEntity.get());
 }
