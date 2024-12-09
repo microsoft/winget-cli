@@ -1040,7 +1040,7 @@ namespace Microsoft.Management.Configuration
 
         // Forward declaration
         [contract(Microsoft.Management.Configuration.Contract, 3)]
-        interface IMixedEnvironmentUnconfiguredEnvironmentHandler;
+        interface IMixedEnvironmentNotConfiguredHandler;
 
         // The interface for Microsoft.Management.Configuration.MixedEnvironmentConfigurationSetProcessorFactory
         [contract(Microsoft.Management.Configuration.Contract, 3)]
@@ -1056,13 +1056,13 @@ namespace Microsoft.Management.Configuration
             // Create a set processor for the given environment.
             Microsoft.Management.Configuration.IConfigurationSetProcessor CreateSetProcessorForEnvironment(Microsoft.Management.Configuration.ConfigurationEnvironment environment, Microsoft.Management.Configuration.ConfigurationSet configurationSet);
 
-            // Sets or gets the handler used to create a set processor when no matching environment is configured already.
-            IMixedEnvironmentUnconfiguredEnvironmentHandler UnconfiguredEnvironmentHandler;
+            // Sets or gets the handler used to create a set processor when no matching environment is configured.
+            IMixedEnvironmentNotConfiguredHandler EnvironmentNotConfiguredHandler;
         };
 
         // Allows a consumer to dynamically handle new environments.
         [contract(Microsoft.Management.Configuration.Contract, 3)]
-        interface IMixedEnvironmentUnconfiguredEnvironmentHandler
+        interface IMixedEnvironmentNotConfiguredHandler
         {
             // Create a set processor for the given environment.
             // If appropriate, one can store the IConfigurationSetProcessorFactory for future use with IMixedEnvironmentConfigurationSetProcessorFactory::SetFactoryForEnvironment.
