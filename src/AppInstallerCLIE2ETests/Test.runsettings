@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <RunSettings>
   <!-- 
@@ -18,6 +18,7 @@
     MsiTestInstallerPath: The Msi Installer executable under test.
     MsixTestInstallerPath: The MSIX (or APPX) Installer executable under test.
     ExeTestInstallerPath: The Exe Installer executable under test.
+    FontTestFilePath: The Font package under test.
     PackageCertificatePath: Signing Certificate Path used to certify Index Source Package.
     PowerShellModulePath: Path to the PowerShell module manifest file under test.
     LocalServerCertPathParameter: The cert used for the local server.
@@ -34,6 +35,7 @@
     <Parameter name="MsiTestInstallerPath" value="MsiTestInstaller.msi" />
     <Parameter name="MsixTestInstallerPath" value="MsixTestInstaller.msix" />
     <Parameter name="ExeTestInstallerPath" value="ExeTestInstaller.exe" />
+    <Parameter name="FontTestFilePath" value="TestFont.ttf" />
     <Parameter name="PackageCertificatePath" value="certificate.pfx"/>
     <Parameter name="PowerShellModulePath" value="TestPowerShellModule.psd1" />
     <Parameter name="LocalServerCertPathParameter" value="servercert.cer" />

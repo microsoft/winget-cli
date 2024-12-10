@@ -180,6 +180,7 @@ FOF
 foldc
 foldcase
 FOLDERID
+FONTHASH
 FORPARSING
 foundfr
 fsanitize
@@ -427,6 +428,7 @@ pid
 pidl
 pidlist
 PKCS
+PKEY
 pkgmgr
 pkindex
 pkix
@@ -440,7 +442,10 @@ PRIMARYKEY
 processthreads
 productcode
 PRODUCTICON
+propkey
+PROPVARIANT
 proxystub
+pwsz
 pscustomobject
 pseudocode
 PSHOST
