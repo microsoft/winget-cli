@@ -67,6 +67,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Foundation::Uri SchemaUri();
         void SchemaUri(const Windows::Foundation::Uri& value);
 
+        Windows::Foundation::Collections::IVector<IConfigurationEnvironmentView> GetUnitEnvironments();
+
         HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)

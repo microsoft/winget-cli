@@ -6,9 +6,101 @@
 #include "ConfigurationSetParser.h"
 #include "ConfigurationSetSerializer.h"
 #include "Database/ConfigurationDatabase.h"
+#include <AppInstallerLanguageUtilities.h>
+#include <winget/Security.h>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    namespace impl
+    {
+        bool AreEqual(const Windows::Foundation::Collections::IMap<hstring, hstring>& a, const Windows::Foundation::Collections::IMap<hstring, hstring>& b)
+        {
+            uint32_t a_size = a.Size();
+            uint32_t b_size = b.Size();
+
+            if (a_size == 0 && b_size == 0)
+            {
+                return true;
+            }
+            else if (a_size != b_size)
+            {
+                return false;
+            }
+
+            for (const auto& entry : a)
+            {
+                hstring key = entry.Key();
+                if (!b.HasKey(key) || entry.Value() != b.Lookup(key))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        struct EnvironmentData
+        {
+            EnvironmentData(Configuration::ConfigurationEnvironment environment, SecurityContext current) :
+                Environment(environment), Context(environment.Context()), Identifier(environment.ProcessorIdentifier()), Properties(environment.ProcessorProperties())
+            {
+                // Map the current context to be Current so that 
+                if (Context == current)
+                {
+                    Context = SecurityContext::Current;
+                }
+            }
+
+            EnvironmentData(EnvironmentData&&) = default;
+
+            bool operator==(const EnvironmentData& other) const
+            {
+                return
+                    Context == other.Context &&
+                    Identifier == other.Identifier &&
+                    AreEqual(Properties, other.Properties);
+            }
+
+            Configuration::ConfigurationEnvironment Environment;
+            SecurityContext Context;
+            hstring Identifier;
+            Windows::Foundation::Collections::IMap<hstring, hstring> Properties;
+        };
+
+        bool ContainsEnvironment(const std::vector<EnvironmentData>& uniqueEnvironments, const EnvironmentData& data)
+        {
+            for (const EnvironmentData& item : uniqueEnvironments)
+            {
+                if (item == data)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        void ComputeUniqueEnvironments(std::vector<EnvironmentData>& uniqueEnvironments, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& units, SecurityContext current)
+        {
+            for (Configuration::ConfigurationUnit unit : units)
+            {
+                if (unit.IsActive())
+                {
+                    EnvironmentData data{ unit.Environment(), current };
+                    if (!ContainsEnvironment(uniqueEnvironments, data))
+                    {
+                        uniqueEnvironments.emplace_back(std::move(data));
+                    }
+
+                    if (unit.IsGroup())
+                    {
+                        ComputeUniqueEnvironments(uniqueEnvironments, unit.Units(), current);
+                    }
+                }
+            }
+        }
+    }
+
     ConfigurationSet::ConfigurationSet()
     {
         GUID instanceIdentifier;
@@ -221,6 +313,32 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         THROW_HR_IF(E_INVALIDARG, !ConfigurationSetParser::IsRecognizedSchemaUri(value));
         m_schemaVersion = ConfigurationSetParser::GetSchemaVersionForUri(value);
         m_schemaUri = value;
+    }
+
+    Windows::Foundation::Collections::IVector<IConfigurationEnvironmentView> ConfigurationSet::GetUnitEnvironments()
+    {
+        using namespace AppInstaller::Security;
+        IntegrityLevel integrityLevel = GetEffectiveIntegrityLevel();
+        SecurityContext currentContext = SecurityContext::Current;
+
+        if (integrityLevel == IntegrityLevel::Medium)
+        {
+            currentContext = SecurityContext::Restricted;
+        }
+        else if (integrityLevel == IntegrityLevel::High)
+        {
+            currentContext = SecurityContext::Elevated;
+        }
+
+        std::vector<impl::EnvironmentData> uniqueEnvironments;
+        ComputeUniqueEnvironments(uniqueEnvironments, m_units, currentContext);
+
+        std::vector<IConfigurationEnvironmentView> result;
+        for (const impl::EnvironmentData& data : uniqueEnvironments)
+        {
+            result.emplace_back(data.Environment.as<IConfigurationEnvironmentView>());
+        }
+        return single_threaded_vector(std::move(result));
     }
 
     HRESULT STDMETHODCALLTYPE ConfigurationSet::SetLifetimeWatcher(IUnknown* watcher)

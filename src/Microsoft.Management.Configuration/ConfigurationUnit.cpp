@@ -39,6 +39,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             value.GetMany(0, temp);
             return winrt::multi_threaded_vector<hstring>(std::move(temp));
         }
+
+        Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit> DeepClone(const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& value)
+        {
+            std::vector<Configuration::ConfigurationUnit> temp;
+            for (Configuration::ConfigurationUnit unit : value)
+            {
+                temp.emplace_back(unit.Copy());
+            }
+            return winrt::multi_threaded_vector(std::move(temp));
+        }
     }
 
     ConfigurationUnit::ConfigurationUnit()
@@ -168,6 +178,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         result->m_metadata = Clone(m_metadata);
         result->m_settings = Clone(m_settings);
         result->m_details = m_details;
+        result->m_isGroup = m_isGroup;
+        if (m_isGroup)
+        {
+            result->m_units = DeepClone(m_units);
+        }
+        result->m_environment = make_self<implementation::ConfigurationEnvironment>(*m_environment);
 
         return *result;
     }
@@ -212,6 +228,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationUnit::Units(std::vector<Configuration::ConfigurationUnit>&& value)
     {
         m_units = winrt::multi_threaded_vector<Configuration::ConfigurationUnit>(std::move(value));
+    }
+
+    Configuration::ConfigurationEnvironment ConfigurationUnit::Environment()
+    {
+        return *m_environment;
     }
 
     HRESULT STDMETHODCALLTYPE ConfigurationUnit::SetLifetimeWatcher(IUnknown* watcher)
