@@ -130,6 +130,7 @@ namespace AppInstallerCLIE2ETests
         public const string PortablePackageMachineRoot = "portablePackageMachineRoot";
         public const string InstallBehaviorScope = "scope";
         public const string InstallerTypes = "installerTypes";
+        public const string DefaultModuleRoot = "defaultModuleRoot";
 
         // Configuration
         public const string PSGalleryName = "PSGallery";

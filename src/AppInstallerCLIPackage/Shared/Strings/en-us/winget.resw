@@ -3183,6 +3183,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="FontVersion" xml:space="preserve">
     <value>Version</value>
   </data>
+  <data name="ConfigurationModules" xml:space="preserve">
+    <value>Configuration Modules</value>
+    <comment>PowerShell Modules that are used for the Configuration feature</comment>
+  </data>
   <data name="FontInstallCommandShortDescription" xml:space="preserve">
     <value>Install a font</value>
   </data>

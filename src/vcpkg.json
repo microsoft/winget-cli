@@ -22,7 +22,7 @@
     },
     {
       "name": "curl",
-      "version": "8.10.1"
+      "version": "8.11.0"
     },
     {
       "name": "nlohmann-json",
@@ -38,5 +38,5 @@
       "./VcpkgCustomTriplets"
     ]
   },
-  "builtin-baseline": "f176b58f35a75f9f8f54099cd9df97d2e2793a2e"
+  "builtin-baseline": "b2cb0da531c2f1f740045bfe7c4dac59f0b2b69c"
 }
