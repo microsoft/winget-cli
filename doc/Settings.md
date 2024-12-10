@@ -23,7 +23,7 @@ The `source` settings involve configuration to the WinGet source.
 A positive integer represents the update interval in minutes. The check for updates only happens when a source is used. A zero will disable the check for updates to a source. Any other values are invalid.
 
 - Disable: 0
-- Default: 5
+- Default: 15
 
 To manually update the source use `winget source update`
 
@@ -33,11 +33,15 @@ The `visual` settings involve visual elements that are displayed by WinGet
 
 ### progressBar
 
-Color of the progress bar that WinGet displays when not specified by arguments.
+Style of the progress spinner and bar that WinGet displays when not specified by arguments. In addition, all options except `disabled` send [Virtual Terminal progress](https://conemu.github.io/en/AnsiEscapeCodes.html#ConEmu_specific_OSC) updates that any supporting terminal may display visually.
 
-- accent (default)
-- retro
-- rainbow
+|Value|Description|Release|
+|---|---|---|
+|`accent` (default)|Use the [Windows Accent color](https://support.microsoft.com/en-us/windows/change-colors-in-windows-d26ef4d6-819a-581c-1581-493cfcc005fe)|1.0|
+|`retro`|Use the current foreground terminal color|1.0|
+|`rainbow`|Progress through a rainbow of colors|1.0|
+|`sixel`|Use sixel images; requires a terminal that supports displaying sixels, such as [Windows Terminal](https://github.com/microsoft/terminal/releases) 1.22.2362 or later|1.9|
+|`disabled`|No progress will be displayed|1.9|
 
 ```json
     "visual": {
@@ -193,6 +197,21 @@ The `purgePortablePackage` behavior affects the default behavior for uninstallin
 ```json
     "uninstallBehavior": {
         "purgePortablePackage": true
+    },
+```
+
+## Configure Behavior
+
+The `configureBehavior` settings affect the default behavior of applying a configuration.
+
+### Default Module Root
+The `defaultModuleRoot` behavior affects the default root directory where modules are installed to. Defaults to `%LOCALAPPDATA%/Microsoft/WinGet/Configuration/Modules` if value is not set or is invalid.
+
+> Note: This setting value must be an absolute path.
+
+```json
+    "configureBehavior": {
+        "defaultModuleRoot": "C:/Program Files/Modules/"
     },
 ```
 

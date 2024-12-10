@@ -210,6 +210,9 @@
     <ClInclude Include="Public\winget\Experiment.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\OutputDebugStringLogger.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -378,6 +381,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Experiment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputDebugStringLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -34,7 +34,6 @@ ExpectedReturnCodes:
   ReturnResponse: contactSupport
 - InstallerReturnCode: 3
   ReturnResponse: custom
-  ReturnResponseUrl: https://defaultReturnResponseUrl.com
 FileExtensions:
 - appx
 - msix

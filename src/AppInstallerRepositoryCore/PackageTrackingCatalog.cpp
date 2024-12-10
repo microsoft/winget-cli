@@ -214,7 +214,7 @@ namespace AppInstaller::Repository
     }
 
     PackageTrackingCatalog::Version PackageTrackingCatalog::RecordInstall(
-        const Manifest::Manifest& manifest,
+        Manifest::Manifest& manifest,
         const Manifest::ManifestInstaller& installer,
         bool isUpgrade)
     {
@@ -222,6 +222,15 @@ namespace AppInstaller::Repository
         UNREFERENCED_PARAMETER(isUpgrade);
 
         auto& index = m_implementation->Source->GetIndex();
+
+        // Strip ARP version information from the manifest if it is present
+        for (auto& arpRangeRemovedInstaller : manifest.Installers)
+        {
+            for (auto& arpRangeRemovedEntry : arpRangeRemovedInstaller.AppsAndFeaturesEntries)
+            {
+                arpRangeRemovedEntry.DisplayVersion.clear();
+            }
+        }
 
         // Check for an existing manifest that matches this one (could be reinstalling)
         auto manifestIdOpt = index.GetManifestIdByManifest(manifest);

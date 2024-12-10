@@ -9,6 +9,7 @@
 #include "Commands/InstallCommand.h"
 #include "COMContext.h"
 #include <AppInstallerFileLogger.h>
+#include <winget/OutputDebugStringLogger.h>
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
 #include <winget/Debugging.h>
@@ -67,10 +68,17 @@ namespace AppInstaller::CLI
         init_apartment();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
+        // We have to do this here so the auto minidump config initialization gets caught
+        Logging::OutputDebugStringLogger::Add();
+        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().SetLevel(Logging::Level::Verbose);
+
         if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
         {
             Debugging::EnableSelfInitiatedMinidump();
         }
+
+        Logging::OutputDebugStringLogger::Remove();
 #endif
 
         Logging::UseGlobalTelemetryLoggerActivityIdOnly();
@@ -78,9 +86,15 @@ namespace AppInstaller::CLI
         Execution::Context context{ std::cout, std::cin };
         auto previousThreadGlobals = context.SetForCurrentThread();
 
+        // Set up debug string logging during initialization
+        Logging::OutputDebugStringLogger::Add();
+        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().SetLevel(Logging::Level::Verbose);
+
         Logging::Log().EnableChannel(Settings::User().Get<Settings::Setting::LoggingChannelPreference>());
         Logging::Log().SetLevel(Settings::User().Get<Settings::Setting::LoggingLevelPreference>());
         Logging::FileLogger::Add();
+        Logging::OutputDebugStringLogger::Remove();
         Logging::EnableWilFailureTelemetry();
 
         // Set output to UTF8
@@ -172,10 +186,17 @@ namespace AppInstaller::CLI
     void ServerInitialize()
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
+        // We have to do this here so the auto minidump config initialization gets caught
+        Logging::OutputDebugStringLogger::Add();
+        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().SetLevel(Logging::Level::Verbose);
+
         if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
         {
             Debugging::EnableSelfInitiatedMinidump();
         }
+
+        Logging::OutputDebugStringLogger::Remove();
 #endif
 
         AppInstaller::CLI::Execution::COMContext::SetLoggers();
@@ -184,10 +205,17 @@ namespace AppInstaller::CLI
     void InProcInitialize()
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
+        // We have to do this here so the auto minidump config initialization gets caught
+        Logging::OutputDebugStringLogger::Add();
+        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().SetLevel(Logging::Level::Verbose);
+
         if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
         {
             Debugging::EnableSelfInitiatedMinidump();
         }
+
+        Logging::OutputDebugStringLogger::Remove();
 #endif
 
         // Explicitly set default channel and level before user settings from PackageManagerSettings
