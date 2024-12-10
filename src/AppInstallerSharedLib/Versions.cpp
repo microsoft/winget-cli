@@ -137,16 +137,12 @@ namespace AppInstaller::Utility
             return (thisIsUnknown && !otherIsUnknown);
         }
 
-        for (size_t i = 0; i < m_parts.size(); ++i)
+        const Part emptyPart{};
+        for (size_t i = 0; i < std::max(m_parts.size(), other.m_parts.size()); ++i)
         {
-            if (i >= other.m_parts.size())
-            {
-                // All parts equal to this point
-                break;
-            }
-
-            const Part& partA = m_parts[i];
-            const Part& partB = other.m_parts[i];
+            // Whichever version is shorter, we need to pad it with empty parts
+            const Part& partA = (i >= m_parts.size()) ? emptyPart : m_parts[i];
+            const Part& partB = (i >= other.m_parts.size()) ? emptyPart : other.m_parts[i];
 
             if (partA < partB)
             {
@@ -159,17 +155,8 @@ namespace AppInstaller::Utility
             // else parts are equal, so continue to next part
         }
 
-        // All parts tested were equal
-        if (m_parts.size() == other.m_parts.size())
-        {
-            return ApproximateCompareLessThan(other);
-        }
-        else
-        {
-            // Else this is only less if there are more parts in other.
-            return m_parts.size() < other.m_parts.size();
-        }
-        
+        // All parts were compared and found to be equal
+        return ApproximateCompareLessThan(other);
     }
 
     bool Version::operator>(const Version& other) const

@@ -21,7 +21,7 @@ namespace AppInstaller::CLI
         struct ModulePathInfo
         {
             SetProcessorFactory::PwshConfigurationProcessorLocation location;
-            std::optional<std::string_view> customLocation;
+            std::optional<std::string> customLocation;
         };
 
         ModulePathInfo GetModulePathInfo(Execution::Args& execArgs)
@@ -44,8 +44,15 @@ namespace AppInstaller::CLI
                 }
                 else
                 {
-                    return { SetProcessorFactory::PwshConfigurationProcessorLocation::Custom, execArgs.GetArg(Execution::Args::Type::ConfigurationModulePath) };
+                    return { SetProcessorFactory::PwshConfigurationProcessorLocation::Custom, std::string(execArgs.GetArg(Execution::Args::Type::ConfigurationModulePath)) };
                 }
+            }
+
+            std::filesystem::path defaultModuleRoot = Settings::User().Get<Settings::Setting::ConfigureDefaultModuleRoot>();
+
+            if (!defaultModuleRoot.empty())
+            {
+                return { SetProcessorFactory::PwshConfigurationProcessorLocation::Custom, defaultModuleRoot.u8string() };
             }
 
             return { SetProcessorFactory::PwshConfigurationProcessorLocation::WinGetModulePath, {} };

@@ -16,7 +16,7 @@ namespace AppInstaller::Settings
     {
         static NetworkSettings& Instance();
 
-        const std::optional<std::string> GetProxyUri() const { return m_proxyUri; }
+        const std::optional<std::string>& GetProxyUri() const { return m_proxyUri; }
         // Sets the proxy URI; may do nothing depending on admin settings and group policy
         void SetProxyUri(const std::optional<std::string>& proxyUri);
 
