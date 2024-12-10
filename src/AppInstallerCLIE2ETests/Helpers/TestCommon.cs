@@ -389,12 +389,17 @@ namespace AppInstallerCLIE2ETests.Helpers
             if (shouldExist)
             {
                 // TODO: Replace with font uninstall when implemented.
-                File.Delete(expectedFontInstallPath);
-
-                using (RegistryKey fontsRegistryKey = baseKey.OpenSubKey(Constants.FontsSubKey, true))
+                if (fontEntryExists)
                 {
-                    fontsRegistryKey.DeleteSubKey(fontSubKeyName);
-                    RegistryKey fontEntry = fontsRegistryKey.OpenSubKey(fontSubKeyName, true);
+                    using (RegistryKey fontsRegistryKey = baseKey.OpenSubKey(Constants.FontsSubKey, true))
+                    {
+                        fontsRegistryKey.DeleteSubKey(fontSubKeyName);
+                    }
+                }
+
+                if (fontFileExists)
+                {
+                    File.Delete(expectedFontInstallPath);
                 }
             }
 
