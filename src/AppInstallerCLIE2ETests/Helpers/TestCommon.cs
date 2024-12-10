@@ -398,7 +398,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                 {
                     using (RegistryKey fontsRegistryKey = baseKey.OpenSubKey(Constants.FontsSubKey, true))
                     {
-                        fontsRegistryKey.DeleteSubKey(fontSubKeyName);
+                        fontsRegistryKey.DeleteValue(fontSubKeyName);
                     }
                 }
 
