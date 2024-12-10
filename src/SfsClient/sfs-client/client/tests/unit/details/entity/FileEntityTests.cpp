@@ -369,7 +369,7 @@ TEST("Testing GenericFileEntity conversions")
             REQUIRE_THROWS_CODE_MSG(
                 GenericFileEntity::ToFile(std::move(*wrongEntity), handler),
                 ServiceUnexpectedContentType,
-                "Unexpected content type [App] returned by the service does not match the expected [Generic]");
+                R"(The service returned file "fileId" with content type [App] while the expected type was [Generic])");
         }
     }
 
@@ -423,7 +423,7 @@ TEST("Testing GenericFileEntity conversions")
             REQUIRE_THROWS_CODE_MSG(
                 GenericFileEntity::FileEntitiesToFileVector(std::move(wrongEntities), handler),
                 ServiceUnexpectedContentType,
-                "Unexpected content type [App] returned by the service does not match the expected [Generic]");
+                R"(The service returned file "fileId" with content type [App] while the expected type was [Generic])");
         }
     }
 }
@@ -475,7 +475,7 @@ TEST("Testing AppFileEntity conversions")
             REQUIRE_THROWS_CODE_MSG(
                 AppFileEntity::ToAppFile(std::move(*wrongEntity), handler),
                 ServiceUnexpectedContentType,
-                "Unexpected content type [Generic] returned by the service does not match the expected [App]");
+                R"(The service returned file "fileId" with content type [Generic] while the expected type was [App])");
         }
     }
 
@@ -535,7 +535,7 @@ TEST("Testing AppFileEntity conversions")
             REQUIRE_THROWS_CODE_MSG(
                 AppFileEntity::FileEntitiesToAppFileVector(std::move(wrongEntities), handler),
                 ServiceUnexpectedContentType,
-                "Unexpected content type [Generic] returned by the service does not match the expected [App]");
+                R"(The service returned file "fileId" with content type [Generic] while the expected type was [App])");
         }
     }
 }
