@@ -19,7 +19,7 @@ Launch your default JSON editing tool: `winget settings`
 
 ![Screenshot of the Windows Package Manager Settings.](images/settings.png)
 
-When you launch the settings for the first time, there will be no settings specified. At the top of the JSON we provide a [link](https://aka.ms/winget-settings) where you can discover the latest experimental features and settings.
+When you launch the settings for the first time, there will be no settings specified. At the top of the JSON we provide a link to [https://aka.ms/winget-settings](https://aka.ms/winget-settings) where you can discover the latest experimental features and settings.
 
 We have also defined a schema for the settings file.  This allows you to use TAB to discover settings and syntax if your JSON editor supports JSON schemas.
 
