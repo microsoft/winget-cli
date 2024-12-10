@@ -915,8 +915,8 @@ namespace AppInstaller::MSStore
                 {
                     std::string proxyUri = AppInstaller::Settings::Network().GetProxyUri().value();
 
-                    sfsClientRequest.proxy = proxyUri;
                     AICLI_LOG(Core, Info, << "Passing proxy to SFS client " << proxyUri);
+                    sfsClientRequest.proxy = proxyUri;
                 }
 
                 auto requestResult = GetSfsClientInstance()->GetLatestAppDownloadInfo(sfsClientRequest, appContents);
