@@ -30,6 +30,10 @@ applic
 appname
 appshutdown
 APPTERMINATION
+ariali
+ARIALN
+ARIALNB
+ARIALNI
 archs
 ARMNT
 arp
@@ -50,6 +54,7 @@ awgpm
 awgs
 azcopy
 azurewebsites
+Bahnschrift
 Baz
 bcp
 BEFACEF
@@ -75,6 +80,8 @@ BSODs
 Buf
 BUILDOUTDIR
 buildtransitive
+Calibri
+calibriz
 cancelledbyuser
 casemap
 casemappings
@@ -118,6 +125,7 @@ ctc
 CTL
 ctwgcy
 currentuser
+DAAS
 dacl
 datetimeoffset
 Dbg
@@ -243,6 +251,7 @@ img
 inet
 inproc
 Insta
+installable
 installinprogress
 INSTALLPROPERTY
 installshield
@@ -385,6 +394,7 @@ NOTRACK
 NOUPDATE
 nowarn
 npmjs
+NSim
 nsis
 NTFS
 nuffing
@@ -399,6 +409,7 @@ opensource
 OPTOUT
 osfhandle
 oss
+otf
 outfile
 OUTOFMEMORY
 Outptr
@@ -427,6 +438,7 @@ pid
 pidl
 pidlist
 PKCS
+PKEY
 pkgmgr
 pkindex
 pkix
@@ -440,7 +452,10 @@ PRIMARYKEY
 processthreads
 productcode
 PRODUCTICON
+propkey
+PROPVARIANT
 proxystub
+PRSS
 pscustomobject
 pseudocode
 PSHOST
@@ -454,6 +469,7 @@ pvm
 pwabuilder
 PWAs
 PWSTR
+pwsz
 QUERYENDSESSION
 qword
 RAII
@@ -480,6 +496,7 @@ rgpsz
 rhs
 riid
 Roblox
+Roboto
 ronomon
 Roronoa
 rosoft
@@ -525,6 +542,7 @@ SIGNATUREHASH
 silentpreferred
 similarissues
 similaritytolerance
+simsun
 Skipx
 sku
 SLAPI
@@ -567,11 +585,13 @@ temppath
 testexampleinstaller
 thiscouldbeapc
 threehundred
+timesbd
 timespan
 Tlg
 tombstoned
 transitioning
 trimstart
+ttc
 ttl
 twgc
 twgus
@@ -608,6 +628,7 @@ uswgp
 uwp
 VALUENAMECASE
 vclib
+Verdana
 versioned
 VERSIONINFO
 vns
