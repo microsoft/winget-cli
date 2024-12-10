@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #include "../../mock/MockWebServer.h"
+#include "../../mock/ProxyServer.h"
 #include "../../util/SFSExceptionMatcher.h"
 #include "../../util/TestHelper.h"
 #include "ReportingHandler.h"
@@ -102,20 +103,46 @@ TEST("Testing CurlConnection()")
     {
         const std::string url = urlBuilder.GetSpecificVersionUrl(c_productName, c_version);
 
-        // Before registering the product, the URL returns 404 Not Found
-        REQUIRE_THROWS_CODE(connection->Get(url), HttpNotFound);
-
-        // Register the product
-        server.RegisterProduct(c_productName, c_version);
-
-        // After registering the product, the URL returns 200 OK
-        std::string out;
-        REQUIRE_NOTHROW(out = connection->Get(url));
-
         json expectedResponse;
         expectedResponse["ContentId"] = {{"Namespace", "default"}, {"Name", c_productName}, {"Version", c_version}};
 
-        REQUIRE(json::parse(out) == expectedResponse);
+        SECTION("Direct connection")
+        {
+            // Before registering the product, the URL returns 404 Not Found
+            REQUIRE_THROWS_CODE(connection->Get(url), HttpNotFound);
+
+            // Register the product
+            server.RegisterProduct(c_productName, c_version);
+
+            // After registering the product, the URL returns 200 OK
+            std::string out;
+            REQUIRE_NOTHROW(out = connection->Get(url));
+
+            REQUIRE(json::parse(out) == expectedResponse);
+        }
+
+        SECTION("With proxy")
+        {
+            test::ProxyServer proxy;
+
+            ConnectionConfig config;
+            config.proxy = proxy.GetBaseUrl();
+            connection = connectionManager.MakeConnection(config);
+
+            // Before registering the product, the URL returns 404 Not Found
+            REQUIRE_THROWS_CODE(connection->Get(url), HttpNotFound);
+
+            // Register the product
+            server.RegisterProduct(c_productName, c_version);
+
+            // After registering the product, the URL returns 200 OK
+            std::string out;
+            REQUIRE_NOTHROW(out = connection->Get(url));
+
+            REQUIRE(json::parse(out) == expectedResponse);
+
+            REQUIRE(proxy.Stop() == Result::Success);
+        }
     }
 
     SECTION("Testing CurlConnection::Post()")
@@ -153,6 +180,21 @@ TEST("Testing CurlConnection()")
             expectedResponse.push_back(
                 {{"ContentId", {{"Namespace", "default"}, {"Name", c_productName}, {"Version", c_nextVersion}}}});
             REQUIRE(json::parse(out) == expectedResponse);
+
+            SECTION("Testing with proxy")
+            {
+                test::ProxyServer proxy;
+
+                ConnectionConfig config;
+                config.proxy = proxy.GetBaseUrl();
+                connection = connectionManager.MakeConnection(config);
+
+                REQUIRE_NOTHROW(out = connection->Post(url, body.dump()));
+
+                REQUIRE(json::parse(out) == expectedResponse);
+
+                REQUIRE(proxy.Stop() == Result::Success);
+            }
         }
 
         SECTION("With GetDownloadInfo mock")
@@ -187,6 +229,21 @@ TEST("Testing CurlConnection()")
                 {"IntegrityCheckInfo", {{"PiecesHashFileUrl", "http://localhost/2.bin"}, {"HashOfHashes", "abcd"}}}};
 
             REQUIRE(json::parse(out) == expectedResponse);
+
+            SECTION("Testing with proxy")
+            {
+                test::ProxyServer proxy;
+
+                ConnectionConfig config;
+                config.proxy = proxy.GetBaseUrl();
+                connection = connectionManager.MakeConnection(config);
+
+                REQUIRE_NOTHROW(out = connection->Post(url));
+
+                REQUIRE(json::parse(out) == expectedResponse);
+
+                REQUIRE(proxy.Stop() == Result::Success);
+            }
         }
     }
 

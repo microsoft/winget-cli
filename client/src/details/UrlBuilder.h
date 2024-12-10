@@ -39,6 +39,9 @@ class UrlBuilder
 
     std::string GetUrl() const;
 
+    std::string GetPath() const;
+    std::string GetQuery() const;
+
     /**
      * @brief Set the scheme for the URL
      * @param scheme The scheme to set for the URL Ex: Https
