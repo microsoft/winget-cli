@@ -50,6 +50,8 @@ namespace AppInstaller::Runtime
         SelfPackageRoot,
         // The location where user downloads are stored.
         UserProfileDownloads,
+        // The location where configuration modules are stored.
+        ConfigurationModules,
         // The location where checkpoints are stored.
         CheckpointsLocation,
         // The location of the CLI executable file.
