@@ -10,8 +10,8 @@ namespace AppInstaller::Settings
     enum ExperimentToggleSource
     {
         Default = 0,
-        Policy = 1,
-        UserSetting = 2,
+        Policy,
+        UserSetting,
     };
 
     struct ExperimentState
@@ -30,8 +30,8 @@ namespace AppInstaller::Settings
     {
         enum class Key : unsigned
         {
-            None = 0x0,
-            CDN = 0x1,
+            None = 0,
+            CDN,
             Max,
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

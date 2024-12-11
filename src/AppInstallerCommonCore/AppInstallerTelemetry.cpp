@@ -12,7 +12,6 @@
 #define AICLI_TraceLoggingStringView(_sv_,_name_) TraceLoggingCountedUtf8String(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
 #define AICLI_TraceLoggingWStringView(_sv_,_name_) TraceLoggingCountedWideString(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
 #define AICLI_TraceLoggingJsonWString(_sv_, _name_) TraceLoggingPackedFieldEx(_sv_.c_str(), static_cast<ULONG>((_sv_.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, _name_)
-#define AICLI_TraceLoggingJsonString(_sv_, _name_) TraceLoggingPackedFieldEx(_sv_.c_str(), static_cast<ULONG>((_sv_.size() + 1) * sizeof(char)), TlgInUNICODESTRING, TlgOutJSON, _name_)
 
 #define AICLI_TraceLoggingWriteActivity(_eventName_,...) TraceLoggingWriteActivity(\
 g_hTraceProvider,\
@@ -81,7 +80,7 @@ namespace AppInstaller::Logging
             }
         }
 
-        std::string GetExperimentsJson(const std::map<Experiment::Key, ExperimentState>& experiments)
+        std::wstring GetExperimentsJson(const std::map<Experiment::Key, ExperimentState>& experiments)
         {
             Json::Value root;
             for (const auto& experiment : experiments)
@@ -91,7 +90,7 @@ namespace AppInstaller::Logging
             }
 
             Json::StreamWriterBuilder builder;
-            return Json::writeString(builder, root);
+            return Utility::ConvertToUTF16(Json::writeString(builder, root));
         }
     }
 
@@ -870,8 +869,8 @@ namespace AppInstaller::Logging
                     AICLI_TraceLoggingStringView(m_summary.RepairExecutionType, "RepairExecutionType"),
                     TraceLoggingUInt32(m_summary.RepairErrorCode, "RepairErrorCode"),
                     TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage | PDT_SoftwareSetupAndInventory),
-                    TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES),
-                    AICLI_TraceLoggingJsonString(experimentsJson, "ExperimentsJson"));
+                    AICLI_TraceLoggingJsonWString(experimentsJson, "ExperimentsJson"),
+                    TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
             }
         }
     }

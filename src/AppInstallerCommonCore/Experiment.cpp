@@ -18,30 +18,25 @@ namespace AppInstaller::Settings
                 return { true, ExperimentToggleSource::Default };
             }
 
+            auto experiment = Experiment::GetExperiment(key);
             if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::Experiments))
             {
-                AICLI_LOG(Core, Info, <<
-                    "Experiment " << Experiment::GetExperiment(key).Name() <<
+                AICLI_LOG(Core, Info, << "Experiment " << experiment.Name() <<
                     " is disabled due to group policy: " << TogglePolicy::GetPolicy(TogglePolicy::Policy::Experiments).RegValueName());
                 return { false, ExperimentToggleSource::Policy };
             }
 
-            auto experiments = userSettings.Get<Setting::Experiments>();
-            auto experiment = Experiment::GetExperiment(key);
+            auto userSettingsExperiments = userSettings.Get<Setting::Experiments>();
             auto jsonName = std::string(experiment.JsonName());
-            if (experiments.find(jsonName) != experiments.end())
+            if (userSettingsExperiments.find(jsonName) != userSettingsExperiments.end())
             {
-                auto isEnabled = experiments[jsonName];
-                AICLI_LOG(Core, Info, <<
-                    "Experiment " << Experiment::GetExperiment(key).Name() <<
-                    " is set to " << isEnabled << " in user settings");
+                auto isEnabled = userSettingsExperiments[jsonName];
+                AICLI_LOG(Core, Info, << "Experiment " << experiment.Name() << " is set to " << (isEnabled ? "true" : "false") << " in user settings");
                 return { isEnabled, ExperimentToggleSource::UserSetting };
             }
 
             auto isEnabled = AppInstaller::Experiment::IsEnabled(experiment.GetKey());
-            AICLI_LOG(Core, Info, <<
-                "Experiment " << Experiment::GetExperiment(key).Name() <<
-                " is set to " << isEnabled);
+            AICLI_LOG(Core, Info, << "Experiment " << experiment.Name() << " is set to " << (isEnabled ? "true" : "false"));
             return { isEnabled, ExperimentToggleSource::Default };
         }
 
@@ -99,7 +94,7 @@ namespace AppInstaller::Settings
     {
         std::vector<Experiment> result;
 
-        for (Key_t i = 0x1; i < static_cast<Key_t>(Key::Max); i = i << 1)
+        for (Key_t i = 0x1; i < static_cast<Key_t>(Key::Max); ++i)
         {
             result.emplace_back(GetExperiment(static_cast<Key>(i)));
         }

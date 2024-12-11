@@ -130,7 +130,6 @@ namespace AppInstaller::Logging
         std::string DOUrl;
         HRESULT DOHResult = S_OK;
 
-        // LogExperiment
         std::map<Settings::Experiment::Key, Settings::ExperimentState> Experiments;
     };
 
