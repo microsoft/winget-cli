@@ -48,6 +48,7 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Inno:
             case InstallerTypeEnum::Nullsoft:
             case InstallerTypeEnum::Portable:
+            case InstallerTypeEnum::AdvancedInstaller:
                 return L".exe"sv;
             case InstallerTypeEnum::Msi:
             case InstallerTypeEnum::Wix:

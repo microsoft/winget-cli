@@ -337,6 +337,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Burn:
         case InstallerTypeEnum::Inno:
         case InstallerTypeEnum::Nullsoft:
+        case InstallerTypeEnum::AdvancedInstaller:
         {
             context <<
                 RunRepairForRepairBehaviorBasedInstaller;
@@ -379,6 +380,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Exe:
         case InstallerTypeEnum::Inno:
         case InstallerTypeEnum::Nullsoft:
+        case InstallerTypeEnum::AdvancedInstaller:
         {
             context <<
                 GenerateRepairString;

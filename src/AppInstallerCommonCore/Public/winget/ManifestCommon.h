@@ -100,6 +100,7 @@ namespace AppInstaller::Manifest
         Burn,
         MSStore,
         Portable,
+        AdvancedInstaller,
     };
 
     enum class UpdateBehaviorEnum
