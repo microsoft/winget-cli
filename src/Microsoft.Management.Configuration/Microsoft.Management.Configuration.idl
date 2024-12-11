@@ -86,20 +86,6 @@ namespace Microsoft.Management.Configuration
         Elevated,
     };
 
-    // Read-only information about the environment in which a configuration is processed.
-    [contract(Microsoft.Management.Configuration.Contract, 3)]
-    interface IConfigurationEnvironmentView
-    {
-        // The security context in which a configuration is processed.
-        SecurityContext Context{ get; };
-
-        // A string that identifies the processor that should be used for the configuration.
-        String ProcessorIdentifier{ get; };
-
-        // Processor specific properties.
-        Windows.Foundation.Collections.IMapView<String, String> ProcessorPropertiesView{ get; };
-    };
-
     // Information about the environment in which a configuration is processed.
     [contract(Microsoft.Management.Configuration.Contract, 3)]
     runtimeclass ConfigurationEnvironment
@@ -112,6 +98,26 @@ namespace Microsoft.Management.Configuration
 
         // Processor specific properties.
         Windows.Foundation.Collections.IMap<String, String> ProcessorProperties{ get; };
+
+        // Create a copy of this environment.
+        ConfigurationEnvironment Copy();
+    };
+
+    // Read-only information about the environment in which a configuration is processed.
+    [contract(Microsoft.Management.Configuration.Contract, 3)]
+    interface IConfigurationEnvironmentView
+    {
+        // The security context in which a configuration is processed.
+        SecurityContext Context{ get; };
+
+        // A string that identifies the processor that should be used for the configuration.
+        String ProcessorIdentifier{ get; };
+
+        // Processor specific properties.
+        Windows.Foundation.Collections.IMapView<String, String> ProcessorPropertiesView{ get; };
+
+        // Create a mutable copy of this environment.
+        ConfigurationEnvironment Copy();
     };
 
     // Information on a result for a single unit of configuration.
@@ -285,7 +291,7 @@ namespace Microsoft.Management.Configuration
         //  Dependencies, Metadata, and Settings will by new containers with identical values inside
         //  Details will be the same value (not a copy, just another reference)
         //  State, ResultInformation, and ShouldApply will be their default constructed state
-        //  IsGroup will be copied and Units will be a new container with each child unit copied
+        //  IsGroup will be false and child units will not be copied
         //  Environment will be copied
         ConfigurationUnit Copy();
 
@@ -1085,8 +1091,7 @@ namespace Microsoft.Management.Configuration
 
             // Create a set processor for the given environment.
             // If appropriate, one can store the IConfigurationSetProcessorFactory for future use with IMixedEnvironmentConfigurationSetProcessorFactory::SetFactoryForEnvironment.
-            // The environment parameter is a copy that this function can modify before the call to SetFactoryForEnvironment as needed.
-            Microsoft.Management.Configuration.IConfigurationSetProcessor CreateSetProcessor(IMixedEnvironmentConfigurationSetProcessorFactory factory, Microsoft.Management.Configuration.ConfigurationEnvironment environment, Microsoft.Management.Configuration.ConfigurationSet configurationSet);
+            Microsoft.Management.Configuration.IConfigurationSetProcessor CreateSetProcessor(IMixedEnvironmentConfigurationSetProcessorFactory factory, Microsoft.Management.Configuration.IConfigurationEnvironmentView environment, Microsoft.Management.Configuration.ConfigurationSet configurationSet);
         };
     }
 }
