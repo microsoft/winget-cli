@@ -31,12 +31,12 @@ namespace AppInstaller::CLI::Font
         if (scope == Manifest::ScopeEnum::Machine)
         {
             m_installLocation = Runtime::GetPathTo(Runtime::PathName::FontsMachineInstallLocation);
-            m_key = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, std::wstring{ s_FontsPathSubkey }, 0, KEY_WRITE );
+            m_key = Registry::Key::Create(HKEY_LOCAL_MACHINE, std::wstring{ s_FontsPathSubkey });
         }
         else
         {
             m_installLocation = Runtime::GetPathTo(Runtime::PathName::FontsUserInstallLocation);
-            m_key = Registry::Key::OpenIfExists(HKEY_CURRENT_USER, std::wstring{ s_FontsPathSubkey }, 0, KEY_WRITE);
+            m_key = Registry::Key::Create(HKEY_CURRENT_USER, std::wstring{ s_FontsPathSubkey });
         }
     }
 
@@ -48,7 +48,7 @@ namespace AppInstaller::CLI::Font
             const auto& fileName = filePath.filename();
             const auto& destinationPath = m_installLocation / fileName;
 
-            AICLI_LOG(CLI, Info, << "Getting Font title");
+            AICLI_LOG(CLI, Verbose, << "Getting Font title");
 
             std::wstring title = AppInstaller::Fonts::GetFontFileTitle(filePath);
 
@@ -57,8 +57,24 @@ namespace AppInstaller::CLI::Font
                 title += s_TrueType;
             }
 
-            AICLI_LOG(CLI, Info, << "Moving font file to: " << destinationPath);
-            AppInstaller::Filesystem::RenameFile(filePath, destinationPath);
+            // If font subkey already exists, remove the font file if it exists.
+            if (m_key[title].has_value())
+            {
+                AICLI_LOG(CLI, Info, << "Existing font subkey found:" << AppInstaller::Utility::ConvertToUTF8(title));
+                std::filesystem::path existingFontFilePath = { m_key[title]->GetValue<Registry::Value::Type::String>() };
+
+                if (m_scope == Manifest::ScopeEnum::Machine)
+                {
+                    // Font entries in the HKEY_LOCAL_MACHINE hive only have the filename specified as the value. Prepend install location.
+                    existingFontFilePath = m_installLocation / existingFontFilePath;
+                }
+
+                if (std::filesystem::exists(existingFontFilePath))
+                {
+                    AICLI_LOG(CLI, Info, << "Removing existing font file at:" << existingFontFilePath);
+                    std::filesystem::remove(existingFontFilePath);
+                }
+            }
 
             AICLI_LOG(CLI, Info, << "Creating font subkey with name: " << AppInstaller::Utility::ConvertToUTF8(title));
             if (m_scope == Manifest::ScopeEnum::Machine)
@@ -69,6 +85,9 @@ namespace AppInstaller::CLI::Font
             {
                 m_key.SetValue(title, destinationPath, REG_SZ);
             }
+
+            AICLI_LOG(CLI, Info, << "Moving font file to: " << destinationPath);
+            AppInstaller::Filesystem::RenameFile(filePath, destinationPath);
         }
     }
 

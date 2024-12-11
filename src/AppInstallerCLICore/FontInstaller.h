@@ -9,7 +9,7 @@ namespace AppInstaller::CLI::Font
     struct FontFile
     {
         FontFile(std::filesystem::path filePath, DWRITE_FONT_FILE_TYPE fileType)
-            : FilePath(filePath), FileType(fileType) {}
+            : FilePath(std::move(filePath)), FileType(fileType) {}
 
         std::filesystem::path FilePath;
         DWRITE_FONT_FILE_TYPE FileType;

@@ -77,7 +77,7 @@ namespace AppInstaller::CLI::Workflow
             std::filesystem::path filename = GetFileNameFromURI(installer->Url);
 
             // Default to URI for fonts since fonts can have multiple file extensions.
-            if (installer->BaseInstallerType != InstallerTypeEnum::Font)
+            if (!DoesInstallerTypeSupportMultipleFileExtensions(installer->BaseInstallerType))
             {
                 std::wstring_view installerExtension = GetInstallerFileExtension(context);
 

@@ -49,7 +49,6 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Args::Type::Manifest),
-            Argument{ Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
         };
     }
 

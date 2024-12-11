@@ -24,27 +24,28 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Test install a font with user scope.
-        /// </summary>
-        [Test]
-        public void InstallFont()
-        {
-            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestFont");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            TestCommon.VerifyFontPackage(Constants.TestFontSubKeyName, Constants.FontFileName);
-        }
-
-        /// <summary>
         /// Test install a font with machine scope.
         /// </summary>
         [Test]
         public void InstallFont_MachineScope()
         {
-            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestFont --scope Machine");
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestFont");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyFontPackage(Constants.TestFontSubKeyName, Constants.FontFileName, TestCommon.Scope.Machine);
+        }
+
+        /// <summary>
+        /// Test install a font with user scope.
+        /// </summary>
+        // [Test]
+        public void InstallFont_UserScope()
+        {
+            // TODO: Enable this test once user scope installs are fully supported.
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestFont --scope User");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            TestCommon.VerifyFontPackage(Constants.TestFontSubKeyName, Constants.FontFileName, TestCommon.Scope.User);
         }
 
         /// <summary>

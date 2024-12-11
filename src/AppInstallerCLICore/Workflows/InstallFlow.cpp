@@ -285,6 +285,7 @@ namespace AppInstaller::CLI::Workflow
         void FontInstall(Execution::Context& context)
         {
             context <<
+                EnsureRunningAsAdmin <<
                 FontInstallImpl <<
                 ReportInstallerResult("Font"sv, APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED, true);
         }

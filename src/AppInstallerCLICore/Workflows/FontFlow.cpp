@@ -159,18 +159,18 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else
                 {
-                    AICLI_LOG(CLI, Warning, << "Font file is supported: " << file);
+                    AICLI_LOG(CLI, Verbose, << "Font file is supported: " << file);
                     fontFiles.emplace_back(FontFile(file, fileType));
                 }
             }
 
             context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
-            Manifest::ScopeEnum scope = AppInstaller::Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-            FontInstaller fontInstaller = FontInstaller(scope);
+            // TODO: Default to installing to HKEY_LOCAL_MACHINE registry as user install is not yet fully supported. 
+            FontInstaller fontInstaller = FontInstaller(Manifest::ScopeEnum::Machine);
 
             fontInstaller.Install(fontFiles);
-            context.Add<Execution::Data::OperationReturnCode>(ERROR_SUCCESS);
+            context.Add<Execution::Data::OperationReturnCode>(S_OK);
         }
         catch (...)
         {
