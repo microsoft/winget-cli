@@ -165,7 +165,7 @@ namespace AppInstaller::Manifest
         }
         else if (inStrLower == "advancedinstaller")
         {
-          result = InstallerTypeEnum::AdvancedInstaller;
+            result = InstallerTypeEnum::AdvancedInstaller;
         }
 
         return result;
@@ -1039,7 +1039,7 @@ namespace AppInstaller::Manifest
                 {InstallerSwitchType::Silent, ManifestInstaller::string_t("/exenoui /quiet /norestart")},
                 {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/exenoui /passive /norestart")},
                 {InstallerSwitchType::Log, ManifestInstaller::string_t("/l*v \"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
-                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("TARGETDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
+                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("APPDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };
         default:
             return {};
