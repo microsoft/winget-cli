@@ -1,0 +1,63 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#pragma once
+#include <string>
+#include <type_traits>
+#include "AppInstallerStrings.h"
+
+namespace AppInstaller::Settings
+{
+    enum ExperimentToggleSource
+    {
+        Default = 0,
+        Policy,
+        UserSetting,
+    };
+
+    struct ExperimentState
+    {
+        ExperimentState() = default;
+        ExperimentState(bool isEnabled, ExperimentToggleSource toggleSource) : m_isEnabled(isEnabled), m_toggleSource(toggleSource) {}
+        bool IsEnabled() const { return m_isEnabled; }
+        ExperimentToggleSource ToggleSource() const { return m_toggleSource; }
+        std::string ToJson() const;
+    private:
+        ExperimentToggleSource m_toggleSource;
+        bool m_isEnabled;
+    };
+
+    struct Experiment
+    {
+        enum class Key : unsigned
+        {
+            None = 0,
+            CDN,
+            Max,
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            TestExperiment = 0xFFFFFFFF,
+#endif
+        };
+
+        using Key_t = std::underlying_type_t<Key>;
+
+        Experiment(std::string name, std::string jsonName, std::string link, std::string key) :
+            m_name(std::move(name)), m_jsonName(jsonName), m_link(std::move(link)), m_key(std::move((key))) {}
+
+        static ExperimentState GetState(Key feature);
+        static ExperimentState GetStateInternal(Key feature);
+        static Experiment GetExperiment(Key key);
+        static std::vector<Experiment> GetAllExperiments();
+
+        std::string Name() const { return m_name; }
+        Utility::LocIndView JsonName() const { return m_jsonName; }
+        std::string Link() const { return m_link; }
+        std::string GetKey() const { return m_key; }
+
+    private:
+        std::string m_name;
+        Utility::LocIndView m_jsonName;
+        std::string m_link;
+        std::string m_key;
+    };
+}

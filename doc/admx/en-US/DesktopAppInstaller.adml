@@ -25,6 +25,12 @@ If you disable this setting, users will not be able to change settings for the W
 If you enable or do not configure this setting, users will be able to enable experimental features for the Windows Package Manager.
 
 If you disable this setting, users will not be able to enable experimental features for the Windows Package Manager.</string>
+      <string id="EnableExperiments">Enable Windows Package Manager Experiments</string>
+      <string id="EnableExperimentsExplanation">This policy controls whether users can enable experiments in the Windows Package Manager.
+
+If you enable or do not configure this setting, users will be able to enable experiments for the Windows Package Manager.
+
+If you disable this setting, users will not be able to enable experiments for the Windows Package Manager.</string>
       <string id="EnableLocalManifestFiles">Enable Windows Package Manager Local Manifest Files</string>
       <string id="EnableLocalManifestFilesExplanation">This policy controls whether users can install packages with local manifest files.
 
