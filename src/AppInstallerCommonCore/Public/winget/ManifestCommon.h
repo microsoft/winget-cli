@@ -100,6 +100,7 @@ namespace AppInstaller::Manifest
         Burn,
         MSStore,
         Portable,
+        Font,
     };
 
     enum class UpdateBehaviorEnum
@@ -446,6 +447,9 @@ namespace AppInstaller::Manifest
 
     // Gets a value indicating whether the given installer requires RepairBehavior for repair.
     bool DoesInstallerTypeRequireRepairBehaviorForRepair(InstallerTypeEnum installerType);
+
+    // Gets a value indicating whether the given installer can have multiple file extensions.
+    bool DoesInstallerTypeSupportMultipleFileExtensions(InstallerTypeEnum installerType);
 
     // Gets a value indicating whether the given installer type is an archive.
     bool IsArchiveType(InstallerTypeEnum installerType);

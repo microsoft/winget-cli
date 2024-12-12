@@ -62,6 +62,7 @@ namespace LocalhostWebServer
             provider.Mappings[".appx"] = "application/vns.ms-appx";
             provider.Mappings[".appxbundle"] = "application/vns.ms-appx";
             provider.Mappings[".mszyml"] = "application/x-ms-zip-yaml";
+            provider.Mappings[".ttf"] = "application/x-font-ttf";
 
             //Enable static file serving
             app.UseStaticFiles(new StaticFileOptions
