@@ -467,6 +467,8 @@ namespace Microsoft.Management.Deployment
         MSStore,
         /// Portable type.
         Portable,
+        /// AdvancedInstaller type.
+        AdvancedInstaller
     };
 
     /// The package installer scope.
