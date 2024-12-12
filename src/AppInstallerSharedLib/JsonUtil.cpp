@@ -77,9 +77,10 @@ namespace AppInstaller::JSON
         {
             for (const auto& entry : node.getMemberNames())
             {
-                if (node[entry].isBool())
+                auto& value = node[entry];
+                if (value.isBool())
                 {
-                    result[entry] = node[entry].asBool();
+                    result[entry] = value.asBool();
                 }
             }
 

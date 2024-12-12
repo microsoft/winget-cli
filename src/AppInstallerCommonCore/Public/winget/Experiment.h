@@ -41,23 +41,23 @@ namespace AppInstaller::Settings
 
         using Key_t = std::underlying_type_t<Key>;
 
-        Experiment(std::string_view name, std::string_view jsonName, std::string_view link, std::string key) :
-            m_name(name), m_jsonName(jsonName), m_link(link), m_key(key) {}
+        Experiment(std::string name, std::string jsonName, std::string link, std::string key) :
+            m_name(std::move(name)), m_jsonName(jsonName), m_link(std::move(link)), m_key(std::move((key))) {}
 
         static ExperimentState GetState(Key feature);
         static ExperimentState GetStateInternal(Key feature);
         static Experiment GetExperiment(Key key);
         static std::vector<Experiment> GetAllExperiments();
 
-        std::string_view Name() const { return m_name; }
+        std::string Name() const { return m_name; }
         Utility::LocIndView JsonName() const { return m_jsonName; }
-        std::string_view Link() const { return m_link; }
+        std::string Link() const { return m_link; }
         std::string GetKey() const { return m_key; }
 
     private:
-        std::string_view m_name;
+        std::string m_name;
         Utility::LocIndView m_jsonName;
-        std::string_view m_link;
+        std::string m_link;
         std::string m_key;
     };
 }

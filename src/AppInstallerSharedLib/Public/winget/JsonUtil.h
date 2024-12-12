@@ -35,7 +35,7 @@ namespace AppInstaller::JSON
     std::optional<std::vector<std::string>> GetValue<std::vector<std::string>>(const Json::Value& node);
 
     template<>
-    std::optional<std::map<std::string, bool>> GetValue(const Json::Value& node);
+    std::optional<std::map<std::string, bool>> GetValue<std::map<std::string, bool>>(const Json::Value& node);
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
     // For cpprestsdk JSON

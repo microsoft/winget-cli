@@ -13,19 +13,19 @@ namespace AppInstaller::Settings
     {
         ExperimentState GetExperimentStateInternal(Experiment::Key key, const UserSettings& userSettings)
         {
-            if (key == Experiment::Key::None)
-            {
-                return { true, ExperimentToggleSource::Default };
-            }
-
-            auto experiment = Experiment::GetExperiment(key);
             if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::Experiments))
             {
-                AICLI_LOG(Core, Info, << "Experiment " << experiment.Name() <<
+                AICLI_LOG(Core, Info, << "Experiment " << Experiment::GetExperiment(key).Name() <<
                     " is disabled due to group policy: " << TogglePolicy::GetPolicy(TogglePolicy::Policy::Experiments).RegValueName());
                 return { false, ExperimentToggleSource::Policy };
             }
 
+            if (key == Experiment::Key::None)
+            {
+                return { false, ExperimentToggleSource::Default };
+            }
+
+            auto experiment = Experiment::GetExperiment(key);
             auto userSettingsExperiments = userSettings.Get<Setting::Experiments>();
             auto jsonName = std::string(experiment.JsonName());
             if (userSettingsExperiments.find(jsonName) != userSettingsExperiments.end())
@@ -80,7 +80,7 @@ namespace AppInstaller::Settings
         switch (key)
         {
         case Key::CDN:
-            return Experiment{ "CDN experiment", "CDN", "https://aka.ms/winget-settings", "CDN"};
+            return Experiment{ "winget source CDN experiment", "CDN", "https://aka.ms/winget-settings", "CDN"};
 #ifndef AICLI_DISABLE_TEST_HOOKS
         case Key::TestExperiment:
             return Experiment{ "Test experiment", "TestExperiment", "https://aka.ms/winget-settings", "TestExperiment" };
