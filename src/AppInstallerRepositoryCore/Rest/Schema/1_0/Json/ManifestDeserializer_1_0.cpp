@@ -531,6 +531,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         {
             return InstallerTypeEnum::Burn;
         }
+        else if (inStrLower == "advancedinstaller")
+        {
+            return InstallerTypeEnum::AdvancedInstaller;
+        }
 
         return InstallerTypeEnum::Unknown;
     }
