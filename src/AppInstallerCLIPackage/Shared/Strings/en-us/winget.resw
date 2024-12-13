@@ -3196,4 +3196,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="FontFileNotSupported" xml:space="preserve">
     <value>The font file is not supported and cannot be installed.</value>
   </data>
+  <data name="FontInstallFailed" xml:space="preserve">
+    <value>Font install failed; Cleaning up...</value>
+  </data>
+  <data name="FontAlreadyInstalled" xml:space="preserve">
+    <value>Font already installed</value>
+  </data>
 </root>

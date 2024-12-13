@@ -371,7 +371,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         public static void VerifyFontPackage(
             string fontSubKeyName,
             string fontFileName,
-            Scope scope = Scope.Machine,
+            Scope scope = Scope.User,
             bool shouldExist = true)
         {
             // Expected font file path.

@@ -126,6 +126,16 @@ namespace AppInstaller::CLI::Workflow
 
     void FontInstallImpl(Execution::Context& context)
     {
+        Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown;
+        if (context.Args.Contains(Execution::Args::Type::InstallScope))
+        {
+            scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+        }
+
+        FontInstaller fontInstaller = FontInstaller(scope);
+
+        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+
         try
         {
             const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
@@ -145,36 +155,42 @@ namespace AppInstaller::CLI::Workflow
                 filePaths.emplace_back(installerPath);
             }
 
-            std::vector<FontFile> fontFiles;
             Fonts::FontCatalog fontCatalog;
+            std::vector<FontFile> fontFiles;
 
-            for (const auto& file : filePaths)
+            for (std::filesystem::path filePath : filePaths)
             {
                 DWRITE_FONT_FILE_TYPE fileType;
-                if (!fontCatalog.IsFontFileSupported(file, fileType))
+                if (!fontCatalog.IsFontFileSupported(filePath, fileType))
                 {
-                    AICLI_LOG(CLI, Warning, << "Font file is not supported: " << file);
+                    AICLI_LOG(CLI, Warning, << "Font file is not supported: " << filePath);
                     context.Reporter.Error() << Resource::String::FontFileNotSupported << std::endl;
                     AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
                 }
                 else
                 {
-                    AICLI_LOG(CLI, Verbose, << "Font file is supported: " << file);
-                    fontFiles.emplace_back(FontFile(file, fileType));
+                    AICLI_LOG(CLI, Verbose, << "Font file is supported: " << filePath);
+                    fontFiles.emplace_back(FontFile(filePath, fileType));
                 }
             }
 
-            context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+            fontInstaller.SetFontFiles(fontFiles);
 
-            // TODO: Default to installing to HKEY_LOCAL_MACHINE registry as user install is not yet fully supported. 
-            FontInstaller fontInstaller = FontInstaller(Manifest::ScopeEnum::Machine);
+            if (!fontInstaller.EnsureInstall())
+            {
+                context.Reporter.Warn() << Resource::String::FontAlreadyInstalled << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED);
+            }
 
-            fontInstaller.Install(fontFiles);
+            fontInstaller.Install();
             context.Add<Execution::Data::OperationReturnCode>(S_OK);
         }
         catch (...)
         {
             context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
+            context.Reporter.Warn() << Resource::String::FontInstallFailed << std::endl;
+            fontInstaller.Uninstall();
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
         }
     }
 }

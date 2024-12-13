@@ -26,6 +26,17 @@ namespace AppInstaller::CLI::Font
         }
     }
 
+    FontFile::FontFile(std::filesystem::path filePath, DWRITE_FONT_FILE_TYPE fileType)
+        : FilePath(std::move(filePath)), FileType(fileType)
+    {
+        Title = AppInstaller::Fonts::GetFontFileTitle(FilePath);
+
+        if (IsTrueTypeFont(FileType))
+        {
+            Title += s_TrueType;
+        }
+    }
+
     FontInstaller::FontInstaller(Manifest::ScopeEnum scope) : m_scope(scope)
     {
         if (scope == Manifest::ScopeEnum::Machine)
@@ -40,28 +51,78 @@ namespace AppInstaller::CLI::Font
         }
     }
 
-    void FontInstaller::Install(const std::vector<FontFile>& fontFiles)
+    bool FontInstaller::EnsureInstall()
     {
-        for (const auto& fontFile : fontFiles)
+        for (auto& fontFile : m_fontFiles)
         {
-            const auto& filePath = fontFile.FilePath;
-            const auto& fileName = filePath.filename();
-            const auto& destinationPath = m_installLocation / fileName;
-
-            AICLI_LOG(CLI, Verbose, << "Getting Font title");
-
-            std::wstring title = AppInstaller::Fonts::GetFontFileTitle(filePath);
-
-            if (IsTrueTypeFont(fontFile.FileType))
+            if (m_key[fontFile.Title].has_value())
             {
-                title += s_TrueType;
+                if (!std::filesystem::exists(m_key[fontFile.Title]->GetValue<Registry::Value::Type::String>()))
+                {
+                    AICLI_LOG(CLI, Info, << "Removing existing font value as font file does not exist.");
+                    m_key.DeleteValue(fontFile.Title);
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Info, << "Existing font value found: " << AppInstaller::Utility::ConvertToUTF8(fontFile.Title));
+                    return false;
+                }
             }
 
-            // If font subkey already exists, remove the font file if it exists.
-            if (m_key[title].has_value())
+            std::filesystem::path destinationPath = m_installLocation / fontFile.FilePath.filename();
+            auto initialStem = fontFile.FilePath.stem();
+            auto extension = fontFile.FilePath.extension();
+
+            // If a file exists at the destination path, make the filename unique.
+            int index = 0;
+            while (std::filesystem::exists(destinationPath))
             {
-                AICLI_LOG(CLI, Info, << "Existing font subkey found:" << AppInstaller::Utility::ConvertToUTF8(title));
-                std::filesystem::path existingFontFilePath = { m_key[title]->GetValue<Registry::Value::Type::String>() };
+                std::filesystem::path unique = { "_" + std::to_string(index) };
+                auto duplicateStem = initialStem;
+                duplicateStem += unique;
+                duplicateStem += extension;
+                destinationPath = m_installLocation / duplicateStem;
+                index++;
+            }
+
+            fontFile.DestinationPath = std::move(destinationPath);
+        }
+
+        return true;
+    }
+
+    void FontInstaller::Install()
+    {
+        bool isMachineScope = m_scope == Manifest::ScopeEnum::Machine;
+
+        for (const auto& fontFile : m_fontFiles)
+        {
+            AICLI_LOG(CLI, Info, << "Creating font value with name : " << AppInstaller::Utility::ConvertToUTF8(fontFile.Title));
+            if (isMachineScope)
+            {
+                m_key.SetValue(fontFile.Title, fontFile.DestinationPath.filename(), REG_SZ);
+            }
+            else
+            {
+                m_key.SetValue(fontFile.Title, fontFile.DestinationPath, REG_SZ);
+            }
+        }
+
+        for (const auto& fontFile : m_fontFiles)
+        {
+            AICLI_LOG(CLI, Info, << "Moving font file to: " << fontFile.DestinationPath);
+            AppInstaller::Filesystem::RenameFile(fontFile.FilePath, fontFile.DestinationPath);
+        }
+    }
+
+    void FontInstaller::Uninstall()
+    {
+        for (const auto& fontFile : m_fontFiles)
+        {
+            if (m_key[fontFile.Title].has_value())
+            {
+                AICLI_LOG(CLI, Info, << "Existing font value found:" << AppInstaller::Utility::ConvertToUTF8(fontFile.Title));
+                std::filesystem::path existingFontFilePath = { m_key[fontFile.Title]->GetValue<Registry::Value::Type::String>() };
 
                 if (m_scope == Manifest::ScopeEnum::Machine)
                 {
@@ -74,25 +135,10 @@ namespace AppInstaller::CLI::Font
                     AICLI_LOG(CLI, Info, << "Removing existing font file at:" << existingFontFilePath);
                     std::filesystem::remove(existingFontFilePath);
                 }
-            }
 
-            AICLI_LOG(CLI, Info, << "Creating font subkey with name: " << AppInstaller::Utility::ConvertToUTF8(title));
-            if (m_scope == Manifest::ScopeEnum::Machine)
-            {
-                m_key.SetValue(title, fileName, REG_SZ);
+                AICLI_LOG(CLI, Info, << "Deleting registry value:" << existingFontFilePath);
+                m_key.DeleteValue(fontFile.Title);
             }
-            else
-            {
-                m_key.SetValue(title, destinationPath, REG_SZ);
-            }
-
-            AICLI_LOG(CLI, Info, << "Moving font file to: " << destinationPath);
-            AppInstaller::Filesystem::RenameFile(filePath, destinationPath);
         }
-    }
-
-    void FontInstaller::Uninstall(const std::wstring& familyName)
-    {
-        UNREFERENCED_PARAMETER(familyName);
     }
 }

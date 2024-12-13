@@ -8,11 +8,12 @@ namespace AppInstaller::CLI::Font
 {
     struct FontFile
     {
-        FontFile(std::filesystem::path filePath, DWRITE_FONT_FILE_TYPE fileType)
-            : FilePath(std::move(filePath)), FileType(fileType) {}
+        FontFile(std::filesystem::path filePath, DWRITE_FONT_FILE_TYPE fileType);
 
         std::filesystem::path FilePath;
         DWRITE_FONT_FILE_TYPE FileType;
+        std::wstring Title;
+        std::filesystem::path DestinationPath;
     };
 
     struct FontInstaller
@@ -21,13 +22,23 @@ namespace AppInstaller::CLI::Font
 
         std::filesystem::path FontFileLocation;
 
-        void Install(const std::vector<FontFile>& fontFiles);
+        void SetFontFiles(const std::vector<FontFile>& fontFiles)
+        {
+            m_fontFiles = fontFiles;
+        }
 
-        void Uninstall(const std::wstring& familyName);
+        // Checks if all expected registry values and font files can be installed prior to installation.
+        bool EnsureInstall();
+
+        void Install();
+
+        void Uninstall();
 
     private:
         Manifest::ScopeEnum m_scope;
         std::filesystem::path m_installLocation;
         Registry::Key m_key;
+
+        std::vector<FontFile> m_fontFiles;
     };
 }

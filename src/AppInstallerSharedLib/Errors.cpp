@@ -224,6 +224,7 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALLER_ZERO_BYTE_FILE, "Downloaded zero byte installer; ensure that your network connection is working properly."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED, "Failed to install font package."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED, "Font file is not supported and cannot be installed."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED, "Font already installed."),
 
             // Install errors.
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, "Application is currently running. Exit the application then try again."),

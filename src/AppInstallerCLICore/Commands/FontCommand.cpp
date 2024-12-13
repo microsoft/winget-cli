@@ -49,6 +49,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Args::Type::Manifest),
+            Argument{ Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
         };
     }
 
@@ -66,7 +67,6 @@ namespace AppInstaller::CLI
     {
         UNREFERENCED_PARAMETER(valueType);
         context.Reporter.Error() << Resource::String::PendingWorkError << std::endl;
-        THROW_HR(E_NOTIMPL);
     }
 
     Utility::LocIndView FontInstallCommand::HelpLink() const
