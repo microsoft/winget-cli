@@ -23,13 +23,7 @@
         "progressBar": {
           "description": "Progress bar display style",
           "type": "string",
-          "enum": [
-            "accent",
-            "rainbow",
-            "retro",
-            "sixel",
-            "disabled"
-          ]
+          "enum": ["accent", "rainbow", "retro", "sixel", "disabled"]
         },
         "anonymizeDisplayedPaths": {
           "description": "Replaces some known folder paths with their respective environment variable",
@@ -50,13 +44,7 @@
         "level": {
           "description": "Preferred logging level",
           "type": "string",
-          "enum": [
-            "verbose",
-            "info",
-            "warning",
-            "error",
-            "critical"
-          ]
+          "enum": ["verbose", "info", "warning", "error", "critical"]
         },
         "channels": {
           "description": "The logging channels to enable",
@@ -90,10 +78,7 @@
         "scope": {
           "description": "The scope of a package install",
           "type": "string",
-          "enum": [
-            "user",
-            "machine"
-          ],
+          "enum": ["user", "machine"],
           "default": "user"
         },
         "locale": {
@@ -113,13 +98,7 @@
           "items": {
             "uniqueItems": true,
             "type": "string",
-            "enum": [
-              "neutral",
-              "x64",
-              "x86",
-              "arm64",
-              "arm"
-            ],
+            "enum": ["neutral", "x64", "x86", "arm64", "arm"],
             "minItems": 1,
             "maxItems": 4
           }
@@ -205,7 +184,8 @@
         "defaultModuleRoot": {
           "description": "The default root directory where PowerShell modules are installed to when applying a configuration.",
           "type": "string",
-          "maxLength": 32767
+          "maxLength": 32767,
+          "default": "%LOCALAPPDATA%/Microsoft/Winget/Configuration/Modules"
         }
       }
     },
@@ -238,11 +218,7 @@
         "downloader": {
           "description": "Control which download code is used for packages",
           "type": "string",
-          "enum": [
-            "default",
-            "wininet",
-            "do"
-          ],
+          "enum": ["default", "wininet", "do"],
           "default": "default"
         },
         "doProgressTimeoutInSeconds": {
@@ -302,7 +278,7 @@
         "fonts": {
           "description": "Enable support for managing fonts",
           "type": "boolean",
-          "default":  false
+          "default": false
         }
       }
     }
