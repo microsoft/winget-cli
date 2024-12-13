@@ -98,9 +98,6 @@ namespace Microsoft.Management.Configuration
 
         // Processor specific properties.
         Windows.Foundation.Collections.IMap<String, String> ProcessorProperties{ get; };
-
-        // Create a copy of this environment.
-        ConfigurationEnvironment Copy();
     };
 
     // Read-only information about the environment in which a configuration is processed.
@@ -115,9 +112,6 @@ namespace Microsoft.Management.Configuration
 
         // Processor specific properties.
         Windows.Foundation.Collections.IMapView<String, String> ProcessorPropertiesView{ get; };
-
-        // Create a mutable copy of this environment.
-        ConfigurationEnvironment Copy();
     };
 
     // Information on a result for a single unit of configuration.
@@ -1058,40 +1052,6 @@ namespace Microsoft.Management.Configuration
 
             // The custom location. Only applicable for Scope.Custom
             String CustomLocation;
-        };
-
-        // Forward declaration
-        [contract(Microsoft.Management.Configuration.Contract, 3)]
-        interface IMixedEnvironmentHandler;
-
-        // The interface for Microsoft.Management.Configuration.MixedEnvironmentConfigurationSetProcessorFactory
-        [contract(Microsoft.Management.Configuration.Contract, 3)]
-        interface IMixedEnvironmentConfigurationSetProcessorFactory
-        {
-            // Set the factory to use for the given environment.
-            // Passing in a null factory will remove any existing association.
-            void SetFactoryForEnvironment(Microsoft.Management.Configuration.IConfigurationEnvironmentView environment, Microsoft.Management.Configuration.IConfigurationSetProcessorFactory factory);
-
-            // Get the factory configured for the given environment.
-            Microsoft.Management.Configuration.IConfigurationSetProcessorFactory GetFactoryForEnvironment(Microsoft.Management.Configuration.IConfigurationEnvironmentView environment);
-
-            // Create a set processor for the given environment.
-            Microsoft.Management.Configuration.IConfigurationSetProcessor CreateSetProcessorForEnvironment(Microsoft.Management.Configuration.IConfigurationEnvironmentView environment, Microsoft.Management.Configuration.ConfigurationSet configurationSet);
-
-            // Sets or gets the handler used to create a set processor when no matching environment is configured.
-            IMixedEnvironmentHandler EnvironmentHandler;
-        };
-
-        // Allows a consumer to dynamically handle new environments.
-        [contract(Microsoft.Management.Configuration.Contract, 3)]
-        interface IMixedEnvironmentHandler
-        {
-            // Determines if the given existing environment is appropriate to use given the target environment.
-            Boolean DoesExistingMatchTarget(Microsoft.Management.Configuration.IConfigurationEnvironmentView existingEnvironment, Microsoft.Management.Configuration.IConfigurationEnvironmentView targetEnvironment);
-
-            // Create a set processor for the given environment.
-            // If appropriate, one can store the IConfigurationSetProcessorFactory for future use with IMixedEnvironmentConfigurationSetProcessorFactory::SetFactoryForEnvironment.
-            Microsoft.Management.Configuration.IConfigurationSetProcessor CreateSetProcessor(IMixedEnvironmentConfigurationSetProcessorFactory factory, Microsoft.Management.Configuration.IConfigurationEnvironmentView environment, Microsoft.Management.Configuration.ConfigurationSet configurationSet);
         };
     }
 }
