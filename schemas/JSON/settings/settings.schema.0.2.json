@@ -184,6 +184,11 @@
           "type": "integer",
           "default": 3,
           "minimum": 1
+        },
+        "extractArchiveWithTar": {
+          "description": "Controls the use of tar.exe for extracting packages.",
+          "type": "boolean",
+          "default": false
         }
       }
     },
