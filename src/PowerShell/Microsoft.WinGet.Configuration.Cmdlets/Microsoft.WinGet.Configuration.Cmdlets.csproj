@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!-- Keep in sync with attributes in AssemblyInfo.cs -->
-    <TargetFramework>net6.0-windows10.0.22000</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.22000</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
