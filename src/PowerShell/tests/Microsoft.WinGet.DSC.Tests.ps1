@@ -8,13 +8,16 @@
    'Invoke-Pester' should be called in an admin PowerShell window.
 #>
 
+# TODO: Might need using statement for export
+
 BeforeAll {
     Install-Module -Name PSDesiredStateConfiguration -Force -SkipPublisherCheck
     Import-Module Microsoft.WinGet.Client
     Import-Module Microsoft.WinGet.DSC
 
     # Helper function for calling Invoke-DscResource on the Microsoft.WinGet.DSC module.
-    function InvokeWinGetDSC() {
+    function InvokeWinGetDSC()
+    {
         param (
             [Parameter()]
             [string]$Name,
@@ -30,12 +33,12 @@ BeforeAll {
     }
 }
 
-Describe 'List available DSC resources'{
-    It 'Shows DSC Resources'{
+Describe 'List available DSC resources' {
+    It 'Shows DSC Resources' {
         $expectedDSCResources = "WinGetAdminSettings", "WinGetPackage", "WinGetPackageManager", "WinGetSource", "WinGetUserSettings"
         $availableDSCResources = (Get-DscResource -Module Microsoft.WinGet.DSC).Name
         $availableDSCResources.length | Should -Be 5
-        $availableDSCResources | Where-Object {$expectedDSCResources -notcontains $_} | Should -BeNullOrEmpty -ErrorAction Stop
+        $availableDSCResources | Where-Object { $expectedDSCResources -notcontains $_ } | Should -BeNullOrEmpty -ErrorAction Stop
     }
 }
 
@@ -45,9 +48,9 @@ Describe 'WinGetAdminSettings' {
         $initialAdminSettings = (Get-WinGetSetting).adminSettings
         $adminSettingsHash = @{
             BypassCertificatePinningForMicrosoftStore = !$initialAdminSettings.BypassCertificatePinningForMicrosoftStore;
-            InstallerHashOverride = !$initialAdminSettings.InstallerHashOverride;
-            LocalManifestFiles = !$initialAdminSettings.LocalManifestFiles;
-            LocalArchiveMalwareScanOverride = !$initialAdminSettings.LocalArchiveMalwareScanOverride;
+            InstallerHashOverride                     = !$initialAdminSettings.InstallerHashOverride;
+            LocalManifestFiles                        = !$initialAdminSettings.LocalManifestFiles;
+            LocalArchiveMalwareScanOverride           = !$initialAdminSettings.LocalArchiveMalwareScanOverride;
         }
     }
 
@@ -103,7 +106,7 @@ Describe 'WinGetUserSettings' {
 
         $userSettingsHash = @{
             experimentalFeatures = @{ directMSI = $true };
-            installBehavior = @{ Preferences = @{ Scope = 'User' }}
+            installBehavior      = @{ Preferences = @{ Scope = 'User' } }
         }
     }
 
@@ -143,7 +146,7 @@ Describe 'WinGetSource' {
     }
 
     It 'Test WinGet source' {
-        $result = InvokeWinGetDSC -Name WinGetSource -Method Test -Property @{ Ensure='Present'; Name = $testSourceName; Argument = $testSourceArg; Type = $testSourceType }
+        $result = InvokeWinGetDSC -Name WinGetSource -Method Test -Property @{ Ensure = 'Present'; Name = $testSourceName; Argument = $testSourceArg; Type = $testSourceType }
         $result.InDesiredState | Should -Be $false
     }
 
@@ -205,7 +208,15 @@ Describe 'WinGetPackage' {
         $result.Ensure | Should -Be 'Present'
         $result.UseLatest | Should -Be $true
         $result.Version | Should -Not -Be $testPackageVersion
-    } 
+    }
+
+    It 'Export WinGetPackage(s)' {
+        $result = [WinGetPackage]::Export()
+        
+        # Verify if export contains at least 1 package
+        $result | Should -not -BeNullOrEmpty
+        $result.Count | Should -BeGreaterThan 0
+    }
 
     It 'Uninstall WinGetPackage' {
         InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Id = $testPackageId; UseLatest = $true }
@@ -221,7 +232,7 @@ Describe 'WinGetPackage' {
     }
 
     AfterAll {
-        InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Ensure = 'Absent'; Id = $testPackageId}
+        InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Ensure = 'Absent'; Id = $testPackageId }
     }
 }
 

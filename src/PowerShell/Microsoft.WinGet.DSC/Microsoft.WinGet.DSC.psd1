@@ -7,31 +7,31 @@
 @{
 
     # Script module or binary module file associated with this manifest.
-    RootModule = 'Microsoft.WinGet.DSC.psm1'
+    RootModule           = 'Microsoft.WinGet.DSC.psm1'
     
     # Version number of this module.
-    ModuleVersion = '0.0.1'
+    ModuleVersion        = '0.0.1'
     
     # Supported PSEditions
     CompatiblePSEditions = 'Core'
     
     # ID used to uniquely identify this module
-    GUID = '8c9326eb-595a-40eb-8696-b289e8085cad'
+    GUID                 = '8c9326eb-595a-40eb-8696-b289e8085cad'
     
     # Author of this module
-    Author = 'Microsoft Corporation'
+    Author               = 'Microsoft Corporation'
     
     # Company or vendor of this module
-    CompanyName = 'Microsoft Corporation'
+    CompanyName          = 'Microsoft Corporation'
     
     # Copyright statement for this module
-    Copyright = '(c) Microsoft Corporation. All rights reserved.'
+    Copyright            = '(c) Microsoft Corporation. All rights reserved.'
     
     # Description of the functionality provided by this module
-    Description = 'PowerShell Module with DSC resources related to WinGet configurations'
+    Description          = 'PowerShell Module with DSC resources related to WinGet configurations'
     
     # Minimum version of the PowerShell engine required by this module
-    PowerShellVersion = '7.2'
+    PowerShellVersion    = '7.2'
     
     # Name of the PowerShell host required by this module
     # PowerShellHostName = ''
@@ -49,7 +49,7 @@
     # ProcessorArchitecture = ''
     
     # Modules that must be imported into the global environment prior to importing this module
-    RequiredModules = @('Microsoft.WinGet.Client')
+    RequiredModules      = @('Microsoft.WinGet.Client')
     
     # Assemblies that must be loaded prior to importing this module
     # RequiredAssemblies = @()
@@ -94,37 +94,39 @@
     # FileList = @()
     
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
-    PrivateData = @{
+    PrivateData          = @{
     
         PSData = @{
     
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @(
+            Tags            = @(
                 'PSEdition_Core',
                 'Windows',
                 'WindowsPackageManager'
             )
     
             # A URL to the license for this module.
-            # LicenseUri = ''
+            LicenseUri      = 'https://github.com/microsoft/winget-cli/blob/master/LICENSE'
     
             # A URL to the main website for this project.
-            ProjectUri = 'https://github.com/microsoft/winget-cli'
+            ProjectUri      = 'https://github.com/microsoft/winget-cli'
     
             # A URL to an icon representing this module.
-            IconUri = 'https://aka.ms/winget-icon'
+            IconUri         = 'https://aka.ms/winget-icon'
     
             # ReleaseNotes of this module
             # ReleaseNotes = ''
     
             # Prerelease string of this module
-            Prerelease = 'alpha'
+            Prerelease      = 'alpha'
     
             # Flag to indicate whether the module requires explicit user acceptance for install/update/save
             # RequireLicenseAcceptance = $false
     
             # External dependent modules of this module
             # ExternalModuleDependencies = @()
+
+            DscCapabilities = ('Get', 'Set', 'Test', 'Export')
     
         } # End of PSData hashtable
     
@@ -136,5 +138,5 @@
     # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
     # DefaultCommandPrefix = ''
     
-    }
+}
     
