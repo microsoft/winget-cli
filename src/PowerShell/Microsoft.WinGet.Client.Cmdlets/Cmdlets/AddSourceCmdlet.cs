@@ -42,6 +42,9 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
         [Parameter(
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
+        [ValidateSet(
+            "Microsoft.Rest",
+            "Microsoft.PreIndexed.Package")]
         public string Type { get; set; }
 
         /// <summary>
