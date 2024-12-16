@@ -23,6 +23,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         case ConfigurationField::Resources: return "resources"sv;
         case ConfigurationField::ModuleDirective: return "module"sv;
+        case ConfigurationField::SecurityContextDirective: return "securityContext"sv;
 
         case ConfigurationField::Schema: return "$schema"sv;
         case ConfigurationField::Metadata: return "metadata"sv;

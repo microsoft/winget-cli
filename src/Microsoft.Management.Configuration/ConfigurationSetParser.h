@@ -129,6 +129,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Parses an object from the given node, attempting to treat it as the requested type if possible.
         void ParseObject(const AppInstaller::YAML::Node& node, ConfigurationField fieldForErrors, Windows::Foundation::PropertyType type, Windows::Foundation::IInspectable& result);
 
+        // Extracts the security context from the metadata in the given unit; if not present use `defaultContext`.
+        void ExtractSecurityContext(implementation::ConfigurationUnit* unit, SecurityContext defaultContext = SecurityContext::Current);
+
     private:
         // Support older schema parsing.
         static std::unique_ptr<ConfigurationSetParser> GetSchemaVersionFromOldFormat(AppInstaller::YAML::Node& document, std::string& schemaVersionString);

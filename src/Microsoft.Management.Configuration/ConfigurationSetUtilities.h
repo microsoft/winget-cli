@@ -22,6 +22,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Universal
         Resources,
         ModuleDirective,
+        SecurityContextDirective,
 
         // v0.3
         Schema,

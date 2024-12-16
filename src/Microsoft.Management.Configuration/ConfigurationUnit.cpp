@@ -220,6 +220,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return *m_environment;
     }
 
+    implementation::ConfigurationEnvironment& ConfigurationUnit::EnvironmentInternal()
+    {
+        return *m_environment;
+    }
+
     HRESULT STDMETHODCALLTYPE ConfigurationUnit::SetLifetimeWatcher(IUnknown* watcher)
     {
         return AppInstaller::WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);

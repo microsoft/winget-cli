@@ -148,6 +148,40 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             hstring Module;
             hstring Resource;
         };
+
+        // Converts the string representation of SecurityContext to the enum
+        SecurityContext ParseSecurityContext(winrt::hstring securityContext)
+        {
+            std::wstring securityContextLower = ToLower(securityContext);
+
+            if (securityContextLower == L"elevated")
+            {
+                return Security::IntegrityLevel::High;
+            }
+            else if (securityContextLower == L"restricted")
+            {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+                if (m_enableRestrictedIntegrityLevel)
+                {
+                    return Security::IntegrityLevel::Medium;
+                }
+                else
+#endif
+                {
+                    // Not supporting elevated callers downgrading at the moment.
+                    THROW_WIN32(ERROR_NOT_SUPPORTED);
+
+                    // Technically this means the default level of the user token, so if UAC is disabled it would be the only integrity level (aka current).
+                    // return Security::IntegrityLevel::Medium;
+                }
+            }
+            else if (securityContextLower == L"current")
+            {
+                return m_currentIntegrityLevel;
+            }
+
+            THROW_WIN32(ERROR_NOT_SUPPORTED);
+        }
     }
 
     std::unique_ptr<ConfigurationSetParser> ConfigurationSetParser::Create(std::string_view input)
@@ -560,5 +594,31 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             LOG_CAUGHT_EXCEPTION();
             FIELD_VALUE_ERROR(GetConfigurationFieldName(fieldForErrors), node.as<std::string>(), node.Mark());
         }
+    }
+
+    void ConfigurationSetParser::ExtractSecurityContext(implementation::ConfigurationUnit* unit, SecurityContext defaultContext)
+    {
+        THROW_HR_IF_NULL(E_POINTER, unit);
+
+        SecurityContext computedContext = defaultContext;
+
+        // TODO: Support case-insensitive lookup by iteration
+        hstring securityContextDirectiveFieldName = GetConfigurationFieldNameHString(ConfigurationField::SecurityContextDirective);
+        auto securityContext = unit->Metadata().TryLookup(securityContextDirectiveFieldName);
+        if (securityContext)
+        {
+            auto securityContextProperty = securityContext.try_as<IPropertyValue>();
+            if (securityContextProperty && securityContextProperty.Type() == PropertyType::String)
+            {
+                return SecurityContextToIntegrityLevel(securityContextProperty.GetString());
+            }
+        }
+
+        unit->EnvironmentInternal().Context(computedContext);
+    }
+
+    // Gets the integrity level that the given unit should be run at
+    Security::IntegrityLevel GetIntegrityLevelForUnit(const ConfigurationUnit& unit)
+    {
     }
 }

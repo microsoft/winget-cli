@@ -16,6 +16,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         ConfigurationUnit(const guid& instanceIdentifier);
+
+        implementation::ConfigurationEnvironment& EnvironmentInternal();
 #endif
 
         hstring Type();
