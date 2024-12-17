@@ -3,6 +3,7 @@
 #pragma once
 #include <string>
 #include <type_traits>
+#include "Experiment/Experiment.h"
 #include "AppInstallerStrings.h"
 
 namespace AppInstaller::Settings
@@ -28,36 +29,25 @@ namespace AppInstaller::Settings
 
     struct Experiment
     {
-        enum class Key : unsigned
-        {
-            None = 0,
-            CDN,
-            Max,
+        using Key_t = std::underlying_type_t<AppInstaller::Experiment::ExperimentKey>;
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
-            TestExperiment = 0xFFFFFFFF,
-#endif
-        };
-
-        using Key_t = std::underlying_type_t<Key>;
-
-        Experiment(std::string name, std::string jsonName, std::string link, std::string key) :
+        Experiment(std::string name, std::string jsonName, std::string link, AppInstaller::Experiment::ExperimentKey key) :
             m_name(std::move(name)), m_jsonName(jsonName), m_link(std::move(link)), m_key(std::move((key))) {}
 
-        static ExperimentState GetState(Key feature);
-        static ExperimentState GetStateInternal(Key feature);
-        static Experiment GetExperiment(Key key);
+        static ExperimentState GetState(AppInstaller::Experiment::ExperimentKey feature);
+        static ExperimentState GetStateInternal(AppInstaller::Experiment::ExperimentKey feature);
+        static Experiment GetExperiment(AppInstaller::Experiment::ExperimentKey key);
         static std::vector<Experiment> GetAllExperiments();
 
         std::string Name() const { return m_name; }
-        Utility::LocIndView JsonName() const { return m_jsonName; }
+        std::string JsonName() const { return m_jsonName; }
         std::string Link() const { return m_link; }
-        std::string GetKey() const { return m_key; }
+        AppInstaller::Experiment::ExperimentKey GetKey() const { return m_key; }
 
     private:
         std::string m_name;
-        Utility::LocIndView m_jsonName;
+        std::string m_jsonName;
         std::string m_link;
-        std::string m_key;
+        AppInstaller::Experiment::ExperimentKey m_key;
     };
 }

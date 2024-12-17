@@ -9,9 +9,11 @@
 
 namespace AppInstaller::Settings
 {
+    using namespace Experiment;
+
     namespace
     {
-        ExperimentState GetExperimentStateInternal(Experiment::Key key, const UserSettings& userSettings)
+        ExperimentState GetExperimentStateInternal(ExperimentKey key, const UserSettings& userSettings)
         {
             if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::Experiments))
             {
@@ -20,17 +22,17 @@ namespace AppInstaller::Settings
                 return { false, ExperimentToggleSource::Policy };
             }
 
-            if (key == Experiment::Key::None)
+            if (key == ExperimentKey::None)
             {
                 return { false, ExperimentToggleSource::Default };
             }
 
             auto experiment = Experiment::GetExperiment(key);
             auto userSettingsExperiments = userSettings.Get<Setting::Experiments>();
-            auto jsonName = std::string(experiment.JsonName());
-            if (userSettingsExperiments.find(jsonName) != userSettingsExperiments.end())
+            auto experimentJsonName = experiment.JsonName();
+            if (userSettingsExperiments.find(experimentJsonName) != userSettingsExperiments.end())
             {
-                auto isEnabled = userSettingsExperiments[jsonName];
+                auto isEnabled = userSettingsExperiments[experimentJsonName];
                 AICLI_LOG(Core, Info, << "Experiment " << experiment.Name() << " is set to " << (isEnabled ? "true" : "false") << " in user settings");
                 return { isEnabled, ExperimentToggleSource::UserSetting };
             }
@@ -65,25 +67,25 @@ namespace AppInstaller::Settings
         return Json::writeString(builder, root);
     }
 
-    ExperimentState Experiment::GetStateInternal(Key key)
+    ExperimentState Experiment::GetStateInternal(ExperimentKey key)
     {
         return GetExperimentStateInternal(key, User());
     }
 
-    ExperimentState Experiment::GetState(Key key)
+    ExperimentState Experiment::GetState(ExperimentKey key)
     {
         return Logging::Telemetry().GetExperimentState(key);
     }
 
-    Experiment Experiment::GetExperiment(Key key)
+    Experiment Experiment::GetExperiment(ExperimentKey key)
     {
         switch (key)
         {
-        case Key::CDN:
-            return Experiment{ "winget source CDN experiment", "CDN", "https://aka.ms/winget-settings", "CDN"};
+        case ExperimentKey::CDN:
+            return Experiment{ "winget source CDN experiment", "CDN", "https://aka.ms/winget-settings", ExperimentKey::CDN};
 #ifndef AICLI_DISABLE_TEST_HOOKS
-        case Key::TestExperiment:
-            return Experiment{ "Test experiment", "TestExperiment", "https://aka.ms/winget-settings", "TestExperiment" };
+        case ExperimentKey::TestExperiment:
+            return Experiment{ "Test experiment", "TestExperiment", "https://aka.ms/winget-settings", ExperimentKey::TestExperiment };
 #endif
         default:
             THROW_HR(E_UNEXPECTED);
@@ -94,9 +96,9 @@ namespace AppInstaller::Settings
     {
         std::vector<Experiment> result;
 
-        for (Key_t i = 0x1; i < static_cast<Key_t>(Key::Max); ++i)
+        for (Key_t i = 0x1; i < static_cast<Key_t>(ExperimentKey::Max); ++i)
         {
-            result.emplace_back(GetExperiment(static_cast<Key>(i)));
+            result.emplace_back(GetExperiment(static_cast<ExperimentKey>(i)));
         }
 
         return result;

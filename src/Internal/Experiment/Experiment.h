@@ -6,5 +6,16 @@
 
 namespace AppInstaller::Experiment
 {
-    bool IsEnabled(const std::string& experimentKey);
+    enum class ExperimentKey : unsigned
+    {
+        None = 0,
+        CDN,
+        Max,
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        TestExperiment = 0xFFFFFFFF,
+#endif
+    };
+
+    bool IsEnabled(const ExperimentKey& experimentKey);
 }

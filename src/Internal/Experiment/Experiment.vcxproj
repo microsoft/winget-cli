@@ -102,28 +102,7 @@
     <LinkIncremental>false</LinkIncremental>
     <EnableASAN>true</EnableASAN>
   </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <SpectreMitigation>Spectre</SpectreMitigation>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM'" Label="Configuration">
-    <SpectreMitigation>Spectre</SpectreMitigation>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <SpectreMitigation>Spectre</SpectreMitigation>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM64'" Label="Configuration">
-    <SpectreMitigation>Spectre</SpectreMitigation>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <SpectreMitigation>Spectre</SpectreMitigation>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'" Label="Configuration">
-    <SpectreMitigation>Spectre</SpectreMitigation>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <SpectreMitigation>Spectre</SpectreMitigation>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|x64'" Label="Configuration">
+  <PropertyGroup Label="Configuration">
     <SpectreMitigation>Spectre</SpectreMitigation>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -238,7 +217,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;_DEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_DEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);$(ProjectDir)..\..\AppInstallerSharedLib;$(ProjectDir)..\..\AppInstallerSharedLib\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir);$(ProjectDir)..\..\AppInstallerSharedLib;$(ProjectDir)..\..\AppInstallerSharedLib\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir);$(ProjectDir)..\..\AppInstallerSharedLib;$(ProjectDir)..\..\AppInstallerSharedLib\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -264,7 +243,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;WIN32;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_NO_ASYNCRTIMP;WIN32;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir);$(ProjectDir)..\..\AppInstallerSharedLib;$(ProjectDir)..\..\AppInstallerSharedLib\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
       <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</SDLCheck>
@@ -280,7 +259,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_NO_ASYNCRTIMP;NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir);$(ProjectDir)..\..\AppInstallerSharedLib;$(ProjectDir)..\..\AppInstallerSharedLib\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir);$(ProjectDir)..\..\AppInstallerSharedLib;$(ProjectDir)..\..\AppInstallerSharedLib\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir);$(ProjectDir)..\..\AppInstallerSharedLib;$(ProjectDir)..\..\AppInstallerSharedLib\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -317,7 +296,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_NO_ASYNCRTIMP;NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM'">$(ProjectDir);$(ProjectDir)..\..\AppInstallerSharedLib;$(ProjectDir)..\..\AppInstallerSharedLib\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM64'">$(ProjectDir);$(ProjectDir)..\..\AppInstallerSharedLib;$(ProjectDir)..\..\AppInstallerSharedLib\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">$(ProjectDir);$(ProjectDir)..\..\AppInstallerSharedLib;$(ProjectDir)..\..\AppInstallerSharedLib\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

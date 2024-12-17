@@ -130,7 +130,7 @@ namespace AppInstaller::Logging
         std::string DOUrl;
         HRESULT DOHResult = S_OK;
 
-        std::map<Settings::Experiment::Key, Settings::ExperimentState> Experiments;
+        std::map<AppInstaller::Experiment::ExperimentKey, Settings::ExperimentState> Experiments;
     };
 
     // This type contains the registration lifetime of the telemetry trace logging provider.
@@ -270,7 +270,7 @@ namespace AppInstaller::Logging
 
         void LogNonFatalDOError(std::string_view url, HRESULT hr) const noexcept;
 
-        Settings::ExperimentState GetExperimentState(Settings::Experiment::Key key);
+        Settings::ExperimentState GetExperimentState(AppInstaller::Experiment::ExperimentKey key);
 
     protected:
         bool IsTelemetryEnabled() const noexcept;

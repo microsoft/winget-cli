@@ -13,6 +13,7 @@
 
 using namespace AppInstaller::Settings;
 using namespace std::string_view_literals;
+using namespace AppInstaller::Experiment;
 
 namespace AppInstaller::Repository
 {
@@ -212,7 +213,7 @@ namespace AppInstaller::Repository
 
         std::string_view GetWingetCommunitySource()
         {
-            if (Settings::Experiment::GetState(Settings::Experiment::Key::CDN).IsEnabled())
+            if (Settings::Experiment::GetState(ExperimentKey::CDN).IsEnabled())
             {
                 return s_Source_WingetCommunityExperimental_Arg;
             }

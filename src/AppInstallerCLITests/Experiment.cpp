@@ -8,6 +8,7 @@
 
 using namespace TestCommon;
 using namespace AppInstaller::Settings;
+using namespace AppInstaller::Experiment;
 
 #define SET_POLICY_STATE(_policy_, _state_) \
     GroupPolicyTestOverride policies; \
@@ -20,7 +21,7 @@ using namespace AppInstaller::Settings;
     });
 
 #define ASSERT_EXPERIMENT(_isEnabled_, _toggleSource_) \
-    auto testExperimentState = Experiment::GetState(Experiment::Key::TestExperiment); \
+    auto testExperimentState = Experiment::GetState(ExperimentKey::TestExperiment); \
     REQUIRE(_isEnabled_ == testExperimentState.IsEnabled()); \
     REQUIRE(_toggleSource_ == testExperimentState.ToggleSource());
 

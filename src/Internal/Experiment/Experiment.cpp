@@ -5,10 +5,10 @@
 
 namespace AppInstaller::Experiment
 {
-    bool IsEnabled(const std::string& key)
+    bool IsEnabled(const ExperimentKey& key)
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
-        if (key == "TestExperiment")
+        if (key == ExperimentKey::TestExperiment)
         {
             return true;
         }

@@ -26,6 +26,7 @@ namespace AppInstaller::Logging
 {
     using namespace Utility;
     using namespace Settings;
+    using namespace Experiment;
 
     namespace
     {
@@ -80,12 +81,12 @@ namespace AppInstaller::Logging
             }
         }
 
-        std::wstring GetExperimentsJson(const std::map<Experiment::Key, ExperimentState>& experiments)
+        std::wstring GetExperimentsJson(const std::map<ExperimentKey, ExperimentState>& experiments)
         {
             Json::Value root;
             for (const auto& experiment : experiments)
             {
-                auto name = std::string(Experiment::GetExperiment(experiment.first).JsonName());
+                auto name = std::string(Settings::Experiment::GetExperiment(experiment.first).JsonName());
                 root[name] = experiment.second.ToJson();
             }
 
@@ -775,7 +776,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Error, << type << " repair failed: " << errorCode);
     }
 
-    Settings::ExperimentState TelemetryTraceLogger::GetExperimentState(Experiment::Key key)
+    Settings::ExperimentState TelemetryTraceLogger::GetExperimentState(ExperimentKey key)
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         m_summary.Experiments.clear();
@@ -783,7 +784,7 @@ namespace AppInstaller::Logging
 
         if (m_summary.Experiments.find(key) == m_summary.Experiments.end())
         {
-            m_summary.Experiments[key] =  Experiment::GetStateInternal(key);
+            m_summary.Experiments[key] =  Settings::Experiment::GetStateInternal(key);
         }
 
         return m_summary.Experiments[key];
