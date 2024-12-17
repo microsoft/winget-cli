@@ -34,7 +34,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     protected:
         ConfigurationSetSerializer() = default;
 
-        void WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, std::initializer_list<ConfigurationField> exclusions = {});
+        // A value to override in a value set.
+        // Prevents the value from the actual value set from being written.
+        // If provided, writes the given value instead.
+        struct ValueSetOverride
+        {
+            ConfigurationField Field;
+            Windows::Foundation::IInspectable Value;
+        };
+
+        void WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, const std::vector<ValueSetOverride>& overrides = {});
         void WriteYamlValueSetIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, const Windows::Foundation::Collections::ValueSet& valueSet);
         void WriteYamlValueSetAsArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSetArray);
 

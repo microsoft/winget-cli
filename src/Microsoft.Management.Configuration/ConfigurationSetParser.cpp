@@ -150,37 +150,28 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         };
 
         // Converts the string representation of SecurityContext to the enum
-        SecurityContext ParseSecurityContext(winrt::hstring securityContext)
+        bool TryParseSecurityContext(winrt::hstring securityContext, SecurityContext& context)
         {
             std::wstring securityContextLower = ToLower(securityContext);
 
             if (securityContextLower == L"elevated")
             {
-                return Security::IntegrityLevel::High;
+                context = SecurityContext::Elevated;
             }
             else if (securityContextLower == L"restricted")
             {
-#ifndef AICLI_DISABLE_TEST_HOOKS
-                if (m_enableRestrictedIntegrityLevel)
-                {
-                    return Security::IntegrityLevel::Medium;
-                }
-                else
-#endif
-                {
-                    // Not supporting elevated callers downgrading at the moment.
-                    THROW_WIN32(ERROR_NOT_SUPPORTED);
-
-                    // Technically this means the default level of the user token, so if UAC is disabled it would be the only integrity level (aka current).
-                    // return Security::IntegrityLevel::Medium;
-                }
+                context = SecurityContext::Restricted;
             }
             else if (securityContextLower == L"current")
             {
-                return m_currentIntegrityLevel;
+                context = SecurityContext::Current;
+            }
+            else
+            {
+                return false;
             }
 
-            THROW_WIN32(ERROR_NOT_SUPPORTED);
+            return true;
         }
     }
 
@@ -607,18 +598,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         auto securityContext = unit->Metadata().TryLookup(securityContextDirectiveFieldName);
         if (securityContext)
         {
-            auto securityContextProperty = securityContext.try_as<IPropertyValue>();
-            if (securityContextProperty && securityContextProperty.Type() == PropertyType::String)
+            auto securityContextProperty = securityContext.try_as<Windows::Foundation::IPropertyValue>();
+            if (securityContextProperty && securityContextProperty.Type() == Windows::Foundation::PropertyType::String)
             {
-                return SecurityContextToIntegrityLevel(securityContextProperty.GetString());
+                TryParseSecurityContext(securityContextProperty.GetString(), computedContext);
             }
         }
 
         unit->EnvironmentInternal().Context(computedContext);
-    }
-
-    // Gets the integrity level that the given unit should be run at
-    Security::IntegrityLevel GetIntegrityLevelForUnit(const ConfigurationUnit& unit)
-    {
     }
 }

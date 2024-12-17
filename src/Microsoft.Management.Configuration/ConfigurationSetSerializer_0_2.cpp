@@ -122,7 +122,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetSerializer_0_2::WriteResourceDirectives(AppInstaller::YAML::Emitter& emitter, const ConfigurationUnit& unit)
     {
+        SecurityContext securityContext = unit.Environment().Context();
+
         emitter << Key << GetConfigurationFieldName(ConfigurationField::Directives);
-        WriteYamlValueSet(emitter, unit.Metadata(), { ConfigurationField::ModuleDirective });
+        WriteYamlValueSet(emitter, unit.Metadata(),
+            { { ConfigurationField::ModuleDirective },
+            { ConfigurationField::SecurityContextDirective, (securityContext != SecurityContext::Current ? PropertyValue::CreateString(L"") : nullptr)}});
     }
 }

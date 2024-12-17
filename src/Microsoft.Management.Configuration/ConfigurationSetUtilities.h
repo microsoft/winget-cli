@@ -45,4 +45,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     std::string_view GetConfigurationFieldName(ConfigurationField fieldName);
 
     winrt::hstring GetConfigurationFieldNameHString(ConfigurationField fieldName);
+
+
 }
