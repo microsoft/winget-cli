@@ -17,7 +17,6 @@
 
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <LangVersion>10</LangVersion>
     <BuildOutputDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</BuildOutputDirectory>
     <OutputPath>$(BuildOutputDirectory)$(MSBuildProjectName)</OutputPath>
     <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
