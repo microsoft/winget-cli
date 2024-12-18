@@ -118,6 +118,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+    <CsWinRTEmbedded>true</CsWinRTEmbedded>
     <CsWinRTIncludes>Microsoft.Management.Deployment</CsWinRTIncludes>
     <CsWinRTWindowsMetadata>$(TargetWindowsVersion)</CsWinRTWindowsMetadata>
     <!-- Ensure Support for Windows 10, Version 1809 -->

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="VagueCriteriaException.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -17,7 +17,7 @@ namespace Microsoft.WinGet.Client.Engine.Exceptions
     /// Raised when search criteria for installing or updating a package is too vague.
     /// </summary>
     [Serializable]
-    public class VagueCriteriaException : RuntimeException
+    internal class VagueCriteriaException : RuntimeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="VagueCriteriaException"/> class.
