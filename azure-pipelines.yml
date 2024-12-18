@@ -175,7 +175,7 @@ jobs:
       TargetFolder: '$(artifactsDir)\AppxPackages'
 
   - task: CopyFiles@2
-    displayName: 'Copy native binaries for Microsoft.WinGet.Client (net6)'
+    displayName: 'Copy native binaries for Microsoft.WinGet.Client (net8)'
     inputs:
       SourceFolder: $(buildOutDir)
       Contents: |
@@ -183,7 +183,7 @@ jobs:
           Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd
           WindowsPackageManager\WindowsPackageManager.dll
           UndockedRegFreeWinRT\winrtact.dll
-      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net6.0-windows10.0.22000.0\SharedDependencies\$(BuildPlatform)
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net8.0-windows10.0.22000.0\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
 
   - task: CopyFiles@2
@@ -212,7 +212,7 @@ jobs:
     inputs:
       SourceFolder: $(buildOutDirAnyCpu)
       Contents: |
-          Microsoft.Management.Configuration.Projection\net6.0-windows10.0.22000.0\Microsoft.Management.Configuration.Projection.dll
+          Microsoft.Management.Configuration.Projection\net8.0-windows10.0.22000.0\Microsoft.Management.Configuration.Projection.dll
       TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
 
@@ -237,7 +237,7 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
     inputs:
-      SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(buildPlatform)\$(BuildConfiguration)\net6.0'
+      SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(buildPlatform)\$(BuildConfiguration)\net8.0'
       TargetFolder:  '$(artifactsDir)\WinGetUtilInterop.UnitTests\'
       CleanTargetFolder: true
       OverWrite: true
