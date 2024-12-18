@@ -127,6 +127,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         emitter << Key << GetConfigurationFieldName(ConfigurationField::Directives);
         WriteYamlValueSet(emitter, unit.Metadata(),
             { { ConfigurationField::ModuleDirective },
-            { ConfigurationField::SecurityContextDirective, (securityContext != SecurityContext::Current ? PropertyValue::CreateString(L"") : nullptr)}});
+            { ConfigurationField::SecurityContextDirective, (securityContext != SecurityContext::Current ? PropertyValue::CreateString(ToWString(securityContext)) : nullptr)} });
     }
 }

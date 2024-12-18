@@ -148,31 +148,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             hstring Module;
             hstring Resource;
         };
-
-        // Converts the string representation of SecurityContext to the enum
-        bool TryParseSecurityContext(winrt::hstring securityContext, SecurityContext& context)
-        {
-            std::wstring securityContextLower = ToLower(securityContext);
-
-            if (securityContextLower == L"elevated")
-            {
-                context = SecurityContext::Elevated;
-            }
-            else if (securityContextLower == L"restricted")
-            {
-                context = SecurityContext::Restricted;
-            }
-            else if (securityContextLower == L"current")
-            {
-                context = SecurityContext::Current;
-            }
-            else
-            {
-                return false;
-            }
-
-            return true;
-        }
     }
 
     std::unique_ptr<ConfigurationSetParser> ConfigurationSetParser::Create(std::string_view input)

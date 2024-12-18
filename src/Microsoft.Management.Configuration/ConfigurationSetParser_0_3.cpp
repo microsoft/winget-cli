@@ -19,11 +19,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         auto result = make_self<implementation::ConfigurationSet>();
 
         CHECK_ERROR(ParseValueSet(m_document, ConfigurationField::Metadata, false, result->Metadata()));
+
+        m_setEnvironment = make_self<implementation::ConfigurationEnvironment>();
+        CHECK_ERROR(ExtractEnvironmentFromMetadata(result->Metadata(), *m_setEnvironment));
+
         CHECK_ERROR(ParseParameters(result));
         CHECK_ERROR(ParseValueSet(m_document, ConfigurationField::Variables, false, result->Variables()));
 
         std::vector<Configuration::ConfigurationUnit> units;
-        CHECK_ERROR(ParseConfigurationUnitsFromField(m_document, ConfigurationField::Resources, units));
+        CHECK_ERROR(ParseConfigurationUnitsFromField(m_document, ConfigurationField::Resources, *m_setEnvironment, units));
         result->Units(std::move(units));
 
         result->SchemaVersion(GetSchemaVersion());
@@ -170,17 +174,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    void ConfigurationSetParser_0_3::ParseConfigurationUnitsFromField(const Node& document, ConfigurationField field, std::vector<Configuration::ConfigurationUnit>& result)
+    void ConfigurationSetParser_0_3::ParseConfigurationUnitsFromField(const Node& document, ConfigurationField field, const ConfigurationEnvironment& defaultEnvironment, std::vector<Configuration::ConfigurationUnit>& result)
     {
         ParseSequence(document, field, false, Node::Type::Mapping, [&](const Node& item)
             {
                 auto configurationUnit = make_self<ConfigurationUnit>();
-                ParseConfigurationUnit(configurationUnit.get(), item);
+                ParseConfigurationUnit(configurationUnit.get(), item, defaultEnvironment);
                 result.emplace_back(*configurationUnit);
             });
     }
 
-    void ConfigurationSetParser_0_3::ParseConfigurationUnit(ConfigurationUnit* unit, const Node& unitNode)
+    void ConfigurationSetParser_0_3::ParseConfigurationUnit(ConfigurationUnit* unit, const Node& unitNode, const ConfigurationEnvironment& defaultEnvironment)
     {
         // Set unknown intent as the new schema doesn't express it directly
         unit->Intent(ConfigurationUnitIntent::Unknown);
@@ -188,6 +192,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         CHECK_ERROR(GetStringValueForUnit(unitNode, ConfigurationField::Name, true, unit, &ConfigurationUnit::Identifier));
         CHECK_ERROR(GetStringValueForUnit(unitNode, ConfigurationField::Type, true, unit, &ConfigurationUnit::Type));
         CHECK_ERROR(ParseValueSet(unitNode, ConfigurationField::Metadata, false, unit->Metadata()));
+        CHECK_ERROR(ExtractEnvironmentForUnit(unit, defaultEnvironment));
         CHECK_ERROR(ValidateType(unit, unitNode, ConfigurationField::Type, false, true));
         CHECK_ERROR(GetStringArrayForUnit(unitNode, ConfigurationField::DependsOn, false, unit, &ConfigurationUnit::Dependencies));
 
@@ -204,7 +209,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             if (propertiesNode)
             {
                 std::vector<Configuration::ConfigurationUnit> units;
-                CHECK_ERROR(ParseConfigurationUnitsFromField(propertiesNode, ConfigurationField::Resources, units));
+                CHECK_ERROR(ParseConfigurationUnitsFromField(propertiesNode, ConfigurationField::Resources, unit->EnvironmentInternal(), units));
                 unit->Units(std::move(units));
             }
         }
@@ -226,6 +231,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // TODO: Check for known types
 
         return false;
+    }
+
+    void ConfigurationSetParser_0_3::ExtractEnvironmentFromMetadata(const Windows::Foundation::Collections::ValueSet& metadata, ConfigurationEnvironment& targetEnvironment, const ConfigurationEnvironment* defaultEnvironment)
+    {
+
+    }
+
+    void ConfigurationSetParser_0_3::ExtractEnvironmentForUnit(ConfigurationUnit* unit, const ConfigurationEnvironment& defaultEnvironment)
+    {
+        // Get unnested the security context
+        ExtractSecurityContext(unit, defaultEnvironment.Context());
+
+        // Get nested environment
+        ExtractEnvironmentFromMetadata(unit->Metadata(), unit->EnvironmentInternal(), &defaultEnvironment);
     }
 
     std::optional<std::pair<Windows::Foundation::PropertyType, bool>> ParseWindowsFoundationPropertyType(std::string_view value)

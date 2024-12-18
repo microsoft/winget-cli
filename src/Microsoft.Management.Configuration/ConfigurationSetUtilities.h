@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <string_view>
-#include <winrt/base.h>
+#include <winrt/Microsoft.Management.Configuration.h>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -46,5 +46,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     winrt::hstring GetConfigurationFieldNameHString(ConfigurationField fieldName);
 
+    // Attempts to parse a security context from a string.
+    // Returns true if successul; false otherwise.
+    bool TryParseSecurityContext(hstring value, SecurityContext& result);
 
+    // Parses a security context from a string.
+    SecurityContext ParseSecurityContext(hstring value);
+
+    // Gets the string representation of a security context.
+    std::string_view ToString(SecurityContext value);
+
+    // Gets the string representation of a security context.
+    std::wstring_view ToWString(SecurityContext value);
 }

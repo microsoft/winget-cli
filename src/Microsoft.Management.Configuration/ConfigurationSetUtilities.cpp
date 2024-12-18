@@ -48,4 +48,59 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         return hstring{ AppInstaller::Utility::ConvertToUTF16(GetConfigurationFieldName(fieldName)) };
     }
+
+    bool TryParseSecurityContext(winrt::hstring value, SecurityContext& result)
+    {
+        std::wstring securityContextLower = AppInstaller::Utility::ToLower(value);
+
+        if (securityContextLower == L"elevated")
+        {
+            result = SecurityContext::Elevated;
+        }
+        else if (securityContextLower == L"restricted")
+        {
+            result = SecurityContext::Restricted;
+        }
+        else if (securityContextLower == L"current")
+        {
+            result = SecurityContext::Current;
+        }
+        else
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    SecurityContext ParseSecurityContext(hstring value)
+    {
+        SecurityContext result = SecurityContext::Current;
+        THROW_HR_IF(E_INVALIDARG, !TryParseSecurityContext(value, result));
+        return result;
+    }
+
+    std::string_view ToString(SecurityContext value)
+    {
+        switch (value)
+        {
+        case SecurityContext::Current: return "current";
+        case SecurityContext::Restricted: return "restricted";
+        case SecurityContext::Elevated: return "elevated";
+        }
+
+        THROW_HR(E_INVALIDARG);
+    }
+
+    std::wstring_view ToWString(SecurityContext value)
+    {
+        switch (value)
+        {
+        case SecurityContext::Current: return L"current";
+        case SecurityContext::Restricted: return L"restricted";
+        case SecurityContext::Elevated: return L"elevated";
+        }
+
+        THROW_HR(E_INVALIDARG);
+    }
 }
