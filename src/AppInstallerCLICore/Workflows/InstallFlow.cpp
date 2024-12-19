@@ -52,7 +52,7 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Msi:
             case InstallerTypeEnum::Nullsoft:
             case InstallerTypeEnum::Wix:
-            case InstallerTypeEnum::AdvancedInstaller:
+            case InstallerTypeEnum::AdvinstExe:
                 return true;
             default:
                 return false;
@@ -407,7 +407,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Nullsoft:
         case InstallerTypeEnum::Wix:
-        case InstallerTypeEnum::AdvancedInstaller:
+        case InstallerTypeEnum::AdvinstExe:
             if (doUninstallPrevious)
             {
                 context <<

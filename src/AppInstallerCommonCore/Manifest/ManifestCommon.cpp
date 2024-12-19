@@ -24,7 +24,7 @@ namespace AppInstaller::Manifest
             case InstallerTypeEnum::Nullsoft:
             case InstallerTypeEnum::Exe:
             case InstallerTypeEnum::Burn:
-            case InstallerTypeEnum::AdvancedInstaller:
+            case InstallerTypeEnum::AdvinstExe:
                 return CompatibilitySet::Exe;
             case InstallerTypeEnum::Wix:
             case InstallerTypeEnum::Msi:
@@ -163,9 +163,9 @@ namespace AppInstaller::Manifest
         {
             result = InstallerTypeEnum::Portable;
         }
-        else if (inStrLower == "advancedinstaller")
+        else if (inStrLower == "advinstexe")
         {
-            result = InstallerTypeEnum::AdvancedInstaller;
+            result = InstallerTypeEnum::AdvinstExe;
         }
 
         return result;
@@ -588,8 +588,8 @@ namespace AppInstaller::Manifest
             return "msstore"sv;
         case InstallerTypeEnum::Portable:
             return "portable"sv;
-        case InstallerTypeEnum::AdvancedInstaller:
-          return "advancedinstaller"sv;
+        case InstallerTypeEnum::AdvinstExe:
+          return "advinstexe"sv;
         }
 
         return "unknown"sv;
@@ -896,7 +896,7 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn ||
             installerType == InstallerTypeEnum::Portable ||
-            installerType == InstallerTypeEnum::AdvancedInstaller
+            installerType == InstallerTypeEnum::AdvinstExe
             );
     }
 
@@ -910,7 +910,7 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn ||
             installerType == InstallerTypeEnum::Portable ||
-            installerType == InstallerTypeEnum::AdvancedInstaller
+            installerType == InstallerTypeEnum::AdvinstExe
             );
     }
 
@@ -923,7 +923,7 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn ||
-            installerType == InstallerTypeEnum::AdvancedInstaller
+            installerType == InstallerTypeEnum::AdvinstExe
             );
     }
 
@@ -950,7 +950,7 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Inno ||
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Exe ||
-            installerType == InstallerTypeEnum::AdvancedInstaller;
+            installerType == InstallerTypeEnum::AdvinstExe;
     }
 
     bool IsArchiveType(InstallerTypeEnum installerType)
@@ -974,7 +974,7 @@ namespace AppInstaller::Manifest
             nestedInstallerType == InstallerTypeEnum::Burn ||
             nestedInstallerType == InstallerTypeEnum::Portable ||
             nestedInstallerType == InstallerTypeEnum::Msix ||
-            nestedInstallerType == InstallerTypeEnum::AdvancedInstaller
+            nestedInstallerType == InstallerTypeEnum::AdvinstExe
             );
     }
 
@@ -1033,7 +1033,7 @@ namespace AppInstaller::Manifest
                 {InstallerSwitchType::Log, ManifestInstaller::string_t("/LOG=\"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
                 {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };
-        case InstallerTypeEnum::AdvancedInstaller:
+        case InstallerTypeEnum::AdvinstExe:
           return
           {
                 {InstallerSwitchType::Silent, ManifestInstaller::string_t("/exenoui /quiet /norestart")},
@@ -1074,7 +1074,7 @@ namespace AppInstaller::Manifest
         case InstallerTypeEnum::Burn:
         case InstallerTypeEnum::Wix:
         case InstallerTypeEnum::Msi:
-        case InstallerTypeEnum::AdvancedInstaller:
+        case InstallerTypeEnum::AdvinstExe:
             // See https://docs.microsoft.com/windows/win32/msi/error-codes
             return
             {

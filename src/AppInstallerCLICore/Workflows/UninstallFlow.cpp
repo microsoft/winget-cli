@@ -220,7 +220,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Burn:
         case InstallerTypeEnum::Inno:
         case InstallerTypeEnum::Nullsoft:
-        case InstallerTypeEnum::AdvancedInstaller:
+        case InstallerTypeEnum::AdvinstExe:
         {
             IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
 
@@ -330,7 +330,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Burn:
         case InstallerTypeEnum::Inno:
         case InstallerTypeEnum::Nullsoft:
-        case InstallerTypeEnum::AdvancedInstaller:
+        case InstallerTypeEnum::AdvinstExe:
             context <<
                 Workflow::ShellExecuteUninstallImpl <<
                 ReportUninstallerResult("UninstallString", APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
