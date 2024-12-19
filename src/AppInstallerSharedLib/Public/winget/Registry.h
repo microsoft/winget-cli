@@ -271,6 +271,9 @@ namespace AppInstaller::Registry
         std::optional<Value> operator[](std::string_view name) const;
         std::optional<Value> operator[](const std::wstring& name) const;
 
+        void DeleteValue(std::string_view name) const;
+        void DeleteValue(const std::wstring& name) const;
+
         std::optional<Key> SubKey(std::string_view name, DWORD options = 0) const;
         std::optional<Key> SubKey(const std::wstring& name, DWORD options = 0) const;
 

@@ -3187,4 +3187,19 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Configuration Modules</value>
     <comment>PowerShell Modules that are used for the Configuration feature</comment>
   </data>
+  <data name="FontInstallCommandShortDescription" xml:space="preserve">
+    <value>Install a font</value>
+  </data>
+  <data name="FontInstallCommandLongDescription" xml:space="preserve">
+    <value>Installs the selected font package, either found by searching a configured source or directly from a manifest.</value>
+  </data>
+  <data name="FontFileNotSupported" xml:space="preserve">
+    <value>The font file is not supported and cannot be installed.</value>
+  </data>
+  <data name="FontInstallFailed" xml:space="preserve">
+    <value>Font install failed; Cleaning up...</value>
+  </data>
+  <data name="FontAlreadyInstalled" xml:space="preserve">
+    <value>Font already installed</value>
+  </data>
 </root>
