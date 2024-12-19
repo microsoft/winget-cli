@@ -184,6 +184,15 @@
           "type": "integer",
           "default": 3,
           "minimum": 1
+        },
+        "archiveExtractionMethod": {
+          "description": "Controls the use of tar.exe for extracting packages.",
+          "type": "string",
+          "enum": [
+            "shellApi",
+            "tar"
+          ],
+          "default": "shellApi"
         }
       }
     },
