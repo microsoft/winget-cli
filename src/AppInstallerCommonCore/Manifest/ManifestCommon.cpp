@@ -1093,7 +1093,6 @@ namespace AppInstaller::Manifest
         case InstallerTypeEnum::Burn:
         case InstallerTypeEnum::Wix:
         case InstallerTypeEnum::Msi:
-        case InstallerTypeEnum::AdvinstExe:
         case InstallerTypeEnum::AdvinstMsi:
             // See https://docs.microsoft.com/windows/win32/msi/error-codes
             return
@@ -1144,6 +1143,32 @@ namespace AppInstaller::Manifest
                 { HRESULT_FROM_WIN32(ERROR_PACKAGE_NOT_SUPPORTED_ON_FILESYSTEM), ExpectedReturnCodeEnum::SystemNotSupported },
                 { HRESULT_FROM_WIN32(ERROR_DEPLOYMENT_OPTION_NOT_SUPPORTED), ExpectedReturnCodeEnum::SystemNotSupported },
                 { HRESULT_FROM_WIN32(ERROR_PACKAGE_LACKS_CAPABILITY_TO_DEPLOY_ON_HOST), ExpectedReturnCodeEnum::SystemNotSupported },
+            };
+        case InstallerTypeEnum::AdvinstExe:
+          // See https://www.advancedinstaller.com/user-guide/exe-setup-file.html
+            return
+            {
+                { ERROR_INSTALL_ALREADY_RUNNING, ExpectedReturnCodeEnum::InstallInProgress },
+                { ERROR_DISK_FULL, ExpectedReturnCodeEnum::DiskFull },
+                { ERROR_INSTALL_SERVICE_FAILURE, ExpectedReturnCodeEnum::ContactSupport },
+                { ERROR_SUCCESS_REBOOT_REQUIRED, ExpectedReturnCodeEnum::RebootRequiredToFinish },
+                { ERROR_SUCCESS_REBOOT_INITIATED, ExpectedReturnCodeEnum::RebootInitiated },
+                { ERROR_INSTALL_USEREXIT, ExpectedReturnCodeEnum::CancelledByUser },
+                { ERROR_PRODUCT_VERSION, ExpectedReturnCodeEnum::AlreadyInstalled },
+                { ERROR_INSTALL_REJECTED, ExpectedReturnCodeEnum::SystemNotSupported },
+                { ERROR_INSTALL_PACKAGE_REJECTED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_INSTALL_TRANSFORM_REJECTED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_PATCH_PACKAGE_REJECTED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_PATCH_REMOVAL_DISALLOWED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_INSTALL_REMOTE_DISALLOWED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_INVALID_PARAMETER, ExpectedReturnCodeEnum::InvalidParameter },
+                { ERROR_INVALID_TABLE, ExpectedReturnCodeEnum::InvalidParameter },
+                { ERROR_INVALID_COMMAND_LINE, ExpectedReturnCodeEnum::InvalidParameter },
+                { ERROR_INVALID_PATCH_XML, ExpectedReturnCodeEnum::InvalidParameter },
+                { ERROR_INSTALL_LANGUAGE_UNSUPPORTED, ExpectedReturnCodeEnum::SystemNotSupported },
+                { ERROR_INSTALL_PLATFORM_UNSUPPORTED, ExpectedReturnCodeEnum::SystemNotSupported },
+                { -1, ExpectedReturnCodeEnum::CancelledByUser }
+                //1, when EXE bootstrapper is launched with wrong value for /aespassword parameter
             };
         default:
             return {};
