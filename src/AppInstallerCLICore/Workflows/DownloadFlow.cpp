@@ -52,6 +52,7 @@ namespace AppInstaller::CLI::Workflow
                 return L".exe"sv;
             case InstallerTypeEnum::Msi:
             case InstallerTypeEnum::Wix:
+            case InstallerTypeEnum::AdvinstMsi:
                 return L".msi"sv;
             case InstallerTypeEnum::Msix:
                 // Note: We may need to distinguish between .msix and .msixbundle in the future.
@@ -224,6 +225,8 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Portable: 
             case InstallerTypeEnum::Wix:
             case InstallerTypeEnum::Zip:
+            case InstallerTypeEnum::AdvinstExe:
+            case InstallerTypeEnum::AdvinstMsi:
                 context << DownloadInstallerFile;
                 break;
             case InstallerTypeEnum::Msix:

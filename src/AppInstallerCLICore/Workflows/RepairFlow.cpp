@@ -345,6 +345,7 @@ namespace AppInstaller::CLI::Workflow
         break;
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Wix:
+        case InstallerTypeEnum::AdvinstMsi:
         {
             context <<
                 RepairMsiBasedInstaller;
@@ -389,6 +390,7 @@ namespace AppInstaller::CLI::Workflow
         // MSI based installers, for installed package all gets mapped to msi extension.
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Wix:
+        case InstallerTypeEnum::AdvinstMsi:
         {
             context <<
                 SetProductCodesInContext;

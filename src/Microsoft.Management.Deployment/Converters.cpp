@@ -286,7 +286,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case ::AppInstaller::Manifest::InstallerTypeEnum::Zip:
             return Microsoft::Management::Deployment::PackageInstallerType::Zip;
         case ::AppInstaller::Manifest::InstallerTypeEnum::AdvinstExe:
-          return Microsoft::Management::Deployment::PackageInstallerType::AdvinstExe;
+            return Microsoft::Management::Deployment::PackageInstallerType::AdvinstExe;
+        case ::AppInstaller::Manifest::InstallerTypeEnum::AdvinstMsi:
+            return Microsoft::Management::Deployment::PackageInstallerType::AdvinstMsi;
         case ::AppInstaller::Manifest::InstallerTypeEnum::Unknown:
             return Microsoft::Management::Deployment::PackageInstallerType::Unknown;
         }
@@ -320,6 +322,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return ::AppInstaller::Manifest::InstallerTypeEnum::Zip;
         case Microsoft::Management::Deployment::PackageInstallerType::AdvinstExe:
             return ::AppInstaller::Manifest::InstallerTypeEnum::AdvinstExe;
+        case Microsoft::Management::Deployment::PackageInstallerType::AdvinstMsi:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::AdvinstMsi;
         case Microsoft::Management::Deployment::PackageInstallerType::Unknown:
             return ::AppInstaller::Manifest::InstallerTypeEnum::Unknown;
         }

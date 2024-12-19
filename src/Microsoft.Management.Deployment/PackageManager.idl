@@ -469,6 +469,8 @@ namespace Microsoft.Management.Deployment
         Portable,
         /// AdvancedInstaller exe type.
         AdvinstExe,
+        /// AdvancedInstaller msi type.
+        AdvinstMsi,
     };
 
     /// The package installer scope.

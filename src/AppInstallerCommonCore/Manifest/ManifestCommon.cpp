@@ -28,6 +28,7 @@ namespace AppInstaller::Manifest
                 return CompatibilitySet::Exe;
             case InstallerTypeEnum::Wix:
             case InstallerTypeEnum::Msi:
+            case InstallerTypeEnum::AdvinstMsi:
                 return CompatibilitySet::Msi;
             case InstallerTypeEnum::Msix:
             case InstallerTypeEnum::MSStore:
@@ -166,6 +167,10 @@ namespace AppInstaller::Manifest
         else if (inStrLower == "advinstexe")
         {
             result = InstallerTypeEnum::AdvinstExe;
+        }
+        else if (inStrLower == "advinstmsi")
+        {
+            result = InstallerTypeEnum::AdvinstMsi;
         }
 
         return result;
@@ -590,6 +595,8 @@ namespace AppInstaller::Manifest
             return "portable"sv;
         case InstallerTypeEnum::AdvinstExe:
           return "advinstexe"sv;
+        case InstallerTypeEnum::AdvinstMsi:
+          return "advinstmsi"sv;
         }
 
         return "unknown"sv;
@@ -896,7 +903,8 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn ||
             installerType == InstallerTypeEnum::Portable ||
-            installerType == InstallerTypeEnum::AdvinstExe
+            installerType == InstallerTypeEnum::AdvinstExe ||
+            installerType == InstallerTypeEnum::AdvinstMsi
             );
     }
 
@@ -910,7 +918,8 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn ||
             installerType == InstallerTypeEnum::Portable ||
-            installerType == InstallerTypeEnum::AdvinstExe
+            installerType == InstallerTypeEnum::AdvinstExe ||
+            installerType == InstallerTypeEnum::AdvinstMsi
             );
     }
 
@@ -923,7 +932,8 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn ||
-            installerType == InstallerTypeEnum::AdvinstExe
+            installerType == InstallerTypeEnum::AdvinstExe ||
+            installerType == InstallerTypeEnum::AdvinstMsi
             );
     }
 
@@ -974,7 +984,8 @@ namespace AppInstaller::Manifest
             nestedInstallerType == InstallerTypeEnum::Burn ||
             nestedInstallerType == InstallerTypeEnum::Portable ||
             nestedInstallerType == InstallerTypeEnum::Msix ||
-            nestedInstallerType == InstallerTypeEnum::AdvinstExe
+            nestedInstallerType == InstallerTypeEnum::AdvinstExe ||
+            nestedInstallerType == InstallerTypeEnum::AdvinstMsi
             );
     }
 
@@ -1041,6 +1052,14 @@ namespace AppInstaller::Manifest
                 {InstallerSwitchType::Log, ManifestInstaller::string_t("/l*v \"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
                 {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("APPDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };
+        case InstallerTypeEnum::AdvinstMsi:
+          return
+            {
+                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/quiet /norestart")},
+                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/passive /norestart")},
+                {InstallerSwitchType::Log, ManifestInstaller::string_t("/log \"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
+                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("APPDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
+            };
         default:
             return {};
         }
@@ -1075,6 +1094,7 @@ namespace AppInstaller::Manifest
         case InstallerTypeEnum::Wix:
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::AdvinstExe:
+        case InstallerTypeEnum::AdvinstMsi:
             // See https://docs.microsoft.com/windows/win32/msi/error-codes
             return
             {

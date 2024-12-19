@@ -101,6 +101,7 @@ namespace AppInstaller::Manifest
         MSStore,
         Portable,
         AdvinstExe,
+        AdvinstMsi
     };
 
     enum class UpdateBehaviorEnum

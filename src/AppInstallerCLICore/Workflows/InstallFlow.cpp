@@ -53,6 +53,7 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Nullsoft:
             case InstallerTypeEnum::Wix:
             case InstallerTypeEnum::AdvinstExe:
+            case InstallerTypeEnum::AdvinstMsi:
                 return true;
             default:
                 return false;
@@ -65,6 +66,7 @@ namespace AppInstaller::CLI::Workflow
             {
             case InstallerTypeEnum::Msi:
             case InstallerTypeEnum::Wix:
+            case InstallerTypeEnum::AdvinstMsi:
                 return isSilentInstall || ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::DirectMSI);
             default:
                 return false;
@@ -408,6 +410,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Nullsoft:
         case InstallerTypeEnum::Wix:
         case InstallerTypeEnum::AdvinstExe:
+        case InstallerTypeEnum::AdvinstMsi:
             if (doUninstallPrevious)
             {
                 context <<
