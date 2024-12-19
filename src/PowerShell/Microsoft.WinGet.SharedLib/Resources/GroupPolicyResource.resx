@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -134,6 +134,9 @@
   </data>
   <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
     <value>Enable Windows App Installer Experimental Features</value>
+  </data>
+  <data name="PolicyEnableExperiments" xml:space="preserve">
+    <value>Enable Windows App Installer Experiments</value>
   </data>
   <data name="PolicyEnableHashOverride" xml:space="preserve">
     <value>Enable Windows App Installer Hash Override</value>
