@@ -132,6 +132,20 @@ namespace AppInstaller::Registry
 
             return true;
         }
+
+        bool TryDeleteRegistryValueData(const wil::shared_hkey& key, const std::wstring& valueName)
+        {
+            LSTATUS status = RegDeleteValueW(key.get(), valueName.c_str());
+
+            if (status == ERROR_FILE_NOT_FOUND)
+            {
+                return false;
+            }
+
+            THROW_IF_WIN32_ERROR(status);
+
+            return true;
+        }
     }
 
     namespace details
@@ -412,6 +426,23 @@ namespace AppInstaller::Registry
         else
         {
             return {};
+        }
+    }
+
+    void Key::DeleteValue(std::string_view name) const
+    {
+        DeleteValue(Utility::ConvertToUTF16(name));
+    }
+
+    void Key::DeleteValue(const std::wstring& name) const
+    {
+        if (TryDeleteRegistryValueData(m_key, name))
+        {
+            AICLI_LOG(Core, Verbose, << "Registry value '" << Utility::ConvertToUTF8(name) << "' deleted successfully.");
+        }
+        else
+        {
+            AICLI_LOG(Core, Verbose, << "Registry value '" << Utility::ConvertToUTF8(name) << "' does not exist.");
         }
     }
 
