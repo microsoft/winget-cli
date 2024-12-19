@@ -114,7 +114,8 @@ The 'skipDependencies' behavior affects whether dependencies are installed for a
 ```
 
 ### Archive Extraction Method
-The 'archiveExtractionMethod' behavior affects how installer archives are extracted. Currently there are two supported values: `Tar` or `ShellApi`.
+
+The `archiveExtractionMethod` behavior affects how installer archives are extracted. Currently there are two supported values: `Tar` or `ShellApi`.
 `Tar` indicates that the archive should be extracted using the tar executable ('tar.exe') while `shellApi` indicates using the Windows Shell API. Defaults to `shellApi` if value is not set or is invalid.
 
 ```json
