@@ -10,16 +10,6 @@ using namespace TestCommon;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Experiment;
 
-#define SET_POLICY_STATE(_policy_, _state_) \
-    GroupPolicyTestOverride policies; \
-    policies.SetState(_policy_, _state_);
-
-#define SET_USER_SETTINGS(_value_) \
-    TestUserSettings settings; \
-    settings.Set<Setting::Experiments>({ \
-        {"TestExperiment", _value_} \
-    });
-
 #define ASSERT_EXPERIMENT(_isEnabled_, _toggleSource_) \
     auto testExperimentState = Experiment::GetState(ExperimentKey::TestExperiment); \
     REQUIRE(_isEnabled_ == testExperimentState.IsEnabled()); \
@@ -29,32 +19,38 @@ TEST_CASE("Experiment_GroupPolicyControl", "[experiment]")
 {
     SECTION("Not configured")
     {
-        SET_POLICY_STATE(TogglePolicy::Policy::Experiments, PolicyState::NotConfigured);
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::Experiments, PolicyState::NotConfigured);
         ASSERT_EXPERIMENT(true, ExperimentToggleSource::Default);
     }
 
     SECTION("Enabled")
     {
-        SET_POLICY_STATE(TogglePolicy::Policy::Experiments, PolicyState::Enabled);
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::Experiments, PolicyState::Enabled);
         ASSERT_EXPERIMENT(true, ExperimentToggleSource::Default);
     }
 
     SECTION("Disabled")
     {
-        SET_POLICY_STATE(TogglePolicy::Policy::Experiments, PolicyState::Disabled);
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::Experiments, PolicyState::Disabled);
         ASSERT_EXPERIMENT(false, ExperimentToggleSource::Policy);
     }
 }
 
 TEST_CASE("Experiment_GroupPolicyDisabled_ReturnFalse", "[experiment]")
 {
+    TestUserSettings settings; \
+    settings.Set<Setting::Experiments>({{"TestExperiment", true}});
+
     // If the policy is disabled, then also the user settings should be ignored.
-    SET_POLICY_STATE(TogglePolicy::Policy::Experiments, PolicyState::Disabled);
-    SET_USER_SETTINGS(true);
+    GroupPolicyTestOverride policies;
+    policies.SetState(TogglePolicy::Policy::Experiments, PolicyState::Disabled);
     ASSERT_EXPERIMENT(false, ExperimentToggleSource::Policy);
 }
 
-TEST_CASE("Experiment_UserSettingsControl", "[experiment]")
+TEST_CASE("Experiment_UserSettingsIndividualControl", "[experiment]")
 {
     SECTION("Experiments not configured in user settings")
     {
@@ -64,13 +60,41 @@ TEST_CASE("Experiment_UserSettingsControl", "[experiment]")
 
     SECTION("Experiments enabled in user settings")
     {
-        SET_USER_SETTINGS(true);
-        ASSERT_EXPERIMENT(true, ExperimentToggleSource::UserSetting);
+        TestUserSettings settings; \
+        settings.Set<Setting::Experiments>({{"TestExperiment", true}});
+        ASSERT_EXPERIMENT(true, ExperimentToggleSource::UserSettingIndividualControl);
     }
 
     SECTION("Experiments disabled in user settings")
     {
-        SET_USER_SETTINGS(false);
-        ASSERT_EXPERIMENT(false, ExperimentToggleSource::UserSetting);
+        TestUserSettings settings;
+        settings.Set<Setting::Experiments>({{"TestExperiment", false}});
+        ASSERT_EXPERIMENT(false, ExperimentToggleSource::UserSettingIndividualControl);
+    }
+}
+
+TEST_CASE("Experiment_UserSettingsGlobalControl", "[experiment]")
+{
+    SECTION("'Allow experiments' not configured in user settings")
+    {
+        TestUserSettings settings;
+        settings.Set<Setting::Experiments>({{"TestExperiment", true}});
+        ASSERT_EXPERIMENT(true, ExperimentToggleSource::UserSettingIndividualControl);
+    }
+
+    SECTION("'Allow experiments' enabled in user settings")
+    {
+        TestUserSettings settings;
+        settings.Set<Setting::AllowExperiments>(true);
+        settings.Set<Setting::Experiments>({{"TestExperiment", true}});
+        ASSERT_EXPERIMENT(true, ExperimentToggleSource::UserSettingIndividualControl);
+    }
+
+    SECTION("'Allow experiments' disabled in user settings")
+    {
+        TestUserSettings settings;
+        settings.Set<Setting::AllowExperiments>(false);
+        settings.Set<Setting::Experiments>({{"TestExperiment", true}});
+        ASSERT_EXPERIMENT(false, ExperimentToggleSource::UserSettingGlobalControl);
     }
 }

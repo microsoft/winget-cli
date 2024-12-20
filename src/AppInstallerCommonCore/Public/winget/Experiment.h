@@ -12,13 +12,22 @@ namespace AppInstaller::Settings
     {
         Default = 0,
         Policy,
-        UserSetting,
+        UserSettingIndividualControl,
+        UserSettingGlobalControl,
     };
 
     struct ExperimentState
     {
         ExperimentState() = default;
         ExperimentState(bool isEnabled, ExperimentToggleSource toggleSource) : m_isEnabled(isEnabled), m_toggleSource(toggleSource) {}
+
+        /// <summary>
+        /// Gets a value indicating whether the experiment is enabled.
+        /// </summary>
+        /// <returns>True if the experiment is enabled; otherwise, false.</returns>
+        /// <remarks>This API expects an experiment to be disabled by default and will
+        /// always return false if the user opts out of the experiment from the
+        /// user settings or group policy.</remarks>
         bool IsEnabled() const { return m_isEnabled; }
         ExperimentToggleSource ToggleSource() const { return m_toggleSource; }
         std::string ToJson() const;

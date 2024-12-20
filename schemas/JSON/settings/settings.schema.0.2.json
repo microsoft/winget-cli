@@ -305,6 +305,22 @@
           "default":  false
         }
       }
+    },
+    "Experiments": {
+      "description": "Experiments",
+      "type": "object",
+      "properties": {
+        "CDN": {
+          "description": "Enables the use of an alternative CDN for package downloads",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "AllowExperiments": {
+      "description": "Controls whether experiments are allowed or not",
+      "type": "boolean",
+      "default": true
     }
   },
   "allOf": [
@@ -353,6 +369,18 @@
     {
       "properties": {
         "experimentalFeatures": { "$ref": "#/definitions/Experimental" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "experiments": { "$ref": "#/definitions/Experiments" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "allowExperiments": { "$ref": "#/definitions/AllowExperiments" }
       },
       "additionalItems": true
     }

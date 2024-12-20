@@ -28,13 +28,21 @@ namespace AppInstaller::Settings
             }
 
             auto experiment = Experiment::GetExperiment(key);
-            auto userSettingsExperiments = userSettings.Get<Setting::Experiments>();
             auto experimentJsonName = experiment.JsonName();
+
+            if (!userSettings.Get<Setting::AllowExperiments>())
+            {
+                AICLI_LOG(Core, Info, << "Experiment " << Experiment::GetExperiment(key).Name() <<
+                    " is disabled due to experiments not allowed from user settings");
+                return { false, ExperimentToggleSource::UserSettingGlobalControl };
+            }
+
+            auto userSettingsExperiments = userSettings.Get<Setting::Experiments>();
             if (userSettingsExperiments.find(experimentJsonName) != userSettingsExperiments.end())
             {
                 auto isEnabled = userSettingsExperiments[experimentJsonName];
                 AICLI_LOG(Core, Info, << "Experiment " << experiment.Name() << " is set to " << (isEnabled ? "true" : "false") << " in user settings");
-                return { isEnabled, ExperimentToggleSource::UserSetting };
+                return { isEnabled, ExperimentToggleSource::UserSettingIndividualControl };
             }
 
             auto isEnabled = AppInstaller::Experiment::IsEnabled(experiment.GetKey());
@@ -50,8 +58,10 @@ namespace AppInstaller::Settings
                 return "Default";
             case ExperimentToggleSource::Policy:
                 return "Policy";
-            case ExperimentToggleSource::UserSetting:
-                return "UserSetting";
+            case ExperimentToggleSource::UserSettingIndividualControl:
+                return "UserSettingIndividualControl";
+            case ExperimentToggleSource::UserSettingGlobalControl:
+                return "UserSettingGlobalControl";
             default:
                 return "Unknown";
             }
