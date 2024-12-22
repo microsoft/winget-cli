@@ -155,7 +155,7 @@ namespace AppInstaller::Utility
             session.get(),
             urlWide.c_str(),
             customHeadersWide.empty() ? NULL : customHeadersWide.c_str(),
-            customHeadersWide.empty() ? 0 : customHeadersWide.size(),
+            customHeadersWide.empty() ? 0 : (DWORD)(customHeadersWide.size()),
             INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTPS, // This allows http->https redirection
             0));
         THROW_LAST_ERROR_IF_NULL_MSG(urlFile, "InternetOpenUrl() failed.");

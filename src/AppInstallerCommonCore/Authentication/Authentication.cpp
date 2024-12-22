@@ -58,6 +58,20 @@ namespace AppInstaller::Authentication
         return m_authProvider->AuthenticateForToken();
     }
 
+    bool MicrosoftEntraIdAuthenticationInfo::operator<(const MicrosoftEntraIdAuthenticationInfo& other) const
+    {
+        // std::tie implements tuple comparison, wherein it checks the first item in the tuple,
+        // iff the first elements are equal, then the second element is used for comparison, and so on
+        return std::tie(Resource, Scope) < std::tie(other.Resource, other.Scope);
+    }
+
+    bool AuthenticationInfo::operator<(const AuthenticationInfo& other) const
+    {
+        // std::tie implements tuple comparison, wherein it checks the first item in the tuple,
+        // iff the first elements are equal, then the second element is used for comparison, and so on
+        return std::tie(Type, MicrosoftEntraIdInfo) < std::tie(other.Type, other.MicrosoftEntraIdInfo);
+    }
+
     void AuthenticationInfo::UpdateRequiredFieldsIfNecessary()
     {
         // If MicrosoftEntraIdForAzureBlobStorage, populate default resource value if missing.
@@ -80,7 +94,7 @@ namespace AppInstaller::Authentication
         }
     }
 
-    bool AuthenticationInfo::ValidateIntegrity()
+    bool AuthenticationInfo::ValidateIntegrity() const
     {
         // For MicrosoftEntraId, Resource is required.
         if (Type == AuthenticationType::MicrosoftEntraId || Type == AuthenticationType::MicrosoftEntraIdForAzureBlobStorage)
