@@ -7,6 +7,7 @@
 #include "ComContext.h"
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
+#include <winget/Authentication.h>
 #include <winget/UserSettings.h>
 #include <winget/Manifest.h>
 #include "Commands/COMCommand.h"
@@ -572,6 +573,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::SkipDependencies);
             }
+
+            if (options.AuthenticationArguments())
+            {
+                context->Args.AddArg(Execution::Args::Type::AuthenticationMode, ::AppInstaller::Authentication::AuthenticationModeToString(GetAuthenticationMode(options.AuthenticationArguments().AuthenticationMode())));
+                context->Args.AddArg(Execution::Args::Type::AuthenticationAccount, ::AppInstaller::Utility::ConvertToUTF8(options.AuthenticationArguments().AuthenticationAccount()));
+            }
         }
         else
         {
@@ -660,6 +667,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::InstallerType, AppInstaller::Manifest::InstallerTypeToString(installerType));
             }
+
+            if (options.AuthenticationArguments())
+            {
+                context->Args.AddArg(Execution::Args::Type::AuthenticationMode, ::AppInstaller::Authentication::AuthenticationModeToString(GetAuthenticationMode(options.AuthenticationArguments().AuthenticationMode())));
+                context->Args.AddArg(Execution::Args::Type::AuthenticationAccount, ::AppInstaller::Utility::ConvertToUTF8(options.AuthenticationArguments().AuthenticationAccount()));
+            }
         }
     }
 
@@ -708,6 +721,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             if (repairScope != ::AppInstaller::Manifest::ScopeEnum::Unknown)
             {
                 context->Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(repairScope));
+            }
+
+            if (options.AuthenticationArguments())
+            {
+                context->Args.AddArg(Execution::Args::Type::AuthenticationMode, ::AppInstaller::Authentication::AuthenticationModeToString(GetAuthenticationMode(options.AuthenticationArguments().AuthenticationMode())));
+                context->Args.AddArg(Execution::Args::Type::AuthenticationAccount, ::AppInstaller::Utility::ConvertToUTF8(options.AuthenticationArguments().AuthenticationAccount()));
             }
         }
     }

@@ -160,5 +160,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_skipDependencies;
     }
+    winrt::Microsoft::Management::Deployment::AuthenticationArguments InstallOptions::AuthenticationArguments()
+    {
+        return m_authenticationArguments;
+    }
+    void InstallOptions::AuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments const& value)
+    {
+        m_authenticationArguments = value;
+    }
     CoCreatableMicrosoftManagementDeploymentClass(InstallOptions);
 }

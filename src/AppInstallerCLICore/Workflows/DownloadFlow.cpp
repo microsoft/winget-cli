@@ -686,4 +686,9 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED);
         }
     }
+
+    void InitializeInstallerDownloadAuthenticatorsMap(Execution::Context& context)
+    {
+        context.Add<Execution::Data::InstallerDownloadAuthenticators>(std::make_shared<std::map<Authentication::AuthenticationInfo, Authentication::Authenticator>>());
+    }
 }

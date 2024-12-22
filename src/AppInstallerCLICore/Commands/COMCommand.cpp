@@ -21,6 +21,7 @@ namespace AppInstaller::CLI
     void COMDownloadCommand::ExecuteInternal(Context& context) const
     {
         context <<
+            Workflow::InitializeInstallerDownloadAuthenticatorsMap <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
@@ -51,6 +52,7 @@ namespace AppInstaller::CLI
     void COMRepairCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
+            Workflow::InitializeInstallerDownloadAuthenticatorsMap <<
             Workflow::SelectApplicableInstallerIfNecessary <<
             Workflow::RepairSinglePackage;
     }

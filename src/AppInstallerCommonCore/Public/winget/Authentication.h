@@ -14,6 +14,7 @@ namespace AppInstaller::Authentication
         Unknown,
         None,
         MicrosoftEntraId,
+        MicrosoftEntraIdForAzureBlobStorage,
     };
 
     std::string_view AuthenticationTypeToString(AuthenticationType in);
@@ -52,6 +53,9 @@ namespace AppInstaller::Authentication
     {
         AuthenticationType Type = AuthenticationType::None;
         std::optional<MicrosoftEntraIdAuthenticationInfo> MicrosoftEntraIdInfo;
+
+        // Update default values for missing required fields for known authentication type.
+        void UpdateRequiredFieldsIfNecessary();
 
         // Validates data integrity against known authentication type.
         bool ValidateIntegrity();

@@ -13,6 +13,8 @@ namespace AppInstaller::Authentication
     namespace
     {
         const std::string c_BearerTokenPrefix = "Bearer ";
+        // Default Azure Blob Storage resource value. Used when manifest author did not provide specific blob resource.
+        constexpr std::string_view c_DefaultAzureBlobStorageResource = "https://storage.azure.com/"sv;
     }
 
     Authenticator::Authenticator(AuthenticationInfo info, AuthenticationArguments args)
@@ -56,10 +58,32 @@ namespace AppInstaller::Authentication
         return m_authProvider->AuthenticateForToken();
     }
 
+    void AuthenticationInfo::UpdateRequiredFieldsIfNecessary()
+    {
+        // If MicrosoftEntraIdForAzureBlobStorage, populate default resource value if missing.
+        if (Type == AuthenticationType::MicrosoftEntraIdForAzureBlobStorage)
+        {
+            if (MicrosoftEntraIdInfo.has_value())
+            {
+                if (MicrosoftEntraIdInfo->Resource.empty())
+                {
+                    MicrosoftEntraIdInfo->Resource = c_DefaultAzureBlobStorageResource;
+                    MicrosoftEntraIdInfo->Scope = "";
+                }
+            }
+            else
+            {
+                MicrosoftEntraIdAuthenticationInfo authInfo;
+                authInfo.Resource = c_DefaultAzureBlobStorageResource;
+                MicrosoftEntraIdInfo = std::move(authInfo);
+            }
+        }
+    }
+
     bool AuthenticationInfo::ValidateIntegrity()
     {
         // For MicrosoftEntraId, Resource is required.
-        if (Type == AuthenticationType::MicrosoftEntraId)
+        if (Type == AuthenticationType::MicrosoftEntraId || Type == AuthenticationType::MicrosoftEntraIdForAzureBlobStorage)
         {
             return MicrosoftEntraIdInfo.has_value() && !MicrosoftEntraIdInfo->Resource.empty();
         }
@@ -195,6 +219,10 @@ namespace AppInstaller::Authentication
         else if (inStrLower == "microsoftentraid")
         {
             result = AuthenticationType::MicrosoftEntraId;
+        }
+        else if (inStrLower == "microsoftentraidforazureblobstorage")
+        {
+            result = AuthenticationType::MicrosoftEntraIdForAzureBlobStorage;
         }
 
         return result;

@@ -14,6 +14,33 @@ namespace AppInstaller::Repository::Rest::Schema
         constexpr std::string_view MicrosoftEntraIdAuthenticationInfo = "MicrosoftEntraIdAuthenticationInfo"sv;
         constexpr std::string_view MicrosoftEntraId_Resource = "Resource"sv;
         constexpr std::string_view MicrosoftEntraId_Scope = "Scope"sv;
+
+        Authentication::AuthenticationType ConvertToAuthenticationTypeForSource(std::string_view in)
+        {
+            std::string inStrLower = Utility::ToLower(in);
+            Authentication::AuthenticationType result = Authentication::AuthenticationType::Unknown;
+
+            if (inStrLower == "none")
+            {
+                result = Authentication::AuthenticationType::None;
+            }
+            else if (inStrLower == "microsoftentraid")
+            {
+                result = Authentication::AuthenticationType::MicrosoftEntraId;
+            }
+
+            return result;
+        }
+
+        Authentication::AuthenticationType ConvertToAuthenticationTypeForInstaller(std::string_view in, Manifest::ManifestVer manifestVersion)
+        {
+            if (manifestVersion >= Manifest::ManifestVer{ Manifest::s_ManifestVersionV1_10 })
+            {
+                return Authentication::ConvertToAuthenticationType(in);
+            }
+
+            return Authentication::AuthenticationType::Unknown;
+        }
     }
 
     // The authentication info json looks like below:
@@ -24,7 +51,7 @@ namespace AppInstaller::Repository::Rest::Schema
     //         "Scope" : "test"
     //     }
     // }
-    Authentication::AuthenticationInfo ParseAuthenticationInfo(const web::json::value& dataObject, std::optional<Manifest::ManifestVer>)
+    Authentication::AuthenticationInfo ParseAuthenticationInfo(const web::json::value& dataObject, ParseAuthenticationInfoType parseType, std::optional<Manifest::ManifestVer> manifestVersion)
     {
         auto authenticationObject = JSON::GetJsonValueFromNode(dataObject, JSON::GetUtilityString(Authentication));
         if (!authenticationObject)
@@ -46,7 +73,15 @@ namespace AppInstaller::Repository::Rest::Schema
         auto authenticationTypeString = JSON::GetRawStringValueFromJsonNode(authenticationObjectNode, JSON::GetUtilityString(AuthenticationType));
         // AuthenticationType required if Authentication exists and is not null.
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO, !JSON::IsValidNonEmptyStringValue(authenticationTypeString));
-        result.Type = Authentication::ConvertToAuthenticationType(authenticationTypeString.value());
+        if (parseType == ParseAuthenticationInfoType::Source)
+        {
+            result.Type = ConvertToAuthenticationTypeForSource(authenticationTypeString.value());
+        }
+        else if (parseType == ParseAuthenticationInfoType::Installer)
+        {
+            THROW_HR_IF(E_INVALIDARG, !manifestVersion);
+            result.Type = ConvertToAuthenticationTypeForInstaller(authenticationTypeString.value(), manifestVersion.value());
+        }
 
         // Parse MicrosoftEntraId info
         auto microsoftEntraIdInfoObject = JSON::GetJsonValueFromNode(authenticationObjectNode, JSON::GetUtilityString(MicrosoftEntraIdAuthenticationInfo));
@@ -70,6 +105,7 @@ namespace AppInstaller::Repository::Rest::Schema
             result.MicrosoftEntraIdInfo = std::move(microsoftEntraIdInfo);
         }
 
+        result.UpdateRequiredFieldsIfNecessary();
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO, !result.ValidateIntegrity());
 
         return result;

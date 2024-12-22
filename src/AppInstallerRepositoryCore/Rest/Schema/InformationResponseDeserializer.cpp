@@ -124,7 +124,7 @@ namespace AppInstaller::Repository::Rest::Schema
             info.RequiredQueryParameters = JSON::GetRawStringArrayFromJsonNode(dataValue, JSON::GetUtilityString(RequiredQueryParameters));
             info.UnsupportedQueryParameters = JSON::GetRawStringArrayFromJsonNode(dataValue, JSON::GetUtilityString(UnsupportedQueryParameters));
 
-            info.Authentication = ParseAuthenticationInfo(dataValue);
+            info.Authentication = ParseAuthenticationInfo(dataValue, ParseAuthenticationInfoType::Source);
 
             return info;
         }

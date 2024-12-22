@@ -31,6 +31,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void AcceptPackageAgreements(bool value);
         hstring CorrelationData();
         void CorrelationData(hstring const& value);
+        winrt::Microsoft::Management::Deployment::AuthenticationArguments AuthenticationArguments();
+        void AuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments const& value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -44,6 +46,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool m_skipDependencies = false;
         bool m_acceptPackageAgreements = true;
         std::wstring m_correlationData = L"";
+        winrt::Microsoft::Management::Deployment::AuthenticationArguments m_authenticationArguments{ nullptr };
 #endif
     };
 }
