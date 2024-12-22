@@ -12,9 +12,9 @@ namespace AppInstaller::Authentication
 {
     namespace
     {
-        const std::string c_BearerTokenPrefix = "Bearer ";
+        constexpr std::string_view s_BearerTokenPrefix = "Bearer "sv;
         // Default Azure Blob Storage resource value. Used when manifest author did not provide specific blob resource.
-        constexpr std::string_view c_DefaultAzureBlobStorageResource = "https://storage.azure.com/"sv;
+        constexpr std::string_view s_DefaultAzureBlobStorageResource = "https://storage.azure.com/"sv;
     }
 
     Authenticator::Authenticator(AuthenticationInfo info, AuthenticationArguments args)
@@ -67,14 +67,14 @@ namespace AppInstaller::Authentication
             {
                 if (MicrosoftEntraIdInfo->Resource.empty())
                 {
-                    MicrosoftEntraIdInfo->Resource = c_DefaultAzureBlobStorageResource;
+                    MicrosoftEntraIdInfo->Resource = s_DefaultAzureBlobStorageResource;
                     MicrosoftEntraIdInfo->Scope = "";
                 }
             }
             else
             {
                 MicrosoftEntraIdAuthenticationInfo authInfo;
-                authInfo.Resource = c_DefaultAzureBlobStorageResource;
+                authInfo.Resource = s_DefaultAzureBlobStorageResource;
                 MicrosoftEntraIdInfo = std::move(authInfo);
             }
         }
@@ -266,6 +266,6 @@ namespace AppInstaller::Authentication
 
     std::string AppInstaller::Authentication::CreateBearerToken(std::string rawToken)
     {
-        return c_BearerTokenPrefix + rawToken;
+        return std::string{ s_BearerTokenPrefix } + rawToken;
     }
 }

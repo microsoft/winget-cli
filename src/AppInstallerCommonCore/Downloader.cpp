@@ -105,7 +105,8 @@ namespace AppInstaller::Utility
     DownloadResult WinINetDownloadToStream(
         const std::string& url,
         std::ostream& dest,
-        IProgressCallback& progress)
+        IProgressCallback& progress,
+        std::optional<DownloadInfo> info)
     {
         // For AICLI_LOG usages with string literals.
         #pragma warning(push)
@@ -139,12 +140,22 @@ namespace AppInstaller::Utility
 
         THROW_LAST_ERROR_IF_NULL_MSG(session, "InternetOpen() failed.");
 
+        std::string customHeaders;
+        if (info && info->RequestHeaders.size() > 0)
+        {
+            for (const auto& header : info->RequestHeaders)
+            {
+                customHeaders += header.Name + ": " + header.Value + "\r\n";
+            }
+        }
+        std::wstring customHeadersWide = Utility::ConvertToUTF16(customHeaders);
+
         auto urlWide = Utility::ConvertToUTF16(url);
         wil::unique_hinternet urlFile(InternetOpenUrl(
             session.get(),
             urlWide.c_str(),
-            NULL,
-            0,
+            customHeadersWide.empty() ? NULL : customHeadersWide.c_str(),
+            customHeadersWide.empty() ? 0 : customHeadersWide.size(),
             INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTPS, // This allows http->https redirection
             0));
         THROW_LAST_ERROR_IF_NULL_MSG(urlFile, "InternetOpenUrl() failed.");
@@ -296,10 +307,10 @@ namespace AppInstaller::Utility
         std::ostream& dest,
         DownloadType,
         IProgressCallback& progress,
-        std::optional<DownloadInfo>)
+        std::optional<DownloadInfo> info)
     {
         THROW_HR_IF(E_INVALIDARG, url.empty());
-        return WinINetDownloadToStream(url, dest, progress);
+        return WinINetDownloadToStream(url, dest, progress, info);
     }
 
     DownloadResult Download(
@@ -368,7 +379,7 @@ namespace AppInstaller::Utility
         // Use std::ofstream::app to append to previous empty file so that it will not
         // create a new file and clear motw.
         std::ofstream outfile(dest, std::ofstream::binary | std::ofstream::app);
-        return WinINetDownloadToStream(url, outfile, progress);
+        return WinINetDownloadToStream(url, outfile, progress, info);
     }
 
     using namespace std::string_view_literals;
