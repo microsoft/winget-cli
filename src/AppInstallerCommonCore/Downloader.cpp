@@ -102,6 +102,28 @@ namespace AppInstaller::Utility
         }
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    namespace TestHooks
+    {
+        static std::function<DownloadResult(
+            const std::string& url,
+            const std::filesystem::path& dest,
+            DownloadType type,
+            IProgressCallback& progress,
+            std::optional<DownloadInfo> info)>* s_Download_Function_Override = nullptr;
+
+        void SetDownloadResult_Function_Override(std::function<DownloadResult(
+            const std::string& url,
+            const std::filesystem::path& dest,
+            DownloadType type,
+            IProgressCallback& progress,
+            std::optional<DownloadInfo> info)>* value)
+        {
+            s_Download_Function_Override = value;
+        }
+    }
+#endif
+
     DownloadResult WinINetDownloadToStream(
         const std::string& url,
         std::ostream& dest,
@@ -320,6 +342,13 @@ namespace AppInstaller::Utility
         IProgressCallback& progress,
         std::optional<DownloadInfo> info)
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (TestHooks::s_Download_Function_Override)
+        {
+            return (*TestHooks::s_Download_Function_Override)(url, dest, type, progress, info);
+        }
+#endif
+
         THROW_HR_IF(E_INVALIDARG, url.empty());
         THROW_HR_IF(E_INVALIDARG, dest.empty());
 
