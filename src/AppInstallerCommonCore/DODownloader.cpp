@@ -199,27 +199,16 @@ namespace AppInstaller::Utility
 
             void CustomHeaders(const std::vector<DownloadRequestHeader>& headers)
             {
+                // DODownloadProperty_HttpCustomAuthHeaders is not used (does not work in our auth scenario). It is only used when challenged.
                 std::string customHeaders;
-                std::string customAuthHeaders;
                 for (const auto& header : headers)
                 {
-                    if (header.IsAuth)
-                    {
-                        customAuthHeaders += header.Name + ": " + header.Value + "\r\n";
-                    }
-                    else
-                    {
-                        customHeaders += header.Name + ": " + header.Value + "\r\n";
-                    }
+                    customHeaders += header.Name + ": " + header.Value + "\r\n";
                 }
 
                 if (!customHeaders.empty())
                 {
                     SetProperty(DODownloadProperty_HttpCustomHeaders, customHeaders);
-                }
-                if (!customAuthHeaders.empty())
-                {
-                    SetProperty(DODownloadProperty_HttpCustomAuthHeaders, customAuthHeaders);
                 }
             }
 
