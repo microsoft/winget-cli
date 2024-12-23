@@ -29,7 +29,7 @@ TEST_CASE("DownloadFlow_DownloadCommandProhibited", "[DownloadFlow][workflow]")
 
 AppInstaller::Utility::DownloadResult ValidateAzureBlobStorageAuthHeaders(
     const std::string&,
-    const std::filesystem::path&,
+    const std::filesystem::path& dest,
     AppInstaller::Utility::DownloadType,
     AppInstaller::IProgressCallback&,
     std::optional<AppInstaller::Utility::DownloadInfo> info)
@@ -42,6 +42,10 @@ AppInstaller::Utility::DownloadResult ValidateAzureBlobStorageAuthHeaders(
     REQUIRE_FALSE(info->RequestHeaders[1].IsAuth);
     REQUIRE(info->RequestHeaders[1].Name == "x-ms-version");
     // Not validating x-ms-version value
+
+    std::ofstream file(dest, std::ofstream::out);
+    file << "test";
+    file.close();
 
     AppInstaller::Utility::DownloadResult result;
     result.Sha256Hash = AppInstaller::Utility::SHA256::ConvertToBytes("65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B");
@@ -70,6 +74,8 @@ TEST_CASE("DownloadFlow_DownloadWithInstallerAuthenticationSuccess", "[DownloadF
     TestContext context{ downloadOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("ManifestV1_10-InstallerAuthentication.yaml").GetPath().u8string());
+    TestCommon::TempDirectory tempDirectory("TempDownload");
+    context.Args.AddArg(Execution::Args::Type::DownloadDirectory, tempDirectory.GetPath().u8string());
 
     DownloadCommand download({});
     download.Execute(context);
