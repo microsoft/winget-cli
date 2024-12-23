@@ -172,7 +172,7 @@ jobs:
     displayName: Clean up Package Layout after copy
     inputs:
       SourceFolder: '$(packageLayoutDir)'
-      Contents: **/*
+      Contents: '**/*'
 
   - task: CopyFiles@2
     displayName: 'Copy native binaries for Microsoft.WinGet.Client (net8)'
