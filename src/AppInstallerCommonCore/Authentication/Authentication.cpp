@@ -26,9 +26,9 @@ namespace AppInstaller::Authentication
 
         AICLI_LOG(Core, Info, << "AuthenticationArguments values. Mode: " << AuthenticationModeToString(args.Mode) << ", Account: " << args.AuthenticationAccount);
 
-        if (info.Type == AuthenticationType::MicrosoftEntraId)
+        if (info.Type == AuthenticationType::MicrosoftEntraId || info.Type == AuthenticationType::MicrosoftEntraIdForAzureBlobStorage)
         {
-            AICLI_LOG(Core, Info, << "Creating WebAccountManagerAuthenticator for MicrosoftEntraId");
+            AICLI_LOG(Core, Info, << "Creating WebAccountManagerAuthenticator for " << AuthenticationTypeToString(info.Type));
             m_authProvider = std::make_unique<WebAccountManagerAuthenticator>(std::move(info), std::move(args));
         }
     }
@@ -216,6 +216,8 @@ namespace AppInstaller::Authentication
             return "none"sv;
         case AuthenticationType::MicrosoftEntraId:
             return "microsoftEntraId"sv;
+        case AuthenticationType::MicrosoftEntraIdForAzureBlobStorage:
+            return "microsoftEntraIdForAzureBlobStorage"sv;
         }
 
         return "unknown"sv;
