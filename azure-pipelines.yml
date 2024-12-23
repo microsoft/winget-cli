@@ -168,6 +168,12 @@ jobs:
       SourceFolder: '$(packageLayoutDir)'
       TargetFolder: '$(artifactsDir)\DevPackage'
 
+  - task: DeleteFiles@1
+    displayName: Clean up Package Layout after copy
+    inputs:
+      SourceFolder: '$(packageLayoutDir)'
+      Contents: **/*
+
   - task: CopyFiles@2
     displayName: 'Copy Dev Packages'
     inputs:
