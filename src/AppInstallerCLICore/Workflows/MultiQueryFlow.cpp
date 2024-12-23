@@ -40,7 +40,6 @@ namespace AppInstaller::CLI::Workflow
         auto& source = context.Get<Execution::Data::Source>();
         for (const auto& query : *context.Args.GetArgs(Execution::Args::Type::MultiQuery))
         {
-
             auto searchContextPtr = context.CreateSubContext();
             Execution::Context& searchContext = *searchContextPtr;
             auto previousThreadGlobals = searchContext.SetForCurrentThread();
@@ -50,7 +49,6 @@ namespace AppInstaller::CLI::Workflow
 
             AICLI_LOG(CLI, Info, << "Creating search query for package [" << query << "]");
             searchContext << GetSearchRequestForSingle;
-
 
             packageSubContexts.emplace_back(std::move(searchContextPtr));
         }
@@ -148,5 +146,4 @@ namespace AppInstaller::CLI::Workflow
 
         context.Add<Execution::Data::PackageSubContexts>(std::move(packageSubContexts));
     }
-
 }

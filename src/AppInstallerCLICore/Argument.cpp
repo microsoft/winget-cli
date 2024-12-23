@@ -277,9 +277,9 @@ namespace AppInstaller::CLI
 
         // Authentication arguments
         case Execution::Args::Type::AuthenticationMode:
-            return { type, "authentication-mode"_liv };
+            return { type, "authentication-mode"_liv, ArgTypeCategory::CopyValueToSubContext };
         case Execution::Args::Type::AuthenticationAccount:
-            return { type, "authentication-account"_liv };
+            return { type, "authentication-account"_liv, ArgTypeCategory::CopyValueToSubContext };
 
         // Used for demonstration purposes
         case Execution::Args::Type::ExperimentalArg:

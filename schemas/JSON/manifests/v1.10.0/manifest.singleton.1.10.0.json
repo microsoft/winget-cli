@@ -702,6 +702,42 @@
       "type": [ "boolean", "null" ],
       "description": "Indicates whether the install location should be added directly to the PATH environment variable. Only applies to an archive containing portable packages."
     },
+    "Authentication": {
+      "type": [ "object", "null" ],
+      "properties": {
+        "AuthenticationType": {
+          "type": "string",
+          "enum": [
+            "none",
+            "microsoftEntraId",
+            "microsoftEntraIdForAzureBlobStorage"
+          ],
+          "description": "The authentication type"
+        },
+        "MicrosoftEntraIdAuthenticationInfo": {
+          "type": [ "object", "null" ],
+          "properties": {
+            "Resource": {
+              "type": [ "string", "null" ],
+              "minLength": 1,
+              "maxLength": 512,
+              "description": "The resource value for Microsoft Entra Id authentication."
+            },
+            "Scope": {
+              "type": [ "string", "null" ],
+              "minLength": 1,
+              "maxLength": 512,
+              "description": "The scope value for Microsoft Entra Id authentication."
+            }
+          },
+          "description": "The Microsoft Entra Id authentication info"
+        }
+      },
+      "required": [
+        "AuthenticationType"
+      ],
+      "description": "The authentication requirement for downloading the installer."
+    },
     "Installer": {
       "type": "object",
       "properties": {
@@ -825,6 +861,9 @@
         },
         "ArchiveBinariesDependOnPath": {
           "$ref": "#/definitions/ArchiveBinariesDependOnPath"
+        },
+        "Authentication": {
+          "$ref": "#/definitions/Authentication"
         }
       },
       "required": [
@@ -1069,6 +1108,9 @@
     },
     "ArchiveBinariesDependOnPath": {
       "$ref": "#/definitions/ArchiveBinariesDependOnPath"
+    },
+    "Authentication": {
+      "$ref": "#/definitions/Authentication"
     },
     "Installers": {
       "type": "array",

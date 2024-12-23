@@ -21,10 +21,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         hstring Locale();
         // Contract 6.0
         winrt::Microsoft::Management::Deployment::ElevationRequirement ElevationRequirement();
-        
+        // Contract 12.0
+        winrt::Microsoft::Management::Deployment::AuthenticationInfo AuthenticationInfo();
+
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         ::AppInstaller::Manifest::ManifestInstaller m_manifestInstaller;
+        std::once_flag m_authenticationInfoOnceFlag;
+        winrt::Microsoft::Management::Deployment::AuthenticationInfo m_authenticationInfo{ nullptr };
 #endif
     };
 }
