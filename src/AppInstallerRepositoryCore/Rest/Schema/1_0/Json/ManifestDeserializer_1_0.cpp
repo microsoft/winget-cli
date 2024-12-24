@@ -531,6 +531,14 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         {
             return InstallerTypeEnum::Burn;
         }
+        else if (inStrLower == "advinstexe")
+        {
+            return InstallerTypeEnum::AdvinstExe;
+        }
+        else if (inStrLower == "advinstmsi")
+        {
+            return InstallerTypeEnum::AdvinstMsi;
+        }
 
         return InstallerTypeEnum::Unknown;
     }
