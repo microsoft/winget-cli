@@ -12,6 +12,7 @@
 namespace AppInstaller::Settings
 {
     struct UserSettings;
+    typedef std::map<AppInstaller::Experiment::ExperimentKey, Settings::ExperimentState> ExperimentStateCache;
 }
 
 namespace AppInstaller::Logging
@@ -130,7 +131,7 @@ namespace AppInstaller::Logging
         std::string DOUrl;
         HRESULT DOHResult = S_OK;
 
-        std::map<AppInstaller::Experiment::ExperimentKey, Settings::ExperimentState> Experiments;
+        Settings::ExperimentStateCache ExperimentCache;
     };
 
     // This type contains the registration lifetime of the telemetry trace logging provider.
@@ -271,6 +272,10 @@ namespace AppInstaller::Logging
         void LogNonFatalDOError(std::string_view url, HRESULT hr) const noexcept;
 
         Settings::ExperimentState GetExperimentState(AppInstaller::Experiment::ExperimentKey key);
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        void ResetExperiments();
+#endif
 
     protected:
         bool IsTelemetryEnabled() const noexcept;

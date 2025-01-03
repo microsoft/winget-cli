@@ -81,7 +81,7 @@ namespace AppInstaller::Logging
             }
         }
 
-        std::wstring GetExperimentsJson(const std::map<ExperimentKey, ExperimentState>& experiments)
+        std::wstring GetExperimentsJson(const Settings:: ExperimentStateCache& experiments)
         {
             Json::Value root;
             for (const auto& experiment : experiments)
@@ -778,17 +778,20 @@ namespace AppInstaller::Logging
 
     Settings::ExperimentState TelemetryTraceLogger::GetExperimentState(ExperimentKey key)
     {
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        m_summary.Experiments.clear();
-#endif
-
-        if (m_summary.Experiments.find(key) == m_summary.Experiments.end())
+        auto it = m_summary.ExperimentCache.find(key);
+        if (it == m_summary.ExperimentCache.end())
         {
-            m_summary.Experiments[key] =  Settings::Experiment::GetStateInternal(key);
+            it = m_summary.ExperimentCache.emplace(key, Settings::Experiment::GetStateInternal(key)).first;
         }
-
-        return m_summary.Experiments[key];
+        return it->second;
     }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    void TelemetryTraceLogger::ResetExperiments()
+    {
+        m_summary.ExperimentCache.clear();
+    }
+#endif
 
     TelemetryTraceLogger::~TelemetryTraceLogger()
     {
@@ -803,7 +806,7 @@ namespace AppInstaller::Logging
 
             if (m_useSummary)
             {
-                auto experimentsJson = GetExperimentsJson(m_summary.Experiments);
+                auto experimentsJson = GetExperimentsJson(m_summary.ExperimentCache);
 
                 TraceLoggingWriteActivity(
                     g_hTraceProvider,

@@ -259,19 +259,18 @@ namespace AppInstaller::Repository
         return {};
     }
 
-    std::string_view GetWellKnownSourceArg(WellKnownSource source)
+    bool IsWellKnownSourceArg(std::string_view arg, WellKnownSource source)
     {
         switch (source)
         {
         case WellKnownSource::WinGet:
-            return GetWingetCommunitySource();
+            return Utility::CaseInsensitiveEquals(arg, s_Source_WingetCommunityDefault_Arg) || Utility::CaseInsensitiveEquals(arg, s_Source_WingetCommunityExperimental_Arg);
         case WellKnownSource::MicrosoftStore:
-            return s_Source_MSStoreDefault_Arg;
+            return Utility::CaseInsensitiveEquals(arg, s_Source_MSStoreDefault_Arg);
         case WellKnownSource::DesktopFrameworks:
-            return s_Source_DesktopFrameworks_Arg;
+            return Utility::CaseInsensitiveEquals(arg, s_Source_DesktopFrameworks_Arg);
         }
-
-        return {};
+        return false;
     }
 
     std::string_view GetWellKnownSourceIdentifier(WellKnownSource source)
@@ -291,17 +290,17 @@ namespace AppInstaller::Repository
 
     std::optional<WellKnownSource> CheckForWellKnownSourceMatch(std::string_view name, std::string_view arg, std::string_view type)
     {
-        if (name == s_Source_WingetCommunityDefault_Name && arg == GetWingetCommunitySource() && type == Microsoft::PreIndexedPackageSourceFactory::Type())
+        if (name == s_Source_WingetCommunityDefault_Name && IsWellKnownSourceArg(arg, WellKnownSource::WinGet) && type == Microsoft::PreIndexedPackageSourceFactory::Type())
         {
             return WellKnownSource::WinGet;
         }
 
-        if (name == s_Source_MSStoreDefault_Name && arg == s_Source_MSStoreDefault_Arg && type == Rest::RestSourceFactory::Type())
+        if (name == s_Source_MSStoreDefault_Name && IsWellKnownSourceArg(arg, WellKnownSource::MicrosoftStore) && type == Rest::RestSourceFactory::Type())
         {
             return WellKnownSource::MicrosoftStore;
         }
 
-        if (name == s_Source_DesktopFrameworks_Name && arg == s_Source_DesktopFrameworks_Arg && type == Microsoft::PreIndexedPackageSourceFactory::Type())
+        if (name == s_Source_DesktopFrameworks_Name && IsWellKnownSourceArg(arg, WellKnownSource::DesktopFrameworks) && type == Microsoft::PreIndexedPackageSourceFactory::Type())
         {
             return WellKnownSource::DesktopFrameworks;
         }

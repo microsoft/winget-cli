@@ -48,6 +48,10 @@ namespace AppInstaller::Settings
         static Experiment GetExperiment(AppInstaller::Experiment::ExperimentKey key);
         static std::vector<Experiment> GetAllExperiments();
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        static void ResetStates();
+#endif
+
         std::string Name() const { return m_name; }
         std::string JsonName() const { return m_jsonName; }
         std::string Link() const { return m_link; }

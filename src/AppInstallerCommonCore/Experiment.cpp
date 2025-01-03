@@ -15,38 +15,38 @@ namespace AppInstaller::Settings
     {
         ExperimentState GetExperimentStateInternal(ExperimentKey key, const UserSettings& userSettings)
         {
-            if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::Experiments))
-            {
-                AICLI_LOG(Core, Info, << "Experiment " << Experiment::GetExperiment(key).Name() <<
-                    " is disabled due to group policy: " << TogglePolicy::GetPolicy(TogglePolicy::Policy::Experiments).RegValueName());
-                return { false, ExperimentToggleSource::Policy };
-            }
-
             if (key == ExperimentKey::None)
             {
                 return { false, ExperimentToggleSource::Default };
             }
 
             auto experiment = Experiment::GetExperiment(key);
-            auto experimentJsonName = experiment.JsonName();
+            if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::Experiments))
+            {
+                AICLI_LOG(Core, Verbose, << "Experiment " << experiment.Name() <<
+                    " is disabled due to group policy: " << TogglePolicy::GetPolicy(TogglePolicy::Policy::Experiments).RegValueName());
+                return { false, ExperimentToggleSource::Policy };
+            }
 
+            auto experimentJsonName = experiment.JsonName();
             if (!userSettings.Get<Setting::AllowExperiments>())
             {
-                AICLI_LOG(Core, Info, << "Experiment " << Experiment::GetExperiment(key).Name() <<
+                AICLI_LOG(Core, Verbose, << "Experiment " << experiment.Name() <<
                     " is disabled due to experiments not allowed from user settings");
                 return { false, ExperimentToggleSource::UserSettingGlobalControl };
             }
 
             auto userSettingsExperiments = userSettings.Get<Setting::Experiments>();
-            if (userSettingsExperiments.find(experimentJsonName) != userSettingsExperiments.end())
+            auto userSettingsExperimentIter = userSettingsExperiments.find(experimentJsonName);
+            if (userSettingsExperimentIter != userSettingsExperiments.end())
             {
-                auto isEnabled = userSettingsExperiments[experimentJsonName];
-                AICLI_LOG(Core, Info, << "Experiment " << experiment.Name() << " is set to " << (isEnabled ? "true" : "false") << " in user settings");
+                auto isEnabled = userSettingsExperimentIter->second;
+                AICLI_LOG(Core, Verbose, << "Experiment " << experiment.Name() << " is set to " << (isEnabled ? "true" : "false") << " in user settings");
                 return { isEnabled, ExperimentToggleSource::UserSettingIndividualControl };
             }
 
             auto isEnabled = AppInstaller::Experiment::IsEnabled(experiment.GetKey());
-            AICLI_LOG(Core, Info, << "Experiment " << experiment.Name() << " is set to " << (isEnabled ? "true" : "false"));
+            AICLI_LOG(Core, Verbose, << "Experiment " << experiment.Name() << " is set to " << (isEnabled ? "true" : "false"));
             return { isEnabled, ExperimentToggleSource::Default };
         }
 
@@ -86,6 +86,13 @@ namespace AppInstaller::Settings
     {
         return Logging::Telemetry().GetExperimentState(key);
     }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    void Experiment::ResetStates()
+    {
+        Logging::Telemetry().ResetExperiments();
+    }
+#endif
 
     Experiment Experiment::GetExperiment(ExperimentKey key)
     {
