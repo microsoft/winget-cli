@@ -87,13 +87,6 @@ namespace AppInstaller::Settings
         return Logging::Telemetry().GetExperimentState(key);
     }
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
-    void Experiment::ResetStates()
-    {
-        Logging::Telemetry().ResetExperiments();
-    }
-#endif
-
     Experiment Experiment::GetExperiment(ExperimentKey key)
     {
         switch (key)

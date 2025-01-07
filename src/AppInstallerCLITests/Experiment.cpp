@@ -19,7 +19,7 @@ TEST_CASE("Experiment_GroupPolicyControl", "[experiment]")
 {
     SECTION("Not configured")
     {
-        Experiment::ResetStates();
+        ExperimentsTest experiments;
         GroupPolicyTestOverride policies;
         policies.SetState(TogglePolicy::Policy::Experiments, PolicyState::NotConfigured);
         ASSERT_EXPERIMENT(true, ExperimentToggleSource::Default);
@@ -27,7 +27,7 @@ TEST_CASE("Experiment_GroupPolicyControl", "[experiment]")
 
     SECTION("Enabled")
     {
-        Experiment::ResetStates();
+        ExperimentsTest experiments;
         GroupPolicyTestOverride policies;
         policies.SetState(TogglePolicy::Policy::Experiments, PolicyState::Enabled);
         ASSERT_EXPERIMENT(true, ExperimentToggleSource::Default);
@@ -35,7 +35,7 @@ TEST_CASE("Experiment_GroupPolicyControl", "[experiment]")
 
     SECTION("Disabled")
     {
-        Experiment::ResetStates();
+        ExperimentsTest experiments;
         GroupPolicyTestOverride policies;
         policies.SetState(TogglePolicy::Policy::Experiments, PolicyState::Disabled);
         ASSERT_EXPERIMENT(false, ExperimentToggleSource::Policy);
@@ -44,7 +44,7 @@ TEST_CASE("Experiment_GroupPolicyControl", "[experiment]")
 
 TEST_CASE("Experiment_GroupPolicyDisabled_ReturnFalse", "[experiment]")
 {
-    Experiment::ResetStates();
+    ExperimentsTest experiments;
     TestUserSettings settings;
     settings.Set<Setting::Experiments>({{"TestExperiment", true}});
 
@@ -59,13 +59,13 @@ TEST_CASE("Experiment_UserSettingsIndividualControl", "[experiment]")
     SECTION("Experiments not configured in user settings")
     {
         // Default value are used
-        Experiment::ResetStates();
+        ExperimentsTest experiments;
         ASSERT_EXPERIMENT(true, ExperimentToggleSource::Default);
     }
 
     SECTION("Experiments enabled in user settings")
     {
-        Experiment::ResetStates();
+        ExperimentsTest experiments;
         TestUserSettings settings;
         settings.Set<Setting::Experiments>({{"TestExperiment", true}});
         ASSERT_EXPERIMENT(true, ExperimentToggleSource::UserSettingIndividualControl);
@@ -73,7 +73,7 @@ TEST_CASE("Experiment_UserSettingsIndividualControl", "[experiment]")
 
     SECTION("Experiments disabled in user settings")
     {
-        Experiment::ResetStates();
+        ExperimentsTest experiments;
         TestUserSettings settings;
         settings.Set<Setting::Experiments>({{"TestExperiment", false}});
         ASSERT_EXPERIMENT(false, ExperimentToggleSource::UserSettingIndividualControl);
@@ -84,7 +84,7 @@ TEST_CASE("Experiment_UserSettingsGlobalControl", "[experiment]")
 {
     SECTION("'Allow experiments' not configured in user settings")
     {
-        Experiment::ResetStates();
+        ExperimentsTest experiments;
         TestUserSettings settings;
         settings.Set<Setting::Experiments>({{"TestExperiment", true}});
         ASSERT_EXPERIMENT(true, ExperimentToggleSource::UserSettingIndividualControl);
@@ -92,7 +92,7 @@ TEST_CASE("Experiment_UserSettingsGlobalControl", "[experiment]")
 
     SECTION("'Allow experiments' enabled in user settings")
     {
-        Experiment::ResetStates();
+        ExperimentsTest experiments;
         TestUserSettings settings;
         settings.Set<Setting::AllowExperiments>(true);
         settings.Set<Setting::Experiments>({{"TestExperiment", true}});
@@ -101,7 +101,7 @@ TEST_CASE("Experiment_UserSettingsGlobalControl", "[experiment]")
 
     SECTION("'Allow experiments' disabled in user settings")
     {
-        Experiment::ResetStates();
+        ExperimentsTest experiments;
         TestUserSettings settings;
         settings.Set<Setting::AllowExperiments>(false);
         settings.Set<Setting::Experiments>({{"TestExperiment", true}});

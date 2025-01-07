@@ -4,6 +4,7 @@
 #include "TestCommon.h"
 #include "TestSettings.h"
 #include <winget/Settings.h>
+#include <AppInstallerTelemetry.h>
 
 using namespace AppInstaller::Settings;
 
@@ -70,5 +71,10 @@ namespace TestCommon
     void GroupPolicyTestOverride::SetState(TogglePolicy::Policy policy, PolicyState state)
     {
         m_toggles[policy] = state;
+    }
+
+    ExperimentsTest::~ExperimentsTest()
+    {
+        AppInstaller::Logging::Telemetry().ResetExperiments();
     }
 }

@@ -21,13 +21,10 @@ namespace AppInstaller::Settings
         ExperimentState() = default;
         ExperimentState(bool isEnabled, ExperimentToggleSource toggleSource) : m_isEnabled(isEnabled), m_toggleSource(toggleSource) {}
 
-        /// <summary>
-        /// Gets a value indicating whether the experiment is enabled.
-        /// </summary>
-        /// <returns>True if the experiment is enabled; otherwise, false.</returns>
-        /// <remarks>This API expects an experiment to be disabled by default and will
-        /// always return false if the user opts out of the experiment from the
-        /// user settings or group policy.</remarks>
+        // Gets a value indicating whether the experiment is enabled.
+        // Note: This API expects an experiment to be disabled by default and will
+        // always return false if the user opts out of the experiment from the
+        // user settings or group policy.
         bool IsEnabled() const { return m_isEnabled; }
         ExperimentToggleSource ToggleSource() const { return m_toggleSource; }
         std::string ToJson() const;
@@ -47,10 +44,6 @@ namespace AppInstaller::Settings
         static ExperimentState GetStateInternal(AppInstaller::Experiment::ExperimentKey feature);
         static Experiment GetExperiment(AppInstaller::Experiment::ExperimentKey key);
         static std::vector<Experiment> GetAllExperiments();
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        static void ResetStates();
-#endif
 
         std::string Name() const { return m_name; }
         std::string JsonName() const { return m_jsonName; }

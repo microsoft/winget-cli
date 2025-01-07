@@ -311,7 +311,7 @@
       "type": "object",
       "properties": {
         "CDN": {
-          "description": "Enables the use of an alternative CDN for package downloads",
+          "description": "Enables the use of an alternative CDN for the winget source",
           "type": "boolean",
           "default": false
         }

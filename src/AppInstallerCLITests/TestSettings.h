@@ -3,6 +3,7 @@
 #pragma once
 #include <winget/Settings.h>
 #include <winget/UserSettings.h>
+#include <winget/Experiment.h>
 #include <wil/resource.h>
 #include <string>
 
@@ -46,6 +47,11 @@ namespace TestCommon
 
     struct UserSettingsTest : AppInstaller::Settings::UserSettings
     {
+    };
+
+    struct ExperimentsTest
+    {
+        ~ExperimentsTest();
     };
 
     struct GroupPolicyTestOverride : AppInstaller::Settings::GroupPolicy
