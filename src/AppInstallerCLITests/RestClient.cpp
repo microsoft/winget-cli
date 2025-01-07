@@ -273,7 +273,7 @@ TEST_CASE("GetInformation_Fail_InvalidMicrosoftEntraIdInfo", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper3{ GetTestRestRequestHandler(web::http::status_codes::OK, sample3) };
-    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, {}, std::move(helper3)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
+    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, {}, helper3), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
 
     utility::string_t sample4 = _XPLATSTR(
         R"delimiter({
@@ -291,7 +291,7 @@ TEST_CASE("GetInformation_Fail_InvalidMicrosoftEntraIdInfo", "[RestSource]")
     Authentication::AuthenticationArguments authArgs;
     authArgs.Mode = Authentication::AuthenticationMode::Silent;
     Version version_1_7{ "1.7.0" };
-    REQUIRE_THROWS_HR(RestClient::GetSupportedInterface(TestRestUri, {}, RestClient::GetInformation(TestRestUri, {}, {}, std::move(helper4)), authArgs, version_1_7, {}), APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
+    REQUIRE_THROWS_HR(RestClient::GetSupportedInterface(TestRestUri, {}, RestClient::GetInformation(TestRestUri, {}, {}, helper4), authArgs, version_1_7, {}), APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
 }
 
 TEST_CASE("RestClientCreate_UnsupportedVersion", "[RestSource]")
