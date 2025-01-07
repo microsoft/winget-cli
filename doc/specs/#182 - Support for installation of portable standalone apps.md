@@ -212,7 +212,7 @@ Support for channels has not yet been implemented. Some portable applications ma
 
 ## Resources
 
-[Portable / Standalone Executables · Discussion #44183 · microsoft/winget-pkgs (github.com)](https://github.com/microsoft/winget-pkgs/discussions/44183)
+[Portable / Standalone Executables · Discussion #1887 · microsoft/winget-cli (github.com)](https://github.com/microsoft/winget-cli/discussions/1887)
 
 [Application Registration - Win32 Apps](https://docs.microsoft.com/windows/win32/shell/app-registration)
 

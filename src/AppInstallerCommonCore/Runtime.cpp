@@ -30,6 +30,7 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_PortablePackagesDirectory = "Packages"sv;
         constexpr std::string_view s_LinksDirectory = "Links"sv;
         constexpr std::string_view s_FontsInstallDirectory = "Microsoft\\Windows\\Fonts"sv;
+        constexpr std::string_view s_ConfigurationModulesDirectory = "Configuration\\Modules"sv;
 // Use production CLSIDs as a surrogate for repository location.
 #if USE_PROD_CLSIDS
         constexpr std::string_view s_ImageAssetsDirectoryRelative = "Assets\\WinGet"sv;
@@ -240,6 +241,16 @@ namespace AppInstaller::Runtime
         case PathName::FontsMachineInstallLocation:
             result.Path = GetKnownFolderPath(FOLDERID_Fonts);
             break;
+        case PathName::ConfigurationModules:
+            result.Path = Settings::User().Get<Setting::ConfigureDefaultModuleRoot>();
+            if (result.Path.empty())
+            {
+                result.Path = GetKnownFolderPath(FOLDERID_LocalAppData);
+                result.Path /= s_SecureSettings_Base;
+                result.Path /= s_ConfigurationModulesDirectory;
+            }
+            mayBeInProfilePath = true;
+            break;
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -316,6 +327,7 @@ namespace AppInstaller::Runtime
         case PathName::UserProfileDownloads:
         case PathName::FontsUserInstallLocation:
         case PathName::FontsMachineInstallLocation:
+        case PathName::ConfigurationModules:
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:
@@ -422,6 +434,7 @@ namespace AppInstaller::Runtime
         case PathName::UserProfileDownloads:
         case PathName::FontsUserInstallLocation:
         case PathName::FontsMachineInstallLocation:
+        case PathName::ConfigurationModules:
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:

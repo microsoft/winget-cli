@@ -98,5 +98,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_correlationData = value;
     }
+    winrt::Microsoft::Management::Deployment::AuthenticationArguments DownloadOptions::AuthenticationArguments()
+    {
+        return m_authenticationArguments;
+    }
+    void DownloadOptions::AuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments const& value)
+    {
+        m_authenticationArguments = value;
+    }
     CoCreatableMicrosoftManagementDeploymentClass(DownloadOptions);
 }

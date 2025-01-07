@@ -607,7 +607,7 @@ resources:
             Assert.Equal(2, set.Units.Count);
 
             this.VerifyValueSet(set.Metadata, new KeyValuePair<string, object>("description", "FakeSetDescription"));
-            this.VerifyValueSet(set.Variables, new("var1", "Test1"), new("var2", 42));
+            this.VerifyValueSet(set.Variables, new ("var1", "Test1"), new ("var2", 42));
 
             Assert.Equal(2, set.Parameters.Count);
             this.VerifyParameter(set.Parameters[0], "param1", Windows.Foundation.PropertyType.String, true);
@@ -615,17 +615,17 @@ resources:
 
             Assert.Equal("FakeModule/FakeResource", set.Units[0].Type);
             Assert.Equal("TestId", set.Units[0].Identifier);
-            this.VerifyValueSet(set.Units[0].Metadata, new("description", "FakeDescription"), new("allowPrerelease", true), new("securityContext", "elevated"));
-            this.VerifyValueSet(set.Units[0].Settings, new("TestString", "Hello"), new("TestBool", false), new("TestInt", 1234));
+            this.VerifyValueSet(set.Units[0].Metadata, new ("description", "FakeDescription"), new ("allowPrerelease", true), new ("securityContext", "elevated"));
+            this.VerifyValueSet(set.Units[0].Settings, new ("TestString", "Hello"), new ("TestBool", false), new ("TestInt", 1234));
 
             Assert.Equal("FakeModule2/FakeResource2", set.Units[1].Type);
             Assert.Equal("TestId2", set.Units[1].Identifier);
             this.VerifyStringArray(set.Units[1].Dependencies, "TestId", "dependency2", "dependency3");
-            this.VerifyValueSet(set.Units[1].Metadata, new("description", "FakeDescription2"), new("securityContext", "elevated"));
+            this.VerifyValueSet(set.Units[1].Metadata, new ("description", "FakeDescription2"), new ("securityContext", "elevated"));
 
             ValueSet mapping = new ValueSet();
             mapping.Add("Key", "TestValue");
-            this.VerifyValueSet(set.Units[1].Settings, new("TestString", "Bye"), new("TestBool", true), new("TestInt", 4321), new("Mapping", mapping));
+            this.VerifyValueSet(set.Units[1].Settings, new ("TestString", "Bye"), new ("TestBool", true), new ("TestInt", 4321), new ("Mapping", mapping));
         }
 
         /// <summary>

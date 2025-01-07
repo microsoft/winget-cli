@@ -6,11 +6,12 @@
 #include <AppinstallerLogging.h>
 #include "AppInstallerMsixInfo.h"
 #include "AppInstallerRuntime.h"
-#include "winget/Locale.h"
-#include "winget/JsonUtil.h"
-#include "winget/MSStoreDownload.h"
-#include "winget/Rest.h"
 #include "winget/HttpClientHelper.h"
+#include "winget/JsonUtil.h"
+#include "winget/Locale.h"
+#include "winget/MSStoreDownload.h"
+#include "winget/NetworkSettings.h"
+#include "winget/Rest.h"
 #include "winget/UserSettings.h"
 #ifndef WINGET_DISABLE_FOR_FUZZING
 #include <sfsclient/SFSClient.h>
@@ -910,6 +911,12 @@ namespace AppInstaller::MSStore
             {
                 SFS::RequestParams sfsClientRequest;
                 sfsClientRequest.productRequests = { {std::string{ wuCategoryId }, {}} };
+                const auto& proxyUri = AppInstaller::Settings::Network().GetProxyUri();
+                if (proxyUri)
+                {
+                    AICLI_LOG(Core, Info, << "Passing proxy to SFS client " << *proxyUri);
+                    sfsClientRequest.proxy = *proxyUri;
+                }
 
                 auto requestResult = GetSfsClientInstance()->GetLatestAppDownloadInfo(sfsClientRequest, appContents);
                 if (!requestResult)
