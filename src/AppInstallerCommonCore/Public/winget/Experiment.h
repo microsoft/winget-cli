@@ -38,17 +38,17 @@ namespace AppInstaller::Settings
         using Key_t = std::underlying_type_t<AppInstaller::Experiment::ExperimentKey>;
 
         Experiment(std::string name, std::string jsonName, std::string link, AppInstaller::Experiment::ExperimentKey key) :
-            m_name(std::move(name)), m_jsonName(jsonName), m_link(std::move(link)), m_key(std::move((key))) {}
+            m_name(std::move(name)), m_jsonName(std::move(jsonName)), m_link(std::move(link)), m_key(std::move((key))) {}
 
         static ExperimentState GetState(AppInstaller::Experiment::ExperimentKey feature);
         static ExperimentState GetStateInternal(AppInstaller::Experiment::ExperimentKey feature);
         static Experiment GetExperiment(AppInstaller::Experiment::ExperimentKey key);
         static std::vector<Experiment> GetAllExperiments();
 
-        std::string Name() const { return m_name; }
-        std::string JsonName() const { return m_jsonName; }
-        std::string Link() const { return m_link; }
-        AppInstaller::Experiment::ExperimentKey GetKey() const { return m_key; }
+        const std::string Name() const { return m_name; }
+        const std::string JsonName() const { return m_jsonName; }
+        const std::string Link() const { return m_link; }
+        const AppInstaller::Experiment::ExperimentKey GetKey() const { return m_key; }
 
     private:
         std::string m_name;
