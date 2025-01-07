@@ -464,6 +464,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return Microsoft::Management::Deployment::AuthenticationType::None;
         case ::AppInstaller::Authentication::AuthenticationType::MicrosoftEntraId:
             return Microsoft::Management::Deployment::AuthenticationType::MicrosoftEntraId;
+        case ::AppInstaller::Authentication::AuthenticationType::MicrosoftEntraIdForAzureBlobStorage:
+            return Microsoft::Management::Deployment::AuthenticationType::MicrosoftEntraIdForAzureBlobStorage;
         }
 
         return Microsoft::Management::Deployment::AuthenticationType::Unknown;

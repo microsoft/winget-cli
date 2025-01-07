@@ -323,6 +323,7 @@ namespace AppInstaller::CLI::Execution
             clone->EnableSignalTerminationHandler();
         }
         CopyArgsToSubContext(clone.get());
+        CopyDataToSubContext(clone.get());
         return clone;
     }
 
@@ -340,6 +341,17 @@ namespace AppInstaller::CLI::Execution
                 subContext->Args.AddArg(arg.Type, Args.GetArg(arg.Type));
             }
         }
+    }
+
+    void Context::CopyDataToSubContext(Context* subContext)
+    {
+#define COPY_DATA_IF_EXISTS(dataType) \
+        if (this->Contains(dataType)) \
+        { \
+            subContext->Add<dataType>(this->Get<dataType>()); \
+        }
+
+        COPY_DATA_IF_EXISTS(Data::InstallerDownloadAuthenticators);
     }
 
     void Context::EnableSignalTerminationHandler(bool enabled)

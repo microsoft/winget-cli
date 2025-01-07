@@ -29,11 +29,20 @@ namespace AppInstaller::Utility
         ConfigurationFile,
     };
 
+    struct DownloadRequestHeader
+    {
+        std::string Name;
+        std::string Value;
+        bool IsAuth = false;
+    };
+
     // Extra metadata about a download for use by certain downloaders (Delivery Optimization for instance).
+    // Extra download request headers.
     struct DownloadInfo
     {
         std::string DisplayName;
         std::string ContentId;
+        std::vector<DownloadRequestHeader> RequestHeaders;
     };
 
     // Properties about the downloaded file.

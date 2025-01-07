@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "UpgradeCommand.h"
 #include "Workflows/CompletionFlow.h"
+#include "Workflows/DownloadFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/MultiQueryFlow.h"
 #include "Workflows/UpdateFlow.h"
@@ -157,6 +158,7 @@ namespace AppInstaller::CLI
         }
 
         context <<
+            Workflow::InitializeInstallerDownloadAuthenticatorsMap <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context));

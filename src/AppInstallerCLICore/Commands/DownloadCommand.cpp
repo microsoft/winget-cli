@@ -80,6 +80,8 @@ namespace AppInstaller::CLI
     {
         context.SetFlags(AppInstaller::CLI::Execution::ContextFlag::InstallerDownloadOnly);
 
+        context << Workflow::InitializeInstallerDownloadAuthenticatorsMap;
+
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
             context <<

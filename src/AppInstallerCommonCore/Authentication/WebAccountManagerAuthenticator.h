@@ -26,5 +26,7 @@ namespace AppInstaller::Authentication
         AuthenticationResult GetToken(winrt::Windows::Security::Credentials::WebAccount webAccount, bool forceInteractive = false);
         AuthenticationResult GetTokenSilent(winrt::Windows::Security::Credentials::WebAccount webAccount);
         AuthenticationResult HandleGetTokenResult(winrt::Windows::Security::Authentication::Web::Core::WebTokenRequestResult requestResult);
+
+        bool IsMicrosoftEntraIdAuthenticationType();
     };
 }

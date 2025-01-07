@@ -9,6 +9,7 @@
 
 #include <AppInstallerTelemetry.h>
 #include <AppInstallerRuntime.h>
+#include <AppInstallerDownloader.h>
 #include <winget/UserSettings.h>
 #include <winget/Filesystem.h>
 #include <winget/IconExtraction.h>
@@ -92,6 +93,16 @@ namespace AppInstaller
         void SetSfsClientAppContents_Override(std::function<std::vector<SFS::AppContent>(std::string_view)>* value);
 
         void SetLicensingHttpPipelineStage_Override(std::shared_ptr<web::http::http_pipeline_stage> value);
+    }
+
+    namespace Utility::TestHooks
+    {
+        void SetDownloadResult_Function_Override(std::function<DownloadResult(
+            const std::string& url,
+            const std::filesystem::path& dest,
+            DownloadType type,
+            IProgressCallback& progress,
+            std::optional<DownloadInfo> info)>* value);
     }
 }
 
@@ -300,5 +311,31 @@ namespace TestHook
         {
             AppInstaller::MSStore::TestHooks::SetLicensingHttpPipelineStage_Override(nullptr);
         }
+    };
+
+    struct SetDownloadResult_Function_Override
+    {
+        SetDownloadResult_Function_Override(std::function<AppInstaller::Utility::DownloadResult(
+            const std::string& url,
+            const std::filesystem::path& dest,
+            AppInstaller::Utility::DownloadType type,
+            AppInstaller::IProgressCallback& progress,
+            std::optional<AppInstaller::Utility::DownloadInfo> info)> value) : m_downloadFunction(std::move(value))
+        {
+            AppInstaller::Utility::TestHooks::SetDownloadResult_Function_Override(&m_downloadFunction);
+        }
+
+        ~SetDownloadResult_Function_Override()
+        {
+            AppInstaller::Utility::TestHooks::SetDownloadResult_Function_Override(nullptr);
+        }
+
+    private:
+        std::function<AppInstaller::Utility::DownloadResult(
+            const std::string& url,
+            const std::filesystem::path& dest,
+            AppInstaller::Utility::DownloadType type,
+            AppInstaller::IProgressCallback& progress,
+            std::optional<AppInstaller::Utility::DownloadInfo> info)> m_downloadFunction;
     };
 }

@@ -130,6 +130,10 @@ Some of the settings are duplicated under `preferences` and `requirements`. `pre
 
 Any arguments passed on the command line will effectively override the matching `requirement` setting for the duration of that command.
 
+> [!NOTE]
+> - These settings are only applied for the `winget install` command.
+> - Other commands like `winget configure` are not affected by these settings.
+
 ### Scope
 
 The `scope` behavior affects the choice between installing a package for the current user or for the entire machine. The matching parameter is `--scope`, and uses the same values (`user` or `machine`).

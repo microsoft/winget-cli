@@ -29,7 +29,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void BypassIsStoreClientBlockedPolicyCheck(bool value);
         bool Force();
         void Force(bool value);
-
+        winrt::Microsoft::Management::Deployment::AuthenticationArguments AuthenticationArguments();
+        void AuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments const& value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -42,6 +43,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::wstring m_correlationData = L"";
         winrt::Microsoft::Management::Deployment::PackageRepairScope m_packageRepairScope = winrt::Microsoft::Management::Deployment::PackageRepairScope::Any;
         winrt::Microsoft::Management::Deployment::PackageRepairMode m_packageRepairMode = winrt::Microsoft::Management::Deployment::PackageRepairMode::Default;
+        winrt::Microsoft::Management::Deployment::AuthenticationArguments m_authenticationArguments{ nullptr };
 #endif
     };
 }

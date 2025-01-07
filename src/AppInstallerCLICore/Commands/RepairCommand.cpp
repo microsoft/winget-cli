@@ -4,6 +4,7 @@
 #include "RepairCommand.h"
 #include "Workflows/RepairFlow.h"
 #include "Workflows/CompletionFlow.h"
+#include "Workflows/DownloadFlow.h"
 #include "Workflows/InstallFlow.h"
 
 namespace AppInstaller::CLI
@@ -94,6 +95,7 @@ namespace AppInstaller::CLI
         context.SetFlags(Execution::ContextFlag::InstallerExecutionUseRepair);
 
         context <<
+            Workflow::InitializeInstallerDownloadAuthenticatorsMap <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(DetermineInstalledSource(context));

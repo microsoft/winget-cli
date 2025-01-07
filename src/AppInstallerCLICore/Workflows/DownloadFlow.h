@@ -85,4 +85,11 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Installer
     // Outputs: None
     void EnsureSupportForDownload(Execution::Context& context);
+
+    // This method initializes an empty InstallerDownloadAuthenticators map.
+    // InstallerDownloadAuthenticators map is for reusing authenticators when downloading multiple installers.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: New empty InstallerDownloadAuthenticators
+    void InitializeInstallerDownloadAuthenticatorsMap(Execution::Context& context);
 }
