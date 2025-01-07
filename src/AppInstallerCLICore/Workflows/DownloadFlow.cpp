@@ -23,6 +23,12 @@ namespace AppInstaller::CLI::Workflow
 
     namespace
     {
+        constexpr std::string_view s_MicrosoftEntraIdAuthorizationHeader = "Authorization"sv;
+        // By default Azure blob storage does not accept Microsoft Entra Id authentication.
+        // https://learn.microsoft.com/en-us/rest/api/storageservices/versioning-for-the-azure-storage-services#authorize-requests-by-using-microsoft-entra-id-shared-key-or-shared-key-lite
+        constexpr std::string_view s_AzureBlobStorageApiVersionHeader = "x-ms-version"sv;
+        constexpr std::string_view s_AzureBlobStorageApiVersionValue = "2020-04-08"sv;
+
         // Get the base download directory path for the installer.
         // Also creates the directory as necessary.
         std::filesystem::path GetInstallerBaseDownloadPath(Execution::Context& context)
@@ -191,6 +197,66 @@ namespace AppInstaller::CLI::Workflow
 
             return false;
         }
+
+        std::string GetInstallerDownloadAuthenticationToken(const AppInstaller::Authentication::AuthenticationInfo& authInfo, Execution::Context& context)
+        {
+            // First check if authenticator is already created
+            auto& authenticatorsMap = context.Get<AppInstaller::CLI::Execution::Data::InstallerDownloadAuthenticators>();
+            auto authenticatorItr = authenticatorsMap->find(authInfo);
+            if (authenticatorItr == authenticatorsMap->end())
+            {
+                AppInstaller::Authentication::Authenticator authenticator{ authInfo, GetAuthenticationArguments(context) };
+                authenticatorsMap->emplace(authInfo, std::move(authenticator));
+            }
+
+            // Get the authenticator for auth.
+            authenticatorItr = authenticatorsMap->find(authInfo);
+            THROW_HR_IF(E_UNEXPECTED, authenticatorItr == authenticatorsMap->end());
+
+            auto authResult = authenticatorItr->second.AuthenticateForToken();
+            if (FAILED(authResult.Status))
+            {
+                AICLI_LOG(Repo, Error, << "Authentication failed for installer download. Result: " << authResult.Status);
+                THROW_HR_MSG(authResult.Status, "Failed to authenticate for installer download.");
+            }
+
+            return authResult.Token;
+        }
+
+        // Get additional headers for installer download request. Auth headers are acquired here.
+        std::vector<DownloadRequestHeader> GetInstallerDownloadAuthenticationHeaders(const AppInstaller::Manifest::ManifestInstaller& installer, Execution::Context& context)
+        {
+            std::vector<DownloadRequestHeader> result;
+
+            switch (installer.AuthInfo.Type)
+            {
+            case AppInstaller::Authentication::AuthenticationType::None:
+                // No auth needed
+                break;
+            case AppInstaller::Authentication::AuthenticationType::MicrosoftEntraId:
+            case AppInstaller::Authentication::AuthenticationType::MicrosoftEntraIdForAzureBlobStorage:
+                context.Reporter.Info() << Execution::AuthenticationEmphasis << Resource::String::InstallerDownloadRequiresAuthentication << std::endl;
+                result.push_back({ std::string{ s_MicrosoftEntraIdAuthorizationHeader }, Authentication::CreateBearerToken(GetInstallerDownloadAuthenticationToken(installer.AuthInfo, context)), true });
+                if (installer.AuthInfo.Type == AppInstaller::Authentication::AuthenticationType::MicrosoftEntraIdForAzureBlobStorage)
+                {
+                    result.push_back({ std::string{ s_AzureBlobStorageApiVersionHeader }, std::string{ s_AzureBlobStorageApiVersionValue }, false });
+                }
+                break;
+            case AppInstaller::Authentication::AuthenticationType::Unknown:
+            default:
+                THROW_HR_MSG(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED, "The package installer requires authentication that is not supported.");
+            }
+
+            // Log result before return
+            std::string logMessage = "Installer download headers: ";
+            for (const auto& header : result)
+            {
+                logMessage += header.Name + ": " + (header.IsAuth ? "<Secret>" : header.Value) + "; ";
+            }
+            AICLI_LOG(CLI, Info, << logMessage);
+
+            return result;
+        }
     }
 
     void DownloadInstaller(Execution::Context& context)
@@ -323,6 +389,26 @@ namespace AppInstaller::CLI::Workflow
         downloadInfo.DisplayName = Resource::GetFixedString(Resource::FixedString::ProductName);
         // Use the SHA256 hash of the installer as the identifier for the download
         downloadInfo.ContentId = SHA256::ConvertToString(installer.Sha256);
+
+        try
+        {
+            downloadInfo.RequestHeaders = GetInstallerDownloadAuthenticationHeaders(installer, context);
+        }
+        catch (const wil::ResultException& re)
+        {
+            AICLI_LOG(CLI, Error, << "Authentication failed for installer download. Error code: " << re.GetErrorCode());
+
+            if (re.GetErrorCode() == APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED)
+            {
+                context.Reporter.Error() << Resource::String::InstallerDownloadAuthenticationNotSupported << std::endl;
+            }
+            else
+            {
+                context.Reporter.Error() << Resource::String::InstallerDownloadAuthenticationFailed << std::endl;
+            }
+
+            AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
+        }
 
         context.Reporter.Info() << Resource::String::Downloading << ' ' << Execution::UrlEmphasis << installer.Url << std::endl;
 
@@ -685,5 +771,10 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::InstallerDownloadCommandProhibited << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED);
         }
+    }
+
+    void InitializeInstallerDownloadAuthenticatorsMap(Execution::Context& context)
+    {
+        context.Add<Execution::Data::InstallerDownloadAuthenticators>(std::make_shared<std::map<Authentication::AuthenticationInfo, Authentication::Authenticator>>());
     }
 }

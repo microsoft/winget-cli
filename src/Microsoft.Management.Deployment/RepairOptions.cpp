@@ -108,5 +108,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         m_force = value;
     }
 
+    winrt::Microsoft::Management::Deployment::AuthenticationArguments RepairOptions::AuthenticationArguments()
+    {
+        return m_authenticationArguments;
+    }
+
+    void RepairOptions::AuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments const& value)
+    {
+        m_authenticationArguments = value;
+    }
+
     CoCreatableMicrosoftManagementDeploymentClass(RepairOptions);
 }

@@ -7,7 +7,7 @@
     CompanyName = 'Microsoft Corporation'
     Copyright = '(c) Microsoft Corporation. All rights reserved.'
     Description = 'PowerShell Module for the Windows Package Manager Configuration.'
-    PowerShellVersion = '7.2.8'
+    PowerShellVersion = '7.4.6'
 
     FunctionsToExport = @()
     AliasesToExport      = @('cmpwgc', 'cnwgc', 'ctwgcy', 'gwgc', 'gwgcd', 'iwgc', 'rwgch', 'sawgc', 'spwgc','twgc')

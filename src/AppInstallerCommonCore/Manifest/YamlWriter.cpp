@@ -68,6 +68,11 @@ namespace AppInstaller::Manifest::YamlWriter
         constexpr std::string_view DownloadCommandProhibited = "DownloadCommandProhibited"sv;
         constexpr std::string_view RepairBehavior = "RepairBehavior"sv;
         constexpr std::string_view ArchiveBinariesDependOnPath = "ArchiveBinariesDependOnPath"sv;
+        constexpr std::string_view Authentication = "Authentication"sv;
+        constexpr std::string_view AuthenticationType = "AuthenticationType"sv;
+        constexpr std::string_view MicrosoftEntraIdAuthenticationInfo = "MicrosoftEntraIdAuthenticationInfo"sv;
+        constexpr std::string_view MicrosoftEntraIdResource = "Resource"sv;
+        constexpr std::string_view MicrosoftEntraIdScope = "Scope"sv;
 
         // Installer switches
         constexpr std::string_view InstallerSwitches = "InstallerSwitches"sv;
@@ -496,6 +501,27 @@ namespace AppInstaller::Manifest::YamlWriter
             out << YAML::EndMap;
         }
 
+        void ProcessAuthentication(YAML::Emitter& out, const Authentication::AuthenticationInfo& authInfo)
+        {
+            if (authInfo.Type == Authentication::AuthenticationType::None)
+            {
+                return;
+            }
+
+            out << YAML::Key << Authentication;
+            out << YAML::BeginMap;
+            WRITE_PROPERTY(out, AuthenticationType, Authentication::AuthenticationTypeToString(authInfo.Type));
+            if (authInfo.MicrosoftEntraIdInfo)
+            {
+                out << YAML::Key << MicrosoftEntraIdAuthenticationInfo;
+                out << YAML::BeginMap;
+                WRITE_PROPERTY_IF_EXISTS(out, MicrosoftEntraIdResource, authInfo.MicrosoftEntraIdInfo->Resource);
+                WRITE_PROPERTY_IF_EXISTS(out, MicrosoftEntraIdScope, authInfo.MicrosoftEntraIdInfo->Scope);
+                out << YAML::EndMap;
+            }
+            out << YAML::EndMap;
+        }
+
         void ProcessDependencies(YAML::Emitter& out, const DependencyList& dependencies)
         {
             if (!dependencies.HasAny())
@@ -605,6 +631,7 @@ namespace AppInstaller::Manifest::YamlWriter
             ProcessPlatforms(out, installer.Platform);
             ProcessUnsupportedArguments(out, installer.UnsupportedArguments);
             ProcessUnsupportedOSArchitecture(out, installer.UnsupportedOSArchitectures);
+            ProcessAuthentication(out, installer.AuthInfo);
         }
 
         void ProcessInstaller(YAML::Emitter& out, const ManifestInstaller& installer)

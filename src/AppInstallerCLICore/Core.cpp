@@ -173,6 +173,10 @@ namespace AppInstaller::CLI
             context.Reporter.Error() << Resource::String::DisabledByGroupPolicy(policy.PolicyName()) << std::endl;
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
+        catch (...)
+        {
+            return Workflow::HandleException(context, std::current_exception());
+        }
 
         return Execute(context, command);
     }

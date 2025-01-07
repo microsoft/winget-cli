@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.22000.0</TargetFramework>
     <Platform>AnyCpu</Platform>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -11,7 +11,7 @@
     <!--
     !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
-    <WindowsSdkPackageVersion>10.0.22000.52</WindowsSdkPackageVersion>
+    <WindowsSdkPackageVersion>10.0.22000.53</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>

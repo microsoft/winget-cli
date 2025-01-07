@@ -31,7 +31,7 @@ namespace AppInstaller::Authentication
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO, !m_authInfo.ValidateIntegrity());
         THROW_HR_IF(E_UNEXPECTED, m_authArgs.Mode == AuthenticationMode::Unknown);
 
-        if (m_authInfo.Type == AuthenticationType::MicrosoftEntraId)
+        if (IsMicrosoftEntraIdAuthenticationType())
         {
             m_webAccountProvider = WebAuthenticationCoreManager::FindAccountProviderAsync(s_MicrosoftEntraIdProviderId, s_MicrosoftEntraIdAuthority).get();
             THROW_HR_IF_MSG(E_UNEXPECTED, !m_webAccountProvider, "Authentication Provider not found for Microsoft Entra Id");
@@ -108,7 +108,7 @@ namespace AppInstaller::Authentication
 
         WebAccount result = nullptr;
 
-        if (m_authInfo.Type == AuthenticationType::MicrosoftEntraId)
+        if (IsMicrosoftEntraIdAuthenticationType())
         {
             auto findAccountsResult = WebAuthenticationCoreManager::FindAllAccountsAsync(m_webAccountProvider, s_MicrosoftEntraIdClientId).get();
             if (findAccountsResult.Status() == FindAllWebAccountsStatus::Success)
@@ -144,7 +144,7 @@ namespace AppInstaller::Authentication
     {
         WebTokenRequest request = nullptr;
 
-        if (m_authInfo.Type == AuthenticationType::MicrosoftEntraId)
+        if (IsMicrosoftEntraIdAuthenticationType())
         {
             request = WebTokenRequest
             {
@@ -283,5 +283,10 @@ namespace AppInstaller::Authentication
         AICLI_LOG(Core, Info, << "HandleGetTokenResult Result: " << result.Status);
 
         return result;
+    }
+
+    bool WebAccountManagerAuthenticator::IsMicrosoftEntraIdAuthenticationType()
+    {
+        return m_authInfo.Type == AuthenticationType::MicrosoftEntraId || m_authInfo.Type == AuthenticationType::MicrosoftEntraIdForAzureBlobStorage;
     }
 }

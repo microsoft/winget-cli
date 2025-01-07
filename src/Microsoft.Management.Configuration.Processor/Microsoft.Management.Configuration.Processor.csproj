@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <DotNetVersion>net6.0</DotNetVersion>
+    <DotNetVersion>net8.0</DotNetVersion>
     <!-- Keep in sync with attributes in AssemblyInfo.cs -->
     <TargetFramework>$(DotNetVersion)-windows10.0.22000.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -21,7 +21,7 @@
     <!--
     !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
-    <WindowsSdkPackageVersion>10.0.22000.52</WindowsSdkPackageVersion>
+    <WindowsSdkPackageVersion>10.0.22000.53</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -43,18 +43,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.6" />
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.2.8" GeneratePathProperty="true">
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.4.6" GeneratePathProperty="true">
       <ExcludeAssets>contentFiles</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
-    <PackageReference Include="System.IO.Packaging" Version="6.0.1" />
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="6.0.3" />
-    <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.6" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="6.0.1" />
-    <PackageReference Include="System.Formats.Asn1" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>

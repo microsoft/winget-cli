@@ -307,6 +307,7 @@ mdmp
 MDs
 megamorf
 microsoftentraid
+microsoftentraidforazureblobstorage
 midl
 minidump
 MINORVERSION

@@ -12,7 +12,9 @@ namespace AppInstaller::Authentication
 {
     namespace
     {
-        const std::string c_BearerTokenPrefix = "Bearer ";
+        constexpr std::string_view s_BearerTokenPrefix = "Bearer "sv;
+        // Default Azure Blob Storage resource value. Used when manifest author did not provide specific blob resource.
+        constexpr std::string_view s_DefaultAzureBlobStorageResource = "https://storage.azure.com/"sv;
     }
 
     Authenticator::Authenticator(AuthenticationInfo info, AuthenticationArguments args)
@@ -24,9 +26,9 @@ namespace AppInstaller::Authentication
 
         AICLI_LOG(Core, Info, << "AuthenticationArguments values. Mode: " << AuthenticationModeToString(args.Mode) << ", Account: " << args.AuthenticationAccount);
 
-        if (info.Type == AuthenticationType::MicrosoftEntraId)
+        if (info.Type == AuthenticationType::MicrosoftEntraId || info.Type == AuthenticationType::MicrosoftEntraIdForAzureBlobStorage)
         {
-            AICLI_LOG(Core, Info, << "Creating WebAccountManagerAuthenticator for MicrosoftEntraId");
+            AICLI_LOG(Core, Info, << "Creating WebAccountManagerAuthenticator for " << AuthenticationTypeToString(info.Type));
             m_authProvider = std::make_unique<WebAccountManagerAuthenticator>(std::move(info), std::move(args));
         }
     }
@@ -56,10 +58,46 @@ namespace AppInstaller::Authentication
         return m_authProvider->AuthenticateForToken();
     }
 
-    bool AuthenticationInfo::ValidateIntegrity()
+    bool MicrosoftEntraIdAuthenticationInfo::operator<(const MicrosoftEntraIdAuthenticationInfo& other) const
+    {
+        // std::tie implements tuple comparison, wherein it checks the first item in the tuple,
+        // iff the first elements are equal, then the second element is used for comparison, and so on
+        return std::tie(Resource, Scope) < std::tie(other.Resource, other.Scope);
+    }
+
+    bool AuthenticationInfo::operator<(const AuthenticationInfo& other) const
+    {
+        // std::tie implements tuple comparison, wherein it checks the first item in the tuple,
+        // iff the first elements are equal, then the second element is used for comparison, and so on
+        return std::tie(Type, MicrosoftEntraIdInfo) < std::tie(other.Type, other.MicrosoftEntraIdInfo);
+    }
+
+    void AuthenticationInfo::UpdateRequiredFieldsIfNecessary()
+    {
+        // If MicrosoftEntraIdForAzureBlobStorage, populate default resource value if missing.
+        if (Type == AuthenticationType::MicrosoftEntraIdForAzureBlobStorage)
+        {
+            if (MicrosoftEntraIdInfo.has_value())
+            {
+                if (MicrosoftEntraIdInfo->Resource.empty())
+                {
+                    MicrosoftEntraIdInfo->Resource = s_DefaultAzureBlobStorageResource;
+                    MicrosoftEntraIdInfo->Scope = "";
+                }
+            }
+            else
+            {
+                MicrosoftEntraIdAuthenticationInfo authInfo;
+                authInfo.Resource = s_DefaultAzureBlobStorageResource;
+                MicrosoftEntraIdInfo = std::move(authInfo);
+            }
+        }
+    }
+
+    bool AuthenticationInfo::ValidateIntegrity() const
     {
         // For MicrosoftEntraId, Resource is required.
-        if (Type == AuthenticationType::MicrosoftEntraId)
+        if (Type == AuthenticationType::MicrosoftEntraId || Type == AuthenticationType::MicrosoftEntraIdForAzureBlobStorage)
         {
             return MicrosoftEntraIdInfo.has_value() && !MicrosoftEntraIdInfo->Resource.empty();
         }
@@ -178,6 +216,8 @@ namespace AppInstaller::Authentication
             return "none"sv;
         case AuthenticationType::MicrosoftEntraId:
             return "microsoftEntraId"sv;
+        case AuthenticationType::MicrosoftEntraIdForAzureBlobStorage:
+            return "microsoftEntraIdForAzureBlobStorage"sv;
         }
 
         return "unknown"sv;
@@ -195,6 +235,10 @@ namespace AppInstaller::Authentication
         else if (inStrLower == "microsoftentraid")
         {
             result = AuthenticationType::MicrosoftEntraId;
+        }
+        else if (inStrLower == "microsoftentraidforazureblobstorage")
+        {
+            result = AuthenticationType::MicrosoftEntraIdForAzureBlobStorage;
         }
 
         return result;
@@ -238,6 +282,6 @@ namespace AppInstaller::Authentication
 
     std::string AppInstaller::Authentication::CreateBearerToken(std::string rawToken)
     {
-        return c_BearerTokenPrefix + rawToken;
+        return std::string{ s_BearerTokenPrefix } + rawToken;
     }
 }
