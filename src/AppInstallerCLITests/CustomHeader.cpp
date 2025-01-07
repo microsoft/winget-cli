@@ -41,6 +41,14 @@ namespace
         })delimiter");
 }
 
+// In RestClient.cpp tests
+extern RestClient CreateRestClient(
+    const std::string& restApi,
+    const std::optional<std::string>& customHeader,
+    std::string_view caller,
+    const Http::HttpClientHelper& helper,
+    const Authentication::AuthenticationArguments& authArgs = {});
+
 TEST_CASE("RestClient_CustomHeader", "[RestSource][CustomHeader]")
 {
     utility::string_t sample = _XPLATSTR(
@@ -55,7 +63,7 @@ TEST_CASE("RestClient_CustomHeader", "[RestSource][CustomHeader]")
     std::optional<std::string> customHeader = "Testing custom header";
     auto header = std::make_pair<>(CustomHeaderName, JSON::GetUtilityString(customHeader.value()));
     HttpClientHelper helper{ GetHeaderVerificationHandler(web::http::status_codes::OK, sample, header) };
-    RestClient client = RestClient::Create(utility::conversions::to_utf8string("https://restsource.com/api"), customHeader, {}, std::move(helper), {});
+    RestClient client = CreateRestClient(utility::conversions::to_utf8string("https://restsource.com/api"), customHeader, {}, helper);
     REQUIRE(client.GetSourceIdentifier() == "Source123");
 }
 
@@ -104,7 +112,7 @@ TEST_CASE("RestSourceSearch_CustomHeaderExceedingSize", "[RestSource][CustomHead
     auto header = std::make_pair<>(CustomHeaderName, JSON::GetUtilityString(customHeader));
     HttpClientHelper helper{ GetHeaderVerificationHandler(web::http::status_codes::OK, sampleSearchResponse, header) };
 
-    REQUIRE_THROWS_HR(RestClient::Create(utility::conversions::to_utf8string("https://restsource.com/api"), customHeader, {}, std::move(helper), {}),
+    REQUIRE_THROWS_HR(CreateRestClient(utility::conversions::to_utf8string("https://restsource.com/api"), customHeader, {}, helper),
         APPINSTALLER_CLI_ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH);
 }
 
@@ -122,7 +130,7 @@ TEST_CASE("RestClient_CustomUserAgentHeader", "[RestSource][CustomHeader]")
     std::string testCaller = "TestCaller";
     auto header = std::make_pair<>(web::http::header_names::user_agent, JSON::GetUtilityString(Runtime::GetUserAgent(testCaller)));
     HttpClientHelper helper{ GetHeaderVerificationHandler(web::http::status_codes::OK, sample, header) };
-    RestClient client = RestClient::Create(utility::conversions::to_utf8string("https://restsource.com/api"), {}, testCaller, std::move(helper), {});
+    RestClient client = CreateRestClient(utility::conversions::to_utf8string("https://restsource.com/api"), {}, testCaller, helper);
     REQUIRE(client.GetSourceIdentifier() == "Source123");
 }
 
@@ -139,6 +147,6 @@ TEST_CASE("RestClient_DefaultUserAgentHeader", "[RestSource][CustomHeader]")
 
     auto header = std::make_pair<>(web::http::header_names::user_agent, JSON::GetUtilityString(Runtime::GetDefaultUserAgent()));
     HttpClientHelper helper{ GetHeaderVerificationHandler(web::http::status_codes::OK, sample, header) };
-    RestClient client = RestClient::Create(utility::conversions::to_utf8string("https://restsource.com/api"), {}, {}, std::move(helper), {});
+    RestClient client = CreateRestClient(utility::conversions::to_utf8string("https://restsource.com/api"), {}, {}, helper);
     REQUIRE(client.GetSourceIdentifier() == "Source123");
 }

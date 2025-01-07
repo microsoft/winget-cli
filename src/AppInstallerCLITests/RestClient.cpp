@@ -17,6 +17,16 @@ using namespace AppInstaller::Repository::Rest::Schema;
 
 const std::string TestRestUri = "http://restsource.net";
 
+RestClient CreateRestClient(
+    const std::string& restApi,
+    const std::optional<std::string>& customHeader,
+    std::string_view caller,
+    const Http::HttpClientHelper& helper,
+    const Authentication::AuthenticationArguments& authArgs = {})
+{
+    return RestClient::Create(restApi, customHeader, caller, helper, RestClient::GetInformation(restApi, customHeader, caller, helper), authArgs);
+}
+
 TEST_CASE("GetLatestCommonVersion", "[RestSource]")
 {
     std::set<AppInstaller::Utility::Version> wingetSupportedContracts = { Version {"1.0.0"}, Version {"1.2.0"} };
@@ -103,7 +113,7 @@ TEST_CASE("GetInformation_Success", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    IRestClient::Information information = RestClient::GetInformation(TestRestUri, {}, {}, std::move(helper));
+    IRestClient::Information information = RestClient::GetInformation(TestRestUri, {}, {}, helper);
     REQUIRE(information.SourceIdentifier == "Source123");
     REQUIRE(information.ServerSupportedVersions.size() == 2);
     REQUIRE(information.ServerSupportedVersions.at(0) == "1.0.0");
@@ -165,7 +175,7 @@ TEST_CASE("GetInformation_WithAuthenticationInfo_Success", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    IRestClient::Information information = RestClient::GetInformation(TestRestUri, {}, {}, std::move(helper));
+    IRestClient::Information information = RestClient::GetInformation(TestRestUri, {}, {}, helper);
     REQUIRE(information.SourceIdentifier == "Source123");
     REQUIRE(information.ServerSupportedVersions.size() == 1);
     REQUIRE(information.ServerSupportedVersions.at(0) == "1.7.0");
@@ -208,7 +218,7 @@ TEST_CASE("GetInformation_Fail_AgreementsWithoutIdentifier", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, {}, std::move(helper)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
+    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, {}, helper), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
 }
 
 TEST_CASE("GetInformation_Fail_InvalidMicrosoftEntraIdInfo", "[RestSource]")
@@ -226,7 +236,7 @@ TEST_CASE("GetInformation_Fail_InvalidMicrosoftEntraIdInfo", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper1{ GetTestRestRequestHandler(web::http::status_codes::OK, sample1) };
-    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, {}, std::move(helper1)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
+    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, {}, helper1), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
 
     utility::string_t sample2 = _XPLATSTR(
         R"delimiter({
@@ -245,7 +255,7 @@ TEST_CASE("GetInformation_Fail_InvalidMicrosoftEntraIdInfo", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper2{ GetTestRestRequestHandler(web::http::status_codes::OK, sample2) };
-    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, {}, std::move(helper2)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
+    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, {}, helper2), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
 
     utility::string_t sample3 = _XPLATSTR(
         R"delimiter({
@@ -263,7 +273,7 @@ TEST_CASE("GetInformation_Fail_InvalidMicrosoftEntraIdInfo", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper3{ GetTestRestRequestHandler(web::http::status_codes::OK, sample3) };
-    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, {}, std::move(helper3)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
+    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, {}, helper3), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
 }
 
 TEST_CASE("RestClientCreate_UnsupportedVersion", "[RestSource]")
@@ -278,7 +288,7 @@ TEST_CASE("RestClientCreate_UnsupportedVersion", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", {}, {}, std::move(helper)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
+    REQUIRE_THROWS_HR(CreateRestClient("https://restsource.com/api", {}, {}, helper), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
 }
 
 TEST_CASE("RestClientCreate_UnsupportedAuthenticationMethod", "[RestSource]")
@@ -298,7 +308,7 @@ TEST_CASE("RestClientCreate_UnsupportedAuthenticationMethod", "[RestSource]")
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
     Authentication::AuthenticationArguments authArgs;
     authArgs.Mode = Authentication::AuthenticationMode::Silent;
-    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", {}, {}, std::move(helper), std::move(authArgs)), APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
+    REQUIRE_THROWS_HR(CreateRestClient("https://restsource.com/api", {}, {}, helper, authArgs), APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
 }
 
 TEST_CASE("RestClientCreate_InvalidAuthenticationArguments", "[RestSource]")
@@ -321,7 +331,7 @@ TEST_CASE("RestClientCreate_InvalidAuthenticationArguments", "[RestSource]")
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
     Authentication::AuthenticationArguments authArgs;
     authArgs.Mode = Authentication::AuthenticationMode::Unknown;
-    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", {}, {}, std::move(helper), std::move(authArgs)), E_UNEXPECTED);
+    REQUIRE_THROWS_HR(CreateRestClient("https://restsource.com/api", {}, {}, helper, authArgs), E_UNEXPECTED);
 }
 
 TEST_CASE("RestClientCreate_1.0_Success", "[RestSource]")
@@ -336,7 +346,7 @@ TEST_CASE("RestClientCreate_1.0_Success", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    RestClient client = RestClient::Create(TestRestUri, {}, {}, std::move(helper), {});
+    RestClient client = CreateRestClient(TestRestUri, {}, {}, helper);
     REQUIRE(client.GetSourceIdentifier() == "Source123");
 }
 
@@ -373,7 +383,7 @@ TEST_CASE("RestClientCreate_1.1_Success", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    RestClient client = RestClient::Create(TestRestUri, {}, {}, std::move(helper));
+    RestClient client = CreateRestClient(TestRestUri, {}, {}, helper);
     REQUIRE(client.GetSourceIdentifier() == "Source123");
     auto information = client.GetSourceInformation();
     REQUIRE(information.SourceAgreementsIdentifier == "agreementV1");
@@ -439,7 +449,7 @@ TEST_CASE("RestClientCreate_1.7_Success", "[RestSource]")
     Authentication::AuthenticationArguments authArgs;
     authArgs.Mode = Authentication::AuthenticationMode::Silent;
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    RestClient client = RestClient::Create(TestRestUri, {}, {}, std::move(helper), std::move(authArgs));
+    RestClient client = CreateRestClient(TestRestUri, {}, {}, helper, authArgs);
     REQUIRE(client.GetSourceIdentifier() == "Source123");
     auto information = client.GetSourceInformation();
     REQUIRE(information.SourceAgreementsIdentifier == "agreementV1");
