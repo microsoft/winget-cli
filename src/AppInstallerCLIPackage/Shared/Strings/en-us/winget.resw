@@ -2762,7 +2762,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Specify the account to be used for authentication</value>
   </data>
   <data name="SourceAddFailedAuthenticationNotSupported" xml:space="preserve">
-    <value>Failed to add source. This winget version does not support the source's authentication method. Try upgrade to latest winget version.</value>
+    <value>Failed to add source. This winget version does not support the source's authentication method. Try upgrading to latest winget version.</value>
     <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRequiresAuthentication" xml:space="preserve">
@@ -3186,5 +3186,15 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationModules" xml:space="preserve">
     <value>Configuration Modules</value>
     <comment>PowerShell Modules that are used for the Configuration feature</comment>
+  </data>
+  <data name="InstallerDownloadRequiresAuthentication" xml:space="preserve">
+    <value>The package installer requires authentication. Authentication prompt may appear when necessary. Authenticated information will be shared with the installer download url.</value>
+  </data>
+  <data name="InstallerDownloadAuthenticationNotSupported" xml:space="preserve">
+    <value>Failed to download installer. This winget version does not support the installer download authentication method. Try upgrading to latest winget version.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
+    <value>Failed to download installer. Authentication failed.</value>
   </data>
 </root>

@@ -347,6 +347,21 @@ namespace AppInstaller::Manifest
                     }
                 }
             }
+
+            // Check AuthInfo validity. For full validation (community repo), authentication type must be none.
+            if (installer.AuthInfo.Type != Authentication::AuthenticationType::None)
+            {
+                if (fullValidation)
+                {
+                    // Authentication is not supported (must be none) in community repo.
+                    resultErrors.emplace_back(ManifestError::FieldNotSupported, "Authentication");
+                }
+
+                if (!installer.AuthInfo.ValidateIntegrity())
+                {
+                    resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Authentication");
+                }
+            }
         }
 
         // Validate localizations

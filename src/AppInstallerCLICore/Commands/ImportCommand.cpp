@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ImportCommand.h"
+#include "Workflows/DownloadFlow.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/ImportExportFlow.h"
 #include "Workflows/MultiQueryFlow.h"
@@ -42,6 +43,7 @@ namespace AppInstaller::CLI
     void ImportCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
+            Workflow::InitializeInstallerDownloadAuthenticatorsMap <<
             Workflow::ReportExecutionStage(Workflow::ExecutionStage::Discovery) <<
             Workflow::VerifyFile(Execution::Args::Type::ImportFile) <<
             Workflow::ReadImportFile <<

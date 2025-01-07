@@ -5,6 +5,7 @@
 #include "CheckpointManager.h"
 #include "InstallCommand.h"
 #include "Workflows/CompletionFlow.h"
+#include "Workflows/DownloadFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/UpdateFlow.h"
 #include "Workflows/MultiQueryFlow.h"
@@ -117,6 +118,8 @@ namespace AppInstaller::CLI
     void InstallCommand::ExecuteInternal(Context& context) const
     {
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
+
+        context << Workflow::InitializeInstallerDownloadAuthenticatorsMap;
 
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {

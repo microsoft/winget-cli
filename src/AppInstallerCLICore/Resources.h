@@ -302,8 +302,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstalledScopeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerAbortsTerminal);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerBlockedByPolicy);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloadAuthenticationFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloadAuthenticationNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloadCommandProhibited);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloaded);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloadRequiresAuthentication);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloads);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerElevationExpected);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedSecurityCheck);

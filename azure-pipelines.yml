@@ -19,7 +19,6 @@ pool:
 
 variables:
   solution: 'src\AppInstallerCLI.sln'
-  appxPackageDir: '$(Build.ArtifactStagingDirectory)/AppxPackages/'
   EnableDetectorVcpkg: true
 
 # Do not set the build version for a PR build.
@@ -64,6 +63,7 @@ jobs:
     buildOutDir: $(Build.SourcesDirectory)\src\$(buildPlatform)\$(buildConfiguration)
     buildOutDirAnyCpu: $(Build.SourcesDirectory)\src\AnyCPU\$(buildConfiguration)
     artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
+    appxPackageDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)\AppxPackages
     packageLayoutDir: $(Build.BinariesDirectory)\WingetPackageLayout
 
   steps:
@@ -168,11 +168,11 @@ jobs:
       SourceFolder: '$(packageLayoutDir)'
       TargetFolder: '$(artifactsDir)\DevPackage'
 
-  - task: CopyFiles@2
-    displayName: 'Copy Dev Packages'
+  - task: DeleteFiles@1
+    displayName: Clean up Package Layout after copy
     inputs:
-      SourceFolder: '$(appxPackageDir)'
-      TargetFolder: '$(artifactsDir)\AppxPackages'
+      SourceFolder: '$(packageLayoutDir)'
+      Contents: '**/*'
 
   - task: CopyFiles@2
     displayName: 'Copy native binaries for Microsoft.WinGet.Client (net8)'
