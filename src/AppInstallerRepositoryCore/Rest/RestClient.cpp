@@ -30,7 +30,7 @@ namespace AppInstaller::Repository::Rest
 
     namespace
     {
-        HttpClientHelper::HttpRequestHeaders GetHeaders(std::optional<std::string> customHeader, std::string_view caller)
+        HttpClientHelper::HttpRequestHeaders GetHeaders(const std::optional<std::string>& customHeader, std::string_view caller)
         {
             HttpClientHelper::HttpRequestHeaders headers;
 
@@ -135,7 +135,7 @@ namespace AppInstaller::Repository::Rest
         return *commonVersions.rbegin();
     }
 
-    Schema::IRestClient::Information RestClient::GetInformation(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const HttpClientHelper& helper)
+    Schema::IRestClient::Information RestClient::GetInformation(const std::string& restApi, const std::optional<std::string>& customHeader, std::string_view caller, const HttpClientHelper& helper)
     {
         utility::string_t restEndpoint = AppInstaller::Rest::GetRestAPIBaseUri(restApi);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !AppInstaller::Rest::IsValidUri(restEndpoint));
@@ -185,14 +185,19 @@ namespace AppInstaller::Repository::Rest
         THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
     }
 
-    RestClient RestClient::Create(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const HttpClientHelper& helper, const Authentication::AuthenticationArguments& authArgs)
+    RestClient RestClient::Create(
+        const std::string& restApi,
+        const std::optional<std::string>& customHeader,
+        std::string_view caller,
+        const HttpClientHelper& helper,
+        const Schema::IRestClient::Information& information,
+        const Authentication::AuthenticationArguments& authArgs)
     {
         utility::string_t restEndpoint = AppInstaller::Rest::GetRestAPIBaseUri(restApi);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !AppInstaller::Rest::IsValidUri(restEndpoint));
 
         auto headers = GetHeaders(customHeader, caller);
 
-        IRestClient::Information information = GetInformationInternal(restEndpoint, headers, helper);
         std::optional<Version> latestCommonVersion = GetLatestCommonVersion(information.ServerSupportedVersions, WingetSupportedContracts);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !latestCommonVersion);
 
