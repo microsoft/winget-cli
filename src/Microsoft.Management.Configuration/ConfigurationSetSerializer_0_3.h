@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ConfigurationSetSerializer.h"
+#include "ConfigurationEnvironment.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -21,6 +22,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     protected:
         void WriteYamlParameters(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationParameter>& values);
-        void WriteYamlConfigurationUnits(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& values);
+        void WriteYamlConfigurationUnits(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& values, const com_ptr<implementation::ConfigurationEnvironment>& commonEnvironment);
     };
 }

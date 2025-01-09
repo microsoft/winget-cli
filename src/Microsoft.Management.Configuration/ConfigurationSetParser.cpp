@@ -568,16 +568,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         SecurityContext computedContext = defaultContext;
 
-        // TODO: Support case-insensitive lookup by iteration
-        hstring securityContextDirectiveFieldName = GetConfigurationFieldNameHString(ConfigurationField::SecurityContextDirective);
-        auto securityContext = unit->Metadata().TryLookup(securityContextDirectiveFieldName);
+        auto securityContext = TryLookupProperty(unit->Metadata(), ConfigurationField::SecurityContextMetadata, Windows::Foundation::PropertyType::String);
         if (securityContext)
         {
-            auto securityContextProperty = securityContext.try_as<Windows::Foundation::IPropertyValue>();
-            if (securityContextProperty && securityContextProperty.Type() == Windows::Foundation::PropertyType::String)
-            {
-                TryParseSecurityContext(securityContextProperty.GetString(), computedContext);
-            }
+            TryParseSecurityContext(securityContext.GetString(), computedContext);
         }
 
         unit->EnvironmentInternal().Context(computedContext);

@@ -22,7 +22,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Universal
         Resources,
         ModuleDirective,
-        SecurityContextDirective,
+        SecurityContextMetadata,
 
         // v0.3
         Schema,
@@ -39,6 +39,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         MaximumLength,
         MinimumValue,
         MaximumValue,
+        WingetMetadataRoot,
+        ProcessorMetadata,
+        ProcessorIdentifierMetadata,
+        ProcessorSettingsMetadata,
     };
 
     // Gets the name value of the configuration field.
@@ -58,4 +62,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     // Gets the string representation of a security context.
     std::wstring_view ToWString(SecurityContext value);
+
+    // Tries to get the field value from the given value set; only if it is a value set.
+    Windows::Foundation::Collections::ValueSet TryLookupValueSet(const Windows::Foundation::Collections::ValueSet& valueSet, ConfigurationField field);
+
+    // Tries to get the field value from the given value set; only if it is a value set.
+    Windows::Foundation::IPropertyValue TryLookupProperty(const Windows::Foundation::Collections::ValueSet& valueSet, ConfigurationField field, Windows::Foundation::PropertyType type = Windows::Foundation::PropertyType::Empty);
 }

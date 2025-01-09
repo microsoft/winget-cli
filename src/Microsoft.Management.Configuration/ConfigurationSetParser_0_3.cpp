@@ -10,9 +10,12 @@
 
 #include <sstream>
 
+using namespace AppInstaller::YAML;
+using namespace winrt::Windows::Foundation;
+
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    using namespace AppInstaller::YAML;
+    using IInspectable = winrt::Windows::Foundation::IInspectable;
 
     void ConfigurationSetParser_0_3::Parse()
     {
@@ -66,14 +69,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         CHECK_ERROR(ParseValueSet(node, ConfigurationField::Metadata, false, parameter->Metadata()));
         CHECK_ERROR(GetStringValueForParameter(node, ConfigurationField::Description, parameter, &ConfigurationParameter::Description));
 
-        Windows::Foundation::PropertyType parameterType = parameter->Type();
+        PropertyType parameterType = parameter->Type();
         CHECK_ERROR(ParseObjectValueForParameter(node, ConfigurationField::DefaultValue, parameterType, parameter, &ConfigurationParameter::DefaultValue));
 
-        std::vector<Windows::Foundation::IInspectable> allowedValues;
+        std::vector<IInspectable> allowedValues;
 
         CHECK_ERROR(ParseSequence(node, ConfigurationField::AllowedValues, false, std::nullopt, [&](const Node& item)
             {
-                Windows::Foundation::IInspectable object;
+                IInspectable object;
                 CHECK_ERROR(ParseObject(item, ConfigurationField::AllowedValues, parameterType, object));
                 allowedValues.emplace_back(std::move(object));
             }));
@@ -159,15 +162,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationSetParser_0_3::ParseObjectValueForParameter(
         const AppInstaller::YAML::Node& node,
         ConfigurationField field,
-        Windows::Foundation::PropertyType type,
+        PropertyType type,
         ConfigurationParameter* parameter,
-        void(ConfigurationParameter::* propertyFunction)(const Windows::Foundation::IInspectable& value))
+        void(ConfigurationParameter::* propertyFunction)(const IInspectable& value))
     {
         const Node& valueNode = CHECK_ERROR(GetAndEnsureField(node, field, false, std::nullopt));
 
         if (valueNode)
         {
-            Windows::Foundation::IInspectable valueObject;
+            IInspectable valueObject;
             CHECK_ERROR(ParseObject(valueNode, field, type, valueObject));
 
             (parameter->*propertyFunction)(valueObject);
@@ -221,8 +224,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         auto isGroupObject = unit->Metadata().TryLookup(GetConfigurationFieldNameHString(ConfigurationField::IsGroupMetadata));
         if (isGroupObject)
         {
-            auto isGroupProperty = isGroupObject.try_as<Windows::Foundation::IPropertyValue>();
-            if (isGroupProperty && isGroupProperty.Type() == Windows::Foundation::PropertyType::Boolean)
+            auto isGroupProperty = isGroupObject.try_as<IPropertyValue>();
+            if (isGroupProperty && isGroupProperty.Type() == PropertyType::Boolean)
             {
                 return isGroupProperty.GetBoolean();
             }
@@ -233,70 +236,114 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return false;
     }
 
-    void ConfigurationSetParser_0_3::ExtractEnvironmentFromMetadata(const Windows::Foundation::Collections::ValueSet& metadata, ConfigurationEnvironment& targetEnvironment, const ConfigurationEnvironment* defaultEnvironment)
+    void ConfigurationSetParser_0_3::ExtractEnvironmentFromMetadata(const Collections::ValueSet& metadata, ConfigurationEnvironment& targetEnvironment, const ConfigurationEnvironment* defaultEnvironment)
     {
+        if (defaultEnvironment)
+        {
+            targetEnvironment.DeepCopy(*defaultEnvironment);
+        }
 
+        auto root = TryLookupValueSet(metadata, ConfigurationField::WingetMetadataRoot);
+        if (root)
+        {
+            // Get security context
+            auto securityContext = TryLookupProperty(root, ConfigurationField::SecurityContextMetadata, PropertyType::String);
+            if (securityContext)
+            {
+                SecurityContext computedContext = SecurityContext::Current;
+                if (TryParseSecurityContext(securityContext.GetString(), computedContext))
+                {
+                    targetEnvironment.Context(computedContext);
+                }
+            }
+
+            // Get processor
+            IInspectable processor = root.TryLookup(GetConfigurationFieldNameHString(ConfigurationField::ProcessorMetadata));
+            Collections::ValueSet processorValueSet = processor.try_as<Collections::ValueSet>();
+            if (processorValueSet)
+            {
+                IPropertyValue identifier = TryLookupProperty(processorValueSet, ConfigurationField::ProcessorIdentifierMetadata, PropertyType::String);
+                if (identifier)
+                {
+                    targetEnvironment.ProcessorIdentifier(identifier.GetString());
+
+                    Collections::ValueSet processorSettings = TryLookupValueSet(processorValueSet, ConfigurationField::ProcessorSettingsMetadata);
+                    if (processorSettings)
+                    {
+                        targetEnvironment.ProcessorProperties(processorSettings);
+                    }
+                }
+            }
+            else
+            {
+                IPropertyValue processorProperty = processor.try_as<IPropertyValue>();
+                if (processorProperty)
+                {
+                    targetEnvironment.ProcessorIdentifier(processorProperty.GetString());
+                }
+            }
+        }
     }
 
     void ConfigurationSetParser_0_3::ExtractEnvironmentForUnit(ConfigurationUnit* unit, const ConfigurationEnvironment& defaultEnvironment)
     {
-        // Get unnested the security context
+        // Get unnested security context
         ExtractSecurityContext(unit, defaultEnvironment.Context());
 
         // Get nested environment
         ExtractEnvironmentFromMetadata(unit->Metadata(), unit->EnvironmentInternal(), &defaultEnvironment);
     }
 
-    std::optional<std::pair<Windows::Foundation::PropertyType, bool>> ParseWindowsFoundationPropertyType(std::string_view value)
+    std::optional<std::pair<PropertyType, bool>> ParseWindowsFoundationPropertyType(std::string_view value)
     {
         if (value == "string")
         {
-            return std::make_pair(Windows::Foundation::PropertyType::String, false);
+            return std::make_pair(PropertyType::String, false);
         }
         else if (value == "securestring")
         {
-            return std::make_pair(Windows::Foundation::PropertyType::String, true);
+            return std::make_pair(PropertyType::String, true);
         }
         else if (value == "int")
         {
-            return std::make_pair(Windows::Foundation::PropertyType::Int64, false);
+            return std::make_pair(PropertyType::Int64, false);
         }
         else if (value == "bool")
         {
-            return std::make_pair(Windows::Foundation::PropertyType::Boolean, false);
+            return std::make_pair(PropertyType::Boolean, false);
         }
         else if (value == "object")
         {
-            return std::make_pair(Windows::Foundation::PropertyType::Inspectable, false);
+            return std::make_pair(PropertyType::Inspectable, false);
         }
         else if (value == "secureobject")
         {
-            return std::make_pair(Windows::Foundation::PropertyType::Inspectable, true);
+            return std::make_pair(PropertyType::Inspectable, true);
         }
         else if (value == "array")
         {
-            return std::make_pair(Windows::Foundation::PropertyType::InspectableArray, false);
+            return std::make_pair(PropertyType::InspectableArray, false);
         }
 
         // TODO: Consider supporting an expanded set of type strings
         return std::nullopt;
     }
 
-    std::string_view ToString(Windows::Foundation::PropertyType value, bool isSecure)
+    std::string_view ToString(PropertyType value, bool isSecure)
     {
         switch (value)
         {
-        case Windows::Foundation::PropertyType::Int16:
-        case Windows::Foundation::PropertyType::Int32:
-        case Windows::Foundation::PropertyType::Int64:
+        case PropertyType::Int16:
+        case PropertyType::Int32:
+        case PropertyType::Int64:
             return "int"sv;
-        case Windows::Foundation::PropertyType::Boolean:
+        case PropertyType::Boolean:
             return "bool"sv;
-        case Windows::Foundation::PropertyType::String:
+        case PropertyType::String:
             return isSecure ? "securestring"sv : "string"sv;
-        case Windows::Foundation::PropertyType::Inspectable:
+        case PropertyType::Inspectable:
             return isSecure ? "secureobject"sv : "object"sv;
-        case Windows::Foundation::PropertyType::InspectableArray:
+        case PropertyType::InspectableArray:
             return "array"sv;
         default:
             return {};

@@ -24,6 +24,22 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Foundation::Collections::IMapView<hstring, hstring> ProcessorPropertiesView() const;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+        // Copies the values from the given environment, including making a new map of the properties.
+        void DeepCopy(const implementation::ConfigurationEnvironment& toDeepCopy);
+
+        // Copies the scalar properties from the given ValueSet.
+        // Ignores all values that cannot be converted to a string.
+        void ProcessorProperties(const Windows::Foundation::Collections::ValueSet& values);
+
+        // Determines if this environment represents the default environment.
+        bool IsDefault() const;
+
+        // Creates an environment, setting only fields that are identical between all given environments.
+        static com_ptr<ConfigurationEnvironment> CalculateCommonEnvironment(const std::vector<IConfigurationEnvironmentView>& environments);
+
+        // Checks if the two given properties maps are equal.
+        static bool AreEqual(const Windows::Foundation::Collections::IMapView<hstring, hstring>& a, const Windows::Foundation::Collections::IMapView<hstring, hstring>& b);
+
     private:
         SecurityContext m_context = SecurityContext::Current;
         hstring m_processorIdentifier;

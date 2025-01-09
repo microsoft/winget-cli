@@ -5,6 +5,7 @@
 #include "ArgumentValidation.h"
 #include "ConfigurationSetParser_0_3.h"
 #include "ConfigurationSetUtilities.h"
+#include "ConfigurationEnvironment.h"
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
 
@@ -14,6 +15,53 @@ using namespace winrt::Windows::Foundation;
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    namespace
+    {
+        Windows::Foundation::Collections::ValueSet GetWingetMetadataValueSet(Windows::Foundation::Collections::ValueSet& metadata)
+        {
+            Windows::Foundation::Collections::ValueSet result = nullptr;
+            hstring wingetMetadataKey = GetConfigurationFieldNameHString(ConfigurationField::WingetMetadataRoot);
+
+            if (metadata)
+            {
+                Windows::Foundation::IInspectable wingetMetadataObject = metadata.TryLookup(wingetMetadataKey);
+                if (wingetMetadataObject)
+                {
+                    result = wingetMetadataObject.try_as<Windows::Foundation::Collections::ValueSet>();
+                    THROW_HR_IF(WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE, !result);
+                }
+            }
+            else
+            {
+                metadata = Collections::ValueSet{};
+            }
+
+            if (!result)
+            {
+                result = Collections::ValueSet{};
+                metadata.Insert(wingetMetadataKey, result);
+            }
+
+            return result;
+        }
+
+        void AddEnvironmentToMetadata(Windows::Foundation::Collections::ValueSet& metadata, const com_ptr<implementation::ConfigurationEnvironment>& environment)
+        {
+            if (environment && !environment->IsDefault())
+            {
+                auto wingetMetadata = GetWingetMetadataValueSet(metadata);
+
+                SecurityContext context = environment->Context();
+                if (context != SecurityContext::Current)
+                {
+                    wingetMetadata.Insert(GetConfigurationFieldNameHString(ConfigurationField::SecurityContextMetadata), PropertyValue::CreateString(ToWString(context)));
+                }
+
+                // TODO: Add additional non-default values
+            }
+        }
+    }
+
     hstring ConfigurationSetSerializer_0_3::Serialize(ConfigurationSet* configurationSet)
     {
         Emitter emitter;
@@ -22,10 +70,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         emitter << Key << GetConfigurationFieldName(ConfigurationField::Schema) << Value << ConvertToUTF8(configurationSet->SchemaUri().ToString());
 
-        WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Metadata, configurationSet->Metadata());
+        // Prepare an override if necessary
+        Collections::ValueSet wingetMetadataOverride = nullptr;
+        auto commonEnvironment = ConfigurationEnvironment::CalculateCommonEnvironment(configurationSet->GetUnitEnvironmentsInternal());
+        AddEnvironmentToMetadata(wingetMetadataOverride, commonEnvironment);
+
+        WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Metadata, configurationSet->Metadata(),
+            { { ConfigurationField::WingetMetadataRoot, wingetMetadataOverride } });
+
         WriteYamlParameters(emitter, configurationSet->Parameters());
         WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Variables, configurationSet->Variables());
-        WriteYamlConfigurationUnits(emitter, configurationSet->Units());
+        WriteYamlConfigurationUnits(emitter, configurationSet->Units(), commonEnvironment);
 
         emitter << EndMap;
 
@@ -101,7 +156,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         emitter << EndMap;
     }
 
-    void ConfigurationSetSerializer_0_3::WriteYamlConfigurationUnits(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& values)
+    void ConfigurationSetSerializer_0_3::WriteYamlConfigurationUnits(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& values, const com_ptr<implementation::ConfigurationEnvironment>& commonEnvironment)
     {
         emitter << Key << GetConfigurationFieldName(ConfigurationField::Resources);
 
@@ -119,6 +174,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             THROW_HR_IF(WINGET_CONFIG_ERROR_MISSING_FIELD, type.empty());
             emitter << Key << GetConfigurationFieldName(ConfigurationField::Type) << Value << ConvertToUTF8(type);
 
+            // TODO: Create winget metadata override here, using commonEnvironment and this subtrees environment commonalities
             WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Metadata, unit.Metadata());
 
             auto dependencies = unit.Dependencies();
@@ -136,6 +192,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 emitter << EndSeq;
             }
 
+            // TODO: Properly handle groups...
             WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Properties, unit.Settings());
 
             emitter << EndMap;

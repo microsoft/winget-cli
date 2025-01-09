@@ -8,6 +8,7 @@
 #include <winget/Yaml.h>
 #include <initializer_list>
 #include <string_view>
+#include <utility>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -34,25 +35,19 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     protected:
         ConfigurationSetSerializer() = default;
 
-        // A value to override in a value set.
-        // Prevents the value from the actual value set from being written.
-        // If provided, writes the given value instead.
-        struct ValueSetOverride
-        {
-            ConfigurationField Field;
-            Windows::Foundation::IInspectable Value;
-        };
+        static void WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, const std::vector<std::pair<ConfigurationField, Windows::Foundation::IInspectable>>& overrides = {});
+        static void WriteYamlValueSetIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, const Windows::Foundation::Collections::ValueSet& valueSet, const std::vector<std::pair<ConfigurationField, Windows::Foundation::IInspectable>>& overrides = {});
+        static void WriteYamlValueSetAsArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSetArray);
 
-        void WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, const std::vector<ValueSetOverride>& overrides = {});
-        void WriteYamlValueSetIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, const Windows::Foundation::Collections::ValueSet& valueSet);
-        void WriteYamlValueSetAsArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSetArray);
+        static void WriteYamlStringArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<hstring>& values);
 
-        void WriteYamlStringArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<hstring>& values);
-
-        void WriteYamlValue(AppInstaller::YAML::Emitter& emitter, const winrt::Windows::Foundation::IInspectable& value);
-        void WriteYamlValueIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, const winrt::Windows::Foundation::IInspectable& value);
-        void WriteYamlStringValueIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, hstring value);
+        static void WriteYamlValue(AppInstaller::YAML::Emitter& emitter, const winrt::Windows::Foundation::IInspectable& value);
+        static void WriteYamlValueIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, const winrt::Windows::Foundation::IInspectable& value);
+        static void WriteYamlStringValueIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, hstring value);
 
         std::wstring_view GetSchemaVersionCommentPrefix();
+
+    private:
+
     };
 }

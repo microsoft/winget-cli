@@ -23,7 +23,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         case ConfigurationField::Resources: return "resources"sv;
         case ConfigurationField::ModuleDirective: return "module"sv;
-        case ConfigurationField::SecurityContextDirective: return "securityContext"sv;
+        case ConfigurationField::SecurityContextMetadata: return "securityContext"sv;
 
         case ConfigurationField::Schema: return "$schema"sv;
         case ConfigurationField::Metadata: return "metadata"sv;
@@ -39,6 +39,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         case ConfigurationField::MaximumLength: return "maxLength"sv;
         case ConfigurationField::MinimumValue: return "minValue"sv;
         case ConfigurationField::MaximumValue: return "maxValue"sv;
+        case ConfigurationField::WingetMetadataRoot: return "winget"sv;
+        case ConfigurationField::ProcessorMetadata: return "processor"sv;
+        case ConfigurationField::ProcessorIdentifierMetadata: return "identifier"sv;
+        case ConfigurationField::ProcessorSettingsMetadata: return "settings"sv;
         }
 
         THROW_HR(E_UNEXPECTED);
@@ -102,5 +106,33 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
 
         THROW_HR(E_INVALIDARG);
+    }
+
+    Windows::Foundation::Collections::ValueSet TryLookupValueSet(const Windows::Foundation::Collections::ValueSet& valueSet, ConfigurationField field)
+    {
+        Windows::Foundation::IInspectable value = valueSet.TryLookup(GetConfigurationFieldNameHString(field));
+
+        if (value)
+        {
+            return value.try_as<Windows::Foundation::Collections::ValueSet>();
+        }
+
+        return nullptr;
+    }
+
+    Windows::Foundation::IPropertyValue TryLookupProperty(const Windows::Foundation::Collections::ValueSet& valueSet, ConfigurationField field, Windows::Foundation::PropertyType type)
+    {
+        Windows::Foundation::IInspectable value = valueSet.TryLookup(GetConfigurationFieldNameHString(field));
+
+        if (value)
+        {
+            Windows::Foundation::IPropertyValue property = value.try_as<Windows::Foundation::IPropertyValue>();
+            if (property && (type == Windows::Foundation::PropertyType::Empty || property.Type() == type))
+            {
+                return property;
+            }
+        }
+
+        return nullptr;
     }
 }

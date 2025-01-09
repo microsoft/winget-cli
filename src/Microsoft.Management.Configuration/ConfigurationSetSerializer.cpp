@@ -20,6 +20,95 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     namespace anon
     {
         static constexpr std::string_view s_nullValue = "null";
+
+        struct ValueSetWriter
+        {
+            ValueSetWriter(const Windows::Foundation::Collections::ValueSet& valueSet, const std::vector<std::pair<ConfigurationField, Windows::Foundation::IInspectable>>& overrides) :
+                m_valueSet(valueSet), m_overrides(overrides)
+            {
+                // Create a sorted list of the field names to exclude
+                for (const auto & override : m_overrides)
+                {
+                    m_exclusionStrings.push_back(GetConfigurationFieldNameHString(override.first));
+                }
+                std::sort(m_exclusionStrings.begin(), m_exclusionStrings.end());
+            }
+
+            bool IsResultEmpty()
+            {
+                size_t nullOverrides = 0;
+
+                for (const auto& override : m_overrides)
+                {
+                    // A non-null override will always be output
+                    if (override.second)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        ++nullOverrides;
+                    }
+                }
+
+                if (m_valueSet)
+                {
+                    // If there are more values than null overrides, something will be output
+                    if (static_cast<size_t>(m_valueSet.Size()) > nullOverrides)
+                    {
+                        return false;
+                    }
+
+                    // Check for a value that we would output
+                    for (const auto& [key, value] : m_valueSet)
+                    {
+                        if (value != nullptr &&
+                            !std::binary_search(m_exclusionStrings.begin(), m_exclusionStrings.end(), key))
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+
+            void Write(AppInstaller::YAML::Emitter& emitter, void(* WriteYamlValue)(AppInstaller::YAML::Emitter& emitter, const winrt::Windows::Foundation::IInspectable& value))
+            {
+                emitter << BeginMap;
+
+                if (m_valueSet)
+                {
+                    for (const auto& [key, value] : m_valueSet)
+                    {
+                        if (value != nullptr &&
+                            !std::binary_search(m_exclusionStrings.begin(), m_exclusionStrings.end(), key))
+                        {
+                            std::string keyName = winrt::to_string(key);
+                            emitter << Key << keyName << Value;
+                            WriteYamlValue(emitter, value);
+                        }
+                    }
+                }
+
+                for (const auto & override : m_overrides)
+                {
+                    if (override.second != nullptr)
+                    {
+                        std::string_view keyName = GetConfigurationFieldName(override.first);
+                        emitter << Key << keyName << Value;
+                        WriteYamlValue(emitter, override.second);
+                    }
+                }
+
+                emitter << EndMap;
+            }
+
+        private:
+            const Windows::Foundation::Collections::ValueSet& m_valueSet;
+            const std::vector<std::pair<ConfigurationField, Windows::Foundation::IInspectable>>& m_overrides;
+            std::vector<winrt::hstring> m_exclusionStrings;
+        };
     }
 
     std::unique_ptr<ConfigurationSetSerializer> ConfigurationSetSerializer::CreateSerializer(hstring version, bool strictVersionMatching)
@@ -65,49 +154,21 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return emitter.str();
     }
 
-    void ConfigurationSetSerializer::WriteYamlValueSetIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, const Windows::Foundation::Collections::ValueSet& valueSet)
+    void ConfigurationSetSerializer::WriteYamlValueSetIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, const Windows::Foundation::Collections::ValueSet& valueSet, const std::vector<std::pair<ConfigurationField, Windows::Foundation::IInspectable>>& overrides)
     {
-        if (valueSet && valueSet.Size() != 0)
+        anon::ValueSetWriter writer{ valueSet, overrides };
+
+        if (!writer.IsResultEmpty())
         {
             emitter << Key << GetConfigurationFieldName(key);
-            WriteYamlValueSet(emitter, valueSet);
+            writer.Write(emitter, WriteYamlValue);
         }
     }
 
-    void ConfigurationSetSerializer::WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, const std::vector<ValueSetOverride>& overrides)
+    void ConfigurationSetSerializer::WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, const std::vector<std::pair<ConfigurationField, Windows::Foundation::IInspectable>>& overrides)
     {
-        // Create a sorted list of the field names to exclude
-        std::vector<winrt::hstring> exclusionStrings;
-        for (const ValueSetOverride& override : overrides)
-        {
-            exclusionStrings.emplace_back(GetConfigurationFieldNameHString(override.Field));
-        }
-        std::sort(exclusionStrings.begin(), exclusionStrings.end());
-
-        emitter << BeginMap;
-
-        for (const auto& [key, value] : valueSet)
-        {
-            if (value != nullptr &&
-                !std::binary_search(exclusionStrings.begin(), exclusionStrings.end(), key))
-            {
-                std::string keyName = winrt::to_string(key);
-                emitter << Key << keyName << Value;
-                WriteYamlValue(emitter, value);
-            }
-        }
-
-        for (const ValueSetOverride & override : overrides)
-        {
-            if (override.Value != nullptr)
-            {
-                std::string_view keyName = GetConfigurationFieldName(override.Field);
-                emitter << Key << keyName << Value;
-                WriteYamlValue(emitter, override.Value);
-            }
-        }
-
-        emitter << EndMap;
+        anon::ValueSetWriter writer{ valueSet, overrides };
+        writer.Write(emitter, WriteYamlValue);
     }
 
     void ConfigurationSetSerializer::WriteYamlStringArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<hstring>& values)
