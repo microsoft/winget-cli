@@ -7,10 +7,9 @@
 
 namespace AppInstaller::Rest
 {
-    utility::string_t GetRestAPIBaseUri(std::string restApiUri)
+    utility::string_t GetRestAPIBaseUri(std::string uri)
     {
         // Trim
-        std::string uri = restApiUri;
         if (!uri.empty())
         {
             uri = AppInstaller::Utility::Trim(uri);

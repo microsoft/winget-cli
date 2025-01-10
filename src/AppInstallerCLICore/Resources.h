@@ -94,6 +94,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModuleNameOnly);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModulePath);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModulePathArgError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModules);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModuleWithDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNotEnabledMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNoTestRun);
@@ -301,8 +302,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstalledScopeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerAbortsTerminal);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerBlockedByPolicy);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloadAuthenticationFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloadAuthenticationNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloadCommandProhibited);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloaded);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloadRequiresAuthentication);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloads);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerElevationExpected);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedSecurityCheck);

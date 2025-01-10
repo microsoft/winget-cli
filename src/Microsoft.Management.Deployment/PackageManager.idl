@@ -515,6 +515,12 @@ namespace Microsoft.Management.Deployment
             /// The package installer elevation requirement.
             ElevationRequirement ElevationRequirement { get; };
         }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+        {
+            /// Authentication info from the package installer.
+            AuthenticationInfo AuthenticationInfo { get; };
+        }
     };
 
     /// The installed status type. The values need to match InstalledStatusType from winget/RepositorySearch.h.
@@ -813,6 +819,10 @@ namespace Microsoft.Management.Deployment
         Unknown,
         None,
         MicrosoftEntraId,
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+        {
+            MicrosoftEntraIdForAzureBlobStorage,
+        }
     };
 
     /// Microsoft Entra Id related authentication info.
@@ -927,7 +937,6 @@ namespace Microsoft.Management.Deployment
 
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
         {
-
             /// Authentication arguments used in authentication flow during package catalog operations if applicable.
             /// This is user or caller input.
             AuthenticationArguments AuthenticationArguments;
@@ -1047,11 +1056,11 @@ namespace Microsoft.Management.Deployment
 
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 2)]
         {
-            // The set of allowed Architectures, in preference order, that will be considered for
-            // the install operation.  Initially the vector contains the default allowed architectures
-            // in the default preference order for the current system.  It is allowed to have repeated
-            // values in the list, to make prepending a preference override easier.  Instances of an
-            // architecture after the first will simply be ignored.
+            /// The set of allowed Architectures, in preference order, that will be considered for
+            /// the install operation.  Initially the vector contains the default allowed architectures
+            /// in the default preference order for the current system.  It is allowed to have repeated
+            /// values in the list, to make prepending a preference override easier.  Instances of an
+            /// architecture after the first will simply be ignored.
             Windows.Foundation.Collections.IVector<Windows.System.ProcessorArchitecture> AllowedArchitectures { get; };
         }
 
@@ -1082,11 +1091,17 @@ namespace Microsoft.Management.Deployment
 
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
         {
-            // Skip installing the dependencies for the package.
+            /// Skip installing the dependencies for the package.
             Boolean SkipDependencies;
 
             /// The package installer type.
             PackageInstallerType InstallerType;
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+        {
+            /// Authentication arguments used when downloading the package installer if authentication is required.
+            AuthenticationArguments AuthenticationArguments;
         }
     }
 
@@ -1181,6 +1196,12 @@ namespace Microsoft.Management.Deployment
         /// Used by a caller to correlate the download with a caller's data.
         /// The string must be JSON encoded.
         String CorrelationData;
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+        {
+            /// Authentication arguments used when downloading the package installer if authentication is required.
+            AuthenticationArguments AuthenticationArguments;
+        }
     }
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
@@ -1239,6 +1260,12 @@ namespace Microsoft.Management.Deployment
 
         /// Bypasses the Disabled Store Policy
         Boolean BypassIsStoreClientBlockedPolicyCheck;
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+        {
+            /// Authentication arguments used when downloading the package installer if authentication is required.
+            AuthenticationArguments AuthenticationArguments;
+        }
     }
 
     /// IMPLEMENTATION NOTE: Documentation from AppInstaller::Manifest::Documentation

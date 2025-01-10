@@ -50,7 +50,7 @@ namespace AppInstaller::Repository::Rest
             std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
                 Initialize();
-                RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper, m_authArgs);
+                RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper, m_restClientInformation, m_authArgs);
                 return std::make_shared<RestSource>(m_details, m_information, std::move(restClient));
             }
 
@@ -61,28 +61,29 @@ namespace AppInstaller::Repository::Rest
                     [&]()
                     {
                         m_httpClientHelper.SetPinningConfiguration(m_details.CertificatePinningConfiguration);
-                        auto sourceInformation = RestClient::GetInformation(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper);
+                        m_restClientInformation = RestClient::GetInformation(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper);
 
-                        m_details.Identifier = sourceInformation.SourceIdentifier;
+                        m_details.Identifier = m_restClientInformation.SourceIdentifier;
 
-                        m_information.UnsupportedPackageMatchFields = sourceInformation.UnsupportedPackageMatchFields;
-                        m_information.RequiredPackageMatchFields = sourceInformation.RequiredPackageMatchFields;
-                        m_information.UnsupportedQueryParameters = sourceInformation.UnsupportedQueryParameters;
-                        m_information.RequiredQueryParameters = sourceInformation.RequiredQueryParameters;
+                        m_information.UnsupportedPackageMatchFields = m_restClientInformation.UnsupportedPackageMatchFields;
+                        m_information.RequiredPackageMatchFields = m_restClientInformation.RequiredPackageMatchFields;
+                        m_information.UnsupportedQueryParameters = m_restClientInformation.UnsupportedQueryParameters;
+                        m_information.RequiredQueryParameters = m_restClientInformation.RequiredQueryParameters;
 
-                        m_information.SourceAgreementsIdentifier = sourceInformation.SourceAgreementsIdentifier;
-                        for (auto const& agreement : sourceInformation.SourceAgreements)
+                        m_information.SourceAgreementsIdentifier = m_restClientInformation.SourceAgreementsIdentifier;
+                        for (auto const& agreement : m_restClientInformation.SourceAgreements)
                         {
                             m_information.SourceAgreements.emplace_back(agreement.Label, agreement.Text, agreement.Url);
                         }
 
-                        m_information.Authentication = sourceInformation.Authentication;
+                        m_information.Authentication = m_restClientInformation.Authentication;
                     });
             }
 
             SourceDetails m_details;
             Http::HttpClientHelper m_httpClientHelper;
             SourceInformation m_information;
+            Schema::IRestClient::Information m_restClientInformation;
             std::optional<std::string> m_customHeader;
             std::string m_caller;
             Authentication::AuthenticationArguments m_authArgs;

@@ -1417,6 +1417,49 @@ TEST_CASE("WriteV1_10SingletonManifestAndVerifyContents", "[ManifestCreation]")
     VerifyV1ManifestContent(generatedMultiFileManifest, false, ManifestVer{ s_ManifestVersionV1_10 }, true);
 }
 
+// Since Authentication is not supported in community repo and will cause manifest validation failure,
+// we are not adding Authentication in v1_10 manifests. Instead a separate test is created for Authentication.
+TEST_CASE("ReadWriteValidateV1_10ManifestWithInstallerAuthentication", "[ManifestValidation]")
+{
+    // Read manifest
+    TempDirectory testDirectory{ "TestManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_10-InstallerAuthentication.yaml" }, testDirectory);
+    Manifest testManifest = YamlParser::CreateFromPath(testDirectory);
+
+    // Verify content
+    REQUIRE(testManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_10 });
+    REQUIRE(testManifest.DefaultInstallerInfo.AuthInfo.Type == AppInstaller::Authentication::AuthenticationType::MicrosoftEntraId);
+    REQUIRE(testManifest.DefaultInstallerInfo.AuthInfo.MicrosoftEntraIdInfo);
+    REQUIRE(testManifest.DefaultInstallerInfo.AuthInfo.MicrosoftEntraIdInfo->Resource == "TestResource");
+    REQUIRE(testManifest.DefaultInstallerInfo.AuthInfo.MicrosoftEntraIdInfo->Scope == "TestScope");
+    REQUIRE(testManifest.Installers.size() == 1);
+    REQUIRE(testManifest.Installers[0].AuthInfo.Type == AppInstaller::Authentication::AuthenticationType::MicrosoftEntraIdForAzureBlobStorage);
+    REQUIRE(testManifest.Installers[0].AuthInfo.MicrosoftEntraIdInfo);
+    REQUIRE(testManifest.Installers[0].AuthInfo.MicrosoftEntraIdInfo->Resource == "https://storage.azure.com/");
+    REQUIRE(testManifest.Installers[0].AuthInfo.MicrosoftEntraIdInfo->Scope.empty());
+
+    // Manifest Validation. Only error is "Authentication not supported".
+    auto errors = ValidateManifest(testManifest, true);
+    REQUIRE(errors.size() == 1);
+    REQUIRE(errors[0].GetErrorMessage() == "Field is not supported.");
+    REQUIRE(errors[0].Context == "Authentication");
+
+    // Write manifest
+    TempDirectory exportedDirectory{ "ExportedManifest" };
+    std::filesystem::path exportedManifestPath = exportedDirectory.GetPath() / "ExportedManifest.yaml";
+    YamlWriter::OutputYamlFile(testManifest, testManifest.Installers[0], exportedManifestPath);
+
+    // Read back and validate content
+    REQUIRE(std::filesystem::exists(exportedManifestPath));
+    Manifest exportedManifest = YamlParser::CreateFromPath(exportedDirectory);
+    REQUIRE(testManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_10 });
+    REQUIRE(exportedManifest.Installers.size() == 1);
+    REQUIRE(exportedManifest.Installers[0].AuthInfo.Type == AppInstaller::Authentication::AuthenticationType::MicrosoftEntraIdForAzureBlobStorage);
+    REQUIRE(exportedManifest.Installers[0].AuthInfo.MicrosoftEntraIdInfo);
+    REQUIRE(exportedManifest.Installers[0].AuthInfo.MicrosoftEntraIdInfo->Resource == "https://storage.azure.com/");
+    REQUIRE(exportedManifest.Installers[0].AuthInfo.MicrosoftEntraIdInfo->Scope.empty());
+}
+
 TEST_CASE("WriteManifestWithMultipleLocale", "[ManifestCreation]")
 {
     Manifest multiLocaleManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-MultiLocale.yaml"));

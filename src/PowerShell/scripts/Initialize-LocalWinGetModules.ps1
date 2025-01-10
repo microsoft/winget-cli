@@ -202,7 +202,7 @@ if ($moduleToConfigure.HasFlag([ModuleType]::Client))
         "WindowsPackageManager\WindowsPackageManager.dll"
         "UndockedRegFreeWinRT\winrtact.dll"
     )
-    $module.AddArchSpecificFiles($additionalFiles, "net6.0-windows10.0.22000.0\SharedDependencies", $BuildRoot, $Configuration)
+    $module.AddArchSpecificFiles($additionalFiles, "net8.0-windows10.0.22000.0\SharedDependencies", $BuildRoot, $Configuration)
     $module.AddArchSpecificFiles($additionalFiles, "net48\SharedDependencies", $BuildRoot, $Configuration)
     $modules += $module
 }
@@ -226,7 +226,7 @@ if ($moduleToConfigure.HasFlag([ModuleType]::Configuration))
     )
     $module.AddArchSpecificFiles($additionalFiles, "SharedDependencies", $BuildRoot, $Configuration)
     $additionalFiles = @(
-        "Microsoft.Management.Configuration.Projection\net6.0-windows10.0.22000.0\Microsoft.Management.Configuration.Projection.dll"
+        "Microsoft.Management.Configuration.Projection\net8.0-windows10.0.22000.0\Microsoft.Management.Configuration.Projection.dll"
     )
     $module.AddAnyCpuSpecificFilesToArch($additionalFiles, "SharedDependencies", $BuildRoot, $Configuration)
     $modules += $module

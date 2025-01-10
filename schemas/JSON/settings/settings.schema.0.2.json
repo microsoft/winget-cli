@@ -205,7 +205,8 @@
         "defaultModuleRoot": {
           "description": "The default root directory where PowerShell modules are installed to when applying a configuration.",
           "type": "string",
-          "maxLength": 32767
+          "maxLength": 32767,
+          "default": "%LOCALAPPDATA%/Microsoft/WinGet/Configuration/Modules/"
         }
       }
     },
@@ -302,12 +303,18 @@
         "fonts": {
           "description": "Enable support for managing fonts",
           "type": "boolean",
-          "default":  false
+          "default": false
         }
       }
     }
   },
   "allOf": [
+    {
+      "properties": {
+        "source": { "$ref": "#/definitions/Source" }
+      },
+      "additionalItems": true
+    },
     {
       "properties": {
         "visual": { "$ref": "#/definitions/Visual" }
@@ -322,13 +329,31 @@
     },
     {
       "properties": {
-        "source": { "$ref": "#/definitions/Source" }
+        "installPrefReq": { "$ref": "#/definitions/InstallPrefReq" }
       },
       "additionalItems": true
     },
     {
       "properties": {
         "installBehavior": { "$ref": "#/definitions/InstallBehavior" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "uninstallBehavior": { "$ref": "#/definitions/UninstallBehavior" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "configureBehavior": { "$ref": "#/definitions/ConfigureBehavior" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "downloadBehavior": { "$ref": "#/definitions/DownloadBehavior" }
       },
       "additionalItems": true
     },
