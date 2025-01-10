@@ -267,7 +267,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 {
                     targetEnvironment.ProcessorIdentifier(identifier.GetString());
 
-                    Collections::ValueSet processorSettings = TryLookupValueSet(processorValueSet, ConfigurationField::ProcessorSettingsMetadata);
+                    Collections::ValueSet processorSettings = TryLookupValueSet(processorValueSet, ConfigurationField::ProcessorPropertiesMetadata);
                     if (processorSettings)
                     {
                         targetEnvironment.ProcessorProperties(processorSettings);

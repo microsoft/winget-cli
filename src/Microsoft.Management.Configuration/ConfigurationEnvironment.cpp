@@ -141,8 +141,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     bool ConfigurationEnvironment::AreEqual(const Windows::Foundation::Collections::IMapView<hstring, hstring>& a, const Windows::Foundation::Collections::IMapView<hstring, hstring>& b)
     {
-        uint32_t a_size = a.Size();
-        uint32_t b_size = b.Size();
+        uint32_t a_size = a ? a.Size() : 0;
+        uint32_t b_size = b ? b.Size() : 0;
 
         if (a_size == 0 && b_size == 0)
         {

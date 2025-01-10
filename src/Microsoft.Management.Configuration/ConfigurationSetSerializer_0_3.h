@@ -22,6 +22,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     protected:
         void WriteYamlParameters(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationParameter>& values);
-        void WriteYamlConfigurationUnits(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& values, const com_ptr<implementation::ConfigurationEnvironment>& commonEnvironment);
+        void WriteYamlConfigurationUnits(
+            AppInstaller::YAML::Emitter& emitter,
+            const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& values,
+            const Configuration::ConfigurationEnvironment& commonEnvironment);
     };
 }

@@ -45,20 +45,79 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return result;
         }
 
-        void AddEnvironmentToMetadata(Windows::Foundation::Collections::ValueSet& metadata, const com_ptr<implementation::ConfigurationEnvironment>& environment)
+        Windows::Foundation::Collections::ValueSet CreateValueSetFromStringMap(const Windows::Foundation::Collections::IMapView<hstring, hstring>& map)
         {
-            if (environment && !environment->IsDefault())
+            Windows::Foundation::Collections::ValueSet result;
+            if (map)
             {
-                auto wingetMetadata = GetWingetMetadataValueSet(metadata);
-
-                SecurityContext context = environment->Context();
-                if (context != SecurityContext::Current)
+                for (const auto& item : map)
                 {
-                    wingetMetadata.Insert(GetConfigurationFieldNameHString(ConfigurationField::SecurityContextMetadata), PropertyValue::CreateString(ToWString(context)));
+                    result.Insert(item.Key(), PropertyValue::CreateString(item.Value()));
+                }
+            }
+            return result;
+        }
+
+        void AddEnvironmentToMetadata(
+            Windows::Foundation::Collections::ValueSet& metadata,
+            SecurityContext context,
+            hstring processor,
+            Windows::Foundation::Collections::IMapView<hstring, hstring> properties,
+            SecurityContext defaultContext = SecurityContext::Current,
+            hstring defaultProcessor = {},
+            Windows::Foundation::Collections::IMapView<hstring, hstring> defaultProperties = nullptr)
+        {
+            Windows::Foundation::Collections::ValueSet wingetMetadata = nullptr;
+
+            if (context != defaultContext)
+            {
+                if (!wingetMetadata)
+                {
+                    wingetMetadata = GetWingetMetadataValueSet(metadata);
                 }
 
-                // TODO: Add additional non-default values
+                wingetMetadata.Insert(GetConfigurationFieldNameHString(ConfigurationField::SecurityContextMetadata), PropertyValue::CreateString(ToWString(context)));
             }
+
+            if (processor != defaultProcessor)
+            {
+                if (!wingetMetadata)
+                {
+                    wingetMetadata = GetWingetMetadataValueSet(metadata);
+                }
+
+                wingetMetadata.Insert(GetConfigurationFieldNameHString(ConfigurationField::ProcessorIdentifierMetadata), PropertyValue::CreateString(processor));
+            }
+
+            if (!ConfigurationEnvironment::AreEqual(properties, defaultProperties))
+            {
+                if (!wingetMetadata)
+                {
+                    wingetMetadata = GetWingetMetadataValueSet(metadata);
+                }
+
+                wingetMetadata.Insert(GetConfigurationFieldNameHString(ConfigurationField::ProcessorPropertiesMetadata), CreateValueSetFromStringMap(properties));
+            }
+        }
+
+        void AddEnvironmentToMetadata(
+            Windows::Foundation::Collections::ValueSet& metadata,
+            const com_ptr<implementation::ConfigurationEnvironment>& environment)
+        {
+            if (environment)
+            {
+                AddEnvironmentToMetadata(metadata, environment->Context(), environment->ProcessorIdentifier(), environment->ProcessorPropertiesView());
+            }
+        }
+
+        void AddEnvironmentToMetadata(
+            Windows::Foundation::Collections::ValueSet& metadata,
+            const Configuration::ConfigurationEnvironment& environment,
+            const Configuration::ConfigurationEnvironment& commonEnvironment)
+        {
+            AddEnvironmentToMetadata(metadata,
+                environment.Context(), environment.ProcessorIdentifier(), environment.ProcessorProperties().GetView(),
+                commonEnvironment.Context(), commonEnvironment.ProcessorIdentifier(), commonEnvironment.ProcessorProperties().GetView());
         }
     }
 
@@ -80,7 +139,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         WriteYamlParameters(emitter, configurationSet->Parameters());
         WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Variables, configurationSet->Variables());
-        WriteYamlConfigurationUnits(emitter, configurationSet->Units(), commonEnvironment);
+        WriteYamlConfigurationUnits(emitter, configurationSet->Units(), *commonEnvironment);
 
         emitter << EndMap;
 
@@ -156,7 +215,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         emitter << EndMap;
     }
 
-    void ConfigurationSetSerializer_0_3::WriteYamlConfigurationUnits(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& values, const com_ptr<implementation::ConfigurationEnvironment>& commonEnvironment)
+    void ConfigurationSetSerializer_0_3::WriteYamlConfigurationUnits(
+        AppInstaller::YAML::Emitter& emitter,
+        const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& values,
+        const Configuration::ConfigurationEnvironment& commonEnvironment)
     {
         emitter << Key << GetConfigurationFieldName(ConfigurationField::Resources);
 
@@ -174,8 +236,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             THROW_HR_IF(WINGET_CONFIG_ERROR_MISSING_FIELD, type.empty());
             emitter << Key << GetConfigurationFieldName(ConfigurationField::Type) << Value << ConvertToUTF8(type);
 
-            // TODO: Create winget metadata override here, using commonEnvironment and this subtrees environment commonalities
-            WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Metadata, unit.Metadata());
+            // Prepare an override if necessary
+            Collections::ValueSet wingetMetadataOverride = nullptr;
+            Configuration::ConfigurationEnvironment unitEnvironment = unit.Environment();
+            AddEnvironmentToMetadata(wingetMetadataOverride, unitEnvironment, commonEnvironment);
+
+            WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Metadata, unit.Metadata(),
+                { { ConfigurationField::WingetMetadataRoot, wingetMetadataOverride } });
 
             auto dependencies = unit.Dependencies();
             if (dependencies && dependencies.Size() != 0)
@@ -192,8 +259,25 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 emitter << EndSeq;
             }
 
-            // TODO: Properly handle groups...
-            WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Properties, unit.Settings());
+            // If this unit is a group, write the units directly
+            if (unit.IsGroup())
+            {
+                auto groupUnits = unit.Units();
+
+                if (groupUnits.Size() != 0)
+                {
+                    emitter << Key << GetConfigurationFieldName(ConfigurationField::Properties);
+                    emitter << BeginMap;
+
+                    WriteYamlConfigurationUnits(emitter, groupUnits, unitEnvironment);
+
+                    emitter << EndMap;
+                }
+            }
+            else
+            {
+                WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Properties, unit.Settings());
+            }
 
             emitter << EndMap;
         }

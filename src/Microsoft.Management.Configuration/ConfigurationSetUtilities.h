@@ -42,7 +42,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         WingetMetadataRoot,
         ProcessorMetadata,
         ProcessorIdentifierMetadata,
-        ProcessorSettingsMetadata,
+        ProcessorPropertiesMetadata,
     };
 
     // Gets the name value of the configuration field.

@@ -42,7 +42,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         case ConfigurationField::WingetMetadataRoot: return "winget"sv;
         case ConfigurationField::ProcessorMetadata: return "processor"sv;
         case ConfigurationField::ProcessorIdentifierMetadata: return "identifier"sv;
-        case ConfigurationField::ProcessorSettingsMetadata: return "settings"sv;
+        case ConfigurationField::ProcessorPropertiesMetadata: return "properties"sv;
         }
 
         THROW_HR(E_UNEXPECTED);
