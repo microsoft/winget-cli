@@ -107,7 +107,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Manifest validation succeeded with warnings."));
             Assert.True(result.StdOut.Contains("Manifest Warning: The manifest type in the schema header does not match the ManifestType property value in the manifest."));
 
-            result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestWarningManifestV1_10-SchemaHeadeVersionMismatch.yaml"));
+            result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestWarningManifestV1_10-SchemaHeaderVersionMismatch.yaml"));
             Assert.AreEqual(Constants.ErrorCode.ERROR_MANIFEST_VALIDATION_WARNING, result.ExitCode);
             Assert.True(result.StdOut.Contains("Manifest validation succeeded with warnings."));
             Assert.True(result.StdOut.Contains("Manifest Warning: The manifest version in the schema header does not match the ManifestVersion property value in the manifest."));

@@ -139,7 +139,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             this.ValidateSchemaHeaderFailure(manifestsFilePath, createManifestOption, expectedError);
 
             // Schema header version mismatch
-            manifestsFilePath = TestCommon.GetTestDataFile(@"Manifests\TestWarningManifestV1_10-SchemaHeadeVersionMismatch.yaml");
+            manifestsFilePath = TestCommon.GetTestDataFile(@"Manifests\TestWarningManifestV1_10-SchemaHeaderVersionMismatch.yaml");
             expectedError = "Manifest Error: The manifest version in the schema header does not match the ManifestVersion property value in the manifest.";
             this.ValidateSchemaHeaderFailure(manifestsFilePath, createManifestOption, expectedError);
         }
