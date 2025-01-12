@@ -1864,7 +1864,7 @@ TEST_CASE("ManifestV1_10_SchemaHeaderValidations", "[ManifestValidation]")
     REQUIRE_THROWS_MATCHES(YamlParser::CreateFromPath(TestDataFile("ManifestV1_10-Bad-SchemaHeaderManifestTypeMismatch.yaml"), validateOption), ManifestException, ManifestExceptionMatcher("The manifest type in the schema header does not match the ManifestType property value in the manifest."));
 
     // Schema header version does not match the expected version
-    REQUIRE_THROWS_MATCHES(YamlParser::CreateFromPath(TestDataFile("ManifestV1_10-Bad-SchemaHeaderManifestVersionMismatch.yaml"), validateOption), ManifestException, ManifestExceptionMatcher("The schema header version does not match the expected version."));
+    REQUIRE_THROWS_MATCHES(YamlParser::CreateFromPath(TestDataFile("ManifestV1_10-Bad-SchemaHeaderManifestVersionMismatch.yaml"), validateOption), ManifestException, ManifestExceptionMatcher("The manifest version in the schema header does not match the ManifestVersion property value in the manifest."));
 }
 
 TEST_CASE("ShadowManifest", "[ShadowManifest]")
