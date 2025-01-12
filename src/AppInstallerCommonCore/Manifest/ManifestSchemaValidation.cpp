@@ -186,7 +186,7 @@ namespace AppInstaller::Manifest::YamlParser
         bool ParseSchemaHeaderUrl(const std::string& schemaHeaderValue, std::string& schemaType, std::string& schemaVersion)
         {
             // Use regex to match the pattern of @"winget-manifest\.(?<type>\w+)\.(?<version>[\d\.]+)\.schema\.json$"
-            std::regex schemaUrlPattern(R"(^\$schema=https://aka\.ms/winget-manifest\.(\w+)\.([\d\.]+)\.schema\.json$)");
+            std::regex schemaUrlPattern(R"(winget-manifest\.(\w+)\.([\d\.]+)\.schema\.json$)");
             std::smatch match;
 
             if (std::regex_search(schemaHeaderValue, match, schemaUrlPattern))
@@ -221,6 +221,75 @@ namespace AppInstaller::Manifest::YamlParser
             return errors;
         }
 
+        bool IsValidSchemaHeaderUrl(const std::string& schemaHeaderUrlString, const YamlManifestInfo& manifestInfo, const ManifestVer& manifestVersion)
+        {
+            // Load the schema file to compare the schema header URL with the schema ID in the schema file
+            Json::Value schemaFile = LoadSchemaDoc(manifestVersion, manifestInfo.ManifestType);
+
+            if (schemaFile.isMember("$id"))
+            {
+                std::string schemaId = schemaFile["$id"].asString();
+
+                // Prefix schema ID with "schema=" to match the schema header URL pattern and compare it with the schema header URL
+                schemaId = "$schema=" + schemaId;
+
+                if (std::equal(schemaId.begin(), schemaId.end(), schemaHeaderUrlString.begin(), schemaHeaderUrlString.end(),
+                    [](char a, char b) { return tolower(a) == tolower(b); }))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        ValidationError GetSchemaHeaderUrlPatternMismatchError(const std::string& schemaHeaderUrlString,const ManifestSchemaHeader& manifestSchemaHeader, const ValidationError::Level& errorLevel)
+        {
+            size_t schemaHeaderUrlIndex = manifestSchemaHeader.SchemaHeaderString.find(schemaHeaderUrlString) + 1;
+
+            return ValidationError::MessageContextValueLineLevelWithFile(ManifestError::SchemaHeaderUrlPatternMismatch, "", manifestSchemaHeader.SchemaHeaderString, manifestSchemaHeader.Line, schemaHeaderUrlIndex, errorLevel, manifestSchemaHeader.FileName);
+        }
+
+        std::vector<ValidationError> ValidateSchemaHeaderUrl(const YamlManifestInfo& manifestInfo, const ManifestVer& manifestVersion, ManifestSchemaHeader& manifestSchemaHeader, const ValidationError::Level& errorLevel)
+        {
+            std::vector<ValidationError> errors;
+
+            std::string schemaHeaderUrlString;
+            // Parse the schema header string to get the schema header URL
+            auto parserErrors = ParseSchemaHeaderString(manifestSchemaHeader, errorLevel, schemaHeaderUrlString);
+            std::move(parserErrors.begin(), parserErrors.end(), std::inserter(errors, errors.end()));
+
+            if (!errors.empty())
+            {
+                return errors;
+            }
+
+            std::string manifestTypeString;
+            std::string manifestVersionString;
+
+            // Parse the schema header URL to get the manifest type and version
+            if (ParseSchemaHeaderUrl(schemaHeaderUrlString, manifestTypeString, manifestVersionString))
+            {
+                manifestSchemaHeader.ManifestType = std::move(manifestTypeString);
+                manifestSchemaHeader.ManifestVersion = std::move(manifestVersionString);
+
+                auto compareErrors = ValidateManifestSchemaHeaderDetails(manifestSchemaHeader, manifestInfo.ManifestType, manifestVersion, errorLevel);
+                std::move(compareErrors.begin(), compareErrors.end(), std::inserter(errors, errors.end()));
+
+                // Finally, match the entire schema header URL with the schema ID in the schema file to ensure the URL domain matches the schema definition file.
+                if (!IsValidSchemaHeaderUrl(schemaHeaderUrlString, manifestInfo, manifestVersion))
+                {
+                    errors.emplace_back(GetSchemaHeaderUrlPatternMismatchError(schemaHeaderUrlString, manifestSchemaHeader, errorLevel));
+                }
+            }
+            else
+            {
+                errors.emplace_back(GetSchemaHeaderUrlPatternMismatchError(schemaHeaderUrlString, manifestSchemaHeader, errorLevel));
+            }
+
+            return errors;
+        }
+
         std::vector<ValidationError> ValidateYamlManifestSchemaHeader(const YamlManifestInfo& manifestInfo, const ManifestVer& manifestVersion, const ValidationError::Level& errorLevel)
         {
             std::vector<ValidationError> errors;
@@ -243,31 +312,8 @@ namespace AppInstaller::Manifest::YamlParser
                 return errors;
             }
 
-            std::string schemaHeaderUrlString;
-            auto parserErrors = ParseSchemaHeaderString(schemaHeader, errorLevel, schemaHeaderUrlString);
+            auto parserErrors = ValidateSchemaHeaderUrl(manifestInfo, manifestVersion, schemaHeader, errorLevel);
             std::move(parserErrors.begin(), parserErrors.end(), std::inserter(errors, errors.end()));
-
-            if (!errors.empty())
-            {
-                return errors;
-            }
-
-            std::string manifestTypeString;
-            std::string manifestVersionString;
-
-            if (ParseSchemaHeaderUrl(schemaHeaderUrlString, manifestTypeString, manifestVersionString))
-            {
-                schemaHeader.ManifestType = std::move(manifestTypeString);
-                schemaHeader.ManifestVersion = std::move(manifestVersionString);
-
-                auto compareErrors = ValidateManifestSchemaHeaderDetails(schemaHeader, manifestInfo.ManifestType, manifestVersion, errorLevel);
-                std::move(compareErrors.begin(), compareErrors.end(), std::inserter(errors, errors.end()));
-            }
-            else
-            {
-                size_t schemaHeaderUrlIndex = schemaHeader.SchemaHeaderString.find(schemaHeaderUrlString) + 1;
-                errors.emplace_back(ValidationError::MessageContextValueLineLevelWithFile(ManifestError::SchemaHeaderUrlPatternMismatch, "", schemaHeaderUrlString, schemaHeader.Line, schemaHeaderUrlIndex, errorLevel, schemaHeader.FileName));
-            }
 
             return errors;
         }
