@@ -18,6 +18,9 @@ namespace AppInstaller::Manifest::YamlParser
         // File name of the manifest file if applicable for error reporting
         std::string FileName;
 
+        // Input stream for reading/parsing the Raw YAML content.
+        std::shared_ptr<std::istream> InputStream;
+
         // The SHA256 hash of the stream
         Utility::SHA256::HashBuffer StreamSha256;
 

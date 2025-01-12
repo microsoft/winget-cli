@@ -479,6 +479,14 @@ namespace AppInstaller::Manifest::YamlParser
             {
                 errors = ValidateManifest(manifest);
                 std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+
+                // Validate the schema header for manifest version 1.10 and above
+                if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_10 })
+                {
+                    // Validate the schema header.
+                    errors = ValidateYamlManifestsSchemaHeader(input, manifestVersion, validateOption.SchemaHeaderValidationAsWarning);
+                    std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+                }
             }
 
             if (validateOption.InstallerValidation)
@@ -521,6 +529,7 @@ namespace AppInstaller::Manifest::YamlParser
                     YamlManifestInfo doc;
                     doc.Root = YAML::Load(file.path());
                     doc.FileName = file.path().filename().u8string();
+                    doc.InputStream = std::make_shared<std::ifstream>(file.path(), std::ios_base::in | std::ios_base::binary);
                     docList.emplace_back(std::move(doc));
                 }
             }
@@ -529,6 +538,7 @@ namespace AppInstaller::Manifest::YamlParser
                 YamlManifestInfo doc;
                 doc.Root = YAML::Load(inputPath, doc.StreamSha256);
                 doc.FileName = inputPath.filename().u8string();
+                doc.InputStream = std::make_shared<std::ifstream>(inputPath, std::ios_base::in | std::ios_base::binary);
                 docList.emplace_back(std::move(doc));
             }
         }
@@ -551,6 +561,7 @@ namespace AppInstaller::Manifest::YamlParser
         {
             YamlManifestInfo doc;
             doc.Root = YAML::Load(input);
+            doc.InputStream = std::make_shared<std::istringstream>(input);
             docList.emplace_back(std::move(doc));
         }
         catch (const std::exception& e)

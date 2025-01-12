@@ -18,4 +18,10 @@ namespace AppInstaller::Manifest::YamlParser
     std::vector<ValidationError> ValidateAgainstSchema(
         const std::vector<YamlManifestInfo>& manifestList,
         const ManifestVer& manifestVersion);
+
+    // Validate the schema header of a list of manifests
+    std::vector<ValidationError> ValidateYamlManifestsSchemaHeader(
+        const std::vector<YamlManifestInfo>& manifestList,
+        const ManifestVer& manifestVersion,
+        bool treatErrorAsWarning = true);
 }
