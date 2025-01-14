@@ -79,7 +79,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\DoesNotExist"));
             Assert.AreEqual(Constants.ErrorCode.ERROR_PATH_NOT_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("Path does not exist"));
-        }
+        }    
 
         /// <summary>
         /// Test validate manifest with invalid schema and expect warnings.
