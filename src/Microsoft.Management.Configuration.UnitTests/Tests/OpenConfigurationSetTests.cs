@@ -768,6 +768,87 @@ resources:
             }
         }
 
+        /// <summary>
+        /// Verifies that the configuration set (0.2) with environments parses and serializes.
+        /// </summary>
+        [Fact]
+        public void TestSet_Environment_0_2()
+        {
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();
+
+            OpenConfigurationSetResult openResult = processor.OpenConfigurationSet(this.CreateStream(@"
+properties:
+  configurationVersion: 0.2
+  resources:
+    - resource: FakeModule/FakeResource
+      id: elevated
+      directives:
+        description: FakeDescription
+        allowPrerelease: true
+        securityContext: elevated
+      settings:
+        TestString: Hello
+    - resource: FakeModule2/FakeResource2
+      id: restricted
+      directives:
+        description: FakeDescription2
+        securityContext: restricted
+      settings:
+        TestString: Bye
+    - resource: FakeModule2/FakeResource2
+      id: current
+      directives:
+        securityContext: current
+      settings:
+        TestString: Bye
+    - resource: FakeModule2/FakeResource2
+      id: default
+      settings:
+        TestString: Bye
+"));
+
+            // TODO: VALIDATE ENVIRONMENT
+
+            // TODO: CHANGE ENVIRONMENTS, SERIALIZE, PARSE AGAIN AND VALIDATE CHANGES
+
+            // Serialize set.
+            ConfigurationSet configurationSet = openResult.Set;
+            InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream();
+            configurationSet.Serialize(stream);
+
+            string yamlOutput = this.ReadStream(stream);
+
+            // Reopen configuration set from serialized string and verify values.
+            OpenConfigurationSetResult serializedSetResult = processor.OpenConfigurationSet(this.CreateStream(yamlOutput));
+            Assert.Null(serializedSetResult.ResultCode);
+            ConfigurationSet set = serializedSetResult.Set;
+            Assert.NotNull(set);
+
+            Assert.Equal("0.3", set.SchemaVersion);
+            Assert.Equal(2, set.Units.Count);
+
+            this.VerifyValueSet(set.Metadata, new KeyValuePair<string, object>("description", "FakeSetDescription"));
+            this.VerifyValueSet(set.Variables, new ("var1", "Test1"), new ("var2", 42));
+
+            Assert.Equal(2, set.Parameters.Count);
+            this.VerifyParameter(set.Parameters[0], "param1", Windows.Foundation.PropertyType.String, true);
+            this.VerifyParameter(set.Parameters[1], "param2", Windows.Foundation.PropertyType.Int64, false, 89);
+
+            Assert.Equal("FakeModule/FakeResource", set.Units[0].Type);
+            Assert.Equal("TestId", set.Units[0].Identifier);
+            this.VerifyValueSet(set.Units[0].Metadata, new ("description", "FakeDescription"), new ("allowPrerelease", true), new ("securityContext", "elevated"));
+            this.VerifyValueSet(set.Units[0].Settings, new ("TestString", "Hello"), new ("TestBool", false), new ("TestInt", 1234));
+
+            Assert.Equal("FakeModule2/FakeResource2", set.Units[1].Type);
+            Assert.Equal("TestId2", set.Units[1].Identifier);
+            this.VerifyStringArray(set.Units[1].Dependencies, "TestId", "dependency2", "dependency3");
+            this.VerifyValueSet(set.Units[1].Metadata, new ("description", "FakeDescription2"), new ("securityContext", "elevated"));
+
+            ValueSet mapping = new ValueSet();
+            mapping.Add("Key", "TestValue");
+            this.VerifyValueSet(set.Units[1].Settings, new ("TestString", "Bye"), new ("TestBool", true), new ("TestInt", 4321), new ("Mapping", mapping));
+        }
+
         private void TestParameterDefaultValue(string type, string defaultValue, object? expectedValue = null, Windows.Foundation.PropertyType? expectedType = null, bool secure = false)
         {
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();

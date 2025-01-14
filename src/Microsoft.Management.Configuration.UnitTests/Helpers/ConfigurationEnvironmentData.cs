@@ -46,7 +46,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             environment.Context = this.Context;
             environment.ProcessorIdentifier = this.ProcessorIdentifier;
             environment.ProcessorProperties.Clear();
-            foreach (var property in environment.ProcessorProperties)
+            foreach (var property in this.ProcessorProperties)
             {
                 environment.ProcessorProperties.Add(property.Key, property.Value);
             }
@@ -61,7 +61,26 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// <returns>True if the properties match; false if not.</returns>
         internal bool PropertiesEqual(IReadOnlyDictionary<string, string> properties)
         {
-            throw new NotImplementedException();
+            if (properties.Count != this.ProcessorProperties.Count)
+            {
+                return false;
+            }
+
+            foreach (var property in properties)
+            {
+                string? value = null;
+                if (!this.ProcessorProperties.TryGetValue(property.Key, out value))
+                {
+                    return false;
+                }
+
+                if (property.Value != value)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

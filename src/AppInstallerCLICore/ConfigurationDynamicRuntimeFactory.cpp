@@ -142,9 +142,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 // Check for multiple integrity level requirements
                 bool multipleIntegrityLevels = false;
                 bool higherIntegrityLevelsThanCurrent = false;
-                for (const auto& existingUnit : m_configurationSet.Units())
+                for (const auto& environment : m_configurationSet.GetUnitEnvironments())
                 {
-                    auto integrityLevel = GetIntegrityLevelForUnit(existingUnit);
+                    auto integrityLevel = SecurityContextToIntegrityLevel(environment.Context());
                     if (integrityLevel != m_currentIntegrityLevel)
                     {
                         multipleIntegrityLevels = true;
@@ -183,9 +183,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 std::call_once(m_createUnitSetProcessorsOnce,
                     [&]()
                     {
-                        for (const auto& existingUnit : m_configurationSet.Units())
+                        for (const auto& environment : m_configurationSet.GetUnitEnvironments())
                         {
-                            Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(existingUnit);
+                            Security::IntegrityLevel requiredIntegrityLevel = SecurityContextToIntegrityLevel(environment.Context());
 
                             if (m_setProcessors.find(requiredIntegrityLevel) == m_setProcessors.end())
                             {
