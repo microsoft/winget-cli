@@ -125,7 +125,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
 
             // Schema header invalid
             manifestsFilePath = TestCommon.GetTestDataFile(@"Manifests\TestWarningManifestV1_10-SchemaHeaderInvalid.yaml");
-            expectedError = "Manifest Error: The schema header is invalid. Please verify that the schema header is present and formatted correctly as a valid YAML node with the appropriate commented syntax.";
+            expectedError = "Manifest Error: The schema header is invalid. Please verify that the schema header is present and formatted correctly.";
             this.ValidateSchemaHeaderFailure(manifestsFilePath, createManifestOption, expectedError);
 
             // Schema header URL pattern mismatch

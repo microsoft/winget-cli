@@ -1855,7 +1855,7 @@ TEST_CASE("ManifestV1_10_SchemaHeaderValidations", "[ManifestValidation]")
     REQUIRE_THROWS_MATCHES(YamlParser::CreateFromPath(TestDataFile("ManifestV1_10-Bad-SchemaHeaderNotFound.yaml"),validateOption), ManifestException, ManifestExceptionMatcher("Schema header not found"));
 
     // Schema header not valid
-    REQUIRE_THROWS_MATCHES(YamlParser::CreateFromPath(TestDataFile("ManifestV1_10-Bad-SchemaHeaderInvalid.yaml"), validateOption), ManifestException, ManifestExceptionMatcher("The schema header is invalid. Please verify that the schema header is present and formatted correctly as a valid YAML node with the appropriate commented syntax"));
+    REQUIRE_THROWS_MATCHES(YamlParser::CreateFromPath(TestDataFile("ManifestV1_10-Bad-SchemaHeaderInvalid.yaml"), validateOption), ManifestException, ManifestExceptionMatcher("The schema header is invalid. Please verify that the schema header is present and formatted correctly."));
 
     // Schema header URL does not match the expected schema URL
     REQUIRE_THROWS_MATCHES(YamlParser::CreateFromPath(TestDataFile("ManifestV1_10-Bad-SchemaHeaderURLPatternMismatch.yaml"), validateOption), ManifestException, ManifestExceptionMatcher("The schema header URL does not match the expected pattern."));

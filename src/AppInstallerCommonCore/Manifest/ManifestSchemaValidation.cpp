@@ -111,7 +111,7 @@ namespace AppInstaller::Manifest::YamlParser
             return result;
         }
 
-        bool SearchForManifestSchemaHeaderString(std::shared_ptr<std::istream> yamlInputStream, const size_t& rootNodeBeginsAtLine, ManifestSchemaHeader& schemaHeader)
+        bool SearchForManifestSchemaHeaderString(std::shared_ptr<std::istream> yamlInputStream, size_t rootNodeBeginsAtLine, ManifestSchemaHeader& schemaHeader)
         {
             std::string line;
             size_t currentLine = 1;
@@ -290,15 +290,9 @@ namespace AppInstaller::Manifest::YamlParser
             return errors;
         }
 
-        std::vector<ValidationError> ValidateYamlManifestSchemaHeader(const YamlManifestInfo& manifestInfo, const ManifestVer& manifestVersion, const ValidationError::Level& errorLevel)
+        std::vector<ValidationError> ValidateYamlManifestSchemaHeader(const YamlManifestInfo& manifestInfo, const ManifestVer& manifestVersion, ValidationError::Level errorLevel)
         {
             std::vector<ValidationError> errors;
-
-            if (manifestInfo.ManifestType == ManifestTypeEnum::Shadow)
-            {
-                // There's no schema for a shadow manifest.
-                return errors;
-            }
 
             size_t rootNodeLine = manifestInfo.Root.Mark().line;
             std::string schemaHeaderString;

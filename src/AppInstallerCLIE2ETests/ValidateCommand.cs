@@ -95,7 +95,7 @@ namespace AppInstallerCLIE2ETests
             result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestWarningManifestV1_10-SchemaHeaderInvalid.yaml"));
             Assert.AreEqual(Constants.ErrorCode.ERROR_MANIFEST_VALIDATION_WARNING, result.ExitCode);
             Assert.True(result.StdOut.Contains("Manifest validation succeeded with warnings."));
-            Assert.True(result.StdOut.Contains("Manifest Warning: The schema header is invalid. Please verify that the schema header is present and formatted correctly as a valid YAML node with the appropriate commented syntax."));
+            Assert.True(result.StdOut.Contains("Manifest Warning: The schema header is invalid. Please verify that the schema header is present and formatted correctly."));
 
             result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestWarningManifestV1_10-SchemaHeaderURLPatternMismatch.yaml"));
             Assert.AreEqual(Constants.ErrorCode.ERROR_MANIFEST_VALIDATION_WARNING, result.ExitCode);
