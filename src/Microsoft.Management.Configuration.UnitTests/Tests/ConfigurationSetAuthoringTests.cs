@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
+    using System.Collections.Generic;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.VisualBasic;
@@ -129,6 +130,63 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             string yamlOutput = this.ReadStream(stream);
             Assert.NotNull(yamlOutput);
+        }
+
+        /// <summary>
+        /// Test for unique unit evironment calculation.
+        /// </summary>
+        [Fact]
+        public void ConfigurationSet_UnitEnvironments()
+        {
+            ConfigurationSet testSet = this.ConfigurationSet();
+
+            Dictionary<string, string> firstProperty = new Dictionary<string, string>();
+            firstProperty.Add("property", "value1");
+
+            Dictionary<string, string> secondProperty = new Dictionary<string, string>();
+            secondProperty.Add("property", "value2");
+
+            Helpers.ConfigurationEnvironmentData[] environments = new Helpers.ConfigurationEnvironmentData[]
+            {
+                new () { ProcessorIdentifier = "dsc3" },
+                new () { ProcessorIdentifier = "pwsh" },
+                new () { ProcessorIdentifier = "dsc3", Context = SecurityContext.Elevated },
+                new () { ProcessorIdentifier = "pwsh", Context = SecurityContext.Restricted },
+                new () { ProcessorIdentifier = "dsc3", ProcessorProperties = firstProperty },
+                new () { ProcessorIdentifier = "pwsh", ProcessorProperties = firstProperty },
+                new () { ProcessorIdentifier = "pwsh", ProcessorProperties = secondProperty },
+                new () { ProcessorIdentifier = "dsc3", Context = SecurityContext.Restricted, ProcessorProperties = firstProperty },
+                new () { ProcessorIdentifier = "pwsh", Context = SecurityContext.Elevated, ProcessorProperties = firstProperty },
+            };
+
+            foreach (int index in new int[] { 0, 1, 1, 2, 3, 5, 4, 6, 7, 8, 2, 7, 7, 7 })
+            {
+                Assert.True(index < environments.Length);
+                testSet.Units.Add(environments[index].ApplyToUnit(this.ConfigurationUnit()));
+            }
+
+            var uniqueEnvironments = testSet.GetUnitEnvironments();
+
+            Assert.Equal(environments.Length, uniqueEnvironments.Count);
+
+            bool[] foundEnvironments = new bool[environments.Length];
+            foreach (var actual in uniqueEnvironments)
+            {
+                for (int i = 0; i < environments.Length; i++)
+                {
+                    var expected = environments[i];
+                    if (actual.Context == expected.Context && actual.ProcessorIdentifier == expected.ProcessorIdentifier && expected.PropertiesEqual(actual.ProcessorPropertiesView))
+                    {
+                        foundEnvironments[i] = true;
+                        break;
+                    }
+                }
+            }
+
+            for (int i = 0; i < foundEnvironments.Length; i++)
+            {
+                Assert.True(foundEnvironments[i], $"Found expected environment: {i}");
+            }
         }
     }
 }
