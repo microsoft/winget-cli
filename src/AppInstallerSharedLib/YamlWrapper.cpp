@@ -258,9 +258,9 @@ namespace AppInstaller::YAML::Wrapper
         }
     }
 
-    void Document::AddSchemaHeader(const DocumentSchemaHeader& schemHeader)
+    void Document::AddSchemaHeader(const DocumentSchemaHeader& schemaHeader)
     {
-        m_schemaHeader = schemHeader;
+        m_schemaHeader = schemaHeader;
     }
 
     bool Document::HasSchemaHeader()
