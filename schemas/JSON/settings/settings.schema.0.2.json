@@ -184,6 +184,15 @@
           "type": "integer",
           "default": 3,
           "minimum": 1
+        },
+        "archiveExtractionMethod": {
+          "description": "Controls the behavior how the installer extracts archives. The current two supported values are 'shellApi' and 'tar'. 'shellApi' uses the Windows Shell API to extract archives. 'tar' uses the tar command to extract archives.",
+          "type": "string",
+          "enum": [
+            "shellApi",
+            "tar"
+          ],
+          "default": "shellApi"
         }
       }
     },

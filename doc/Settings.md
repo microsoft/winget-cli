@@ -74,6 +74,7 @@ Enables output of sixel images in certain contexts. Defaults to false.
 The `installBehavior` settings affect the default behavior of installing and upgrading (where applicable) packages.
 
 ### Disable Install Notes
+
 The `disableInstallNotes` behavior affects whether installation notes are shown after a successful install. Defaults to `false` if value is not set or is invalid.
 
 ```json
@@ -83,6 +84,7 @@ The `disableInstallNotes` behavior affects whether installation notes are shown 
 ```
 
 ### Portable Package User Root
+
 The `portablePackageUserRoot` setting affects the default root directory where packages are installed to under `User` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%LOCALAPPDATA%/Microsoft/WinGet/Packages/` if value is not set or is invalid.
 
 > Note: This setting value must be an absolute path.
@@ -94,6 +96,7 @@ The `portablePackageUserRoot` setting affects the default root directory where p
 ```
 
 ### Portable Package Machine Root
+
 The `portablePackageMachineRoot` setting affects the default root directory where packages are installed to under `Machine` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%PROGRAMFILES%/WinGet/Packages/` if value is not set or is invalid.
 
 > Note: This setting value must be an absolute path.
@@ -105,6 +108,7 @@ The `portablePackageMachineRoot` setting affects the default root directory wher
 ```
 
 ### Skip Dependencies
+
 The 'skipDependencies' behavior affects whether dependencies are installed for a given package. Defaults to 'false' if value is not set or is invalid.
 
 ```json
@@ -114,7 +118,8 @@ The 'skipDependencies' behavior affects whether dependencies are installed for a
 ```
 
 ### Archive Extraction Method
-The 'archiveExtractionMethod' behavior affects how installer archives are extracted. Currently there are two supported values: `Tar` or `ShellApi`.
+
+The `archiveExtractionMethod` behavior affects how installer archives are extracted. Currently there are two supported values: `Tar` or `ShellApi`.
 `Tar` indicates that the archive should be extracted using the tar executable ('tar.exe') while `shellApi` indicates using the Windows Shell API. Defaults to `shellApi` if value is not set or is invalid.
 
 ```json
@@ -130,6 +135,7 @@ Some of the settings are duplicated under `preferences` and `requirements`. `pre
 Any arguments passed on the command line will effectively override the matching `requirement` setting for the duration of that command.
 
 > [!NOTE]
+>
 > - These settings are only applied for the `winget install` command.
 > - Other commands like `winget configure` are not affected by these settings.
 
@@ -156,6 +162,7 @@ The `locale` behavior affects the choice of installer based on installer locale.
         }
     },
 ```
+
 ### Architectures
 
 The `architectures` behavior affects what architectures will be selected when installing a package. The matching parameter is `--architecture`. Note that only architectures compatible with your system can be selected.
@@ -209,6 +216,7 @@ The `purgePortablePackage` behavior affects the default behavior for uninstallin
 The `configureBehavior` settings affect the default behavior of applying a configuration.
 
 ### Default Module Root
+
 The `defaultModuleRoot` behavior affects the default root directory where modules are installed to. Defaults to `%LOCALAPPDATA%/Microsoft/WinGet/Configuration/Modules` if value is not set or is invalid.
 
 > Note: This setting value must be an absolute path.
@@ -253,7 +261,8 @@ Defaults to `info` if value is not set or is invalid.
 ### channels
 
 The valid values in this array are defined in the function `GetChannelFromName` in the [logging code](../src/AppInstallerSharedLib/AppInstallerLogging.cpp).  These align with the ***channel identifier*** found in the log files.  For example, ***`CORE`*** in:
-```
+
+```plaintext
 2023-12-06 19:17:07.988 [CORE] WinGet, version [1.7.0-preview], activity [{24A91EA8-46BE-47A1-B65C-CEBCE90B8675}]
 ```
 
