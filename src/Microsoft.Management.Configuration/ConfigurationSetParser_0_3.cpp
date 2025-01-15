@@ -236,13 +236,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return false;
     }
 
-    void ConfigurationSetParser_0_3::ExtractEnvironmentFromMetadata(const Collections::ValueSet& metadata, ConfigurationEnvironment& targetEnvironment, const ConfigurationEnvironment* defaultEnvironment)
+    void ConfigurationSetParser_0_3::ExtractEnvironmentFromMetadata(const Collections::ValueSet& metadata, ConfigurationEnvironment& targetEnvironment)
     {
-        if (defaultEnvironment)
-        {
-            targetEnvironment.DeepCopy(*defaultEnvironment);
-        }
-
         auto root = TryLookupValueSet(metadata, ConfigurationField::WingetMetadataRoot);
         if (root)
         {
@@ -262,6 +257,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             Collections::ValueSet processorValueSet = processor.try_as<Collections::ValueSet>();
             if (processorValueSet)
             {
+                targetEnvironment.ProcessorIdentifier({});
+                targetEnvironment.ProcessorProperties().Clear();
+
                 IPropertyValue identifier = TryLookupProperty(processorValueSet, ConfigurationField::ProcessorIdentifierMetadata, PropertyType::String);
                 if (identifier)
                 {
@@ -280,6 +278,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 if (processorProperty)
                 {
                     targetEnvironment.ProcessorIdentifier(processorProperty.GetString());
+                    targetEnvironment.ProcessorProperties().Clear();
                 }
             }
         }
@@ -287,11 +286,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetParser_0_3::ExtractEnvironmentForUnit(ConfigurationUnit* unit, const ConfigurationEnvironment& defaultEnvironment)
     {
+        auto& environmentInternal = unit->EnvironmentInternal();
+        environmentInternal.DeepCopy(defaultEnvironment);
+
         // Get unnested security context
         ExtractSecurityContext(unit, defaultEnvironment.Context());
 
         // Get nested environment
-        ExtractEnvironmentFromMetadata(unit->Metadata(), unit->EnvironmentInternal(), &defaultEnvironment);
+        ExtractEnvironmentFromMetadata(unit->Metadata(), unit->EnvironmentInternal());
     }
 
     std::optional<std::pair<PropertyType, bool>> ParseWindowsFoundationPropertyType(std::string_view value)

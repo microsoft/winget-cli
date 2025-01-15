@@ -60,7 +60,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         // Extracts the environment configuration from the given metadata.
         // This only examines the winget subnode.
-        void ExtractEnvironmentFromMetadata(const Windows::Foundation::Collections::ValueSet& metadata, ConfigurationEnvironment& targetEnvironment, const ConfigurationEnvironment* defaultEnvironment = nullptr);
+        void ExtractEnvironmentFromMetadata(const Windows::Foundation::Collections::ValueSet& metadata, ConfigurationEnvironment& targetEnvironment);
 
         // Extracts the environment for a unit.
         void ExtractEnvironmentForUnit(ConfigurationUnit* unit, const ConfigurationEnvironment& defaultEnvironment);

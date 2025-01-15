@@ -17,17 +17,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     namespace
     {
-        Windows::Foundation::Collections::ValueSet GetWingetMetadataValueSet(Windows::Foundation::Collections::ValueSet& metadata)
+        Windows::Foundation::Collections::ValueSet GetWingetProcessorMetadataValueSet(Windows::Foundation::Collections::ValueSet& metadata)
         {
             Windows::Foundation::Collections::ValueSet result = nullptr;
-            hstring wingetMetadataKey = GetConfigurationFieldNameHString(ConfigurationField::WingetMetadataRoot);
+            hstring processorMetadataKey = GetConfigurationFieldNameHString(ConfigurationField::ProcessorMetadata);
 
             if (metadata)
             {
-                Windows::Foundation::IInspectable wingetMetadataObject = metadata.TryLookup(wingetMetadataKey);
-                if (wingetMetadataObject)
+                Windows::Foundation::IInspectable processorMetadataObject = metadata.TryLookup(processorMetadataKey);
+                if (processorMetadataObject)
                 {
-                    result = wingetMetadataObject.try_as<Windows::Foundation::Collections::ValueSet>();
+                    result = processorMetadataObject.try_as<Windows::Foundation::Collections::ValueSet>();
                     THROW_HR_IF(WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE, !result);
                 }
             }
@@ -39,7 +39,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             if (!result)
             {
                 result = Collections::ValueSet{};
-                metadata.Insert(wingetMetadataKey, result);
+                metadata.Insert(processorMetadataKey, result);
             }
 
             return result;
@@ -67,36 +67,36 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             hstring defaultProcessor = {},
             Windows::Foundation::Collections::IMapView<hstring, hstring> defaultProperties = nullptr)
         {
-            Windows::Foundation::Collections::ValueSet wingetMetadata = nullptr;
-
             if (context != defaultContext)
             {
-                if (!wingetMetadata)
+                if (!metadata)
                 {
-                    wingetMetadata = GetWingetMetadataValueSet(metadata);
+                    metadata = Collections::ValueSet{};
                 }
 
-                wingetMetadata.Insert(GetConfigurationFieldNameHString(ConfigurationField::SecurityContextMetadata), PropertyValue::CreateString(ToWString(context)));
+                metadata.Insert(GetConfigurationFieldNameHString(ConfigurationField::SecurityContextMetadata), PropertyValue::CreateString(ToWString(context)));
             }
+
+            Windows::Foundation::Collections::ValueSet processorValueSet{ nullptr };
 
             if (processor != defaultProcessor)
             {
-                if (!wingetMetadata)
+                if (!processorValueSet)
                 {
-                    wingetMetadata = GetWingetMetadataValueSet(metadata);
+                    processorValueSet = GetWingetProcessorMetadataValueSet(metadata);
                 }
 
-                wingetMetadata.Insert(GetConfigurationFieldNameHString(ConfigurationField::ProcessorIdentifierMetadata), PropertyValue::CreateString(processor));
+                processorValueSet.Insert(GetConfigurationFieldNameHString(ConfigurationField::ProcessorIdentifierMetadata), PropertyValue::CreateString(processor));
             }
 
             if (!ConfigurationEnvironment::AreEqual(properties, defaultProperties))
             {
-                if (!wingetMetadata)
+                if (!processorValueSet)
                 {
-                    wingetMetadata = GetWingetMetadataValueSet(metadata);
+                    processorValueSet = GetWingetProcessorMetadataValueSet(metadata);
                 }
 
-                wingetMetadata.Insert(GetConfigurationFieldNameHString(ConfigurationField::ProcessorPropertiesMetadata), CreateValueSetFromStringMap(properties));
+                processorValueSet.Insert(GetConfigurationFieldNameHString(ConfigurationField::ProcessorPropertiesMetadata), CreateValueSetFromStringMap(properties));
             }
         }
 
@@ -135,7 +135,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         AddEnvironmentToMetadata(wingetMetadataOverride, commonEnvironment);
 
         WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Metadata, configurationSet->Metadata(),
-            { { ConfigurationField::WingetMetadataRoot, wingetMetadataOverride } });
+            {
+                { ConfigurationField::WingetMetadataRoot, wingetMetadataOverride },
+                { ConfigurationField::SecurityContextMetadata, nullptr },
+            });
 
         WriteYamlParameters(emitter, configurationSet->Parameters());
         WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Variables, configurationSet->Variables());
