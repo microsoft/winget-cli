@@ -51,7 +51,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     winrt::hstring GetConfigurationFieldNameHString(ConfigurationField fieldName);
 
     // Attempts to parse a security context from a string.
-    // Returns true if successul; false otherwise.
+    // Returns true if successful; false otherwise.
     bool TryParseSecurityContext(hstring value, SecurityContext& result);
 
     // Parses a security context from a string.

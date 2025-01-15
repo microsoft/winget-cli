@@ -845,7 +845,7 @@ properties:
         /// Verifies that the configuration set (0.3) inherits set environment.
         /// </summary>
         [Fact]
-        public void SetMetadataEnvironmentInheritence_0_3()
+        public void SetMetadataEnvironmentInheritance_0_3()
         {
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();
 
@@ -898,7 +898,7 @@ resources:
         /// Verifies that the configuration set (0.3) inherits set environment.
         /// </summary>
         [Fact]
-        public void SetMetadataEnvironmentInheritence_ProcessorOverridden_0_3()
+        public void SetMetadataEnvironmentInheritance_ProcessorOverridden_0_3()
         {
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();
 
@@ -950,7 +950,7 @@ resources:
         /// Verifies that the configuration set (0.3) inherits set environment.
         /// </summary>
         [Fact]
-        public void SetMetadataEnvironmentInheritence_ContextOverridden_0_3()
+        public void SetMetadataEnvironmentInheritance_ContextOverridden_0_3()
         {
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();
 

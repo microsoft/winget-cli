@@ -134,7 +134,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
-        /// Test for unique unit evironment calculation.
+        /// Test for unique unit environment calculation.
         /// </summary>
         [Fact]
         public void ConfigurationSet_UnitEnvironments()
@@ -171,7 +171,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
-        /// Test for unique unit evironment calculation with group units.
+        /// Test for unique unit environment calculation with group units.
         /// </summary>
         [Fact]
         public void ConfigurationSet_GroupUnitEnvironments()
