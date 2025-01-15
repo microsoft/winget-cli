@@ -31,7 +31,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ValidateManifestWithExtendedCharacter()
         {
-            var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TëstExeInstaller.yaml"));
+            var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\T�stExeInstaller.yaml"));
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Manifest validation succeeded."));
         }
