@@ -237,11 +237,40 @@ namespace AppInstaller::YAML
         Folded,
     };
 
+    // A schema header for a document.
+    struct DocumentSchemaHeader
+    {
+        DocumentSchemaHeader() = default;
+        DocumentSchemaHeader(std::string schemaHeaderString, const Mark& mark) : SchemaHeaderString(std::move(schemaHeaderString)), Mark(mark) {}
+
+        std::string SchemaHeaderString;
+        Mark Mark;
+    };
+
+    struct DocumentRootWithSchema
+    {
+        DocumentRootWithSchema() = default;
+        DocumentRootWithSchema(Node root, DocumentSchemaHeader schemaHeader) : m_root(std::move(root)), m_schemaHeader(std::move(schemaHeader)) {}
+
+        Node GetRoot() const { return m_root; }
+        const DocumentSchemaHeader& GetSchemaHeader() const { return m_schemaHeader; }
+
+    private:
+        Node m_root;
+        DocumentSchemaHeader m_schemaHeader;
+    };
+
     // Forward declaration to allow pImpl in this Emitter.
     namespace Wrapper
     {
         struct Document;
     }
+
+    // Loads from the input; returns the root node of the first document.
+    DocumentRootWithSchema LoadDocument(std::string_view input);
+    DocumentRootWithSchema LoadDocument(const std::string& input);
+    DocumentRootWithSchema LoadDocument(const std::filesystem::path& input);
+    DocumentRootWithSchema LoadDocument(const std::filesystem::path& input, Utility::SHA256::HashBuffer& hashOut);
 
     // A YAML emitter.
     struct Emitter

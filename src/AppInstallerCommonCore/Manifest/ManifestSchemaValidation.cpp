@@ -111,39 +111,6 @@ namespace AppInstaller::Manifest::YamlParser
             return result;
         }
 
-        bool SearchForManifestSchemaHeaderString(std::shared_ptr<std::istream> yamlInputStream, size_t rootNodeBeginsAtLine, ManifestSchemaHeader& schemaHeader)
-        {
-            std::string line;
-            size_t currentLine = 1;
-            schemaHeader.SchemaHeaderString.clear();
-
-            // Search for the schema header string in the comments before the root node.
-            while (currentLine < rootNodeBeginsAtLine && std::getline(*yamlInputStream, line))
-            {
-                std::string comment = Utility::Trim(line);
-
-                // Check if the line is a comment
-                if (!comment.empty() && comment[0] == '#')
-                {
-                    size_t pos = comment.find(YamlLanguageServerKey);
-
-                    // Check if the comment contains the schema header string
-                    if (pos != std::string::npos)
-                    {
-                        schemaHeader.SchemaHeaderString = std::move(comment);
-                        schemaHeader.Line = currentLine;
-                        schemaHeader.column = pos;
-
-                        return true;
-                    }
-                }
-
-                currentLine++;
-            }
-
-            return false;
-        }
-
         std::vector<ValidationError> ParseSchemaHeaderString(const ManifestSchemaHeader& manifestSchemaHeader, const ValidationError::Level& errorLevel, std::string& schemaHeaderUrlString)
         {
             std::vector<ValidationError> errors;
@@ -293,14 +260,15 @@ namespace AppInstaller::Manifest::YamlParser
         std::vector<ValidationError> ValidateYamlManifestSchemaHeader(const YamlManifestInfo& manifestInfo, const ManifestVer& manifestVersion, ValidationError::Level errorLevel)
         {
             std::vector<ValidationError> errors;
-
-            size_t rootNodeLine = manifestInfo.Root.Mark().line;
             std::string schemaHeaderString;
 
             ManifestSchemaHeader schemaHeader{};
             schemaHeader.FileName = manifestInfo.FileName;
+            schemaHeader.SchemaHeaderString = manifestInfo.SchemaHeader.SchemaHeaderString;
+            schemaHeader.Line = manifestInfo.SchemaHeader.Mark.line;
+            schemaHeader.column = manifestInfo.SchemaHeader.Mark.column;
 
-            if (!SearchForManifestSchemaHeaderString(manifestInfo.InputStream, rootNodeLine, schemaHeader))
+            if (schemaHeader.SchemaHeaderString.empty())
             {
                 errors.emplace_back(ValidationError::MessageLevelWithFile(ManifestError::SchemaHeaderNotFound, errorLevel, manifestInfo.FileName));
                 return errors;

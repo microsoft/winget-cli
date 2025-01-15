@@ -5,7 +5,6 @@
 #include <winget/Manifest.h>
 #include <winget/Yaml.h>
 #include <AppInstallerSHA256.h>
-
 #include <filesystem>
 
 namespace AppInstaller::Manifest::YamlParser
@@ -18,8 +17,8 @@ namespace AppInstaller::Manifest::YamlParser
         // File name of the manifest file if applicable for error reporting
         std::string FileName;
 
-        // Input stream for reading/parsing the Raw YAML content.
-        std::shared_ptr<std::istream> InputStream;
+        // Schema header string found in the manifest file
+        YAML::DocumentSchemaHeader SchemaHeader;
 
         // The SHA256 hash of the stream
         Utility::SHA256::HashBuffer StreamSha256;

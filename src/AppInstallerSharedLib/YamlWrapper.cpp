@@ -258,6 +258,21 @@ namespace AppInstaller::YAML::Wrapper
         }
     }
 
+    void Document::AddSchemaHeader(const DocumentSchemaHeader& schemHeader)
+    {
+        m_schemaHeader = schemHeader;
+    }
+
+    bool Document::HasSchemaHeader()
+    {
+        return !m_schemaHeader.SchemaHeaderString.empty();
+    }
+
+    DocumentSchemaHeader Document::GetSchemaHeader()
+    {
+        return m_schemaHeader;
+    }
+
     yaml_node_t* Document::GetNode(yaml_node_item_t index)
     {
         yaml_node_t* result = yaml_document_get_node(&m_document, index);
@@ -317,6 +332,12 @@ namespace AppInstaller::YAML::Wrapper
             default:
                 THROW_EXCEPTION(Exception(type, "An unexpected error type occurred in Parser::Load"));
             }
+        }
+
+        DocumentSchemaHeader schemaHeader;
+        if (result.HasRoot() && FindManifestSchemaHeaderString(result.GetRoot().Mark().line, schemaHeader))
+        {
+            result.AddSchemaHeader(schemaHeader);
         }
 
         return result;
@@ -385,6 +406,37 @@ namespace AppInstaller::YAML::Wrapper
         std::wstring utf16 = Utility::ConvertToUTF16(m_input, 1252);
         m_input = Utility::ConvertToUTF8(utf16);
         yaml_parser_set_encoding(&m_parser, YAML_UTF8_ENCODING);
+    }
+
+    bool Parser::FindManifestSchemaHeaderString(size_t rootNodeLine, DocumentSchemaHeader& schemaHeader)
+    {
+        std::istringstream input(m_input);
+        std::string line;
+        size_t currentLine = 1;
+
+        // Search for the schema header string in the comments before the root node.
+        while (currentLine < rootNodeLine && std::getline(input, line))
+        {
+            std::string comment = Utility::Trim(line);
+            size_t pos = line.find(YamlLanguageServerKey);
+
+            // Check if the line is a comment
+            if (!comment.empty() && comment[0] == '#')
+            {
+                // Check if the comment contains the schema header string
+                if (pos != std::string::npos)
+                {
+                    schemaHeader.SchemaHeaderString = std::move(comment);
+                    schemaHeader.Mark = { currentLine, pos };
+
+                    return true;
+                }
+            }
+
+            currentLine++;
+        }
+
+        return false;
     }
 
     Event::~Event()

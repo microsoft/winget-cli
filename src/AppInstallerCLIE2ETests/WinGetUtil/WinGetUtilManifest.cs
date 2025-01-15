@@ -121,30 +121,30 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             // Schema header not found
             string manifestsFilePath = TestCommon.GetTestDataFile(@"Manifests\TestWarningManifestV1_10-SchemaHeaderNotFound.yaml");
             string expectedError = "Manifest Error: Schema header not found.";
-            this.ValidateSchemaHeaderFailure(manifestsFilePath, createManifestOption, expectedError);
+            ValidateSchemaHeaderFailure(manifestsFilePath, createManifestOption, expectedError);
 
             // Schema header invalid
             manifestsFilePath = TestCommon.GetTestDataFile(@"Manifests\TestWarningManifestV1_10-SchemaHeaderInvalid.yaml");
             expectedError = "Manifest Error: The schema header is invalid. Please verify that the schema header is present and formatted correctly.";
-            this.ValidateSchemaHeaderFailure(manifestsFilePath, createManifestOption, expectedError);
+            ValidateSchemaHeaderFailure(manifestsFilePath, createManifestOption, expectedError);
 
             // Schema header URL pattern mismatch
             manifestsFilePath = TestCommon.GetTestDataFile(@"Manifests\TestWarningManifestV1_10-SchemaHeaderURLPatternMismatch.yaml");
             expectedError = "Manifest Error: The schema header URL does not match the expected pattern.";
-            this.ValidateSchemaHeaderFailure(manifestsFilePath, createManifestOption, expectedError);
+            ValidateSchemaHeaderFailure(manifestsFilePath, createManifestOption, expectedError);
 
             // Schema header manifest type mismatch
             manifestsFilePath = TestCommon.GetTestDataFile(@"Manifests\TestWarningManifestV1_10-SchemaHeaderManifestTypeMismatch.yaml");
             expectedError = "Manifest Error: The manifest type in the schema header does not match the ManifestType property value in the manifest.";
-            this.ValidateSchemaHeaderFailure(manifestsFilePath, createManifestOption, expectedError);
+            ValidateSchemaHeaderFailure(manifestsFilePath, createManifestOption, expectedError);
 
             // Schema header version mismatch
             manifestsFilePath = TestCommon.GetTestDataFile(@"Manifests\TestWarningManifestV1_10-SchemaHeaderVersionMismatch.yaml");
             expectedError = "Manifest Error: The manifest version in the schema header does not match the ManifestVersion property value in the manifest.";
-            this.ValidateSchemaHeaderFailure(manifestsFilePath, createManifestOption, expectedError);
+            ValidateSchemaHeaderFailure(manifestsFilePath, createManifestOption, expectedError);
         }
 
-        private void ValidateSchemaHeaderFailure(string manifestsFilePath, WinGetUtilWrapper.CreateManifestOption createManifestOption, string expectedError)
+        private static void ValidateSchemaHeaderFailure(string manifestsFilePath, WinGetUtilWrapper.CreateManifestOption createManifestOption, string expectedError)
         {
             // Create manifest
             WinGetUtilWrapper.WinGetCreateManifest(

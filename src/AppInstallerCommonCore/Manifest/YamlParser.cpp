@@ -526,20 +526,22 @@ namespace AppInstaller::Manifest::YamlParser
                 {
                     THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_DIRECTORY_NOT_SUPPORTED), std::filesystem::is_directory(file.path()), "Subdirectory not supported in manifest path");
 
-                    YamlManifestInfo doc;
-                    doc.Root = YAML::Load(file.path());
-                    doc.FileName = file.path().filename().u8string();
-                    doc.InputStream = std::make_shared<std::ifstream>(file.path(), std::ios_base::in | std::ios_base::binary);
-                    docList.emplace_back(std::move(doc));
+                    YamlManifestInfo manifestInfo;
+                    YAML::DocumentRootWithSchema doc = YAML::LoadDocument(file.path());
+                    manifestInfo.Root = doc.GetRoot();
+                    manifestInfo.SchemaHeader = doc.GetSchemaHeader();
+                    manifestInfo.FileName = file.path().filename().u8string();
+                    docList.emplace_back(std::move(manifestInfo));
                 }
             }
             else
             {
-                YamlManifestInfo doc;
-                doc.Root = YAML::Load(inputPath, doc.StreamSha256);
-                doc.FileName = inputPath.filename().u8string();
-                doc.InputStream = std::make_shared<std::ifstream>(inputPath, std::ios_base::in | std::ios_base::binary);
-                docList.emplace_back(std::move(doc));
+                YamlManifestInfo manifestInfo;
+                YAML::DocumentRootWithSchema doc = YAML::LoadDocument(inputPath, manifestInfo.StreamSha256);
+                manifestInfo.Root = doc.GetRoot();
+                manifestInfo.SchemaHeader = doc.GetSchemaHeader();
+                manifestInfo.FileName = inputPath.filename().u8string();
+                docList.emplace_back(std::move(manifestInfo));
             }
         }
         catch (const std::exception& e)
@@ -559,10 +561,11 @@ namespace AppInstaller::Manifest::YamlParser
 
         try
         {
-            YamlManifestInfo doc;
-            doc.Root = YAML::Load(input);
-            doc.InputStream = std::make_shared<std::istringstream>(input);
-            docList.emplace_back(std::move(doc));
+            YamlManifestInfo manifestInfo;
+            YAML::DocumentRootWithSchema doc = YAML::LoadDocument(input);
+            manifestInfo.Root = doc.GetRoot();
+            manifestInfo.SchemaHeader = doc.GetSchemaHeader();
+            docList.emplace_back(std::move(manifestInfo));
         }
         catch (const std::exception& e)
         {

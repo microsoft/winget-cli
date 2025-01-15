@@ -601,6 +601,60 @@ namespace AppInstaller::YAML
         return Load(input, &hashOut);
     }
 
+    DocumentRootWithSchema LoadDocument(std::string_view input)
+    {
+        Wrapper::Parser parser(input);
+        Wrapper::Document document = parser.Load();
+
+        if (document.HasRoot())
+        {
+            return { document.GetRoot(), document.GetSchemaHeader() };
+        }
+        else
+        {
+            // Return an empty root and schema header.
+            return {};
+        }
+    }
+
+    DocumentRootWithSchema LoadDocument(const std::string& input)
+    {
+        return LoadDocument(static_cast<std::string_view>(input));
+    }
+
+    DocumentRootWithSchema LoadDocument(std::istream& input, Utility::SHA256::HashBuffer* hashOut)
+    {
+        Wrapper::Parser parser(input, hashOut);
+        Wrapper::Document document = parser.Load();
+
+        if (document.HasRoot())
+        {
+            return { document.GetRoot(), document.GetSchemaHeader() };
+        }
+        else
+        {
+            // Return an empty root and schema header.
+            return {};
+        }
+    }
+
+    DocumentRootWithSchema LoadDocument(const std::filesystem::path& input, Utility::SHA256::HashBuffer* hashOut)
+    {
+        std::ifstream stream(input, std::ios_base::in | std::ios_base::binary);
+        THROW_LAST_ERROR_IF(stream.fail());
+        return LoadDocument(stream, hashOut);
+    }
+
+    DocumentRootWithSchema LoadDocument(const std::filesystem::path& input)
+    {
+        return LoadDocument(input, nullptr);
+    }
+
+    DocumentRootWithSchema LoadDocument(const std::filesystem::path& input, Utility::SHA256::HashBuffer& hashOut)
+    {
+        return LoadDocument(input, &hashOut);
+    }
+
     Emitter::Emitter() :
         m_document(std::make_unique<Wrapper::Document>(true))
     {
