@@ -428,6 +428,13 @@ namespace AppInstaller::CLI::Workflow
                     std::placeholders::_1,
                     downloadInfo));
 
+                // User cancelled.
+                if (downloadResult.Sha256Hash.empty())
+                {
+                    context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+                    AICLI_TERMINATE_CONTEXT(E_ABORT);
+                }
+
                 if (downloadResult.SizeInBytes == 0)
                 {
                     AICLI_LOG(CLI, Info, << "Got zero byte file; retrying download after a short wait...");
@@ -480,12 +487,6 @@ namespace AppInstaller::CLI::Workflow
             {
                 break;
             }
-        }
-
-        if (downloadResult.Sha256Hash.empty())
-        {
-            context.Reporter.Info() << Resource::String::Cancelled << std::endl;
-            AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
 
         context.Add<Execution::Data::DownloadHashInfo>(std::make_pair(installer.Sha256, downloadResult));
