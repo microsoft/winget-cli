@@ -888,10 +888,6 @@ resources:
             OpenConfigurationSetResult serializedSetResult = processor.OpenConfigurationSet(this.CreateStream(yamlOutput));
 
             this.ValidateEnvironments(serializedSetResult, expectedEnvironments);
-            foreach (var unit in serializedSetResult.Set.Units)
-            {
-                Assert.False(unit.Metadata.ContainsKey("winget"));
-            }
         }
 
         /// <summary>
@@ -1044,10 +1040,6 @@ resources:
             OpenConfigurationSetResult serializedSetResult = processor.OpenConfigurationSet(this.CreateStream(yamlOutput));
 
             this.ValidateEnvironments(serializedSetResult, expectedEnvironments);
-            foreach (var unit in serializedSetResult.Set.Units)
-            {
-                Assert.False(unit.Metadata.ContainsKey("winget"));
-            }
         }
 
         /// <summary>
@@ -1096,15 +1088,6 @@ resources:
             OpenConfigurationSetResult serializedSetResult = processor.OpenConfigurationSet(this.CreateStream(yamlOutput));
 
             this.ValidateEnvironments(serializedSetResult, expectedEnvironments);
-            foreach (var unit in serializedSetResult.Set.Units)
-            {
-                object? wingetItem = null;
-                Assert.True(unit.Metadata.TryGetValue("winget", out wingetItem));
-                ValueSet? wingetValueSet = wingetItem as ValueSet;
-                Assert.NotNull(wingetValueSet);
-                Assert.True(wingetValueSet.ContainsKey("securityContext"));
-                Assert.False(wingetValueSet.ContainsKey("processor"));
-            }
         }
 
         /// <summary>

@@ -113,6 +113,7 @@
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.TestConfigurationUnitResult&gt;" InterfaceId="73848262-86D4-5FFC-8353-8408C4E649DE" />
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.IApplyGroupMemberSettingsResult&gt;" InterfaceId="5086070C-F468-5B00-8352-50FB420BA8B0" />
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ITestSettingsResult&gt;" InterfaceId="2D28E6AA-7036-5D78-9B58-9456F1E332FE" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.IConfigurationEnvironmentView&gt;" InterfaceId="F1344DB2-5194-5A6A-B36C-EDD05D28FE4C" />
         <Interface Name="Microsoft.Management.Configuration.IConfigurationUnitProcessorDetails2" InterfaceId="E89623ED-76E2-5145-B920-D09659554E35" />
         <Interface Name="Microsoft.Management.Configuration.IGetAllSettingsConfigurationUnitProcessor" InterfaceId="72EB8304-D8D3-57D4-9940-7C1C4AD8C40C" />
         <Interface Name="Microsoft.Management.Configuration.IConfigurationStatics2" InterfaceId="540BE073-F2EF-5375-83AA-8E23086B0669" />

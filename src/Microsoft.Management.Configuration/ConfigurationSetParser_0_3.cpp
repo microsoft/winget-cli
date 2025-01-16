@@ -250,10 +250,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 {
                     targetEnvironment.Context(computedContext);
                 }
+                root.Remove(GetConfigurationFieldNameHString(ConfigurationField::SecurityContextMetadata));
             }
 
             // Get processor
-            IInspectable processor = root.TryLookup(GetConfigurationFieldNameHString(ConfigurationField::ProcessorMetadata));
+            hstring processorFieldName = GetConfigurationFieldNameHString(ConfigurationField::ProcessorMetadata);
+            IInspectable processor = root.TryLookup(processorFieldName);
             Collections::ValueSet processorValueSet = processor.try_as<Collections::ValueSet>();
             if (processorValueSet)
             {
@@ -271,6 +273,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                         targetEnvironment.ProcessorProperties(processorSettings);
                     }
                 }
+
+                root.Remove(processorFieldName);
             }
             else
             {
@@ -279,7 +283,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 {
                     targetEnvironment.ProcessorIdentifier(processorProperty.GetString());
                     targetEnvironment.ProcessorProperties().Clear();
+                    root.Remove(processorFieldName);
                 }
+            }
+
+            if (root.Size() == 0)
+            {
+                metadata.Remove(GetConfigurationFieldNameHString(ConfigurationField::WingetMetadataRoot));
             }
         }
     }

@@ -568,10 +568,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         SecurityContext computedContext = defaultContext;
 
-        auto securityContext = TryLookupProperty(unit->Metadata(), ConfigurationField::SecurityContextMetadata, Windows::Foundation::PropertyType::String);
+        Windows::Foundation::Collections::ValueSet metadata = unit->Metadata();
+        auto securityContext = TryLookupProperty(metadata, ConfigurationField::SecurityContextMetadata, Windows::Foundation::PropertyType::String);
         if (securityContext)
         {
             TryParseSecurityContext(securityContext.GetString(), computedContext);
+            metadata.Remove(GetConfigurationFieldNameHString(ConfigurationField::SecurityContextMetadata));
         }
 
         unit->EnvironmentInternal().Context(computedContext);
