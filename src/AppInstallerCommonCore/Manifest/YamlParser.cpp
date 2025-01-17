@@ -527,9 +527,9 @@ namespace AppInstaller::Manifest::YamlParser
                     THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_DIRECTORY_NOT_SUPPORTED), std::filesystem::is_directory(file.path()), "Subdirectory not supported in manifest path");
 
                     YamlManifestInfo manifestInfo;
-                    YAML::DocumentRootWithSchema doc = YAML::LoadDocument(file.path());
+                    YAML::Document doc = YAML::LoadDocument(file.path());
                     manifestInfo.Root = doc.GetRoot();
-                    manifestInfo.SchemaHeader = doc.GetSchemaHeader();
+                    manifestInfo.DocumentSchemaHeader = doc.GetSchemaHeader();
                     manifestInfo.FileName = file.path().filename().u8string();
                     docList.emplace_back(std::move(manifestInfo));
                 }
@@ -537,9 +537,9 @@ namespace AppInstaller::Manifest::YamlParser
             else
             {
                 YamlManifestInfo manifestInfo;
-                YAML::DocumentRootWithSchema doc = YAML::LoadDocument(inputPath, manifestInfo.StreamSha256);
+                YAML::Document doc = YAML::LoadDocument(inputPath, manifestInfo.StreamSha256);
                 manifestInfo.Root = doc.GetRoot();
-                manifestInfo.SchemaHeader = doc.GetSchemaHeader();
+                manifestInfo.DocumentSchemaHeader = doc.GetSchemaHeader();
                 manifestInfo.FileName = inputPath.filename().u8string();
                 docList.emplace_back(std::move(manifestInfo));
             }
@@ -562,9 +562,9 @@ namespace AppInstaller::Manifest::YamlParser
         try
         {
             YamlManifestInfo manifestInfo;
-            YAML::DocumentRootWithSchema doc = YAML::LoadDocument(input);
+            YAML::Document doc = YAML::LoadDocument(input);
             manifestInfo.Root = doc.GetRoot();
-            manifestInfo.SchemaHeader = doc.GetSchemaHeader();
+            manifestInfo.DocumentSchemaHeader = doc.GetSchemaHeader();
             docList.emplace_back(std::move(manifestInfo));
         }
         catch (const std::exception& e)

@@ -18,7 +18,7 @@ namespace AppInstaller::Manifest::YamlParser
         std::string FileName;
 
         // Schema header string found in the manifest file
-        YAML::DocumentSchemaHeader SchemaHeader;
+        YAML::DocumentSchemaHeader DocumentSchemaHeader;
 
         // The SHA256 hash of the stream
         Utility::SHA256::HashBuffer StreamSha256;

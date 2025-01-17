@@ -55,22 +55,12 @@ namespace AppInstaller::YAML::Wrapper
         // Adds a pair to the mapping.
         void AppendMappingPair(int mapping, int key, int value);
 
-        // Adds a schema header to the document.
-        void AddSchemaHeader(const DocumentSchemaHeader& schemaHeader);
-
-        // Determines whether the document has a schema header.
-        bool HasSchemaHeader();
-
-        // Gets the schema header string.
-        DocumentSchemaHeader GetSchemaHeader();
-
     private:
         // Gets the node referenced by the index.
         yaml_node_t* GetNode(yaml_node_item_t index);
 
         DestructionToken m_token;
         yaml_document_t m_document;
-        DocumentSchemaHeader m_schemaHeader = {};
     };
 
     // A libyaml yaml_parser_t.
@@ -93,15 +83,16 @@ namespace AppInstaller::YAML::Wrapper
         // Loads the next document from the input, if one exists.
         Document Load();
 
+        // Retrieves the input that was used to create the parser with the correct encoding scheme.
+        const std::string& GetEncodedInput() const { return m_input; }
+
     private:
         // Determines the type of encoding in use, transforming the input as necessary.
         void PrepareInput();
-        bool FindManifestSchemaHeaderString(size_t rootNodeLine, DocumentSchemaHeader& schemaHeader);
 
         DestructionToken m_token;
         yaml_parser_t m_parser;
         std::string m_input;
-        static constexpr std::string_view YamlLanguageServerKey = "yaml-language-server";
     };
 
     // A libyaml yaml_event_t.

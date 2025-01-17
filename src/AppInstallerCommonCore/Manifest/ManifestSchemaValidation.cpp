@@ -16,18 +16,6 @@ namespace AppInstaller::Manifest::YamlParser
 
     namespace
     {
-        constexpr std::string_view YamlLanguageServerKey = "yaml-language-server"sv;
-
-        struct ManifestSchemaHeader
-        {
-            std::string SchemaHeaderString;
-            std::string ManifestType;
-            std::string ManifestVersion;
-            std::string FileName;
-            size_t Line;
-            size_t column;
-        };
-
         enum class YamlScalarType
         {
             String,
@@ -111,10 +99,10 @@ namespace AppInstaller::Manifest::YamlParser
             return result;
         }
 
-        std::vector<ValidationError> ParseSchemaHeaderString(const ManifestSchemaHeader& manifestSchemaHeader, const ValidationError::Level& errorLevel, std::string& schemaHeaderUrlString)
+        std::vector<ValidationError> ParseSchemaHeaderString(const YamlManifestInfo& manifestInfo, const ValidationError::Level& errorLevel, std::string& schemaHeaderUrlString)
         {
             std::vector<ValidationError> errors;
-            std::string schemaHeader = manifestSchemaHeader.SchemaHeaderString;
+            std::string schemaHeader = manifestInfo.DocumentSchemaHeader.SchemaHeader;
 
             // Remove the leading '#' and any leading/trailing whitespaces
             if (schemaHeader[0] == '#')
@@ -124,27 +112,26 @@ namespace AppInstaller::Manifest::YamlParser
             }
 
             // Parse the schema header string as YAML string to get the schema header URL
-
             try
             {
                 auto root = YAML::Load(schemaHeader);
 
                 if (root.IsNull() || (!root.IsNull() && !root.IsDefined()))
                 {
-                    errors.emplace_back(ValidationError::MessageContextValueLineLevelWithFile(ManifestError::InvalidSchemaHeader, "", schemaHeader, manifestSchemaHeader.Line, manifestSchemaHeader.column, errorLevel, manifestSchemaHeader.FileName));
+                    errors.emplace_back(ValidationError::MessageContextValueLineLevelWithFile(ManifestError::InvalidSchemaHeader, "", schemaHeader, manifestInfo.DocumentSchemaHeader.Mark.line, manifestInfo.DocumentSchemaHeader.Mark.column, errorLevel, manifestInfo.FileName));
                 }
                 else
                 {
-                    schemaHeaderUrlString = root[YamlLanguageServerKey].as<std::string>();
+                    schemaHeaderUrlString = root[YAML::DocumentSchemaHeader::YamlLanguageServerKey].as<std::string>();
                 }
             }
             catch (const YAML::Exception&)
             {
-                errors.emplace_back(ValidationError::MessageContextValueLineLevelWithFile(ManifestError::InvalidSchemaHeader, "", schemaHeader, manifestSchemaHeader.Line, manifestSchemaHeader.column, errorLevel, manifestSchemaHeader.FileName));
+                errors.emplace_back(ValidationError::MessageContextValueLineLevelWithFile(ManifestError::InvalidSchemaHeader, "", schemaHeader, manifestInfo.DocumentSchemaHeader.Mark.line, manifestInfo.DocumentSchemaHeader.Mark.column, errorLevel, manifestInfo.FileName));
             }
             catch (const std::exception&)
             {
-                errors.emplace_back(ValidationError::MessageContextValueLineLevelWithFile(ManifestError::InvalidSchemaHeader, "", schemaHeader, manifestSchemaHeader.Line, manifestSchemaHeader.column, errorLevel, manifestSchemaHeader.FileName));
+                errors.emplace_back(ValidationError::MessageContextValueLineLevelWithFile(ManifestError::InvalidSchemaHeader, "", schemaHeader, manifestInfo.DocumentSchemaHeader.Mark.line, manifestInfo.DocumentSchemaHeader.Mark.column, errorLevel, manifestInfo.FileName));
             }
 
             return errors;
@@ -166,23 +153,29 @@ namespace AppInstaller::Manifest::YamlParser
             return false;
         }
 
-        std::vector<ValidationError> ValidateManifestSchemaHeaderDetails(const ManifestSchemaHeader& schemaHeader, const ManifestTypeEnum& expectedManifestType, const ManifestVer& expectedManifestVersion, ValidationError::Level errorLevel)
+        std::vector<ValidationError> ValidateSchemaHeaderType(const std::string& headerManifestType, const ManifestTypeEnum& expectedManifestType, const YamlManifestInfo& manifestInfo, ValidationError::Level errorLevel)
         {
             std::vector<ValidationError> errors;
-            ManifestTypeEnum actualManifestType = ConvertToManifestTypeEnum(schemaHeader.ManifestType);
-            ManifestVer actualHeaderVersion(schemaHeader.ManifestVersion);
-
-            size_t actualManifestTypeIndex = schemaHeader.SchemaHeaderString.find(schemaHeader.ManifestType) + 1;
-            size_t actualHeaderVersionIndex = schemaHeader.SchemaHeaderString.find(schemaHeader.ManifestVersion) + 1;
+            ManifestTypeEnum actualManifestType = ConvertToManifestTypeEnum(headerManifestType);
+            size_t schemaHeaderTypeIndex = manifestInfo.DocumentSchemaHeader.SchemaHeader.find(headerManifestType) + 1;
 
             if (actualManifestType != expectedManifestType)
             {
-                errors.emplace_back(ValidationError::MessageContextValueLineLevelWithFile(ManifestError::SchemaHeaderManifestTypeMismatch, "", schemaHeader.ManifestType, schemaHeader.Line, actualManifestTypeIndex, errorLevel, schemaHeader.FileName));
+                errors.emplace_back(ValidationError::MessageContextValueLineLevelWithFile(ManifestError::SchemaHeaderManifestTypeMismatch, "", headerManifestType, manifestInfo.DocumentSchemaHeader.Mark.line, schemaHeaderTypeIndex, errorLevel, manifestInfo.FileName));
             }
+
+            return errors;
+        }
+
+        std::vector<ValidationError> ValidateSchemaHeaderVersion(const std::string& headerManifestVersion, const ManifestVer& expectedManifestVersion, const YamlManifestInfo& manifestInfo, ValidationError::Level errorLevel)
+        {
+            std::vector<ValidationError> errors;
+            ManifestVer actualHeaderVersion(headerManifestVersion);
+            size_t schemaHeaderVersionIndex = manifestInfo.DocumentSchemaHeader.SchemaHeader.find(headerManifestVersion) + 1;
 
             if (actualHeaderVersion != expectedManifestVersion)
             {
-                errors.emplace_back(ValidationError::MessageContextValueLineLevelWithFile(ManifestError::SchemaHeaderManifestVersionMismatch, "", schemaHeader.ManifestVersion, schemaHeader.Line, actualHeaderVersionIndex, errorLevel, schemaHeader.FileName));
+                errors.emplace_back(ValidationError::MessageContextValueLineLevelWithFile(ManifestError::SchemaHeaderManifestVersionMismatch, "", headerManifestVersion, manifestInfo.DocumentSchemaHeader.Mark.line, schemaHeaderVersionIndex, errorLevel, manifestInfo.FileName));
             }
 
             return errors;
@@ -200,8 +193,7 @@ namespace AppInstaller::Manifest::YamlParser
                 // Prefix schema ID with "schema=" to match the schema header URL pattern and compare it with the schema header URL
                 schemaId = "$schema=" + schemaId;
 
-                if (std::equal(schemaId.begin(), schemaId.end(), schemaHeaderUrlString.begin(), schemaHeaderUrlString.end(),
-                    [](char a, char b) { return tolower(a) == tolower(b); }))
+                if (Utility::CaseInsensitiveEquals(schemaId, schemaHeaderUrlString))
                 {
                     return true;
                 }
@@ -210,20 +202,20 @@ namespace AppInstaller::Manifest::YamlParser
             return false;
         }
 
-        ValidationError GetSchemaHeaderUrlPatternMismatchError(const std::string& schemaHeaderUrlString,const ManifestSchemaHeader& manifestSchemaHeader, const ValidationError::Level& errorLevel)
+        ValidationError GetSchemaHeaderUrlPatternMismatchError(const std::string& schemaHeaderUrlString, const YamlManifestInfo& manifestInfo, const ValidationError::Level& errorLevel)
         {
-            size_t schemaHeaderUrlIndex = manifestSchemaHeader.SchemaHeaderString.find(schemaHeaderUrlString) + 1;
+            size_t schemaHeaderUrlIndex = manifestInfo.DocumentSchemaHeader.SchemaHeader.find(schemaHeaderUrlString) + 1;
 
-            return ValidationError::MessageContextValueLineLevelWithFile(ManifestError::SchemaHeaderUrlPatternMismatch, "", manifestSchemaHeader.SchemaHeaderString, manifestSchemaHeader.Line, schemaHeaderUrlIndex, errorLevel, manifestSchemaHeader.FileName);
+            return ValidationError::MessageContextValueLineLevelWithFile(ManifestError::SchemaHeaderUrlPatternMismatch, "", manifestInfo.DocumentSchemaHeader.SchemaHeader, manifestInfo.DocumentSchemaHeader.Mark.line, schemaHeaderUrlIndex, errorLevel, manifestInfo.FileName);
         }
 
-        std::vector<ValidationError> ValidateSchemaHeaderUrl(const YamlManifestInfo& manifestInfo, const ManifestVer& manifestVersion, ManifestSchemaHeader& manifestSchemaHeader, const ValidationError::Level& errorLevel)
+        std::vector<ValidationError> ValidateSchemaHeaderUrl(const YamlManifestInfo& manifestInfo, const ManifestVer& manifestVersion, const ValidationError::Level& errorLevel)
         {
             std::vector<ValidationError> errors;
 
             std::string schemaHeaderUrlString;
             // Parse the schema header string to get the schema header URL
-            auto parserErrors = ParseSchemaHeaderString(manifestSchemaHeader, errorLevel, schemaHeaderUrlString);
+            auto parserErrors = ParseSchemaHeaderString(manifestInfo, errorLevel, schemaHeaderUrlString);
             std::move(parserErrors.begin(), parserErrors.end(), std::inserter(errors, errors.end()));
 
             if (!errors.empty())
@@ -237,21 +229,21 @@ namespace AppInstaller::Manifest::YamlParser
             // Parse the schema header URL to get the manifest type and version
             if (ParseSchemaHeaderUrl(schemaHeaderUrlString, manifestTypeString, manifestVersionString))
             {
-                manifestSchemaHeader.ManifestType = std::move(manifestTypeString);
-                manifestSchemaHeader.ManifestVersion = std::move(manifestVersionString);
+                auto headerManifestTypeErrors = ValidateSchemaHeaderType(manifestTypeString, manifestInfo.ManifestType, manifestInfo, errorLevel);
+                std::move(headerManifestTypeErrors.begin(), headerManifestTypeErrors.end(), std::inserter(errors, errors.end()));
 
-                auto compareErrors = ValidateManifestSchemaHeaderDetails(manifestSchemaHeader, manifestInfo.ManifestType, manifestVersion, errorLevel);
-                std::move(compareErrors.begin(), compareErrors.end(), std::inserter(errors, errors.end()));
+                auto headerManifestVersionErrors = ValidateSchemaHeaderVersion(manifestVersionString, manifestVersion, manifestInfo, errorLevel);
+                std::move(headerManifestVersionErrors.begin(), headerManifestVersionErrors.end(), std::inserter(errors, errors.end()));
 
                 // Finally, match the entire schema header URL with the schema ID in the schema file to ensure the URL domain matches the schema definition file.
                 if (!IsValidSchemaHeaderUrl(schemaHeaderUrlString, manifestInfo, manifestVersion))
                 {
-                    errors.emplace_back(GetSchemaHeaderUrlPatternMismatchError(schemaHeaderUrlString, manifestSchemaHeader, errorLevel));
+                    errors.emplace_back(GetSchemaHeaderUrlPatternMismatchError(schemaHeaderUrlString, manifestInfo, errorLevel));
                 }
             }
             else
             {
-                errors.emplace_back(GetSchemaHeaderUrlPatternMismatchError(schemaHeaderUrlString, manifestSchemaHeader, errorLevel));
+                errors.emplace_back(GetSchemaHeaderUrlPatternMismatchError(schemaHeaderUrlString, manifestInfo, errorLevel));
             }
 
             return errors;
@@ -262,19 +254,13 @@ namespace AppInstaller::Manifest::YamlParser
             std::vector<ValidationError> errors;
             std::string schemaHeaderString;
 
-            ManifestSchemaHeader schemaHeader{};
-            schemaHeader.FileName = manifestInfo.FileName;
-            schemaHeader.SchemaHeaderString = manifestInfo.SchemaHeader.SchemaHeaderString;
-            schemaHeader.Line = manifestInfo.SchemaHeader.Mark.line;
-            schemaHeader.column = manifestInfo.SchemaHeader.Mark.column;
-
-            if (schemaHeader.SchemaHeaderString.empty())
+            if (manifestInfo.DocumentSchemaHeader.SchemaHeader.empty())
             {
                 errors.emplace_back(ValidationError::MessageLevelWithFile(ManifestError::SchemaHeaderNotFound, errorLevel, manifestInfo.FileName));
                 return errors;
             }
 
-            auto parserErrors = ValidateSchemaHeaderUrl(manifestInfo, manifestVersion, schemaHeader, errorLevel);
+            auto parserErrors = ValidateSchemaHeaderUrl(manifestInfo, manifestVersion, errorLevel);
             std::move(parserErrors.begin(), parserErrors.end(), std::inserter(errors, errors.end()));
 
             return errors;

@@ -99,6 +99,35 @@ namespace AppInstaller::YAML
 
             return Node::TagType::Unknown;
         }
+
+        DocumentSchemaHeader ExtractSchemaHeaderFromYaml( const std::string& yamlDocument, size_t rootNodeLine)
+        {
+            std::istringstream input(yamlDocument);
+            std::string line;
+            size_t currentLine = 1;
+
+            // Search for the schema header string in the comments before the root node.
+            while (currentLine < rootNodeLine && std::getline(input, line))
+            {
+                std::string comment = Utility::Trim(line);
+
+                // Check if the line is a comment
+                if (!comment.empty() && comment[0] == '#')
+                {
+                    size_t pos = line.find(DocumentSchemaHeader::YamlLanguageServerKey);
+
+                    // Check if the comment contains the schema header string
+                    if (pos != std::string::npos)
+                    {
+                        return DocumentSchemaHeader(std::move(comment), YAML::Mark{ currentLine, pos});
+                    }
+                }
+
+                currentLine++;
+            }
+
+            return {};
+        }
     }
 
     Exception::Exception(Type type) :
@@ -601,14 +630,17 @@ namespace AppInstaller::YAML
         return Load(input, &hashOut);
     }
 
-    DocumentRootWithSchema LoadDocument(std::string_view input)
+    Document LoadDocument(std::string_view input)
     {
         Wrapper::Parser parser(input);
         Wrapper::Document document = parser.Load();
 
         if (document.HasRoot())
         {
-            return { document.GetRoot(), document.GetSchemaHeader() };
+            const Node root = document.GetRoot();
+            const DocumentSchemaHeader schemaHeader = ExtractSchemaHeaderFromYaml(parser.GetEncodedInput(), root.Mark().line);
+
+            return { root, schemaHeader };
         }
         else
         {
@@ -617,19 +649,22 @@ namespace AppInstaller::YAML
         }
     }
 
-    DocumentRootWithSchema LoadDocument(const std::string& input)
+    Document LoadDocument(const std::string& input)
     {
         return LoadDocument(static_cast<std::string_view>(input));
     }
 
-    DocumentRootWithSchema LoadDocument(std::istream& input, Utility::SHA256::HashBuffer* hashOut)
+    Document LoadDocument(std::istream& input, Utility::SHA256::HashBuffer* hashOut)
     {
         Wrapper::Parser parser(input, hashOut);
         Wrapper::Document document = parser.Load();
 
         if (document.HasRoot())
         {
-            return { document.GetRoot(), document.GetSchemaHeader() };
+            const Node root = document.GetRoot();
+            const DocumentSchemaHeader schemaHeader = ExtractSchemaHeaderFromYaml(parser.GetEncodedInput(), root.Mark().line);
+
+            return { root, schemaHeader };
         }
         else
         {
@@ -638,19 +673,19 @@ namespace AppInstaller::YAML
         }
     }
 
-    DocumentRootWithSchema LoadDocument(const std::filesystem::path& input, Utility::SHA256::HashBuffer* hashOut)
+    Document LoadDocument(const std::filesystem::path& input, Utility::SHA256::HashBuffer* hashOut)
     {
         std::ifstream stream(input, std::ios_base::in | std::ios_base::binary);
         THROW_LAST_ERROR_IF(stream.fail());
         return LoadDocument(stream, hashOut);
     }
 
-    DocumentRootWithSchema LoadDocument(const std::filesystem::path& input)
+    Document LoadDocument(const std::filesystem::path& input)
     {
         return LoadDocument(input, nullptr);
     }
 
-    DocumentRootWithSchema LoadDocument(const std::filesystem::path& input, Utility::SHA256::HashBuffer& hashOut)
+    Document LoadDocument(const std::filesystem::path& input, Utility::SHA256::HashBuffer& hashOut)
     {
         return LoadDocument(input, &hashOut);
     }

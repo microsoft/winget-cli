@@ -241,19 +241,21 @@ namespace AppInstaller::YAML
     struct DocumentSchemaHeader
     {
         DocumentSchemaHeader() = default;
-        DocumentSchemaHeader(std::string schemaHeaderString, const Mark& mark) : SchemaHeaderString(std::move(schemaHeaderString)), Mark(mark) {}
+        DocumentSchemaHeader(std::string schemaHeaderString, const Mark& mark) : SchemaHeader(std::move(schemaHeaderString)), Mark(mark) {}
 
-        std::string SchemaHeaderString;
+        std::string SchemaHeader;
         Mark Mark;
+        static constexpr std::string_view YamlLanguageServerKey = "yaml-language-server";
     };
 
-    struct DocumentRootWithSchema
+    struct Document
     {
-        DocumentRootWithSchema() = default;
-        DocumentRootWithSchema(Node root, DocumentSchemaHeader schemaHeader) : m_root(std::move(root)), m_schemaHeader(std::move(schemaHeader)) {}
+        Document() = default;
+        Document(Node root, DocumentSchemaHeader schemaHeader) : m_root(std::move(root)), m_schemaHeader(std::move(schemaHeader)) {}
 
+        // Return r-values for move semantics
         Node GetRoot() const { return m_root; }
-        const DocumentSchemaHeader& GetSchemaHeader() const { return m_schemaHeader; }
+        DocumentSchemaHeader GetSchemaHeader() const { return m_schemaHeader; }
 
     private:
         Node m_root;
@@ -267,10 +269,10 @@ namespace AppInstaller::YAML
     }
 
     // Loads from the input; returns the root node of the first document.
-    DocumentRootWithSchema LoadDocument(std::string_view input);
-    DocumentRootWithSchema LoadDocument(const std::string& input);
-    DocumentRootWithSchema LoadDocument(const std::filesystem::path& input);
-    DocumentRootWithSchema LoadDocument(const std::filesystem::path& input, Utility::SHA256::HashBuffer& hashOut);
+    Document LoadDocument(std::string_view input);
+    Document LoadDocument(const std::string& input);
+    Document LoadDocument(const std::filesystem::path& input);
+    Document LoadDocument(const std::filesystem::path& input, Utility::SHA256::HashBuffer& hashOut);
 
     // A YAML emitter.
     struct Emitter
