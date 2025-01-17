@@ -63,7 +63,12 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::ArpValidationError, "Arp Validation Error."sv },
                 { AppInstaller::Manifest::ManifestError::SchemaError, "Schema Error."sv },
                 { AppInstaller::Manifest::ManifestError::MsixSignatureHashFailed, "Failed to calculate MSIX signature hash.Please verify that the input file is a valid, signed MSIX."sv },
-                { AppInstaller::Manifest::ManifestError::ShadowManifestNotAllowed, "Shadow manifest is not allowed." }
+                { AppInstaller::Manifest::ManifestError::ShadowManifestNotAllowed, "Shadow manifest is not allowed." },
+                { AppInstaller::Manifest::ManifestError::SchemaHeaderNotFound, "Schema header not found." },
+                { AppInstaller::Manifest::ManifestError::InvalidSchemaHeader , "The schema header is invalid. Please verify that the schema header is present and formatted correctly."sv },
+                { AppInstaller::Manifest::ManifestError::SchemaHeaderManifestTypeMismatch , "The manifest type in the schema header does not match the ManifestType property value in the manifest."sv },
+                { AppInstaller::Manifest::ManifestError::SchemaHeaderManifestVersionMismatch, "The manifest version in the schema header does not match the ManifestVersion property value in the manifest."sv },
+                { AppInstaller::Manifest::ManifestError::SchemaHeaderUrlPatternMismatch, "The schema header URL does not match the expected pattern."sv },
             };
 
             return ErrorIdToMessageMap;

@@ -63,6 +63,7 @@ namespace AppInstaller::Manifest
         bool FullValidation = false;
         bool ThrowOnWarning = false;
         bool AllowShadowManifest = false;
+        bool SchemaHeaderValidationAsWarning = false;
     };
 
     // ManifestVer is inherited from Utility::Version and is a more restricted version.

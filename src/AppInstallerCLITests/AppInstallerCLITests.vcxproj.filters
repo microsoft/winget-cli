@@ -1044,5 +1044,20 @@
     <CopyFileToFolders Include="TestData\ContainsEscapeControlCode.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_10-Bad-SchemaHeaderInvalid.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_10-Bad-SchemaHeaderManifestTypeMismatch.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_10-Bad-SchemaHeaderManifestVersionMismatch.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_10-Bad-SchemaHeaderNotFound.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_10-Bad-SchemaHeaderURLPatternMismatch.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

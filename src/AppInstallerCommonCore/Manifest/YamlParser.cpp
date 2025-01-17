@@ -479,6 +479,14 @@ namespace AppInstaller::Manifest::YamlParser
             {
                 errors = ValidateManifest(manifest);
                 std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+
+                // Validate the schema header for manifest version 1.10 and above
+                if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_10 })
+                {
+                    // Validate the schema header.
+                    errors = ValidateYamlManifestsSchemaHeader(input, manifestVersion, validateOption.SchemaHeaderValidationAsWarning);
+                    std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+                }
             }
 
             if (validateOption.InstallerValidation)
@@ -518,18 +526,22 @@ namespace AppInstaller::Manifest::YamlParser
                 {
                     THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_DIRECTORY_NOT_SUPPORTED), std::filesystem::is_directory(file.path()), "Subdirectory not supported in manifest path");
 
-                    YamlManifestInfo doc;
-                    doc.Root = YAML::Load(file.path());
-                    doc.FileName = file.path().filename().u8string();
-                    docList.emplace_back(std::move(doc));
+                    YamlManifestInfo manifestInfo;
+                    YAML::Document doc = YAML::LoadDocument(file.path());
+                    manifestInfo.Root = std::move(doc).GetRoot();
+                    manifestInfo.DocumentSchemaHeader = doc.GetSchemaHeader();
+                    manifestInfo.FileName = file.path().filename().u8string();
+                    docList.emplace_back(std::move(manifestInfo));
                 }
             }
             else
             {
-                YamlManifestInfo doc;
-                doc.Root = YAML::Load(inputPath, doc.StreamSha256);
-                doc.FileName = inputPath.filename().u8string();
-                docList.emplace_back(std::move(doc));
+                YamlManifestInfo manifestInfo;
+                YAML::Document doc = YAML::LoadDocument(inputPath, manifestInfo.StreamSha256);
+                manifestInfo.Root = std::move(doc).GetRoot();
+                manifestInfo.DocumentSchemaHeader = doc.GetSchemaHeader();
+                manifestInfo.FileName = inputPath.filename().u8string();
+                docList.emplace_back(std::move(manifestInfo));
             }
         }
         catch (const std::exception& e)
@@ -549,9 +561,11 @@ namespace AppInstaller::Manifest::YamlParser
 
         try
         {
-            YamlManifestInfo doc;
-            doc.Root = YAML::Load(input);
-            docList.emplace_back(std::move(doc));
+            YamlManifestInfo manifestInfo;
+            YAML::Document doc = YAML::LoadDocument(input);
+            manifestInfo.Root = std::move(doc).GetRoot();
+            manifestInfo.DocumentSchemaHeader = doc.GetSchemaHeader();
+            docList.emplace_back(std::move(manifestInfo));
         }
         catch (const std::exception& e)
         {

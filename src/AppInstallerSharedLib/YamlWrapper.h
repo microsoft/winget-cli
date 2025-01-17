@@ -83,6 +83,9 @@ namespace AppInstaller::YAML::Wrapper
         // Loads the next document from the input, if one exists.
         Document Load();
 
+        // Retrieves the input that was used to create the parser with the correct encoding scheme.
+        const std::string& GetEncodedInput() const { return m_input; }
+
     private:
         // Determines the type of encoding in use, transforming the input as necessary.
         void PrepareInput();
