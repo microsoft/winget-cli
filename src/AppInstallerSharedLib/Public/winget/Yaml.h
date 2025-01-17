@@ -253,9 +253,10 @@ namespace AppInstaller::YAML
         Document() = default;
         Document(Node root, DocumentSchemaHeader schemaHeader) : m_root(std::move(root)), m_schemaHeader(std::move(schemaHeader)) {}
 
+        const DocumentSchemaHeader& GetSchemaHeader() const { return m_schemaHeader; }
+
         // Return r-values for move semantics
-        Node GetRoot() const { return m_root; }
-        DocumentSchemaHeader GetSchemaHeader() const { return m_schemaHeader; }
+        Node&& GetRoot() && { return std::move(m_root); }
 
     private:
         Node m_root;
