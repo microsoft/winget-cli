@@ -41,6 +41,7 @@ namespace AppInstaller::CLI::Execution
             InstallLocation,
             InstallScope,
             InstallArchitecture,
+            InstallerArchitecture,
             InstallerType,
             HashOverride, // Ignore hash mismatches
             SkipDependencies, // Skip dependencies

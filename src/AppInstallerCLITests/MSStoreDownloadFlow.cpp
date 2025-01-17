@@ -408,7 +408,7 @@ TEST_CASE("MSStoreDownloadFlow_Success_SpecificArchitecture", "[MSStoreDownloadF
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("DownloadFlowTest_MSStore.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::DownloadDirectory, tempDirectory);
     context.Args.AddArg(Execution::Args::Type::Locale, "en-US"sv);
-    context.Args.AddArg(Execution::Args::Type::InstallArchitecture, "x64"sv);
+    context.Args.AddArg(Execution::Args::Type::InstallerArchitecture, "x64"sv);
 
     DownloadCommand download({});
     download.Execute(context);
@@ -525,7 +525,7 @@ TEST_CASE("MSStoreDownloadFlow_Fail_ArchitectureNotApplicable", "[MSStoreDownloa
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("DownloadFlowTest_MSStore.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::DownloadDirectory, tempDirectory);
     context.Args.AddArg(Execution::Args::Type::Locale, "en-US"sv);
-    context.Args.AddArg(Execution::Args::Type::InstallArchitecture, "arm64"sv);
+    context.Args.AddArg(Execution::Args::Type::InstallerArchitecture, "arm64"sv);
 
     DownloadCommand download({});
     download.Execute(context);

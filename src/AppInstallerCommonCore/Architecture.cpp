@@ -259,6 +259,12 @@ namespace AppInstaller::Utility
         return applicableArchs;
     }
 
+    const std::vector<Architecture>& GetAllArchitectures()
+    {
+        static std::vector<Architecture> allArchs = { Architecture::Neutral, Architecture::X86, Architecture::X64, Architecture::Arm, Architecture::Arm64 };
+        return allArchs;
+    }
+
     int IsApplicableArchitecture(Architecture arch)
     {
         return IsApplicableArchitecture(arch, GetApplicableArchitectures());

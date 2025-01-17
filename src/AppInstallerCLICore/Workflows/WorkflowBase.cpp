@@ -340,11 +340,11 @@ namespace AppInstaller::CLI::Workflow
         if (m_isFunc)
         {
             // Using `00000001`80000000` as base address default when loading dll into windbg as dump file.
-            AICLI_LOG(Workflow, Info, << "Running task: 0x" << m_func << " [ln 00000001`80000000+" << std::hex << (reinterpret_cast<char*>(m_func) - reinterpret_cast<char*>(&__ImageBase)) << "]");
+            AICLI_LOG(Workflow, Verbose, << "Running task: 0x" << m_func << " [ln 00000001`80000000+" << std::hex << (reinterpret_cast<char*>(m_func) - reinterpret_cast<char*>(&__ImageBase)) << "]");
         }
         else
         {
-            AICLI_LOG(Workflow, Info, << "Running task: " << m_name);
+            AICLI_LOG(Workflow, Verbose, << "Running task: " << m_name);
         }
     }
 

@@ -35,6 +35,9 @@ namespace AppInstaller::Utility
     // Gets the set of architectures that are applicable to the current system
     const std::vector<Architecture>& GetApplicableArchitectures();
 
+    // Gets the set of architectures that are supported by winget
+    const std::vector<Architecture>& GetAllArchitectures();
+
     // Gets if an architecture is applicable to the system
     // Returns the priority in the applicable architecture list if the architecture is applicable. 0 has lowest priority.
     // Returns -1 if the architecture is not applicable.
