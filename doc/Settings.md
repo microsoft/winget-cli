@@ -188,7 +188,7 @@ The `defaultInstallRoot` affects the install location when a package requires on
 
 ### Maximum resumes
 
-The `maxResumes` behavior affects the amount of reboots that happen for packages that request it. The default value is 3.
+The `maxResumes` setting determines the maximum number of times that a command may be resumed automatically. The default value is 3.
 
 ```json
     "installBehavior": {
@@ -196,7 +196,7 @@ The `maxResumes` behavior affects the amount of reboots that happen for packages
     },
 ```
 
-> Note: The Windows Package Manager does not support the reboot behavior currently.
+> Note: [The resume behavior is an experimental feature.](#resume)
 
 ## Uninstall Behavior
 
