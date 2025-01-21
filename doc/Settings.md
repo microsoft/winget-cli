@@ -197,6 +197,18 @@ The `defaultInstallRoot` affects the install location when a package requires on
     },
 ```
 
+### Maximum resumes
+
+The `maxResumes` setting determines the maximum number of times that a command may be resumed automatically. The default value is 3.
+
+```json
+    "installBehavior": {
+        "maxResumes": 3
+    },
+```
+
+> Note: [The resume behavior is an experimental feature.](#resume)
+
 ## Uninstall Behavior
 
 The `uninstallBehavior` settings affect the default behavior of uninstalling (where applicable) packages.
