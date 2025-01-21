@@ -64,10 +64,73 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             ConfigurationUnit elevatedUnit = this.ConfigurationUnit();
             elevatedUnit.Metadata.Add("version", version.ToString());
             elevatedUnit.Metadata.Add("module", moduleName);
-            elevatedUnit.Metadata.Add("securityContext", "elevated");
+            elevatedUnit.Environment.Context = SecurityContext.Elevated;
             elevatedUnit.Settings.Add("directoryPath", tempDirectory);
             elevatedUnit.Type = resourceName;
             elevatedUnit.Intent = ConfigurationUnitIntent.Apply;
+
+            configurationSet.Units = new ConfigurationUnit[] { unit, elevatedUnit };
+
+            IConfigurationSetProcessorFactory dynamicFactory = await this.fixture.ConfigurationStatics.CreateConfigurationSetProcessorFactoryAsync(Helpers.Constants.DynamicRuntimeHandlerIdentifier);
+
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(dynamicFactory);
+
+            ApplyConfigurationSetResult result = processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None);
+
+            // Get the number of unique PIDs from temp directory.
+            int pidCount = Directory.GetFiles(tempDirectory).Length;
+
+            // Clean up temp directory folder.
+            Directory.Delete(tempDirectory, true);
+
+            Assert.NotNull(result);
+            Assert.Null(result.ResultCode);
+            Assert.Equal(2, result.UnitResults.Count);
+
+            foreach (var unitResult in result.UnitResults)
+            {
+                Assert.NotNull(unitResult);
+                Assert.False(unitResult.PreviouslyInDesiredState);
+                Assert.False(unitResult.RebootRequired);
+                Assert.NotNull(unitResult.ResultInformation);
+                Assert.Null(unitResult.ResultInformation.ResultCode);
+                Assert.Equal(ConfigurationUnitResultSource.None, unitResult.ResultInformation.ResultSource);
+            }
+
+            // There should be exactly 2 unique PIDs, one for each integrity level.
+            Assert.Equal(2, pidCount);
+        }
+
+        /// <summary>
+        /// Verifies that applying units of mixed elevation is successful. Also verifies that the elevated processor has a different process id.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public async Task ApplyMixedElevationUnits_Schema_0_3()
+        {
+            string resourceName = "xE2ETestResource/E2ETestResourcePID";
+            Version version = new Version("0.0.0.1");
+
+            string tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(tempDirectory);
+
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            configurationSet.SchemaVersion = "0.3";
+            configurationSet.Metadata.Add(Helpers.Constants.EnableDynamicFactoryTestMode, true);
+
+            ConfigurationUnit unit = this.ConfigurationUnit();
+            unit.Metadata.Add("version", version.ToString());
+            unit.Settings.Add("directoryPath", tempDirectory);
+            unit.Type = resourceName;
+            unit.Identifier = "current";
+
+            ConfigurationUnit elevatedUnit = this.ConfigurationUnit();
+            elevatedUnit.Intent = ConfigurationUnitIntent.Unknown;
+            elevatedUnit.Metadata.Add("version", version.ToString());
+            elevatedUnit.Environment.Context = SecurityContext.Elevated;
+            elevatedUnit.Settings.Add("directoryPath", tempDirectory);
+            elevatedUnit.Type = resourceName;
+            elevatedUnit.Identifier = "elevated";
 
             configurationSet.Units = new ConfigurationUnit[] { unit, elevatedUnit };
 
@@ -121,13 +184,14 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             ConfigurationUnit unit = this.ConfigurationUnit();
             unit.Metadata.Add("version", version.ToString());
             unit.Metadata.Add("module", moduleName);
+            unit.Metadata.Add("unique", "value");
             unit.Type = resourceName;
             unit.Intent = ConfigurationUnitIntent.Apply;
 
             ConfigurationUnit elevatedUnit = this.ConfigurationUnit();
             elevatedUnit.Metadata.Add("version", version.ToString());
             elevatedUnit.Metadata.Add("module", moduleName);
-            elevatedUnit.Metadata.Add("securityContext", "elevated");
+            elevatedUnit.Environment.Context = SecurityContext.Elevated;
             elevatedUnit.Type = resourceName;
             elevatedUnit.Intent = ConfigurationUnitIntent.Apply;
 
@@ -182,7 +246,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             ConfigurationUnit elevatedUnit = this.ConfigurationUnit();
             elevatedUnit.Metadata.Add("version", version.ToString());
             elevatedUnit.Metadata.Add("module", moduleName);
-            elevatedUnit.Metadata.Add("securityContext", "elevated");
+            elevatedUnit.Environment.Context = SecurityContext.Elevated;
             elevatedUnit.Settings.Add("directoryPath", tempDirectory);
             elevatedUnit.Type = resourceName;
             elevatedUnit.Intent = ConfigurationUnitIntent.Apply;

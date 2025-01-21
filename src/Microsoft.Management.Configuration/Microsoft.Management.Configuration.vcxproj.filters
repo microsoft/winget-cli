@@ -153,6 +153,9 @@
     <ClCompile Include="ConfigurationSetSerializer_0_3.cpp">
       <Filter>Parser</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigurationEnvironment.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -314,6 +317,9 @@
     </ClInclude>
     <ClInclude Include="ConfigurationSetSerializer_0_3.h">
       <Filter>Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationEnvironment.h">
+      <Filter>API Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

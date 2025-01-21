@@ -321,6 +321,7 @@ STDAPI
 STGM
 storeedgefd
 stpkgmanvalwestustest
+stringable
 STRINGID
 STRINGIZE
 STRSAFE

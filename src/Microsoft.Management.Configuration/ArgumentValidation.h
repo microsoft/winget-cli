@@ -25,4 +25,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     // Ensures that the given type supports length restrictions.
     void EnsureLengthType(Windows::Foundation::PropertyType type);
+
+    // Determines if the given type is a scalar that can be converted to a reasonable string representation.
+    bool IsStringableType(Windows::Foundation::PropertyType type);
+
+    // Gets the string version of the given property, if it is stringable.
+    hstring ToString(Windows::Foundation::IPropertyValue value);
 }

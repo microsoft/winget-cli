@@ -561,4 +561,21 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             FIELD_VALUE_ERROR(GetConfigurationFieldName(fieldForErrors), node.as<std::string>(), node.Mark());
         }
     }
+
+    void ConfigurationSetParser::ExtractSecurityContext(implementation::ConfigurationUnit* unit, SecurityContext defaultContext)
+    {
+        THROW_HR_IF_NULL(E_POINTER, unit);
+
+        SecurityContext computedContext = defaultContext;
+
+        Windows::Foundation::Collections::ValueSet metadata = unit->Metadata();
+        auto securityContext = TryLookupProperty(metadata, ConfigurationField::SecurityContextMetadata, Windows::Foundation::PropertyType::String);
+        if (securityContext)
+        {
+            TryParseSecurityContext(securityContext.GetString(), computedContext);
+            metadata.Remove(GetConfigurationFieldNameHString(ConfigurationField::SecurityContextMetadata));
+        }
+
+        unit->EnvironmentInternal().Context(computedContext);
+    }
 }

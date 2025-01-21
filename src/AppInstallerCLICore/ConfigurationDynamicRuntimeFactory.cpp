@@ -142,9 +142,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 // Check for multiple integrity level requirements
                 bool multipleIntegrityLevels = false;
                 bool higherIntegrityLevelsThanCurrent = false;
-                for (const auto& existingUnit : m_configurationSet.Units())
+                for (const auto& environment : m_configurationSet.GetUnitEnvironments())
                 {
-                    auto integrityLevel = GetIntegrityLevelForUnit(existingUnit);
+                    auto integrityLevel = SecurityContextToIntegrityLevel(environment.Context());
                     if (integrityLevel != m_currentIntegrityLevel)
                     {
                         multipleIntegrityLevels = true;
@@ -183,9 +183,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 std::call_once(m_createUnitSetProcessorsOnce,
                     [&]()
                     {
-                        for (const auto& existingUnit : m_configurationSet.Units())
+                        for (const auto& environment : m_configurationSet.GetUnitEnvironments())
                         {
-                            Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(existingUnit);
+                            Security::IntegrityLevel requiredIntegrityLevel = SecurityContextToIntegrityLevel(environment.Context());
 
                             if (m_setProcessors.find(requiredIntegrityLevel) == m_setProcessors.end())
                             {
@@ -212,16 +212,13 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
         private:
             // Converts the string representation of SecurityContext to the integrity level
-            Security::IntegrityLevel SecurityContextToIntegrityLevel(winrt::hstring securityContext)
+            Security::IntegrityLevel SecurityContextToIntegrityLevel(SecurityContext securityContext)
             {
-                std::wstring securityContextLower = Utility::ToLower(securityContext);
-
-                if (securityContextLower == L"elevated")
+                switch (securityContext)
                 {
-                    return Security::IntegrityLevel::High;
-                }
-                else if (securityContextLower == L"restricted")
-                {
+                case SecurityContext::Current:
+                    return m_currentIntegrityLevel;
+                case SecurityContext::Restricted:
 #ifndef AICLI_DISABLE_TEST_HOOKS
                     if (m_enableRestrictedIntegrityLevel)
                     {
@@ -236,34 +233,17 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                         // Technically this means the default level of the user token, so if UAC is disabled it would be the only integrity level (aka current).
                         // return Security::IntegrityLevel::Medium;
                     }
+                case SecurityContext::Elevated:
+                    return Security::IntegrityLevel::High;
+                default:
+                    THROW_WIN32(ERROR_NOT_SUPPORTED);
                 }
-                else if (securityContextLower == L"current")
-                {
-                    return m_currentIntegrityLevel;
-                }
-
-                THROW_WIN32(ERROR_NOT_SUPPORTED);
             }
 
             // Gets the integrity level that the given unit should be run at
             Security::IntegrityLevel GetIntegrityLevelForUnit(const ConfigurationUnit& unit)
             {
-                // Support for 0.2 schema via metadata value
-                // TODO: Support case-insensitive lookup by iteration
-                auto unitMetadata = unit.Metadata();
-                auto securityContext = unitMetadata.TryLookup(L"securityContext");
-                if (securityContext)
-                {
-                    auto securityContextProperty = securityContext.try_as<IPropertyValue>();
-                    if (securityContextProperty && securityContextProperty.Type() == PropertyType::String)
-                    {
-                        return SecurityContextToIntegrityLevel(securityContextProperty.GetString());
-                    }
-                }
-
-                // TODO: Support for 0.3 schema will require a group processor wrapper
-
-                return m_currentIntegrityLevel;
+                return SecurityContextToIntegrityLevel(unit.Environment().Context());
             }
 
             // Serializes the set properties to be sent to the remote server
