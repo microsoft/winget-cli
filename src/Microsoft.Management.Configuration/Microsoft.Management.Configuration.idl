@@ -100,20 +100,6 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.Collections.IMap<String, String> ProcessorProperties{ get; };
     };
 
-    // Read-only information about the environment in which a configuration is processed.
-    [contract(Microsoft.Management.Configuration.Contract, 3)]
-    interface IConfigurationEnvironmentView
-    {
-        // The security context in which a configuration is processed.
-        SecurityContext Context{ get; };
-
-        // A string that identifies the processor that should be used for the configuration.
-        String ProcessorIdentifier{ get; };
-
-        // Processor specific properties.
-        Windows.Foundation.Collections.IMapView<String, String> ProcessorPropertiesView{ get; };
-    };
-
     // Information on a result for a single unit of configuration.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     interface IConfigurationUnitResultInformation
@@ -447,7 +433,7 @@ namespace Microsoft.Management.Configuration
         [contract(Microsoft.Management.Configuration.Contract, 3)]
         {
             // Gets the union of environments as defined by all of the active units within the set.
-            Windows.Foundation.Collections.IVector<IConfigurationEnvironmentView> GetUnitEnvironments();
+            Windows.Foundation.Collections.IVector<ConfigurationEnvironment> GetUnitEnvironments();
         }
     }
 
@@ -1010,7 +996,7 @@ namespace Microsoft.Management.Configuration
         interface Windows.Foundation.Collections.IVectorView<ApplyConfigurationUnitResult>;
         interface Windows.Foundation.Collections.IVectorView<TestConfigurationUnitResult>;
         interface Windows.Foundation.Collections.IVectorView<ConfigurationSet>;
-        interface Windows.Foundation.Collections.IVector<IConfigurationEnvironmentView>;
+        interface Windows.Foundation.Collections.IVector<ConfigurationEnvironment>;
     }
 
     // Provides a way to centralize the distribution of interfaces relevant to specific implementations of IConfigurationSetProcessorFactory.

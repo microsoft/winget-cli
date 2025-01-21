@@ -59,7 +59,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// </summary>
         /// <param name="properties">The properties to test.</param>
         /// <returns>True if the properties match; false if not.</returns>
-        internal bool PropertiesEqual(IReadOnlyDictionary<string, string> properties)
+        internal bool PropertiesEqual(IDictionary<string, string> properties)
         {
             if (properties.Count != this.ProcessorProperties.Count)
             {

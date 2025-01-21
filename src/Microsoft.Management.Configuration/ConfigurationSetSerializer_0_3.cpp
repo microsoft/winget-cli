@@ -45,7 +45,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return result;
         }
 
-        Windows::Foundation::Collections::ValueSet CreateValueSetFromStringMap(const Windows::Foundation::Collections::IMapView<hstring, hstring>& map)
+        Windows::Foundation::Collections::ValueSet CreateValueSetFromStringMap(const Windows::Foundation::Collections::IMap<hstring, hstring>& map)
         {
             Windows::Foundation::Collections::ValueSet result;
             if (map)
@@ -62,10 +62,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             Windows::Foundation::Collections::ValueSet& metadata,
             SecurityContext context,
             hstring processor,
-            Windows::Foundation::Collections::IMapView<hstring, hstring> properties,
+            Windows::Foundation::Collections::IMap<hstring, hstring> properties,
             SecurityContext defaultContext = SecurityContext::Current,
             hstring defaultProcessor = {},
-            Windows::Foundation::Collections::IMapView<hstring, hstring> defaultProperties = nullptr)
+            Windows::Foundation::Collections::IMap<hstring, hstring> defaultProperties = nullptr)
         {
             if (context != defaultContext)
             {
@@ -106,7 +106,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             if (environment)
             {
-                AddEnvironmentToMetadata(metadata, environment->Context(), environment->ProcessorIdentifier(), environment->ProcessorPropertiesView());
+                AddEnvironmentToMetadata(metadata, environment->Context(), environment->ProcessorIdentifier(), environment->ProcessorProperties());
             }
         }
 
@@ -116,8 +116,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             const Configuration::ConfigurationEnvironment& commonEnvironment)
         {
             AddEnvironmentToMetadata(metadata,
-                environment.Context(), environment.ProcessorIdentifier(), environment.ProcessorProperties().GetView(),
-                commonEnvironment.Context(), commonEnvironment.ProcessorIdentifier(), commonEnvironment.ProcessorProperties().GetView());
+                environment.Context(), environment.ProcessorIdentifier(), environment.ProcessorProperties(),
+                commonEnvironment.Context(), commonEnvironment.ProcessorIdentifier(), commonEnvironment.ProcessorProperties());
         }
     }
 

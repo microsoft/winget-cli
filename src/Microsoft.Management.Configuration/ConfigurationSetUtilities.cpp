@@ -53,7 +53,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return hstring{ AppInstaller::Utility::ConvertToUTF16(GetConfigurationFieldName(fieldName)) };
     }
 
-    bool TryParseSecurityContext(winrt::hstring value, SecurityContext& result)
+    bool TryParseSecurityContext(const hstring& value, SecurityContext& result)
     {
         std::wstring securityContextLower = AppInstaller::Utility::ToLower(value);
 
@@ -77,7 +77,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return true;
     }
 
-    SecurityContext ParseSecurityContext(hstring value)
+    SecurityContext ParseSecurityContext(const hstring& value)
     {
         SecurityContext result = SecurityContext::Current;
         THROW_HR_IF(E_INVALIDARG, !TryParseSecurityContext(value, result));

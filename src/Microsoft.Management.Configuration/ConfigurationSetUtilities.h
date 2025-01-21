@@ -52,10 +52,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     // Attempts to parse a security context from a string.
     // Returns true if successful; false otherwise.
-    bool TryParseSecurityContext(hstring value, SecurityContext& result);
+    bool TryParseSecurityContext(const hstring& value, SecurityContext& result);
 
     // Parses a security context from a string.
-    SecurityContext ParseSecurityContext(hstring value);
+    SecurityContext ParseSecurityContext(const hstring& value);
 
     // Gets the string representation of a security context.
     std::string_view ToString(SecurityContext value);

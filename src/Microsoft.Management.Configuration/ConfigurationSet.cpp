@@ -15,7 +15,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         struct EnvironmentData
         {
             EnvironmentData(Configuration::ConfigurationEnvironment environment) :
-                Environment(environment), Context(environment.Context()), Identifier(environment.ProcessorIdentifier()), Properties(environment.ProcessorProperties().GetView())
+                Environment(environment), Context(environment.Context()), Identifier(environment.ProcessorIdentifier()), Properties(environment.ProcessorProperties())
             {
             }
 
@@ -32,7 +32,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             Configuration::ConfigurationEnvironment Environment;
             SecurityContext Context;
             hstring Identifier;
-            Windows::Foundation::Collections::IMapView<hstring, hstring> Properties;
+            Windows::Foundation::Collections::IMap<hstring, hstring> Properties;
         };
 
         bool ContainsEnvironment(const std::vector<EnvironmentData>& uniqueEnvironments, const EnvironmentData& data)
@@ -50,7 +50,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         void ComputeUniqueEnvironments(std::vector<EnvironmentData>& uniqueEnvironments, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& units)
         {
-            for (Configuration::ConfigurationUnit unit : units)
+            for (const Configuration::ConfigurationUnit& unit : units)
             {
                 if (unit.IsActive())
                 {
@@ -283,20 +283,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_schemaUri = value;
     }
 
-    std::vector<IConfigurationEnvironmentView> ConfigurationSet::GetUnitEnvironmentsInternal()
+    std::vector<Configuration::ConfigurationEnvironment> ConfigurationSet::GetUnitEnvironmentsInternal()
     {
         std::vector<impl::EnvironmentData> uniqueEnvironments;
         ComputeUniqueEnvironments(uniqueEnvironments, m_units);
 
-        std::vector<IConfigurationEnvironmentView> result;
+        std::vector<Configuration::ConfigurationEnvironment> result;
         for (const impl::EnvironmentData& data : uniqueEnvironments)
         {
-            result.emplace_back(data.Environment.as<IConfigurationEnvironmentView>());
+            result.emplace_back(*make_self<implementation::ConfigurationEnvironment>(data.Environment));
         }
         return result;
     }
 
-    Windows::Foundation::Collections::IVector<IConfigurationEnvironmentView> ConfigurationSet::GetUnitEnvironments()
+    Windows::Foundation::Collections::IVector<Configuration::ConfigurationEnvironment> ConfigurationSet::GetUnitEnvironments()
     {
         return single_threaded_vector(GetUnitEnvironmentsInternal());
     }

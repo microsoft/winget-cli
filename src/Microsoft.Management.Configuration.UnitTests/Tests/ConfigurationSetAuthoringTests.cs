@@ -219,7 +219,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             this.EnsureEnvironmentEquivalence(environments, uniqueEnvironments);
         }
 
-        private void EnsureEnvironmentEquivalence(Helpers.ConfigurationEnvironmentData[] expectedEnvironments, IList<IConfigurationEnvironmentView>? actualEnvironments)
+        private void EnsureEnvironmentEquivalence(Helpers.ConfigurationEnvironmentData[] expectedEnvironments, IList<ConfigurationEnvironment>? actualEnvironments)
         {
             Assert.NotNull(actualEnvironments);
             Assert.Equal(expectedEnvironments.Length, actualEnvironments.Count);
@@ -230,7 +230,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 for (int i = 0; i < expectedEnvironments.Length; i++)
                 {
                     var expected = expectedEnvironments[i];
-                    if (actual.Context == expected.Context && actual.ProcessorIdentifier == expected.ProcessorIdentifier && expected.PropertiesEqual(actual.ProcessorPropertiesView))
+                    if (actual.Context == expected.Context && actual.ProcessorIdentifier == expected.ProcessorIdentifier && expected.PropertiesEqual(actual.ProcessorProperties))
                     {
                         foundEnvironments[i] = true;
                         break;

@@ -1178,7 +1178,7 @@ resources:
                 Assert.NotNull(expectedEnvironment);
                 Assert.Equal(expectedEnvironment.Context, unit.Environment.Context);
                 Assert.Equal(expectedEnvironment.ProcessorIdentifier, unit.Environment.ProcessorIdentifier);
-                Assert.True(expectedEnvironment.PropertiesEqual(unit.Environment.As<IConfigurationEnvironmentView>().ProcessorPropertiesView));
+                Assert.True(expectedEnvironment.PropertiesEqual(unit.Environment.ProcessorProperties));
 
                 if (unit.Identifier == groupToCheck)
                 {

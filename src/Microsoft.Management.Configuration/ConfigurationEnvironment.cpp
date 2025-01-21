@@ -7,6 +7,17 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    namespace
+    {
+        template <typename T>
+        void DeepCopyEnvironmentFrom(implementation::ConfigurationEnvironment& self, const T& toDeepCopy)
+        {
+            self.Context(toDeepCopy.Context());
+            self.ProcessorIdentifier(toDeepCopy.ProcessorIdentifier());
+            self.ProcessorProperties(toDeepCopy.ProcessorProperties());
+        }
+    }
+
     ConfigurationEnvironment::ConfigurationEnvironment() :
         m_processorProperties(multi_threaded_map<hstring, hstring>())
     {}
@@ -20,17 +31,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         DeepCopy(toDeepCopy);
     }
 
-    ConfigurationEnvironment::ConfigurationEnvironment(IConfigurationEnvironmentView toDeepCopy)
+    ConfigurationEnvironment::ConfigurationEnvironment(const Configuration::ConfigurationEnvironment& toDeepCopy)
     {
-        m_context = toDeepCopy.Context();
-        m_processorIdentifier = toDeepCopy.ProcessorIdentifier();
-
-        std::map<hstring, hstring> properties;
-        for(const auto& property : toDeepCopy.ProcessorPropertiesView())
-        {
-            properties.emplace(property.Key(), property.Value());
-        }
-        m_processorProperties = multi_threaded_map(std::move(properties));
+        DeepCopyEnvironmentFrom(*this, toDeepCopy);
     }
 
     SecurityContext ConfigurationEnvironment::Context() const
@@ -48,7 +51,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_processorIdentifier;
     }
 
-    void ConfigurationEnvironment::ProcessorIdentifier(hstring value)
+    void ConfigurationEnvironment::ProcessorIdentifier(const hstring& value)
     {
         m_processorIdentifier = value;
     }
@@ -58,18 +61,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_processorProperties;
     }
 
-    Windows::Foundation::Collections::IMapView<hstring, hstring> ConfigurationEnvironment::ProcessorPropertiesView() const
-    {
-        return m_processorProperties.GetView();
-    }
-
     void ConfigurationEnvironment::DeepCopy(const implementation::ConfigurationEnvironment& toDeepCopy)
     {
-        m_context = toDeepCopy.m_context;
-        m_processorIdentifier = toDeepCopy.m_processorIdentifier;
+        DeepCopyEnvironmentFrom(*this, toDeepCopy);
+    }
 
+    void ConfigurationEnvironment::ProcessorProperties(const Windows::Foundation::Collections::IMap<hstring, hstring>& values)
+    {
         std::map<hstring, hstring> properties;
-        for (const auto& property : toDeepCopy.m_processorProperties)
+        for (const auto& property : values)
         {
             properties.emplace(property.Key(), property.Value());
         }
@@ -97,7 +97,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_context == SecurityContext::Current && m_processorIdentifier.empty() && m_processorProperties.Size() == 0;
     }
 
-    com_ptr<ConfigurationEnvironment> ConfigurationEnvironment::CalculateCommonEnvironment(const std::vector<IConfigurationEnvironmentView>& environments)
+    com_ptr<ConfigurationEnvironment> ConfigurationEnvironment::CalculateCommonEnvironment(const std::vector<Configuration::ConfigurationEnvironment>& environments)
     {
         com_ptr<ConfigurationEnvironment> result;
 
@@ -111,7 +111,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             for (size_t i = 1; i < environments.size(); ++i)
             {
-               const IConfigurationEnvironmentView& environment = environments[i];
+               const Configuration::ConfigurationEnvironment& environment = environments[i];
 
                if (result->m_context != environment.Context())
                {
@@ -123,7 +123,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                    result->m_processorIdentifier.clear();
                }
 
-               if (!AreEqual(result->m_processorProperties.GetView(), environment.ProcessorPropertiesView()))
+               if (!AreEqual(result->m_processorProperties, environment.ProcessorProperties()))
                {
                    result->m_processorProperties = single_threaded_map<hstring, hstring>();
                }
@@ -139,7 +139,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return result;
     }
 
-    bool ConfigurationEnvironment::AreEqual(const Windows::Foundation::Collections::IMapView<hstring, hstring>& a, const Windows::Foundation::Collections::IMapView<hstring, hstring>& b)
+    bool ConfigurationEnvironment::AreEqual(const Windows::Foundation::Collections::IMap<hstring, hstring>& a, const Windows::Foundation::Collections::IMap<hstring, hstring>& b)
     {
         uint32_t a_size = a ? a.Size() : 0;
         uint32_t b_size = b ? b.Size() : 0;

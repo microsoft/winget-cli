@@ -46,8 +46,5 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         static void WriteYamlStringValueIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, hstring value);
 
         std::wstring_view GetSchemaVersionCommentPrefix();
-
-    private:
-
     };
 }
