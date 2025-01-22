@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "DownloadCommand.h"
+#include "Workflows/CompletionFlow.h"
 #include "Workflows/DownloadFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/PromptFlow.h"
@@ -28,7 +29,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Channel),
             Argument::ForType(Args::Type::Source),
             Argument{ Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
-            Argument::ForType(Args::Type::InstallArchitecture),
+            Argument::ForType(Args::Type::InstallerArchitecture),
             Argument::ForType(Args::Type::InstallerType),
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::Locale),
@@ -52,6 +53,35 @@ namespace AppInstaller::CLI
     Resource::LocString DownloadCommand::LongDescription() const
     {
         return { Resource::String::DownloadCommandLongDescription };
+    }
+
+    void DownloadCommand::Complete(Context& context, Args::Type valueType) const
+    {
+        switch (valueType)
+        {
+        case Args::Type::Query:
+        case Args::Type::Manifest:
+        case Args::Type::Id:
+        case Args::Type::Name:
+        case Args::Type::Moniker:
+        case Args::Type::Version:
+        case Args::Type::Channel:
+        case Args::Type::Source:
+            context <<
+                Workflow::CompleteWithSingleSemanticsForValue(valueType);
+            break;
+        case Args::Type::InstallerArchitecture:
+        case Args::Type::Locale:
+            // May well move to CompleteWithSingleSemanticsForValue,
+            // but for now output nothing.
+            context <<
+                Workflow::CompleteWithEmptySet;
+            break;
+        case Args::Type::Log:
+        case Args::Type::DownloadDirectory:
+            // Intentionally output nothing to allow pass through to filesystem.
+            break;
+        }
     }
 
     Utility::LocIndView DownloadCommand::HelpLink() const

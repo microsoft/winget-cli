@@ -85,6 +85,7 @@ namespace AppInstaller::CLI::Workflow
             static std::unique_ptr<MachineArchitectureComparator> Create(const Execution::Context& context, const Repository::IPackageVersion::Metadata& metadata)
             {
                 std::vector<Utility::Architecture> allowedArchitectures;
+                bool skipApplicabilityCheck = false;
 
                 if (context.Contains(Execution::Data::AllowedArchitectures))
                 {
@@ -95,6 +96,12 @@ namespace AppInstaller::CLI::Workflow
                 {
                     // Arguments provided in command line
                     allowedArchitectures.emplace_back(Utility::ConvertToArchitectureEnum(context.Args.GetArg(Execution::Args::Type::InstallArchitecture)));
+                }
+                else if (context.Args.Contains(Execution::Args::Type::InstallerArchitecture))
+                {
+                    // Arguments provided in command line. Also skips applicability check.
+                    allowedArchitectures.emplace_back(Utility::ConvertToArchitectureEnum(context.Args.GetArg(Execution::Args::Type::InstallerArchitecture)));
+                    skipApplicabilityCheck = true;
                 }
                 else
                 {
@@ -152,7 +159,7 @@ namespace AppInstaller::CLI::Workflow
                         }
 
                         // If the architecture is applicable and not already in our result set...
-                        if (Utility::IsApplicableArchitecture(architecture) != Utility::InapplicableArchitecture &&
+                        if ((skipApplicabilityCheck || Utility::IsApplicableArchitecture(architecture) != Utility::InapplicableArchitecture) &&
                             Utility::IsApplicableArchitecture(architecture, result) == Utility::InapplicableArchitecture)
                         {
                             result.push_back(architecture);

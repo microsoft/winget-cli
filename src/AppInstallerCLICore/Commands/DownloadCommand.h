@@ -14,6 +14,8 @@ namespace AppInstaller::CLI
         Resource::LocString ShortDescription() const override;
         Resource::LocString LongDescription() const override;
 
+        void Complete(Execution::Context& context, Execution::Args::Type valueType) const override;
+
         Utility::LocIndView HelpLink() const override;
 
     protected:

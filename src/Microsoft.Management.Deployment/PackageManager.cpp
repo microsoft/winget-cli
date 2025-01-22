@@ -658,7 +658,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 auto convertedArchitecture = GetUtilityArchitecture(architecture);
                 if (convertedArchitecture)
                 {
-                    context->Args.AddArg(Execution::Args::Type::InstallArchitecture, ToString(convertedArchitecture.value()));
+                    context->Args.AddArg(Execution::Args::Type::InstallerArchitecture, ToString(convertedArchitecture.value()));
                 }
             }
 

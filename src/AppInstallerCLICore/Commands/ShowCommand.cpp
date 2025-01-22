@@ -26,7 +26,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Source),
             Argument::ForType(Execution::Args::Type::Exact),
             Argument{ Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
-            Argument::ForType(Execution::Args::Type::InstallArchitecture),
+            Argument::ForType(Execution::Args::Type::InstallerArchitecture),
             Argument::ForType(Execution::Args::Type::InstallerType),
             Argument::ForType(Execution::Args::Type::Locale),
             Argument::ForType(Execution::Args::Type::ListVersions),
@@ -49,8 +49,19 @@ namespace AppInstaller::CLI
 
     void ShowCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
     {
-        context <<
-            Workflow::CompleteWithSingleSemanticsForValue(valueType);
+        switch (valueType)
+        {
+        case Args::Type::InstallerArchitecture:
+        case Args::Type::Locale:
+            // May well move to CompleteWithSingleSemanticsForValue,
+            // but for now output nothing.
+            context <<
+                Workflow::CompleteWithEmptySet;
+            break;
+        default:
+            context <<
+                Workflow::CompleteWithSingleSemanticsForValue(valueType);
+        }
     }
 
     Utility::LocIndView ShowCommand::HelpLink() const
