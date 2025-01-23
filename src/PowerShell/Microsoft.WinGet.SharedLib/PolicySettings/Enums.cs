@@ -98,9 +98,9 @@ namespace Microsoft.WinGet.SharedLib.PolicySettings
         Configuration,
 
         /// <summary>
-        /// Enabled experiments.
+        /// Enabled experimentation.
         /// </summary>
-        Experiments,
+        Experimentation,
     }
 
     /// <summary>

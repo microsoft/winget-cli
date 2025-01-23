@@ -81,10 +81,10 @@ namespace AppInstaller::Logging
             }
         }
 
-        std::wstring GetExperimentsJson(const Settings:: ExperimentStateCache& experiments)
+        std::wstring GetExperimentationJson(const Settings:: ExperimentStateCache& experimentation)
         {
             Json::Value root;
-            for (const auto& experiment : experiments)
+            for (const auto& experiment : experimentation)
             {
                 auto name = std::string(Settings::Experiment::GetExperiment(experiment.first).JsonName());
                 root[name] = experiment.second.ToJson();
@@ -787,7 +787,7 @@ namespace AppInstaller::Logging
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-    void TelemetryTraceLogger::ResetExperiments()
+    void TelemetryTraceLogger::ResetExperimentCache()
     {
         m_summary.ExperimentCache.clear();
     }
@@ -806,7 +806,7 @@ namespace AppInstaller::Logging
 
             if (m_useSummary)
             {
-                auto experimentsJson = GetExperimentsJson(m_summary.ExperimentCache);
+                auto experimentationJson = GetExperimentationJson(m_summary.ExperimentCache);
 
                 TraceLoggingWriteActivity(
                     g_hTraceProvider,
@@ -873,7 +873,7 @@ namespace AppInstaller::Logging
                     AICLI_TraceLoggingStringView(m_summary.RepairExecutionType, "RepairExecutionType"),
                     TraceLoggingUInt32(m_summary.RepairErrorCode, "RepairErrorCode"),
                     TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage | PDT_SoftwareSetupAndInventory),
-                    AICLI_TraceLoggingJsonWString(experimentsJson, "ExperimentsJson"),
+                    AICLI_TraceLoggingJsonWString(experimentationJson, "ExperimentationJson"),
                     TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
             }
         }

@@ -274,7 +274,7 @@ namespace AppInstaller::Logging
         Settings::ExperimentState GetExperimentState(AppInstaller::Experiment::ExperimentKey key);
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-        void ResetExperiments();
+        void ResetExperimentCache();
 #endif
 
     protected:

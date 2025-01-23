@@ -43,7 +43,7 @@ namespace AppInstaller::Settings
         static ExperimentState GetState(AppInstaller::Experiment::ExperimentKey feature);
         static ExperimentState GetStateInternal(AppInstaller::Experiment::ExperimentKey feature);
         static Experiment GetExperiment(AppInstaller::Experiment::ExperimentKey key);
-        static std::vector<Experiment> GetAllExperiments();
+        static std::vector<Experiment> GetExperimentation();
 
         const std::string Name() const { return m_name; }
         const std::string JsonName() const { return m_jsonName; }

@@ -21,62 +21,62 @@ TEST_CASE("Experiment_GroupPolicyControl", "[experiment]")
 {
     SECTION("Not configured")
     {
-        ExperimentsTest experiments;
+        ExperimentationTest experimentation;
         GroupPolicyTestOverride policies;
-        policies.SetState(TogglePolicy::Policy::Experiments, PolicyState::NotConfigured);
+        policies.SetState(TogglePolicy::Policy::Experimentation, PolicyState::NotConfigured);
         ASSERT_EXPERIMENT(true, ExperimentToggleSource::Default);
     }
 
     SECTION("Enabled")
     {
-        ExperimentsTest experiments;
+        ExperimentationTest experimentation;
         GroupPolicyTestOverride policies;
-        policies.SetState(TogglePolicy::Policy::Experiments, PolicyState::Enabled);
+        policies.SetState(TogglePolicy::Policy::Experimentation, PolicyState::Enabled);
         ASSERT_EXPERIMENT(true, ExperimentToggleSource::Default);
     }
 
     SECTION("Disabled")
     {
-        ExperimentsTest experiments;
+        ExperimentationTest experimentation;
         GroupPolicyTestOverride policies;
-        policies.SetState(TogglePolicy::Policy::Experiments, PolicyState::Disabled);
+        policies.SetState(TogglePolicy::Policy::Experimentation, PolicyState::Disabled);
         ASSERT_EXPERIMENT(false, ExperimentToggleSource::Policy);
     }
 }
 
 TEST_CASE("Experiment_GroupPolicyDisabled_ReturnFalse", "[experiment]")
 {
-    ExperimentsTest experiments;
+    ExperimentationTest experimentation;
     TestUserSettings settings;
-    settings.Set<Setting::Experiments>({{s_TestExperimentName, true}});
+    settings.Set<Setting::Experimentation>({{s_TestExperimentName, true}});
 
     // If the policy is disabled, then also the user settings should be ignored.
     GroupPolicyTestOverride policies;
-    policies.SetState(TogglePolicy::Policy::Experiments, PolicyState::Disabled);
+    policies.SetState(TogglePolicy::Policy::Experimentation, PolicyState::Disabled);
     ASSERT_EXPERIMENT(false, ExperimentToggleSource::Policy);
 }
 
 TEST_CASE("Experiment_GroupPolicyEnabled", "[experiment]")
 {
-    SECTION("Global experiments disabled in user settings")
+    SECTION("Global experimentation disabled in user settings")
     {
         GroupPolicyTestOverride policies;
-        policies.SetState(TogglePolicy::Policy::Experiments, PolicyState::Enabled);
-        ExperimentsTest experiments;
+        policies.SetState(TogglePolicy::Policy::Experimentation, PolicyState::Enabled);
+        ExperimentationTest experimentation;
         TestUserSettings settings;
-        settings.Set<Setting::AllowExperiments>(false);
-        settings.Set<Setting::Experiments>({{s_TestExperimentName, true}});
+        settings.Set<Setting::AllowExperimentation>(false);
+        settings.Set<Setting::Experimentation>({{s_TestExperimentName, true}});
         ASSERT_EXPERIMENT(false, ExperimentToggleSource::UserSettingGlobalControl);
     }
 
     SECTION("Individual experiment disabled in user settings")
     {
         GroupPolicyTestOverride policies;
-        policies.SetState(TogglePolicy::Policy::Experiments, PolicyState::Enabled);
-        ExperimentsTest experiments;
+        policies.SetState(TogglePolicy::Policy::Experimentation, PolicyState::Enabled);
+        ExperimentationTest experimentation;
         TestUserSettings settings;
-        settings.Set<Setting::AllowExperiments>(true);
-        settings.Set<Setting::Experiments>({{s_TestExperimentName, false}});
+        settings.Set<Setting::AllowExperimentation>(true);
+        settings.Set<Setting::Experimentation>({{s_TestExperimentName, false}});
         ASSERT_EXPERIMENT(false, ExperimentToggleSource::UserSettingIndividualControl);
     }
 }
@@ -86,52 +86,52 @@ TEST_CASE("Experiment_UserSettingsIndividualControl", "[experiment]")
     SECTION("Individual experiment not configured in user settings")
     {
         // Default value are used
-        ExperimentsTest experiments;
+        ExperimentationTest experimentation;
         ASSERT_EXPERIMENT(true, ExperimentToggleSource::Default);
     }
 
     SECTION("Individual experiment enabled in user settings")
     {
-        ExperimentsTest experiments;
+        ExperimentationTest experimentation;
         TestUserSettings settings;
-        settings.Set<Setting::Experiments>({{s_TestExperimentName, true}});
+        settings.Set<Setting::Experimentation>({{s_TestExperimentName, true}});
         ASSERT_EXPERIMENT(true, ExperimentToggleSource::UserSettingIndividualControl);
     }
 
     SECTION("Individual experiment disabled in user settings")
     {
-        ExperimentsTest experiments;
+        ExperimentationTest experimentation;
         TestUserSettings settings;
-        settings.Set<Setting::Experiments>({{s_TestExperimentName, false}});
+        settings.Set<Setting::Experimentation>({{s_TestExperimentName, false}});
         ASSERT_EXPERIMENT(false, ExperimentToggleSource::UserSettingIndividualControl);
     }
 }
 
 TEST_CASE("Experiment_UserSettingsGlobalControl", "[experiment]")
 {
-    SECTION("Global experiments not configured in user settings")
+    SECTION("Global experimentation not configured in user settings")
     {
-        ExperimentsTest experiments;
+        ExperimentationTest experimentation;
         TestUserSettings settings;
-        settings.Set<Setting::Experiments>({{s_TestExperimentName, true}});
+        settings.Set<Setting::Experimentation>({{s_TestExperimentName, true}});
         ASSERT_EXPERIMENT(true, ExperimentToggleSource::UserSettingIndividualControl);
     }
 
-    SECTION("Global experiments enabled in user settings")
+    SECTION("Global experimentation enabled in user settings")
     {
-        ExperimentsTest experiments;
+        ExperimentationTest experimentation;
         TestUserSettings settings;
-        settings.Set<Setting::AllowExperiments>(true);
-        settings.Set<Setting::Experiments>({{s_TestExperimentName, true}});
+        settings.Set<Setting::AllowExperimentation>(true);
+        settings.Set<Setting::Experimentation>({{s_TestExperimentName, true}});
         ASSERT_EXPERIMENT(true, ExperimentToggleSource::UserSettingIndividualControl);
     }
 
-    SECTION("Global experiments disabled in user settings")
+    SECTION("Global experimentation disabled in user settings")
     {
-        ExperimentsTest experiments;
+        ExperimentationTest experimentation;
         TestUserSettings settings;
-        settings.Set<Setting::AllowExperiments>(false);
-        settings.Set<Setting::Experiments>({{s_TestExperimentName, true}});
+        settings.Set<Setting::AllowExperimentation>(false);
+        settings.Set<Setting::Experimentation>({{s_TestExperimentName, true}});
         ASSERT_EXPERIMENT(false, ExperimentToggleSource::UserSettingGlobalControl);
     }
 }

@@ -897,8 +897,8 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
     <value>Enable Windows App Installer Experimental Features</value>
   </data>
-  <data name="PolicyEnableExperiments" xml:space="preserve">
-    <value>Enable Windows App Installer Experiments</value>
+  <data name="PolicyEnableExperimentation" xml:space="preserve">
+    <value>Enable Windows Package Manager Feature Experimentation</value>
   </data>
   <data name="PolicyEnableMSStoreSource" xml:space="preserve">
     <value>Enable Windows App Installer Microsoft Store Source</value>

@@ -73,8 +73,8 @@ namespace TestCommon
         m_toggles[policy] = state;
     }
 
-    ExperimentsTest::~ExperimentsTest()
+    ExperimentationTest::~ExperimentationTest()
     {
-        AppInstaller::Logging::Telemetry().ResetExperiments();
+        AppInstaller::Logging::Telemetry().ResetExperimentCache();
     }
 }

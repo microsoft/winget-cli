@@ -21,24 +21,24 @@ namespace AppInstaller::Settings
             }
 
             auto experiment = Experiment::GetExperiment(key);
-            if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::Experiments))
+            if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::Experimentation))
             {
                 AICLI_LOG(Core, Verbose, << "Experiment " << experiment.Name() <<
-                    " is disabled due to group policy: " << TogglePolicy::GetPolicy(TogglePolicy::Policy::Experiments).RegValueName());
+                    " is disabled due to group policy: " << TogglePolicy::GetPolicy(TogglePolicy::Policy::Experimentation).RegValueName());
                 return { false, ExperimentToggleSource::Policy };
             }
 
             auto experimentJsonName = experiment.JsonName();
-            if (!userSettings.Get<Setting::AllowExperiments>())
+            if (!userSettings.Get<Setting::AllowExperimentation>())
             {
                 AICLI_LOG(Core, Verbose, << "Experiment " << experiment.Name() <<
-                    " is disabled due to experiments not allowed from user settings");
+                    " is disabled due to experimentation not allowed from user settings");
                 return { false, ExperimentToggleSource::UserSettingGlobalControl };
             }
 
-            auto userSettingsExperiments = userSettings.Get<Setting::Experiments>();
-            auto userSettingsExperimentIter = userSettingsExperiments.find(experimentJsonName);
-            if (userSettingsExperimentIter != userSettingsExperiments.end())
+            auto userSettingsExperimentation = userSettings.Get<Setting::Experimentation>();
+            auto userSettingsExperimentIter = userSettingsExperimentation.find(experimentJsonName);
+            if (userSettingsExperimentIter != userSettingsExperimentation.end())
             {
                 auto isEnabled = userSettingsExperimentIter->second;
                 AICLI_LOG(Core, Verbose, << "Experiment " << experiment.Name() << " is set to " << (isEnabled ? "true" : "false") << " in user settings");
@@ -102,7 +102,7 @@ namespace AppInstaller::Settings
         }
     }
 
-    std::vector<Experiment> Experiment::GetAllExperiments()
+    std::vector<Experiment> Experiment::GetExperimentation()
     {
         std::vector<Experiment> result;
 

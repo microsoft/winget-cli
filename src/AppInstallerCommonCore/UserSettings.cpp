@@ -304,8 +304,8 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortablePackage)
         WINGET_VALIDATE_PASS_THROUGH(NetworkWingetAlternateSourceURL)
         WINGET_VALIDATE_PASS_THROUGH(MaxResumes)
-        WINGET_VALIDATE_PASS_THROUGH(Experiments)
-        WINGET_VALIDATE_PASS_THROUGH(AllowExperiments)
+        WINGET_VALIDATE_PASS_THROUGH(Experimentation)
+        WINGET_VALIDATE_PASS_THROUGH(AllowExperimentation)
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)

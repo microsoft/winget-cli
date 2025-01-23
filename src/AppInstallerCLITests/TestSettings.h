@@ -24,7 +24,7 @@ namespace TestCommon
     const std::wstring EnableWindowsPackageManagerCommandLineInterfaces = L"EnableWindowsPackageManagerCommandLineInterfaces";
     const std::wstring ConfigurationPolicyValueName = L"EnableWindowsPackageManagerConfiguration";
     const std::wstring ProxyCommandLineOptionsPolicyValueName = L"EnableWindowsPackageManagerProxyCommandLineOptions";
-    const std::wstring EnableExperimentsPolicyValueName = L"EnableExperiments";
+    const std::wstring EnableExperimentationPolicyValueName = L"EnableExperimentation";
 
     const std::wstring SourceUpdateIntervalPolicyValueName = L"SourceAutoUpdateInterval";
     const std::wstring SourceUpdateIntervalPolicyOldValueName = L"SourceAutoUpdateIntervalInMinutes";
@@ -49,9 +49,9 @@ namespace TestCommon
     {
     };
 
-    struct ExperimentsTest
+    struct ExperimentationTest
     {
-        ~ExperimentsTest();
+        ~ExperimentationTest();
     };
 
     struct GroupPolicyTestOverride : AppInstaller::Settings::GroupPolicy

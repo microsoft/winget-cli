@@ -112,9 +112,9 @@ namespace AppInstaller::Settings
         ConfigureDefaultModuleRoot,
         // Interactivity
         InteractivityDisable,
-        // Experiments
-        Experiments,
-        AllowExperiments,
+        // Experimentation
+        Experimentation,
+        AllowExperimentation,
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Debug
         EnableSelfInitiatedMinidump,
@@ -208,10 +208,10 @@ namespace AppInstaller::Settings
         // Interactivity
         SETTINGMAPPING_SPECIALIZATION(Setting::InteractivityDisable, bool, bool, false, ".interactivity.disable"sv);
 
-        // Experiments
-        using Experiments_t = std::map<std::string, bool>;
-        SETTINGMAPPING_SPECIALIZATION(Setting::Experiments, Experiments_t, Experiments_t, {}, ".experiments"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::AllowExperiments, bool, bool, true, ".allowExperiments"sv);
+        // Experimentation
+        using Experimentation_t = std::map<std::string, bool>;
+        SETTINGMAPPING_SPECIALIZATION(Setting::Experimentation, Experimentation_t, Experimentation_t, {}, ".experimentation"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::AllowExperimentation, bool, bool, true, ".allowExperimentation"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>

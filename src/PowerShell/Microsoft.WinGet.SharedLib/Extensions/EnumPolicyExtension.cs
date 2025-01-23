@@ -50,8 +50,8 @@ namespace Microsoft.WinGet.SharedLib.Extensions
                     return GroupPolicyResource.PolicyEnableWindowsPackageManagerCommandLineInterfaces;
                 case Policy.Configuration:
                     return GroupPolicyResource.PolicyEnableWinGetConfiguration;
-                case Policy.Experiments:
-                    return GroupPolicyResource.PolicyEnableExperiments;
+                case Policy.Experimentation:
+                    return GroupPolicyResource.PolicyEnableExperimentation;
                 default:
                     return string.Empty;
             }

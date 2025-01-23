@@ -306,8 +306,8 @@
         }
       }
     },
-    "Experiments": {
-      "description": "Experiments",
+    "Experimentation": {
+      "description": "Feature Experimentation",
       "type": "object",
       "properties": {
         "CDN": {
@@ -317,8 +317,8 @@
         }
       }
     },
-    "AllowExperiments": {
-      "description": "Controls whether experiments are allowed or not",
+    "AllowExperimentation": {
+      "description": "Controls whether feature experimentation is allowed or not",
       "type": "boolean",
       "default": true
     }
@@ -398,13 +398,13 @@
     },
     {
       "properties": {
-        "experiments": { "$ref": "#/definitions/Experiments" }
+        "experimentation": { "$ref": "#/definitions/Experimentation" }
       },
       "additionalItems": true
     },
     {
       "properties": {
-        "allowExperiments": { "$ref": "#/definitions/AllowExperiments" }
+        "allowExperimentation": { "$ref": "#/definitions/AllowExperimentation" }
       },
       "additionalItems": true
     }

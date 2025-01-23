@@ -43,7 +43,7 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
-    <policy name="EnableExperiments" class="Machine" displayName="$(string.EnableExperiments)" explainText="$(string.EnableExperimentsExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableExperiments">
+    <policy name="EnableExperimentation" class="Machine" displayName="$(string.EnableExperimentation)" explainText="$(string.EnableExperimentationExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableExperimentation">
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
       <enabledValue>
