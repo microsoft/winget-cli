@@ -861,7 +861,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Ignore unavailable packages</value>
   </data>
   <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
-    <value>Include package versions in produced file</value>
+    <value>Include package versions in export file</value>
   </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>Ignore package versions from import file</value>
@@ -2976,12 +2976,16 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>Getting configuration settings...</value>
   </data>
-  <data name="ConfigureExportArgumentError" xml:space="preserve">
-    <value>At least --packageId and/or --module with --resource must be provided</value>
-    <comment>{Locked="--packageId,--module, --resource"}</comment>
+  <data name="ConfigureExportArgumentRequiredError" xml:space="preserve">
+    <value>At least --packageId and/or --module with --resource must be provided. Or use --all to export all package configurations.</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportArgumentConflictWithAllError" xml:space="preserve">
+    <value>Arguments --packageId, --module and --resource cannot be used with --all.</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
   </data>
   <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
-    <value>Exports configuration resources to a configuration file. When used with --packageId, exports a WinGetPackage resource of the given package id. When used with --module and --resource, gets the settings of the resource and exports it to the configuration file. If the output configuration file already exists, appends the exported configuration resources.</value>
+    <value>Exports configuration resources to a configuration file. When used with --all, exports all package configurations. When used with --packageId, exports a WinGetPackage resource of the given package id. When used with --module and --resource, gets the settings of the resource and exports it to the configuration file. If the output configuration file already exists, appends the exported configuration resources.</value>
     <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
   </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
@@ -2995,6 +2999,9 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="ConfigureExportResource" xml:space="preserve">
     <value>The configuration resource to export.</value>
+  </data>
+  <data name="ConfigureExportAll" xml:space="preserve">
+    <value>Exports all package configurations.</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_GET_FAILED" xml:space="preserve">
     <value>The configuration unit failed getting its properties.</value>

@@ -97,11 +97,17 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ValidateAllGoodMessage(Execution::Context& context);
 
-    // Adds a configuration unit with the winget package and/or exports resource given.
+    // Search source for package(s) to be exported in configuration file.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: PackageCollection
+    void SearchSourceForPackageExport(Execution::Context& context);
+
+    // Adds configuration unit(s) with the winget package and/or exports resource given to configuration set.
     // Required Args: None
     // Inputs: ConfigurationProcessor, ConfigurationSet
     // Outputs: None
-    void AddWinGetPackageAndResource(Execution::Context& context);
+    void PopulateConfigurationSetForExport(Execution::Context& context);
 
     // Write the configuration file.
     // Required Args: OutputFile

@@ -17,6 +17,10 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::ConfigurationExportModule, Resource::String::ConfigureExportModule },
             Argument{ Execution::Args::Type::ConfigurationExportResource, Resource::String::ConfigureExportResource },
             Argument{ Execution::Args::Type::ConfigurationModulePath, Resource::String::ConfigurationModulePath },
+            Argument{ Execution::Args::Type::Source, Resource::String::ExportSourceArgumentDescription, ArgumentType::Standard },
+            Argument{ Execution::Args::Type::IncludeVersions, Resource::String::ExportIncludeVersionsArgumentDescription, ArgumentType::Flag },
+            Argument{ Execution::Args::Type::ConfigurationExportAll, Resource::String::ConfigureExportAll, ArgumentType::Flag },
+            Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
         };
     }
 
@@ -39,9 +43,10 @@ namespace AppInstaller::CLI
     {
         context <<
             VerifyIsFullPackage <<
+            SearchSourceForPackageExport <<
             CreateConfigurationProcessor <<
             CreateOrOpenConfigurationSet <<
-            AddWinGetPackageAndResource <<
+            PopulateConfigurationSetForExport <<
             WriteConfigFile;
     }
 
@@ -49,16 +54,19 @@ namespace AppInstaller::CLI
     {
         Configuration::ValidateCommonArguments(execArgs);
 
-        bool validInputArgs = false;
-        if (execArgs.Contains(Execution::Args::Type::ConfigurationExportModule, Execution::Args::Type::ConfigurationExportResource) ||
-            execArgs.Contains(Execution::Args::Type::ConfigurationExportPackageId))
+        if (!execArgs.Contains(Execution::Args::Type::ConfigurationExportModule, Execution::Args::Type::ConfigurationExportResource) &&
+            !execArgs.Contains(Execution::Args::Type::ConfigurationExportPackageId) &&
+            !execArgs.Contains(Execution::Args::Type::ConfigurationExportAll))
         {
-            validInputArgs = true;
+            throw CommandException(Resource::String::ConfigureExportArgumentRequiredError);
         }
 
-        if (!validInputArgs)
+        if (execArgs.Contains(Execution::Args::Type::ConfigurationExportAll) &&
+            (execArgs.Contains(Execution::Args::Type::ConfigurationExportPackageId) ||
+             execArgs.Contains(Execution::Args::Type::ConfigurationExportModule) ||
+             execArgs.Contains(Execution::Args::Type::ConfigurationExportResource)))
         {
-            throw CommandException(Resource::String::ConfigureExportArgumentError);
+            throw CommandException(Resource::String::ConfigureExportArgumentConflictWithAllError);
         }
     }
 }
