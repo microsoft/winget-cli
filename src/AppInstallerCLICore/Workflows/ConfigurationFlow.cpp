@@ -1101,10 +1101,11 @@ namespace AppInstaller::CLI::Workflow
         ConfigurationUnit CreateWinGetPackageUnit(const PackageCollection::Package& package, const PackageCollection::Source& source, bool includeVersion, const std::optional<ConfigurationUnit>& dependentUnit)
         {
             std::wstring packageIdWide = Utility::ConvertToUTF16(package.Id);
+            std::wstring sourceNameWide = Utility::ConvertToUTF16(source.Details.Name);
 
             ConfigurationUnit unit;
             unit.Type(s_Unit_WinGetPackage);
-            unit.Identifier(packageIdWide);
+            unit.Identifier(sourceNameWide + L'_' + packageIdWide);
             unit.Intent(ConfigurationUnitIntent::Apply);
 
             auto description = Resource::String::ConfigureExportUnitInstallDescription(Utility::LocIndView{ package.Id });
@@ -1117,7 +1118,7 @@ namespace AppInstaller::CLI::Workflow
 
             ValueSet settings;
             settings.Insert(s_Setting_WinGetPackage_Id, PropertyValue::CreateString(packageIdWide));
-            settings.Insert(s_Setting_WinGetPackage_Source, PropertyValue::CreateString(Utility::ConvertToUTF16(source.Details.Name)));
+            settings.Insert(s_Setting_WinGetPackage_Source, PropertyValue::CreateString(sourceNameWide));
             if (includeVersion)
             {
                 settings.Insert(s_Setting_WinGetPackage_Version, PropertyValue::CreateString(Utility::ConvertToUTF16(package.VersionAndChannel.GetVersion().ToString())));
