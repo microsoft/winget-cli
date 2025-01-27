@@ -1,0 +1,20 @@
+Id: AppInstallerTest.TestPackageExport
+Name: TestPackageExport
+Version: 1.0.0.0
+Publisher: AppInstallerTest
+License: Test
+Installers:
+  - Arch: x86
+    Url: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    Sha256: <EXEHASH>
+    InstallerType: exe
+    ProductCode: '{92e3d4e5-6e3d-4ae4-b9f0-b7e0a5f25b91}'
+    Switches:
+      Custom: '/ProductID {92e3d4e5-6e3d-4ae4-b9f0-b7e0a5f25b91} /DisplayName TestPackageExport'
+      SilentWithProgress: /exeswp
+      Silent: /exesilent
+      Interactive: /exeinteractive
+      Language: /exeenus
+      Log: /LogFile <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
+ManifestVersion: 0.1.0

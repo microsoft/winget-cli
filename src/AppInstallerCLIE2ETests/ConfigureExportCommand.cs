@@ -28,7 +28,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.SetupTestSource(false);
             WinGetSettingsHelper.ConfigureFeature("configureExport", true);
             var installDir = TestCommon.GetRandomTestDir();
-            TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -v 1.0.0.0 --silent -l {installDir}");
+            TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestPackageExport -v 1.0.0.0 --silent -l {installDir}");
         }
 
         /// <summary>
@@ -39,18 +39,18 @@ namespace AppInstallerCLIE2ETests
         {
             TestCommon.TearDownTestSource();
             WinGetSettingsHelper.ConfigureFeature("configureExport", false);
-            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestExeInstaller");
+            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestPackageExport");
         }
 
         /// <summary>
         /// Export a specific package.
         /// </summary>
         [Test]
-        public void ExportTestExeInstaller()
+        public void ExportTestPackage()
         {
             var exportDir = TestCommon.GetRandomTestDir();
             var exportFile = Path.Combine(exportDir, "exported.yml");
-            var result = TestCommon.RunAICLICommand(Command, $"--package-id AppInstallerTest.TestExeInstaller -o {exportFile}");
+            var result = TestCommon.RunAICLICommand(Command, $"--package-id AppInstallerTest.TestPackageExport -o {exportFile}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(File.Exists(exportFile));
 
@@ -64,9 +64,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"));
 
             Assert.True(showResult.StdOut.Contains("WinGetPackage"));
-            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestExeInstaller]"));
+            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"));
             Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"));
-            Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestExeInstaller"));
+            Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"));
             Assert.True(showResult.StdOut.Contains($"source: {Constants.TestSourceName}"));
         }
 
@@ -74,11 +74,11 @@ namespace AppInstallerCLIE2ETests
         /// Export a specific package with version.
         /// </summary>
         [Test]
-        public void ExportTestExeInstallerWithVersion()
+        public void ExportTestPackageWithVersion()
         {
             var exportDir = TestCommon.GetRandomTestDir();
             var exportFile = Path.Combine(exportDir, "exported.yml");
-            var result = TestCommon.RunAICLICommand(Command, $"--package-id AppInstallerTest.TestExeInstaller --include-versions -o {exportFile}");
+            var result = TestCommon.RunAICLICommand(Command, $"--package-id AppInstallerTest.TestPackageExport --include-versions -o {exportFile}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(File.Exists(exportFile));
 
@@ -92,9 +92,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"));
 
             Assert.True(showResult.StdOut.Contains("WinGetPackage"));
-            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestExeInstaller]"));
+            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"));
             Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"));
-            Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestExeInstaller"));
+            Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"));
             Assert.True(showResult.StdOut.Contains($"source: {Constants.TestSourceName}"));
             Assert.True(showResult.StdOut.Contains("version: 1.0.0.0"));
         }
@@ -121,9 +121,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"));
 
             Assert.True(showResult.StdOut.Contains("WinGetPackage"));
-            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestExeInstaller]"));
+            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"));
             Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"));
-            Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestExeInstaller"));
+            Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"));
             Assert.True(showResult.StdOut.Contains($"source: {Constants.TestSourceName}"));
         }
 
@@ -147,7 +147,7 @@ namespace AppInstallerCLIE2ETests
         {
             var exportDir = TestCommon.GetRandomTestDir();
             var exportFile = Path.Combine(exportDir, "exported.yml");
-            var result = TestCommon.RunAICLICommand(Command, $"--all --package-id AppInstallerTest.TestExeInstaller -o {exportFile}");
+            var result = TestCommon.RunAICLICommand(Command, $"--all --package-id AppInstallerTest.TestPackageExport -o {exportFile}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS, result.ExitCode);
         }
     }
