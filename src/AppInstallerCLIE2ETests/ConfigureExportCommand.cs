@@ -140,7 +140,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Export all with specifc package id.
+        /// Export all with specific package id.
         /// </summary>
         [Test]
         public void ExportFailedWithAllAndSpecificPackage()

@@ -1896,7 +1896,7 @@ namespace AppInstaller::CLI::Workflow
     {
         ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
 
-        // When exporting single WinGetPackage unit, the WinGetPackage unit can be used as a dependant unit for following configuration unit.
+        // When exporting single WinGetPackage unit, the WinGetPackage unit can be used as a dependent unit for following configuration unit.
         // This is not used in export all scenario.
         std::optional<ConfigurationUnit> singlePackageUnit;
 
