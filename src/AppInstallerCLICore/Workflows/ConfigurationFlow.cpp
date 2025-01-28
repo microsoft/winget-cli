@@ -1084,7 +1084,6 @@ namespace AppInstaller::CLI::Workflow
             ValueSet directives;
             directives.Insert(s_Directive_Module, PropertyValue::CreateString(s_Module_WinGetClient));
             directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
-            directives.Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
             unit.Metadata(directives);
 
             ValueSet settings;
@@ -1113,7 +1112,6 @@ namespace AppInstaller::CLI::Workflow
             ValueSet directives;
             directives.Insert(s_Directive_Module, PropertyValue::CreateString(s_Module_WinGetClient));
             directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
-            directives.Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
             unit.Metadata(directives);
 
             ValueSet settings;
