@@ -13,6 +13,7 @@
     !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
     <WindowsSdkPackageVersion>10.0.22000.53</WindowsSdkPackageVersion>
+    <IncludeWindowsSDKRefFrameworkReferences>false</IncludeWindowsSDKRefFrameworkReferences>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -84,6 +85,25 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
+  <!-- Disable warnings from embedded/generated CsWinRT files. -->
+  <Target Name="DisableCsWinRTWarnings" AfterTargets="CsWinRTAddEmbeddedRuntime_Net5Sources">
+    <ItemGroup>
+      <WinGetCsWinRTGeneratedFiles Include="$(CsWinRTGeneratedFilesDir)*.cs" />
+    </ItemGroup>
+    <WriteLinesToFile File="%(WinGetCsWinRTGeneratedFiles.FullPath)"
+        Condition="$([System.IO.File]::Exists(%(WinGetCsWinRTGeneratedFiles.FullPath))) AND !$([System.IO.File]::ReadAllText(%(WinGetCsWinRTGeneratedFiles.FullPath)).StartsWith(&quot;// &lt;auto-generated /&gt;&quot;))"
+        Lines="$([System.String]::Concat(&quot;// &lt;auto-generated /&gt;&#xA;#pragma warning disable&#xA;&#xA;&quot;,$([System.IO.File]::ReadAllText(%(WinGetCsWinRTGeneratedFiles.FullPath)))))"
+        Overwrite="true"
+        Encoding="Unicode" />
+  </Target>
+
+  <!-- Remove the embedded module file that contains an unversioned SupportedOSPlatform attribute. -->
+  <Target Name="RemoveCsWinRTModuleFile" AfterTargets="CsWinRTIncludeProjection">
+    <ItemGroup>
+      <Compile Remove="$(CsWinRTGeneratedFilesDir)Module.cs" />
+    </ItemGroup>
+  </Target>
+
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -97,6 +117,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
+    <LangVersion>10</LangVersion>
     <DefineConstants>$(DefineConstants);POWERSHELL_WINDOWS</DefineConstants>
   </PropertyGroup>
 
@@ -118,7 +139,29 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
     <CsWinRTEmbedded>true</CsWinRTEmbedded>
-    <CsWinRTIncludes>Microsoft.Management.Deployment</CsWinRTIncludes>
+    <CsWinRTIncludes>
+      Microsoft.Management.Deployment;
+      Windows.ApplicationModel;
+      Windows.Data;
+      Windows.Devices;
+      Windows.Foundation;
+      Windows.Gaming;
+      Windows.Globalization;
+      Windows.Graphics;
+      Windows.Management;
+      Windows.Media;
+      Windows.Networking;
+      Windows.Perception;
+      Windows.Security;
+      Windows.Services;
+      Windows.Storage;
+      Windows.System;
+      Windows.UI;
+      Windows.Web;
+    </CsWinRTIncludes>
+    <CsWinRTExcludes>
+      Windows.Foundation.PropertyType;
+    </CsWinRTExcludes>
     <CsWinRTWindowsMetadata>$(TargetWindowsVersion)</CsWinRTWindowsMetadata>
     <!-- Ensure Support for Windows 10, Version 1809 -->
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
