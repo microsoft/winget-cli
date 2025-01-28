@@ -223,6 +223,8 @@ namespace AppInstaller::CLI
             return { type, "module"_liv };
         case Execution::Args::Type::ConfigurationExportResource:
             return { type, "resource"_liv };
+        case Execution::Args::Type::ConfigurationExportAll:
+            return { type, "all"_liv, 'r', "recurse"_liv };
         case Execution::Args::Type::ConfigurationHistoryItem:
             return { type, "history"_liv, 'h', ArgTypeCategory::ConfigurationSetChoice, ArgTypeExclusiveSet::ConfigurationSetChoice };
         case Execution::Args::Type::ConfigurationHistoryRemove:

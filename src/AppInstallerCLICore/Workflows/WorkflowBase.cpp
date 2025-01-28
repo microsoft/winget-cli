@@ -1105,7 +1105,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if (m_operationType == OperationType::Upgrade || m_operationType == OperationType::Uninstall || m_operationType == OperationType::Repair)
+                if (m_operationType == OperationType::Upgrade || m_operationType == OperationType::Uninstall || m_operationType == OperationType::Repair || m_operationType == OperationType::Export)
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
                     context << ReportMultiplePackageFoundResult;

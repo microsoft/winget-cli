@@ -135,6 +135,7 @@ namespace AppInstaller::CLI::Execution
             ConfigurationExportPackageId,
             ConfigurationExportModule,
             ConfigurationExportResource,
+            ConfigurationExportAll,
             ConfigurationHistoryItem,
             ConfigurationHistoryRemove,
             ConfigurationStatusWatch,

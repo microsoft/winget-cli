@@ -153,7 +153,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarningValueTruncated);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandShortDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportArgumentError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportAll);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportArgumentConflictWithAllError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportArgumentRequiredError);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportModule);

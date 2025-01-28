@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ConfigurationFlow.h"
+#include "ImportExportFlow.h"
 #include "PromptFlow.h"
 #include "TableOutput.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
@@ -42,13 +43,17 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_Directive_AllowPrerelease = L"allowPrerelease";
 
         constexpr std::wstring_view s_Unit_WinGetPackage = L"WinGetPackage";
+        constexpr std::wstring_view s_Unit_WinGetSource = L"WinGetSource";
 
         constexpr std::wstring_view s_Module_WinGetClient = L"Microsoft.WinGet.DSC";
 
-        constexpr std::wstring_view s_Setting_Id = L"id";
-        constexpr std::wstring_view s_Setting_Source = L"source";
+        constexpr std::wstring_view s_Setting_WinGetPackage_Id = L"id";
+        constexpr std::wstring_view s_Setting_WinGetPackage_Source = L"source";
+        constexpr std::wstring_view s_Setting_WinGetPackage_Version = L"version";
 
-        constexpr std::wstring_view s_WinGetSource = L"winget";
+        constexpr std::wstring_view s_Setting_WinGetSource_Name = L"name";
+        constexpr std::wstring_view s_Setting_WinGetSource_Arg = L"argument";
+        constexpr std::wstring_view s_Setting_WinGetSource_Type = L"type";
 
         Logging::Level ConvertLevel(DiagnosticLevel level)
         {
@@ -1064,36 +1069,71 @@ namespace AppInstaller::CLI::Workflow
             context.Get<Data::ConfigurationContext>().Set(result);
         }
 
-        std::optional<ConfigurationUnit> CreateWinGetUnit(const Execution::Context& context)
+        ConfigurationUnit CreateWinGetSourceUnit(const PackageCollection::Source& source)
         {
-            if (context.Args.Contains(Execution::Args::Type::ConfigurationExportPackageId))
+            std::string sourceUnitId = source.Details.Name + '_' + source.Details.Type;
+            std::wstring sourceUnitIdWide = Utility::ConvertToUTF16(sourceUnitId);
+
+            ConfigurationUnit unit;
+            unit.Type(s_Unit_WinGetSource);
+            unit.Identifier(sourceUnitIdWide);
+            unit.Intent(ConfigurationUnitIntent::Apply);
+
+            auto description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ sourceUnitId });
+
+            ValueSet directives;
+            directives.Insert(s_Directive_Module, PropertyValue::CreateString(s_Module_WinGetClient));
+            directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
+            unit.Metadata(directives);
+
+            ValueSet settings;
+            settings.Insert(s_Setting_WinGetSource_Name, PropertyValue::CreateString(Utility::ConvertToUTF16(source.Details.Name)));
+            settings.Insert(s_Setting_WinGetSource_Arg, PropertyValue::CreateString(Utility::ConvertToUTF16(source.Details.Arg)));
+            settings.Insert(s_Setting_WinGetSource_Type, PropertyValue::CreateString(Utility::ConvertToUTF16(source.Details.Type)));
+            unit.Settings(settings);
+
+            unit.Environment().Context(SecurityContext::Elevated);
+
+            return unit;
+        }
+
+        ConfigurationUnit CreateWinGetPackageUnit(const PackageCollection::Package& package, const PackageCollection::Source& source, bool includeVersion, const std::optional<ConfigurationUnit>& dependentUnit)
+        {
+            std::wstring packageIdWide = Utility::ConvertToUTF16(package.Id);
+            std::wstring sourceNameWide = Utility::ConvertToUTF16(source.Details.Name);
+
+            ConfigurationUnit unit;
+            unit.Type(s_Unit_WinGetPackage);
+            unit.Identifier(sourceNameWide + L'_' + packageIdWide);
+            unit.Intent(ConfigurationUnitIntent::Apply);
+
+            auto description = Resource::String::ConfigureExportUnitInstallDescription(Utility::LocIndView{ package.Id });
+
+            ValueSet directives;
+            directives.Insert(s_Directive_Module, PropertyValue::CreateString(s_Module_WinGetClient));
+            directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
+            unit.Metadata(directives);
+
+            ValueSet settings;
+            settings.Insert(s_Setting_WinGetPackage_Id, PropertyValue::CreateString(packageIdWide));
+            settings.Insert(s_Setting_WinGetPackage_Source, PropertyValue::CreateString(sourceNameWide));
+            if (includeVersion)
             {
-                // Maybe we can add some checks to validate the package id exists.
-                std::string packageId{ context.Args.GetArg(Args::Type::ConfigurationExportPackageId) };
-                std::wstring packageIdWide = Utility::ConvertToUTF16(packageId);
+                settings.Insert(s_Setting_WinGetPackage_Version, PropertyValue::CreateString(Utility::ConvertToUTF16(package.VersionAndChannel.GetVersion().ToString())));
+            }
+            unit.Settings(settings);
 
-                ConfigurationUnit unit;
-                unit.Type(s_Unit_WinGetPackage);
-                unit.Identifier(packageIdWide);
-                unit.Intent(ConfigurationUnitIntent::Apply);
+            // TODO: We may consider setting security environment based on installer elevation requirements?
 
-                auto description = Resource::String::ConfigureExportUnitInstallDescription(Utility::LocIndView{ packageId });
-
-                ValueSet directives;
-                directives.Insert(s_Directive_Module, PropertyValue::CreateString(s_Module_WinGetClient));
-                directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
-                directives.Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
-                unit.Metadata(directives);
-
-                ValueSet settings;
-                settings.Insert(s_Setting_Id, PropertyValue::CreateString(packageIdWide));
-                settings.Insert(s_Setting_Source, PropertyValue::CreateString(s_WinGetSource));
-                unit.Settings(settings);
-
-                return unit;
+            // Add dependency if needed.
+            if (dependentUnit.has_value())
+            {
+                auto dependencies = winrt::single_threaded_vector<winrt::hstring>();
+                dependencies.Append(dependentUnit.value().Identifier());
+                unit.Dependencies(std::move(dependencies));
             }
 
-            return {};
+            return unit;
         }
 
         GetConfigurationUnitSettingsResult GetUnitSettings(Execution::Context& context, ConfigurationUnit& unit)
@@ -1118,84 +1158,76 @@ namespace AppInstaller::CLI::Workflow
             return getResult;
         }
 
-        std::optional<ConfigurationUnit> CreateConfigurationUnit(Execution::Context& context, const std::optional<ConfigurationUnit> dependentUnit)
+        ConfigurationUnit CreateConfigurationUnit(Execution::Context& context, std::string_view moduleName, std::string_view resourceName, const std::optional<ConfigurationUnit>& dependentUnit)
         {
-            if (context.Args.Contains(Execution::Args::Type::ConfigurationExportModule, Execution::Args::Type::ConfigurationExportResource))
+            std::wstring moduleNameWide = Utility::ConvertToUTF16(moduleName);
+            std::wstring resourceNameWide = Utility::ConvertToUTF16(resourceName);
+
+            ConfigurationUnit unit;
+            unit.Type(resourceNameWide);
+
+            ValueSet directives;
+            directives.Insert(s_Directive_Module, PropertyValue::CreateString(moduleNameWide));
+
+            Utility::LocIndString description;
+            if (dependentUnit.has_value())
             {
-                std::string moduleName{ context.Args.GetArg(Args::Type::ConfigurationExportModule) };
-                std::wstring moduleNameWide = Utility::ConvertToUTF16(moduleName);
-
-                std::string resourceName{ context.Args.GetArg(Args::Type::ConfigurationExportResource) };
-                std::wstring resourceNameWide = Utility::ConvertToUTF16(resourceName);
-
-                ConfigurationUnit unit;
-                unit.Type(resourceNameWide);
-
-                ValueSet directives;
-                directives.Insert(s_Directive_Module, PropertyValue::CreateString(moduleNameWide));
-
-                Utility::LocIndString description;
-                if (dependentUnit.has_value())
-                {
-                    description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ Utility::ConvertToUTF8(dependentUnit.value().Identifier()) });
-                }
-                else
-                {
-                    description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ resourceName });
-                }
-
-                directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
-                unit.Metadata(directives);
-
-                // Call processor to get settings for the unit.
-                auto getResult = GetUnitSettings(context, unit);
-                winrt::hresult resultCode = getResult.ResultInformation().ResultCode();
-                if (FAILED(resultCode))
-                {
-                    // Retry if it fails with not found in the case the module is a pre-released one.
-                    bool isPreRelease = false;
-                    if (resultCode == WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY)
-                    {
-                        directives.Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
-                        unit.Metadata(directives);
-
-                        auto preReleaseResult = GetUnitSettings(context, unit);
-                        if (SUCCEEDED(preReleaseResult.ResultInformation().ResultCode()))
-                        {
-                            isPreRelease = true;
-                            getResult = preReleaseResult;
-                        }
-                        else
-                        {
-                            AICLI_LOG(Config, Error, << "Failed Get allowing prerelease modules");
-                            LogFailedGetConfigurationUnitDetails(unit, preReleaseResult.ResultInformation());
-                        }
-                    }
-
-                    if (!isPreRelease)
-                    {
-                        OutputUnitRunFailure(context, unit, getResult.ResultInformation());
-                        THROW_HR(WINGET_CONFIG_ERROR_GET_FAILED);
-                    }
-                }
-
-                unit.Settings(getResult.Settings());
-
-                // GetUnitSettings will set it to Inform.
-                unit.Intent(ConfigurationUnitIntent::Apply);
-
-                // Add dependency if needed.
-                if (dependentUnit.has_value())
-                {
-                    auto dependencies = winrt::single_threaded_vector<winrt::hstring>();
-                    dependencies.Append(dependentUnit.value().Identifier());
-                    unit.Dependencies(std::move(dependencies));
-                }
-
-                return unit;
+                description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ Utility::ConvertToUTF8(dependentUnit.value().Identifier()) });
+            }
+            else
+            {
+                description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ resourceName });
             }
 
-            return {};
+            directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
+            unit.Metadata(directives);
+
+            // Call processor to get settings for the unit.
+            auto getResult = GetUnitSettings(context, unit);
+            winrt::hresult resultCode = getResult.ResultInformation().ResultCode();
+            if (FAILED(resultCode))
+            {
+                // Retry if it fails with not found in the case the module is a pre-released one.
+                bool isPreRelease = false;
+                if (resultCode == WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY)
+                {
+                    directives.Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
+                    unit.Metadata(directives);
+
+                    auto preReleaseResult = GetUnitSettings(context, unit);
+                    if (SUCCEEDED(preReleaseResult.ResultInformation().ResultCode()))
+                    {
+                        isPreRelease = true;
+                        getResult = preReleaseResult;
+                    }
+                    else
+                    {
+                        AICLI_LOG(Config, Error, << "Failed Get allowing prerelease modules");
+                        LogFailedGetConfigurationUnitDetails(unit, preReleaseResult.ResultInformation());
+                    }
+                }
+
+                if (!isPreRelease)
+                {
+                    OutputUnitRunFailure(context, unit, getResult.ResultInformation());
+                    THROW_HR(WINGET_CONFIG_ERROR_GET_FAILED);
+                }
+            }
+
+            unit.Settings(getResult.Settings());
+
+            // GetUnitSettings will set it to Inform.
+            unit.Intent(ConfigurationUnitIntent::Apply);
+
+            // Add dependency if needed.
+            if (dependentUnit.has_value())
+            {
+                auto dependencies = winrt::single_threaded_vector<winrt::hstring>();
+                dependencies.Append(dependentUnit.value().Identifier());
+                unit.Dependencies(std::move(dependencies));
+            }
+
+            return unit;
         }
 
         bool HistorySetMatchesInput(const ConfigurationSet& set, const std::string& foldedInput)
@@ -1827,20 +1859,75 @@ namespace AppInstaller::CLI::Workflow
         context.Reporter.Info() << Resource::String::ConfigurationValidationFoundNoIssues << std::endl;
     }
 
-    void AddWinGetPackageAndResource(Execution::Context& context)
+    void SearchSourceForPackageExport(Execution::Context& context)
     {
-        auto wingetUnit = anon::CreateWinGetUnit(context);
-        auto configUnit = anon::CreateConfigurationUnit(context, wingetUnit);
-
-        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
-        if (wingetUnit.has_value())
+        if (!context.Args.Contains(Args::Type::ConfigurationExportAll) && !context.Args.Contains(Args::Type::ConfigurationExportPackageId))
         {
-            configContext.Set().Units().Append(wingetUnit.value());
+            // No package export needed.
+            return;
         }
 
-        if (configUnit.has_value())
+        context <<
+            OpenSource() <<
+            OpenCompositeSource(Repository::PredefinedSource::Installed);
+
+        if (context.Args.Contains(Args::Type::ConfigurationExportAll))
         {
-            configContext.Set().Units().Append(configUnit.value());
+            context <<
+                SearchSourceForMany <<
+                HandleSearchResultFailures <<
+                EnsureMatchesFromSearchResult(OperationType::Export) <<
+                SelectVersionsToExport;
+        }
+        else if (context.Args.Contains(Args::Type::ConfigurationExportPackageId))
+        {
+            context.Args.AddArg(Args::Type::Id, context.Args.GetArg(Args::Type::ConfigurationExportPackageId));
+            context <<
+                SearchSourceForSingle <<
+                Workflow::HandleSearchResultFailures <<
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Export) <<
+                SelectVersionsToExport;
+        }
+    }
+
+    void PopulateConfigurationSetForExport(Execution::Context& context)
+    {
+        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+
+        // When exporting single WinGetPackage unit, the WinGetPackage unit can be used as a dependent unit for following configuration unit.
+        // This is not used in export all scenario.
+        std::optional<ConfigurationUnit> singlePackageUnit;
+
+        for (const auto& source : context.Get<Execution::Data::PackageCollection>().Sources)
+        {
+            // Create WinGetSource unit for non well known source.
+            std::optional<ConfigurationUnit> sourceUnit;
+            if (!CheckForWellKnownSource(source.Details))
+            {
+                sourceUnit = anon::CreateWinGetSourceUnit(source);
+                configContext.Set().Units().Append(sourceUnit.value());
+            }
+
+            for (const auto& package : source.Packages)
+            {
+                auto packageUnit = anon::CreateWinGetPackageUnit(package, source, context.Args.Contains(Args::Type::IncludeVersions), sourceUnit);
+                configContext.Set().Units().Append(packageUnit);
+                if (!singlePackageUnit)
+                {
+                    singlePackageUnit = packageUnit;
+                }
+            }
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::ConfigurationExportModule, Execution::Args::Type::ConfigurationExportResource))
+        {
+            auto configUnit = anon::CreateConfigurationUnit(
+                context,
+                context.Args.GetArg(Args::Type::ConfigurationExportModule),
+                context.Args.GetArg(Args::Type::ConfigurationExportResource),
+                singlePackageUnit);
+
+            configContext.Set().Units().Append(configUnit);
         }
     }
 
