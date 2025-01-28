@@ -65,7 +65,7 @@
       <ReferencePath Remove="@(ReferencePath)" Condition="'%(ReferencePath.Extension)' == '.winmd'" />
       <ReferencePathWithRefAssemblies Remove="@(CsWinRTRemovedReferences)"
         Condition="'%(CsWinRTRemovedReferences.Filename)%(CsWinRTRemovedReferences.Extension)' == '%(ReferencePathWithRefAssemblies.Filename)%(ReferencePathWithRefAssemblies.Extension)'" />
-      <!--Do not publish projection source winmds, but do include implementation dlls -->
+      <!--Do not publish projection source winmd files, but do include implementation dlls -->
       <ReferenceCopyLocalPaths Remove="@(CsWinRTRemovedReferences)" />
       <ReferenceCopyLocalPaths Include="@(CsWinRTRemovedReferences->'%(RootDir)%(Directory)%(DestinationSubDirectory)%(Implementation)')"
                                Condition="'%(CsWinRTRemovedReferences.Implementation)' != '' AND Exists('%(CsWinRTRemovedReferences.RootDir)%(CsWinRTRemovedReferences.Directory)%(CsWinRTRemovedReferences.DestinationSubDirectory)%(CsWinRTRemovedReferences.Implementation)')" />
