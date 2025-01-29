@@ -860,9 +860,6 @@
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>忽略不可用的程序包</value>
   </data>
-  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
-    <value>在生成的文件中包括程序包版本</value>
-  </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>忽略导入文件中的程序包版本</value>
   </data>
@@ -1283,6 +1280,9 @@
   </data>
   <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
     <value>当前系统配置不支持安装此包。</value>
+  </data>
+  <data name="InstallFlowReturnCodeCustomError" xml:space="preserve">
+    <value>安装失败，出现自定义安装程序错误。联系包支持。</value>
   </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>已放弃安装</value>
@@ -1808,6 +1808,9 @@
   </data>
   <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
     <value>已成功应用配置。</value>
+  </data>
+  <data name="ConfigurationUnitSuccessfullyApplied" xml:space="preserve">
+    <value>已成功应用单元。</value>
   </data>
   <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
     <value>正在将另一个配置应用到系统。此配置将尽快继续...</value>
@@ -2521,6 +2524,9 @@
   <data name="APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED" xml:space="preserve">
     <value>安装程序不支持升级现有包。</value>
   </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_CUSTOM_ERROR" xml:space="preserve">
+    <value>安装失败，出现自定义安装程序错误。</value>
+  </data>
   <data name="WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND" xml:space="preserve">
     <value>找不到包的“应用和功能”条目。</value>
   </data>
@@ -2967,14 +2973,6 @@
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>正在获取配置设置...</value>
   </data>
-  <data name="ConfigureExportArgumentError" xml:space="preserve">
-    <value>必须至少提供 --packageId 和/或 --module 以及 --resource</value>
-    <comment>{Locked="--packageId,--module, --resource"}</comment>
-  </data>
-  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
-    <value>将配置资源导出到配置文件。与 --packageId 一起使用时，导出给定包 ID 的 WinGetPackage 资源。与 --module 和 --resource 一起使用时，获取资源的设置并将其导出到配置文件。如果输出配置文件已存在，则追加导出的配置资源。</value>
-    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
-  </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
     <value>将配置资源导出到配置文件。</value>
   </data>
@@ -3138,5 +3136,54 @@
   </data>
   <data name="InstallerZeroByteFile" xml:space="preserve">
     <value>已下载零字节安装程序;请确保网络连接正常工作。</value>
+  </data>
+  <data name="FontCommandShortDescription" xml:space="preserve">
+    <value>管理字体</value>
+  </data>
+  <data name="FontCommandLongDescription" xml:space="preserve">
+    <value>使用子命令管理字体。可以安装、升级或卸载与 package 类似的字体。 </value>
+  </data>
+  <data name="FontFamily" xml:space="preserve">
+    <value>家庭</value>
+  </data>
+  <data name="FontFaces" xml:space="preserve">
+    <value>脸</value>
+    <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
+    <value>按家庭名称筛选结果</value>
+  </data>
+  <data name="FontFace" xml:space="preserve">
+    <value>脸</value>
+    <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFilePaths" xml:space="preserve">
+    <value>路径</value>
+  </data>
+  <data name="NoInstalledFontFound" xml:space="preserve">
+    <value>找不到匹配输入条件的已安装字体。</value>
+  </data>
+  <data name="FontListCommandShortDescription" xml:space="preserve">
+    <value>列出已安装的字体</value>
+  </data>
+  <data name="FontListCommandLongDescription" xml:space="preserve">
+    <value>列出所有已安装的字体或特定字体的完整详细信息。</value>
+  </data>
+  <data name="FontVersion" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="ConfigurationModules" xml:space="preserve">
+    <value>配置模块</value>
+    <comment>PowerShell Modules that are used for the Configuration feature</comment>
+  </data>
+  <data name="InstallerDownloadRequiresAuthentication" xml:space="preserve">
+    <value>包安装程序需要身份验证。必要时可能会显示身份验证提示。将与安装程序下载 URL 共享经过身份验证的信息。</value>
+  </data>
+  <data name="InstallerDownloadAuthenticationNotSupported" xml:space="preserve">
+    <value>无法下载安装程序。此 winget 版本不支持安装程序下载身份验证方法。请尝试升级到最新 winget 版本。</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
+    <value>未能下载安装程序。身份验证失败。</value>
   </data>
 </root>

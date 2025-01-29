@@ -19,39 +19,39 @@ Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas utiliser le g
 Si vous activez ou ne configurez pas ce paramètre, les utilisateurs peuvent modifier les paramètres du gestionnaire de packages Windows.
 
 Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas modifier les paramètres du gestionnaire de packages Windows.</string>
-      <string id="EnableExperimentalFeatures">Enable Windows Package Manager Experimental Features</string>
+      <string id="EnableExperimentalFeatures">Activer les fonctionnalités expérimentales du Gestionnaire de package Windows</string>
       <string id="EnableExperimentalFeaturesExplanation">Cette stratégie contrôle si les utilisateurs peuvent activer les fonctionnalités expérimentales dans le gestionnaire de packages Windows.
 
 Si vous activez ou ne configurez pas ce paramètre, les utilisateurs peuvent activer des fonctionnalités expérimentales pour le gestionnaire de package Windows.
 
 Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas activer les fonctionnalités expérimentales pour le gestionnaire de package Windows.</string>
-      <string id="EnableLocalManifestFiles">Enable Windows Package Manager Local Manifest Files</string>
+      <string id="EnableLocalManifestFiles">Activer les fichiers manifeste locaux du Gestionnaire de package Windows</string>
       <string id="EnableLocalManifestFilesExplanation">Cette stratégie contrôle si les utilisateurs peuvent installer des packages avec des fichiers de manifeste locaux.
 
 Si vous activez ou ne configurez pas ce paramètre, les utilisateurs peuvent installer des packages avec des manifestes locaux à l’aide du gestionnaire de packages Windows.
 
 Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas installer de packages avec des manifestes locaux à l’aide du gestionnaire de packages Windows.</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable Windows Package Manager Microsoft Store Source Certificate Validation Bypass</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Activer le contournement de validation du certificat source Microsoft Store du Gestionnaire de package Windows</string>
       <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">Cette stratégie contrôle si le Gestionnaire de package Windows validera si les correspondances de hachage de certificat Microsoft Store correspond à un certificat Microsoft Store connu lors de l’initialisation d’une connexion à la source Microsoft Store. 
 Si vous activez cette stratégie, le Gestionnaire de package Windows contourne la validation du certificat Microsoft Store. 
 
 Si vous désactivez cette stratégie, le Gestionnaire de package Windows vérifie que le certificat Microsoft Store utilisé est valide et appartient au Microsoft Store avant de communiquer avec la source Microsoft Store.
 
 Si vous ne configurez pas cette stratégie, les paramètres d’administrateur Gestionnaire de package Windows sont respectés.</string>
-      <string id="EnableHashOverride">Enable Windows Package Manager Hash Override</string>
+      <string id="EnableHashOverride">Activer le remplacement de hachage du Gestionnaire de package Windows</string>
       <string id="EnableHashOverrideExplanation">Cette stratégie détermine si les utilisateurs peuvent configurer le Gestionnaire de package Windows ou non pour activer la fonction de remplacement de la validation de sécurité SHA256 dans les paramètres.
 
 Si vous activez ou ne configurez pas cette stratégie, les utilisateurs pourront activer la fonction de remplacement la validation de sécurité SHA256 dans les paramètres du Gestionnaire de package Windows.
 
 Si vous désactivez cette stratégie, les utilisateurs ne pourront pas activer la fonction de remplacement la validation de sécurité SHA256 dans les paramètres du Gestionnaire de package Windows.</string>
-      <string id="EnableLocalArchiveMalwareScanOverride">Enable Windows Package Manager Local Archive Malware Scan Override</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">Activer le remplacement de l’analyse des programmes malveillants des archives locales du Gestionnaire de package Windows</string>
       <string id="EnableLocalArchiveMalwareScanOverrideExplanation">Cette stratégie contrôle la possibilité de remplacer les analyses de vulnérabilités de programmes malveillants lors de l’installation d’un fichier d’archive à l’aide d’un manifeste local à l’aide des arguments de ligne de commande.
 Si vous activez ce paramètre de stratégie, les utilisateurs peuvent remplacer l’analyse des programmes malveillants lors de l’installation d’un manifeste local d’un fichier d’archive.
 
 Si vous désactivez cette stratégie, les utilisateurs ne peuvent pas remplacer l’analyse des programmes malveillants d’un fichier d’archive lors de l’installation à l’aide d’un manifeste local.
 
 Si vous ne configurez pas cette stratégie, les paramètres d’administrateur Gestionnaire de package Windows sont conformes.</string>
-      <string id="EnableDefaultSource">Enable Windows Package Manager Default Source</string>
+      <string id="EnableDefaultSource">Activer la source par défaut du Gestionnaire de package Windows</string>
       <string id="EnableDefaultSourceExplanation">Cette stratégie contrôle la source par défaut incluse dans le Gestionnaire de package Windows.
 
 Si vous ne configurez pas ce paramètre, la source par défaut pour le Gestionnaire de package Windows est disponible et peut être supprimée.
@@ -59,7 +59,7 @@ Si vous ne configurez pas ce paramètre, la source par défaut pour le Gestionna
 Si vous activez ce paramètre, la source par défaut pour le Gestionnaire de package Windows est disponible et ne peut pas être supprimée.
 
 Si vous désactivez ce paramètre, la source par défaut pour le Gestionnaire de package Windows n’est pas disponible.</string>
-      <string id="EnableMicrosoftStoreSource">Enable Windows Package Manager Microsoft Store Source</string>
+      <string id="EnableMicrosoftStoreSource">Activer la source du Microsoft Store du Gestionnaire de package Windows</string>
       <string id="EnableMicrosoftStoreSourceExplanation">Cette stratégie contrôle la source du Microsoft Store incluse dans le Gestionnaire de package Windows.
 
 Si vous ne configurez pas ce paramètre, la source du Microsoft Store pour le Gestionnaire de package Windows est disponible et peut être supprimée.
@@ -73,7 +73,7 @@ Si vous désactivez ce paramètre, la source du Microsoft Store pour le Gestionn
 Si vous désactivez ou ne configurez pas ce paramètre, l’intervalle par défaut ou la valeur spécifié dans les paramètres de Gestionnaire de package Windows sont utilisés.
 
 Si vous activez ce paramètre, le nombre de minutes spécifié est utilisé par le Gestionnaire de package Windows.</string>
-      <string id="EnableAdditionalSources">Enable Windows Package Manager Additional Sources</string>
+      <string id="EnableAdditionalSources">Activer les sources supplémentaires du Gestionnaire de package Windows</string>
       <string id="EnableAdditionalSourcesExplanation">Cette stratégie contrôle les sources supplémentaires offertes par l’administrateur informatique de l’entreprise.
 
 Si vous ne configurez pas ce paramètre de stratégie, aucune source supplémentaire n’est configurée pour le Gestionnaire de package Windows.
@@ -81,7 +81,7 @@ Si vous ne configurez pas ce paramètre de stratégie, aucune source supplément
 Si vous activez ce paramètre de stratégie, les sources supplémentaires sont ajoutées au Gestionnaire de package Windows et ne peuvent pas être supprimées. La représentation de chaque source supplémentaire peut être obtenue à partir de sources installées à l’aide de « Winget source export ».
 
 Si vous désactivez ce paramètre de stratégie, aucune source supplémentaire ne peut être configurée pour le Gestionnaire de package Windows.</string>
-      <string id="EnableAllowedSources">Enable Windows Package Manager Allowed Sources</string>
+      <string id="EnableAllowedSources">Activer les sources autorisées du Gestionnaire de package Windows</string>
       <string id="EnableAllowedSourcesExplanation">Cette stratégie contrôle les sources supplémentaires autorisées par l’administrateur informatique de l’entreprise.
 
 Si vous ne configurez pas ce paramètre de stratégie, les utilisateurs pourront ajouter ou supprimer des sources supplémentaires autres que celles configurées par la stratégie Si
@@ -122,7 +122,7 @@ Si vous désactivez ou ne configurez pas ce paramètre, les utilisateurs ne peuv
 Si vous désactivez ou ne configurez pas ce paramètre, aucun proxy n’est utilisé par défaut.
 
 Si vous activez ce paramètre, le proxy spécifié est utilisé par défaut.</string>
-      <string id="EnableMsixAllowedZones">Enable App Installer Allowed Zones for MSIX Packages</string>
+      <string id="EnableMsixAllowedZones">Activer les zones autorisées du programme d’installation d’application pour les packages MSIX</string>
       <string id="EnableMsixAllowedZonesExplanation">Cette stratégie contrôle si Programme d'installation d'application autorise l’installation de packages provenant de zones URL spécifiques. L’origine d’un package est déterminée par son URI et si un Mart-of-the-Web (MotW) est présent. Si plusieurs URI sont impliqués, tous sont pris en compte ; par exemple, lors de l’utilisation d’un fichier .appinstaller qui implique une redirection.
 
 Si vous activez cette stratégie, les utilisateurs peuvent installer des packages MSIX en fonction de la configuration de chaque zone.
@@ -130,7 +130,7 @@ Si vous activez cette stratégie, les utilisateurs peuvent installer des package
 Si vous désactivez ou ne configurez pas cette stratégie, les utilisateurs peuvent installer des packages MSIX à partir de n’importe quelle zone, sauf pour les packages non approuvés.</string>
       <string id="ZoneAllowed">Autoriser</string>
       <string id="ZoneBlocked">Bloquer</string>
-      <string id="EnableMsixSmartScreenCheck">Enable Microsoft SmartScreen checks for MSIX Packages</string>
+      <string id="EnableMsixSmartScreenCheck">Activer les vérifications Microsoft SmartScreen pour les packages MSIX</string>
       <string id="EnableMsixSmartScreenCheckExplanation">Cette stratégie contrôle si Programme d'installation d'application effectue des vérifications Microsoft SmartScreen lors de l’installation des packages MSIX.
 
 Si vous activez ou ne configurez pas cette stratégie, l’URI du package est évalué avec Microsoft SmartScreen avant l’installation. Cette case activée est effectuée uniquement pour les packages provenant d’Internet.
@@ -157,7 +157,7 @@ Si vous désactivez, Microsoft SmartScreen n’est pas consulté avant d’insta
         <dropdownList refId="Intranet" noSort="true" defaultItem="1">Intranet</dropdownList>
         <dropdownList refId="TrustedSites" noSort="true" defaultItem="1">Sites de confiance</dropdownList>
         <dropdownList refId="Internet" noSort="true" defaultItem="1">Internet</dropdownList>
-        <dropdownList refId="UntrustedSites" noSort="true" defaultItem="0">Untrusted Sites</dropdownList>
+        <dropdownList refId="UntrustedSites" noSort="true" defaultItem="0">Sites non approuvés</dropdownList>
       </presentation>
     </presentationTable>
   </resources>

@@ -860,9 +860,6 @@
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>略過無法使用的套件</value>
   </data>
-  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
-    <value>在製作的檔案中包含套件版本</value>
-  </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>略過匯入檔案的套件版本</value>
   </data>
@@ -1283,6 +1280,9 @@
   </data>
   <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
     <value>目前系統設定不支援安裝此套件。</value>
+  </data>
+  <data name="InstallFlowReturnCodeCustomError" xml:space="preserve">
+    <value>安裝失敗，發生自定義安裝程序錯誤。連絡套件支援。</value>
   </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>已放棄安裝</value>
@@ -1808,6 +1808,9 @@
   </data>
   <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
     <value>已成功套用設定。</value>
+  </data>
+  <data name="ConfigurationUnitSuccessfullyApplied" xml:space="preserve">
+    <value>已成功套用單位。</value>
   </data>
   <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
     <value>正在將另一個設定套用到系統。此設定會儘快繼續...</value>
@@ -2521,6 +2524,9 @@
   <data name="APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED" xml:space="preserve">
     <value>安裝程式不支持升級現有的封裝。</value>
   </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_CUSTOM_ERROR" xml:space="preserve">
+    <value>安裝失敗，出現自訂安裝程式錯誤。</value>
+  </data>
   <data name="WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND" xml:space="preserve">
     <value>找不到套件的應用程式和功能專案。</value>
   </data>
@@ -2967,14 +2973,6 @@
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>正在取得組態設定...</value>
   </data>
-  <data name="ConfigureExportArgumentError" xml:space="preserve">
-    <value>至少必須提供 --packageId 和/或 --module with --resource</value>
-    <comment>{Locked="--packageId,--module, --resource"}</comment>
-  </data>
-  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
-    <value>將設定資源匯出至組態檔。搭配 --packageId 使用時，導出指定套件標識符的 WinGetPackage 資源。與 --module 和 --resource 搭配使用時，取得資源的設定，並將它匯出至組態檔。如果輸出組態檔已存在，會附加導出的設定資源。</value>
-    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
-  </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
     <value>將設定資源匯出至設定檔。</value>
   </data>
@@ -3138,5 +3136,54 @@
   </data>
   <data name="InstallerZeroByteFile" xml:space="preserve">
     <value>已下載零位元組安裝程式;請確認您的網路連線正常運作。</value>
+  </data>
+  <data name="FontCommandShortDescription" xml:space="preserve">
+    <value>管理字型</value>
+  </data>
+  <data name="FontCommandLongDescription" xml:space="preserve">
+    <value>使用子命令管理字型。可以安裝、升級或卸載類似封裝的字型。 </value>
+  </data>
+  <data name="FontFamily" xml:space="preserve">
+    <value>家庭</value>
+  </data>
+  <data name="FontFaces" xml:space="preserve">
+    <value>表情</value>
+    <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
+    <value>依家庭名稱篩選結果</value>
+  </data>
+  <data name="FontFace" xml:space="preserve">
+    <value>臉</value>
+    <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFilePaths" xml:space="preserve">
+    <value>路徑</value>
+  </data>
+  <data name="NoInstalledFontFound" xml:space="preserve">
+    <value>未找到符合輸入條件的已安裝字型。</value>
+  </data>
+  <data name="FontListCommandShortDescription" xml:space="preserve">
+    <value>列出安裝的字型</value>
+  </data>
+  <data name="FontListCommandLongDescription" xml:space="preserve">
+    <value>列出所有已安裝的字型，或特定字型的完整詳細數據。</value>
+  </data>
+  <data name="FontVersion" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="ConfigurationModules" xml:space="preserve">
+    <value>設定模組</value>
+    <comment>PowerShell Modules that are used for the Configuration feature</comment>
+  </data>
+  <data name="InstallerDownloadRequiresAuthentication" xml:space="preserve">
+    <value>套件安裝程式需要驗證。必要時可能會顯示驗證提示。已驗證的資訊將會與安裝程序下載 URL 共用。</value>
+  </data>
+  <data name="InstallerDownloadAuthenticationNotSupported" xml:space="preserve">
+    <value>無法下載安裝程式。此 winget 版本不支援安裝程式下載驗證方法。嘗試升級至最新 winget 版本。</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
+    <value>無法下載安裝程式。驗證失敗。</value>
   </data>
 </root>
