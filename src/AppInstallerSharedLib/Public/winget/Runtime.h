@@ -43,6 +43,14 @@ namespace AppInstaller::Runtime
     // Determines whether the process is running with administrator or system privileges.
     bool IsRunningAsAdminOrSystem();
 
+    // Determines whether the current token can be elevated.
+    // This only returns true for tokens that are TokenElevationTypeLimited.
+    // Thus, it will only be true if:
+    //  1. UAC is enabled
+    //  2. the user is in the Administrators group
+    //  3. the token is not already elevated
+    bool IsRunningWithLimitedToken();
+
     // Returns true if this is a release build; false if not.
     inline constexpr bool IsReleaseBuild()
     {
