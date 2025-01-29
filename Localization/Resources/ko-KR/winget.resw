@@ -860,9 +860,6 @@
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>사용할 수 없는 패키지 무시</value>
   </data>
-  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
-    <value>생성된 파일에 패키지 버전 포함</value>
-  </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>가져오기 파일에서 패키지 버전 무시</value>
   </data>
@@ -1283,6 +1280,9 @@
   </data>
   <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
     <value>현재 시스템 구성에서는 이 패키지 설치를 지원하지 않습니다.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCustomError" xml:space="preserve">
+    <value>사용자 지정 설치 관리자 오류로 인해 설치하지 못했습니다. 패키지 지원에 문의하세요.</value>
   </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>설치 중단됨</value>
@@ -1808,6 +1808,9 @@
   </data>
   <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
     <value>구성이 적용되었습니다.</value>
+  </data>
+  <data name="ConfigurationUnitSuccessfullyApplied" xml:space="preserve">
+    <value>단위를 적용했습니다.</value>
   </data>
   <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
     <value>시스템에 다른 구성이 적용되고 있습니다. 이 구성은 가능한 한 빨리...</value>
@@ -2521,6 +2524,9 @@
   <data name="APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED" xml:space="preserve">
     <value>설치 관리자가 기존 패키지 업그레이드를 지원하지 않습니다.</value>
   </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_CUSTOM_ERROR" xml:space="preserve">
+    <value>사용자 지정 설치 관리자 오류로 설치하지 못했습니다.</value>
+  </data>
   <data name="WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND" xml:space="preserve">
     <value>패키지에 대한 앱 및 기능 항목을 찾을 수 없습니다.</value>
   </data>
@@ -2967,14 +2973,6 @@
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>구성 설정을 가져오는 중...</value>
   </data>
-  <data name="ConfigureExportArgumentError" xml:space="preserve">
-    <value>최소한 --resource와 함께 --packageId 및/또는 --module을 제공해야 합니다.</value>
-    <comment>{Locked="--packageId,--module, --resource"}</comment>
-  </data>
-  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
-    <value>구성 리소스를 구성 파일로 내보냅니다. --packageId와 함께 사용하면 지정된 패키지 ID의 WinGetPackage 리소스를 내보냅니다. --module 및 --resource와 함께 사용하면 리소스의 설정을 가져오고 구성 파일로 내보냅니다. 출력 구성 파일이 이미 있으면 내보낸 구성 리소스를 추가합니다.</value>
-    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
-  </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
     <value>구성 리소스를 구성 파일로 내보냅니다.</value>
   </data>
@@ -3138,5 +3136,54 @@
   </data>
   <data name="InstallerZeroByteFile" xml:space="preserve">
     <value>0 바이트 설치 관리자 다운로드됨; 네트워크 연결이 제대로 작동하는지 확인하십시오.</value>
+  </data>
+  <data name="FontCommandShortDescription" xml:space="preserve">
+    <value>글꼴 관리</value>
+  </data>
+  <data name="FontCommandLongDescription" xml:space="preserve">
+    <value>하위 명령으로 글꼴을 관리합니다. 글꼴은 packages와 비슷하게 설치, 업그레이드 또는 제거할 수 있습니다. </value>
+  </data>
+  <data name="FontFamily" xml:space="preserve">
+    <value>가족</value>
+  </data>
+  <data name="FontFaces" xml:space="preserve">
+    <value>얼굴</value>
+    <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
+    <value>성으로 결과 필터링</value>
+  </data>
+  <data name="FontFace" xml:space="preserve">
+    <value>얼굴</value>
+    <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFilePaths" xml:space="preserve">
+    <value>경로</value>
+  </data>
+  <data name="NoInstalledFontFound" xml:space="preserve">
+    <value>입력 조건과 일치하는 설치된 글꼴을 찾을 수 없습니다.</value>
+  </data>
+  <data name="FontListCommandShortDescription" xml:space="preserve">
+    <value>설치된 글꼴 나열</value>
+  </data>
+  <data name="FontListCommandLongDescription" xml:space="preserve">
+    <value>설치된 모든 글꼴 또는 특정 글꼴의 전체 세부 정보를 나열합니다.</value>
+  </data>
+  <data name="FontVersion" xml:space="preserve">
+    <value>버전</value>
+  </data>
+  <data name="ConfigurationModules" xml:space="preserve">
+    <value>구성 모듈</value>
+    <comment>PowerShell Modules that are used for the Configuration feature</comment>
+  </data>
+  <data name="InstallerDownloadRequiresAuthentication" xml:space="preserve">
+    <value>패키지 설치 관리자에 인증이 필요합니다. 필요한 경우 인증 프롬프트가 표시될 수 있습니다. 인증된 정보는 설치 관리자 다운로드 URL과 공유됩니다.</value>
+  </data>
+  <data name="InstallerDownloadAuthenticationNotSupported" xml:space="preserve">
+    <value>설치 관리자를 다운로드하지 못했습니다. 이 winget 버전에서는 설치 관리자 다운로드 인증 방법을 지원하지 않습니다. 최신 winget 버전으로 업그레이드해 보세요.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
+    <value>설치 관리자를 다운로드하지 못했습니다. 인증에 실패했습니다.</value>
   </data>
 </root>

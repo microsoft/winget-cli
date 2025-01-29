@@ -860,9 +860,6 @@
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Игнорировать недоступные пакеты</value>
   </data>
-  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
-    <value>Включить версии пакетов в созданный файл</value>
-  </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>Игнорировать версии пакета из файла импорта</value>
   </data>
@@ -1283,6 +1280,9 @@
   </data>
   <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
     <value>Текущая конфигурация системы не поддерживает установку этого пакета.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCustomError" xml:space="preserve">
+    <value>Сбой установки из-за ошибки настраиваемого установщика. Обратитесь в службу поддержки пакета.</value>
   </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>Установка прервана</value>
@@ -1808,6 +1808,9 @@
   </data>
   <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
     <value>Конфигурация применена.</value>
+  </data>
+  <data name="ConfigurationUnitSuccessfullyApplied" xml:space="preserve">
+    <value>Элемент успешно применен.</value>
   </data>
   <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
     <value>К системе применяется другая конфигурация. Эта конфигурация будет продолжена, как только это будет возможно...</value>
@@ -2521,6 +2524,9 @@
   <data name="APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED" xml:space="preserve">
     <value>Установщик не поддерживает обновление существующего пакета.</value>
   </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_CUSTOM_ERROR" xml:space="preserve">
+    <value>Установка завершилась сбоем из-за ошибки пользовательского установщика.</value>
+  </data>
   <data name="WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND" xml:space="preserve">
     <value>Не удалось найти запись "Приложения и компоненты" для пакета.</value>
   </data>
@@ -2967,14 +2973,6 @@
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>Получение параметров конфигурации...</value>
   </data>
-  <data name="ConfigureExportArgumentError" xml:space="preserve">
-    <value>Необходимо указать хотя бы --packageId и (или) --module с параметром --resource</value>
-    <comment>{Locked="--packageId,--module, --resource"}</comment>
-  </data>
-  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
-    <value>Экспорт ресурсов конфигурации в файл конфигурации. При использовании с --packageId выполняется экспорт ресурса WinGetPackage указанного идентификатора пакета. При использовании с --module и --resource получает параметры ресурса и экспортирует его в файл конфигурации. Если выходной файл конфигурации уже существует, добавляет экспортированные ресурсы конфигурации.</value>
-    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
-  </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
     <value>Экспорт ресурсов конфигурации в файл конфигурации.</value>
   </data>
@@ -3138,5 +3136,54 @@
   </data>
   <data name="InstallerZeroByteFile" xml:space="preserve">
     <value>Скачан установщик нулевого байта. Убедитесь, что ваше сетевое подключение работает правильно.</value>
+  </data>
+  <data name="FontCommandShortDescription" xml:space="preserve">
+    <value>Управление шрифтами</value>
+  </data>
+  <data name="FontCommandLongDescription" xml:space="preserve">
+    <value>Управляйте шрифтами с помощью подкоманд. Шрифты можно устанавливать, обновлять и удалять, как пакеты. </value>
+  </data>
+  <data name="FontFamily" xml:space="preserve">
+    <value>Семейство</value>
+  </data>
+  <data name="FontFaces" xml:space="preserve">
+    <value>Лица</value>
+    <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
+    <value>Фильтровать результаты по фамилии</value>
+  </data>
+  <data name="FontFace" xml:space="preserve">
+    <value>Лицо</value>
+    <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFilePaths" xml:space="preserve">
+    <value>Пути</value>
+  </data>
+  <data name="NoInstalledFontFound" xml:space="preserve">
+    <value>Ни один установленный шрифт не соответствует заданному критерию.</value>
+  </data>
+  <data name="FontListCommandShortDescription" xml:space="preserve">
+    <value>Получить список установленных шрифтов</value>
+  </data>
+  <data name="FontListCommandLongDescription" xml:space="preserve">
+    <value>Перечислите все установленные шрифты или полные сведения о конкретном шрифте.</value>
+  </data>
+  <data name="FontVersion" xml:space="preserve">
+    <value>Версия</value>
+  </data>
+  <data name="ConfigurationModules" xml:space="preserve">
+    <value>Модули конфигурации</value>
+    <comment>PowerShell Modules that are used for the Configuration feature</comment>
+  </data>
+  <data name="InstallerDownloadRequiresAuthentication" xml:space="preserve">
+    <value>Установщику пакета требуется проверка подлинности. При необходимости может появиться запрос проверки подлинности. Сведения, прошедшие проверку подлинности, будут предоставлены с URL-адресом скачивания установщика.</value>
+  </data>
+  <data name="InstallerDownloadAuthenticationNotSupported" xml:space="preserve">
+    <value>Не удалось скачать установщик. Эта winget не поддерживает метод проверки подлинности скачивания установщиком. Попробуйте обновиться до последней winget версии.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
+    <value>Не удалось скачать установщик. Проверка подлинности не пройдена.</value>
   </data>
 </root>
