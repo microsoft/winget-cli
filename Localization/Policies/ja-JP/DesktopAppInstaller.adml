@@ -72,7 +72,7 @@
 
 この設定を無効にした場合、または構成しなかった場合は、既定の間隔またはWindows パッケージ マネージャー設定で指定された値が使用されます。
 
-この設定を有効にした場合、指定した分数がWindows パッケージ マネージャーで使用されます。</string>
+この設定を有効にした場合、指定した分数が Windows パッケージ マネージャーで使用されます。</string>
       <string id="EnableAdditionalSources">Windows パッケージ マネージャーの追加のソースを有効にする</string>
       <string id="EnableAdditionalSourcesExplanation">このポリシーは、エンタープライズIT管理者によって提供される追加のソースを制御します。
 
@@ -106,16 +106,16 @@
       <string id="EnableWindowsPackageManagerConfiguration">Windows パッケージ マネージャーの構成を有効にする</string>
       <string id="EnableWindowsPackageManagerConfigurationExplanation">このポリシーでは、Windows パッケージ マネージャー構成機能をユーザーが使用できるかどうかを制御します。
 
-この設定を有効にした場合、または構成しなかった場合、ユーザーはWindows パッケージ マネージャー構成機能を使用できます。
+この設定を有効にした場合、または構成しなかった場合、ユーザーは Windows パッケージ マネージャー構成機能を使用できます。
 
-この設定を無効にすると、ユーザーはWindows パッケージ マネージャー構成機能を使用できなくなります。</string>
+この設定を無効にすると、ユーザーは Windows パッケージ マネージャー構成機能を使用できなくなります。</string>
       <string id="EnableWindowsPackageManagerProxyCommandLineOptions">Windows パッケージ マネージャー Proxy コマンド ライン オプションを有効にする</string>
       <string id="EnableWindowsPackageManagerProxyCommandLineOptionsExplanation">
-        このポリシーでは、ユーザーがコマンド ラインでプロキシのWindows パッケージ マネージャーの使用を構成できるかどうかを制御します。
+        このポリシーでは、ユーザーがコマンド ラインでプロキシの Windows パッケージ マネージャーの使用を構成できるかどうかを制御します。
 
-この設定を有効にした場合、ユーザーはコマンド ラインを使用してWindows パッケージ マネージャーのプロキシの使用を構成できます。
+この設定を有効にした場合、ユーザーはコマンド ラインを使用して Windows パッケージ マネージャーのプロキシの使用を構成できます。
 
-この設定を無効にした場合、または構成しなかった場合、ユーザーはコマンド ラインでWindows パッケージ マネージャーのプロキシの使用を構成できなくなります。</string>
+この設定を無効にした場合、または構成しなかった場合、ユーザーはコマンド ラインで Windows パッケージ マネージャーのプロキシの使用を構成できなくなります。</string>
       <string id="WindowsPackageManagerDefaultProxy">Windows パッケージ マネージャーの既定のプロキシを設定する</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">このポリシーは、Windows パッケージ マネージャーで使用される既定のプロキシを制御します。
 

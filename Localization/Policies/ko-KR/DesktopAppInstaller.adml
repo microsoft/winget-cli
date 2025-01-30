@@ -133,9 +133,9 @@
       <string id="EnableMsixSmartScreenCheck">MSIX 패키지에 Microsoft SmartScreen 검사 사용</string>
       <string id="EnableMsixSmartScreenCheckExplanation">이 정책은 MSIX 패키지를 설치할 때 앱 설치 관리자 Microsoft SmartScreen 검사를 수행할지 여부를 제어합니다.
 
-이 정책을 사용하거나 구성하지 않으면 설치 전에 Microsoft SmartScreen을 사용하여 패키지 URI가 평가됩니다. 이 검사 인터넷에서 가져온 패키지에 대해서만 수행됩니다.
+이 정책을 사용하거나 구성하지 않으면 설치 전에 Microsoft SmartScreen 을 사용하여 패키지 URI가 평가됩니다. 이 검사 인터넷에서 가져온 패키지에 대해서만 수행됩니다.
 
-사용하지 않도록 설정하면 패키지를 설치하기 전에 Microsoft SmartScreen을 참조하지 않습니다.</string>
+사용하지 않도록 설정하면 패키지를 설치하기 전에 Microsoft SmartScreen 을 참조하지 않습니다.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

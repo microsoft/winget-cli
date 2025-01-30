@@ -3112,21 +3112,21 @@
     <value>尽可能禁止显示初始配置详细信息</value>
   </data>
   <data name="MSStoreDownloadMultiplePackagesNotice" xml:space="preserve">
-    <value>可以针对不同的平台和体系结构下载多个Microsoft Store包。--platform，--architecture 可用于筛选包。</value>
+    <value>可以针对不同的平台和体系结构下载多个 Microsoft Store 包。--platform，--architecture 可用于筛选包。</value>
     <comment>{Locked="--platform--architecture"}</comment>
   </data>
   <data name="MSStoreDownloadGetLicenseForbidden" xml:space="preserve">
-    <value>无法检索Microsoft Store包许可证。Microsoft Entra ID 帐户不是全局管理员、用户管理员或许可证管理员的成员。使用 --skip-license 跳过检索Microsoft Store包许可证。</value>
+    <value>无法检索 Microsoft Store 包许可证。Microsoft Entra ID 帐户不是全局管理员、用户管理员或许可证管理员的成员。使用 --skip-license 跳过检索Microsoft Store包许可证。</value>
     <comment>{Locked="Global Administrator,User Administrator,License Administrator,--skip-license"}</comment>
   </data>
   <data name="MSStoreDownloadPackageDownloadNotSupported" xml:space="preserve">
-    <value>Microsoft Store包不支持下载。</value>
+    <value>Microsoft Store 包不支持下载。</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED" xml:space="preserve">
-    <value>Microsoft Store包不支持下载。</value>
+    <value>Microsoft Store 包不支持下载。</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN" xml:space="preserve">
-    <value>无法检索Microsoft Store包许可证。Microsoft Entra ID 帐户没有所需的权限。</value>
+    <value>无法检索 Microsoft Store 包许可证。Microsoft Entra ID 帐户没有所需的权限。</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY" xml:space="preserve">
     <value>无法跨完整性边界传递参数。</value>
@@ -3147,14 +3147,14 @@
     <value>家庭</value>
   </data>
   <data name="FontFaces" xml:space="preserve">
-    <value>脸</value>
+    <value>Faces</value>
     <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
   </data>
   <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
     <value>按家庭名称筛选结果</value>
   </data>
   <data name="FontFace" xml:space="preserve">
-    <value>脸</value>
+    <value>Face</value>
     <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
   </data>
   <data name="FontFilePaths" xml:space="preserve">
