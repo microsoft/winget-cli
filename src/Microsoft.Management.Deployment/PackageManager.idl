@@ -675,6 +675,12 @@ namespace Microsoft.Management.Deployment
             PackageFamilyName,
             ProductCode,
         }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 12)]
+        {
+            /// A comma separated list of architectures to target when finding packages
+            AllowedArchitectures,
+        }
         /// DESIGN NOTE: The following PackageFieldMatchOption from winget/RepositorySearch.h are not implemented in V1.
         /// NormalizedNameAndPublisher,
     };
