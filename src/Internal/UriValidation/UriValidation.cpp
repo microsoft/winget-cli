@@ -7,6 +7,7 @@ namespace AppInstaller::UriValidation
 {
     namespace
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
         bool EndsWith(const std::string& value, const std::string& ending)
         {
             if (ending.size() > value.size())
@@ -16,6 +17,7 @@ namespace AppInstaller::UriValidation
 
             return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
         }
+#endif
     }
 
     UriValidationResult ValidateUri(const std::string& uri)
