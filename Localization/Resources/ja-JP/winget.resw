@@ -860,9 +860,6 @@
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>使用できないパッケージを無視する</value>
   </data>
-  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
-    <value>作成されたファイルにパッケージ バージョンを含める</value>
-  </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>インポート ファイルからパッケージ バージョンを無視する</value>
   </data>
@@ -1283,6 +1280,9 @@
   </data>
   <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
     <value>現在のシステム構成では、このパッケージのインストールはサポートされていません。</value>
+  </data>
+  <data name="InstallFlowReturnCodeCustomError" xml:space="preserve">
+    <value>カスタム インストーラー エラーにより、インストールに失敗しました。パッケージ サポートにお問い合わせください。</value>
   </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>インストールが破棄されました</value>
@@ -1808,6 +1808,9 @@
   </data>
   <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
     <value>構成が正常に適用されました。</value>
+  </data>
+  <data name="ConfigurationUnitSuccessfullyApplied" xml:space="preserve">
+    <value>ユニットが正常に適用されました。</value>
   </data>
   <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
     <value>別の構成がシステムに適用されています。この構成は可能な限り早く続行...</value>
@@ -2521,6 +2524,9 @@
   <data name="APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED" xml:space="preserve">
     <value>インストーラーは既存のパッケージのアップグレードをサポートしていません。</value>
   </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_CUSTOM_ERROR" xml:space="preserve">
+    <value>カスタム インストーラー エラーにより、インストールに失敗しました。</value>
+  </data>
   <data name="WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND" xml:space="preserve">
     <value>パッケージのアプリと機能エントリが見つかりませんでした。</value>
   </data>
@@ -2967,14 +2973,6 @@
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>構成設定を取得しています...</value>
   </data>
-  <data name="ConfigureExportArgumentError" xml:space="preserve">
-    <value>少なくとも --packageId および/または --module を --resource とともに指定する必要があります</value>
-    <comment>{Locked="--packageId,--module, --resource"}</comment>
-  </data>
-  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
-    <value>構成リソースを構成ファイルにエクスポートします。--packageId と共に使用すると、指定されたパッケージ ID の WinGetPackage リソースがエクスポートされます。--module および --resource と共に使用する場合、リソースの設定を取得し、構成ファイルにエクスポートします。出力構成ファイルが既に存在する場合は、エクスポートされた構成リソースを追加します。</value>
-    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
-  </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
     <value>構成リソースを構成ファイルにエクスポートします。</value>
   </data>
@@ -3138,5 +3136,54 @@
   </data>
   <data name="InstallerZeroByteFile" xml:space="preserve">
     <value>ゼロ バイト インストーラーをダウンロードしました;ネットワーク接続が正しく動作していることを確認してください。</value>
+  </data>
+  <data name="FontCommandShortDescription" xml:space="preserve">
+    <value>フォントの管理</value>
+  </data>
+  <data name="FontCommandLongDescription" xml:space="preserve">
+    <value>サブコマンドを使用してフォントを管理します。packages.  と同様に、フォントをインストール、アップグレード、またはアンインストールできます</value>
+  </data>
+  <data name="FontFamily" xml:space="preserve">
+    <value>ファミリ</value>
+  </data>
+  <data name="FontFaces" xml:space="preserve">
+    <value>フェイス</value>
+    <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
+    <value>ファミリ名で結果をフィルター処理する</value>
+  </data>
+  <data name="FontFace" xml:space="preserve">
+    <value>顔</value>
+    <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFilePaths" xml:space="preserve">
+    <value>パス</value>
+  </data>
+  <data name="NoInstalledFontFound" xml:space="preserve">
+    <value>入力条件に一致するインストール済みのフォントが見つかりませんでした。</value>
+  </data>
+  <data name="FontListCommandShortDescription" xml:space="preserve">
+    <value>インストール済みフォントを一覧表示します</value>
+  </data>
+  <data name="FontListCommandLongDescription" xml:space="preserve">
+    <value>インストールされているすべてのフォント、または特定のフォントの完全な詳細を一覧表示します。</value>
+  </data>
+  <data name="FontVersion" xml:space="preserve">
+    <value>バージョン</value>
+  </data>
+  <data name="ConfigurationModules" xml:space="preserve">
+    <value>構成モジュール</value>
+    <comment>PowerShell Modules that are used for the Configuration feature</comment>
+  </data>
+  <data name="InstallerDownloadRequiresAuthentication" xml:space="preserve">
+    <value>パッケージ インストーラーには認証が必要です。必要に応じて認証プロンプトが表示されることがあります。認証された情報はインストーラーのダウンロード URL と共有されます。</value>
+  </data>
+  <data name="InstallerDownloadAuthenticationNotSupported" xml:space="preserve">
+    <value>インストーラーをダウンロードできませんでした。この winget バージョンは、インストーラーのダウンロード認証方法をサポートしていません。最新の winget バージョンにアップグレードしてみてください。</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
+    <value>インストーラーをダウンロードできませんでした。認証に失敗しました。</value>
   </data>
 </root>

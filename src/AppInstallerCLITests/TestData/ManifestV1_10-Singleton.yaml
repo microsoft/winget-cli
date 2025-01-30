@@ -1,0 +1,201 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.10.0.schema.json
+PackageIdentifier: microsoft.msixsdk
+PackageVersion: 1.7.32
+PackageLocale: en-US
+Publisher: Microsoft
+PublisherUrl: https://www.microsoft.com
+PublisherSupportUrl: https://www.microsoft.com/support
+PrivacyUrl: https://www.microsoft.com/privacy
+Author: Microsoft
+PackageName: MSIX SDK
+PackageUrl: https://www.microsoft.com/msixsdk/home
+License: MIT License
+LicenseUrl: https://www.microsoft.com/msixsdk/license
+Copyright: Copyright Microsoft Corporation
+CopyrightUrl: https://www.microsoft.com/msixsdk/copyright
+ShortDescription: This is MSIX SDK
+Description: The MSIX SDK project is an effort to enable developers
+Moniker: msixsdk
+Tags:
+  - "appxsdk"
+  - "msixsdk"
+ReleaseNotes: Default release notes
+ReleaseNotesUrl: https://DefaultReleaseNotes.net
+PurchaseUrl: https://DefaultPurchaseUrl.com
+InstallationNotes: Default installation notes
+Documentations:
+  - DocumentLabel: Default document label
+    DocumentUrl: https://DefaultDocumentUrl.com
+Icons:
+  - IconUrl: https://testIcon-en-US
+    IconFileType: ico
+    IconResolution: custom
+    IconTheme: default
+    IconSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123
+Agreements:
+  - AgreementLabel: DefaultLabel
+    Agreement: DefaultText
+    AgreementUrl: https://DefaultAgreementUrl.net
+InstallerLocale: en-US
+Platform:
+  - Windows.Desktop
+  - Windows.Universal
+MinimumOSVersion: 10.0.0.0
+InstallerType: exe
+Scope: machine
+InstallModes:
+  - interactive
+  - silent
+  - silentWithProgress
+InstallerSwitches:
+  Custom: /custom
+  SilentWithProgress: /silentwithprogress
+  Silent: /silence
+  Interactive: /interactive
+  Log: /log=<LOGPATH>
+  InstallLocation: /dir=<INSTALLPATH>
+  Upgrade: /upgrade
+  Repair: /repair
+InstallerSuccessCodes:
+  - 1
+  - 0x80070005
+UpgradeBehavior: uninstallPrevious
+RepairBehavior: modify
+Commands:
+  - makemsix
+  - makeappx
+Protocols:
+  - protocol1
+  - protocol2
+FileExtensions:
+  - appx
+  - msix
+  - appxbundle
+  - msixbundle
+Dependencies:
+  WindowsFeatures:
+    - IIS
+  WindowsLibraries:
+    - VC Runtime
+  PackageDependencies:
+    - PackageIdentifier: Microsoft.MsixSdkDep
+      MinimumVersion: 1.0.0
+  ExternalDependencies:
+    - Outside dependencies
+Capabilities:
+  - internetClient
+RestrictedCapabilities:
+  - runFullTrust
+PackageFamilyName: Microsoft.DesktopAppInstaller_8wekyb3d8bbwe
+ProductCode: "{Foo}"
+ReleaseDate: 2021-01-01
+InstallerAbortsTerminal: true
+InstallLocationRequired: true
+RequireExplicitUpgrade: true
+DisplayInstallWarnings: true
+ElevationRequirement: elevatesSelf
+UnsupportedOSArchitectures:
+  - arm
+AppsAndFeaturesEntries:
+  - DisplayName: DisplayName
+    DisplayVersion: DisplayVersion
+    Publisher: Publisher
+    ProductCode: ProductCode
+    UpgradeCode: UpgradeCode
+    InstallerType: exe
+Markets:
+  AllowedMarkets:
+    - US
+ExpectedReturnCodes:
+  - InstallerReturnCode: 10
+    ReturnResponse: packageInUse
+    ReturnResponseUrl: https://DefaultReturnResponseUrl.com
+UnsupportedArguments:
+  - log
+NestedInstallerType: msi
+NestedInstallerFiles:
+  - RelativeFilePath: RelativeFilePath
+    PortableCommandAlias: PortableCommandAlias
+InstallationMetadata:
+  DefaultInstallLocation: "%ProgramFiles%\\TestApp"
+  Files:
+    - RelativeFilePath: "main.exe"
+      FileSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+      FileType: launch
+      InvocationParameter: "/arg"
+      DisplayName: "DisplayName"
+DownloadCommandProhibited: true
+ArchiveBinariesDependOnPath: true
+
+Installers:
+  - Architecture: x86
+    InstallerLocale: en-GB
+    Platform:
+      - Windows.Desktop
+    MinimumOSVersion: 10.0.1.0
+    InstallerType: msix
+    InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx86.msix
+    InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+    SignatureSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+    Scope: user
+    InstallModes:
+      - interactive
+    InstallerSwitches:
+      Custom: /c
+      SilentWithProgress: /sp
+      Silent: /s
+      Interactive: /i
+      Log: /l=<LOGPATH>
+      InstallLocation: /d=<INSTALLPATH>
+      Upgrade: /u
+      Repair: /r
+    UpgradeBehavior: install
+    Commands:
+      - makemsixPreview
+      - makeappxPreview
+    Protocols:
+      - protocol1preview
+      - protocol2preview
+    FileExtensions:
+      - appxbundle
+      - msixbundle
+      - appx
+      - msix
+    Dependencies:
+      WindowsFeatures:
+        - PreviewIIS
+      WindowsLibraries:
+        - Preview VC Runtime
+      PackageDependencies:
+        - PackageIdentifier: Microsoft.MsixSdkDepPreview
+          MinimumVersion: 1.0.0
+      ExternalDependencies:
+        - Preview Outside dependencies
+    PackageFamilyName: Microsoft.DesktopAppInstallerPreview_8wekyb3d8bbwe
+    Capabilities:
+      - internetClientPreview
+    RestrictedCapabilities:
+      - runFullTrustPreview
+    ReleaseDate: 2021-02-02
+    InstallerAbortsTerminal: false
+    InstallLocationRequired: false
+    RequireExplicitUpgrade: false
+    DisplayInstallWarnings: false
+    ElevationRequirement: elevationRequired
+    UnsupportedArguments:
+      - location
+    UnsupportedOSArchitectures:
+      - arm64
+    Markets:
+      ExcludedMarkets:
+        - "US"
+    ExpectedReturnCodes:
+      - InstallerReturnCode: 2
+        ReturnResponse: contactSupport
+      - InstallerReturnCode: 3
+        ReturnResponse: custom
+        ReturnResponseUrl: https://defaultReturnResponseUrl.com
+    DownloadCommandProhibited: false
+    ArchiveBinariesDependOnPath: false
+ManifestType: singleton
+ManifestVersion: 1.10.0

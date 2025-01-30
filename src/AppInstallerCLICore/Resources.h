@@ -94,6 +94,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModuleNameOnly);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModulePath);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModulePathArgError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModules);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModuleWithDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNotEnabledMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNoTestRun);
@@ -106,6 +107,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSettings);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationStatusWatchArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSuccessfullyApplied);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitSuccessfullyApplied);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSuppressPrologueArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnexpectedTestResult);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitAssertHadNegativeResult);
@@ -151,7 +153,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarningValueTruncated);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandShortDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportArgumentError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportAll);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportArgumentConflictWithAllError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportArgumentRequiredError);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportModule);
@@ -300,8 +304,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstalledScopeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerAbortsTerminal);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerBlockedByPolicy);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloadAuthenticationFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloadAuthenticationNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloadCommandProhibited);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloaded);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloadRequiresAuthentication);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloads);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerElevationExpected);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedSecurityCheck);
@@ -325,6 +332,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeBlockedByPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeCancelledByUser);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeContactSupport);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeCustomError);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeDiskFull);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeDowngrade);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeFileInUse);

@@ -160,8 +160,7 @@ ms.localizationpriority: medium
 | 0x8A150107 | -1978334969 | APPINSTALLER_CLI_ERROR_INSTALL_NO_NETWORK | This application requires internet connectivity. Connect to a network then try again. |
 | 0x8A150108 | -1978334968 | APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT | This application encountered an error during installation. Contact support. |
 | 0x8A150109 | -1978334967 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH | Restart your PC to finish installation. |
-| 0x8A15010A | -1978334966 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL |
-Installation failed. Restart your PC then try again. |
+| 0x8A15010A | -1978334966 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL | Installation failed. Restart your PC then try again. |
 | 0x8A15010B | -1978334965 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED | Your PC will restart to finish installation. |
 | 0x8A15010C | -1978334964 | APPINSTALLER_CLI_ERROR_INSTALL_CANCELLED_BY_USER | You cancelled the installation. |
 | 0x8A15010D | -1978334963 | APPINSTALLER_CLI_ERROR_INSTALL_ALREADY_INSTALLED | Another version of this application is already installed. |
@@ -172,6 +171,7 @@ Installation failed. Restart your PC then try again. |
 | 0x8A150112 | -1978334958 | APPINSTALLER_CLI_ERROR_INSTALL_INVALID_PARAMETER | Invalid parameter. |
 | 0x8A150113 | -1978334957 | APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED | Package not supported by the system. |
 | 0x8A150114 | -1978334956 | APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED | The installer does not support upgrading an existing package. |
+| 0x8A150115 | -1978334955 | APPINSTALLER_CLI_ERROR_INSTALL_CUSTOM_ERROR | Installation failed with installer custom error. |
 
 ## Check for package installed status
 

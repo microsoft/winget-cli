@@ -155,6 +155,9 @@ namespace AppInstaller::Repository
         bool Explicit = false;
     };
 
+    // Check if a source matches a well known source
+    std::optional<WellKnownSource> CheckForWellKnownSource(const SourceDetails& sourceDetails);
+
     // Individual source agreement entry. Label will be highlighted in the display as the key of the agreement entry.
     struct SourceAgreement
     {

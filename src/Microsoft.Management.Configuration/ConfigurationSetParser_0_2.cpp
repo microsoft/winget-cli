@@ -28,5 +28,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         CHECK_ERROR(ConfigurationSetParser_0_1::ParseConfigurationUnit(unit, unitNode, intent));
         ValidateType(unit, unitNode, ConfigurationField::Resource, true, false);
+        ExtractSecurityContext(unit);
     }
 }

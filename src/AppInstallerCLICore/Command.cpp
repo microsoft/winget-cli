@@ -738,6 +738,22 @@ namespace AppInstaller::CLI
             }
         }
 
+        if (execArgs.Contains(Execution::Args::Type::InstallerArchitecture))
+        {
+            Utility::Architecture selectedArch = Utility::ConvertToArchitectureEnum(std::string(execArgs.GetArg(Execution::Args::Type::InstallerArchitecture)));
+            if (selectedArch == Utility::Architecture::Unknown)
+            {
+                std::vector<Utility::LocIndString> applicableArchitectures;
+                for (Utility::Architecture i : Utility::GetAllArchitectures())
+                {
+                    applicableArchitectures.emplace_back(Utility::ToString(i));
+                }
+
+                auto validOptions = Utility::Join(", "_liv, applicableArchitectures);
+                throw CommandException(Resource::String::InvalidArgumentValueError(Argument::ForType(Execution::Args::Type::InstallerArchitecture).Name(), validOptions));
+            }
+        }
+
         if (execArgs.Contains(Execution::Args::Type::Locale))
         {
             if (!Locale::IsWellFormedBcp47Tag(execArgs.GetArg(Execution::Args::Type::Locale)))

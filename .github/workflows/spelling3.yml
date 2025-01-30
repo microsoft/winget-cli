@@ -91,26 +91,42 @@ jobs:
     steps:
       - name: check-spelling
         id: spelling
-        uses: check-spelling/check-spelling@v0.0.22
+        uses: check-spelling/check-spelling@v0.0.24
         with:
           suppress_push_for_open_pull_request: ${{ github.actor != 'dependabot[bot]' && 1 }}
           checkout: true
           check_file_names: 1
           post_comment: 0
           use_magic_file: 1
-          warnings: bad-regex,binary-file,deprecated-feature,ignored-expect-variant,large-file,limited-references,no-newline-at-eof,noisy-file,non-alpha-in-dictionary,token-is-substring,unexpected-line-ending,whitespace-in-dictionary,minified-file,unsupported-configuration,no-files-to-check
-          extra_dictionary_limit: 10
+          warnings: bad-regex,binary-file,deprecated-feature,ignored-expect-variant,large-file,limited-references,no-newline-at-eof,noisy-file,non-alpha-in-dictionary,token-is-substring,unexpected-line-ending,whitespace-in-dictionary,minified-file,unsupported-configuration,no-files-to-check,unclosed-block-ignore-begin,unclosed-block-ignore-end
+          check_extra_dictionaries: ""
+          dictionary_source_prefixes: >
+            {
+            "cspell": "https://raw.githubusercontent.com/check-spelling/cspell-dicts/v20241114/dictionaries/"
+            }
           extra_dictionaries: |
-            cspell:cpp/src/compiler-msvc.txt
-            cspell:cpp/src/stdlib-c.txt
-            cspell:cpp/src/stdlib-cpp.txt
+            cspell:software-terms/softwareTerms.txt
+            cspell:cpp/stdlib-cpp.txt
             cspell:filetypes/filetypes.txt
-            cspell:fullstack/dict/fullstack.txt
-            cspell:powershell/dict/powershell.txt
-            cspell:software-terms/dict/softwareTerms.txt
+            cspell:cpp/stdlib-c.txt
+            cspell:php/php.txt
+            cspell:python/python/python-lib.txt
+            cspell:dotnet/dotnet.txt
+            cspell:golang/go.txt
+            cspell:cpp/compiler-msvc.txt
+            cspell:dart/dart.txt
+            cspell:html/html.txt
+            cspell:powershell/powershell.txt
+            cspell:aws/aws.txt
+            cspell:python/common/extra.txt
+            cspell:node/node.txt
+            cspell:npm/npm.txt
+            cspell:fullstack/fullstack.txt
+            cspell:java/java.txt
             cspell:csharp/csharp.txt
-            cspell:dotnet/dict/dotnet.txt
-          check_extra_dictionaries: ''
+            cspell:cpp/ecosystem.txt
+            cspell:typescript/typescript.txt
+            cspell:cpp/lang-keywords.txt
 
   comment-pr:
     name: Report (PR)
@@ -124,7 +140,7 @@ jobs:
     if: (success() || failure()) && needs.spelling.outputs.followup && contains(github.event_name, 'pull_request')
     steps:
       - name: comment
-        uses: check-spelling/check-spelling@v0.0.22
+        uses: check-spelling/check-spelling@v0.0.24
         with:
           checkout: true
           task: ${{ needs.spelling.outputs.followup }}

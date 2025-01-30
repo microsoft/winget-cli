@@ -65,7 +65,12 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(ScopeNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(ShadowManifestNotAllowed);
         WINGET_DEFINE_RESOURCE_STRINGID(SingleManifestPackageHasDependencies);
-        WINGET_DEFINE_RESOURCE_STRINGID(UnsupportedMultiFileManifestType);  
+        WINGET_DEFINE_RESOURCE_STRINGID(UnsupportedMultiFileManifestType);
+        WINGET_DEFINE_RESOURCE_STRINGID(SchemaHeaderNotFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidSchemaHeader);
+        WINGET_DEFINE_RESOURCE_STRINGID(SchemaHeaderManifestTypeMismatch);
+        WINGET_DEFINE_RESOURCE_STRINGID(SchemaHeaderManifestVersionMismatch);
+        WINGET_DEFINE_RESOURCE_STRINGID(SchemaHeaderUrlPatternMismatch);
     }
 
     struct ValidationError
@@ -131,6 +136,20 @@ namespace AppInstaller::Manifest
         static ValidationError MessageContextValueWithFile(AppInstaller::StringResource::StringId message, std::string context, std::string value, std::string file)
         {
             ValidationError error{ message, context, value };
+            error.FileName = file;
+            return error;
+        }
+
+        static ValidationError MessageLevelWithFile(AppInstaller::StringResource::StringId message, Level level, std::string file)
+        {
+            ValidationError error{ message, level };
+            error.FileName = file;
+            return error;
+        }
+
+        static ValidationError MessageContextValueLineLevelWithFile(AppInstaller::StringResource::StringId message, std::string context, std::string value, size_t line, size_t column , Level level , std::string file)
+        {
+            ValidationError error{ message, context, value, line, column, level };
             error.FileName = file;
             return error;
         }

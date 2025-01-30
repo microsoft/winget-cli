@@ -197,6 +197,21 @@ namespace AppInstaller::Utility
                 SetUnknownProperty(DODownloadProperty_StreamInterface, streamInterface);
             }
 
+            void CustomHeaders(const std::vector<DownloadRequestHeader>& headers)
+            {
+                // DODownloadProperty_HttpCustomAuthHeaders is not used (does not work in our auth scenario). It is only used when challenged.
+                std::string customHeaders;
+                for (const auto& header : headers)
+                {
+                    customHeaders += header.Name + ": " + header.Value + "\r\n";
+                }
+
+                if (!customHeaders.empty())
+                {
+                    SetProperty(DODownloadProperty_HttpCustomHeaders, customHeaders);
+                }
+            }
+
             // Properties that may be interesting for future use:
             // https://docs.microsoft.com/en-us/windows/win32/delivery_optimization/deliveryoptimizationdownloadtypes/ne-deliveryoptimizationdownloadtypes-dodownloadproperty
             //  - DODownloadProperty_CostPolicy :: Allow user to specify how to behave on metered networks
@@ -430,6 +445,11 @@ namespace AppInstaller::Utility
             if (!info->ContentId.empty())
             {
                 download.ContentId(info->ContentId);
+            }
+
+            if (!info->RequestHeaders.empty())
+            {
+                download.CustomHeaders(info->RequestHeaders);
             }
         }
 

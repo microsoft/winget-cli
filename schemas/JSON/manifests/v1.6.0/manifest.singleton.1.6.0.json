@@ -73,7 +73,9 @@
       "type": "object",
       "properties": {
         "IconUrl": {
-          "$ref": "#/definitions/Url",
+          "type": "string",
+          "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
+          "maxLength": 2048,
           "description": "The url of the hosted icon file"
         },
         "IconFileType": {
@@ -346,7 +348,8 @@
             "$ref": "#/definitions/Url",
             "description": "The return response url to provide additional guidance for expected return codes"
           }
-        }
+        },
+        "required": [ "InstallerReturnCode", "ReturnResponse" ]
       },
       "maxItems": 128,
       "description": "Installer exit codes for common errors"

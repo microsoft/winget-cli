@@ -179,7 +179,8 @@
               "blockedByPolicy"
             ]
           }
-        }
+        },
+        "required": [ "InstallerReturnCode", "ReturnResponse" ]
       },
       "maxItems": 128,
       "description": "Installer exit codes for common errors"

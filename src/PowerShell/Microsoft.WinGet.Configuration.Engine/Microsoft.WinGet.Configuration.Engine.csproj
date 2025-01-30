@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!-- Keep in sync with attributes in AssemblyInfo.cs -->
-    <TargetFramework>net6.0-windows10.0.22000</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.22000</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Nullable>enable</Nullable>
     <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
@@ -10,11 +10,11 @@
     <DocumentationFile>$(OutputPath)\$(MSBuildProjectName).xml</DocumentationFile>
     <RuntimeIdentifier>win</RuntimeIdentifier>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
+    <CsWinRTCcwLookupTableGeneratorEnabled>false</CsWinRTCcwLookupTableGeneratorEnabled>
     <!--
-    Forcing this version to continue using an older CsWinRT release while issues are resolved.
-    !!! Remove this on the next Microsoft.Windows.CsWinRT package version update. !!!
+    !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
-    <WindowsSdkPackageVersion>10.0.22000.34</WindowsSdkPackageVersion>
+    <WindowsSdkPackageVersion>10.0.22000.53</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -48,7 +48,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.6" />
   </ItemGroup>
 
   <ItemGroup>

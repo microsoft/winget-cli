@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows10.0.22000.0</TargetFramework>
+    <RootNamespace>Configuration_OutOfProc</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Platforms>x64;x86;ARM64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsPackageManager.Configuration.OutOfProc" Version="1.9.25180" GeneratePathProperty="True" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="$(PkgMicrosoft_WindowsPackageManager_Configuration_OutOfProc)\runtimes\win10-$(Platform)\native\Microsoft.Management.Configuration.dll" Link="Microsoft.Management.Configuration.dll" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="$(PkgMicrosoft_WindowsPackageManager_Configuration_OutOfProc)\runtimes\win10-$(Platform)\native\Microsoft.Management.Configuration.winmd" Link="Microsoft.Management.Configuration.winmd" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

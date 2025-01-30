@@ -25,6 +25,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void Units(std::vector<Configuration::ConfigurationUnit>&& units);
         void Parameters(std::vector<Configuration::ConfigurationParameter>&& value);
         void ConfigurationSetChange(com_ptr<ConfigurationSetChangeData>& data, const std::optional<guid>& unitInstanceIdentifier);
+        std::vector<Configuration::ConfigurationEnvironment> GetUnitEnvironmentsInternal();
 #endif
 
         hstring Name();
@@ -66,6 +67,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         Windows::Foundation::Uri SchemaUri();
         void SchemaUri(const Windows::Foundation::Uri& value);
+
+        Windows::Foundation::Collections::IVector<Configuration::ConfigurationEnvironment> GetUnitEnvironments();
 
         HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher);
 

@@ -860,9 +860,6 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Nicht verfügbare Pakete ignorieren</value>
   </data>
-  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
-    <value>Paketversionen in die erstellte Datei einschließen</value>
-  </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>Paketversionen aus Importdatei ignorieren</value>
   </data>
@@ -1283,6 +1280,9 @@ Stimmen Sie den Bedingungen zu?</value>
   </data>
   <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
     <value>Die Installation dieses Pakets wird von der aktuellen Systemkonfiguration nicht unterstützt.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCustomError" xml:space="preserve">
+    <value>Fehler bei der Installation des benutzerdefinierten Installationsprogramms. Wenden Sie sich an den Paketsupport.</value>
   </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>Deinstallation abgebrochen</value>
@@ -1808,6 +1808,9 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
   </data>
   <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
     <value>Die Konfiguration wurde erfolgreich angewendet.</value>
+  </data>
+  <data name="ConfigurationUnitSuccessfullyApplied" xml:space="preserve">
+    <value>Die Einheit wurde erfolgreich angewendet.</value>
   </data>
   <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
     <value>Eine andere Konfiguration wird auf das System angewendet. Diese Konfiguration wird so bald wie möglich fortgesetzt...</value>
@@ -2521,6 +2524,9 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
   <data name="APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED" xml:space="preserve">
     <value>Das Upgrade eines vorhandenen Pakets wird vom Installationsprogramm nicht unterstützt.</value>
   </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_CUSTOM_ERROR" xml:space="preserve">
+    <value>Die Installation ist mit einem Fehler des benutzerdefinierten Installationsprogramms fehlgeschlagen.</value>
+  </data>
   <data name="WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND" xml:space="preserve">
     <value>Der Eintrag "Apps und Features" für das Paket wurde nicht gefunden.</value>
   </data>
@@ -2753,7 +2759,7 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
     <value>Geben Sie das Konto an, das für die Authentifizierung verwendet werden soll</value>
   </data>
   <data name="SourceAddFailedAuthenticationNotSupported" xml:space="preserve">
-    <value>Fehler beim Hinzufügen der Quelle. Diese winget Version unterstützt die Authentifizierungsmethode der Quelle nicht. Führen Sie ein Upgrade auf die neueste winget version durch.</value>
+    <value>Fehler beim Hinzufügen der Quelle. Diese winget Version unterstützt die Authentifizierungsmethode der Quelle nicht. Versuchen Sie, ein Upgrade auf die neueste winget Version durchzuführen.</value>
     <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRequiresAuthentication" xml:space="preserve">
@@ -2967,14 +2973,6 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>Konfigurationseinstellungen werden abgerufen...</value>
   </data>
-  <data name="ConfigureExportArgumentError" xml:space="preserve">
-    <value>Es müssen mindestens --packageId und/oder --module mit --resource angegeben werden</value>
-    <comment>{Locked="--packageId,--module, --resource"}</comment>
-  </data>
-  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
-    <value>Exportiert Konfigurationsressourcen in eine Konfigurationsdatei. Bei Verwendung mit "--packageId" wird eine WinGetPackage-Ressource der angegebenen Paket-ID exportiert. Bei Verwendung mit "--module" und "--resource" werden die Einstellungen der Ressource abgerufen und in die Konfigurationsdatei exportiert. Wenn die Ausgabekonfigurationsdatei bereits vorhanden ist, werden die exportierten Konfigurationsressourcen angefügt.</value>
-    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
-  </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
     <value>Exportiert Konfigurationsressourcen in eine Konfigurationsdatei.</value>
   </data>
@@ -3138,5 +3136,54 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
   </data>
   <data name="InstallerZeroByteFile" xml:space="preserve">
     <value>Das Zero-Byte-Installationsprogramm wurde heruntergeladen. stellen Sie sicher, dass die Netzwerkverbindung ordnungsgemäß funktioniert.</value>
+  </data>
+  <data name="FontCommandShortDescription" xml:space="preserve">
+    <value>Schriftarten verwalten</value>
+  </data>
+  <data name="FontCommandLongDescription" xml:space="preserve">
+    <value>Verwalten sie Schriftarten mit Unterbefehlen. Schriftarten können ähnlich wie Pakete installiert, aktualisiert oder deinstalliert werden. </value>
+  </data>
+  <data name="FontFamily" xml:space="preserve">
+    <value>Familie</value>
+  </data>
+  <data name="FontFaces" xml:space="preserve">
+    <value>Gesichter</value>
+    <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
+    <value>Ergebnisse nach Familienname filtern</value>
+  </data>
+  <data name="FontFace" xml:space="preserve">
+    <value>Gesicht</value>
+    <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFilePaths" xml:space="preserve">
+    <value>Pfade</value>
+  </data>
+  <data name="NoInstalledFontFound" xml:space="preserve">
+    <value>Es wurde keine installierte Schriftart gefunden, die den Eingabekriterien entspricht.</value>
+  </data>
+  <data name="FontListCommandShortDescription" xml:space="preserve">
+    <value>Installierte Schriftarten auflisten</value>
+  </data>
+  <data name="FontListCommandLongDescription" xml:space="preserve">
+    <value>Alle installierten Schriftarten oder vollständige Details einer bestimmten Schriftart auflisten.</value>
+  </data>
+  <data name="FontVersion" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="ConfigurationModules" xml:space="preserve">
+    <value>Konfigurationsmodule</value>
+    <comment>PowerShell Modules that are used for the Configuration feature</comment>
+  </data>
+  <data name="InstallerDownloadRequiresAuthentication" xml:space="preserve">
+    <value>Das Paketinstallationsprogramm erfordert eine Authentifizierung. Bei Bedarf wird möglicherweise eine Authentifizierungsaufforderung angezeigt. Authentifizierte Informationen werden mit der Download-URL des Installers geteilt.</value>
+  </data>
+  <data name="InstallerDownloadAuthenticationNotSupported" xml:space="preserve">
+    <value>Fehler beim Herunterladen des Installers. Diese winget Version unterstützt die Downloadauthentifizierungsmethode des Installers nicht. Versuchen Sie, ein Upgrade auf die neueste winget Version durchzuführen.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
+    <value>Fehler beim Herunterladen des Installationsprogramms. Fehler bei der Authentifizierung.</value>
   </data>
 </root>

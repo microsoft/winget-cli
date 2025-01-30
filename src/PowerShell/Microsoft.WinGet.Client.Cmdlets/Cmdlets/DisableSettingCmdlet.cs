@@ -25,6 +25,12 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
             Mandatory = true,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
+        [ValidateSet(
+            "LocalManifestFiles",
+            "BypassCertificatePinningForMicrosoftStore",
+            "InstallerHashOverride",
+            "LocalArchiveMalwareScanOverride",
+            "ProxyCommandLineOptions")]
         public string Name { get; set; }
 
         /// <summary>

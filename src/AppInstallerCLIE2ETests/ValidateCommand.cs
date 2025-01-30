@@ -80,5 +80,47 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_PATH_NOT_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("Path does not exist"));
         }
+
+        /// <summary>
+        /// Test validate manifest with invalid schema and expect warnings.
+        /// </summary>
+        [Test]
+        public void ValidateManifestV1_10_SchemaHeaderExpectWarnings()
+        {
+            var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestWarningManifestV1_10-SchemaHeaderNotFound.yaml"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_MANIFEST_VALIDATION_WARNING, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Manifest validation succeeded with warnings."));
+            Assert.True(result.StdOut.Contains("Manifest Warning: Schema header not found."));
+
+            result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestWarningManifestV1_10-SchemaHeaderInvalid.yaml"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_MANIFEST_VALIDATION_WARNING, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Manifest validation succeeded with warnings."));
+            Assert.True(result.StdOut.Contains("Manifest Warning: The schema header is invalid. Please verify that the schema header is present and formatted correctly."));
+
+            result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestWarningManifestV1_10-SchemaHeaderURLPatternMismatch.yaml"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_MANIFEST_VALIDATION_WARNING, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Manifest validation succeeded with warnings."));
+            Assert.True(result.StdOut.Contains("Manifest Warning: The schema header URL does not match the expected pattern"));
+
+            result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestWarningManifestV1_10-SchemaHeaderManifestTypeMismatch.yaml"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_MANIFEST_VALIDATION_WARNING, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Manifest validation succeeded with warnings."));
+            Assert.True(result.StdOut.Contains("Manifest Warning: The manifest type in the schema header does not match the ManifestType property value in the manifest."));
+
+            result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestWarningManifestV1_10-SchemaHeaderVersionMismatch.yaml"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_MANIFEST_VALIDATION_WARNING, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Manifest validation succeeded with warnings."));
+            Assert.True(result.StdOut.Contains("Manifest Warning: The manifest version in the schema header does not match the ManifestVersion property value in the manifest."));
+        }
+
+        /// <summary>
+        /// Test validate manifest with valid schema header.
+        /// </summary>
+        [Test]
+        public void ValidateManifestV1_10_SchemaHeaderExpectNoWarning()
+        {
+            var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestGoodManifestV1_10-SchemaHeader.yaml"));
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+        }
     }
 }

@@ -551,7 +551,7 @@
     <PropertyGroup>
       <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
       <MicrosoftManagementConfigurationProcessorPath>$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorPath>
-      <MicrosoftManagementConfigurationProcessorPath Condition="!Exists('$(MicrosoftManagementConfigurationProcessorPath)')">$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\net6.0-windows10.0.22000.0\win\Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorPath>
+      <MicrosoftManagementConfigurationProcessorPath Condition="!Exists('$(MicrosoftManagementConfigurationProcessorPath)')">$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\net8.0-windows10.0.22000.0\win\Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorPath>
     </PropertyGroup>
     <Message Importance="high" Text="Microsoft.Management.Configuration.Processor.winmd -&gt; $(MicrosoftManagementConfigurationProcessorPath)" />
     <Error Condition="!Exists('$(MicrosoftManagementConfigurationProcessorPath)')" Text="Microsoft.Management.Configuration.Processor.winmd was not found in $(MicrosoftManagementConfigurationProcessorPath)" />

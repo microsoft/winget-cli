@@ -141,7 +141,7 @@ namespace AppInstaller::Logging
         void DisableChannel(Channel channel);
 
         // Sets the enabled level.
-        // All levels higher than this level will be enabled.
+        // All levels above this level will be enabled.
         // For example; SetLevel(Verbose) will enable all logs.
         void SetLevel(Level level);
 

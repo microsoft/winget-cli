@@ -107,9 +107,9 @@ Markets:
 ExpectedReturnCodes:
     - InstallerReturnCode: 2
       ReturnResponse: contactSupport
+      ReturnResponseUrl: https://defaultReturnResponseUrl.com
     - InstallerReturnCode: 3
       ReturnResponse: custom
-      ReturnResponseUrl: https://defaultReturnResponseUrl.com
 UnsupportedArguments:
   - log
 NestedInstallerType: msi
@@ -229,8 +229,9 @@ Installers:
       ExcludedMarkets:
         - "US"
     ExpectedReturnCodes:
-    - InstallerReturnCode: 2
-      ReturnResponse: contactSupport
+      - InstallerReturnCode: 2
+        ReturnResponse: contactSupport
+        ReturnResponseUrl: https://returnResponseUrl.com
     DownloadCommandProhibited: true
     ArchiveBinariesDependOnPath: false
     RepairBehavior: modify
@@ -247,5 +248,6 @@ Installers:
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
     InstallerType: exe
     ProductCode: '{Bar}'
+    MSStoreProductIdentifier: fakeIdentifier
 ManifestType: merged
 ManifestVersion: 1.7.0

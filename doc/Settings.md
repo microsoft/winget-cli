@@ -23,7 +23,7 @@ The `source` settings involve configuration to the WinGet source.
 A positive integer represents the update interval in minutes. The check for updates only happens when a source is used. A zero will disable the check for updates to a source. Any other values are invalid.
 
 - Disable: 0
-- Default: 5
+- Default: 15
 
 To manually update the source use `winget source update`
 
@@ -33,11 +33,15 @@ The `visual` settings involve visual elements that are displayed by WinGet
 
 ### progressBar
 
-Color of the progress bar that WinGet displays when not specified by arguments.
+Style of the progress spinner and bar that WinGet displays when not specified by arguments. In addition, all options except `disabled` send [Virtual Terminal progress](https://conemu.github.io/en/AnsiEscapeCodes.html#ConEmu_specific_OSC) updates that any supporting terminal may display visually.
 
-- accent (default)
-- retro
-- rainbow
+|Value|Description|Release|
+|---|---|---|
+|`accent` (default)|Use the [Windows Accent color](https://support.microsoft.com/en-us/windows/change-colors-in-windows-d26ef4d6-819a-581c-1581-493cfcc005fe)|1.0|
+|`retro`|Use the current foreground terminal color|1.0|
+|`rainbow`|Progress through a rainbow of colors|1.0|
+|`sixel`|Use sixel images; requires a terminal that supports displaying sixels, such as [Windows Terminal](https://github.com/microsoft/terminal/releases) 1.22.2362 or later|1.9|
+|`disabled`|No progress will be displayed|1.9|
 
 ```json
     "visual": {
@@ -70,6 +74,7 @@ Enables output of sixel images in certain contexts. Defaults to false.
 The `installBehavior` settings affect the default behavior of installing and upgrading (where applicable) packages.
 
 ### Disable Install Notes
+
 The `disableInstallNotes` behavior affects whether installation notes are shown after a successful install. Defaults to `false` if value is not set or is invalid.
 
 ```json
@@ -79,6 +84,7 @@ The `disableInstallNotes` behavior affects whether installation notes are shown 
 ```
 
 ### Portable Package User Root
+
 The `portablePackageUserRoot` setting affects the default root directory where packages are installed to under `User` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%LOCALAPPDATA%/Microsoft/WinGet/Packages/` if value is not set or is invalid.
 
 > Note: This setting value must be an absolute path.
@@ -90,6 +96,7 @@ The `portablePackageUserRoot` setting affects the default root directory where p
 ```
 
 ### Portable Package Machine Root
+
 The `portablePackageMachineRoot` setting affects the default root directory where packages are installed to under `Machine` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%PROGRAMFILES%/WinGet/Packages/` if value is not set or is invalid.
 
 > Note: This setting value must be an absolute path.
@@ -101,6 +108,7 @@ The `portablePackageMachineRoot` setting affects the default root directory wher
 ```
 
 ### Skip Dependencies
+
 The 'skipDependencies' behavior affects whether dependencies are installed for a given package. Defaults to 'false' if value is not set or is invalid.
 
 ```json
@@ -110,7 +118,8 @@ The 'skipDependencies' behavior affects whether dependencies are installed for a
 ```
 
 ### Archive Extraction Method
-The 'archiveExtractionMethod' behavior affects how installer archives are extracted. Currently there are two supported values: `Tar` or `ShellApi`.
+
+The `archiveExtractionMethod` behavior affects how installer archives are extracted. Currently there are two supported values: `Tar` or `ShellApi`.
 `Tar` indicates that the archive should be extracted using the tar executable ('tar.exe') while `shellApi` indicates using the Windows Shell API. Defaults to `shellApi` if value is not set or is invalid.
 
 ```json
@@ -124,6 +133,11 @@ The 'archiveExtractionMethod' behavior affects how installer archives are extrac
 Some of the settings are duplicated under `preferences` and `requirements`. `preferences` affect how the various available options are sorted when choosing the one to act on.  For instance, the default scope of package installs is for the current user, but if that is not an option then a machine level installer will be chosen. `requirements` filter the options, potentially resulting in an empty list and a failure to install. In the previous example, a user scope requirement would result in no applicable installers and an error.
 
 Any arguments passed on the command line will effectively override the matching `requirement` setting for the duration of that command.
+
+> [!NOTE]
+>
+> - These settings are only applied for the `winget install` command.
+> - Other commands like `winget configure` are not affected by these settings.
 
 ### Scope
 
@@ -148,6 +162,7 @@ The `locale` behavior affects the choice of installer based on installer locale.
         }
     },
 ```
+
 ### Architectures
 
 The `architectures` behavior affects what architectures will be selected when installing a package. The matching parameter is `--architecture`. Note that only architectures compatible with your system can be selected.
@@ -182,6 +197,18 @@ The `defaultInstallRoot` affects the install location when a package requires on
     },
 ```
 
+### Maximum resumes
+
+The `maxResumes` setting determines the maximum number of times that a command may be resumed automatically. The default value is 3.
+
+```json
+    "installBehavior": {
+        "maxResumes": 3
+    },
+```
+
+> Note: [The resume behavior is an experimental feature.](#resume)
+
 ## Uninstall Behavior
 
 The `uninstallBehavior` settings affect the default behavior of uninstalling (where applicable) packages.
@@ -193,6 +220,22 @@ The `purgePortablePackage` behavior affects the default behavior for uninstallin
 ```json
     "uninstallBehavior": {
         "purgePortablePackage": true
+    },
+```
+
+## Configure Behavior
+
+The `configureBehavior` settings affect the default behavior of applying a configuration.
+
+### Default Module Root
+
+The `defaultModuleRoot` behavior affects the default root directory where modules are installed to. Defaults to `%LOCALAPPDATA%/Microsoft/WinGet/Configuration/Modules` if value is not set or is invalid.
+
+> Note: This setting value must be an absolute path.
+
+```json
+    "configureBehavior": {
+        "defaultModuleRoot": "C:/Program Files/Modules/"
     },
 ```
 
@@ -230,7 +273,8 @@ Defaults to `info` if value is not set or is invalid.
 ### channels
 
 The valid values in this array are defined in the function `GetChannelFromName` in the [logging code](../src/AppInstallerSharedLib/AppInstallerLogging.cpp).  These align with the ***channel identifier*** found in the log files.  For example, ***`CORE`*** in:
-```
+
+```plaintext
 2023-12-06 19:17:07.988 [CORE] WinGet, version [1.7.0-preview], activity [{24A91EA8-46BE-47A1-B65C-CEBCE90B8675}]
 ```
 

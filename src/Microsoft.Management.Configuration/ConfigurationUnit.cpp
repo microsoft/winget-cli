@@ -168,6 +168,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         result->m_metadata = Clone(m_metadata);
         result->m_settings = Clone(m_settings);
         result->m_details = m_details;
+        result->m_environment = make_self<implementation::ConfigurationEnvironment>(*m_environment);
 
         return *result;
     }
@@ -212,6 +213,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationUnit::Units(std::vector<Configuration::ConfigurationUnit>&& value)
     {
         m_units = winrt::multi_threaded_vector<Configuration::ConfigurationUnit>(std::move(value));
+    }
+
+    Configuration::ConfigurationEnvironment ConfigurationUnit::Environment()
+    {
+        return *m_environment;
+    }
+
+    implementation::ConfigurationEnvironment& ConfigurationUnit::EnvironmentInternal()
+    {
+        return *m_environment;
     }
 
     HRESULT STDMETHODCALLTYPE ConfigurationUnit::SetLifetimeWatcher(IUnknown* watcher)

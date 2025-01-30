@@ -278,9 +278,9 @@ namespace AppInstaller::CLI::Workflow
         Utility::Architecture requiredArchitecture = Utility::Architecture::Unknown;
         Manifest::PlatformEnum requiredPlatform = Manifest::PlatformEnum::Unknown;
         std::string requiredLocale;
-        if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
+        if (context.Args.Contains(Execution::Args::Type::InstallerArchitecture))
         {
-            requiredArchitecture = Utility::ConvertToArchitectureEnum(context.Args.GetArg(Execution::Args::Type::InstallArchitecture));
+            requiredArchitecture = Utility::ConvertToArchitectureEnum(context.Args.GetArg(Execution::Args::Type::InstallerArchitecture));
         }
         if (context.Args.Contains(Execution::Args::Type::Platform))
         {

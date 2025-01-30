@@ -5,6 +5,7 @@
 #include <winget/RepositorySource.h>
 #include <winget/Manifest.h>
 #include <winget/ARPCorrelation.h>
+#include <winget/Authentication.h>
 #include <winget/Pin.h>
 #include <winget/PinningData.h>
 #include "CompletionData.h"
@@ -67,6 +68,7 @@ namespace AppInstaller::CLI::Execution
         ModifyPath,
         RepairString,
         MsixDigests,
+        InstallerDownloadAuthenticators,
         Max
     };
 
@@ -289,6 +291,13 @@ namespace AppInstaller::CLI::Execution
         {
             // The pair is { URL, Digest }
             using value_t = std::vector<std::pair<std::string, std::wstring>>;
+        };
+
+        template<>
+        struct DataMapping<Data::InstallerDownloadAuthenticators>
+        {
+            // The authenticator map shared with sub contexts
+            using value_t = std::shared_ptr<std::map<Authentication::AuthenticationInfo, Authentication::Authenticator>>;
         };
     }
 }

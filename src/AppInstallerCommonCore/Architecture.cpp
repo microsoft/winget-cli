@@ -229,22 +229,23 @@ namespace AppInstaller::Utility
     {
         Architecture systemArchitecture = Architecture::Unknown;
 
-        SYSTEM_INFO systemInfo;
-        ZeroMemory(&systemInfo, sizeof(SYSTEM_INFO));
-        GetNativeSystemInfo(&systemInfo);
+        USHORT processArchitecture = IMAGE_FILE_MACHINE_UNKNOWN;
+        USHORT machineArchitecture = IMAGE_FILE_MACHINE_UNKNOWN;
+        // Just log the error if failed and return architecture Unknown.
+        LOG_IF_WIN32_BOOL_FALSE(IsWow64Process2(GetCurrentProcess(), &processArchitecture, &machineArchitecture));
 
-        switch (systemInfo.wProcessorArchitecture)
+        switch (machineArchitecture)
         {
-        case PROCESSOR_ARCHITECTURE_AMD64:
+        case IMAGE_FILE_MACHINE_AMD64:
             systemArchitecture = Architecture::X64;
             break;
-        case PROCESSOR_ARCHITECTURE_ARM:
+        case IMAGE_FILE_MACHINE_ARM:
             systemArchitecture = Architecture::Arm;
             break;
-        case PROCESSOR_ARCHITECTURE_ARM64:
+        case IMAGE_FILE_MACHINE_ARM64:
             systemArchitecture = Architecture::Arm64;
             break;
-        case PROCESSOR_ARCHITECTURE_INTEL:
+        case IMAGE_FILE_MACHINE_I386:
             systemArchitecture = Architecture::X86;
             break;
         }
@@ -256,6 +257,12 @@ namespace AppInstaller::Utility
     {
         static std::vector<Architecture> applicableArchs = CreateApplicableArchitecturesVector();
         return applicableArchs;
+    }
+
+    const std::vector<Architecture>& GetAllArchitectures()
+    {
+        static std::vector<Architecture> allArchs = { Architecture::Neutral, Architecture::X86, Architecture::X64, Architecture::Arm, Architecture::Arm64 };
+        return allArchs;
     }
 
     int IsApplicableArchitecture(Architecture arch)

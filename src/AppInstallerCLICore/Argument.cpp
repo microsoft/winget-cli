@@ -77,6 +77,8 @@ namespace AppInstaller::CLI
             return { type, "scope"_liv, ArgTypeCategory::InstallerSelection | ArgTypeCategory::CopyValueToSubContext };
         case Execution::Args::Type::InstallArchitecture:
             return { type, "architecture"_liv, 'a', ArgTypeCategory::InstallerSelection | ArgTypeCategory::CopyValueToSubContext };
+        case Execution::Args::Type::InstallerArchitecture: // Used for input architecture that does not need applicability check. E.g. Download, Show.
+            return { type, "architecture"_liv, 'a', ArgTypeCategory::InstallerSelection | ArgTypeCategory::CopyValueToSubContext };
         case Execution::Args::Type::InstallerType:
             return { type, "installer-type"_liv, ArgTypeCategory::InstallerSelection };
         case Execution::Args::Type::HashOverride:
@@ -221,6 +223,8 @@ namespace AppInstaller::CLI
             return { type, "module"_liv };
         case Execution::Args::Type::ConfigurationExportResource:
             return { type, "resource"_liv };
+        case Execution::Args::Type::ConfigurationExportAll:
+            return { type, "all"_liv, 'r', "recurse"_liv };
         case Execution::Args::Type::ConfigurationHistoryItem:
             return { type, "history"_liv, 'h', ArgTypeCategory::ConfigurationSetChoice, ArgTypeExclusiveSet::ConfigurationSetChoice };
         case Execution::Args::Type::ConfigurationHistoryRemove:
@@ -277,9 +281,9 @@ namespace AppInstaller::CLI
 
         // Authentication arguments
         case Execution::Args::Type::AuthenticationMode:
-            return { type, "authentication-mode"_liv };
+            return { type, "authentication-mode"_liv, ArgTypeCategory::CopyValueToSubContext };
         case Execution::Args::Type::AuthenticationAccount:
-            return { type, "authentication-account"_liv };
+            return { type, "authentication-account"_liv, ArgTypeCategory::CopyValueToSubContext };
 
         // Used for demonstration purposes
         case Execution::Args::Type::ExperimentalArg:
@@ -337,6 +341,8 @@ namespace AppInstaller::CLI
         case Args::Type::Locale:
             return Argument{ type, Resource::String::LocaleArgumentDescription, ArgumentType::Standard };
         case Args::Type::InstallArchitecture:
+            return Argument{ type, Resource::String::ArchitectureArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
+        case Args::Type::InstallerArchitecture:
             return Argument{ type, Resource::String::ArchitectureArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Log:
             return Argument{ type, Resource::String::LogArgumentDescription, ArgumentType::Standard };

@@ -191,3 +191,45 @@ TEST_CASE("TrackingCatalog_Uninstall", "[tracking_catalog]")
     SearchResult resultAfter = catalog.Search(request);
     REQUIRE(resultAfter.Matches.size() == 0);
 }
+
+TEST_CASE("TrackingCatalog_Overlapping_ARP_Range", "[tracking_catalog]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SourceDetails details;
+    Manifest manifest;
+    std::string relativePath;
+    auto source = SimpleTestSetup(tempFile, details, manifest, relativePath);
+
+    REQUIRE(manifest.Installers.size() >= 2);
+    AppsAndFeaturesEntry appEntry{};
+    appEntry.DisplayVersion = "1.23";
+    manifest.Installers[0].AppsAndFeaturesEntries.emplace_back(appEntry);
+    appEntry.DisplayVersion = "1.24";
+    manifest.Installers[1].AppsAndFeaturesEntries.emplace_back(appEntry);
+
+    PackageTrackingCatalog catalog = CreatePackageTrackingCatalogForSource(source);
+
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, manifest.Id);
+
+    catalog.RecordInstall(manifest, manifest.Installers[0], false);
+
+    SearchResult resultBefore = catalog.Search(request);
+    REQUIRE(resultBefore.Matches.size() == 1);
+    REQUIRE(resultBefore.Matches[0].Package->GetAvailable().size() == 1);
+    REQUIRE(resultBefore.Matches[0].Package->GetAvailable()[0]->GetLatestVersion()->GetProperty(PackageVersionProperty::Version) ==
+        manifest.Version);
+
+    // Change version
+    manifest.Version = "99.1.2.3";
+
+    catalog.RecordInstall(manifest, manifest.Installers[0], true);
+
+    SearchResult resultAfter = catalog.Search(request);
+    REQUIRE(resultAfter.Matches.size() == 1);
+    REQUIRE(resultAfter.Matches[0].Package->GetAvailable().size() == 1);
+    REQUIRE(resultAfter.Matches[0].Package->GetAvailable()[0]->GetLatestVersion()->GetProperty(PackageVersionProperty::Version) ==
+        manifest.Version);
+}

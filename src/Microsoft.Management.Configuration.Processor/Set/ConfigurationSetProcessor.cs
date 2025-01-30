@@ -217,9 +217,25 @@ namespace Microsoft.Management.Configuration.Processor.Set
 
         private static bool ConfigurationUnitEquals(ConfigurationUnit first, ConfigurationUnit second)
         {
-            if (first.Identifier != second.Identifier ||
-                first.Type != second.Type ||
-                first.Intent != second.Intent)
+            var firstIdentifier = first.Identifier;
+            var firstIntent = first.Intent;
+            var firstType = first.Type;
+            var secondIdentifier = second.Identifier;
+            var secondType = second.Type;
+            var secondIntent = second.Intent;
+
+            if (firstIdentifier != secondIdentifier ||
+                firstType != secondType ||
+                firstIntent != secondIntent)
+            {
+                return false;
+            }
+
+            var firstEnvironment = first.Environment;
+            var secondEnvironment = second.Environment;
+            if (firstEnvironment.Context != secondEnvironment.Context ||
+                firstEnvironment.ProcessorIdentifier != secondEnvironment.ProcessorIdentifier ||
+                !firstEnvironment.ProcessorProperties.ContentEquals(secondEnvironment.ProcessorProperties))
             {
                 return false;
             }

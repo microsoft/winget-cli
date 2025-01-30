@@ -55,7 +55,9 @@
       "type": "object",
       "properties": {
         "IconUrl": {
-          "$ref": "#/definitions/Url",
+          "type": "string",
+          "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
+          "maxLength": 2048,
           "description": "The url of the hosted icon file"
         },
         "IconFileType": {

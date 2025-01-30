@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows10.0.22000.0</TargetFramework>
+    <RootNamespace>WinGet_InProc</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Platforms>x64;x86;ARM64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
+    <PackageReference Include="Microsoft.WindowsPackageManager.InProcCom" Version="1.9.25180">
+      <!-- NU1701: The package targets .NET Framework, but this uses .NET -->
+      <NoWarn>NU1701</NoWarn>
+      <GeneratePathProperty>true</GeneratePathProperty>
+      <IncludeAssets>none</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- Tell CsWinRT to create the projection for the API -->
+  <PropertyGroup>
+    <CsWinRTWindowsMetadata>10.0.19041.0</CsWinRTWindowsMetadata>
+    <CsWinRTIncludes>Microsoft.Management.Deployment</CsWinRTIncludes>
+  </PropertyGroup>
+  <ItemGroup>
+    <CsWinRTInputs Include="$(PkgMicrosoft_WindowsPackageManager_InProcCom)\lib\Microsoft.Management.Deployment.winmd" />
+  </ItemGroup>
+
+  <!-- Reference and include necessary binaries -->
+  <ItemGroup>
+    <Content Include="$(PkgMicrosoft_WindowsPackageManager_InProcCom)\runtimes\win-$(Platform)\native\Microsoft.Management.Deployment.InProc.dll" Link="Microsoft.Management.Deployment.dll" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="$(PkgMicrosoft_WindowsPackageManager_InProcCom)\runtimes\win-$(Platform)\native\Microsoft.Management.Deployment.InProc.dll.manifest" Link="Microsoft.Management.Deployment.dll.manifest" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="$(PkgMicrosoft_WindowsPackageManager_InProcCom)\runtimes\win-$(Platform)\native\Microsoft.Management.Deployment.winmd" Link="Microsoft.Management.Deployment.winmd" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="$(PkgMicrosoft_WindowsPackageManager_InProcCom)\runtimes\win-$(Platform)\native\WindowsPackageManager.dll" Link="WindowsPackageManager.dll" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

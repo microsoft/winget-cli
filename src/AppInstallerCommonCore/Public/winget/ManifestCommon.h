@@ -47,6 +47,9 @@ namespace AppInstaller::Manifest
     // V1.9 manifest version
     constexpr std::string_view s_ManifestVersionV1_9 = "1.9.0"sv;
 
+    // V1.10 manifest version
+    constexpr std::string_view s_ManifestVersionV1_10 = "1.10.0"sv;
+
     // The manifest extension for the MS Store
     constexpr std::string_view s_MSStoreExtension = "msstore"sv;
 
@@ -60,6 +63,7 @@ namespace AppInstaller::Manifest
         bool FullValidation = false;
         bool ThrowOnWarning = false;
         bool AllowShadowManifest = false;
+        bool SchemaHeaderValidationAsWarning = false;
     };
 
     // ManifestVer is inherited from Utility::Version and is a more restricted version.
@@ -271,7 +275,7 @@ namespace AppInstaller::Manifest
         const string_t& Id() const { return m_id; };
         std::optional<Utility::Version> MinVersion;
 
-        Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), m_id(std::move(id)), MinVersion(Utility::Version(minVersion)), m_foldedId(FoldCase(m_id)) {}
+        Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), m_id(std::move(id)), MinVersion(Utility::Version(std::move(minVersion))), m_foldedId(FoldCase(m_id)) {}
         Dependency(DependencyType type, string_t id) : Type(type), m_id(std::move(id)), m_foldedId(FoldCase(m_id)){}
         Dependency(DependencyType type) : Type(type) {}
 
@@ -285,9 +289,9 @@ namespace AppInstaller::Manifest
             return m_foldedId < rhs.m_foldedId;
         }
 
-        bool IsVersionOk(Utility::Version version)
+        bool IsVersionOk(const Utility::Version& version)
         {
-            return MinVersion <= Utility::Version(version);
+            return MinVersion <= version;
         }
 
         // m_foldedId should be set whenever Id is set
@@ -313,7 +317,7 @@ namespace AppInstaller::Manifest
         void ApplyToAll(std::function<void(const Dependency&)> func) const;
         bool Empty() const;
         void Clear();
-        bool HasExactDependency(DependencyType type, string_t id, string_t minVersion = "");
+        bool HasExactDependency(DependencyType type, const string_t& id, const string_t& minVersion = "");
         size_t Size();
 
     private:

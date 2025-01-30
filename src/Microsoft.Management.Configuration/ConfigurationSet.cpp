@@ -6,9 +6,69 @@
 #include "ConfigurationSetParser.h"
 #include "ConfigurationSetSerializer.h"
 #include "Database/ConfigurationDatabase.h"
+#include <AppInstallerLanguageUtilities.h>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    namespace impl
+    {
+        struct EnvironmentData
+        {
+            EnvironmentData(Configuration::ConfigurationEnvironment environment) :
+                Environment(environment), Context(environment.Context()), Identifier(environment.ProcessorIdentifier()), Properties(environment.ProcessorProperties())
+            {
+            }
+
+            EnvironmentData(EnvironmentData&&) = default;
+
+            bool operator==(const EnvironmentData& other) const
+            {
+                return
+                    Context == other.Context &&
+                    Identifier == other.Identifier &&
+                    ConfigurationEnvironment::AreEqual(Properties, other.Properties);
+            }
+
+            Configuration::ConfigurationEnvironment Environment;
+            SecurityContext Context;
+            hstring Identifier;
+            Windows::Foundation::Collections::IMap<hstring, hstring> Properties;
+        };
+
+        bool ContainsEnvironment(const std::vector<EnvironmentData>& uniqueEnvironments, const EnvironmentData& data)
+        {
+            for (const EnvironmentData& item : uniqueEnvironments)
+            {
+                if (item == data)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        void ComputeUniqueEnvironments(std::vector<EnvironmentData>& uniqueEnvironments, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& units)
+        {
+            for (const Configuration::ConfigurationUnit& unit : units)
+            {
+                if (unit.IsActive())
+                {
+                    EnvironmentData data{ unit.Environment() };
+                    if (!ContainsEnvironment(uniqueEnvironments, data))
+                    {
+                        uniqueEnvironments.emplace_back(std::move(data));
+                    }
+
+                    if (unit.IsGroup())
+                    {
+                        ComputeUniqueEnvironments(uniqueEnvironments, unit.Units());
+                    }
+                }
+            }
+        }
+    }
+
     ConfigurationSet::ConfigurationSet()
     {
         GUID instanceIdentifier;
@@ -221,6 +281,24 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         THROW_HR_IF(E_INVALIDARG, !ConfigurationSetParser::IsRecognizedSchemaUri(value));
         m_schemaVersion = ConfigurationSetParser::GetSchemaVersionForUri(value);
         m_schemaUri = value;
+    }
+
+    std::vector<Configuration::ConfigurationEnvironment> ConfigurationSet::GetUnitEnvironmentsInternal()
+    {
+        std::vector<impl::EnvironmentData> uniqueEnvironments;
+        ComputeUniqueEnvironments(uniqueEnvironments, m_units);
+
+        std::vector<Configuration::ConfigurationEnvironment> result;
+        for (const impl::EnvironmentData& data : uniqueEnvironments)
+        {
+            result.emplace_back(*make_self<implementation::ConfigurationEnvironment>(data.Environment));
+        }
+        return result;
+    }
+
+    Windows::Foundation::Collections::IVector<Configuration::ConfigurationEnvironment> ConfigurationSet::GetUnitEnvironments()
+    {
+        return single_threaded_vector(GetUnitEnvironmentsInternal());
     }
 
     HRESULT STDMETHODCALLTYPE ConfigurationSet::SetLifetimeWatcher(IUnknown* watcher)

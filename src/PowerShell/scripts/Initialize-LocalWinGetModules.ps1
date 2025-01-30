@@ -49,7 +49,8 @@ class WinGetModule
     {
         $this.Name = $n
         $this.ModuleRoot = $m
-        $this.Output = "$o\$($this.Name)\"
+        $this.Output = Join-Path $o $this.Name
+        New-Item $this.Output -ItemType Directory -ErrorAction SilentlyContinue
 
         if (Get-Module -Name $this.Name)
         {
@@ -59,14 +60,15 @@ class WinGetModule
 
     [void]PrepareScriptFiles()
     {
-        Write-Verbose "Copying files: $($this.ModuleRoot) -> $($this.Output)"
+        Write-Verbose "Copying script files: $($this.ModuleRoot) -> $($this.Output)"
         xcopy $this.ModuleRoot $this.Output /d /s /f /y
     }
 
     [void]PrepareBinaryFiles([string] $buildRoot, [string] $config)
     {
+        Write-Verbose "Copying binary files: $buildRoot\AnyCpu\$config\PowerShell\$($this.Name)\* -> $($this.Output)"
         $copyErrors = $null
-        Copy-Item "$buildRoot\AnyCpu\$config\PowerShell\$($this.Name)" $this.Output -Force -Recurse -ErrorVariable copyErrors -ErrorAction SilentlyContinue
+        Copy-Item "$buildRoot\AnyCpu\$config\PowerShell\$($this.Name)\*" $this.Output -Force -Recurse -ErrorVariable copyErrors -ErrorAction SilentlyContinue
         $copyErrors | ForEach-Object { Write-Warning $_ }
     }
 
@@ -200,7 +202,7 @@ if ($moduleToConfigure.HasFlag([ModuleType]::Client))
         "WindowsPackageManager\WindowsPackageManager.dll"
         "UndockedRegFreeWinRT\winrtact.dll"
     )
-    $module.AddArchSpecificFiles($additionalFiles, "net6.0-windows10.0.22000.0\SharedDependencies", $BuildRoot, $Configuration)
+    $module.AddArchSpecificFiles($additionalFiles, "net8.0-windows10.0.22000.0\SharedDependencies", $BuildRoot, $Configuration)
     $module.AddArchSpecificFiles($additionalFiles, "net48\SharedDependencies", $BuildRoot, $Configuration)
     $modules += $module
 }
@@ -224,7 +226,7 @@ if ($moduleToConfigure.HasFlag([ModuleType]::Configuration))
     )
     $module.AddArchSpecificFiles($additionalFiles, "SharedDependencies", $BuildRoot, $Configuration)
     $additionalFiles = @(
-        "Microsoft.Management.Configuration.Projection\net6.0-windows10.0.22000.0\Microsoft.Management.Configuration.Projection.dll"
+        "Microsoft.Management.Configuration.Projection\net8.0-windows10.0.22000.0\Microsoft.Management.Configuration.Projection.dll"
     )
     $module.AddAnyCpuSpecificFilesToArch($additionalFiles, "SharedDependencies", $BuildRoot, $Configuration)
     $modules += $module

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="WinGetAssemblyLoadContext.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -79,6 +79,17 @@ namespace Microsoft.WinGet.Resolver
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Handler to resolve unmanaged assemblies.
+        /// </summary>
+        /// <param name="assembly">Assembly initiating the unmanaged load.</param>
+        /// <param name="unmanagedDllName">Unmanaged dll name.</param>
+        /// <returns>The assembly ptr, zero if not in our assembly location.</returns>
+        internal static IntPtr ResolvingUnmanagedDllHandler(Assembly assembly, string unmanagedDllName)
+        {
+            return WinGetAcl.LoadUnmanagedDll(unmanagedDllName);
         }
 
         /// <inheritdoc/>

@@ -213,4 +213,9 @@ namespace AppInstaller::Runtime
     {
         return IsRunningAsAdmin() || IsRunningAsSystem();
     }
+
+    bool IsRunningWithLimitedToken()
+    {
+        return wil::get_token_information<TOKEN_ELEVATION_TYPE>() == TokenElevationTypeLimited;
+    }
 }

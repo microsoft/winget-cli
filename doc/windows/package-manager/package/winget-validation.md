@@ -7,11 +7,11 @@ When you create a pull request, this will start an automation process that valid
 All application submissions to the Windows Package Manager repository should be well-behaved and adhere to the [Windows Package Manager policies](./windows-package-manager-policies.md).
 Here are some expectations for submissions:
 
-- The manifest complies with the [schema requirements]("https://docs.microsoft.com/windows/package-manager/package/manifest?tabs=minschema%2Ccompschema").
+- The manifest complies with the [schema requirements](https://learn.microsoft.com/en-us/windows/package-manager/package/manifest?tabs=minschema%2Cversion-example#minimal-required-schema).
 - All URLs in the manifest lead to safe websites.
 
-- The installer and application are virus free. The package may be identified as malware by mistake. If you believe it is a false  positive you can submit the installer to the defender team for
- analysis from [here](https://www.microsoft.com/wdsi/filesubmission).
+- The installer and application are virus free. The package may be identified as malware by mistake. If you believe it is a false positive you can [submit the installer to the defender team for
+ analysis](https://www.microsoft.com/wdsi/filesubmission).
 
 - The application installs and uninstalls correctly for both administrators and non-administrators.
 

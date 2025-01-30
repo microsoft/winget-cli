@@ -860,9 +860,6 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Ignora pacchetti non disponibili</value>
   </data>
-  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
-    <value>Includi versioni del pacchetto nel file prodotto</value>
-  </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>Ignora versioni del pacchetto dal file di importazione</value>
   </data>
@@ -1283,6 +1280,9 @@ Accetti le condizioni?</value>
   </data>
   <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
     <value>La configurazione di sistema corrente non supporta l'installazione di questo pacchetto.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCustomError" xml:space="preserve">
+    <value>L'installazione non è riuscita con un errore del programma di installazione personalizzato. Contattare il supporto per i pacchetti.</value>
   </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>Installazione interrotta</value>
@@ -1808,6 +1808,9 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   </data>
   <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
     <value>La configurazione è stata applicata.</value>
+  </data>
+  <data name="ConfigurationUnitSuccessfullyApplied" xml:space="preserve">
+    <value>Unità applicata correttamente.</value>
   </data>
   <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
     <value>È in corso l'applicazione di un'altra configurazione al sistema. Questa configurazione continuerà non appena possibile...</value>
@@ -2521,6 +2524,9 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   <data name="APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED" xml:space="preserve">
     <value>Il programma di installazione non supporta l'aggiornamento di un pacchetto esistente.</value>
   </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_CUSTOM_ERROR" xml:space="preserve">
+    <value>Installazione non riuscita a causa di un errore del programma di installazione personalizzato.</value>
+  </data>
   <data name="WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND" xml:space="preserve">
     <value>La voce App e funzionalità per il pacchetto non è stata trovata.</value>
   </data>
@@ -2967,14 +2973,6 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>Recupero delle impostazioni di configurazione in corso...</value>
   </data>
-  <data name="ConfigureExportArgumentError" xml:space="preserve">
-    <value>È necessario specificare almeno --packageId e/o --module con --resource</value>
-    <comment>{Locked="--packageId,--module, --resource"}</comment>
-  </data>
-  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
-    <value>Esporta le risorse di configurazione in un file di configurazione. Se usato con --packageId, esporta una risorsa WinGetPackage dell'ID pacchetto specificato. Se usato con --module e --resource, ottiene le impostazioni della risorsa ed esporta la risorsa nel file di configurazione. Se il file di configurazione di output esiste già, aggiunge le risorse di configurazione esportate.</value>
-    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
-  </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
     <value>Esporta le risorse di configurazione in un file di configurazione.</value>
   </data>
@@ -3138,5 +3136,54 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   </data>
   <data name="InstallerZeroByteFile" xml:space="preserve">
     <value>Programma di installazione a zero byte scaricato; verificare che la connessione di rete funzioni correttamente.</value>
+  </data>
+  <data name="FontCommandShortDescription" xml:space="preserve">
+    <value>Gestire i tipi di carattere</value>
+  </data>
+  <data name="FontCommandLongDescription" xml:space="preserve">
+    <value>Gestire i tipi di carattere con i sottocomandi. I tipi di carattere possono essere installati, aggiornati o disinstallati in modo simile ai pacchetti. </value>
+  </data>
+  <data name="FontFamily" xml:space="preserve">
+    <value>Famiglia</value>
+  </data>
+  <data name="FontFaces" xml:space="preserve">
+    <value>Facce</value>
+    <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
+    <value>Filtra i risultati per cognome</value>
+  </data>
+  <data name="FontFace" xml:space="preserve">
+    <value>Viso</value>
+    <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
+  </data>
+  <data name="FontFilePaths" xml:space="preserve">
+    <value>Percorsi</value>
+  </data>
+  <data name="NoInstalledFontFound" xml:space="preserve">
+    <value>Nessun tipo di carattere installato corrisponde ai criteri di input.</value>
+  </data>
+  <data name="FontListCommandShortDescription" xml:space="preserve">
+    <value>Elencare i tipi di carattere installati</value>
+  </data>
+  <data name="FontListCommandLongDescription" xml:space="preserve">
+    <value>Elenca tutti i tipi di carattere installati o i dettagli completi di un tipo di carattere specifico.</value>
+  </data>
+  <data name="FontVersion" xml:space="preserve">
+    <value>Versione</value>
+  </data>
+  <data name="ConfigurationModules" xml:space="preserve">
+    <value>Moduli di configurazione</value>
+    <comment>PowerShell Modules that are used for the Configuration feature</comment>
+  </data>
+  <data name="InstallerDownloadRequiresAuthentication" xml:space="preserve">
+    <value>Il programma di installazione del pacchetto richiede l'autenticazione. La richiesta di autenticazione può essere visualizzata quando necessario. Le informazioni autenticate verranno condivise con l'URL di download del programma di installazione.</value>
+  </data>
+  <data name="InstallerDownloadAuthenticationNotSupported" xml:space="preserve">
+    <value>Non è stato possibile scaricare il programma di installazione. Questa versione winget non supporta il metodo di autenticazione per il download del programma di installazione. Provare a eseguire l'aggiornamento alla versione più recente winget.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
+    <value>Download del programma di installazione non riuscito. Autenticazione non riuscita.</value>
   </data>
 </root>

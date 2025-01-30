@@ -526,6 +526,21 @@ TEST_CASE("SettingsDownloadDefaultDirectory", "[settings]")
     }
 }
 
+TEST_CASE("SettingsConfigureDefaultModuleRoot", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Valid path")
+    {
+        std::string_view json = R"({ "configureBehavior": { "defaultModuleRoot": "C:/Foo/Bar" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::ConfigureDefaultModuleRoot>() == "C:/Foo/Bar");
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+}
+
 TEST_CASE("SettingsArchiveExtractionMethod", "[settings]")
 {
     auto again = DeleteUserSettingsFiles();

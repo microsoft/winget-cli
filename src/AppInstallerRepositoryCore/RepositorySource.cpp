@@ -427,6 +427,11 @@ namespace AppInstaller::Repository
         }
     }
 
+    std::optional<WellKnownSource> CheckForWellKnownSource(const SourceDetails& sourceDetails)
+    {
+        return CheckForWellKnownSourceMatch(sourceDetails.Name, sourceDetails.Arg, sourceDetails.Type);
+    }
+
     Source::Source() {}
 
     Source::Source(std::string_view name)

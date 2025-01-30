@@ -323,6 +323,7 @@ namespace AppInstaller::CLI::Execution
             clone->EnableSignalTerminationHandler();
         }
         CopyArgsToSubContext(clone.get());
+        CopyDataToSubContext(clone.get());
         return clone;
     }
 
@@ -340,6 +341,17 @@ namespace AppInstaller::CLI::Execution
                 subContext->Args.AddArg(arg.Type, Args.GetArg(arg.Type));
             }
         }
+    }
+
+    void Context::CopyDataToSubContext(Context* subContext)
+    {
+#define COPY_DATA_IF_EXISTS(dataType) \
+        if (this->Contains(dataType)) \
+        { \
+            subContext->Add<dataType>(this->Get<dataType>()); \
+        }
+
+        COPY_DATA_IF_EXISTS(Data::InstallerDownloadAuthenticators);
     }
 
     void Context::EnableSignalTerminationHandler(bool enabled)
@@ -492,13 +504,13 @@ namespace AppInstaller::CLI::Execution
         switch (action)
         {
         case EnumBasedVariantMapAction::Add:
-            AICLI_LOG(Workflow, Info, << "Setting data item: " << data);
+            AICLI_LOG(Workflow, Verbose, << "Setting data item: " << data);
             break;
         case EnumBasedVariantMapAction::Contains:
-            AICLI_LOG(Workflow, Info, << "Checking data item: " << data);
+            AICLI_LOG(Workflow, Verbose, << "Checking data item: " << data);
             break;
         case EnumBasedVariantMapAction::Get:
-            AICLI_LOG(Workflow, Info, << "Getting data item: " << data);
+            AICLI_LOG(Workflow, Verbose, << "Getting data item: " << data);
             break;
         }
 

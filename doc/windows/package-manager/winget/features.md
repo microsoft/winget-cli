@@ -12,7 +12,7 @@ The **features** command of the [winget](index.md) tool displays a list of the e
 
 Each feature can be turned on individually by enabling the features through [**settings**](settings.md).
 
-You can find the latest up to date information on the [experimental features](/doc/Settings.md#experimental-features) web page.
+You can find the latest up to date information on the [experimental features](../../../Settings.md#experimental-features) web page.
 
 ## Usage
 

@@ -861,7 +861,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Ignore unavailable packages</value>
   </data>
   <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
-    <value>Include package versions in produced file</value>
+    <value>Include package versions in export file</value>
   </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>Ignore package versions from import file</value>
@@ -1283,6 +1283,9 @@ Do you agree to the terms?</value>
   </data>
   <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
     <value>The current system configuration does not support the installation of this package.</value>
+  </data>
+  <data name="InstallFlowReturnCodeCustomError" xml:space="preserve">
+    <value>Installation failed with a custom installer error. Contact package support.</value>
   </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>Installation abandoned</value>
@@ -1808,6 +1811,9 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
     <value>Configuration successfully applied.</value>
+  </data>
+  <data name="ConfigurationUnitSuccessfullyApplied" xml:space="preserve">
+    <value>Unit successfully applied.</value>
   </data>
   <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
     <value>Another configuration is being applied to the system. This configuration will continue as soon as is possible...</value>
@@ -2521,6 +2527,9 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED" xml:space="preserve">
     <value>The installer does not support upgrading an existing package.</value>
   </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_CUSTOM_ERROR" xml:space="preserve">
+    <value>Installation failed with a custom installer error.</value>
+  </data>
   <data name="WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND" xml:space="preserve">
     <value>The Apps and Features Entry for the package could not be found.</value>
   </data>
@@ -2761,7 +2770,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Specify the account to be used for authentication</value>
   </data>
   <data name="SourceAddFailedAuthenticationNotSupported" xml:space="preserve">
-    <value>Failed to add source. This winget version does not support the source's authentication method. Try upgrade to latest winget version.</value>
+    <value>Failed to add source. This winget version does not support the source's authentication method. Try upgrading to latest winget version.</value>
     <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRequiresAuthentication" xml:space="preserve">
@@ -2983,12 +2992,16 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>Getting configuration settings...</value>
   </data>
-  <data name="ConfigureExportArgumentError" xml:space="preserve">
-    <value>At least --packageId and/or --module with --resource must be provided</value>
-    <comment>{Locked="--packageId,--module, --resource"}</comment>
+  <data name="ConfigureExportArgumentRequiredError" xml:space="preserve">
+    <value>At least --packageId and/or --module with --resource must be provided. Or use --all to export all package configurations.</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportArgumentConflictWithAllError" xml:space="preserve">
+    <value>Arguments --packageId, --module and --resource cannot be used with --all.</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
   </data>
   <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
-    <value>Exports configuration resources to a configuration file. When used with --packageId, exports a WinGetPackage resource of the given package id. When used with --module and --resource, gets the settings of the resource and exports it to the configuration file. If the output configuration file already exists, appends the exported configuration resources.</value>
+    <value>Exports configuration resources to a configuration file. When used with --all, exports all package configurations. When used with --packageId, exports a WinGetPackage resource of the given package id. When used with --module and --resource, gets the settings of the resource and exports it to the configuration file. If the output configuration file already exists, appends the exported configuration resources.</value>
     <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
   </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
@@ -3002,6 +3015,9 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="ConfigureExportResource" xml:space="preserve">
     <value>The configuration resource to export.</value>
+  </data>
+  <data name="ConfigureExportAll" xml:space="preserve">
+    <value>Exports all package configurations.</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_GET_FAILED" xml:space="preserve">
     <value>The configuration unit failed getting its properties.</value>
@@ -3154,7 +3170,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="InstallerZeroByteFile" xml:space="preserve">
     <value>Downloaded zero byte installer; ensure that your network connection is working properly.</value>
-  </data>  
+  </data>
   <data name="FontCommandShortDescription" xml:space="preserve">
     <value>Manage fonts</value>
   </data>
@@ -3189,5 +3205,19 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>Version</value>
+  </data>
+  <data name="ConfigurationModules" xml:space="preserve">
+    <value>Configuration Modules</value>
+    <comment>PowerShell Modules that are used for the Configuration feature</comment>
+  </data>
+  <data name="InstallerDownloadRequiresAuthentication" xml:space="preserve">
+    <value>The package installer requires authentication. Authentication prompt may appear when necessary. Authenticated information will be shared with the installer download url.</value>
+  </data>
+  <data name="InstallerDownloadAuthenticationNotSupported" xml:space="preserve">
+    <value>Failed to download installer. This winget version does not support the installer download authentication method. Try upgrading to latest winget version.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
+    <value>Failed to download installer. Authentication failed.</value>
   </data>
 </root>

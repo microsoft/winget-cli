@@ -310,6 +310,8 @@ namespace AppInstaller::Manifest
                         { "InstallerUrl", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->Url = value.as<std::string>(); return {}; } },
                         { "InstallerSha256", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
                         { "SignatureSha256", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->SignatureSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
+                        // No custom validation needed at field populating time since we have semantic validation later to block msstore and productId from community repo.
+                        { "MSStoreProductIdentifier", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->ProductId = value.as<std::string>(); return {}; } },
                     };
 
                     std::move(v1InstallerFields.begin(), v1InstallerFields.end(), std::inserter(result, result.end()));
@@ -385,6 +387,16 @@ namespace AppInstaller::Manifest
                 };
 
                 std::move(fields_v1_9.begin(), fields_v1_9.end(), std::inserter(result, result.end()));
+            }
+
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_10 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_10 =
+                {
+                    { "Authentication", [this](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestInstallerPtr(v)->AuthInfo = {}; auto errors = ValidateAndProcessFields(value, AuthenticationFieldInfos, VariantManifestPtr(&(GetManifestInstallerPtr(v)->AuthInfo))); GetManifestInstallerPtr(v)->AuthInfo.UpdateRequiredFieldsIfNecessary(); return errors; }, true},
+                };
+
+                std::move(fields_v1_10.begin(), fields_v1_10.end(), std::inserter(result, result.end()));
             }
         }
 
@@ -714,7 +726,38 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetAuthenticationFieldInfos()
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_10 })
+        {
+            result =
+            {
+                { "AuthenticationType", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<Authentication::AuthenticationInfo>(v)->Type = Authentication::ConvertToAuthenticationType(value.as<std::string>()); return {}; } },
+                { "MicrosoftEntraIdAuthenticationInfo", [this](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<Authentication::AuthenticationInfo>(v)->MicrosoftEntraIdInfo.emplace(); return ValidateAndProcessFields(value, MicrosoftEntraIdAuthenticationInfoFieldInfos, VariantManifestPtr(&(variant_ptr<Authentication::AuthenticationInfo>(v)->MicrosoftEntraIdInfo.value()))); }},
+            };
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetMicrosoftEntraIdAuthenticationInfoFieldInfos()
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_10 })
+        {
+            result =
+            {
+                { "Resource", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<Authentication::MicrosoftEntraIdAuthenticationInfo>(v)->Resource = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "Scope", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<Authentication::MicrosoftEntraIdAuthenticationInfo>(v)->Scope = Utility::Trim(value.as<std::string>()); return {}; } },
+            };
+        }
+
+        return result;
+    }
+
     std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetShadowRootFieldProcessInfo()
     {
         std::vector<FieldProcessInfo> result;
@@ -1069,6 +1112,8 @@ namespace AppInstaller::Manifest
         NestedInstallerFileFieldInfos = GetNestedInstallerFileFieldProcessInfo();
         InstallationMetadataFieldInfos = GetInstallationMetadataFieldProcessInfo();
         InstallationMetadataFilesFieldInfos = GetInstallationMetadataFilesFieldProcessInfo();
+        AuthenticationFieldInfos = GetAuthenticationFieldInfos();
+        MicrosoftEntraIdAuthenticationInfoFieldInfos = GetMicrosoftEntraIdAuthenticationInfoFieldInfos();
 
         resultErrors = ValidateAndProcessFields(rootNode, RootFieldInfos, VariantManifestPtr(&(m_manifest.get())));
 

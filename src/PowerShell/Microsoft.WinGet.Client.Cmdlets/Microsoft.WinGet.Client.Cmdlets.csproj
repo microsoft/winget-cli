@@ -3,15 +3,15 @@
   <PropertyGroup>
     <!-- If these target frameworks are updated, make sure to also update the .psd1 and .nuspec files.-->
     <!-- Keep in sync with attributes in AssemblyInfo.cs -->
-    <CoreFramework>net6.0-windows10.0.22000.0</CoreFramework>
+    <CoreFramework>net8.0-windows10.0.22000.0</CoreFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DesktopFramework>net48</DesktopFramework>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
+    <CsWinRTCcwLookupTableGeneratorEnabled>false</CsWinRTCcwLookupTableGeneratorEnabled>
     <!--
-    Forcing this version to continue using an older CsWinRT release while issues are resolved.
-    !!! Remove this on the next Microsoft.Windows.CsWinRT package version update. !!!
+    !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
-    <WindowsSdkPackageVersion>10.0.22000.34</WindowsSdkPackageVersion>
+    <WindowsSdkPackageVersion>10.0.22000.53</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -52,12 +52,12 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
-    <RuntimeIdentifier>win10</RuntimeIdentifier>
+    <RuntimeIdentifier>win</RuntimeIdentifier>
   </PropertyGroup>
 
   <!-- This project doesn't reference it directly, but if I don't add it here it will fail with NETSDK1130 *.winmd cannot be referenced. -->
   <ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.6" />
   </ItemGroup>
 
   <ItemGroup>

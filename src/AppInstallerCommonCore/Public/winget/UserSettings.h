@@ -76,7 +76,6 @@ namespace AppInstaller::Settings
         EFDirectMSI,
         EFResume,
         EFConfiguration03,
-        EFConfigureSelfElevation,
         EFConfigureExport,
         EFFonts,
         // Telemetry
@@ -108,6 +107,8 @@ namespace AppInstaller::Settings
         UninstallPurgePortablePackage,
         // Download behavior
         DownloadDefaultDirectory,
+        // Configure behavior
+        ConfigureDefaultModuleRoot,
         // Interactivity
         InteractivityDisable,
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -160,7 +161,6 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFResume, bool, bool, false, ".experimentalFeatures.resume"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfiguration03, bool, bool, false, ".experimentalFeatures.configuration03"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFConfigureSelfElevation, bool, bool, false, ".experimentalFeatures.configureSelfElevate"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfigureExport, bool, bool, false, ".experimentalFeatures.configureExport"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFFonts, bool, bool, false, ".experimentalFeatures.fonts"sv);
         // Telemetry
@@ -185,6 +185,8 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::UninstallPurgePortablePackage, bool, bool, false, ".uninstallBehavior.purgePortablePackage"sv);
         // Download behavior
         SETTINGMAPPING_SPECIALIZATION(Setting::DownloadDefaultDirectory, std::string, std::filesystem::path, {}, ".downloadBehavior.defaultDownloadDirectory"sv);
+        // Configure behavior
+        SETTINGMAPPING_SPECIALIZATION(Setting::ConfigureDefaultModuleRoot, std::string, std::filesystem::path, {}, ".configureBehavior.defaultModuleRoot"sv);
 
         // Network
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDownloader, std::string, InstallerDownloader, InstallerDownloader::Default, ".network.downloader"sv);

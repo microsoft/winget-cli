@@ -105,13 +105,14 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
 
             foreach (var keyValuePair in first)
             {
-                if (!second.ContainsKey(keyValuePair.Key))
+                string key = keyValuePair.Key;
+                if (!second.ContainsKey(key))
                 {
                     return false;
                 }
 
                 var firstValue = keyValuePair.Value;
-                var secondValue = second[keyValuePair.Key];
+                var secondValue = second[key];
 
                 // Empty value check.
                 if (firstValue == null && secondValue == null)

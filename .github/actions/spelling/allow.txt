@@ -149,6 +149,7 @@ ipmo
 IPortable
 ISAPPROVEDFOROUTPUT
 IUnknown
+JDKs
 langutil
 lastwritetime
 LCIDTo
@@ -276,6 +277,7 @@ rethrowing
 roadmap
 robuffer
 rowcount
+rowids
 rubengustorage
 ruleset
 runas
@@ -319,6 +321,7 @@ STDAPI
 STGM
 storeedgefd
 stpkgmanvalwestustest
+stringable
 STRINGID
 STRINGIZE
 STRSAFE
@@ -392,10 +395,11 @@ vso
 wapproj
 wcsicmp
 webpage
+websites
 WHOLECHAIN
 wil
-windbg
 wincrypt
+windbg
 WINEVENT
 winget
 winhttp

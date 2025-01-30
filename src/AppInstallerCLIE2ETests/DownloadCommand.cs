@@ -71,6 +71,20 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Downloads the test installer with Arm64.
+        /// </summary>
+        [Test]
+        public void DownloadWithArm64()
+        {
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestMultipleInstallers --scope user --download-directory {downloadDir} --architecture Arm64");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+#pragma warning disable CA1416 // Validate platform compatibility. Arm64 is not reachable.
+            TestCommon.AssertInstallerDownload(downloadDir, "TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.Arm64, TestCommon.Scope.User, PackageInstallerType.Nullsoft, "en-US");
+#pragma warning restore CA1416
+        }
+
+        /// <summary>
         /// Downloads the test installer using the user scope argument.
         /// </summary>
         [Test]

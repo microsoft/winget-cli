@@ -40,6 +40,9 @@
     <Filter Include="TestData\MultiFileManifestV1_9">
       <UniqueIdentifier>{3499d391-99c1-4fa3-ba8d-0ce846c2497b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TestData\MultiFileManifestV1_10">
+      <UniqueIdentifier>{69069174-d4b1-4070-80c0-37d416b07128}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\CLI">
       <UniqueIdentifier>{b35e1a8b-1961-46d5-98e5-adc8e52c54a9}</UniqueIdentifier>
     </Filter>
@@ -822,6 +825,12 @@
     <CopyFileToFolders Include="TestData\ManifestV1_9-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_10-Singleton.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_10-InstallerAuthentication.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
       <Filter>TestData\MultiFileManifestV1</Filter>
     </CopyFileToFolders>
@@ -917,6 +926,18 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_9\ManifestV1_9-MultiFile-Version.yaml">
       <Filter>TestData\MultiFileManifestV1_9</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_10\ManifestV1_10-MultiFile-DefaultLocale.yaml">
+      <Filter>TestData\MultiFileManifestV1_10</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_10\ManifestV1_10-MultiFile-Installer.yaml">
+      <Filter>TestData\MultiFileManifestV1_10</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_10\ManifestV1_10-MultiFile-Locale.yaml">
+      <Filter>TestData\MultiFileManifestV1_10</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_10\ManifestV1_10-MultiFile-Version.yaml">
+      <Filter>TestData\MultiFileManifestV1_10</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
       <Filter>TestData</Filter>
@@ -1024,6 +1045,21 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ContainsEscapeControlCode.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_10-Bad-SchemaHeaderInvalid.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_10-Bad-SchemaHeaderManifestTypeMismatch.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_10-Bad-SchemaHeaderManifestVersionMismatch.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_10-Bad-SchemaHeaderNotFound.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_10-Bad-SchemaHeaderURLPatternMismatch.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>
