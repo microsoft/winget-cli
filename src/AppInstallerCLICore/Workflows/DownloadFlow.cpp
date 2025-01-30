@@ -330,14 +330,7 @@ namespace AppInstaller::CLI::Workflow
         // separately before, e.g. on COM scenarios.
         context <<
             ReportExecutionStage(ExecutionStage::Download) <<
-            CheckForExistingInstaller;
-
-        if (context.IsTerminated())
-        {
-            return;
-        }
-
-        context <<
+            CheckForExistingInstaller <<
             ExecuteUriValidation(UriValidationSource::PackageCatalogSource) <<
             DownloadInstallerInternal;
     }

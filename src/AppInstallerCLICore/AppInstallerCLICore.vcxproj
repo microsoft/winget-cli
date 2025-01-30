@@ -390,7 +390,6 @@
     <ClInclude Include="ContextOrchestrator.h" />
     <ClInclude Include="COMContext.h" />
     <ClInclude Include="Public\ConfigurationSetProcessorFactoryRemoting.h" />
-    <ClInclude Include="Workflows\UriValidationFlow.h" />
     <ClInclude Include="Sixel.h" />
     <ClInclude Include="Workflows\ConfigurationFlow.h" />
     <ClInclude Include="Workflows\DependenciesFlow.h" />
@@ -430,6 +429,7 @@
     <ClInclude Include="Workflows\SourceFlow.h" />
     <ClInclude Include="Workflows\UninstallFlow.h" />
     <ClInclude Include="Workflows\UpdateFlow.h" />
+    <ClInclude Include="Workflows\UriValidationFlow.h" />
     <ClInclude Include="Workflows\WorkflowBase.h" />
   </ItemGroup>
   <ItemGroup>
@@ -456,7 +456,6 @@
     <ClCompile Include="ConfigurationWingetDscModuleUnitValidation.cpp" />
     <ClCompile Include="ConfigureExportCommand.cpp" />
     <ClCompile Include="ContextOrchestrator.cpp" />
-    <ClCompile Include="Workflows\UriValidationFlow.cpp" />
     <ClCompile Include="Sixel.cpp" />
     <ClCompile Include="Workflows\ConfigurationFlow.cpp" />
     <ClCompile Include="Workflows\DependenciesFlow.cpp" />
@@ -513,6 +512,7 @@
     <ClCompile Include="Workflows\SourceFlow.cpp" />
     <ClCompile Include="Workflows\UninstallFlow.cpp" />
     <ClCompile Include="Workflows\UpdateFlow.cpp" />
+    <ClCompile Include="Workflows\UriValidationFlow.cpp" />
     <ClCompile Include="Workflows\WorkflowBase.cpp" />
   </ItemGroup>
   <ItemGroup>
