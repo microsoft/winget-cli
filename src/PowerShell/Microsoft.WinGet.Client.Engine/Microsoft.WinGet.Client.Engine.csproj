@@ -13,7 +13,6 @@
     !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
     <WindowsSdkPackageVersion>10.0.22000.53</WindowsSdkPackageVersion>
-    <IncludeWindowsSDKRefFrameworkReferences>false</IncludeWindowsSDKRefFrameworkReferences>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -85,25 +84,6 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
-  <!-- Disable warnings from embedded/generated CsWinRT files. -->
-  <Target Name="DisableCsWinRTWarnings" AfterTargets="CsWinRTAddEmbeddedRuntime_Net5Sources">
-    <ItemGroup>
-      <WinGetCsWinRTGeneratedFiles Include="$(CsWinRTGeneratedFilesDir)*.cs" />
-    </ItemGroup>
-    <WriteLinesToFile File="%(WinGetCsWinRTGeneratedFiles.FullPath)"
-        Condition="$([System.IO.File]::Exists(%(WinGetCsWinRTGeneratedFiles.FullPath))) AND !$([System.IO.File]::ReadAllText(%(WinGetCsWinRTGeneratedFiles.FullPath)).StartsWith(&quot;// &lt;auto-generated /&gt;&quot;))"
-        Lines="$([System.String]::Concat(&quot;// &lt;auto-generated /&gt;&#xA;#pragma warning disable&#xA;&#xA;&quot;,$([System.IO.File]::ReadAllText(%(WinGetCsWinRTGeneratedFiles.FullPath)))))"
-        Overwrite="true"
-        Encoding="Unicode" />
-  </Target>
-
-  <!-- Remove the embedded module file that contains an unversioned SupportedOSPlatform attribute. -->
-  <Target Name="RemoveCsWinRTModuleFile" AfterTargets="CsWinRTIncludeProjection">
-    <ItemGroup>
-      <Compile Remove="$(CsWinRTGeneratedFilesDir)Module.cs" />
-    </ItemGroup>
-  </Target>
-
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -137,8 +117,9 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <Import Project="..\..\targets\EmbeddedCsWinRT.targets"  Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+
   <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
-    <CsWinRTEmbedded>true</CsWinRTEmbedded>
     <CsWinRTIncludes>
       Microsoft.Management.Deployment;
       Windows.ApplicationModel;

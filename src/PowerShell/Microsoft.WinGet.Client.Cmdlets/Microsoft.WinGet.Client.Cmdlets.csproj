@@ -7,7 +7,6 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DesktopFramework>net48</DesktopFramework>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
-    <IncludeWindowsSDKRefFrameworkReferences>false</IncludeWindowsSDKRefFrameworkReferences>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -55,39 +54,7 @@
     <ProjectReference Include="..\Microsoft.WinGet.Client.Engine\Microsoft.WinGet.Client.Engine.csproj" />
   </ItemGroup>
 
-  <!-- Prevent .winmd files from being referenced transitively. -->
-  <Target Name="CopiedFromCsWinRTRemoveWinMDReferences" BeforeTargets="BeforeCompile" AfterTargets="ResolveReferences">
-    <ItemGroup>
-      <!--Move winmd references into private item group to prevent subsequent winmd reference errors-->
-      <CsWinRTRemovedReferences Include="@(ReferencePath)" Condition="'%(ReferencePath.Extension)' == '.winmd'" />
-
-      <!--Prevent NETSDK1130 errors from winmd references-->
-      <ReferencePath Remove="@(ReferencePath)" Condition="'%(ReferencePath.Extension)' == '.winmd'" />
-      <ReferencePathWithRefAssemblies Remove="@(CsWinRTRemovedReferences)"
-        Condition="'%(CsWinRTRemovedReferences.Filename)%(CsWinRTRemovedReferences.Extension)' == '%(ReferencePathWithRefAssemblies.Filename)%(ReferencePathWithRefAssemblies.Extension)'" />
-      <!--Do not publish projection source winmd files, but do include implementation dlls -->
-      <ReferenceCopyLocalPaths Remove="@(CsWinRTRemovedReferences)" />
-      <ReferenceCopyLocalPaths Include="@(CsWinRTRemovedReferences->'%(RootDir)%(Directory)%(DestinationSubDirectory)%(Implementation)')"
-                               Condition="'%(CsWinRTRemovedReferences.Implementation)' != '' AND Exists('%(CsWinRTRemovedReferences.RootDir)%(CsWinRTRemovedReferences.Directory)%(CsWinRTRemovedReferences.DestinationSubDirectory)%(CsWinRTRemovedReferences.Implementation)')" />
-      <!--Remove winmd references from deps.json to prevent CLR failing unit test execution-->
-      <ReferenceDependencyPaths Remove="@(ReferenceDependencyPaths)" Condition="%(ReferenceDependencyPaths.Extension) == '.winmd'"/>
-    </ItemGroup>
-  </Target>
-
-  <!-- Prevent WinRT.Runtime from being referenced. -->
-  <Target Name="CopiedFromCsWinRTRemoveWinRTRuntimeReference" 
-          Inputs="@(RuntimeCopyLocalItems)" 
-          AfterTargets="ResolvePackageAssets" 
-          Outputs="@(RuntimeCopyLocalItems)">
-
-    <ItemGroup>
-      <Reference Remove="WinRT.Runtime" /> 
-      <RuntimeCopyLocalItems Remove="@(RuntimeCopyLocalItems)" Condition="'%(DestinationSubPath)' == 'WinRT.Runtime.dll'"/>
-      <ResolvedCompileFileDefinitions Remove="@(ResolvedCompileFileDefinitions)" Condition="'%(HintPath)' == '$(CsWinRTPath)lib\net6.0\WinRT.Runtime.dll'"/>
-      <ResolvedCompileFileDefinitions Remove="@(ResolvedCompileFileDefinitions)" Condition="'%(HintPath)' == '$(CsWinRTPath)lib\net8.0\WinRT.Runtime.dll'"/>
-    </ItemGroup>
-
-  </Target>
+  <Import Project="..\..\targets\ReferenceEmbeddedCsWinRTProject.targets"  Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
 
   <!-- This project doesn't reference CSWinRT, but specify this everywhere it will fail with NETSDK1130 and MSB3271. -->
   <PropertyGroup>
