@@ -2659,7 +2659,7 @@
   </data>
   <data name="ResumeIdNotFoundError" xml:space="preserve">
     <value>再開状態が存在しません: {0}</value>
-    <comment>{Locked="{0}" Error message displayed when the user provides a guid that does not correspond to a valid saved state. {0} is a placeholder replaced by the provided guid string.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a guid that does not correspond to a valid saved state. {0} is a placeholder replaced by the provided guid string.</comment>
   </data>
   <data name="ResumeStateDataNotFoundError" xml:space="preserve">
     <value>再開状態のデータが見つかりません。</value>

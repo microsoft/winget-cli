@@ -2659,7 +2659,7 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
   </data>
   <data name="ResumeIdNotFoundError" xml:space="preserve">
     <value>Der Fortsetzungszustand ist nicht vorhanden: {0}</value>
-    <comment>{Locked="{0}" Error message displayed when the user provides a guid that does not correspond to a valid saved state. {0} is a placeholder replaced by the provided guid string.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a guid that does not correspond to a valid saved state. {0} is a placeholder replaced by the provided guid string.</comment>
   </data>
   <data name="ResumeStateDataNotFoundError" xml:space="preserve">
     <value>Im Fortsetzungszustand wurden keine Daten gefunden.</value>

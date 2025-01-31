@@ -2659,7 +2659,7 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   </data>
   <data name="ResumeIdNotFoundError" xml:space="preserve">
     <value>L’état de reprise n’existe pas : {0}</value>
-    <comment>{Locked="{0}" Error message displayed when the user provides a guid that does not correspond to a valid saved state. {0} is a placeholder replaced by the provided guid string.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a guid that does not correspond to a valid saved state. {0} is a placeholder replaced by the provided guid string.</comment>
   </data>
   <data name="ResumeStateDataNotFoundError" xml:space="preserve">
     <value>Données introuvables dans l’état de reprise.</value>
