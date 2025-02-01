@@ -54,7 +54,7 @@
     <ProjectReference Include="..\Microsoft.WinGet.Client.Engine\Microsoft.WinGet.Client.Engine.csproj" />
   </ItemGroup>
 
-  <Import Project="..\..\targets\ReferenceEmbeddedCsWinRTProject.targets"  Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+  <Import Project="..\..\targets\ReferenceEmbeddedCsWinRTProject.targets" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
 
   <!-- This project doesn't reference CSWinRT, but specify this everywhere it will fail with NETSDK1130 and MSB3271. -->
   <PropertyGroup>
