@@ -23,14 +23,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         CHECK_ERROR(ParseValueSet(m_document, ConfigurationField::Metadata, false, result->Metadata()));
 
-        m_setEnvironment = make_self<implementation::ConfigurationEnvironment>();
-        CHECK_ERROR(ExtractEnvironmentFromMetadata(result->Metadata(), *m_setEnvironment));
+        implementation::ConfigurationEnvironment& setEnvironment = result->EnvironmentInternal();
+        CHECK_ERROR(ExtractEnvironmentFromMetadata(result->Metadata(), setEnvironment));
 
         CHECK_ERROR(ParseParameters(result));
         CHECK_ERROR(ParseValueSet(m_document, ConfigurationField::Variables, false, result->Variables()));
 
         std::vector<Configuration::ConfigurationUnit> units;
-        CHECK_ERROR(ParseConfigurationUnitsFromField(m_document, ConfigurationField::Resources, *m_setEnvironment, units));
+        CHECK_ERROR(ParseConfigurationUnitsFromField(m_document, ConfigurationField::Resources, setEnvironment, units));
         result->Units(std::move(units));
 
         result->SchemaVersion(GetSchemaVersion());

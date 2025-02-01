@@ -66,7 +66,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void ExtractEnvironmentForUnit(ConfigurationUnit* unit, const ConfigurationEnvironment& defaultEnvironment);
 
         AppInstaller::YAML::Node m_document;
-        com_ptr<ConfigurationEnvironment> m_setEnvironment;
     };
 
     std::optional<std::pair<Windows::Foundation::PropertyType, bool>> ParseWindowsFoundationPropertyType(std::string_view value);
