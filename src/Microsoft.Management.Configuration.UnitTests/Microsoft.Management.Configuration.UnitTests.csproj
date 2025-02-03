@@ -7,10 +7,6 @@
     <Platforms>x64;x86;arm64</Platforms>
     <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
     <RuntimeIdentifiers>win-x64;win-x86;win-arm64</RuntimeIdentifiers>
-    <!--
-    !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
-    -->
-    <WindowsSdkPackageVersion>10.0.22000.53</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -23,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.6" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Private.Uri" Version="4.3.2" />
@@ -46,11 +41,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Management.Configuration.Projection\Microsoft.Management.Configuration.Projection.csproj">
-      <OutputItemType>Content</OutputItemType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ReferenceOutputAssembly>True</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj">
       <Private>True</Private>
     </ProjectReference>
@@ -59,6 +49,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </ProjectReference>
   </ItemGroup>
+
+  <Import Project="..\targets\ReferenceEmbeddedCsWinRTProject.targets" />
 
   <Target Name="PwshFiles" AfterTargets="AfterBuild">
     <ItemGroup>

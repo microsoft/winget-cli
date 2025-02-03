@@ -16,6 +16,7 @@
     !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
     <WindowsSdkPackageVersion>10.0.22000.53</WindowsSdkPackageVersion>
+    <WinGetCsWinRTEmbedded>true</WinGetCsWinRTEmbedded>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -24,6 +25,8 @@
 
   <PropertyGroup Condition="'$(Configuration)'=='ReleaseStatic'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- From the name, ReleaseStatic would be a better fit for embedded. However, we will use embedded at all times except the inproc nuget package release, so it is better if it is in this configuration. -->
+    <WinGetCsWinRTEmbedded>false</WinGetCsWinRTEmbedded>
   </PropertyGroup>
 
   <ItemGroup>
@@ -46,10 +49,12 @@
   <PropertyGroup>
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
   </PropertyGroup>
-  
-  <ItemGroup>
+
+  <ItemGroup Condition="'$(WinGetCsWinRTEmbedded)'!='true'">
     <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.6" />
   </ItemGroup>
+
+  <Import Project="..\..\targets\ReferenceEmbeddedCsWinRTProject.targets" Condition="'$(WinGetCsWinRTEmbedded)'=='true'" />
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.WinGet.Configuration.Engine\Microsoft.WinGet.Configuration.Engine.csproj" />
@@ -95,8 +100,8 @@
   <Target Name="CopySharedDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
     <ItemGroup>
       <ModuleSharedDependency Include="$(OutputPath)Microsoft.Management.Configuration.Processor.dll" />
-      <ModuleSharedDependency Include="$(OutputPath)Microsoft.Windows.SDK.NET.dll" />
-      <ModuleSharedDependency Include="$(OutputPath)WinRT.Runtime.dll" />
+      <ModuleSharedDependency Include="$(OutputPath)Microsoft.Windows.SDK.NET.dll" Condition="'$(WinGetCsWinRTEmbedded)'!='true'" />
+      <ModuleSharedDependency Include="$(OutputPath)WinRT.Runtime.dll" Condition="'$(WinGetCsWinRTEmbedded)'!='true'" />
       <ModuleSharedDependency Include="$(OutputPath)Microsoft.WinGet.SharedLib.dll" />
     </ItemGroup>
     <Message Importance="high" Text="Copying shared dependencies: '@(ModuleSharedDependency)'" />
