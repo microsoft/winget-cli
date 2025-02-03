@@ -860,6 +860,9 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Ignorer les packages non disponibles</value>
   </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Inclure les versions de paquets dans le fichier d’exportation</value>
+  </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>Ignorer les versions de package du fichier d’importation</value>
   </data>
@@ -2973,6 +2976,18 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>Obtenir les paramètres de configuration...</value>
   </data>
+  <data name="ConfigureExportArgumentRequiredError" xml:space="preserve">
+    <value>Au moins --packageId et/ou --module avec --resource doit être fourni. Ou utilisez --all pour exporter toutes les configurations de package.</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportArgumentConflictWithAllError" xml:space="preserve">
+    <value>Vous ne pouvez pas utiliser les arguments --packageId, --module et --resource avec --all.</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
+    <value>Exporte les ressources de configuration vers un fichier de configuration. Lorsqu’il est utilisé avec --all, exporte toutes les configurations de package. Lorsqu’il est utilisé avec --packageId, exporte une ressource WinGetPackage de l’ID de package donné. Lorsqu’il est utilisé avec --module et --resource, obtient les paramètres de la ressource et l’exporte vers le fichier de configuration. Si le fichier de configuration de sortie existe déjà, ajoute les ressources de configuration exportées.</value>
+    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
+  </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
     <value>Exporte les ressources de configuration vers un fichier de configuration.</value>
   </data>
@@ -2984,6 +2999,9 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   </data>
   <data name="ConfigureExportResource" xml:space="preserve">
     <value>La ressource de configuration à exporter.</value>
+  </data>
+  <data name="ConfigureExportAll" xml:space="preserve">
+    <value>Permet d’exporter toutes les configurations de package.</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_GET_FAILED" xml:space="preserve">
     <value>L'unité de configuration n'a pas réussi à obtenir ses propriétés.</value>

@@ -860,6 +860,9 @@
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Игнорировать недоступные пакеты</value>
   </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Включить версии пакетов в файл экспорта</value>
+  </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>Игнорировать версии пакета из файла импорта</value>
   </data>
@@ -2973,6 +2976,18 @@
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>Получение параметров конфигурации...</value>
   </data>
+  <data name="ConfigureExportArgumentRequiredError" xml:space="preserve">
+    <value>Необходимо указать хотя бы --packageId и (или) --module с параметром --resource. Либо используйте --all для экспорта всех конфигураций пакетов.</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportArgumentConflictWithAllError" xml:space="preserve">
+    <value>Аргументы --packageId, --module и --resource нельзя использовать с параметром --all.</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
+    <value>Экспорт ресурсов конфигурации в файл конфигурации. При использовании с --all выполняется экспорт всех конфигураций пакетов. При использовании с --packageId выполняется экспорт ресурса WinGetPackage указанного идентификатора пакета. При использовании с --module и --resource обеспечивается получение параметров ресурса и его экспорт в файл конфигурации. Если выходной файл конфигурации уже существует, добавляет экспортированные ресурсы конфигурации.</value>
+    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
+  </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
     <value>Экспорт ресурсов конфигурации в файл конфигурации.</value>
   </data>
@@ -2984,6 +2999,9 @@
   </data>
   <data name="ConfigureExportResource" xml:space="preserve">
     <value>Ресурс конфигурации для экспорта.</value>
+  </data>
+  <data name="ConfigureExportAll" xml:space="preserve">
+    <value>Экспортирует все конфигурации пакетов.</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_GET_FAILED" xml:space="preserve">
     <value>Единице конфигурации не удалось получить свойства.</value>

@@ -860,6 +860,9 @@
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>使用できないパッケージを無視する</value>
   </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>エクスポート ファイルにパッケージ バージョンを含める</value>
+  </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>インポート ファイルからパッケージ バージョンを無視する</value>
   </data>
@@ -2973,6 +2976,18 @@
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>構成設定を取得しています...</value>
   </data>
+  <data name="ConfigureExportArgumentRequiredError" xml:space="preserve">
+    <value>--resource を含む --packageId または --module を少なくとも指定する必要があります。または、--all を使用して、すべてのパッケージ構成をエクスポートします。</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportArgumentConflictWithAllError" xml:space="preserve">
+    <value>引数 --packageId、--module、--resource を --all と共に使用することはできません。</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
+    <value>構成リソースを構成ファイルにエクスポートします。--all と共に使用すると、すべてのパッケージ構成がエクスポートされます。--packageId と共に使用すると、指定されたパッケージ ID の WinGetPackage リソースがエクスポートされます。--module および --resource と共に使用する場合、リソースの設定を取得し、構成ファイルにエクスポートします。出力構成ファイルが既に存在する場合は、エクスポートされた構成リソースを追加します。</value>
+    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
+  </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
     <value>構成リソースを構成ファイルにエクスポートします。</value>
   </data>
@@ -2984,6 +2999,9 @@
   </data>
   <data name="ConfigureExportResource" xml:space="preserve">
     <value>エクスポートする構成リソース。</value>
+  </data>
+  <data name="ConfigureExportAll" xml:space="preserve">
+    <value>すべてのパッケージ構成をエクスポートします。</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_GET_FAILED" xml:space="preserve">
     <value>構成ユニットはプロパティの取得に失敗しました。</value>

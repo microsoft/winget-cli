@@ -860,6 +860,9 @@
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>사용할 수 없는 패키지 무시</value>
   </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>내보내기 파일에 패키지 버전 포함</value>
+  </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>가져오기 파일에서 패키지 버전 무시</value>
   </data>
@@ -2973,6 +2976,18 @@
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>구성 설정을 가져오는 중...</value>
   </data>
+  <data name="ConfigureExportArgumentRequiredError" xml:space="preserve">
+    <value>--resource가 있는 --packageId 및/또는 --module 이상을 제공해야 합니다. 또는 --all을 사용하여 모든 패키지 구성을 내보냅니다.</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportArgumentConflictWithAllError" xml:space="preserve">
+    <value>--packageId, --module 및 --resource 인수는 --all과 함께 사용할 수 없습니다.</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
+    <value>구성 리소스를 구성 파일로 내보냅니다. --all과 함께 사용하면 모든 패키지 구성을 내보냅니다. --packageId와 함께 사용하면 지정된 패키지 ID의 WinGetPackage 리소스를 내보냅니다. --module 및 --resource와 함께 사용하면 리소스의 설정을 가져오고 구성 파일로 내보냅니다. 출력 구성 파일이 이미 있으면 내보낸 구성 리소스를 추가합니다.</value>
+    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
+  </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
     <value>구성 리소스를 구성 파일로 내보냅니다.</value>
   </data>
@@ -2984,6 +2999,9 @@
   </data>
   <data name="ConfigureExportResource" xml:space="preserve">
     <value>내보낼 구성 리소스입니다.</value>
+  </data>
+  <data name="ConfigureExportAll" xml:space="preserve">
+    <value>모든 패키지 구성을 내보냅니다.</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_GET_FAILED" xml:space="preserve">
     <value>구성 단위가 해당 속성을 가져오지 못했습니다.</value>

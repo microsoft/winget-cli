@@ -860,6 +860,9 @@
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>略過無法使用的套件</value>
   </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>在匯出檔案中包含套件版本</value>
+  </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>略過匯入檔案的套件版本</value>
   </data>
@@ -2973,6 +2976,18 @@
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>正在取得組態設定...</value>
   </data>
+  <data name="ConfigureExportArgumentRequiredError" xml:space="preserve">
+    <value>至少必須提供 --packageId 和/或 --module with --resource。或使用 --all 匯出所有封裝組態。</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportArgumentConflictWithAllError" xml:space="preserve">
+    <value>自變數 --packageId、--module 和 --resource 不能與 --all 一起使用。</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
+    <value>將設定資源匯出至組態檔。搭配 --all 使用時，導出所有封裝組態。搭配 --packageId 使用時，導出指定套件標識符的 WinGetPackage 資源。與 --module 和 --resource 搭配使用時，取得資源的設定，並將它匯出至組態檔。如果輸出組態檔已存在，會附加導出的設定資源。</value>
+    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
+  </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
     <value>將設定資源匯出至設定檔。</value>
   </data>
@@ -2984,6 +2999,9 @@
   </data>
   <data name="ConfigureExportResource" xml:space="preserve">
     <value>要匯出的設定資源。</value>
+  </data>
+  <data name="ConfigureExportAll" xml:space="preserve">
+    <value>匯出所有套件設定。</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_GET_FAILED" xml:space="preserve">
     <value>設定單位無法取得其屬性。</value>
