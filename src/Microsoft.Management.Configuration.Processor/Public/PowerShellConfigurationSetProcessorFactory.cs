@@ -22,10 +22,11 @@ namespace Microsoft.Management.Configuration.Processor
     /// ConfigurationSetProcessorFactory implementation.
     /// </summary>
 #if WinGetCsWinRTEmbedded
-    internal sealed class PowerShellConfigurationSetProcessorFactory : IConfigurationSetProcessorFactory, IPowerShellConfigurationProcessorFactoryProperties, IPwshConfigurationSetProcessorFactoryProperties
+    internal
 #else
-    public sealed class PowerShellConfigurationSetProcessorFactory : IConfigurationSetProcessorFactory, IPowerShellConfigurationProcessorFactoryProperties, IPwshConfigurationSetProcessorFactoryProperties
+    public
 #endif
+        sealed class PowerShellConfigurationSetProcessorFactory : IConfigurationSetProcessorFactory, IPowerShellConfigurationProcessorFactoryProperties, IPwshConfigurationSetProcessorFactoryProperties
     {
         private bool isCreateProcessorInvoked = false;
 

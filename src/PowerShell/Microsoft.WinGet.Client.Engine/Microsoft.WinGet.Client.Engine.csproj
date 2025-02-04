@@ -122,23 +122,21 @@
   <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
     <CsWinRTIncludes>
       Microsoft.Management.Deployment;
-      Windows.ApplicationModel;
-      Windows.Data;
-      Windows.Devices;
+      Windows.Data.Text.TextSegmen;
+      Windows.Devices.Geolocation;
       Windows.Foundation;
-      Windows.Gaming;
-      Windows.Globalization;
-      Windows.Graphics;
-      Windows.Management;
-      Windows.Media;
-      Windows.Networking;
-      Windows.Perception;
-      Windows.Security;
-      Windows.Services;
+      Windows.Globalization.DayOfWee;
+      Windows.Networking.Connectivity;
+      Windows.Networking.DomainNameTyp;
+      Windows.Networking.EndpointPai;
+      Windows.Networking.IEndpointPai;
+      Windows.Networking.HostNam;
+      Windows.Networking.IHostNam;
+      Windows.Security.Cryptography.Certificates;
       Windows.Storage;
-      Windows.System;
-      Windows.UI;
-      Windows.Web;
+      Windows.System.ProcessorArchitectur;
+      Windows.System.Use;
+      Windows.System.IUse;
     </CsWinRTIncludes>
     <CsWinRTExcludes>
       Windows.Foundation.PropertyType;

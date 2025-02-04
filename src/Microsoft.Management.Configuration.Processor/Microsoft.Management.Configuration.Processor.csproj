@@ -73,29 +73,23 @@
     <CsWinRTComponent>false</CsWinRTComponent>
     <CsWinRTIncludes>
       Microsoft.Management.Configuration;
-      Windows.ApplicationModel;
-      Windows.Data;
-      Windows.Devices;
+      Windows.Data.Text.TextSegmen;
+      Windows.Devices.Geolocation;
       Windows.Foundation;
-      Windows.Globalization;
-      Windows.Graphics;
-      Windows.Management;
-      Windows.Media;
-      Windows.Networking;
-      Windows.Perception;
-      Windows.Security;
-      Windows.Services;
+      Windows.Globalization.DayOfWee;
+      Windows.Networking.Connectivity;
+      Windows.Networking.DomainNameTyp;
+      Windows.Networking.EndpointPai;
+      Windows.Networking.IEndpointPai;
+      Windows.Networking.HostNam;
+      Windows.Networking.IHostNam;
+      Windows.Security.Cryptography.Certificates;
       Windows.Storage;
-      Windows.System;
-      Windows.UI;
-      Windows.Web;
+      Windows.System.Use;
+      Windows.System.IUse;
     </CsWinRTIncludes>
     <CsWinRTExcludes>
-      Windows.ApplicationModel.Store.Preview;
-      Windows.Devices.PointOfService;
       Windows.Foundation.PropertyType;
-      Windows.UI.Input.Preview;
-      Windows.UI.Xaml;
     </CsWinRTExcludes>
     <!-- Ensure Support for Windows 10, Version 1809 -->
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
