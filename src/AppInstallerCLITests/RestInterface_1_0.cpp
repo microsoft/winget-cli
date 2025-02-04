@@ -339,6 +339,17 @@ TEST_CASE("Search_GoodResponse_AllFields", "[RestSource][Interface_1_0]")
     REQUIRE(package.Versions.at(0).ProductCodes.at(1) == "pc2");
 }
 
+TEST_CASE("Search_GoodResponse_404AsEmpty", "[RestSource][Interface_1_0]")
+{
+    utility::string_t notFoundResponse = _XPLATSTR(
+        R"delimiter({"code":"DataNotFound","data":[],"details":[],"innererror":{"code":"DataNotFound","data":[],"details":[],"message":"Product is not present","source":"StoreEdgeFD"},"message":"Product is not present","source":"StoreEdgeFD"})delimiter");
+
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound, std::move(notFoundResponse)) };
+    Interface v1{ TestRestUriString, std::move(helper) };
+    Schema::IRestClient::SearchResult searchResponse = v1.Search({});
+    REQUIRE(searchResponse.Matches.size() == 0);
+}
+
 TEST_CASE("Search_ContinuationToken", "[RestSource][Interface_1_0]")
 {
     utility::string_t sample = _XPLATSTR(
@@ -447,7 +458,7 @@ TEST_CASE("GetManifests_GoodResponse", "[RestSource][Interface_1_0]")
     Interface v1{ TestRestUriString, std::move(helper) };
     std::vector<Manifest> manifests = v1.GetManifests("Foo.Bar");
     REQUIRE(manifests.size() == 1);
-    
+
     // Verify manifest is populated
     Manifest manifest = manifests[0];
     REQUIRE(manifest.Id == "Foo.Bar");
@@ -457,6 +468,17 @@ TEST_CASE("GetManifests_GoodResponse", "[RestSource][Interface_1_0]")
     REQUIRE(manifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ "1.0.0" });
     sampleManifest.VerifyLocalizations_AllFields(manifest);
     sampleManifest.VerifyInstallers_AllFields(manifest);
+}
+
+TEST_CASE("GetManifests_GoodResponse_404AsEmpty", "[RestSource][Interface_1_0]")
+{
+    utility::string_t notFoundResponse = _XPLATSTR(
+        R"delimiter({"code":"DataNotFound","data":[],"details":[],"innererror":{"code":"DataNotFound","data":[],"details":[],"message":"Product is not present","source":"StoreEdgeFD"},"message":"Product is not present","source":"StoreEdgeFD"})delimiter");
+
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(notFoundResponse)) };
+    Interface v1{ TestRestUriString, std::move(helper) };
+    std::vector<Manifest> manifests = v1.GetManifests("Foo.Bar");
+    REQUIRE(manifests.size() == 0);
 }
 
 TEST_CASE("GetManifests_BadResponse_SuccessCode", "[RestSource][Interface_1_0]")
