@@ -22,7 +22,7 @@
     !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
     <WindowsSdkPackageVersion>10.0.22000.53</WindowsSdkPackageVersion>
-    <WinGetCsWinRTEmbedded>true</WinGetCsWinRTEmbedded>
+    <WinGetCsWinRTEmbedded Condition="'$(WinGetCsWinRTEmbedded)'==''">true</WinGetCsWinRTEmbedded>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -31,8 +31,6 @@
 
   <PropertyGroup Condition="'$(Configuration)'=='ReleaseStatic'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <!-- From the name, ReleaseStatic would be a better fit for embedded. However, we will use embedded at all times except the inproc nuget package release, so it is better if it is in this configuration. -->
-    <WinGetCsWinRTEmbedded>false</WinGetCsWinRTEmbedded>
   </PropertyGroup>
 
   <PropertyGroup>
