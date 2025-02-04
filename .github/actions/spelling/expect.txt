@@ -224,6 +224,7 @@ IFACEMETHODIMP
 iid
 img
 inet
+innererror
 inproc
 Insta
 installinprogress

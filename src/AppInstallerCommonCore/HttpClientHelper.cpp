@@ -95,13 +95,23 @@ namespace AppInstaller::Http
         const utility::string_t& uri,
         const web::json::value& body,
         const HttpClientHelper::HttpRequestHeaders& headers,
-        const HttpClientHelper::HttpRequestHeaders& authHeaders) const
+        const HttpClientHelper::HttpRequestHeaders& authHeaders,
+        const HttpResponseHandler& customHandler) const
     {
         web::http::http_response httpResponse;
         Post(uri, body, headers, authHeaders).then([&httpResponse](const web::http::http_response& response)
             {
                 httpResponse = response;
             }).wait();
+
+        if (customHandler)
+        {
+            auto handlerResult = customHandler(httpResponse);
+            if (!handlerResult.UseDefaultHandling)
+            {
+                return std::move(handlerResult.Result);
+            }
+        }
 
         return ValidateAndExtractResponse(httpResponse);
     }
@@ -137,13 +147,23 @@ namespace AppInstaller::Http
     std::optional<web::json::value> HttpClientHelper::HandleGet(
         const utility::string_t& uri,
         const HttpClientHelper::HttpRequestHeaders& headers,
-        const HttpClientHelper::HttpRequestHeaders& authHeaders) const
+        const HttpClientHelper::HttpRequestHeaders& authHeaders,
+        const HttpResponseHandler& customHandler) const
     {
         web::http::http_response httpResponse;
         Get(uri, headers, authHeaders).then([&httpResponse](const web::http::http_response& response)
             {
                 httpResponse = response;
             }).wait();
+
+        if (customHandler)
+        {
+            auto handlerResult = customHandler(httpResponse);
+            if (!handlerResult.UseDefaultHandling)
+            {
+                return std::move(handlerResult.Result);
+            }
+        }
 
         return ValidateAndExtractResponse(httpResponse);
     }
