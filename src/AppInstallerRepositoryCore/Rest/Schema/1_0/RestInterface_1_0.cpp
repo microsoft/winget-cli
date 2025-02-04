@@ -50,6 +50,26 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
             return {};
         }
+
+        AppInstaller::Http::HttpClientHelper::HttpResponseHandlerResult CustomRestCallResponseHandler(const web::http::http_response& response)
+        {
+            AppInstaller::Http::HttpClientHelper::HttpResponseHandlerResult result;
+            result.UseDefaultHandling = true;
+
+            if (response.status_code() == web::http::status_codes::NotFound &&
+                response.headers().content_type()._Starts_with(web::http::details::mime_types::application_json))
+            {
+                auto responseJson = response.extract_json().get();
+                if (responseJson.is_object() && responseJson.has_field(L"code") && responseJson.has_field(L"message"))
+                {
+                    // We'll treat 404 with json response containing code and message fields as empty result.
+                    // Leave the HttpResponseHandlerResult result empty and disable default HttpClientHelper handling.
+                    result.UseDefaultHandling = false;
+                }
+            }
+
+            return result;
+        }
     }
 
     Interface::Interface(const std::string& restApi, const Http::HttpClientHelper& httpClientHelper) : m_restApiUri(restApi), m_httpClientHelper(httpClientHelper)
@@ -94,7 +114,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                 searchHeaders.insert_or_assign(AppInstaller::JSON::GetUtilityString(ContinuationToken), continuationToken);
             }
 
-            std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(m_searchEndpoint, GetValidatedSearchBody(request), searchHeaders, GetAuthHeaders());
+            std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(m_searchEndpoint, GetValidatedSearchBody(request), searchHeaders, GetAuthHeaders(), CustomRestCallResponseHandler);
 
             utility::string_t ct;
             if (jsonObject)
@@ -221,7 +241,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         std::vector<Manifest::Manifest> results;
         utility::string_t continuationToken;
         Http::HttpClientHelper::HttpRequestHeaders searchHeaders = m_requiredRestApiHeaders;
-        std::optional<web::json::value> jsonObject = m_httpClientHelper.HandleGet(GetManifestByVersionEndpoint(m_restApiUri, packageId, validatedParams), searchHeaders, GetAuthHeaders());
+        std::optional<web::json::value> jsonObject = m_httpClientHelper.HandleGet(GetManifestByVersionEndpoint(m_restApiUri, packageId, validatedParams), searchHeaders, GetAuthHeaders(), CustomRestCallResponseHandler);
 
         if (!jsonObject)
         {
