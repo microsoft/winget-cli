@@ -244,12 +244,6 @@
       <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd">
         <PackagePath>Microsoft.Management.Configuration.winmd</PackagePath>
       </WinGetAdditionalPackageFile>
-      <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\**\Microsoft.Management.Configuration.Processor.winmd">
-        <PackagePath>Microsoft.Management.Configuration.Processor.winmd</PackagePath>
-      </WinGetAdditionalPackageFile>
-      <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Projection\**\Microsoft.Management.Configuration.Projection.dll">
-        <PackagePath>ConfigurationRemotingServer\Microsoft.Management.Configuration.Projection.dll</PackagePath>
-      </WinGetAdditionalPackageFile>
       <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\ConfigurationRemotingServer\net8.0-windows10.0.22000.0\$(ConfigServerRid)\**\*">
         <PackagePath>ConfigurationRemotingServer</PackagePath>
         <Recurse>true</Recurse>
