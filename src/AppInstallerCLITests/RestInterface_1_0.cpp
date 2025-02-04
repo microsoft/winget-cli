@@ -475,7 +475,7 @@ TEST_CASE("GetManifests_GoodResponse_404AsEmpty", "[RestSource][Interface_1_0]")
     utility::string_t notFoundResponse = _XPLATSTR(
         R"delimiter({"code":"DataNotFound","data":[],"details":[],"innererror":{"code":"DataNotFound","data":[],"details":[],"message":"Product is not present","source":"StoreEdgeFD"},"message":"Product is not present","source":"StoreEdgeFD"})delimiter");
 
-    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(notFoundResponse)) };
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound, std::move(notFoundResponse)) };
     Interface v1{ TestRestUriString, std::move(helper) };
     std::vector<Manifest> manifests = v1.GetManifests("Foo.Bar");
     REQUIRE(manifests.size() == 0);
