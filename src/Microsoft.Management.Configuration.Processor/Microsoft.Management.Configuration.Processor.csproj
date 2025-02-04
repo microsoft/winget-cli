@@ -77,7 +77,6 @@
       Windows.Data;
       Windows.Devices;
       Windows.Foundation;
-      Windows.Gaming;
       Windows.Globalization;
       Windows.Graphics;
       Windows.Management;
@@ -92,7 +91,11 @@
       Windows.Web;
     </CsWinRTIncludes>
     <CsWinRTExcludes>
+      Windows.ApplicationModel.Store.Preview;
+      Windows.Devices.PointOfService;
       Windows.Foundation.PropertyType;
+      Windows.UI.Input.Preview;
+      Windows.UI.Xaml;
     </CsWinRTExcludes>
     <!-- Ensure Support for Windows 10, Version 1809 -->
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
