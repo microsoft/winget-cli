@@ -13,15 +13,26 @@ namespace AppInstaller::Http
     {
         using HttpRequestHeaders = std::unordered_map<utility::string_t, utility::string_t>;
 
+        struct HttpResponseHandlerResult
+        {
+            // The custom response handler result. Default is empty.
+            std::optional<web::json::value> Result = std::nullopt;
+
+            // Indicates whether to use default handling logic by HttpClientHelper instead (i.e. the custom response handler does not handle the specific response).
+            bool UseDefaultHandling = false;
+        };
+
+        using HttpResponseHandler = std::function<HttpResponseHandlerResult(const web::http::http_response&)>;
+
         HttpClientHelper(std::shared_ptr<web::http::http_pipeline_stage> = {});
 
         pplx::task<web::http::http_response> Post(const utility::string_t& uri, const web::json::value& body, const HttpRequestHeaders& headers = {}, const HttpRequestHeaders& authHeaders = {}) const;
 
-        std::optional<web::json::value> HandlePost(const utility::string_t& uri, const web::json::value& body, const HttpRequestHeaders& headers = {}, const HttpRequestHeaders& authHeaders = {}) const;
+        std::optional<web::json::value> HandlePost(const utility::string_t& uri, const web::json::value& body, const HttpRequestHeaders& headers = {}, const HttpRequestHeaders& authHeaders = {}, const HttpResponseHandler& customHandler = {}) const;
 
         pplx::task<web::http::http_response> Get(const utility::string_t& uri, const HttpRequestHeaders& headers = {}, const HttpRequestHeaders& authHeaders = {}) const;
 
-        std::optional<web::json::value> HandleGet(const utility::string_t& uri, const HttpRequestHeaders& headers = {}, const HttpRequestHeaders& authHeaders = {}) const;
+        std::optional<web::json::value> HandleGet(const utility::string_t& uri, const HttpRequestHeaders& headers = {}, const HttpRequestHeaders& authHeaders = {}, const HttpResponseHandler& customHandler = {}) const;
 
         void SetPinningConfiguration(const Certificates::PinningConfiguration& configuration);
 
