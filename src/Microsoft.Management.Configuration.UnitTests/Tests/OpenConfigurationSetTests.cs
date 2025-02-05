@@ -717,9 +717,9 @@ resources:
         [InlineData("object", "42", 42, Windows.Foundation.PropertyType.Inspectable)]
         [InlineData("secureobject", "string", "string", Windows.Foundation.PropertyType.Inspectable, true)]
         [InlineData("secureobject", "42", 42, Windows.Foundation.PropertyType.Inspectable, true)]
-        public void Parameters_DefaultValue_Success(string type, string defaultValue, object expectedValue, Windows.Foundation.PropertyType expectedType, bool secure = false)
+        public void Parameters_DefaultValue_Success(string type, string defaultValue, object expectedValue, object expectedType, bool secure = false)
         {
-            this.TestParameterDefaultValue(type, defaultValue, expectedValue, expectedType, secure);
+            this.TestParameterDefaultValue(type, defaultValue, expectedValue, Assert.IsType<Windows.Foundation.PropertyType>(expectedType), secure);
         }
 
         /// <summary>

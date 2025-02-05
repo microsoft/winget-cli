@@ -17,7 +17,6 @@
 
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <LangVersion>10</LangVersion>
     <BuildOutputDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</BuildOutputDirectory>
     <OutputPath>$(BuildOutputDirectory)$(MSBuildProjectName)</OutputPath>
     <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
@@ -98,6 +97,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
+    <LangVersion>10</LangVersion>
     <DefineConstants>$(DefineConstants);POWERSHELL_WINDOWS</DefineConstants>
   </PropertyGroup>
 
@@ -117,8 +117,30 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <Import Project="..\..\targets\EmbeddedCsWinRT.targets"  Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+
   <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
-    <CsWinRTIncludes>Microsoft.Management.Deployment</CsWinRTIncludes>
+    <CsWinRTIncludes>
+      Microsoft.Management.Deployment;
+      Windows.Data.Text.TextSegmen;
+      Windows.Devices.Geolocation;
+      Windows.Foundation;
+      Windows.Globalization.DayOfWee;
+      Windows.Networking.Connectivity;
+      Windows.Networking.DomainNameTyp;
+      Windows.Networking.EndpointPai;
+      Windows.Networking.IEndpointPai;
+      Windows.Networking.HostNam;
+      Windows.Networking.IHostNam;
+      Windows.Security.Cryptography.Certificates;
+      Windows.Storage;
+      Windows.System.ProcessorArchitectur;
+      Windows.System.Use;
+      Windows.System.IUse;
+    </CsWinRTIncludes>
+    <CsWinRTExcludes>
+      Windows.Foundation.PropertyType;
+    </CsWinRTExcludes>
     <CsWinRTWindowsMetadata>$(TargetWindowsVersion)</CsWinRTWindowsMetadata>
     <!-- Ensure Support for Windows 10, Version 1809 -->
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>

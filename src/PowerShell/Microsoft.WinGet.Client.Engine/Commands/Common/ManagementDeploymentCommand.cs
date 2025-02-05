@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ManagementDeploymentCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -41,6 +41,28 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         }
 
         /// <summary>
+        /// Retrieves the specified source or all sources if <paramref name="source" /> is null.
+        /// </summary>
+        /// <returns>A list of <see cref="PackageCatalogReference" /> instances.</returns>
+        /// <param name="source">The name of the source to retrieve. If null, then all sources are returned.</param>
+        /// <exception cref="ArgumentException">The source does not exist.</exception>
+        internal IReadOnlyList<PackageCatalogReference> GetPackageCatalogReferences(string? source)
+        {
+            if (string.IsNullOrEmpty(source))
+            {
+                return PackageManagerWrapper.Instance.GetPackageCatalogs();
+            }
+            else
+            {
+                return new List<PackageCatalogReference>()
+                {
+                    PackageManagerWrapper.Instance.GetPackageCatalogByName(source!)
+                        ?? throw new InvalidSourceException(source!),
+                };
+            }
+        }
+
+        /// <summary>
         /// Executes the cmdlet. All cmdlets that uses the COM APIs and don't call async functions MUST use this method.
         /// The inproc COM API may deadlock on an STA thread.
         /// </summary>
@@ -73,28 +95,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
 
             this.Wait(runningTask);
             return runningTask.Result;
-        }
-
-        /// <summary>
-        /// Retrieves the specified source or all sources if <paramref name="source" /> is null.
-        /// </summary>
-        /// <returns>A list of <see cref="PackageCatalogReference" /> instances.</returns>
-        /// <param name="source">The name of the source to retrieve. If null, then all sources are returned.</param>
-        /// <exception cref="ArgumentException">The source does not exist.</exception>
-        protected IReadOnlyList<PackageCatalogReference> GetPackageCatalogReferences(string? source)
-        {
-            if (string.IsNullOrEmpty(source))
-            {
-                return PackageManagerWrapper.Instance.GetPackageCatalogs();
-            }
-            else
-            {
-                return new List<PackageCatalogReference>()
-                {
-                    PackageManagerWrapper.Instance.GetPackageCatalogByName(source!)
-                        ?? throw new InvalidSourceException(source!),
-                };
-            }
         }
     }
 }

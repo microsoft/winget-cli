@@ -16,7 +16,24 @@ using namespace AppInstaller::Settings;
 
 namespace AppInstaller::CLI
 {
-    constexpr Utility::LocIndView s_Command_ArgName_SilentAndInteractive = "silent|interactive"_liv;
+    namespace
+    {
+        constexpr Utility::LocIndView s_Command_ArgName_SilentAndInteractive = "silent|interactive"_liv;
+
+        void LaunchLogsIfRequested(Execution::Context& context)
+        {
+            try
+            {
+                if (context.Args.Contains(Execution::Args::Type::OpenLogs))
+                {
+                    // TODO: Consider possibly adding functionality that if the context contains 'Execution::Args::Type::Log' to open the path provided for the log
+                    // The above was omitted initially as a security precaution to ensure that user input to '--log' wouldn't be passed directly to ShellExecute
+                    ShellExecute(NULL, NULL, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation).wstring().c_str(), NULL, NULL, SW_SHOWNORMAL);
+                }
+            }
+            CATCH_LOG();
+        }
+    }
 
     Command::Command(
         std::string_view name,
@@ -952,12 +969,7 @@ namespace AppInstaller::CLI
         }
         else
         {
-            if (context.Args.Contains(Execution::Args::Type::OpenLogs))
-            {
-                // TODO: Consider possibly adding functionality that if the context contains 'Execution::Args::Type::Log' to open the path provided for the log
-                // The above was omitted initially as a security precaution to ensure that user input to '--log' wouldn't be passed directly to ShellExecute
-                ShellExecute(NULL, NULL, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation).wstring().c_str(), NULL, NULL, SW_SHOWNORMAL);
-            }
+            LaunchLogsIfRequested(context);
 
             if (context.Args.Contains(Execution::Args::Type::Wait))
             {
@@ -1046,6 +1058,8 @@ namespace AppInstaller::CLI
         catch (...)
         {
             context.SetTerminationHR(Workflow::HandleException(context, std::current_exception()));
+
+            LaunchLogsIfRequested(context);
         }
     }
 
