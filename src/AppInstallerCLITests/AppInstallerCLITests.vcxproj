@@ -14,6 +14,7 @@
     <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
     <ProjectName>AppInstallerCLITests</ProjectName>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)\Internal\UriValidation\UriValidation.props" Condition="Exists('$(SolutionDir)\Internal\UriValidation\UriValidation.props')" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM64">
@@ -339,6 +340,7 @@
     <ClCompile Include="TestSource.cpp" />
     <ClCompile Include="UninstallFlow.cpp" />
     <ClCompile Include="UpdateFlow.cpp" />
+    <ClCompile Include="UriValidationFlow.cpp" />
     <ClCompile Include="UserSettings.cpp" />
     <ClCompile Include="Versions.cpp" />
     <ClCompile Include="WindowsFeature.cpp" />
@@ -1061,6 +1063,9 @@
     </ProjectReference>
     <ProjectReference Include="..\cpprestsdk\cpprestsdk.vcxproj">
       <Project>{866c3f06-636f-4be8-bc24-5f86ecc606a1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Internal\UriValidation\UriValidation.vcxproj">
+      <Project>{98920ab6-27b0-4c0f-b336-fa49de57a1ba}</Project>
     </ProjectReference>
     <ProjectReference Include="..\JsonCppLib\JsonCppLib.vcxproj">
       <Project>{82b39fda-e86b-4713-a873-9d56de00247a}</Project>

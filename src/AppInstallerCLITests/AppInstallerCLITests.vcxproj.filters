@@ -368,6 +368,9 @@
     <ClCompile Include="Sixel.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
+    <ClCompile Include="UriValidationFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
     <ClCompile Include="RestInterface_1_9.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>

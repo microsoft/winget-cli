@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ConfigurationFlow.h"
+#include "UriValidationFLow.h"
 #include "ImportExportFlow.h"
 #include "PromptFlow.h"
 #include "TableOutput.h"
@@ -1330,12 +1331,19 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void CreateConfigurationProcessor(Context& context)
+    void CreateConfigurationProcessorInternal(Context& context)
     {
         auto progressScope = context.Reporter.BeginAsyncProgress(true);
         progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
 
         anon::ConfigureProcessorForUse(context, ConfigurationProcessor{ anon::CreateConfigurationSetProcessorFactory(context) });
+    }
+
+    void CreateConfigurationProcessor(Context& context)
+    {
+        context <<
+            ExecuteUriValidation(UriValidationSource::ConfigurationSource) <<
+            CreateConfigurationProcessorInternal;
     }
 
     void CreateConfigurationProcessorWithoutFactory(Execution::Context& context)

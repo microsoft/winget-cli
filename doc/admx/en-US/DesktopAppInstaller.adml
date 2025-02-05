@@ -122,20 +122,24 @@ If you disable this setting, users will not be able to use the Windows Package M
 If you disable or do not configure this setting, no proxy will be used by default.
 
 If you enable this setting, the specified proxy will be used by default.</string>
+      <string id="EnableWindowsPackageManagerAllowedSecurityZones">Enable App Installer Allowed Zones for the Windows Package Manager</string>
+      <string id="EnableWindowsPackageManagerAllowedSecurityZonesExplanation"></string>
+      <string id="EnableWindowsPackageManagerSmartScreenCheck">Enable Microsoft SmartScreen checks for the Windows Package Manager</string>
+      <string id="EnableWindowsPackageManagerSmartScreenCheckExplanation"></string>
       <string id="EnableMsixAllowedZones">Enable App Installer Allowed Zones for MSIX Packages</string>
       <string id="EnableMsixAllowedZonesExplanation">This policy controls whether App Installer allows installing packages originating from specific URL Zones. A package's origin is determined by its URI and whether a Mart-of-the-Web (MotW) is present. If multiple URIs are involved, all of them are considered; for example, when using a .appinstaller file that involves redirection.
 
 If you enable this policy, users will be able to install MSIX packages according to the configuration for each zone.
 
 If you disable or do not configure this policy, users will be able to install MSIX packages from any zone except for Untrusted.</string>
-      <string id="ZoneAllowed">Allow</string>
-      <string id="ZoneBlocked">Block</string>
       <string id="EnableMsixSmartScreenCheck">Enable Microsoft SmartScreen checks for MSIX Packages</string>
       <string id="EnableMsixSmartScreenCheckExplanation">This policy controls whether App Installer performs Microsoft SmartScreen checks when installing MSIX packages.
 
 If you enable or do not configure this policy, the package URI will be evaluated with Microsoft SmartScreen before installation. This check is only done for packages that come from the internet.
 
 If you disable, Microsoft SmartScreen will not be consulted before installing a package.</string>
+      <string id="SecurityZoneAllowed">Allow</string>
+      <string id="SecurityZoneBlocked">Block</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
@@ -151,6 +155,13 @@ If you disable, Microsoft SmartScreen will not be consulted before installing a 
         <textBox refId="WindowsPackageManagerDefaultProxy">
           <label>Default Proxy</label>
         </textBox>
+      </presentation>
+      <presentation id="WindowsPackageManagerAllowedSecurityZones">
+        <dropdownList refId="LocalMachine" noSort="true" defaultItem="1">Local Machine</dropdownList>
+        <dropdownList refId="Intranet" noSort="true" defaultItem="1">Intranet</dropdownList>
+        <dropdownList refId="TrustedSites" noSort="true" defaultItem="1">Trusted Sites</dropdownList>
+        <dropdownList refId="Internet" noSort="true" defaultItem="1">Internet</dropdownList>
+        <dropdownList refId="UntrustedSites" noSort="true" defaultItem="0">Untrusted Sites</dropdownList>
       </presentation>
       <presentation id="MsixAllowedZones">
         <dropdownList refId="LocalMachine" noSort="true" defaultItem="1">Local Machine</dropdownList>

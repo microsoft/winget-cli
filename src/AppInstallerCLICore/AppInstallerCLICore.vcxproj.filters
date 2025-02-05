@@ -257,6 +257,9 @@
     <ClInclude Include="Commands\ConfigureListCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="Workflows\UriValidationFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
     <ClInclude Include="Sixel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -492,6 +495,9 @@
     </ClCompile>
     <ClCompile Include="Commands\ConfigureListCommand.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\UriValidationFlow.cpp">
+      <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="Sixel.cpp">
       <Filter>Source Files</Filter>
