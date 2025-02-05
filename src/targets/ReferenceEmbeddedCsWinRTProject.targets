@@ -1,0 +1,39 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <IncludeWindowsSDKRefFrameworkReferences>false</IncludeWindowsSDKRefFrameworkReferences>
+  </PropertyGroup>
+
+  <!-- Prevent .winmd files from being referenced transitively. -->
+  <!-- Adapted from https://github.com/microsoft/CsWinRT/blob/master/nuget/Microsoft.Windows.CsWinRT.targets -->
+  <Target Name="WinGetRemoveWinMDReferences" BeforeTargets="BeforeCompile" AfterTargets="ResolveReferences">
+    <ItemGroup>
+      <!--Move winmd references into private item group to prevent subsequent winmd reference errors-->
+      <WinGetRemovedReferences Include="@(ReferencePath)" Condition="'%(ReferencePath.Extension)' == '.winmd'" />
+
+      <!--Prevent NETSDK1130 errors from winmd references-->
+      <ReferencePath Remove="@(ReferencePath)" Condition="'%(ReferencePath.Extension)' == '.winmd'" />
+      <ReferencePathWithRefAssemblies Remove="@(WinGetRemovedReferences)"
+        Condition="'%(WinGetRemovedReferences.Filename)%(WinGetRemovedReferences.Extension)' == '%(ReferencePathWithRefAssemblies.Filename)%(ReferencePathWithRefAssemblies.Extension)'" />
+      <!--Do not publish projection source winmd files, but do include implementation dlls -->
+      <ReferenceCopyLocalPaths Remove="@(WinGetRemovedReferences)" />
+      <ReferenceCopyLocalPaths Include="@(WinGetRemovedReferences->'%(RootDir)%(Directory)%(DestinationSubDirectory)%(Implementation)')"
+                               Condition="'%(WinGetRemovedReferences.Implementation)' != '' AND Exists('%(WinGetRemovedReferences.RootDir)%(WinGetRemovedReferences.Directory)%(WinGetRemovedReferences.DestinationSubDirectory)%(WinGetRemovedReferences.Implementation)')" />
+      <!--Remove winmd references from deps.json to prevent CLR failing unit test execution-->
+      <ReferenceDependencyPaths Remove="@(ReferenceDependencyPaths)" Condition="%(ReferenceDependencyPaths.Extension) == '.winmd'"/>
+    </ItemGroup>
+  </Target>
+
+  <!-- Prevent WinRT.Runtime from being referenced. -->
+  <!-- Adapted from https://github.com/microsoft/CsWinRT/blob/master/nuget/Microsoft.Windows.CsWinRT.Embedded.targets -->
+  <Target Name="WinGetRemoveWinRTRuntimeReference" 
+          Inputs="@(RuntimeCopyLocalItems)" 
+          AfterTargets="ResolvePackageAssets" 
+          Outputs="@(RuntimeCopyLocalItems)">
+
+    <ItemGroup>
+      <Reference Remove="WinRT.Runtime" /> 
+      <RuntimeCopyLocalItems Remove="@(RuntimeCopyLocalItems)" Condition="'%(DestinationSubPath)' == 'WinRT.Runtime.dll'"/>
+      <ResolvedCompileFileDefinitions Remove="@(ResolvedCompileFileDefinitions)" Condition="'$([System.IO.Path]::GetFileName(%(HintPath)))' == 'WinRT.Runtime.dll'"/>
+    </ItemGroup>
+  </Target>
+</Project>

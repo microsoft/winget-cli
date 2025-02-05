@@ -12,6 +12,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     using System.Reflection;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
+    using Microsoft.Management.Configuration.SetProcessorFactory;
     using Windows.Foundation.Collections;
 
     /// <summary>
@@ -150,6 +151,78 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
 
             // This might be too restrictive but anything else is going to be some object that we don't support anyway.
             throw new UnitPropertyUnsupportedException(value.GetType());
+        }
+
+        /// <summary>
+        /// Converts PowerShellConfigurationProcessorPolicy string value to PwshConfigurationProcessorPolicy.
+        /// </summary>
+        /// <param name="value">PowerShellConfigurationProcessorPolicy value.</param>
+        /// <returns>PwshConfigurationProcessorPolicy.</returns>
+        public static PwshConfigurationProcessorPolicy ToPwshConfigurationProcessorPolicy(PowerShellConfigurationProcessorPolicy value)
+        {
+            return value switch
+            {
+                PowerShellConfigurationProcessorPolicy.Unrestricted => PwshConfigurationProcessorPolicy.Unrestricted,
+                PowerShellConfigurationProcessorPolicy.RemoteSigned => PwshConfigurationProcessorPolicy.RemoteSigned,
+                PowerShellConfigurationProcessorPolicy.AllSigned => PwshConfigurationProcessorPolicy.AllSigned,
+                PowerShellConfigurationProcessorPolicy.Restricted => PwshConfigurationProcessorPolicy.Restricted,
+                PowerShellConfigurationProcessorPolicy.Bypass => PwshConfigurationProcessorPolicy.Bypass,
+                PowerShellConfigurationProcessorPolicy.Undefined => PwshConfigurationProcessorPolicy.Undefined,
+                _ => throw new InvalidOperationException(),
+            };
+        }
+
+        /// <summary>
+        /// Converts PwshConfigurationProcessorPolicy string value to PowerShellConfigurationProcessorPolicy.
+        /// </summary>
+        /// <param name="value">PwshConfigurationProcessorPolicy value.</param>
+        /// <returns>PowerShellConfigurationProcessorPolicy.</returns>
+        public static PowerShellConfigurationProcessorPolicy ToPowerShellConfigurationProcessorPolicy(PwshConfigurationProcessorPolicy value)
+        {
+            return value switch
+            {
+                PwshConfigurationProcessorPolicy.Unrestricted => PowerShellConfigurationProcessorPolicy.Unrestricted,
+                PwshConfigurationProcessorPolicy.RemoteSigned => PowerShellConfigurationProcessorPolicy.RemoteSigned,
+                PwshConfigurationProcessorPolicy.AllSigned => PowerShellConfigurationProcessorPolicy.AllSigned,
+                PwshConfigurationProcessorPolicy.Restricted => PowerShellConfigurationProcessorPolicy.Restricted,
+                PwshConfigurationProcessorPolicy.Bypass => PowerShellConfigurationProcessorPolicy.Bypass,
+                PwshConfigurationProcessorPolicy.Undefined => PowerShellConfigurationProcessorPolicy.Undefined,
+                _ => throw new InvalidOperationException(),
+            };
+        }
+
+        /// <summary>
+        /// Converts PowerShellConfigurationProcessorLocation string value to PwshConfigurationProcessorLocation.
+        /// </summary>
+        /// <param name="value">PowerShellConfigurationProcessorLocation value.</param>
+        /// <returns>PwshConfigurationProcessorLocation.</returns>
+        public static PwshConfigurationProcessorLocation ToPwshConfigurationProcessorLocation(PowerShellConfigurationProcessorLocation value)
+        {
+            return value switch
+            {
+                PowerShellConfigurationProcessorLocation.CurrentUser => PwshConfigurationProcessorLocation.CurrentUser,
+                PowerShellConfigurationProcessorLocation.AllUsers => PwshConfigurationProcessorLocation.AllUsers,
+                PowerShellConfigurationProcessorLocation.WinGetModulePath => PwshConfigurationProcessorLocation.WinGetModulePath,
+                PowerShellConfigurationProcessorLocation.Custom => PwshConfigurationProcessorLocation.Custom,
+                _ => throw new InvalidOperationException(),
+            };
+        }
+
+        /// <summary>
+        /// Converts PwshConfigurationProcessorLocation string value to PowerShellConfigurationProcessorLocation.
+        /// </summary>
+        /// <param name="value">PwshConfigurationProcessorLocation value.</param>
+        /// <returns>PowerShellConfigurationProcessorLocation.</returns>
+        public static PowerShellConfigurationProcessorLocation ToPowerShellConfigurationProcessorLocation(PwshConfigurationProcessorLocation value)
+        {
+            return value switch
+            {
+                PwshConfigurationProcessorLocation.CurrentUser => PowerShellConfigurationProcessorLocation.CurrentUser,
+                PwshConfigurationProcessorLocation.AllUsers => PowerShellConfigurationProcessorLocation.AllUsers,
+                PwshConfigurationProcessorLocation.WinGetModulePath => PowerShellConfigurationProcessorLocation.WinGetModulePath,
+                PwshConfigurationProcessorLocation.Custom => PowerShellConfigurationProcessorLocation.Custom,
+                _ => throw new InvalidOperationException(),
+            };
         }
     }
 }

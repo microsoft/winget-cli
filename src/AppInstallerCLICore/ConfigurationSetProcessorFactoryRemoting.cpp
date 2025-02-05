@@ -7,7 +7,6 @@
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
 #include <winget/ILifetimeWatcher.h>
-#include <winrt/Microsoft.Management.Configuration.Processor.h>
 #include <winrt/Microsoft.Management.Configuration.SetProcessorFactory.h>
 
 using namespace winrt::Windows::Foundation;
@@ -250,7 +249,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 // Create a copy for remote and set remote module paths
                 std::vector<winrt::hstring> newRemotePaths{ newModulePaths };
                 m_remoteAdditionalModulePaths = winrt::single_threaded_vector<winrt::hstring>(std::move(newRemotePaths));
-                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().AdditionalModulePaths(m_remoteAdditionalModulePaths.GetView());
+                m_remoteFactory.as<SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>().AdditionalModulePaths(m_remoteAdditionalModulePaths.GetView());
 
                 // Store the updated module paths that we were given
                 m_additionalModulePaths = winrt::single_threaded_vector<winrt::hstring>(std::move(newModulePaths));
@@ -258,32 +257,32 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
             SetProcessorFactory::PwshConfigurationProcessorPolicy Policy() const
             {
-                return Convert(m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Policy());
+                return m_remoteFactory.as<SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>().Policy();
             }
 
             void Policy(SetProcessorFactory::PwshConfigurationProcessorPolicy value)
             {
-                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Policy(Convert(value));
+                m_remoteFactory.as<SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>().Policy(value);
             }
 
             SetProcessorFactory::PwshConfigurationProcessorLocation Location() const
             {
-                return Convert(m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Location());
+                return m_remoteFactory.as<SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>().Location();
             }
 
             void Location(SetProcessorFactory::PwshConfigurationProcessorLocation value)
             {
-                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Location(Convert(value));
+                m_remoteFactory.as<SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>().Location(value);
             }
 
             winrt::hstring CustomLocation() const
             {
-                return m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().CustomLocation();
+                return m_remoteFactory.as<SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>().CustomLocation();
             }
 
             void CustomLocation(winrt::hstring value)
             {
-                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().CustomLocation(value);
+                m_remoteFactory.as<SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>().CustomLocation(value);
             }
 
             HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher)
@@ -292,30 +291,6 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             }
 
         private:
-            static SetProcessorFactory::PwshConfigurationProcessorPolicy Convert(Processor::PowerShellConfigurationProcessorPolicy policy)
-            {
-                // We have used the same values intentionally; if that changes, update this.
-                return ToEnum<SetProcessorFactory::PwshConfigurationProcessorPolicy>(ToIntegral(policy));
-            }
-
-            static Processor::PowerShellConfigurationProcessorPolicy Convert(SetProcessorFactory::PwshConfigurationProcessorPolicy policy)
-            {
-                // We have used the same values intentionally; if that changes, update this.
-                return ToEnum<Processor::PowerShellConfigurationProcessorPolicy>(ToIntegral(policy));
-            }
-
-            static SetProcessorFactory::PwshConfigurationProcessorLocation Convert(Processor::PowerShellConfigurationProcessorLocation location)
-            {
-                // We have used the same values intentionally; if that changes, update this.
-                return ToEnum<SetProcessorFactory::PwshConfigurationProcessorLocation>(ToIntegral(location));
-            }
-
-            static Processor::PowerShellConfigurationProcessorLocation Convert(SetProcessorFactory::PwshConfigurationProcessorLocation location)
-            {
-                // We have used the same values intentionally; if that changes, update this.
-                return ToEnum<Processor::PowerShellConfigurationProcessorLocation>(ToIntegral(location));
-            }
-
             IConfigurationSetProcessorFactory m_remoteFactory;
             wil::unique_event m_completionEvent;
             Collections::IVector<winrt::hstring> m_additionalModulePaths{ winrt::single_threaded_vector<winrt::hstring>() };

@@ -22,6 +22,7 @@
     !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
     <WindowsSdkPackageVersion>10.0.22000.53</WindowsSdkPackageVersion>
+    <WinGetCsWinRTEmbedded Condition="'$(WinGetCsWinRTEmbedded)'==''">true</WinGetCsWinRTEmbedded>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -52,13 +53,49 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(WinGetCsWinRTEmbedded)'!='true'">
     <ProjectReference Include="..\Microsoft.Management.Configuration.Projection\Microsoft.Management.Configuration.Projection.csproj">
       <OutputItemType>Content</OutputItemType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ReferenceOutputAssembly>True</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
+
+  <ItemGroup Condition="'$(WinGetCsWinRTEmbedded)'=='true'">
+    <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+  
+  <PropertyGroup Condition="'$(WinGetCsWinRTEmbedded)'=='true'">
+    <DefineConstants>$(DefineConstants);WinGetCsWinRTEmbedded</DefineConstants>
+    <CsWinRTComponent>false</CsWinRTComponent>
+    <CsWinRTIncludes>
+      Microsoft.Management.Configuration;
+      Windows.Data.Text.TextSegmen;
+      Windows.Devices.Geolocation;
+      Windows.Foundation;
+      Windows.Globalization.DayOfWee;
+      Windows.Networking.Connectivity;
+      Windows.Networking.DomainNameTyp;
+      Windows.Networking.EndpointPai;
+      Windows.Networking.IEndpointPai;
+      Windows.Networking.HostNam;
+      Windows.Networking.IHostNam;
+      Windows.Security.Cryptography.Certificates;
+      Windows.Storage;
+      Windows.System.Use;
+      Windows.System.IUse;
+    </CsWinRTIncludes>
+    <CsWinRTExcludes>
+      Windows.Foundation.PropertyType;
+    </CsWinRTExcludes>
+    <!-- Ensure Support for Windows 10, Version 1809 -->
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+  </PropertyGroup>
+
+  <Import Project="..\targets\EmbeddedCsWinRT.targets" Condition="'$(WinGetCsWinRTEmbedded)'=='true'" />
 
   <Target Name="MicrosoftManagementConfigurationPathTarget" BeforeTargets="CsWinRTSetAuthoringWinMDs">
     <PropertyGroup>

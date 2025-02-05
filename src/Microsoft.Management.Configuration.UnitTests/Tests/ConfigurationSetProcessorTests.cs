@@ -468,7 +468,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [InlineData(ConfigurationUnitDetailFlags.Local)]
         [InlineData(ConfigurationUnitDetailFlags.ReadOnly)]
         [InlineData(ConfigurationUnitDetailFlags.Download)]
-        public void GetUnitProcessorDetails_Local(ConfigurationUnitDetailFlags detailFlags)
+        public void GetUnitProcessorDetails_Local(object detailFlags)
         {
             var unit = this.CreateConfigurationUnit();
             var (dscResourceInfo, psModuleInfo) = this.GetResourceAndModuleInfo(unit);
@@ -498,7 +498,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var configurationUnitProcessorDetails = configurationSetProcessor.GetUnitProcessorDetails(
                 unit,
-                detailFlags);
+                Assert.IsType<ConfigurationUnitDetailFlags>(detailFlags));
 
             Assert.NotNull(configurationUnitProcessorDetails);
             Assert.Equal(dscResourceInfo.Name, configurationUnitProcessorDetails.UnitType);

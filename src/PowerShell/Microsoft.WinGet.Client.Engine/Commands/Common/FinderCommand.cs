@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="FinderCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -78,7 +78,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <param name="limit">The limit on the number of matches returned.</param>
         /// <param name="match">The match option.</param>
         /// <returns>A list of <see cref="MatchResult" /> objects.</returns>
-        protected IReadOnlyList<MatchResult> FindPackages(
+        internal IReadOnlyList<MatchResult> FindPackages(
             CompositeSearchBehavior behavior,
             uint limit,
             PackageFieldMatchOption match)
@@ -97,7 +97,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <param name="options">The options object.</param>
         /// <param name="match">The match type as string.</param>
         /// <param name="value">The query value.</param>
-        protected virtual void SetQueryInFindPackagesOptions(
+        internal virtual void SetQueryInFindPackagesOptions(
             ref FindPackagesOptions options,
             string match,
             string? value)

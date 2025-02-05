@@ -5,6 +5,7 @@
 #if _DEBUG
 #include "DebugCommand.h"
 #include <winrt/Microsoft.Management.Configuration.h>
+#include <winrt/Microsoft.Management.Configuration.SetProcessorFactory.h>
 #include "AppInstallerDownloader.h"
 #include "Sixel.h"
 
@@ -106,6 +107,7 @@ namespace AppInstaller::CLI
         OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IConfigurationUnitProcessorDetails2>(context);
         OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IGetAllSettingsConfigurationUnitProcessor>(context);
         OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IConfigurationStatics2>(context);
+        OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>(context);
 
         // TODO: Fix the layering inversion created by the COM deployment API (probably in order to operate winget.exe against the COM server).
         //       Then this code can just have a CppWinRT reference to the deployment API and spit out the interface registrations just like for configuration.
