@@ -3,6 +3,7 @@
 #pragma once
 #include <winget/Settings.h>
 #include <winget/UserSettings.h>
+#include <winget/Experiment.h>
 #include <wil/resource.h>
 #include <string>
 
@@ -23,6 +24,7 @@ namespace TestCommon
     const std::wstring EnableWindowsPackageManagerCommandLineInterfaces = L"EnableWindowsPackageManagerCommandLineInterfaces";
     const std::wstring ConfigurationPolicyValueName = L"EnableWindowsPackageManagerConfiguration";
     const std::wstring ProxyCommandLineOptionsPolicyValueName = L"EnableWindowsPackageManagerProxyCommandLineOptions";
+    const std::wstring EnableExperimentationPolicyValueName = L"EnableExperimentation";
 
     const std::wstring SourceUpdateIntervalPolicyValueName = L"SourceAutoUpdateInterval";
     const std::wstring SourceUpdateIntervalPolicyOldValueName = L"SourceAutoUpdateIntervalInMinutes";
@@ -45,6 +47,11 @@ namespace TestCommon
 
     struct UserSettingsTest : AppInstaller::Settings::UserSettings
     {
+    };
+
+    struct ExperimentationTest
+    {
+        ~ExperimentationTest();
     };
 
     struct GroupPolicyTestOverride : AppInstaller::Settings::GroupPolicy

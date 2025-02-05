@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="TogglePolicy.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -125,6 +125,8 @@ namespace Microsoft.WinGet.SharedLib.PolicySettings
                     return new TogglePolicy(policy, "EnableWindowsPackageManagerCommandLineInterfaces", GroupPolicyResource.PolicyEnableWindowsPackageManagerCommandLineInterfaces);
                 case Policy.Configuration:
                     return new TogglePolicy(policy, "EnableWindowsPackageManagerConfiguration", GroupPolicyResource.PolicyEnableWinGetConfiguration);
+                case Policy.Experimentation:
+                    return new TogglePolicy(policy, "EnableExperimentation", GroupPolicyResource.PolicyEnableExperimentation);
                 default:
                     throw new ArgumentException(null, nameof(policy));
             }

@@ -111,6 +111,9 @@ namespace AppInstaller::Settings
         ConfigureDefaultModuleRoot,
         // Interactivity
         InteractivityDisable,
+        // Experimentation
+        Experimentation,
+        AllowExperimentation,
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Debug
         EnableSelfInitiatedMinidump,
@@ -202,7 +205,12 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingChannelPreference, std::vector<std::string>, Logging::Channel, Logging::Channel::Defaults, ".logging.channels"sv);
         // Interactivity
         SETTINGMAPPING_SPECIALIZATION(Setting::InteractivityDisable, bool, bool, false, ".interactivity.disable"sv);
-        
+
+        // Experimentation
+        using Experimentation_t = std::map<std::string, bool>;
+        SETTINGMAPPING_SPECIALIZATION(Setting::Experimentation, Experimentation_t, Experimentation_t, {}, ".experimentation"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::AllowExperimentation, bool, bool, true, ".allowExperimentation"sv);
+
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>
         inline auto Deduce(std::index_sequence<I...>) { return std::variant<std::monostate, typename SettingMapping<static_cast<Setting>(I)>::value_t...>{}; }

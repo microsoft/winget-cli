@@ -47,6 +47,7 @@ namespace AppInstaller::Settings
             WinGetCommandLineInterfaces,
             Configuration,
             ProxyCommandLineOptions,
+            Experimentation,
             Max,
         };
 

@@ -110,14 +110,12 @@ namespace AppInstaller::Repository
         //  - Check only against the source argument and type as the user source may have a different name.
         //  - Do a case-insensitive check as the domain portion of the URL is case-insensitive,
         //    and we don't need case sensitivity for the rest as we control the domain.
-        if (Utility::CaseInsensitiveEquals(arg, GetWellKnownSourceArg(WellKnownSource::WinGet)) &&
-            Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))
+        if (IsWellKnownSourceArg(arg, WellKnownSource::WinGet) && Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))
         {
             return IsWellKnownSourceEnabled(WellKnownSource::WinGet) ? TogglePolicy::Policy::None : TogglePolicy::Policy::DefaultSource;
         }
 
-        if (Utility::CaseInsensitiveEquals(arg, GetWellKnownSourceArg(WellKnownSource::MicrosoftStore)) &&
-            Utility::CaseInsensitiveEquals(type, Rest::RestSourceFactory::Type()))
+        if (IsWellKnownSourceArg(arg, WellKnownSource::MicrosoftStore) && Utility::CaseInsensitiveEquals(type, Rest::RestSourceFactory::Type()))
         {
             return IsWellKnownSourceEnabled(WellKnownSource::MicrosoftStore) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
         }

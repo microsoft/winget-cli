@@ -11,6 +11,7 @@
 
 #define AICLI_TraceLoggingStringView(_sv_,_name_) TraceLoggingCountedUtf8String(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
 #define AICLI_TraceLoggingWStringView(_sv_,_name_) TraceLoggingCountedWideString(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
+#define AICLI_TraceLoggingJsonWString(_sv_, _name_) TraceLoggingPackedFieldEx(_sv_.c_str(), static_cast<ULONG>((_sv_.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, _name_)
 
 #define AICLI_TraceLoggingWriteActivity(_eventName_,...) TraceLoggingWriteActivity(\
 g_hTraceProvider,\
@@ -18,12 +19,14 @@ _eventName_,\
 s_useGlobalTelemetryActivityId ? &s_globalTelemetryLoggerActivityId : GetActivityId(),\
 nullptr,\
 TraceLoggingCountedUtf8String(m_caller.c_str(),  static_cast<ULONG>(m_caller.size()), "Caller"),\
-TraceLoggingPackedFieldEx(m_telemetryCorrelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorrelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),\
+AICLI_TraceLoggingJsonWString(m_telemetryCorrelationJsonW, "CvJson"),\
 __VA_ARGS__)
 
 namespace AppInstaller::Logging
 {
     using namespace Utility;
+    using namespace Settings;
+    using namespace Experiment;
 
     namespace
     {
@@ -76,6 +79,19 @@ namespace AppInstaller::Logging
             default:
                 return "unknown"sv;
             }
+        }
+
+        std::wstring GetExperimentationJson(const Settings:: ExperimentStateCache& experimentation)
+        {
+            Json::Value root;
+            for (const auto& experiment : experimentation)
+            {
+                auto name = std::string(Settings::Experiment::GetExperiment(experiment.first).JsonName());
+                root[name] = experiment.second.ToJson();
+            }
+
+            Json::StreamWriterBuilder builder;
+            return Utility::ConvertToUTF16(Json::writeString(builder, root));
         }
     }
 
@@ -760,6 +776,23 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Error, << type << " repair failed: " << errorCode);
     }
 
+    Settings::ExperimentState TelemetryTraceLogger::GetExperimentState(ExperimentKey key)
+    {
+        auto it = m_summary.ExperimentCache.find(key);
+        if (it == m_summary.ExperimentCache.end())
+        {
+            it = m_summary.ExperimentCache.emplace(key, Settings::Experiment::GetStateInternal(key)).first;
+        }
+        return it->second;
+    }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    void TelemetryTraceLogger::ResetExperimentCache()
+    {
+        m_summary.ExperimentCache.clear();
+    }
+#endif
+
     TelemetryTraceLogger::~TelemetryTraceLogger()
     {
         if (IsTelemetryEnabled())
@@ -773,6 +806,8 @@ namespace AppInstaller::Logging
 
             if (m_useSummary)
             {
+                auto experimentationJson = GetExperimentationJson(m_summary.ExperimentCache);
+
                 TraceLoggingWriteActivity(
                     g_hTraceProvider,
                     "SummaryV2",
@@ -780,7 +815,7 @@ namespace AppInstaller::Logging
                     GetParentActivityId(),
                     // From member fields or program info.
                     AICLI_TraceLoggingStringView(m_caller, "Caller"),
-                    TraceLoggingPackedFieldEx(m_telemetryCorrelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorrelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),
+                    AICLI_TraceLoggingJsonWString(m_telemetryCorrelationJsonW, "CvJson"),
                     TraceLoggingCountedString(version->c_str(), static_cast<ULONG>(version->size()), "ClientVersion"),
                     TraceLoggingCountedString(packageVersion->c_str(), static_cast<ULONG>(packageVersion->size()), "ClientPackageVersion"),
                     TraceLoggingBool(Runtime::IsReleaseBuild(), "IsReleaseBuild"),
@@ -838,6 +873,7 @@ namespace AppInstaller::Logging
                     AICLI_TraceLoggingStringView(m_summary.RepairExecutionType, "RepairExecutionType"),
                     TraceLoggingUInt32(m_summary.RepairErrorCode, "RepairErrorCode"),
                     TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage | PDT_SoftwareSetupAndInventory),
+                    AICLI_TraceLoggingJsonWString(experimentationJson, "ExperimentationJson"),
                     TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
             }
         }

@@ -8,10 +8,12 @@
 
 #include <winget/AdminSettings.h>
 #include <winget/Certificates.h>
+#include <winget/Experiment.h>
 #include <CertificateResources.h>
 
 using namespace AppInstaller::Settings;
 using namespace std::string_view_literals;
+using namespace AppInstaller::Experiment;
 
 namespace AppInstaller::Repository
 {
@@ -36,6 +38,7 @@ namespace AppInstaller::Repository
 
         constexpr std::string_view s_Source_WingetCommunityDefault_Name = "winget"sv;
         constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://cdn.winget.microsoft.com/cache"sv;
+        constexpr std::string_view s_Source_WingetCommunityExperimental_Arg = "https://cdn2.winget.microsoft.com/cache"sv;
         constexpr std::string_view s_Source_WingetCommunityDefault_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
         constexpr std::string_view s_Source_WingetCommunityDefault_Identifier = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
 
@@ -207,6 +210,16 @@ namespace AppInstaller::Repository
         {
             return details.IsTombstone || details.Origin == SourceOrigin::Metadata || !details.IsVisible;
         }
+
+        std::string_view GetWingetCommunitySource()
+        {
+            if (Settings::Experiment::GetState(ExperimentKey::CDN).IsEnabled())
+            {
+                return s_Source_WingetCommunityExperimental_Arg;
+            }
+
+            return s_Source_WingetCommunityDefault_Arg;
+        }
     }
 
     void SourceDetailsInternal::CopyMetadataFieldsTo(SourceDetailsInternal& target)
@@ -246,19 +259,18 @@ namespace AppInstaller::Repository
         return {};
     }
 
-    std::string_view GetWellKnownSourceArg(WellKnownSource source)
+    bool IsWellKnownSourceArg(std::string_view arg, WellKnownSource source)
     {
         switch (source)
         {
         case WellKnownSource::WinGet:
-            return s_Source_WingetCommunityDefault_Arg;
+            return Utility::CaseInsensitiveEquals(arg, s_Source_WingetCommunityDefault_Arg) || Utility::CaseInsensitiveEquals(arg, s_Source_WingetCommunityExperimental_Arg);
         case WellKnownSource::MicrosoftStore:
-            return s_Source_MSStoreDefault_Arg;
+            return Utility::CaseInsensitiveEquals(arg, s_Source_MSStoreDefault_Arg);
         case WellKnownSource::DesktopFrameworks:
-            return s_Source_DesktopFrameworks_Arg;
+            return Utility::CaseInsensitiveEquals(arg, s_Source_DesktopFrameworks_Arg);
         }
-
-        return {};
+        return false;
     }
 
     std::string_view GetWellKnownSourceIdentifier(WellKnownSource source)
@@ -278,17 +290,17 @@ namespace AppInstaller::Repository
 
     std::optional<WellKnownSource> CheckForWellKnownSourceMatch(std::string_view name, std::string_view arg, std::string_view type)
     {
-        if (name == s_Source_WingetCommunityDefault_Name && arg == s_Source_WingetCommunityDefault_Arg && type == Microsoft::PreIndexedPackageSourceFactory::Type())
+        if (name == s_Source_WingetCommunityDefault_Name && IsWellKnownSourceArg(arg, WellKnownSource::WinGet) && type == Microsoft::PreIndexedPackageSourceFactory::Type())
         {
             return WellKnownSource::WinGet;
         }
 
-        if (name == s_Source_MSStoreDefault_Name && arg == s_Source_MSStoreDefault_Arg && type == Rest::RestSourceFactory::Type())
+        if (name == s_Source_MSStoreDefault_Name && IsWellKnownSourceArg(arg, WellKnownSource::MicrosoftStore) && type == Rest::RestSourceFactory::Type())
         {
             return WellKnownSource::MicrosoftStore;
         }
 
-        if (name == s_Source_DesktopFrameworks_Name && arg == s_Source_DesktopFrameworks_Arg && type == Microsoft::PreIndexedPackageSourceFactory::Type())
+        if (name == s_Source_DesktopFrameworks_Name && IsWellKnownSourceArg(arg, WellKnownSource::DesktopFrameworks) && type == Microsoft::PreIndexedPackageSourceFactory::Type())
         {
             return WellKnownSource::DesktopFrameworks;
         }
@@ -306,7 +318,7 @@ namespace AppInstaller::Repository
             details.Origin = SourceOrigin::Default;
             details.Name = s_Source_WingetCommunityDefault_Name;
             details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-            details.Arg = s_Source_WingetCommunityDefault_Arg;
+            details.Arg = GetWingetCommunitySource();
             details.Data = s_Source_WingetCommunityDefault_Data;
             details.Identifier = s_Source_WingetCommunityDefault_Identifier;
             details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;

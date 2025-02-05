@@ -115,6 +115,15 @@ namespace Microsoft.WinGet.SharedLib.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enable Windows Package Manager Feature Experimentation.
+        /// </summary>
+        internal static string PolicyEnableExperimentation {
+            get {
+                return ResourceManager.GetString("PolicyEnableExperimentation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enable Windows App Installer Hash Override.
         /// </summary>
         internal static string PolicyEnableHashOverride {

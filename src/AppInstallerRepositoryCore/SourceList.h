@@ -8,8 +8,8 @@
 namespace AppInstaller::Repository
 {
     // Built-in values for default sources
+    bool IsWellKnownSourceArg(std::string_view arg, WellKnownSource source);
     std::string_view GetWellKnownSourceName(WellKnownSource source);
-    std::string_view GetWellKnownSourceArg(WellKnownSource source);
     std::string_view GetWellKnownSourceIdentifier(WellKnownSource source);
     std::optional<WellKnownSource> CheckForWellKnownSourceMatch(std::string_view name, std::string_view arg, std::string_view type);
 

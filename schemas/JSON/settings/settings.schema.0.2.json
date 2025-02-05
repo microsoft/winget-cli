@@ -315,6 +315,22 @@
           "default": false
         }
       }
+    },
+    "Experimentation": {
+      "description": "Feature Experimentation",
+      "type": "object",
+      "properties": {
+        "CDN": {
+          "description": "Enables the use of an alternative CDN for the winget source",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "AllowExperimentation": {
+      "description": "Controls whether feature experimentation is allowed or not",
+      "type": "boolean",
+      "default": true
     }
   },
   "allOf": [
@@ -387,6 +403,18 @@
     {
       "properties": {
         "experimentalFeatures": { "$ref": "#/definitions/Experimental" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "experimentation": { "$ref": "#/definitions/Experimentation" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "allowExperimentation": { "$ref": "#/definitions/AllowExperimentation" }
       },
       "additionalItems": true
     }
