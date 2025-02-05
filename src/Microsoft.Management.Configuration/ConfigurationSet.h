@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ConfigurationSet.g.h"
+#include "ConfigurationEnvironment.h"
 #include "ConfigurationSetChangeData.h"
 #include "ConfigurationStatus.h"
 #include <winget/ILifetimeWatcher.h>

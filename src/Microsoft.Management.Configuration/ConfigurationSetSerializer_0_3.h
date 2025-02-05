@@ -24,7 +24,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void WriteYamlParameters(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationParameter>& values);
         void WriteYamlConfigurationUnits(
             AppInstaller::YAML::Emitter& emitter,
-            const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& values,
-            const Configuration::ConfigurationEnvironment& commonEnvironment);
+            const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& values);
     };
 }
