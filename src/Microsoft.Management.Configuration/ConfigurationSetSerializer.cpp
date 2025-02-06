@@ -77,6 +77,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             {
                 emitter << BeginMap;
 
+                WriteValues(emitter, WriteYamlValue);
+
+                emitter << EndMap;
+            }
+
+            void WriteValues(AppInstaller::YAML::Emitter& emitter, void(*WriteYamlValue)(AppInstaller::YAML::Emitter& emitter, const winrt::Windows::Foundation::IInspectable& value))
+            {
                 if (m_valueSet)
                 {
                     for (const auto& [key, value] : m_valueSet)
@@ -100,8 +107,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                         WriteYamlValue(emitter, override.second);
                     }
                 }
-
-                emitter << EndMap;
             }
 
         private:
@@ -169,6 +174,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         anon::ValueSetWriter writer{ valueSet, overrides };
         writer.Write(emitter, WriteYamlValue);
+    }
+
+    void ConfigurationSetSerializer::WriteYamlValueSetValues(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, const std::vector<std::pair<ConfigurationField, Windows::Foundation::IInspectable>>& overrides)
+    {
+        anon::ValueSetWriter writer{ valueSet, overrides };
+        writer.WriteValues(emitter, WriteYamlValue);
     }
 
     void ConfigurationSetSerializer::WriteYamlStringArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<hstring>& values)
