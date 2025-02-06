@@ -27,6 +27,10 @@
   <Import Project="..\targets\ReferenceEmbeddedCsWinRTProject.targets" />
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj" />
     <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj" />
   </ItemGroup>
