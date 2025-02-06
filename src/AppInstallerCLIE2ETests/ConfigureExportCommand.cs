@@ -37,9 +37,9 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void BaseTeardown()
         {
+            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestPackageExport");
             TestCommon.TearDownTestSource();
             WinGetSettingsHelper.ConfigureFeature("configureExport", false);
-            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestPackageExport");
         }
 
         /// <summary>
