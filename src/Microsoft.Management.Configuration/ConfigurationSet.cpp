@@ -283,6 +283,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_schemaUri = value;
     }
 
+    Configuration::ConfigurationEnvironment ConfigurationSet::Environment()
+    {
+        return *m_environment;
+    }
+
+    implementation::ConfigurationEnvironment& ConfigurationSet::EnvironmentInternal()
+    {
+        return *m_environment;
+    }
+
     std::vector<Configuration::ConfigurationEnvironment> ConfigurationSet::GetUnitEnvironmentsInternal()
     {
         std::vector<impl::EnvironmentData> uniqueEnvironments;

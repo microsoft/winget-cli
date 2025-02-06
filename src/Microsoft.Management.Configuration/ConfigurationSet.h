@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ConfigurationSet.g.h"
+#include "ConfigurationEnvironment.h"
 #include "ConfigurationSetChangeData.h"
 #include "ConfigurationStatus.h"
 #include <winget/ILifetimeWatcher.h>
@@ -25,6 +26,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void Units(std::vector<Configuration::ConfigurationUnit>&& units);
         void Parameters(std::vector<Configuration::ConfigurationParameter>&& value);
         void ConfigurationSetChange(com_ptr<ConfigurationSetChangeData>& data, const std::optional<guid>& unitInstanceIdentifier);
+        implementation::ConfigurationEnvironment& EnvironmentInternal();
         std::vector<Configuration::ConfigurationEnvironment> GetUnitEnvironmentsInternal();
 #endif
 
@@ -68,6 +70,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Foundation::Uri SchemaUri();
         void SchemaUri(const Windows::Foundation::Uri& value);
 
+        Configuration::ConfigurationEnvironment Environment();
+
         Windows::Foundation::Collections::IVector<Configuration::ConfigurationEnvironment> GetUnitEnvironments();
 
         HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher);
@@ -91,6 +95,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Foundation::Uri m_schemaUri = nullptr;
         std::string m_inputHash;
         std::shared_ptr<ConfigurationStatus::SetChangeRegistration> m_setChangeRegistration;
+        com_ptr<implementation::ConfigurationEnvironment> m_environment{ make_self<implementation::ConfigurationEnvironment>() };
 #endif
     };
 }
