@@ -10,26 +10,68 @@ namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
-        // Check if smart screen is required for a given zone.
-        bool IsSmartScreenRequired(Settings::SecurityZoneOptions zone)
+        // Convert the security zone to string.
+        std::string ToString(Settings::SecurityZoneOptions zone)
         {
-            auto isSmartScreenEnabled = Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::SmartScreenCheck);
-            AICLI_LOG(Core, Info, << "SmartScreen validation is " << (isSmartScreenEnabled ? "enabled" : "disabled"));
+            switch (zone)
+            {
+            case Settings::SecurityZoneOptions::LocalMachine:
+                return "LocalMachine";
+            case Settings::SecurityZoneOptions::Intranet:
+                return "Intranet";
+            case Settings::SecurityZoneOptions::TrustedSites:
+                return "TrustedSites";
+            case Settings::SecurityZoneOptions::Internet:
+                return "Internet";
+            case Settings::SecurityZoneOptions::UntrustedSites:
+                return "UntrustedSites";
+            default:
+                return "Unknown";
+            }
+        }
 
-            auto isSecurityZoneCheckRequired = zone == Settings::SecurityZoneOptions::Internet || zone == Settings::SecurityZoneOptions::UntrustedSites;
-            AICLI_LOG(Core, Info, << "Security zone check is " << (isSecurityZoneCheckRequired ? "required" : "not required"));
+        // Check if smart screen is required for a given zone.
+        bool IsSmartScreenRequired(Settings::SecurityZoneOptions zone, bool isSourceTrusted)
+        {
+            if (zone != Settings::SecurityZoneOptions::Internet && zone != Settings::SecurityZoneOptions::UntrustedSites)
+            {
+                AICLI_LOG(Core, Info, << "Skipping smart screen validation for zone " << ToString(zone));
+                return false;
+            }
 
-            return isSmartScreenEnabled && isSecurityZoneCheckRequired;
+            auto ssPolicyState = Settings::GroupPolicies().GetState(Settings::TogglePolicy::Policy::SmartScreenCheck);
+            if (ssPolicyState == Settings::PolicyState::Disabled)
+            {
+                AICLI_LOG(Core, Info, << "Smart screen validation is disabled by group policy");
+                return false;
+            }
+
+            if (ssPolicyState == Settings::PolicyState::Enabled)
+            {
+                AICLI_LOG(Core, Info, << "Smart screen validation is enabled by group policy");
+                return true;
+            }
+
+            AICLI_LOG(Core, Info, << "Smart screen validation is not configured by group policy");
+
+            if (isSourceTrusted)
+            {
+                AICLI_LOG(Core, Info, << "Skipping smart screen validation for trusted source");
+                return false;
+            }
+
+            AICLI_LOG(Core, Info, << "Smart screen validation is required for untrusted source");
+            return true;
         }
 
         // Check if the given uri is blocked by smart screen.
-        bool IsBlockedBySmartScreen(Execution::Context& context, const std::string& uri)
+        bool IsUriBlockedBySmartScreen(Execution::Context& context, const std::string& uri)
         {
             auto response = AppInstaller::UriValidation::ValidateUri(uri);
             switch (response.Decision())
             {
             case AppInstaller::UriValidation::UriValidationDecision::Block:
-                AICLI_LOG(Core, Error, << "URI '" << uri << "' was blocked by smart screen. Feedback URL: " << response.Feedback());
+                AICLI_LOG(Core, Verbose, << "URI '" << uri << "' was blocked by smart screen. Feedback URL: " << response.Feedback());
                 context.Reporter.Error() << Resource::String::UriBlockedBySmartScreen << std::endl;
                 return true;
             case AppInstaller::UriValidation::UriValidationDecision::Allow:
@@ -75,8 +117,43 @@ namespace AppInstaller::CLI::Workflow
             return S_OK;
         }
 
+        HRESULT GetIsSourceTrusted(const Execution::Context& context, bool& isTrusted)
+        {
+            if (context.Contains(Execution::Data::PackageVersion))
+            {
+                const auto packageVersion = context.Get<Execution::Data::PackageVersion>();
+                const auto source = packageVersion->GetSource();
+                isTrusted = WI_IsFlagSet(source.GetDetails().TrustLevel, Repository::SourceTrustLevel::Trusted);
+                return S_OK;
+            }
+
+            return E_FAIL;
+        }
+
+        HRESULT GetInstallerUrl(const Execution::Context& context, std::string& installerUrl)
+        {
+            if (context.Contains(Execution::Data::Installer))
+            {
+                installerUrl = context.Get<Execution::Data::Installer>()->Url;
+                return S_OK;
+            }
+
+            return E_FAIL;
+        }
+
+        HRESULT GetConfigurationUri(const Execution::Context& context, std::string& configurationUri)
+        {
+            if (context.Args.Contains(Execution::Args::Type::ConfigurationFile))
+            {
+                configurationUri = context.Args.GetArg(Execution::Args::Type::ConfigurationFile);
+                return S_OK;
+            }
+
+            return E_FAIL;
+        }
+
         // Validate group policy for a given zone.
-        bool IsBlockedByGroupPolicy(Execution::Context& context, const Settings::SecurityZoneOptions zone)
+        bool IsZoneBlockedByGroupPolicy(Execution::Context& context, const Settings::SecurityZoneOptions& zone)
         {
             if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::AllowedSecurityZones))
             {
@@ -106,65 +183,79 @@ namespace AppInstaller::CLI::Workflow
                 return true;
             }
 
-            AICLI_LOG(Core, Info, << "Configuration is configured in zone " << zone << " with value " << (isAllowed ? "allowed" : "blocked"));
+            AICLI_LOG(Core, Info, << "Configuration is disabled in zone " << zone);
             return false;
-        }
-
-        // Evaluate the given uri for group policy and smart screen.
-        HRESULT EvaluateUri(Execution::Context& context, const std::string& uri)
-        {
-            AICLI_LOG(Core, Info, << "Validating URI: " << uri);
-
-            Settings::SecurityZoneOptions zone;
-            auto zoneResult = GetUriZone(uri, zone);
-
-            if (SUCCEEDED(zoneResult))
-            {
-                if (IsBlockedByGroupPolicy(context, zone))
-                {
-                    return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
-                }
-
-                if (IsSmartScreenRequired(zone) && IsBlockedBySmartScreen(context, uri))
-                {
-                    return APPINSTALLER_CLI_ERROR_BLOCKED_BY_REPUTATION_SERVICE;
-                }
-            }
-            else
-            {
-                AICLI_LOG(Core, Warning, << "Failed to get zone for URI: " << uri << " with error: " << zoneResult << ". Skipping validation.");
-            }
-
-            return S_OK;
         }
 
         // Evaluate the configuration uri for group policy and smart screen.
         HRESULT EvaluateConfigurationUri(Execution::Context& context)
         {
-            if (context.Args.Contains(Execution::Args::Type::ConfigurationFile))
+            std::string configurationUri;
+            if (FAILED(GetConfigurationUri(context, configurationUri)))
             {
-                std::string argPath{ context.Args.GetArg(Execution::Args::Type::ConfigurationFile) };
-                return EvaluateUri(context, argPath);
+                AICLI_LOG(Core, Warning, << "Configuration URI is not available. Skipping validation.");
+                return S_OK;
             }
 
+            Settings::SecurityZoneOptions configurationUriZone;
+            if (FAILED(GetUriZone(configurationUri, configurationUriZone)))
+            {
+                AICLI_LOG(Core, Warning, << "Failed to get zone for configuration URI: " << configurationUri << ". Skipping validation.");
+                return S_OK;
+            }
+
+            if (IsZoneBlockedByGroupPolicy(context, configurationUriZone))
+            {
+                AICLI_LOG(Core, Error, << "Configuration URI's zone is blocked by group policy: " << configurationUri << " (" << ToString(configurationUriZone) << ")");
+                return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
+            }
+
+            if (IsSmartScreenRequired(configurationUriZone, false) && IsUriBlockedBySmartScreen(context, configurationUri))
+            {
+                AICLI_LOG(Core, Error, << "Configuration URI was blocked by smart screen: " << configurationUri);
+                return APPINSTALLER_CLI_ERROR_BLOCKED_BY_REPUTATION_SERVICE;
+            }
+
+            AICLI_LOG(Core, Info, << "Configuration URI is validated: " << configurationUri);
             return S_OK;
         }
 
-        // Evaluate the download uri for group policy and smart screen.
         HRESULT EvaluateDownloadUri(Execution::Context& context)
         {
-            if (context.Contains(Execution::Data::PackageVersion))
+            std::string installerUrl;
+            if (FAILED(GetInstallerUrl(context, installerUrl)))
             {
-                const auto packageVersion = context.Get<Execution::Data::PackageVersion>();
-                const auto source = packageVersion->GetSource();
-                const auto isTrusted = WI_IsFlagSet(source.GetDetails().TrustLevel, Repository::SourceTrustLevel::Trusted);
-                if (!isTrusted && context.Contains(Execution::Data::Installer))
-                {
-                    auto installer = context.Get<Execution::Data::Installer>();
-                    return EvaluateUri(context, installer->Url);
-                }
+                AICLI_LOG(Core, Warning, << "Installer URL is not available. Skipping validation.");
+                return S_OK;
             }
 
+            Settings::SecurityZoneOptions installerUrlZone;
+            if (FAILED(GetUriZone(installerUrl, installerUrlZone)))
+            {
+                AICLI_LOG(Core, Warning, << "Failed to get zone for installer URL: " << installerUrl << ". Skipping validation.");
+                return S_OK;
+            }
+
+            if (IsZoneBlockedByGroupPolicy(context, installerUrlZone))
+            {
+                AICLI_LOG(Core, Error, << "Installer URL's zone is blocked by group policy: " << installerUrl << " (" << ToString(installerUrlZone) << ")");
+                return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
+            }
+
+            bool isSourceTrusted;
+            if (FAILED(GetIsSourceTrusted(context, isSourceTrusted)))
+            {
+                AICLI_LOG(Core, Warning, << "Source trust level is not available. Skipping smart screen validation.");
+                return S_OK;
+            }
+
+            if (IsSmartScreenRequired(installerUrlZone, isSourceTrusted) && IsUriBlockedBySmartScreen(context, installerUrl))
+            {
+                AICLI_LOG(Core, Error, << "Installer URL was blocked by smart screen: " << installerUrl);
+                return APPINSTALLER_CLI_ERROR_BLOCKED_BY_REPUTATION_SERVICE;
+            }
+
+            AICLI_LOG(Core, Info, << "Installer URL is validated: " << installerUrl);
             return S_OK;
         }
     }
@@ -179,7 +270,6 @@ namespace AppInstaller::CLI::Workflow
             {
                 AICLI_TERMINATE_CONTEXT(uriValidation);
             }
-
         }
         else
         {

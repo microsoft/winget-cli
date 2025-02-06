@@ -27,7 +27,7 @@ namespace AppInstaller::Settings
         Max,
     };
 
-    // Enum for the configurable security zones
+    // Enum for the security zones
     enum class SecurityZoneOptions : DWORD
     {
         LocalMachine = 0,
