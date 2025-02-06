@@ -44,6 +44,9 @@ namespace AppInstaller::Http
     private:
         web::http::client::http_client GetClient(const utility::string_t& uri) const;
 
+        // Translates a cpprestsdk http_exception to a WIL exception.
+        static void RethrowAsWilException(web::http::http_exception& exception);
+
         std::shared_ptr<web::http::http_pipeline_stage> m_defaultRequestHandlerStage;
         web::http::client::http_client_config m_clientConfig;
     };

@@ -96,7 +96,7 @@ namespace AppInstaller::Http
         const web::json::value& body,
         const HttpClientHelper::HttpRequestHeaders& headers,
         const HttpClientHelper::HttpRequestHeaders& authHeaders,
-        const HttpResponseHandler& customHandler) const
+        const HttpResponseHandler& customHandler) const try
     {
         web::http::http_response httpResponse;
         Post(uri, body, headers, authHeaders).then([&httpResponse](const web::http::http_response& response)
@@ -114,6 +114,10 @@ namespace AppInstaller::Http
         }
 
         return ValidateAndExtractResponse(httpResponse);
+    }
+    catch (web::http::http_exception& exception)
+    {
+        RethrowAsWilException(exception);
     }
 
     pplx::task<web::http::http_response> HttpClientHelper::Get(
@@ -148,7 +152,7 @@ namespace AppInstaller::Http
         const utility::string_t& uri,
         const HttpClientHelper::HttpRequestHeaders& headers,
         const HttpClientHelper::HttpRequestHeaders& authHeaders,
-        const HttpResponseHandler& customHandler) const
+        const HttpResponseHandler& customHandler) const try
     {
         web::http::http_response httpResponse;
         Get(uri, headers, authHeaders).then([&httpResponse](const web::http::http_response& response)
@@ -166,6 +170,10 @@ namespace AppInstaller::Http
         }
 
         return ValidateAndExtractResponse(httpResponse);
+    }
+    catch (web::http::http_exception& exception)
+    {
+        RethrowAsWilException(exception);
     }
 
     void HttpClientHelper::SetPinningConfiguration(const Certificates::PinningConfiguration& configuration)
@@ -232,5 +240,10 @@ namespace AppInstaller::Http
             !contentType._Starts_with(web::http::details::mime_types::application_json));
 
         return response.extract_json().get();
+    }
+
+    [[noreturn]] void HttpClientHelper::RethrowAsWilException(web::http::http_exception& exception)
+    {
+        THROW_WIN32_MSG(exception.error_code().value(), "%hs", exception.what());
     }
 }
