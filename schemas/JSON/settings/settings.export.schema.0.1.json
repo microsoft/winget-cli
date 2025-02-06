@@ -32,6 +32,11 @@
           "type": "boolean",
           "default": false
         },
+        "SmartScreenCheck": {
+          "description": "Enable smart screen check.",
+          "type": "boolean",
+          "default": true
+        },
         "DefaultProxy": {
           "description": "Default proxy.",
           "type": "string"

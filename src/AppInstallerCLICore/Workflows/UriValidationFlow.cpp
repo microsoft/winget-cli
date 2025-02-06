@@ -4,6 +4,7 @@
 #include "UriValidationFlow.h"
 #include <AppInstallerDownloader.h>
 #include <UriValidation/UriValidation.h>
+#include <winget/AdminSettings.h>
 #include <regex>
 
 namespace AppInstaller::CLI::Workflow
@@ -33,34 +34,49 @@ namespace AppInstaller::CLI::Workflow
         // Check if smart screen is required for a given zone.
         bool IsSmartScreenRequired(Settings::SecurityZoneOptions zone, bool isSourceTrusted)
         {
+            // Smart screen is required for Internet and UntrustedSites zones.
             if (zone != Settings::SecurityZoneOptions::Internet && zone != Settings::SecurityZoneOptions::UntrustedSites)
             {
                 AICLI_LOG(Core, Info, << "Skipping smart screen validation for zone " << ToString(zone));
                 return false;
             }
 
+            // Smart screen validation logic:
+            // 1. If the policy is not configured, check the admin setting.
+            // 1.1 If the admin setting for smart screen is enabled, only validate untrusted sources.
+            // 1.2 If the admin setting for smart screen is disabled, skip the smart screen validation.
+            // 2. If the policy is enabled, always run smart screen validation.
+            // 3. If the policy is disabled, skip the smart screen validation.
+            auto ssAdminSettingEnabled = Settings::IsAdminSettingEnabled(Settings::BoolAdminSetting::SmartScreenCheck);
             auto ssPolicyState = Settings::GroupPolicies().GetState(Settings::TogglePolicy::Policy::SmartScreenCheck);
+            if (ssPolicyState == Settings::PolicyState::NotConfigured)
+            {
+                AICLI_LOG(Core, Info, << "Smart screen validation is not configured by group policy");
+
+                if (!ssAdminSettingEnabled)
+                {
+                    AICLI_LOG(Core, Info, << "Skipping smart screen validation as the admin setting is disabled");
+                    return false;
+                }
+
+                if (isSourceTrusted)
+                {
+                    AICLI_LOG(Core, Info, << "Skipping smart screen validation for trusted source");
+                    return false;
+                }
+
+                AICLI_LOG(Core, Info, << "Smart screen validation is required for untrusted source");
+                return true;
+            }
+
             if (ssPolicyState == Settings::PolicyState::Disabled)
             {
                 AICLI_LOG(Core, Info, << "Smart screen validation is disabled by group policy");
                 return false;
             }
 
-            if (ssPolicyState == Settings::PolicyState::Enabled)
-            {
-                AICLI_LOG(Core, Info, << "Smart screen validation is enabled by group policy");
-                return true;
-            }
-
-            AICLI_LOG(Core, Info, << "Smart screen validation is not configured by group policy");
-
-            if (isSourceTrusted)
-            {
-                AICLI_LOG(Core, Info, << "Skipping smart screen validation for trusted source");
-                return false;
-            }
-
-            AICLI_LOG(Core, Info, << "Smart screen validation is required for untrusted source");
+            assert(ssPolicyState == Settings::PolicyState::Enabled);
+            AICLI_LOG(Core, Info, << "Smart screen validation is enabled by group policy");
             return true;
         }
 
