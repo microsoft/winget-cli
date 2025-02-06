@@ -112,12 +112,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         void AddEnvironmentToMetadata(
             Windows::Foundation::Collections::ValueSet& metadata,
-            const Configuration::ConfigurationEnvironment& environment,
-            const Configuration::ConfigurationEnvironment& commonEnvironment)
+            const Configuration::ConfigurationEnvironment& environment)
         {
             AddEnvironmentToMetadata(metadata,
-                environment.Context(), environment.ProcessorIdentifier(), environment.ProcessorProperties(),
-                commonEnvironment.Context(), commonEnvironment.ProcessorIdentifier(), commonEnvironment.ProcessorProperties());
+                environment.Context(), environment.ProcessorIdentifier(), environment.ProcessorProperties());
         }
     }
 
@@ -131,8 +129,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         // Prepare an override if necessary
         Collections::ValueSet wingetMetadataOverride = nullptr;
-        auto commonEnvironment = ConfigurationEnvironment::CalculateCommonEnvironment(configurationSet->GetUnitEnvironmentsInternal());
-        AddEnvironmentToMetadata(wingetMetadataOverride, commonEnvironment);
+        AddEnvironmentToMetadata(wingetMetadataOverride, configurationSet->EnvironmentInternal());
 
         WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Metadata, configurationSet->Metadata(),
             {
@@ -142,7 +139,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         WriteYamlParameters(emitter, configurationSet->Parameters());
         WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Variables, configurationSet->Variables());
-        WriteYamlConfigurationUnits(emitter, configurationSet->Units(), *commonEnvironment);
+        WriteYamlConfigurationUnits(emitter, configurationSet->Units());
 
         emitter << EndMap;
 
@@ -220,8 +217,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetSerializer_0_3::WriteYamlConfigurationUnits(
         AppInstaller::YAML::Emitter& emitter,
-        const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& values,
-        const Configuration::ConfigurationEnvironment& commonEnvironment)
+        const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& values)
     {
         emitter << Key << GetConfigurationFieldName(ConfigurationField::Resources);
 
@@ -242,7 +238,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             // Prepare an override if necessary
             Collections::ValueSet wingetMetadataOverride = nullptr;
             Configuration::ConfigurationEnvironment unitEnvironment = unit.Environment();
-            AddEnvironmentToMetadata(wingetMetadataOverride, unitEnvironment, commonEnvironment);
+            AddEnvironmentToMetadata(wingetMetadataOverride, unitEnvironment);
 
             WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Metadata, unit.Metadata(),
                 { { ConfigurationField::WingetMetadataRoot, wingetMetadataOverride } });
@@ -272,7 +268,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     emitter << Key << GetConfigurationFieldName(ConfigurationField::Properties);
                     emitter << BeginMap;
 
-                    WriteYamlConfigurationUnits(emitter, groupUnits, unitEnvironment);
+                    // Write everything but the resources
+                    WriteYamlValueSetValues(emitter, unit.Settings(),
+                        { { ConfigurationField::Resources, nullptr } });
+
+                    // Write the resources from the individual units
+                    WriteYamlConfigurationUnits(emitter, groupUnits);
 
                     emitter << EndMap;
                 }

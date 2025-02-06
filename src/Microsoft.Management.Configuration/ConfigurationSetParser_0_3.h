@@ -53,8 +53,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             ConfigurationParameter* parameter,
             void(ConfigurationParameter::* propertyFunction)(const Windows::Foundation::IInspectable& value));
 
-        void ParseConfigurationUnitsFromField(const AppInstaller::YAML::Node& document, ConfigurationField field, const ConfigurationEnvironment& defaultEnvironment, std::vector<Configuration::ConfigurationUnit>& result);
-        virtual void ParseConfigurationUnit(ConfigurationUnit* unit, const AppInstaller::YAML::Node& unitNode, const ConfigurationEnvironment& defaultEnvironment);
+        void ParseConfigurationUnitsFromField(const AppInstaller::YAML::Node& document, ConfigurationField field, std::vector<Configuration::ConfigurationUnit>& result);
+        virtual void ParseConfigurationUnit(ConfigurationUnit* unit, const AppInstaller::YAML::Node& unitNode);
         // Determines if the given unit should be converted to a group.
         bool ShouldConvertToGroup(ConfigurationUnit* unit);
 
@@ -63,10 +63,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void ExtractEnvironmentFromMetadata(const Windows::Foundation::Collections::ValueSet& metadata, ConfigurationEnvironment& targetEnvironment);
 
         // Extracts the environment for a unit.
-        void ExtractEnvironmentForUnit(ConfigurationUnit* unit, const ConfigurationEnvironment& defaultEnvironment);
+        void ExtractEnvironmentForUnit(ConfigurationUnit* unit);
 
         AppInstaller::YAML::Node m_document;
-        com_ptr<ConfigurationEnvironment> m_setEnvironment;
     };
 
     std::optional<std::pair<Windows::Foundation::PropertyType, bool>> ParseWindowsFoundationPropertyType(std::string_view value);

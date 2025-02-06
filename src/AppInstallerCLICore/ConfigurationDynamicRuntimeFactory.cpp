@@ -139,6 +139,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_currentIntegrityLevel = Security::GetEffectiveIntegrityLevel();
 #endif
 
+                m_setIntegrityLevel = m_currentIntegrityLevel;
+                m_setIntegrityLevel = SecurityContextToIntegrityLevel(m_configurationSet.Environment().Context());
+
                 // Check for multiple integrity level requirements
                 bool multipleIntegrityLevels = false;
                 bool higherIntegrityLevelsThanCurrent = false;
@@ -211,13 +214,13 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             }
 
         private:
-            // Converts the string representation of SecurityContext to the integrity level
+            // Converts the string representation of SecurityContext to the target integrity level for this instance
             Security::IntegrityLevel SecurityContextToIntegrityLevel(SecurityContext securityContext)
             {
                 switch (securityContext)
                 {
                 case SecurityContext::Current:
-                    return m_currentIntegrityLevel;
+                    return m_setIntegrityLevel;
                 case SecurityContext::Restricted:
 #ifndef AICLI_DISABLE_TEST_HOOKS
                     if (m_enableRestrictedIntegrityLevel)
@@ -358,6 +361,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
             winrt::com_ptr<DynamicFactory> m_dynamicFactory;
             Security::IntegrityLevel m_currentIntegrityLevel;
+            Security::IntegrityLevel m_setIntegrityLevel;
             ProcessorMap m_setProcessors;
             ConfigurationSet m_configurationSet;
             std::once_flag m_createUnitSetProcessorsOnce;

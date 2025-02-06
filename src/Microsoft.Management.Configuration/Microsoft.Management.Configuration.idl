@@ -432,6 +432,11 @@ namespace Microsoft.Management.Configuration
 
         [contract(Microsoft.Management.Configuration.Contract, 3)]
         {
+            // The environment in which to process the configuration set.
+            // This defines the initial processing environment state used by the configuration system,
+            // and may be overridden by the processor later.
+            ConfigurationEnvironment Environment{ get; };
+
             // Gets the union of environments as defined by all of the active units within the set.
             Windows.Foundation.Collections.IVector<ConfigurationEnvironment> GetUnitEnvironments();
         }
