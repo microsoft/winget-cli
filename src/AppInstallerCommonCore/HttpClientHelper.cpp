@@ -242,7 +242,7 @@ namespace AppInstaller::Http
         return response.extract_json().get();
     }
 
-    [[noreturn]] void HttpClientHelper::RethrowAsWilException(web::http::http_exception& exception)
+    [[noreturn]] void HttpClientHelper::RethrowAsWilException(const web::http::http_exception& exception)
     {
         THROW_WIN32_MSG(exception.error_code().value(), "%hs", exception.what());
     }
