@@ -51,7 +51,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
     <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.6" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22000.196" PrivateAssets="all" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
@@ -117,7 +117,7 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <Import Project="..\..\targets\EmbeddedCsWinRT.targets"  Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+  <Import Project="..\..\targets\EmbeddedCsWinRT.targets" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
 
   <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
     <CsWinRTIncludes>
