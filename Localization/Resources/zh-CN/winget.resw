@@ -860,6 +860,9 @@
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>忽略不可用的程序包</value>
   </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>在导出文件中包括包版本</value>
+  </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>忽略导入文件中的程序包版本</value>
   </data>
@@ -2973,6 +2976,18 @@
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>正在获取配置设置...</value>
   </data>
+  <data name="ConfigureExportArgumentRequiredError" xml:space="preserve">
+    <value>必须至少提供 --packageId 和/或 --module with --resource。或使用 --all 导出所有包配置。</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportArgumentConflictWithAllError" xml:space="preserve">
+    <value>参数 --packageId、--module 和 --resource 不能与 --all 一起使用。</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
+    <value>将配置资源导出到配置文件。与 --all 一起使用时，导出所有包配置。与 --packageId 一起使用时，导出给定包 ID 的 WinGetPackage 资源。与 --module 和 --resource 一起使用时，获取资源的设置并将其导出到配置文件。如果输出配置文件已存在，则追加导出的配置资源。</value>
+    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
+  </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
     <value>将配置资源导出到配置文件。</value>
   </data>
@@ -2984,6 +2999,9 @@
   </data>
   <data name="ConfigureExportResource" xml:space="preserve">
     <value>要导出的配置资源。</value>
+  </data>
+  <data name="ConfigureExportAll" xml:space="preserve">
+    <value>导出所有包配置。</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_GET_FAILED" xml:space="preserve">
     <value>配置单元无法获取其属性。</value>

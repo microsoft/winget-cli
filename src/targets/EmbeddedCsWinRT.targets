@@ -1,0 +1,26 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <CsWinRTEmbedded>true</CsWinRTEmbedded>
+    <IncludeWindowsSDKRefFrameworkReferences>false</IncludeWindowsSDKRefFrameworkReferences>
+  </PropertyGroup>
+
+  <!-- Disable warnings from embedded/generated CsWinRT files. -->
+  <!-- Runs after the last target from https://github.com/microsoft/CsWinRT/blob/master/nuget/Microsoft.Windows.CsWinRT.Embedded.targets -->
+  <Target Name="DisableCsWinRTWarnings" AfterTargets="CsWinRTAddEmbeddedRuntime_Net5Sources">
+    <ItemGroup>
+      <WinGetCsWinRTGeneratedFiles Include="$(CsWinRTGeneratedFilesDir)*.cs" />
+    </ItemGroup>
+    <WriteLinesToFile File="%(WinGetCsWinRTGeneratedFiles.FullPath)"
+        Condition="$([System.IO.File]::Exists(%(WinGetCsWinRTGeneratedFiles.FullPath))) AND !$([System.IO.File]::ReadAllText(%(WinGetCsWinRTGeneratedFiles.FullPath)).StartsWith(&quot;// &lt;auto-generated /&gt;&quot;))"
+        Lines="$([System.String]::Concat(&quot;// &lt;auto-generated /&gt;&#xA;#pragma warning disable&#xA;&#xA;&quot;,$([System.IO.File]::ReadAllText(%(WinGetCsWinRTGeneratedFiles.FullPath)))))"
+        Overwrite="true"
+        Encoding="Unicode" />
+  </Target>
+
+  <!-- Remove the embedded module file that contains an unversioned SupportedOSPlatform attribute. -->
+  <Target Name="WinGetRemoveCsWinRTModuleFile" AfterTargets="CsWinRTIncludeProjection">
+    <ItemGroup>
+      <Compile Remove="$(CsWinRTGeneratedFilesDir)Module.cs" />
+    </ItemGroup>
+  </Target>
+</Project>

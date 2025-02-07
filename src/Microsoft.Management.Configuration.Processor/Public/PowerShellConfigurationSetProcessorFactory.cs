@@ -15,12 +15,18 @@ namespace Microsoft.Management.Configuration.Processor
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Set;
+    using Microsoft.Management.Configuration.SetProcessorFactory;
     using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
 
     /// <summary>
     /// ConfigurationSetProcessorFactory implementation.
     /// </summary>
-    public sealed class PowerShellConfigurationSetProcessorFactory : IConfigurationSetProcessorFactory, IPowerShellConfigurationProcessorFactoryProperties
+#if WinGetCsWinRTEmbedded
+    internal
+#else
+    public
+#endif
+        sealed class PowerShellConfigurationSetProcessorFactory : IConfigurationSetProcessorFactory, IPowerShellConfigurationProcessorFactoryProperties, IPwshConfigurationSetProcessorFactoryProperties
     {
         private bool isCreateProcessorInvoked = false;
 
@@ -201,6 +207,15 @@ namespace Microsoft.Management.Configuration.Processor
         }
 
         /// <summary>
+        /// Gets or sets the configuration policy.
+        /// </summary>
+        PwshConfigurationProcessorPolicy IPwshConfigurationSetProcessorFactoryProperties.Policy
+        {
+            get { return Helpers.TypeHelpers.ToPwshConfigurationProcessorPolicy(this.Policy); }
+            set { this.Policy = Helpers.TypeHelpers.ToPowerShellConfigurationProcessorPolicy(value); }
+        }
+
+        /// <summary>
         /// Gets or sets the module location.
         /// </summary>
         public PowerShellConfigurationProcessorLocation Location
@@ -219,6 +234,15 @@ namespace Microsoft.Management.Configuration.Processor
 
                 this.location = value;
             }
+        }
+
+        /// <summary>
+        /// Gets or sets the module location.
+        /// </summary>
+        PwshConfigurationProcessorLocation IPwshConfigurationSetProcessorFactoryProperties.Location
+        {
+            get { return Helpers.TypeHelpers.ToPwshConfigurationProcessorLocation(this.Location); }
+            set { this.Location = Helpers.TypeHelpers.ToPowerShellConfigurationProcessorLocation(value); }
         }
 
         /// <summary>

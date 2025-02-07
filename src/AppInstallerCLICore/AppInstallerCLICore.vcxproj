@@ -530,9 +530,6 @@
     <ProjectReference Include="..\YamlCppLib\YamlCppLib.vcxproj">
       <Project>{8bb94bb8-374f-4294-bca1-c7811514a6b7}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
@@ -546,18 +543,5 @@
     <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.231028.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorTextNuget)', '$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.231028.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
     <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorTextNuget)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorTextNuget)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
-    <PropertyGroup>
-      <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
-      <MicrosoftManagementConfigurationProcessorPath>$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorPath>
-      <MicrosoftManagementConfigurationProcessorPath Condition="!Exists('$(MicrosoftManagementConfigurationProcessorPath)')">$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\net8.0-windows10.0.22000.0\win\Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorPath>
-    </PropertyGroup>
-    <Message Importance="high" Text="Microsoft.Management.Configuration.Processor.winmd -&gt; $(MicrosoftManagementConfigurationProcessorPath)" />
-    <Error Condition="!Exists('$(MicrosoftManagementConfigurationProcessorPath)')" Text="Microsoft.Management.Configuration.Processor.winmd was not found in $(MicrosoftManagementConfigurationProcessorPath)" />
-    <ItemGroup Condition="Exists('$(MicrosoftManagementConfigurationProcessorPath)')">
-      <Reference Include="Microsoft.Management.Configuration.Processor">
-        <HintPath>$(MicrosoftManagementConfigurationProcessorPath)</HintPath>
-        <IsWinMDFile>true</IsWinMDFile>
-      </Reference>
-    </ItemGroup>
   </Target>
 </Project>

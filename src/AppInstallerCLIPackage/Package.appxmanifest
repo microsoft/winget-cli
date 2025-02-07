@@ -117,6 +117,7 @@
         <Interface Name="Microsoft.Management.Configuration.IConfigurationUnitProcessorDetails2" InterfaceId="E89623ED-76E2-5145-B920-D09659554E35" />
         <Interface Name="Microsoft.Management.Configuration.IGetAllSettingsConfigurationUnitProcessor" InterfaceId="72EB8304-D8D3-57D4-9940-7C1C4AD8C40C" />
         <Interface Name="Microsoft.Management.Configuration.IConfigurationStatics2" InterfaceId="540BE073-F2EF-5375-83AA-8E23086B0669" />
+        <Interface Name="Microsoft.Management.Configuration.SetProcessorFactory.IPwshConfigurationSetProcessorFactoryProperties" InterfaceId="2C298A30-BD3B-5D00-BCD1-2EB633AB7E3B" />
       </ProxyStub>
     </Extension>
     <!-- This entry forces the package registration to process the windows.activatableClass.proxyStub extension above. -->

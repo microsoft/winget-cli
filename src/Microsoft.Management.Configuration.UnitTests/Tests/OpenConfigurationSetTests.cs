@@ -8,6 +8,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
     using System.Collections.Generic;
+    using System.DirectoryServices;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
@@ -588,6 +589,17 @@ resources:
       TestInt: 4321
       Mapping:
         Key: TestValue
+  - type: FakeModule/FakeResource3
+    name: TestId3
+    metadata:
+      isGroup: true
+    properties:
+      other: value
+      resources:
+        - type: Grouped/Resource
+          name: Child
+          properties:
+            b: c
 "));
 
             // Serialize set.
@@ -604,7 +616,7 @@ resources:
             Assert.NotNull(set);
 
             Assert.Equal("0.3", set.SchemaVersion);
-            Assert.Equal(2, set.Units.Count);
+            Assert.Equal(3, set.Units.Count);
 
             this.VerifyValueSet(set.Metadata, new KeyValuePair<string, object>("description", "FakeSetDescription"));
             this.VerifyValueSet(set.Variables, new ("var1", "Test1"), new ("var2", 42));
@@ -626,6 +638,30 @@ resources:
             ValueSet mapping = new ValueSet();
             mapping.Add("Key", "TestValue");
             this.VerifyValueSet(set.Units[1].Settings, new ("TestString", "Bye"), new ("TestBool", true), new ("TestInt", 4321), new ("Mapping", mapping));
+
+            Assert.Equal("FakeModule/FakeResource3", set.Units[2].Type);
+            Assert.Equal("TestId3", set.Units[2].Identifier);
+            Assert.True(set.Units[2].IsGroup);
+
+            ValueSet childResource = new ValueSet();
+            childResource.Add("type", "Grouped/Resource");
+            childResource.Add("name", "Child");
+            ValueSet childResourceProperties = new ValueSet();
+            childResourceProperties.Add("b", "c");
+            childResource.Add("properties", childResourceProperties);
+
+            ValueSet resourcesArray = new ValueSet();
+            resourcesArray.Add("treatAsArray", true);
+            resourcesArray.Add("0", childResource);
+
+            this.VerifyValueSet(set.Units[2].Settings, new ("other", "value"), new ("resources", resourcesArray));
+
+            var groupChildren = set.Units[2].Units;
+            Assert.Single(groupChildren);
+
+            Assert.Equal("Grouped/Resource", groupChildren[0].Type);
+            Assert.Equal("Child", groupChildren[0].Identifier);
+            this.VerifyValueSet(groupChildren[0].Settings, new KeyValuePair<string, object>("b", "c"));
         }
 
         /// <summary>
@@ -717,9 +753,9 @@ resources:
         [InlineData("object", "42", 42, Windows.Foundation.PropertyType.Inspectable)]
         [InlineData("secureobject", "string", "string", Windows.Foundation.PropertyType.Inspectable, true)]
         [InlineData("secureobject", "42", 42, Windows.Foundation.PropertyType.Inspectable, true)]
-        public void Parameters_DefaultValue_Success(string type, string defaultValue, object expectedValue, Windows.Foundation.PropertyType expectedType, bool secure = false)
+        public void Parameters_DefaultValue_Success(string type, string defaultValue, object expectedValue, object expectedType, bool secure = false)
         {
-            this.TestParameterDefaultValue(type, defaultValue, expectedValue, expectedType, secure);
+            this.TestParameterDefaultValue(type, defaultValue, expectedValue, Assert.IsType<Windows.Foundation.PropertyType>(expectedType), secure);
         }
 
         /// <summary>
@@ -871,12 +907,13 @@ resources:
 
             Dictionary<string, string> environmentProperties = new Dictionary<string, string>();
             environmentProperties.Add("a", "b");
+            ConfigurationEnvironmentData setEnvironment = new ConfigurationEnvironmentData() { Context = SecurityContext.Elevated, ProcessorIdentifier = "pwsh", ProcessorProperties = environmentProperties };
 
             Dictionary<string, ConfigurationEnvironmentData> expectedEnvironments = new Dictionary<string, ConfigurationEnvironmentData>();
-            expectedEnvironments.Add("first", new ConfigurationEnvironmentData() { Context = SecurityContext.Elevated, ProcessorIdentifier = "pwsh", ProcessorProperties = environmentProperties });
-            expectedEnvironments.Add("second", new ConfigurationEnvironmentData() { Context = SecurityContext.Elevated, ProcessorIdentifier = "pwsh", ProcessorProperties = environmentProperties });
+            expectedEnvironments.Add("first", new ConfigurationEnvironmentData());
+            expectedEnvironments.Add("second", new ConfigurationEnvironmentData());
 
-            this.ValidateEnvironments(openResult, expectedEnvironments);
+            this.ValidateEnvironments(openResult, setEnvironment, expectedEnvironments);
 
             // Serialize set.
             InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream();
@@ -887,7 +924,7 @@ resources:
             // Reopen configuration set from serialized string and verify values.
             OpenConfigurationSetResult serializedSetResult = processor.OpenConfigurationSet(this.CreateStream(yamlOutput));
 
-            this.ValidateEnvironments(serializedSetResult, expectedEnvironments);
+            this.ValidateEnvironments(serializedSetResult, setEnvironment, expectedEnvironments);
         }
 
         /// <summary>
@@ -923,12 +960,13 @@ resources:
 
             Dictionary<string, string> environmentProperties = new Dictionary<string, string>();
             environmentProperties.Add("a", "b");
+            ConfigurationEnvironmentData setEnvironment = new ConfigurationEnvironmentData() { Context = SecurityContext.Elevated, ProcessorIdentifier = "pwsh", ProcessorProperties = environmentProperties };
 
             Dictionary<string, ConfigurationEnvironmentData> expectedEnvironments = new Dictionary<string, ConfigurationEnvironmentData>();
-            expectedEnvironments.Add("first", new ConfigurationEnvironmentData() { Context = SecurityContext.Elevated, ProcessorIdentifier = "pwsh", ProcessorProperties = environmentProperties });
-            expectedEnvironments.Add("second", new ConfigurationEnvironmentData() { Context = SecurityContext.Elevated, ProcessorIdentifier = "not-pwsh" });
+            expectedEnvironments.Add("first", new ConfigurationEnvironmentData());
+            expectedEnvironments.Add("second", new ConfigurationEnvironmentData() { ProcessorIdentifier = "not-pwsh" });
 
-            this.ValidateEnvironments(openResult, expectedEnvironments);
+            this.ValidateEnvironments(openResult, setEnvironment, expectedEnvironments);
 
             // Serialize set.
             InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream();
@@ -939,7 +977,7 @@ resources:
             // Reopen configuration set from serialized string and verify values.
             OpenConfigurationSetResult serializedSetResult = processor.OpenConfigurationSet(this.CreateStream(yamlOutput));
 
-            this.ValidateEnvironments(serializedSetResult, expectedEnvironments);
+            this.ValidateEnvironments(serializedSetResult, setEnvironment, expectedEnvironments);
         }
 
         /// <summary>
@@ -975,12 +1013,13 @@ resources:
 
             Dictionary<string, string> environmentProperties = new Dictionary<string, string>();
             environmentProperties.Add("a", "b");
+            ConfigurationEnvironmentData setEnvironment = new ConfigurationEnvironmentData() { Context = SecurityContext.Elevated, ProcessorIdentifier = "pwsh", ProcessorProperties = environmentProperties };
 
             Dictionary<string, ConfigurationEnvironmentData> expectedEnvironments = new Dictionary<string, ConfigurationEnvironmentData>();
-            expectedEnvironments.Add("first", new ConfigurationEnvironmentData() { Context = SecurityContext.Elevated, ProcessorIdentifier = "pwsh", ProcessorProperties = environmentProperties });
-            expectedEnvironments.Add("second", new ConfigurationEnvironmentData() { Context = SecurityContext.Restricted, ProcessorIdentifier = "pwsh", ProcessorProperties = environmentProperties });
+            expectedEnvironments.Add("first", new ConfigurationEnvironmentData());
+            expectedEnvironments.Add("second", new ConfigurationEnvironmentData() { Context = SecurityContext.Restricted });
 
-            this.ValidateEnvironments(openResult, expectedEnvironments);
+            this.ValidateEnvironments(openResult, setEnvironment, expectedEnvironments);
 
             // Serialize set.
             InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream();
@@ -991,7 +1030,7 @@ resources:
             // Reopen configuration set from serialized string and verify values.
             OpenConfigurationSetResult serializedSetResult = processor.OpenConfigurationSet(this.CreateStream(yamlOutput));
 
-            this.ValidateEnvironments(serializedSetResult, expectedEnvironments);
+            this.ValidateEnvironments(serializedSetResult, setEnvironment, expectedEnvironments);
         }
 
         /// <summary>
@@ -1024,11 +1063,13 @@ resources:
           identifier: pwsh
 "));
 
+            ConfigurationEnvironmentData setEnvironment = new ConfigurationEnvironmentData();
+
             Dictionary<string, ConfigurationEnvironmentData> expectedEnvironments = new Dictionary<string, ConfigurationEnvironmentData>();
             expectedEnvironments.Add("first", new ConfigurationEnvironmentData() { Context = SecurityContext.Elevated, ProcessorIdentifier = "pwsh" });
             expectedEnvironments.Add("second", new ConfigurationEnvironmentData() { Context = SecurityContext.Elevated, ProcessorIdentifier = "pwsh" });
 
-            this.ValidateEnvironments(openResult, expectedEnvironments);
+            this.ValidateEnvironments(openResult, setEnvironment, expectedEnvironments);
 
             // Serialize set.
             InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream();
@@ -1039,7 +1080,7 @@ resources:
             // Reopen configuration set from serialized string and verify values.
             OpenConfigurationSetResult serializedSetResult = processor.OpenConfigurationSet(this.CreateStream(yamlOutput));
 
-            this.ValidateEnvironments(serializedSetResult, expectedEnvironments);
+            this.ValidateEnvironments(serializedSetResult, setEnvironment, expectedEnvironments);
         }
 
         /// <summary>
@@ -1072,11 +1113,13 @@ resources:
           identifier: pwsh
 "));
 
+            ConfigurationEnvironmentData setEnvironment = new ConfigurationEnvironmentData();
+
             Dictionary<string, ConfigurationEnvironmentData> expectedEnvironments = new Dictionary<string, ConfigurationEnvironmentData>();
             expectedEnvironments.Add("first", new ConfigurationEnvironmentData() { Context = SecurityContext.Elevated, ProcessorIdentifier = "pwsh" });
             expectedEnvironments.Add("second", new ConfigurationEnvironmentData() { Context = SecurityContext.Restricted, ProcessorIdentifier = "pwsh" });
 
-            this.ValidateEnvironments(openResult, expectedEnvironments);
+            this.ValidateEnvironments(openResult, setEnvironment, expectedEnvironments);
 
             // Serialize set.
             InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream();
@@ -1087,7 +1130,7 @@ resources:
             // Reopen configuration set from serialized string and verify values.
             OpenConfigurationSetResult serializedSetResult = processor.OpenConfigurationSet(this.CreateStream(yamlOutput));
 
-            this.ValidateEnvironments(serializedSetResult, expectedEnvironments);
+            this.ValidateEnvironments(serializedSetResult, setEnvironment, expectedEnvironments);
         }
 
         /// <summary>
@@ -1135,16 +1178,17 @@ resources:
 
             Dictionary<string, string> environmentProperties = new Dictionary<string, string>();
             environmentProperties.Add("a", "b");
+            ConfigurationEnvironmentData setEnvironment = new ConfigurationEnvironmentData() { Context = SecurityContext.Elevated, ProcessorIdentifier = "pwsh", ProcessorProperties = environmentProperties };
 
             Dictionary<string, ConfigurationEnvironmentData> expectedEnvironments = new Dictionary<string, ConfigurationEnvironmentData>();
-            expectedEnvironments.Add("non-group", new ConfigurationEnvironmentData() { Context = SecurityContext.Elevated, ProcessorIdentifier = "pwsh", ProcessorProperties = environmentProperties });
-            expectedEnvironments.Add("group", new ConfigurationEnvironmentData() { Context = SecurityContext.Restricted, ProcessorIdentifier = "pwsh", ProcessorProperties = environmentProperties });
+            expectedEnvironments.Add("non-group", new ConfigurationEnvironmentData());
+            expectedEnvironments.Add("group", new ConfigurationEnvironmentData() { Context = SecurityContext.Restricted });
 
             Dictionary<string, ConfigurationEnvironmentData> groupExpectedEnvironments = new Dictionary<string, ConfigurationEnvironmentData>();
-            groupExpectedEnvironments.Add("inherit", new ConfigurationEnvironmentData() { Context = SecurityContext.Restricted, ProcessorIdentifier = "pwsh", ProcessorProperties = environmentProperties });
-            groupExpectedEnvironments.Add("override", new ConfigurationEnvironmentData() { Context = SecurityContext.Restricted, ProcessorIdentifier = "not-pwsh" });
+            groupExpectedEnvironments.Add("inherit", new ConfigurationEnvironmentData());
+            groupExpectedEnvironments.Add("override", new ConfigurationEnvironmentData() { ProcessorIdentifier = "not-pwsh" });
 
-            this.ValidateEnvironments(openResult, expectedEnvironments, "group", groupExpectedEnvironments);
+            this.ValidateEnvironments(openResult, setEnvironment, expectedEnvironments, "group", groupExpectedEnvironments);
 
             // Serialize set.
             InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream();
@@ -1155,14 +1199,16 @@ resources:
             // Reopen configuration set from serialized string and verify values.
             OpenConfigurationSetResult serializedSetResult = processor.OpenConfigurationSet(this.CreateStream(yamlOutput));
 
-            this.ValidateEnvironments(openResult, expectedEnvironments, "group", groupExpectedEnvironments);
+            this.ValidateEnvironments(openResult, setEnvironment, expectedEnvironments, "group", groupExpectedEnvironments);
         }
 
-        private void ValidateEnvironments(OpenConfigurationSetResult openResult, Dictionary<string, ConfigurationEnvironmentData> expectedEnvironments, string? groupToCheck = null, Dictionary<string, ConfigurationEnvironmentData>? groupExpectedEnvironments = null)
+        private void ValidateEnvironments(OpenConfigurationSetResult openResult, ConfigurationEnvironmentData setEnvironment, Dictionary<string, ConfigurationEnvironmentData> expectedEnvironments, string? groupToCheck = null, Dictionary<string, ConfigurationEnvironmentData>? groupExpectedEnvironments = null)
         {
             Assert.Null(openResult.ResultCode);
             Assert.NotNull(openResult.Set);
             ConfigurationSet configurationSet = openResult.Set;
+
+            this.ValidateEnvironment(setEnvironment, configurationSet.Environment);
 
             var units = configurationSet.Units;
             this.ValidateEnvironments(units, expectedEnvironments, groupToCheck, groupExpectedEnvironments);
@@ -1175,10 +1221,7 @@ resources:
             {
                 ConfigurationEnvironmentData? expectedEnvironment = null;
                 Assert.True(expectedEnvironments.TryGetValue(unit.Identifier, out expectedEnvironment));
-                Assert.NotNull(expectedEnvironment);
-                Assert.Equal(expectedEnvironment.Context, unit.Environment.Context);
-                Assert.Equal(expectedEnvironment.ProcessorIdentifier, unit.Environment.ProcessorIdentifier);
-                Assert.True(expectedEnvironment.PropertiesEqual(unit.Environment.ProcessorProperties));
+                this.ValidateEnvironment(expectedEnvironment, unit.Environment);
 
                 if (unit.Identifier == groupToCheck)
                 {
@@ -1188,6 +1231,15 @@ resources:
                     this.ValidateEnvironments(groupUnits, groupExpectedEnvironments);
                 }
             }
+        }
+
+        private void ValidateEnvironment(ConfigurationEnvironmentData? expectedEnvironment, ConfigurationEnvironment? actualEnvironment)
+        {
+            Assert.NotNull(expectedEnvironment);
+            Assert.NotNull(actualEnvironment);
+            Assert.Equal(expectedEnvironment.Context, actualEnvironment.Context);
+            Assert.Equal(expectedEnvironment.ProcessorIdentifier, actualEnvironment.ProcessorIdentifier);
+            Assert.True(expectedEnvironment.PropertiesEqual(actualEnvironment.ProcessorProperties));
         }
 
         private void ValidateSecurityContexts(OpenConfigurationSetResult openResult, Dictionary<string, SecurityContext> expectedContexts)
@@ -1239,7 +1291,7 @@ parameters:
                 Assert.Equal(secure, parameters[0].IsSecure);
 
                 Assert.NotNull(expectedValue);
-                this.VerifyObject(expectedValue, parameters[0].DefaultValue);
+                this.VerifyObject(type, expectedValue, parameters[0].DefaultValue);
             }
             else
             {
@@ -1270,7 +1322,7 @@ parameters:
                 Assert.True(values.ContainsKey(expectation.Key), $"Not Found {expectation.Key}");
                 object value = values[expectation.Key];
 
-                this.VerifyObject(expectation.Value, value);
+                this.VerifyObject(expectation.Key, expectation.Value, value);
             }
         }
 
@@ -1278,6 +1330,20 @@ parameters:
         {
             Assert.NotNull(strings);
             Assert.Equal(expected.Length, strings.Count);
+
+            foreach (var expectation in expected)
+            {
+                bool found = false;
+                foreach (var value in strings)
+                {
+                    if (!found)
+                    {
+                        found = expectation == value;
+                    }
+                }
+
+                Assert.True(found, $"Did not find {expectation} in string array");
+            }
         }
 
         private void VerifyParameter(ConfigurationParameter parameter, string name, Windows.Foundation.PropertyType type, bool secure, object? defaultValue = null)
@@ -1285,10 +1351,10 @@ parameters:
             Assert.Equal(name, parameter.Name);
             Assert.Equal(type, parameter.Type);
             Assert.Equal(secure, parameter.IsSecure);
-            this.VerifyObject(defaultValue, parameter.DefaultValue);
+            this.VerifyObject(name, defaultValue, parameter.DefaultValue);
         }
 
-        private void VerifyObject(object? expectedValue, object? actualValue)
+        private void VerifyObject(string name, object? expectedValue, object? actualValue)
         {
             if (expectedValue != null)
             {
@@ -1297,19 +1363,20 @@ parameters:
                 switch (expectedValue)
                 {
                     case int i:
-                        Assert.Equal(i, (int)(long)actualValue);
+                        Assert.True(i == (int)(long)actualValue, $"{name}: expected[{i}], actual[{(int)(long)actualValue}]");
                         break;
                     case string s:
-                        Assert.Equal(s, (string)actualValue);
+                        Assert.True(s == (string)actualValue, $"{name}: expected[{s}], actual[{(string)actualValue}]");
                         break;
                     case bool b:
-                        Assert.Equal(b, (bool)actualValue);
+                        Assert.True(b == (bool)actualValue, $"{name}: expected[{b}], actual[{(bool)actualValue}]");
                         break;
                     case ValueSet v:
-                        Assert.True(v.ContentEquals(actualValue.As<ValueSet>()));
+                        var actualValueSet = actualValue.As<ValueSet>();
+                        Assert.True(v.ContentEquals(actualValueSet), $"ValueSets not equal: {name}\n---expected---:\n{v.ToYaml()}\n---actual---:\n{actualValueSet.ToYaml()}");
                         break;
                     default:
-                        Assert.Fail($"Add expected type `{expectedValue.GetType().Name}` to switch statement.");
+                        Assert.Fail($"Add expected type `{expectedValue.GetType().Name}` to switch statement for {name}.");
                         break;
                 }
             }

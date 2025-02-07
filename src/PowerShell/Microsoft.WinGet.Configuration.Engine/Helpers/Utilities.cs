@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="Utilities.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -85,7 +85,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         }
 
         /// <summary>
-        /// Converts ConfigurationTestResult string value to PSConfigurationTestResult.
+        /// Converts ConfigurationTestResult value to PSConfigurationTestResult.
         /// </summary>
         /// <param name="value">ConfigurationTestResult value.</param>
         /// <returns>PSConfigurationTestResult.</returns>
@@ -103,7 +103,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         }
 
         /// <summary>
-        /// Converts ConfigurationUnitState string value to PSConfigurationUnitState.
+        /// Converts ConfigurationUnitState value to PSConfigurationUnitState.
         /// </summary>
         /// <param name="value">ConfigurationUnitState value.</param>
         /// <returns>PSConfigurationUnitState.</returns>

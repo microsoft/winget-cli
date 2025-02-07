@@ -10,11 +10,6 @@
     <DocumentationFile>$(OutputPath)\$(MSBuildProjectName).xml</DocumentationFile>
     <RuntimeIdentifier>win</RuntimeIdentifier>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
-    <CsWinRTCcwLookupTableGeneratorEnabled>false</CsWinRTCcwLookupTableGeneratorEnabled>
-    <!--
-    !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
-    -->
-    <WindowsSdkPackageVersion>10.0.22000.53</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -41,15 +36,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-  
-  <!-- This project doesn't reference CSWinRT, but specify this everywhere it will fail with NETSDK1130 and MSB3271. -->
-  <PropertyGroup>
-    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
-  </PropertyGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.6" />
-  </ItemGroup>
+
+  <Import Project="..\..\targets\ReferenceEmbeddedCsWinRTProject.targets" />
 
   <ItemGroup>
     <ProjectReference Include="..\..\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj" />

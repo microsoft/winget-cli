@@ -52,7 +52,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [InlineData(ConfigurationUnitIntent.Inform)]
         [InlineData(ConfigurationUnitIntent.Assert)]
         [InlineData(ConfigurationUnitIntent.Apply)]
-        public void GetSettings_Test(ConfigurationUnitIntent intent)
+        public void GetSettings_Test(object intent)
         {
             string theKey = "key";
             string theValue = "value";
@@ -69,7 +69,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(valueGetResult)
                 .Verifiable();
 
-            var unitResource = this.CreateUnitResource(intent);
+            var unitResource = this.CreateUnitResource(Assert.IsType<ConfigurationUnitIntent>(intent));
 
             var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
 
@@ -165,7 +165,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [InlineData(ConfigurationUnitIntent.Apply, false)]
         [InlineData(ConfigurationUnitIntent.Assert, true)]
         [InlineData(ConfigurationUnitIntent.Apply, true)]
-        public void TestSettings_TestSucceeded(ConfigurationUnitIntent intent, bool invokeTestResult)
+        public void TestSettings_TestSucceeded(object intent, bool invokeTestResult)
         {
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(m => m.InvokeTestResource(
@@ -175,7 +175,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(invokeTestResult)
                 .Verifiable();
 
-            var unitResource = this.CreateUnitResource(intent);
+            var unitResource = this.CreateUnitResource(Assert.IsType<ConfigurationUnitIntent>(intent));
 
             var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
 
@@ -261,10 +261,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Theory]
         [InlineData(ConfigurationUnitIntent.Inform)]
         [InlineData(ConfigurationUnitIntent.Assert)]
-        public void ApplySettings_InvalidIntent(ConfigurationUnitIntent intent)
+        public void ApplySettings_InvalidIntent(object intent)
         {
             var processorEnvMock = new Mock<IProcessorEnvironment>();
-            var unitResource = this.CreateUnitResource(intent);
+            var unitResource = this.CreateUnitResource(Assert.IsType<ConfigurationUnitIntent>(intent));
 
             var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
 

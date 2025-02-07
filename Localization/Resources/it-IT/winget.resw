@@ -860,6 +860,9 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Ignora pacchetti non disponibili</value>
   </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Includi versioni del pacchetto nel file di esportazione</value>
+  </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>Ignora versioni del pacchetto dal file di importazione</value>
   </data>
@@ -2973,6 +2976,18 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>Recupero delle impostazioni di configurazione in corso...</value>
   </data>
+  <data name="ConfigureExportArgumentRequiredError" xml:space="preserve">
+    <value>È necessario specificare almeno --packageId e/o --module con --resource. In alternativa, usare --all per esportare tutte le configurazioni dei pacchetti.</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportArgumentConflictWithAllError" xml:space="preserve">
+    <value>Gli argomenti --packageId, --module e --resource non possono essere utilizzati insieme a --all.</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
+    <value>Esporta le risorse di configurazione in un file di configurazione. Se usato con --all, esporta tutte le configurazioni dei pacchetti. Se usato con --packageId, esporta una risorsa WinGetPackage dell'ID pacchetto specificato. Se usato con --module e --resource, ottiene le impostazioni della risorsa ed esporta la risorsa nel file di configurazione. Se il file di configurazione di output esiste già, aggiunge le risorse di configurazione esportate.</value>
+    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
+  </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
     <value>Esporta le risorse di configurazione in un file di configurazione.</value>
   </data>
@@ -2984,6 +2999,9 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   </data>
   <data name="ConfigureExportResource" xml:space="preserve">
     <value>Risorsa di configurazione da esportare.</value>
+  </data>
+  <data name="ConfigureExportAll" xml:space="preserve">
+    <value>Esporta tutte le configurazioni del pacchetto.</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_GET_FAILED" xml:space="preserve">
     <value>Non è possibile ottenere le proprietà dell'unità di configurazione.</value>

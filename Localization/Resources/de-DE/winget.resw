@@ -860,6 +860,9 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Nicht verfügbare Pakete ignorieren</value>
   </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Paketversionen in Exportdatei einschließen</value>
+  </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>Paketversionen aus Importdatei ignorieren</value>
   </data>
@@ -2973,6 +2976,18 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
   <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
     <value>Konfigurationseinstellungen werden abgerufen...</value>
   </data>
+  <data name="ConfigureExportArgumentRequiredError" xml:space="preserve">
+    <value>Es müssen mindestens „--packageId“ und/oder „--module“ mit „--resource“ angegeben werden. Alternativ können Sie „--all“ verwenden, um alle Paketkonfigurationen zu exportieren.</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportArgumentConflictWithAllError" xml:space="preserve">
+    <value>Die Argumente „--packageId“, „--module“ und „--resource“ können nicht zusammen mit „--all“ verwendet werden.</value>
+    <comment>{Locked="--packageId,--module, --resource, --all"}</comment>
+  </data>
+  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
+    <value>Exportiert Konfigurationsressourcen in eine Konfigurationsdatei. Bei Verwendung mit "--all" werden alle Paketkonfigurationen exportiert. Bei Verwendung mit "--packageId" wird eine WinGetPackage-Ressource der angegebenen Paket-ID exportiert. Bei Verwendung mit "--module" und "--resource" werden die Einstellungen der Ressource abgerufen und in die Konfigurationsdatei exportiert. Wenn die Ausgabekonfigurationsdatei bereits vorhanden ist, werden die exportierten Konfigurationsressourcen angefügt.</value>
+    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
+  </data>
   <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
     <value>Exportiert Konfigurationsressourcen in eine Konfigurationsdatei.</value>
   </data>
@@ -2984,6 +2999,9 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
   </data>
   <data name="ConfigureExportResource" xml:space="preserve">
     <value>Die zu exportierende Konfigurationsressource.</value>
+  </data>
+  <data name="ConfigureExportAll" xml:space="preserve">
+    <value>Exportiert alle Paketkonfigurationen.</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_GET_FAILED" xml:space="preserve">
     <value>Fehler beim Abrufen der Eigenschaften der Konfigurationseinheit.</value>

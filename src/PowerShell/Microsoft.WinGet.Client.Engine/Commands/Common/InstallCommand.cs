@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="InstallCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -74,7 +74,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <param name="version">The <see cref="PackageVersionId" /> to install.</param>
         /// <param name="mode">Package install mode as string.</param>
         /// <returns>An <see cref="InstallOptions" /> instance.</returns>
-        protected virtual InstallOptions GetInstallOptions(PackageVersionId? version, string mode)
+        internal virtual InstallOptions GetInstallOptions(PackageVersionId? version, string mode)
         {
             InstallOptions options = ManagementDeploymentFactory.Instance.CreateInstallOptions();
             options.AllowHashMismatch = this.AllowHashMismatch;

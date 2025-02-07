@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="FinderExtendedCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -50,7 +50,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <param name="behavior">A <see cref="CompositeSearchBehavior" /> value.</param>
         /// <param name="match">The match option.</param>
         /// <returns>A list of <see cref="MatchResult" /> objects.</returns>
-        protected IReadOnlyList<MatchResult> FindPackages(CompositeSearchBehavior behavior, PackageFieldMatchOption match)
+        internal IReadOnlyList<MatchResult> FindPackages(CompositeSearchBehavior behavior, PackageFieldMatchOption match)
         {
             return this.FindPackages(behavior, this.Count, match);
         }

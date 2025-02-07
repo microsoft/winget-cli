@@ -22,7 +22,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         /// </summary>
         /// <param name="repairResult">The Repair result COM Object.</param>
         /// <param name="catalogPackage">The catalog package COM Object.</param>
-        public PSRepairResult(RepairResult repairResult, CatalogPackage catalogPackage)
+        internal PSRepairResult(RepairResult repairResult, CatalogPackage catalogPackage)
         {
             this.repairResult = repairResult;
             this.catalogPackage = catalogPackage;

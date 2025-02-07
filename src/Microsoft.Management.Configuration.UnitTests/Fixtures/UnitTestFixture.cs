@@ -93,7 +93,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
         /// <summary>
         /// Gets the configuration statics object to use.
         /// </summary>
-        public IConfigurationStatics2 ConfigurationStatics { get; private init; }
+        internal IConfigurationStatics2 ConfigurationStatics { get; private init; }
 
         /// <summary>
         /// Creates a runspace adding the test module path.

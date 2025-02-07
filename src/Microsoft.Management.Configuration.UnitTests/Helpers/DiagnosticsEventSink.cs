@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="DiagnosticsEventSink.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -40,7 +40,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// </summary>
         /// <param name="sender">The object sending the information.</param>
         /// <param name="e">The diagnostic information.</param>
-        public void DiagnosticsHandler(object? sender, IDiagnosticInformation e)
+        internal void DiagnosticsHandler(object? sender, IDiagnosticInformation e)
         {
             if (e.Message.Contains(TelemetryEvent.Preamble))
             {
