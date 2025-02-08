@@ -1,16 +1,17 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PowerShellGetV2.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.Helpers
+namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
 {
     using System.Collections.Generic;
     using System.Linq;
     using System.Management.Automation;
     using Microsoft.PowerShell.Commands;
-    using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
+    using static Microsoft.Management.Configuration.Processor.PowerShell.Constants.PowerShellConstants;
+    using SemanticVersion = Microsoft.Management.Configuration.Processor.Helpers.SemanticVersion;
 
     /// <summary>
     /// PowerShellGet implementation for 2.2.5 .

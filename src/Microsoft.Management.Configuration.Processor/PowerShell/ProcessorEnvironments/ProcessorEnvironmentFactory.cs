@@ -9,7 +9,7 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
     using System;
     using System.Collections.Generic;
     using System.Management.Automation.Runspaces;
-    using Microsoft.Management.Configuration.Processor.DscModule;
+    using Microsoft.Management.Configuration.Processor.PowerShell.DscModules;
     using Microsoft.Management.Configuration.Processor.Runspaces;
     using Microsoft.PowerShell;
     using Microsoft.PowerShell.Commands;

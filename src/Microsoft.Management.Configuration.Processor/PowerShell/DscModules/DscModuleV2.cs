@@ -1,10 +1,10 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="DscModuleV2.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.DscModule
+namespace Microsoft.Management.Configuration.Processor.PowerShell.DscModules
 {
     using System;
     using System.Collections;
@@ -12,13 +12,14 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Management.Automation;
-    using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
+    using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
-    using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
+    using static Microsoft.Management.Configuration.Processor.PowerShell.Constants.PowerShellConstants;
 
     /// <summary>
     /// PSDesiredStateConfiguration v2.
@@ -105,7 +106,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
                                 .InvokeAndStopOnError()
                                 .FirstOrDefault();
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 throw new InvokeDscResourceException(InvokeDscResourceException.Get, name, moduleSpecification, ex);
             }
@@ -157,7 +158,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
                                  .InvokeAndStopOnError()
                                  .FirstOrDefault();
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 throw new InvokeDscResourceException(InvokeDscResourceException.Test, name, moduleSpecification, ex);
             }
@@ -196,7 +197,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
                                 .InvokeAndStopOnError()
                                 .FirstOrDefault();
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 throw new InvokeDscResourceException(InvokeDscResourceException.Set, name, moduleSpecification, ex);
             }

@@ -8,8 +8,8 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
 {
     using System.Collections.Generic;
     using System.Management.Automation;
-    using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Helpers;
+    using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
     using Windows.Security.Cryptography.Certificates;

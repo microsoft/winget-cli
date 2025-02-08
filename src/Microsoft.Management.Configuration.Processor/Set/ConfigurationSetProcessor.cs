@@ -11,10 +11,11 @@ namespace Microsoft.Management.Configuration.Processor.Set
     using System.IO;
     using System.Management.Automation;
     using System.Runtime.CompilerServices;
-    using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
+    using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Unit;
     using Windows.Security.Cryptography.Certificates;

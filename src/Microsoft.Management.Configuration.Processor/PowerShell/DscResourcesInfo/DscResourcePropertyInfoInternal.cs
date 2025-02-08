@@ -1,10 +1,10 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="DscResourcePropertyInfoInternal.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.DscResourcesInfo
+namespace Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo
 {
     using System;
     using System.Collections.Generic;

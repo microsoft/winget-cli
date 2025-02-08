@@ -1,10 +1,10 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="DscResourceInfoInternal.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.DscResourcesInfo
+namespace Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo
 {
     using System;
     using System.Collections.Generic;
@@ -43,7 +43,7 @@ namespace Microsoft.Management.Configuration.Processor.DscResourcesInfo
             this.ImplementedAs = Enum.Parse<ImplementedAsTypeInternal>(info.ImplementedAs.ToString());
             this.CompanyName = info.CompanyName;
 
-            if (info.Module is not null)
+            if (this.Module is not null)
             {
                 this.ModuleName = this.Module.Name;
                 this.Version = this.Module.Version;
@@ -108,7 +108,7 @@ namespace Microsoft.Management.Configuration.Processor.DscResourcesInfo
         /// </summary>
         public string? NormalizedModuleName
         {
-            get { return (this.ModuleName is not null) ? StringHelpers.Normalize(this.ModuleName) : null; }
+            get { return this.ModuleName is not null ? StringHelpers.Normalize(this.ModuleName) : null; }
         }
 
         /// <summary>

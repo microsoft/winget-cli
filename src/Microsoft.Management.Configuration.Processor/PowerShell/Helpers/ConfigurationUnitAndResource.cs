@@ -9,7 +9,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     using System;
     using System.Collections.Generic;
     using Microsoft.Management.Configuration;
-    using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
+    using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
 

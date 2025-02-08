@@ -12,7 +12,8 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     using System.Management.Automation;
     using System.Reflection;
     using Microsoft.Management.Configuration;
-    using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
+    using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
     using Windows.Security.Cryptography.Certificates;
 
     /// <summary>
@@ -56,7 +57,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 var settings = new List<IConfigurationUnitSettingDetails>();
                 foreach (var properties in dscResourceInfo.Properties)
                 {
-                    settings.Add(new ConfigurationUnitSettingDetails(properties));
+                    settings.Add(Factory.CreateUnitSettingDetails(properties));
                 }
 
                 this.Settings = settings;

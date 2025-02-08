@@ -11,7 +11,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using System.Management.Automation;
     using Microsoft.Management.Configuration.Processor.DscModule;
     using Microsoft.Management.Configuration.Processor.Exceptions;
-    using Microsoft.Management.Configuration.Processor.Helpers;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.PowerShell.Commands;

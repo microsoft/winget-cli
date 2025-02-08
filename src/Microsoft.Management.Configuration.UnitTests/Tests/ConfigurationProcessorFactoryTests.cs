@@ -14,7 +14,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using WinRT;
     using Xunit;
     using Xunit.Abstractions;
-    using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
+    using static Microsoft.Management.Configuration.Processor.PowerShell.Constants.PowerShellConstants;
 
     /// <summary>
     /// Tests ConfigurationProcessorFactory.

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigurationUnitInternal.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -12,6 +12,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     using System.IO;
     using Microsoft.Management.Configuration.Processor.Constants;
     using Microsoft.Management.Configuration.Processor.Exceptions;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
 

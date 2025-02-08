@@ -9,14 +9,13 @@ namespace Microsoft.Management.Configuration.Processor
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Management.Automation;
     using System.Runtime.CompilerServices;
     using System.Text;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Set;
     using Microsoft.Management.Configuration.SetProcessorFactory;
-    using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
+    using static Microsoft.Management.Configuration.Processor.PowerShell.Constants.PowerShellConstants;
 
     /// <summary>
     /// ConfigurationSetProcessorFactory implementation.
@@ -367,7 +366,7 @@ namespace Microsoft.Management.Configuration.Processor
         /// </summary>
         /// <param name="level">The level of this diagnostic message.</param>
         /// <param name="pwsh">The PowerShell object.</param>
-        internal void OnDiagnostics(DiagnosticLevel level, PowerShell pwsh)
+        internal void OnDiagnostics(DiagnosticLevel level, System.Management.Automation.PowerShell pwsh)
         {
             EventHandler<IDiagnosticInformation>? diagnostics = this.Diagnostics;
             if (diagnostics != null && level >= this.MinimumLevel && pwsh.HadErrors)

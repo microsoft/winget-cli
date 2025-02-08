@@ -7,7 +7,7 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
-    using Microsoft.Management.Configuration.Processor.Helpers;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Xunit;

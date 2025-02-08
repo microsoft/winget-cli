@@ -17,7 +17,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
     using Moq;
     using WinRT;
     using Xunit.Abstractions;
-    using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
+    using static Microsoft.Management.Configuration.Processor.PowerShell.Constants.PowerShellConstants;
 
     /// <summary>
     /// Unit test fixture.

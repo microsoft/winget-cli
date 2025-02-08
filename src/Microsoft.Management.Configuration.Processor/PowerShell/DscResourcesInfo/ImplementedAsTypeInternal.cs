@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.DscResourcesInfo
+namespace Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo
 {
     /// <summary>
     /// Enumerated values for DSC resource implementation type.
