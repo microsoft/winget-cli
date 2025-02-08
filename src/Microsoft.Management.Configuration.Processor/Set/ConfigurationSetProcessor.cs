@@ -160,7 +160,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
 
                 if (detailFlags.HasFlag(ConfigurationUnitDetailFlags.Catalog))
                 {
-                    return new ConfigurationUnitProcessorDetails(
+                    return Factory.CreateUnitProcessorDetails(
                         resourceName,
                         null,
                         null,
@@ -177,7 +177,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                     var moduleInfo = this.ProcessorEnvironment.GetAvailableModule(
                         Path.Combine(tempSavePath, foundModuleInfo.Name));
 
-                    return new ConfigurationUnitProcessorDetails(
+                    return Factory.CreateUnitProcessorDetails(
                         resourceName,
                         null,
                         moduleInfo,
@@ -358,7 +358,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
             if (dscResourceInfo.ModuleName is null ||
                 dscResourceInfo.Version is null)
             {
-                return new ConfigurationUnitProcessorDetails(
+                return Factory.CreateUnitProcessorDetails(
                     dscResourceInfo.Name,
                     dscResourceInfo,
                     null,
@@ -380,7 +380,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 this.ProcessorEnvironment.ImportModule(module);
             }
 
-            return new ConfigurationUnitProcessorDetails(
+            return Factory.CreateUnitProcessorDetails(
                 dscResourceInfo.Name,
                 dscResourceInfo,
                 moduleInfo,

@@ -8,16 +8,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
 {
     using System;
     using System.IO;
-    using System.Management.Automation.Runspaces;
     using System.Reflection;
     using Microsoft.Management.Configuration.Processor;
-    using Microsoft.Management.Configuration.Processor.DscModule;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
-    using Microsoft.Management.Configuration.Processor.Runspaces;
-    using Moq;
     using WinRT;
     using Xunit.Abstractions;
-    using static Microsoft.Management.Configuration.Processor.PowerShell.Constants.PowerShellConstants;
 
     /// <summary>
     /// Unit test fixture.

@@ -11,8 +11,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using System.Linq;
     using System.Management.Automation;
     using Microsoft.Management.Configuration;
-    using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Helpers;
+    using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Unit;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;

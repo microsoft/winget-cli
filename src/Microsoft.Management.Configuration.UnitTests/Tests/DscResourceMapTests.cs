@@ -8,8 +8,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
     using System.Collections.Generic;
-    using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Xunit;
