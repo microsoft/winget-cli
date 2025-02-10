@@ -10,6 +10,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvir
     using System.Management.Automation;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
     using Windows.Security.Cryptography.Certificates;
@@ -47,7 +48,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvir
         /// </summary>
         /// <param name="unitInternal">Configuration unit internal.</param>
         /// <returns>DSC Resource.</returns>
-        DscResourceInfoInternal? GetDscResource(ConfigurationUnitInternal unitInternal);
+        DscResourceInfoInternal? GetDscResource(ConfigurationUnitAndModule unitInternal);
 
         /// <summary>
         /// Calls Invoke-DscResource -Method Get from this module.

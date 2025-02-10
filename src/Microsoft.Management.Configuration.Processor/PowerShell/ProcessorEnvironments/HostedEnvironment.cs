@@ -129,7 +129,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Runspaces
         }
 
         /// <inheritdoc/>
-        public DscResourceInfoInternal? GetDscResource(ConfigurationUnitInternal unitInternal)
+        public DscResourceInfoInternal? GetDscResource(ConfigurationUnitAndModule unitInternal)
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
             var result = this.DscModule.GetDscResource(pwsh, unitInternal.ResourceName, unitInternal.Module);

@@ -78,7 +78,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 // CreateUnitProcessor can only be called once on each configuration unit in limit mode.
                 var unit = this.GetConfigurationUnit(incomingUnit, true);
 
-                ConfigurationUnitProcessor result = this.CreateUnitProcessorInternal(unit);
+                IConfigurationUnitProcessor result = this.CreateUnitProcessorInternal(unit);
 
                 this.OnDiagnostics(DiagnosticLevel.Verbose, "... done creating unit processor.");
 
@@ -120,7 +120,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
         /// </summary>
         /// <param name="unit">Configuration unit.</param>
         /// <returns>A configuration unit processor.</returns>
-        protected abstract ConfigurationUnitProcessor CreateUnitProcessorInternal(ConfigurationUnit unit);
+        protected abstract IConfigurationUnitProcessor CreateUnitProcessorInternal(ConfigurationUnit unit);
 
         /// <summary>
         /// Gets the configuration unit processor details for the given unit.

@@ -11,10 +11,10 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Set
     using System.IO;
     using System.Management.Automation;
     using Microsoft.Management.Configuration.Processor.Exceptions;
-    using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
     using Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Unit;
     using Microsoft.Management.Configuration.Processor.Set;
     using Microsoft.Management.Configuration.Processor.Unit;
     using Windows.Security.Cryptography.Certificates;
@@ -42,15 +42,15 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Set
         internal IProcessorEnvironment ProcessorEnvironment { get; }
 
         /// <inheritdoc />
-        protected override ConfigurationUnitProcessor CreateUnitProcessorInternal(ConfigurationUnit unit)
+        protected override IConfigurationUnitProcessor CreateUnitProcessorInternal(ConfigurationUnit unit)
         {
-            var configurationUnitInternal = new ConfigurationUnitInternal(unit, this.ConfigurationSet?.Path) { UnitTypeIsResourceName = IsUnitTypeResourceName(this.ConfigurationSet?.SchemaVersion) };
+            var configurationUnitInternal = new ConfigurationUnitAndModule(unit, this.ConfigurationSet?.Path) { UnitTypeIsResourceName = IsUnitTypeResourceName(this.ConfigurationSet?.SchemaVersion) };
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating unit processor for: {configurationUnitInternal.QualifiedName}...");
 
             var dscResourceInfo = this.PrepareUnitForProcessing(configurationUnitInternal);
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"Using unit from location: {dscResourceInfo.Path}");
-            return new ConfigurationUnitProcessor(
+            return new PowerShellConfigurationUnitProcessor(
                 this.ProcessorEnvironment,
                 new ConfigurationUnitAndResource(configurationUnitInternal, dscResourceInfo),
                 this.IsLimitMode)
@@ -60,7 +60,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Set
         /// <inheritdoc />
         protected override IConfigurationUnitProcessorDetails? GetUnitProcessorDetailsInternal(ConfigurationUnit unit, ConfigurationUnitDetailFlags detailFlags)
         {
-            var unitInternal = new ConfigurationUnitInternal(unit, this.ConfigurationSet?.Path);
+            var unitInternal = new ConfigurationUnitAndModule(unit, this.ConfigurationSet?.Path);
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"Getting unit details [{detailFlags}] for: {unitInternal.QualifiedName}");
 
             // (Local | Download | Load) will all work off of local files, so if any one is an option just use the local module info if found.
@@ -153,7 +153,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Set
         /// </summary>
         /// <param name="unitInternal">The internal configuration unit.</param>
         /// <returns>A tuple containing the module info and preferred resource name, or null if not found.</returns>
-        private (PSObject Module, string ResourceName)? FindUnitModule(ConfigurationUnitInternal unitInternal)
+        private (PSObject Module, string ResourceName)? FindUnitModule(ConfigurationUnitAndModule unitInternal)
         {
             PSObject? foundModule = null;
             string resourceName = string.Empty;
@@ -190,7 +190,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Set
             return null;
         }
 
-        private DscResourceInfoInternal PrepareUnitForProcessing(ConfigurationUnitInternal unitInternal)
+        private DscResourceInfoInternal PrepareUnitForProcessing(ConfigurationUnitAndModule unitInternal)
         {
             // Invoke-DscResource makes a call to Get-DscResource which looks at the entire PSModulePath
             // to see if a resource exists. DscResourcesMap is an attempt to try to optimize Get-DscResource

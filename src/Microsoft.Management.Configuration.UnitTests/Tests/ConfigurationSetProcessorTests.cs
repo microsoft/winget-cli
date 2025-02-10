@@ -58,7 +58,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                    m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                    m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(c => c.Unit.Type == resourceName)))
                 .Returns(new DscResourceInfoInternal(resourceName, moduleName, version))
                 .Verifiable();
 
@@ -92,7 +92,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                    m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type.Equals("Name", StringComparison.OrdinalIgnoreCase))))
+                    m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(c => c.Unit.Type.Equals("Name", StringComparison.OrdinalIgnoreCase))))
                 .Returns(new DscResourceInfoInternal("Name", moduleName, version))
                 .Verifiable();
 
@@ -126,7 +126,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                    m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                    m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(c => c.Unit.Type == resourceName)))
                 .Returns(new DscResourceInfoInternal("OtherName", moduleName, version))
                 .Verifiable();
 
@@ -158,7 +158,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                    m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                    m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(c => c.Unit.Type == resourceName)))
                 .Returns(new DscResourceInfoInternal(resourceName, moduleName, version))
                 .Verifiable();
 
@@ -191,7 +191,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                    m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                    m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(c => c.Unit.Type == resourceName)))
                 .Returns(new DscResourceInfoInternal(resourceName, moduleName, version))
                 .Verifiable();
 
@@ -225,13 +225,13 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             DscResourceInfoInternal dscResourceInfo = new DscResourceInfoInternal(resourceName, moduleName, version);
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.SetupSequence(
-                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(c => c.Unit.Type == resourceName)))
                 .Returns(nullResource)
                 .Returns(dscResourceInfo);
 
             PSObject findDscResourceResult = new PSObject(processorEnvMock);
             processorEnvMock.Setup(
-                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                m => m.FindModule(It.Is<ConfigurationUnitAndModule>(c => c.Unit.Type == resourceName)))
                 .Returns(findDscResourceResult)
                 .Verifiable();
 
@@ -270,13 +270,13 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             DscResourceInfoInternal dscResourceInfo = new DscResourceInfoInternal(resourceName, null, version);
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.SetupSequence(
-                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(c => c.Unit.Type == resourceName)))
                 .Returns(nullResource)
                 .Returns(dscResourceInfo);
 
             PSObject findDscResourceResult = this.CreateFindResourceInfo();
             processorEnvMock.Setup(
-                m => m.FindDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                m => m.FindDscResource(It.Is<ConfigurationUnitAndModule>(c => c.Unit.Type == resourceName)))
                 .Returns(findDscResourceResult)
                 .Verifiable();
 
@@ -316,12 +316,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             DscResourceInfoInternal dscResourceInfo = new DscResourceInfoInternal(resourceName, moduleName, version);
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(c => c.Unit.Type == resourceName)))
                 .Returns(nullResource);
 
             PSObject findDscResourceResult = new PSObject(processorEnvMock);
             processorEnvMock.Setup(
-                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                m => m.FindModule(It.Is<ConfigurationUnitAndModule>(c => c.Unit.Type == resourceName)))
                 .Returns(findDscResourceResult)
                 .Verifiable();
 
@@ -360,12 +360,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             DscResourceInfoInternal dscResourceInfo = new DscResourceInfoInternal(resourceName, moduleName, version);
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(c => c.Unit.Type == resourceName)))
                 .Returns(nullResource);
 
             PSObject? findDscResourceResult = null;
             processorEnvMock.Setup(
-                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                m => m.FindModule(It.Is<ConfigurationUnitAndModule>(c => c.Unit.Type == resourceName)))
                 .Returns(findDscResourceResult)
                 .Verifiable();
 
@@ -397,7 +397,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(u => u.Unit.Type == resourceName)))
+                m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(u => u.Unit.Type == resourceName)))
                 .Returns(nullDscInfoInternal)
                 .Verifiable();
 
@@ -431,7 +431,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(u => u.Unit.Type == dscResourceInfo.Name)))
+                m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(u => u.Unit.Type == dscResourceInfo.Name)))
                 .Returns(dscResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
@@ -477,7 +477,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(u => u.Unit.Type == dscResourceInfo.Name)))
+                m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(u => u.Unit.Type == dscResourceInfo.Name)))
                 .Returns(dscResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
@@ -505,7 +505,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.Equal(dscResourceInfo.Name, configurationUnitProcessorDetails.UnitType);
 
             processorEnvMock.Verify();
-            processorEnvMock.Verify(m => m.FindDscResource(It.IsAny<ConfigurationUnitInternal>()), Times.Never());
+            processorEnvMock.Verify(m => m.FindDscResource(It.IsAny<ConfigurationUnitAndModule>()), Times.Never());
             processorEnvMock.Verify(m => m.ImportModule(It.IsAny<ModuleSpecification>()), Times.Never());
         }
 
@@ -521,7 +521,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(u => u.Unit.Type == dscResourceInfo.Name)))
+                m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(u => u.Unit.Type == dscResourceInfo.Name)))
                 .Returns(dscResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
@@ -552,7 +552,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.Equal(dscResourceInfo.Name, configurationUnitProcessorDetails.UnitType);
 
             processorEnvMock.Verify();
-            processorEnvMock.Verify(m => m.FindDscResource(It.IsAny<ConfigurationUnitInternal>()), Times.Never());
+            processorEnvMock.Verify(m => m.FindDscResource(It.IsAny<ConfigurationUnitAndModule>()), Times.Never());
         }
 
         /// <summary>
@@ -567,11 +567,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(u => u.Unit.Type == unit.Type)))
+                m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(u => u.Unit.Type == unit.Type)))
                 .Returns(nullDscResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => unit.Type == unit.Type)))
+                m => m.FindModule(It.Is<ConfigurationUnitAndModule>(c => unit.Type == unit.Type)))
                 .Returns(nullPsModuleInfo)
                 .Verifiable();
 
@@ -600,11 +600,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(u => u.Unit.Type == unit.Type)))
+                m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(u => u.Unit.Type == unit.Type)))
                 .Returns(nullDscResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => unit.Type == unit.Type)))
+                m => m.FindModule(It.Is<ConfigurationUnitAndModule>(c => unit.Type == unit.Type)))
                 .Returns(getFindResourceInfo)
                 .Verifiable();
 
@@ -635,11 +635,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(u => u.Unit.Type == unit.Type)))
+                m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(u => u.Unit.Type == unit.Type)))
                 .Returns(nullDscResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => unit.Type == unit.Type)))
+                m => m.FindModule(It.Is<ConfigurationUnitAndModule>(c => unit.Type == unit.Type)))
                 .Returns(getFindModuleInfo)
                 .Verifiable();
             processorEnvMock.Setup(
@@ -683,11 +683,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(u => u.Unit.Type == unit.Type)))
+                m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(u => u.Unit.Type == unit.Type)))
                 .Returns(nullDscResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => unit.Type == unit.Type)))
+                m => m.FindModule(It.Is<ConfigurationUnitAndModule>(c => unit.Type == unit.Type)))
                 .Returns(getFindResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
@@ -704,7 +704,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             processorEnvMock.Verify();
             processorEnvMock.Verify(
-                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(u => u.Unit.Type == unit.Type)),
+                m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(u => u.Unit.Type == unit.Type)),
                 Times.Exactly(2));
         }
 
@@ -721,11 +721,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.SetupSequence(
-                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(u => u.Unit.Type == unit.Type)))
+                m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(u => u.Unit.Type == unit.Type)))
                 .Returns(nullDscResourceInfo)
                 .Returns(dscResourceInfo);
             processorEnvMock.Setup(
-                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => unit.Type == unit.Type)))
+                m => m.FindModule(It.Is<ConfigurationUnitAndModule>(c => unit.Type == unit.Type)))
                 .Returns(getFindResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
@@ -752,7 +752,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             processorEnvMock.Verify();
             processorEnvMock.Verify(
-                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(u => u.Unit.Type == unit.Type)),
+                m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(u => u.Unit.Type == unit.Type)),
                 Times.Exactly(2));
         }
 
@@ -829,7 +829,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                    m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                    m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(c => c.Unit.Type == resourceName)))
                 .Returns(new DscResourceInfoInternal(resourceName, moduleName, version))
                 .Verifiable();
 
@@ -885,7 +885,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
-                    m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                    m => m.GetDscResource(It.Is<ConfigurationUnitAndModule>(c => c.Unit.Type == resourceName)))
                 .Returns(new DscResourceInfoInternal(resourceName, moduleName, version))
                 .Verifiable();
 
@@ -941,7 +941,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             // This is easier than trying to mock sealed class from external code...
             var testEnv = this.fixture.PrepareTestProcessorEnvironment(true);
-            var dscResourceInfo = testEnv.GetDscResource(new ConfigurationUnitInternal(unit, string.Empty));
+            var dscResourceInfo = testEnv.GetDscResource(new ConfigurationUnitAndModule(unit, string.Empty));
             var psModuleInfo = testEnv.GetAvailableModule(PowerShellHelpers.CreateModuleSpecification("xSimpleTestResource", "0.0.0.1"));
 
             if (dscResourceInfo is null || psModuleInfo is null)

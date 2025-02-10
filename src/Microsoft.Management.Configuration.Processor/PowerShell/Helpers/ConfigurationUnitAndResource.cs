@@ -26,7 +26,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
         /// <param name="configurationUnitInternal">Configuration unit internal.</param>
         /// <param name="dscResourceInfoInternal">DscResourceInfoInternal.</param>
         public ConfigurationUnitAndResource(
-            ConfigurationUnitInternal configurationUnitInternal,
+            ConfigurationUnitAndModule configurationUnitInternal,
             DscResourceInfoInternal dscResourceInfoInternal)
         {
             if (!configurationUnitInternal.ResourceName.Equals(dscResourceInfoInternal.Name, StringComparison.OrdinalIgnoreCase))
@@ -41,7 +41,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
         /// <summary>
         /// Gets or initializes the internal unit.
         /// </summary>
-        public ConfigurationUnitInternal UnitInternal { get; private init; }
+        public ConfigurationUnitAndModule UnitInternal { get; private init; }
 
         /// <summary>
         /// Gets the configuration unit.

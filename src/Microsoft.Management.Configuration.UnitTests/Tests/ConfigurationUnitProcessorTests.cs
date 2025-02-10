@@ -13,7 +13,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
     using Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments;
-    using Microsoft.Management.Configuration.Processor.Unit;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Unit;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.PowerShell.Commands;
@@ -70,7 +70,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var unitResource = this.CreateUnitResource(Assert.IsType<ConfigurationUnitIntent>(intent));
 
-            var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
+            var unitProcessor = new PowerShellConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
 
             var result = unitProcessor.GetSettings();
 
@@ -99,7 +99,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var unitResource = this.CreateUnitResource(ConfigurationUnitIntent.Inform);
 
-            var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
+            var unitProcessor = new PowerShellConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
 
             var result = unitProcessor.GetSettings();
 
@@ -128,7 +128,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var unitResource = this.CreateUnitResource(ConfigurationUnitIntent.Inform);
 
-            var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
+            var unitProcessor = new PowerShellConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
 
             var result = unitProcessor.GetSettings();
 
@@ -149,7 +149,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             var unitResource = this.CreateUnitResource(ConfigurationUnitIntent.Inform);
 
-            var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
+            var unitProcessor = new PowerShellConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
 
             Assert.Throws<NotSupportedException>(() => unitProcessor.TestSettings());
         }
@@ -176,7 +176,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var unitResource = this.CreateUnitResource(Assert.IsType<ConfigurationUnitIntent>(intent));
 
-            var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
+            var unitProcessor = new PowerShellConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
 
             var testResult = unitProcessor.TestSettings();
 
@@ -208,7 +208,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var unitResource = this.CreateUnitResource(ConfigurationUnitIntent.Assert);
 
-            var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
+            var unitProcessor = new PowerShellConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
 
             var result = unitProcessor.TestSettings();
 
@@ -239,7 +239,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var unitResource = this.CreateUnitResource(ConfigurationUnitIntent.Assert);
 
-            var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
+            var unitProcessor = new PowerShellConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
 
             var result = unitProcessor.TestSettings();
 
@@ -265,7 +265,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             var unitResource = this.CreateUnitResource(Assert.IsType<ConfigurationUnitIntent>(intent));
 
-            var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
+            var unitProcessor = new PowerShellConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
 
             Assert.Throws<NotSupportedException>(() => unitProcessor.ApplySettings());
         }
@@ -289,7 +289,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var unitResource = this.CreateUnitResource(ConfigurationUnitIntent.Apply);
 
-            var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
+            var unitProcessor = new PowerShellConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
 
             var result = unitProcessor.ApplySettings();
 
@@ -313,7 +313,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var unitResource = this.CreateUnitResource(ConfigurationUnitIntent.Apply);
 
-            var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
+            var unitProcessor = new PowerShellConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
 
             var result = unitProcessor.ApplySettings();
 
@@ -342,7 +342,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var unitResource = this.CreateUnitResource(ConfigurationUnitIntent.Apply);
 
-            var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
+            var unitProcessor = new PowerShellConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
 
             var result = unitProcessor.ApplySettings();
 
@@ -377,7 +377,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var unitResource = this.CreateUnitResource(ConfigurationUnitIntent.Apply);
 
-            var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource, true);
+            var unitProcessor = new PowerShellConfigurationUnitProcessor(processorEnvMock.Object, unitResource, true);
 
             // GetSettings can be called multiple times.
             var getResult = unitProcessor.GetSettings();
@@ -396,7 +396,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             string resourceName = "xResourceName";
             return new ConfigurationUnitAndResource(
-                new ConfigurationUnitInternal(
+                new ConfigurationUnitAndModule(
                     new ConfigurationUnit
                     {
                         Type = resourceName,
