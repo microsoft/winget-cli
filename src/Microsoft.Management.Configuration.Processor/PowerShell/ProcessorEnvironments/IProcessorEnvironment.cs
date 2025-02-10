@@ -1,10 +1,10 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="IProcessorEnvironment.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
+namespace Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments
 {
     using System.Collections.Generic;
     using System.Management.Automation;

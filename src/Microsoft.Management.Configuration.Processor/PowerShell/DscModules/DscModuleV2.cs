@@ -16,6 +16,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.DscModules
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Extensions;
     using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;

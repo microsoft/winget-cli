@@ -1,13 +1,12 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PowerShellExtensions.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.Extensions
+namespace Microsoft.Management.Configuration.Processor.PowerShell.Extensions
 {
     using System.Collections.ObjectModel;
-    using System.Linq;
     using System.Management.Automation;
     using System.Text;
 

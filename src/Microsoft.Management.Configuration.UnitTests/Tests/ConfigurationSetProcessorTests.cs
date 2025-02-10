@@ -14,7 +14,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
-    using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
+    using Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Set;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;

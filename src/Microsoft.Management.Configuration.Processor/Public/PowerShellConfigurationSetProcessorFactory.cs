@@ -12,7 +12,7 @@ namespace Microsoft.Management.Configuration.Processor
     using System.Runtime.CompilerServices;
     using System.Text;
     using Microsoft.Management.Configuration;
-    using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
+    using Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Set;
     using Microsoft.Management.Configuration.SetProcessorFactory;
     using static Microsoft.Management.Configuration.Processor.PowerShell.Constants.PowerShellConstants;

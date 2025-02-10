@@ -10,7 +10,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
     using System.IO;
     using System.Reflection;
     using Microsoft.Management.Configuration.Processor;
-    using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
+    using Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments;
     using WinRT;
     using Xunit.Abstractions;
 

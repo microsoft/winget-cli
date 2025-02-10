@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.Runspaces
+namespace Microsoft.Management.Configuration.Processor.PowerShell.Runspaces
 {
     using System;
     using System.Collections;
@@ -19,7 +19,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
     using Microsoft.Management.Configuration.Processor.PowerShell.DscModules;
     using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
-    using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
+    using Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
     using Windows.Security.Cryptography.Certificates;

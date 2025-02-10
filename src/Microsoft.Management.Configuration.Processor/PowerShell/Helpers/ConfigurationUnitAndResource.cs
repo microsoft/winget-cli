@@ -1,14 +1,14 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigurationUnitAndResource.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.Helpers
+namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
 {
     using System;
-    using System.Collections.Generic;
     using Microsoft.Management.Configuration;
+    using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
