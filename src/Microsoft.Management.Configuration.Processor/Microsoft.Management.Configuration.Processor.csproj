@@ -68,6 +68,10 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </ProjectReference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="PowerShell\Set\" />
+  </ItemGroup>
   
   <PropertyGroup Condition="'$(WinGetCsWinRTEmbedded)'=='true'">
     <DefineConstants>$(DefineConstants);WinGetCsWinRTEmbedded</DefineConstants>

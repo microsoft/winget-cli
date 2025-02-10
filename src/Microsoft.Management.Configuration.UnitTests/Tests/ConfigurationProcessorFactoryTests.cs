@@ -8,7 +8,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System.Collections.Generic;
     using Microsoft.Management.Configuration.Processor;
-    using Microsoft.Management.Configuration.Processor.Set;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Set;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using WinRT;
@@ -53,8 +53,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var configurationProcessorSet = configurationProcessorFactory.CreateSetProcessor(configurationSet);
 
             Assert.NotNull(configurationProcessorSet);
-            Assert.IsType<ConfigurationSetProcessor>(configurationProcessorSet);
-            var processorSet = configurationProcessorSet as ConfigurationSetProcessor;
+            Assert.IsType<PowerShellConfigurationSetProcessor>(configurationProcessorSet);
+            var processorSet = configurationProcessorSet as PowerShellConfigurationSetProcessor;
             Assert.NotNull(processorSet);
         }
 
@@ -78,8 +78,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var configurationProcessorSet = configurationProcessorFactory.CreateSetProcessor(configurationSet);
 
-            Assert.IsType<ConfigurationSetProcessor>(configurationProcessorSet);
-            var processorSet = configurationProcessorSet as ConfigurationSetProcessor;
+            Assert.IsType<PowerShellConfigurationSetProcessor>(configurationProcessorSet);
+            var processorSet = configurationProcessorSet as PowerShellConfigurationSetProcessor;
             Assert.NotNull(processorSet);
 
             var modulePath = processorSet.ProcessorEnvironment.GetVariable<string>(Variables.PSModulePath);
@@ -109,7 +109,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var configurationSet = new ConfigurationSet();
 
-            var setProcessor = configurationProcessorFactory.CreateSetProcessor(configurationSet) as ConfigurationSetProcessor;
+            var setProcessor = configurationProcessorFactory.CreateSetProcessor(configurationSet) as PowerShellConfigurationSetProcessor;
             Assert.NotNull(setProcessor);
 
             var modulePath = setProcessor.ProcessorEnvironment.GetVariable<string>(Variables.PSModulePath);
@@ -130,7 +130,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var configurationSet = new ConfigurationSet();
 
-            var setProcessor = configurationProcessorFactory.CreateSetProcessor(configurationSet) as ConfigurationSetProcessor;
+            var setProcessor = configurationProcessorFactory.CreateSetProcessor(configurationSet) as PowerShellConfigurationSetProcessor;
             Assert.NotNull(setProcessor);
 
             var modulePath = setProcessor.ProcessorEnvironment.GetVariable<string>(Variables.PSModulePath);
@@ -155,7 +155,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.Throws<System.InvalidOperationException>(() => configurationProcessorFactory.Location = PowerShellConfigurationProcessorLocation.Custom);
             Assert.Throws<System.InvalidOperationException>(() => configurationProcessorFactory.CustomLocation = @"c:\this\is\a\module\path");
 
-            var setProcessor = configurationProcessorFactory.CreateSetProcessor(configurationSet) as ConfigurationSetProcessor;
+            var setProcessor = configurationProcessorFactory.CreateSetProcessor(configurationSet) as PowerShellConfigurationSetProcessor;
             Assert.NotNull(setProcessor);
             Assert.True(setProcessor.IsLimitMode);
 

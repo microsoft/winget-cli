@@ -14,7 +14,7 @@ namespace Microsoft.Management.Configuration.Processor
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.Factory;
     using Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments;
-    using Microsoft.Management.Configuration.Processor.Set;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Set;
     using Microsoft.Management.Configuration.SetProcessorFactory;
     using static Microsoft.Management.Configuration.Processor.PowerShell.Constants.PowerShellConstants;
 
@@ -283,7 +283,7 @@ namespace Microsoft.Management.Configuration.Processor
         }
 
         /// <inheritdoc />
-        protected override ConfigurationSetProcessor CreateSetProcessorInternal(ConfigurationSet? incomingSet, bool isLimitMode)
+        protected override IConfigurationSetProcessor CreateSetProcessorInternal(ConfigurationSet? set, bool isLimitMode)
         {
             var envFactory = new ProcessorEnvironmentFactory(this.ProcessorType);
             var processorEnvironment = envFactory.CreateEnvironment(
@@ -322,7 +322,7 @@ namespace Microsoft.Management.Configuration.Processor
 
             processorEnvironment.ValidateRunspace();
 
-            return new ConfigurationSetProcessor(processorEnvironment, incomingSet, isLimitMode) { SetProcessorFactory = this };
+            return new PowerShellConfigurationSetProcessor(processorEnvironment, set, isLimitMode) { SetProcessorFactory = this };
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Microsoft.Management.Configuration.Processor.Factory
     using Microsoft.Management.Configuration.Processor.Set;
 
     /// <summary>
-    /// ConfigurationSetProcessorFactory base implementation.
+    /// IConfigurationSetProcessorFactory base implementation.
     /// </summary>
     internal abstract partial class ConfigurationSetProcessorFactoryBase
     {
@@ -83,7 +83,7 @@ namespace Microsoft.Management.Configuration.Processor.Factory
                     throw new NotImplementedException();
                 }
 
-                ConfigurationSetProcessor result = this.CreateSetProcessorInternal(set, isLimitMode);
+                IConfigurationSetProcessor result = this.CreateSetProcessorInternal(set, isLimitMode);
 
                 this.OnDiagnostics(DiagnosticLevel.Verbose, "... done creating set processor.");
 
@@ -123,10 +123,10 @@ namespace Microsoft.Management.Configuration.Processor.Factory
         /// <summary>
         /// Gets the configuration unit processor details for the given unit.
         /// </summary>
-        /// <param name="incomingSet">Configuration Set.</param>
+        /// <param name="set">Configuration Set.</param>
         /// <param name="isLimitMode">Whether the processor should be in limit mode.</param>
         /// <returns>Configuration set processor.</returns>
-        protected abstract ConfigurationSetProcessor CreateSetProcessorInternal(ConfigurationSet? incomingSet, bool isLimitMode);
+        protected abstract IConfigurationSetProcessor CreateSetProcessorInternal(ConfigurationSet? set, bool isLimitMode);
 
         /// <summary>
         /// Gets a value indicating whether the factory is operation in limit mode.

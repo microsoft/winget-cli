@@ -15,7 +15,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
     using Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments;
-    using Microsoft.Management.Configuration.Processor.Set;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Set;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.PowerShell.Commands;
@@ -62,7 +62,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(new DscResourceInfoInternal(resourceName, moduleName, version))
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -96,7 +96,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(new DscResourceInfoInternal("Name", moduleName, version))
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -130,7 +130,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(new DscResourceInfoInternal("OtherName", moduleName, version))
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -162,7 +162,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(new DscResourceInfoInternal(resourceName, moduleName, version))
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -195,7 +195,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(new DscResourceInfoInternal(resourceName, moduleName, version))
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -239,7 +239,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 m => m.InstallModule(findDscResourceResult))
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -285,7 +285,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 m => m.InstallModule(moduleInfo))
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -329,7 +329,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 m => m.InstallModule(findDscResourceResult))
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -369,7 +369,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(findDscResourceResult)
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -401,7 +401,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(nullDscInfoInternal)
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -447,7 +447,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(new List<Certificate>())
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -493,7 +493,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(new List<Certificate>())
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -540,7 +540,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(new List<Certificate>())
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -575,7 +575,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(nullPsModuleInfo)
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -608,7 +608,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(getFindResourceInfo)
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -654,7 +654,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(new List<Certificate>())
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -694,7 +694,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 m => m.InstallModule(getFindResourceInfo))
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -739,7 +739,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 m => m.ImportModule(It.Is<ModuleSpecification>(s => s.Name == dscResourceInfo.ModuleName)))
                 .Verifiable();
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
@@ -765,7 +765,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
-            var setProcessor = new ConfigurationSetProcessor(processorEnv, new ConfigurationSet());
+            var setProcessor = new PowerShellConfigurationSetProcessor(processorEnv, new ConfigurationSet());
 
             var unit = new ConfigurationUnit
             {
@@ -801,7 +801,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
-            var setProcessor = new ConfigurationSetProcessor(processorEnv, new ConfigurationSet());
+            var setProcessor = new PowerShellConfigurationSetProcessor(processorEnv, new ConfigurationSet());
 
             var unit = new ConfigurationUnit
             {
@@ -843,7 +843,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             limitUnit.Metadata.Add("version", version.ToString());
             limitSet.Units = new List<ConfigurationUnit> { limitUnit };
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 limitSet,
                 true);
@@ -899,7 +899,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             limitUnit.Metadata.Add("version", version.ToString());
             limitSet.Units = new List<ConfigurationUnit> { limitUnit, limitUnit };
 
-            var configurationSetProcessor = new ConfigurationSetProcessor(
+            var configurationSetProcessor = new PowerShellConfigurationSetProcessor(
                 processorEnvMock.Object,
                 limitSet,
                 true);
