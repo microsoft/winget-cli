@@ -13,6 +13,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
     using System.Runtime.CompilerServices;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
+    using Microsoft.Management.Configuration.Processor.Factory;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
@@ -58,7 +59,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
         /// <summary>
         /// Gets or initializes the set processor factory.
         /// </summary>
-        internal PowerShellConfigurationSetProcessorFactory? SetProcessorFactory { get; init; }
+        internal ConfigurationSetProcessorFactoryBase? SetProcessorFactory { get; init; }
 
         /// <summary>
         /// Gets the processor environment.

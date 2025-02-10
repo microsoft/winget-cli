@@ -12,6 +12,7 @@ namespace Microsoft.Management.Configuration.Processor
     using System.Runtime.CompilerServices;
     using System.Text;
     using Microsoft.Management.Configuration;
+    using Microsoft.Management.Configuration.Processor.Factory;
     using Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Set;
     using Microsoft.Management.Configuration.SetProcessorFactory;
@@ -25,12 +26,9 @@ namespace Microsoft.Management.Configuration.Processor
 #else
     public
 #endif
-        sealed class PowerShellConfigurationSetProcessorFactory : IConfigurationSetProcessorFactory, IPowerShellConfigurationProcessorFactoryProperties, IPwshConfigurationSetProcessorFactoryProperties
+        sealed partial class PowerShellConfigurationSetProcessorFactory : ConfigurationSetProcessorFactoryBase, IConfigurationSetProcessorFactory, IPowerShellConfigurationProcessorFactoryProperties, IPwshConfigurationSetProcessorFactoryProperties
     {
-        private bool isCreateProcessorInvoked = false;
-
         // Backing variables for properties that are restricted in limit mode.
-        private ConfigurationSet? limitationSet;
         private PowerShellConfigurationProcessorType processorType = PowerShellConfigurationProcessorType.Default;
         private IReadOnlyList<string>? additionalModulePaths;
         private IReadOnlyList<string>? implicitModulePaths;
@@ -43,37 +41,6 @@ namespace Microsoft.Management.Configuration.Processor
         /// </summary>
         public PowerShellConfigurationSetProcessorFactory()
         {
-        }
-
-        /// <summary>
-        /// Diagnostics event; useful for logging and/or verbose output.
-        /// </summary>
-        public event EventHandler<IDiagnosticInformation>? Diagnostics;
-
-        /// <summary>
-        /// Gets or sets the minimum diagnostic level to send.
-        /// </summary>
-        public DiagnosticLevel MinimumLevel { get; set; } = DiagnosticLevel.Informational;
-
-        /// <summary>
-        /// Gets or sets the limitation set. Limitation set can only be set once.
-        /// </summary>
-        public ConfigurationSet? LimitationSet
-        {
-            get
-            {
-                return this.limitationSet;
-            }
-
-            set
-            {
-                if (this.IsLimitMode())
-                {
-                    throw new InvalidOperationException("Setting LimitationSet in limit mode is invalid.");
-                }
-
-                this.limitationSet = value;
-            }
         }
 
         /// <summary>
@@ -266,77 +233,6 @@ namespace Microsoft.Management.Configuration.Processor
         }
 
         /// <summary>
-        /// Gets the configuration unit processor details for the given unit.
-        /// </summary>
-        /// <param name="incomingSet">Configuration Set.</param>
-        /// <returns>Configuration set processor.</returns>
-        public IConfigurationSetProcessor CreateSetProcessor(ConfigurationSet? incomingSet)
-        {
-            try
-            {
-                this.OnDiagnostics(DiagnosticLevel.Informational, $"The set processor factory is running in limit mode: {this.IsLimitMode()}.");
-
-                this.CheckLimitMode();
-
-                ConfigurationSet? set = this.IsLimitMode() ? this.limitationSet : incomingSet;
-
-                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating set processor for `{set?.Name ?? "<null>"}`...");
-
-                if (set != null && (set.Parameters.Count > 0 || set.Variables.Count > 0))
-                {
-                    this.OnDiagnostics(DiagnosticLevel.Error, $"  Parameters/variables are not yet supported.");
-                    throw new NotImplementedException();
-                }
-
-                var envFactory = new ProcessorEnvironmentFactory(this.ProcessorType);
-                var processorEnvironment = envFactory.CreateEnvironment(
-                    this,
-                    this.Policy);
-
-                if (this.AdditionalModulePaths is not null)
-                {
-                    processorEnvironment.PrependPSModulePaths(this.AdditionalModulePaths);
-                }
-
-                // Always add the winget path.
-                var wingetModulePath = GetWinGetModulePath();
-                processorEnvironment.PrependPSModulePath(wingetModulePath);
-                if (this.Location == PowerShellConfigurationProcessorLocation.WinGetModulePath)
-                {
-                    this.OnDiagnostics(DiagnosticLevel.Verbose, "Using winget module path");
-                    processorEnvironment.SetLocation(PowerShellConfigurationProcessorLocation.Custom, wingetModulePath);
-                }
-                else if (this.Location == PowerShellConfigurationProcessorLocation.Custom)
-                {
-                    if (string.IsNullOrEmpty(this.CustomLocation))
-                    {
-                        throw new ArgumentNullException(nameof(this.CustomLocation));
-                    }
-
-                    processorEnvironment.SetLocation(this.Location, this.CustomLocation);
-                    processorEnvironment.PrependPSModulePath(this.CustomLocation);
-                }
-                else
-                {
-                    processorEnvironment.SetLocation(this.Location, null);
-                }
-
-                this.OnDiagnostics(DiagnosticLevel.Verbose, $"  Effective module path:\n{processorEnvironment.GetVariable<string>(Variables.PSModulePath)}");
-
-                processorEnvironment.ValidateRunspace();
-
-                this.OnDiagnostics(DiagnosticLevel.Verbose, "... done creating set processor.");
-
-                return new ConfigurationSetProcessor(processorEnvironment, set, this.IsLimitMode()) { SetProcessorFactory = this };
-            }
-            catch (Exception ex)
-            {
-                this.OnDiagnostics(DiagnosticLevel.Error, ex.ToString());
-                throw;
-            }
-        }
-
-        /// <summary>
         /// Gets the winget module path.
         /// </summary>
         /// <returns>The winget module path.</returns>
@@ -348,28 +244,13 @@ namespace Microsoft.Management.Configuration.Processor
         }
 
         /// <summary>
-        /// Sends diagnostics if appropriate.
-        /// </summary>
-        /// <param name="level">The level of this diagnostic message.</param>
-        /// <param name="message">The diagnostic message.</param>
-        internal void OnDiagnostics(DiagnosticLevel level, string message)
-        {
-            EventHandler<IDiagnosticInformation>? diagnostics = this.Diagnostics;
-            if (diagnostics != null && level >= this.MinimumLevel)
-            {
-                this.InvokeDiagnostics(diagnostics, level, message);
-            }
-        }
-
-        /// <summary>
         /// Sends diagnostic if appropriate for PowerShell streams.
         /// </summary>
         /// <param name="level">The level of this diagnostic message.</param>
         /// <param name="pwsh">The PowerShell object.</param>
         internal void OnDiagnostics(DiagnosticLevel level, System.Management.Automation.PowerShell pwsh)
         {
-            EventHandler<IDiagnosticInformation>? diagnostics = this.Diagnostics;
-            if (diagnostics != null && level >= this.MinimumLevel && pwsh.HadErrors)
+            if (this.AreDiagnosticsEnabled() && level >= this.MinimumLevel && pwsh.HadErrors)
             {
                 var builder = new StringBuilder();
 
@@ -397,42 +278,51 @@ namespace Microsoft.Management.Configuration.Processor
                     builder.AppendLine($"[WriteError] {error}");
                 }
 
-                this.InvokeDiagnostics(diagnostics, level, builder.ToString());
+                this.OnDiagnostics(level, builder.ToString());
             }
         }
 
-        private void InvokeDiagnostics(EventHandler<IDiagnosticInformation> diagnostics, DiagnosticLevel level, string message)
+        /// <inheritdoc />
+        protected override ConfigurationSetProcessor CreateSetProcessorInternal(ConfigurationSet? incomingSet, bool isLimitMode)
         {
-            Helpers.DiagnosticInformation information = new ()
-            {
-                Level = level,
-                Message = message,
-            };
-            diagnostics.Invoke(this, information);
-        }
+            var envFactory = new ProcessorEnvironmentFactory(this.ProcessorType);
+            var processorEnvironment = envFactory.CreateEnvironment(
+                this,
+                this.Policy);
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        private void CheckLimitMode()
-        {
-            if (!this.IsLimitMode())
+            if (this.AdditionalModulePaths is not null)
             {
-                return;
+                processorEnvironment.PrependPSModulePaths(this.AdditionalModulePaths);
             }
 
-            if (this.isCreateProcessorInvoked)
+            // Always add the winget path.
+            var wingetModulePath = GetWinGetModulePath();
+            processorEnvironment.PrependPSModulePath(wingetModulePath);
+            if (this.Location == PowerShellConfigurationProcessorLocation.WinGetModulePath)
             {
-                this.OnDiagnostics(DiagnosticLevel.Error, "CreateSetProcessor is already invoked in limit mode.");
-                throw new InvalidOperationException("CreateSetProcessor is already invoked in limit mode.");
+                this.OnDiagnostics(DiagnosticLevel.Verbose, "Using winget module path");
+                processorEnvironment.SetLocation(PowerShellConfigurationProcessorLocation.Custom, wingetModulePath);
+            }
+            else if (this.Location == PowerShellConfigurationProcessorLocation.Custom)
+            {
+                if (string.IsNullOrEmpty(this.CustomLocation))
+                {
+                    throw new ArgumentNullException(nameof(this.CustomLocation));
+                }
+
+                processorEnvironment.SetLocation(this.Location, this.CustomLocation);
+                processorEnvironment.PrependPSModulePath(this.CustomLocation);
             }
             else
             {
-                this.isCreateProcessorInvoked = true;
+                processorEnvironment.SetLocation(this.Location, null);
             }
-        }
 
-        private bool IsLimitMode()
-        {
-            return this.limitationSet != null;
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"  Effective module path:\n{processorEnvironment.GetVariable<string>(Variables.PSModulePath)}");
+
+            processorEnvironment.ValidateRunspace();
+
+            return new ConfigurationSetProcessor(processorEnvironment, incomingSet, isLimitMode) { SetProcessorFactory = this };
         }
     }
 }

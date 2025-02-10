@@ -12,6 +12,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
+    using Microsoft.Management.Configuration.Processor.Factory;
     using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
     using Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments;
 
@@ -51,7 +52,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// <summary>
         /// Gets or initializes the set processor factory.
         /// </summary>
-        internal PowerShellConfigurationSetProcessorFactory? SetProcessorFactory { get; init; }
+        internal ConfigurationSetProcessorFactoryBase? SetProcessorFactory { get; init; }
 
         /// <summary>
         /// Gets the current system state for the configuration unit.
