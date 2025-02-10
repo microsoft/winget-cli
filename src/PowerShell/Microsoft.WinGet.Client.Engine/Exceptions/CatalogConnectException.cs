@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="CatalogConnectException.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -19,8 +19,9 @@ namespace Microsoft.WinGet.Client.Engine.Exceptions
         /// <summary>
         /// Initializes a new instance of the <see cref="CatalogConnectException"/> class.
         /// </summary>
-        public CatalogConnectException()
-            : base(Resources.CatalogConnectExceptionMessage)
+        /// <param name="inner">The exception that lead to this one.</param>
+        public CatalogConnectException(Exception inner)
+            : base(Resources.CatalogConnectExceptionMessage, inner)
         {
         }
     }
