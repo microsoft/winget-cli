@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigurationUnitInternal.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -12,7 +12,6 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     using System.IO;
     using Microsoft.Management.Configuration.Processor.Constants;
     using Microsoft.Management.Configuration.Processor.Exceptions;
-    using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
 
     /// <summary>
@@ -39,21 +38,6 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             this.InitializeDirectives();
             this.InitializeNames();
 
-            string? moduleName = this.GetDirective<string>(DirectiveConstants.Module);
-            if (string.IsNullOrEmpty(moduleName))
-            {
-                this.Module = null;
-            }
-            else
-            {
-                this.Module = PowerShellHelpers.CreateModuleSpecification(
-                    moduleName,
-                    this.GetDirective<string>(DirectiveConstants.Version),
-                    this.GetDirective<string>(DirectiveConstants.MinVersion),
-                    this.GetDirective<string>(DirectiveConstants.MaxVersion),
-                    this.GetDirective<string>(DirectiveConstants.ModuleGuid));
-            }
-
             if (!string.IsNullOrEmpty(configurationFilePath))
             {
                 if (!File.Exists(configurationFilePath))
@@ -74,11 +58,6 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// Gets a value indicating whether the unit type should be treated as the resource name.
         /// </summary>
         public bool UnitTypeIsResourceName { get; init; } = false;
-
-        /// <summary>
-        /// Gets the module specification.
-        /// </summary>
-        public ModuleSpecification? Module { get; }
 
         /// <summary>
         /// Gets the resource name *only*. For example, "Resource".

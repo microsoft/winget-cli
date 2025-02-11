@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.Runspaces
+namespace Microsoft.Management.Configuration.Processor.PowerShell.Runspaces
 {
     using System;
     using System.Collections;
@@ -15,15 +15,16 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
     using System.Management.Automation.Runspaces;
     using System.Runtime.InteropServices.WindowsRuntime;
     using Microsoft.Management.Configuration.Processor.Constants;
-    using Microsoft.Management.Configuration.Processor.DscModule;
-    using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Helpers;
-    using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
+    using Microsoft.Management.Configuration.Processor.PowerShell.DscModules;
+    using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
+    using Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
     using Windows.Security.Cryptography.Certificates;
     using Windows.Storage.Streams;
-    using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
+    using static Microsoft.Management.Configuration.Processor.PowerShell.Constants.PowerShellConstants;
 
     /// <summary>
     /// Process environment. Provides interaction with PowerShell for a hosted environment.
@@ -128,7 +129,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         }
 
         /// <inheritdoc/>
-        public DscResourceInfoInternal? GetDscResource(ConfigurationUnitInternal unitInternal)
+        public DscResourceInfoInternal? GetDscResource(ConfigurationUnitAndModule unitInternal)
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
             var result = this.DscModule.GetDscResource(pwsh, unitInternal.ResourceName, unitInternal.Module);

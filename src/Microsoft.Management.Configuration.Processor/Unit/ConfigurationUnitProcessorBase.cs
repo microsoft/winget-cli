@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// <copyright file="ConfigurationUnitProcessor.cs" company="Microsoft Corporation">
+// <copyright file="ConfigurationUnitProcessorBase.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -12,46 +12,41 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
+    using Microsoft.Management.Configuration.Processor.Factory;
     using Microsoft.Management.Configuration.Processor.Helpers;
-    using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
+    using Windows.Foundation.Collections;
 
     /// <summary>
-    /// Provides access to a specific configuration unit within the runtime.
+    /// IConfigurationUnitProcessor base implementation.
     /// </summary>
-    internal sealed partial class ConfigurationUnitProcessor : IConfigurationUnitProcessor
+    internal abstract partial class ConfigurationUnitProcessorBase
     {
-        private readonly IProcessorEnvironment processorEnvironment;
-        private readonly ConfigurationUnitAndResource unitResource;
+        private readonly ConfigurationUnitInternal unitInternal;
         private readonly bool isLimitMode;
 
         private bool isTestInvoked = false;
         private bool isApplyInvoked = false;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConfigurationUnitProcessor"/> class.
+        /// Initializes a new instance of the <see cref="ConfigurationUnitProcessorBase"/> class.
         /// </summary>
-        /// <param name="processorEnvironment">Processor environment.</param>
-        /// <param name="unitResource">UnitResource.</param>
+        /// <param name="unitInternal">UnitInternal.</param>
         /// <param name="isLimitMode">Whether it is under limit mode.</param>
-        internal ConfigurationUnitProcessor(
-            IProcessorEnvironment processorEnvironment,
-            ConfigurationUnitAndResource unitResource,
-            bool isLimitMode = false)
+        internal ConfigurationUnitProcessorBase(ConfigurationUnitInternal unitInternal, bool isLimitMode)
         {
-            this.processorEnvironment = processorEnvironment;
-            this.unitResource = unitResource;
+            this.unitInternal = unitInternal;
             this.isLimitMode = isLimitMode;
         }
 
         /// <summary>
         /// Gets the configuration unit that the processor was created for.
         /// </summary>
-        public ConfigurationUnit Unit => this.unitResource.Unit;
+        public ConfigurationUnit Unit => this.unitInternal.Unit;
 
         /// <summary>
         /// Gets or initializes the set processor factory.
         /// </summary>
-        internal PowerShellConfigurationSetProcessorFactory? SetProcessorFactory { get; init; }
+        internal ConfigurationSetProcessorFactoryBase? SetProcessorFactory { get; init; }
 
         /// <summary>
         /// Gets the current system state for the configuration unit.
@@ -60,17 +55,14 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// <returns>A <see cref="IGetSettingsResult"/>.</returns>
         public IGetSettingsResult GetSettings()
         {
-            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Get` for resource: {this.unitResource.UnitInternal.QualifiedName}...");
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Get` for resource: {this.unitInternal.QualifiedName}...");
 
             this.CheckLimitMode(ConfigurationUnitIntent.Inform);
             var result = new GetSettingsResult(this.Unit);
 
             try
             {
-                result.Settings = this.processorEnvironment.InvokeGetResource(
-                    this.unitResource.GetSettings(),
-                    this.unitResource.ResourceName,
-                    this.unitResource.Module);
+                result.Settings = this.GetSettingsInternal();
             }
             catch (Exception e)
             {
@@ -88,7 +80,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// <returns>A <see cref="ITestSettingsResult"/>.</returns>
         public ITestSettingsResult TestSettings()
         {
-            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Test` for resource: {this.unitResource.UnitInternal.QualifiedName}...");
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Test` for resource: {this.unitInternal.QualifiedName}...");
 
             if (this.Unit.Intent == ConfigurationUnitIntent.Inform)
             {
@@ -101,10 +93,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             result.TestResult = ConfigurationTestResult.Failed;
             try
             {
-                bool testResult = this.processorEnvironment.InvokeTestResource(
-                    this.unitResource.GetSettings(),
-                    this.unitResource.ResourceName,
-                    this.unitResource.Module);
+                bool testResult = this.TestSettingsInternal();
 
                 result.TestResult = testResult ? ConfigurationTestResult.Positive : ConfigurationTestResult.Negative;
             }
@@ -124,7 +113,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// <returns>A <see cref="IApplySettingsResult"/>.</returns>
         public IApplySettingsResult ApplySettings()
         {
-            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Apply` for resource: {this.unitResource.UnitInternal.QualifiedName}...");
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Apply` for resource: {this.unitInternal.QualifiedName}...");
 
             if (this.Unit.Intent == ConfigurationUnitIntent.Inform ||
                 this.Unit.Intent == ConfigurationUnitIntent.Assert)
@@ -137,10 +126,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             var result = new ApplySettingsResult(this.Unit);
             try
             {
-                result.RebootRequired = this.processorEnvironment.InvokeSetResource(
-                                            this.unitResource.GetSettings(),
-                                            this.unitResource.ResourceName,
-                                            this.unitResource.Module);
+                result.RebootRequired = this.ApplySettingsInternal();
             }
             catch (Exception e)
             {
@@ -150,6 +136,24 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"... done invoking `Apply`.");
             return result;
         }
+
+        /// <summary>
+        /// Gets the current settings.
+        /// </summary>
+        /// <returns>The current settings.</returns>
+        protected abstract ValueSet GetSettingsInternal();
+
+        /// <summary>
+        /// Tests the current settings.
+        /// </summary>
+        /// <returns>A boolean indicating whether the settings are in the desired state.</returns>
+        protected abstract bool TestSettingsInternal();
+
+        /// <summary>
+        /// Applies the desired settings.
+        /// </summary>
+        /// <returns>A boolean indicating whether a reboot is required.</returns>
+        protected abstract bool ApplySettingsInternal();
 
         private void ExtractExceptionInformation(Exception e, ConfigurationUnitResultInformation resultInformation)
         {

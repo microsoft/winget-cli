@@ -17,7 +17,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationEnvironmentData"/> class.
         /// </summary>
-        internal ConfigurationEnvironmentData() { }
+        internal ConfigurationEnvironmentData()
+        {
+        }
 
         /// <summary>
         /// Gets or sets the security context.

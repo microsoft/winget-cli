@@ -1,14 +1,15 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PowerShellHelpers.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.Helpers
+namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
 {
     using System.Collections;
+    using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.PowerShell.Commands;
-    using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
+    using static Microsoft.Management.Configuration.Processor.PowerShell.Constants.PowerShellConstants;
 
     /// <summary>
     /// General PowerShell helpers.

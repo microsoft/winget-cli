@@ -1,15 +1,16 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="DscResourcesMap.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.Helpers
+namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
+    using Microsoft.Management.Configuration.Processor.Helpers;
+    using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
 
     /// <summary>
     /// DscResources in the system. Get-DscResource looks the entire PSModulePath to find resources every time, so

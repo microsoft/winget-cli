@@ -10,8 +10,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using System.Collections.Generic;
     using System.Linq;
     using System.Management.Automation;
-    using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Helpers;
+    using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
     using Microsoft.Management.Configuration.Processor.Unit;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
@@ -75,7 +76,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             if (!hasDscInfo && !hasPSModuleInfo && !hasGetModuleInfo)
             {
                 Assert.Throws<ArgumentException>(
-                    () => new ConfigurationUnitProcessorDetails("unitName", null, null, null, certsInput));
+                    () => Factory.CreateUnitProcessorDetails("unitName", null, null, null, certsInput));
             }
             else
             {
@@ -100,7 +101,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                     getModuleInfo = this.CreateGetModuleInfo();
                 }
 
-                var details = new ConfigurationUnitProcessorDetails(unit.Type, dscResourceInfoInput, psModuleInfoInput, getModuleInfo, certsInput);
+                var details = Factory.CreateUnitProcessorDetails(unit.Type, dscResourceInfoInput, psModuleInfoInput, getModuleInfo, certsInput);
 
                 Assert.Equal(unit.Type, details.UnitType);
 
@@ -191,7 +192,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // This is easier than trying to mock sealed class from external code...
             var testEnv = this.fixture.PrepareTestProcessorEnvironment(true);
 
-            var dscResourceInfo = testEnv.GetDscResource(new ConfigurationUnitInternal(unit, string.Empty));
+            var dscResourceInfo = testEnv.GetDscResource(new ConfigurationUnitAndModule(unit, string.Empty));
             var psModuleInfo = testEnv.GetAvailableModule(PowerShellHelpers.CreateModuleSpecification("xSimpleTestResource", "0.0.0.1"));
 
             if (dscResourceInfo is null || psModuleInfo is null)

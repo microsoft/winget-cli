@@ -1,16 +1,16 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ProcessorEnvironmentFactory.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
+namespace Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments
 {
     using System;
     using System.Collections.Generic;
     using System.Management.Automation.Runspaces;
-    using Microsoft.Management.Configuration.Processor.DscModule;
-    using Microsoft.Management.Configuration.Processor.Runspaces;
+    using Microsoft.Management.Configuration.Processor.PowerShell.DscModules;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Runspaces;
     using Microsoft.PowerShell;
     using Microsoft.PowerShell.Commands;
 

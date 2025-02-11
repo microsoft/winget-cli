@@ -12,7 +12,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Moq;
     using Xunit;
     using Xunit.Abstractions;
-    using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
+    using static Microsoft.Management.Configuration.Processor.PowerShell.Constants.PowerShellConstants;
 
     /// <summary>
     /// HostedEnvironment tests, that is more ProcessorEnvironmentBase tests for non forwarding functions.

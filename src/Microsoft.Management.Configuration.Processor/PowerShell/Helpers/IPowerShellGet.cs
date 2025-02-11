@@ -1,13 +1,14 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="IPowerShellGet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.Helpers
+namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
 {
     using System.Management.Automation;
     using Microsoft.PowerShell.Commands;
+    using SemanticVersion = Microsoft.Management.Configuration.Processor.Helpers.SemanticVersion;
 
     /// <summary>
     /// Interface for PowerShellGet cmdlets.

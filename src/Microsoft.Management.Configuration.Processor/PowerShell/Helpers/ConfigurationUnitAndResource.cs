@@ -1,15 +1,15 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigurationUnitAndResource.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.Helpers
+namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
 {
     using System;
-    using System.Collections.Generic;
     using Microsoft.Management.Configuration;
-    using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
+    using Microsoft.Management.Configuration.Processor.Helpers;
+    using Microsoft.Management.Configuration.Processor.PowerShell.DscResourcesInfo;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
 
@@ -26,7 +26,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// <param name="configurationUnitInternal">Configuration unit internal.</param>
         /// <param name="dscResourceInfoInternal">DscResourceInfoInternal.</param>
         public ConfigurationUnitAndResource(
-            ConfigurationUnitInternal configurationUnitInternal,
+            ConfigurationUnitAndModule configurationUnitInternal,
             DscResourceInfoInternal dscResourceInfoInternal)
         {
             if (!configurationUnitInternal.ResourceName.Equals(dscResourceInfoInternal.Name, StringComparison.OrdinalIgnoreCase))
@@ -41,7 +41,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// <summary>
         /// Gets or initializes the internal unit.
         /// </summary>
-        public ConfigurationUnitInternal UnitInternal { get; private init; }
+        public ConfigurationUnitAndModule UnitInternal { get; private init; }
 
         /// <summary>
         /// Gets the configuration unit.

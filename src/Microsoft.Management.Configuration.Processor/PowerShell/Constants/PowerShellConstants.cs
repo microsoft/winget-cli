@@ -1,10 +1,10 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PowerShellConstants.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.Constants
+namespace Microsoft.Management.Configuration.Processor.PowerShell.Constants
 {
     /// <summary>
     /// Constants related to PowerShell.
