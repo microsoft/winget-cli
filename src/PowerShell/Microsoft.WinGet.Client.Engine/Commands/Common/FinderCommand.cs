@@ -150,7 +150,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             }
             else
             {
-                throw new CatalogConnectException();
+                throw new CatalogConnectException(result.ExtendedErrorCode);
             }
         }
 
