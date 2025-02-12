@@ -1329,6 +1329,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
             ::AppInstaller::Repository::Source sourceToAdd = CreateSourceFromOptions(options);
 
+            auto strong_this = get_strong();
             auto report_progress{ co_await winrt::get_progress_token() };
             co_await winrt::resume_background();
 
@@ -1367,6 +1368,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto matchingSource = GetMatchingSource(winrt::to_string(options.Name()));
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, !matchingSource.has_value());
 
+            auto strong_this = get_strong();
             auto report_progress{ co_await winrt::get_progress_token() };
             co_await winrt::resume_background();
 
