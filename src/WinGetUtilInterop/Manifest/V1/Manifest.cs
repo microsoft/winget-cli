@@ -336,6 +336,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         public string RepairBehavior { get; set; }
 
         /// <summary>
+        /// Gets or sets the default installer authentication info.
+        /// </summary>
+        public InstallerAuthentication Authentication { get; set; }
+
+        /// <summary>
         /// Gets or sets collection of ManifestInstaller. At least one is required.
         /// </summary>
         public List<ManifestInstaller> Installers { get; set; }
