@@ -36,6 +36,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             V160,
             V170,
             V190,
+            V1100,
         }
 
         /// <summary>
@@ -69,6 +70,11 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V190ManifestMerged));
 
             this.ValidateManifestFields(v190manifest, TestManifestVersion.V190);
+
+            Manifest v1100manifest = Manifest.CreateManifestFromPath(
+                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V1100ManifestMerged));
+
+            this.ValidateManifestFields(v1100manifest, TestManifestVersion.V1100);
         }
 
         /// <summary>
@@ -279,6 +285,13 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Assert.True(manifest.ArchiveBinariesDependOnPath);
             }
 
+            if (manifestVersion >= TestManifestVersion.V1100)
+            {
+                Assert.Equal("microsoftEntraId", manifest.Authentication.AuthenticationType);
+                Assert.Equal("DefaultResource", manifest.Authentication.MicrosoftEntraIdAuthenticationInfo.Resource);
+                Assert.Equal("DefaultScope", manifest.Authentication.MicrosoftEntraIdAuthenticationInfo.Scope);
+            }
+
             // Individual installers
             Assert.Equal(2, manifest.Installers.Count);
             ManifestInstaller installer1 = manifest.Installers[0];
@@ -391,6 +404,13 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Assert.Equal("fakeIdentifier", installer2.ProductId);
             }
 
+            if (manifestVersion >= TestManifestVersion.V1100)
+            {
+                Assert.Equal("microsoftEntraId", installer1.Authentication.AuthenticationType);
+                Assert.Equal("DefaultResource", installer1.Authentication.MicrosoftEntraIdAuthenticationInfo.Resource);
+                Assert.Equal("DefaultScope", installer1.Authentication.MicrosoftEntraIdAuthenticationInfo.Scope);
+            }
+
             // Additional Localizations
             Assert.Single(manifest.Localization);
             ManifestLocalization localization1 = manifest.Localization[0];
@@ -473,6 +493,11 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             /// Merged v1.9 manifest.
             /// </summary>
             public const string V190ManifestMerged = "V1_9ManifestMerged.yaml";
+
+            /// <summary>
+            /// Merged v1.10 manifest.
+            /// </summary>
+            public const string V1100ManifestMerged = "V1_10ManifestMerged.yaml";
 
             /// <summary>
             /// Merged v1 manifest without localization.
