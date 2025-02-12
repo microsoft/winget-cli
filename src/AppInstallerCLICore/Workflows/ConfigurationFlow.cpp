@@ -104,19 +104,29 @@ namespace AppInstaller::CLI::Workflow
             }
 #endif
 
+            // The configuration set must have already been opened to create the proper factory.
+            THROW_WIN32_IF(ERROR_INVALID_STATE, !context.Contains(Data::ConfigurationContext));
+            const auto& configurationContext = context.Get<Data::ConfigurationContext>();
+            THROW_WIN32_IF(ERROR_INVALID_STATE, !configurationContext.Set());
+
             IConfigurationSetProcessorFactory factory;
+            ConfigurationRemoting::ProcessorEngine processorEngine = ConfigurationRemoting::DetermineProcessorEngine(configurationContext.Set());
 
             // Since downgrading is not currently supported, only use dynamic if running limited.
             if (Runtime::IsRunningWithLimitedToken())
             {
-                factory = ConfigurationRemoting::CreateDynamicRuntimeFactory();
+                factory = ConfigurationRemoting::CreateDynamicRuntimeFactory(processorEngine);
             }
             else
             {
-                factory = ConfigurationRemoting::CreateOutOfProcessFactory();
+                factory = ConfigurationRemoting::CreateOutOfProcessFactory(processorEngine);
             }
 
-            Configuration::SetModulePath(context, factory);
+            if (processorEngine == ConfigurationRemoting::ProcessorEngine::PowerShell)
+            {
+                Configuration::SetModulePath(context, factory);
+            }
+
             return factory;
         }
 
@@ -136,10 +146,17 @@ namespace AppInstaller::CLI::Workflow
                     context.GetThreadGlobals().GetDiagnosticLogger().Write(Logging::Channel::Config, anon::ConvertLevel(diagnostics.Level()), Utility::ConvertToUTF8(diagnostics.Message()));
                 });
 
-            ConfigurationContext configurationContext;
-            configurationContext.Processor(std::move(processor));
+            if (context.Contains(Data::ConfigurationContext))
+            {
+                context.Get<Data::ConfigurationContext>().Processor(std::move(processor));
+            }
+            else
+            {
+                ConfigurationContext configurationContext;
+                configurationContext.Processor(std::move(processor));
 
-            context.Add<Data::ConfigurationContext>(std::move(configurationContext));
+                context.Add<Data::ConfigurationContext>(std::move(configurationContext));
+            }
         }
 
         winrt::hstring GetValueSetString(const ValueSet& valueSet, std::wstring_view value)

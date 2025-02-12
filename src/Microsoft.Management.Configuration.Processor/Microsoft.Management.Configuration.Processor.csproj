@@ -69,11 +69,6 @@
     </ProjectReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="PowerShell\Unit\" />
-    <Folder Include="PowerShell\Set\" />
-  </ItemGroup>
-  
   <PropertyGroup Condition="'$(WinGetCsWinRTEmbedded)'=='true'">
     <DefineConstants>$(DefineConstants);WinGetCsWinRTEmbedded</DefineConstants>
     <CsWinRTComponent>false</CsWinRTComponent>

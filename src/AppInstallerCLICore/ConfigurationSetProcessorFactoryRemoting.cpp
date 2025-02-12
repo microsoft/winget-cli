@@ -11,6 +11,7 @@
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Microsoft::Management::Configuration;
+using namespace std::string_view_literals;
 
 namespace AppInstaller::CLI::ConfigurationRemoting
 {
@@ -21,6 +22,19 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
         // The string used to divide the arguments sent to the remote server
         constexpr std::wstring_view s_ArgumentsDivider = L"\n~~~~~~\n";
+
+        std::wstring_view ToString(ProcessorEngine value)
+        {
+            switch (value)
+            {
+            case ProcessorEngine::PowerShell:
+                return L"pwsh"sv;
+            case ProcessorEngine::DSCv3:
+                return L"dscv3"sv;
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
 
         // A helper with a convenient function that we use to receive the remote factory object.
         struct RemoteFactoryCallback : winrt::implements<RemoteFactoryCallback, IConfigurationStatics>
@@ -121,7 +135,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         // Represents a remote factory object that was created from a specific process.
         struct RemoteFactory : winrt::implements<RemoteFactory, IConfigurationSetProcessorFactory, SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
         {
-            RemoteFactory(bool useRunAs, const std::string& properties, const std::string& restrictions)
+            RemoteFactory(ProcessorEngine processorEngine, bool useRunAs, const std::string& properties, const std::string& restrictions)
             {
                 AICLI_LOG(Config, Verbose, << "Launching process for configuration processing...");
 
@@ -162,7 +176,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 // ~~~~~~
                 // YAML configuration set definition
                 std::wostringstream argumentsStream;
-                argumentsStream << s_RemoteServerFileName << L' ' << marshalledCallback << L' ' << completionEventName << L' ' << GetCurrentProcessId();
+                argumentsStream << s_RemoteServerFileName << L' ' << marshalledCallback << L' ' << completionEventName << L' ' << GetCurrentProcessId() << L' ' << ToString(processorEngine);
 
                 if (!properties.empty() && !restrictions.empty())
                 {
@@ -298,9 +312,33 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         };
     }
 
-    IConfigurationSetProcessorFactory CreateOutOfProcessFactory(bool useRunAs, const std::string& properties, const std::string& restrictions)
+    IConfigurationSetProcessorFactory CreateOutOfProcessFactory(ProcessorEngine processorEngine, bool useRunAs, const std::string& properties, const std::string& restrictions)
     {
-        return winrt::make<RemoteFactory>(useRunAs, properties, restrictions);
+        return winrt::make<RemoteFactory>(processorEngine, useRunAs, properties, restrictions);
+    }
+
+    ProcessorEngine DetermineProcessorEngine(ConfigurationSet set)
+    {
+        Utility::Version schemaVersion{ Utility::ConvertToUTF8(set.SchemaVersion()) };
+
+        if (schemaVersion <= Utility::Version{ "0.3" })
+        {
+            // Default to PowerShell
+            ProcessorEngine result = ProcessorEngine::PowerShell;
+
+            winrt::hstring processorIdentifier = set.Environment().ProcessorIdentifier();
+            if (processorIdentifier == L"dscv3")
+            {
+                result = ProcessorEngine::DSCv3;
+            }
+
+            return result;
+        }
+        else
+        {
+            // Intentionally fail out here until a decision is made.
+            THROW_HR(E_NOTIMPL);
+        }
     }
 }
 

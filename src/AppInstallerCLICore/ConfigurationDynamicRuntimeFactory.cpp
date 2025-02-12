@@ -45,7 +45,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         //       In turn, any properties must only be set via the command line (or eventual UI requests to the user).
         struct DynamicFactory : winrt::implements<DynamicFactory, IConfigurationSetProcessorFactory, SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
         {
-            DynamicFactory();
+            DynamicFactory(ProcessorEngine processorEngine);
 
             IConfigurationSetProcessor CreateSetProcessor(const ConfigurationSet& configurationSet);
 
@@ -105,6 +105,11 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_customLocation = value;
             }
 
+            ProcessorEngine Engine() const
+            {
+                return m_processorEngine;
+            }
+
         private:
             IConfigurationSetProcessorFactory m_defaultRemoteFactory;
             winrt::event<EventHandler<IDiagnosticInformation>> m_diagnostics;
@@ -113,6 +118,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             DiagnosticLevel m_minimumLevel = DiagnosticLevel::Informational;
             SetProcessorFactory::PwshConfigurationProcessorLocation m_location = SetProcessorFactory::PwshConfigurationProcessorLocation::Default;
             winrt::hstring m_customLocation;
+            ProcessorEngine m_processorEngine;
         };
 
         struct DynamicProcessorInfo
@@ -337,7 +343,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     useRunAs = !m_enableTestMode;
 #endif
 
-                    factory = CreateOutOfProcessFactory(useRunAs, SerializeSetProperties(), SerializeHighIntegrityLevelSet());
+                    factory = CreateOutOfProcessFactory(m_dynamicFactory->Engine(), useRunAs, SerializeSetProperties(), SerializeHighIntegrityLevelSet());
                 }
                 else
                 {
@@ -373,9 +379,10 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 #endif
         };
 
-        DynamicFactory::DynamicFactory()
+        DynamicFactory::DynamicFactory(ProcessorEngine processorEngine)
         {
-            m_defaultRemoteFactory = CreateOutOfProcessFactory();
+            m_processorEngine = processorEngine;
+            m_defaultRemoteFactory = CreateOutOfProcessFactory(processorEngine);
 
             if (m_defaultRemoteFactory)
             {
@@ -437,8 +444,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         catch (...) {}
     }
 
-    winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory CreateDynamicRuntimeFactory()
+    winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory CreateDynamicRuntimeFactory(ProcessorEngine processorEngine)
     {
-        return winrt::make<anonymous::DynamicFactory>();
+        return winrt::make<anonymous::DynamicFactory>(processorEngine);
     }
 }

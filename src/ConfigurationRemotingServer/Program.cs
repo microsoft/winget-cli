@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using Microsoft.Management.Configuration;
 using Microsoft.Management.Configuration.Processor;
 using WinRT;
+using IConfigurationSetProcessorFactory = global::Microsoft.Management.Configuration.IConfigurationSetProcessorFactory;
 
 namespace ConfigurationRemotingServer
 {
@@ -82,19 +83,10 @@ namespace ConfigurationRemotingServer
             {
                 string completionEventName = args[2];
                 uint parentProcessId = uint.Parse(args[3]);
+                string processorEngine = args[4];
 
-                PowerShellConfigurationSetProcessorFactory factory = new PowerShellConfigurationSetProcessorFactory();
-
-                // Set default properties.
-                var externalModulesPath = GetExternalModulesPath();
-                if (string.IsNullOrWhiteSpace(externalModulesPath))
-                {
-                    throw new DirectoryNotFoundException("Failed to get ExternalModules.");
-                }
-
-                // Set as implicit module paths so it will be always included in AdditionalModulePaths
-                factory.ImplicitModulePaths = new List<string>() { externalModulesPath };
-                factory.ProcessorType = PowerShellConfigurationProcessorType.Hosted;
+                ConfigurationSet? limitationSet = null;
+                LimitationSetMetadata? limitationSetMetadata = null;
 
                 // Parse limitation set if applicable.
                 // The format will be:
@@ -124,7 +116,7 @@ namespace ConfigurationRemotingServer
                     memoryStream.Write(limitationSetBytes);
                     memoryStream.Flush();
                     memoryStream.Seek(0, SeekOrigin.Begin);
-                    ConfigurationProcessor processor = new ConfigurationProcessor(factory);
+                    ConfigurationProcessor processor = new ConfigurationProcessor((IConfigurationSetProcessorFactory?)null);
                     var limitationSetResult = processor.OpenConfigurationSet(memoryStream.AsInputStream());
                     memoryStream.Close();
 
@@ -133,41 +125,25 @@ namespace ConfigurationRemotingServer
                         throw limitationSetResult.ResultCode;
                     }
 
-                    var limitationSet = limitationSetResult.Set;
+                    limitationSet = limitationSetResult.Set;
                     if (limitationSet == null)
                     {
                         throw new ArgumentException("The limitation set cannot be parsed.");
                     }
 
                     // Now parse metadata json and update the limitation set
-                    var metadataJson = JsonSerializer.Deserialize<LimitationSetMetadata>(commandStr.Substring(
+                    limitationSetMetadata = JsonSerializer.Deserialize<LimitationSetMetadata>(commandStr.Substring(
                         firstSeparatorIndex + CommandLineSectionSeparator.Length,
                         secondSeparatorIndex - firstSeparatorIndex - CommandLineSectionSeparator.Length));
 
-                    if (metadataJson != null)
+                    if (limitationSetMetadata != null)
                     {
-                        limitationSet.Path = metadataJson.Path;
-
-                        if (metadataJson.ModulePath != null)
-                        {
-                            PowerShellConfigurationProcessorLocation parsedLocation = PowerShellConfigurationProcessorLocation.Default;
-                            if (Enum.TryParse<PowerShellConfigurationProcessorLocation>(metadataJson.ModulePath, out parsedLocation))
-                            {
-                                factory.Location = parsedLocation;
-                            }
-                            else
-                            {
-                                factory.Location = PowerShellConfigurationProcessorLocation.Custom;
-                                factory.CustomLocation = metadataJson.ModulePath;
-                            }
-                        }
+                        limitationSet.Path = limitationSetMetadata.Path;
                     }
-
-                    // Set the limitation set in factory.
-                    factory.LimitationSet = limitationSet;
                 }
 
-                IObjectReference factoryInterface = MarshalInterface<global::Microsoft.Management.Configuration.IConfigurationSetProcessorFactory>.CreateMarshaler(factory);
+                IConfigurationSetProcessorFactory factory = CreateFactory(processorEngine, limitationSet, limitationSetMetadata);
+                IObjectReference factoryInterface = MarshalInterface<IConfigurationSetProcessorFactory>.CreateMarshaler(factory);
 
                 return WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(0, factoryInterface.ThisPtr, staticsCallback, completionEventName, parentProcessId);
             }
@@ -185,6 +161,87 @@ namespace ConfigurationRemotingServer
 
             [JsonPropertyName("modulePath")]
             public string? ModulePath { get; set; } = null;
+        }
+
+        private static IConfigurationSetProcessorFactory CreateFactory(string processorEngine, ConfigurationSet? limitationSet, LimitationSetMetadata? limitationSetMetadata)
+        {
+            switch (processorEngine)
+            {
+                case "pwsh":
+                    return CreatePowerShellFactory(limitationSet, limitationSetMetadata);
+                case "dscv3":
+                    return CreateDSCv3Factory(limitationSet, limitationSetMetadata);
+            }
+
+            throw new NotImplementedException($"Processor engine unknown: {processorEngine}");
+        }
+
+        private static IConfigurationSetProcessorFactory CreatePowerShellFactory(ConfigurationSet? limitationSet, LimitationSetMetadata? limitationSetMetadata)
+        {
+            PowerShellConfigurationSetProcessorFactory factory = new PowerShellConfigurationSetProcessorFactory();
+
+            // Set default properties.
+            var externalModulesPath = GetExternalModulesPath();
+            if (string.IsNullOrWhiteSpace(externalModulesPath))
+            {
+                throw new DirectoryNotFoundException("Failed to get ExternalModules.");
+            }
+
+            // Set as implicit module paths so it will be always included in AdditionalModulePaths
+            factory.ImplicitModulePaths = new List<string>() { externalModulesPath };
+            factory.ProcessorType = PowerShellConfigurationProcessorType.Hosted;
+
+            if (limitationSetMetadata != null)
+            {
+                if (limitationSetMetadata.ModulePath != null)
+                {
+                    PowerShellConfigurationProcessorLocation parsedLocation = PowerShellConfigurationProcessorLocation.Default;
+                    if (Enum.TryParse(limitationSetMetadata.ModulePath, out parsedLocation))
+                    {
+                        factory.Location = parsedLocation;
+                    }
+                    else
+                    {
+                        factory.Location = PowerShellConfigurationProcessorLocation.Custom;
+                        factory.CustomLocation = limitationSetMetadata.ModulePath;
+                    }
+                }
+            }
+
+            // Apply limitation set and thereby disable changing properties.
+            if (limitationSet != null)
+            {
+                factory.LimitationSet = limitationSet;
+            }
+
+            return factory;
+        }
+
+        private static IConfigurationSetProcessorFactory CreateDSCv3Factory(ConfigurationSet? limitationSet, LimitationSetMetadata? limitationSetMetadata)
+        {
+            DSCv3ConfigurationSetProcessorFactory factory = new DSCv3ConfigurationSetProcessorFactory();
+
+            if (limitationSetMetadata != null)
+            {
+                if (limitationSetMetadata.ModulePath != null)
+                {
+                    factory.DscExecutablePath = limitationSetMetadata.ModulePath;
+                }
+                else
+                {
+                    // Require that the path to the DSC executable be presented to the user in limitation mode.
+                    // This helps prevent path attacks against an elevated process (as long as the user checks the value).
+                    throw new ArgumentNullException("The path to the DSC executable must be supplied in limitation mode.");
+                }
+            }
+
+            // Apply limitation set and thereby disable changing properties.
+            if (limitationSet != null)
+            {
+                factory.LimitationSet = limitationSet;
+            }
+
+            return factory;
         }
 
         private static string GetExternalModulesPath()

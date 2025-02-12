@@ -77,8 +77,9 @@ namespace AppInstaller::CLI
             context <<
                 VerifyIsFullPackage <<
                 VerifyFileOrUri(Execution::Args::Type::ConfigurationFile) <<
-                CreateConfigurationProcessor <<
+                CreateConfigurationProcessorWithoutFactory <<
                 OpenConfigurationSet <<
+                CreateConfigurationProcessor <<
                 ShowConfigurationSet <<
                 ShowConfigurationSetConflicts <<
                 ConfirmConfigurationProcessing(true) <<

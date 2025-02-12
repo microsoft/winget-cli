@@ -108,11 +108,19 @@ namespace ConfigurationShim
 
             if (lowerHandler == AppInstaller::Configuration::PowerShellHandlerIdentifier)
             {
-                result = AppInstaller::CLI::ConfigurationRemoting::CreateOutOfProcessFactory();
+                result = AppInstaller::CLI::ConfigurationRemoting::CreateOutOfProcessFactory(AppInstaller::CLI::ConfigurationRemoting::ProcessorEngine::PowerShell);
             }
             else if (lowerHandler == AppInstaller::Configuration::DynamicRuntimeHandlerIdentifier)
             {
-                result = AppInstaller::CLI::ConfigurationRemoting::CreateDynamicRuntimeFactory();
+                result = AppInstaller::CLI::ConfigurationRemoting::CreateDynamicRuntimeFactory(AppInstaller::CLI::ConfigurationRemoting::ProcessorEngine::PowerShell);
+            }
+            else if (lowerHandler == AppInstaller::Configuration::DSCv3HandlerIdentifier)
+            {
+                result = AppInstaller::CLI::ConfigurationRemoting::CreateOutOfProcessFactory(AppInstaller::CLI::ConfigurationRemoting::ProcessorEngine::DSCv3);
+            }
+            else if (lowerHandler == AppInstaller::Configuration::DSCv3DynamicRuntimeHandlerIdentifier)
+            {
+                result = AppInstaller::CLI::ConfigurationRemoting::CreateDynamicRuntimeFactory(AppInstaller::CLI::ConfigurationRemoting::ProcessorEngine::DSCv3);
             }
 
             if (result)
