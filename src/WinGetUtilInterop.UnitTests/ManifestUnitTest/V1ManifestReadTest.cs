@@ -407,8 +407,8 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             if (manifestVersion >= TestManifestVersion.V1100)
             {
                 Assert.Equal("microsoftEntraId", installer1.Authentication.AuthenticationType);
-                Assert.Equal("DefaultResource", installer1.Authentication.MicrosoftEntraIdAuthenticationInfo.Resource);
-                Assert.Equal("DefaultScope", installer1.Authentication.MicrosoftEntraIdAuthenticationInfo.Scope);
+                Assert.Equal("Resource", installer1.Authentication.MicrosoftEntraIdAuthenticationInfo.Resource);
+                Assert.Equal("Scope", installer1.Authentication.MicrosoftEntraIdAuthenticationInfo.Scope);
             }
 
             // Additional Localizations
