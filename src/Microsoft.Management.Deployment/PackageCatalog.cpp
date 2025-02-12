@@ -47,6 +47,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::FindPackagesResult> PackageCatalog::FindPackagesAsync(winrt::Microsoft::Management::Deployment::FindPackagesOptions options)
     {
+        auto strong_this = get_strong();
         co_await resume_background();
         co_return FindPackages(options);
     }

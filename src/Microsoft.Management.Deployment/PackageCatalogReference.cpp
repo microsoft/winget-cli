@@ -311,6 +311,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             // Check for permissions and get caller info for telemetry
             THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageQuery));
 
+            auto strong_this = get_strong();
             auto report_progress{ co_await winrt::get_progress_token() };
             co_await winrt::resume_background();
 
