@@ -31,12 +31,12 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
 
         private enum TestManifestVersion
         {
-            V100,
-            V110,
-            V160,
-            V170,
-            V190,
-            V1100,
+            V1_0_0,
+            V1_1_0,
+            V1_6_0,
+            V1_7_0,
+            V1_9_0,
+            V1_10_0,
         }
 
         /// <summary>
@@ -46,35 +46,35 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
         [DisplayTestMethodName]
         public void ReadV1ManifestsAndVerifyContents()
         {
-            Manifest v100manifest = Manifest.CreateManifestFromPath(
-                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V100ManifestMerged));
+            Manifest v1_0_0manifest = Manifest.CreateManifestFromPath(
+                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V1_0_0ManifestMerged));
 
-            this.ValidateManifestFields(v100manifest, TestManifestVersion.V100);
+            this.ValidateManifestFields(v1_0_0manifest, TestManifestVersion.V1_0_0);
 
-            Manifest v110manifest = Manifest.CreateManifestFromPath(
-                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V110ManifestMerged));
+            Manifest v1_1_0manifest = Manifest.CreateManifestFromPath(
+                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V1_1_0ManifestMerged));
 
-            this.ValidateManifestFields(v110manifest, TestManifestVersion.V110);
+            this.ValidateManifestFields(v1_1_0manifest, TestManifestVersion.V1_1_0);
 
-            Manifest v160manifest = Manifest.CreateManifestFromPath(
-                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V160ManifestMerged));
+            Manifest v1_6_0manifest = Manifest.CreateManifestFromPath(
+                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V1_6_0ManifestMerged));
 
-            this.ValidateManifestFields(v160manifest, TestManifestVersion.V160);
+            this.ValidateManifestFields(v1_6_0manifest, TestManifestVersion.V1_6_0);
 
-            Manifest v170manifest = Manifest.CreateManifestFromPath(
-                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V170ManifestMerged));
+            Manifest v1_7_0manifest = Manifest.CreateManifestFromPath(
+                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V1_7_0ManifestMerged));
 
-            this.ValidateManifestFields(v170manifest, TestManifestVersion.V170);
+            this.ValidateManifestFields(v1_7_0manifest, TestManifestVersion.V1_7_0);
 
-            Manifest v190manifest = Manifest.CreateManifestFromPath(
-                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V190ManifestMerged));
+            Manifest v1_9_0manifest = Manifest.CreateManifestFromPath(
+                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V1_9_0ManifestMerged));
 
-            this.ValidateManifestFields(v190manifest, TestManifestVersion.V190);
+            this.ValidateManifestFields(v1_9_0manifest, TestManifestVersion.V1_9_0);
 
-            Manifest v1100manifest = Manifest.CreateManifestFromPath(
-                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V1100ManifestMerged));
+            Manifest v1_10_0manifest = Manifest.CreateManifestFromPath(
+                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V1_10_0ManifestMerged));
 
-            this.ValidateManifestFields(v1100manifest, TestManifestVersion.V1100);
+            this.ValidateManifestFields(v1_10_0manifest, TestManifestVersion.V1_10_0);
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             Assert.Equal("appxsdk", manifest.Tags[0]);
             Assert.Equal("msixsdk", manifest.Tags[1]);
 
-            if (manifestVersion >= TestManifestVersion.V110)
+            if (manifestVersion >= TestManifestVersion.V1_1_0)
             {
                 Assert.Equal("Default release notes", manifest.ReleaseNotes);
                 Assert.Equal("https://DefaultReleaseNotes.net", manifest.ReleaseNotesUrl);
@@ -144,7 +144,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Assert.Equal("https://DefaultAgreementUrl.net", manifest.Agreements[0].AgreementUrl);
             }
 
-            if (manifestVersion >= TestManifestVersion.V160)
+            if (manifestVersion >= TestManifestVersion.V1_6_0)
             {
                 Assert.Equal("Default installation notes", manifest.InstallationNotes);
                 Assert.Equal("https://DefaultPurchaseUrl.com", manifest.PurchaseUrl);
@@ -221,7 +221,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             Assert.Equal("Microsoft.DesktopAppInstaller_8wekyb3d8bbwe", manifest.PackageFamilyName);
             Assert.Equal("{Foo}", manifest.ProductCode);
 
-            if (manifestVersion >= TestManifestVersion.V110)
+            if (manifestVersion >= TestManifestVersion.V1_1_0)
             {
                 Assert.Equal("2021-01-01", manifest.ReleaseDate);
                 Assert.True(manifest.InstallerAbortsTerminal);
@@ -244,7 +244,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Assert.Equal("contactSupport", manifest.ExpectedReturnCodes[0].ReturnResponse);
             }
 
-            if (manifestVersion >= TestManifestVersion.V160)
+            if (manifestVersion >= TestManifestVersion.V1_6_0)
             {
                 Assert.Equal("msi", manifest.NestedInstallerType);
                 Assert.Single(manifest.NestedInstallerFiles);
@@ -274,18 +274,18 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Assert.Equal("https://defaultReturnResponseUrl.com", manifest.ExpectedReturnCodes[0].ReturnResponseUrl);
             }
 
-            if (manifestVersion >= TestManifestVersion.V170)
+            if (manifestVersion >= TestManifestVersion.V1_7_0)
             {
                 Assert.Equal("/repair", defaultSwitches.Repair);
                 Assert.Equal("uninstaller", manifest.RepairBehavior);
             }
 
-            if (manifestVersion >= TestManifestVersion.V190)
+            if (manifestVersion >= TestManifestVersion.V1_9_0)
             {
                 Assert.True(manifest.ArchiveBinariesDependOnPath);
             }
 
-            if (manifestVersion >= TestManifestVersion.V1100)
+            if (manifestVersion >= TestManifestVersion.V1_10_0)
             {
                 Assert.Equal("microsoftEntraId", manifest.Authentication.AuthenticationType);
                 Assert.Equal("DefaultResource", manifest.Authentication.MicrosoftEntraIdAuthenticationInfo.Resource);
@@ -345,7 +345,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             Assert.Equal("runFullTrustPreview", installer1.RestrictedCapabilities[0]);
             Assert.Equal("Microsoft.DesktopAppInstallerPreview_8wekyb3d8bbwe", installer1.PackageFamilyName);
 
-            if (manifestVersion >= TestManifestVersion.V110)
+            if (manifestVersion >= TestManifestVersion.V1_1_0)
             {
                 Assert.Equal("2021-02-02", installer1.ReleaseDate);
                 Assert.True(!installer1.InstallerAbortsTerminal);
@@ -368,7 +368,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             Assert.Equal("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82", installer2.Sha256);
             Assert.Equal("{Bar}", installer2.ProductCode);
 
-            if (manifestVersion >= TestManifestVersion.V160)
+            if (manifestVersion >= TestManifestVersion.V1_6_0)
             {
                 Assert.Single(installer1.InstallationMetadata.Files);
                 ManifestInstallerFile installerFile2 = installer1.InstallationMetadata.Files[0];
@@ -392,19 +392,19 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Assert.Equal("https://returnResponseUrl.com", installer1.ExpectedReturnCodes[0].ReturnResponseUrl);
             }
 
-            if (manifestVersion >= TestManifestVersion.V170)
+            if (manifestVersion >= TestManifestVersion.V1_7_0)
             {
                 Assert.Equal("/r", installer1Switches.Repair);
                 Assert.Equal("modify", installer1.RepairBehavior);
             }
 
-            if (manifestVersion >= TestManifestVersion.V190)
+            if (manifestVersion >= TestManifestVersion.V1_9_0)
             {
                 Assert.False(installer1.ArchiveBinariesDependOnPath);
                 Assert.Equal("fakeIdentifier", installer2.ProductId);
             }
 
-            if (manifestVersion >= TestManifestVersion.V1100)
+            if (manifestVersion >= TestManifestVersion.V1_10_0)
             {
                 Assert.Equal("microsoftEntraId", installer1.Authentication.AuthenticationType);
                 Assert.Equal("Resource", installer1.Authentication.MicrosoftEntraIdAuthenticationInfo.Resource);
@@ -432,7 +432,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             Assert.Equal("appxsdkUK", localization1.Tags[0]);
             Assert.Equal("msixsdkUK", localization1.Tags[1]);
 
-            if (manifestVersion >= TestManifestVersion.V110)
+            if (manifestVersion >= TestManifestVersion.V1_1_0)
             {
                 Assert.Equal("Release notes", localization1.ReleaseNotes);
                 Assert.Equal("https://ReleaseNotes.net", localization1.ReleaseNotesUrl);
@@ -442,7 +442,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Assert.Equal("https://AgreementUrl.net", localization1.Agreements[0].AgreementUrl);
             }
 
-            if (manifestVersion >= TestManifestVersion.V160)
+            if (manifestVersion >= TestManifestVersion.V1_6_0)
             {
                 Assert.Equal("Installation notes", localization1.InstallationNotes);
                 Assert.Equal("https://PurchaseUrl.com", localization1.PurchaseUrl);
@@ -472,32 +472,32 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             /// <summary>
             /// Merged v1 manifest.
             /// </summary>
-            public const string V100ManifestMerged = "V1ManifestMerged.yaml";
+            public const string V1_0_0ManifestMerged = "V1ManifestMerged.yaml";
 
             /// <summary>
             /// Merged v1.1 manifest.
             /// </summary>
-            public const string V110ManifestMerged = "V1_1ManifestMerged.yaml";
+            public const string V1_1_0ManifestMerged = "V1_1ManifestMerged.yaml";
 
             /// <summary>
             /// Merged v1.6 manifest.
             /// </summary>
-            public const string V160ManifestMerged = "V1_6ManifestMerged.yaml";
+            public const string V1_6_0ManifestMerged = "V1_6ManifestMerged.yaml";
 
             /// <summary>
             /// Merged v1.7 manifest.
             /// </summary>
-            public const string V170ManifestMerged = "V1_7ManifestMerged.yaml";
+            public const string V1_7_0ManifestMerged = "V1_7ManifestMerged.yaml";
 
             /// <summary>
             /// Merged v1.9 manifest.
             /// </summary>
-            public const string V190ManifestMerged = "V1_9ManifestMerged.yaml";
+            public const string V1_9_0ManifestMerged = "V1_9ManifestMerged.yaml";
 
             /// <summary>
             /// Merged v1.10 manifest.
             /// </summary>
-            public const string V1100ManifestMerged = "V1_10ManifestMerged.yaml";
+            public const string V1_10_0ManifestMerged = "V1_10ManifestMerged.yaml";
 
             /// <summary>
             /// Merged v1 manifest without localization.
