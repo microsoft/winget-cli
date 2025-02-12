@@ -319,6 +319,7 @@
     <ClCompile Include="RestClient.cpp" />
     <ClCompile Include="RestInterface_1_0.cpp" />
     <ClCompile Include="RestInterface_1_1.cpp" />
+    <ClCompile Include="RestInterface_1_10.cpp" />
     <ClCompile Include="RestInterface_1_4.cpp" />
     <ClCompile Include="RestInterface_1_5.cpp" />
     <ClCompile Include="RestInterface_1_6.cpp" />
