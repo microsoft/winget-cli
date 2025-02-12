@@ -217,6 +217,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         public string RepairBehavior { get; set; }
 
         /// <summary>
+        /// Gets or sets the installer authentication info.
+        /// </summary>
+        public InstallerAuthentication Authentication { get; set; }
+
+        /// <summary>
         /// Returns a List of strings containing the URIs contained within this installer.
         /// </summary>
         /// <returns>List of strings.</returns>

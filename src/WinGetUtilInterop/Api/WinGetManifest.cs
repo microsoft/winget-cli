@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="WinGetManifest.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -25,7 +25,6 @@ namespace Microsoft.WinGetUtil.Api
         /// Initializes a new instance of the <see cref="WinGetManifest"/> class.
         /// </summary>
         /// <param name="manifestHandle">Handle of the manifest.</param>
-        /// <param name="loggingContext">Logging Context.</param>
         internal WinGetManifest(IntPtr manifestHandle)
         {
             this.manifestHandle = manifestHandle;

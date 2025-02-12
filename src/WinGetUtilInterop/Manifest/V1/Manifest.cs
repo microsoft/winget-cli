@@ -229,7 +229,6 @@ namespace Microsoft.WinGetUtil.Models.V1
         public string ProductCode { get; set; }
 
         /// <summary>
-        /// <summary>
         /// Gets or sets the default list of capabilities. For msix only.
         /// </summary>
         public List<string> Capabilities { get; set; }
@@ -334,6 +333,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// Gets or sets the default repair behavior.
         /// </summary>
         public string RepairBehavior { get; set; }
+
+        /// <summary>
+        /// Gets or sets the default installer authentication info.
+        /// </summary>
+        public InstallerAuthentication Authentication { get; set; }
 
         /// <summary>
         /// Gets or sets collection of ManifestInstaller. At least one is required.
