@@ -229,7 +229,6 @@ namespace Microsoft.WinGetUtil.Models.V1
         public string ProductCode { get; set; }
 
         /// <summary>
-        /// <summary>
         /// Gets or sets the default list of capabilities. For msix only.
         /// </summary>
         public List<string> Capabilities { get; set; }

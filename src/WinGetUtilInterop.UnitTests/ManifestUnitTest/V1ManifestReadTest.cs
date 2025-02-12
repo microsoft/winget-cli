@@ -469,6 +469,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
         /// </summary>
         internal class ManifestStrings
         {
+#pragma warning disable SA1310 // FieldNamesMustNotContainUnderscore
             /// <summary>
             /// Merged v1 manifest.
             /// </summary>
@@ -498,6 +499,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             /// Merged v1.10 manifest.
             /// </summary>
             public const string V1_10_0ManifestMerged = "V1_10ManifestMerged.yaml";
+#pragma warning restore SA1310 // FieldNamesMustNotContainUnderscore
 
             /// <summary>
             /// Merged v1 manifest without localization.
