@@ -621,6 +621,7 @@ extends:
           displayName: Publish PowerShell Module Artifacts
           inputs:
             targetPath: '$(Build.ArtifactStagingDirectory)'
+            artifact: 'BuildPowerShellModule'
           condition: succeededOrFailed()
 
       - job: 'Fuzzing'
@@ -665,6 +666,7 @@ extends:
           displayName: Publish Fuzzing Artifacts
           inputs:
             targetPath: '$(artifactsDir)'
+            artifact: 'Fuzzing.$(buildPlatform)'
 
         - task: onefuzz-task@0
           inputs:
