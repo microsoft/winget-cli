@@ -31,7 +31,7 @@ resources:
     ref: refs/tags/release
 
 extends:
-  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  template: v1/1ES.Unofficial.PipelineTemplate.yml@1ESPipelineTemplates
   parameters:
     pool:
       name: Azure-Pipelines-1ESPT-ExDShared
@@ -274,7 +274,7 @@ extends:
             TargetFolder: '$(artifactsDir)\E2ETests\LocalhostWebServer'
 
           # Invoke E2E setup to generate the TestLocalIndex; could optimize out some of its steps if needed
-        - template: templates/e2e-setup.yml
+        - template: templates/e2e-setup.yml@self
           parameters:
             sourceDir: $(Build.SourcesDirectory)
             localhostWebServerArgs: '-BuildRoot $(artifactsDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -TestDataPath $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData -ExitBeforeRun'
@@ -437,24 +437,24 @@ extends:
             Contents: Microsoft.Management.Deployment.winmd
           condition: succeededOrFailed()
 
-        - template: templates/e2e-setup.yml
+        - template: templates/e2e-setup.yml@self
           parameters:
             sourceDir: $(Build.SourcesDirectory)
             localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -SourceCert $(buildOutDir)\E2ETests\TestSigningCert.cer'
 
-        - template: templates/e2e-test.template.yml
+        - template: templates/e2e-test.template.yml@self
           parameters:
             title: "E2E Tests Packaged"
             isPackaged: true
             filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
 
-        - template: templates/e2e-test.template.yml
+        - template: templates/e2e-test.template.yml@self
           parameters:
             title: "Microsoft.Management.Deployment E2E Tests (In-process)"
             isPackaged: false
             filter: "TestCategory=InProcess"
 
-        - template: templates/e2e-test.template.yml
+        - template: templates/e2e-test.template.yml@self
           parameters:
             title: "Microsoft.Management.Deployment E2E Tests (Out-of-process)"
             isPackaged: true
@@ -583,7 +583,7 @@ extends:
               Get-ChildItem AppxPackages\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\x64 -Filter *.appx | %{ Add-AppxPackage $_.FullName }
             workingDirectory: $(buildOutDir)
 
-        - template: templates/e2e-setup.yml
+        - template: templates/e2e-setup.yml@self
           parameters:
             sourceDir: $(Build.SourcesDirectory)
             localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -SourceCert $(buildOutDir)\E2ETests\TestSigningCert.cer'
