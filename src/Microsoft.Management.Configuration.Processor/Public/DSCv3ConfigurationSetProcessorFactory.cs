@@ -6,17 +6,18 @@
 
 namespace Microsoft.Management.Configuration.Processor
 {
+    using System;
     using Microsoft.Management.Configuration;
+    using Microsoft.Management.Configuration.Processor.DSCv3.Helpers;
     using Microsoft.Management.Configuration.Processor.DSCv3.Set;
     using Microsoft.Management.Configuration.Processor.Factory;
-    using System;
 
     /// <summary>
     /// IConfigurationSetProcessorFactory implementation using DSC v3.
     /// </summary>
     internal sealed partial class DSCv3ConfigurationSetProcessorFactory : ConfigurationSetProcessorFactoryBase, IConfigurationSetProcessorFactory
     {
-        private string? dscExecutablePath = null;
+        private ProcessorSettings processorSettings = new ();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DSCv3ConfigurationSetProcessorFactory"/> class.
@@ -32,7 +33,7 @@ namespace Microsoft.Management.Configuration.Processor
         {
             get
             {
-                return this.dscExecutablePath;
+                return this.processorSettings.DscExecutablePath;
             }
 
             set
@@ -42,14 +43,16 @@ namespace Microsoft.Management.Configuration.Processor
                     throw new InvalidOperationException("Setting DscExecutablePath in limit mode is invalid.");
                 }
 
-                this.dscExecutablePath = value;
+                this.processorSettings.DscExecutablePath = value;
             }
         }
 
         /// <inheritdoc />
         protected override IConfigurationSetProcessor CreateSetProcessorInternal(ConfigurationSet? set, bool isLimitMode)
         {
-            return new DSCv3ConfigurationSetProcessor(set, isLimitMode);
+            ProcessorSettings processorSettingsCopy = this.processorSettings.Clone();
+            this.OnDiagnostics(DiagnosticLevel.Verbose, "Creating set processor with settings:\n" + processorSettingsCopy.ToString());
+            return new DSCv3ConfigurationSetProcessor(processorSettingsCopy, set, isLimitMode);
         }
     }
 }

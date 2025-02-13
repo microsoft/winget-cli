@@ -223,6 +223,8 @@ namespace ConfigurationRemotingServer
 
             if (limitationSetMetadata != null)
             {
+                // TODO: ModulePath will probably become the string to use for finding resources (much like with PowerShell).
+                //       Add a new property for the DSC executable path, but still make it required.
                 if (limitationSetMetadata.ModulePath != null)
                 {
                     factory.DscExecutablePath = limitationSetMetadata.ModulePath;

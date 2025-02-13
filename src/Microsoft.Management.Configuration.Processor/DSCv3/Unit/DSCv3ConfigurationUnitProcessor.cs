@@ -4,12 +4,11 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.PowerShell.Unit
+namespace Microsoft.Management.Configuration.Processor.DSCv3.Unit
 {
     using Microsoft.Management.Configuration;
+    using Microsoft.Management.Configuration.Processor.DSCv3.Helpers;
     using Microsoft.Management.Configuration.Processor.Helpers;
-    using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
-    using Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Unit;
     using Windows.Foundation.Collections;
 
@@ -18,14 +17,18 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Unit
     /// </summary>
     internal sealed partial class DSCv3ConfigurationUnitProcessor : ConfigurationUnitProcessorBase, IConfigurationUnitProcessor
     {
+        private readonly ProcessorSettings processorSettings;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DSCv3ConfigurationUnitProcessor"/> class.
         /// </summary>
+        /// <param name="processorSettings">The processor settings to use.</param>
         /// <param name="unitInternal">Internal unit.</param>
         /// <param name="isLimitMode">Whether it is under limit mode.</param>
-        internal DSCv3ConfigurationUnitProcessor(ConfigurationUnitInternal unitInternal, bool isLimitMode = false)
+        internal DSCv3ConfigurationUnitProcessor(ProcessorSettings processorSettings, ConfigurationUnitInternal unitInternal, bool isLimitMode = false)
             : base(unitInternal, isLimitMode)
         {
+            this.processorSettings = processorSettings;
         }
 
         /// <inheritdoc />

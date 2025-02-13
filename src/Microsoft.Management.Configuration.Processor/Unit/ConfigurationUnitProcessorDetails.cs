@@ -13,7 +13,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     /// <summary>
     /// Provides information for a specific configuration unit within the runtime.
     /// </summary>
-    internal sealed partial class ConfigurationUnitProcessorDetails : IConfigurationUnitProcessorDetails
+    internal sealed partial class ConfigurationUnitProcessorDetails : IConfigurationUnitProcessorDetails, IConfigurationUnitProcessorDetails2
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationUnitProcessorDetails"/> class.
@@ -111,5 +111,10 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// Gets or sets a value indicating whether the module comes from a public repository.
         /// </summary>
         public bool IsPublic { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this resource is a group.
+        /// </summary>
+        public bool IsGroup { get; internal set; }
     }
 }
