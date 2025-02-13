@@ -38,6 +38,10 @@ extends:
       image: windows-2022
       os: windows
 
+    sdl:
+      git:
+        submodules: true
+
     stages:
     - stage:
       jobs:
