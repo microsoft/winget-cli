@@ -39,8 +39,7 @@ extends:
       os: windows
 
     sdl:
-      git:
-        submodules: true
+      enableAllTools: false
 
     stages:
     - stage:
