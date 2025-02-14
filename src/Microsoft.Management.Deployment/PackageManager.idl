@@ -467,6 +467,10 @@ namespace Microsoft.Management.Deployment
         MSStore,
         /// Portable type.
         Portable,
+        /// AdvancedInstaller exe type.
+        AdvinstExe,
+        /// AdvancedInstaller msi type.
+        AdvinstMsi,
     };
 
     /// The package installer scope.
