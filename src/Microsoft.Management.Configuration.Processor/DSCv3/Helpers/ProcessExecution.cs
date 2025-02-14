@@ -94,7 +94,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
         /// Gets the current set of output lines.
         /// Not thread safe, use OutputLineReceived for async flows.
         /// </summary>
-        public IEnumerable<string> Output
+        public IReadOnlyCollection<string> Output
         {
             get { return this.outputLines; }
         }
@@ -103,7 +103,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
         /// Gets the current set of error lines.
         /// Not thread safe, use ErrorLineReceived for async flows.
         /// </summary>
-        public IEnumerable<string> Error
+        public IReadOnlyCollection<string> Error
         {
             get { return this.errorLines; }
         }
@@ -135,10 +135,9 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
             this.Process = new Process() { StartInfo = startInfo };
 
             startInfo.UseShellExecute = false;
-            startInfo.StandardInputEncoding = Encoding.UTF8;
-            startInfo.StandardOutputEncoding = Encoding.UTF8;
-            startInfo.StandardErrorEncoding = Encoding.UTF8;
+            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
 
+            startInfo.StandardOutputEncoding = Encoding.UTF8;
             startInfo.RedirectStandardOutput = true;
             this.Process.OutputDataReceived += (sender, args) =>
             {
@@ -152,6 +151,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
                 }
             };
 
+            startInfo.StandardErrorEncoding = Encoding.UTF8;
             startInfo.RedirectStandardError = true;
             this.Process.ErrorDataReceived += (sender, args) =>
             {
@@ -167,6 +167,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
 
             if (this.Input != null)
             {
+                startInfo.StandardInputEncoding = Encoding.UTF8;
                 startInfo.RedirectStandardInput = true;
             }
 

@@ -6,6 +6,10 @@
 
 namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
 {
+    using System;
+    using System.Linq;
+    using System.Text.Json;
+    using System.Text.Json.Serialization;
     using Microsoft.Management.Configuration.Processor.DSCv3.Helpers;
     using Microsoft.Management.Configuration.Processor.DSCv3.Model;
     using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
@@ -37,9 +41,52 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
                 Arguments = new[] { resourceType },
             };
 
+            RunSynchronously(processExecution);
+
+            return GetOptionalSingleOutputLineAs<ResourceListItem>(processExecution);
+        }
+
+        private static void RunSynchronously(ProcessExecution processExecution)
+        {
             processExecution.Start().WaitForExit();
 
-            return JsonHandling.GetSingleOuputLineAs<ResourceListItem>(processExecution);
+            if (processExecution.ExitCode != 0)
+            {
+                // TODO: Improve error handling. This applies to this entire file. It likely means completely owning all exceptions that leave this class.
+                throw new Exception($"DSC process exited with code `{processExecution.ExitCode}` [{processExecution.CommandLine}]");
+            }
+        }
+
+        private static void ThrowOnMultipleOutputLines(ProcessExecution processExecution)
+        {
+            if (processExecution.Output.Count > 1)
+            {
+                throw new Exception($"DSC process produced {processExecution.Output.Count} lines [{processExecution.CommandLine}]");
+            }
+        }
+
+        private static T? GetOptionalSingleOutputLineAs<T>(ProcessExecution processExecution)
+        {
+            ThrowOnMultipleOutputLines(processExecution);
+
+            if (processExecution.Output.Count == 0)
+            {
+                return default;
+            }
+
+            return JsonSerializer.Deserialize<T>(processExecution.Output.First(), GetDefaultJsonOptions());
+        }
+
+        private static JsonSerializerOptions GetDefaultJsonOptions()
+        {
+            return new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters =
+                {
+                    new JsonStringEnumConverter(),
+                },
+            };
         }
     }
 }

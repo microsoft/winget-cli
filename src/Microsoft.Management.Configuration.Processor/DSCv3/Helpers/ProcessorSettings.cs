@@ -30,12 +30,13 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         {
             get
             {
-                return this.DscExecutablePath ?? throw new NotImplementedException("Determining DSC v3 executable path is not yet implemented");
+                // return this.DscExecutablePath ?? throw new NotImplementedException("Determining DSC v3 executable path is not yet implemented");
+                return this.DscExecutablePath ?? "C:\\Program Files\\WindowsApps\\Microsoft.DesiredStateConfiguration-Preview_3.0.101.0_x64__8wekyb3d8bbwe\\dsc.exe";
             }
         }
 
         /// <summary>
-        /// Gets an object for interacting with 
+        /// Gets an object for interacting with the DSC executable at EffectiveDscExecutablePath.
         /// </summary>
         public IDSCv3 DSCv3
         {

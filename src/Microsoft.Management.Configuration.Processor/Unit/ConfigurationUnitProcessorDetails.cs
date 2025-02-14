@@ -23,9 +23,9 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         }
 
         /// <summary>
-        /// Gets the name of the unit of configuration.
+        /// Gets or sets the name of the unit of configuration.
         /// </summary>
-        required public string UnitType { get; init; }
+        required public string UnitType { get; internal set; }
 
         /// <summary>
         /// Gets or sets the description of the unit of configuration.

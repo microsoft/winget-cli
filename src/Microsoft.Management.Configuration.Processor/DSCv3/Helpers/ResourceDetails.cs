@@ -85,7 +85,22 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         public ConfigurationUnitProcessorDetails GetConfigurationUnitProcessorDetails()
         {
             ConfigurationUnitProcessorDetails result = new ConfigurationUnitProcessorDetails() { UnitType = this.configurationUnitInternal.QualifiedName };
-            result.UnitDescription = "This is a test!";
+
+            lock (this.detailsUpdateLock)
+            {
+                if (this.resourceListItem != null)
+                {
+                    // TODO: Expose the Directory; requires adding a new property to the public interface
+                    result.UnitType = this.resourceListItem.Type;
+                    result.IsGroup = this.resourceListItem.Kind == PowerShell.Schema_2024_04.Definitions.ResourceKind.Group;
+                    result.Version = this.resourceListItem.Version;
+                    result.UnitDescription = this.resourceListItem.Description;
+                    result.Author = this.resourceListItem.Author;
+
+                    result.IsLocal = true;
+                }
+            }
+
             return result;
         }
 
