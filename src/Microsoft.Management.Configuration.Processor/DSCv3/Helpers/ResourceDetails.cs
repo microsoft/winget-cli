@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 {
     using System;
+    using Microsoft.Management.Configuration.Processor.DSCv3.Model;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.Unit;
 
@@ -18,6 +19,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         private readonly ConfigurationUnitInternal configurationUnitInternal;
 
         private object detailsUpdateLock = new object();
+        private IResourceListItem? resourceListItem = null;
 
         /// <summary>
         /// The current level of detail stored by this object.
@@ -98,6 +100,35 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             {
                 return !this.currentDetailLevel.HasFlag(targetLevel);
             }
+        }
+
+        private bool GetLocalDetails(ProcessorSettings processorSettings)
+        {
+            IResourceListItem? resourceListItem = processorSettings.DSCv3.GetResourceByType(this.configurationUnitInternal.QualifiedName);
+
+            if (resourceListItem != null)
+            {
+                // TODO: Attempt to extract embedded schema to avoid the need for Load.
+                lock (this.detailsUpdateLock)
+                {
+                    if (!this.currentDetailLevel.HasFlag(ConfigurationUnitDetailFlags.Local))
+                    {
+                        this.resourceListItem = resourceListItem;
+                        this.currentDetailLevel |= ConfigurationUnitDetailFlags.Local;
+                    }
+                }
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private void GetLoadDetails(ProcessorSettings processorSettings)
+        {
+            throw new NotImplementedException();
         }
     }
 }

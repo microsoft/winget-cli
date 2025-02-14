@@ -122,8 +122,9 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
         /// <summary>
         /// Starts the process.
         /// </summary>
+        /// <returns>This object.</returns>
         /// <exception cref="InvalidOperationException">Thrown if Start has already been called.</exception>
-        public void Start()
+        public ProcessExecution Start()
         {
             if (this.Process != null)
             {
@@ -177,6 +178,8 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
             {
                 this.Process.StandardInput.Write(this.Input);
             }
+
+            return this;
         }
 
         /// <summary>

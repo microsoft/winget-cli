@@ -8,12 +8,16 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 {
     using System;
     using System.Text;
+    using Microsoft.Management.Configuration.Processor.DSCv3.Model;
 
     /// <summary>
     /// Contains settings for the DSC v3 processor components to share.
     /// </summary>
     internal class ProcessorSettings
     {
+        private readonly object dscV3Lock = new ();
+        private IDSCv3? dscV3 = null;
+
         /// <summary>
         /// Gets or sets the path to the DSC v3 executable.
         /// </summary>
@@ -27,6 +31,25 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             get
             {
                 return this.DscExecutablePath ?? throw new NotImplementedException("Determining DSC v3 executable path is not yet implemented");
+            }
+        }
+
+        /// <summary>
+        /// Gets an object for interacting with 
+        /// </summary>
+        public IDSCv3 DSCv3
+        {
+            get
+            {
+                lock (this.dscV3Lock)
+                {
+                    if (this.dscV3 == null)
+                    {
+                        this.dscV3 = IDSCv3.Create(this);
+                    }
+
+                    return this.dscV3;
+                }
             }
         }
 

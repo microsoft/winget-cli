@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// <copyright file="ResourceList.cs" company="Microsoft Corporation">
+// <copyright file="ResourceListItem.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -8,12 +8,13 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Schema_2024_04
 {
     using System.Text.Json.Nodes;
     using System.Text.Json.Serialization;
+    using Microsoft.Management.Configuration.Processor.DSCv3.Model;
     using Microsoft.Management.Configuration.Processor.PowerShell.Schema_2024_04.Definitions;
 
     /// <summary>
     /// The object type from a single JSON line output by the `resource list` command.
     /// </summary>
-    internal class ResourceList
+    internal class ResourceListItem : IResourceListItem
     {
         /// <summary>
         /// Gets or sets the type of the resource.
