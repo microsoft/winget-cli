@@ -1299,6 +1299,7 @@ namespace AppInstaller::Repository
                             {
                                 currentMatch.Package = std::move(Matches[latestPrimaryAvailable->PrimaryPackageIndex.value()].Package);
                                 Matches[latestPrimaryAvailable->PrimaryPackageIndex.value()].Package.reset();
+                                latestPrimaryAvailable->PrimaryPackageIndex = i;
                             }
                             continue;
                         }
