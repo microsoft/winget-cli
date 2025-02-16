@@ -372,12 +372,12 @@ TEST_CASE("VersionRange", "[versions]")
 {
     // Create
     REQUIRE_NOTHROW(VersionRange{ Version{ "1.0" }, Version{ "2.0" } });
+    REQUIRE_NOTHROW(VersionRange{ Version{ "1.0" }, Version{ "1.0" } });
     REQUIRE_NOTHROW(VersionRange{ Version{ "2.0" }, Version{ "1.0" } });
-    REQUIRE_THROWS(VersionRange{ Version{ "2.0" }, Version{ "2.0" } });
 
     // Overlaps
     REQUIRE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.Overlaps(VersionRange{ Version{ "2.0" }, Version{ "3.0" } }));
-    REQUIRE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.Overlaps(VersionRange{ Version{ "1.0" }, Version{ "1.1" } }));
+    REQUIRE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.Overlaps(VersionRange{ Version{ "1.0" }, Version{ "1.0" } }));
     REQUIRE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.Overlaps(VersionRange{ Version{ "0.5" }, Version{ "1.5" } }));
     REQUIRE_FALSE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.Overlaps(VersionRange{ Version{ "2.1" }, Version{ "3.0" } }));
     REQUIRE_FALSE(VersionRange{ Version{ "1.0" }, Version{ "2.0" } }.Overlaps(VersionRange{}));
