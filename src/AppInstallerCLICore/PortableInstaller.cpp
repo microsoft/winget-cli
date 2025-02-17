@@ -281,8 +281,6 @@ namespace AppInstaller::CLI::Portable
 
     void PortableInstaller::Install()
     {
-        RegisterARPEntry();
-
         CreateTargetInstallDirectory();
 
         ApplyDesiredState();
@@ -291,6 +289,9 @@ namespace AppInstaller::CLI::Portable
         {
             AddToPathVariable(GetPortableLinksLocation(GetScope()));
         }
+
+        RegisterARPEntry();
+
     }
 
     void PortableInstaller::Uninstall()
