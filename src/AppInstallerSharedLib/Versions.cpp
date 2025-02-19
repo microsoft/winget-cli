@@ -533,11 +533,18 @@ namespace AppInstaller::Utility
         return m_buildMetadata;
     }
       
-    VersionRange::VersionRange(Version minVersion, Version maxVersion)
+    VersionRange::VersionRange(Version first, Version second)
     {
-        THROW_HR_IF(E_INVALIDARG, minVersion > maxVersion);
-        m_minVersion = std::move(minVersion);
-        m_maxVersion = std::move(maxVersion);
+        if (first < second)
+        {
+            m_minVersion = std::move(first);
+            m_maxVersion = std::move(second);
+        }
+        else
+        {
+            m_minVersion = std::move(second);
+            m_maxVersion = std::move(first);
+        }
     }
 
     bool VersionRange::Overlaps(const VersionRange& other) const
