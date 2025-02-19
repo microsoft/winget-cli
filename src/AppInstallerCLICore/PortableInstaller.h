@@ -3,6 +3,7 @@
 #pragma once
 #include "winget/PortableARPEntry.h"
 #include "winget/PortableFileEntry.h"
+#include <Workflows/WorkflowBase.h>
 #include <filesystem>
 
 using namespace AppInstaller::Registry::Portable;
@@ -58,7 +59,7 @@ namespace AppInstaller::CLI::Portable
             m_desiredEntries = {};
         }
 
-        void Install();
+        void Install( AppInstaller::CLI::Workflow::OperationType operation );
 
         void Uninstall();
 

@@ -10,6 +10,7 @@
 #include <winget/PortableIndex.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerRuntime.h>
+#include <Workflows/WorkflowBase.h>
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Registry;
@@ -19,6 +20,7 @@ using namespace AppInstaller::Repository;
 using namespace AppInstaller::SQLite;
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Repository::Microsoft::Schema;
+using namespace AppInstaller::CLI::Workflow;
 
 namespace AppInstaller::CLI::Portable
 {
@@ -279,8 +281,15 @@ namespace AppInstaller::CLI::Portable
         return true;
     }
 
-    void PortableInstaller::Install()
+    void PortableInstaller::Install( Workflow::OperationType operation = Workflow::OperationType::Install)
     {
+        // If the operation is an install, the ARP entry should be created first so that a catastrophic failure
+        // leaves the system in a state where an uninstall may be possible
+        if (operation == Workflow::OperationType::Install)
+        {
+            RegisterARPEntry();
+        }
+
         CreateTargetInstallDirectory();
 
         ApplyDesiredState();
@@ -290,8 +299,12 @@ namespace AppInstaller::CLI::Portable
             AddToPathVariable(GetPortableLinksLocation(GetScope()));
         }
 
-        RegisterARPEntry();
-
+        // If the operation is an upgrade, the ARP entry should be created last so that a catastrophic failure
+        // leaves the system in a state where an upgrade can be re-attempted
+        if (operation == Workflow::OperationType::Upgrade)
+        {
+            RegisterARPEntry();
+        }
     }
 
     void PortableInstaller::Uninstall()
