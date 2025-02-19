@@ -1,0 +1,20 @@
+Id: AppInstallerTest.TestUpgradeApplicability
+Name: TestUpgradeApplicability
+Version: 1.0.0.0
+Publisher: AppInstallerTest
+License: Test
+Installers:
+  - Arch: x86
+    Url: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    Sha256: <EXEHASH>
+    InstallerType: exe
+    ProductCode: '{bfb0f666-99d5-433d-8a2e-32f31d4f8e48}'
+    Switches:
+      Custom: '/ProductID {bfb0f666-99d5-433d-8a2e-32f31d4f8e48} /DisplayName TestUpgradeApplicability'
+      SilentWithProgress: /exeswp
+      Silent: /exesilent
+      Interactive: /exeinteractive
+      Language: /exeenus
+      Log: /LogFile <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
+ManifestVersion: 0.1.0
