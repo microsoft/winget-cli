@@ -535,7 +535,6 @@ namespace AppInstaller::Utility
       
     VersionRange::VersionRange(Version first, Version second)
     {
-        //THROW_HR_IF(E_INVALIDARG, first == second);
         if (first < second)
         {
             m_minVersion = std::move(first);
