@@ -232,7 +232,7 @@ namespace AppInstaller::Manifest
 
                 // Ensure that each URL has a one to one mapping with a Sha256 and
                 // warn if a Sha256 has a one to many mapping with a URL
-                if (!installer.Url.empty() && !installer.Sha256.empty())
+                if (fullValidation && !installer.Url.empty() && !installer.Sha256.empty())
                 {
                     std::string checksum = Utility::SHA256::ConvertToString(installer.Sha256);
                     std::string url = installer.Url;
