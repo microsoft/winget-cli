@@ -10,6 +10,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Unit
     using Microsoft.Management.Configuration.Processor.DSCv3.Helpers;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.Unit;
+    using System.Collections;
     using Windows.Foundation.Collections;
 
     /// <summary>
@@ -34,10 +35,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Unit
         /// <inheritdoc />
         protected override ValueSet GetSettingsInternal()
         {
-            // TODO: Actual implementation
-            var result = new ValueSet();
-            result.Add("Test", "Value");
-            return result;
+            return this.processorSettings.DSCv3.GetResourceSettings(this.UnitInternal).Settings;
         }
 
         /// <inheritdoc />
@@ -49,8 +47,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Unit
         /// <inheritdoc />
         protected override bool ApplySettingsInternal()
         {
-            // TODO: Actual implementation
-            return false;
+            return this.processorSettings.DSCv3.SetResourceSettings(this.UnitInternal).RebootRequired;
         }
     }
 }

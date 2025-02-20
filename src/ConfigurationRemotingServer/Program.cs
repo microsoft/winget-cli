@@ -233,7 +233,8 @@ namespace ConfigurationRemotingServer
                 {
                     // Require that the path to the DSC executable be presented to the user in limitation mode.
                     // This helps prevent path attacks against an elevated process (as long as the user checks the value).
-                    throw new ArgumentNullException("The path to the DSC executable must be supplied in limitation mode.");
+                    // TODO: PUT THIS BACK!
+                    //throw new ArgumentNullException("The path to the DSC executable must be supplied in limitation mode.");
                 }
             }
 

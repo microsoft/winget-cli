@@ -38,5 +38,19 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
         /// <param name="unitInternal">The unit to test.</param>
         /// <returns>A test result.</returns>
         public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal);
+
+        /// <summary>
+        /// Gets a configuration unit settings.
+        /// </summary>
+        /// <param name="unitInternal">The unit to get.</param>
+        /// <returns>A get result.</returns>
+        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal);
+
+        /// <summary>
+        /// Sets a configuration unit settings.
+        /// </summary>
+        /// <param name="unitInternal">The unit to set.</param>
+        /// <returns>A set result.</returns>
+        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal);
     }
 }

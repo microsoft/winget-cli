@@ -71,6 +71,38 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             return TestFullItem.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution), GetDefaultJsonOptions());
         }
 
+        /// <inheritdoc />
+        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal)
+        {
+            ProcessExecution processExecution = new ProcessExecution()
+            {
+                ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
+                Command = "resource get",
+                Arguments = new[] { ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
+                Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
+            };
+
+            RunSynchronously(processExecution);
+
+            return GetFullItem.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution), GetDefaultJsonOptions());
+        }
+
+        /// <inheritdoc />
+        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal)
+        {
+            ProcessExecution processExecution = new ProcessExecution()
+            {
+                ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
+                Command = "resource set",
+                Arguments = new[] { ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
+                Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
+            };
+
+            RunSynchronously(processExecution);
+
+            return SetFullItem.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution), GetDefaultJsonOptions());
+        }
+
         private static void RunSynchronously(ProcessExecution processExecution)
         {
             processExecution.Start().WaitForExit();
