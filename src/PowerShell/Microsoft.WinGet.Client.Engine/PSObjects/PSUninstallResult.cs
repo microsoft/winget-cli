@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PSUninstallResult.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -57,7 +57,16 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         {
             get
             {
-                return this.catalogPackage.DefaultInstallVersion.PackageCatalog.Info.Name;
+                if (this.catalogPackage.DefaultInstallVersion != null)
+                {
+                    return this.catalogPackage.DefaultInstallVersion.PackageCatalog.Info.Name;
+                }
+                else if (this.catalogPackage.AvailableVersions.Count > 0)
+                {
+                    return this.catalogPackage.GetPackageVersionInfo(this.catalogPackage.AvailableVersions[0]).PackageCatalog.Info.Name;
+                }
+
+                return string.Empty;
             }
         }
 
