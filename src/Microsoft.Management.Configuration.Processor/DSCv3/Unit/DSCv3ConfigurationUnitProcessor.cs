@@ -10,7 +10,6 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Unit
     using Microsoft.Management.Configuration.Processor.DSCv3.Helpers;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.Unit;
-    using System.Collections;
     using Windows.Foundation.Collections;
 
     /// <summary>

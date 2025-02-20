@@ -4,12 +4,11 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.PowerShell.Schema_2024_04.Outputs
+namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04.Outputs
 {
     using System.Text.Json.Nodes;
     using System.Text.Json.Serialization;
     using Microsoft.Management.Configuration.Processor.DSCv3.Model;
-    using Microsoft.Management.Configuration.Processor.PowerShell.Schema_2024_04.Definitions;
 
     /// <summary>
     /// The object type from a single JSON line output by the `resource list` command.
@@ -26,7 +25,19 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Schema_2024_04
         /// <summary>
         /// Gets or sets the kind of the resource.
         /// </summary>
-        public ResourceKind Kind { get; set; } = ResourceKind.Unknown;
+        public Definitions.ResourceKind Kind { get; set; } = Definitions.ResourceKind.Unknown;
+
+        /// <inheritdoc />
+        [JsonIgnore]
+        Model.ResourceKind IResourceListItem.Kind => this.Kind switch
+        {
+            Definitions.ResourceKind.Unknown => Model.ResourceKind.Unknown,
+            Definitions.ResourceKind.Resource => Model.ResourceKind.Resource,
+            Definitions.ResourceKind.Adapter => Model.ResourceKind.Adapter,
+            Definitions.ResourceKind.Group => Model.ResourceKind.Group,
+            Definitions.ResourceKind.Import => Model.ResourceKind.Import,
+            _ => throw new System.IO.InvalidDataException($"Unknown ResourceKind: {this.Kind}")
+        };
 
         /// <summary>
         /// Gets or sets the version of the resource.

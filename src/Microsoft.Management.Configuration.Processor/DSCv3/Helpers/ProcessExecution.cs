@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
+namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 {
     using System;
     using System.Collections.Generic;

@@ -8,7 +8,6 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
 {
     using System;
     using System.Linq;
-    using System.Security.AccessControl;
     using System.Text.Json;
     using System.Text.Json.Serialization;
     using Microsoft.Management.Configuration.Processor.DSCv3.Helpers;
@@ -16,8 +15,6 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
     using Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04.Outputs;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
-    using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
-    using Microsoft.Management.Configuration.Processor.PowerShell.Schema_2024_04.Outputs;
     using Windows.Foundation.Collections;
 
     /// <summary>

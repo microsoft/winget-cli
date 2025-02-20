@@ -6,8 +6,6 @@
 
 namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
 {
-    using Microsoft.Management.Configuration.Processor.PowerShell.Schema_2024_04.Definitions;
-
     /// <summary>
     /// The interface to a single JSON line output by the `resource list` command.
     /// </summary>

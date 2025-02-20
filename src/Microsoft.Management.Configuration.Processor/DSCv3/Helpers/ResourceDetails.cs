@@ -100,7 +100,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 {
                     // TODO: Expose the Directory; requires adding a new property to the public interface
                     result.UnitType = this.resourceListItem.Type;
-                    result.IsGroup = this.resourceListItem.Kind == PowerShell.Schema_2024_04.Definitions.ResourceKind.Group;
+                    result.IsGroup = IsGroup(this.resourceListItem.Kind);
                     result.Version = this.resourceListItem.Version;
                     result.UnitDescription = this.resourceListItem.Description;
                     result.Author = this.resourceListItem.Author;
@@ -111,6 +111,13 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 
             return result;
         }
+
+        private static bool IsGroup(ResourceKind kind) => kind switch
+        {
+            ResourceKind.Adapter => true,
+            ResourceKind.Group => true,
+            _ => false,
+        };
 
         private bool DetailsNeededFor(ConfigurationUnitDetailFlags detailFlags, ConfigurationUnitDetailFlags targetLevel)
         {

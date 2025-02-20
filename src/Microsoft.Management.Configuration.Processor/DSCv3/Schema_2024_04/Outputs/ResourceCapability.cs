@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.PowerShell.Schema_2024_04.Outputs
+namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04.Outputs
 {
     /// <summary>
     /// https://learn.microsoft.com/en-us/powershell/dsc/reference/schemas/outputs/resource/list?view=dsc-3.0#capabilities

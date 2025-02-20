@@ -74,7 +74,23 @@
     <CsWinRTComponent>false</CsWinRTComponent>
     <CsWinRTIncludes>
       Microsoft.Management.Configuration;
+      Windows.ApplicationModel.AppDisplayInf;
+      Windows.ApplicationModel.IAppDisplayInf;
+      Windows.ApplicationModel.AppExecutionContex;
+      Windows.ApplicationModel.IAppExecutionContex;
+      Windows.ApplicationModel.AppInf;
+      Windows.ApplicationModel.IAppInf;
+      Windows.ApplicationModel.AppInstallerInf;
+      Windows.ApplicationModel.IAppInstallerInf;
+      Windows.ApplicationModel.AppInstallerPolicySourc;
+      Windows.ApplicationModel.AddResourcePackageOption;
+      Windows.ApplicationModel.IAddResourcePackageOption;
+      Windows.ApplicationModel.Packag;
+      Windows.ApplicationModel.IPackag;
+      Windows.ApplicationModel.Core.AppListEntr;
+      Windows.ApplicationModel.Core.IAppListEntr;
       Windows.Data.Text.TextSegmen;
+      Windows.Management.Deployment;
       Windows.Devices.Geolocation;
       Windows.Foundation;
       Windows.Globalization.DayOfWee;
@@ -86,6 +102,7 @@
       Windows.Networking.IHostNam;
       Windows.Security.Cryptography.Certificates;
       Windows.Storage;
+      Windows.System.ProcessorArchitectur;
       Windows.System.Use;
       Windows.System.IUse;
     </CsWinRTIncludes>

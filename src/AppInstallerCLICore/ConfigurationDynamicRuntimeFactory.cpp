@@ -352,6 +352,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
                 if (factory)
                 {
+                    factory.MinimumLevel(m_dynamicFactory->MinimumLevel());
                     factoryDiagnosticsEventRevoker = factory.Diagnostics(winrt::auto_revoke,
                         [weak_this{ get_weak() }](const IInspectable&, const IDiagnosticInformation& information)
                         {
@@ -420,6 +421,11 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         void DynamicFactory::MinimumLevel(DiagnosticLevel value)
         {
             m_minimumLevel = value;
+
+            if (m_defaultRemoteFactory)
+            {
+                m_defaultRemoteFactory.MinimumLevel(value);
+            }
         }
 
         HRESULT STDMETHODCALLTYPE DynamicFactory::SetLifetimeWatcher(IUnknown* watcher)

@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04.Definitions
+namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
 {
     /// <summary>
     /// https://learn.microsoft.com/en-us/powershell/dsc/reference/schemas/definitions/resourcekind?view=dsc-3.0
