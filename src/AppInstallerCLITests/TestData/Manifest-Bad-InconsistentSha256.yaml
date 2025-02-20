@@ -1,0 +1,20 @@
+# Bad manifest. Same URL points to two different InstallerSha256
+PackageIdentifier: AppInstallerCliTest.TestPortableInstaller
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: AppInstaller Test Portable Exe
+Publisher: Microsoft Corporation
+AppMoniker: AICLITestPortable
+License: Test
+ProductCode: AppInstallerCliTest.TestPortableInstaller__TestSource
+Installers: 
+    - Architecture: x86
+      InstallerUrl: https://ThisIsNotUsed
+      InstallerType: portable
+      InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+    - Architecture: x64
+      InstallerUrl: https://ThisIsNotUsed
+      InstallerType: portable
+      InstallerSha256: A111111111111111111111111111111111111111111111111111111111111111
+ManifestType: singleton
+ManifestVersion: 1.10.0

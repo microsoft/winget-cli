@@ -150,7 +150,6 @@ namespace AppInstaller::Manifest
         // Validate installers
         for (auto const& installer : manifest.Installers)
         {
-
             // If not full validation, for future compatibility, skip validating unknown installers.
             if (installer.EffectiveInstallerType() == InstallerTypeEnum::Unknown && !fullValidation)
             {
