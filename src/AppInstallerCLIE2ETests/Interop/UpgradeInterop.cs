@@ -79,7 +79,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Find package again, but this time it should detect the installed version
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-            Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "1.0.0.0");
+            Assert.AreEqual("1.0.0.0", searchResult.CatalogPackage.InstalledVersion?.Version);
 
             // Configure upgrade options
             var upgradeOptions = this.TestFactory.CreateInstallOptions();
@@ -91,7 +91,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Find package again, but this time it should detect the upgraded installed version
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-            Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "2.0.0.0");
+            Assert.AreEqual("2.0.0.0", searchResult.CatalogPackage.InstalledVersion?.Version);
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
@@ -138,7 +138,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Find package again, it should have not been upgraded
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-            Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "1.0.0.0");
+            Assert.AreEqual("1.0.0.0", searchResult.CatalogPackage.InstalledVersion.Version);
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
@@ -186,7 +186,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Find package again, but this time it should detect the upgraded installed version
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-            Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "2.0.0.0");
+            Assert.AreEqual("2.0.0.0", searchResult.CatalogPackage.InstalledVersion.Version);
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
@@ -217,7 +217,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Find package again, but this time it should detect the installed version
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-            Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "1.0.0.0");
+            Assert.AreEqual("1.0.0.0", searchResult.CatalogPackage.InstalledVersion.Version);
 
             // Configure upgrade options
             var upgradeOptions = this.TestFactory.CreateInstallOptions();
@@ -229,7 +229,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Find package again, but this time it should detect the upgraded installed version
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-            Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "3.0.0.0");
+            Assert.AreEqual("3.0.0.0", searchResult.CatalogPackage.InstalledVersion.Version);
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
@@ -243,10 +243,9 @@ namespace AppInstallerCLIE2ETests.Interop
             // Find and install the test package. Install the version 1.0.0.0.
             var installDir = TestCommon.GetRandomTestDir();
             var searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
-            var installVersion = searchResult.CatalogPackage.AvailableVersions.Single(v => v.Version == "1.0.0.0");
             var installOptions = this.TestFactory.CreateInstallOptions();
             installOptions.PreferredInstallLocation = installDir;
-            installOptions.PackageVersionId = installVersion;
+            installOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "1.0.0.0");
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
 
@@ -254,7 +253,7 @@ namespace AppInstallerCLIE2ETests.Interop
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
 
             // The installed version is 1.0.0.0.
-            Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "1.0.0.0");
+            Assert.AreEqual("1.0.0.0", searchResult.CatalogPackage.InstalledVersion.Version);
 
             // IsUpdateAvailable is true.
             Assert.True(searchResult.CatalogPackage.IsUpdateAvailable);
@@ -274,10 +273,9 @@ namespace AppInstallerCLIE2ETests.Interop
             // Find and install the test package. Install the version 1.0.0.0.
             var installDir = TestCommon.GetRandomTestDir();
             var searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestUpgradeApplicability");
-            var installVersion = searchResult.CatalogPackage.AvailableVersions.Single(v => v.Version == "1.0.0.0");
             var installOptions = this.TestFactory.CreateInstallOptions();
             installOptions.PreferredInstallLocation = installDir;
-            installOptions.PackageVersionId = installVersion;
+            installOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "1.0.0.0");
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
 
@@ -285,10 +283,10 @@ namespace AppInstallerCLIE2ETests.Interop
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestUpgradeApplicability");
 
             // The installed version is 1.0.0.0.
-            Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "1.0.0.0");
+            Assert.AreEqual("1.0.0.0", searchResult.CatalogPackage.InstalledVersion.Version);
 
             // There is version 2.0.0.0 in the package available versions.
-            Assert.True(searchResult.CatalogPackage.AvailableVersions.Any(v => v.Version == "2.0.0.0"));
+            Assert.NotNull(First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "2.0.0.0"));
 
             // IsUpdateAvailable is false due to applicability check. Only arm64 in version 2.0.0.0.
             Assert.False(searchResult.CatalogPackage.IsUpdateAvailable);
