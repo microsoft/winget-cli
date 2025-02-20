@@ -52,7 +52,10 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         {
             get
             {
-                return this.currentDetailLevel != ConfigurationUnitDetailFlags.None;
+                lock (this.detailsUpdateLock)
+                {
+                    return this.currentDetailLevel != ConfigurationUnitDetailFlags.None;
+                }
             }
         }
 
@@ -82,8 +85,13 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// Gets a ConfigurationUnitProcessorDetails populated with all available data.
         /// </summary>
         /// <returns>A ConfigurationUnitProcessorDetails populated with all available data.</returns>
-        public ConfigurationUnitProcessorDetails GetConfigurationUnitProcessorDetails()
+        public ConfigurationUnitProcessorDetails? GetConfigurationUnitProcessorDetails()
         {
+            if (!this.Exists)
+            {
+                return null;
+            }
+
             ConfigurationUnitProcessorDetails result = new ConfigurationUnitProcessorDetails() { UnitType = this.configurationUnitInternal.QualifiedName };
 
             lock (this.detailsUpdateLock)

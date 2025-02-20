@@ -8,18 +8,27 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
 {
     using System;
     using System.Linq;
+    using System.Security.AccessControl;
     using System.Text.Json;
     using System.Text.Json.Serialization;
     using Microsoft.Management.Configuration.Processor.DSCv3.Helpers;
     using Microsoft.Management.Configuration.Processor.DSCv3.Model;
+    using Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04.Outputs;
+    using Microsoft.Management.Configuration.Processor.Extensions;
+    using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.PowerShell.Helpers;
     using Microsoft.Management.Configuration.Processor.PowerShell.Schema_2024_04.Outputs;
+    using Windows.Foundation.Collections;
 
     /// <summary>
     /// An instance of IDSCv3 for interacting with 1.0.
     /// </summary>
     internal class DSCv3 : IDSCv3
     {
+        private const string ResourceParameter = "-r";
+        private const string FileParameter = "-f";
+        private const string StdInputIdentifier = "-";
+
         private readonly ProcessorSettings processorSettings;
 
         /// <summary>
@@ -46,6 +55,22 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             return GetOptionalSingleOutputLineAs<ResourceListItem>(processExecution);
         }
 
+        /// <inheritdoc />
+        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal)
+        {
+            ProcessExecution processExecution = new ProcessExecution()
+            {
+                ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
+                Command = "resource test",
+                Arguments = new[] { ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
+                Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
+            };
+
+            RunSynchronously(processExecution);
+
+            return TestFullItem.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution), GetDefaultJsonOptions());
+        }
+
         private static void RunSynchronously(ProcessExecution processExecution)
         {
             processExecution.Start().WaitForExit();
@@ -65,6 +90,14 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             }
         }
 
+        private static void ThrowOnZeroOutputLines(ProcessExecution processExecution)
+        {
+            if (processExecution.Output.Count == 0)
+            {
+                throw new Exception($"DSC process produced no output [{processExecution.CommandLine}]");
+            }
+        }
+
         private static T? GetOptionalSingleOutputLineAs<T>(ProcessExecution processExecution)
         {
             ThrowOnMultipleOutputLines(processExecution);
@@ -77,6 +110,14 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             return JsonSerializer.Deserialize<T>(processExecution.Output.First(), GetDefaultJsonOptions());
         }
 
+        private static JsonDocument GetRequiredSingleOutputLineAsJSON(ProcessExecution processExecution)
+        {
+            ThrowOnMultipleOutputLines(processExecution);
+            ThrowOnZeroOutputLines(processExecution);
+
+            return JsonDocument.Parse(processExecution.Output.First());
+        }
+
         private static JsonSerializerOptions GetDefaultJsonOptions()
         {
             return new JsonSerializerOptions()
@@ -87,6 +128,11 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
                     new JsonStringEnumConverter(),
                 },
             };
+        }
+
+        private static string ConvertValueSetToJSON(ValueSet valueSet)
+        {
+            return JsonSerializer.Serialize(valueSet.ToHashtable());
         }
     }
 }

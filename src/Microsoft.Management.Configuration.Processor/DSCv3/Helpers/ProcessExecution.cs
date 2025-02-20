@@ -178,6 +178,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Helpers
             if (this.Input != null)
             {
                 this.Process.StandardInput.Write(this.Input);
+                this.Process.StandardInput.Close();
             }
 
             return this;

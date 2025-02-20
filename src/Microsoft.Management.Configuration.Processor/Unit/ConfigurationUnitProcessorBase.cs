@@ -49,6 +49,11 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         internal ConfigurationSetProcessorFactoryBase? SetProcessorFactory { get; init; }
 
         /// <summary>
+        /// Gets the internal configuration unit.
+        /// </summary>
+        protected ConfigurationUnitInternal UnitInternal => this.unitInternal;
+
+        /// <summary>
         /// Gets the current system state for the configuration unit.
         /// Calls Get on the DSC resource.
         /// </summary>

@@ -43,8 +43,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Unit
         /// <inheritdoc />
         protected override bool TestSettingsInternal()
         {
-            // TODO: Actual implementation
-            return false;
+            return this.processorSettings.DSCv3.TestResource(this.UnitInternal).InDesiredState;
         }
 
         /// <inheritdoc />

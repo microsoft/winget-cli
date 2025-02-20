@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
 {
     using Microsoft.Management.Configuration.Processor.DSCv3.Helpers;
+    using Microsoft.Management.Configuration.Processor.Helpers;
 
     /// <summary>
     /// Interface for interacting with DSC v3.
@@ -30,5 +31,12 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
         /// <param name="resourceType">The type name of the resource.</param>
         /// <returns>A single resource item.</returns>
         public IResourceListItem? GetResourceByType(string resourceType);
+
+        /// <summary>
+        /// Tests a configuration unit.
+        /// </summary>
+        /// <param name="unitInternal">The unit to test.</param>
+        /// <returns>A test result.</returns>
+        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal);
     }
 }
