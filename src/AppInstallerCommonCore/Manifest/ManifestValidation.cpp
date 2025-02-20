@@ -244,7 +244,7 @@ namespace AppInstaller::Manifest
                     {
                         // If the URL was not inserted, and the value in the map does not match the current Sha256, then
                         // a single URL corresponds to multiple SHA256 and an error should be thrown
-                        resultErrors.emplace_back(ManifestError::InconsistentInstallerHash);
+                        resultErrors.emplace_back(ManifestError::InconsistentInstallerHash, "InstallerUrl", url);
                     }
 
                     if (!checksumInserted && checksumIterator->second != url)
