@@ -33,9 +33,9 @@ Open `winget-cli\src\AppInstallerCLI.sln` in Visual Studio and build. We current
 
 After the build finishes, deploy the solution from Build > Deploy Solution. You can then run the client from the command line using `wingetdev`.
 
-You can also directly run the client from Visual Studio by setting the `AppInstallerCLIPackage` project as the startup project and pressing <kbd>F5</kbd>. To prevent the client from exiting as soon as it finishes its execution, you can add the `--wait` command line argument in the project's debug settings.
-
 To enable step-through debugging, right click on `AppInstallerCLIPackage` in the Solution Explorer, select Properties, and navigate to the Debug tab. In the Debugger type selection, change "Application process" and "Background task process" to "Native Only". This will allow you to add breakpoints and step through the code. The main entry point for the client is in `src/AppInstallerCLI/main.cpp`
+
+The best way to debug the client is to select `Do not launch, but debug my code when it starts` in the `Debug` tab and start the debugging session with <kbd>F5</kbd>. You can then use the `wingetdev` command in a terminal session, or any PowerShell code for COM API interaction, which will get picked up by the debugger.
 
 ## Running Unit Tests
 
