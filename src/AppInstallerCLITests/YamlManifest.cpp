@@ -791,7 +791,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-DuplicateKey-DifferentCase-lower.yaml", "Duplicate field found in the manifest." },
         { "Manifest-Bad-DuplicateReturnCode-ExpectedCodes.yaml", "Duplicate installer return code found." },
         { "Manifest-Bad-DuplicateReturnCode-SuccessCodes.yaml", "Duplicate installer return code found." },
-        { "Manifest-Bad-DuplicateSha256.yaml", "Multiple Installer URLs found with a match  to the same InstallerSha256. Please ensure the accuracy of the URLs", true },
+        { "Manifest-Bad-DuplicateSha256.yaml", "Multiple Installer URLs found with the same InstallerSha256. Please ensure the accuracy of the URLs", true },
         { "Manifest-Bad-IdInvalid.yaml", "Failed to validate against schema associated with property name 'Id'" },
         { "Manifest-Bad-IdMissing.yaml", "Missing required property 'Id'" },
         { "Manifest-Bad-InconsistentSha256.yaml", "The values of InstallerSha256 do not match for all instances of the same InstallerUrl" },

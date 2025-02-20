@@ -27,7 +27,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::FieldNotSupported, "Field is not supported."sv },
                 { AppInstaller::Manifest::ManifestError::FieldValueNotSupported, "Field value is not supported."sv },
                 { AppInstaller::Manifest::ManifestError::DuplicateInstallerEntry, "Duplicate installer entry found."sv },
-                { AppInstaller::Manifest::ManifestError::DuplicateInstallerHash, "Multiple Installer URLs found with  to the same InstallerSha256. Please ensure the accuracy of the URLs"sv },
+                { AppInstaller::Manifest::ManifestError::DuplicateInstallerHash, "Multiple Installer URLs found with the same InstallerSha256. Please ensure the accuracy of the URLs"sv },
                 { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "The specified installer type does not support PackageFamilyName."sv },
                 { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotSupportProductCode, "The specified installer type does not support ProductCode."sv },
                 { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotWriteAppsAndFeaturesEntry, "The specified installer type does not write to Apps and Features entry."sv },
