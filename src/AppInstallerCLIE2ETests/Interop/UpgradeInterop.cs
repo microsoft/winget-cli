@@ -243,9 +243,10 @@ namespace AppInstallerCLIE2ETests.Interop
             // Find and install the test package. Install the version 1.0.0.0.
             var installDir = TestCommon.GetRandomTestDir();
             var searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
+            var installVersion = searchResult.CatalogPackage.AvailableVersions.Single(v => v.Version == "1.0.0.0");
             var installOptions = this.TestFactory.CreateInstallOptions();
             installOptions.PreferredInstallLocation = installDir;
-            installOptions.PackageVersionId = searchResult.CatalogPackage.AvailableVersions.Single(v => v.Version == "1.0.0.0");
+            installOptions.PackageVersionId = installVersion;
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
 
@@ -273,9 +274,10 @@ namespace AppInstallerCLIE2ETests.Interop
             // Find and install the test package. Install the version 1.0.0.0.
             var installDir = TestCommon.GetRandomTestDir();
             var searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestUpgradeApplicability");
+            var installVersion = searchResult.CatalogPackage.AvailableVersions.Single(v => v.Version == "1.0.0.0");
             var installOptions = this.TestFactory.CreateInstallOptions();
             installOptions.PreferredInstallLocation = installDir;
-            installOptions.PackageVersionId = searchResult.CatalogPackage.AvailableVersions.Single(v => v.Version == "1.0.0.0");
+            installOptions.PackageVersionId = installVersion;
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
 

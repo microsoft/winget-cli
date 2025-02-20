@@ -392,10 +392,8 @@ namespace AppInstallerCLIE2ETests.Helpers
                 isAddedToPath = currentPathValue.Contains(portablePathValue);
             }
 
-            if (shouldExist)
-            {
-                RunAICLICommand("uninstall", $"--product-code {productCode} --force");
-            }
+            // Always clean up as best effort.
+            RunAICLICommand("uninstall", $"--product-code {productCode} --force");
 
             Assert.AreEqual(shouldExist, exeExists, $"Expected portable exe path: {exePath}");
             Assert.AreEqual(shouldExist && !installDirectoryAddedToPath, symlinkExists, $"Expected portable symlink path: {symlinkPath}");
