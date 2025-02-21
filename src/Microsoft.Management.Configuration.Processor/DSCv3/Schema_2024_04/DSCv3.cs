@@ -22,6 +22,12 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
     /// </summary>
     internal class DSCv3 : IDSCv3
     {
+        private const string PlainTextTraces = "-t plaintext";
+        private const string ResourceCommand = "resource";
+        private const string ListCommand = "list";
+        private const string TestCommand = "test";
+        private const string GetCommand = "get";
+        private const string SetCommand = "set";
         private const string ResourceParameter = "-r";
         private const string FileParameter = "-f";
         private const string StdInputIdentifier = "-";
@@ -43,11 +49,15 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             ProcessExecution processExecution = new ProcessExecution()
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
-                Command = "resource list",
-                Arguments = new[] { resourceType },
+                Arguments = new[] { PlainTextTraces, ResourceCommand, ListCommand, resourceType },
             };
 
             RunSynchronously(processExecution);
+
+            if (processExecution.Output.Count > 1)
+            {
+                throw new Exceptions.GetDscResourceMultipleMatches(resourceType, null);
+            }
 
             return GetOptionalSingleOutputLineAs<ResourceListItem>(processExecution);
         }
@@ -58,14 +68,16 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             ProcessExecution processExecution = new ProcessExecution()
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
-                Command = "resource test",
-                Arguments = new[] { ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
+                Arguments = new[] { PlainTextTraces, ResourceCommand, TestCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
                 Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
             };
 
-            RunSynchronously(processExecution);
+            if (RunSynchronously(processExecution))
+            {
+                throw new Exceptions.InvokeDscResourceException(Exceptions.InvokeDscResourceException.Test, unitInternal.QualifiedName, null, processExecution.GetAllErrorLines());
+            }
 
-            return TestFullItem.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution), GetDefaultJsonOptions());
+            return TestFullItem.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution, Exceptions.InvokeDscResourceException.Test, unitInternal.QualifiedName), GetDefaultJsonOptions());
         }
 
         /// <inheritdoc />
@@ -74,14 +86,16 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             ProcessExecution processExecution = new ProcessExecution()
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
-                Command = "resource get",
-                Arguments = new[] { ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
+                Arguments = new[] { PlainTextTraces, ResourceCommand, GetCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
                 Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
             };
 
-            RunSynchronously(processExecution);
+            if (RunSynchronously(processExecution))
+            {
+                throw new Exceptions.InvokeDscResourceException(Exceptions.InvokeDscResourceException.Get, unitInternal.QualifiedName, null, processExecution.GetAllErrorLines());
+            }
 
-            return GetFullItem.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution), GetDefaultJsonOptions());
+            return GetFullItem.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution, Exceptions.InvokeDscResourceException.Get, unitInternal.QualifiedName), GetDefaultJsonOptions());
         }
 
         /// <inheritdoc />
@@ -90,47 +104,48 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             ProcessExecution processExecution = new ProcessExecution()
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
-                Command = "resource set",
-                Arguments = new[] { ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
+                Arguments = new[] { PlainTextTraces, ResourceCommand, SetCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
                 Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
             };
 
-            RunSynchronously(processExecution);
+            if (RunSynchronously(processExecution))
+            {
+                throw new Exceptions.InvokeDscResourceException(Exceptions.InvokeDscResourceException.Set, unitInternal.QualifiedName, null, processExecution.GetAllErrorLines());
+            }
 
-            return SetFullItem.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution), GetDefaultJsonOptions());
+            return SetFullItem.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution, Exceptions.InvokeDscResourceException.Set, unitInternal.QualifiedName), GetDefaultJsonOptions());
         }
 
-        private static void RunSynchronously(ProcessExecution processExecution)
+        /// <summary>
+        /// Runs the process, waiting until it completes.
+        /// </summary>
+        /// <param name="processExecution">The process to run.</param>
+        /// <returns>True if the exit code was not 0.</returns>
+        private static bool RunSynchronously(ProcessExecution processExecution)
         {
             processExecution.Start().WaitForExit();
 
-            if (processExecution.ExitCode != 0)
-            {
-                // TODO: Improve error handling. This applies to this entire file. It likely means completely owning all exceptions that leave this class.
-                throw new Exception($"DSC process exited with code `{processExecution.ExitCode}` [{processExecution.CommandLine}]");
-            }
+            return processExecution.ExitCode != 0;
         }
 
-        private static void ThrowOnMultipleOutputLines(ProcessExecution processExecution)
+        private static void ThrowOnMultipleOutputLines(ProcessExecution processExecution, string method, string resourceName)
         {
             if (processExecution.Output.Count > 1)
             {
-                throw new Exception($"DSC process produced {processExecution.Output.Count} lines [{processExecution.CommandLine}]");
+                throw new Exceptions.InvokeDscResourceException(method, resourceName, processExecution.GetAllOutputLines());
             }
         }
 
-        private static void ThrowOnZeroOutputLines(ProcessExecution processExecution)
+        private static void ThrowOnZeroOutputLines(ProcessExecution processExecution, string method, string resourceName)
         {
             if (processExecution.Output.Count == 0)
             {
-                throw new Exception($"DSC process produced no output [{processExecution.CommandLine}]");
+                throw new Exceptions.InvokeDscResourceException(method, resourceName);
             }
         }
 
         private static T? GetOptionalSingleOutputLineAs<T>(ProcessExecution processExecution)
         {
-            ThrowOnMultipleOutputLines(processExecution);
-
             if (processExecution.Output.Count == 0)
             {
                 return default;
@@ -139,10 +154,10 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             return JsonSerializer.Deserialize<T>(processExecution.Output.First(), GetDefaultJsonOptions());
         }
 
-        private static JsonDocument GetRequiredSingleOutputLineAsJSON(ProcessExecution processExecution)
+        private static JsonDocument GetRequiredSingleOutputLineAsJSON(ProcessExecution processExecution, string method, string resourceName)
         {
-            ThrowOnMultipleOutputLines(processExecution);
-            ThrowOnZeroOutputLines(processExecution);
+            ThrowOnMultipleOutputLines(processExecution, method, resourceName);
+            ThrowOnZeroOutputLines(processExecution, method, resourceName);
 
             return JsonDocument.Parse(processExecution.Output.First());
         }

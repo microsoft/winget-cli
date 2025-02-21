@@ -43,12 +43,6 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         required public string ExecutablePath { get; init; }
 
         /// <summary>
-        /// Gets the command to execute.
-        /// This is ultimately just a required argument.
-        /// </summary>
-        required public string Command { get; init; }
-
-        /// <summary>
         /// Gets the arguments to use for the process.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1010:Opening square brackets should be spaced correctly", Justification = "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3687 pending SC 1.2 release")]
@@ -67,11 +61,14 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             get
             {
                 StringBuilder processArguments = new StringBuilder();
-                processArguments.Append(this.Command);
 
                 foreach (string arg in this.Arguments)
                 {
-                    processArguments.Append(' ');
+                    if (processArguments.Length != 0)
+                    {
+                        processArguments.Append(' ');
+                    }
+
                     processArguments.Append(arg);
                 }
 
@@ -210,6 +207,36 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Gets all of the output lines as a single string.
+        /// </summary>
+        /// <returns>The output lines as a string.</returns>
+        public string GetAllOutputLines()
+        {
+            return GetAllLines(this.outputLines);
+        }
+
+        /// <summary>
+        /// Gets all of the error lines as a single string.
+        /// </summary>
+        /// <returns>The error lines as a string.</returns>
+        public string GetAllErrorLines()
+        {
+            return GetAllLines(this.errorLines);
+        }
+
+        private static string GetAllLines(List<string> lines)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            foreach (string line in lines)
+            {
+                stringBuilder.AppendLine(line);
+            }
+
+            return stringBuilder.ToString();
         }
     }
 }

@@ -53,7 +53,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 
                 if (localDefaultPath == null)
                 {
-                    throw new System.Exception("Could not find DSC v3 executable path.");
+                    throw new FileNotFoundException("Could not find DSC v3 executable path.");
                 }
 
                 lock (this.defaultPathLock)

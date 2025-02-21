@@ -38,7 +38,13 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Set
             ConfigurationUnitInternal configurationUnitInternal = new ConfigurationUnitInternal(unit, this.ConfigurationSet?.Path);
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating unit processor for: {configurationUnitInternal.QualifiedName}...");
 
-            // TODO: Determine if resource is present and collect general information about it before creating the unit processor.
+            ResourceDetails? resourceDetails = this.GetResourceDetails(configurationUnitInternal, ConfigurationUnitDetailFlags.Local);
+            if (resourceDetails == null)
+            {
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Resource not found: {configurationUnitInternal.QualifiedName}");
+                throw new Exceptions.FindDscResourceNotFoundException(configurationUnitInternal.QualifiedName, null);
+            }
+
             return new DSCv3ConfigurationUnitProcessor(this.processorSettings, configurationUnitInternal, this.IsLimitMode);
         }
 

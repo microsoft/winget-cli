@@ -10,12 +10,10 @@ namespace Microsoft.Management.Configuration.Processor
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using System.Xml.Linq;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.DSCv3.Helpers;
     using Microsoft.Management.Configuration.Processor.DSCv3.Set;
     using Microsoft.Management.Configuration.Processor.Factory;
-    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// IConfigurationSetProcessorFactory implementation using DSC v3.
