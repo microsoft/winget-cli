@@ -1625,6 +1625,22 @@ TEST_CASE("ManifestLocalizationValidation", "[ManifestValidation]")
     REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Warning);
 }
 
+TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")
+{
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml"));
+    ManifestValidateOption validateOption = GetTestManifestValidateOption();
+
+    // Regular validation should detect as error
+    auto errors = ValidateManifest(manifest, validateOption);
+    REQUIRE(errors.size() == 1);
+    REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Error);
+
+    // Should not error when path validation is set to false
+    validateOption.PortableFiletypeValidation = false;
+    errors = ValidateManifest(manifest, validateOption);
+    REQUIRE(errors.size() == 0);
+}
+
 TEST_CASE("ReadManifestAndValidateMsixInstallers_Success", "[ManifestValidation]")
 {
     TestDataFile testFile("Manifest-Good-MsixInstaller.yaml");
