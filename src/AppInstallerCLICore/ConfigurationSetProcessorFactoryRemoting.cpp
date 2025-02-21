@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
+#include <AppInstallerErrors.h>
 #include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
+#include <winget/ExperimentalFeature.h>
 #include <winget/ILifetimeWatcher.h>
 #include <winrt/Microsoft.Management.Configuration.SetProcessorFactory.h>
 
@@ -331,6 +333,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
     IConfigurationSetProcessorFactory CreateOutOfProcessFactory(ProcessorEngine processorEngine, bool useRunAs, const std::string& properties, const std::string& restrictions)
     {
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED, processorEngine == ProcessorEngine::DSCv3 && !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ConfigurationDSCv3));
+
         return winrt::make<RemoteFactory>(processorEngine, useRunAs, properties, restrictions);
     }
 

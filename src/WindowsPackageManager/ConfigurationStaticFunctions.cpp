@@ -56,13 +56,6 @@ namespace ConfigurationShim
             if (IsConfigurationAvailable())
             {
                 m_statics = winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions().as<winrt::Microsoft::Management::Configuration::IConfigurationStatics2>();
-
-                // Forward the current feature state to the internal statics
-                using namespace AppInstaller;
-                using Flags = WinRT::ConfigurationStaticsInternalsStateFlags;
-
-                Flags flags = Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Configuration03) ? Flags::Configuration03 : Flags::None;
-                m_statics.as<AppInstaller::WinRT::IConfigurationStaticsInternals>()->SetExperimentalState(ToIntegral(flags));
             }
         }
 

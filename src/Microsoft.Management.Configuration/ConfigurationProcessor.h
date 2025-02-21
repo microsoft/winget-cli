@@ -95,9 +95,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Sends diagnostics objects to the event.
         void SendDiagnostics(const IDiagnosticInformation& information);
 
-        // Temporary entry point to enable experimental schema support.
-        void SetSupportsSchema03(bool value);
-
         // Indicate a configuration change occurred.
         void ConfigurationChange(const Configuration::ConfigurationSet& set, const Configuration::ConfigurationChangeData& data);
 
@@ -137,8 +134,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         std::recursive_mutex m_diagnosticsMutex;
         ConfigurationDatabase m_database;
         bool m_isHandlingDiagnostics = false;
-        // Temporary value to enable experimental schema support.
-        bool m_supportSchema03 = true;
         std::shared_ptr<ConfigurationStatus::ChangeRegistration> m_changeRegistration;
 #endif
     };

@@ -112,6 +112,15 @@ namespace AppInstaller::CLI::Workflow
             IConfigurationSetProcessorFactory factory;
             ConfigurationRemoting::ProcessorEngine processorEngine = ConfigurationRemoting::DetermineProcessorEngine(configurationContext.Set());
 
+            if (processorEngine == ConfigurationRemoting::ProcessorEngine::DSCv3)
+            {
+                context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ConfigurationDSCv3);
+                if (context.IsTerminated())
+                {
+                    THROW_HR(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
+                }
+            }
+
             // Since downgrading is not currently supported, only use dynamic if running limited.
             if (Runtime::IsRunningWithLimitedToken())
             {
@@ -1072,12 +1081,6 @@ namespace AppInstaller::CLI::Workflow
             }
 
             ConfigurationSet result = openResult.Set();
-
-            // Temporary block on using schema 0.3 while experimental
-            if (result.SchemaVersion() == L"0.3")
-            {
-                AICLI_RETURN_IF_TERMINATED(context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::Configuration03));
-            }
 
             // Fill out the information about the set based on it coming from a file.
             if (isRemote)
