@@ -23,6 +23,20 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
     // Creates a factory that can route configurations to the appropriate internal factory.
     winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory CreateDynamicRuntimeFactory(ProcessorEngine processorEngine);
+
+    // The property names used with IMap property semantics of remote factories.
+    enum class PropertyName
+    {
+        // The path to the dsc.exe executable.
+        // Read / Write
+        DscExecutablePath,
+        // The path to the dsc.exe executable, as discovered.
+        // Read only.
+        FoundDscExecutablePath,
+    };
+
+    // Gets the string for a property name.
+    winrt::hstring ToHString(PropertyName name);
 }
 
 // Export for use by the out of process factory server to report its initialization.

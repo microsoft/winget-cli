@@ -161,6 +161,9 @@ namespace ConfigurationRemotingServer
 
             [JsonPropertyName("modulePath")]
             public string? ModulePath { get; set; } = null;
+
+            [JsonPropertyName("processorPath")]
+            public string? ProcessorPath { get; set; } = null;
         }
 
         private static IConfigurationSetProcessorFactory CreateFactory(string processorEngine, ConfigurationSet? limitationSet, LimitationSetMetadata? limitationSetMetadata)
@@ -223,18 +226,15 @@ namespace ConfigurationRemotingServer
 
             if (limitationSetMetadata != null)
             {
-                // TODO: ModulePath will probably become the string to use for finding resources (much like with PowerShell).
-                //       Add a new property for the DSC executable path, but still make it required.
-                if (limitationSetMetadata.ModulePath != null)
+                if (limitationSetMetadata.ProcessorPath != null)
                 {
-                    factory.DscExecutablePath = limitationSetMetadata.ModulePath;
+                    factory.DscExecutablePath = limitationSetMetadata.ProcessorPath;
                 }
                 else
                 {
                     // Require that the path to the DSC executable be presented to the user in limitation mode.
                     // This helps prevent path attacks against an elevated process (as long as the user checks the value).
-                    // TODO: PUT THIS BACK!
-                    //throw new ArgumentNullException("The path to the DSC executable must be supplied in limitation mode.");
+                    throw new ArgumentNullException("The path to the DSC executable must be supplied in limitation mode.");
                 }
             }
 

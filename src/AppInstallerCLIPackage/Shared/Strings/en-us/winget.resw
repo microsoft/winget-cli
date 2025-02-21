@@ -3204,4 +3204,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
     <value>Failed to download installer. Authentication failed.</value>
   </data>
+  <data name="ConfigurationProcessorPath" xml:space="preserve">
+    <value>Specify the path to the configuration processor</value>
+  </data>
 </root>

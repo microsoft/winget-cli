@@ -133,7 +133,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         };
 
         // Represents a remote factory object that was created from a specific process.
-        struct RemoteFactory : winrt::implements<RemoteFactory, IConfigurationSetProcessorFactory, SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
+        struct RemoteFactory : winrt::implements<RemoteFactory, IConfigurationSetProcessorFactory, SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties, Collections::IMap<winrt::hstring, winrt::hstring>, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
         {
             RemoteFactory(ProcessorEngine processorEngine, bool useRunAs, const std::string& properties, const std::string& restrictions)
             {
@@ -299,6 +299,23 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_remoteFactory.as<SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>().CustomLocation(value);
             }
 
+            // Implement a subset of IMap to enable property bag semantics
+            uint32_t Size() { THROW_HR(E_NOTIMPL); }
+            void Clear() { THROW_HR(E_NOTIMPL); }
+            Collections::IMapView<winrt::hstring, winrt::hstring> GetView() { THROW_HR(E_NOTIMPL); }
+            bool HasKey(winrt::hstring) { THROW_HR(E_NOTIMPL); }
+            void Remove(winrt::hstring) { THROW_HR(E_NOTIMPL); }
+
+            bool Insert(winrt::hstring key, winrt::hstring value)
+            {
+                return m_remoteFactory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Insert(key, value);
+            }
+
+            winrt::hstring Lookup(winrt::hstring key)
+            {
+                return m_remoteFactory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Lookup(key);
+            }
+
             HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher)
             {
                 return WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
@@ -339,6 +356,17 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             // Intentionally fail out here until a decision is made.
             THROW_HR(E_NOTIMPL);
         }
+    }
+
+    winrt::hstring ToHString(PropertyName name)
+    {
+        switch (name)
+        {
+        case PropertyName::DscExecutablePath: return L"DscExecutablePath";
+        case PropertyName::FoundDscExecutablePath: return L"FoundDscExecutablePath";
+        }
+
+        THROW_HR(E_UNEXPECTED);
     }
 }
 

@@ -43,7 +43,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         // have this implementation leverage that one with an event handler for the packaged specifics.
         // TODO: Add SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties and pass values along to sets on creation
         //       In turn, any properties must only be set via the command line (or eventual UI requests to the user).
-        struct DynamicFactory : winrt::implements<DynamicFactory, IConfigurationSetProcessorFactory, SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
+        struct DynamicFactory : winrt::implements<DynamicFactory, IConfigurationSetProcessorFactory, SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties, Collections::IMap<winrt::hstring, winrt::hstring>, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
         {
             DynamicFactory(ProcessorEngine processorEngine);
 
@@ -105,9 +105,34 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_customLocation = value;
             }
 
+            // Implement a subset of IMap to enable property bag semantics
+            uint32_t Size() { THROW_HR(E_NOTIMPL); }
+            void Clear() { THROW_HR(E_NOTIMPL); }
+            Collections::IMapView<winrt::hstring, winrt::hstring> GetView() { THROW_HR(E_NOTIMPL); }
+            bool HasKey(winrt::hstring) { THROW_HR(E_NOTIMPL); }
+            void Remove(winrt::hstring) { THROW_HR(E_NOTIMPL); }
+
+            bool Insert(winrt::hstring key, winrt::hstring value)
+            {
+                auto result = m_defaultRemoteFactory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Insert(key, value);
+                m_factoryMapValues[key] = value;
+                return result;
+            }
+
+            winrt::hstring Lookup(winrt::hstring key)
+            {
+                return m_defaultRemoteFactory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Lookup(key);
+            }
+
             ProcessorEngine Engine() const
             {
                 return m_processorEngine;
+            }
+
+            winrt::hstring GetFactoryMapValue(winrt::hstring key)
+            {
+                auto itr = m_factoryMapValues.find(key);
+                return itr != m_factoryMapValues.end() ? itr->second : winrt::hstring{};
             }
 
         private:
@@ -119,6 +144,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             SetProcessorFactory::PwshConfigurationProcessorLocation m_location = SetProcessorFactory::PwshConfigurationProcessorLocation::Default;
             winrt::hstring m_customLocation;
             ProcessorEngine m_processorEngine;
+            std::map<winrt::hstring, winrt::hstring> m_factoryMapValues;
         };
 
         struct DynamicProcessorInfo
@@ -281,6 +307,20 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 if (!locationString.empty())
                 {
                     json["modulePath"] = locationString;
+                }
+
+                // Ensure that we always pass a path the the executable
+                if (m_dynamicFactory->Engine() == ProcessorEngine::DSCv3)
+                {
+                    winrt::hstring dscExecutablePathPropertyName = ToHString(PropertyName::DscExecutablePath);
+                    winrt::hstring dscExecutablePath = m_dynamicFactory->GetFactoryMapValue(dscExecutablePathPropertyName);
+
+                    if (dscExecutablePath.empty())
+                    {
+                        dscExecutablePath = m_dynamicFactory->Lookup(ToHString(PropertyName::FoundDscExecutablePath));
+                    }
+
+                    json["processorPath"] = Utility::ConvertToUTF8(dscExecutablePath);
                 }
 
                 Json::StreamWriterBuilder writerBuilder;

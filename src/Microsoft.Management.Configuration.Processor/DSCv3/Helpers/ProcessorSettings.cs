@@ -93,7 +93,12 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// <returns>The full path to the dsc.exe executable, or null if not found.</returns>
         public static string? FindDscExecutablePath()
         {
+            // To start, only attempt to find the package and launch it via the app execution fallback handler.
+            // In the future, discover it through %PATH% searching, but probably don't allow that from an elevated process.
+            // That probably means creating another read property for finding the secure path.
             Windows.Management.Deployment.PackageManager packageManager = new Windows.Management.Deployment.PackageManager();
+
+            // Until there is a non-preview of this package, use the preview version.
             var packages = packageManager.FindPackagesForUser(null, "Microsoft.DesiredStateConfiguration-Preview_8wekyb3d8bbwe");
 
             if (packages == null)
@@ -134,7 +139,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             StringBuilder sb = new StringBuilder();
 
             sb.Append("EffectiveDscExecutablePath: ");
-            sb.AppendLine(this.EffectiveDscExecutablePath);
+            sb.Append(this.EffectiveDscExecutablePath);
 
             return sb.ToString();
         }

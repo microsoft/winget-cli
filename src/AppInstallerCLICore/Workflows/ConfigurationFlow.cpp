@@ -126,6 +126,14 @@ namespace AppInstaller::CLI::Workflow
             {
                 Configuration::SetModulePath(context, factory);
             }
+            else if (processorEngine == ConfigurationRemoting::ProcessorEngine::DSCv3)
+            {
+                if (context.Args.Contains(Args::Type::ConfigurationProcessorPath))
+                {
+                    auto factoryMap = factory.as<IMap<winrt::hstring, winrt::hstring>>();
+                    factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePath), Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationProcessorPath)));
+                }
+            }
 
             return factory;
         }

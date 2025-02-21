@@ -37,6 +37,7 @@ namespace AppInstaller::CLI
         return {
             Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional },
             Argument{ Execution::Args::Type::ConfigurationModulePath, Resource::String::ConfigurationModulePath, ArgumentType::Positional },
+            Argument{ Execution::Args::Type::ConfigurationProcessorPath, Resource::String::ConfigurationProcessorPath, ArgumentType::Standard, Argument::Visibility::Help },
             Argument{ Execution::Args::Type::ConfigurationHistoryItem, Resource::String::ConfigurationHistoryItemArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument{ Execution::Args::Type::ConfigurationAcceptWarning, Resource::String::ConfigurationAcceptWarningArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::ConfigurationSuppressPrologue, Resource::String::ConfigurationSuppressPrologueArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
