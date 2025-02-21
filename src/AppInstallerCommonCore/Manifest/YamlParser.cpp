@@ -477,7 +477,7 @@ namespace AppInstaller::Manifest::YamlParser
             // Extra semantic validations after basic validation and field population
             if (validateOption.FullValidation)
             {
-                errors = ValidateManifest(manifest);
+                errors = ValidateManifest(manifest, validateOption);
                 std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
 
                 // Validate the schema header for manifest version 1.10 and above
