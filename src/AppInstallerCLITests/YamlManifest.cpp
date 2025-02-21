@@ -85,6 +85,7 @@ namespace
         validateOption.ThrowOnWarning = true;
         validateOption.SchemaValidationOnly = schemaValidationOnly;
         validateOption.ErrorOnVerifiedPublisherFields = errorOnVerifiedPublisher;
+        validateOption.PortableFiletypeValidation = true;
         return validateOption;
     }
 
@@ -768,6 +769,7 @@ TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
         { "Manifest-Good-Minimum-InstallerType.yaml" },
         { "Manifest-Good-Switches.yaml" },
         { "Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml" },
+        { "Manifest-Good-InstallerTypeZip-PortableExe.yaml" },
     };
 
     for (auto const& testCase : TestCases)
@@ -839,6 +841,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers. [Agreement]", false, GetTestManifestValidateOption(false, true) },
         { "Manifest-Bad-ApproximateVersionInPackageVersion.yaml", "Approximate version not allowed. [PackageVersion]" },
         { "Manifest-Bad-ApproximateVersionInArpVersion.yaml", "Approximate version not allowed. [DisplayVersion]" },
+        { "Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml", "The file type of the referenced file is not allowed. [RelativeFilePath] Value: ScriptedApplication.bat" },
     };
 
     for (auto const& testCase : TestCases)
