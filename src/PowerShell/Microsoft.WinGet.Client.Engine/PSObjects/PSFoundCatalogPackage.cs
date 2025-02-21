@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PSFoundCatalogPackage.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -25,9 +25,9 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         /// <summary>
         /// Gets the default install version of the catalog package.
         /// </summary>
-        public string Version
+        public string? Version
         {
-            get { return this.CatalogPackageCOM.DefaultInstallVersion.Version; }
+            get { return this.CatalogPackageCOM.DefaultInstallVersion?.Version; }
         }
     }
 }

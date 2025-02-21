@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     using System;
     using Microsoft.Management.Deployment;
+    using Microsoft.WinGet.Client.Engine.Extensions;
 
     /// <summary>
     /// UninstallResult wrapper object for displaying to PowerShell.
@@ -53,20 +54,11 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         /// <summary>
         /// Gets the source name of the uninstalled package.
         /// </summary>
-        public string Source
+        public string? Source
         {
             get
             {
-                if (this.catalogPackage.DefaultInstallVersion != null)
-                {
-                    return this.catalogPackage.DefaultInstallVersion.PackageCatalog.Info.Name;
-                }
-                else if (this.catalogPackage.AvailableVersions.Count > 0)
-                {
-                    return this.catalogPackage.GetPackageVersionInfo(this.catalogPackage.AvailableVersions[0]).PackageCatalog.Info.Name;
-                }
-
-                return string.Empty;
+                return this.catalogPackage.GetSourceName();
             }
         }
 
