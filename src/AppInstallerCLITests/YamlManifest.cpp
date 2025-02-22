@@ -85,7 +85,6 @@ namespace
         validateOption.ThrowOnWarning = true;
         validateOption.SchemaValidationOnly = schemaValidationOnly;
         validateOption.ErrorOnVerifiedPublisherFields = errorOnVerifiedPublisher;
-        validateOption.PortableFiletypeValidation = true;
         return validateOption;
     }
 
@@ -842,6 +841,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-ApproximateVersionInPackageVersion.yaml", "Approximate version not allowed. [PackageVersion]" },
         { "Manifest-Bad-ApproximateVersionInArpVersion.yaml", "Approximate version not allowed. [DisplayVersion]" },
         { "Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml", "The file type of the referenced file is not allowed. [RelativeFilePath] Value: ScriptedApplication.bat" },
+        { "Manifest-Bad-InstallerTypeZip-PortableNotExe_Root.yaml", "The file type of the referenced file is not allowed. [RelativeFilePath] Value: ScriptedApplication.bat" },
     };
 
     for (auto const& testCase : TestCases)
@@ -1627,17 +1627,25 @@ TEST_CASE("ManifestLocalizationValidation", "[ManifestValidation]")
 
 TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")
 {
-    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml"));
+    Manifest installerManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml"));
+    Manifest rootManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InstallerTypeZip-PortableNotExe_Root.yaml"));
     ManifestValidateOption validateOption = GetTestManifestValidateOption();
 
     // Regular validation should detect as error
-    auto errors = ValidateManifest(manifest, validateOption);
+    auto errors = ValidateManifest(installerManifest, validateOption);
     REQUIRE(errors.size() == 1);
     REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Error);
 
-    // Should not error when path validation is set to false
-    validateOption.PortableFiletypeValidation = false;
-    errors = ValidateManifest(manifest, validateOption);
+    errors = ValidateManifest(rootManifest, validateOption);
+    REQUIRE(errors.size() == 1);
+    REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Error);
+
+    // Should not error when full validation is set to false
+    validateOption.FullValidation = false;
+    errors = ValidateManifest(installerManifest, validateOption);
+    REQUIRE(errors.size() == 0);
+
+    errors = ValidateManifest(rootManifest, validateOption);
     REQUIRE(errors.size() == 0);
 }
 

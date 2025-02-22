@@ -64,7 +64,6 @@ namespace AppInstaller::Manifest
         bool ThrowOnWarning = false;
         bool AllowShadowManifest = false;
         bool SchemaHeaderValidationAsWarning = false;
-        bool PortableFiletypeValidation = false;
     };
 
     // ManifestVer is inherited from Utility::Version and is a more restricted version.

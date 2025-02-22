@@ -335,8 +335,8 @@ namespace AppInstaller::Manifest
                         break;
                     }
 
-                    // If requested, check filetype
-                    if (validateOption.PortableFiletypeValidation && isPortable)
+                    // If running full validation, check filetype
+                    if (fullValidation && isPortable)
                     {
                         if (fullPath.has_extension() && allowedPortableFiletypes.find(fullPath.extension()) == allowedPortableFiletypes.end())
                         {
