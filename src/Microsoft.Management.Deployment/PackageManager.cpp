@@ -476,11 +476,23 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         else
         {
-            packageVersionInfo = package.DefaultInstallVersion();
+            if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::InstallOptions>)
+            {
+                packageVersionInfo = package.DefaultInstallVersion();
+            }
+            else if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::DownloadOptions>)
+            {
+                // For download, applicability check is not needed. Just use latest.
+                if (package.AvailableVersions().Size() > 0)
+                {
+                    packageVersionInfo = package.GetPackageVersionInfo(package.AvailableVersions().GetAt(0));
+                }
+            }
         }
         // If the specified version wasn't found then return a failure. This is unusual, since all packages that came from a non-local catalog have a default version,
         // and the versionId is strongly typed and comes from the CatalogPackage.GetAvailableVersions.
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND, !packageVersionInfo);
+        // If version is not specified, DefaultInstallVersion may be empty due to applicability check.
+        THROW_HR_IF(versionId ? APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND : APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER, !packageVersionInfo);
         return packageVersionInfo;
     }
 

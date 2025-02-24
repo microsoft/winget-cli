@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PSCatalogPackage.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
     using System.Linq;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Exceptions;
+    using Microsoft.WinGet.Client.Engine.Extensions;
 
     /// <summary>
     /// CatalogPackage wrapper object for displaying to PowerShell.
@@ -64,7 +65,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         {
             get
             {
-                return this.CatalogPackageCOM.DefaultInstallVersion?.PackageCatalog.Info.Name;
+                return this.CatalogPackageCOM.GetSourceName();
             }
         }
 
