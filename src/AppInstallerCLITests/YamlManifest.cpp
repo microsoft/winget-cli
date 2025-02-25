@@ -839,6 +839,8 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers. [Agreement]", false, GetTestManifestValidateOption(false, true) },
         { "Manifest-Bad-ApproximateVersionInPackageVersion.yaml", "Approximate version not allowed. [PackageVersion]" },
         { "Manifest-Bad-ApproximateVersionInArpVersion.yaml", "Approximate version not allowed. [DisplayVersion]" },
+        { "Manifest-Bad-NonArchive-NestedInstallerType.yaml", "Field usage requires InstallerType to be an archive type. [NestedInstallerType]" },
+        { "Manifest-Bad-NonArchive-NestedInstallerFiles.yaml", "Field usage requires InstallerType to be an archive type. [NestedInstallerFiles]" },
     };
 
     for (auto const& testCase : TestCases)

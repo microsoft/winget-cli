@@ -1055,6 +1055,12 @@
     <CopyFileToFolders Include="TestData\ManifestV1_10-Bad-SchemaHeaderURLPatternMismatch.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-NonArchive-NestedInstallerType.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-NonArchive-NestedInstallerFiles.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLICore\AppInstallerCLICore.vcxproj">
