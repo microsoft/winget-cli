@@ -71,6 +71,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// <summary>
         /// Gets an object for interacting with the DSC executable at EffectiveDscExecutablePath.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1623:Property summary documentation should match accessors", Justification = "Set is only provided for tests.")]
         public IDSCv3 DSCv3
         {
             get
@@ -85,6 +86,16 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                     return this.dscV3;
                 }
             }
+
+#if !AICLI_DISABLE_TEST_HOOKS
+            set
+            {
+                lock (this.dscV3Lock)
+                {
+                    this.dscV3 = value;
+                }
+            }
+#endif
         }
 
         /// <summary>
@@ -126,6 +137,9 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             ProcessorSettings result = new ProcessorSettings();
 
             result.DscExecutablePath = this.DscExecutablePath;
+#if !AICLI_DISABLE_TEST_HOOKS
+            result.dscV3 = this.DSCv3;
+#endif
 
             return result;
         }

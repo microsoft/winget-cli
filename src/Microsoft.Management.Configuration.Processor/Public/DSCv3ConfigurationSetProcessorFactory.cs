@@ -53,6 +53,19 @@ namespace Microsoft.Management.Configuration.Processor
             }
         }
 
+#if !AICLI_DISABLE_TEST_HOOKS
+        /// <summary>
+        /// Gets the processor settings; for tests only.
+        /// </summary>
+        public ProcessorSettings Settings
+        {
+            get
+            {
+                return this.processorSettings;
+            }
+        }
+#endif
+
         /// <inheritdoc />
         public ICollection<string> Keys => throw new NotImplementedException();
 

@@ -25,6 +25,10 @@
     <WinGetCsWinRTEmbedded Condition="'$(WinGetCsWinRTEmbedded)'==''">true</WinGetCsWinRTEmbedded>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(WingetDisableTestHooks)'=='true'">
+    <DefineConstants>$(DefineConstants);AICLI_DISABLE_TEST_HOOKS</DefineConstants>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
