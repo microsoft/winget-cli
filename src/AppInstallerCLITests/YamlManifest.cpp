@@ -768,6 +768,7 @@ TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
         { "Manifest-Good-Minimum-InstallerType.yaml" },
         { "Manifest-Good-Switches.yaml" },
         { "Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml" },
+        { "Manifest-Good-InstallerTypeZip-PortableExe.yaml" },
     };
 
     for (auto const& testCase : TestCases)
@@ -839,6 +840,8 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers. [Agreement]", false, GetTestManifestValidateOption(false, true) },
         { "Manifest-Bad-ApproximateVersionInPackageVersion.yaml", "Approximate version not allowed. [PackageVersion]" },
         { "Manifest-Bad-ApproximateVersionInArpVersion.yaml", "Approximate version not allowed. [DisplayVersion]" },
+        { "Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml", "The file type of the referenced file is not allowed. [RelativeFilePath] Value: ScriptedApplication.bat" },
+        { "Manifest-Bad-InstallerTypeZip-PortableNotExe_Root.yaml", "The file type of the referenced file is not allowed. [RelativeFilePath] Value: ScriptedApplication.bat" },
     };
 
     for (auto const& testCase : TestCases)
@@ -1427,6 +1430,7 @@ TEST_CASE("ReadWriteValidateV1_10ManifestWithInstallerAuthentication", "[Manifes
     TempDirectory testDirectory{ "TestManifest" };
     CopyTestDataFilesToFolder({ "ManifestV1_10-InstallerAuthentication.yaml" }, testDirectory);
     Manifest testManifest = YamlParser::CreateFromPath(testDirectory);
+    ManifestValidateOption validateOption = GetTestManifestValidateOption();
 
     // Verify content
     REQUIRE(testManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_10 });
@@ -1441,7 +1445,7 @@ TEST_CASE("ReadWriteValidateV1_10ManifestWithInstallerAuthentication", "[Manifes
     REQUIRE(testManifest.Installers[0].AuthInfo.MicrosoftEntraIdInfo->Scope.empty());
 
     // Manifest Validation. Only error is "Authentication not supported".
-    auto errors = ValidateManifest(testManifest, true);
+    auto errors = ValidateManifest(testManifest, validateOption);
     REQUIRE(errors.size() == 1);
     REQUIRE(errors[0].GetErrorMessage() == "Field is not supported.");
     REQUIRE(errors[0].Context == "Authentication");
@@ -1604,19 +1608,45 @@ TEST_CASE("ManifestApplyLocale", "[ManifestValidation]")
 TEST_CASE("ManifestLocalizationValidation", "[ManifestValidation]")
 {
     Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-MultiLocale.yaml"));
+    ManifestValidateOption validateOption = GetTestManifestValidateOption();
 
     // Set 1 locale to bad value
     manifest.Localizations.at(0).Locale = "Invalid";
 
     // Full validation should detect as error
-    auto errors = ValidateManifest(manifest, true);
+    auto errors = ValidateManifest(manifest, validateOption);
     REQUIRE(errors.size() == 1);
     REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Error);
 
     // Not full validation should detect as warning
-    errors = ValidateManifest(manifest, false);
+    validateOption.FullValidation = false;
+    errors = ValidateManifest(manifest, validateOption);
     REQUIRE(errors.size() == 1);
     REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Warning);
+}
+
+TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")
+{
+    Manifest installerManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml"));
+    Manifest rootManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InstallerTypeZip-PortableNotExe_Root.yaml"));
+    ManifestValidateOption validateOption = GetTestManifestValidateOption();
+
+    // Regular validation should detect as error
+    auto errors = ValidateManifest(installerManifest, validateOption);
+    REQUIRE(errors.size() == 1);
+    REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Error);
+
+    errors = ValidateManifest(rootManifest, validateOption);
+    REQUIRE(errors.size() == 1);
+    REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Error);
+
+    // Should not error when full validation is set to false
+    validateOption.FullValidation = false;
+    errors = ValidateManifest(installerManifest, validateOption);
+    REQUIRE(errors.size() == 0);
+
+    errors = ValidateManifest(rootManifest, validateOption);
+    REQUIRE(errors.size() == 0);
 }
 
 TEST_CASE("ReadManifestAndValidateMsixInstallers_Success", "[ManifestValidation]")
