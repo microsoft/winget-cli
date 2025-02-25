@@ -309,7 +309,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     json["modulePath"] = locationString;
                 }
 
-                // Ensure that we always pass a path the the executable
+                // Ensure that we always pass a path to the executable
                 if (m_dynamicFactory->Engine() == ProcessorEngine::DSCv3)
                 {
                     winrt::hstring dscExecutablePathPropertyName = ToHString(PropertyName::DscExecutablePath);
