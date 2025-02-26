@@ -57,6 +57,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
             auto parser = ConfigurationSetParser::CreateForSchemaVersion(schemaVersion);
             configurationSet->Metadata(parser->ParseValueSet(statement.GetColumn<std::string>(6)));
+            parser->ExtractEnvironmentFromMetadata(configurationSet->Metadata(), configurationSet->EnvironmentInternal());
+
             THROW_HR_IF(E_NOTIMPL, !statement.GetColumn<std::string>(7).empty());
             configurationSet->Variables(parser->ParseValueSet(statement.GetColumn<std::string>(8)));
 
@@ -133,7 +135,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             ConvertToUTF8(configurationSet.Path()),
             GetCurrentUnixEpoch(),
             ConvertToUTF8(schemaVersion),
-            serializer->SerializeValueSet(configurationSet.Metadata()),
+            serializer->SerializeMetadataWithEnvironment(configurationSet.Metadata(), configurationSet.Environment()),
             std::string{}, // Parameters
             serializer->SerializeValueSet(configurationSet.Variables())
         );
@@ -171,7 +173,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             Column(s_SetInfoTable_Column_Origin).Equals(ConvertToUTF8(configurationSet.Origin())).
             Column(s_SetInfoTable_Column_Path).Equals(ConvertToUTF8(configurationSet.Path())).
             Column(s_SetInfoTable_Column_SchemaVersion).Equals(ConvertToUTF8(schemaVersion)).
-            Column(s_SetInfoTable_Column_Metadata).Equals(serializer->SerializeValueSet(configurationSet.Metadata())).
+            Column(s_SetInfoTable_Column_Metadata).Equals(serializer->SerializeMetadataWithEnvironment(configurationSet.Metadata(), configurationSet.Environment())).
             Column(s_SetInfoTable_Column_Variables).Equals(serializer->SerializeValueSet(configurationSet.Variables())).
         Where(RowIDName).Equals(target);
 

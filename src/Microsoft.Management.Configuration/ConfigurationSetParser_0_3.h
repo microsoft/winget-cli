@@ -29,6 +29,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Retrieves the schema version of the parser.
         hstring GetSchemaVersion() override;
 
+        // Extracts the environment configuration from the given metadata.
+        // This only examines the winget subnode.
+        void ExtractEnvironmentFromMetadata(Windows::Foundation::Collections::ValueSet valueSet, implementation::ConfigurationEnvironment& environment) override;
+
     protected:
         // Sets (or resets) the document to parse.
         void SetDocument(AppInstaller::YAML::Node&& document) override;
@@ -57,10 +61,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         virtual void ParseConfigurationUnit(ConfigurationUnit* unit, const AppInstaller::YAML::Node& unitNode);
         // Determines if the given unit should be converted to a group.
         bool ShouldConvertToGroup(ConfigurationUnit* unit);
-
-        // Extracts the environment configuration from the given metadata.
-        // This only examines the winget subnode.
-        void ExtractEnvironmentFromMetadata(const Windows::Foundation::Collections::ValueSet& metadata, ConfigurationEnvironment& targetEnvironment);
 
         // Extracts the environment for a unit.
         void ExtractEnvironmentForUnit(ConfigurationUnit* unit);

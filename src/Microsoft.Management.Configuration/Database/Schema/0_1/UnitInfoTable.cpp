@@ -123,7 +123,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             insertStatement.Bind(5, ConvertToUTF8(current.Unit.Identifier()));
             insertStatement.Bind(6, AppInstaller::ToIntegral(current.Unit.Intent()));
             insertStatement.Bind(7, serializer->SerializeStringArray(current.Unit.Dependencies()));
-            insertStatement.Bind(8, serializer->SerializeValueSet(current.Unit.Metadata()));
+            insertStatement.Bind(8, serializer->SerializeMetadataWithEnvironment(current.Unit.Metadata(), current.Unit.Environment()));
             insertStatement.Bind(9, serializer->SerializeValueSet(current.Unit.Settings()));
             insertStatement.Bind(10, current.Unit.IsActive());
             insertStatement.Bind(11, isGroup);
@@ -209,6 +209,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             unit->Settings(parser->ParseValueSet(statement.GetColumn<std::string>(8)));
             unit->IsActive(statement.GetColumn<bool>(9));
             unit->IsGroup(statement.GetColumn<bool>(10));
+
+            parser->ExtractEnvironmentFromMetadata(unit->Metadata(), unit->EnvironmentInternal());
 
             if (statement.GetColumnIsNull(1))
             {

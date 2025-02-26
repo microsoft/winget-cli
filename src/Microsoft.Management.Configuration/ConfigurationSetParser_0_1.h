@@ -24,6 +24,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Retrieves the schema version of the parser.
         hstring GetSchemaVersion() override;
 
+        void ExtractEnvironmentFromMetadata(Windows::Foundation::Collections::ValueSet valueSet, implementation::ConfigurationEnvironment& environment) override;
+
     protected:
         // Sets (or resets) the document to parse.
         void SetDocument(AppInstaller::YAML::Node&& document) override;

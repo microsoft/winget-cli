@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using Microsoft.Management.Configuration.Processor;
+    using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Xunit;
@@ -60,6 +61,52 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.Equal(type1, details.UnitType);
 
             // Not-null result cached
+            dsc.GetResourceByTypeResult = null;
+            dsc.GetResourceByTypeDelegate = s => throw new System.Exception("Shouldn't be called");
+            details = setProcessor.GetUnitProcessorDetails(unit1, ConfigurationUnitDetailFlags.Local);
+            Assert.NotNull(details);
+            Assert.Equal(type1, details.UnitType);
+
+            // Different type, no details
+            dsc.GetResourceByTypeDelegate = null;
+            details = setProcessor.GetUnitProcessorDetails(unit2, ConfigurationUnitDetailFlags.Local);
+            Assert.Null(details);
+
+            // Null result not cached
+            dsc.GetResourceByTypeResult = new TestResourceListItem() { Type = type2 };
+            details = setProcessor.GetUnitProcessorDetails(unit2, ConfigurationUnitDetailFlags.Local);
+            Assert.NotNull(details);
+            Assert.Equal(type2, details.UnitType);
+
+            // First type is still first type
+            dsc.GetResourceByTypeResult = null;
+            dsc.GetResourceByTypeDelegate = s => throw new System.Exception("Shouldn't be called");
+            details = setProcessor.GetUnitProcessorDetails(unit1, ConfigurationUnitDetailFlags.Local);
+            Assert.NotNull(details);
+            Assert.Equal(type1, details.UnitType);
+        }
+
+        /// <summary>
+        /// Test for unit processor creation requiring resource to be found.
+        /// </summary>
+        [Fact]
+        public void Set_ResourceNotFoundIsError()
+        {
+            var (factory, dsc) = CreateTestFactory();
+            var set = this.ConfigurationSet();
+            string type1 = "Type1";
+            var unit1 = this.ConfigurationUnit().Assign(new { Type = type1 });
+
+            var setProcessor = factory.CreateSetProcessor(set);
+
+            // Not found is error
+            Assert.Throws<FindDscResourceNotFoundException>(() => setProcessor.CreateUnitProcessor(unit1));
+
+            // Found is not error
+            dsc.GetResourceByTypeResult = new TestResourceListItem() { Type = type1 };
+            var unitProcessor = setProcessor.CreateUnitProcessor(unit1);
+            Assert.NotNull(unitProcessor);
+            Assert.Equal(type1, unitProcessor.Unit.Type);
         }
 
         private static (DSCv3ConfigurationSetProcessorFactory, TestDSCv3) CreateTestFactory()

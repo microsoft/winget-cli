@@ -8,6 +8,7 @@ namespace AppInstallerCLIE2ETests
 {
     using System.IO;
     using AppInstallerCLIE2ETests.Helpers;
+    using Microsoft.Win32;
     using NUnit.Framework;
 
     /// <summary>
@@ -23,9 +24,9 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            WinGetSettingsHelper.ConfigureFeature("configuration03", true);
+            WinGetSettingsHelper.ConfigureFeature("dsc3", true);
             WinGetSettingsHelper.ConfigureFeature("configureSelfElevate", true);
-            this.DeleteTxtFiles();
+            this.DeleteResourceArtifacts();
         }
 
         /// <summary>
@@ -34,9 +35,9 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void OneTimeTeardown()
         {
-            WinGetSettingsHelper.ConfigureFeature("configuration03", false);
+            WinGetSettingsHelper.ConfigureFeature("dsc3", false);
             WinGetSettingsHelper.ConfigureFeature("configureSelfElevate", false);
-            this.DeleteTxtFiles();
+            this.DeleteResourceArtifacts();
         }
 
         /// <summary>
@@ -254,13 +255,43 @@ namespace AppInstallerCLIE2ETests
             Assert.True(testFileContents.StartsWith(testDirectory));
         }
 
-        private void DeleteTxtFiles()
+        /// <summary>
+        /// Runs a DSCv3 configuration, then changes the state and runs it again from history.
+        /// </summary>
+        [Test]
+        public void ConfigureThroughHistory_DSCv3()
+        {
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\ShowDetails_DSCv3.yml"));
+            Assert.AreEqual(0, result.ExitCode);
+
+            // The configuration creates a file next to itself with the given contents
+            string valueName = "TestVal";
+            var registryKey = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\WinGet");
+            Assert.NotNull(registryKey);
+            var registryValue = (string)registryKey.GetValue(valueName);
+            Assert.NotNull(registryValue);
+            Assert.Equals("Value!", registryValue);
+
+            registryKey.SetValue(valueName, "New Value!", RegistryValueKind.String);
+
+            string guid = TestCommon.GetConfigurationInstanceIdentifierFor("ShowDetails_DSCv3.yml");
+            result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, $"-h {guid}");
+            Assert.AreEqual(0, result.ExitCode);
+
+            registryValue = (string)registryKey.GetValue(valueName);
+            Assert.NotNull(registryValue);
+            Assert.Equals("Value!", registryValue);
+        }
+
+        private void DeleteResourceArtifacts()
         {
             // Delete all .txt files in the test directory; they are placed there by the tests
             foreach (string file in Directory.GetFiles(TestCommon.GetTestDataFile("Configuration"), "*.txt"))
             {
                 File.Delete(file);
             }
+
+            Registry.CurrentUser.DeleteSubKey("Software\\Microsoft\\WinGet");
         }
     }
 }

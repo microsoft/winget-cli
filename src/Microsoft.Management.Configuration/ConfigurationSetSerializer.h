@@ -14,6 +14,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     struct ConfigurationSetSerializer
     {
+        using OverrideMap = std::vector<std::pair<ConfigurationField, Windows::Foundation::IInspectable>>;
+
         static std::unique_ptr<ConfigurationSetSerializer> CreateSerializer(hstring version, bool strictVersionMatching = false);
 
         virtual ~ConfigurationSetSerializer() noexcept = default;
@@ -26,6 +28,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Serializes a configuration set to the original yaml string.
         virtual hstring Serialize(ConfigurationSet*) = 0;
 
+        // Serialize the metada with the given environment.
+        virtual std::string SerializeMetadataWithEnvironment(const Windows::Foundation::Collections::ValueSet& metadata, const Configuration::ConfigurationEnvironment& environment) = 0;
+
         // Serializes a value set only.
         std::string SerializeValueSet(const Windows::Foundation::Collections::ValueSet& valueSet);
 
@@ -35,9 +40,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     protected:
         ConfigurationSetSerializer() = default;
 
-        static void WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, const std::vector<std::pair<ConfigurationField, Windows::Foundation::IInspectable>>& overrides = {});
-        static void WriteYamlValueSetValues(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, const std::vector<std::pair<ConfigurationField, Windows::Foundation::IInspectable>>& overrides = {});
-        static void WriteYamlValueSetIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, const Windows::Foundation::Collections::ValueSet& valueSet, const std::vector<std::pair<ConfigurationField, Windows::Foundation::IInspectable>>& overrides = {});
+        static void WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, const OverrideMap& overrides = {});
+        static void WriteYamlValueSetValues(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, const OverrideMap& overrides = {});
+        static void WriteYamlValueSetIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, const Windows::Foundation::Collections::ValueSet& valueSet, const OverrideMap& overrides = {});
         static void WriteYamlValueSetAsArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSetArray);
 
         static void WriteYamlStringArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<hstring>& values);

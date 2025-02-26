@@ -112,6 +112,8 @@ namespace AppInstaller::CLI::Workflow
             IConfigurationSetProcessorFactory factory;
             ConfigurationRemoting::ProcessorEngine processorEngine = ConfigurationRemoting::DetermineProcessorEngine(configurationContext.Set());
 
+            THROW_HR_IF(WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE, processorEngine == ConfigurationRemoting::ProcessorEngine::Unknown);
+
             if (processorEngine == ConfigurationRemoting::ProcessorEngine::DSCv3)
             {
                 context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ConfigurationDSCv3);

@@ -344,13 +344,21 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
         if (schemaVersion <= Utility::Version{ "0.3" })
         {
-            // Default to PowerShell
-            ProcessorEngine result = ProcessorEngine::PowerShell;
+            ProcessorEngine result = ProcessorEngine::Unknown;
 
             winrt::hstring processorIdentifier = set.Environment().ProcessorIdentifier();
-            if (processorIdentifier == L"dscv3")
+            if (processorIdentifier.empty() || processorIdentifier == L"pwsh")
+            {
+                // Default to PowerShell
+                result = ProcessorEngine::PowerShell;
+            }
+            else if (processorIdentifier == L"dscv3")
             {
                 result = ProcessorEngine::DSCv3;
+            }
+            else
+            {
+                AICLI_LOG(Config, Warning, << "Unknown processor: " << Utility::ConvertToUTF8(processorIdentifier));
             }
 
             return result;

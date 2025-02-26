@@ -19,10 +19,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         hstring Serialize(ConfigurationSet* configurationSet) override;
 
+        std::string SerializeMetadataWithEnvironment(const Windows::Foundation::Collections::ValueSet& metadata, const Configuration::ConfigurationEnvironment& environment) override;
+
     protected:
         void WriteYamlConfigurationUnits(AppInstaller::YAML::Emitter& emitter, const std::vector<ConfigurationUnit>& units);
 
         virtual winrt::hstring GetResourceName(const ConfigurationUnit& unit);
         virtual void WriteResourceDirectives(AppInstaller::YAML::Emitter& emitter, const ConfigurationUnit& unit);
+        static ConfigurationSetSerializer::OverrideMap GetMetadataWithEnvironmentOverrides(SecurityContext securityContext);
     };
 }

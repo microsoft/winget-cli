@@ -9,6 +9,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
     // The processor engine being used by the factory.
     enum class ProcessorEngine
     {
+        // An unknown processor.
+        Unknown,
         // Uses PowerShell DSC v2.
         PowerShell,
         // Uses DSC v3.

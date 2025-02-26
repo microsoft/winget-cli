@@ -8,6 +8,7 @@ namespace AppInstallerCLIE2ETests
 {
     using System.IO;
     using AppInstallerCLIE2ETests.Helpers;
+    using Microsoft.Win32;
     using NUnit.Framework;
 
     /// <summary>
@@ -23,7 +24,7 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            this.DeleteTxtFiles();
+            this.DeleteResourceArtifacts();
         }
 
         /// <summary>
@@ -32,7 +33,7 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void OneTimeTeardown()
         {
-            this.DeleteTxtFiles();
+            this.DeleteResourceArtifacts();
         }
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace AppInstallerCLIE2ETests
         public void ConfigureTest_NotInDesiredState()
         {
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
-            this.DeleteTxtFiles();
+            this.DeleteResourceArtifacts();
 
             var result = TestCommon.RunAICLICommand(CommandAndAgreements, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
             Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
@@ -56,7 +57,7 @@ namespace AppInstallerCLIE2ETests
         public void ConfigureTest_InDesiredState()
         {
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
-            this.DeleteTxtFiles();
+            this.DeleteResourceArtifacts();
 
             // Set up the expected state
             File.WriteAllText(TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.txt"), "Contents!");
@@ -113,13 +114,26 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
         }
 
-        private void DeleteTxtFiles()
+        /// <summary>
+        /// Simple test to confirm that a resource is testable with DSC v3.
+        /// </summary>
+        [Test]
+        public void ConfigureTest_DSCv3()
+        {
+            var result = TestCommon.RunAICLICommand("configure test", $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_DSCv3.yml")} --verbose");
+            Assert.AreEqual(0, result.ExitCode);
+            Assert.True(result.StdOut.Contains("System is in the described configuration state."));
+        }
+
+        private void DeleteResourceArtifacts()
         {
             // Delete all .txt files in the test directory; they are placed there by the tests
             foreach (string file in Directory.GetFiles(TestCommon.GetTestDataFile("Configuration"), "*.txt"))
             {
                 File.Delete(file);
             }
+
+            Registry.CurrentUser.DeleteSubKey("Software\\Microsoft\\WinGet");
         }
     }
 }
