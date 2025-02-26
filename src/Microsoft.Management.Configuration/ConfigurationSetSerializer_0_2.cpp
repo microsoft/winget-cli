@@ -62,7 +62,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     std::string ConfigurationSetSerializer_0_2::SerializeMetadataWithEnvironment(const Windows::Foundation::Collections::ValueSet& metadata, const Configuration::ConfigurationEnvironment& environment)
     {
         Emitter emitter;
-        WriteYamlValueSet(emitter, metadata, GetMetadataWithEnvironmentOverrides(environment.Context()));
+        WriteYamlValueSet(emitter, metadata, GetMetadataWithEnvironmentOverrides(false, environment.Context()));
         return emitter.str();
     }
 
@@ -129,13 +129,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetSerializer_0_2::WriteResourceDirectives(AppInstaller::YAML::Emitter& emitter, const ConfigurationUnit& unit)
     {
-        WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Directives, unit.Metadata(), GetMetadataWithEnvironmentOverrides(unit.Environment().Context()));
+        WriteYamlValueSetIfNotEmpty(emitter, ConfigurationField::Directives, unit.Metadata(), GetMetadataWithEnvironmentOverrides(true, unit.Environment().Context()));
     }
 
-    ConfigurationSetSerializer::OverrideMap ConfigurationSetSerializer_0_2::GetMetadataWithEnvironmentOverrides(SecurityContext securityContext)
+    ConfigurationSetSerializer::OverrideMap ConfigurationSetSerializer_0_2::GetMetadataWithEnvironmentOverrides(bool includeModuleOverride, SecurityContext securityContext)
     {
-        return
-            { { ConfigurationField::ModuleDirective, nullptr },
-            { ConfigurationField::SecurityContextMetadata, (securityContext != SecurityContext::Current ? PropertyValue::CreateString(ToWString(securityContext)) : nullptr)} };
+        ConfigurationSetSerializer::OverrideMap result {
+            { ConfigurationField::SecurityContextMetadata, (securityContext != SecurityContext::Current ? PropertyValue::CreateString(ToWString(securityContext)) : nullptr)}
+        };
+
+        if (includeModuleOverride)
+        {
+            result.emplace_back(ConfigurationField::ModuleDirective, nullptr);
+        }
+
+        return result;
     }
 }

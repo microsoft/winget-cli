@@ -376,8 +376,8 @@ jobs:
 
     # Install DSC v3 preview until the DSC v3 processor handles that on its own
   - powershell: |
-      Install-WinGetPackage -Id 9PCX3HX4HZ0Z -Source msstore
-    displayName: Install DSC v3 from Store
+      Install-WinGetPackage -Id Microsoft.DSC.Preview -Source winget
+    displayName: Install DSC v3
     condition: succeededOrFailed()
 
   - task: PowerShell@2

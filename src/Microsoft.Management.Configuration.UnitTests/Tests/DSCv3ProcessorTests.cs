@@ -114,6 +114,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             DSCv3ConfigurationSetProcessorFactory factory = new DSCv3ConfigurationSetProcessorFactory();
             TestDSCv3 dsc = new TestDSCv3();
             factory.Settings.DSCv3 = dsc;
+            factory.Settings.DscExecutablePath = "Test-Path-Not-Used.txt";
 
             return (factory, dsc);
         }

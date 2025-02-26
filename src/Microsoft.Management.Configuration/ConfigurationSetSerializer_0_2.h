@@ -26,6 +26,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         virtual winrt::hstring GetResourceName(const ConfigurationUnit& unit);
         virtual void WriteResourceDirectives(AppInstaller::YAML::Emitter& emitter, const ConfigurationUnit& unit);
-        static ConfigurationSetSerializer::OverrideMap GetMetadataWithEnvironmentOverrides(SecurityContext securityContext);
+        static ConfigurationSetSerializer::OverrideMap GetMetadataWithEnvironmentOverrides(bool includeModuleOverride, SecurityContext securityContext);
     };
 }
