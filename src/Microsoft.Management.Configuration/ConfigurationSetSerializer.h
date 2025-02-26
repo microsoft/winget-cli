@@ -28,7 +28,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Serializes a configuration set to the original yaml string.
         virtual hstring Serialize(ConfigurationSet*) = 0;
 
-        // Serialize the metada with the given environment.
+        // Serialize the metadata with the given environment.
         virtual std::string SerializeMetadataWithEnvironment(const Windows::Foundation::Collections::ValueSet& metadata, const Configuration::ConfigurationEnvironment& environment) = 0;
 
         // Serializes a value set only.

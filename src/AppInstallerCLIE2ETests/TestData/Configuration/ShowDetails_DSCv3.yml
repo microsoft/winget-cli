@@ -8,7 +8,7 @@ resources:
     metadata:
       description: Description 1.
     properties:
-      keyPath: HKEY_CURRENT_USER\Software\Microsoft\WinGet
+      keyPath: HKEY_CURRENT_USER\Software\Microsoft\WinGet\Tests
       valueName: TestVal
       valueData:
         String: Value!

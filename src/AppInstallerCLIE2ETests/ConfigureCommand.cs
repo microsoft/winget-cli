@@ -266,11 +266,11 @@ namespace AppInstallerCLIE2ETests
 
             // The configuration creates a file next to itself with the given contents
             string valueName = "TestVal";
-            var registryKey = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\WinGet");
+            var registryKey = Registry.CurrentUser.OpenSubKey(Constants.TestRegistryPath, true);
             Assert.NotNull(registryKey);
             var registryValue = (string)registryKey.GetValue(valueName);
             Assert.NotNull(registryValue);
-            Assert.Equals("Value!", registryValue);
+            Assert.AreEqual("Value!", registryValue);
 
             registryKey.SetValue(valueName, "New Value!", RegistryValueKind.String);
 
@@ -280,7 +280,7 @@ namespace AppInstallerCLIE2ETests
 
             registryValue = (string)registryKey.GetValue(valueName);
             Assert.NotNull(registryValue);
-            Assert.Equals("Value!", registryValue);
+            Assert.AreEqual("Value!", registryValue);
         }
 
         private void DeleteResourceArtifacts()
@@ -291,7 +291,7 @@ namespace AppInstallerCLIE2ETests
                 File.Delete(file);
             }
 
-            Registry.CurrentUser.DeleteSubKey("Software\\Microsoft\\WinGet");
+            Registry.CurrentUser.DeleteSubKeyTree(Constants.TestRegistryPath, false);
         }
     }
 }

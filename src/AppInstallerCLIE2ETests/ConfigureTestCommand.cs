@@ -24,6 +24,7 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
+            WinGetSettingsHelper.ConfigureFeature("dsc3", true);
             this.DeleteResourceArtifacts();
         }
 
@@ -33,6 +34,7 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void OneTimeTeardown()
         {
+            WinGetSettingsHelper.ConfigureFeature("dsc3", true);
             this.DeleteResourceArtifacts();
         }
 
@@ -120,9 +122,9 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ConfigureTest_DSCv3()
         {
-            var result = TestCommon.RunAICLICommand("configure test", $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_DSCv3.yml")} --verbose");
-            Assert.AreEqual(0, result.ExitCode);
-            Assert.True(result.StdOut.Contains("System is in the described configuration state."));
+            var result = TestCommon.RunAICLICommand(CommandAndAgreements, $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_DSCv3.yml")} --verbose");
+            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
+            Assert.True(result.StdOut.Contains("System is not in the described configuration state."));
         }
 
         private void DeleteResourceArtifacts()
@@ -133,7 +135,7 @@ namespace AppInstallerCLIE2ETests
                 File.Delete(file);
             }
 
-            Registry.CurrentUser.DeleteSubKey("Software\\Microsoft\\WinGet");
+            Registry.CurrentUser.DeleteSubKeyTree(Constants.TestRegistryPath, false);
         }
     }
 }

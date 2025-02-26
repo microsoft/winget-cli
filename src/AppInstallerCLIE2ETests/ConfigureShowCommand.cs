@@ -8,6 +8,7 @@ namespace AppInstallerCLIE2ETests
 {
     using System.IO;
     using AppInstallerCLIE2ETests.Helpers;
+    using Microsoft.Win32;
     using NUnit.Framework;
 
     /// <summary>
@@ -22,7 +23,7 @@ namespace AppInstallerCLIE2ETests
         public void OneTimeSetup()
         {
             WinGetSettingsHelper.ConfigureFeature("dsc3", true);
-            this.DeleteTxtFiles();
+            this.DeleteResourceArtifacts();
         }
 
         /// <summary>
@@ -32,7 +33,7 @@ namespace AppInstallerCLIE2ETests
         public void OneTimeTearDown()
         {
             WinGetSettingsHelper.ConfigureFeature("dsc3", false);
-            this.DeleteTxtFiles();
+            this.DeleteResourceArtifacts();
         }
 
         /// <summary>
@@ -165,12 +166,22 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("configure show", $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_DSCv3.yml")} --verbose");
             Assert.AreEqual(0, result.ExitCode);
+
             var outputLines = result.StdOut.Split('\n');
-            Assert.LessOrEqual(3, outputLines.Length);
-            Assert.Equals("Microsoft.Windows/Registry [RegVal]", outputLines[0].Trim());
+            int startLine = -1;
+            for (int i = 0; i < outputLines.Length; ++i)
+            {
+                if (outputLines[i].Trim() == "Microsoft.Windows/Registry [RegVal]")
+                {
+                    startLine = i;
+                }
+            }
+
+            Assert.AreNotEqual(-1, startLine);
+            Assert.LessOrEqual(3, outputLines.Length - startLine);
 
             // outputLines[1] should contain the discovered resource string if working properly.
-            Assert.Equals("Description 1.", outputLines[2].Trim());
+            Assert.AreEqual("Description 1.", outputLines[startLine + 2].Trim());
         }
 
         /// <summary>
@@ -183,23 +194,35 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(0, result.ExitCode);
 
             string guid = TestCommon.GetConfigurationInstanceIdentifierFor("ShowDetails_DSCv3.yml");
-            result = TestCommon.RunAICLICommand("configure show", $"-h {guid}");
+            result = TestCommon.RunAICLICommand("configure show", $"-h {guid} --");
             Assert.AreEqual(0, result.ExitCode);
+
             var outputLines = result.StdOut.Split('\n');
-            Assert.LessOrEqual(3, outputLines.Length);
-            Assert.Equals("Microsoft.Windows/Registry [RegVal]", outputLines[0].Trim());
+            int startLine = -1;
+            for (int i = 0; i < outputLines.Length; ++i)
+            {
+                if (outputLines[i].Trim() == "Microsoft.Windows/Registry [RegVal]")
+                {
+                    startLine = i;
+                }
+            }
+
+            Assert.AreNotEqual(-1, startLine);
+            Assert.LessOrEqual(3, outputLines.Length - startLine);
 
             // outputLines[1] should contain the discovered resource string if working properly.
-            Assert.Equals("Description 1.", outputLines[2].Trim());
+            Assert.AreEqual("Description 1.", outputLines[startLine + 2].Trim());
         }
 
-        private void DeleteTxtFiles()
+        private void DeleteResourceArtifacts()
         {
             // Delete all .txt files in the test directory; they are placed there by the tests
             foreach (string file in Directory.GetFiles(TestCommon.GetTestDataFile("Configuration"), "*.txt"))
             {
                 File.Delete(file);
             }
+
+            Registry.CurrentUser.DeleteSubKeyTree(Constants.TestRegistryPath, false);
         }
     }
 }

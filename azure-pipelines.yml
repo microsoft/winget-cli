@@ -374,6 +374,12 @@ jobs:
     displayName: Clean up Sysinternals PsTools
     condition: succeededOrFailed()
 
+    # Install DSC v3 preview until the DSC v3 processor handles that on its own
+  - powershell: |
+      Install-WinGetPackage -Id 9PCX3HX4HZ0Z -Source msstore
+    displayName: Install DSC v3 from Store
+    condition: succeededOrFailed()
+
   - task: PowerShell@2
     displayName: Run Unit Tests Packaged
     inputs:
