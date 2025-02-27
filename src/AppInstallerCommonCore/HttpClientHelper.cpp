@@ -244,6 +244,23 @@ namespace AppInstaller::Http
 
     [[noreturn]] void HttpClientHelper::RethrowAsWilException(const web::http::http_exception& exception)
     {
-        THROW_WIN32_MSG(exception.error_code().value(), "%hs", exception.what());
+        // Some http_exceptions have no error code; default to REST internal error.
+        HRESULT toThrow = APPINSTALLER_CLI_ERROR_RESTAPI_INTERNAL_ERROR;
+
+        // 99% of the time this code comes from GetLastError.
+        // In a few cases it will be 400; as in the HTTP status code.
+        // Since that is the one case that http_client_winhttp.cpp uses, we map it specifically.
+        // In the event that this makes no sense, ERROR_THREAD_MODE_ALREADY_BACKGROUND is Win32 error 400.
+        int errorValue = exception.error_code().value();
+        if (errorValue == web::http::status_codes::BadRequest)
+        {
+            toThrow = MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, web::http::status_codes::BadRequest);
+        }
+        else if (errorValue)
+        {
+            toThrow = HRESULT_FROM_WIN32(errorValue);
+        }
+
+        THROW_HR_MSG(toThrow, "%hs", exception.what());
     }
 }
