@@ -188,6 +188,7 @@ namespace AppInstallerCLIE2ETests
         /// Runs a DSCv3 configuration, then shows it from history.
         /// </summary>
         [Test]
+        [Ignore("The registry resource is failing for unknown and undiagnosable reasons in the ADO pipeline. Replace these with test resources when we implement them next.")]
         public void ShowFromHistory_DSCv3()
         {
             var result = TestCommon.RunAICLICommand("configure --accept-configuration-agreements --verbose", TestCommon.GetTestDataFile("Configuration\\ShowDetails_DSCv3.yml"));
