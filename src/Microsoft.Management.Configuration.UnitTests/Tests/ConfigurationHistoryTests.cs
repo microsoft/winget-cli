@@ -10,6 +10,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
+    using System.Xml.Linq;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
@@ -399,7 +400,7 @@ properties:
             Assert.Equal(expectedUnit.Identifier, actualUnit.Identifier);
             Assert.Equal(expectedUnit.Intent, actualUnit.Intent);
             Assert.Equal(expectedUnit.Dependencies, actualUnit.Dependencies);
-            Assert.True(expectedUnit.Metadata.ContentEquals(actualUnit.Metadata));
+            Assert.True(expectedUnit.Metadata.ContentEquals(actualUnit.Metadata), $"Metadata not equal: {expectedUnit.Identifier}\n---expected---:\n{expectedUnit.Metadata.ToYaml()}\n---actual---:\n{actualUnit.Metadata.ToYaml()}");
             Assert.True(expectedUnit.Settings.ContentEquals(actualUnit.Settings));
             Assert.Equal(expectedUnit.IsActive, actualUnit.IsActive);
             Assert.Equal(expectedUnit.IsGroup, actualUnit.IsGroup);

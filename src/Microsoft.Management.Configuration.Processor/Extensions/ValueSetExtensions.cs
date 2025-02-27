@@ -16,7 +16,10 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
     /// </summary>
     internal static class ValueSetExtensions
     {
-        private const string TreatAsArray = "treatAsArray";
+        /// <summary>
+        /// The value in a ValueSet that indicates that it is an array of items.
+        /// </summary>
+        internal const string TreatAsArray = "treatAsArray";
 
         /// <summary>
         /// Extension method to transform a ValueSet to a Hashtable.

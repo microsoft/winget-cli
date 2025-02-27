@@ -20,7 +20,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Set
     using Windows.Security.Cryptography.Certificates;
 
     /// <summary>
-    /// Configuration set processor.
+    /// IConfigurationSetProcessor implementation using PowerShell DSC v2.
     /// </summary>
     internal sealed partial class PowerShellConfigurationSetProcessor : ConfigurationSetProcessorBase, IConfigurationSetProcessor
     {

@@ -148,6 +148,22 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return hstring{ std::move(result).str() };
     }
 
+    std::string ConfigurationSetSerializer_0_3::SerializeMetadataWithEnvironment(const Windows::Foundation::Collections::ValueSet& metadata, const Configuration::ConfigurationEnvironment& environment)
+    {
+        Emitter emitter;
+
+        Collections::ValueSet wingetMetadataOverride = nullptr;
+        AddEnvironmentToMetadata(wingetMetadataOverride, environment);
+
+        WriteYamlValueSet(emitter, metadata,
+            {
+                { ConfigurationField::WingetMetadataRoot, wingetMetadataOverride },
+                { ConfigurationField::SecurityContextMetadata, nullptr },
+            });
+
+        return emitter.str();
+    }
+
     void ConfigurationSetSerializer_0_3::WriteYamlParameters(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationParameter>& values)
     {
         if (!values || values.Size() == 0)

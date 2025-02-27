@@ -20,6 +20,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         hstring Serialize(ConfigurationSet* configurationSet) override;
 
+        std::string SerializeMetadataWithEnvironment(const Windows::Foundation::Collections::ValueSet& metadata, const Configuration::ConfigurationEnvironment& environment) override;
+
     protected:
         void WriteYamlParameters(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationParameter>& values);
         void WriteYamlConfigurationUnits(

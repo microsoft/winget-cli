@@ -48,6 +48,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
                         case int i:
                             sb.Append(i);
                             break;
+                        case long l:
+                            sb.Append(l);
+                            break;
                         case string s:
                             sb.Append(s);
                             break;

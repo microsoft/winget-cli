@@ -9,7 +9,6 @@ namespace Microsoft.Management.Configuration.Processor
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Runtime.CompilerServices;
     using System.Text;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.Factory;
@@ -19,7 +18,7 @@ namespace Microsoft.Management.Configuration.Processor
     using static Microsoft.Management.Configuration.Processor.PowerShell.Constants.PowerShellConstants;
 
     /// <summary>
-    /// ConfigurationSetProcessorFactory implementation.
+    /// IConfigurationSetProcessorFactory implementation using PowerShell DSC v2.
     /// </summary>
 #if WinGetCsWinRTEmbedded
     internal

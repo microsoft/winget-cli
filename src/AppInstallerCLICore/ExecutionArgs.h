@@ -131,6 +131,7 @@ namespace AppInstaller::CLI::Execution
             ConfigurationSuppressPrologue,
             ConfigurationEnable,
             ConfigurationDisable,
+            ConfigurationProcessorPath,
             ConfigurationModulePath,
             ConfigurationExportPackageId,
             ConfigurationExportModule,

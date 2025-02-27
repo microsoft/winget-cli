@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="InvokeDscResourceException.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -38,7 +38,7 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// <param name="method">Method.</param>
         /// <param name="resourceName">Resource name.</param>
         /// <param name="module">Optional module.</param>
-        public InvokeDscResourceException(string method, string resourceName, ModuleSpecification? module)
+        public InvokeDscResourceException(string method, string resourceName, ModuleSpecification? module = null)
             : base(CreateMessage(method, resourceName, module, null))
         {
             // No message means that the invoke returned an invalid result.
@@ -46,6 +46,21 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
             this.Method = method;
             this.ResourceName = resourceName;
             this.Module = module;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvokeDscResourceException"/> class.
+        /// Use this constructor when there is a message and the result is not valid.
+        /// </summary>
+        /// <param name="method">Method.</param>
+        /// <param name="resourceName">Resource name.</param>
+        /// <param name="message">Message.</param>
+        public InvokeDscResourceException(string method, string resourceName, string message)
+            : base(CreateMessage(method, resourceName, null, message))
+        {
+            this.HResult = ErrorCodes.WinGetConfigUnitInvokeInvalidResult;
+            this.Method = method;
+            this.ResourceName = resourceName;
         }
 
         /// <summary>

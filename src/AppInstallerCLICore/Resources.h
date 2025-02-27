@@ -99,6 +99,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNotEnabledMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNoTestRun);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNotInDesiredState);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationProcessorPath);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationReadingConfigFile);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSetStateCompleted);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSetStateInProgress);

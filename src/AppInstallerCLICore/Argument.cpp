@@ -217,6 +217,8 @@ namespace AppInstaller::CLI
             return { type, "disable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
         case Execution::Args::Type::ConfigurationModulePath:
             return { type, "module-path"_liv };
+        case Execution::Args::Type::ConfigurationProcessorPath:
+            return { type, "processor-path"_liv };
         case Execution::Args::Type::ConfigurationExportPackageId:
             return { type, "package-id"_liv };
         case Execution::Args::Type::ConfigurationExportModule:

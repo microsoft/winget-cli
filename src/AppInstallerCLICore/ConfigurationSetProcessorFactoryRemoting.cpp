@@ -2,15 +2,18 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
+#include <AppInstallerErrors.h>
 #include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
+#include <winget/ExperimentalFeature.h>
 #include <winget/ILifetimeWatcher.h>
 #include <winrt/Microsoft.Management.Configuration.SetProcessorFactory.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Microsoft::Management::Configuration;
+using namespace std::string_view_literals;
 
 namespace AppInstaller::CLI::ConfigurationRemoting
 {
@@ -21,6 +24,19 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
         // The string used to divide the arguments sent to the remote server
         constexpr std::wstring_view s_ArgumentsDivider = L"\n~~~~~~\n";
+
+        std::wstring_view ToString(ProcessorEngine value)
+        {
+            switch (value)
+            {
+            case ProcessorEngine::PowerShell:
+                return L"pwsh"sv;
+            case ProcessorEngine::DSCv3:
+                return L"dscv3"sv;
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
 
         // A helper with a convenient function that we use to receive the remote factory object.
         struct RemoteFactoryCallback : winrt::implements<RemoteFactoryCallback, IConfigurationStatics>
@@ -119,9 +135,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         };
 
         // Represents a remote factory object that was created from a specific process.
-        struct RemoteFactory : winrt::implements<RemoteFactory, IConfigurationSetProcessorFactory, SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
+        struct RemoteFactory : winrt::implements<RemoteFactory, IConfigurationSetProcessorFactory, SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties, Collections::IMap<winrt::hstring, winrt::hstring>, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
         {
-            RemoteFactory(bool useRunAs, const std::string& properties, const std::string& restrictions)
+            RemoteFactory(ProcessorEngine processorEngine, bool useRunAs, const std::string& properties, const std::string& restrictions)
             {
                 AICLI_LOG(Config, Verbose, << "Launching process for configuration processing...");
 
@@ -162,7 +178,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 // ~~~~~~
                 // YAML configuration set definition
                 std::wostringstream argumentsStream;
-                argumentsStream << s_RemoteServerFileName << L' ' << marshalledCallback << L' ' << completionEventName << L' ' << GetCurrentProcessId();
+                argumentsStream << s_RemoteServerFileName << L' ' << marshalledCallback << L' ' << completionEventName << L' ' << GetCurrentProcessId() << L' ' << ToString(processorEngine);
 
                 if (!properties.empty() && !restrictions.empty())
                 {
@@ -285,6 +301,23 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_remoteFactory.as<SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>().CustomLocation(value);
             }
 
+            // Implement a subset of IMap to enable property bag semantics
+            uint32_t Size() { THROW_HR(E_NOTIMPL); }
+            void Clear() { THROW_HR(E_NOTIMPL); }
+            Collections::IMapView<winrt::hstring, winrt::hstring> GetView() { THROW_HR(E_NOTIMPL); }
+            bool HasKey(winrt::hstring) { THROW_HR(E_NOTIMPL); }
+            void Remove(winrt::hstring) { THROW_HR(E_NOTIMPL); }
+
+            bool Insert(winrt::hstring key, winrt::hstring value)
+            {
+                return m_remoteFactory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Insert(key, value);
+            }
+
+            winrt::hstring Lookup(winrt::hstring key)
+            {
+                return m_remoteFactory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Lookup(key);
+            }
+
             HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher)
             {
                 return WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
@@ -298,9 +331,54 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         };
     }
 
-    IConfigurationSetProcessorFactory CreateOutOfProcessFactory(bool useRunAs, const std::string& properties, const std::string& restrictions)
+    IConfigurationSetProcessorFactory CreateOutOfProcessFactory(ProcessorEngine processorEngine, bool useRunAs, const std::string& properties, const std::string& restrictions)
     {
-        return winrt::make<RemoteFactory>(useRunAs, properties, restrictions);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED, processorEngine == ProcessorEngine::DSCv3 && !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ConfigurationDSCv3));
+
+        return winrt::make<RemoteFactory>(processorEngine, useRunAs, properties, restrictions);
+    }
+
+    ProcessorEngine DetermineProcessorEngine(ConfigurationSet set)
+    {
+        Utility::Version schemaVersion{ Utility::ConvertToUTF8(set.SchemaVersion()) };
+
+        if (schemaVersion <= Utility::Version{ "0.3" })
+        {
+            ProcessorEngine result = ProcessorEngine::Unknown;
+
+            winrt::hstring processorIdentifier = set.Environment().ProcessorIdentifier();
+            if (processorIdentifier.empty() || processorIdentifier == L"pwsh")
+            {
+                // Default to PowerShell
+                result = ProcessorEngine::PowerShell;
+            }
+            else if (processorIdentifier == L"dscv3")
+            {
+                result = ProcessorEngine::DSCv3;
+            }
+            else
+            {
+                AICLI_LOG(Config, Warning, << "Unknown processor: " << Utility::ConvertToUTF8(processorIdentifier));
+            }
+
+            return result;
+        }
+        else
+        {
+            // Intentionally fail out here until a decision is made.
+            THROW_HR(E_NOTIMPL);
+        }
+    }
+
+    winrt::hstring ToHString(PropertyName name)
+    {
+        switch (name)
+        {
+        case PropertyName::DscExecutablePath: return L"DscExecutablePath";
+        case PropertyName::FoundDscExecutablePath: return L"FoundDscExecutablePath";
+        }
+
+        THROW_HR(E_UNEXPECTED);
     }
 }
 

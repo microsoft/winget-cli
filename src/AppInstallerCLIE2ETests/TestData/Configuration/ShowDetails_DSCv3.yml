@@ -1,0 +1,14 @@
+$schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
+metadata:
+  winget:
+    processor: dscv3
+resources:
+  - name: RegVal
+    type: Microsoft.Windows/Registry
+    metadata:
+      description: Description 1.
+    properties:
+      keyPath: HKEY_CURRENT_USER\Software\Microsoft\WinGet\Tests
+      valueName: TestVal
+      valueData:
+        String: Value!

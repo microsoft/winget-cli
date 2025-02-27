@@ -39,7 +39,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         auto result = make_self<wil::details::module_count_wrapper<implementation::ConfigurationProcessor>>();
         result->ConfigurationSetProcessorFactory(factory);
-        result->SetSupportsSchema03(WI_IsFlagSet(m_state, AppInstaller::WinRT::ConfigurationStaticsInternalsStateFlags::Configuration03));
         return *result;
     }
 

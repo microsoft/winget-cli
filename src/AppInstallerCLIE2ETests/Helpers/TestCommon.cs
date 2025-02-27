@@ -973,7 +973,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// Gets the instance identifier of the first configuration history item with name in its output line.
         /// </summary>
         /// <param name="name">The string to search for.</param>
-        /// <returns>The instance identifier of a configuration that matched the search, or any empty string if none did.</returns>
+        /// <returns>The instance identifier of a configuration that matched the search, or an empty string if none did.</returns>
         public static string GetConfigurationInstanceIdentifierFor(string name)
         {
             var result = TestCommon.RunAICLICommand("configure list", string.Empty);

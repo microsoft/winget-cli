@@ -24,7 +24,7 @@ namespace AppInstaller::Settings
             // Before making DirectMSI non-experimental, it should be part of manifest validation.
             DirectMSI = 0x1,
             Resume = 0x2,
-            Configuration03 = 0x4,
+            ConfigurationDSCv3 = 0x4,
             ConfigureExport = 0x8,
             Font = 0x10,
             Max, // This MUST always be after all experimental features

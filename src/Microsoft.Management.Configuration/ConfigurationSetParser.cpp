@@ -566,9 +566,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         THROW_HR_IF_NULL(E_POINTER, unit);
 
+        ExtractSecurityContext(unit->Metadata(), unit->EnvironmentInternal(), defaultContext);
+    }
+
+    void ConfigurationSetParser::ExtractSecurityContext(Windows::Foundation::Collections::ValueSet metadata, implementation::ConfigurationEnvironment& environment, SecurityContext defaultContext)
+    {
         SecurityContext computedContext = defaultContext;
 
-        Windows::Foundation::Collections::ValueSet metadata = unit->Metadata();
         auto securityContext = TryLookupProperty(metadata, ConfigurationField::SecurityContextMetadata, Windows::Foundation::PropertyType::String);
         if (securityContext)
         {
@@ -576,6 +580,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             metadata.Remove(GetConfigurationFieldNameHString(ConfigurationField::SecurityContextMetadata));
         }
 
-        unit->EnvironmentInternal().Context(computedContext);
+        environment.Context(computedContext);
     }
 }

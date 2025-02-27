@@ -159,7 +159,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return emitter.str();
     }
 
-    void ConfigurationSetSerializer::WriteYamlValueSetIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, const Windows::Foundation::Collections::ValueSet& valueSet, const std::vector<std::pair<ConfigurationField, Windows::Foundation::IInspectable>>& overrides)
+    void ConfigurationSetSerializer::WriteYamlValueSetIfNotEmpty(AppInstaller::YAML::Emitter& emitter, ConfigurationField key, const Windows::Foundation::Collections::ValueSet& valueSet, const OverrideMap& overrides)
     {
         anon::ValueSetWriter writer{ valueSet, overrides };
 
@@ -170,13 +170,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    void ConfigurationSetSerializer::WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, const std::vector<std::pair<ConfigurationField, Windows::Foundation::IInspectable>>& overrides)
+    void ConfigurationSetSerializer::WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, const OverrideMap& overrides)
     {
         anon::ValueSetWriter writer{ valueSet, overrides };
         writer.Write(emitter, WriteYamlValue);
     }
 
-    void ConfigurationSetSerializer::WriteYamlValueSetValues(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, const std::vector<std::pair<ConfigurationField, Windows::Foundation::IInspectable>>& overrides)
+    void ConfigurationSetSerializer::WriteYamlValueSetValues(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, const OverrideMap& overrides)
     {
         anon::ValueSetWriter writer{ valueSet, overrides };
         writer.WriteValues(emitter, WriteYamlValue);

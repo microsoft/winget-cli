@@ -167,6 +167,7 @@ MAKEINTRESOURCE
 makemsix
 MANIFESTSCHEMA
 MANIFESTVERSION
+Memberwise
 meme
 metadatas
 Minimatch
