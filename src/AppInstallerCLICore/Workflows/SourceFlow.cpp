@@ -6,12 +6,36 @@
 #include "PromptFlow.h"
 #include "TableOutput.h"
 #include "WorkflowBase.h"
+#include "UriValidationFlow.h"
 
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::CLI::Execution;
     using namespace AppInstaller::Settings;
     using namespace AppInstaller::Utility::literals;
+
+    namespace
+    {
+        void AddSourceInternal(Execution::Context& context)
+        {
+            auto& sourceToAdd = context.Get<Execution::Data::Source>();
+            auto details = sourceToAdd.GetDetails();
+
+            context.Reporter.Info() <<
+                Resource::String::SourceAddBegin << std::endl <<
+                "  "_liv << details.Name << " -> "_liv << details.Arg << std::endl;
+
+            auto addFunction = [&](IProgressCallback& progress)->bool { return sourceToAdd.Add(progress); };
+            if (!context.Reporter.ExecuteWithProgress(addFunction))
+            {
+                context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::Done << std::endl;
+            }
+        }
+    }
 
     void GetSourceList(Execution::Context& context)
     {
@@ -94,22 +118,9 @@ namespace AppInstaller::CLI::Workflow
 
     void AddSource(Execution::Context& context)
     {
-        auto& sourceToAdd = context.Get<Execution::Data::Source>();
-        auto details = sourceToAdd.GetDetails();
-
-        context.Reporter.Info() <<
-            Resource::String::SourceAddBegin << std::endl <<
-            "  "_liv << details.Name << " -> "_liv << details.Arg << std::endl;
-
-        auto addFunction = [&](IProgressCallback& progress)->bool { return sourceToAdd.Add(progress); };
-        if (!context.Reporter.ExecuteWithProgress(addFunction))
-        {
-            context.Reporter.Info() << Resource::String::Cancelled << std::endl;
-        }
-        else
-        {
-            context.Reporter.Info() << Resource::String::Done << std::endl;
-        }
+        context <<
+            ExecuteUriValidation(UriValidationSource::SourceAdd) <<
+            AddSourceInternal;
     }
 
     void CreateSourceForSourceAdd(Execution::Context& context)

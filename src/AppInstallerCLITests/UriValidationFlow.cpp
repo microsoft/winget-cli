@@ -35,7 +35,7 @@ constexpr std::string_view UntrustedBlock = "https://URI_VALIDATION/zone4/block"
     std::ostringstream uriValidationOutput; \
     TestContext context{ uriValidationOutput, std::cin }; \
     context.Args.AddArg(Execution::Args::Type::ConfigurationFile, _uri_); \
-    context << ExecuteUriValidation(UriValidationSource::ConfigurationSource); \
+    context << ExecuteUriValidation(UriValidationSource::Configuration); \
     INFO(uriValidationOutput.str());
 
 #define EXECUTE_CONTEXT_FOR_PACKAGE_CATALOG_SOURCE(_uri_) \
@@ -47,7 +47,7 @@ constexpr std::string_view UntrustedBlock = "https://URI_VALIDATION/zone4/block"
     ManifestInstaller installer; \
     installer.Url = _uri_; \
     context.Add<Data::Installer>(std::move(installer)); \
-    context << ExecuteUriValidation(UriValidationSource::PackageCatalogSource); \
+    context << ExecuteUriValidation(UriValidationSource::Package); \
     INFO(uriValidationOutput.str());
 
 TEST_CASE("UriValidationFlow_Configuration_SecurityZonePolicy", "[UriValidationFlow][workflow]")

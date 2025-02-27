@@ -7,8 +7,9 @@ namespace AppInstaller::CLI::Workflow
 {
     enum UriValidationSource
     {
-        ConfigurationSource,
-        PackageCatalogSource,
+        Configuration,
+        Package,
+        SourceAdd,
     };
 
     // Composite flow that chooses what to do based on whether or not the

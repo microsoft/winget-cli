@@ -331,7 +331,7 @@ namespace AppInstaller::CLI::Workflow
         context <<
             ReportExecutionStage(ExecutionStage::Download) <<
             CheckForExistingInstaller <<
-            ExecuteUriValidation(UriValidationSource::PackageCatalogSource) <<
+            ExecuteUriValidation(UriValidationSource::Package) <<
             DownloadInstallerInternal;
     }
 

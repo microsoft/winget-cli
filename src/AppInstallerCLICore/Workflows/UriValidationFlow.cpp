@@ -168,6 +168,19 @@ namespace AppInstaller::CLI::Workflow
             return E_FAIL;
         }
 
+        HRESULT GetSourceAddUrl(const Execution::Context& context, std::string& sourceAddUrl)
+        {
+            if (context.Contains(Execution::Data::Source))
+            {
+                auto& sourceToAdd = context.Get<Execution::Data::Source>();
+                auto details = sourceToAdd.GetDetails();
+                sourceAddUrl = details.Arg;
+                return S_OK;
+            }
+
+            return E_FAIL;
+        }
+
         // Validate group policy for a given zone.
         bool IsZoneBlockedByGroupPolicy(Execution::Context& context, const Settings::SecurityZoneOptions& zone)
         {
@@ -274,26 +287,62 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(Core, Info, << "Installer URL is validated: " << installerUrl);
             return S_OK;
         }
+
+        HRESULT EvaluateSourceAddUri(Execution::Context& context)
+        {
+            std::string sourceAddUrl;
+            if (FAILED(GetSourceAddUrl(context, sourceAddUrl)))
+            {
+                AICLI_LOG(Core, Warning, << "Source URL is not available. Skipping validation.");
+                return S_OK;
+            }
+
+            Settings::SecurityZoneOptions sourceAddUrlZone;
+            if (FAILED(GetUriZone(sourceAddUrl, sourceAddUrlZone)))
+            {
+                AICLI_LOG(Core, Warning, << "Failed to get zone for source URL: " << sourceAddUrl << ". Skipping validation.");
+                return S_OK;
+            }
+
+            if (IsZoneBlockedByGroupPolicy(context, sourceAddUrlZone))
+            {
+                AICLI_LOG(Core, Error, << "Source URL's zone is blocked by group policy: " << sourceAddUrl << " (" << ToString(sourceAddUrlZone) << ")");
+                return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
+            }
+
+            if (IsSmartScreenRequired(sourceAddUrlZone, false) && IsUriBlockedBySmartScreen(context, sourceAddUrl))
+            {
+                AICLI_LOG(Core, Error, << "Source URL was blocked by smart screen: " << sourceAddUrl);
+                return APPINSTALLER_CLI_ERROR_BLOCKED_BY_REPUTATION_SERVICE;
+            }
+
+            AICLI_LOG(Core, Info, << "Source URL is validated: " << sourceAddUrl);
+            return S_OK;
+        }
+
+        HRESULT EvaluateUri(Execution::Context& context, UriValidationSource uriValidationSource)
+        {
+            switch (uriValidationSource)
+            {
+            case UriValidationSource::Configuration:
+                return EvaluateConfigurationUri(context);
+            case UriValidationSource::Package:
+                return EvaluateDownloadUri(context);
+            case UriValidationSource::SourceAdd:
+                return EvaluateSourceAddUri(context);
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
     }
 
     // Execute the smart screen flow.
     void ExecuteUriValidation::operator()(Execution::Context& context) const
     {
-        if (m_uriValidationSource == UriValidationSource::ConfigurationSource)
+        auto uriValidation = EvaluateUri(context, m_uriValidationSource);
+        if (FAILED(uriValidation))
         {
-            auto uriValidation = EvaluateConfigurationUri(context);
-            if (FAILED(uriValidation))
-            {
-                AICLI_TERMINATE_CONTEXT(uriValidation);
-            }
-        }
-        else
-        {
-            auto uriValidation = EvaluateDownloadUri(context);
-            if (FAILED(uriValidation))
-            {
-                AICLI_TERMINATE_CONTEXT(uriValidation);
-            }
+            AICLI_TERMINATE_CONTEXT(uriValidation);
         }
     }
 }
