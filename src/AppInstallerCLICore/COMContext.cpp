@@ -80,10 +80,10 @@ namespace AppInstaller::CLI::Execution
     {
         // Set up debug string logging during initialization
         Logging::OutputDebugStringLogger::Add();
-        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().SetEnabledChannels(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
 
-        Logging::Log().EnableChannel(channel.has_value() ? channel.value() : Settings::User().Get<Settings::Setting::LoggingChannelPreference>());
+        Logging::Log().SetEnabledChannels(channel.has_value() ? channel.value() : Settings::User().Get<Settings::Setting::LoggingChannelPreference>());
         Logging::Log().SetLevel(level.has_value() ? level.value() : Settings::User().Get<Settings::Setting::LoggingLevelPreference>());
 
         // TODO: Log to file for COM API calls only when debugging in visual studio

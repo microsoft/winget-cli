@@ -981,7 +981,7 @@ namespace AppInstaller::Repository::Metadata
         auto threadGlobalsLifetime = threadGlobals.SetForCurrentThread();
 
         Logging::Log().SetLevel(Logging::Level::Info);
-        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().SetEnabledChannels(Logging::Channel::All);
         Logging::EnableWilFailureTelemetry();
         Logging::TraceLogger::Add();
 

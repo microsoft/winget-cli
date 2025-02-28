@@ -134,8 +134,11 @@ namespace AppInstaller::Logging
         // Removes all loggers.
         void RemoveAllLoggers();
 
-        // Enables the given channel.
+        // Enables the given channel(s), in addition to the currently enabled channels.
         void EnableChannel(Channel channel);
+
+        // The given channel mask will become the only enabled channels.
+        void SetEnabledChannels(Channel channel);
 
         // Disables the given channel.
         void DisableChannel(Channel channel);
