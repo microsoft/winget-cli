@@ -1,6 +1,6 @@
 # ![WinGet Icon](.github/images/WindowsPackageManager_Assets/ICO/PNG/_40.png) Windows Package Manager
 
-## WinGet Client
+## WinGet Client new
 
 ![winget install wingetcreate](.github/images/WingetInstall.gif)
 
