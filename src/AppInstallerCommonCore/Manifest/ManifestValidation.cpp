@@ -71,6 +71,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::SchemaHeaderManifestTypeMismatch , "The manifest type in the schema header does not match the ManifestType property value in the manifest."sv },
                 { AppInstaller::Manifest::ManifestError::SchemaHeaderManifestVersionMismatch, "The manifest version in the schema header does not match the ManifestVersion property value in the manifest."sv },
                 { AppInstaller::Manifest::ManifestError::SchemaHeaderUrlPatternMismatch, "The schema header URL does not match the expected pattern."sv },
+                { AppInstaller::Manifest::ManifestError::InvalidArchiveField, "Field usage requires InstallerType to be an archive type."sv },
             };
 
             return ErrorIdToMessageMap;
@@ -331,6 +332,18 @@ namespace AppInstaller::Manifest
                         resultErrors.emplace_back(ManifestError::DuplicatePortableCommandAlias, "PortableCommandAlias");
                         break;
                     }
+                }
+            }
+            else
+            {
+                // If base installer is not an archive type, NestedInstaller fields should not be present
+                if (installer.NestedInstallerType != InstallerTypeEnum::Unknown)
+                {
+                    resultErrors.emplace_back(ManifestError::InvalidArchiveField, "NestedInstallerType");
+                }
+                if (installer.NestedInstallerFiles.size() != 0)
+                {
+                    resultErrors.emplace_back(ManifestError::InvalidArchiveField, "NestedInstallerFiles");
                 }
             }
 
