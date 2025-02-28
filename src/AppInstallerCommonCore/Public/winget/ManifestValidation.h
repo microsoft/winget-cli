@@ -7,6 +7,7 @@
 
 #include <wil/result.h>
 #include <functional>
+#include <unordered_set>
 
 namespace YAML { class Node; }
 
@@ -73,6 +74,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(SchemaHeaderManifestTypeMismatch);
         WINGET_DEFINE_RESOURCE_STRINGID(SchemaHeaderManifestVersionMismatch);
         WINGET_DEFINE_RESOURCE_STRINGID(SchemaHeaderUrlPatternMismatch);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidPortableFiletype);
     }
 
     struct ValidationError
@@ -249,8 +251,10 @@ namespace AppInstaller::Manifest
         bool m_warningOnly;
     };
 
+    static const std::unordered_set<std::filesystem::path> allowedPortableFiletypes = {".exe"};
+
     // fullValidation: bool to set if manifest validation should perform extra validation that is not required for reading a manifest.
-    std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation = true);
+    std::vector<ValidationError> ValidateManifest(const Manifest& manifest, ManifestValidateOption& validateOption);
     std::vector<ValidationError> ValidateManifestLocalization(const ManifestLocalization& localization, bool treatErrorAsWarning = false);
     std::vector<ValidationError> ValidateManifestInstallers(const Manifest& manifest, bool treatErrorAsWarning = false);
 }

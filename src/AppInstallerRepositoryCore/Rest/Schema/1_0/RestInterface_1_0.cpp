@@ -253,10 +253,13 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         std::vector<Manifest::Manifest> manifests = GetParsedManifests(jsonObject.value());
 
         // Manifest validation
+        Manifest::ManifestValidateOption validateOption;
+        validateOption.FullValidation = false;
+
         for (auto& manifestItem : manifests)
         {
             std::vector<AppInstaller::Manifest::ValidationError> validationErrors =
-                AppInstaller::Manifest::ValidateManifest(manifestItem, false);
+                AppInstaller::Manifest::ValidateManifest(manifestItem, validateOption);
 
             int errors = 0;
             for (auto& error : validationErrors)
