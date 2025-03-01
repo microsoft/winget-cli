@@ -20,7 +20,7 @@ namespace AppInstaller::Settings
         constexpr Utility::LocIndView s_AdminSettingsYaml_InstallerHashOverride = "InstallerHashOverride"_liv;
         constexpr Utility::LocIndView s_AdminSettingsYaml_LocalArchiveMalwareScanOverride = "LocalArchiveMalwareScanOverride"_liv;
         constexpr Utility::LocIndView s_AdminSettingsYaml_ProxyCommandLineOptions = "ProxyCommandLineOptions"_liv;
-        constexpr Utility::LocIndView s_AdminSettingsYaml_SmartScreenCheck = "SmartScreenCheck"_liv;
+        constexpr Utility::LocIndView s_AdminSettingsYaml_BypassSmartScreenCheck = "BypassSmartScreenCheck"_liv;
 
         constexpr Utility::LocIndView s_AdminSettingsYaml_DefaultProxy = "DefaultProxy"_liv;
 
@@ -47,7 +47,7 @@ namespace AppInstaller::Settings
             bool InstallerHashOverride = false;
             bool LocalArchiveMalwareScanOverride = false;
             bool ProxyCommandLineOptions = false;
-            bool SmartScreenCheck = true;
+            bool BypassSmartScreenCheck = false;
 
             std::optional<std::string> DefaultProxy;
         };
@@ -122,8 +122,8 @@ namespace AppInstaller::Settings
                     case BoolAdminSetting::ProxyCommandLineOptions:
                         m_settingValues.ProxyCommandLineOptions = enabled;
                         return true;
-                    case BoolAdminSetting::SmartScreenCheck:
-                        m_settingValues.SmartScreenCheck = enabled;
+                    case BoolAdminSetting::BypassSmartScreenCheck:
+                        m_settingValues.BypassSmartScreenCheck = enabled;
                         return true;
                     default:
                         return false;
@@ -160,8 +160,8 @@ namespace AppInstaller::Settings
                 return m_settingValues.LocalArchiveMalwareScanOverride;
             case BoolAdminSetting::ProxyCommandLineOptions:
                 return m_settingValues.ProxyCommandLineOptions;
-            case BoolAdminSetting::SmartScreenCheck:
-                return m_settingValues.SmartScreenCheck;
+            case BoolAdminSetting::BypassSmartScreenCheck:
+                return m_settingValues.BypassSmartScreenCheck;
             default:
                 return false;
             }
@@ -217,7 +217,7 @@ namespace AppInstaller::Settings
             TryReadScalar<bool>(document, s_AdminSettingsYaml_InstallerHashOverride, m_settingValues.InstallerHashOverride);
             TryReadScalar<bool>(document, s_AdminSettingsYaml_LocalArchiveMalwareScanOverride, m_settingValues.LocalArchiveMalwareScanOverride);
             TryReadScalar<bool>(document, s_AdminSettingsYaml_ProxyCommandLineOptions, m_settingValues.ProxyCommandLineOptions);
-            TryReadScalar<bool>(document, s_AdminSettingsYaml_SmartScreenCheck, m_settingValues.SmartScreenCheck);
+            TryReadScalar<bool>(document, s_AdminSettingsYaml_BypassSmartScreenCheck, m_settingValues.BypassSmartScreenCheck);
 
             std::string defaultProxy;
             if (TryReadScalar<std::string>(document, s_AdminSettingsYaml_DefaultProxy, defaultProxy))
@@ -235,7 +235,7 @@ namespace AppInstaller::Settings
             out << YAML::Key << s_AdminSettingsYaml_InstallerHashOverride << YAML::Value << m_settingValues.InstallerHashOverride;
             out << YAML::Key << s_AdminSettingsYaml_LocalArchiveMalwareScanOverride << YAML::Value << m_settingValues.LocalArchiveMalwareScanOverride;
             out << YAML::Key << s_AdminSettingsYaml_ProxyCommandLineOptions << YAML::Value << m_settingValues.ProxyCommandLineOptions;
-            out << YAML::Key << s_AdminSettingsYaml_SmartScreenCheck << YAML::Value << m_settingValues.SmartScreenCheck;
+            out << YAML::Key << s_AdminSettingsYaml_BypassSmartScreenCheck << YAML::Value << m_settingValues.BypassSmartScreenCheck;
 
             if (m_settingValues.DefaultProxy)
             {
@@ -289,9 +289,9 @@ namespace AppInstaller::Settings
         {
             result = BoolAdminSetting::ProxyCommandLineOptions;
         }
-        else if (Utility::CaseInsensitiveEquals(s_AdminSettingsYaml_SmartScreenCheck, in))
+        else if (Utility::CaseInsensitiveEquals(s_AdminSettingsYaml_BypassSmartScreenCheck, in))
         {
-            result = BoolAdminSetting::SmartScreenCheck;
+            result = BoolAdminSetting::BypassSmartScreenCheck;
         }
 
         return result;
@@ -323,8 +323,8 @@ namespace AppInstaller::Settings
             return s_AdminSettingsYaml_LocalArchiveMalwareScanOverride;
         case BoolAdminSetting::ProxyCommandLineOptions:
             return s_AdminSettingsYaml_ProxyCommandLineOptions;
-        case BoolAdminSetting::SmartScreenCheck:
-            return s_AdminSettingsYaml_SmartScreenCheck;
+        case BoolAdminSetting::BypassSmartScreenCheck:
+            return s_AdminSettingsYaml_BypassSmartScreenCheck;
         default:
             return "Unknown"_liv;
         }
@@ -355,8 +355,8 @@ namespace AppInstaller::Settings
             return TogglePolicy::Policy::LocalArchiveMalwareScanOverride;
         case BoolAdminSetting::ProxyCommandLineOptions:
             return TogglePolicy::Policy::ProxyCommandLineOptions;
-        case BoolAdminSetting::SmartScreenCheck:
-            return TogglePolicy::Policy::SmartScreenCheck;
+        case BoolAdminSetting::BypassSmartScreenCheck:
+            return TogglePolicy::Policy::BypassSmartScreenCheck;
         default:
             return TogglePolicy::Policy::None;
         }

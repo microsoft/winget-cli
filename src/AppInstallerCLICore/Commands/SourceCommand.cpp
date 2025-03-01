@@ -56,6 +56,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::SourceExplicit),
+            Argument::ForType(Args::Type::IgnoreSmartScreen),
         };
     }
 

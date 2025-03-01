@@ -56,6 +56,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Rename),
             Argument::ForType(Args::Type::UninstallPrevious),
             Argument::ForType(Args::Type::Force),
+            Argument::ForType(Args::Type::IgnoreSmartScreen),
             Argument{ Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden},
         };
     }

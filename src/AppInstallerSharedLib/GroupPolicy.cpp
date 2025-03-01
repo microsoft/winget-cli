@@ -394,8 +394,8 @@ namespace AppInstaller::Settings
             return TogglePolicy(policy, "EnableWindowsPackageManagerProxyCommandLineOptions"sv, String::PolicyEnableProxyCommandLineOptions);
         case TogglePolicy::Policy::AllowedSecurityZones:
             return TogglePolicy(policy, "EnableWindowsPackageManagerAllowedSecurityZones"sv, String::PolicyEnableAllowedSecurityZones);
-        case TogglePolicy::Policy::SmartScreenCheck:
-            return TogglePolicy(policy, "EnableWindowsPackageManagerSmartScreenCheck"sv, String::PolicyEnableSmartScreenValidation);
+        case TogglePolicy::Policy::BypassSmartScreenCheck:
+            return TogglePolicy(policy, "EnableBypassWindowsPackageManagerSmartScreenCheck"sv, String::PolicyEnableBypassSmartScreenValidation);
         default:
             THROW_HR(E_UNEXPECTED);
         }

@@ -304,6 +304,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="HashOverrideArgumentDescription" xml:space="preserve">
     <value>Ignore the installer hash check failure</value>
   </data>
+  <data name="IgnoreSmartScreenArgumentDescription" xml:space="preserve">
+    <value>Ignore the smart screen check failure</value>
+  </data>
   <data name="IgnoreLocalArchiveMalwareScanArgumentDescription" xml:space="preserve">
     <value>Ignore the malware scan performed as part of installing an archive type package from local manifest</value>
   </data>

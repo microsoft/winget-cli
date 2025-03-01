@@ -39,6 +39,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Force),
             Argument::ForType(Args::Type::HashOverride),
             Argument::ForType(Args::Type::Exact),
+            Argument::ForType(Args::Type::IgnoreSmartScreen),
         };
     }
 

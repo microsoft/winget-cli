@@ -32,10 +32,10 @@
           "type": "boolean",
           "default": false
         },
-        "SmartScreenCheck": {
-          "description": "Enable smart screen check.",
+        "BypassSmartScreenCheck": {
+          "description": "Enable smart screen check bypass.",
           "type": "boolean",
-          "default": true
+          "default": false
         },
         "DefaultProxy": {
           "description": "Default proxy.",

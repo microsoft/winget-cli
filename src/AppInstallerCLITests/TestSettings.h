@@ -24,7 +24,7 @@ namespace TestCommon
     const std::wstring ConfigurationPolicyValueName = L"EnableWindowsPackageManagerConfiguration";
     const std::wstring ProxyCommandLineOptionsPolicyValueName = L"EnableWindowsPackageManagerProxyCommandLineOptions";
     const std::wstring AllowedSecurityZonesPolicyValueName = L"EnableWindowsPackageManagerAllowedSecurityZones";
-    const std::wstring SmartScreenValidationPolicyValueName = L"EnableWindowsPackageManagerSmartScreenCheck";
+    const std::wstring BypassSmartScreenValidationPolicyValueName = L"EnableBypassWindowsPackageManagerSmartScreenCheck";
 
     const std::wstring SourceUpdateIntervalPolicyValueName = L"SourceAutoUpdateInterval";
     const std::wstring SourceUpdateIntervalPolicyOldValueName = L"SourceAutoUpdateIntervalInMinutes";

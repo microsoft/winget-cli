@@ -183,7 +183,7 @@
         <text id="WindowsPackageManagerDefaultProxy" valueName="DefaultProxy"  />
       </elements>
     </policy>
-    <policy name="EnableWindowsPackageManagerSmartScreenCheck" class="Machine" displayName="$(string.EnableWindowsPackageManagerSmartScreenCheck)" explainText="$(string.EnableWindowsPackageManagerSmartScreenCheckExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerSmartScreenCheck">
+    <policy name="EnableBypassWindowsPackageManagerSmartScreenCheck" class="Machine" displayName="$(string.EnableBypassWindowsPackageManagerSmartScreenCheck)" explainText="$(string.EnableBypassWindowsPackageManagerSmartScreenCheckExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableBypassWindowsPackageManagerSmartScreenCheck">
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
       <enabledValue>

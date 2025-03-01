@@ -95,6 +95,8 @@ namespace AppInstaller::CLI
             return { type, "skip-dependencies"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::AllowReboot:
             return { type, "allow-reboot"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
+        case Execution::Args::Type::IgnoreSmartScreen:
+            return { type, "ignore-smartscreen"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
 
         // Uninstall behavior
         case Execution::Args::Type::Purge:
@@ -442,6 +444,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::NoProxyArgumentDescription, ArgumentType::Flag, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
         case Args::Type::Family:
             return Argument{ type, Resource::String::FontFamilyNameArgumentDescription, ArgumentType::Positional, false };
+        case Args::Type::IgnoreSmartScreen:
+            return Argument{ type, Resource::String::IgnoreSmartScreenArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::BypassSmartScreenCheck, Settings::BoolAdminSetting::BypassSmartScreenCheck };
         default:
             THROW_HR(E_UNEXPECTED);
         }

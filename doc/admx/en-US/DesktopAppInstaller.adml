@@ -124,8 +124,8 @@ If you disable or do not configure this setting, no proxy will be used by defaul
 If you enable this setting, the specified proxy will be used by default.</string>
       <string id="EnableWindowsPackageManagerAllowedSecurityZones">Enable App Installer Allowed Zones for the Windows Package Manager</string>
       <string id="EnableWindowsPackageManagerAllowedSecurityZonesExplanation"></string>
-      <string id="EnableWindowsPackageManagerSmartScreenCheck">Enable Microsoft SmartScreen checks for the Windows Package Manager</string>
-      <string id="EnableWindowsPackageManagerSmartScreenCheckExplanation"></string>
+      <string id="EnableBypassWindowsPackageManagerSmartScreenCheck">Enable Windows Package Manager SmartScreen Checks Bypass</string>
+      <string id="EnableBypassWindowsPackageManagerSmartScreenCheckExplanation"></string>
       <string id="EnableMsixAllowedZones">Enable App Installer Allowed Zones for MSIX Packages</string>
       <string id="EnableMsixAllowedZonesExplanation">This policy controls whether App Installer allows installing packages originating from specific URL Zones. A package's origin is determined by its URI and whether a Mart-of-the-Web (MotW) is present. If multiple URIs are involved, all of them are considered; for example, when using a .appinstaller file that involves redirection.
 

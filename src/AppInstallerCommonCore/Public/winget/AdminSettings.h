@@ -16,7 +16,7 @@ namespace AppInstaller::Settings
         InstallerHashOverride,
         LocalArchiveMalwareScanOverride,
         ProxyCommandLineOptions,
-        SmartScreenCheck,
+        BypassSmartScreenCheck,
         Max,
     };
 

@@ -79,7 +79,7 @@ TEST_CASE("UriValidationFlow_Configuration_SmartScreen", "[UriValidationFlow][wo
 {
     SECTION("Not configured")
     {
-        SET_POLICY_STATE(TogglePolicy::Policy::SmartScreenCheck, PolicyState::NotConfigured);
+        SET_POLICY_STATE(TogglePolicy::Policy::BypassSmartScreenCheck, PolicyState::NotConfigured);
         EXECUTE_CONTEXT_FOR_CONFIGURATION(InternetBlock);
         REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_BLOCKED_BY_REPUTATION_SERVICE);
         REQUIRE_OUTPUT_HAS_LOC(uriValidationOutput, Resource::String::UriBlockedBySmartScreen);
@@ -87,7 +87,7 @@ TEST_CASE("UriValidationFlow_Configuration_SmartScreen", "[UriValidationFlow][wo
 
     SECTION("Enabled")
     {
-        SET_POLICY_STATE(TogglePolicy::Policy::SmartScreenCheck, PolicyState::Enabled);
+        SET_POLICY_STATE(TogglePolicy::Policy::BypassSmartScreenCheck, PolicyState::Enabled);
         EXECUTE_CONTEXT_FOR_CONFIGURATION(InternetBlock);
         REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_BLOCKED_BY_REPUTATION_SERVICE);
         REQUIRE_OUTPUT_HAS_LOC(uriValidationOutput, Resource::String::UriBlockedBySmartScreen);
@@ -95,7 +95,7 @@ TEST_CASE("UriValidationFlow_Configuration_SmartScreen", "[UriValidationFlow][wo
 
     SECTION("Disabled")
     {
-        SET_POLICY_STATE(TogglePolicy::Policy::SmartScreenCheck, PolicyState::Disabled);
+        SET_POLICY_STATE(TogglePolicy::Policy::BypassSmartScreenCheck, PolicyState::Disabled);
         EXECUTE_CONTEXT_FOR_CONFIGURATION(InternetBlock);
         REQUIRE(S_OK == context.GetTerminationHR());
     }
@@ -130,7 +130,7 @@ TEST_CASE("UriValidationFlow_PackageCatalogSource_SmartScreen", "[UriValidationF
 {
     SECTION("Not configured")
     {
-        SET_POLICY_STATE(TogglePolicy::Policy::SmartScreenCheck, PolicyState::NotConfigured);
+        SET_POLICY_STATE(TogglePolicy::Policy::BypassSmartScreenCheck, PolicyState::NotConfigured);
         EXECUTE_CONTEXT_FOR_PACKAGE_CATALOG_SOURCE(InternetBlock);
         REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_BLOCKED_BY_REPUTATION_SERVICE);
         REQUIRE_OUTPUT_HAS_LOC(uriValidationOutput, Resource::String::UriBlockedBySmartScreen);
@@ -138,7 +138,7 @@ TEST_CASE("UriValidationFlow_PackageCatalogSource_SmartScreen", "[UriValidationF
 
     SECTION("Enabled")
     {
-        SET_POLICY_STATE(TogglePolicy::Policy::SmartScreenCheck, PolicyState::Enabled);
+        SET_POLICY_STATE(TogglePolicy::Policy::BypassSmartScreenCheck, PolicyState::Enabled);
         EXECUTE_CONTEXT_FOR_PACKAGE_CATALOG_SOURCE(InternetBlock);
         REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_BLOCKED_BY_REPUTATION_SERVICE);
         REQUIRE_OUTPUT_HAS_LOC(uriValidationOutput, Resource::String::UriBlockedBySmartScreen);
@@ -146,7 +146,7 @@ TEST_CASE("UriValidationFlow_PackageCatalogSource_SmartScreen", "[UriValidationF
 
     SECTION("Disabled")
     {
-        SET_POLICY_STATE(TogglePolicy::Policy::SmartScreenCheck, PolicyState::Disabled);
+        SET_POLICY_STATE(TogglePolicy::Policy::BypassSmartScreenCheck, PolicyState::Disabled);
         EXECUTE_CONTEXT_FOR_PACKAGE_CATALOG_SOURCE(InternetBlock);
         REQUIRE(S_OK == context.GetTerminationHR());
     }
@@ -157,28 +157,28 @@ TEST_CASE("UriValidationFlow_SmartScreenZoneRequirement", "[UriValidationFlow][w
     // Smart screen should only be evaluated for Internet and Untrusted zones.
     SECTION("Local")
     {
-        SET_POLICY_STATE(TogglePolicy::Policy::SmartScreenCheck, PolicyState::Enabled);
+        SET_POLICY_STATE(TogglePolicy::Policy::BypassSmartScreenCheck, PolicyState::Enabled);
         EXECUTE_CONTEXT_FOR_CONFIGURATION(LocalBlock);
         REQUIRE(S_OK == context.GetTerminationHR());
     }
 
     SECTION("Intranet")
     {
-        SET_POLICY_STATE(TogglePolicy::Policy::SmartScreenCheck, PolicyState::Enabled);
+        SET_POLICY_STATE(TogglePolicy::Policy::BypassSmartScreenCheck, PolicyState::Enabled);
         EXECUTE_CONTEXT_FOR_CONFIGURATION(IntranetBlock);
         REQUIRE(S_OK == context.GetTerminationHR());
     }
 
     SECTION("Trusted")
     {
-        SET_POLICY_STATE(TogglePolicy::Policy::SmartScreenCheck, PolicyState::Enabled);
+        SET_POLICY_STATE(TogglePolicy::Policy::BypassSmartScreenCheck, PolicyState::Enabled);
         EXECUTE_CONTEXT_FOR_CONFIGURATION(TrustedBlock);
         REQUIRE(S_OK == context.GetTerminationHR());
     }
 
     SECTION("Internet")
     {
-        SET_POLICY_STATE(TogglePolicy::Policy::SmartScreenCheck, PolicyState::Enabled);
+        SET_POLICY_STATE(TogglePolicy::Policy::BypassSmartScreenCheck, PolicyState::Enabled);
         EXECUTE_CONTEXT_FOR_CONFIGURATION(InternetBlock);
         REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_BLOCKED_BY_REPUTATION_SERVICE);
         REQUIRE_OUTPUT_HAS_LOC(uriValidationOutput, Resource::String::UriBlockedBySmartScreen);
@@ -186,7 +186,7 @@ TEST_CASE("UriValidationFlow_SmartScreenZoneRequirement", "[UriValidationFlow][w
 
     SECTION("Untrusted")
     {
-        SET_POLICY_STATE(TogglePolicy::Policy::SmartScreenCheck, PolicyState::Enabled);
+        SET_POLICY_STATE(TogglePolicy::Policy::BypassSmartScreenCheck, PolicyState::Enabled);
         EXECUTE_CONTEXT_FOR_CONFIGURATION(UntrustedBlock);
         REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_BLOCKED_BY_REPUTATION_SERVICE);
         REQUIRE_OUTPUT_HAS_LOC(uriValidationOutput, Resource::String::UriBlockedBySmartScreen);

@@ -59,7 +59,7 @@ namespace AppInstaller::Settings
             Configuration,
             ProxyCommandLineOptions,
             AllowedSecurityZones,
-            SmartScreenCheck,
+            BypassSmartScreenCheck,
             Max,
         };
 
