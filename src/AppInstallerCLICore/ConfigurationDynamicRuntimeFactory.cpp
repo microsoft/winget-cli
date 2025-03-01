@@ -4,6 +4,7 @@
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
 #include <AppInstallerErrors.h>
 #include <AppInstallerLanguageUtilities.h>
+#include <AppInstallerLogging.h>
 #include <AppInstallerStrings.h>
 #include <winget/ILifetimeWatcher.h>
 #include <winget/Security.h>
@@ -318,6 +319,13 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     if (dscExecutablePath.empty())
                     {
                         dscExecutablePath = m_dynamicFactory->Lookup(ToHString(PropertyName::FoundDscExecutablePath));
+                    }
+
+                    if (dscExecutablePath.empty())
+                    {
+                        // This is backstop to prevent a case where dsc.exe not found.
+                        AICLI_LOG(Config, Error, << "Could not find dsc.exe, it must be provided by the user.");
+                        THROW_WIN32(ERROR_FILE_NOT_FOUND);
                     }
 
                     json["processorPath"] = Utility::ConvertToUTF8(dscExecutablePath);

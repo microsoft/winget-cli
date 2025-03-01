@@ -411,6 +411,12 @@ namespace AppInstaller::CLI::Workflow
             {
                 m_context.Reporter.Info() << ConfigurationUnitEmphasis << ConvertIdentifier(name);
 
+                if (unit.Environment().Context() == SecurityContext::Elevated)
+                {
+                    // Shield
+                    m_context.Reporter.Info() << "\xF0\x9F\x9B\xA1 "_liv;
+                }
+
                 winrt::hstring identifier = unit.Identifier();
                 if (!identifier.empty())
                 {

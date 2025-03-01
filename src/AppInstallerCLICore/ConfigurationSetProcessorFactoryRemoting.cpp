@@ -20,19 +20,22 @@ namespace AppInstaller::CLI::ConfigurationRemoting
     namespace
     {
         // The executable file name for the remote server process.
-        constexpr std::wstring_view s_RemoteServerFileName = L"ConfigurationRemotingServer\\ConfigurationRemotingServer.exe";
+        constexpr std::wstring_view s_RemoteServerFileName = L"ConfigurationRemotingServer\\ConfigurationRemotingServer.exe"sv;
+
+        constexpr std::wstring_view s_ProcessorEngine_PowerShell = L"pwsh"sv;
+        constexpr std::wstring_view s_ProcessorEngine_DSCv3 = L"dscv3"sv;
 
         // The string used to divide the arguments sent to the remote server
-        constexpr std::wstring_view s_ArgumentsDivider = L"\n~~~~~~\n";
+        constexpr std::wstring_view s_ArgumentsDivider = L"\n~~~~~~\n"sv;
 
         std::wstring_view ToString(ProcessorEngine value)
         {
             switch (value)
             {
             case ProcessorEngine::PowerShell:
-                return L"pwsh"sv;
+                return s_ProcessorEngine_PowerShell;
             case ProcessorEngine::DSCv3:
-                return L"dscv3"sv;
+                return s_ProcessorEngine_DSCv3;
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -346,13 +349,13 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         {
             ProcessorEngine result = ProcessorEngine::Unknown;
 
-            winrt::hstring processorIdentifier = set.Environment().ProcessorIdentifier();
-            if (processorIdentifier.empty() || processorIdentifier == L"pwsh")
+            std::wstring processorIdentifier = Utility::ToLower(set.Environment().ProcessorIdentifier());
+            if (processorIdentifier.empty() || processorIdentifier == s_ProcessorEngine_PowerShell)
             {
                 // Default to PowerShell
                 result = ProcessorEngine::PowerShell;
             }
-            else if (processorIdentifier == L"dscv3")
+            else if (processorIdentifier == s_ProcessorEngine_DSCv3)
             {
                 result = ProcessorEngine::DSCv3;
             }
