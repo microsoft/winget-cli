@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ConfigurationUnitResultInformation.h"
 #include "AppInstallerErrors.h"
+#include "AppInstallerStrings.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -25,6 +26,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             return ConfigurationUnitResultSource::Internal;
         }
+
+        hstring SanitizeString(std::wstring_view value)
+        {
+            using namespace AppInstaller::Utility;
+            return hstring{ ConvertToUTF16(ConvertControlCodesToPictures(ConvertToUTF8(value))) };
+        }
     }
 
     void ConfigurationUnitResultInformation::Initialize(const Configuration::IConfigurationUnitResultInformation& other)
@@ -32,8 +39,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         if (other)
         {
             m_resultCode = other.ResultCode();
-            m_description = other.Description();
-            m_details = other.Details();
+            m_description = SanitizeString(other.Description());
+            m_details = SanitizeString(other.Details());
             m_resultSource = other.ResultSource();
         }
     }
@@ -41,14 +48,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationUnitResultInformation::Initialize(hresult resultCode, std::wstring_view description)
     {
         m_resultCode = resultCode;
-        m_description = description;
+        m_description = SanitizeString(description);
         m_resultSource = FromHRESULT(resultCode);
     }
 
     void ConfigurationUnitResultInformation::Initialize(hresult resultCode, hstring description)
     {
         m_resultCode = resultCode;
-        m_description = description;
+        m_description = SanitizeString(description);
         m_resultSource = FromHRESULT(resultCode);
     }
 
@@ -61,8 +68,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationUnitResultInformation::Initialize(hresult resultCode, std::wstring_view description, std::wstring_view details, ConfigurationUnitResultSource resultSource)
     {
         m_resultCode = resultCode;
-        m_description = description;
-        m_details = details;
+        m_description = SanitizeString(description);
+        m_details = SanitizeString(details);
         m_resultSource = resultSource;
     }
 

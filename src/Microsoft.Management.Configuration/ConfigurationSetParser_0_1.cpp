@@ -32,6 +32,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return s_schemaVersion;
     }
 
+    void ConfigurationSetParser_0_1::ExtractEnvironmentFromMetadata(Windows::Foundation::Collections::ValueSet, implementation::ConfigurationEnvironment&)
+    {
+    }
+
     void ConfigurationSetParser_0_1::SetDocument(AppInstaller::YAML::Node&& document)
     {
         m_document = std::move(document);

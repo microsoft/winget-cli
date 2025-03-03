@@ -355,25 +355,14 @@ You can enable the feature as shown below.
    },
 ```
 
-### configuration03
+### dsc3
 
-This feature enables the configuration schema 0.3.
+This feature enables support for DSC v3 integration.
 You can enable the feature as shown below.
 
 ```json
    "experimentalFeatures": {
-       "configuration03": true
-   },
-```
-
-### configureSelfElevate
-
-This feature enables configure commands to request elevation as needed.
-Currently, this means that properly attributed configuration units (and only those) will be run through an elevated process while the rest are run from the current context.
-
-```json
-   "experimentalFeatures": {
-       "configureSelfElevate": true
+       "dsc3": true
    },
 ```
 

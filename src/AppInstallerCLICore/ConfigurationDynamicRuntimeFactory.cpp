@@ -4,6 +4,7 @@
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
 #include <AppInstallerErrors.h>
 #include <AppInstallerLanguageUtilities.h>
+#include <AppInstallerLogging.h>
 #include <AppInstallerStrings.h>
 #include <winget/ILifetimeWatcher.h>
 #include <winget/Security.h>
@@ -43,9 +44,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         // have this implementation leverage that one with an event handler for the packaged specifics.
         // TODO: Add SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties and pass values along to sets on creation
         //       In turn, any properties must only be set via the command line (or eventual UI requests to the user).
-        struct DynamicFactory : winrt::implements<DynamicFactory, IConfigurationSetProcessorFactory, SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
+        struct DynamicFactory : winrt::implements<DynamicFactory, IConfigurationSetProcessorFactory, SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties, Collections::IMap<winrt::hstring, winrt::hstring>, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
         {
-            DynamicFactory();
+            DynamicFactory(ProcessorEngine processorEngine);
 
             IConfigurationSetProcessor CreateSetProcessor(const ConfigurationSet& configurationSet);
 
@@ -105,6 +106,36 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_customLocation = value;
             }
 
+            // Implement a subset of IMap to enable property bag semantics
+            uint32_t Size() { THROW_HR(E_NOTIMPL); }
+            void Clear() { THROW_HR(E_NOTIMPL); }
+            Collections::IMapView<winrt::hstring, winrt::hstring> GetView() { THROW_HR(E_NOTIMPL); }
+            bool HasKey(winrt::hstring) { THROW_HR(E_NOTIMPL); }
+            void Remove(winrt::hstring) { THROW_HR(E_NOTIMPL); }
+
+            bool Insert(winrt::hstring key, winrt::hstring value)
+            {
+                auto result = m_defaultRemoteFactory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Insert(key, value);
+                m_factoryMapValues[key] = value;
+                return result;
+            }
+
+            winrt::hstring Lookup(winrt::hstring key)
+            {
+                return m_defaultRemoteFactory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Lookup(key);
+            }
+
+            ProcessorEngine Engine() const
+            {
+                return m_processorEngine;
+            }
+
+            winrt::hstring GetFactoryMapValue(winrt::hstring key)
+            {
+                auto itr = m_factoryMapValues.find(key);
+                return itr != m_factoryMapValues.end() ? itr->second : winrt::hstring{};
+            }
+
         private:
             IConfigurationSetProcessorFactory m_defaultRemoteFactory;
             winrt::event<EventHandler<IDiagnosticInformation>> m_diagnostics;
@@ -113,6 +144,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             DiagnosticLevel m_minimumLevel = DiagnosticLevel::Informational;
             SetProcessorFactory::PwshConfigurationProcessorLocation m_location = SetProcessorFactory::PwshConfigurationProcessorLocation::Default;
             winrt::hstring m_customLocation;
+            ProcessorEngine m_processorEngine;
+            std::map<winrt::hstring, winrt::hstring> m_factoryMapValues;
         };
 
         struct DynamicProcessorInfo
@@ -277,6 +310,27 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     json["modulePath"] = locationString;
                 }
 
+                // Ensure that we always pass a path to the executable
+                if (m_dynamicFactory->Engine() == ProcessorEngine::DSCv3)
+                {
+                    winrt::hstring dscExecutablePathPropertyName = ToHString(PropertyName::DscExecutablePath);
+                    winrt::hstring dscExecutablePath = m_dynamicFactory->GetFactoryMapValue(dscExecutablePathPropertyName);
+
+                    if (dscExecutablePath.empty())
+                    {
+                        dscExecutablePath = m_dynamicFactory->Lookup(ToHString(PropertyName::FoundDscExecutablePath));
+                    }
+
+                    if (dscExecutablePath.empty())
+                    {
+                        // This is backstop to prevent a case where dsc.exe not found.
+                        AICLI_LOG(Config, Error, << "Could not find dsc.exe, it must be provided by the user.");
+                        THROW_WIN32(ERROR_FILE_NOT_FOUND);
+                    }
+
+                    json["processorPath"] = Utility::ConvertToUTF8(dscExecutablePath);
+                }
+
                 Json::StreamWriterBuilder writerBuilder;
                 writerBuilder.settings_["indentation"] = "\t";
                 return Json::writeString(writerBuilder, json);
@@ -337,7 +391,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     useRunAs = !m_enableTestMode;
 #endif
 
-                    factory = CreateOutOfProcessFactory(useRunAs, SerializeSetProperties(), SerializeHighIntegrityLevelSet());
+                    factory = CreateOutOfProcessFactory(m_dynamicFactory->Engine(), useRunAs, SerializeSetProperties(), SerializeHighIntegrityLevelSet());
                 }
                 else
                 {
@@ -346,6 +400,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
                 if (factory)
                 {
+                    factory.MinimumLevel(m_dynamicFactory->MinimumLevel());
                     factoryDiagnosticsEventRevoker = factory.Diagnostics(winrt::auto_revoke,
                         [weak_this{ get_weak() }](const IInspectable&, const IDiagnosticInformation& information)
                         {
@@ -373,9 +428,10 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 #endif
         };
 
-        DynamicFactory::DynamicFactory()
+        DynamicFactory::DynamicFactory(ProcessorEngine processorEngine)
         {
-            m_defaultRemoteFactory = CreateOutOfProcessFactory();
+            m_processorEngine = processorEngine;
+            m_defaultRemoteFactory = CreateOutOfProcessFactory(processorEngine);
 
             if (m_defaultRemoteFactory)
             {
@@ -413,6 +469,11 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         void DynamicFactory::MinimumLevel(DiagnosticLevel value)
         {
             m_minimumLevel = value;
+
+            if (m_defaultRemoteFactory)
+            {
+                m_defaultRemoteFactory.MinimumLevel(value);
+            }
         }
 
         HRESULT STDMETHODCALLTYPE DynamicFactory::SetLifetimeWatcher(IUnknown* watcher)
@@ -437,8 +498,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         catch (...) {}
     }
 
-    winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory CreateDynamicRuntimeFactory()
+    winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory CreateDynamicRuntimeFactory(ProcessorEngine processorEngine)
     {
-        return winrt::make<anonymous::DynamicFactory>();
+        return winrt::make<anonymous::DynamicFactory>(processorEngine);
     }
 }

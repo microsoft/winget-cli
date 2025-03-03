@@ -25,6 +25,10 @@
     <WinGetCsWinRTEmbedded Condition="'$(WinGetCsWinRTEmbedded)'==''">true</WinGetCsWinRTEmbedded>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(WingetDisableTestHooks)'=='true'">
+    <DefineConstants>$(DefineConstants);AICLI_DISABLE_TEST_HOOKS</DefineConstants>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -69,17 +73,28 @@
     </ProjectReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="PowerShell\Unit\" />
-    <Folder Include="PowerShell\Set\" />
-  </ItemGroup>
-  
   <PropertyGroup Condition="'$(WinGetCsWinRTEmbedded)'=='true'">
     <DefineConstants>$(DefineConstants);WinGetCsWinRTEmbedded</DefineConstants>
     <CsWinRTComponent>false</CsWinRTComponent>
     <CsWinRTIncludes>
       Microsoft.Management.Configuration;
+      Windows.ApplicationModel.AppDisplayInf;
+      Windows.ApplicationModel.IAppDisplayInf;
+      Windows.ApplicationModel.AppExecutionContex;
+      Windows.ApplicationModel.IAppExecutionContex;
+      Windows.ApplicationModel.AppInf;
+      Windows.ApplicationModel.IAppInf;
+      Windows.ApplicationModel.AppInstallerInf;
+      Windows.ApplicationModel.IAppInstallerInf;
+      Windows.ApplicationModel.AppInstallerPolicySourc;
+      Windows.ApplicationModel.AddResourcePackageOption;
+      Windows.ApplicationModel.IAddResourcePackageOption;
+      Windows.ApplicationModel.Packag;
+      Windows.ApplicationModel.IPackag;
+      Windows.ApplicationModel.Core.AppListEntr;
+      Windows.ApplicationModel.Core.IAppListEntr;
       Windows.Data.Text.TextSegmen;
+      Windows.Management.Deployment;
       Windows.Devices.Geolocation;
       Windows.Foundation;
       Windows.Globalization.DayOfWee;
@@ -91,6 +106,7 @@
       Windows.Networking.IHostNam;
       Windows.Security.Cryptography.Certificates;
       Windows.Storage;
+      Windows.System.ProcessorArchitectur;
       Windows.System.Use;
       Windows.System.IUse;
     </CsWinRTIncludes>

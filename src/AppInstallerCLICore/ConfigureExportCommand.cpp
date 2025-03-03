@@ -17,6 +17,7 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::ConfigurationExportModule, Resource::String::ConfigureExportModule },
             Argument{ Execution::Args::Type::ConfigurationExportResource, Resource::String::ConfigureExportResource },
             Argument{ Execution::Args::Type::ConfigurationModulePath, Resource::String::ConfigurationModulePath },
+            Argument{ Execution::Args::Type::ConfigurationProcessorPath, Resource::String::ConfigurationProcessorPath, ArgumentType::Standard, Argument::Visibility::Help },
             Argument{ Execution::Args::Type::Source, Resource::String::ExportSourceArgumentDescription, ArgumentType::Standard },
             Argument{ Execution::Args::Type::IncludeVersions, Resource::String::ExportIncludeVersionsArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::ConfigurationExportAll, Resource::String::ConfigureExportAll, ArgumentType::Flag },
@@ -44,8 +45,9 @@ namespace AppInstaller::CLI
         context <<
             VerifyIsFullPackage <<
             SearchSourceForPackageExport <<
-            CreateConfigurationProcessor <<
+            CreateConfigurationProcessorWithoutFactory <<
             CreateOrOpenConfigurationSet <<
+            CreateConfigurationProcessor <<
             PopulateConfigurationSetForExport <<
             WriteConfigFile;
     }
