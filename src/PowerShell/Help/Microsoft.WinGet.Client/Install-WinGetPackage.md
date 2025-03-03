@@ -22,7 +22,7 @@ Install-WinGetPackage [-Mode <PSPackageInstallMode>] [-Override <String>] [-Cust
  [-Architecture <PSProcessorArchitecture>] [-InstallerType <PSPackageInstallerType>] [-Locale <String>]
  [-Scope <PSPackageInstallScope>] [-SkipDependencies] [-Version <String>] [-Id <String>] [-Name <String>]
  [-Moniker <String>] [-Source <String>] [[-Query] <String[]>] [-MatchOption <PSPackageFieldMatchOption>]
- [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-WhatIf] [-Confirm] [-AcceptPackageAgreements] [-AcceptSourceAgreements] [<CommonParameters>]
 ```
 
 ### GivenSet
@@ -32,7 +32,7 @@ Install-WinGetPackage [-Mode <PSPackageInstallMode>] [-Override <String>] [-Cust
  [-Location <String>] [-Log <String>] [-Force] [-Header <String>] [-AllowHashMismatch]
  [-Architecture <PSProcessorArchitecture>] [-InstallerType <PSPackageInstallerType>] [-Locale <String>]
  [-Scope <PSPackageInstallScope>] [-SkipDependencies] [[-PSCatalogPackage] <PSCatalogPackage>]
- [-Version <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-Version <String>] [-WhatIf] [-Confirm] [-AcceptPackageAgreements] [-AcceptSourceAgreements [<CommonParameters>]
 ```
 
 ## DESCRIPTION
