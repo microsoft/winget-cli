@@ -39,6 +39,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="source">Source to search. If null, all are searched.</param>
         /// <param name="query">Match against any field of a package.</param>
         /// <param name="skipDependencies">To skip package dependencies.</param>
+        /// <param name="acceptPackageAgreements">To accept all license agreements for packages.</param>
+        /// <param name="acceptSourceAgreements">To accept all license agreements for sources.</param>
         public InstallerPackageCommand(
             PSCmdlet psCmdlet,
             string @override,
@@ -55,7 +57,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string moniker,
             string source,
             string[] query,
-            bool skipDependencies)
+            bool skipDependencies,
+            bool acceptPackageAgreements,
+            bool acceptSourceAgreements)
             : base(psCmdlet)
         {
             // InstallCommand.
@@ -66,6 +70,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Header = header;
             this.AllowHashMismatch = allowHashMismatch;
             this.SkipDependencies = skipDependencies;
+            this.AcceptPackageAgreements = acceptPackageAgreements;
+            this.acceptSourceAgreements = acceptSourceAgreements;
             this.Log = log;
 
             // PackageCommand.

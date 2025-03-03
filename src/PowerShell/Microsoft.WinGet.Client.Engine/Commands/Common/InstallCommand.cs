@@ -36,6 +36,16 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         protected bool SkipDependencies { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to accept all license agreements for packages.
+        /// </summary>
+        protected bool AcceptPackageAgreements { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to accept all source agreements during source operations.
+        /// </summary>
+        protected bool AcceptSourceAgreements { get; set; }
+
+        /// <summary>
         /// Gets or sets the override arguments to be passed on to the installer.
         /// </summary>
         protected string? Override { get; set; }
@@ -79,6 +89,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             InstallOptions options = ManagementDeploymentFactory.Instance.CreateInstallOptions();
             options.AllowHashMismatch = this.AllowHashMismatch;
             options.SkipDependencies = this.SkipDependencies;
+            options.AcceptPackageAgreements = this.AcceptPackageAgreements;
+            options.AcceptSourceAgreements = this.AcceptSourceAgreements;
             options.Force = this.Force;
             options.PackageInstallMode = PSEnumHelpers.ToPackageInstallMode(mode);
             if (version != null)
