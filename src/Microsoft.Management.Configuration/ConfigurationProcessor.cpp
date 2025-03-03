@@ -119,7 +119,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::Configuration));
 
         AppInstaller::Logging::DiagnosticLogger& logger = m_threadGlobals.GetDiagnosticLogger();
-        logger.EnableChannel(AppInstaller::Logging::Channel::All);
+        logger.SetEnabledChannels(AppInstaller::Logging::Channel::All);
         logger.SetLevel(AppInstaller::Logging::Level::Verbose);
         logger.AddLogger(std::make_unique<ConfigurationProcessorDiagnosticsLogger>(*this));
     }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
@@ -137,7 +137,7 @@ int main(int argc, char** argv)
     // Disable SQL by default, as it generates 10s of MBs of log file and
     // increases the full test run time by 60% or more.
     // By not creating a log target, it will all be thrown away.
-    Logging::Log().EnableChannel(Logging::Channel::All);
+    Logging::Log().SetEnabledChannels(Logging::Channel::All);
     if (!keepSQLLogging)
     {
         Logging::Log().DisableChannel(Logging::Channel::SQL);

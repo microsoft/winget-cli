@@ -70,7 +70,7 @@ namespace AppInstaller::CLI
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // We have to do this here so the auto minidump config initialization gets caught
         Logging::OutputDebugStringLogger::Add();
-        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().SetEnabledChannels(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
 
         if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
@@ -88,10 +88,10 @@ namespace AppInstaller::CLI
 
         // Set up debug string logging during initialization
         Logging::OutputDebugStringLogger::Add();
-        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().SetEnabledChannels(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
 
-        Logging::Log().EnableChannel(Settings::User().Get<Settings::Setting::LoggingChannelPreference>());
+        Logging::Log().SetEnabledChannels(Settings::User().Get<Settings::Setting::LoggingChannelPreference>());
         Logging::Log().SetLevel(Settings::User().Get<Settings::Setting::LoggingLevelPreference>());
         Logging::FileLogger::Add();
         Logging::OutputDebugStringLogger::Remove();
@@ -192,7 +192,7 @@ namespace AppInstaller::CLI
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // We have to do this here so the auto minidump config initialization gets caught
         Logging::OutputDebugStringLogger::Add();
-        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().SetEnabledChannels(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
 
         if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
@@ -211,7 +211,7 @@ namespace AppInstaller::CLI
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // We have to do this here so the auto minidump config initialization gets caught
         Logging::OutputDebugStringLogger::Add();
-        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().SetEnabledChannels(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
 
         if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
