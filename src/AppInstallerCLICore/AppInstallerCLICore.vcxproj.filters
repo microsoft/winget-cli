@@ -18,6 +18,9 @@
     <Filter Include="Workflows">
       <UniqueIdentifier>{fdeb940e-93e2-4bb0-a59c-1e2d1c0588d1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Commands\Configuration">
+      <UniqueIdentifier>{bd9d8dfe-7a37-4a53-b4e7-ddbd9694c0ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -197,18 +200,6 @@
     <ClInclude Include="Workflows\MultiQueryFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
-    <ClInclude Include="Commands\ConfigureCommand.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="Commands\ConfigureShowCommand.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="Commands\ConfigureTestCommand.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="Commands\ConfigureValidateCommand.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
     <ClInclude Include="ConfigurationContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -251,12 +242,6 @@
     <ClInclude Include="ConfigurationWingetDscModuleUnitValidation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ConfigureExportCommand.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="Commands\ConfigureListCommand.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
     <ClInclude Include="Sixel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -265,6 +250,33 @@
     </ClInclude>
     <ClInclude Include="Workflows\FontFlow.h">
       <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\ConfigureCommand.h">
+      <Filter>Commands\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigureExportCommand.h">
+      <Filter>Commands\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\ConfigureListCommand.h">
+      <Filter>Commands\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\ConfigureShowCommand.h">
+      <Filter>Commands\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\ConfigureTestCommand.h">
+      <Filter>Commands\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\ConfigureValidateCommand.h">
+      <Filter>Commands\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\DscCommand.h">
+      <Filter>Commands\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\DscCommandBase.h">
+      <Filter>Commands\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\DscTestFileResource.h">
+      <Filter>Commands\Configuration</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -430,18 +442,6 @@
     <ClCompile Include="Workflows\MultiQueryFlow.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
-    <ClCompile Include="Commands\ConfigureCommand.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="Commands\ConfigureShowCommand.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="Commands\ConfigureTestCommand.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="Commands\ConfigureValidateCommand.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
     <ClCompile Include="ConfigurationContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -487,12 +487,6 @@
     <ClCompile Include="ConfigurationDynamicRuntimeFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ConfigureExportCommand.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="Commands\ConfigureListCommand.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
     <ClCompile Include="Sixel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -501,6 +495,33 @@
     </ClCompile>
     <ClCompile Include="Workflows\FontFlow.cpp">
       <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ConfigureCommand.cpp">
+      <Filter>Commands\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigureExportCommand.cpp">
+      <Filter>Commands\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ConfigureListCommand.cpp">
+      <Filter>Commands\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ConfigureShowCommand.cpp">
+      <Filter>Commands\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ConfigureTestCommand.cpp">
+      <Filter>Commands\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ConfigureValidateCommand.cpp">
+      <Filter>Commands\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\DscCommand.cpp">
+      <Filter>Commands\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\DscCommandBase.cpp">
+      <Filter>Commands\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\DscTestFileResource.cpp">
+      <Filter>Commands\Configuration</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

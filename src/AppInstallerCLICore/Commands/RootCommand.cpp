@@ -28,6 +28,7 @@
 #include "ErrorCommand.h"
 #include "ResumeCommand.h"
 #include "RepairCommand.h"
+#include "DscCommand.h"
 
 #include "Resources.h"
 #include "TableOutput.h"
@@ -197,6 +198,7 @@ namespace AppInstaller::CLI
             std::make_unique<ResumeCommand>(FullName()),
             std::make_unique<RepairCommand>(FullName()),
             std::make_unique<FontCommand>(FullName()),
+            std::make_unique<DscCommand>(FullName()),
 #if _DEBUG
             std::make_unique<DebugCommand>(FullName()),
 #endif
@@ -213,6 +215,11 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::ToolVersion, Resource::String::ToolVersionArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
             Argument{ Execution::Args::Type::Info, Resource::String::ToolInfoArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
         };
+    }
+
+    Resource::LocString RootCommand::ShortDescription() const
+    {
+        return {};
     }
 
     Resource::LocString RootCommand::LongDescription() const
