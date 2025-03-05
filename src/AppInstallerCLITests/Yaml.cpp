@@ -173,3 +173,8 @@ TEST_CASE("YamlContainsEscapeControlCode", "[YAML]")
 {
     REQUIRE_THROWS_HR(Load(TestDataFile("ContainsEscapeControlCode.yaml")), APPINSTALLER_CLI_ERROR_LIBYAML_ERROR);
 }
+
+TEST_CASE("YamlContainsTooManyNestedLayers", "[YAML]")
+{
+    REQUIRE_THROWS_HR(Load(TestDataFile("ContainsTooManyNestedLayers.yaml")), APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED);
+}
