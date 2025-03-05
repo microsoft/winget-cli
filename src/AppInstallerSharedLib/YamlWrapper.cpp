@@ -151,7 +151,7 @@ namespace AppInstaller::YAML::Wrapper
             size_t childOffset = 0;
         };
 
-        static int YAML_DOCUMENT_NEST_LEVEL_LIMIT = 20;
+        static int YAML_DOCUMENT_NEST_LEVEL_LIMIT = 100;
         int nestLevel = 0;
 
         std::stack<StackItem> resultStack;
