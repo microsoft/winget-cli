@@ -151,6 +151,9 @@ namespace AppInstaller::YAML::Wrapper
             size_t childOffset = 0;
         };
 
+        static int YAML_DOCUMENT_NEST_LEVEL_LIMIT = 20;
+        int nestLevel = 0;
+
         std::stack<StackItem> resultStack;
         resultStack.emplace(root, &result);
 
@@ -173,6 +176,12 @@ namespace AppInstaller::YAML::Wrapper
                 break;
             case YAML_SEQUENCE_NODE:
             {
+                if (stackItem.childOffset == 0)
+                {
+                    // We've entered the sequence.
+                    nestLevel++;
+                }
+
                 yaml_node_item_t* child = stackItem.yamlNode->data.sequence.items.start + stackItem.childOffset++;
                 if (child < stackItem.yamlNode->data.sequence.items.top)
                 {
@@ -184,11 +193,18 @@ namespace AppInstaller::YAML::Wrapper
                 {
                     // We've reached the end of the sequence
                     pop = true;
+                    nestLevel--;
                 }
                 break;
             }
             case YAML_MAPPING_NODE:
             {
+                if (stackItem.childOffset == 0)
+                {
+                    // We've entered the mapping.
+                    nestLevel++;
+                }
+
                 yaml_node_pair_t* child = stackItem.yamlNode->data.mapping.pairs.start + stackItem.childOffset++;
                 if (child < stackItem.yamlNode->data.mapping.pairs.top)
                 {
@@ -207,6 +223,7 @@ namespace AppInstaller::YAML::Wrapper
                 {
                     // We've reached the end of the mapping
                     pop = true;
+                    nestLevel--;
                 }
                 break;
             }
@@ -216,6 +233,8 @@ namespace AppInstaller::YAML::Wrapper
             {
                 resultStack.pop();
             }
+
+            THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED, nestLevel > YAML_DOCUMENT_NEST_LEVEL_LIMIT, "Too many layers of nested nodes.");
         }
 
         return result;
