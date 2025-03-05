@@ -106,6 +106,9 @@ namespace AppInstaller::CLI::Execution
         // Sets the visual style (mostly for progress currently)
         void SetStyle(AppInstaller::Settings::VisualStyle style);
 
+        // Get the raw input stream.
+        std::istream& RawInputStream();
+
         // Prompts the user, return true if they consented.
         bool PromptForBoolResponse(Resource::LocString message, Level level = Level::Info, bool resultIfDisabled = false);
 

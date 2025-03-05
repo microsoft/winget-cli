@@ -149,7 +149,7 @@ namespace AppInstaller::CLI
 
 #undef WINGET_DSC_FUNCTION_ARGUMENT
 
-        result.emplace_back(Execution::Args::Type::DscResourceFunctionManifest, Resource::String::DscResourceFunctionDescriptionManifest);
+        result.emplace_back(Execution::Args::Type::DscResourceFunctionManifest, Resource::String::DscResourceFunctionDescriptionManifest, ArgumentType::Flag);
 
         return result;
     }
@@ -187,8 +187,10 @@ namespace AppInstaller::CLI
     {
         Json::Value json{ Json::ValueType::objectValue };
 
-        json["$schema"] = "https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/v3/bundled/resource/manifest.json";
-        json["type"] = std::string{ s_WingetModuleName } + ResourceType();
+        // TODO: Move to release schema when released (there should be an aka.ms link as well, but it wasn't active yet)
+        //json["$schema"] = "https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/v3/bundled/resource/manifest.json";
+        json["$schema"] = "https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2024/04/bundled/resource/manifest.json";
+        json["type"] = std::string{ s_WingetModuleName } + '/' + ResourceType();
         json["description"] = LongDescription().get();
         json["version"] = Runtime::GetClientVersion().get();
 
@@ -207,9 +209,30 @@ namespace AppInstaller::CLI
 #undef WINGET_DSC_FUNCTION_MANIFEST
 
         Json::StreamWriterBuilder writerBuilder;
-        writerBuilder.settings_["indentation"] = "\t";
+        writerBuilder.settings_["indentation"] = "  ";
         context.Reporter.Json() << Json::writeString(writerBuilder, json);
     }
 
 #undef WINGET_DSC_FUNCTION_METHOD
+
+    std::optional<Json::Value> DscCommandBase::GetJsonFromInput(Execution::Context& context) const
+    {
+        Json::Value result;
+        Json::CharReaderBuilder builder;
+        Json::String errors;
+        if (!Json::parseFromStream(builder, context.Reporter.RawInputStream(), &result, &errors))
+        {
+            AICLI_LOG(CLI, Error, << "Failed to read input JSON: " << errors);
+            AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, std::nullopt);
+        }
+
+        return result;
+    }
+
+    void DscCommandBase::WriteJsonOutput(Execution::Context& context, const Json::Value& value) const
+    {
+        Json::StreamWriterBuilder writerBuilder;
+        writerBuilder.settings_["indentation"] = "";
+        context.Reporter.Json() << Json::writeString(writerBuilder, value);
+    }
 }

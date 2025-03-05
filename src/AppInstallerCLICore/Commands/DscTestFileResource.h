@@ -14,6 +14,13 @@ namespace AppInstaller::CLI
         Resource::LocString LongDescription() const override;
 
     protected:
-        // TODO: Resource function calls
+        std::string ResourceType() const override;
+
+        void ResourceFunctionGet(Execution::Context& context) const override;
+        void ResourceFunctionSet(Execution::Context& context) const override;
+        void ResourceFunctionWhatIf(Execution::Context& context) const override;
+        void ResourceFunctionTest(Execution::Context& context) const override;
+        void ResourceFunctionExport(Execution::Context& context) const override;
+        void ResourceFunctionSchema(Execution::Context& context) const override;
     };
 }

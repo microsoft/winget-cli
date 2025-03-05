@@ -363,6 +363,7 @@
     <ClInclude Include="Commands\DownloadCommand.h" />
     <ClInclude Include="Commands\DscCommand.h" />
     <ClInclude Include="Commands\DscCommandBase.h" />
+    <ClInclude Include="Commands\DscComposableObject.h" />
     <ClInclude Include="Commands\DscTestFileResource.h" />
     <ClInclude Include="Commands\ErrorCommand.h" />
     <ClInclude Include="Commands\ExperimentalCommand.h" />
@@ -447,6 +448,7 @@
     <ClCompile Include="Commands\DownloadCommand.cpp" />
     <ClCompile Include="Commands\DscCommand.cpp" />
     <ClCompile Include="Commands\DscCommandBase.cpp" />
+    <ClCompile Include="Commands\DscComposableObject.cpp" />
     <ClCompile Include="Commands\DscTestFileResource.cpp" />
     <ClCompile Include="Commands\ErrorCommand.cpp" />
     <ClCompile Include="Commands\FontCommand.cpp" />

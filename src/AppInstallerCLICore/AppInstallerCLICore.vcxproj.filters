@@ -278,6 +278,9 @@
     <ClInclude Include="Commands\DscTestFileResource.h">
       <Filter>Commands\Configuration</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\DscComposableObject.h">
+      <Filter>Commands\Configuration</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -521,6 +524,9 @@
       <Filter>Commands\Configuration</Filter>
     </ClCompile>
     <ClCompile Include="Commands\DscTestFileResource.cpp">
+      <Filter>Commands\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\DscComposableObject.cpp">
       <Filter>Commands\Configuration</Filter>
     </ClCompile>
   </ItemGroup>

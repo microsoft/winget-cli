@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 #pragma once
 #include "Command.h"
+#include <json/json.h>
+#include <optional>
 
 namespace AppInstaller::CLI
 {
@@ -86,6 +88,12 @@ namespace AppInstaller::CLI
         virtual void ResourceFunctionAdapter(Execution::Context& context) const;
         virtual void ResourceFunctionSchema(Execution::Context& context) const;
         virtual void ResourceFunctionManifest(Execution::Context& context) const;
+
+        // Parses a JSON object from stdin.
+        std::optional<Json::Value> GetJsonFromInput(Execution::Context& context) const;
+
+        // Writes the value to the context output.
+        void WriteJsonOutput(Execution::Context& context, const Json::Value& value) const;
 
     private:
         DscResourceKind m_kind = DscResourceKind::Resource;
