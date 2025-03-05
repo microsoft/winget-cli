@@ -6,8 +6,20 @@
 #include <json/json.h>
 #include <optional>
 
+using namespace std::string_view_literals;
+
 namespace AppInstaller::CLI
 {
+    // Flags that define how to treat properties.
+    enum DscComposablePropertyFlag
+    {
+        None = 0x0,
+        Required = 0x1,
+        CopyToOutput = 0x2,
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(DscComposablePropertyFlag);
+
     namespace details
     {
         // Gets a property or null if not present.
@@ -15,7 +27,47 @@ namespace AppInstaller::CLI
 
         // Adds the given property and value to the object, if provided.
         void AddProperty(Json::Value& object, std::string_view name, std::optional<Json::Value>&& value);
+
+        // Gets the default schema object.
+        Json::Value GetBaseSchema(const std::string& title);
+
+        // Adds a property to the schema object.
+        void AddPropertySchema(Json::Value& object, std::string_view name, DscComposablePropertyFlag flags, std::string_view type, std::string_view description);
     }
+
+    template <typename PropertyType>
+    struct GetJsonTypeValue
+    {
+        static_assert(false, "Implement for this type.");
+    };
+
+    template <>
+    struct GetJsonTypeValue<bool>
+    {
+        static bool Get(const Json::Value& value)
+        {
+            return value.asBool();
+        }
+
+        static std::string_view SchemaTypeName()
+        {
+            return "boolean"sv;
+        }
+    };
+
+    template <>
+    struct GetJsonTypeValue<std::string>
+    {
+        static std::string Get(const Json::Value& value)
+        {
+            return value.asString();
+        }
+
+        static std::string_view SchemaTypeName()
+        {
+            return "string"sv;
+        }
+    };
 
     // Template useful for composing objects for DSC resources.
     // Properties should be of the shape:
@@ -33,6 +85,8 @@ namespace AppInstaller::CLI
     template <typename... Property>
     struct DscComposableObject : public Property...
     {
+        DscComposableObject() = default;
+
         DscComposableObject(const std::optional<Json::Value>& input)
         {
             THROW_HR_IF(E_POINTER, !input);
@@ -53,41 +107,28 @@ namespace AppInstaller::CLI
             return result;
         }
 
+        // Copies the appropriate values to a new object for output.
+        DscComposableObject CopyForOutput()
+        {
+            DscComposableObject result;
+            (FoldHelper{}, ..., Property::CopyForOutput(this, &result));
+            return result;
+        }
+
         // Get the JSON Schema for this object
-        static Json::Value Schema()
+        static Json::Value Schema(const std::string& title)
         {
-            Json::Value result = details::GetBaseSchema();
+            Json::Value result = details::GetBaseSchema(title);
+            (FoldHelper{}, ..., details::AddPropertySchema(result, Property::Name(), Property::Flags, GetJsonTypeValue<typename Property::Type>::SchemaTypeName(), Property::Description()));
+            return result;
         }
     };
 
-    template <typename PropertyType>
-    struct GetJsonTypeValue
-    {
-        static_assert(false, "Implement for this type.");
-    };
-
-    template <>
-    struct GetJsonTypeValue<bool>
-    {
-        static bool Get(const Json::Value& value)
-        {
-            return value.asBool();
-        }
-    };
-
-    template <>
-    struct GetJsonTypeValue<std::string>
-    {
-        static std::string Get(const Json::Value& value)
-        {
-            return value.asString();
-        }
-    };
-
-    template <typename Derived, typename PropertyType, bool Required = false>
+    template <typename Derived, typename PropertyType, DscComposablePropertyFlag PropertyFlags>
     struct DscComposableProperty
     {
         using Type = PropertyType;
+        static constexpr DscComposablePropertyFlag Flags = PropertyFlags;
 
         static void FromJson(Derived* self, const Json::Value* value)
         {
@@ -97,7 +138,7 @@ namespace AppInstaller::CLI
             }
             else
             {
-                if constexpr (Required)
+                if constexpr (WI_IsFlagSet(PropertyFlags, DscComposablePropertyFlag::Required))
                 {
                     THROW_HR(WINGET_CONFIG_ERROR_MISSING_FIELD);
                 }
@@ -110,7 +151,7 @@ namespace AppInstaller::CLI
 
         static std::optional<Json::Value> ToJson(const Derived* self)
         {
-            if constexpr (Required)
+            if constexpr (WI_IsFlagSet(PropertyFlags, DscComposablePropertyFlag::Required))
             {
                 THROW_HR_IF(WINGET_CONFIG_ERROR_MISSING_FIELD, !self->m_value);
                 return self->m_value.value();
@@ -121,20 +162,29 @@ namespace AppInstaller::CLI
             }
         }
 
+        static void CopyForOutput(const Derived* self, Derived* other)
+        {
+            if constexpr (WI_IsFlagSet(PropertyFlags, DscComposablePropertyFlag::CopyToOutput))
+            {
+                other->m_value = self->m_value;
+            }
+        }
+
     protected:
         std::optional<Type> m_value;
     };
 
-#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, _required_) \
-    struct _property_type_ : public DscComposableProperty<_property_type_, _value_type_, _required_> \
+#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_) \
+    struct _property_type_ : public DscComposableProperty<_property_type_, _value_type_, _flags_> \
     { \
         static std::string_view Name() { return _json_name_; } \
+        static std::string_view Description() { return _description_; } \
         const std::optional<Type>& _property_name_() const { return m_value; } \
         void _property_name_(std::optional<Type> value) { m_value = std::move(value); } \
     };
 
-#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(_property_type_, _value_type_, _property_name_, _json_name_) WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, false)
-#define WINGET_DSC_DEFINE_COMPOSABLE_REQUIRED_PROPERTY(_property_type_, _value_type_, _property_name_, _json_name_) WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, true)
+#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(_property_type_, _value_type_, _property_name_, _json_name_, _description_) WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, DscComposablePropertyFlag::None, _description_)
+#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_) WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_)
 
-    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(StandardExistProperty, bool, Exist, "_exist");
+    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(StandardExistProperty, bool, Exist, "_exist", "Indicates whether an instance should/does exist.");
 }
