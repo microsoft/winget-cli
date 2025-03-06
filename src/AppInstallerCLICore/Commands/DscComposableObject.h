@@ -174,7 +174,7 @@ namespace AppInstaller::CLI
         std::optional<Type> m_value;
     };
 
-#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_) \
+#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL_START(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_) \
     struct _property_type_ : public DscComposableProperty<_property_type_, _value_type_, _flags_> \
     { \
         static std::string_view Name() { return _json_name_; } \
@@ -182,11 +182,17 @@ namespace AppInstaller::CLI
         std::optional<Type>& _property_name_() { return m_value; } \
         const std::optional<Type>& _property_name_() const { return m_value; } \
         void _property_name_(std::optional<Type> value) { m_value = std::move(value); } \
+
+#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_) \
+    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL_START(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_) \
     };
 
 #define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(_property_type_, _value_type_, _property_name_, _json_name_, _description_) WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, DscComposablePropertyFlag::None, _description_)
 #define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_) WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_)
 
-    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(StandardExistProperty, bool, Exist, "_exist", "Indicates whether an instance should/does exist.");
+    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL_START(StandardExistProperty, bool, Exist, "_exist", DscComposablePropertyFlag::None, "Indicates whether an instance should/does exist.")
+        bool ShouldExist() { return m_value.value_or(true); }
+    };
+
     WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(StandardInDesiredStateProperty, bool, InDesiredState, "_inDesiredState", "Indicates whether an instance is in the desired state.");
 }

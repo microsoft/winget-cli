@@ -131,7 +131,7 @@ namespace AppInstaller::CLI
 
             if (FunctionSpecifiesReturn(function))
             {
-                result["return"] = "state";
+                result["return"] = "stateAndDiff";
             }
 
             if (function == DscFunctions::Schema)
@@ -180,6 +180,8 @@ namespace AppInstaller::CLI
     void DscCommandBase::ExecuteInternal(Execution::Context& context) const
     {
         context.Reporter.SetChannel(Execution::Reporter::Channel::Json);
+
+        // TODO: Consider adding a stderr logger
 
 #define WINGET_DSC_FUNCTION_ARGUMENT(_function_) \
         if (context.Args.Contains(Execution::Args::Type::DscResourceFunction ## _function_)) \
@@ -247,10 +249,10 @@ namespace AppInstaller::CLI
         return result;
     }
 
-    void DscCommandBase::WriteJsonOutput(Execution::Context& context, const Json::Value& value) const
+    void DscCommandBase::WriteJsonOutputLine(Execution::Context& context, const Json::Value& value) const
     {
         Json::StreamWriterBuilder writerBuilder;
         writerBuilder.settings_["indentation"] = "";
-        context.Reporter.Json() << Json::writeString(writerBuilder, value);
+        context.Reporter.Json() << Json::writeString(writerBuilder, value) << std::endl;
     }
 }

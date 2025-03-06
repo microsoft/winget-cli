@@ -93,7 +93,7 @@ namespace AppInstaller::CLI
         std::optional<Json::Value> GetJsonFromInput(Execution::Context& context) const;
 
         // Writes the value to the context output.
-        void WriteJsonOutput(Execution::Context& context, const Json::Value& value) const;
+        void WriteJsonOutputLine(Execution::Context& context, const Json::Value& value) const;
 
     private:
         DscResourceKind m_kind = DscResourceKind::Resource;
