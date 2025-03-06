@@ -79,6 +79,19 @@ namespace AppInstaller::CLI
             return false;
         }
 
+        bool FunctionSpecifiesReturn(DscFunctions function)
+        {
+            switch (function)
+            {
+            case DscFunctions::Set:
+            case DscFunctions::WhatIf:
+            case DscFunctions::Test:
+                return true;
+            }
+
+            return false;
+        }
+
         Json::Value CreateJsonDefinitionFor(std::string_view name, DscFunctions function, DscFunctionModifiers modifiers)
         {
             THROW_HR_IF(E_INVALIDARG, !WI_IsSingleFlagSet(function));
@@ -114,6 +127,11 @@ namespace AppInstaller::CLI
                 {
                     result["handlesExist"] = true;
                 }
+            }
+
+            if (FunctionSpecifiesReturn(function))
+            {
+                result["return"] = "state";
             }
 
             if (function == DscFunctions::Schema)

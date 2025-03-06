@@ -13,7 +13,59 @@ namespace AppInstaller::CLI
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(PathProperty, std::string, Path, "path", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, "The absolute path to a file.");
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(ContentProperty, std::string, Content, "content", "The content of the file.");
 
-        using TestFileObject = DscComposableObject<StandardExistProperty, PathProperty, ContentProperty>;
+        using TestFileObject = DscComposableObject<StandardExistProperty, StandardInDesiredStateProperty, PathProperty, ContentProperty>;
+
+        struct FunctionData
+        {
+            FunctionData(const std::optional<Json::Value>& json) : Input(json), Output(Input.CopyForOutput())
+            {
+                Path = Utility::ConvertToUTF16(Input.Path().value());
+                THROW_HR_IF(E_INVALIDARG, !Path.is_absolute());
+            }
+
+            TestFileObject Input;
+            TestFileObject Output;
+            std::filesystem::path Path;
+
+            // Fills the Output object with the current state
+            void Get()
+            {
+                if (std::filesystem::exists(Path) && std::filesystem::is_regular_file(Path))
+                {
+                    Output.Exist(true);
+
+                    std::ifstream stream(Path);
+                    Output.Content(Utility::ReadEntireStream(stream));
+                }
+                else
+                {
+                    Output.Exist(false);
+                }
+            }
+
+            // Determines if the current Output values match the Input values state.
+            bool Test()
+            {
+                // Need to populate Output before calling Test
+                THROW_HR_IF(E_UNEXPECTED, !Output.Exist().has_value());
+
+                if (Input.Exist().value_or(true))
+                {
+                    if (Output.Exist().value())
+                    {
+                        return Output.Content().value() == Input.Content().value_or("");
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return !Output.Exist().value();
+                }
+            }
+        };
     }
 
     DscTestFileResource::DscTestFileResource(std::string_view parent) :
@@ -42,38 +94,59 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            anon::TestFileObject input{ json };
-            anon::TestFileObject output = input.CopyForOutput();
+            anon::FunctionData data{ json };
 
-            std::filesystem::path path{ Utility::ConvertToUTF16(input.Path().value()) };
-            THROW_HR_IF(E_INVALIDARG, !path.is_absolute());
+            data.Get();
 
-            if (std::filesystem::exists(path))
-            {
-                output.Exist(true);
-
-                std::ifstream stream(path);
-                output.Content(Utility::ReadEntireStream(stream));
-            }
-            else
-            {
-                output.Exist(false);
-            }
-
-            WriteJsonOutput(context, output.ToJson());
+            WriteJsonOutput(context, data.Output.ToJson());
         }
     }
 
     void DscTestFileResource::ResourceFunctionSet(Execution::Context& context) const
     {
-        UNREFERENCED_PARAMETER(context);
-        THROW_HR(E_NOTIMPL);
+        if (auto json = GetJsonFromInput(context))
+        {
+            anon::FunctionData data{ json };
+
+            data.Get();
+
+            if (!data.Test())
+            {
+                if (std::filesystem::exists(data.Path))
+                {
+                    // Don't delete a directory
+                    THROW_WIN32_IF(ERROR_DIRECTORY_NOT_SUPPORTED, !std::filesystem::is_regular_file(data.Path));
+                }
+                else
+                {
+                    std::filesystem::create_directories(data.Path.parent_path());
+                }
+
+                std::ofstream stream{ data.Path, std::ios::binary | std::ios::trunc };
+                if (data.Input.Content())
+                {
+                    stream.write(data.Input.Content().value().c_str(), data.Input.Content().value().length());
+                }
+            }
+
+            data.Output.Exist(true);
+            data.Output.Content(std::move(data.Input.Content()).value_or(""));
+
+            WriteJsonOutput(context, data.Output.ToJson());
+        }
     }
 
     void DscTestFileResource::ResourceFunctionTest(Execution::Context& context) const
     {
-        UNREFERENCED_PARAMETER(context);
-        THROW_HR(E_NOTIMPL);
+        if (auto json = GetJsonFromInput(context))
+        {
+            anon::FunctionData data{ json };
+
+            data.Get();
+            data.Output.InDesiredState(data.Test());
+
+            WriteJsonOutput(context, data.Output.ToJson());
+        }
     }
 
     void DscTestFileResource::ResourceFunctionExport(Execution::Context& context) const
