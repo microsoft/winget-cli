@@ -282,14 +282,14 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Installs the given package</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
-    <value>Installer hash does not match. This cannot be overridden when running as admin</value>
+    <value>Installer hash does not match. This cannot be overridden when running as admin.</value>
   </data>
   <data name="InstallerHashMismatchOverridden" xml:space="preserve">
-    <value>Installer hash does not match. Proceeding due to --ignore-security-hash</value>
+    <value>Installer hash does not match. Proceeding due to --ignore-security-hash.</value>
     <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Installer hash does not match. To override this check use --ignore-security-hash</value>
+    <value>Installer hash does not match. To override this check use --ignore-security-hash.</value>
     <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
@@ -752,7 +752,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>The configured sources are:</value>
   </data>
   <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
-    <value>No sources defined. Add one with 'source add' or reset to defaults with 'source reset'</value>
+    <value>No sources defined. Add one with 'source add' or reset to defaults with 'source reset'.</value>
     <comment>{Locked="source add","source reset"}</comment>
   </data>
   <data name="ReportIdentityFound" xml:space="preserve">
@@ -1391,7 +1391,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Filters using the product code.</value>
   </data>
   <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
-    <value>A portable package with the same name but from a different source already exists. Proceeding due to --force</value>
+    <value>A portable package with the same name but from a different source already exists. Proceeding due to --force.</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="ReparsePointsNotSupportedError" xml:space="preserve">
@@ -1429,11 +1429,11 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Portable install failed. Cleaning up...</value>
   </data>
   <data name="PortableHashMismatchOverridden" xml:space="preserve">
-    <value>Portable package has been modified. Proceeding due to --force</value>
+    <value>Portable package has been modified. Proceeding due to --force.</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Unable to remove Portable package as it has been modified. To override this check use --force</value>
+    <value>Unable to remove Portable package as it has been modified. To override this check use --force.</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
@@ -1470,7 +1470,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} Error message displayed when nested installer file does not exist. {0} is a placeholder replaced by the nested installer file path.</comment>
   </data>
   <data name="InvalidPathToNestedInstaller" xml:space="preserve">
-    <value>Invalid relative file path to the nested installer. Path points to a location outside of the install directory</value>
+    <value>Invalid relative file path to the nested installer. Path points to a location outside of the install directory.</value>
   </data>
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>No nested installers specified for this package</value>
@@ -1842,7 +1842,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
   </data>
   <data name="FailedToEnableWindowsFeatureOverridden" xml:space="preserve">
-    <value>Failed to enable Windows Feature dependencies. Proceeding due to --force</value>
+    <value>Failed to enable Windows Feature dependencies. Proceeding due to --force.</value>
     <comment>"Windows Feature(s)" is the name of the options Windows features setting.
 {Locked="--force"}</comment>
   </data>
@@ -1856,7 +1856,7 @@ Please specify one of them using the --source option to proceed.</value>
 {1} is a placeholder for the unrecognized error code.</comment>
   </data>
   <data name="RebootRequiredToEnableWindowsFeatureOverridden" xml:space="preserve">
-    <value>Reboot required to fully enable the Windows Feature(s). Proceeding due to --force</value>
+    <value>Reboot required to fully enable the Windows Feature(s). Proceeding due to --force.</value>
     <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
   </data>
   <data name="InstallWaitingOnAnother" xml:space="preserve">
