@@ -134,15 +134,6 @@ namespace AppInstallerCLIE2ETests
             {
                 File.Delete(file);
             }
-
-            var registryKey = Registry.CurrentUser.OpenSubKey(Constants.TestRegistryPath, true);
-            if (registryKey != null)
-            {
-                foreach (string valueName in registryKey.GetValueNames())
-                {
-                    registryKey.DeleteValue(valueName, false);
-                }
-            }
         }
     }
 }
