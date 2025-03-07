@@ -6,6 +6,7 @@
 
 namespace AppInstallerCLIE2ETests
 {
+    using System;
     using System.IO;
     using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Win32;
@@ -23,8 +24,11 @@ namespace AppInstallerCLIE2ETests
         /// </summary>
         public static void EnsureTestResourcePresence()
         {
-            string outputDirectory = Path.GetDirectoryName(TestSetup.Parameters.AICLIPath);
-            TestCommon.RunAICLICommand("dscv3 test-file", $"--manifest -o {outputDirectory}\\test-file.dsc.resource.json");
+            string outputDirectory = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft\\WindowsApps");
+            Assert.IsNotEmpty(outputDirectory);
+
+            var result = TestCommon.RunAICLICommand("dscv3 test-file", $"--manifest -o {outputDirectory}\\test-file.dsc.resource.json");
+            Assert.AreEqual(0, result.ExitCode);
         }
 
         /// <summary>
