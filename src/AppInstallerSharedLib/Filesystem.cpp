@@ -420,7 +420,7 @@ namespace AppInstaller::Filesystem
         DWORD result = SetNamedSecurityInfoW(&path[0], SE_FILE_OBJECT, securityInformation, ownerSID, nullptr, acl.get(), nullptr);
 
         // We can be denied access attempting to set the owner when the owner is already correct.
-        // Determine if the owner is corret; if so, try again without attempting to set the owner.
+        // Determine if the owner is correct; if so, try again without attempting to set the owner.
         if (result == ERROR_ACCESS_DENIED && ownerSID)
         {
             wil::unique_hlocal_security_descriptor securityDescriptor;
