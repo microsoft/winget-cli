@@ -1053,6 +1053,9 @@
     <CopyFileToFolders Include="TestData\ContainsEscapeControlCode.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ContainsTooManyNestedLayers.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ManifestV1_10-Bad-SchemaHeaderInvalid.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
