@@ -1597,7 +1597,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Version to which to pin the package. The wildcard '*' can be used as the last version part</value>
   </data>
   <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
-    <value>Block from upgrading until the pin is removed, preventing override arguments.</value>
+    <value>Block from upgrading until the pin is removed, preventing override arguments</value>
   </data>
   <data name="PinInstalledArgumentDescription" xml:space="preserve">
     <value>Pin a specific installed version</value>
@@ -2147,7 +2147,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The source type is invalid</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE" xml:space="preserve">
-    <value>The MSIX file is a bundle, not a package.</value>
+    <value>The MSIX file is a bundle, not a package</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING" xml:space="preserve">
     <value>Data required by the source is missing</value>
