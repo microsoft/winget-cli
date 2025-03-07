@@ -154,18 +154,18 @@
     <comment>{Locked="{0}"} Message displayed to inform the user about available package upgrades. {0} is a placeholder replaced by the number of package upgrades.</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
-    <value>Use the specified channel; default is general audience</value>
+    <value>Use the specified channel. Default is general audience.</value>
   </data>
   <data name="Command" xml:space="preserve">
     <value>command</value>
     <comment>Label displayed for a command to give the software.</comment>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
-    <value>Filter results by command</value>
+    <value>Filter results by command.</value>
     <comment>Description message displayed to inform the user about filtering the search results by a package command.</comment>
   </data>
   <data name="CommandLineArgumentDescription" xml:space="preserve">
-    <value>The full command line for completion</value>
+    <value>The full command line for completion.</value>
   </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>This command requires administrator privileges to execute.</value>
@@ -177,18 +177,18 @@
     <value>Enables context sensitive command line completion</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
-    <value>Show no more than specified number of results (between 1 and 1000)</value>
+    <value>Show no more than specified number of results (between 1 and 1000).</value>
   </data>
   <data name="Done" xml:space="preserve">
     <value>Done</value>
     <comment>Label displayed when an operation completes or is done executing.</comment>
   </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Find package using exact match</value>
+    <value>Find package using exact match.</value>
     <comment>Description message displayed to inform the user about finding an application package using an exact matching criteria.</comment>
   </data>
   <data name="ExperimentalArgumentDescription" xml:space="preserve">
-    <value>Experimental argument for demonstration purposes</value>
+    <value>Experimental argument for demonstration purposes.</value>
   </data>
   <data name="ExperimentalCommandLongDescription" xml:space="preserve">
     <value>This command is an example on how to implement an experimental feature. To turn on go to 'winget settings' and enable experimentalCmd or experimentalArg features.</value>
@@ -236,7 +236,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Status</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
-    <value>File to be hashed</value>
+    <value>File to be hashed.</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Flag argument cannot contain adjoined value: '{0}'</value>
@@ -249,7 +249,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Helper to hash installer files</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
-    <value>Shows help about the selected command</value>
+    <value>Shows help about the selected command.</value>
   </data>
   <data name="HelpForDetails" xml:space="preserve">
     <value>For more details on a specific command, pass it the help argument.</value>
@@ -259,10 +259,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="{0}"} Message displayed to inform the user about a link where they can learn more about the subject context. {0} is a placeholder replaced by a website address.</comment>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
-    <value>Filter results by id</value>
+    <value>Filter results by id.</value>
   </data>
   <data name="IgnoreWarningsArgumentDescription" xml:space="preserve">
-    <value>Suppresses warning outputs</value>
+    <value>Suppresses warning outputs.</value>
   </data>
   <data name="InstallationDisclaimer1" xml:space="preserve">
     <value>This application is licensed to you by its owner.</value>
@@ -282,14 +282,14 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Installs the given package</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
-    <value>Installer hash does not match; this cannot be overridden when running as admin</value>
+    <value>Installer hash does not match. This cannot be overridden when running as admin</value>
   </data>
   <data name="InstallerHashMismatchOverridden" xml:space="preserve">
-    <value>Installer hash does not match; proceeding due to --ignore-security-hash</value>
+    <value>Installer hash does not match. Proceeding due to --ignore-security-hash</value>
     <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Installer hash does not match; to override this check use --ignore-security-hash</value>
+    <value>Installer hash does not match. To override this check use --ignore-security-hash</value>
     <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
@@ -302,13 +302,13 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Starting package install...</value>
   </data>
   <data name="HashOverrideArgumentDescription" xml:space="preserve">
-    <value>Ignore the installer hash check failure</value>
+    <value>Ignore the installer hash check failure.</value>
   </data>
   <data name="IgnoreLocalArchiveMalwareScanArgumentDescription" xml:space="preserve">
-    <value>Ignore the malware scan performed as part of installing an archive type package from local manifest</value>
+    <value>Ignore the malware scan performed as part of installing an archive type package from local manifest.</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
-    <value>Request interactive installation; user input may be needed</value>
+    <value>Request interactive installation. User input may be needed.</value>
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
     <value>Argument alias was not recognized for the current command: '{0}'</value>
@@ -327,7 +327,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>Header for a table detailing the directories Winget uses for key operations like logging and portable installs</comment>
   </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
-    <value>Locale to use (BCP47 format)</value>
+    <value>Locale to use (BCP47 format).</value>
     <comment>{Locked="BCP47"}</comment>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
@@ -345,10 +345,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Display installed packages</value>
   </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
-    <value>Location to install to (if supported)</value>
+    <value>Location to install to (if supported).</value>
   </data>
   <data name="LogArgumentDescription" xml:space="preserve">
-    <value>Log location (if supported)</value>
+    <value>Log location (if supported).</value>
   </data>
   <data name="MainCopyrightNotice" xml:space="preserve">
     <value>Copyright (c) Microsoft Corporation. All rights reserved.</value>
@@ -358,7 +358,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>The path to the manifest of the package</value>
+    <value>The path to the manifest of the package.</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Manifest validation failed.</value>
@@ -374,10 +374,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="{0}"} Error message displayed when the user does not provide a required command line argument value. {0} is a placeholder replaced by the argument name.</comment>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Filter results by moniker</value>
+    <value>Filter results by moniker.</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
-    <value>Input file will be treated as msix; signature hash will be provided if signed</value>
+    <value>Input file will be treated as msix. Signature hash will be provided if signed.</value>
   </data>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Failed to calculate MSIX signature hash.</value>
@@ -402,10 +402,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Multiple packages found matching input criteria. Please refine the input.</value>
   </data>
   <data name="NameArgumentDescription" xml:space="preserve">
-    <value>Filter results by name</value>
+    <value>Filter results by name.</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>No applicable installer found; see logs for more details.</value>
+    <value>No applicable installer found. See logs for more details.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>There are currently no experimental features available. </value>
@@ -417,18 +417,18 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>No package found matching input criteria.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
-    <value>Disables VirtualTerminal display</value>
+    <value>Disables VirtualTerminal display.</value>
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>
   <data name="OpenLogsArgumentDescription" xml:space="preserve">
-    <value>Open the default logs location</value>
+    <value>Open the default logs location.</value>
   </data>
   <data name="Options" xml:space="preserve">
     <value>options</value>
     <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
-    <value>Override arguments to be passed on to the installer</value>
+    <value>Override arguments to be passed on to the installer.</value>
   </data>
   <data name="Package" xml:space="preserve">
     <value>Package: {0}</value>
@@ -438,23 +438,23 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Oops, we forgot to do this...</value>
   </data>
   <data name="PositionArgumentDescription" xml:space="preserve">
-    <value>The position of the cursor within the command line</value>
+    <value>The position of the cursor within the command line.</value>
   </data>
   <data name="PrivacyStatement" xml:space="preserve">
     <value>Privacy Statement</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>The query used to search for a package</value>
+    <value>The query used to search for a package.</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
-    <value>Progress display a rainbow of colors</value>
+    <value>Progress display a rainbow of colors.</value>
   </data>
   <data name="RequiredArgError" xml:space="preserve">
     <value>Required argument not provided: '{0}'</value>
     <comment>{Locked="{0}"} Error message displayed when the user does not provide a required command line argument. {0} is a placeholder replaced by an argument name.</comment>
   </data>
   <data name="RetroArgumentDescription" xml:space="preserve">
-    <value>Progress display as the default color</value>
+    <value>Progress display as the default color.</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
     <value>Searches for packages from configured sources.</value>
@@ -509,7 +509,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Version</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
-    <value>Request silent installation</value>
+    <value>Request silent installation.</value>
   </data>
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Only the single character alias can occur after a single -: '{0}'</value>
@@ -534,10 +534,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Add a new source</value>
   </data>
   <data name="SourceArgArgumentDescription" xml:space="preserve">
-    <value>Argument given to the source</value>
+    <value>Argument given to the source.</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Find package using the specified source</value>
+    <value>Find package using the specified source.</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
     <value>Manage sources with the sub-commands. A source provides the data for you to discover and install packages. Only add a new source if you trust it as a secure location.</value>
@@ -595,14 +595,14 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>The value of information about a source.</comment>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
-    <value>Name of the source</value>
+    <value>Name of the source.</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Failed when opening source(s); try the 'source reset' command if the problem persists.</value>
+    <value>Failed when opening source(s). Try the 'source reset' command if the problem persists.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
-    <value>Failed to open the predefined source; please report to winget maintainers.</value>
+    <value>Failed to open the predefined source. Please report to winget maintainers.</value>
     <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
@@ -628,7 +628,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Reset sources</value>
   </data>
   <data name="SourceResetForceArgumentDescription" xml:space="preserve">
-    <value>Forces the reset of the sources</value>
+    <value>Forces the reset of the sources.</value>
   </data>
   <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
     <value>The following sources will be reset if the --force option is given:</value>
@@ -639,7 +639,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="{0}"} Message displayed to inform the user about a repository source that is currently being reset. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
-    <value>Type of the source</value>
+    <value>Type of the source.</value>
   </data>
   <data name="SourceUpdateAll" xml:space="preserve">
     <value>Updating all sources...</value>
@@ -655,7 +655,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being updated. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="TagArgumentDescription" xml:space="preserve">
-    <value>Filter results by tag</value>
+    <value>Filter results by tag.</value>
   </data>
   <data name="ThankYou" xml:space="preserve">
     <value>Thank you for using winget</value>
@@ -667,10 +667,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>The winget command line utility enables installing applications and other packages from the command line.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
-    <value>Display general info of the tool</value>
+    <value>Display general info of the tool.</value>
   </data>
   <data name="ToolVersionArgumentDescription" xml:space="preserve">
-    <value>Display the version of the tool</value>
+    <value>Display the version of the tool.</value>
   </data>
   <data name="TooManyArgError" xml:space="preserve">
     <value>Argument provided more times than allowed: '{0}'</value>
@@ -684,14 +684,14 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>An unexpected error occurred while executing the command:</value>
   </data>
   <data name="UninstallPreviousArgumentDescription" xml:space="preserve">
-    <value>Uninstall the previous version of the package during upgrade</value>
+    <value>Uninstall the previous version of the package during upgrade.</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Unrecognized command: '{0}'</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command. {0} is a placeholder replaced by the user input.</comment>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Upgrade all installed packages to latest if available</value>
+    <value>Upgrade all installed packages to latest if available.</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>No applicable upgrade found.</value>
@@ -723,22 +723,22 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Validates a manifest file</value>
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
-    <value>The path to the manifest to be validated</value>
+    <value>The path to the manifest to be validated.</value>
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
-    <value>Enables verbose logging for winget</value>
+    <value>Enables verbose logging for winget.</value>
   </data>
   <data name="VerifyFileSignedMsix" xml:space="preserve">
     <value>Please verify that the input file is a valid, signed MSIX.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
-    <value>Use the specified version; default is the latest version</value>
+    <value>Use the specified version. Default is the latest version.</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Show available versions of the package</value>
+    <value>Show available versions of the package.</value>
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
-    <value>The value provided before completion is requested</value>
+    <value>The value provided before completion is requested.</value>
   </data>
   <data name="GetManifestResultVersionNotFound" xml:space="preserve">
     <value>No version found matching: {0}</value>
@@ -752,7 +752,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>The configured sources are:</value>
   </data>
   <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
-    <value>No sources defined; add one with 'source add' or reset to defaults with 'source reset'</value>
+    <value>No sources defined. Add one with 'source add' or reset to defaults with 'source reset'</value>
     <comment>{Locked="source add","source reset"}</comment>
   </data>
   <data name="ReportIdentityFound" xml:space="preserve">
@@ -820,13 +820,13 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Installs all the packages in a file</value>
   </data>
   <data name="OutputFileArgumentDescription" xml:space="preserve">
-    <value>File where the result is to be written</value>
+    <value>File where the result is to be written.</value>
   </data>
   <data name="ImportFileArgumentDescription" xml:space="preserve">
-    <value>File describing the packages to install</value>
+    <value>File describing the packages to install.</value>
   </data>
   <data name="ExportSourceArgumentDescription" xml:space="preserve">
-    <value>Export packages from the specified source</value>
+    <value>Export packages from the specified source.</value>
   </data>
   <data name="ExportCommandLongDescription" xml:space="preserve">
     <value>Writes a list of the installed packages to a file. The packages can then be installed with the import command.</value>
@@ -858,13 +858,13 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="{0}"} Message displayed to inform the user that an application package is already installed. {0} is a placeholder replaced by the package identifier or search query.</comment>
   </data>
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
-    <value>Ignore unavailable packages</value>
+    <value>Ignore unavailable packages.</value>
   </data>
   <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
-    <value>Include package versions in export file</value>
+    <value>Include package versions in export file.</value>
   </data>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
-    <value>Ignore package versions from import file</value>
+    <value>Ignore package versions from import file.</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Path does not exist: {0}</value>
@@ -878,7 +878,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="user","machine"} This argument allows the user to select between installing for just the user or for the entire machine.</comment>
   </data>
   <data name="InvalidArgumentValueError" xml:space="preserve">
-    <value>The value provided for the `{0}` argument is invalid; valid values are: {1}</value>
+    <value>The value provided for the `{0}` argument is invalid. Valid values are: {1}</value>
     <comment>{Locked="{0}","{1}"} Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name. {1} is a placeholder replaced by a list of valid options.</comment>
   </data>
   <data name="DisabledByGroupPolicy" xml:space="preserve">
@@ -1049,14 +1049,14 @@ Configuration is disabled due to Group Policy.</value>
     <value>Windows Libraries</value>
   </data>
   <data name="DependencySourceArgumentDescription" xml:space="preserve">
-    <value>Find package dependencies using the specified source</value>
+    <value>Find package dependencies using the specified source.</value>
     <comment>For getting package type dependencies when installing from a local manifest</comment>
   </data>
   <data name="WindowsStoreTerms" xml:space="preserve">
     <value>Windows Store Terms</value>
   </data>
   <data name="AcceptPackageAgreementsArgumentDescription" xml:space="preserve">
-    <value>Accept all license agreements for packages</value>
+    <value>Accept all license agreements for packages.</value>
   </data>
   <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
     <value>Exported package requires license agreement to install: {0}</value>
@@ -1142,7 +1142,7 @@ Do you agree to the terms?</value>
     <value>Failed to open the added source.</value>
   </data>
   <data name="AcceptSourceAgreementsArgumentDescription" xml:space="preserve">
-    <value>Accept all source agreements during source operations</value>
+    <value>Accept all source agreements during source operations.</value>
   </data>
   <data name="SourceAgreementsTitle" xml:space="preserve">
     <value>The `{0}` source requires that you view the following agreements before using.</value>
@@ -1161,7 +1161,7 @@ Do you agree to the terms?</value>
     <value>Successfully installed. Restart the application to complete the upgrade.</value>
   </data>
   <data name="HeaderArgumentDescription" xml:space="preserve">
-    <value>Optional Windows-Package-Manager REST source HTTP header</value>
+    <value>Optional Windows-Package-Manager REST source HTTP header.</value>
   </data>
   <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
     <value>Ignoring the optional header as it is not applicable for this source.</value>
@@ -1316,13 +1316,13 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} Label displaying the product name and version. {0} is a placeholder replaced by the product version.</comment>
   </data>
   <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
-    <value>Ignore package versions in import file</value>
+    <value>Ignore package versions in import file.</value>
   </data>
   <data name="CountOutOfBoundsError" xml:space="preserve">
     <value>The requested number of results must be between 1 and 1000.</value>
   </data>
   <data name="CustomSwitchesArgumentDescription" xml:space="preserve">
-    <value>Arguments to be passed on to the installer in addition to the defaults</value>
+    <value>Arguments to be passed on to the installer in addition to the defaults.</value>
   </data>
   <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
     <value>A newer version was found, but the install technology is different from the current version installed. Please uninstall the package and install the newer version.</value>
@@ -1335,13 +1335,13 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} Label displaying the preview product name and pre-release version. {0} is a placeholder replaced by the product version.</comment>
   </data>
   <data name="ArchitectureArgumentDescription" xml:space="preserve">
-    <value>Select the architecture</value>
+    <value>Select the architecture.</value>
   </data>
   <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
-    <value>Upgrade packages even if their current version cannot be determined</value>
+    <value>Upgrade packages even if their current version cannot be determined.</value>
   </data>
   <data name="IncludeUnknownInListArgumentDescription" xml:space="preserve">
-    <value>List packages even if their current version cannot be determined. Can only be used with the --upgrade-available argument</value>
+    <value>List packages even if their current version cannot be determined. Can only be used with the --upgrade-available argument.</value>
     <comment>{Locked="--upgrade-available"}</comment>
   </data>
   <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
@@ -1364,19 +1364,19 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} Label displayed for the system architecture. {0} is a placeholder replaced by the value of the system architecture (e.g. X64).</comment>
   </data>
   <data name="PreserveArgumentDescription" xml:space="preserve">
-    <value>Retains all files and directories created by the package (portable)</value>
+    <value>Retains all files and directories created by the package (portable).</value>
   </data>
   <data name="PurgeArgumentDescription" xml:space="preserve">
-    <value>Deletes all files and directories in the package directory (portable)</value>
+    <value>Deletes all files and directories in the package directory (portable).</value>
   </data>
   <data name="PressEnterToContinue" xml:space="preserve">
     <value>Press Enter to continue . . .</value>
   </data>
   <data name="RenameArgumentDescription" xml:space="preserve">
-    <value>The value to rename the executable file (portable)</value>
+    <value>The value to rename the executable file (portable).</value>
   </data>
   <data name="WaitArgumentDescription" xml:space="preserve">
-    <value>Prompts the user to press any key before exiting</value>
+    <value>Prompts the user to press any key before exiting.</value>
   </data>
   <data name="InstallerElevationExpected" xml:space="preserve">
     <value>The installer will request to run as administrator, expect a prompt.</value>
@@ -1385,13 +1385,13 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The installer cannot be run from an administrator context.</value>
   </data>
   <data name="ModifiedPathRequiresShellRestart" xml:space="preserve">
-    <value>Path environment variable modified; restart your shell to use the new value.</value>
+    <value>Path environment variable modified. Restart your shell to use the new value.</value>
   </data>
   <data name="ProductCodeArgumentDescription" xml:space="preserve">
-    <value>Filters using the product code</value>
+    <value>Filters using the product code.</value>
   </data>
   <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
-    <value>A portable package with the same name but from a different source already exists; proceeding due to --force</value>
+    <value>A portable package with the same name but from a different source already exists. Proceeding due to --force</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="ReparsePointsNotSupportedError" xml:space="preserve">
@@ -1405,7 +1405,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} Warning message displayed to inform the user that an existing file is being overwritten. {0} is a placeholder replaced by the file system path.</comment>
   </data>
   <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
-    <value>No package selection argument was provided; see the help for details about finding a package.</value>
+    <value>No package selection argument was provided. See the help for details about finding a package.</value>
   </data>
   <data name="PortableAliasAdded" xml:space="preserve">
     <value>Command line alias added:</value>
@@ -1426,14 +1426,14 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Portable Package Root (x86)</value>
   </data>
   <data name="PortableInstallFailed" xml:space="preserve">
-    <value>Portable install failed; Cleaning up...</value>
+    <value>Portable install failed. Cleaning up...</value>
   </data>
   <data name="PortableHashMismatchOverridden" xml:space="preserve">
-    <value>Portable package has been modified; proceeding due to --force</value>
+    <value>Portable package has been modified. Proceeding due to --force</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Unable to remove Portable package as it has been modified; to override this check use --force</value>
+    <value>Unable to remove Portable package as it has been modified. To override this check use --force</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
@@ -1470,7 +1470,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} Error message displayed when nested installer file does not exist. {0} is a placeholder replaced by the nested installer file path.</comment>
   </data>
   <data name="InvalidPathToNestedInstaller" xml:space="preserve">
-    <value>Invalid relative file path to the nested installer; path points to a location outside of the install directory</value>
+    <value>Invalid relative file path to the nested installer. Path points to a location outside of the install directory</value>
   </data>
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>No nested installers specified for this package</value>
@@ -1482,7 +1482,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Incompatible command line arguments provided</value>
   </data>
   <data name="UpgradeArgumentDescription" xml:space="preserve">
-    <value>Lists only packages which have an upgrade available</value>
+    <value>Lists only packages which have an upgrade available.</value>
   </data>
   <data name="UpgradeAvailableForPinned" xml:space="preserve">
     <value>The following packages have an upgrade available, but require explicit targeting for upgrade:</value>
@@ -1521,14 +1521,14 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Install location is required by the package but it was not provided</value>
   </data>
   <data name="DisableInteractivityArgumentDescription" xml:space="preserve">
-    <value>Disable interactive prompts</value>
+    <value>Disable interactive prompts.</value>
     <comment>Description for a command line argument, shown next to it in the help</comment>
   </data>
   <data name="ConvertInstallFlowToUpgrade" xml:space="preserve">
     <value>Found an existing package already installed. Trying to upgrade the installed package...</value>
   </data>
   <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Direct run the command and continue with non security related issues</value>
+    <value>Direct run the command and continue with non security related issues.</value>
     <comment>Description for a command line argument, shown next to it in the help</comment>
   </data>
   <data name="PortablePackageAlreadyExists" xml:space="preserve">
@@ -1549,7 +1549,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
   </data>
   <data name="NoUpgradeArgumentDescription" xml:space="preserve">
-    <value>Skips upgrade if an installed version already exists</value>
+    <value>Skips upgrade if an installed version already exists.</value>
   </data>
   <data name="PackageAlreadyInstalled" xml:space="preserve">
     <value>A package version is already installed. Installation cancelled.</value>
@@ -1594,13 +1594,13 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Reset pins</value>
   </data>
   <data name="GatedVersionArgumentDescription" xml:space="preserve">
-    <value>Version to which to pin the package. The wildcard '*' can be used as the last version part</value>
+    <value>Version to which to pin the package. The wildcard '*' can be used as the last version part.</value>
   </data>
   <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
-    <value>Block from upgrading until the pin is removed, preventing override arguments</value>
+    <value>Block from upgrading until the pin is removed, preventing override arguments.</value>
   </data>
   <data name="PinInstalledArgumentDescription" xml:space="preserve">
-    <value>Pin a specific installed version</value>
+    <value>Pin a specific installed version.</value>
   </data>
   <data name="PinInstalledSource" xml:space="preserve">
     <value>Installed</value>
@@ -1620,7 +1620,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Settings file couldn't load. Using default values.</value>
   </data>
   <data name="InstalledScopeArgumentDescription" xml:space="preserve">
-    <value>Select installed package scope filter (user or machine)</value>
+    <value>Select installed package scope filter (user or machine).</value>
     <comment>{Locked="user","machine"} This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
   </data>
   <data name="PinAdded" xml:space="preserve">
@@ -1688,7 +1688,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>Header for a table listing the state (enabled/disabled) of Group Policies and Settings</comment>
   </data>
   <data name="MultiQueryArgumentDescription" xml:space="preserve">
-    <value>The query used to search for a package</value>
+    <value>The query used to search for a package.</value>
   </data>
   <data name="MultiQueryPackageNotFound" xml:space="preserve">
     <value>Package not found: {0}</value>
@@ -1710,10 +1710,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The package cannot be upgraded using winget. Please use the method provided by the publisher for upgrading this package.</value>
   </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
-    <value>Upgrade packages even if they have a non-blocking pin</value>
+    <value>Upgrade packages even if they have a non-blocking pin.</value>
   </data>
   <data name="IncludePinnedInListArgumentDescription" xml:space="preserve">
-    <value>List packages even if they have a pin that prevents upgrade. Can only be used with the --upgrade-available argument</value>
+    <value>List packages even if they have a pin that prevents upgrade. Can only be used with the --upgrade-available argument.</value>
     <comment>{Locked="--upgrade-available"}</comment>
   </data>
   <data name="PinRemovedSuccessfully" xml:space="preserve">
@@ -1759,7 +1759,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the field name from the file.</comment>
   </data>
   <data name="ConfigurationFileArgumentDescription" xml:space="preserve">
-    <value>The path to the configuration file</value>
+    <value>The path to the configuration file.</value>
   </data>
   <data name="ConfigurationFileInvalid" xml:space="preserve">
     <value>The configuration file is invalid.</value>
@@ -1769,7 +1769,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the version of the configuration file.</comment>
   </data>
   <data name="ConfigurationAcceptWarningArgumentDescription" xml:space="preserve">
-    <value>Accepts the configuration warning, preventing an interactive prompt</value>
+    <value>Accepts the configuration warning, preventing an interactive prompt.</value>
   </data>
   <data name="ConfigurationApply" xml:space="preserve">
     <value>Apply</value>
@@ -1838,11 +1838,11 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="RebootRequiredToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
-    <value>Reboot required to fully enable the Windows Feature(s); to override this check use '--force'.</value>
+    <value>Reboot required to fully enable the Windows Feature(s). To override this check use '--force'.</value>
     <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
   </data>
   <data name="FailedToEnableWindowsFeatureOverridden" xml:space="preserve">
-    <value>Failed to enable Windows Feature dependencies; proceeding due to --force</value>
+    <value>Failed to enable Windows Feature dependencies. Proceeding due to --force</value>
     <comment>"Windows Feature(s)" is the name of the options Windows features setting.
 {Locked="--force"}</comment>
   </data>
@@ -1856,7 +1856,7 @@ Please specify one of them using the --source option to proceed.</value>
 {1} is a placeholder for the unrecognized error code.</comment>
   </data>
   <data name="RebootRequiredToEnableWindowsFeatureOverridden" xml:space="preserve">
-    <value>Reboot required to fully enable the Windows Feature(s); proceeding due to --force</value>
+    <value>Reboot required to fully enable the Windows Feature(s). Proceeding due to --force</value>
     <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
   </data>
   <data name="InstallWaitingOnAnother" xml:space="preserve">
@@ -1933,7 +1933,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Loading the module for the configuration unit failed.</value>
   </data>
   <data name="ConfigurationUnitMultipleMatches" xml:space="preserve">
-    <value>Multiple matches were found for the configuration unit; specify the module to select the correct one.</value>
+    <value>Multiple matches were found for the configuration unit. Specify the module to select the correct one.</value>
   </data>
   <data name="ConfigurationUnitNotFound" xml:space="preserve">
     <value>The configuration unit could not be found.</value>
@@ -2001,7 +2001,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Configuration is disabled.</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
-    <value>Skips processing package dependencies and Windows features</value>
+    <value>Skips processing package dependencies and Windows features.</value>
   </data>
   <data name="DependenciesSkippedMessage" xml:space="preserve">
     <value>Dependencies skipped.</value>
@@ -2047,7 +2047,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The configuration unit was found locally, but could not be found in any configured catalog. Ensure that it is present on any system before applying the configuration.</value>
   </data>
   <data name="ConfigurationUnitNotPublicWarning" xml:space="preserve">
-    <value>The configuration unit is not available publicly; ensure that anyone who will use this configuration has access to it.</value>
+    <value>The configuration unit is not available publicly. Ensure that anyone who will use this configuration has access to it.</value>
   </data>
   <data name="ConfigurationUnitModuleNotProvidedWarning" xml:space="preserve">
     <value>The module was not provided. Specifying the module improves performance and prevents future name collisions.</value>
@@ -2059,7 +2059,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Downloads the installer from a given package</value>
   </data>
   <data name="DownloadDirectoryArgumentDescription" xml:space="preserve">
-    <value>Directory where the installers are downloaded to</value>
+    <value>Directory where the installers are downloaded to.</value>
   </data>
   <data name="DependenciesFlowDownload" xml:space="preserve">
     <value>Downloading dependencies:</value>
@@ -2069,7 +2069,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} Full path of the downloaded installer.</comment>
   </data>
   <data name="InstallerTypeArgumentDescription" xml:space="preserve">
-    <value>Select the installer type</value>
+    <value>Select the installer type.</value>
   </data>
   <data name="InstallerDownloads" xml:space="preserve">
     <value>Installer Downloads</value>
@@ -2099,7 +2099,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Get information on errors</value>
   </data>
   <data name="ErrorInputArgumentDescription" xml:space="preserve">
-    <value>A value to search within the error information</value>
+    <value>A value to search within the error information.</value>
   </data>
   <data name="ErrorNumberIsTooLarge" xml:space="preserve">
     <value>The given number is too large to be an HRESULT.</value>
@@ -2108,205 +2108,205 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Unknown error code</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_INTERNAL_ERROR" xml:space="preserve">
-    <value>Internal Error</value>
+    <value>Internal Error.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS" xml:space="preserve">
-    <value>Invalid command line arguments</value>
+    <value>Invalid command line arguments.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_COMMAND_FAILED" xml:space="preserve">
-    <value>Executing command failed</value>
+    <value>Executing command failed.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MANIFEST_FAILED" xml:space="preserve">
-    <value>Opening manifest failed</value>
+    <value>Opening manifest failed.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED" xml:space="preserve">
-    <value>Cancellation signal received</value>
+    <value>Cancellation signal received.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED" xml:space="preserve">
-    <value>Running ShellExecute failed</value>
+    <value>Running ShellExecute failed.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION" xml:space="preserve">
     <value>Cannot process manifest. The manifest version is higher than supported. Please update the client.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_DOWNLOAD_FAILED" xml:space="preserve">
-    <value>Downloading installer failed</value>
+    <value>Downloading installer failed.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX" xml:space="preserve">
-    <value>Cannot write to index; it is a higher schema version</value>
+    <value>Cannot write to index. It is a higher schema version.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED" xml:space="preserve">
-    <value>The index is corrupt</value>
+    <value>The index is corrupt.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SOURCES_INVALID" xml:space="preserve">
-    <value>The configured source information is corrupt</value>
+    <value>The configured source information is corrupt.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS" xml:space="preserve">
-    <value>The source name is already configured</value>
+    <value>The source name is already configured.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE" xml:space="preserve">
-    <value>The source type is invalid</value>
+    <value>The source type is invalid.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE" xml:space="preserve">
-    <value>The MSIX file is a bundle, not a package</value>
+    <value>The MSIX file is a bundle, not a package.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING" xml:space="preserve">
-    <value>Data required by the source is missing</value>
+    <value>Data required by the source is missing.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER" xml:space="preserve">
-    <value>None of the installers are applicable for the current system</value>
+    <value>None of the installers are applicable for the current system.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH" xml:space="preserve">
-    <value>The installer file's hash does not match the manifest</value>
+    <value>The installer file's hash does not match the manifest.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST" xml:space="preserve">
-    <value>The source name does not exist</value>
+    <value>The source name does not exist.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS" xml:space="preserve">
-    <value>The source location is already configured under another name</value>
+    <value>The source location is already configured under another name.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND" xml:space="preserve">
-    <value>No packages found</value>
+    <value>No packages found.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED" xml:space="preserve">
-    <value>No sources are configured</value>
+    <value>No sources are configured.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND" xml:space="preserve">
-    <value>Multiple packages found matching the criteria</value>
+    <value>Multiple packages found matching the criteria.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND" xml:space="preserve">
-    <value>No manifest found matching the criteria</value>
+    <value>No manifest found matching the criteria.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_EXTENSION_PUBLIC_FAILED" xml:space="preserve">
-    <value>Failed to get Public folder from source package</value>
+    <value>Failed to get Public folder from source package.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN" xml:space="preserve">
-    <value>Command requires administrator privileges to run</value>
+    <value>Command requires administrator privileges to run.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE" xml:space="preserve">
-    <value>The source location is not secure</value>
+    <value>The source location is not secure.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY" xml:space="preserve">
-    <value>The Microsoft Store client is blocked by policy</value>
+    <value>The Microsoft Store client is blocked by policy.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MSSTORE_APP_BLOCKED_BY_POLICY" xml:space="preserve">
-    <value>The Microsoft Store app is blocked by policy</value>
+    <value>The Microsoft Store app is blocked by policy.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED" xml:space="preserve">
     <value>The feature is currently under development. It can be enabled using winget settings.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED" xml:space="preserve">
-    <value>Failed to install the Microsoft Store app</value>
+    <value>Failed to install the Microsoft Store app.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD" xml:space="preserve">
-    <value>Failed to perform auto complete</value>
+    <value>Failed to perform auto complete.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED" xml:space="preserve">
-    <value>Failed to initialize YAML parser</value>
+    <value>Failed to initialize YAML parser.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_YAML_INVALID_MAPPING_KEY" xml:space="preserve">
-    <value>Encountered an invalid YAML key</value>
+    <value>Encountered an invalid YAML key.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY" xml:space="preserve">
-    <value>Encountered a duplicate YAML key</value>
+    <value>Encountered a duplicate YAML key.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_YAML_INVALID_OPERATION" xml:space="preserve">
-    <value>Invalid YAML operation</value>
+    <value>Invalid YAML operation.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED" xml:space="preserve">
-    <value>Failed to build YAML doc</value>
+    <value>Failed to build YAML doc.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_YAML_INVALID_EMITTER_STATE" xml:space="preserve">
-    <value>Invalid YAML emitter state</value>
+    <value>Invalid YAML emitter state.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA" xml:space="preserve">
-    <value>Invalid YAML data</value>
+    <value>Invalid YAML data.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_LIBYAML_ERROR" xml:space="preserve">
-    <value>LibYAML error</value>
+    <value>LibYAML error.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_WARNING" xml:space="preserve">
-    <value>Manifest validation succeeded with warning</value>
+    <value>Manifest validation succeeded with warning.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_FAILURE" xml:space="preserve">
-    <value>Manifest validation failed</value>
+    <value>Manifest validation failed.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_INVALID_MANIFEST" xml:space="preserve">
-    <value>Manifest is invalid</value>
+    <value>Manifest is invalid.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE" xml:space="preserve">
-    <value>No applicable update found</value>
+    <value>No applicable update found.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE" xml:space="preserve">
-    <value>winget upgrade --all completed with failures</value>
+    <value>winget upgrade --all completed with failures.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_INSTALLER_SECURITY_CHECK_FAILED" xml:space="preserve">
-    <value>Installer failed security check</value>
+    <value>Installer failed security check.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH" xml:space="preserve">
-    <value>Download size does not match expected content length</value>
+    <value>Download size does not match expected content length.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND" xml:space="preserve">
-    <value>Uninstall command not found</value>
+    <value>Uninstall command not found.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED" xml:space="preserve">
-    <value>Running uninstall command failed</value>
+    <value>Running uninstall command failed.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR" xml:space="preserve">
-    <value>ICU break iterator error</value>
+    <value>ICU break iterator error.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_ICU_CASEMAP_ERROR" xml:space="preserve">
-    <value>ICU casemap error</value>
+    <value>ICU casemap error.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_ICU_REGEX_ERROR" xml:space="preserve">
-    <value>ICU regex error</value>
+    <value>ICU regex error.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED" xml:space="preserve">
-    <value>Failed to install one or more imported packages</value>
+    <value>Failed to install one or more imported packages.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND" xml:space="preserve">
-    <value>Could not find one or more requested packages</value>
+    <value>Could not find one or more requested packages.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE" xml:space="preserve">
-    <value>Json file is invalid</value>
+    <value>Json file is invalid.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE" xml:space="preserve">
-    <value>The source location is not remote</value>
+    <value>The source location is not remote.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE" xml:space="preserve">
-    <value>The configured rest source is not supported</value>
+    <value>The configured rest source is not supported.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA" xml:space="preserve">
-    <value>Invalid data returned by rest source</value>
+    <value>Invalid data returned by rest source.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY" xml:space="preserve">
-    <value>Operation is blocked by Group Policy</value>
+    <value>Operation is blocked by Group Policy.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_RESTAPI_INTERNAL_ERROR" xml:space="preserve">
-    <value>Rest API internal error</value>
+    <value>Rest API internal error.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL" xml:space="preserve">
-    <value>Invalid rest source url</value>
+    <value>Invalid rest source url.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_RESTAPI_UNSUPPORTED_MIME_TYPE" xml:space="preserve">
-    <value>Unsupported MIME type returned by rest API</value>
+    <value>Unsupported MIME type returned by rest API.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION" xml:space="preserve">
-    <value>Invalid rest source contract version</value>
+    <value>Invalid rest source contract version.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE" xml:space="preserve">
-    <value>The source data is corrupted or tampered</value>
+    <value>The source data is corrupted or tampered.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_STREAM_READ_FAILURE" xml:space="preserve">
-    <value>Error reading from the stream</value>
+    <value>Error reading from the stream.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED" xml:space="preserve">
-    <value>Package agreements were not agreed to</value>
+    <value>Package agreements were not agreed to.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR" xml:space="preserve">
-    <value>Error reading input in prompt</value>
+    <value>Error reading input in prompt.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST" xml:space="preserve">
-    <value>The search request is not supported by one or more sources</value>
+    <value>The search request is not supported by one or more sources.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND" xml:space="preserve">
     <value>The rest API endpoint is not found.</value>
@@ -2315,46 +2315,46 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Failed to open the source.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED" xml:space="preserve">
-    <value>Source agreements were not agreed to</value>
+    <value>Source agreements were not agreed to.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH" xml:space="preserve">
     <value>Header size exceeds the allowable limit of 1024 characters. Please reduce the size and try again.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MISSING_RESOURCE_FILE" xml:space="preserve">
-    <value>Missing resource file</value>
+    <value>Missing resource file.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED" xml:space="preserve">
-    <value>Running MSI install failed</value>
+    <value>Running MSI install failed.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT" xml:space="preserve">
-    <value>Arguments for msiexec are invalid</value>
+    <value>Arguments for msiexec are invalid.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES" xml:space="preserve">
-    <value>Failed to open one or more sources</value>
+    <value>Failed to open one or more sources.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED" xml:space="preserve">
-    <value>Failed to validate dependencies</value>
+    <value>Failed to validate dependencies.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MISSING_PACKAGE" xml:space="preserve">
-    <value>One or more package is missing</value>
+    <value>One or more package is missing.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_INVALID_TABLE_COLUMN" xml:space="preserve">
-    <value>Invalid table column</value>
+    <value>Invalid table column.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER" xml:space="preserve">
-    <value>The upgrade version is not newer than the installed version</value>
+    <value>The upgrade version is not newer than the installed version.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN" xml:space="preserve">
-    <value>Upgrade version is unknown and override is not specified</value>
+    <value>Upgrade version is unknown and override is not specified.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_ICU_CONVERSION_ERROR" xml:space="preserve">
-    <value>ICU conversion error</value>
+    <value>ICU conversion error.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED" xml:space="preserve">
-    <value>Failed to install portable package</value>
+    <value>Failed to install portable package.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_PORTABLE_REPARSE_POINT_NOT_SUPPORTED" xml:space="preserve">
-    <value>Volume does not support reparse points</value>
+    <value>Volume does not support reparse points.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS" xml:space="preserve">
     <value>Portable package from a different source already exists.</value>
@@ -2366,7 +2366,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The installer cannot be run from an administrator context.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED" xml:space="preserve">
-    <value>Failed to uninstall portable package</value>
+    <value>Failed to uninstall portable package.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_ARP_VERSION_VALIDATION_FAILED" xml:space="preserve">
     <value>Failed to validate DisplayVersion values against index.</value>
@@ -2375,7 +2375,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>One or more arguments are not supported.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_BIND_WITH_EMBEDDED_NULL" xml:space="preserve">
-    <value>Embedded null characters are disallowed for SQLite</value>
+    <value>Embedded null characters are disallowed for SQLite.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND" xml:space="preserve">
     <value>Failed to find the nested installer in the archive.</value>
@@ -2408,22 +2408,22 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Unable to open the pin database.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED" xml:space="preserve">
-    <value>One or more applications failed to install</value>
+    <value>One or more applications failed to install.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MULTIPLE_UNINSTALL_FAILED" xml:space="preserve">
-    <value>One or more applications failed to uninstall</value>
+    <value>One or more applications failed to uninstall.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE" xml:space="preserve">
-    <value>One or more queries did not return exactly one match</value>
+    <value>One or more queries did not return exactly one match.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_PACKAGE_IS_PINNED" xml:space="preserve">
     <value>The package has a pin that prevents upgrade.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB" xml:space="preserve">
-    <value>The package currently installed is the stub package</value>
+    <value>The package currently installed is the stub package.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED" xml:space="preserve">
-    <value>Application shutdown signal received</value>
+    <value>Application shutdown signal received.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES" xml:space="preserve">
     <value>Failed to download package dependencies.</value>
@@ -2606,7 +2606,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The configuration unit could not be found.</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_UNIT_MULTIPLE_MATCHES" xml:space="preserve">
-    <value>Multiple matches were found for the configuration unit; specify the module to select the correct one.</value>
+    <value>Multiple matches were found for the configuration unit. Specify the module to select the correct one.</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_UNIT_INVOKE_GET" xml:space="preserve">
     <value>The configuration unit failed while attempting to get the current system state.</value>
@@ -2654,7 +2654,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Resumes execution of a previously saved command.</value>
   </data>
   <data name="ResumeIdArgumentDescription" xml:space="preserve">
-    <value>The unique identifier of the saved state to resume</value>
+    <value>The unique identifier of the saved state to resume.</value>
   </data>
   <data name="ClientVersionMismatchError" xml:space="preserve">
     <value>Resuming the state from a different client version is not supported: {0}</value>
@@ -2671,7 +2671,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>This command does not support resuming.</value>
   </data>
   <data name="AllowRebootArgumentDescription" xml:space="preserve">
-    <value>Allows a reboot if applicable</value>
+    <value>Allows a reboot if applicable.</value>
   </data>
   <data name="InitiatingReboot" xml:space="preserve">
     <value>Initiating reboot to complete operation...</value>
@@ -2684,7 +2684,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}", "{1}"} {0} is a placeholder that is replaced by an integer number of the number of allowed resumes. {1} is a placeholder for the command to run to perform a manual resume.</comment>
   </data>
   <data name="IgnoreResumeLimitArgumentDescription" xml:space="preserve">
-    <value>Ignore the limit on resuming a saved state</value>
+    <value>Ignore the limit on resuming a saved state.</value>
   </data>
   <data name="UriSchemeNotSupported" xml:space="preserve">
     <value>Uri scheme not supported: {0}</value>
@@ -2755,11 +2755,11 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="WinGetPackage,{0}"}</comment>
   </data>
   <data name="AuthenticationModeArgumentDescription" xml:space="preserve">
-    <value>Specify authentication window preference (silent, silentPreferred or interactive)</value>
+    <value>Specify authentication window preference (silent, silentPreferred or interactive).</value>
     <comment>{Locked="silent","silentPreferred","interactive"} This argument allows the user to select authentication window popup behavior.</comment>
   </data>
   <data name="AuthenticationAccountArgumentDescription" xml:space="preserve">
-    <value>Specify the account to be used for authentication</value>
+    <value>Specify the account to be used for authentication.</value>
   </data>
   <data name="SourceAddFailedAuthenticationNotSupported" xml:space="preserve">
     <value>Failed to add source. This winget version does not support the source's authentication method. Try upgrading to latest winget version.</value>
@@ -2830,10 +2830,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The SQLite connection was terminated to prevent corruption.</value>
   </data>
   <data name="UninstallAllVersionsArgumentDescription" xml:space="preserve">
-    <value>Uninstall all versions</value>
+    <value>Uninstall all versions.</value>
   </data>
   <data name="TargetVersionArgumentDescription" xml:space="preserve">
-    <value>The version to act upon</value>
+    <value>The version to act upon.</value>
   </data>
   <data name="UninstallFailedDueToMultipleVersions" xml:space="preserve">
     <value>Multiple versions of this package are installed. Either refine the search, pass the `--version` argument to select one, or pass the `--all-versions` flag to uninstall all of them.</value>
@@ -2844,10 +2844,10 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>Describes a Group Policy that can enable the use of the --proxy option to set a proxy</comment>
   </data>
   <data name="ProxyArgumentDescription" xml:space="preserve">
-    <value>Set a proxy to use for this execution</value>
+    <value>Set a proxy to use for this execution.</value>
   </data>
   <data name="NoProxyArgumentDescription" xml:space="preserve">
-    <value>Disable the use of proxy for this execution</value>
+    <value>Disable the use of proxy for this execution.</value>
   </data>
   <data name="ResetAdminSettingFailed" xml:space="preserve">
     <value>Cannot reset {0}. This setting is controlled by policy. For more information contact your system administrator.</value>
@@ -2866,7 +2866,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} Message displayed after the user sets the value of an admin setting. Set is used as a verb in past tense. {0} is a placeholder replaced by the setting name. {1} is a placeholder replaced </comment>
   </data>
   <data name="SettingNameArgumentDescription" xml:space="preserve">
-    <value>Name of the setting to modify</value>
+    <value>Name of the setting to modify.</value>
   </data>
   <data name="SettingValueArgumentDescription" xml:space="preserve">
     <value>Value to set for the setting.</value>
@@ -2884,13 +2884,13 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Sets the value of an admin setting.</value>
   </data>
   <data name="SourceExplicitArgumentDescription" xml:space="preserve">
-    <value>Excludes a source from discovery unless specified</value>
+    <value>Excludes a source from discovery unless specified.</value>
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
     <value>Explicit</value>
   </data>
   <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
-    <value>Trust level of the source (none or trusted)</value>
+    <value>Trust level of the source (none or trusted).</value>
   </data>
   <data name="SourceListTrustLevel" xml:space="preserve">
     <value>Trust Level</value>
@@ -2961,10 +2961,10 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="Global Administrator,User Administrator,License Administrator"}</comment>
   </data>
   <data name="SkipMicrosoftStorePackageLicenseArgumentDescription" xml:space="preserve">
-    <value>Skips retrieving Microsoft Store package offline license</value>
+    <value>Skips retrieving Microsoft Store package offline license.</value>
   </data>
   <data name="PlatformArgumentDescription" xml:space="preserve">
-    <value>Select the target platform</value>
+    <value>Select the target platform.</value>
   </data>
   <data name="ConfigurationExportAddingToFile" xml:space="preserve">
     <value>Adding configuration file: {0}</value>
@@ -3018,7 +3018,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"}</comment>
   </data>
   <data name="ConfigurationWarningSetViewTruncated" xml:space="preserve">
-    <value>Some of the data present in the configuration file was truncated for this output; inspect the file contents for the complete content.</value>
+    <value>Some of the data present in the configuration file was truncated for this output. Inspect the file contents for the complete content.</value>
   </data>
   <data name="ConfigurationWarningValueTruncated" xml:space="preserve">
     <value>&lt;this value has been truncated; inspect the file contents for the complete text&gt;</value>
@@ -3035,13 +3035,13 @@ Please specify one of them using the --source option to proceed.</value>
     <value>There are no configurations in the history.</value>
   </data>
   <data name="ConfigurationHistoryItemArgumentDescription" xml:space="preserve">
-    <value>Select items from history</value>
+    <value>Select items from history.</value>
   </data>
   <data name="ConfigurationHistoryItemNotFound" xml:space="preserve">
     <value>No single configuration could be found that matched the provided data. Provide either the full name or part of the identifier that unambiguously matches the desired configuration.</value>
   </data>
   <data name="ConfigurationHistoryRemoveArgumentDescription" xml:space="preserve">
-    <value>Remove the item from history</value>
+    <value>Remove the item from history.</value>
   </data>
   <data name="ConfigureListFirstApplied" xml:space="preserve">
     <value>First Applied</value>
@@ -3127,7 +3127,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The package is not compatible with the current Windows version or platform.</value>
   </data>
   <data name="ConfigurationSuppressPrologueArgumentDescription" xml:space="preserve">
-    <value>Suppress showing initial configuration details when possible</value>
+    <value>Suppress showing initial configuration details when possible.</value>
   </data>
   <data name="MSStoreDownloadMultiplePackagesNotice" xml:space="preserve">
     <value>Multiple Microsoft Store packages may be downloaded targeting different platforms and architectures. --platform, --architecture can be used to filter the packages.</value>
@@ -3150,10 +3150,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Parameter cannot be passed across integrity boundary.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_INSTALLER_ZERO_BYTE_FILE" xml:space="preserve">
-    <value>Downloaded zero byte installer; ensure that your network connection is working properly.</value>
+    <value>Downloaded zero byte installer. Ensure that your network connection is working properly.</value>
   </data>
   <data name="InstallerZeroByteFile" xml:space="preserve">
-    <value>Downloaded zero byte installer; ensure that your network connection is working properly.</value>
+    <value>Downloaded zero byte installer. Ensure that your network connection is working properly.</value>
   </data>
   <data name="FontCommandShortDescription" xml:space="preserve">
     <value>Manage fonts</value>
@@ -3169,7 +3169,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
   </data>
   <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
-    <value>Filter results by family name</value>
+    <value>Filter results by family name.</value>
   </data>
   <data name="FontFace" xml:space="preserve">
     <value>Face</value>
