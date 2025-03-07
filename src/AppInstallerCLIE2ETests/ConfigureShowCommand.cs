@@ -24,6 +24,7 @@ namespace AppInstallerCLIE2ETests
         {
             WinGetSettingsHelper.ConfigureFeature("dsc3", true);
             this.DeleteResourceArtifacts();
+            ConfigureCommand.EnsureTestResourcePresence();
         }
 
         /// <summary>

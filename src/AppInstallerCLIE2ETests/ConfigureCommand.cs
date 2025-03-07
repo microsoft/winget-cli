@@ -19,14 +19,23 @@ namespace AppInstallerCLIE2ETests
         private const string CommandAndAgreementsAndVerbose = "configure --accept-configuration-agreements --verbose";
 
         /// <summary>
+        /// Ensures that the test resources manifests are present.
+        /// </summary>
+        public static void EnsureTestResourcePresence()
+        {
+            string outputDirectory = Path.GetDirectoryName(TestSetup.Parameters.AICLIPath);
+            TestCommon.RunAICLICommand("dscv3 test-file", $"--manifest -o {outputDirectory}\\test-file.dsc.resource.json");
+        }
+
+        /// <summary>
         /// Setup done once before all the tests here.
         /// </summary>
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
             WinGetSettingsHelper.ConfigureFeature("dsc3", true);
-            WinGetSettingsHelper.ConfigureFeature("configureSelfElevate", true);
             this.DeleteResourceArtifacts();
+            EnsureTestResourcePresence();
         }
 
         /// <summary>
@@ -36,7 +45,6 @@ namespace AppInstallerCLIE2ETests
         public void OneTimeTeardown()
         {
             WinGetSettingsHelper.ConfigureFeature("dsc3", false);
-            WinGetSettingsHelper.ConfigureFeature("configureSelfElevate", false);
             this.DeleteResourceArtifacts();
         }
 

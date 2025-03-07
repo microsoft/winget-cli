@@ -168,6 +168,7 @@ namespace AppInstaller::CLI
 #undef WINGET_DSC_FUNCTION_ARGUMENT
 
         result.emplace_back(Execution::Args::Type::DscResourceFunctionManifest, Resource::String::DscResourceFunctionDescriptionManifest, ArgumentType::Flag);
+        result.emplace_back(Execution::Args::Type::OutputFile, Resource::String::OutputFileArgumentDescription, ArgumentType::Standard);
 
         return result;
     }
@@ -230,7 +231,17 @@ namespace AppInstaller::CLI
 
         Json::StreamWriterBuilder writerBuilder;
         writerBuilder.settings_["indentation"] = "  ";
-        context.Reporter.Json() << Json::writeString(writerBuilder, json);
+        std::string jsonString = Json::writeString(writerBuilder, json);
+
+        if (context.Args.Contains(Execution::Args::Type::OutputFile))
+        {
+            std::ofstream stream{ Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::OutputFile)), std::ios::binary };
+            stream.write(jsonString.c_str(), jsonString.length());
+        }
+        else
+        {
+            context.Reporter.Json() << jsonString;
+        }
     }
 
 #undef WINGET_DSC_FUNCTION_METHOD
