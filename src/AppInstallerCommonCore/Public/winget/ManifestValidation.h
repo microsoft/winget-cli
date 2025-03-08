@@ -73,6 +73,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(SchemaHeaderManifestTypeMismatch);
         WINGET_DEFINE_RESOURCE_STRINGID(SchemaHeaderManifestVersionMismatch);
         WINGET_DEFINE_RESOURCE_STRINGID(SchemaHeaderUrlPatternMismatch);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidArchiveField);
     }
 
     struct ValidationError
