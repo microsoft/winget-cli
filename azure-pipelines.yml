@@ -122,6 +122,7 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly'
+      maximumCpuCount: true
 
   - task: VSBuild@1
     displayName: Build Test Project
@@ -134,6 +135,7 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly'
+      maximumCpuCount: true
 
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File
@@ -145,6 +147,7 @@ jobs:
                          /p:AppxBundle=Never
                          /p:UapAppxPackageBuildMode=SideLoadOnly
                          /p:AppxPackageSigningEnabled=false'
+      maximumCpuCount: true
 
   - task: CopyFiles@2
     displayName: 'Copy specific build artifacts'
@@ -642,6 +645,7 @@ jobs:
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
       msbuildArgs: '/bl:$(artifactsDir)\msbuild.binlog'
+      maximumCpuCount: true
 
   - task: CopyFiles@2
     displayName: Copy Fuzzing Artifacts for Publishing
