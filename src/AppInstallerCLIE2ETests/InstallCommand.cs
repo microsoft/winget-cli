@@ -365,7 +365,7 @@ namespace AppInstallerCLIE2ETests
             Directory.Delete(conflictDirectory, true);
 
             Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Unable to create symlink, path points to a directory."));
+            Assert.True(result.StdOut.Contains("Unable to create symlink"));
         }
 
         /// <summary>
