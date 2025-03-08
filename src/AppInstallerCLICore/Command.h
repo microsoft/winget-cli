@@ -65,6 +65,8 @@ namespace AppInstaller::CLI
             Command(name, aliases, parent, Command::Visibility::Show, Settings::ExperimentalFeature::Feature::None, groupPolicy, CommandOutputFlags::None) {}
         Command(std::string_view name, std::vector<std::string_view> aliases, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature) :
             Command(name, aliases, parent, visibility, feature, Settings::TogglePolicy::Policy::None, CommandOutputFlags::None) {}
+        Command(std::string_view name, std::vector<std::string_view> aliases, std::string_view parent, Command::Visibility visibility, Settings::TogglePolicy::Policy groupPolicy) :
+            Command(name, aliases, parent, visibility, Settings::ExperimentalFeature::Feature::None, groupPolicy, CommandOutputFlags::None) {}
 
         Command(std::string_view name,
             std::vector<std::string_view> aliases,
@@ -98,8 +100,8 @@ namespace AppInstaller::CLI
         std::vector<std::unique_ptr<Command>> GetVisibleCommands() const;
         std::vector<Argument> GetVisibleArguments() const;
 
-        virtual Resource::LocString ShortDescription() const { return {}; }
-        virtual Resource::LocString LongDescription() const { return {}; }
+        virtual Resource::LocString ShortDescription() const = 0;
+        virtual Resource::LocString LongDescription() const = 0;
 
         virtual void OutputIntroHeader(Execution::Reporter& reporter) const;
         virtual void OutputHelp(Execution::Reporter& reporter, const CommandException* exception = nullptr) const;

@@ -211,6 +211,9 @@ struct TestCommand : public Command
         return m_args;
     }
 
+    CLI::Resource::LocString ShortDescription() const override { return {}; }
+    CLI::Resource::LocString LongDescription() const override { return {}; }
+
     std::vector<Argument> m_args;
 };
 

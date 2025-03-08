@@ -3207,4 +3207,44 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationProcessorPath" xml:space="preserve">
     <value>Specify the path to the configuration processor</value>
   </data>
+  <data name="DscCommandShortDescription" xml:space="preserve">
+    <value>DSC v3 resource commands</value>
+    <comment>DSC stands for "Desired State Configuration". It should already have a locked translation.</comment>
+  </data>
+  <data name="DscCommandLongDescription" xml:space="preserve">
+    <value>The sub-commands here implement Desired State Configuration (DSC) v3 resources for configuring winget and packages.</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionGet" xml:space="preserve">
+    <value>Get the resource state</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionSet" xml:space="preserve">
+    <value>Set the resource state</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionWhatIf" xml:space="preserve">
+    <value>Describe required state changes</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionTest" xml:space="preserve">
+    <value>Test the resource state</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionDelete" xml:space="preserve">
+    <value>Delete resource state</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionExport" xml:space="preserve">
+    <value>Get all state instances</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionValidate" xml:space="preserve">
+    <value>Validate group contents</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionResolve" xml:space="preserve">
+    <value>Resolve external state</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionAdapter" xml:space="preserve">
+    <value>Run the adapter</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionSchema" xml:space="preserve">
+    <value>Get resource schema</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionManifest" xml:space="preserve">
+    <value>Get the resource manifest</value>
+  </data>
 </root>

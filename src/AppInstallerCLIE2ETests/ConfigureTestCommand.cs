@@ -26,6 +26,7 @@ namespace AppInstallerCLIE2ETests
         {
             WinGetSettingsHelper.ConfigureFeature("dsc3", true);
             this.DeleteResourceArtifacts();
+            ConfigureCommand.EnsureTestResourcePresence();
         }
 
         /// <summary>
@@ -133,15 +134,6 @@ namespace AppInstallerCLIE2ETests
             foreach (string file in Directory.GetFiles(TestCommon.GetTestDataFile("Configuration"), "*.txt"))
             {
                 File.Delete(file);
-            }
-
-            var registryKey = Registry.CurrentUser.OpenSubKey(Constants.TestRegistryPath, true);
-            if (registryKey != null)
-            {
-                foreach (string valueName in registryKey.GetValueNames())
-                {
-                    registryKey.DeleteValue(valueName, false);
-                }
             }
         }
     }

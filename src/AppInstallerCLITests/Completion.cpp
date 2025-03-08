@@ -231,6 +231,9 @@ struct CompletionTestCommand : public Command
         return Arguments;
     }
 
+    CLI::Resource::LocString ShortDescription() const override { return {}; }
+    CLI::Resource::LocString LongDescription() const override { return {}; }
+
     using Command::Complete;
 
     void Complete(Execution::Context& context, Execution::Args::Type valueType) const override

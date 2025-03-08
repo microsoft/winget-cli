@@ -24,6 +24,7 @@ namespace AppInstallerCLIE2ETests
         {
             WinGetSettingsHelper.ConfigureFeature("dsc3", true);
             this.DeleteResourceArtifacts();
+            ConfigureCommand.EnsureTestResourcePresence();
         }
 
         /// <summary>
@@ -171,7 +172,7 @@ namespace AppInstallerCLIE2ETests
             int startLine = -1;
             for (int i = 0; i < outputLines.Length; ++i)
             {
-                if (outputLines[i].Trim() == "Microsoft.Windows/Registry [RegVal]")
+                if (outputLines[i].Trim() == "Microsoft.WinGet/TestFile [Test File]")
                 {
                     startLine = i;
                 }
@@ -188,7 +189,6 @@ namespace AppInstallerCLIE2ETests
         /// Runs a DSCv3 configuration, then shows it from history.
         /// </summary>
         [Test]
-        [Ignore("The registry resource is failing for unknown and undiagnosable reasons in the ADO pipeline. Replace these with test resources when we implement them next.")]
         public void ShowFromHistory_DSCv3()
         {
             var result = TestCommon.RunAICLICommand("configure --accept-configuration-agreements --verbose", TestCommon.GetTestDataFile("Configuration\\ShowDetails_DSCv3.yml"));
@@ -202,7 +202,7 @@ namespace AppInstallerCLIE2ETests
             int startLine = -1;
             for (int i = 0; i < outputLines.Length; ++i)
             {
-                if (outputLines[i].Trim() == "Microsoft.Windows/Registry [RegVal]")
+                if (outputLines[i].Trim() == "Microsoft.WinGet/TestFile [Test File]")
                 {
                     startLine = i;
                 }
@@ -221,15 +221,6 @@ namespace AppInstallerCLIE2ETests
             foreach (string file in Directory.GetFiles(TestCommon.GetTestDataFile("Configuration"), "*.txt"))
             {
                 File.Delete(file);
-            }
-
-            var registryKey = Registry.CurrentUser.OpenSubKey(Constants.TestRegistryPath, true);
-            if (registryKey != null)
-            {
-                foreach (string valueName in registryKey.GetValueNames())
-                {
-                    registryKey.DeleteValue(valueName, false);
-                }
             }
         }
     }

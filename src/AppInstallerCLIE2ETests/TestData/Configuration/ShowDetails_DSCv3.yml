@@ -3,12 +3,10 @@ metadata:
   winget:
     processor: dscv3
 resources:
-  - name: RegVal
-    type: Microsoft.Windows/Registry
+  - name: Test File
+    type: Microsoft.WinGet/TestFile
     metadata:
       description: Description 1.
     properties:
-      keyPath: HKEY_CURRENT_USER\Software\Microsoft\WinGet\Tests
-      valueName: TestVal
-      valueData:
-        String: Value!
+      path: ${WinGetConfigRoot}\ShowDetails_DSCv3.txt
+      content: DSCv3 Contents!
