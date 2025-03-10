@@ -1040,9 +1040,6 @@
     <CopyFileToFolders Include="TestData\ContainsEscapeControlCode.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ContainsTooManyNestedLayers.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ManifestV1_10-Bad-SchemaHeaderInvalid.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -1056,6 +1053,15 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ManifestV1_10-Bad-SchemaHeaderURLPatternMismatch.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-InstallerTypeZip-PortableExe.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-PortableNotExe_Root.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
   </ItemGroup>
