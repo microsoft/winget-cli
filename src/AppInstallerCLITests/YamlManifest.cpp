@@ -1607,7 +1607,6 @@ TEST_CASE("ManifestApplyLocale", "[ManifestValidation]")
 TEST_CASE("ManifestLocalizationValidation", "[ManifestValidation]")
 {
     Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-MultiLocale.yaml"));
-    ManifestValidateOption validateOption = GetTestManifestValidateOption();
 
     // Set 1 locale to bad value
     manifest.Localizations.at(0).Locale = "Invalid";
