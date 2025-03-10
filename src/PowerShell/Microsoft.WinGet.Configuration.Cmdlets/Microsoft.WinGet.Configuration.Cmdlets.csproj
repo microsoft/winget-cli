@@ -61,7 +61,7 @@
   </Target>
 
   <!-- Main binaries -->
-  <Target Name="CopyCmdletBinaries" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+  <Target Name="CopyCmdletBinaries" AfterTargets="AfterBuild">
     <ItemGroup>
       <ModuleCmdletFile Include="$(OutputPath)Microsoft.WinGet.Configuration.Cmdlets.dll" />
       <ModuleCmdletFile Include="$(OutputPath)Microsoft.WinGet.Configuration.Cmdlets.pdb" />
@@ -71,7 +71,7 @@
   </Target>
 
   <!-- Direct dependencies -->
-  <Target Name="CopyDirectDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+  <Target Name="CopyDirectDependencies" AfterTargets="AfterBuild">
     <ItemGroup>
       <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Configuration.Engine.dll" />
       <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Configuration.Engine.pdb" />
@@ -81,7 +81,7 @@
   </Target>
 
   <!-- Shared dependencies -->
-  <Target Name="CopySharedDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+  <Target Name="CopySharedDependencies" AfterTargets="AfterBuild">
     <ItemGroup>
       <ModuleSharedDependency Include="$(OutputPath)Microsoft.Management.Configuration.Processor.dll" />
       <ModuleSharedDependency Include="$(OutputPath)Microsoft.WinGet.SharedLib.dll" />

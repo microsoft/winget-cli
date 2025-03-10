@@ -41,7 +41,6 @@
     "Microsoft.VisualStudio.Workload.ManagedDesktop",
     "Microsoft.VisualStudio.Component.VC.ATL",
     "Microsoft.VisualStudio.Component.VC.Tools.ARM64",
-    "Microsoft.VisualStudio.Component.VC.Tools.ARM",
     "Microsoft.VisualStudio.Component.VC.Redist.14.Latest",
     "Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Core",
     "Microsoft.VisualStudio.ComponentGroup.WebToolsExtensions.CMake",
@@ -59,7 +58,6 @@
     "Microsoft.VisualStudio.ComponentGroup.UWP.Xamarin",
     "Microsoft.VisualStudio.ComponentGroup.UWP.Support",
     "Microsoft.VisualStudio.Workload.Universal",
-    "Microsoft.VisualStudio.Component.VC.Runtimes.ARM.Spectre",
     "Microsoft.VisualStudio.Component.VC.Runtimes.ARM64.Spectre",
     "Microsoft.VisualStudio.Component.VC.Runtimes.x86.x64.Spectre",
     "Microsoft.NetCore.Component.Runtime.3.1"
