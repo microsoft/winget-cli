@@ -1626,7 +1626,6 @@ TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")
 {
     Manifest installerManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml"));
     Manifest rootManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InstallerTypeZip-PortableNotExe_Root.yaml"));
-    ManifestValidateOption validateOption = GetTestManifestValidateOption();
 
     // Regular validation should detect as error
     auto errors = ValidateManifest(installerManifest, true);
