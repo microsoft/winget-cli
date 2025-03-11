@@ -83,7 +83,7 @@
   </Target>
 
   <!-- Main binaries -->
-  <Target Name="CopyWinGetBinaries" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+  <Target Name="CopyWinGetBinaries" AfterTargets="AfterBuild">
     <ItemGroup>
       <ModuleWinGetFile Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.dll" />
       <ModuleWinGetFile Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.pdb" Condition="'$(Configuration)' == 'Debug'" />
@@ -93,7 +93,7 @@
   </Target>
 
   <!-- Direct dependencies -->
-  <Target Name="CopyDirectDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+  <Target Name="CopyDirectDependencies" AfterTargets="AfterBuild">
     <ItemGroup>
       <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.dll" />
       <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.pdb" Condition="'$(Configuration)' == 'Debug'" />
@@ -103,7 +103,7 @@
   </Target>
 
   <!-- Shared managed dependencies -->
-  <Target Name="CopyManagedDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+  <Target Name="CopyManagedDependencies" AfterTargets="AfterBuild">
     <ItemGroup>
       <ManagedDependency Include="$(OutputPath)Newtonsoft.Json.dll" />
       <ManagedDependency Include="$(OutputPath)Octokit.dll" />
@@ -116,4 +116,3 @@
   </Target>
 
 </Project>
-
