@@ -191,7 +191,7 @@
     <value>Experimental argument for demonstration purposes</value>
   </data>
   <data name="ExperimentalCommandLongDescription" xml:space="preserve">
-    <value>This command is an example on how to implement an experimental feature. To turn on go to 'winget settings' and enable experimentalCmd or experimentalArg features.</value>
+    <value>This command is an example on how to implement an experimental feature. To turn on, go to 'winget settings' and enable experimentalCmd or experimentalArg features.</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="ExperimentalCommandShortDescription" xml:space="preserve">
@@ -289,7 +289,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Installer hash does not match. To override this check use --ignore-security-hash.</value>
+    <value>Installer hash does not match. To override this check, use --ignore-security-hash.</value>
     <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
@@ -405,7 +405,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Filter results by name</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>No applicable installer found. See logs for more details.</value>
+    <value>No applicable installer was found. See the logs for more details.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>There are currently no experimental features available. </value>
@@ -598,11 +598,11 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Name of the source</value>
   </data>
   <data name="SourceOpenFailedSuggestion" xml:space="preserve">
-    <value>Failed when opening source(s). Try the 'source reset' command if the problem persists.</value>
+    <value>There was a problem opening a source. Try the 'source reset' command if the problem persists.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
-    <value>Failed to open the predefined source. Please report to winget maintainers.</value>
+    <value>There was a problem opening the predefined source. Please report this to winget's maintainers.</value>
     <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
@@ -694,7 +694,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Upgrade all installed packages to latest if available</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
-    <value>No applicable upgrade found.</value>
+    <value>No applicable upgrade was found.</value>
   </data>
   <data name="UpdateNotApplicableReason" xml:space="preserve">
     <value>A newer package version is available in a configured source, but it does not apply to your system or requirements.</value>
@@ -752,7 +752,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>The configured sources are:</value>
   </data>
   <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
-    <value>No sources defined. Add one with 'source add' or reset to defaults with 'source reset'.</value>
+    <value>No sources are defined. Add one with 'source add' or reset the defaults with 'source reset'.</value>
     <comment>{Locked="source add","source reset"}</comment>
   </data>
   <data name="ReportIdentityFound" xml:space="preserve">
@@ -878,7 +878,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="user","machine"} This argument allows the user to select between installing for just the user or for the entire machine.</comment>
   </data>
   <data name="InvalidArgumentValueError" xml:space="preserve">
-    <value>The value provided for the `{0}` argument is invalid. Valid values are: {1}</value>
+    <value>The value provided for the `{0}` argument is invalid. The valid values are: {1}</value>
     <comment>{Locked="{0}","{1}"} Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name. {1} is a placeholder replaced by a list of valid options.</comment>
   </data>
   <data name="DisabledByGroupPolicy" xml:space="preserve">
@@ -1385,7 +1385,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The installer cannot be run from an administrator context.</value>
   </data>
   <data name="ModifiedPathRequiresShellRestart" xml:space="preserve">
-    <value>Path environment variable modified. Restart your shell to use the new value.</value>
+    <value>The PATH environment variable was modified. Restart your shell to use the new value.</value>
+    <comment>{Locked="PATH"}</comment>
   </data>
   <data name="ProductCodeArgumentDescription" xml:space="preserve">
     <value>Filters using the product code</value>
@@ -1433,7 +1434,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Unable to remove Portable package as it has been modified. To override this check use --force.</value>
+    <value>Unable to remove Portable package as it has been modified. To override this check, use --force.</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
@@ -1470,10 +1471,10 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} Error message displayed when nested installer file does not exist. {0} is a placeholder replaced by the nested installer file path.</comment>
   </data>
   <data name="InvalidPathToNestedInstaller" xml:space="preserve">
-    <value>Invalid relative file path to the nested installer. Path points to a location outside of the install directory.</value>
+    <value>Invalid relative file path to the nested installer. The path points to a location outside of the install directory.</value>
   </data>
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
-    <value>No nested installers specified for this package</value>
+    <value>No nested installers are specified for this package</value>
   </data>
   <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
     <value>Only one non-portable nested installer can be specified for an archive installer</value>
@@ -1541,7 +1542,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Extracting archive...</value>
   </data>
   <data name="ArchiveFailedMalwareScan" xml:space="preserve">
-    <value>Archive scan detected malware. To override this check use --ignore-local-archive-malware-scan</value>
+    <value>Archive scan detected malware. To override this check, use --ignore-local-archive-malware-scan</value>
     <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
   </data>
   <data name="ArchiveFailedMalwareScanOverridden" xml:space="preserve">
@@ -1838,7 +1839,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="RebootRequiredToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
-    <value>Reboot required to fully enable the Windows Feature(s). To override this check use '--force'.</value>
+    <value>Reboot required to fully enable the Windows Feature(s). To override this check, use '--force'.</value>
     <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
   </data>
   <data name="FailedToEnableWindowsFeatureOverridden" xml:space="preserve">
@@ -2234,7 +2235,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Manifest is invalid.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE" xml:space="preserve">
-    <value>No applicable update found.</value>
+    <value>No applicable update was found.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE" xml:space="preserve">
     <value>winget upgrade --all completed with failures.</value>
@@ -2348,7 +2349,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Upgrade version is unknown and override is not specified.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_ICU_CONVERSION_ERROR" xml:space="preserve">
-    <value>ICU conversion error.</value>
+    <value>An ICU conversion error occurred.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED" xml:space="preserve">
     <value>Failed to install portable package.</value>
@@ -3018,10 +3019,10 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"}</comment>
   </data>
   <data name="ConfigurationWarningSetViewTruncated" xml:space="preserve">
-    <value>Some of the data present in the configuration file was truncated for this output. Inspect the file contents for the complete content.</value>
+    <value>Some of the data present in the configuration file was truncated for this output. Inspect the file for the complete content.</value>
   </data>
   <data name="ConfigurationWarningValueTruncated" xml:space="preserve">
-    <value>&lt;this value has been truncated; inspect the file contents for the complete text&gt;</value>
+    <value>&lt;this value has been truncated; inspect the file for the complete text&gt;</value>
     <comment>Keep some form of separator like the "&lt;&gt;" around the text so that it stands out from the preceding text.</comment>
   </data>
   <data name="ConfigureListCommandLongDescription" xml:space="preserve">
