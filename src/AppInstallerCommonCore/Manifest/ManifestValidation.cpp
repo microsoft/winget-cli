@@ -71,6 +71,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::SchemaHeaderManifestTypeMismatch , "The manifest type in the schema header does not match the ManifestType property value in the manifest."sv },
                 { AppInstaller::Manifest::ManifestError::SchemaHeaderManifestVersionMismatch, "The manifest version in the schema header does not match the ManifestVersion property value in the manifest."sv },
                 { AppInstaller::Manifest::ManifestError::SchemaHeaderUrlPatternMismatch, "The schema header URL does not match the expected pattern."sv },
+                { AppInstaller::Manifest::ManifestError::InvalidPortableFiletype, "The file type of the referenced file is not allowed."sv },
             };
 
             return ErrorIdToMessageMap;
@@ -301,6 +302,7 @@ namespace AppInstaller::Manifest
 
                 std::set<std::string> commandAliasSet;
                 std::set<std::string> relativeFilePathSet;
+                bool isPortable = installer.NestedInstallerType == InstallerTypeEnum::Portable;
 
                 for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
                 {
@@ -330,6 +332,15 @@ namespace AppInstaller::Manifest
                     {
                         resultErrors.emplace_back(ManifestError::DuplicatePortableCommandAlias, "PortableCommandAlias");
                         break;
+                    }
+
+                    // If running full validation, check filetype
+                    if (fullValidation && isPortable)
+                    {
+                        if (fullPath.has_extension() && s_AllowedPortableFiletypes.find(fullPath.extension()) == s_AllowedPortableFiletypes.end())
+                        {
+                            resultErrors.emplace_back(ManifestError::InvalidPortableFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
+                        }
                     }
                 }
             }
