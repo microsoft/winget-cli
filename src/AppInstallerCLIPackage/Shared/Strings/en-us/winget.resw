@@ -139,7 +139,7 @@
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>Available</value>
-    <comment>As in "a new version is available to upgrade to".</comment>
+    <comment>As in "a new version is available to upgrade to". Used as a table header.</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>The following options are available:</value>
@@ -150,22 +150,24 @@
     <comment>Message displayed to inform the user about the available nested commands that run in context of the selected command.</comment>
   </data>
   <data name="AvailableUpgrades" xml:space="preserve">
-    <value>{0} upgrades available.</value>
+    <value>{0} upgrades are available.</value>
     <comment>{Locked="{0}"} Message displayed to inform the user about available package upgrades. {0} is a placeholder replaced by the number of package upgrades.</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
-    <value>Use the specified channel; default is general audience</value>
+    <value>Use the specified channel; the default is general audience</value>
+    <comment>Help text for a command line argument. The argument specifies the "release channel" to install (e.g. release / preview / beta).</comment>
   </data>
   <data name="Command" xml:space="preserve">
     <value>command</value>
-    <comment>Label displayed for a command to give the software.</comment>
+    <comment>Used as a placeholder in help text to represent a command to give to the software. Like "usage: winget [command]"</comment>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filter results by command</value>
-    <comment>Description message displayed to inform the user about filtering the search results by a package command.</comment>
+    <comment>Help text for a command line argument. The argument filters search results to packages that provide the given command.</comment>
   </data>
   <data name="CommandLineArgumentDescription" xml:space="preserve">
     <value>The full command line for completion</value>
+    <comment>Help text for a command line argument. The argument provides a command line command (e.g. "winget install foo") for which we want auto-complete suggestions</comment>
   </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>This command requires administrator privileges to execute.</value>
@@ -185,7 +187,7 @@
   </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
     <value>Find package using exact match</value>
-    <comment>Description message displayed to inform the user about finding an application package using an exact matching criteria.</comment>
+    <comment>Help text for a command line argument. The argument makes the search for packages use an exact matching criteria.</comment>
   </data>
   <data name="ExperimentalArgumentDescription" xml:space="preserve">
     <value>Experimental argument for demonstration purposes</value>
@@ -202,7 +204,7 @@
     <comment>{Locked="{0}"} Error message displayed when the user provides an extra positional argument when none was expected. {0} is a placeholder replaced by the user's extra argument input.</comment>
   </data>
   <data name="FeatureDisabledMessage" xml:space="preserve">
-    <value>This feature is a work in progress, and may be changed dramatically or removed altogether in the future. To enable it, edit your settings ('winget settings') to include the experimental feature: '{0}'</value>
+    <value>This feature is a work in progress, and may be changed dramatically or removed altogether in the future. To turn it on, edit your settings ('winget settings') to include the experimental feature '{0}'</value>
     <comment>{Locked="winget settings","{0}"}. Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
@@ -214,29 +216,36 @@
   </data>
   <data name="FeaturesDisabled" xml:space="preserve">
     <value>Disabled</value>
+    <comment>Value used in a table to indicate that a feature is turned off</comment>
   </data>
   <data name="FeaturesEnabled" xml:space="preserve">
     <value>Enabled</value>
+    <comment>Value used in a table to indicate that a feature is turned on</comment>
   </data>
   <data name="FeaturesFeature" xml:space="preserve">
     <value>Feature</value>
+    <comment>Header in a table that lists product features</comment>
   </data>
   <data name="FeaturesLink" xml:space="preserve">
     <value>Link</value>
+    <comment>Header in a table for a column containing hyperlinks</comment>
   </data>
   <data name="FeaturesMessage" xml:space="preserve">
     <value>The following experimental features are in progress.
-They can be configured through the settings file 'winget settings'.</value>
+Use 'winget settings' to open the settings file and configure them.</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesProperty" xml:space="preserve">
     <value>Property</value>
+    <comment>Header in a table for a column containing the names of properties in a JSON object</comment>
   </data>
   <data name="FeaturesStatus" xml:space="preserve">
     <value>Status</value>
+    <comment>Header in a table for a column indicating whether a feature is on or off</comment>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>File to be hashed</value>
+    <comment>Help text for a command line argument. The argument is the path to a file for which we calculate a cryptographic hash/digest.</comment>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Flag argument cannot contain adjoined value: '{0}'</value>
@@ -425,6 +434,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="Options" xml:space="preserve">
     <value>options</value>
+    <comment>Used as a placeholder in help text to represent options that change how a command works. Like "usage: winget install [options]"</comment>
     <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
