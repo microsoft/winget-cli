@@ -251,7 +251,7 @@ namespace AppInstaller::Manifest
         bool m_warningOnly;
     };
 
-    static const std::unordered_set<std::filesystem::path> allowedPortableFiletypes = { L".exe" };
+    static const std::unordered_set<std::filesystem::path> s_AllowedPortableFiletypes = { L".exe" };
 
     // fullValidation: bool to set if manifest validation should perform extra validation that is not required for reading a manifest.
     std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation = true);

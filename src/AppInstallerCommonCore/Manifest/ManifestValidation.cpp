@@ -302,7 +302,7 @@ namespace AppInstaller::Manifest
 
                 std::set<std::string> commandAliasSet;
                 std::set<std::string> relativeFilePathSet;
-                const bool isPortable = installer.NestedInstallerType == InstallerTypeEnum::Portable;
+                bool isPortable = installer.NestedInstallerType == InstallerTypeEnum::Portable;
 
                 for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
                 {
@@ -337,7 +337,7 @@ namespace AppInstaller::Manifest
                     // If running full validation, check filetype
                     if (fullValidation && isPortable)
                     {
-                        if (fullPath.has_extension() && allowedPortableFiletypes.find(fullPath.extension()) == allowedPortableFiletypes.end())
+                        if (fullPath.has_extension() && s_AllowedPortableFiletypes.find(fullPath.extension()) == s_AllowedPortableFiletypes.end())
                         {
                             resultErrors.emplace_back(ManifestError::InvalidPortableFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
                         }
