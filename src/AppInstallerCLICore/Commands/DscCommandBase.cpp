@@ -146,7 +146,7 @@ namespace AppInstaller::CLI
     }
 
     DscCommandBase::DscCommandBase(std::string_view parent, std::string_view resourceName, DscResourceKind kind, DscFunctions functions, DscFunctionModifiers modifiers) :
-        Command(resourceName, parent), m_kind(kind), m_functions(functions), m_modifiers(modifiers)
+        Command(resourceName, parent, CommandOutputFlags::IgnoreSettingsWarnings), m_kind(kind), m_functions(functions), m_modifiers(modifiers)
     {
         // Limits on current implementation
         THROW_HR_IF(E_NOTIMPL, kind != DscResourceKind::Resource);
