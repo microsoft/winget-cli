@@ -35,6 +35,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         // The path to the dsc.exe executable, as discovered.
         // Read only.
         FoundDscExecutablePath,
+        // Whether to request detailed traces from the processor.
+        // Read / Write
+        DiagnosticTraceLevel,
     };
 
     // Gets the string for a property name.

@@ -3227,7 +3227,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Test the resource state</value>
   </data>
   <data name="DscResourceFunctionDescriptionDelete" xml:space="preserve">
-    <value>Delete resource state</value>
+    <value>Delete the resource state</value>
   </data>
   <data name="DscResourceFunctionDescriptionExport" xml:space="preserve">
     <value>Get all state instances</value>
@@ -3242,7 +3242,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Run the adapter</value>
   </data>
   <data name="DscResourceFunctionDescriptionSchema" xml:space="preserve">
-    <value>Get resource schema</value>
+    <value>Get the resource schema</value>
   </data>
   <data name="DscResourceFunctionDescriptionManifest" xml:space="preserve">
     <value>Get the resource manifest</value>

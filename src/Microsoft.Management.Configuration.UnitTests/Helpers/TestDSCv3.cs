@@ -6,6 +6,7 @@
 
 namespace Microsoft.Management.Configuration.UnitTests.Helpers
 {
+    using Microsoft.Management.Configuration.Processor.DSCv3.Helpers;
     using Microsoft.Management.Configuration.Processor.DSCv3.Model;
     using Microsoft.Management.Configuration.Processor.Helpers;
 
@@ -83,25 +84,25 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public TestResourceDelegateType? TestResourceDelegate { get; set; }
 
         /// <inheritdoc/>
-        public IResourceListItem? GetResourceByType(string resourceType)
+        public IResourceListItem? GetResourceByType(string resourceType, IDiagnosticsSink? diagnosticsSink = null)
         {
             return this.GetResourceByTypeResult ?? this.GetResourceByTypeDelegate?.Invoke(resourceType);
         }
 
         /// <inheritdoc/>
-        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal)
+        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
         {
             return this.GetResourceSettingsResult ?? this.GetResourceSettingsDelegate?.Invoke(unitInternal) ?? throw new System.NotImplementedException();
         }
 
         /// <inheritdoc/>
-        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal)
+        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
         {
             return this.SetResourceSettingsResult ?? this.SetResourceSettingsDelegate?.Invoke(unitInternal) ?? throw new System.NotImplementedException();
         }
 
         /// <inheritdoc/>
-        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal)
+        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
         {
             return this.TestResourceResult ?? this.TestResourceDelegate?.Invoke(unitInternal) ?? throw new System.NotImplementedException();
         }

@@ -15,7 +15,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Unit
     /// <summary>
     /// Provides access to a specific configuration unit within the runtime.
     /// </summary>
-    internal sealed partial class DSCv3ConfigurationUnitProcessor : ConfigurationUnitProcessorBase, IConfigurationUnitProcessor
+    internal sealed partial class DSCv3ConfigurationUnitProcessor : ConfigurationUnitProcessorBase, IConfigurationUnitProcessor, IDiagnosticsSink
     {
         private readonly ProcessorSettings processorSettings;
 
@@ -32,21 +32,27 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Unit
         }
 
         /// <inheritdoc />
+        void IDiagnosticsSink.OnDiagnostics(DiagnosticLevel level, string message)
+        {
+            this.OnDiagnostics(level, message);
+        }
+
+        /// <inheritdoc />
         protected override ValueSet GetSettingsInternal()
         {
-            return this.processorSettings.DSCv3.GetResourceSettings(this.UnitInternal).Settings;
+            return this.processorSettings.DSCv3.GetResourceSettings(this.UnitInternal, this).Settings;
         }
 
         /// <inheritdoc />
         protected override bool TestSettingsInternal()
         {
-            return this.processorSettings.DSCv3.TestResource(this.UnitInternal).InDesiredState;
+            return this.processorSettings.DSCv3.TestResource(this.UnitInternal, this).InDesiredState;
         }
 
         /// <inheritdoc />
         protected override bool ApplySettingsInternal()
         {
-            return this.processorSettings.DSCv3.SetResourceSettings(this.UnitInternal).RebootRequired;
+            return this.processorSettings.DSCv3.SetResourceSettings(this.UnitInternal, this).RebootRequired;
         }
     }
 }

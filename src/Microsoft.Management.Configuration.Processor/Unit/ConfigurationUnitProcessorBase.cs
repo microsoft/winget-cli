@@ -160,6 +160,16 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// <returns>A boolean indicating whether a reboot is required.</returns>
         protected abstract bool ApplySettingsInternal();
 
+        /// <summary>
+        /// Sends diagnostics if appropriate.
+        /// </summary>
+        /// <param name="level">The level of this diagnostic message.</param>
+        /// <param name="message">The diagnostic message.</param>
+        protected void OnDiagnostics(DiagnosticLevel level, string message)
+        {
+            this.SetProcessorFactory?.OnDiagnostics(level, message);
+        }
+
         private void ExtractExceptionInformation(Exception e, ConfigurationUnitResultInformation resultInformation)
         {
             this.OnDiagnostics(DiagnosticLevel.Verbose, e.ToString());
@@ -222,11 +232,6 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             }
 
             // Get is always allowed now.
-        }
-
-        private void OnDiagnostics(DiagnosticLevel level, string message)
-        {
-            this.SetProcessorFactory?.OnDiagnostics(level, message);
         }
     }
 }
