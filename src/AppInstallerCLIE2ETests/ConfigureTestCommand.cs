@@ -35,7 +35,7 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void OneTimeTeardown()
         {
-            WinGetSettingsHelper.ConfigureFeature("dsc3", true);
+            WinGetSettingsHelper.ConfigureFeature("dsc3", false);
             this.DeleteResourceArtifacts();
         }
 

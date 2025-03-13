@@ -8,6 +8,7 @@ namespace AppInstallerCLIE2ETests
 {
     using System;
     using System.IO;
+    using System.Linq;
     using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Win32;
     using NUnit.Framework;
@@ -289,6 +290,19 @@ namespace AppInstallerCLIE2ETests
 
             FileAssert.Exists(targetFilePath);
             Assert.AreEqual("DSCv3 Contents!", File.ReadAllText(targetFilePath));
+        }
+
+        /// <summary>
+        /// Ensures that the test file resource schema function works.
+        /// </summary>
+        [Test]
+        public void TestFileResourceSchema()
+        {
+            var result = TestCommon.RunAICLICommand("dscv3 test-file", "--schema");
+            Assert.AreEqual(0, result.ExitCode);
+
+            var lines = result.StdOut.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+            Assert.AreEqual(1, lines.Length);
         }
 
         private void DeleteResourceArtifacts()
