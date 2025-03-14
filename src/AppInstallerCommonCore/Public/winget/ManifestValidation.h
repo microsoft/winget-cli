@@ -7,6 +7,7 @@
 
 #include <wil/result.h>
 #include <functional>
+#include <unordered_set>
 
 namespace YAML { class Node; }
 
@@ -28,6 +29,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(DuplicateMultiFileManifestLocale);
         WINGET_DEFINE_RESOURCE_STRINGID(DuplicateMultiFileManifestType);
         WINGET_DEFINE_RESOURCE_STRINGID(DuplicateInstallerEntry);
+        WINGET_DEFINE_RESOURCE_STRINGID(DuplicateInstallerHash);
         WINGET_DEFINE_RESOURCE_STRINGID(DuplicateReturnCodeEntry);
         WINGET_DEFINE_RESOURCE_STRINGID(ExceededAppsAndFeaturesEntryLimit);
         WINGET_DEFINE_RESOURCE_STRINGID(ExceededCommandsLimit);
@@ -42,6 +44,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(FieldValueNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(FoundDependencyLoop);
         WINGET_DEFINE_RESOURCE_STRINGID(IncompleteMultiFileManifest);
+        WINGET_DEFINE_RESOURCE_STRINGID(InconsistentInstallerHash);
         WINGET_DEFINE_RESOURCE_STRINGID(InconsistentMultiFileManifestDefaultLocale);
         WINGET_DEFINE_RESOURCE_STRINGID(InconsistentMultiFileManifestFieldValue);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedToProcess);
@@ -71,6 +74,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(SchemaHeaderManifestTypeMismatch);
         WINGET_DEFINE_RESOURCE_STRINGID(SchemaHeaderManifestVersionMismatch);
         WINGET_DEFINE_RESOURCE_STRINGID(SchemaHeaderUrlPatternMismatch);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidPortableFiletype);
     }
 
     struct ValidationError
@@ -246,6 +250,8 @@ namespace AppInstaller::Manifest
         mutable std::string m_manifestErrorMessage;
         bool m_warningOnly;
     };
+
+    static const std::unordered_set<std::filesystem::path> s_AllowedPortableFiletypes = { L".exe" };
 
     // fullValidation: bool to set if manifest validation should perform extra validation that is not required for reading a manifest.
     std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation = true);

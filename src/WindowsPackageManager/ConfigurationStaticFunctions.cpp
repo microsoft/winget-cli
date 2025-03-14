@@ -49,20 +49,13 @@ namespace ConfigurationShim
         {
             auto threadGlobalsRestore = m_threadGlobals.SetForCurrentThread();
             auto& diagnosticsLogger = m_threadGlobals.GetDiagnosticLogger();
-            diagnosticsLogger.EnableChannel(AppInstaller::Logging::Channel::All);
+            diagnosticsLogger.SetEnabledChannels(AppInstaller::Logging::Channel::All);
             diagnosticsLogger.SetLevel(AppInstaller::Logging::Level::Verbose);
             diagnosticsLogger.AddLogger(std::make_unique<AppInstaller::Logging::FileLogger>("ConfigStatics"sv));
 
             if (IsConfigurationAvailable())
             {
                 m_statics = winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions().as<winrt::Microsoft::Management::Configuration::IConfigurationStatics2>();
-
-                // Forward the current feature state to the internal statics
-                using namespace AppInstaller;
-                using Flags = WinRT::ConfigurationStaticsInternalsStateFlags;
-
-                Flags flags = Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Configuration03) ? Flags::Configuration03 : Flags::None;
-                m_statics.as<AppInstaller::WinRT::IConfigurationStaticsInternals>()->SetExperimentalState(ToIntegral(flags));
             }
         }
 
@@ -108,11 +101,19 @@ namespace ConfigurationShim
 
             if (lowerHandler == AppInstaller::Configuration::PowerShellHandlerIdentifier)
             {
-                result = AppInstaller::CLI::ConfigurationRemoting::CreateOutOfProcessFactory();
+                result = AppInstaller::CLI::ConfigurationRemoting::CreateOutOfProcessFactory(AppInstaller::CLI::ConfigurationRemoting::ProcessorEngine::PowerShell);
             }
             else if (lowerHandler == AppInstaller::Configuration::DynamicRuntimeHandlerIdentifier)
             {
-                result = AppInstaller::CLI::ConfigurationRemoting::CreateDynamicRuntimeFactory();
+                result = AppInstaller::CLI::ConfigurationRemoting::CreateDynamicRuntimeFactory(AppInstaller::CLI::ConfigurationRemoting::ProcessorEngine::PowerShell);
+            }
+            else if (lowerHandler == AppInstaller::Configuration::DSCv3HandlerIdentifier)
+            {
+                result = AppInstaller::CLI::ConfigurationRemoting::CreateOutOfProcessFactory(AppInstaller::CLI::ConfigurationRemoting::ProcessorEngine::DSCv3);
+            }
+            else if (lowerHandler == AppInstaller::Configuration::DSCv3DynamicRuntimeHandlerIdentifier)
+            {
+                result = AppInstaller::CLI::ConfigurationRemoting::CreateDynamicRuntimeFactory(AppInstaller::CLI::ConfigurationRemoting::ProcessorEngine::DSCv3);
             }
 
             if (result)

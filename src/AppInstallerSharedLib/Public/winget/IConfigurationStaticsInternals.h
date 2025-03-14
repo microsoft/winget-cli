@@ -10,8 +10,7 @@ namespace AppInstaller::WinRT
     enum class ConfigurationStaticsInternalsStateFlags : UINT32
     {
         None = 0,
-        Configuration03 = 0x1,
-        All = Configuration03
+        All = None
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ConfigurationStaticsInternalsStateFlags);

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PSUninstallResult.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     using System;
     using Microsoft.Management.Deployment;
+    using Microsoft.WinGet.Client.Engine.Extensions;
 
     /// <summary>
     /// UninstallResult wrapper object for displaying to PowerShell.
@@ -53,11 +54,11 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         /// <summary>
         /// Gets the source name of the uninstalled package.
         /// </summary>
-        public string Source
+        public string? Source
         {
             get
             {
-                return this.catalogPackage.DefaultInstallVersion.PackageCatalog.Info.Name;
+                return this.catalogPackage.GetSourceName();
             }
         }
 

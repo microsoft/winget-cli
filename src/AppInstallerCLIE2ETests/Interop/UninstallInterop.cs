@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="UninstallInterop.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -278,6 +278,9 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Remove modified symlink as to not interfere with other tests
             modifiedSymlinkInfo.Delete();
+
+            // Uninstall again to clean up.
+            await this.packageManager.UninstallPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateUninstallOptions());
         }
 
         /// <summary>

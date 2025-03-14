@@ -392,10 +392,8 @@ namespace AppInstallerCLIE2ETests.Helpers
                 isAddedToPath = currentPathValue.Contains(portablePathValue);
             }
 
-            if (shouldExist)
-            {
-                RunAICLICommand("uninstall", $"--product-code {productCode} --force");
-            }
+            // Always clean up as best effort.
+            RunAICLICommand("uninstall", $"--product-code {productCode} --force");
 
             Assert.AreEqual(shouldExist, exeExists, $"Expected portable exe path: {exePath}");
             Assert.AreEqual(shouldExist && !installDirectoryAddedToPath, symlinkExists, $"Expected portable symlink path: {symlinkPath}");
@@ -975,7 +973,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// Gets the instance identifier of the first configuration history item with name in its output line.
         /// </summary>
         /// <param name="name">The string to search for.</param>
-        /// <returns>The instance identifier of a configuration that matched the search, or any empty string if none did.</returns>
+        /// <returns>The instance identifier of a configuration that matched the search, or an empty string if none did.</returns>
         public static string GetConfigurationInstanceIdentifierFor(string name)
         {
             var result = TestCommon.RunAICLICommand("configure list", string.Empty);

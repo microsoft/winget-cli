@@ -56,6 +56,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Retrieves the schema version of the parser.
         virtual hstring GetSchemaVersion() = 0;
 
+        // Extracts (and removes) the environment information from the given metadata.
+        virtual void ExtractEnvironmentFromMetadata(Windows::Foundation::Collections::ValueSet valueSet, implementation::ConfigurationEnvironment& environment) = 0;
+
         using ConfigurationSetPtr = winrt::com_ptr<implementation::ConfigurationSet>;
 
         // Retrieve the configuration set from the parser.
@@ -131,6 +134,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         // Extracts the security context from the metadata in the given unit; if not present use `defaultContext`.
         void ExtractSecurityContext(implementation::ConfigurationUnit* unit, SecurityContext defaultContext = SecurityContext::Current);
+        void ExtractSecurityContext(Windows::Foundation::Collections::ValueSet metadata, implementation::ConfigurationEnvironment& environment, SecurityContext defaultContext = SecurityContext::Current);
 
     private:
         // Support older schema parsing.

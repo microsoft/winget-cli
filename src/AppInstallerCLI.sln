@@ -193,9 +193,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SfsClient", "SfsClient\SfsC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VcpkgCustomTriplets", "VcpkgCustomTriplets", "{76B26B2C-602A-4AD0-9736-4162D3FCA92A}"
 	ProjectSection(SolutionItems) = preProject
-		VcpkgCustomTriplets\arm-release-static.cmake = VcpkgCustomTriplets\arm-release-static.cmake
-		VcpkgCustomTriplets\arm-release.cmake = VcpkgCustomTriplets\arm-release.cmake
-		VcpkgCustomTriplets\arm.cmake = VcpkgCustomTriplets\arm.cmake
 		VcpkgCustomTriplets\arm64-release-static.cmake = VcpkgCustomTriplets\arm64-release-static.cmake
 		VcpkgCustomTriplets\arm64-release.cmake = VcpkgCustomTriplets\arm64-release.cmake
 		VcpkgCustomTriplets\arm64.cmake = VcpkgCustomTriplets\arm64.cmake

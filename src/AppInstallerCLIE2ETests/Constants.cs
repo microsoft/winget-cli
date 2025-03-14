@@ -133,6 +133,7 @@ namespace AppInstallerCLIE2ETests
         public const string GalleryTestModuleName = "XmlContentDsc";
         public const string SimpleTestModuleName = "xE2ETestResource";
         public const string LocalModuleDescriptor = "[Local]";
+        public const string TestRegistryPath = "Software\\Microsoft\\WinGet\\Tests";
 
         // Group Policy Error Message
         public const string BlockByWinGetPolicyErrorMessage = "This operation is disabled by Group Policy : Enable Windows Package Manager";

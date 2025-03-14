@@ -55,7 +55,7 @@ extern "C"
             // Intentionally release to leave the local ThreadGlobals.
             previous.release();
             // Enable all logs for now.
-            AppInstaller::Logging::Log().EnableChannel(AppInstaller::Logging::Channel::All);
+            AppInstaller::Logging::Log().SetEnabledChannels(AppInstaller::Logging::Channel::All);
             AppInstaller::Logging::Log().SetLevel(AppInstaller::Logging::Level::Verbose);
             AppInstaller::Logging::EnableWilFailureTelemetry();
             });

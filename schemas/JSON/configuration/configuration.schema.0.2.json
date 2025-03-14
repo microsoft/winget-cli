@@ -73,6 +73,11 @@
                         "allowPrerelease": {
                             "type": "boolean",
                             "description": "Enable using prerelease modules."
+                        },
+                        "securityContext": {
+                            "type": "string",
+                            "enum": [ "current", "restricted", "elevated" ],
+                            "description": "Provides an indication of the security context in which the configuration unit should be run."
                         }
                     },
                     "additionalProperties": true,

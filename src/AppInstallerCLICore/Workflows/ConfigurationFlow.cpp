@@ -104,19 +104,48 @@ namespace AppInstaller::CLI::Workflow
             }
 #endif
 
+            // The configuration set must have already been opened to create the proper factory.
+            THROW_WIN32_IF(ERROR_INVALID_STATE, !context.Contains(Data::ConfigurationContext));
+            const auto& configurationContext = context.Get<Data::ConfigurationContext>();
+            THROW_WIN32_IF(ERROR_INVALID_STATE, !configurationContext.Set());
+
             IConfigurationSetProcessorFactory factory;
+            ConfigurationRemoting::ProcessorEngine processorEngine = ConfigurationRemoting::DetermineProcessorEngine(configurationContext.Set());
+
+            THROW_HR_IF(WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE, processorEngine == ConfigurationRemoting::ProcessorEngine::Unknown);
+
+            if (processorEngine == ConfigurationRemoting::ProcessorEngine::DSCv3)
+            {
+                context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ConfigurationDSCv3);
+                if (context.IsTerminated())
+                {
+                    THROW_HR(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
+                }
+            }
 
             // Since downgrading is not currently supported, only use dynamic if running limited.
             if (Runtime::IsRunningWithLimitedToken())
             {
-                factory = ConfigurationRemoting::CreateDynamicRuntimeFactory();
+                factory = ConfigurationRemoting::CreateDynamicRuntimeFactory(processorEngine);
             }
             else
             {
-                factory = ConfigurationRemoting::CreateOutOfProcessFactory();
+                factory = ConfigurationRemoting::CreateOutOfProcessFactory(processorEngine);
             }
 
-            Configuration::SetModulePath(context, factory);
+            if (processorEngine == ConfigurationRemoting::ProcessorEngine::PowerShell)
+            {
+                Configuration::SetModulePath(context, factory);
+            }
+            else if (processorEngine == ConfigurationRemoting::ProcessorEngine::DSCv3)
+            {
+                if (context.Args.Contains(Args::Type::ConfigurationProcessorPath))
+                {
+                    auto factoryMap = factory.as<IMap<winrt::hstring, winrt::hstring>>();
+                    factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePath), Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationProcessorPath)));
+                }
+            }
+
             return factory;
         }
 
@@ -136,10 +165,17 @@ namespace AppInstaller::CLI::Workflow
                     context.GetThreadGlobals().GetDiagnosticLogger().Write(Logging::Channel::Config, anon::ConvertLevel(diagnostics.Level()), Utility::ConvertToUTF8(diagnostics.Message()));
                 });
 
-            ConfigurationContext configurationContext;
-            configurationContext.Processor(std::move(processor));
+            if (context.Contains(Data::ConfigurationContext))
+            {
+                context.Get<Data::ConfigurationContext>().Processor(std::move(processor));
+            }
+            else
+            {
+                ConfigurationContext configurationContext;
+                configurationContext.Processor(std::move(processor));
 
-            context.Add<Data::ConfigurationContext>(std::move(configurationContext));
+                context.Add<Data::ConfigurationContext>(std::move(configurationContext));
+            }
         }
 
         winrt::hstring GetValueSetString(const ValueSet& valueSet, std::wstring_view value)
@@ -373,7 +409,13 @@ namespace AppInstaller::CLI::Workflow
 
             void OutputConfigurationUnitHeader(const ConfigurationUnit& unit, const winrt::hstring& name)
             {
-                m_context.Reporter.Info() << ConfigurationIntentEmphasis << ToResource(unit.Intent()) << " :: "_liv << ConfigurationUnitEmphasis << ConvertIdentifier(name);
+                m_context.Reporter.Info() << ConfigurationUnitEmphasis << ConvertIdentifier(name);
+
+                if (unit.Environment().Context() == SecurityContext::Elevated)
+                {
+                    // Shield
+                    m_context.Reporter.Info() << "\xF0\x9F\x9B\xA1 "_liv;
+                }
 
                 winrt::hstring identifier = unit.Identifier();
                 if (!identifier.empty())
@@ -392,7 +434,7 @@ namespace AppInstaller::CLI::Workflow
                 if (details)
                 {
                     // -- Sample output when IConfigurationUnitProcessorDetails present --
-                    // Intent :: UnitType <from details> [Identifier]
+                    // UnitType <from details> [Identifier]
                     //   UnitDocumentationUri <if present>
                     //   Description <from details first, directives second>
                     //   "Module": ModuleName "by" Author / Publisher (IsLocal / ModuleSource)
@@ -412,14 +454,12 @@ namespace AppInstaller::CLI::Workflow
                     {
                         m_context.Reporter.Info() << "  "_liv << ConvertDetailsValue(unitDescriptionFromDetails) << '\n';
                     }
-                    else
+
+                    auto unitDescriptionFromDirectives = GetValueSetString(metadata, s_Directive_Description);
+                    if (!unitDescriptionFromDirectives.empty())
                     {
-                        auto unitDescriptionFromDirectives = GetValueSetString(metadata, s_Directive_Description);
-                        if (!unitDescriptionFromDirectives.empty())
-                        {
-                            m_context.Reporter.Info() << "  "_liv;
-                            OutputValueWithTruncationWarningIfNeeded(unitDescriptionFromDirectives);
-                        }
+                        m_context.Reporter.Info() << "  "_liv;
+                        OutputValueWithTruncationWarningIfNeeded(unitDescriptionFromDirectives);
                     }
 
                     auto author = ConvertDetailsIdentifier(details.Author());
@@ -427,13 +467,18 @@ namespace AppInstaller::CLI::Workflow
                     {
                         author = ConvertDetailsIdentifier(details.Publisher());
                     }
-                    if (details.IsLocal())
+
+                    auto moduleName = ConvertDetailsIdentifier(details.ModuleName());
+                    if (!moduleName.empty())
                     {
-                        m_context.Reporter.Info() << "  "_liv << Resource::String::ConfigurationModuleWithDetails(ConvertDetailsIdentifier(details.ModuleName()), author, Resource::String::ConfigurationLocal) << '\n';
-                    }
-                    else
-                    {
-                        m_context.Reporter.Info() << "  "_liv << Resource::String::ConfigurationModuleWithDetails(ConvertDetailsIdentifier(details.ModuleName()), author, ConvertDetailsIdentifier(details.ModuleSource())) << '\n';
+                        if (details.IsLocal())
+                        {
+                            m_context.Reporter.Info() << "  "_liv << Resource::String::ConfigurationModuleWithDetails(moduleName, author, Resource::String::ConfigurationLocal) << '\n';
+                        }
+                        else
+                        {
+                            m_context.Reporter.Info() << "  "_liv << Resource::String::ConfigurationModuleWithDetails(moduleName, author, ConvertDetailsIdentifier(details.ModuleSource())) << '\n';
+                        }
                     }
 
                     // TODO: Currently the signature information is only for the top files. Maybe each item should be tagged?
@@ -460,7 +505,7 @@ namespace AppInstaller::CLI::Workflow
                 else
                 {
                     // -- Sample output when no IConfigurationUnitProcessorDetails present --
-                    // Intent :: Type <from unit> [identifier]
+                    // Type <from unit> [identifier]
                     //   Description (from directives)
                     //   "Module": module <directive>
                     OutputConfigurationUnitHeader(unit, unit.Type());
@@ -1047,12 +1092,6 @@ namespace AppInstaller::CLI::Workflow
             }
 
             ConfigurationSet result = openResult.Set();
-
-            // Temporary block on using schema 0.3 while experimental
-            if (result.SchemaVersion() == L"0.3")
-            {
-                AICLI_RETURN_IF_TERMINATED(context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::Configuration03));
-            }
 
             // Fill out the information about the set based on it coming from a file.
             if (isRemote)

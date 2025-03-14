@@ -260,4 +260,4 @@ Installers:
     ProductCode: '{Bar}'
     MSStoreProductIdentifier: fakeIdentifier
 ManifestType: merged
-ManifestVersion: 1.7.0
+ManifestVersion: 1.10.0

@@ -1030,8 +1030,10 @@ namespace Microsoft.Management.Deployment
     {
         InstallOptions();
 
-        /// Optionally specifies the version from the package to install. If unspecified the version matching 
-        /// CatalogPackage.GetLatestVersion() is used.
+        /// Optionally specifies the version from the package to install. If unspecified, the CatalogPackage.DefaultInstallVersion
+        /// version is used. DefaultInstallVersion is the latest applicable version of the package. DefaultInstallVersion may be
+        /// empty if there's no applicable version. In that case, install attempts without setting this PackageVersionId
+        /// will return No Applicable Installer error code.
         PackageVersionId PackageVersionId;
 
         /// Specifies alternate location to install package (if supported).
@@ -1135,8 +1137,7 @@ namespace Microsoft.Management.Deployment
     {
         UninstallOptions();
 
-        /// Optionally specifies the version from the package to uninstall. If unspecified the version matching 
-        /// CatalogPackage.GetLatestVersion() is used.
+        /// This property is not currently used. The version of CatalogPackage.InstalledVersion is used for uninstall.
         PackageVersionId PackageVersionId;
 
         /// Silent, Interactive, or Default
@@ -1232,8 +1233,7 @@ namespace Microsoft.Management.Deployment
     {
         RepairOptions();
 
-        /// Optionally specifies the version from the package to repair. If unspecified the version matching 
-        /// CatalogPackage.GetLatestVersion() is used.
+        /// This property is not currently used. The version of CatalogPackage.InstalledVersion is used for repair.
         PackageVersionId PackageVersionId;
 
         /// The package Repair scope.

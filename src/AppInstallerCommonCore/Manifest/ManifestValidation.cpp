@@ -27,6 +27,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::FieldNotSupported, "Field is not supported."sv },
                 { AppInstaller::Manifest::ManifestError::FieldValueNotSupported, "Field value is not supported."sv },
                 { AppInstaller::Manifest::ManifestError::DuplicateInstallerEntry, "Duplicate installer entry found."sv },
+                { AppInstaller::Manifest::ManifestError::DuplicateInstallerHash, "Multiple Installer URLs found with the same InstallerSha256. Please ensure the accuracy of the URLs."sv },
                 { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "The specified installer type does not support PackageFamilyName."sv },
                 { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotSupportProductCode, "The specified installer type does not support ProductCode."sv },
                 { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotWriteAppsAndFeaturesEntry, "The specified installer type does not write to Apps and Features entry."sv },
@@ -37,6 +38,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::DuplicateMultiFileManifestType, "The multi file manifest should contain only one file with the particular ManifestType."sv },
                 { AppInstaller::Manifest::ManifestError::DuplicateMultiFileManifestLocale, "The multi file manifest contains duplicate PackageLocale."sv },
                 { AppInstaller::Manifest::ManifestError::UnsupportedMultiFileManifestType, "The multi file manifest should not contain file with the particular ManifestType."sv },
+                { AppInstaller::Manifest::ManifestError::InconsistentInstallerHash, "The values of InstallerSha256 do not match for all instances of the same InstallerUrl."sv },
                 { AppInstaller::Manifest::ManifestError::InconsistentMultiFileManifestDefaultLocale, "DefaultLocale value in version manifest does not match PackageLocale value in defaultLocale manifest."sv },
                 { AppInstaller::Manifest::ManifestError::FieldFailedToProcess, "Failed to process field."sv },
                 { AppInstaller::Manifest::ManifestError::InvalidBcp47Value, "The locale value is not a well formed bcp47 language tag."sv },
@@ -69,6 +71,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::SchemaHeaderManifestTypeMismatch , "The manifest type in the schema header does not match the ManifestType property value in the manifest."sv },
                 { AppInstaller::Manifest::ManifestError::SchemaHeaderManifestVersionMismatch, "The manifest version in the schema header does not match the ManifestVersion property value in the manifest."sv },
                 { AppInstaller::Manifest::ManifestError::SchemaHeaderUrlPatternMismatch, "The schema header URL does not match the expected pattern."sv },
+                { AppInstaller::Manifest::ManifestError::InvalidPortableFiletype, "The file type of the referenced file is not allowed."sv },
             };
 
             return ErrorIdToMessageMap;
@@ -140,6 +143,10 @@ namespace AppInstaller::Manifest
 
         std::set<ManifestInstaller, decltype(installerCmp)> installerSet(installerCmp);
         bool duplicateInstallerFound = false;
+
+        // Set up maps for checking uniqueness across hash <-> url pairs
+        std::unordered_map<std::string, std::string> urlToChecksum;
+        std::unordered_map<std::string, std::string> checksumToUrl;
 
         // Validate installers
         for (auto const& installer : manifest.Installers)
@@ -223,6 +230,31 @@ namespace AppInstaller::Manifest
                 {
                     resultErrors.emplace_back(ManifestError::FieldNotSupported, "ProductId");
                 }
+
+                // Ensure that each URL has a one to one mapping with a Sha256 and
+                // warn if a Sha256 has a one to many mapping with a URL
+                if (fullValidation && !installer.Url.empty() && !installer.Sha256.empty())
+                {
+                    std::string checksum = Utility::SHA256::ConvertToString(installer.Sha256);
+                    std::string url = installer.Url;
+
+                    auto [urlIterator, urlInserted] = urlToChecksum.try_emplace(url, checksum);
+                    auto [checksumIterator, checksumInserted] = checksumToUrl.try_emplace(checksum, url);
+
+                    if (!urlInserted && urlIterator->second != checksum)
+                    {
+                        // If the URL was not inserted, and the value in the map does not match the current Sha256, then
+                        // a single URL corresponds to multiple SHA256 and an error should be thrown
+                        resultErrors.emplace_back(ManifestError::InconsistentInstallerHash, "InstallerUrl", url);
+                    }
+
+                    if (!checksumInserted && checksumIterator->second != url)
+                    {
+                        // If the SHA256 was not inserted, and the value in the map does not match the current URL, then
+                        // a single SHA256 corresponds to multiple URLS and a warning should be thrown
+                        resultErrors.emplace_back(ManifestError::DuplicateInstallerHash, "InstallerSha256", checksum, ValidationError::Level::Warning);
+                    }
+                }
             }
 
             if (installer.EffectiveInstallerType() == InstallerTypeEnum::Exe &&
@@ -270,6 +302,7 @@ namespace AppInstaller::Manifest
 
                 std::set<std::string> commandAliasSet;
                 std::set<std::string> relativeFilePathSet;
+                bool isPortable = installer.NestedInstallerType == InstallerTypeEnum::Portable;
 
                 for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
                 {
@@ -299,6 +332,15 @@ namespace AppInstaller::Manifest
                     {
                         resultErrors.emplace_back(ManifestError::DuplicatePortableCommandAlias, "PortableCommandAlias");
                         break;
+                    }
+
+                    // If running full validation, check filetype
+                    if (fullValidation && isPortable)
+                    {
+                        if (fullPath.has_extension() && s_AllowedPortableFiletypes.find(fullPath.extension()) == s_AllowedPortableFiletypes.end())
+                        {
+                            resultErrors.emplace_back(ManifestError::InvalidPortableFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
+                        }
                     }
                 }
             }

@@ -124,6 +124,11 @@ namespace AppInstaller::Logging
         WI_SetAllFlags(m_enabledChannels, channel);
     }
 
+    void DiagnosticLogger::SetEnabledChannels(Channel channel)
+    {
+        m_enabledChannels = channel;
+    }
+
     void DiagnosticLogger::DisableChannel(Channel channel)
     {
         WI_ClearAllFlags(m_enabledChannels, channel);

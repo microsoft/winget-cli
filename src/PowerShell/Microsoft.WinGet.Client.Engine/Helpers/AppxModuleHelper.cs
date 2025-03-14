@@ -80,7 +80,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string VCLibsUWPDesktopVersion = "14.0.30704.0";
         private const string VCLibsUWPDesktopX64 = "https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx";
         private const string VCLibsUWPDesktopX86 = "https://aka.ms/Microsoft.VCLibs.x86.14.00.Desktop.appx";
-        private const string VCLibsUWPDesktopArm = "https://aka.ms/Microsoft.VCLibs.arm.14.00.Desktop.appx";
         private const string VCLibsUWPDesktopArm64 = "https://aka.ms/Microsoft.VCLibs.arm64.14.00.Desktop.appx";
 
         // Xaml
@@ -351,8 +350,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
             string appxPackageX64 = string.Format(ExtractedDependencyPath, "x64", dependencies.Name, dependencies.Version);
             string appxPackageX86 = string.Format(ExtractedDependencyPath, "x86", dependencies.Name, dependencies.Version);
-            string appxPackageArm = string.Format(ExtractedDependencyPath, "arm", dependencies.Name, dependencies.Version);
-            string appxPackageArm64 = string.Format(ExtractedDependencyPath, "arm", dependencies.Name, dependencies.Version);
+            string appxPackageArm64 = string.Format(ExtractedDependencyPath, "arm64", dependencies.Name, dependencies.Version);
 
             if (arch == Architecture.X64)
             {
@@ -367,7 +365,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 // Deployment please figure out for me.
                 appxPackages.Add("x64", appxPackageX64);
                 appxPackages.Add("x86", appxPackageX86);
-                appxPackages.Add("arm", appxPackageArm);
                 appxPackages.Add("arm64", appxPackageArm64);
             }
             else
@@ -539,7 +536,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 // Deployment please figure out for me.
                 vcLibsDependencies.Add("x64", VCLibsUWPDesktopX64);
                 vcLibsDependencies.Add("x86", VCLibsUWPDesktopX86);
-                vcLibsDependencies.Add("arm", VCLibsUWPDesktopArm);
                 vcLibsDependencies.Add("arm64", VCLibsUWPDesktopArm64);
             }
             else
@@ -555,7 +551,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             (string xamlPackageName, string xamlReleaseTag) = GetXamlDependencyVersionInfo(releaseTag);
             string xamlAssetX64 = string.Format("{0}.x64.appx", xamlPackageName);
             string xamlAssetX86 = string.Format("{0}.x86.appx", xamlPackageName);
-            string xamlAssetArm = string.Format("{0}.arm.appx", xamlPackageName);
             string xamlAssetArm64 = string.Format("{0}.arm64.appx", xamlPackageName);
 
             var uiXamlObjs = this.GetAppxObject(xamlPackageName);
@@ -580,7 +575,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                     // Deployment please figure out for me.
                     packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetX64));
                     packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetX86));
-                    packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetArm));
                     packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetArm64));
                 }
                 else

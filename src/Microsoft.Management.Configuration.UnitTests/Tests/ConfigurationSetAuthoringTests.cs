@@ -149,14 +149,14 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             Helpers.ConfigurationEnvironmentData[] environments = new Helpers.ConfigurationEnvironmentData[]
             {
-                new () { ProcessorIdentifier = "dsc3" },
+                new () { ProcessorIdentifier = "dscv3" },
                 new () { ProcessorIdentifier = "pwsh" },
-                new () { ProcessorIdentifier = "dsc3", Context = SecurityContext.Elevated },
+                new () { ProcessorIdentifier = "dscv3", Context = SecurityContext.Elevated },
                 new () { ProcessorIdentifier = "pwsh", Context = SecurityContext.Restricted },
-                new () { ProcessorIdentifier = "dsc3", ProcessorProperties = firstProperty },
+                new () { ProcessorIdentifier = "dscv3", ProcessorProperties = firstProperty },
                 new () { ProcessorIdentifier = "pwsh", ProcessorProperties = firstProperty },
                 new () { ProcessorIdentifier = "pwsh", ProcessorProperties = secondProperty },
-                new () { ProcessorIdentifier = "dsc3", Context = SecurityContext.Restricted, ProcessorProperties = firstProperty },
+                new () { ProcessorIdentifier = "dscv3", Context = SecurityContext.Restricted, ProcessorProperties = firstProperty },
                 new () { ProcessorIdentifier = "pwsh", Context = SecurityContext.Elevated, ProcessorProperties = firstProperty },
             };
 
@@ -186,14 +186,14 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             Helpers.ConfigurationEnvironmentData[] environments = new Helpers.ConfigurationEnvironmentData[]
             {
-                new () { ProcessorIdentifier = "dsc3" },
+                new () { ProcessorIdentifier = "dscv3" },
                 new () { ProcessorIdentifier = "pwsh" },
-                new () { ProcessorIdentifier = "dsc3", Context = SecurityContext.Elevated },
+                new () { ProcessorIdentifier = "dscv3", Context = SecurityContext.Elevated },
                 new () { ProcessorIdentifier = "pwsh", Context = SecurityContext.Restricted },
-                new () { ProcessorIdentifier = "dsc3", ProcessorProperties = firstProperty },
+                new () { ProcessorIdentifier = "dscv3", ProcessorProperties = firstProperty },
                 new () { ProcessorIdentifier = "pwsh", ProcessorProperties = firstProperty },
                 new () { ProcessorIdentifier = "pwsh", ProcessorProperties = secondProperty },
-                new () { ProcessorIdentifier = "dsc3", Context = SecurityContext.Restricted, ProcessorProperties = firstProperty },
+                new () { ProcessorIdentifier = "dscv3", Context = SecurityContext.Restricted, ProcessorProperties = firstProperty },
                 new () { ProcessorIdentifier = "pwsh", Context = SecurityContext.Elevated, ProcessorProperties = firstProperty },
                 new (), // The default environment for the group unit
             };

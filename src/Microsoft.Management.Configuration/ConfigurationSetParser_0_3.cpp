@@ -235,7 +235,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return false;
     }
 
-    void ConfigurationSetParser_0_3::ExtractEnvironmentFromMetadata(const Collections::ValueSet& metadata, ConfigurationEnvironment& targetEnvironment)
+    void ConfigurationSetParser_0_3::ExtractEnvironmentFromMetadata(Collections::ValueSet metadata, ConfigurationEnvironment& targetEnvironment)
     {
         auto root = TryLookupValueSet(metadata, ConfigurationField::WingetMetadataRoot);
         if (root)

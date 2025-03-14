@@ -768,6 +768,7 @@ TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
         { "Manifest-Good-Minimum-InstallerType.yaml" },
         { "Manifest-Good-Switches.yaml" },
         { "Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml" },
+        { "Manifest-Good-InstallerTypeZip-PortableExe.yaml" },
     };
 
     for (auto const& testCase : TestCases)
@@ -791,8 +792,10 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-DuplicateKey-DifferentCase-lower.yaml", "Duplicate field found in the manifest." },
         { "Manifest-Bad-DuplicateReturnCode-ExpectedCodes.yaml", "Duplicate installer return code found." },
         { "Manifest-Bad-DuplicateReturnCode-SuccessCodes.yaml", "Duplicate installer return code found." },
+        { "Manifest-Bad-DuplicateSha256.yaml", "Multiple Installer URLs found with the same InstallerSha256. Please ensure the accuracy of the URLs.", true },
         { "Manifest-Bad-IdInvalid.yaml", "Failed to validate against schema associated with property name 'Id'" },
         { "Manifest-Bad-IdMissing.yaml", "Missing required property 'Id'" },
+        { "Manifest-Bad-InconsistentSha256.yaml", "The values of InstallerSha256 do not match for all instances of the same InstallerUrl." },
         { "Manifest-Bad-InstallersMissing.yaml", "Missing required property 'Installers'" },
         { "Manifest-Bad-InstallerTypeExe-NoSilent.yaml", "Silent and SilentWithProgress switches are not specified for InstallerType exe.", true },
         { "Manifest-Bad-InstallerTypeExe-NoSilentRoot.yaml", "Silent and SilentWithProgress switches are not specified for InstallerType exe.", true },
@@ -837,6 +840,8 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers. [Agreement]", false, GetTestManifestValidateOption(false, true) },
         { "Manifest-Bad-ApproximateVersionInPackageVersion.yaml", "Approximate version not allowed. [PackageVersion]" },
         { "Manifest-Bad-ApproximateVersionInArpVersion.yaml", "Approximate version not allowed. [DisplayVersion]" },
+        { "Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml", "The file type of the referenced file is not allowed. [RelativeFilePath] Value: ScriptedApplication.bat" },
+        { "Manifest-Bad-InstallerTypeZip-PortableNotExe_Root.yaml", "The file type of the referenced file is not allowed. [RelativeFilePath] Value: ScriptedApplication.bat" },
     };
 
     for (auto const& testCase : TestCases)
@@ -1615,6 +1620,28 @@ TEST_CASE("ManifestLocalizationValidation", "[ManifestValidation]")
     errors = ValidateManifest(manifest, false);
     REQUIRE(errors.size() == 1);
     REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Warning);
+}
+
+TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")
+{
+    Manifest installerManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml"));
+    Manifest rootManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InstallerTypeZip-PortableNotExe_Root.yaml"));
+
+    // Regular validation should detect as error
+    auto errors = ValidateManifest(installerManifest, true);
+    REQUIRE(errors.size() == 1);
+    REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Error);
+
+    errors = ValidateManifest(rootManifest, true);
+    REQUIRE(errors.size() == 1);
+    REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Error);
+
+    // Should not error when full validation is set to false
+    errors = ValidateManifest(installerManifest, false);
+    REQUIRE(errors.size() == 0);
+
+    errors = ValidateManifest(rootManifest, false);
+    REQUIRE(errors.size() == 0);
 }
 
 TEST_CASE("ReadManifestAndValidateMsixInstallers_Success", "[ManifestValidation]")

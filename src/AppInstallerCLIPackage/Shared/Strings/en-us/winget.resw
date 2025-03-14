@@ -171,7 +171,7 @@
     <value>This command requires administrator privileges to execute.</value>
   </data>
   <data name="CompleteCommandLongDescription" xml:space="preserve">
-    <value>This command can be used to request context sensitive command line completion. The command line, cursor position, and word to be completed are passed in. The output is a set of potential values based on the inputs, one possible value per line.</value>
+    <value>This command can be used to request context sensitive command line completion. The command line, cursor position, and word to be completed are passed in. The output is a set of potential values based on the inputs, with one possible value per line.</value>
   </data>
   <data name="CompleteCommandShortDescription" xml:space="preserve">
     <value>Enables context sensitive command line completion</value>
@@ -1025,11 +1025,11 @@ Configuration is disabled due to Group Policy.</value>
     <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
-    <value>Error processing package dependencies, do you wish to continue installation?</value>
+    <value>Error processing package dependencies. Do you wish to continue installation?</value>
     <comment>Prompt message shown when dependencies processing yields errors.</comment>
   </data>
   <data name="DependenciesManagementExitMessage" xml:space="preserve">
-    <value>Error processing package dependencies, exiting...</value>
+    <value>Error processing package dependencies. Exiting...</value>
   </data>
   <data name="PackageDependencies" xml:space="preserve">
     <value>Packages</value>
@@ -1379,7 +1379,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Prompts the user to press any key before exiting</value>
   </data>
   <data name="InstallerElevationExpected" xml:space="preserve">
-    <value>The installer will request to run as administrator, expect a prompt.</value>
+    <value>The installer will request to run as administrator. Expect a prompt.</value>
   </data>
   <data name="InstallerProhibitsElevation" xml:space="preserve">
     <value>The installer cannot be run from an administrator context.</value>
@@ -1444,7 +1444,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Purging install directory...</value>
   </data>
   <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
-    <value>Cannot purge install directory, as it was not created by winget</value>
+    <value>Cannot purge install directory as it was not created by winget</value>
   </data>
   <data name="RelatedLink" xml:space="preserve">
     <value>Related Link</value>
@@ -2086,7 +2086,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules"}</comment>
   </data>
   <data name="ConfigurationModulePathArgError" xml:space="preserve">
-    <value>`--module-path` value must be `currentuser`, `allusers`, `default` or an absolute path.</value>
+    <value>`--module-path` value must be `currentuser`, `allusers`, `default`, or an absolute path.</value>
     <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
   </data>
   <data name="PolicyEnableWinGetConfiguration" xml:space="preserve">
@@ -2360,7 +2360,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Portable package from a different source already exists.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY" xml:space="preserve">
-    <value>Unable to create symlink, path points to a directory.</value>
+    <value>Unable to create symlink. Path points to a directory.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION" xml:space="preserve">
     <value>The installer cannot be run from an administrator context.</value>
@@ -2755,7 +2755,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="WinGetPackage,{0}"}</comment>
   </data>
   <data name="AuthenticationModeArgumentDescription" xml:space="preserve">
-    <value>Specify authentication window preference (silent, silentPreferred or interactive)</value>
+    <value>Specify authentication window preference (silent, silentPreferred, or interactive)</value>
     <comment>{Locked="silent","silentPreferred","interactive"} This argument allows the user to select authentication window popup behavior.</comment>
   </data>
   <data name="AuthenticationAccountArgumentDescription" xml:space="preserve">
@@ -3203,5 +3203,8 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
     <value>Failed to download installer. Authentication failed.</value>
+  </data>
+  <data name="ConfigurationProcessorPath" xml:space="preserve">
+    <value>Specify the path to the configuration processor</value>
   </data>
 </root>

@@ -528,8 +528,8 @@ namespace AppInstaller::Manifest::YamlParser
 
                     YamlManifestInfo manifestInfo;
                     YAML::Document doc = YAML::LoadDocument(file.path());
-                    manifestInfo.Root = std::move(doc).GetRoot();
                     manifestInfo.DocumentSchemaHeader = doc.GetSchemaHeader();
+                    manifestInfo.Root = std::move(doc).GetRoot();
                     manifestInfo.FileName = file.path().filename().u8string();
                     docList.emplace_back(std::move(manifestInfo));
                 }
@@ -538,8 +538,8 @@ namespace AppInstaller::Manifest::YamlParser
             {
                 YamlManifestInfo manifestInfo;
                 YAML::Document doc = YAML::LoadDocument(inputPath, manifestInfo.StreamSha256);
-                manifestInfo.Root = std::move(doc).GetRoot();
                 manifestInfo.DocumentSchemaHeader = doc.GetSchemaHeader();
+                manifestInfo.Root = std::move(doc).GetRoot();
                 manifestInfo.FileName = inputPath.filename().u8string();
                 docList.emplace_back(std::move(manifestInfo));
             }
@@ -563,8 +563,8 @@ namespace AppInstaller::Manifest::YamlParser
         {
             YamlManifestInfo manifestInfo;
             YAML::Document doc = YAML::LoadDocument(input);
-            manifestInfo.Root = std::move(doc).GetRoot();
             manifestInfo.DocumentSchemaHeader = doc.GetSchemaHeader();
+            manifestInfo.Root = std::move(doc).GetRoot();
             docList.emplace_back(std::move(manifestInfo));
         }
         catch (const std::exception& e)
