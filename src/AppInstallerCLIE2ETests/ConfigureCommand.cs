@@ -6,7 +6,9 @@
 
 namespace AppInstallerCLIE2ETests
 {
+    using System;
     using System.IO;
+    using System.Linq;
     using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Win32;
     using NUnit.Framework;
@@ -19,14 +21,26 @@ namespace AppInstallerCLIE2ETests
         private const string CommandAndAgreementsAndVerbose = "configure --accept-configuration-agreements --verbose";
 
         /// <summary>
+        /// Ensures that the test resources manifests are present.
+        /// </summary>
+        public static void EnsureTestResourcePresence()
+        {
+            string outputDirectory = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft\\WindowsApps");
+            Assert.IsNotEmpty(outputDirectory);
+
+            var result = TestCommon.RunAICLICommand("dscv3 test-file", $"--manifest -o {outputDirectory}\\test-file.dsc.resource.json");
+            Assert.AreEqual(0, result.ExitCode);
+        }
+
+        /// <summary>
         /// Setup done once before all the tests here.
         /// </summary>
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
             WinGetSettingsHelper.ConfigureFeature("dsc3", true);
-            WinGetSettingsHelper.ConfigureFeature("configureSelfElevate", true);
             this.DeleteResourceArtifacts();
+            EnsureTestResourcePresence();
         }
 
         /// <summary>
@@ -36,7 +50,6 @@ namespace AppInstallerCLIE2ETests
         public void OneTimeTeardown()
         {
             WinGetSettingsHelper.ConfigureFeature("dsc3", false);
-            WinGetSettingsHelper.ConfigureFeature("configureSelfElevate", false);
             this.DeleteResourceArtifacts();
         }
 
@@ -259,29 +272,37 @@ namespace AppInstallerCLIE2ETests
         /// Runs a DSCv3 configuration, then changes the state and runs it again from history.
         /// </summary>
         [Test]
-        [Ignore("The registry resource is failing for unknown and undiagnosable reasons in the ADO pipeline. Replace these with test resources when we implement them next.")]
         public void ConfigureThroughHistory_DSCv3()
         {
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\ShowDetails_DSCv3.yml"));
             Assert.AreEqual(0, result.ExitCode);
 
             // The configuration creates a file next to itself with the given contents
-            string valueName = "TestVal";
-            var registryKey = Registry.CurrentUser.OpenSubKey(Constants.TestRegistryPath, true);
-            Assert.NotNull(registryKey);
-            var registryValue = (string)registryKey.GetValue(valueName);
-            Assert.NotNull(registryValue);
-            Assert.AreEqual("Value!", registryValue);
+            string targetFilePath = TestCommon.GetTestDataFile("Configuration\\ShowDetails_DSCv3.txt");
+            FileAssert.Exists(targetFilePath);
+            Assert.AreEqual("DSCv3 Contents!", File.ReadAllText(targetFilePath));
 
-            registryKey.SetValue(valueName, "New Value!", RegistryValueKind.String);
+            File.WriteAllText(targetFilePath, "Changed contents!");
 
             string guid = TestCommon.GetConfigurationInstanceIdentifierFor("ShowDetails_DSCv3.yml");
             result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, $"-h {guid}");
             Assert.AreEqual(0, result.ExitCode);
 
-            registryValue = (string)registryKey.GetValue(valueName);
-            Assert.NotNull(registryValue);
-            Assert.AreEqual("Value!", registryValue);
+            FileAssert.Exists(targetFilePath);
+            Assert.AreEqual("DSCv3 Contents!", File.ReadAllText(targetFilePath));
+        }
+
+        /// <summary>
+        /// Ensures that the test file resource schema function works.
+        /// </summary>
+        [Test]
+        public void TestFileResourceSchema()
+        {
+            var result = TestCommon.RunAICLICommand("dscv3 test-file", "--schema");
+            Assert.AreEqual(0, result.ExitCode);
+
+            var lines = result.StdOut.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+            Assert.AreEqual(1, lines.Length);
         }
 
         private void DeleteResourceArtifacts()
@@ -290,15 +311,6 @@ namespace AppInstallerCLIE2ETests
             foreach (string file in Directory.GetFiles(TestCommon.GetTestDataFile("Configuration"), "*.txt"))
             {
                 File.Delete(file);
-            }
-
-            var registryKey = Registry.CurrentUser.OpenSubKey(Constants.TestRegistryPath, true);
-            if (registryKey != null)
-            {
-                foreach (string valueName in registryKey.GetValueNames())
-                {
-                    registryKey.DeleteValue(valueName, false);
-                }
             }
         }
     }

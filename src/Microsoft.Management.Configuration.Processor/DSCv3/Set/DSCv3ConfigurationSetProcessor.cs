@@ -45,7 +45,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Set
                 throw new Exceptions.FindDscResourceNotFoundException(configurationUnitInternal.QualifiedName, null);
             }
 
-            return new DSCv3ConfigurationUnitProcessor(this.processorSettings, configurationUnitInternal, this.IsLimitMode);
+            return new DSCv3ConfigurationUnitProcessor(this.processorSettings, configurationUnitInternal, this.IsLimitMode) { SetProcessorFactory = this.SetProcessorFactory };
         }
 
         /// <inheritdoc />

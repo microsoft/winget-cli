@@ -141,6 +141,19 @@ namespace AppInstaller::CLI::Execution
             ConfigurationHistoryRemove,
             ConfigurationStatusWatch,
 
+            // DSCv3 resources
+            DscResourceFunctionGet,
+            DscResourceFunctionSet,
+            DscResourceFunctionWhatIf,
+            DscResourceFunctionTest,
+            DscResourceFunctionDelete,
+            DscResourceFunctionExport,
+            DscResourceFunctionValidate,
+            DscResourceFunctionResolve,
+            DscResourceFunctionAdapter,
+            DscResourceFunctionSchema,
+            DscResourceFunctionManifest,
+
             // Common arguments
             NoVT, // Disable VirtualTerminal outputs
             RetroStyle, // Makes progress display as retro

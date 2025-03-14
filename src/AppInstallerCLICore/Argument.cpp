@@ -234,6 +234,30 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::ConfigurationStatusWatch:
             return { type, "live"_liv };
 
+        // DSCv3 resources
+        case Execution::Args::Type::DscResourceFunctionGet:
+            return { type, "get"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::DscResourceFunction };
+        case Execution::Args::Type::DscResourceFunctionSet:
+            return { type, "set"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::DscResourceFunction };
+        case Execution::Args::Type::DscResourceFunctionWhatIf:
+            return { type, "whatIf"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::DscResourceFunction };
+        case Execution::Args::Type::DscResourceFunctionTest:
+            return { type, "test"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::DscResourceFunction };
+        case Execution::Args::Type::DscResourceFunctionDelete:
+            return { type, "delete"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::DscResourceFunction };
+        case Execution::Args::Type::DscResourceFunctionExport:
+            return { type, "export"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::DscResourceFunction };
+        case Execution::Args::Type::DscResourceFunctionValidate:
+            return { type, "validate"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::DscResourceFunction };
+        case Execution::Args::Type::DscResourceFunctionResolve:
+            return { type, "resolve"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::DscResourceFunction };
+        case Execution::Args::Type::DscResourceFunctionAdapter:
+            return { type, "adapter"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::DscResourceFunction };
+        case Execution::Args::Type::DscResourceFunctionSchema:
+            return { type, "schema"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::DscResourceFunction };
+        case Execution::Args::Type::DscResourceFunctionManifest:
+            return { type, "manifest"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::DscResourceFunction };
+
         // Download command
         case Execution::Args::Type::DownloadDirectory:
             return { type, "download-directory"_liv, 'd', ArgTypeCategory::None };

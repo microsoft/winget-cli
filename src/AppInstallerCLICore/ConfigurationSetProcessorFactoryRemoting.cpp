@@ -379,6 +379,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         {
         case PropertyName::DscExecutablePath: return L"DscExecutablePath";
         case PropertyName::FoundDscExecutablePath: return L"FoundDscExecutablePath";
+        case PropertyName::DiagnosticTraceLevel: return L"DiagnosticTraceLevel";
         }
 
         THROW_HR(E_UNEXPECTED);

@@ -14,6 +14,7 @@ namespace AppInstaller::CLI
         std::vector<std::unique_ptr<Command>> GetCommands() const override;
         std::vector<Argument> GetArguments() const override;
 
+        Resource::LocString ShortDescription() const override;
         Resource::LocString LongDescription() const override;
 
         Utility::LocIndView HelpLink() const override;

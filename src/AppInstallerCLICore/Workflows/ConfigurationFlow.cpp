@@ -139,10 +139,16 @@ namespace AppInstaller::CLI::Workflow
             }
             else if (processorEngine == ConfigurationRemoting::ProcessorEngine::DSCv3)
             {
+                auto factoryMap = factory.as<IMap<winrt::hstring, winrt::hstring>>();
+
                 if (context.Args.Contains(Args::Type::ConfigurationProcessorPath))
                 {
-                    auto factoryMap = factory.as<IMap<winrt::hstring, winrt::hstring>>();
                     factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePath), Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationProcessorPath)));
+                }
+
+                if (Logging::Log().IsEnabled(Logging::Channel::Config, Logging::Level::Verbose))
+                {
+                    factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DiagnosticTraceLevel), L"True");
                 }
             }
 

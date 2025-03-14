@@ -45,6 +45,7 @@ namespace AppInstaller::CLI::Execution
         {
             Output,
             Completion,
+            Json,
             Disabled,
         };
 
@@ -90,6 +91,9 @@ namespace AppInstaller::CLI::Execution
         // Get a stream for outputting completion words.
         OutputStream Completion() { return OutputStream(*m_out, m_channel == Channel::Completion, false); }
 
+        // Get a stream for outputting completion words.
+        OutputStream Json() { return OutputStream(*m_out, m_channel == Channel::Json, false); }
+
         // Gets a stream for output of the given level.
         OutputStream GetOutputStream(Level level);
 
@@ -101,6 +105,9 @@ namespace AppInstaller::CLI::Execution
 
         // Sets the visual style (mostly for progress currently)
         void SetStyle(AppInstaller::Settings::VisualStyle style);
+
+        // Get the raw input stream.
+        std::istream& RawInputStream();
 
         // Prompts the user, return true if they consented.
         bool PromptForBoolResponse(Resource::LocString message, Level level = Level::Info, bool resultIfDisabled = false);

@@ -23,6 +23,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
     internal class DSCv3 : IDSCv3
     {
         private const string PlainTextTraces = "-t plaintext";
+        private const string DiagnosticTraceLevelArguments = "-l trace";
         private const string ResourceCommand = "resource";
         private const string ListCommand = "list";
         private const string TestCommand = "test";
@@ -43,16 +44,24 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             this.processorSettings = processorSettings;
         }
 
+        private string DiagnosticTraceLevel
+        {
+            get
+            {
+                return this.processorSettings.DiagnosticTraceLevel ? DiagnosticTraceLevelArguments : string.Empty;
+            }
+        }
+
         /// <inheritdoc />
-        public IResourceListItem? GetResourceByType(string resourceType)
+        public IResourceListItem? GetResourceByType(string resourceType, IDiagnosticsSink? diagnosticsSink = null)
         {
             ProcessExecution processExecution = new ProcessExecution()
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
-                Arguments = new[] { PlainTextTraces, ResourceCommand, ListCommand, resourceType },
+                Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, ListCommand, resourceType },
             };
 
-            RunSynchronously(processExecution);
+            RunSynchronously(processExecution, diagnosticsSink);
 
             if (processExecution.Output.Count > 1)
             {
@@ -63,16 +72,16 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         }
 
         /// <inheritdoc />
-        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal)
+        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
         {
             ProcessExecution processExecution = new ProcessExecution()
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
-                Arguments = new[] { PlainTextTraces, ResourceCommand, TestCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
+                Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, TestCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
                 Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
             };
 
-            if (RunSynchronously(processExecution))
+            if (RunSynchronously(processExecution, diagnosticsSink))
             {
                 throw new Exceptions.InvokeDscResourceException(Exceptions.InvokeDscResourceException.Test, unitInternal.QualifiedName, null, processExecution.GetAllErrorLines());
             }
@@ -81,16 +90,16 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         }
 
         /// <inheritdoc />
-        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal)
+        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
         {
             ProcessExecution processExecution = new ProcessExecution()
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
-                Arguments = new[] { PlainTextTraces, ResourceCommand, GetCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
+                Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, GetCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
                 Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
             };
 
-            if (RunSynchronously(processExecution))
+            if (RunSynchronously(processExecution, diagnosticsSink))
             {
                 throw new Exceptions.InvokeDscResourceException(Exceptions.InvokeDscResourceException.Get, unitInternal.QualifiedName, null, processExecution.GetAllErrorLines());
             }
@@ -99,16 +108,16 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         }
 
         /// <inheritdoc />
-        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal)
+        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
         {
             ProcessExecution processExecution = new ProcessExecution()
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
-                Arguments = new[] { PlainTextTraces, ResourceCommand, SetCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
+                Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, SetCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
                 Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
             };
 
-            if (RunSynchronously(processExecution))
+            if (RunSynchronously(processExecution, diagnosticsSink))
             {
                 throw new Exceptions.InvokeDscResourceException(Exceptions.InvokeDscResourceException.Set, unitInternal.QualifiedName, null, processExecution.GetAllErrorLines());
             }
@@ -120,10 +129,15 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         /// Runs the process, waiting until it completes.
         /// </summary>
         /// <param name="processExecution">The process to run.</param>
+        /// <param name="diagnosticsSink">The diagnostics sink.</param>
         /// <returns>True if the exit code was not 0.</returns>
-        private static bool RunSynchronously(ProcessExecution processExecution)
+        private static bool RunSynchronously(ProcessExecution processExecution, IDiagnosticsSink? diagnosticsSink)
         {
+            diagnosticsSink?.OnDiagnostics(DiagnosticLevel.Verbose, $"Starting process: {processExecution.CommandLine}");
+
             processExecution.Start().WaitForExit();
+
+            diagnosticsSink?.OnDiagnostics(DiagnosticLevel.Verbose, $"Process exited with code: {processExecution.ExitCode}\n--- Output Stream ---\n{processExecution.GetAllOutputLines()}\n--- Error Stream ---\n{processExecution.GetAllErrorLines()}");
 
             return processExecution.ExitCode != 0;
         }

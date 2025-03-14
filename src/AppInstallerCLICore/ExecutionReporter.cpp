@@ -131,6 +131,11 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    std::istream& Reporter::RawInputStream()
+    {
+        return m_in;
+    }
+
     bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level, bool resultIfDisabled)
     {
         auto out = GetOutputStream(level);
