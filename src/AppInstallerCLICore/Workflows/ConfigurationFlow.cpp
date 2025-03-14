@@ -148,7 +148,7 @@ namespace AppInstaller::CLI::Workflow
 
                 if (Logging::Log().IsEnabled(Logging::Channel::Config, Logging::Level::Verbose))
                 {
-                    factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DiagnosticTraceLevel), L"True");
+                    factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DiagnosticTraceEnabled), L"True");
                 }
             }
 

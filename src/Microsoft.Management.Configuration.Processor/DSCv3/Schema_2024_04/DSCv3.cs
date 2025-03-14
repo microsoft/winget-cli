@@ -48,7 +48,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         {
             get
             {
-                return this.processorSettings.DiagnosticTraceLevel ? DiagnosticTraceLevelArguments : string.Empty;
+                return this.processorSettings.DiagnosticTraceEnabled ? DiagnosticTraceLevelArguments : string.Empty;
             }
         }
 
