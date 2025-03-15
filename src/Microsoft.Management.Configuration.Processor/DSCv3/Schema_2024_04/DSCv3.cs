@@ -6,7 +6,7 @@
 
 namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
 {
-    using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Text.Json;
     using System.Text.Json.Serialization;
@@ -53,26 +53,39 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         }
 
         /// <inheritdoc />
-        public IResourceListItem? GetResourceByType(string resourceType, IDiagnosticsSink? diagnosticsSink = null)
+        public IResourceListItem? GetResourceByType(string resourceType)
         {
-            ProcessExecution processExecution = new ProcessExecution()
+            ResourceListItem? result = this.GetResourceByType(resourceType, null);
+            if (result != null)
             {
-                ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
-                Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, ListCommand, resourceType },
-            };
+                return result;
+            }
 
-            RunSynchronously(processExecution, diagnosticsSink);
+            // Check for this resource within adapters
+            List<ResourceListItem> results = new List<ResourceListItem>();
 
-            if (processExecution.Output.Count > 1)
+            foreach (ResourceListItem resource in this.GetAllResources())
+            {
+                if (resource.Kind == Definitions.ResourceKind.Adapter)
+                {
+                    result = this.GetResourceByType(resourceType, resource.Type);
+                    if (result != null)
+                    {
+                        results.Add(result);
+                    }
+                }
+            }
+
+            if (results.Count > 1)
             {
                 throw new Exceptions.GetDscResourceMultipleMatches(resourceType, null);
             }
 
-            return GetOptionalSingleOutputLineAs<ResourceListItem>(processExecution);
+            return results.FirstOrDefault();
         }
 
         /// <inheritdoc />
-        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
+        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal)
         {
             ProcessExecution processExecution = new ProcessExecution()
             {
@@ -81,7 +94,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
                 Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
             };
 
-            if (RunSynchronously(processExecution, diagnosticsSink))
+            if (this.RunSynchronously(processExecution))
             {
                 throw new Exceptions.InvokeDscResourceException(Exceptions.InvokeDscResourceException.Test, unitInternal.QualifiedName, null, processExecution.GetAllErrorLines());
             }
@@ -90,7 +103,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         }
 
         /// <inheritdoc />
-        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
+        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal)
         {
             ProcessExecution processExecution = new ProcessExecution()
             {
@@ -99,7 +112,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
                 Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
             };
 
-            if (RunSynchronously(processExecution, diagnosticsSink))
+            if (this.RunSynchronously(processExecution))
             {
                 throw new Exceptions.InvokeDscResourceException(Exceptions.InvokeDscResourceException.Get, unitInternal.QualifiedName, null, processExecution.GetAllErrorLines());
             }
@@ -108,7 +121,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         }
 
         /// <inheritdoc />
-        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
+        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal)
         {
             ProcessExecution processExecution = new ProcessExecution()
             {
@@ -117,29 +130,12 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
                 Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
             };
 
-            if (RunSynchronously(processExecution, diagnosticsSink))
+            if (this.RunSynchronously(processExecution))
             {
                 throw new Exceptions.InvokeDscResourceException(Exceptions.InvokeDscResourceException.Set, unitInternal.QualifiedName, null, processExecution.GetAllErrorLines());
             }
 
             return SetFullItem.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution, Exceptions.InvokeDscResourceException.Set, unitInternal.QualifiedName), GetDefaultJsonOptions());
-        }
-
-        /// <summary>
-        /// Runs the process, waiting until it completes.
-        /// </summary>
-        /// <param name="processExecution">The process to run.</param>
-        /// <param name="diagnosticsSink">The diagnostics sink.</param>
-        /// <returns>True if the exit code was not 0.</returns>
-        private static bool RunSynchronously(ProcessExecution processExecution, IDiagnosticsSink? diagnosticsSink)
-        {
-            diagnosticsSink?.OnDiagnostics(DiagnosticLevel.Verbose, $"Starting process: {processExecution.CommandLine}");
-
-            processExecution.Start().WaitForExit();
-
-            diagnosticsSink?.OnDiagnostics(DiagnosticLevel.Verbose, $"Process exited with code: {processExecution.ExitCode}\n--- Output Stream ---\n{processExecution.GetAllOutputLines()}\n--- Error Stream ---\n{processExecution.GetAllErrorLines()}");
-
-            return processExecution.ExitCode != 0;
         }
 
         private static void ThrowOnMultipleOutputLines(ProcessExecution processExecution, string method, string resourceName)
@@ -168,6 +164,23 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             return JsonSerializer.Deserialize<T>(processExecution.Output.First(), GetDefaultJsonOptions());
         }
 
+        private static List<T> GetOutputLinesAs<T>(ProcessExecution processExecution)
+        {
+            List<T> result = new List<T>();
+            var options = GetDefaultJsonOptions();
+
+            foreach (string line in processExecution.Output)
+            {
+                T? lineObject = JsonSerializer.Deserialize<T>(line, options);
+                if (lineObject != null)
+                {
+                    result.Add(lineObject);
+                }
+            }
+
+            return result;
+        }
+
         private static JsonDocument GetRequiredSingleOutputLineAsJSON(ProcessExecution processExecution, string method, string resourceName)
         {
             ThrowOnMultipleOutputLines(processExecution, method, resourceName);
@@ -191,6 +204,53 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         private static string ConvertValueSetToJSON(ValueSet valueSet)
         {
             return JsonSerializer.Serialize(valueSet.ToHashtable());
+        }
+
+        /// <summary>
+        /// Runs the process, waiting until it completes.
+        /// </summary>
+        /// <param name="processExecution">The process to run.</param>
+        /// <returns>True if the exit code was not 0.</returns>
+        private bool RunSynchronously(ProcessExecution processExecution)
+        {
+            this.processorSettings.DiagnosticsSink?.OnDiagnostics(DiagnosticLevel.Verbose, $"Starting process: {processExecution.CommandLine}");
+
+            processExecution.Start().WaitForExit();
+
+            this.processorSettings.DiagnosticsSink?.OnDiagnostics(DiagnosticLevel.Verbose, $"Process exited with code: {processExecution.ExitCode}\n--- Output Stream ---\n{processExecution.GetAllOutputLines()}\n--- Error Stream ---\n{processExecution.GetAllErrorLines()}");
+
+            return processExecution.ExitCode != 0;
+        }
+
+        private ResourceListItem? GetResourceByType(string resourceType, string? adapter)
+        {
+            ProcessExecution processExecution = new ProcessExecution()
+            {
+                ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
+                Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, ListCommand, adapter != null ? $"-a {adapter}" : string.Empty, resourceType },
+            };
+
+            this.RunSynchronously(processExecution);
+
+            if (processExecution.Output.Count > 1)
+            {
+                throw new Exceptions.GetDscResourceMultipleMatches(resourceType, null);
+            }
+
+            return GetOptionalSingleOutputLineAs<ResourceListItem>(processExecution);
+        }
+
+        private List<ResourceListItem> GetAllResources()
+        {
+            ProcessExecution processExecution = new ProcessExecution()
+            {
+                ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
+                Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, ListCommand },
+            };
+
+            this.RunSynchronously(processExecution);
+
+            return GetOutputLinesAs<ResourceListItem>(processExecution);
         }
     }
 }

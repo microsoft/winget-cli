@@ -99,6 +99,11 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         }
 
         /// <summary>
+        /// Gets or sets the diagnostics sink to use.
+        /// </summary>
+        public IDiagnosticsSink? DiagnosticsSink { get; set; } = null;
+
+        /// <summary>
         /// Gets or sets a value indicating whether the processor should produce more verbose output.
         /// </summary>
         public bool DiagnosticTraceLevel { get; set; } = false;
@@ -141,6 +146,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         {
             ProcessorSettings result = new ProcessorSettings();
 
+            result.DiagnosticsSink = this.DiagnosticsSink;
             result.DscExecutablePath = this.DscExecutablePath;
             result.DiagnosticTraceLevel = this.DiagnosticTraceLevel;
 #if !AICLI_DISABLE_TEST_HOOKS
