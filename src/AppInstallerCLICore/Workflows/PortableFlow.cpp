@@ -262,7 +262,7 @@ namespace AppInstaller::CLI::Workflow
                 else
                 {
                     context.Reporter.Warn() << Resource::String::PortableHashMismatchOverrideRequired << std::endl;
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED);
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
                 }
             }
 
@@ -279,7 +279,7 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Warn() << Resource::String::PortableInstallFailed << std::endl;
                 portableInstaller.PrepareForCleanUp();
 ;               portableInstaller.Uninstall();
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED);
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
             }
         }
     }
