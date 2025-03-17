@@ -6,10 +6,12 @@
 
 namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 {
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text;
     using Microsoft.Management.Configuration.Processor.DSCv3.Model;
+    using Microsoft.Management.Configuration.Processor.Helpers;
 
     /// <summary>
     /// Contains settings for the DSC v3 processor components to share.
@@ -23,6 +25,8 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 
         private IDSCv3? dscV3 = null;
         private string? defaultPath = null;
+
+        private Dictionary<string, ResourceDetails> resourceDetailsDictionary = new ();
 
         /// <summary>
         /// Gets or sets the path to the DSC v3 executable.
@@ -146,6 +150,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         {
             ProcessorSettings result = new ProcessorSettings();
 
+            result.resourceDetailsDictionary = this.resourceDetailsDictionary;
             result.DiagnosticsSink = this.DiagnosticsSink;
             result.DscExecutablePath = this.DscExecutablePath;
             result.DiagnosticTraceLevel = this.DiagnosticTraceLevel;
@@ -171,6 +176,47 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             sb.Append(this.DiagnosticTraceLevel);
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Gets the ResourceDetails for a configuration unit.
+        /// </summary>
+        /// <param name="configurationUnitInternal">The configuration unit to find details for.</param>
+        /// <param name="detailFlags">The level of detail to get.</param>
+        /// <returns>The ResourceDetails for the unit, or null if not found.</returns>
+        public ResourceDetails? GetResourceDetails(ConfigurationUnitInternal configurationUnitInternal, ConfigurationUnitDetailFlags detailFlags)
+        {
+            ResourceDetails? result = null;
+            bool inDictionary = false;
+
+            lock (this.resourceDetailsDictionary)
+            {
+                inDictionary = this.resourceDetailsDictionary.TryGetValue(configurationUnitInternal.QualifiedName, out result);
+            }
+
+            if (result == null)
+            {
+                result = new ResourceDetails(configurationUnitInternal);
+            }
+
+            result.EnsureDetails(this, detailFlags);
+
+            if (result.Exists)
+            {
+                if (!inDictionary)
+                {
+                    lock (this.resourceDetailsDictionary)
+                    {
+                        this.resourceDetailsDictionary.Add(configurationUnitInternal.QualifiedName, result);
+                    }
+                }
+
+                return result;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
