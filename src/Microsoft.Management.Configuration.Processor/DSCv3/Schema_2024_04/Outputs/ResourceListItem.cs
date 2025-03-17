@@ -69,7 +69,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04.Outp
         /// <summary>
         /// Gets or sets a value that indicates implementation details of the resource.
         /// </summary>
-        public JsonObject? ImplementedAs { get; set; }
+        public JsonNode? ImplementedAs { get; set; }
 
         /// <summary>
         /// Gets or sets the author of the resource.
