@@ -35,7 +35,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04.Outp
             Definitions.ResourceKind.Resource => Model.ResourceKind.Resource,
             Definitions.ResourceKind.Adapter => Model.ResourceKind.Adapter,
             Definitions.ResourceKind.Group => Model.ResourceKind.Group,
-            Definitions.ResourceKind.Import => Model.ResourceKind.Import,
+            Definitions.ResourceKind.Import => Model.ResourceKind.Importer,
             _ => throw new System.IO.InvalidDataException($"Unknown ResourceKind: {this.Kind}")
         };
 
