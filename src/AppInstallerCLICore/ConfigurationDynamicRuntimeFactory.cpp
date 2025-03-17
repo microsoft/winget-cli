@@ -163,9 +163,12 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_dynamicFactory(std::move(dynamicFactory)), m_configurationSet(configurationSet)
             {
 #ifndef AICLI_DISABLE_TEST_HOOKS
-                m_enableTestMode = GetConfigurationSetMetadataOverride(m_configurationSet, EnableTestModeTestGuid);
-                m_enableRestrictedIntegrityLevel = GetConfigurationSetMetadataOverride(m_configurationSet, EnableRestrictedIntegrityLevelTestGuid);
-                m_forceHighIntegrityLevelUnits = GetConfigurationSetMetadataOverride(m_configurationSet, ForceHighIntegrityLevelUnitsTestGuid);
+                if (m_configurationSet)
+                {
+                    m_enableTestMode = GetConfigurationSetMetadataOverride(m_configurationSet, EnableTestModeTestGuid);
+                    m_enableRestrictedIntegrityLevel = GetConfigurationSetMetadataOverride(m_configurationSet, EnableRestrictedIntegrityLevelTestGuid);
+                    m_forceHighIntegrityLevelUnits = GetConfigurationSetMetadataOverride(m_configurationSet, ForceHighIntegrityLevelUnitsTestGuid);
+                }
 
                 m_currentIntegrityLevel = m_enableTestMode ? Security::IntegrityLevel::Medium : Security::GetEffectiveIntegrityLevel();
 #else
@@ -173,32 +176,36 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 #endif
 
                 m_setIntegrityLevel = m_currentIntegrityLevel;
-                m_setIntegrityLevel = SecurityContextToIntegrityLevel(m_configurationSet.Environment().Context());
 
-                // Check for multiple integrity level requirements
-                bool multipleIntegrityLevels = false;
-                bool higherIntegrityLevelsThanCurrent = false;
-                for (const auto& environment : m_configurationSet.GetUnitEnvironments())
+                if (m_configurationSet)
                 {
-                    auto integrityLevel = SecurityContextToIntegrityLevel(environment.Context());
-                    if (integrityLevel != m_currentIntegrityLevel)
-                    {
-                        multipleIntegrityLevels = true;
+                    m_setIntegrityLevel = SecurityContextToIntegrityLevel(m_configurationSet.Environment().Context());
 
-                        if (ToIntegral(m_currentIntegrityLevel) < ToIntegral(integrityLevel))
+                    // Check for multiple integrity level requirements
+                    bool multipleIntegrityLevels = false;
+                    bool higherIntegrityLevelsThanCurrent = false;
+                    for (const auto& environment : m_configurationSet.GetUnitEnvironments())
+                    {
+                        auto integrityLevel = SecurityContextToIntegrityLevel(environment.Context());
+                        if (integrityLevel != m_currentIntegrityLevel)
                         {
-                            higherIntegrityLevelsThanCurrent = true;
-                            break;
+                            multipleIntegrityLevels = true;
+
+                            if (ToIntegral(m_currentIntegrityLevel) < ToIntegral(integrityLevel))
+                            {
+                                higherIntegrityLevelsThanCurrent = true;
+                                break;
+                            }
                         }
                     }
-                }
 
-                // Prevent supplied parameters from crossing integrity levels
-                for (const auto& parameter : m_configurationSet.Parameters())
-                {
-                    if (parameter.ProvidedValue() != nullptr)
+                    // Prevent supplied parameters from crossing integrity levels
+                    for (const auto& parameter : m_configurationSet.Parameters())
                     {
-                        THROW_HR_IF(WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY, higherIntegrityLevelsThanCurrent || (multipleIntegrityLevels && parameter.IsSecure()));
+                        if (parameter.ProvidedValue() != nullptr)
+                        {
+                            THROW_HR_IF(WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY, higherIntegrityLevelsThanCurrent || (multipleIntegrityLevels && parameter.IsSecure()));
+                        }
                     }
                 }
 
@@ -219,13 +226,16 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 std::call_once(m_createUnitSetProcessorsOnce,
                     [&]()
                     {
-                        for (const auto& environment : m_configurationSet.GetUnitEnvironments())
+                        if (m_configurationSet)
                         {
-                            Security::IntegrityLevel requiredIntegrityLevel = SecurityContextToIntegrityLevel(environment.Context());
-
-                            if (m_setProcessors.find(requiredIntegrityLevel) == m_setProcessors.end())
+                            for (const auto& environment : m_configurationSet.GetUnitEnvironments())
                             {
-                                CreateSetProcessorForIntegrityLevel(requiredIntegrityLevel);
+                                Security::IntegrityLevel requiredIntegrityLevel = SecurityContextToIntegrityLevel(environment.Context());
+
+                                if (m_setProcessors.find(requiredIntegrityLevel) == m_setProcessors.end())
+                                {
+                                    CreateSetProcessorForIntegrityLevel(requiredIntegrityLevel);
+                                }
                             }
                         }
                     });
