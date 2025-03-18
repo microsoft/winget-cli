@@ -269,5 +269,35 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // Once they are implemented, swap to the appropriate error mechanism for the parameter integrity boundary.
             Assert.Throws<NotImplementedException>(() => processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None));
         }
+
+        /// <summary>
+        /// Verifies that DynamicFactoryProcessors do not break on empty set when working with only units.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public async Task CreateDynamicFactoryProcessorsWithEmptyConfigurationSet()
+        {
+            string resourceName = "E2ETestResourcePID";
+            string moduleName = "xE2ETestResource";
+            Version version = new Version("0.0.0.1");
+
+            string tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(tempDirectory);
+
+            ConfigurationUnit unit = this.ConfigurationUnit();
+            unit.Metadata.Add("version", version.ToString());
+            unit.Metadata.Add("module", moduleName);
+            unit.Settings.Add("directoryPath", tempDirectory);
+            unit.Type = resourceName;
+            unit.Intent = ConfigurationUnitIntent.Inform;
+
+            IConfigurationSetProcessorFactory dynamicFactory = await this.fixture.ConfigurationStatics.CreateConfigurationSetProcessorFactoryAsync(Helpers.Constants.DynamicRuntimeHandlerIdentifier);
+
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(dynamicFactory);
+
+            var result = await processor.GetUnitSettingsAsync(unit);
+
+            Assert.NotNull(result);
+        }
     }
 }
