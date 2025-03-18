@@ -250,6 +250,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 auto itr = m_setProcessors.find(requiredIntegrityLevel);
                 if (itr == m_setProcessors.end())
                 {
+                    THROW_WIN32_IF_MSG(ERROR_NOT_SUPPORTED, !m_configurationSet, "Using configuration unit integrity level other than current level without a configuration set is not supported.");
                     itr = CreateSetProcessorForIntegrityLevel(requiredIntegrityLevel);
                 }
 
