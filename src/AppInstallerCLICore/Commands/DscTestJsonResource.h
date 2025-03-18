@@ -19,7 +19,6 @@ namespace AppInstaller::CLI
 
         void ResourceFunctionGet(Execution::Context& context) const override;
         void ResourceFunctionSet(Execution::Context& context) const override;
-        void ResourceFunctionTest(Execution::Context& context) const override;
         void ResourceFunctionExport(Execution::Context& context) const override;
         void ResourceFunctionSchema(Execution::Context& context) const override;
     };

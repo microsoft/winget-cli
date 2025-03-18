@@ -69,6 +69,21 @@ namespace AppInstaller::CLI
         }
     };
 
+    template <>
+    struct GetJsonTypeValue<Json::Value>
+    {
+        static Json::Value Get(const Json::Value& value)
+        {
+            return value;
+        }
+
+        static std::string_view SchemaTypeName()
+        {
+            // Indicates that the schema should not set a type
+            return {};
+        }
+    };
+
     // Template useful for composing objects for DSC resources.
     // Properties should be of the shape:
     //
