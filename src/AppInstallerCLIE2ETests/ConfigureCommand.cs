@@ -305,6 +305,24 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(1, lines.Length);
         }
 
+        /// <summary>
+        /// Simple test to confirm that a resource with a module specified can be discovered in a local repository that doesn't support resource discovery.
+        /// </summary>
+        [Test]
+        public void ConfigureFromTestRepo_DSCv3()
+        {
+            TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: true, repository: Constants.TestRepoName);
+            this.DeleteResourceArtifacts();
+
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo_DSCv3.yml"));
+            Assert.AreEqual(0, result.ExitCode);
+
+            // The configuration creates a file next to itself with the given contents
+            string targetFilePath = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.txt");
+            FileAssert.Exists(targetFilePath);
+            Assert.AreEqual("Contents!", File.ReadAllText(targetFilePath));
+        }
+
         private void DeleteResourceArtifacts()
         {
             // Delete all .txt files in the test directory; they are placed there by the tests

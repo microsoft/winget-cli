@@ -33,8 +33,15 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04.Defi
         Group,
 
         /// <summary>
-        /// An import resource.
+        /// An import(er) resource.
+        /// The name listed in the DSC schema.
         /// </summary>
         Import,
+
+        /// <summary>
+        /// An importer resource.
+        /// The name used by the code.
+        /// </summary>
+        Importer = Import,
     }
 }
