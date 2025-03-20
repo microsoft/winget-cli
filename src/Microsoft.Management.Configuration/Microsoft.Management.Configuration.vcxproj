@@ -219,6 +219,7 @@
     <ClInclude Include="ExceptionResultHelpers.h" />
     <ClInclude Include="Filesystem.h" />
     <ClInclude Include="GetAllConfigurationUnitSettingsResult.h" />
+    <ClInclude Include="GetAllConfigurationUnitsResult.h" />
     <ClInclude Include="GetConfigurationSetDetailsResult.h" />
     <ClInclude Include="GetConfigurationUnitDetailsResult.h" />
     <ClInclude Include="GetConfigurationUnitSettingsResult.h" />
@@ -274,6 +275,7 @@
     <ClCompile Include="DiagnosticInformationInstance.cpp" />
     <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="GetAllConfigurationUnitSettingsResult.cpp" />
+    <ClCompile Include="GetAllConfigurationUnitsResult.cpp" />
     <ClCompile Include="GetConfigurationSetDetailsResult.cpp" />
     <ClCompile Include="GetConfigurationUnitDetailsResult.cpp" />
     <ClCompile Include="GetConfigurationUnitSettingsResult.cpp" />

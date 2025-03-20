@@ -131,7 +131,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_details;
     }
 
-    void ConfigurationUnit::Details(IConfigurationUnitProcessorDetails&& details)
+    void ConfigurationUnit::Details(IConfigurationUnitProcessorDetails details)
     {
         m_details = std::move(details);
     }

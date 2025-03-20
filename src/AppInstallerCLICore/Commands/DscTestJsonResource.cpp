@@ -128,6 +128,11 @@ namespace AppInstaller::CLI
 
             data.Get();
 
+            if (data.RootValue.isNull())
+            {
+                data.RootValue = Json::Value{ Json::objectValue };
+            }
+
             if (data.Input.ShouldExist())
             {
                 data.RootValue[data.Input.Property().value()] = data.Input.Value().value_or(Json::Value{ Json::nullValue });
@@ -139,6 +144,13 @@ namespace AppInstaller::CLI
                 data.RootValue.removeMember(data.Input.Property().value());
                 data.Output.Exist(false);
             }
+
+            std::ofstream stream{ data.FilePath, std::ios::binary };
+
+            Json::StreamWriterBuilder writerBuilder;
+            writerBuilder.settings_["indentation"] = "  ";
+
+            stream << Json::writeString(writerBuilder, data.RootValue);
 
             WriteJsonOutputLine(context, data.Output.ToJson());
         }
