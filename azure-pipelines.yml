@@ -379,7 +379,9 @@ jobs:
 
     # Install DSC v3 until the DSC v3 processor handles that on its own
   - powershell: |
-      Install-WinGetPackage -Id 9NVTPZWRC6KQ -Source msstore -MatchOption Equals
+      $installResult = Install-WinGetPackage -Id 9NVTPZWRC6KQ -Source msstore -MatchOption Equals
+      $installResult | Format-List
+      if ($installResult.ExtendedErrorCode) { throw $installResult.ExtendedErrorCode }
     displayName: Install DSC v3
     condition: succeededOrFailed()
 
