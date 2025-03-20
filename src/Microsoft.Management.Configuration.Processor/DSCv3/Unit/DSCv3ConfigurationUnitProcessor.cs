@@ -40,19 +40,19 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Unit
         /// <inheritdoc />
         protected override ValueSet GetSettingsInternal()
         {
-            return this.processorSettings.DSCv3.GetResourceSettings(this.UnitInternal, this).Settings;
+            return this.processorSettings.DSCv3.GetResourceSettings(this.UnitInternal).Settings;
         }
 
         /// <inheritdoc />
         protected override bool TestSettingsInternal()
         {
-            return this.processorSettings.DSCv3.TestResource(this.UnitInternal, this).InDesiredState;
+            return this.processorSettings.DSCv3.TestResource(this.UnitInternal).InDesiredState;
         }
 
         /// <inheritdoc />
         protected override bool ApplySettingsInternal()
         {
-            return this.processorSettings.DSCv3.SetResourceSettings(this.UnitInternal, this).RebootRequired;
+            return this.processorSettings.DSCv3.SetResourceSettings(this.UnitInternal).RebootRequired;
         }
     }
 }

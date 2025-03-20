@@ -31,6 +31,7 @@ namespace Microsoft.Management.Configuration.Processor
         /// </summary>
         public DSCv3ConfigurationSetProcessorFactory()
         {
+            this.processorSettings.DiagnosticsSink = this;
         }
 
         /// <summary>
