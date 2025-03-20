@@ -21,6 +21,7 @@ using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::SQLite;
 using namespace AppInstaller::Repository::Microsoft::Schema;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::CLI::Workflow;
 using namespace TestCommon;
 
 TEST_CASE("PortableInstaller_InstallToRegistry", "[PortableInstaller]")
@@ -44,7 +45,7 @@ TEST_CASE("PortableInstaller_InstallToRegistry", "[PortableInstaller]")
     portableInstaller.SetDesiredState(desiredTestState);
     REQUIRE(portableInstaller.VerifyExpectedState());
 
-    portableInstaller.Install();
+    portableInstaller.Install(AppInstaller::CLI::Workflow::OperationType::Install);
 
     PortableInstaller portableInstaller2 = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
     REQUIRE(portableInstaller2.ARPEntryExists());
@@ -92,7 +93,7 @@ TEST_CASE("PortableInstaller_InstallToIndex_CreateInstallRoot", "[PortableInstal
     portableInstaller.SetDesiredState(desiredTestState);
     REQUIRE(portableInstaller.VerifyExpectedState());
 
-    portableInstaller.Install();
+    portableInstaller.Install(AppInstaller::CLI::Workflow::OperationType::Install);
 
     REQUIRE(std::filesystem::exists(installRootPath / portableInstaller.GetPortableIndexFileName()));
     REQUIRE(std::filesystem::exists(targetPath));
@@ -150,7 +151,7 @@ TEST_CASE("PortableInstaller_InstallToIndex_ExistingInstallRoot", "[PortableInst
     portableInstaller.SetDesiredState(desiredTestState);
     REQUIRE(portableInstaller.VerifyExpectedState());
 
-    portableInstaller.Install();
+    portableInstaller.Install(AppInstaller::CLI::Workflow::OperationType::Install);
 
     REQUIRE(std::filesystem::exists(installRootPath / portableInstaller.GetPortableIndexFileName()));
     REQUIRE(std::filesystem::exists(targetPath));
@@ -197,7 +198,7 @@ TEST_CASE("PortableInstaller_UnicodeSymlinkPath", "[PortableInstaller]")
     portableInstaller.SetDesiredState(desiredTestState);
     REQUIRE(portableInstaller.VerifyExpectedState());
 
-    portableInstaller.Install();
+    portableInstaller.Install(AppInstaller::CLI::Workflow::OperationType::Install);
 
     PortableInstaller portableInstaller2 = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
     REQUIRE(portableInstaller2.ARPEntryExists());
