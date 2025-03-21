@@ -7,9 +7,13 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using Microsoft.Management.Configuration.Processor;
+    using Microsoft.Management.Configuration.Processor.DSCv3.Model;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Windows.Foundation.Collections;
     using Xunit;
     using Xunit.Abstractions;
 
@@ -108,6 +112,49 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.NotNull(unitProcessor);
             Assert.Equal(type1, unitProcessor.Unit.Type);
         }
+
+        /// <summary>
+        /// Test for settings export.
+        /// </summary>
+        [Fact]
+        public void GetAllSettings_Expected()
+        {
+            var (factory, dsc) = CreateTestFactory();
+            var processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
+
+            string type1 = "Type1";
+            var unit1 = this.ConfigurationUnit().Assign(new { Type = type1 });
+
+            dsc.GetResourceByTypeDelegate = (type) =>
+            {
+                Assert.Equal(type1, type);
+                return new TestResourceListItem() { Type = type1 };
+            };
+
+            ValueSet set1 = new ValueSet();
+            set1.Add("key1", "val1");
+
+            ValueSet set2 = new ValueSet();
+            set2.Add("key2", "val2");
+
+            dsc.ExportResourceResult = new List<IResourceExportItem>()
+            {
+                new TestResourceExportItem() { Type = type1, Name = "1", Settings = set1 },
+                new TestResourceExportItem() { Type = type1, Name = "2", Settings = set2 },
+            };
+
+            var result = processor.GetAllUnitSettings(unit1);
+
+            Assert.NotNull(result);
+            Assert.NotNull(result.ResultInformation);
+            Assert.Null(result.ResultInformation.ResultCode);
+
+            Assert.Equal(2, result.Settings.Count);
+            Assert.NotNull(result.Settings.Single(set => set.Contains(set1.First())));
+            Assert.NotNull(result.Settings.Single(set => set.Contains(set2.First())));
+        }
+
+        // TODO: GetAllSettings_DifferentType, GetAllUnits_SameType, GetAllUnits_MultipleTypes (with rest of Exporter support)
 
         private static (DSCv3ConfigurationSetProcessorFactory, TestDSCv3) CreateTestFactory()
         {
