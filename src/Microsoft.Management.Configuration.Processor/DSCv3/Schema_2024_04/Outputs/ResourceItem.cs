@@ -6,6 +6,7 @@
 
 namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04.Outputs
 {
+    using System.Collections.Generic;
     using System.Text.Json.Nodes;
     using System.Text.Json.Serialization;
     using Microsoft.Management.Configuration.Processor.DSCv3.Model;
@@ -31,9 +32,21 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04.Outp
         required public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the resource definition manifest.
+        /// Gets or sets the properties object.
         /// </summary>
         public JsonObject? Properties { get; set; }
+
+        /// <summary>
+        /// Gets or sets the metadata object.
+        /// </summary>
+        [JsonPropertyName("metadata")]
+        public JsonObject? MetadataObject { get; set; }
+
+        /// <summary>
+        /// Gets or sets the dependencies.
+        /// </summary>
+        [JsonPropertyName("dependencies")]
+        public List<string> DependenciesList { get; set; } = new List<string>();
 
         /// <inheritdoc />
         [JsonIgnore]
@@ -42,6 +55,25 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04.Outp
             get
             {
                 return this.Properties.ToValueSet();
+            }
+        }
+
+        /// <inheritdoc />
+        [JsonIgnore]
+        public ValueSet Metadata
+        {
+            get
+            {
+                return this.MetadataObject.ToValueSet();
+            }
+        }
+
+        /// <inheritdoc />
+        public IList<string> Dependencies
+        {
+            get
+            {
+                return this.DependenciesList;
             }
         }
     }

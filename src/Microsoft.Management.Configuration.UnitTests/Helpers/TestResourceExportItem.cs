@@ -6,6 +6,7 @@
 
 namespace Microsoft.Management.Configuration.UnitTests.Helpers
 {
+    using System.Collections.Generic;
     using Microsoft.Management.Configuration.Processor.DSCv3.Model;
     using Windows.Foundation.Collections;
 
@@ -28,5 +29,15 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// Gets or sets the settings.
         /// </summary>
         public ValueSet Settings { get; set; } = new ValueSet();
+
+        /// <summary>
+        /// Gets or sets the metadata.
+        /// </summary>
+        public ValueSet Metadata { get; set; } = new ValueSet();
+
+        /// <summary>
+        /// Gets or sets the dependencies.
+        /// </summary>
+        public IList<string> Dependencies { get; set; } = new List<string>();
     }
 }

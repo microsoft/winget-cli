@@ -6,6 +6,7 @@
 
 namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
 {
+    using System.Collections.Generic;
     using Windows.Foundation.Collections;
 
     /// <summary>
@@ -28,7 +29,14 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
         /// </summary>
         public ValueSet Settings { get; }
 
-        // TODO: Everything else to support Exporter resources (which is everything in the resource instance schema)
-        //  Also update DSCv3ConfigurationUnitProcessor to add the new properties to the configuration unit
+        /// <summary>
+        /// Gets the metadata for this item.
+        /// </summary>
+        public ValueSet Metadata { get; }
+
+        /// <summary>
+        /// Gets the dependencies for this item.
+        /// </summary>
+        public IList<string> Dependencies { get; }
     }
 }

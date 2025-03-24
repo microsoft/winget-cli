@@ -93,6 +93,8 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Unit
                 unit.Type = exportItem.Type;
                 unit.Identifier = exportItem.Name;
                 unit.Settings = exportItem.Settings;
+                unit.Metadata = exportItem.Metadata;
+                unit.Dependencies = exportItem.Dependencies;
 
                 result.Add(unit);
             }
