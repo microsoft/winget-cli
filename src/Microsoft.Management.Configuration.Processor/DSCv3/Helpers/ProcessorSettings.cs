@@ -208,7 +208,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 return null;
             }
         }
-        
+
         private static string? GetDscExecutablePathForPackage(string packageFamilyName)
         {
             string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
