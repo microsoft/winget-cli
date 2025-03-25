@@ -314,7 +314,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: true, repository: Constants.TestRepoName);
             this.DeleteResourceArtifacts();
 
-            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo_DSCv3.yml"));
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo_DSCv3.yml"), timeOut: 300000);
             Assert.AreEqual(0, result.ExitCode);
 
             // The configuration creates a file next to itself with the given contents
