@@ -148,7 +148,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
                 throw new Exceptions.InvokeDscResourceException(Exceptions.InvokeDscResourceException.Export, unitInternal.QualifiedName, null, processExecution.GetAllErrorLines());
             }
 
-            return (IList<IResourceExportItem>)ConfigurationDocument.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution, Exceptions.InvokeDscResourceException.Set, unitInternal.QualifiedName), GetDefaultJsonOptions()).Resources;
+            return ConfigurationDocument.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution, Exceptions.InvokeDscResourceException.Set, unitInternal.QualifiedName), GetDefaultJsonOptions()).InterfaceResources;
         }
 
         /// <summary>

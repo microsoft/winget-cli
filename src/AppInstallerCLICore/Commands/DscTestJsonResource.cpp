@@ -16,14 +16,14 @@ namespace AppInstaller::CLI
 
         using TestJsonObject = DscComposableObject<StandardExistProperty, PropertyProperty, ValueProperty>;
 
-        struct FunctionData
+        struct TestJsonFunctionData
         {
-            FunctionData()
+            TestJsonFunctionData()
             {
                 InitializeFileData();
             }
 
-            FunctionData(const std::optional<Json::Value>& json) : Input(json), Output(Input.CopyForOutput())
+            TestJsonFunctionData(const std::optional<Json::Value>& json) : Input(json), Output(Input.CopyForOutput())
             {
                 InitializeFileData();
             }
@@ -32,6 +32,13 @@ namespace AppInstaller::CLI
             TestJsonObject Output;
             std::filesystem::path FilePath;
             Json::Value RootValue;
+
+            static std::filesystem::path GetFilePath()
+            {
+                std::filesystem::path result = Runtime::GetPathTo(Runtime::PathName::LocalState);
+                result /= "test-json-file.json";
+                return result;
+            }
 
             // Fills the Output object with the current state
             void Get()
@@ -54,9 +61,7 @@ namespace AppInstaller::CLI
         private:
             void InitializeFileData()
             {
-                FilePath = Runtime::GetPathTo(Runtime::PathName::LocalState);
-                FilePath /= "test-json-file.json";
-
+                FilePath = GetFilePath();
                 RootValue = GetJsonFromFile();
             }
 
@@ -93,6 +98,13 @@ namespace AppInstaller::CLI
     {
     }
 
+    std::vector<Argument> DscTestJsonResource::GetArguments() const
+    {
+        auto result = DscCommandBase::GetArguments();
+        result.emplace_back(Execution::Args::Type::DscResourceFunctionDelete, Resource::String::DscResourceFunctionDescriptionDelete, ArgumentType::Flag);
+        return result;
+    }
+
     Resource::LocString DscTestJsonResource::ShortDescription() const
     {
         return "[TEST] JSON content resource"_lis;
@@ -101,6 +113,17 @@ namespace AppInstaller::CLI
     Resource::LocString DscTestJsonResource::LongDescription() const
     {
         return "[TEST] This resource is only available for tests. It provides JSON content configuration of a well known file."_lis;
+    }
+
+    void DscTestJsonResource::ExecuteInternal(Execution::Context& context) const
+    {
+        if (context.Args.Contains(Execution::Args::Type::DscResourceFunctionDelete))
+        {
+            std::filesystem::remove_all(anon::TestJsonFunctionData::GetFilePath());
+            return;
+        }
+
+        DscCommandBase::ExecuteInternal(context);
     }
 
     std::string DscTestJsonResource::ResourceType() const
@@ -112,7 +135,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            anon::FunctionData data{ json };
+            anon::TestJsonFunctionData data{ json };
 
             data.Get();
 
@@ -124,7 +147,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            anon::FunctionData data{ json };
+            anon::TestJsonFunctionData data{ json };
 
             data.Get();
 
@@ -158,7 +181,7 @@ namespace AppInstaller::CLI
 
     void DscTestJsonResource::ResourceFunctionExport(Execution::Context& context) const
     {
-        anon::FunctionData data;
+        anon::TestJsonFunctionData data;
 
         if (data.RootValue.isObject())
         {

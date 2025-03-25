@@ -79,31 +79,8 @@ namespace AppInstaller::CLI
 
         void EnsureDSCv3Processor(Execution::Context& context)
         {
-            using ValueSet = winrt::Windows::Foundation::Collections::ValueSet;
-            using PropertyValue = winrt::Windows::Foundation::PropertyValue;
-
             auto& configurationSet = context.Get<Execution::Data::ConfigurationContext>().Set();
-            if (ConfigurationRemoting::DetermineProcessorEngine(configurationSet) == ConfigurationRemoting::ProcessorEngine::DSCv3)
-            {
-                return;
-            }
-
-            auto metadata = configurationSet.Metadata();
-
-            const winrt::hstring s_winget{ L"winget"sv };
-            ValueSet winget = nullptr;
-            if (metadata.HasKey(s_winget))
-            {
-                winget = metadata.Lookup(s_winget).try_as<ValueSet>();
-            }
-
-            if (!winget)
-            {
-                winget = ValueSet{};
-                metadata.Insert(s_winget, winget);
-            }
-
-            winget.Insert(L"processor", PropertyValue::CreateString(L"dscv3"));
+            configurationSet.Environment().ProcessorIdentifier(L"dscv3");
         }
 
         void InvokeGetAllUnits(Execution::Context& context)

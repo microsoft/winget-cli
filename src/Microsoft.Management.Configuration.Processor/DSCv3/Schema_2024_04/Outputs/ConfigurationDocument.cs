@@ -8,7 +8,10 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04.Outp
 {
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text.Json;
+    using System.Text.Json.Serialization;
+    using Microsoft.Management.Configuration.Processor.DSCv3.Model;
 
     /// <summary>
     /// A configuration document.
@@ -19,6 +22,18 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04.Outp
         /// Gets or sets the list of resources in the document.
         /// </summary>
         public List<ResourceItem> Resources { get; set; } = new List<ResourceItem>();
+
+        /// <summary>
+        /// Gets the list of resources as the interface version.
+        /// </summary>
+        [JsonIgnore]
+        public IList<IResourceExportItem> InterfaceResources
+        {
+            get
+            {
+                return new List<IResourceExportItem>(this.Resources.AsEnumerable<IResourceExportItem>());
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the ConfigurationDocument class.

@@ -69,6 +69,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04.Outp
         }
 
         /// <inheritdoc />
+        [JsonIgnore]
         public IList<string> Dependencies
         {
             get
