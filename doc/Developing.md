@@ -10,7 +10,7 @@
   * .NET Desktop Development
   * Desktop Development with C++
   * Universal Windows Platform Development
-  * Check [.vsconfig file](.vsconfig) for full components list
+  * Check [.vsconfig file](../.vsconfig) for full components list
 
 * [Windows SDK for Windows 11 (10.0.22000.194)](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive/)
 

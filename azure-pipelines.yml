@@ -377,9 +377,11 @@ jobs:
     displayName: Clean up Sysinternals PsTools
     condition: succeededOrFailed()
 
-    # Install DSC v3 preview until the DSC v3 processor handles that on its own
+    # Install DSC v3 until the DSC v3 processor handles that on its own
   - powershell: |
-      Install-WinGetPackage -Id Microsoft.DSC.Preview -Source winget
+      $installResult = Install-WinGetPackage -Id Microsoft.DSC.Preview -Source winget -InstallerType Msix -Version 3.1.1
+      $installResult | Format-List
+      if ($installResult.ExtendedErrorCode) { throw $installResult.ExtendedErrorCode }
     displayName: Install DSC v3
     condition: succeededOrFailed()
 
