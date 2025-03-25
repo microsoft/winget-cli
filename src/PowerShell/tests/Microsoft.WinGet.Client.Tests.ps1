@@ -600,6 +600,21 @@ Describe 'Export-WinGetPackage' {
         Test-Path -Path $testDirectory | Should -Be $false
     }
 
+    It 'Download with short Version' {
+        $testDirectory = GetRandomTestDirectory
+        $result = Export-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1' -DownloadDirectory $testDirectory
+        
+        $result | Should -Not -BeNullOrEmpty
+        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
+        $result.Name | Should -Be "TestExeInstaller"
+        $result.Source | Should -Be "TestSource"
+        $result.Status | Should -Be 'Ok'
+
+        # Download directory should be created and have exactly two files (installer and manifest file).
+        Test-Path -Path $testDirectory | Should -Be $true
+        (Get-ChildItem -Path $testDirectory -Force | Measure-Object).Count | Should -Be 2
+    }
+
     AfterEach {
         if (Test-Path $testDirectory) {
             Remove-Item $testDirectory -Force -Recurse
