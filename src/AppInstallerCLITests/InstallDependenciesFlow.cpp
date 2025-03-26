@@ -4,8 +4,10 @@
 #include "WorkflowCommon.h"
 #include "DependenciesTestSource.h"
 #include <Commands/InstallCommand.h>
+#include <Commands/COMCommand.h>
 #include <Workflows/DependenciesFlow.h>
 #include <Workflows/InstallFlow.h>
+#include <Workflows/ShellExecuteInstallerHandler.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
@@ -36,6 +38,14 @@ void OverrideForProcessMultiplePackages(TestContext& context)
     {
 
     } });
+}
+
+void OverrideShellExecute(TestContext& context)
+{
+    context.Override({ ShellExecuteInstallImpl, [](TestContext& c)
+        {
+            c.Add< Execution::Data::OperationReturnCode>(0);
+        } });
 }
 
 TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGraph][dependencies]")
@@ -262,6 +272,25 @@ TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
     // Verify all types of dependencies are printed
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::PackageRequiresDependencies).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_Dependencies_COM", "[InstallFlow][workflow][dependencies]")
+{
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    OverrideShellExecute(context);
+    OverrideOpenDependencySource(context);
+    OverrideEnableWindowsFeaturesDependencies(context);
+
+    context.Add<Execution::Data::Manifest>(YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_MultipleDependencies.yaml")));
+
+    COMDownloadCommand download({});
+    download.Execute(context);
+
+    COMInstallCommand install({});
+    REQUIRE_NOTHROW(install.Execute(context));
 }
 
 // TODO:
