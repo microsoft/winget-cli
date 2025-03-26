@@ -27,12 +27,10 @@ void OverrideOpenSourceForDependencies(TestContext& context)
 
 void OverrideForProcessMultiplePackages(TestContext& context)
 {
-    context.Override({ Workflow::ProcessMultiplePackages(
+    context.Override({ ProcessMultiplePackages(
         Resource::String::PackageRequiresDependencies,
         APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES,
-        {},
-        false,
-        true), [](TestContext&)
+        ProcessMultiplePackages::Flags::SkipPackageAgreements | ProcessMultiplePackages::Flags::IgnoreDependencies), [](TestContext&)
     {
 
     } });
