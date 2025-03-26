@@ -6,6 +6,7 @@
 #include <Commands/InstallCommand.h>
 #include <Commands/COMCommand.h>
 #include <Workflows/DependenciesFlow.h>
+#include <Workflows/DownloadFlow.h>
 #include <Workflows/InstallFlow.h>
 #include <Workflows/ShellExecuteInstallerHandler.h>
 
@@ -40,11 +41,12 @@ void OverrideForProcessMultiplePackages(TestContext& context)
     } });
 }
 
-void OverrideShellExecute(TestContext& context)
+void OverrideShellExecute(TestContext& context, std::vector<std::string>& installationOrder)
 {
-    context.Override({ ShellExecuteInstallImpl, [](TestContext& c)
+    context.Override({ ShellExecuteInstallImpl, [&installationOrder](TestContext& c)
         {
-            c.Add< Execution::Data::OperationReturnCode>(0);
+            installationOrder.push_back(c.Get<Execution::Data::Manifest>().Id);
+            c.Add<Execution::Data::OperationReturnCode>(0);
         } });
 }
 
@@ -276,21 +278,34 @@ TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
 
 TEST_CASE("InstallFlow_Dependencies_COM", "[InstallFlow][workflow][dependencies]")
 {
+    std::vector<std::string> installationOrder;
+
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
-    OverrideShellExecute(context);
+    OverrideShellExecute(context, installationOrder);
     OverrideOpenDependencySource(context);
     OverrideEnableWindowsFeaturesDependencies(context);
+    context.Override({ ReverifyInstallerHash, [](TestContext&) {} });
 
     context.Add<Execution::Data::Manifest>(YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_MultipleDependencies.yaml")));
 
     COMDownloadCommand download({});
     download.Execute(context);
 
+    REQUIRE(installationOrder.size() == 0);
+
     COMInstallCommand install({});
     REQUIRE_NOTHROW(install.Execute(context));
+
+    REQUIRE(context.GetTerminationHR() == S_OK);
+
+    // Verify installers are called in order
+    REQUIRE(installationOrder.size() == 3);
+    REQUIRE(installationOrder.at(0) == "Dependency1");
+    REQUIRE(installationOrder.at(1) == "Dependency2");
+    REQUIRE(installationOrder.at(2) == "AppInstallerCliTest.TestExeInstaller.MultipleDependencies");
 }
 
 // TODO:
