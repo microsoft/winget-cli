@@ -159,6 +159,8 @@
       <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">winsqlite3.dll;icuuc.dll;icuin.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <DelayLoadDLLs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">winsqlite3.dll;icuuc.dll;icuin.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <CETCompat Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</CETCompat>
+      <CETCompat Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</CETCompat>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -182,6 +184,7 @@
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Source.def</ModuleDefinitionFile>
       <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">winsqlite3.dll;icuuc.dll;icuin.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <CETCompat Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</CETCompat>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -232,6 +235,9 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">/debug:full %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/debug:full %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/debug:full %(AdditionalOptions)</AdditionalOptions>
+      <CETCompat Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</CETCompat>
+      <CETCompat Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</CETCompat>
+      <CETCompat Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</CETCompat>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
