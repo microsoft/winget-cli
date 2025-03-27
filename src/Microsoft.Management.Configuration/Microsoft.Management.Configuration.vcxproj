@@ -132,6 +132,15 @@
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ControlFlowGuard>
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ControlFlowGuard>
     </ClCompile>
+    <Link>
+      <CETCompat Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</CETCompat>
+    </Link>
+    <Link>
+      <CETCompat Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</CETCompat>
+    </Link>
+    <Link>
+      <CETCompat Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</CETCompat>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
@@ -150,6 +159,9 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">/debug:full %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/debug:full %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/debug:full %(AdditionalOptions)</AdditionalOptions>
+      <CETCompat Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</CETCompat>
+      <CETCompat Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</CETCompat>
+      <CETCompat Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</CETCompat>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='ReleaseStatic'">
@@ -168,6 +180,9 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <CETCompat Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM64'">true</CETCompat>
+      <CETCompat Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">true</CETCompat>
+      <CETCompat Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|x64'">true</CETCompat>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(WingetDisableTestHooks)'=='true'">
