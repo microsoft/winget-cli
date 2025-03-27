@@ -848,7 +848,11 @@ namespace AppInstallerCLIE2ETests.Helpers
                         pwsh.PowerShell.AddParameter("Repository", repository);
                     }
 
-                    if (location == TestModuleLocation.AllUsers)
+                    if (location == TestModuleLocation.CurrentUser)
+                    {
+                        pwsh.PowerShell.AddParameter("Scope", "CurrentUser");
+                    }
+                    else if (location == TestModuleLocation.AllUsers)
                     {
                         pwsh.PowerShell.AddParameter("Scope", "AllUsers");
                     }
