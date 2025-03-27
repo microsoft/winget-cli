@@ -174,7 +174,8 @@ namespace AppInstaller::CLI::Workflow
             bool ensurePackageAgreements = true,
             bool ignoreDependencies = false,
             bool stopOnFailure = false,
-            bool refreshPathVariable = false):
+            bool refreshPathVariable = false,
+            bool downloadOnly = false):
             WorkflowTask("ProcessMultiplePackages"),
             m_dependenciesReportMessage(dependenciesReportMessage),
             m_resultOnFailure(resultOnFailure),
@@ -182,7 +183,8 @@ namespace AppInstaller::CLI::Workflow
             m_ignorePackageDependencies(ignoreDependencies),
             m_ensurePackageAgreements(ensurePackageAgreements),
             m_stopOnFailure(stopOnFailure),
-            m_refreshPathVariable(refreshPathVariable){}
+            m_refreshPathVariable(refreshPathVariable),
+            m_downloadOnly(downloadOnly){}
 
         void operator()(Execution::Context& context) const override;
 
@@ -194,6 +196,7 @@ namespace AppInstaller::CLI::Workflow
         bool m_ensurePackageAgreements;
         bool m_stopOnFailure;
         bool m_refreshPathVariable;
+        bool m_downloadOnly;
     };
 
     // Stores the existing set of packages in ARP.
