@@ -68,14 +68,49 @@ namespace AppInstaller::Repository::Microsoft
 
             IIterable<Package> packages;
             PackageManager packageManager;
+
             if (scope == Manifest::ScopeEnum::Machine)
             {
-                packages = packageManager.FindProvisionedPackages();
+                // May not be present on our oldest supported systems; simply ignore for the time being.
+                IPackageManager9 packageManager9 = packageManager.try_as<IPackageManager9>();
+                if (packageManager9)
+                {
+                    packages = packageManager.FindProvisionedPackages();
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Warning, << "FindProvisionedPackages is not available on this version of Windows");
+                }
             }
             else
             {
                 // TODO: Consider if Optional packages should also be enumerated
-                packages = packageManager.FindPackagesForUserWithPackageTypes({}, PackageTypes::Main | PackageTypes::Framework);
+                for (PackageTypes types : { PackageTypes::Main | PackageTypes::Framework, PackageTypes::Main, PackageTypes::Framework })
+                {
+                    try
+                    {
+                        packages = packageManager.FindPackagesForUserWithPackageTypes({}, types);
+                    }
+                    catch (const winrt::hresult_error& hre)
+                    {
+                        if (hre.code() == E_NOT_SET)
+                        {
+                            // This OS issue occurs frequently enough that we will attempt to work around it by enumerating progressively fewer packages
+                            AICLI_LOG(Repo, Warning, << "FindPackagesForUserWithPackageTypes returned E_NOT_SET for types: " << ToIntegral(types));
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                }
+            }
+
+            // Failed to retrieve even an empty package list; make sure that these cases have a log to indicate why.
+            if (!packages)
+            {
+                AICLI_LOG(Repo, Warning, << "MSIX package list not populated");
+                return;
             }
 
             // Reuse the same manifest object, as we will be setting the same values every time.
