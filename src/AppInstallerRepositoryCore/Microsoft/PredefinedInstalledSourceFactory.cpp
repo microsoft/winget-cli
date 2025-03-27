@@ -90,6 +90,7 @@ namespace AppInstaller::Repository::Microsoft
                     try
                     {
                         packages = packageManager.FindPackagesForUserWithPackageTypes({}, types);
+                        break;
                     }
                     catch (const winrt::hresult_error& hre)
                     {
