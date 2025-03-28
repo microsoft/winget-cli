@@ -20,13 +20,16 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
         /// </summary>
         /// <param name="jsonObject">The object to convert.</param>
         /// <returns>The ValueSet.</returns>
-        public static ValueSet ToValueSet(this JsonObject jsonObject)
+        public static ValueSet ToValueSet(this JsonObject? jsonObject)
         {
             ValueSet result = new ValueSet();
 
-            foreach (var item in jsonObject)
+            if (jsonObject != null)
             {
-                result.Add(item.Key, ToValue(item.Value));
+                foreach (var item in jsonObject)
+                {
+                    result.Add(item.Key, ToValue(item.Value));
+                }
             }
 
             return result;

@@ -15,9 +15,9 @@ namespace AppInstaller::CLI
 
         using TestFileObject = DscComposableObject<StandardExistProperty, StandardInDesiredStateProperty, PathProperty, ContentProperty>;
 
-        struct FunctionData
+        struct TestFileFunctionData
         {
-            FunctionData(const std::optional<Json::Value>& json) : Input(json), Output(Input.CopyForOutput())
+            TestFileFunctionData(const std::optional<Json::Value>& json) : Input(json), Output(Input.CopyForOutput())
             {
                 Path = Utility::ConvertToUTF16(Input.Path().value());
                 THROW_HR_IF(E_INVALIDARG, !Path.is_absolute());
@@ -104,7 +104,7 @@ namespace AppInstaller::CLI
     DscTestFileResource::DscTestFileResource(std::string_view parent) :
         DscCommandBase(parent, "test-file", DscResourceKind::Resource,
             DscFunctions::Get | DscFunctions::Set | DscFunctions::Test | DscFunctions::Export | DscFunctions::Schema,
-            DscFunctionModifiers::ImplementsPretest | DscFunctionModifiers::HandlesExist)
+            DscFunctionModifiers::ImplementsPretest | DscFunctionModifiers::HandlesExist | DscFunctionModifiers::ReturnsStateAndDiff)
     {
     }
 
@@ -127,7 +127,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            anon::FunctionData data{ json };
+            anon::TestFileFunctionData data{ json };
 
             data.Get();
 
@@ -139,7 +139,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            anon::FunctionData data{ json };
+            anon::TestFileFunctionData data{ json };
 
             data.Get();
 
@@ -186,7 +186,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            anon::FunctionData data{ json };
+            anon::TestFileFunctionData data{ json };
 
             data.Get();
             data.Output.InDesiredState(data.Test());
@@ -200,7 +200,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            anon::FunctionData data{ json };
+            anon::TestFileFunctionData data{ json };
 
             if (std::filesystem::exists(data.Path))
             {

@@ -1104,6 +1104,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             if (!string.IsNullOrEmpty(stdIn))
             {
                 p.StandardInput.Write(stdIn);
+                p.StandardInput.Close();
             }
 
             if (p.WaitForExit(timeOut))

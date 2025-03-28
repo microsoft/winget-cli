@@ -46,7 +46,7 @@ namespace AppInstaller::CLI
             VerifyIsFullPackage <<
             SearchSourceForPackageExport <<
             CreateConfigurationProcessorWithoutFactory <<
-            CreateOrOpenConfigurationSet <<
+            CreateOrOpenConfigurationSet{} <<
             CreateConfigurationProcessor <<
             PopulateConfigurationSetForExport <<
             WriteConfigFile;

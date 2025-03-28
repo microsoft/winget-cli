@@ -58,6 +58,10 @@ namespace AppInstaller::CLI
         // The resource will act on the `_exist` property during Set (and WhatIf).
         // If not provided, the resource should implement Delete.
         HandlesExist        = 0x02,
+        // Functions that may return state information (set, what-if, test) return only the state.
+        ReturnsState        = 0x04,
+        // Functions that may return state information (set, what-if, test) return the state and property difference.
+        ReturnsStateAndDiff = 0x08,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(DscFunctionModifiers);

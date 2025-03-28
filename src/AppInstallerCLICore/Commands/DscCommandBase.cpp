@@ -92,6 +92,21 @@ namespace AppInstaller::CLI
             return false;
         }
 
+        std::optional<std::string> GetReturnType(DscFunctionModifiers modifiers)
+        {
+            if (WI_IsFlagSet(modifiers, DscFunctionModifiers::ReturnsStateAndDiff))
+            {
+                return "stateAndDiff";
+            }
+
+            if (WI_IsFlagSet(modifiers, DscFunctionModifiers::ReturnsState))
+            {
+                return "state";
+            }
+
+            return std::nullopt;
+        }
+
         Json::Value CreateJsonDefinitionFor(std::string_view name, DscFunctions function, DscFunctionModifiers modifiers)
         {
             THROW_HR_IF(E_INVALIDARG, !WI_IsSingleFlagSet(function));
@@ -131,7 +146,12 @@ namespace AppInstaller::CLI
 
             if (FunctionSpecifiesReturn(function))
             {
-                result["return"] = "stateAndDiff";
+                std::optional<std::string> returnType = GetReturnType(modifiers);
+
+                if (returnType)
+                {
+                    result["return"] = returnType.value();
+                }
             }
 
             if (function == DscFunctions::Schema)

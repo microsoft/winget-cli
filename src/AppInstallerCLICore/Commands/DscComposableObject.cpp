@@ -45,7 +45,11 @@ namespace AppInstaller::CLI
 
             Json::Value property{ Json::ValueType::objectValue };
 
-            property["type"] = std::string{ type };
+            if (!type.empty())
+            {
+                property["type"] = std::string{ type };
+            }
+
             property["description"] = std::string{ description };
 
             propertiesObject[nameString] = std::move(property);

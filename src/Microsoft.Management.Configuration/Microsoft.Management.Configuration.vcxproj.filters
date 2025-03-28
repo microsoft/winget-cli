@@ -156,6 +156,9 @@
     <ClCompile Include="ConfigurationEnvironment.cpp">
       <Filter>API Source</Filter>
     </ClCompile>
+    <ClCompile Include="GetAllConfigurationUnitsResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -319,6 +322,9 @@
       <Filter>Parser</Filter>
     </ClInclude>
     <ClInclude Include="ConfigurationEnvironment.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GetAllConfigurationUnitsResult.h">
       <Filter>API Headers</Filter>
     </ClInclude>
   </ItemGroup>

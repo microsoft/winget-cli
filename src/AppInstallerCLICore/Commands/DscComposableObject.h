@@ -3,6 +3,7 @@
 #pragma once
 #include <AppInstallerErrors.h>
 #include <AppInstallerLanguageUtilities.h>
+#include <AppInstallerLogging.h>
 #include <json/json.h>
 #include <optional>
 
@@ -66,6 +67,21 @@ namespace AppInstaller::CLI
         static std::string_view SchemaTypeName()
         {
             return "string"sv;
+        }
+    };
+
+    template <>
+    struct GetJsonTypeValue<Json::Value>
+    {
+        static Json::Value Get(const Json::Value& value)
+        {
+            return value;
+        }
+
+        static std::string_view SchemaTypeName()
+        {
+            // Indicates that the schema should not set a type
+            return {};
         }
     };
 
@@ -140,7 +156,7 @@ namespace AppInstaller::CLI
             {
                 if constexpr (WI_IsFlagSet(PropertyFlags, DscComposablePropertyFlag::Required))
                 {
-                    THROW_HR(WINGET_CONFIG_ERROR_MISSING_FIELD);
+                    THROW_HR_MSG(WINGET_CONFIG_ERROR_MISSING_FIELD, "Required property `%hs` not provided.", Derived::Name().data());
                 }
                 else
                 {

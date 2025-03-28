@@ -14,6 +14,7 @@
 #include "ConfigurationUnitResultInformation.h"
 #include "GetConfigurationUnitSettingsResult.h"
 #include "GetAllConfigurationUnitSettingsResult.h"
+#include "GetAllConfigurationUnitsResult.h"
 #include "ExceptionResultHelpers.h"
 #include "ConfigurationSetChangeData.h"
 #include "GetConfigurationUnitDetailsResult.h"
@@ -804,7 +805,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         try
         {
-            // TODO: Directives overlay to prevent running elevated for test
             unitProcessor = setProcessor.CreateUnitProcessor(unit);
         }
         catch (...)
@@ -835,6 +835,123 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         else
         {
             AICLI_LOG(Config, Error, << "Unit Processor does not support GetAllSettings operation");
+            unitResult->Initialize(WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR, hstring{});
+        }
+
+        return *result;
+    }
+
+    Configuration::GetAllConfigurationUnitsResult ConfigurationProcessor::GetAllUnits(const ConfigurationUnit& unit)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+        return GetAllUnitsImpl(unit);
+    }
+
+    Windows::Foundation::IAsyncOperation<Configuration::GetAllConfigurationUnitsResult> ConfigurationProcessor::GetAllUnitsAsync(const ConfigurationUnit& unit)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+
+        auto strong_this{ get_strong() };
+        ConfigurationUnit localUnit = unit;
+
+        co_await winrt::resume_background();
+
+        co_return GetAllUnitsImpl(localUnit, { co_await winrt::get_cancellation_token() });
+    }
+
+    Configuration::GetAllConfigurationUnitsResult ConfigurationProcessor::GetAllUnitsImpl(
+        const ConfigurationUnit& unit,
+        AppInstaller::WinRT::AsyncCancellation cancellation)
+    {
+        auto threadGlobals = m_threadGlobals.SetForCurrentThread();
+
+        IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(nullptr);
+        auto result = make_self<wil::details::module_count_wrapper<implementation::GetAllConfigurationUnitsResult>>();
+        auto unitResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
+        result->ResultInformation(*unitResult);
+
+        cancellation.ThrowIfCancelled();
+
+        IConfigurationUnitProcessor unitProcessor;
+
+        try
+        {
+            unitProcessor = setProcessor.CreateUnitProcessor(unit);
+        }
+        catch (...)
+        {
+            ExtractUnitResultInformation(std::current_exception(), unitResult);
+        }
+
+        cancellation.ThrowIfCancelled();
+
+        IGetAllUnitsConfigurationUnitProcessor getAllUnitsUnitProcessor;
+        IGetAllSettingsConfigurationUnitProcessor getAllSettingsUnitProcessor;
+
+        if (unitProcessor.try_as<IGetAllUnitsConfigurationUnitProcessor>(getAllUnitsUnitProcessor))
+        {
+            cancellation.ThrowIfCancelled();
+
+            try
+            {
+                IGetAllUnitsResult allUnitsResult = getAllUnitsUnitProcessor.GetAllUnits();
+                result->Units(allUnitsResult.Units());
+                result->ResultInformation(allUnitsResult.ResultInformation());
+            }
+            catch (...)
+            {
+                ExtractUnitResultInformation(std::current_exception(), unitResult);
+            }
+
+            m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(GUID_NULL, unit, ConfigurationUnitIntent::Inform, TelemetryTraceLogger::ExportAction, result->ResultInformation());
+        }
+        else if (unitProcessor.try_as<IGetAllSettingsConfigurationUnitProcessor>(getAllSettingsUnitProcessor))
+        {
+            cancellation.ThrowIfCancelled();
+
+            try
+            {
+                IGetAllSettingsResult allSettingsResult = getAllSettingsUnitProcessor.GetAllSettings();
+
+                auto allSettings = allSettingsResult.Settings();
+                if (allSettings)
+                {
+                    std::vector<Configuration::ConfigurationUnit> units;
+
+                    size_t index = 0;
+                    auto currentType = unit.Type();
+                    auto currentDetails = unit.Details();
+
+                    for (const auto& settings : allSettings)
+                    {
+                        auto newUnit = make_self<implementation::ConfigurationUnit>();
+
+                        newUnit->Type(currentType);
+                        newUnit->Settings(settings);
+                        newUnit->Details(currentDetails);
+
+                        std::wostringstream identifierStream;
+                        identifierStream << static_cast<std::wstring_view>(currentType) << L'-' << index++;
+                        newUnit->Identifier(hstring{ identifierStream.str() });
+
+                        units.push_back(*newUnit);
+                    }
+
+                    result->Units(single_threaded_vector(std::move(units)));
+                }
+
+                result->ResultInformation(allSettingsResult.ResultInformation());
+            }
+            catch (...)
+            {
+                ExtractUnitResultInformation(std::current_exception(), unitResult);
+            }
+
+            m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(GUID_NULL, unit, ConfigurationUnitIntent::Inform, TelemetryTraceLogger::ExportAction, result->ResultInformation());
+        }
+        else
+        {
+            AICLI_LOG(Config, Error, << "Unit Processor does not support GetAllUnits or GetAllSettings operation");
             unitResult->Initialize(WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR, hstring{});
         }
 

@@ -63,7 +63,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Dependencies(std::vector<hstring>&& value);
-        void Details(IConfigurationUnitProcessorDetails&& details);
+        void Details(IConfigurationUnitProcessorDetails details);
         void Units(std::vector<Configuration::ConfigurationUnit>&& value);
 
     private:

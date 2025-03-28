@@ -5,6 +5,7 @@
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
 #include "DscTestFileResource.h"
+#include "DscTestJsonResource.h"
 #endif
 
 namespace AppInstaller::CLI
@@ -14,6 +15,7 @@ namespace AppInstaller::CLI
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
 #ifndef AICLI_DISABLE_TEST_HOOKS
             std::make_unique<DscTestFileResource>(FullName()),
+            std::make_unique<DscTestJsonResource>(FullName()),
 #endif
         });
     }
