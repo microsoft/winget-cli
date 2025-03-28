@@ -116,9 +116,6 @@
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <Link>
-      <CETCompat Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</CETCompat>
-    </Link>
-    <Link>
       <CETCompat Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</CETCompat>
     </Link>
   </ItemDefinitionGroup>
@@ -157,7 +154,6 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
-      <CETCompat Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</CETCompat>
       <CETCompat Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</CETCompat>
       <CETCompat Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</CETCompat>
     </Link>
