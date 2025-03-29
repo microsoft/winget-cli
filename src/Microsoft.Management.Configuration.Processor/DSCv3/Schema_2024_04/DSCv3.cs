@@ -138,6 +138,20 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             return SetFullItem.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution, Exceptions.InvokeDscResourceException.Set, unitInternal.QualifiedName), GetDefaultJsonOptions());
         }
 
+        /// <inheritdoc />
+        public List<IResourceListItem> GetAllResources()
+        {
+            ProcessExecution processExecution = new ProcessExecution()
+            {
+                ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
+                Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, ListCommand },
+            };
+
+            this.RunSynchronously(processExecution);
+
+            return GetOutputLinesAs<ResourceListItem>(processExecution).ToList<IResourceListItem>();
+        }
+
         private static void ThrowOnMultipleOutputLines(ProcessExecution processExecution, string method, string resourceName)
         {
             if (processExecution.Output.Count > 1)
@@ -238,19 +252,6 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             }
 
             return GetOptionalSingleOutputLineAs<ResourceListItem>(processExecution);
-        }
-
-        private List<ResourceListItem> GetAllResources()
-        {
-            ProcessExecution processExecution = new ProcessExecution()
-            {
-                ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
-                Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, ListCommand },
-            };
-
-            this.RunSynchronously(processExecution);
-
-            return GetOutputLinesAs<ResourceListItem>(processExecution);
         }
     }
 }

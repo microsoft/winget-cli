@@ -196,7 +196,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 
             if (result == null)
             {
-                result = new ResourceDetails(configurationUnitInternal);
+                result = new ResourceDetails(configurationUnitInternal.QualifiedName);
             }
 
             result.EnsureDetails(this, detailFlags);

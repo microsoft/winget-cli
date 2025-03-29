@@ -16,7 +16,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
     /// </summary>
     internal class ResourceDetails
     {
-        private readonly ConfigurationUnitInternal configurationUnitInternal;
+        private readonly string resourceTypeName;
 
         private object detailsUpdateLock = new object();
         private IResourceListItem? resourceListItem = null;
@@ -38,10 +38,10 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceDetails"/> class.
         /// </summary>
-        /// <param name="configurationUnitInternal">The internal configuration unit data.</param>
-        public ResourceDetails(ConfigurationUnitInternal configurationUnitInternal)
+        /// <param name="resourceTypeName">The resource type name.</param>
+        public ResourceDetails(string resourceTypeName)
         {
-            this.configurationUnitInternal = configurationUnitInternal;
+            this.resourceTypeName = resourceTypeName;
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 return null;
             }
 
-            ConfigurationUnitProcessorDetails result = new ConfigurationUnitProcessorDetails() { UnitType = this.configurationUnitInternal.QualifiedName };
+            ConfigurationUnitProcessorDetails result = new ConfigurationUnitProcessorDetails() { UnitType = this.resourceTypeName };
 
             lock (this.detailsUpdateLock)
             {
@@ -134,7 +134,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 
         private bool GetLocalDetails(ProcessorSettings processorSettings)
         {
-            IResourceListItem? resourceListItem = processorSettings.DSCv3.GetResourceByType(this.configurationUnitInternal.QualifiedName);
+            IResourceListItem? resourceListItem = processorSettings.DSCv3.GetResourceByType(this.resourceTypeName);
 
             if (resourceListItem != null)
             {

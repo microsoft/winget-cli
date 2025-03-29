@@ -6,6 +6,7 @@
 
 namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
 {
+    using System.Collections.Generic;
     using Microsoft.Management.Configuration.Processor.DSCv3.Helpers;
     using Microsoft.Management.Configuration.Processor.Helpers;
 
@@ -31,6 +32,12 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
         /// <param name="resourceType">The type name of the resource.</param>
         /// <returns>A single resource item.</returns>
         public IResourceListItem? GetResourceByType(string resourceType);
+
+        /// <summary>
+        /// Gets all resource items.
+        /// </summary>
+        /// <returns>A list of resource items.</returns>
+        public List<IResourceListItem> GetAllResources();
 
         /// <summary>
         /// Tests a configuration unit.

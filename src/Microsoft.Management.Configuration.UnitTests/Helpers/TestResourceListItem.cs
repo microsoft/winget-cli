@@ -42,5 +42,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// Gets or sets the author.
         /// </summary>
         public string? Author { get; set; }
+
+        /// <summary>
+        /// Gets or sets the path.
+        /// </summary>
+        public string? Path { get; set; }
     }
 }

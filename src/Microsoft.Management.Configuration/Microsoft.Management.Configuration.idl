@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Configuration
 {
-    [contractversion(3)]
+    [contractversion(4)]
     apicontract Contract{};
 
     // The current state of a configuration set.

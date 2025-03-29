@@ -9,6 +9,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     using Microsoft.Management.Configuration.Processor.DSCv3.Helpers;
     using Microsoft.Management.Configuration.Processor.DSCv3.Model;
     using Microsoft.Management.Configuration.Processor.Helpers;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Implements IDSCv3 for tests.
@@ -83,6 +84,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// </summary>
         public TestResourceDelegateType? TestResourceDelegate { get; set; }
 
+        /// <summary>
+        /// Gets or sets the TestResource delegate.
+        /// </summary>
+        public List<IResourceListItem>? GetAllResourcesResult { get; set; }
+
         /// <inheritdoc/>
         public IResourceListItem? GetResourceByType(string resourceType)
         {
@@ -105,6 +111,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal)
         {
             return this.TestResourceResult ?? this.TestResourceDelegate?.Invoke(unitInternal) ?? throw new System.NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public List<IResourceListItem> GetAllResources()
+        {
+            return this.GetAllResourcesResult ?? throw new System.NotImplementedException();
         }
     }
 }
