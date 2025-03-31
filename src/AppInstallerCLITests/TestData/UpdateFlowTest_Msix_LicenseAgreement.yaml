@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.1.0.schema.json
 # Similar content to UpdateFlowTest_Msix.yaml but with Agreements
 PackageIdentifier: AppInstallerCliTest.TestMsixInstaller
 PackageVersion: 2.0.0.0

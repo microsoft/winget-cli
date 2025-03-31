@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.4.0.schema.json
 # Bad manifest. Installer type zip should have exactly one NestedInstaller specified.
 PackageIdentifier: microsoft.msixsdk
 PackageVersion: 1.0.0.0

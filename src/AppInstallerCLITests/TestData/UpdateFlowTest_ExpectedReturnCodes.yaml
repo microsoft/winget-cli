@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.2.0.schema.json
 # Same content with InstallFlowTest_ExpectedReturnCodes.yaml but with higher version
 PackageIdentifier: AppInstallerCliTest.ExpectedReturnCodes
 PackageVersion: 2.0.0.0

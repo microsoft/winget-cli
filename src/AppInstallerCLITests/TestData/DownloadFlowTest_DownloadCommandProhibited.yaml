@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.6.0.schema.json
 PackageIdentifier: AppInstallerCliTest.DownloadCommandProhibited
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
@@ -6,7 +7,7 @@ Publisher: Microsoft Corporation
 AppMoniker: AICLITestDownloadCommandProhibited
 License: Test
 DownloadCommandProhibited: true
-Installers: 
+Installers:
     - Architecture: x86
       InstallerUrl: https://ThisIsNotUsed
       InstallerType: exe
