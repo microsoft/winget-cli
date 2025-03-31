@@ -61,7 +61,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Unit
         /// <inheritdoc />
         protected override IList<ValueSet>? GetAllSettingsInternal()
         {
-            var exportResult = this.processorSettings.DSCv3.ExportResource(this.UnitInternal, this);
+            var exportResult = this.processorSettings.DSCv3.ExportResource(this.UnitInternal);
 
             string expectedType = this.UnitInternal.QualifiedName.ToLowerInvariant();
             List<ValueSet> result = new List<ValueSet>();
@@ -82,7 +82,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Unit
         /// <inheritdoc />
         protected override IList<ConfigurationUnit>? GetAllUnitsInternal()
         {
-            var exportResult = this.processorSettings.DSCv3.ExportResource(this.UnitInternal, this);
+            var exportResult = this.processorSettings.DSCv3.ExportResource(this.UnitInternal);
 
             List<ConfigurationUnit> result = new List<ConfigurationUnit>();
 
