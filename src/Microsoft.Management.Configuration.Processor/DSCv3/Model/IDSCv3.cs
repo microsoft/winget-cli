@@ -6,6 +6,7 @@
 
 namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
 {
+    using System.Collections.Generic;
     using Microsoft.Management.Configuration.Processor.DSCv3.Helpers;
     using Microsoft.Management.Configuration.Processor.Helpers;
 
@@ -52,5 +53,13 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
         /// <param name="unitInternal">The unit to set.</param>
         /// <returns>A set result.</returns>
         public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal);
+
+        /// <summary>
+        /// Exports configuration unit.
+        /// </summary>
+        /// <param name="unitInternal">The unit to export.</param>
+        /// <param name="diagnosticsSink">The diagnostics sink if provided.</param>
+        /// <returns>A list of export results.</returns>
+        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal);
     }
 }

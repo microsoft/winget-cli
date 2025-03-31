@@ -244,6 +244,8 @@ namespace AppInstaller::CLI::Workflow
 
     void PortableInstallImpl(Execution::Context& context)
     {
+        OperationType installType = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate) ? OperationType::Upgrade : OperationType::Install;
+        
         PortableInstaller& portableInstaller = context.Get<Execution::Data::PortableInstaller>();
         try
         {
@@ -266,7 +268,7 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            portableInstaller.Install();
+            portableInstaller.Install(installType);
             context.Add<Execution::Data::OperationReturnCode>(ERROR_SUCCESS);
             context.Reporter.Warn() << portableInstaller.GetOutputMessage();
         }

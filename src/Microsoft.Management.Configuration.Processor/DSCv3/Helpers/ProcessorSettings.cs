@@ -110,7 +110,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// <summary>
         /// Gets or sets a value indicating whether the processor should produce more verbose output.
         /// </summary>
-        public bool DiagnosticTraceLevel { get; set; } = false;
+        public bool DiagnosticTraceEnabled { get; set; } = false;
 
         /// <summary>
         /// Find the DSC v3 executable.
@@ -143,7 +143,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             result.resourceDetailsDictionary = this.resourceDetailsDictionary;
             result.DiagnosticsSink = this.DiagnosticsSink;
             result.DscExecutablePath = this.DscExecutablePath;
-            result.DiagnosticTraceLevel = this.DiagnosticTraceLevel;
+            result.DiagnosticTraceEnabled = this.DiagnosticTraceEnabled;
 #if !AICLI_DISABLE_TEST_HOOKS
             result.dscV3 = this.DSCv3;
 #endif
@@ -163,7 +163,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             sb.AppendLine(this.EffectiveDscExecutablePath);
 
             sb.Append("DiagnosticTraceLevel: ");
-            sb.Append(this.DiagnosticTraceLevel);
+            sb.Append(this.DiagnosticTraceEnabled);
 
             return sb.ToString();
         }
