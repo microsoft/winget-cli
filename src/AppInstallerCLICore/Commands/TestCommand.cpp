@@ -6,6 +6,12 @@
 
 #include "TestCommand.h"
 #include "AppInstallerRuntime.h"
+#include "Public/ConfigurationSetProcessorFactoryRemoting.h"
+#include "Workflows/ConfigurationFlow.h"
+#include <winrt/Microsoft.Management.Configuration.h>
+
+using namespace AppInstaller::CLI::Workflow;
+using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI
 {
@@ -70,12 +76,78 @@ namespace AppInstaller::CLI
 
             return hr;
         }
+
+        void EnsureDSCv3Processor(Execution::Context& context)
+        {
+            auto& configurationSet = context.Get<Execution::Data::ConfigurationContext>().Set();
+            configurationSet.Environment().ProcessorIdentifier(L"dscv3");
+        }
+
+        void InvokeGetAllUnits(Execution::Context& context)
+        {
+            auto& configurationContext = context.Get<Execution::Data::ConfigurationContext>();
+
+            winrt::Microsoft::Management::Configuration::ConfigurationUnit unit;
+            unit.Type(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::ConfigurationExportResource)));
+
+            auto result = configurationContext.Processor().GetAllUnits(unit);
+
+            if (FAILED(result.ResultInformation().ResultCode()))
+            {
+                context.Reporter.Error() << "Failed to export: " << WINGET_OSTREAM_FORMAT_HRESULT(result.ResultInformation().ResultCode()) << std::endl;
+                AICLI_TERMINATE_CONTEXT(result.ResultInformation().ResultCode());
+            }
+
+            for (const auto& resultUnit : result.Units())
+            {
+                configurationContext.Set().Units().Append(resultUnit);
+            }
+        }
+
+        // Command to directly invoke the export flow.
+        struct TestConfigurationExportCommand final : public Command
+        {
+            TestConfigurationExportCommand(std::string_view parent) : Command("config-export-units", {}, parent) {}
+
+            std::vector<Argument> GetArguments() const override
+            {
+                return {
+                    Argument{ Execution::Args::Type::OutputFile, Resource::String::OutputFileArgumentDescription, true },
+                    Argument{ Execution::Args::Type::ConfigurationExportResource, Resource::String::ConfigureExportResource },
+                };
+            }
+
+            Resource::LocString ShortDescription() const override
+            {
+                return "Run config export"_lis;
+            }
+
+            Resource::LocString LongDescription() const override
+            {
+                return "Runs the GetAllUnits configuration method to test export on a DSC v3 directly."_lis;
+            }
+
+        protected:
+            void ExecuteInternal(Execution::Context& context) const override
+            {
+                context <<
+                    VerifyIsFullPackage <<
+                    CreateConfigurationProcessorWithoutFactory <<
+                    CreateOrOpenConfigurationSet{ "0.3" } <<
+                    EnsureDSCv3Processor <<
+                    CreateConfigurationProcessor <<
+                    InvokeGetAllUnits <<
+                    WriteConfigFile;
+            }
+        };
     }
 
     std::vector<std::unique_ptr<Command>> TestCommand::GetCommands() const
     {
-        return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
-            std::make_unique<TestAppShutdownCommand>(FullName()),
+        return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>(
+            {
+                std::make_unique<TestAppShutdownCommand>(FullName()),
+                std::make_unique<TestConfigurationExportCommand>(FullName()),
             });
     }
 

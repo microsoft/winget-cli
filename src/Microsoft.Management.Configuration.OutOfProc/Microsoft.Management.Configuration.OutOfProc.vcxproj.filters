@@ -54,4 +54,7 @@
     <None Include="Collect-ConfigurationOOPTests.ps1" />
     <None Include="Prepare-ConfigurationOOPTests.ps1" />
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
+  </ItemGroup>
 </Project>
