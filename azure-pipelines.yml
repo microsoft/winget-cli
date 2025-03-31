@@ -353,7 +353,7 @@ jobs:
 
   # TODO: Repair-WinGetPackageManager will fail because it tries to install x64 for an x86 build machine.
   # Remove manual installation of VCLibs (x64) once this is fixed.
-  - powershell: |
+  - pwsh: |
       if ("$(buildPlatform)" -eq "x86") {
         iwr https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx -OutFile Microsoft.VCLibs.x64.appx
         Add-AppxPackage Microsoft.VCLibs.x64.appx
@@ -365,20 +365,20 @@ jobs:
     displayName: Install Sysinternals PsTools Using Winget
     condition: succeededOrFailed()
 
-  - powershell: |
+  - pwsh: |
       $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
       PsExec -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
     displayName: Run Unit Tests Unpackaged Under System Context
     workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
     condition: succeededOrFailed()
 
-  - powershell: |
+  - pwsh: |
       Uninstall-WinGetPackage -Id Microsoft.Sysinternals.PsTools -Source winget
     displayName: Clean up Sysinternals PsTools
     condition: succeededOrFailed()
 
     # Install DSC v3 until the DSC v3 processor handles that on its own
-  - powershell: |
+  - pwsh: |
       $installResult = Install-WinGetPackage -Id Microsoft.DSC.Preview -Source winget -InstallerType Msix -Version 3.1.1
       $installResult | Format-List
       if ($installResult.ExtendedErrorCode) { throw $installResult.ExtendedErrorCode }

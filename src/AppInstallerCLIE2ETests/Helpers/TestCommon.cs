@@ -806,6 +806,8 @@ namespace AppInstallerCLIE2ETests.Helpers
                 isPresent = e2eModule.Any();
             }
 
+            TestContext.Out.WriteLine($"EnsureModuleState: {moduleName}[present:{present}] => isPresent:{isPresent}");
+
             if (isPresent)
             {
                 // If the module was saved in a different location we can't Uninstall-Module.
@@ -819,6 +821,7 @@ namespace AppInstallerCLIE2ETests.Helpers
 
                     if (!present)
                     {
+                        TestContext.Out.WriteLine($"EnsureModuleState: Removing {moduleName} to match present=false");
                         Directory.Delete(moduleBase, true);
                     }
                     else
@@ -827,6 +830,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                         var expectedLocation = TestCommon.GetExpectedModulePath(location);
                         if (!moduleBase.StartsWith(expectedLocation))
                         {
+                            TestContext.Out.WriteLine($"EnsureModuleState: Removing {moduleName} as it is not in the correct location");
                             Directory.Delete(moduleBase, true);
                             isPresent = false;
                         }
@@ -857,6 +861,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                         pwsh.PowerShell.AddParameter("Scope", "AllUsers");
                     }
 
+                    TestContext.Out.WriteLine($"EnsureModuleState: Installing module {moduleName} to {location}");
                     _ = pwsh.PowerShell.Invoke();
                 }
                 else
@@ -877,6 +882,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                         pwsh.PowerShell.AddParameter("Repository", repository);
                     }
 
+                    TestContext.Out.WriteLine($"EnsureModuleState: Saving module {moduleName} to {path}");
                     _ = pwsh.PowerShell.Invoke();
                 }
             }
