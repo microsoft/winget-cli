@@ -22,7 +22,7 @@ namespace Microsoft.Management.Configuration.Processor
     {
         private const string DscExecutablePathPropertyName = "DscExecutablePath";
         private const string FoundDscExecutablePathPropertyName = "FoundDscExecutablePath";
-        private const string DiagnosticTraceLevelPropertyName = "DiagnosticTraceLevel";
+        private const string DiagnosticTraceEnabledPropertyName = "DiagnosticTraceEnabled";
 
         private ProcessorSettings processorSettings = new ();
 
@@ -155,8 +155,8 @@ namespace Microsoft.Management.Configuration.Processor
                 case FoundDscExecutablePathPropertyName:
                     value = ProcessorSettings.FindDscExecutablePath() !;
                     return true;
-                case DiagnosticTraceLevelPropertyName:
-                    value = this.processorSettings.DiagnosticTraceLevel.ToString();
+                case DiagnosticTraceEnabledPropertyName:
+                    value = this.processorSettings.DiagnosticTraceEnabled.ToString();
                     return true;
             }
 
@@ -194,8 +194,8 @@ namespace Microsoft.Management.Configuration.Processor
                 case DscExecutablePathPropertyName:
                     this.DscExecutablePath = value;
                     break;
-                case DiagnosticTraceLevelPropertyName:
-                    this.processorSettings.DiagnosticTraceLevel = bool.Parse(value);
+                case DiagnosticTraceEnabledPropertyName:
+                    this.processorSettings.DiagnosticTraceEnabled = bool.Parse(value);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid property name: {name}");

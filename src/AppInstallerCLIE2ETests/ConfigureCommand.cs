@@ -30,6 +30,9 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("dscv3 test-file", $"--manifest -o {outputDirectory}\\test-file.dsc.resource.json");
             Assert.AreEqual(0, result.ExitCode);
+
+            result = TestCommon.RunAICLICommand("dscv3 test-json", $"--manifest -o {outputDirectory}\\test-json.dsc.resource.json");
+            Assert.AreEqual(0, result.ExitCode);
         }
 
         /// <summary>
@@ -303,6 +306,46 @@ namespace AppInstallerCLIE2ETests
 
             var lines = result.StdOut.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
             Assert.AreEqual(1, lines.Length);
+        }
+
+        /// <summary>
+        /// Export all with specific package id.
+        /// </summary>
+        [Test]
+        public void DSCv3_Export()
+        {
+            // Reset state
+            var result = TestCommon.RunAICLICommand("dscv3 test-json", "--delete");
+            Assert.AreEqual(0, result.ExitCode);
+
+            // Configure properties
+            string propertyName1 = "prop1";
+            string propertyName2 = "prop2";
+            string propertyValue1 = "val1";
+            string propertyValue2 = "val2";
+
+            string propertySetFormatString = "{{ \"property\": \"{0}\", \"value\": \"{1}\" }}";
+
+            result = TestCommon.RunAICLICommand("dscv3 test-json", "--set", string.Format(propertySetFormatString, propertyName1, propertyValue1));
+            Assert.AreEqual(0, result.ExitCode);
+
+            result = TestCommon.RunAICLICommand("dscv3 test-json", "--set", string.Format(propertySetFormatString, propertyName2, propertyValue2));
+            Assert.AreEqual(0, result.ExitCode);
+
+            // Export
+            var exportDir = TestCommon.GetRandomTestDir();
+            var exportFile = Path.Combine(exportDir, "exported.yml");
+
+            result = TestCommon.RunAICLICommand("test config-export-units", $"-o {exportFile} --resource Microsoft.WinGet/TestJSON --verbose");
+            Assert.AreEqual(0, result.ExitCode);
+
+            Assert.True(File.Exists(exportFile));
+            string exportText = File.ReadAllText(exportFile);
+            Assert.True(exportText.Contains("Microsoft.WinGet/TestJSON"));
+            Assert.True(exportText.Contains(propertyName1));
+            Assert.True(exportText.Contains(propertyName2));
+            Assert.True(exportText.Contains(propertyValue1));
+            Assert.True(exportText.Contains(propertyValue2));
         }
 
         private void DeleteResourceArtifacts()
