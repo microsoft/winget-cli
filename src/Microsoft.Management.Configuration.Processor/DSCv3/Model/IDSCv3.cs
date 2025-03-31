@@ -58,7 +58,6 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
         /// Exports configuration unit.
         /// </summary>
         /// <param name="unitInternal">The unit to export.</param>
-        /// <param name="diagnosticsSink">The diagnostics sink if provided.</param>
         /// <returns>A list of export results.</returns>
         public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal);
     }

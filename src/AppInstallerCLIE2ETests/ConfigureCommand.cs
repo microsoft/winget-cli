@@ -308,6 +308,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(1, lines.Length);
         }
 
+        /// <summary>
         /// Export all with specific package id.
         /// </summary>
         [Test]
