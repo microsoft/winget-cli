@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.2.0.schema.json
 # Bad manifest. Installer Type portable can only have zero or one AppsAndFeatureEntry defined.
 PackageIdentifier: TestInstaller.WithLicenseAgreement
 PackageVersion: 1.0.0.0

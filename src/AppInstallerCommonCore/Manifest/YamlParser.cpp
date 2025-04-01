@@ -480,8 +480,8 @@ namespace AppInstaller::Manifest::YamlParser
                 errors = ValidateManifest(manifest);
                 std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
 
-                // Validate the schema header for manifest version 1.10 and above
-                if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_10 })
+                // Validate the schema header for manifest version 1.7 and above
+                if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_7 })
                 {
                     // Validate the schema header.
                     errors = ValidateYamlManifestsSchemaHeader(input, manifestVersion, validateOption.SchemaHeaderValidationAsWarning);

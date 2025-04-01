@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.4.0.schema.json
 # Same content with InstallFlowTest_ZipWithExe.yaml but with higher version
 PackageIdentifier: AppInstallerCliTest.TestZipInstaller
 PackageVersion: 2.0.0.0
@@ -19,6 +20,6 @@ Installers:
         Custom: /custom /ver2.0.0.0
         SilentWithProgress: /silentwithprogress
         Silent: /silence
-        Update: /update 
+        Update: /update
 ManifestType: singleton
 ManifestVersion: 1.4.0

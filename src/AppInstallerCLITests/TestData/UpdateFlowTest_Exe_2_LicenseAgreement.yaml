@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.1.0.schema.json
 # Similar content to UpdateFlowTest_Exe_2.yaml but with Agreements
 PackageIdentifier: AppInstallerCliTest.TestExeInstaller
 PackageVersion: 3.0.0.0

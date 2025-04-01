@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.0.0.schema.json
 PackageIdentifier: AppInstallerCliTest.TestMsixInstaller.WFDep
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
@@ -6,7 +7,7 @@ Publisher: Microsoft Corporation
 Moniker: AICLITestMsixWindowsFeatureDep
 License: Test
 ShortDescription: AppInstaller Test MSIX Installer With Windows Feature Dep
-Installers: 
+Installers:
     - Architecture: x64
       InstallerUrl: https://github.com/microsoft/msix-packaging/blob/master/src/test/testData/unpack/TestAppxPackage_x64.appx?raw=true
       InstallerType: msix

@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.5.0.schema.json
 # Manifest for verifying the output of the CatalogPackageMetadata COM object.
 PackageIdentifier: AppInstallerTest.CatalogPackageMetadata
 PackageVersion: 1.0.0.0

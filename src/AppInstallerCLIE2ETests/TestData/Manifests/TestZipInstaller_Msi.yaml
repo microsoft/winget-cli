@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.4.0.schema.json
 PackageIdentifier: AppInstallerTest.TestZipInstallerWithMsi
 PackageVersion: 1.0.0.0
 PackageName: TestZipInstallerWithMsi

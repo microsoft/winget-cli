@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.7.0.schema.json
 # Uses the MSI installer;
 PackageIdentifier: AppInstallerTest.TestMsiRepair
 PackageVersion: 2.0.0.0
