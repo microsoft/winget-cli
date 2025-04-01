@@ -609,7 +609,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::PackageRequiresDependencies) <<
             Workflow::CreateDependencySubContexts(Resource::String::PackageRequiresDependencies) <<
-            Workflow::ProcessMultiplePackages(Resource::String::PackageRequiresDependencies, APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES, {}, true, true, true, false);
+            Workflow::ProcessMultiplePackages(Resource::String::PackageRequiresDependencies, APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES, {}, true, true, true, false, true);
     }
 
     void InstallSinglePackage(Execution::Context& context)
@@ -682,7 +682,7 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        bool downloadInstallerOnly = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
+        bool downloadInstallerOnly = m_downloadOnly ? true : WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
 
         // Show all prompts needed for every package before installing anything
         context << Workflow::ShowPromptsForMultiplePackages(m_ensurePackageAgreements, downloadInstallerOnly);
