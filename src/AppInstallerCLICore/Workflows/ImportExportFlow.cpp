@@ -319,9 +319,9 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::Dependencies>(allDependencies);
 
         context <<
-            Workflow::ReportDependencies(Resource::String::ImportCommandReportDependencies) <<
-            Workflow::ProcessMultiplePackages(
-                Resource::String::ImportCommandReportDependencies, APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED, {}, true, true);
+            ReportDependencies(Resource::String::ImportCommandReportDependencies) <<
+            ProcessMultiplePackages(
+                Resource::String::ImportCommandReportDependencies, APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED, ProcessMultiplePackages::Flags::IgnoreDependencies);
 
         if (context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED)
         {
