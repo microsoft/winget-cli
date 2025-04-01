@@ -353,7 +353,7 @@ jobs:
 
   # TODO: Repair-WinGetPackageManager will fail because it tries to install x64 for an x86 build machine.
   # Remove manual installation of VCLibs (x64) once this is fixed.
-  - pwsh: |
+  - powershell: |
       if ("$(buildPlatform)" -eq "x86") {
         iwr https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx -OutFile Microsoft.VCLibs.x64.appx
         Add-AppxPackage Microsoft.VCLibs.x64.appx
@@ -372,13 +372,13 @@ jobs:
     workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
     condition: succeededOrFailed()
 
-  - pwsh: |
+  - powershell: |
       Uninstall-WinGetPackage -Id Microsoft.Sysinternals.PsTools -Source winget
     displayName: Clean up Sysinternals PsTools
     condition: succeededOrFailed()
 
     # Install DSC v3 until the DSC v3 processor handles that on its own
-  - pwsh: |
+  - powershell: |
       $installResult = Install-WinGetPackage -Id Microsoft.DSC.Preview -Source winget -InstallerType Msix -Version 3.1.1
       $installResult | Format-List
       if ($installResult.ExtendedErrorCode) { throw $installResult.ExtendedErrorCode }
