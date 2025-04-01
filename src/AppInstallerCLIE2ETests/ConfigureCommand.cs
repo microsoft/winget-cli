@@ -365,7 +365,7 @@ namespace AppInstallerCLIE2ETests
             FileAssert.Exists(targetFilePath);
             Assert.AreEqual("Contents!", File.ReadAllText(targetFilePath));
         }
-        
+
         private void DeleteResourceArtifacts()
         {
             // Delete all .txt files in the test directory; they are placed there by the tests
