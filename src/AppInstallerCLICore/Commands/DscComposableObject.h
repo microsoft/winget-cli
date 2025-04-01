@@ -6,6 +6,8 @@
 #include <AppInstallerLogging.h>
 #include <json/json.h>
 #include <optional>
+#include <string>
+#include <vector>
 
 using namespace std::string_view_literals;
 
@@ -33,7 +35,14 @@ namespace AppInstaller::CLI
         Json::Value GetBaseSchema(const std::string& title);
 
         // Adds a property to the schema object.
-        void AddPropertySchema(Json::Value& object, std::string_view name, DscComposablePropertyFlag flags, std::string_view type, std::string_view description);
+        void AddPropertySchema(
+            Json::Value& object,
+            std::string_view name,
+            DscComposablePropertyFlag flags,
+            std::string_view type,
+            std::string_view description,
+            const std::vector<std::string>& enumValues,
+            const std::optional<std::string>& defaultValue);
     }
 
     template <typename PropertyType>
@@ -135,7 +144,7 @@ namespace AppInstaller::CLI
         static Json::Value Schema(const std::string& title)
         {
             Json::Value result = details::GetBaseSchema(title);
-            (FoldHelper{}, ..., details::AddPropertySchema(result, Property::Name(), Property::Flags, GetJsonTypeValue<typename Property::Type>::SchemaTypeName(), Property::Description()));
+            (FoldHelper{}, ..., details::AddPropertySchema(result, Property::Name(), Property::Flags, GetJsonTypeValue<typename Property::Type>::SchemaTypeName(), Property::Description(), Property::EnumValues(), Property::Default()));
             return result;
         }
     };
@@ -190,23 +199,31 @@ namespace AppInstaller::CLI
         std::optional<Type> m_value;
     };
 
-#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL_START(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_) \
+#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL_START(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_, _enum_vals_, _default_) \
     struct _property_type_ : public DscComposableProperty<_property_type_, _value_type_, _flags_> \
     { \
         static std::string_view Name() { return _json_name_; } \
         static std::string_view Description() { return _description_; } \
+        static std::vector<Type> EnumValues() { return std::vector<Type> _enum_vals_; } \
+        static std::optional<Type> Default() { return _default_; } \
         std::optional<Type>& _property_name_() { return m_value; } \
         const std::optional<Type>& _property_name_() const { return m_value; } \
         void _property_name_(std::optional<Type> value) { m_value = std::move(value); } \
 
-#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_) \
-    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL_START(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_) \
+#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_, _enum_vals_, _default_) \
+    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL_START(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_, _enum_vals_, _default_) \
     };
 
-#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(_property_type_, _value_type_, _property_name_, _json_name_, _description_) WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, DscComposablePropertyFlag::None, _description_)
-#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_) WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_)
+#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(_property_type_, _value_type_, _property_name_, _json_name_, _description_) \
+    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, DscComposablePropertyFlag::None, _description_, {}, {})
 
-    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL_START(StandardExistProperty, bool, Exist, "_exist", DscComposablePropertyFlag::None, "Indicates whether an instance should/does exist.")
+#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_) \
+    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_, {}, {})
+
+#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(_property_type_, _value_type_, _property_name_, _json_name_, _description_, _enum_vals_, _default_) \
+    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, DscComposablePropertyFlag::None, _description_, _enum_vals_, _default_)
+
+    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL_START(StandardExistProperty, bool, Exist, "_exist", DscComposablePropertyFlag::None, "Indicates whether an instance should/does exist.", {}, {})
         bool ShouldExist() { return m_value.value_or(true); }
     };
 

@@ -212,6 +212,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(Downloading);
         WINGET_DEFINE_RESOURCE_STRINGID(DscCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(DscCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscPackageResourceShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscPackageResourceLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourceFunctionDescriptionGet);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourceFunctionDescriptionSet);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourceFunctionDescriptionWhatIf);

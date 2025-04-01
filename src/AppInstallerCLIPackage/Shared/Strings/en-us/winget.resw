@@ -3247,4 +3247,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="DscResourceFunctionDescriptionManifest" xml:space="preserve">
     <value>Get the resource manifest</value>
   </data>
+  <data name="DscPackageResourceShortDescription" xml:space="preserve">
+    <value>Manage package state</value>
+  </data>
+  <data name="DscPackageResourceLongDescription" xml:space="preserve">
+    <value>Allows management of package state via the DSC v3 command line interface protocol. See the help link for details.</value>
+  </data>
 </root>

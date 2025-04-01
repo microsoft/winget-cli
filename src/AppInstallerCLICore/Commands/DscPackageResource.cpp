@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "DscTestFileResource.h"
+#include "DscPackageResource.h"
 #include "DscComposableObject.h"
+#include "Resources.h"
 
 using namespace AppInstaller::Utility::literals;
 
@@ -10,22 +11,21 @@ namespace AppInstaller::CLI
 {
     namespace
     {
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(PathProperty, std::string, Path, "path", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, "The absolute path to a file.");
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(ContentProperty, std::string, Content, "content", "The content of the file.");
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(IdProperty, std::string, Identifier, "id", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, "The identifier of the package.");
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SourceProperty, std::string, Source, "source", DscComposablePropertyFlag::CopyToOutput, "The source of the package.");
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(VersionProperty, std::string, Version, "version", "The version of the package.");
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(MatchOptionProperty, std::string, MatchOption, "matchOption", "The method for matching the identifier with a package.", ({ "equals", "equalsCaseInsensitive", "startsWithCaseInsensitive", "containsCaseInsensitive" }), "equalsCaseInsensitive");
 
-        using TestFileObject = DscComposableObject<StandardExistProperty, StandardInDesiredStateProperty, PathProperty, ContentProperty>;
+        using PackageResourceObject = DscComposableObject<StandardExistProperty, StandardInDesiredStateProperty, IdProperty, SourceProperty>;
 
-        struct TestFileFunctionData
+        struct PackageFunctionData
         {
-            TestFileFunctionData(const std::optional<Json::Value>& json) : Input(json), Output(Input.CopyForOutput())
+            PackageFunctionData(const std::optional<Json::Value>& json) : Input(json), Output(Input.CopyForOutput())
             {
-                Path = Utility::ConvertToUTF16(Input.Path().value());
-                THROW_HR_IF(E_INVALIDARG, !Path.is_absolute());
             }
 
-            TestFileObject Input;
-            TestFileObject Output;
-            std::filesystem::path Path;
+            PackageResourceObject Input;
+            PackageResourceObject Output;
 
             // Fills the Output object with the current state
             void Get()
@@ -101,33 +101,33 @@ namespace AppInstaller::CLI
         };
     }
 
-    DscTestFileResource::DscTestFileResource(std::string_view parent) :
-        DscCommandBase(parent, "test-file", DscResourceKind::Resource,
-            DscFunctions::Get | DscFunctions::Set | DscFunctions::Test | DscFunctions::Export | DscFunctions::Schema,
+    DscPackageResource::DscPackageResource(std::string_view parent) :
+        DscCommandBase(parent, "package", DscResourceKind::Resource,
+            DscFunctions::Get | DscFunctions::Set | DscFunctions::WhatIf | DscFunctions::Test | DscFunctions::Export | DscFunctions::Schema,
             DscFunctionModifiers::ImplementsPretest | DscFunctionModifiers::HandlesExist | DscFunctionModifiers::ReturnsStateAndDiff)
     {
     }
 
-    Resource::LocString DscTestFileResource::ShortDescription() const
+    Resource::LocString DscPackageResource::ShortDescription() const
     {
-        return "[TEST] File content resource"_lis;
+        return Resource::String::DscPackageResourceShortDescription;
     }
 
-    Resource::LocString DscTestFileResource::LongDescription() const
+    Resource::LocString DscPackageResource::LongDescription() const
     {
-        return "[TEST] This resource is only available for tests. It provides file content configuration."_lis;
+        return Resource::String::DscPackageResourceLongDescription;
     }
 
-    std::string DscTestFileResource::ResourceType() const
+    std::string DscPackageResource::ResourceType() const
     {
-        return "TestFile";
+        return "Package";
     }
 
-    void DscTestFileResource::ResourceFunctionGet(Execution::Context& context) const
+    void DscPackageResource::ResourceFunctionGet(Execution::Context& context) const
     {
         if (auto json = GetJsonFromInput(context))
         {
-            TestFileFunctionData data{ json };
+            anon::TestFileFunctionData data{ json };
 
             data.Get();
 
@@ -135,11 +135,11 @@ namespace AppInstaller::CLI
         }
     }
 
-    void DscTestFileResource::ResourceFunctionSet(Execution::Context& context) const
+    void DscPackageResource::ResourceFunctionSet(Execution::Context& context) const
     {
         if (auto json = GetJsonFromInput(context))
         {
-            TestFileFunctionData data{ json };
+            anon::TestFileFunctionData data{ json };
 
             data.Get();
 
@@ -182,11 +182,11 @@ namespace AppInstaller::CLI
         }
     }
 
-    void DscTestFileResource::ResourceFunctionTest(Execution::Context& context) const
+    void DscPackageResource::ResourceFunctionTest(Execution::Context& context) const
     {
         if (auto json = GetJsonFromInput(context))
         {
-            TestFileFunctionData data{ json };
+            anon::TestFileFunctionData data{ json };
 
             data.Get();
             data.Output.InDesiredState(data.Test());
@@ -196,11 +196,11 @@ namespace AppInstaller::CLI
         }
     }
 
-    void DscTestFileResource::ResourceFunctionExport(Execution::Context& context) const
+    void DscPackageResource::ResourceFunctionExport(Execution::Context& context) const
     {
         if (auto json = GetJsonFromInput(context))
         {
-            TestFileFunctionData data{ json };
+            anon::TestFileFunctionData data{ json };
 
             if (std::filesystem::exists(data.Path))
             {
@@ -215,7 +215,7 @@ namespace AppInstaller::CLI
                     {
                         if (std::filesystem::is_regular_file(file))
                         {
-                            TestFileObject output;
+                            anon::TestFileObject output;
                             output.Path(file.path().u8string());
 
                             std::ifstream stream{ file.path(), std::ios::binary};
@@ -229,8 +229,8 @@ namespace AppInstaller::CLI
         }
     }
 
-    void DscTestFileResource::ResourceFunctionSchema(Execution::Context& context) const
+    void DscPackageResource::ResourceFunctionSchema(Execution::Context& context) const
     {
-        WriteJsonOutputLine(context, TestFileObject::Schema(ResourceType()));
+        WriteJsonOutputLine(context, anon::TestFileObject::Schema(ResourceType()));
     }
 }
