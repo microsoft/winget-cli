@@ -4,6 +4,7 @@
 #include "DscPackageResource.h"
 #include "DscComposableObject.h"
 #include "Resources.h"
+#include "Workflows/WorkflowBase.h"
 
 using namespace AppInstaller::Utility::literals;
 
@@ -11,28 +12,47 @@ namespace AppInstaller::CLI
 {
     namespace
     {
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(IdProperty, std::string, Identifier, "id", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, "The identifier of the package.");
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SourceProperty, std::string, Source, "source", DscComposablePropertyFlag::CopyToOutput, "The source of the package.");
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(VersionProperty, std::string, Version, "version", "The version of the package.");
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(MatchOptionProperty, std::string, MatchOption, "matchOption", "The method for matching the identifier with a package.", ({ "equals", "equalsCaseInsensitive", "startsWithCaseInsensitive", "containsCaseInsensitive" }), "equalsCaseInsensitive");
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_DEFAULT(UseLatestProperty, bool, UseLatest, "useLatest", "Indicate that the latest available version of the package should be installed.", "false");
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(InstallModeProperty, std::string, InstallMode, "installMode", "The install mode to use if needed.", ({ "default", "silent", "interactive" }), "silent");
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(IdProperty, std::string, Identifier, "id", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageId);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SourceProperty, std::string, Source, "source", DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageSource);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(VersionProperty, std::string, Version, "version", Resource::String::DscResourcePropertyDescriptionPackageVersion);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(MatchOptionProperty, std::string, MatchOption, "matchOption", Resource::String::DscResourcePropertyDescriptionPackageMatchOption, ({ "equals", "equalsCaseInsensitive", "startsWithCaseInsensitive", "containsCaseInsensitive" }), "equalsCaseInsensitive");
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_DEFAULT(UseLatestProperty, bool, UseLatest, "useLatest", Resource::String::DscResourcePropertyDescriptionPackageUseLatest, "false");
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(InstallModeProperty, std::string, InstallMode, "installMode", Resource::String::DscResourcePropertyDescriptionPackageInstallMode, ({ "default", "silent", "interactive" }), "silent");
 
         using PackageResourceObject = DscComposableObject<StandardExistProperty, StandardInDesiredStateProperty, IdProperty, SourceProperty, VersionProperty, MatchOptionProperty, UseLatestProperty, InstallModeProperty>;
 
         struct PackageFunctionData
         {
-            PackageFunctionData(const std::optional<Json::Value>& json) : Input(json), Output(Input.CopyForOutput())
+            PackageFunctionData(Execution::Context& context, const std::optional<Json::Value>& json) :
+                Input(json),
+                Output(Input.CopyForOutput()),
+                ParentContext(context),
+                SubContext(context.CreateSubContext())
             {
+                SubContext->SetFlags(Execution::ContextFlag::DisableInteractivity);
             }
 
             PackageResourceObject Input;
             PackageResourceObject Output;
+            Execution::Context& ParentContext;
+            std::unique_ptr<Execution::Context> SubContext;
 
             // Fills the Output object with the current state
             void Get()
             {
-                THROW_HR(E_NOTIMPL);
+                if (Input.Source())
+                {
+                    SubContext->Args.AddArg(Execution::Args::Type::Source, Input.Source().value());
+                }
+
+                *SubContext <<
+                    Workflow::OpenSource() <<
+                    Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(*SubContext));
+
+                if (SubContext->IsTerminated())
+                {
+                    ParentContext.Terminate(SubContext->GetTerminationHR());
+                }
             }
 
             // Determines if the current Output values match the Input values state.

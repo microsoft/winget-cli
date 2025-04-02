@@ -11,8 +11,8 @@ namespace AppInstaller::CLI
 {
     namespace
     {
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(PropertyProperty, std::string, Property, "property", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, "The JSON property name.");
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(ValueProperty, Json::Value, Value, "value", "The value for the JSON property.");
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(PropertyProperty, std::string, Property, "property", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, "The JSON property name."_lis);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(ValueProperty, Json::Value, Value, "value", "The value for the JSON property."_lis);
 
         using TestJsonObject = DscComposableObject<StandardExistProperty, PropertyProperty, ValueProperty>;
 

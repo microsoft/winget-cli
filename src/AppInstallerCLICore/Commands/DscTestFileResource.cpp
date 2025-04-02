@@ -10,8 +10,8 @@ namespace AppInstaller::CLI
 {
     namespace
     {
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(PathProperty, std::string, Path, "path", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, "The absolute path to a file.");
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(ContentProperty, std::string, Content, "content", "The content of the file.");
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(PathProperty, std::string, Path, "path", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, "The absolute path to a file."_lis);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(ContentProperty, std::string, Content, "content", "The content of the file."_lis);
 
         using TestFileObject = DscComposableObject<StandardExistProperty, StandardInDesiredStateProperty, PathProperty, ContentProperty>;
 

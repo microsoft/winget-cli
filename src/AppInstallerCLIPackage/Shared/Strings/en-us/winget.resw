@@ -3253,4 +3253,28 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="DscPackageResourceLongDescription" xml:space="preserve">
     <value>Allows management of package state via the DSC v3 command line interface protocol. See the help link for details.</value>
   </data>
+  <data name="DscResourcePropertyDescriptionExist" xml:space="preserve">
+    <value>Indicates whether an instance should or does exist.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionInDesiredState" xml:space="preserve">
+    <value>Indicates whether an instance is in the desired state.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageId" xml:space="preserve">
+    <value>The identifier of the package.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageSource" xml:space="preserve">
+    <value>The source of the package.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageVersion" xml:space="preserve">
+    <value>The version of the package.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageMatchOption" xml:space="preserve">
+    <value>The method for matching the identifier with a package.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageUseLatest" xml:space="preserve">
+    <value>Indicate that the latest available version of the package should be installed.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageInstallMode" xml:space="preserve">
+    <value>The install mode to use if needed.</value>
+  </data>
 </root>

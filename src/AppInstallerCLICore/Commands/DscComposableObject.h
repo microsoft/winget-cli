@@ -4,12 +4,15 @@
 #include <AppInstallerErrors.h>
 #include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerLogging.h>
+#include <winget/LocIndependent.h>
+#include "Resources.h"
 #include <json/json.h>
 #include <optional>
 #include <string>
 #include <vector>
 
 using namespace std::string_view_literals;
+using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI
 {
@@ -202,7 +205,7 @@ namespace AppInstaller::CLI
     struct _property_type_ : public DscComposableProperty<_property_type_, _value_type_, _flags_> \
     { \
         static std::string_view Name() { return _json_name_; } \
-        static std::string_view Description() { return _description_; } \
+        static Resource::LocString Description() { return _description_; } \
         static std::vector<std::string> EnumValues() { return std::vector<std::string> _enum_vals_; } \
         static std::optional<std::string> Default() { return _default_; } \
         std::optional<Type>& _property_name_() { return m_value; } \
@@ -225,9 +228,9 @@ namespace AppInstaller::CLI
 #define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(_property_type_, _value_type_, _property_name_, _json_name_, _description_, _enum_vals_, _default_) \
     WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, DscComposablePropertyFlag::None, _description_, _enum_vals_, _default_)
 
-    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL_START(StandardExistProperty, bool, Exist, "_exist", DscComposablePropertyFlag::None, "Indicates whether an instance should/does exist.", {}, {})
+    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL_START(StandardExistProperty, bool, Exist, "_exist", DscComposablePropertyFlag::None, Resource::String::DscResourcePropertyDescriptionExist, {}, {})
         bool ShouldExist() { return m_value.value_or(true); }
     };
 
-    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(StandardInDesiredStateProperty, bool, InDesiredState, "_inDesiredState", "Indicates whether an instance is in the desired state.");
+    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(StandardInDesiredStateProperty, bool, InDesiredState, "_inDesiredState", Resource::String::DscResourcePropertyDescriptionInDesiredState);
 }
