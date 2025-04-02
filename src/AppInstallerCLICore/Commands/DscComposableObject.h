@@ -39,7 +39,7 @@ namespace AppInstaller::CLI
             Json::Value& object,
             std::string_view name,
             DscComposablePropertyFlag flags,
-            std::string_view type,
+            Json::ValueType type,
             std::string_view description,
             const std::vector<std::string>& enumValues,
             const std::optional<std::string>& defaultValue);
@@ -59,9 +59,9 @@ namespace AppInstaller::CLI
             return value.asBool();
         }
 
-        static std::string_view SchemaTypeName()
+        static Json::ValueType SchemaType()
         {
-            return "boolean"sv;
+            return Json::ValueType::booleanValue;
         }
     };
 
@@ -73,9 +73,9 @@ namespace AppInstaller::CLI
             return value.asString();
         }
 
-        static std::string_view SchemaTypeName()
+        static Json::ValueType SchemaType()
         {
-            return "string"sv;
+            return Json::ValueType::stringValue;
         }
     };
 
@@ -87,10 +87,9 @@ namespace AppInstaller::CLI
             return value;
         }
 
-        static std::string_view SchemaTypeName()
+        static Json::ValueType SchemaType()
         {
-            // Indicates that the schema should not set a type
-            return {};
+            return Json::ValueType::objectValue;
         }
     };
 
@@ -144,7 +143,7 @@ namespace AppInstaller::CLI
         static Json::Value Schema(const std::string& title)
         {
             Json::Value result = details::GetBaseSchema(title);
-            (FoldHelper{}, ..., details::AddPropertySchema(result, Property::Name(), Property::Flags, GetJsonTypeValue<typename Property::Type>::SchemaTypeName(), Property::Description(), Property::EnumValues(), Property::Default()));
+            (FoldHelper{}, ..., details::AddPropertySchema(result, Property::Name(), Property::Flags, GetJsonTypeValue<typename Property::Type>::SchemaType(), Property::Description(), Property::EnumValues(), Property::Default()));
             return result;
         }
     };
@@ -204,8 +203,8 @@ namespace AppInstaller::CLI
     { \
         static std::string_view Name() { return _json_name_; } \
         static std::string_view Description() { return _description_; } \
-        static std::vector<Type> EnumValues() { return std::vector<Type> _enum_vals_; } \
-        static std::optional<Type> Default() { return _default_; } \
+        static std::vector<std::string> EnumValues() { return std::vector<std::string> _enum_vals_; } \
+        static std::optional<std::string> Default() { return _default_; } \
         std::optional<Type>& _property_name_() { return m_value; } \
         const std::optional<Type>& _property_name_() const { return m_value; } \
         void _property_name_(std::optional<Type> value) { m_value = std::move(value); } \
@@ -219,6 +218,9 @@ namespace AppInstaller::CLI
 
 #define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_) \
     WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_, {}, {})
+
+#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_DEFAULT(_property_type_, _value_type_, _property_name_, _json_name_, _description_, _default_) \
+    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, DscComposablePropertyFlag::None, _description_, {}, _default_)
 
 #define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(_property_type_, _value_type_, _property_name_, _json_name_, _description_, _enum_vals_, _default_) \
     WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, DscComposablePropertyFlag::None, _description_, _enum_vals_, _default_)
