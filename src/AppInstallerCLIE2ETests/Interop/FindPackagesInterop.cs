@@ -216,5 +216,22 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual("en-GB", catalogPackageMetadata2.Locale);
             Assert.AreEqual("packageNameUK", catalogPackageMetadata2.PackageName);
         }
+
+        /// <summary>
+        /// Verifies that GetCatalogPackageMetadata returns the correct metadata based on the specified locale.
+        /// </summary>
+        [Test]
+        public void FindPackagesGetVersionMetadata()
+        {
+            var searchResult = this.FindAllPackages(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.MultipleLocale");
+            Assert.AreEqual(1, searchResult.Count);
+
+            var catalogPackage = searchResult[0].CatalogPackage;
+            var packageVersionId = catalogPackage.AvailableVersions[0];
+            var packageVersionInfo = catalogPackage.GetPackageVersionInfo(packageVersionId);
+
+            string metadata = packageVersionInfo.GetMetadata(PackageVersionMetadataField.SilentUninstallCommand);
+            Assert.IsEmpty(metadata);
+        }
     }
 }
