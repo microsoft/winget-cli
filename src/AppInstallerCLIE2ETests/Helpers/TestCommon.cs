@@ -1134,9 +1134,9 @@ namespace AppInstallerCLIE2ETests.Helpers
                     TestContext.Error.WriteLine("Command run error. Error: " + result.StdErr);
                 }
 
-                if (TestSetup.Parameters.VerboseLogging && !string.IsNullOrEmpty(result.StdOut))
+                if (TestSetup.Parameters.VerboseLogging)
                 {
-                    TestContext.Out.WriteLine("Command run output. Output:\n" + result.StdOut);
+                    TestContext.Out.WriteLine("Command run output. Output:\n" + result.StdOut ?? "<null>");
                 }
             }
             else if (throwOnTimeout)
