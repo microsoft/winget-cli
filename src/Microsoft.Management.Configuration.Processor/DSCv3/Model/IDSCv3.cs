@@ -30,40 +30,35 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
         /// Gets a single resource by its type name.
         /// </summary>
         /// <param name="resourceType">The type name of the resource.</param>
-        /// <param name="diagnosticsSink">The diagnostics sink if provided.</param>
         /// <returns>A single resource item.</returns>
-        public IResourceListItem? GetResourceByType(string resourceType, IDiagnosticsSink? diagnosticsSink = null);
+        public IResourceListItem? GetResourceByType(string resourceType);
 
         /// <summary>
         /// Tests a configuration unit.
         /// </summary>
         /// <param name="unitInternal">The unit to test.</param>
-        /// <param name="diagnosticsSink">The diagnostics sink if provided.</param>
         /// <returns>A test result.</returns>
-        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null);
+        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal);
 
         /// <summary>
         /// Gets a configuration unit settings.
         /// </summary>
         /// <param name="unitInternal">The unit to get.</param>
-        /// <param name="diagnosticsSink">The diagnostics sink if provided.</param>
         /// <returns>A get result.</returns>
-        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null);
+        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal);
 
         /// <summary>
         /// Sets a configuration unit settings.
         /// </summary>
         /// <param name="unitInternal">The unit to set.</param>
-        /// <param name="diagnosticsSink">The diagnostics sink if provided.</param>
         /// <returns>A set result.</returns>
-        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null);
+        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal);
 
         /// <summary>
         /// Exports configuration unit.
         /// </summary>
         /// <param name="unitInternal">The unit to export.</param>
-        /// <param name="diagnosticsSink">The diagnostics sink if provided.</param>
         /// <returns>A list of export results.</returns>
-        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null);
+        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal);
     }
 }

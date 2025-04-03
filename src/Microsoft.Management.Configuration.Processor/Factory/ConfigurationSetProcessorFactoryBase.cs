@@ -9,12 +9,13 @@ namespace Microsoft.Management.Configuration.Processor.Factory
     using System;
     using System.Runtime.CompilerServices;
     using Microsoft.Management.Configuration;
+    using Microsoft.Management.Configuration.Processor.DSCv3.Helpers;
     using Microsoft.Management.Configuration.Processor.Set;
 
     /// <summary>
     /// IConfigurationSetProcessorFactory base implementation.
     /// </summary>
-    internal abstract partial class ConfigurationSetProcessorFactoryBase
+    internal abstract partial class ConfigurationSetProcessorFactoryBase : IDiagnosticsSink
     {
         private bool isCreateProcessorInvoked = false;
 
@@ -94,6 +95,12 @@ namespace Microsoft.Management.Configuration.Processor.Factory
                 this.OnDiagnostics(DiagnosticLevel.Error, ex.ToString());
                 throw;
             }
+        }
+
+        /// <inheritdoc />
+        void IDiagnosticsSink.OnDiagnostics(DiagnosticLevel level, string message)
+        {
+            this.OnDiagnostics(level, message);
         }
 
         /// <summary>
