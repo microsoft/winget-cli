@@ -230,9 +230,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageId);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageSource);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageScope);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageMatchOption);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageUseLatest);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageInstallMode);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageAcceptAgreements);
         WINGET_DEFINE_RESOURCE_STRINGID(EnableAdminSettingFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(EnableWindowsFeaturesSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(EnablingWindowsFeature);

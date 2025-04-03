@@ -7,6 +7,7 @@
 #include "Workflows/WorkflowBase.h"
 
 using namespace AppInstaller::Utility::literals;
+using namespace AppInstaller::Repository;
 
 namespace AppInstaller::CLI
 {
@@ -15,11 +16,42 @@ namespace AppInstaller::CLI
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(IdProperty, std::string, Identifier, "id", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageId);
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SourceProperty, std::string, Source, "source", DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageSource);
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(VersionProperty, std::string, Version, "version", Resource::String::DscResourcePropertyDescriptionPackageVersion);
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(MatchOptionProperty, std::string, MatchOption, "matchOption", Resource::String::DscResourcePropertyDescriptionPackageMatchOption, ({ "equals", "equalsCaseInsensitive", "startsWithCaseInsensitive", "containsCaseInsensitive" }), "equalsCaseInsensitive");
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM_FLAGS(ScopeProperty, std::string, Scope, "scope", DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageScope, ({ "user", "machine" }), {});
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM_FLAGS(MatchOptionProperty, std::string, MatchOption, "matchOption", DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageMatchOption, ({ "equals", "equalsCaseInsensitive", "startsWithCaseInsensitive", "containsCaseInsensitive" }), "equalsCaseInsensitive");
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_DEFAULT(UseLatestProperty, bool, UseLatest, "useLatest", Resource::String::DscResourcePropertyDescriptionPackageUseLatest, "false");
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(InstallModeProperty, std::string, InstallMode, "installMode", Resource::String::DscResourcePropertyDescriptionPackageInstallMode, ({ "default", "silent", "interactive" }), "silent");
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(AcceptAgreementsProperty, bool, AcceptAgreements, "acceptAgreements", Resource::String::DscResourcePropertyDescriptionPackageAcceptAgreements);
 
-        using PackageResourceObject = DscComposableObject<StandardExistProperty, StandardInDesiredStateProperty, IdProperty, SourceProperty, VersionProperty, MatchOptionProperty, UseLatestProperty, InstallModeProperty>;
+        using PackageResourceObject = DscComposableObject<StandardExistProperty, StandardInDesiredStateProperty, IdProperty, SourceProperty, VersionProperty, ScopeProperty, MatchOptionProperty, UseLatestProperty, InstallModeProperty, AcceptAgreementsProperty>;
+
+        std::optional<MatchType> ToMatchType(const std::optional<std::string>& value)
+        {
+            if (!value)
+            {
+                return std::nullopt;
+            }
+
+            std::string lowerValue = Utility::ToLower(value.value());
+
+            if (lowerValue == "equals")
+            {
+                return MatchType::Exact;
+            }
+            else if (lowerValue == "equalscaseinsensitive")
+            {
+                return MatchType::CaseInsensitive;
+            }
+            else if (lowerValue == "startswithcaseinsensitive")
+            {
+                return MatchType::StartsWith;
+            }
+            else if (lowerValue == "containscaseinsensitive")
+            {
+                return MatchType::Substring;
+            }
+
+            THROW_HR(E_INVALIDARG);
+        }
 
         struct PackageFunctionData
         {
@@ -30,6 +62,12 @@ namespace AppInstaller::CLI
                 SubContext(context.CreateSubContext())
             {
                 SubContext->SetFlags(Execution::ContextFlag::DisableInteractivity);
+
+                if (Input.AcceptAgreements().value_or(false))
+                {
+                    SubContext->Args.AddArg(Execution::Args::Type::AcceptSourceAgreements);
+                    SubContext->Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
+                }
             }
 
             PackageResourceObject Input;
@@ -45,6 +83,11 @@ namespace AppInstaller::CLI
                     SubContext->Args.AddArg(Execution::Args::Type::Source, Input.Source().value());
                 }
 
+                if (Input.Scope() && !Input.Scope().value().empty())
+                {
+                    SubContext->Args.AddArg(Execution::Args::Type::InstallScope, Input.Scope().value());
+                }
+
                 *SubContext <<
                     Workflow::OpenSource() <<
                     Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(*SubContext));
@@ -52,6 +95,46 @@ namespace AppInstaller::CLI
                 if (SubContext->IsTerminated())
                 {
                     ParentContext.Terminate(SubContext->GetTerminationHR());
+                    return;
+                }
+
+                // Do a manual search of the now opened source
+                Source& source = SubContext->Get<Execution::Data::Source>();
+                MatchType matchType = ToMatchType(Input.MatchOption()).value_or(MatchType::CaseInsensitive);
+
+                SearchRequest request;
+                request.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, matchType, Input.Identifier().value()));
+
+                SearchResult result = source.Search(request);
+
+                if (result.Matches.empty())
+                {
+                    Output.Exist(false);
+                }
+                else if (result.Matches.size() > 1)
+                {
+                    AICLI_LOG(Config, Warning, << "Found " << result.Matches.size() << " matches when searching for '" << Input.Identifier().value() << "'");
+                    Output.Exist(false);
+                }
+                else
+                {
+                    auto& package = result.Matches.front().Package;
+                    auto installedPackage = package->GetInstalled();
+                    THROW_HR_IF(E_UNEXPECTED, !installedPackage);
+                    auto installedVersion = installedPackage->GetLatestVersion();
+                    THROW_HR_IF(E_UNEXPECTED, !installedVersion);
+                    auto metadata = installedVersion->GetMetadata();
+
+                    // Fill Output and SubContext
+                    Output.Exist(true);
+                    Output.Identifier(package->GetProperty(PackageProperty::Id));
+                    Output.Version(installedVersion->GetProperty(PackageVersionProperty::Version));
+
+                    auto scopeItr = metadata.find(PackageVersionMetadata::InstalledScope);
+                    if (scopeItr != metadata.end())
+                    {
+                        Output.Scope(scopeItr->second);
+                    }
                 }
             }
 
@@ -125,7 +208,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            PackageFunctionData data{ json };
+            PackageFunctionData data{ context, json };
 
             data.Get();
 
@@ -137,7 +220,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            PackageFunctionData data{ json };
+            PackageFunctionData data{ context, json };
 
             data.Get();
 
@@ -164,7 +247,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            PackageFunctionData data{ json };
+            PackageFunctionData data{ context, json };
 
             THROW_HR(E_NOTIMPL);
         }
@@ -174,7 +257,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            PackageFunctionData data{ json };
+            PackageFunctionData data{ context, json };
 
             data.Get();
             data.Output.InDesiredState(data.Test());
@@ -188,7 +271,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            PackageFunctionData data{ json };
+            PackageFunctionData data{ context, json };
 
             THROW_HR(E_NOTIMPL);
         }

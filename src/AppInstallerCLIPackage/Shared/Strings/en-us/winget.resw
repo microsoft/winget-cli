@@ -3277,4 +3277,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="DscResourcePropertyDescriptionPackageInstallMode" xml:space="preserve">
     <value>The install mode to use if needed.</value>
   </data>
+  <data name="DscResourcePropertyDescriptionPackageScope" xml:space="preserve">
+    <value>The target scope of the package.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageAcceptAgreements" xml:space="preserve">
+    <value>Indicates whether to accept agreements for package installs.</value>
+  </data>
 </root>

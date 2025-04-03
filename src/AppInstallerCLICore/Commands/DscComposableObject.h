@@ -228,6 +228,9 @@ namespace AppInstaller::CLI
 #define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(_property_type_, _value_type_, _property_name_, _json_name_, _description_, _enum_vals_, _default_) \
     WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, DscComposablePropertyFlag::None, _description_, _enum_vals_, _default_)
 
+#define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM_FLAGS(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_, _enum_vals_, _default_) \
+    WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_, _enum_vals_, _default_)
+
     WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL_START(StandardExistProperty, bool, Exist, "_exist", DscComposablePropertyFlag::None, Resource::String::DscResourcePropertyDescriptionExist, {}, {})
         bool ShouldExist() { return m_value.value_or(true); }
     };
