@@ -15,7 +15,7 @@ pr:
     - schemas/JSON/manifests/*
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'windows-2025'
 
 variables:
   solution: 'src\AppInstallerCLI.sln'
@@ -365,7 +365,7 @@ jobs:
     displayName: Install Sysinternals PsTools Using Winget
     condition: succeededOrFailed()
 
-  - powershell: |
+  - pwsh: |
       $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
       PsExec -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
     displayName: Run Unit Tests Unpackaged Under System Context
