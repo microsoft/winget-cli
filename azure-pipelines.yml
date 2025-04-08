@@ -186,7 +186,7 @@ jobs:
           Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd
           WindowsPackageManager\WindowsPackageManager.dll
           UndockedRegFreeWinRT\winrtact.dll
-      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net8.0-windows10.0.22000.0\SharedDependencies\$(BuildPlatform)
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net8.0-windows10.0.26100.0\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
 
   - task: CopyFiles@2
@@ -215,7 +215,7 @@ jobs:
     inputs:
       SourceFolder: $(buildOutDirAnyCpu)
       Contents: |
-          Microsoft.Management.Configuration.Projection\net8.0-windows10.0.22000.0\Microsoft.Management.Configuration.Projection.dll
+          Microsoft.Management.Configuration.Projection\net8.0-windows10.0.26100.0\Microsoft.Management.Configuration.Projection.dll
       TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
 
