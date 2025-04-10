@@ -25,4 +25,13 @@ namespace AppInstaller::Repository
 
     // Gets the available IPackage corresponding to the given source identifier.
     std::shared_ptr<IPackage> GetAvailablePackageFromSource(const std::shared_ptr<ICompositePackage>& composite, const std::string_view sourceIdentifier);
+
+    struct DefaultInstallVersionData
+    {
+        std::shared_ptr<AppInstaller::Repository::IPackageVersion> LatestApplicableVersion;
+        bool UpdateAvailable = false;
+    };
+
+    // Determines the default install version and whether an update is available.
+    DefaultInstallVersionData GetDefaultInstallVersion(const std::shared_ptr<ICompositePackage>& composite);
 }

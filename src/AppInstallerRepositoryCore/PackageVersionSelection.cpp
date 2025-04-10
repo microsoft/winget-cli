@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Public/winget/PackageVersionSelection.h"
 #include "Public/winget/RepositorySource.h"
+#include "Public/winget/PinningData.h"
 
 
 namespace AppInstaller::Repository
@@ -153,5 +154,56 @@ namespace AppInstaller::Repository
     std::shared_ptr<IPackage> GetAvailablePackageFromSource(const std::shared_ptr<ICompositePackage>& composite, const std::string_view sourceIdentifier)
     {
         return GetAvailablePackageFromSource(composite->GetAvailable(), sourceIdentifier);
+    }
+
+    DefaultInstallVersionData GetDefaultInstallVersion(const std::shared_ptr<ICompositePackage>& composite)
+    {
+        using namespace AppInstaller::Pinning;
+
+        DefaultInstallVersionData result;
+
+        auto installedVersion = AppInstaller::Repository::GetInstalledVersion(composite);
+        auto availableVersions = AppInstaller::Repository::GetAvailableVersionsForInstalledVersion(composite, installedVersion);
+
+        PinningData pinningData{ PinningData::Disposition::ReadOnly };
+        auto evaluator = pinningData.CreatePinStateEvaluator(PinBehavior::ConsiderPins, installedVersion);
+
+        AppInstaller::CLI::Execution::COMContext context;
+        AppInstaller::Repository::IPackageVersion::Metadata installationMetadata =
+            installedVersion ? installedVersion->GetMetadata() : AppInstaller::Repository::IPackageVersion::Metadata{};
+        AppInstaller::CLI::Workflow::ManifestComparator manifestComparator{ context, installationMetadata };
+
+        auto availableVersionKeys = availableVersions->GetVersionKeys();
+        for (const auto& availableVersionKey : availableVersionKeys)
+        {
+            auto availableVersion = availableVersions->GetVersion(availableVersionKey);
+
+            if (installedVersion && !evaluator.IsUpdate(availableVersion))
+            {
+                // Version too low or different channel for upgrade
+                continue;
+            }
+
+            if (evaluator.EvaluatePinType(availableVersion) != AppInstaller::Pinning::PinType::Unknown)
+            {
+                // Pinned
+                continue;
+            }
+
+            auto manifestComparatorResult = manifestComparator.GetPreferredInstaller(availableVersion->GetManifest());
+            if (!manifestComparatorResult.installer.has_value())
+            {
+                // No applicable installer
+                continue;
+            }
+
+            result.LatestApplicableVersion = availableVersion;
+            if (installedVersion)
+            {
+                result.UpdateAvailable = true;
+            }
+
+            break;
+        }
     }
 }

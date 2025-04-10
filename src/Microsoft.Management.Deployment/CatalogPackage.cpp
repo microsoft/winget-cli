@@ -74,8 +74,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 using namespace AppInstaller::Pinning;
 
-                auto availableVersions = AppInstaller::Repository::GetAvailableVersionsForInstalledVersion(m_package);
                 auto installedVersion = AppInstaller::Repository::GetInstalledVersion(m_package);
+                auto availableVersions = AppInstaller::Repository::GetAvailableVersionsForInstalledVersion(m_package, installedVersion);
 
                 PinningData pinningData{ PinningData::Disposition::ReadOnly };
                 auto evaluator = pinningData.CreatePinStateEvaluator(PinBehavior::ConsiderPins, installedVersion);

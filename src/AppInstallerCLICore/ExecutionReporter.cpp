@@ -48,6 +48,8 @@ namespace AppInstaller::CLI::Execution
     Reporter::Reporter(const Reporter& other, clone_t) :
         Reporter(other.m_out, other.m_in)
     {
+        SetChannel(other.m_channel);
+
         if (other.m_style.has_value())
         {
             SetStyle(*other.m_style);

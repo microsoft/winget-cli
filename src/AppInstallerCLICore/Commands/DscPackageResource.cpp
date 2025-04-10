@@ -179,6 +179,57 @@ namespace AppInstaller::CLI
 
                 return result;
             }
+
+        private:
+            bool TestVersion()
+            {
+                if (Input.Version())
+                {
+                    if (Output.Version())
+                    {
+                        return Utility::Version{ Input.Version().value() } == Utility::Version{ Output.Version().value() };
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+            bool TestScope()
+            {
+                if (Input.Scope())
+                {
+                    if (Output.Scope())
+                    {
+                        return Utility::ToLower(Input.Scope().value()) == Utility::ToLower(Output.Scope().value());
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+            bool TestLatest()
+            {
+                if (Input.UseLatest())
+                {
+
+                }
+                else
+                {
+                    return true;
+                }
+            }
         };
     }
 
