@@ -89,6 +89,8 @@
       Windows.ApplicationModel.AppInstallerPolicySourc;
       Windows.ApplicationModel.AddResourcePackageOption;
       Windows.ApplicationModel.IAddResourcePackageOption;
+      Windows.ApplicationModel.FindRelatedPackagesOption;
+      Windows.ApplicationModel.IFindRelatedPackagesOption;
       Windows.ApplicationModel.Packag;
       Windows.ApplicationModel.IPackag;
       Windows.ApplicationModel.Core.AppListEntr;
@@ -106,12 +108,14 @@
       Windows.Networking.IHostNam;
       Windows.Security.Cryptography.Certificates;
       Windows.Storage;
+      Windows.Storage.Provider.FileUpdateStatu;
       Windows.System.ProcessorArchitectur;
       Windows.System.Use;
       Windows.System.IUse;
     </CsWinRTIncludes>
     <CsWinRTExcludes>
       Windows.Foundation.PropertyType;
+      Windows.Storage.Provider;
     </CsWinRTExcludes>
     <!-- Ensure Support for Windows 10, Version 1809 -->
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>

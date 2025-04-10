@@ -134,12 +134,14 @@
       Windows.Networking.IHostNam;
       Windows.Security.Cryptography.Certificates;
       Windows.Storage;
+      Windows.Storage.Provider.FileUpdateStatu;
       Windows.System.ProcessorArchitectur;
       Windows.System.Use;
       Windows.System.IUse;
     </CsWinRTIncludes>
     <CsWinRTExcludes>
       Windows.Foundation.PropertyType;
+      Windows.Storage.Provider;
     </CsWinRTExcludes>
     <CsWinRTWindowsMetadata>$(TargetWindowsVersion)</CsWinRTWindowsMetadata>
     <!-- Ensure Support for Windows 10, Version 1809 -->

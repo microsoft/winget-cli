@@ -43,7 +43,7 @@
     <ProjectGuid>{31ED69A8-5310-45A9-953F-56C351D2C3E1}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>UndockedRegFreeWinRT</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
     <BuildPlatform>$(Platform)</BuildPlatform>
     <BuildPlatform Condition="'$(Platform)'=='Win32'">x86</BuildPlatform>
   </PropertyGroup>
