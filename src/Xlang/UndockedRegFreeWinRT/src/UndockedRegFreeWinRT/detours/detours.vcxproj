@@ -59,7 +59,7 @@
     <ProjectGuid>{787EC629-C0FB-4BA9-9746-4A82CD06B73E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>detours</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
     <ProjectName>Detours</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

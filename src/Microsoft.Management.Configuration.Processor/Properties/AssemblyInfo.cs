@@ -23,5 +23,5 @@ using System.Runtime.Versioning;
 
 // Forcibly set the target and supported platforms due to the internal build setup.
 // Keep in sync with project versions.
-[assembly: TargetPlatform("Windows10.0.22000.0")]
+[assembly: TargetPlatform("Windows10.0.26100.0")]
 [assembly: SupportedOSPlatform("Windows10.0.17763.0")]

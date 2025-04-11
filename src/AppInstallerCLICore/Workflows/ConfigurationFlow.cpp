@@ -551,6 +551,8 @@ namespace AppInstaller::CLI::Workflow
                     m_context.Reporter.Info() << "  "_liv << Resource::String::ConfigurationSettings << '\n';
                     OutputValueSet(settings, 4);
                 }
+
+                m_context.Reporter.Info() << std::flush;
             }
 
         private:
