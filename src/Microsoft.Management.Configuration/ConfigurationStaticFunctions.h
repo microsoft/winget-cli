@@ -17,6 +17,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         bool IsConfigurationAvailable() { return true; }
         Windows::Foundation::IAsyncActionWithProgress<uint32_t> EnsureConfigurationAvailableAsync();
         Configuration::ConfigurationParameter CreateConfigurationParameter();
+        Configuration::FindUnitProcessorsOptions CreateFindUnitProcessorsOptions();
 
         // IConfigurationStaticsInternals
         HRESULT STDMETHODCALLTYPE SetExperimentalState(UINT32 state);

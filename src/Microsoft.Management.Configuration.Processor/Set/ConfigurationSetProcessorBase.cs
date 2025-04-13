@@ -116,6 +116,27 @@ namespace Microsoft.Management.Configuration.Processor.Set
         }
 
         /// <summary>
+        /// Gets all configuration units for the given unit type.
+        /// Returned units may be of types other than the one passed in.
+        /// </summary>
+        /// <param name="findOptions">Find unit processors options.</param>
+        /// <returns>A list of unit processor details.</returns>
+        public IList<IConfigurationUnitProcessorDetails> FindUnitProcessors(FindUnitProcessorsOptions findOptions)
+        {
+            try
+            {
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `FindUnitProcessors` ...");
+
+                return this.FindUnitProcessorsInternal(findOptions);
+            }
+            catch (Exception ex)
+            {
+                this.OnDiagnostics(DiagnosticLevel.Error, ex.ToString());
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Creates a configuration unit processor for the given unit.
         /// </summary>
         /// <param name="unit">Configuration unit.</param>
@@ -129,6 +150,17 @@ namespace Microsoft.Management.Configuration.Processor.Set
         /// <param name="detailFlags">Detail flags.</param>
         /// <returns>Configuration unit processor details.</returns>
         protected abstract IConfigurationUnitProcessorDetails? GetUnitProcessorDetailsInternal(ConfigurationUnit unit, ConfigurationUnitDetailFlags detailFlags);
+
+        /// <summary>
+        /// Finds unit processors based on the input FindUnitProcessorsOptions.
+        /// Derive from IFindUnitProcessorsSetProcessor and implement an override to support this.
+        /// </summary>
+        /// <param name="findOptions">Find unit processors options.</param>
+        /// <returns>A list of unit processor details.</returns>
+        protected virtual IList<IConfigurationUnitProcessorDetails> FindUnitProcessorsInternal(FindUnitProcessorsOptions findOptions)
+        {
+            throw new NotImplementedException("Configuration set processor did not implement FindUnitProcessorsInternal.");
+        }
 
         /// <summary>
         /// Sends diagnostics to factory.

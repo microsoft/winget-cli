@@ -104,9 +104,12 @@ namespace AppInstaller::CLI
         OutputProxyStubInterfaceRegistration<winrt::Windows::Foundation::Collections::IIterable<winrt::Microsoft::Management::Configuration::IApplyGroupMemberSettingsResult>>(context);
         OutputProxyStubInterfaceRegistration<winrt::Windows::Foundation::Collections::IIterable<winrt::Microsoft::Management::Configuration::ITestSettingsResult>>(context);
         OutputProxyStubInterfaceRegistration<winrt::Windows::Foundation::Collections::IIterable<winrt::Microsoft::Management::Configuration::ConfigurationEnvironment>>(context);
+        OutputProxyStubInterfaceRegistration<winrt::Windows::Foundation::Collections::IIterable<winrt::Microsoft::Management::Configuration::IConfigurationUnitProcessorDetails>>(context);
         OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IConfigurationUnitProcessorDetails2>(context);
         OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IGetAllSettingsConfigurationUnitProcessor>(context);
+        OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IFindUnitProcessorsSetProcessor>(context);
         OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IConfigurationStatics2>(context);
+        OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IConfigurationStatics3>(context);
         OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>(context);
 
         // TODO: Fix the layering inversion created by the COM deployment API (probably in order to operate winget.exe against the COM server).
@@ -134,6 +137,7 @@ namespace AppInstaller::CLI
     {
         OutputIIDMapping<winrt::Microsoft::Management::Configuration::IConfigurationStatics>(context);
         OutputIIDMapping<winrt::Microsoft::Management::Configuration::IConfigurationStatics2>(context);
+        OutputIIDMapping<winrt::Microsoft::Management::Configuration::IConfigurationStatics3>(context);
     }
 
     Resource::LocString DumpErrorResourceCommand::ShortDescription() const

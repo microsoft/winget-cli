@@ -552,6 +552,31 @@ namespace Microsoft.Management.Configuration
         IConfigurationUnitProcessor CreateUnitProcessor(ConfigurationUnit unit);
     }
 
+    // The definition of find unit processors option.
+    [contract(Microsoft.Management.Configuration.Contract, 4)]
+    runtimeclass FindUnitProcessorsOptions
+    {
+        FindUnitProcessorsOptions();
+
+        // Search paths for finding configuration unit processors. The value has the same format as
+        // PATH environment variable. Paths are absolute paths separated by semicolons(;).
+        String SearchPaths;
+
+        // If the search paths provided are exclusive.
+        Boolean SearchPathsExclusive;
+
+        // Defines the type of detail probing that is allowed when finding unit processors.
+        ConfigurationUnitDetailFlags UnitDetailFlags;
+    }
+
+    // Find unit processors.
+    [contract(Microsoft.Management.Configuration.Contract, 4)]
+    interface IFindUnitProcessorsSetProcessor requires IConfigurationSetProcessor
+    {
+        // Find unit processors.
+        Windows.Foundation.Collections.IVector<IConfigurationUnitProcessorDetails> FindUnitProcessors(FindUnitProcessorsOptions findOptions);
+    }
+
     // The result of applying an individual unit settings with an IConfigurationGroupProcessor.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     interface IApplyGroupMemberSettingsResult
@@ -946,6 +971,13 @@ namespace Microsoft.Management.Configuration
             GetAllConfigurationUnitSettingsResult GetAllUnitSettings(ConfigurationUnit unit);
             Windows.Foundation.IAsyncOperation<GetAllConfigurationUnitSettingsResult> GetAllUnitSettingsAsync(ConfigurationUnit unit);
         }
+
+        [contract(Microsoft.Management.Configuration.Contract, 4)]
+        {
+            // Find unit processors.
+            Windows.Foundation.Collections.IVector<IConfigurationUnitProcessorDetails> FindUnitProcessors(FindUnitProcessorsOptions findOptions);
+            Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVector<IConfigurationUnitProcessorDetails> > FindUnitProcessorsAsync(FindUnitProcessorsOptions findOptions);
+        }
     }
 
     // Top level entry point for configuration, enabling easier usage in out-of-process scenarios.
@@ -980,8 +1012,16 @@ namespace Microsoft.Management.Configuration
     }
 
     // Top level entry point for configuration, enabling easier usage in out-of-process scenarios.
+    [contract(Microsoft.Management.Configuration.Contract, 4)]
+    interface IConfigurationStatics3 requires IConfigurationStatics2
+    {
+        // Creates an empty configuration parameter.
+        FindUnitProcessorsOptions CreateFindUnitProcessorsOptions();
+    }
+
+    // Top level entry point for configuration, enabling easier usage in out-of-process scenarios.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
-    runtimeclass ConfigurationStaticFunctions : [default]IConfigurationStatics, IConfigurationStatics2
+    runtimeclass ConfigurationStaticFunctions : [default]IConfigurationStatics, IConfigurationStatics2, IConfigurationStatics3
     {
         ConfigurationStaticFunctions();
     }
@@ -1002,6 +1042,7 @@ namespace Microsoft.Management.Configuration
         interface Windows.Foundation.Collections.IVectorView<TestConfigurationUnitResult>;
         interface Windows.Foundation.Collections.IVectorView<ConfigurationSet>;
         interface Windows.Foundation.Collections.IVector<ConfigurationEnvironment>;
+        interface Windows.Foundation.Collections.IVector<IConfigurationUnitProcessorDetails>;
     }
 
     // Provides a way to centralize the distribution of interfaces relevant to specific implementations of IConfigurationSetProcessorFactory.

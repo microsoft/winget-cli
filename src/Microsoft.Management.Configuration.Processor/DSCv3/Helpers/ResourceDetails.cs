@@ -60,6 +60,38 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         }
 
         /// <summary>
+        /// Gets the path of the resource.
+        /// </summary>
+        public string? Path
+        {
+            get
+            {
+                lock (this.detailsUpdateLock)
+                {
+                    return this.resourceListItem?.Path;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets the resource list item directly to avoid duplicate "dsc resource list" calls.
+        /// </summary>
+        /// <param name="item">The resource list item.</param>
+        public void SetResourceListItem(IResourceListItem item)
+        {
+            if (this.resourceListItem != null)
+            {
+                throw new InvalidOperationException("Resource list item is already set");
+            }
+
+            this.resourceListItem = item;
+            lock (this.detailsUpdateLock)
+            {
+                this.currentDetailLevel |= ConfigurationUnitDetailFlags.Local;
+            }
+        }
+
+        /// <summary>
         /// Ensures that the given detail level is present.
         /// </summary>
         /// <param name="processorSettings">The processor settings to use when getting details.</param>
@@ -134,7 +166,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 
         private bool GetLocalDetails(ProcessorSettings processorSettings)
         {
-            IResourceListItem? resourceListItem = processorSettings.DSCv3.GetResourceByType(this.resourceTypeName);
+            IResourceListItem? resourceListItem = processorSettings.DSCv3.GetResourceByType(this.resourceTypeName, null);
 
             if (resourceListItem != null)
             {

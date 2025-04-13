@@ -218,5 +218,51 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 return null;
             }
         }
+
+        /// <summary>
+        /// Gets all ResourceDetails matching find options.
+        /// </summary>
+        /// <param name="findOptions">The find options.</param>
+        /// <returns>A list of ResourceDetails.</returns>
+        public List<ResourceDetails> FindAllResourceDetails(FindUnitProcessorsOptions findOptions)
+        {
+            List<ResourceDetails> result = new List<ResourceDetails>();
+
+            var resourceItemList = this.DSCv3.GetAllResources(ProcessorRunSettings.CreateFromFindUnitProcessorsOptions(findOptions));
+
+            foreach (var item in resourceItemList)
+            {
+                ResourceDetails? details = null;
+                bool inDictionary = false;
+                lock (this.resourceDetailsDictionary)
+                {
+                    inDictionary = this.resourceDetailsDictionary.TryGetValue(item.Type, out details);
+                }
+
+                if (details == null)
+                {
+                    details = new ResourceDetails(item.Type);
+                }
+
+                if (!details.Exists)
+                {
+                    details.SetResourceListItem(item);
+                }
+
+                details.EnsureDetails(this, findOptions.UnitDetailFlags);
+
+                if (!inDictionary)
+                {
+                    lock (this.resourceDetailsDictionary)
+                    {
+                        this.resourceDetailsDictionary.Add(item.Type, details);
+                    }
+                }
+
+                result.Add(details);
+            }
+
+            return result;
+        }
     }
 }

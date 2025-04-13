@@ -43,7 +43,8 @@ namespace ConfigurationShim
     DECLSPEC_UUID(WINGET_OUTOFPROC_COM_CLSID_ConfigurationStaticFunctions)
     ConfigurationStaticFunctionsShim : winrt::implements<ConfigurationStaticFunctionsShim,
         winrt::Microsoft::Management::Configuration::IConfigurationStatics,
-        winrt::Microsoft::Management::Configuration::IConfigurationStatics2>
+        winrt::Microsoft::Management::Configuration::IConfigurationStatics2,
+        winrt::Microsoft::Management::Configuration::IConfigurationStatics3>
     {
         ConfigurationStaticFunctionsShim()
         {
@@ -55,7 +56,7 @@ namespace ConfigurationShim
 
             if (IsConfigurationAvailable())
             {
-                m_statics = winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions().as<winrt::Microsoft::Management::Configuration::IConfigurationStatics2>();
+                m_statics = winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions().as<winrt::Microsoft::Management::Configuration::IConfigurationStatics3>();
             }
         }
 
@@ -224,6 +225,20 @@ namespace ConfigurationShim
             return result;
         }
 
+        winrt::Microsoft::Management::Configuration::FindUnitProcessorsOptions CreateFindUnitProcessorsOptions()
+        {
+            THROW_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
+
+            if (!m_statics)
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB);
+            }
+
+            auto result = m_statics.CreateFindUnitProcessorsOptions();
+            result.as<AppInstaller::WinRT::ILifetimeWatcher>()->SetLifetimeWatcher(CreateLifetimeWatcher());
+            return result;
+        }
+
     private:
         // Returns a lifetime watcher object that is currently *unowned*.
         IUnknown* CreateLifetimeWatcher()
@@ -235,7 +250,7 @@ namespace ConfigurationShim
             return out.detach();
         }
 
-        winrt::Microsoft::Management::Configuration::IConfigurationStatics2 m_statics = nullptr;
+        winrt::Microsoft::Management::Configuration::IConfigurationStatics3 m_statics = nullptr;
         AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
     };
 

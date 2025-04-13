@@ -218,6 +218,7 @@
     <ClInclude Include="DiagnosticInformationInstance.h" />
     <ClInclude Include="ExceptionResultHelpers.h" />
     <ClInclude Include="Filesystem.h" />
+    <ClInclude Include="FindUnitProcessorsOptions.h" />
     <ClInclude Include="GetAllConfigurationUnitSettingsResult.h" />
     <ClInclude Include="GetConfigurationSetDetailsResult.h" />
     <ClInclude Include="GetConfigurationUnitDetailsResult.h" />
@@ -273,6 +274,7 @@
     <ClCompile Include="DefaultSetGroupProcessor.cpp" />
     <ClCompile Include="DiagnosticInformationInstance.cpp" />
     <ClCompile Include="Filesystem.cpp" />
+    <ClCompile Include="FindUnitProcessorsOptions.cpp" />
     <ClCompile Include="GetAllConfigurationUnitSettingsResult.cpp" />
     <ClCompile Include="GetConfigurationSetDetailsResult.cpp" />
     <ClCompile Include="GetConfigurationUnitDetailsResult.cpp" />
