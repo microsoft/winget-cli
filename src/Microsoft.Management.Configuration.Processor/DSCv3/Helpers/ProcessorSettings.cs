@@ -6,9 +6,9 @@
 
 namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Text;
     using Microsoft.Management.Configuration.Processor.DSCv3.Model;
     using Microsoft.Management.Configuration.Processor.Helpers;
@@ -110,7 +110,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// <summary>
         /// Gets or sets a value indicating whether the processor should produce more verbose output.
         /// </summary>
-        public bool DiagnosticTraceLevel { get; set; } = false;
+        public bool DiagnosticTraceEnabled { get; set; } = false;
 
         /// <summary>
         /// Find the DSC v3 executable.
@@ -118,28 +118,18 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// <returns>The full path to the dsc.exe executable, or null if not found.</returns>
         public static string? FindDscExecutablePath()
         {
-            // To start, only attempt to find the package and launch it via the app execution fallback handler.
-            // In the future, discover it through %PATH% searching, but probably don't allow that from an elevated process.
+            // To start, only attempt to find the package and launch it via app execution alias.
+            // In the future, consider discovering it through %PATH% searching, but probably don't allow that from an elevated process.
             // That probably means creating another read property for finding the secure path.
-            Windows.Management.Deployment.PackageManager packageManager = new Windows.Management.Deployment.PackageManager();
-
-            // Until there is a non-preview of this package, use the preview version.
-            var packages = packageManager.FindPackagesForUser(null, "Microsoft.DesiredStateConfiguration-Preview_8wekyb3d8bbwe");
-
-            if (packages == null)
+#if !AICLI_DISABLE_TEST_HOOKS
+            string? result = GetDscExecutablePathForPackage("Microsoft.DesiredStateConfiguration-Preview_8wekyb3d8bbwe");
+            if (result != null)
             {
-                return null;
+                return result;
             }
+#endif
 
-            string packageInstallLocation = packages.First().InstalledLocation.Path;
-            string result = Path.Combine(packageInstallLocation, DscExecutableFileName);
-
-            if (!Path.Exists(result))
-            {
-                return null;
-            }
-
-            return result;
+            return GetDscExecutablePathForPackage("Microsoft.DesiredStateConfiguration_8wekyb3d8bbwe");
         }
 
         /// <summary>
@@ -153,7 +143,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             result.resourceDetailsDictionary = this.resourceDetailsDictionary;
             result.DiagnosticsSink = this.DiagnosticsSink;
             result.DscExecutablePath = this.DscExecutablePath;
-            result.DiagnosticTraceLevel = this.DiagnosticTraceLevel;
+            result.DiagnosticTraceEnabled = this.DiagnosticTraceEnabled;
 #if !AICLI_DISABLE_TEST_HOOKS
             result.dscV3 = this.DSCv3;
 #endif
@@ -173,7 +163,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             sb.AppendLine(this.EffectiveDscExecutablePath);
 
             sb.Append("DiagnosticTraceLevel: ");
-            sb.Append(this.DiagnosticTraceLevel);
+            sb.Append(this.DiagnosticTraceEnabled);
 
             return sb.ToString();
         }
@@ -260,6 +250,19 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 }
 
                 result.Add(details);
+            }
+
+            return result;
+        }
+
+        private static string? GetDscExecutablePathForPackage(string packageFamilyName)
+        {
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string result = Path.Combine(localAppData, "Microsoft\\WindowsApps", packageFamilyName, DscExecutableFileName);
+
+            if (!Path.Exists(result))
+            {
+                return null;
             }
 
             return result;

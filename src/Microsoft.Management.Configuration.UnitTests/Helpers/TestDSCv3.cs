@@ -45,6 +45,13 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         internal delegate IResourceTestItem TestResourceDelegateType(ConfigurationUnitInternal unitInternal);
 
         /// <summary>
+        /// The delegate type for TestResource.
+        /// </summary>
+        /// <param name="unitInternal">The unit to test.</param>
+        /// <returns>A test result.</returns>
+        internal delegate IList<IResourceExportItem> ExportResourceDelegateType(ConfigurationUnitInternal unitInternal);
+
+        /// <summary>
         /// Gets or sets the GetResourceByType result.
         /// </summary>
         public IResourceListItem? GetResourceByTypeResult { get; set; }
@@ -85,7 +92,17 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public TestResourceDelegateType? TestResourceDelegate { get; set; }
 
         /// <summary>
-        /// Gets or sets the TestResource delegate.
+        /// Gets or sets the ExportResource result.
+        /// </summary>
+        public IList<IResourceExportItem>? ExportResourceResult { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ExportResource delegate.
+        /// </summary>
+        public ExportResourceDelegateType? ExportResourceDelegate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the GetAllResources result.
         /// </summary>
         public List<IResourceListItem>? GetAllResourcesResult { get; set; }
 
@@ -111,6 +128,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings)
         {
             return this.TestResourceResult ?? this.TestResourceDelegate?.Invoke(unitInternal) ?? throw new System.NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
+        {
+            return this.ExportResourceResult ?? this.ExportResourceDelegate?.Invoke(unitInternal) ?? throw new System.NotImplementedException();
         }
 
         /// <inheritdoc/>

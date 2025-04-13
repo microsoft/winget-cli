@@ -119,47 +119,49 @@ namespace AppInstaller::CLI
     {
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
 
-        context << Workflow::InitializeInstallerDownloadAuthenticatorsMap;
+        context << InitializeInstallerDownloadAuthenticatorsMap;
 
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
             context <<
-                Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-                Workflow::GetManifestFromArg <<
-                Workflow::SelectInstaller <<
-                Workflow::EnsureApplicableInstaller <<
-                Workflow::Checkpoint("PreInstallCheckpoint", {}) << // TODO: Capture context data
-                Workflow::InstallSinglePackage;
+                ReportExecutionStage(ExecutionStage::Discovery) <<
+                GetManifestFromArg <<
+                SelectInstaller <<
+                EnsureApplicableInstaller <<
+                Checkpoint("PreInstallCheckpoint", {}) << // TODO: Capture context data
+                InstallSinglePackage;
         }
         else
         {
             context <<
-                Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-                Workflow::OpenSource();
+                ReportExecutionStage(ExecutionStage::Discovery) <<
+                OpenSource();
 
             if (!context.Args.Contains(Execution::Args::Type::Force))
             {
                 context <<
-                    Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context), false, Repository::CompositeSearchBehavior::AvailablePackages);
+                    OpenCompositeSource(DetermineInstalledSource(context), false, Repository::CompositeSearchBehavior::AvailablePackages);
             }
 
             if (context.Args.Contains(Execution::Args::Type::MultiQuery))
             {
-                bool skipDependencies = Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies);
+                ProcessMultiplePackages::Flags flags = ProcessMultiplePackages::Flags::None;
+                if (Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
+                {
+                    flags = ProcessMultiplePackages::Flags::IgnoreDependencies;
+                }
+
                 context <<
-                    Workflow::GetMultiSearchRequests <<
-                    Workflow::SearchSubContextsForSingle() <<
-                    Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
-                    Workflow::ProcessMultiplePackages(
-                        Resource::String::PackageRequiresDependencies,
-                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED,
-                        {}, true, skipDependencies);
+                    GetMultiSearchRequests <<
+                    SearchSubContextsForSingle() <<
+                    ReportExecutionStage(ExecutionStage::Execution) <<
+                    ProcessMultiplePackages(Resource::String::PackageRequiresDependencies, APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED, flags);
             }
             else
             {
                 context <<
-                    Workflow::Checkpoint("PreInstallCheckpoint", {}) << // TODO: Capture context data
-                    Workflow::InstallOrUpgradeSinglePackage(OperationType::Install);
+                    Checkpoint("PreInstallCheckpoint", {}) << // TODO: Capture context data
+                    InstallOrUpgradeSinglePackage(OperationType::Install);
             }
         }
     }

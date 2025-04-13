@@ -517,6 +517,21 @@ namespace Microsoft.Management.Configuration
         IConfigurationUnitResultInformation ResultInformation{ get; };
     }
 
+    // The result of getting all of the units for a configuration unit.
+    [contract(Microsoft.Management.Configuration.Contract, 4)]
+    interface IGetAllUnitsResult
+    {
+        // The configuration unit.
+        ConfigurationUnit Unit{ get; };
+
+        // The units retrieved for the given unit.
+        Windows.Foundation.Collections.IVector<ConfigurationUnit> Units{ get; };
+
+        // The result of getting the configuration units.
+        // This is not the response for the retrieval, but rather contains information about the actual attempt to retrieve the settings.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+    }
+
     // Provides access to a specific configuration unit within the runtime.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     interface IConfigurationUnitProcessor
@@ -539,6 +554,13 @@ namespace Microsoft.Management.Configuration
     {
         // Gets the current system state for all the instances of the configuration unit, each of which has their own settings.
         IGetAllSettingsResult GetAllSettings();
+    }
+
+    [contract(Microsoft.Management.Configuration.Contract, 4)]
+    interface IGetAllUnitsConfigurationUnitProcessor requires IConfigurationUnitProcessor
+    {
+        // Gets all units for the configuration unit.
+        IGetAllUnitsResult GetAllUnits();
     }
 
     // Controls the lifetime of operations for a single configuration set.
@@ -908,6 +930,18 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.Collections.IVector<Windows.Foundation.Collections.ValueSet> Settings { get; };
     }
 
+    // The result of getting the all units for a configuration unit.
+    [contract(Microsoft.Management.Configuration.Contract, 4)]
+    runtimeclass GetAllConfigurationUnitsResult
+    {
+        // The result of getting the all units for a configuration unit.
+        // This is not the response for the retrieval, but rather contains information about the actual attempt to retrieve the settings.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+
+        // The units retrieved for the given unit.
+        Windows.Foundation.Collections.IVector<ConfigurationUnit> Units { get; };
+    }
+
     // The configuration processor is responsible for the interactions with the system.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     runtimeclass ConfigurationProcessor
@@ -970,6 +1004,14 @@ namespace Microsoft.Management.Configuration
             // Gets the current settings for all the instances of a configuration unit.
             GetAllConfigurationUnitSettingsResult GetAllUnitSettings(ConfigurationUnit unit);
             Windows.Foundation.IAsyncOperation<GetAllConfigurationUnitSettingsResult> GetAllUnitSettingsAsync(ConfigurationUnit unit);
+        }
+
+        [contract(Microsoft.Management.Configuration.Contract, 4)]
+        {
+            // Gets all configuration units for the given unit type.
+            // Returned units may be of types other than the one passed in.
+            GetAllConfigurationUnitsResult GetAllUnits(ConfigurationUnit unit);
+            Windows.Foundation.IAsyncOperation<GetAllConfigurationUnitsResult> GetAllUnitsAsync(ConfigurationUnit unit);
         }
 
         [contract(Microsoft.Management.Configuration.Contract, 4)]

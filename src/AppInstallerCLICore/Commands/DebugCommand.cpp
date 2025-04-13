@@ -107,6 +107,7 @@ namespace AppInstaller::CLI
         OutputProxyStubInterfaceRegistration<winrt::Windows::Foundation::Collections::IIterable<winrt::Microsoft::Management::Configuration::IConfigurationUnitProcessorDetails>>(context);
         OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IConfigurationUnitProcessorDetails2>(context);
         OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IGetAllSettingsConfigurationUnitProcessor>(context);
+        OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IGetAllUnitsConfigurationUnitProcessor>(context);
         OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IFindUnitProcessorsSetProcessor>(context);
         OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IConfigurationStatics2>(context);
         OutputProxyStubInterfaceRegistration<winrt::Microsoft::Management::Configuration::IConfigurationStatics3>(context);

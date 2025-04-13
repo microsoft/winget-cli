@@ -82,7 +82,7 @@ TEST_CASE("HttpStream_ReadLastFullPage", "[HttpStream]")
 
     for (size_t i = 0; i < 10; ++i)
     {
-        stream = GetReadOnlyStreamFromURI("https://cdn.winget.microsoft.com/cache/source.msix");
+        stream = GetReadOnlyStreamFromURI("https://cdn.winget.microsoft.com/cache/source2.msix");
 
         stat = { 0 };
         REQUIRE(stream->Stat(&stat, STATFLAG_NONAME) == S_OK);
@@ -96,7 +96,7 @@ TEST_CASE("HttpStream_ReadLastFullPage", "[HttpStream]")
     }
 
     {
-        INFO("https://cdn.winget.microsoft.com/cache/source.msix gave back a 0 byte file");
+        INFO("https://cdn.winget.microsoft.com/cache/source2.msix gave back a 0 byte file");
         REQUIRE(stream);
     }
 

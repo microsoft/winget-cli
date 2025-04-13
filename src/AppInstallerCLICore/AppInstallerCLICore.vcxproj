@@ -9,7 +9,7 @@
     <ProjectGuid>{1c6e0108-2860-4b17-9f7e-fa5c6c1f3d3d}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>AppInstallerCLICore</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
     <WindowsSDKDesktopARM64Support>true</WindowsSDKDesktopARM64Support>
   </PropertyGroup>
@@ -306,6 +306,7 @@
     <ClInclude Include="Commands\DscCommandBase.h" />
     <ClInclude Include="Commands\DscComposableObject.h" />
     <ClInclude Include="Commands\DscTestFileResource.h" />
+    <ClInclude Include="Commands\DscTestJsonResource.h" />
     <ClInclude Include="Commands\ErrorCommand.h" />
     <ClInclude Include="Commands\ExperimentalCommand.h" />
     <ClInclude Include="Commands\ExportCommand.h" />
@@ -391,6 +392,7 @@
     <ClCompile Include="Commands\DscCommandBase.cpp" />
     <ClCompile Include="Commands\DscComposableObject.cpp" />
     <ClCompile Include="Commands\DscTestFileResource.cpp" />
+    <ClCompile Include="Commands\DscTestJsonResource.cpp" />
     <ClCompile Include="Commands\ErrorCommand.cpp" />
     <ClCompile Include="Commands\FontCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />

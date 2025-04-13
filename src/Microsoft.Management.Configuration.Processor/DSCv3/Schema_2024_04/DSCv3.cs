@@ -6,6 +6,7 @@
 
 namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.Json;
@@ -29,6 +30,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         private const string TestCommand = "test";
         private const string GetCommand = "get";
         private const string SetCommand = "set";
+        private const string ExportCommand = "export";
         private const string ResourceParameter = "-r";
         private const string FileParameter = "-f";
         private const string StdInputIdentifier = "-";
@@ -51,7 +53,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         {
             get
             {
-                return this.processorSettings.DiagnosticTraceLevel ? DiagnosticTraceLevelArguments : string.Empty;
+                return this.processorSettings.DiagnosticTraceEnabled ? DiagnosticTraceLevelArguments : string.Empty;
             }
         }
 
@@ -142,6 +144,30 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             }
 
             return SetFullItem.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution, Exceptions.InvokeDscResourceException.Set, unitInternal.QualifiedName), GetDefaultJsonOptions());
+        }
+
+        /// <inheritdoc />
+        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
+        {
+            // 3.0 can't handle input to export; 3.1 will fix that.
+            ValueSet expandedSettings = unitInternal.GetExpandedSettings();
+            if (expandedSettings.Count != 0)
+            {
+                throw new NotImplementedException("Must use DSC v3.1.* to provide input to export.");
+            }
+
+            ProcessExecution processExecution = new ProcessExecution()
+            {
+                ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
+                Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, ExportCommand, ResourceParameter, unitInternal.QualifiedName },
+            };
+
+            if (this.RunSynchronously(processExecution))
+            {
+                throw new Exceptions.InvokeDscResourceException(Exceptions.InvokeDscResourceException.Export, unitInternal.QualifiedName, null, processExecution.GetAllErrorLines());
+            }
+
+            return ConfigurationDocument.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution, Exceptions.InvokeDscResourceException.Set, unitInternal.QualifiedName), GetDefaultJsonOptions()).InterfaceResources;
         }
 
         /// <inheritdoc />

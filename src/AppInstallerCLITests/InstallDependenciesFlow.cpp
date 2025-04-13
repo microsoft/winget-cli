@@ -4,8 +4,11 @@
 #include "WorkflowCommon.h"
 #include "DependenciesTestSource.h"
 #include <Commands/InstallCommand.h>
+#include <Commands/COMCommand.h>
 #include <Workflows/DependenciesFlow.h>
+#include <Workflows/DownloadFlow.h>
 #include <Workflows/InstallFlow.h>
+#include <Workflows/ShellExecuteInstallerHandler.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
@@ -27,15 +30,22 @@ void OverrideOpenSourceForDependencies(TestContext& context)
 
 void OverrideForProcessMultiplePackages(TestContext& context)
 {
-    context.Override({ Workflow::ProcessMultiplePackages(
+    context.Override({ ProcessMultiplePackages(
         Resource::String::PackageRequiresDependencies,
         APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES,
-        {},
-        false,
-        true), [](TestContext&)
+        ProcessMultiplePackages::Flags::SkipPackageAgreements | ProcessMultiplePackages::Flags::IgnoreDependencies), [](TestContext&)
     {
 
     } });
+}
+
+void OverrideShellExecute(TestContext& context, std::vector<std::string>& installationOrder)
+{
+    context.Override({ ShellExecuteInstallImpl, [&installationOrder](TestContext& c)
+        {
+            installationOrder.push_back(c.Get<Execution::Data::Manifest>().Id);
+            c.Add<Execution::Data::OperationReturnCode>(0);
+        } });
 }
 
 TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGraph][dependencies]")
@@ -262,6 +272,38 @@ TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
     // Verify all types of dependencies are printed
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::PackageRequiresDependencies).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_Dependencies_COM", "[InstallFlow][workflow][dependencies]")
+{
+    std::vector<std::string> installationOrder;
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    OverrideShellExecute(context, installationOrder);
+    OverrideOpenDependencySource(context);
+    OverrideEnableWindowsFeaturesDependencies(context);
+    context.Override({ ReverifyInstallerHash, [](TestContext&) {} });
+
+    context.Add<Execution::Data::Manifest>(YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_MultipleDependencies.yaml")));
+
+    COMDownloadCommand download({});
+    download.Execute(context);
+
+    REQUIRE(installationOrder.size() == 0);
+
+    COMInstallCommand install({});
+    REQUIRE_NOTHROW(install.Execute(context));
+
+    REQUIRE(context.GetTerminationHR() == S_OK);
+
+    // Verify installers are called in order
+    REQUIRE(installationOrder.size() == 3);
+    REQUIRE(installationOrder.at(0) == "Dependency1");
+    REQUIRE(installationOrder.at(1) == "Dependency2");
+    REQUIRE(installationOrder.at(2) == "AppInstallerCliTest.TestExeInstaller.MultipleDependencies");
 }
 
 // TODO:

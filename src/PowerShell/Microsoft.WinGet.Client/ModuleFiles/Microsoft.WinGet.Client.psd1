@@ -9,7 +9,7 @@
 # Script module or binary module file associated with this manifest.
 RootModule = if ($PSEdition -like 'Core')
 {
-    "net8.0-windows10.0.22000.0\Microsoft.WinGet.Client.Cmdlets.dll"
+    "net8.0-windows10.0.26100.0\Microsoft.WinGet.Client.Cmdlets.dll"
 }
 else
 {

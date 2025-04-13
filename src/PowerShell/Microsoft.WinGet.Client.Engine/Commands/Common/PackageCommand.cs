@@ -128,7 +128,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             {
                 for (var i = 0; i < package.AvailableVersions.Count; i++)
                 {
-                    if (package.AvailableVersions[i].Version.CompareTo(this.Version) == 0)
+                    PackageVersionInfo versionInfo = package.GetPackageVersionInfo(package.AvailableVersions[i]);
+
+                    if (versionInfo != null && versionInfo.CompareToVersion(this.Version) == CompareResult.Equal)
                     {
                         return package.AvailableVersions[i];
                     }
