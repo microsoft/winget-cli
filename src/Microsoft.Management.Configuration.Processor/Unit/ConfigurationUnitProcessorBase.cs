@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.Processor.Unit
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using Microsoft.Management.Configuration;
@@ -143,6 +144,55 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         }
 
         /// <summary>
+        /// Gets the current settings for all the instances of a configuration unit.
+        /// </summary>
+        /// <returns>A <see cref="IGetAllSettingsResult"/>.</returns>
+        public IGetAllSettingsResult GetAllSettings()
+        {
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `GetAllSettings` for resource: {this.unitInternal.QualifiedName}...");
+
+            this.CheckLimitMode(ConfigurationUnitIntent.Inform);
+            var result = new GetAllSettingsResult(this.Unit);
+
+            try
+            {
+                result.Settings = this.GetAllSettingsInternal();
+            }
+            catch (Exception e)
+            {
+                this.ExtractExceptionInformation(e, result.InternalResult);
+            }
+
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"... done invoking `GetAllSettings`.");
+            return result;
+        }
+
+        /// <summary>
+        /// Gets all configuration units for the given unit type.
+        /// Returned units may be of types other than the one passed in.
+        /// </summary>
+        /// <returns>A <see cref="IGetAllUnitsResult"/>.</returns>
+        public IGetAllUnitsResult GetAllUnits()
+        {
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `GetAllUnits` for resource: {this.unitInternal.QualifiedName}...");
+
+            this.CheckLimitMode(ConfigurationUnitIntent.Inform);
+            var result = new GetAllUnitsResult(this.Unit);
+
+            try
+            {
+                result.Units = this.GetAllUnitsInternal();
+            }
+            catch (Exception e)
+            {
+                this.ExtractExceptionInformation(e, result.InternalResult);
+            }
+
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"... done invoking `GetAllUnits`.");
+            return result;
+        }
+
+        /// <summary>
         /// Gets the current settings.
         /// </summary>
         /// <returns>The current settings.</returns>
@@ -159,6 +209,27 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// </summary>
         /// <returns>A boolean indicating whether a reboot is required.</returns>
         protected abstract bool ApplySettingsInternal();
+
+        /// <summary>
+        /// Gets the current settings for all the instances of a configuration unit.
+        /// Derive from IGetAllSettingsConfigurationUnitProcessor and implement an override to support this.
+        /// </summary>
+        /// <returns>The settings as ValueSets.</returns>
+        protected virtual IList<ValueSet>? GetAllSettingsInternal()
+        {
+            throw new NotImplementedException("Configuration unit processor did not implement GetAllSettingsInternal.");
+        }
+
+        /// <summary>
+        /// Gets all configuration units for the given unit type.
+        /// Returned units may be of types other than the one passed in.
+        /// Derive from IGetAllUnitsConfigurationUnitProcessor and implement an override to support this.
+        /// </summary>
+        /// <returns>The configuration units.</returns>
+        protected virtual IList<ConfigurationUnit>? GetAllUnitsInternal()
+        {
+            throw new NotImplementedException("Configuration unit processor did not implement GetAllUnitsInternal.");
+        }
 
         /// <summary>
         /// Sends diagnostics if appropriate.

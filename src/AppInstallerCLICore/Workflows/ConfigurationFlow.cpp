@@ -148,7 +148,7 @@ namespace AppInstaller::CLI::Workflow
 
                 if (Logging::Log().IsEnabled(Logging::Channel::Config, Logging::Level::Verbose))
                 {
-                    factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DiagnosticTraceLevel), L"True");
+                    factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DiagnosticTraceEnabled), L"True");
                 }
             }
 
@@ -551,6 +551,8 @@ namespace AppInstaller::CLI::Workflow
                     m_context.Reporter.Info() << "  "_liv << Resource::String::ConfigurationSettings << '\n';
                     OutputValueSet(settings, 4);
                 }
+
+                m_context.Reporter.Info() << std::flush;
             }
 
         private:
@@ -1405,7 +1407,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void CreateOrOpenConfigurationSet(Context& context)
+    void CreateOrOpenConfigurationSet::operator()(Context& context) const
     {
         std::string argPath{ context.Args.GetArg(Args::Type::OutputFile) };
 
@@ -1415,9 +1417,8 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            // TODO: support other schema versions or pick up latest.
             ConfigurationSet set;
-            set.SchemaVersion(L"0.2");
+            set.SchemaVersion(Utility::ConvertToUTF16(m_defaultSchemaVersion));
 
             std::wstring argPathWide = Utility::ConvertToUTF16(argPath);
             auto absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPathWide });

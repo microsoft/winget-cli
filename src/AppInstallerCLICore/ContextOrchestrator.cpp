@@ -58,7 +58,7 @@ namespace AppInstaller::CLI::Execution
         const auto supportedConcurrentThreads = std::thread::hardware_concurrency();
         const UINT32 maxDownloadThreads = 3;
         const UINT32 operationThreads = 1;
-        const UINT32 downloadThreads = std::min(supportedConcurrentThreads ? supportedConcurrentThreads - 1 : 1, maxDownloadThreads);
+        const UINT32 downloadThreads = std::min(supportedConcurrentThreads > 1 ? supportedConcurrentThreads - 1 : 1, maxDownloadThreads);
 
         AddCommandQueue(COMDownloadCommand::CommandName, downloadThreads);
         AddCommandQueue(OperationCommandQueueName, operationThreads);
@@ -207,8 +207,8 @@ namespace AppInstaller::CLI::Execution
         SetThreadpoolCallbackPool(&m_threadPoolCallbackEnviron, m_threadPool.get());
         SetThreadpoolCallbackCleanupGroup(&m_threadPoolCallbackEnviron, m_threadPoolCleanupGroup.get(), nullptr);
 
-        THROW_LAST_ERROR_IF(!SetThreadpoolThreadMinimum(m_threadPool.get(), 1));
         SetThreadpoolThreadMaximum(m_threadPool.get(), m_allowedThreads);
+        THROW_LAST_ERROR_IF(!SetThreadpoolThreadMinimum(m_threadPool.get(), 1));
     }
 
     OrchestratorQueue::~OrchestratorQueue()

@@ -37,7 +37,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         FoundDscExecutablePath,
         // Whether to request detailed traces from the processor.
         // Read / Write
-        DiagnosticTraceLevel,
+        DiagnosticTraceEnabled,
     };
 
     // Gets the string for a property name.

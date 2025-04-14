@@ -158,10 +158,10 @@ namespace AppInstaller::CLI
         }
 
         context <<
-            Workflow::InitializeInstallerDownloadAuthenticatorsMap <<
-            Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context));
+            InitializeInstallerDownloadAuthenticatorsMap <<
+            ReportExecutionStage(ExecutionStage::Discovery) <<
+            OpenSource() <<
+            OpenCompositeSource(DetermineInstalledSource(context));
 
         if (ShouldListUpgrade(context.Args))
         {
@@ -200,19 +200,21 @@ namespace AppInstaller::CLI
             // The remaining case: search for specific packages to update
             if (!context.Args.Contains(Execution::Args::Type::MultiQuery))
             {
-                context << Workflow::InstallOrUpgradeSinglePackage(OperationType::Upgrade);
+                context << InstallOrUpgradeSinglePackage(OperationType::Upgrade);
             }
             else
             {
-                bool skipDependencies = Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies);
+                ProcessMultiplePackages::Flags flags = ProcessMultiplePackages::Flags::None;
+                if (Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
+                {
+                    flags = ProcessMultiplePackages::Flags::IgnoreDependencies;
+                }
+
                 context <<
-                    Workflow::GetMultiSearchRequests <<
-                    Workflow::SearchSubContextsForSingle(OperationType::Upgrade) <<
-                    Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
-                    Workflow::ProcessMultiplePackages(
-                        Resource::String::PackageRequiresDependencies,
-                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED,
-                        {}, true, skipDependencies);
+                    GetMultiSearchRequests <<
+                    SearchSubContextsForSingle(OperationType::Upgrade) <<
+                    ReportExecutionStage(ExecutionStage::Execution) <<
+                    ProcessMultiplePackages(Resource::String::PackageRequiresDependencies, APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED, flags);
             }
         }
     }

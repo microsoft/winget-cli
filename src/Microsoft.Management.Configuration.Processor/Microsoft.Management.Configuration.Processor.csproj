@@ -3,7 +3,7 @@
   <PropertyGroup>
     <DotNetVersion>net8.0</DotNetVersion>
     <!-- Keep in sync with attributes in AssemblyInfo.cs -->
-    <TargetFramework>$(DotNetVersion)-windows10.0.22000.0</TargetFramework>
+    <TargetFramework>$(DotNetVersion)-windows10.0.26100.0</TargetFramework>
     <Nullable>enable</Nullable>
     <!-- Keep in sync with attributes in AssemblyInfo.cs -->
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
@@ -21,7 +21,7 @@
     <!--
     !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
-    <WindowsSdkPackageVersion>10.0.22000.53</WindowsSdkPackageVersion>
+    <WindowsSdkPackageVersion>10.0.26100.53</WindowsSdkPackageVersion>
     <WinGetCsWinRTEmbedded Condition="'$(WinGetCsWinRTEmbedded)'==''">true</WinGetCsWinRTEmbedded>
   </PropertyGroup>
 
@@ -39,7 +39,7 @@
 
   <PropertyGroup>
     <CsWinRTComponent>true</CsWinRTComponent>
-    <CsWinRTWindowsMetadata>10.0.22000.0</CsWinRTWindowsMetadata>
+    <CsWinRTWindowsMetadata>10.0.26100.0</CsWinRTWindowsMetadata>
   </PropertyGroup>
 
   <ItemGroup>
@@ -89,6 +89,8 @@
       Windows.ApplicationModel.AppInstallerPolicySourc;
       Windows.ApplicationModel.AddResourcePackageOption;
       Windows.ApplicationModel.IAddResourcePackageOption;
+      Windows.ApplicationModel.FindRelatedPackagesOption;
+      Windows.ApplicationModel.IFindRelatedPackagesOption;
       Windows.ApplicationModel.Packag;
       Windows.ApplicationModel.IPackag;
       Windows.ApplicationModel.Core.AppListEntr;
@@ -106,12 +108,14 @@
       Windows.Networking.IHostNam;
       Windows.Security.Cryptography.Certificates;
       Windows.Storage;
+      Windows.Storage.Provider.FileUpdateStatu;
       Windows.System.ProcessorArchitectur;
       Windows.System.Use;
       Windows.System.IUse;
     </CsWinRTIncludes>
     <CsWinRTExcludes>
       Windows.Foundation.PropertyType;
+      Windows.Storage.Provider;
     </CsWinRTExcludes>
     <!-- Ensure Support for Windows 10, Version 1809 -->
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
