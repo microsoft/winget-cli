@@ -366,6 +366,39 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual("Contents!", File.ReadAllText(targetFilePath));
         }
 
+        /// <summary>
+        /// Simple test to confirm that a resource with a module specified can be discovered in a local repository that doesn't support resource discovery.
+        /// </summary>
+        [Test]
+        public void ConfigureFindUnitProcessors()
+        {
+            // Find all unit processors.
+            var result = TestCommon.RunAICLICommand("test config-find-unit-processors", string.Empty);
+            Assert.AreEqual(0, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Microsoft/OSInfo"));
+
+            // Setup TestExeInstaller with dsc resources.
+            var installDir = TestCommon.GetRandomTestDir();
+            result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --override \"/InstallDir {installDir} /GenerateDscResourceFiles\"");
+            Assert.AreEqual(0, result.ExitCode);
+
+            // Find unit processors filtering to install location.
+            result = TestCommon.RunAICLICommand("test config-find-unit-processors", $"-l {installDir}");
+            Assert.AreEqual(0, result.ExitCode);
+            Assert.False(result.StdOut.Contains("Microsoft/OSInfo"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest/TestResource"));
+
+            // Find unit processors filtering to unknown location.
+            var unknownDir = TestCommon.GetRandomTestDir();
+            result = TestCommon.RunAICLICommand("test config-find-unit-processors", $"-l {unknownDir}");
+            Assert.AreEqual(0, result.ExitCode);
+            Assert.True(result.StdOut.Contains("No unit processors found."));
+
+            // Clean up
+            result = TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestExeInstaller");
+            Assert.AreEqual(0, result.ExitCode);
+        }
+
         private void DeleteResourceArtifacts()
         {
             // Delete all .txt files in the test directory; they are placed there by the tests
