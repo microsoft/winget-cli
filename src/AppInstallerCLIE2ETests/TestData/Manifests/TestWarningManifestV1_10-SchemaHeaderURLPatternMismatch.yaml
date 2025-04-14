@@ -1,4 +1,5 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest-invalid.singleton.1.10.0.schema.json
+
 PackageIdentifier: AppInstallerCliTest.SchemaHeaderURLPatternMismatch
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
@@ -7,7 +8,7 @@ Publisher: Microsoft Corporation
 License: Test
 ShortDescription: This manifest has a mismatched schema header URL pattern
 
-Installers: 
+Installers:
   - Architecture: x86
     InstallerUrl: https://ThisIsNotUsed
     InstallerType: msi
