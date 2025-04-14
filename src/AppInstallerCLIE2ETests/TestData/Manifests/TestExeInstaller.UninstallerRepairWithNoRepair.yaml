@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.7.0.schema.json
+
 PackageIdentifier: AppInstallerTest.UninstallerRepairWithNoRepair
 PackageVersion: 2.0.0.0
 PackageLocale: en-US

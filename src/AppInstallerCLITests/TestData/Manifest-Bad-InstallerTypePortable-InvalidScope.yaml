@@ -1,4 +1,6 @@
 # Bad manifest. Installer Type portable does not support scope and should show a warning.
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.2.0.schema.json
+
 PackageIdentifier: TestInstaller.WithLicenseAgreement
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
@@ -7,7 +9,7 @@ Publisher: Microsoft Corporation
 Moniker: AICLITestExe
 License: Test
 ShortDescription: TestInstallerWithLicenseAgreement
-Scope: User
+Scope: user
 Installers:
   - Architecture: x64
     InstallerUrl: https://ThisIsNotUsed

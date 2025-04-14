@@ -1,4 +1,6 @@
 # Bad manifest. Installer type zip should not have any duplicate PortableCommandAlias values.
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.4.0.schema.json
+
 PackageIdentifier: microsoft.msixsdk
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
@@ -7,7 +9,7 @@ Publisher: Microsoft Corporation
 Moniker: AICLITestExe
 License: Test
 ShortDescription: Test installer for zip without nestedInstallers specified
-Scope: User
+Scope: user
 Installers:
   - Architecture: x64
     InstallerUrl: https://ThisIsNotUsed

@@ -1,4 +1,6 @@
 # Similar content to UpdateFlowTest_Exe.yaml, but with an AppsAndFeaturesEntry specifying installer type
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.1.0.schema.json
+
 PackageIdentifier: AppInstallerCliTest.TestExeInstaller
 PackageVersion: 2.0.0.0
 PackageLocale: en-US
@@ -6,6 +8,7 @@ PackageName: AppInstaller Test Installer
 Publisher: Microsoft Corporation
 Moniker: AICLITestExe
 License: Test
+ShortDescription: AppInstaller Test Installer
 AppsAndFeaturesEntries:
   - InstallerType: msix
 InstallerSwitches:

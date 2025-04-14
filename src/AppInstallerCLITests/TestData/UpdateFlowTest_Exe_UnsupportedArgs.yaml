@@ -1,4 +1,6 @@
 # Same content with UpdateFlowTest_Exe.yaml but with higher version and UnsupportedArguments
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.2.0.schema.json
+
 PackageIdentifier: AppInstallerCliTest.TestExeInstaller
 PackageVersion: 2.0.0.0
 PackageLocale: en-US
@@ -14,7 +16,8 @@ Switches:
 UnsupportedArguments:
     - log
     - location
-Installers: 
+ShortDescription: AppInstaller Test Exe Installer
+Installers:
     - Architecture: x64
       InstallerUrl: https://ThisIsNotUsed
       InstallerType: exe

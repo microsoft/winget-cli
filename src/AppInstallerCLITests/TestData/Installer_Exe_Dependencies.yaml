@@ -1,12 +1,14 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.0.0.schema.json
+
 PackageIdentifier: AppInstallerCliTest.TestExeInstaller.Dependencies
-PackageVersion: 1.0
+PackageVersion: '1.0'
 PackageLocale: en-US
 PackageName: AppInstaller Test Exe Installer With Package Dep
 Publisher: Microsoft Corporation
 Moniker: AICLITestExePackageDep
 License: Test
 ShortDescription: AppInstaller Test Exe Installer With Package Dep
-Installers: 
+Installers:
     - Architecture: x64
       InstallerUrl: https://ThisIsNotUsed
       InstallerType: exe

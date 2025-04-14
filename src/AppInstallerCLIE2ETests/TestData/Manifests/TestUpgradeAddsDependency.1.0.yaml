@@ -1,5 +1,7 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.4.0.schema.json
+
 PackageIdentifier: AppInstallerTest.TestUpgradeAddsDependency
-PackageVersion: 1.0
+PackageVersion: '1.0'
 PackageName: TestUpgradeAddsDependency
 PackageLocale: en-US
 Publisher: Microsoft

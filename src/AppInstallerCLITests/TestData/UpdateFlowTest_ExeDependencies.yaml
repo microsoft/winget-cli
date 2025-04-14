@@ -1,4 +1,6 @@
 # Same content with Installer_Exe_Dependencies but with higher version
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.0.0.schema.json
+
 PackageIdentifier: AppInstallerCliTest.TestExeInstaller.Dependencies
 PackageVersion: 2.0.0.0
 PackageName: AppInstaller Test Installer
@@ -12,7 +14,7 @@ InstallerSwitches:
   SilentWithProgress: /silentwithprogress
   Silent: /silence
   Upgrade: /upgrade
-Installers: 
+Installers:
     - Architecture: x64
       InstallerUrl: https://ThisIsNotUsed
       InstallerType: exe

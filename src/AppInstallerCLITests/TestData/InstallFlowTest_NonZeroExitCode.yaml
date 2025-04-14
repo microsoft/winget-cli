@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.0.0.schema.json
+
 PackageIdentifier: AppInstallerCliTest.TestInstaller
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
@@ -5,11 +7,12 @@ PackageName: AppInstaller Test Installer
 Publisher: Microsoft Corporation
 Moniker: AICLITestExe
 License: Test
+ShortDescription: AppInstaller Test Installer
 InstallerSwitches:
   Custom: /ExitCode 0x80070005
   SilentWithProgress: /silentwithprogress
   Silent: /silence
-Installers: 
+Installers:
     - Architecture: x86
       InstallerUrl: https://ThisIsNotUsed
       InstallerType: exe
