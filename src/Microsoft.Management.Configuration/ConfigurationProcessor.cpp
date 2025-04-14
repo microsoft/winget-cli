@@ -995,7 +995,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
         else
         {
-            AICLI_LOG(Config, Error, << "Set Processor does not support FindUnitProcessors operation");
+            AICLI_LOG(Config, Warning, << "Set Processor does not support FindUnitProcessors operation");
         }
 
         return result;
