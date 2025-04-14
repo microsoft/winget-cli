@@ -24,7 +24,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// <summary>
         /// Gets the value type of the environment variable.
         /// </summary>
-        public ProcessExecutionEnvironmentVariableVakueType ValueType { get; init; } = ProcessExecutionEnvironmentVariableVakueType.Override;
+        public ProcessExecutionEnvironmentVariableValueType ValueType { get; init; } = ProcessExecutionEnvironmentVariableValueType.Override;
 
         /// <summary>
         /// Gets the separator of the environment variable if value type is prepend or append.

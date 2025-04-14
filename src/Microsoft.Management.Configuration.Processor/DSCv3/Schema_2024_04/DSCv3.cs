@@ -259,11 +259,11 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             List<ProcessExecutionEnvironmentVariable> result = new List<ProcessExecutionEnvironmentVariable>();
             if (runSettings is not null && !string.IsNullOrEmpty(runSettings.ResourceSearchPaths))
             {
-                result.Add(new ProcessExecutionEnvironmentVariable { Name = PathEnvironmentVariable, Value = runSettings.ResourceSearchPaths, ValueType = ProcessExecutionEnvironmentVariableVakueType.Prepend });
+                result.Add(new ProcessExecutionEnvironmentVariable { Name = PathEnvironmentVariable, Value = runSettings.ResourceSearchPaths, ValueType = ProcessExecutionEnvironmentVariableValueType.Prepend });
 
                 if (runSettings.ResourceSearchPathsExclusive)
                 {
-                    result.Add(new ProcessExecutionEnvironmentVariable { Name = DSCResourcePathEnvironmentVariable, Value = runSettings.ResourceSearchPaths, ValueType = ProcessExecutionEnvironmentVariableVakueType.Override });
+                    result.Add(new ProcessExecutionEnvironmentVariable { Name = DSCResourcePathEnvironmentVariable, Value = runSettings.ResourceSearchPaths, ValueType = ProcessExecutionEnvironmentVariableValueType.Override });
                 }
             }
 

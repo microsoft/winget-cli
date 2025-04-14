@@ -178,11 +178,11 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             {
                 switch (env.ValueType)
                 {
-                    case ProcessExecutionEnvironmentVariableVakueType.Override:
+                    case ProcessExecutionEnvironmentVariableValueType.Override:
                         startInfo.EnvironmentVariables[env.Name] = env.Value;
                         break;
 
-                    case ProcessExecutionEnvironmentVariableVakueType.Prepend:
+                    case ProcessExecutionEnvironmentVariableValueType.Prepend:
                         {
                             string existingValue = startInfo.EnvironmentVariables[env.Name] ?? string.Empty;
                             if (string.IsNullOrEmpty(env.Separator))
@@ -208,7 +208,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                             break;
                         }
 
-                    case ProcessExecutionEnvironmentVariableVakueType.Append:
+                    case ProcessExecutionEnvironmentVariableValueType.Append:
                         {
                             string existingValue = startInfo.EnvironmentVariables[env.Name] ?? string.Empty;
                             if (string.IsNullOrEmpty(env.Separator))

@@ -367,7 +367,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Simple test to confirm that a resource with a module specified can be discovered in a local repository that doesn't support resource discovery.
+        /// Find unit processors tests.
         /// </summary>
         [Test]
         public void ConfigureFindUnitProcessors()
