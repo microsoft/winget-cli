@@ -147,7 +147,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         }
 
         /// <inheritdoc />
-        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal)
+        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings)
         {
             // 3.0 can't handle input to export; 3.1 will fix that.
             ValueSet expandedSettings = unitInternal.GetExpandedSettings();
@@ -160,6 +160,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
                 Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, ExportCommand, ResourceParameter, unitInternal.QualifiedName },
+                EnvironmentVariables = CreateEnvironmentVariablesFromProcessorRunSettings(runSettings),
             };
 
             if (this.RunSynchronously(processExecution))
@@ -285,7 +286,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             return processExecution.ExitCode != 0;
         }
 
-        private ResourceListItem? GetResourceByTypeInternal(string resourceType, string? adapter, ProcessorRunSettings? runSettings = null)
+        private ResourceListItem? GetResourceByTypeInternal(string resourceType, string? adapter, ProcessorRunSettings? runSettings)
         {
             ProcessExecution processExecution = new ProcessExecution()
             {

@@ -62,16 +62,20 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Set
 
             return resourceDetails.GetConfigurationUnitProcessorDetails();
         }
+
         /// <inheritdoc />
         protected override IList<IConfigurationUnitProcessorDetails> FindUnitProcessorsInternal(FindUnitProcessorsOptions findOptions)
         {
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"Finding unit processors with following options. SearchPaths: {findOptions.SearchPaths}, SearchPathsExclusive: {findOptions.SearchPathsExclusive}, DetailFlags: [{findOptions.UnitDetailFlags}]");
             List<IConfigurationUnitProcessorDetails> result = new List<IConfigurationUnitProcessorDetails>();
+
             var resourceDetailsList = this.processorSettings.FindAllResourceDetails(findOptions);
             foreach (var resourceDetails in resourceDetailsList)
             {
-                result.Add(resourceDetails.GetConfigurationUnitProcessorDetails() !);
+                result.Add(resourceDetails.GetConfigurationUnitProcessorDetails()!);
             }
+
             return result;
+        }
     }
 }

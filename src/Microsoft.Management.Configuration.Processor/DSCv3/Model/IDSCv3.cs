@@ -69,7 +69,8 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
         /// Exports configuration unit.
         /// </summary>
         /// <param name="unitInternal">The unit to export.</param>
+        /// <param name="runSettings">The processor run settings.</param>
         /// <returns>A list of export results.</returns>
-        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal);
+        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings);
     }
 }
