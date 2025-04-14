@@ -1,5 +1,6 @@
-# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.0.0.schema.json
 # Installer with all types of dependencies
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.0.0.schema.json
+
 PackageIdentifier: AppInstallerCliTest.TestMsixInstaller
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
@@ -22,7 +23,7 @@ Installers:
         - WindowsLibrariesDep
       PackageDependencies:
         - PackageIdentifier: Package.Dep1-x64
-          MinimumVersion: 1.0
+          MinimumVersion: '1.0'
         - PackageIdentifier: Package.Dep2-x64
       ExternalDependencies:
         - ExternalDep

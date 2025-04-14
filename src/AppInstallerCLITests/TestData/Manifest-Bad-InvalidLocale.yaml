@@ -1,4 +1,6 @@
 # Bad manifest. Invalid locale.
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.0.0.schema.json
+
 PackageIdentifier: microsoft.msixsdk
 PackageVersion: 1.0.0
 PackageName: MSIX SDK

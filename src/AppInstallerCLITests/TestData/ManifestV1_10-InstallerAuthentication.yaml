@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.10.0.schema.json
+
 PackageIdentifier: AppInstallerCliTest.InstallerAuthentication
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
@@ -10,8 +12,9 @@ Authentication:
   MicrosoftEntraIdAuthenticationInfo:
     Resource: TestResource
     Scope: TestScope
+ShortDescription: Test installer for authentication
 
-Installers: 
+Installers:
   - Architecture: x86
     InstallerUrl: https://ThisIsNotUsed
     InstallerType: msi

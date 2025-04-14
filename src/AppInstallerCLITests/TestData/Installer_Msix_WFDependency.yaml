@@ -1,4 +1,5 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.0.0.schema.json
+
 PackageIdentifier: AppInstallerCliTest.TestMsixInstaller.WFDep
 PackageVersion: 1.0.0.0
 PackageLocale: en-US

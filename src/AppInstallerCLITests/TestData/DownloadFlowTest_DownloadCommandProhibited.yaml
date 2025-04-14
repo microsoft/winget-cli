@@ -1,4 +1,5 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.6.0.schema.json
+
 PackageIdentifier: AppInstallerCliTest.DownloadCommandProhibited
 PackageVersion: 1.0.0.0
 PackageLocale: en-US

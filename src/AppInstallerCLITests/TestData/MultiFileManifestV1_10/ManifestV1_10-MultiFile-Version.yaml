@@ -1,4 +1,5 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.10.0.schema.json
+
 PackageIdentifier: microsoft.msixsdk
 PackageVersion: 1.7.32
 DefaultLocale: en-US

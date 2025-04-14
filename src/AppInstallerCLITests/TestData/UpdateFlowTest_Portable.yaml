@@ -1,5 +1,6 @@
-# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.2.0.schema.json
 # Same content with InstallFlowTest_Portable.yaml but with higher version
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.2.0.schema.json
+
 PackageIdentifier: AppInstallerCliTest.TestPortableInstaller
 PackageVersion: 2.0.0.0
 PackageLocale: en-US
@@ -8,6 +9,7 @@ Publisher: Microsoft Corporation
 AppMoniker: AICLITestPortable
 ProductCode: AppInstallerCliTest.TestPortableInstaller__TestSource
 License: Test
+ShortDescription: AppInstaller Test Portable Exe
 Installers:
     - Architecture: x64
       InstallerUrl: https://ThisIsNotUsed

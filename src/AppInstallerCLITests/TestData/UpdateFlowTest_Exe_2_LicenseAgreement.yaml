@@ -1,5 +1,6 @@
-# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.1.0.schema.json
 # Similar content to UpdateFlowTest_Exe_2.yaml but with Agreements
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.1.0.schema.json
+
 PackageIdentifier: AppInstallerCliTest.TestExeInstaller
 PackageVersion: 3.0.0.0
 PackageLocale: en-US
@@ -7,6 +8,7 @@ PackageName: AppInstaller Test Installer
 Publisher: Microsoft Corporation
 Moniker: AICLITestExe
 License: Test
+ShortDescription: AppInstaller Test Installer
 Agreements:
   - AgreementLabel: Agreement for EXE
     Agreement: This is the agreement for the EXE installer.

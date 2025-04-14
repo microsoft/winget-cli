@@ -1,4 +1,6 @@
 # Bad manifest. Expected return codes repeat the same return code
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.1.0.schema.json
+
 PackageIdentifier: AppInstallerCliTest.TestInstaller
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
@@ -16,6 +18,6 @@ Installers:
           - 1
       ExpectedReturnCodes:
           - InstallerReturnCode: 1
-            ReturnResponse: PackageInUse
+            ReturnResponse: packageInUse
 ManifestType: singleton
 ManifestVersion: 1.1.0

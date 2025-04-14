@@ -1,4 +1,6 @@
 # Bad manifest. Installer type zip with NestedInstallerType portable should only allow .exe files
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.9.0.schema.json
+
 PackageIdentifier: microsoft.msixsdk
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
