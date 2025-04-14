@@ -147,7 +147,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         }
 
         /// <inheritdoc />
-        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
+        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal)
         {
             // 3.0 can't handle input to export; 3.1 will fix that.
             ValueSet expandedSettings = unitInternal.GetExpandedSettings();

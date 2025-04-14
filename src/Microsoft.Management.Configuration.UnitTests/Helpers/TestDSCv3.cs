@@ -131,7 +131,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         }
 
         /// <inheritdoc/>
-        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
+        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal)
         {
             return this.ExportResourceResult ?? this.ExportResourceDelegate?.Invoke(unitInternal) ?? throw new System.NotImplementedException();
         }
