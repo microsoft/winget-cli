@@ -72,7 +72,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Set
             var resourceDetailsList = this.processorSettings.FindAllResourceDetails(findOptions);
             foreach (var resourceDetails in resourceDetailsList)
             {
-                result.Add(resourceDetails.GetConfigurationUnitProcessorDetails()!);
+                result.Add(resourceDetails.GetConfigurationUnitProcessorDetails() !);
             }
 
             return result;
