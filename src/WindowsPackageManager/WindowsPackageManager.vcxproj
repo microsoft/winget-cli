@@ -176,10 +176,9 @@
     <CodeAnalysisRuleSet>..\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
-    <VcpkgEnableManifest>true</VcpkgEnableManifest>
     <VcpkgApplocalDeps>false</VcpkgApplocalDeps>
-    <VcpkgInstalledDir>$(ProjectDir)..\vcpkg_installed</VcpkgInstalledDir>
   </PropertyGroup>
+  <Import Project="$(ProjectDir)\..\vcpkg.props" />
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|x64'">
     <VcpkgTriplet>x64-release-static</VcpkgTriplet>
     <VcpkgConfiguration>Release</VcpkgConfiguration>

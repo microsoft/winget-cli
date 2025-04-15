@@ -47,10 +47,7 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)x86\$(Configuration)\$(ProjectName)\</OutDir>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg">
-    <VcpkgEnableManifest>true</VcpkgEnableManifest>
-  </PropertyGroup>
-  <Import Project="$(SolutionDir)\vcpkg.props" />
+  <Import Project="$(ProjectDir)\..\vcpkg.props" />
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Fuzzing'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
