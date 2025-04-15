@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "WorkflowBase.h"
 #include "ExecutionContext.h"
-#include "ManifestComparator.h"
+#include <winget/ManifestComparator.h>
 #include "PromptFlow.h"
 #include "Sixel.h"
 #include "TableOutput.h"
@@ -458,6 +458,57 @@ namespace AppInstaller::CLI::Workflow
     HRESULT HandleException(Execution::Context& context, std::exception_ptr exception)
     {
         return HandleException(&context, exception);
+    }
+
+    AppInstaller::Manifest::ManifestComparator::Options GetManifestComparatorOptions(const Execution::Context& context, const IPackageVersion::Metadata& metadata)
+    {
+        AppInstaller::Manifest::ManifestComparator::Options options;
+        bool getAllowedArchitecturesFromMetadata = false;
+
+        if (context.Contains(Execution::Data::AllowedArchitectures))
+        {
+            // Com caller can directly set allowed architectures
+            options.AllowedArchitectures = context.Get<Execution::Data::AllowedArchitectures>();
+        }
+        else if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
+        {
+            // Arguments provided in command line
+            options.AllowedArchitectures.emplace_back(Utility::ConvertToArchitectureEnum(context.Args.GetArg(Execution::Args::Type::InstallArchitecture)));
+        }
+        else if (context.Args.Contains(Execution::Args::Type::InstallerArchitecture))
+        {
+            // Arguments provided in command line. Also skips applicability check.
+            options.AllowedArchitectures.emplace_back(Utility::ConvertToArchitectureEnum(context.Args.GetArg(Execution::Args::Type::InstallerArchitecture)));
+            options.SkipApplicabilityCheck = true;
+        }
+        else
+        {
+            getAllowedArchitecturesFromMetadata = true;
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::InstallerType))
+        {
+            options.RequestedInstallerType = Manifest::ConvertToInstallerTypeEnum(std::string(context.Args.GetArg(Execution::Args::Type::InstallerType)));
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::InstallScope))
+        {
+            options.CurrentlyInstalledScope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+        }
+
+        if (context.Contains(Execution::Data::AllowUnknownScope))
+        {
+            options.AllowUnknownScope = context.Get<Execution::Data::AllowUnknownScope>();
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::Locale))
+        {
+            options.RequestedInstallerLocale = context.Args.GetArg(Execution::Args::Type::Locale);
+        }
+
+        Repository::GetManifestComparatorOptionsFromMetadata(options, metadata, getAllowedArchitecturesFromMetadata);
+
+        return options;
     }
 
     void OpenSource::operator()(Execution::Context& context) const
@@ -1374,12 +1425,12 @@ namespace AppInstaller::CLI::Workflow
             installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
         }
 
-        ManifestComparator manifestComparator(context, installationMetadata);
+        Manifest::ManifestComparator manifestComparator(GetManifestComparatorOptions(context, installationMetadata));
         auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
 
         if (!installer.has_value())
         {
-            auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), InapplicabilityFlags::InstalledType);
+            auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), Manifest::InapplicabilityFlags::InstalledType);
             if (onlyInstalledType != inapplicabilities.end())
             {
                 if (isRepair)

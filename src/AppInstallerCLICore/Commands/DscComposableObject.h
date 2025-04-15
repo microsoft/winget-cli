@@ -135,7 +135,7 @@ namespace AppInstaller::CLI
         }
 
         // Copies the appropriate values to a new object for output.
-        DscComposableObject CopyForOutput()
+        DscComposableObject CopyForOutput() const
         {
             DscComposableObject result;
             (FoldHelper{}, ..., Property::CopyForOutput(this, &result));
@@ -232,7 +232,7 @@ namespace AppInstaller::CLI
     WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_, _enum_vals_, _default_)
 
     WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL_START(StandardExistProperty, bool, Exist, "_exist", DscComposablePropertyFlag::None, Resource::String::DscResourcePropertyDescriptionExist, {}, {})
-        bool ShouldExist() { return m_value.value_or(true); }
+        bool ShouldExist() const { return m_value.value_or(true); }
     };
 
     WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(StandardInDesiredStateProperty, bool, InDesiredState, "_inDesiredState", Resource::String::DscResourcePropertyDescriptionInDesiredState);

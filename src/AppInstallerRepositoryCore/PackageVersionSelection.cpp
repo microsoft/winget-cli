@@ -168,10 +168,12 @@ namespace AppInstaller::Repository
         PinningData pinningData{ PinningData::Disposition::ReadOnly };
         auto evaluator = pinningData.CreatePinStateEvaluator(PinBehavior::ConsiderPins, installedVersion);
 
-        AppInstaller::CLI::Execution::COMContext context;
-        AppInstaller::Repository::IPackageVersion::Metadata installationMetadata =
-            installedVersion ? installedVersion->GetMetadata() : AppInstaller::Repository::IPackageVersion::Metadata{};
-        AppInstaller::CLI::Workflow::ManifestComparator manifestComparator{ context, installationMetadata };
+        AppInstaller::Manifest::ManifestComparator::Options options;
+        if (installedVersion)
+        {
+            GetManifestComparatorOptionsFromMetadata(options, installedVersion->GetMetadata());
+        }
+        AppInstaller::Manifest::ManifestComparator manifestComparator{ options };
 
         auto availableVersionKeys = availableVersions->GetVersionKeys();
         for (const auto& availableVersionKey : availableVersionKeys)
@@ -204,6 +206,74 @@ namespace AppInstaller::Repository
             }
 
             break;
+        }
+
+        return result;
+    }
+
+    void GetManifestComparatorOptionsFromMetadata(AppInstaller::Manifest::ManifestComparator::Options& options, const IPackageVersion::Metadata& metadata, bool includeAllowedArchitectures)
+    {
+        auto installedTypeItr = metadata.find(Repository::PackageVersionMetadata::InstalledType);
+        if (installedTypeItr != metadata.end())
+        {
+            options.CurrentlyInstalledType = Manifest::ConvertToInstallerTypeEnum(installedTypeItr->second);
+        }
+
+        auto installedScopeItr = metadata.find(Repository::PackageVersionMetadata::InstalledScope);
+        if (installedScopeItr != metadata.end())
+        {
+            options.CurrentlyInstalledScope = Manifest::ConvertToScopeEnum(installedScopeItr->second);
+        }
+
+        auto userIntentLocaleItr = metadata.find(Repository::PackageVersionMetadata::UserIntentLocale);
+        if (userIntentLocaleItr != metadata.end())
+        {
+            options.PreviousUserIntentLocale = userIntentLocaleItr->second;
+        }
+
+        auto installedLocaleItr = metadata.find(Repository::PackageVersionMetadata::InstalledLocale);
+        if (installedLocaleItr != metadata.end())
+        {
+            options.CurrentlyInstalledLocale = installedLocaleItr->second;
+        }
+
+        if (includeAllowedArchitectures)
+        {
+            auto userIntentItr = metadata.find(Repository::PackageVersionMetadata::UserIntentArchitecture);
+            if (userIntentItr != metadata.end())
+            {
+                // For upgrade, user intent from previous install is considered requirement
+                options.AllowedArchitectures.emplace_back(Utility::ConvertToArchitectureEnum(userIntentItr->second));
+            }
+            else
+            {
+                auto installedItr = metadata.find(Repository::PackageVersionMetadata::InstalledArchitecture);
+                if (installedItr != metadata.end())
+                {
+                    // For upgrade, previous installed architecture should be considered first preference and is always allowed.
+                    // Then check settings requirements and preferences.
+                    options.AllowedArchitectures.emplace_back(Utility::ConvertToArchitectureEnum(installedItr->second));
+                }
+
+                std::vector<Utility::Architecture> requiredArchitectures = Settings::User().Get<Settings::Setting::InstallArchitectureRequirement>();
+                std::vector<Utility::Architecture> optionalArchitectures = Settings::User().Get<Settings::Setting::InstallArchitecturePreference>();
+
+                if (!requiredArchitectures.empty())
+                {
+                    // Required architecture list from settings if applicable
+                    options.AllowedArchitectures.insert(options.AllowedArchitectures.end(), requiredArchitectures.begin(), requiredArchitectures.end());
+                }
+                else
+                {
+                    // Preferred architecture list from settings if applicable, add Unknown to indicate allowing remaining applicable
+                    if (!optionalArchitectures.empty())
+                    {
+                        options.AllowedArchitectures.insert(options.AllowedArchitectures.end(), optionalArchitectures.begin(), optionalArchitectures.end());
+                    }
+
+                    options.AllowedArchitectures.emplace_back(Utility::Architecture::Unknown);
+                }
+            }
         }
     }
 }

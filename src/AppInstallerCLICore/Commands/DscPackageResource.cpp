@@ -5,6 +5,7 @@
 #include "DscComposableObject.h"
 #include "Resources.h"
 #include "Workflows/WorkflowBase.h"
+#include <winget/PackageVersionSelection.h>
 
 using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Repository;
@@ -16,7 +17,7 @@ namespace AppInstaller::CLI
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(IdProperty, std::string, Identifier, "id", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageId);
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SourceProperty, std::string, Source, "source", DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageSource);
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(VersionProperty, std::string, Version, "version", Resource::String::DscResourcePropertyDescriptionPackageVersion);
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM_FLAGS(ScopeProperty, std::string, Scope, "scope", DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageScope, ({ "user", "machine" }), {});
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM_FLAGS(ScopeProperty, std::string, Scope, "scope", DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageScope, ({ "user", "system" }), {});
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM_FLAGS(MatchOptionProperty, std::string, MatchOption, "matchOption", DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageMatchOption, ({ "equals", "equalsCaseInsensitive", "startsWithCaseInsensitive", "containsCaseInsensitive" }), "equalsCaseInsensitive");
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_DEFAULT(UseLatestProperty, bool, UseLatest, "useLatest", Resource::String::DscResourcePropertyDescriptionPackageUseLatest, "false");
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(InstallModeProperty, std::string, InstallMode, "installMode", Resource::String::DscResourcePropertyDescriptionPackageInstallMode, ({ "default", "silent", "interactive" }), "silent");
@@ -37,15 +38,15 @@ namespace AppInstaller::CLI
             {
                 return MatchType::Exact;
             }
-            else if (lowerValue == "equalscaseinsensitive")
+            else if (lowerValue == "equals""case""insensitive")
             {
                 return MatchType::CaseInsensitive;
             }
-            else if (lowerValue == "startswithcaseinsensitive")
+            else if (lowerValue == "starts""with""case""insensitive")
             {
                 return MatchType::StartsWith;
             }
-            else if (lowerValue == "containscaseinsensitive")
+            else if (lowerValue == "contains""case""insensitive")
             {
                 return MatchType::Substring;
             }
@@ -53,14 +54,40 @@ namespace AppInstaller::CLI
             THROW_HR(E_INVALIDARG);
         }
 
+        std::string ConvertScope(std::string_view value, bool preferSystem)
+        {
+            std::string lowerValue = Utility::ToLower(value);
+
+            if (lowerValue == "machine" || lowerValue == "system")
+            {
+                return preferSystem ? "system" : "machine";
+            }
+            else
+            {
+                return std::string{ value };
+            }
+        }
+
         struct PackageFunctionData
         {
             PackageFunctionData(Execution::Context& context, const std::optional<Json::Value>& json) :
                 Input(json),
-                Output(Input.CopyForOutput()),
-                ParentContext(context),
-                SubContext(context.CreateSubContext())
+                ParentContext(context)
             {
+                Reset();
+            }
+
+            const PackageResourceObject Input;
+            PackageResourceObject Output;
+            Execution::Context& ParentContext;
+            std::unique_ptr<Execution::Context> SubContext;
+
+            // Reset the state that is modified by Get
+            void Reset()
+            {
+                Output = Input.CopyForOutput();
+
+                SubContext = ParentContext.CreateSubContext();
                 SubContext->SetFlags(Execution::ContextFlag::DisableInteractivity);
 
                 if (Input.AcceptAgreements().value_or(false))
@@ -70,13 +97,8 @@ namespace AppInstaller::CLI
                 }
             }
 
-            PackageResourceObject Input;
-            PackageResourceObject Output;
-            Execution::Context& ParentContext;
-            std::unique_ptr<Execution::Context> SubContext;
-
             // Fills the Output object with the current state
-            void Get()
+            bool Get()
             {
                 if (Input.Source())
                 {
@@ -85,17 +107,17 @@ namespace AppInstaller::CLI
 
                 if (Input.Scope() && !Input.Scope().value().empty())
                 {
-                    SubContext->Args.AddArg(Execution::Args::Type::InstallScope, Input.Scope().value());
+                    SubContext->Args.AddArg(Execution::Args::Type::InstallScope, ConvertScope(Input.Scope().value(), false));
                 }
 
                 *SubContext <<
                     Workflow::OpenSource() <<
-                    Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(*SubContext));
+                    Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(*SubContext), false, CompositeSearchBehavior::AllPackages);
 
                 if (SubContext->IsTerminated())
                 {
                     ParentContext.Terminate(SubContext->GetTerminationHR());
-                    return;
+                    return false;
                 }
 
                 // Do a manual search of the now opened source
@@ -119,23 +141,53 @@ namespace AppInstaller::CLI
                 else
                 {
                     auto& package = result.Matches.front().Package;
+
                     auto installedPackage = package->GetInstalled();
-                    THROW_HR_IF(E_UNEXPECTED, !installedPackage);
-                    auto installedVersion = installedPackage->GetLatestVersion();
-                    THROW_HR_IF(E_UNEXPECTED, !installedVersion);
-                    auto metadata = installedVersion->GetMetadata();
 
                     // Fill Output and SubContext
-                    Output.Exist(true);
+                    Output.Exist(static_cast<bool>(installedPackage));
                     Output.Identifier(package->GetProperty(PackageProperty::Id));
-                    Output.Version(installedVersion->GetProperty(PackageVersionProperty::Version));
 
-                    auto scopeItr = metadata.find(PackageVersionMetadata::InstalledScope);
-                    if (scopeItr != metadata.end())
+                    if (installedPackage)
                     {
-                        Output.Scope(scopeItr->second);
+                        auto installedVersion = installedPackage->GetLatestVersion();
+                        THROW_HR_IF(E_UNEXPECTED, !installedVersion);
+                        auto metadata = installedVersion->GetMetadata();
+
+                        Output.Version(installedVersion->GetProperty(PackageVersionProperty::Version));
+
+                        auto scopeItr = metadata.find(PackageVersionMetadata::InstalledScope);
+                        if (scopeItr != metadata.end())
+                        {
+                            Output.Scope(ConvertScope(scopeItr->second, true));
+                        }
+
+                        auto data = Repository::GetDefaultInstallVersion(package);
+                        Output.UseLatest(!data.UpdateAvailable);
                     }
                 }
+
+                return true;
+            }
+
+            void Uninstall()
+            {
+                THROW_HR(E_NOTIMPL);
+            }
+
+            void Update()
+            {
+                THROW_HR(E_NOTIMPL);
+            }
+
+            void Install()
+            {
+                THROW_HR(E_NOTIMPL);
+            }
+
+            void Reinstall()
+            {
+                THROW_HR(E_NOTIMPL);
             }
 
             // Determines if the current Output values match the Input values state.
@@ -148,7 +200,7 @@ namespace AppInstaller::CLI
                 {
                     if (Output.Exist().value())
                     {
-                        THROW_HR(E_NOTIMPL);
+                        return TestVersion() && TestScope() && TestLatest();
                     }
                     else
                     {
@@ -174,13 +226,25 @@ namespace AppInstaller::CLI
                 }
                 else
                 {
-                    THROW_HR(E_NOTIMPL);
+                    if (!TestVersion())
+                    {
+                        result.append(std::string{ VersionProperty::Name() });
+                    }
+
+                    if (!TestScope())
+                    {
+                        result.append(std::string{ ScopeProperty::Name() });
+                    }
+
+                    if (!TestLatest())
+                    {
+                        result.append(std::string{ UseLatestProperty::Name() });
+                    }
                 }
 
                 return result;
             }
 
-        private:
             bool TestVersion()
             {
                 if (Input.Version())
@@ -206,7 +270,8 @@ namespace AppInstaller::CLI
                 {
                     if (Output.Scope())
                     {
-                        return Utility::ToLower(Input.Scope().value()) == Utility::ToLower(Output.Scope().value());
+                        return Manifest::ConvertToScopeEnum(ConvertScope(Input.Scope().value(), false)) ==
+                            Manifest::ConvertToScopeEnum(ConvertScope(Output.Scope().value(), false));
                     }
                     else
                     {
@@ -221,9 +286,16 @@ namespace AppInstaller::CLI
 
             bool TestLatest()
             {
-                if (Input.UseLatest())
+                if (Input.UseLatest() && Input.UseLatest().value())
                 {
-
+                    if (Output.UseLatest())
+                    {
+                        return Output.UseLatest().value();
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
@@ -235,7 +307,7 @@ namespace AppInstaller::CLI
 
     DscPackageResource::DscPackageResource(std::string_view parent) :
         DscCommandBase(parent, "package", DscResourceKind::Resource,
-            DscFunctions::Get | DscFunctions::Set | DscFunctions::WhatIf | DscFunctions::Test | DscFunctions::Export | DscFunctions::Schema,
+            DscFunctions::Get | DscFunctions::Set | DscFunctions::Test | DscFunctions::Export | DscFunctions::Schema,
             DscFunctionModifiers::ImplementsPretest | DscFunctionModifiers::HandlesExist | DscFunctionModifiers::ReturnsStateAndDiff)
     {
     }
@@ -261,7 +333,10 @@ namespace AppInstaller::CLI
         {
             PackageFunctionData data{ context, json };
 
-            data.Get();
+            if (!data.Get())
+            {
+                return;
+            }
 
             WriteJsonOutputLine(context, data.Output.ToJson());
         }
@@ -273,34 +348,68 @@ namespace AppInstaller::CLI
         {
             PackageFunctionData data{ context, json };
 
-            data.Get();
+            if (!data.Get())
+            {
+                return;
+            }
 
             if (!data.Test())
             {
-                THROW_HR(E_NOTIMPL);
+                if (data.Input.ShouldExist())
+                {
+                    if (data.Output.Exist().value())
+                    {
+                        if (!data.TestScope())
+                        {
+                            data.Reinstall();
+                        }
+                        if (!data.TestLatest())
+                        {
+                            data.Update();
+                        }
+                        else // (!data.TestVersion())
+                        {
+                            Utility::Version inputVersion{ data.Input.Version().value() };
+                            Utility::Version outputVersion{ data.Output.Version().value() };
+
+                            if (outputVersion < inputVersion)
+                            {
+                                data.Update();
+                            }
+                            else
+                            {
+                                data.Reinstall();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        data.Install();
+                    }
+                }
+                else
+                {
+                    data.Uninstall();
+                }
+
+                if (data.SubContext->IsTerminated())
+                {
+                    data.ParentContext.Terminate(data.SubContext->GetTerminationHR());
+                    return;
+                }
             }
 
             // Capture the diff before updating the output
             auto diff = data.DiffJson();
 
-            data.Output.Exist(data.Input.ShouldExist());
-            if (data.Output.Exist().value())
+            data.Reset();
+            if (!data.Get())
             {
-                THROW_HR(E_NOTIMPL);
+                return;
             }
 
             WriteJsonOutputLine(context, data.Output.ToJson());
             WriteJsonOutputLine(context, diff);
-        }
-    }
-
-    void DscPackageResource::ResourceFunctionWhatIf(Execution::Context& context) const
-    {
-        if (auto json = GetJsonFromInput(context))
-        {
-            PackageFunctionData data{ context, json };
-
-            THROW_HR(E_NOTIMPL);
         }
     }
 
@@ -310,7 +419,11 @@ namespace AppInstaller::CLI
         {
             PackageFunctionData data{ context, json };
 
-            data.Get();
+            if (!data.Get())
+            {
+                return;
+            }
+
             data.Output.InDesiredState(data.Test());
 
             WriteJsonOutputLine(context, data.Output.ToJson());

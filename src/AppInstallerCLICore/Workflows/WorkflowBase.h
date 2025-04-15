@@ -7,6 +7,7 @@
 #include <winget/RepositorySearch.h>
 #include <winget/RepositorySource.h>
 #include <winget/Authentication.h>
+#include <winget/ManifestComparator.h>
 
 #include <string>
 #include <string_view>
@@ -90,6 +91,9 @@ namespace AppInstaller::CLI::Workflow
 
     // Helper to report exceptions and return the HRESULT.
     HRESULT HandleException(Execution::Context& context, std::exception_ptr exception);
+
+    // Fills the options from the given context and metadata.
+    AppInstaller::Manifest::ManifestComparator::Options GetManifestComparatorOptions(const Execution::Context& context, const Repository::IPackageVersion::Metadata& metadata);
 
     // Creates the source object.
     // Required Args: None

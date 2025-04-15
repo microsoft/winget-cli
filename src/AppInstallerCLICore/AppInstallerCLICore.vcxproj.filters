@@ -47,9 +47,6 @@
     <ClInclude Include="Workflows\InstallFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
-    <ClInclude Include="Workflows\ManifestComparator.h">
-      <Filter>Workflows</Filter>
-    </ClInclude>
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h">
       <Filter>Workflows</Filter>
     </ClInclude>
@@ -303,9 +300,6 @@
     </ClCompile>
     <ClCompile Include="Core.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Workflows\ManifestComparator.cpp">
-      <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp">
       <Filter>Workflows</Filter>

@@ -11,7 +11,6 @@
 #include "PackageInstallerInstalledStatus.h"
 #include "CheckInstalledStatusResult.h"
 #include <ComContext.h>
-#include <Workflows/ManifestComparator.h>
 #include <wil\cppwinrt_wrl.h>
 #include <winget/PinningData.h>
 #include <winget/PackageVersionSelection.h>
@@ -72,60 +71,17 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::call_once(m_defaultInstallVersionOnceFlag,
             [&]()
             {
-                using namespace AppInstaller::Pinning;
+                auto data = AppInstaller::Repository::GetDefaultInstallVersion(m_package);
 
-                auto installedVersion = AppInstaller::Repository::GetInstalledVersion(m_package);
-                auto availableVersions = AppInstaller::Repository::GetAvailableVersionsForInstalledVersion(m_package, installedVersion);
+                m_updateAvailable = data.UpdateAvailable;
 
-                PinningData pinningData{ PinningData::Disposition::ReadOnly };
-                auto evaluator = pinningData.CreatePinStateEvaluator(PinBehavior::ConsiderPins, installedVersion);
-
-                AppInstaller::CLI::Execution::COMContext context;
-                AppInstaller::Repository::IPackageVersion::Metadata installationMetadata =
-                    installedVersion ? installedVersion->GetMetadata() : AppInstaller::Repository::IPackageVersion::Metadata{};
-                AppInstaller::CLI::Workflow::ManifestComparator manifestComparator{ context, installationMetadata };
-
-                std::shared_ptr<AppInstaller::Repository::IPackageVersion> latestApplicableVersion;
-                auto availableVersionKeys = availableVersions->GetVersionKeys();
-                for (const auto& availableVersionKey : availableVersionKeys)
-                {
-                    auto availableVersion = availableVersions->GetVersion(availableVersionKey);
-
-                    if (installedVersion && !evaluator.IsUpdate(availableVersion))
-                    {
-                        // Version too low or different channel for upgrade
-                        continue;
-                    }
-
-                    if (evaluator.EvaluatePinType(availableVersion) != AppInstaller::Pinning::PinType::Unknown)
-                    {
-                        // Pinned
-                        continue;
-                    }
-
-                    auto manifestComparatorResult = manifestComparator.GetPreferredInstaller(availableVersion->GetManifest());
-                    if (!manifestComparatorResult.installer.has_value())
-                    {
-                        // No applicable installer
-                        continue;
-                    }
-
-                    latestApplicableVersion = availableVersion;
-                    if (installedVersion)
-                    {
-                        m_updateAvailable = true;
-                    }
-
-                    break;
-                }
-
-                if (latestApplicableVersion)
+                if (data.LatestApplicableVersion)
                 {
                     // DefaultInstallVersion hasn't been created yet, create and populate it.
                     // DefaultInstallVersion is the latest applicable version of the internal package object.
                     auto latestVersionImpl = winrt::make_self<wil::details::module_count_wrapper<
                         winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
-                    latestVersionImpl->Initialize(std::move(latestApplicableVersion));
+                    latestVersionImpl->Initialize(std::move(data.LatestApplicableVersion));
                     m_defaultInstallVersion = *latestVersionImpl;
                 }
             });

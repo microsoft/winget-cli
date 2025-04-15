@@ -370,7 +370,6 @@
     <ClInclude Include="Workflows\SettingsFlow.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />
-    <ClInclude Include="Workflows\ManifestComparator.h" />
     <ClInclude Include="Workflows\ResumeFlow.h" />
     <ClInclude Include="Workflows\ShowFlow.h" />
     <ClInclude Include="Workflows\SourceFlow.h" />
@@ -458,7 +457,6 @@
     <ClCompile Include="Workflows\SettingsFlow.cpp" />
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />
-    <ClCompile Include="Workflows\ManifestComparator.cpp" />
     <ClCompile Include="Workflows\ResumeFlow.cpp" />
     <ClCompile Include="Workflows\ShowFlow.cpp" />
     <ClCompile Include="Workflows\SourceFlow.cpp" />

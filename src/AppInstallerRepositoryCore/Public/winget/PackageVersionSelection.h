@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <winget/RepositorySearch.h>
+#include <winget/ManifestComparator.h>
 
 
 namespace AppInstaller::Repository
@@ -34,4 +35,7 @@ namespace AppInstaller::Repository
 
     // Determines the default install version and whether an update is available.
     DefaultInstallVersionData GetDefaultInstallVersion(const std::shared_ptr<ICompositePackage>& composite);
+
+    // Fills the options from the given metadata, optionally including the allowed architectures.
+    void GetManifestComparatorOptionsFromMetadata(AppInstaller::Manifest::ManifestComparator::Options& options, const IPackageVersion::Metadata& metadata, bool includeAllowedArchitectures = true);
 }

@@ -4,6 +4,7 @@
 #include "DscCommandBase.h"
 #include "DscCommand.h"
 #include <winget/Runtime.h>
+#include <winget/StdErrLogger.h>
 
 #define WINGET_DSC_FUNCTION_FOREACH(_macro_) \
     _macro_(Get); \
@@ -201,8 +202,7 @@ namespace AppInstaller::CLI
     void DscCommandBase::ExecuteInternal(Execution::Context& context) const
     {
         context.Reporter.SetChannel(Execution::Reporter::Channel::Json);
-
-        // TODO: Consider adding a stderr logger
+        Logging::StdErrLogger::Add();
 
 #define WINGET_DSC_FUNCTION_ARGUMENT(_function_) \
         if (context.Args.Contains(Execution::Args::Type::DscResourceFunction ## _function_)) \

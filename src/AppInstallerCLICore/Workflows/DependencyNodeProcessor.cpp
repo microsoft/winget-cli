@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "DependencyNodeProcessor.h"
-#include "ManifestComparator.h"
+#include "WorkflowBase.h"
 #include <winget/PinningData.h>
 #include <winget/PackageVersionSelection.h>
 
@@ -96,7 +96,7 @@ namespace AppInstaller::CLI::Workflow
             installationMetadata = m_nodePackageInstalledVersion->GetMetadata();
         }
 
-        ManifestComparator manifestComparator(m_context, installationMetadata);
+        ManifestComparator manifestComparator(GetManifestComparatorOptions(m_context, installationMetadata));
         auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(m_nodeManifest);
 
         if (!installer.has_value())

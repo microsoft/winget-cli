@@ -3,7 +3,7 @@
 
 #include "pch.h"
 #include "ShowFlow.h"
-#include "ManifestComparator.h"
+#include <winget/ManifestComparator.h>
 #include "TableOutput.h"
 
 using namespace AppInstaller::Repository;
