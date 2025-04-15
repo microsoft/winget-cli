@@ -3,7 +3,7 @@
 #pragma once
 #include <wincrypt.h>
 
-#include <json/json-forwards.h>
+#include <json/forwards.h>
 #include <wil/resource.h>
 
 #include <functional>

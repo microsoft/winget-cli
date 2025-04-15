@@ -81,7 +81,7 @@ namespace TestCommon
     };
 
     // Matcher that lets us verify wil::ResultExceptions have a specific HR.
-    struct ResultExceptionHRMatcher : public Catch::MatcherBase<wil::ResultException>
+    struct ResultExceptionHRMatcher : public Catch::Matchers::MatcherBase<wil::ResultException>
     {
         ResultExceptionHRMatcher(HRESULT hr) : m_expectedHR(hr) {}
 

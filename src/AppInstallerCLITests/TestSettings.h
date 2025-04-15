@@ -69,7 +69,7 @@ namespace TestCommon
     };
 
     // Matcher that lets us verify GroupPolicyExceptions.
-    struct GroupPolicyExceptionMatcher : public Catch::MatcherBase<AppInstaller::Settings::GroupPolicyException>
+    struct GroupPolicyExceptionMatcher : public Catch::Matchers::MatcherBase<AppInstaller::Settings::GroupPolicyException>
     {
         GroupPolicyExceptionMatcher(AppInstaller::Settings::TogglePolicy::Policy policy) : m_expectedPolicy(policy) {}
 

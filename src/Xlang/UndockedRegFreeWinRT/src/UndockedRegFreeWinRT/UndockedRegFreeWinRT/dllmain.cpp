@@ -11,7 +11,7 @@
 #include <hstring.h>
 #include <VersionHelpers.h>
 #include <memory>
-#include "../detours/detours.h"
+#include <detours/detours.h>
 #include "catalog.h"
 #include "extwinrt.h"
 #include "TypeResolution.h"
