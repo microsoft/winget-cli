@@ -60,6 +60,7 @@ namespace AppInstaller::CLI::Execution
             All = Verbose | Info | Warning | Error,
         };
 
+        Reporter();
         Reporter(std::ostream& outStream, std::istream& inStream);
         Reporter(const Reporter&) = delete;
         Reporter& operator=(const Reporter&) = delete;
@@ -108,6 +109,9 @@ namespace AppInstaller::CLI::Execution
 
         // Get the raw input stream.
         std::istream& RawInputStream();
+
+        // Check if the input stream is interactive or not.
+        bool InputStreamIsInteractive() const;
 
         // Prompts the user, return true if they consented.
         bool PromptForBoolResponse(Resource::LocString message, Level level = Level::Info, bool resultIfDisabled = false);

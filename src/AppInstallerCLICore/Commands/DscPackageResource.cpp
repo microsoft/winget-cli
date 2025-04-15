@@ -5,6 +5,10 @@
 #include "DscComposableObject.h"
 #include "Resources.h"
 #include "Workflows/WorkflowBase.h"
+#include "Workflows/ConfigurationFlow.h"
+#include "Workflows/InstallFlow.h"
+#include "Workflows/UninstallFlow.h"
+#include "Workflows/UpdateFlow.h"
 #include <winget/PackageVersionSelection.h>
 
 using namespace AppInstaller::Utility::literals;
@@ -70,8 +74,8 @@ namespace AppInstaller::CLI
 
         struct PackageFunctionData
         {
-            PackageFunctionData(Execution::Context& context, const std::optional<Json::Value>& json) :
-                Input(json),
+            PackageFunctionData(Execution::Context& context, const std::optional<Json::Value>& json, bool ignoreFieldRequirements = false) :
+                Input(json, ignoreFieldRequirements),
                 ParentContext(context)
             {
                 Reset();
@@ -97,8 +101,7 @@ namespace AppInstaller::CLI
                 }
             }
 
-            // Fills the Output object with the current state
-            bool Get()
+            void PrepareSubContextInputs()
             {
                 if (Input.Source())
                 {
@@ -109,8 +112,15 @@ namespace AppInstaller::CLI
                 {
                     SubContext->Args.AddArg(Execution::Args::Type::InstallScope, ConvertScope(Input.Scope().value(), false));
                 }
+            }
+
+            // Fills the Output object with the current state
+            bool Get()
+            {
+                PrepareSubContextInputs();
 
                 *SubContext <<
+                    Workflow::ReportExecutionStage(Workflow::ExecutionStage::Discovery) <<
                     Workflow::OpenSource() <<
                     Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(*SubContext), false, CompositeSearchBehavior::AllPackages);
 
@@ -128,6 +138,7 @@ namespace AppInstaller::CLI
                 request.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, matchType, Input.Identifier().value()));
 
                 SearchResult result = source.Search(request);
+                SubContext->Add<Execution::Data::SearchResult>(result);
 
                 if (result.Matches.empty())
                 {
@@ -141,6 +152,7 @@ namespace AppInstaller::CLI
                 else
                 {
                     auto& package = result.Matches.front().Package;
+                    SubContext->Add<Execution::Data::Package>(package);
 
                     auto installedPackage = package->GetInstalled();
 
@@ -172,22 +184,77 @@ namespace AppInstaller::CLI
 
             void Uninstall()
             {
-                THROW_HR(E_NOTIMPL);
-            }
+                if (Input.Version())
+                {
+                    SubContext->Args.AddArg(Execution::Args::Type::TargetVersion, Input.Version().value());
+                }
+                else
+                {
+                    SubContext->Args.AddArg(Execution::Args::Type::AllVersions);
+                }
 
-            void Update()
-            {
-                THROW_HR(E_NOTIMPL);
+                *SubContext <<
+                    Workflow::UninstallSinglePackage;
+
+                if (SubContext->IsTerminated())
+                {
+                    ParentContext.Terminate(SubContext->GetTerminationHR());
+                    return;
+                }
+
+                Output.Exist(false);
+                Output.Version(std::nullopt);
+                Output.Scope(std::nullopt);
+                Output.UseLatest(std::nullopt);
             }
 
             void Install()
             {
-                THROW_HR(E_NOTIMPL);
+                if (Input.Version())
+                {
+                    SubContext->Args.AddArg(Execution::Args::Type::Version, Input.Version().value());
+                }
+
+                *SubContext <<
+                    Workflow::SelectSinglePackageVersionForInstallOrUpgrade(Workflow::OperationType::Install) <<
+                    Workflow::InstallSinglePackage;
+
+                if (SubContext->IsTerminated())
+                {
+                    ParentContext.Terminate(SubContext->GetTerminationHR());
+                    return;
+                }
+
+                Output.Exist(true);
+
+                Output.Version(std::nullopt);
+                if (SubContext->Contains(Execution::Data::PackageVersion))
+                {
+                    const auto& packageVersion = SubContext->Get<Execution::Data::PackageVersion>();
+                    if (packageVersion)
+                    {
+                        Output.Version(packageVersion->GetProperty(Repository::PackageVersionProperty::Version));
+                    }
+                }
+
+                Output.Scope(std::nullopt);
+                if (SubContext->Contains(Execution::Data::Installer))
+                {
+                    const auto& installer = SubContext->Get<Execution::Data::Installer>();
+                    if (installer)
+                    {
+                        Output.Scope(ConvertScope(Manifest::ScopeToString(installer->Scope), true));
+                    }
+                }
+
+                Output.UseLatest(std::nullopt);
             }
 
             void Reinstall()
             {
-                THROW_HR(E_NOTIMPL);
+                SubContext->Args.AddArg(Execution::Args::Type::UninstallPrevious);
+
+                Install();
             }
 
             // Determines if the current Output values match the Input values state.
@@ -353,6 +420,9 @@ namespace AppInstaller::CLI
                 return;
             }
 
+            // Capture the diff before updating the output
+            auto diff = data.DiffJson();
+
             if (!data.Test())
             {
                 if (data.Input.ShouldExist())
@@ -365,7 +435,8 @@ namespace AppInstaller::CLI
                         }
                         if (!data.TestLatest())
                         {
-                            data.Update();
+                            // Install will swap to update flow
+                            data.Install();
                         }
                         else // (!data.TestVersion())
                         {
@@ -374,7 +445,8 @@ namespace AppInstaller::CLI
 
                             if (outputVersion < inputVersion)
                             {
-                                data.Update();
+                                // Install will swap to update flow
+                                data.Install();
                             }
                             else
                             {
@@ -394,18 +466,8 @@ namespace AppInstaller::CLI
 
                 if (data.SubContext->IsTerminated())
                 {
-                    data.ParentContext.Terminate(data.SubContext->GetTerminationHR());
                     return;
                 }
-            }
-
-            // Capture the diff before updating the output
-            auto diff = data.DiffJson();
-
-            data.Reset();
-            if (!data.Get())
-            {
-                return;
             }
 
             WriteJsonOutputLine(context, data.Output.ToJson());
@@ -433,11 +495,50 @@ namespace AppInstaller::CLI
 
     void DscPackageResource::ResourceFunctionExport(Execution::Context& context) const
     {
-        if (auto json = GetJsonFromInput(context))
-        {
-            PackageFunctionData data{ context, json };
+        auto json = GetJsonFromInput(context, false);
+        PackageFunctionData data{ context, json, true };
 
-            THROW_HR(E_NOTIMPL);
+        data.PrepareSubContextInputs();
+
+        if (!data.Input.UseLatest().value_or(true))
+        {
+            data.SubContext->Args.AddArg(Execution::Args::Type::IncludeVersions);
+        }
+
+        data.SubContext->Args.AddArg(Execution::Args::Type::ConfigurationExportAll);
+
+        *data.SubContext <<
+            Workflow::SearchSourceForPackageExport;
+
+        if (data.SubContext->IsTerminated())
+        {
+            context.Terminate(data.SubContext->GetTerminationHR());
+            return;
+        }
+
+        const auto& packageCollection = data.SubContext->Get<Execution::Data::PackageCollection>();
+
+        for (const auto& source : packageCollection.Sources)
+        {
+            for (const auto& package : source.Packages)
+            {
+                PackageResourceObject output;
+
+                output.Identifier(package.Id);
+                output.Source(source.Details.Name);
+
+                if (!package.VersionAndChannel.GetVersion().IsEmpty())
+                {
+                    output.Version(package.VersionAndChannel.GetVersion().ToString());
+                }
+
+                if (package.Scope != Manifest::ScopeEnum::Unknown)
+                {
+                    output.Scope(ConvertScope(Manifest::ScopeToString(package.Scope), true));
+                }
+
+                WriteJsonOutputLine(context, output.ToJson());
+            }
         }
     }
 

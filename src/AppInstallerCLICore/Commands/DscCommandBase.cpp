@@ -266,18 +266,30 @@ namespace AppInstaller::CLI
 
 #undef WINGET_DSC_FUNCTION_METHOD
 
-    std::optional<Json::Value> DscCommandBase::GetJsonFromInput(Execution::Context& context) const
+    std::optional<Json::Value> DscCommandBase::GetJsonFromInput(Execution::Context& context, bool terminateContextOnError) const
     {
-        Json::Value result;
-        Json::CharReaderBuilder builder;
-        Json::String errors;
-        if (!Json::parseFromStream(builder, context.Reporter.RawInputStream(), &result, &errors))
+        // Don't attempt to read from an interactive stream as this will just block
+        if (!context.Reporter.InputStreamIsInteractive())
         {
+            Json::Value result;
+            Json::CharReaderBuilder builder;
+            Json::String errors;
+            if (Json::parseFromStream(builder, context.Reporter.RawInputStream(), &result, &errors))
+            {
+                return result;
+            }
+
             AICLI_LOG(CLI, Error, << "Failed to read input JSON: " << errors);
-            AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, std::nullopt);
         }
 
-        return result;
+        if (terminateContextOnError)
+        {
+            AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, std::nullopt);
+        }
+        else
+        {
+            return std::nullopt;
+        }
     }
 
     void DscCommandBase::WriteJsonOutputLine(Execution::Context& context, const Json::Value& value) const

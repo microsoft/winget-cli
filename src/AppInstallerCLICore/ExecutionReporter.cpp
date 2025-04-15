@@ -23,6 +23,20 @@ namespace AppInstaller::CLI::Execution
     const Sequence& ConfigurationUnitEmphasis = TextFormat::Foreground::BrightCyan;
     const Sequence& AuthenticationEmphasis = TextFormat::Foreground::BrightYellow;
 
+    Reporter::Reporter() :
+        Reporter(std::cout, std::cin)
+    {
+        HANDLE outHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (outHandle == INVALID_HANDLE_VALUE)
+        {
+            LOG_LAST_ERROR();
+        }
+        else if (outHandle != NULL)
+        {
+
+        }
+    }
+
     Reporter::Reporter(std::ostream& outStream, std::istream& inStream) :
         Reporter(std::make_shared<BaseStream>(outStream, true, ConsoleModeRestore::Instance().IsVTEnabled()), inStream)
     {
@@ -136,6 +150,11 @@ namespace AppInstaller::CLI::Execution
     std::istream& Reporter::RawInputStream()
     {
         return m_in;
+    }
+
+    bool Reporter::InputStreamIsInteractive() const
+    {
+
     }
 
     bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level, bool resultIfDisabled)

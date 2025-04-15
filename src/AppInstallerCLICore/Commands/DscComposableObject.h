@@ -114,16 +114,19 @@ namespace AppInstaller::CLI
     {
         DscComposableObject() = default;
 
-        DscComposableObject(const std::optional<Json::Value>& input)
+        DscComposableObject(const std::optional<Json::Value>& input, bool ignoreFieldRequirements = false)
         {
-            THROW_HR_IF(E_POINTER, !input);
-            FromJson(input.value());
+            THROW_HR_IF(E_POINTER, !input && !ignoreFieldRequirements);
+            if (input)
+            {
+                FromJson(input.value(), ignoreFieldRequirements);
+            }
         }
 
         // Read values for each property
-        void FromJson(const Json::Value& input)
+        void FromJson(const Json::Value& input, bool ignoreFieldRequirements = false)
         {
-            (FoldHelper{}, ..., Property::FromJson(this, details::GetProperty(input, Property::Name())));
+            (FoldHelper{}, ..., Property::FromJson(this, details::GetProperty(input, Property::Name()), ignoreFieldRequirements));
         }
 
         // Populate JSON object with properties.
@@ -157,7 +160,7 @@ namespace AppInstaller::CLI
         using Type = PropertyType;
         static constexpr DscComposablePropertyFlag Flags = PropertyFlags;
 
-        static void FromJson(Derived* self, const Json::Value* value)
+        static void FromJson(Derived* self, const Json::Value* value, bool ignoreFieldRequirements)
         {
             if (value)
             {
@@ -165,7 +168,7 @@ namespace AppInstaller::CLI
             }
             else
             {
-                if constexpr (WI_IsFlagSet(PropertyFlags, DscComposablePropertyFlag::Required))
+                if (!ignoreFieldRequirements && WI_IsFlagSet(PropertyFlags, DscComposablePropertyFlag::Required))
                 {
                     THROW_HR_MSG(WINGET_CONFIG_ERROR_MISSING_FIELD, "Required property `%hs` not provided.", Derived::Name().data());
                 }
