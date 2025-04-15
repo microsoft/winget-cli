@@ -50,6 +50,7 @@
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)\vcpkg.props" />
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Fuzzing'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
