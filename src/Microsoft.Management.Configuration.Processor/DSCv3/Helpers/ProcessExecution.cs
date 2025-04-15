@@ -183,56 +183,12 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                         break;
 
                     case ProcessExecutionEnvironmentVariableValueType.Prepend:
-                        {
-                            string existingValue = startInfo.EnvironmentVariables[env.Name] ?? string.Empty;
-                            if (string.IsNullOrEmpty(env.Separator))
-                            {
-                                startInfo.EnvironmentVariables[env.Name] = env.Value + existingValue;
-                            }
-                            else
-                            {
-                                if (existingValue.StartsWith(env.Separator) && env.Value.EndsWith(env.Separator))
-                                {
-                                    startInfo.EnvironmentVariables[env.Name] = env.Value.Substring(0, env.Value.Length - env.Separator.Length) + existingValue;
-                                }
-                                else if (existingValue.StartsWith(env.Separator) || env.Value.EndsWith(env.Separator))
-                                {
-                                    startInfo.EnvironmentVariables[env.Name] = env.Value + existingValue;
-                                }
-                                else
-                                {
-                                    startInfo.EnvironmentVariables[env.Name] = env.Value + env.Separator + existingValue;
-                                }
-                            }
-
-                            break;
-                        }
+                        startInfo.EnvironmentVariables[env.Name] = MergeStringsWithSeparator(env.Value, startInfo.EnvironmentVariables[env.Name] ?? string.Empty, env.Separator);
+                        break;
 
                     case ProcessExecutionEnvironmentVariableValueType.Append:
-                        {
-                            string existingValue = startInfo.EnvironmentVariables[env.Name] ?? string.Empty;
-                            if (string.IsNullOrEmpty(env.Separator))
-                            {
-                                startInfo.EnvironmentVariables[env.Name] = existingValue + env.Value;
-                            }
-                            else
-                            {
-                                if (existingValue.EndsWith(env.Separator) && env.Value.StartsWith(env.Separator))
-                                {
-                                    startInfo.EnvironmentVariables[env.Name] = existingValue + env.Value.Substring(env.Separator.Length);
-                                }
-                                else if (existingValue.EndsWith(env.Separator) || env.Value.StartsWith(env.Separator))
-                                {
-                                    startInfo.EnvironmentVariables[env.Name] = existingValue + env.Value;
-                                }
-                                else
-                                {
-                                    startInfo.EnvironmentVariables[env.Name] = existingValue + env.Separator + env.Value;
-                                }
-                            }
-
-                            break;
-                        }
+                        startInfo.EnvironmentVariables[env.Name] = MergeStringsWithSeparator(startInfo.EnvironmentVariables[env.Name] ?? string.Empty, env.Value, env.Separator);
+                        break;
                 }
             }
 
@@ -305,6 +261,29 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             }
 
             return stringBuilder.ToString();
+        }
+
+        private static string MergeStringsWithSeparator(string first, string second, string separator)
+        {
+            if (string.IsNullOrEmpty(separator))
+            {
+                return first + second;
+            }
+            else
+            {
+                if (first.EndsWith(separator) && second.StartsWith(separator))
+                {
+                    return first + second.Substring(separator.Length);
+                }
+                else if (first.EndsWith(separator) || second.StartsWith(separator))
+                {
+                    return first + second;
+                }
+                else
+                {
+                    return first + separator + second;
+                }
+            }
         }
     }
 }

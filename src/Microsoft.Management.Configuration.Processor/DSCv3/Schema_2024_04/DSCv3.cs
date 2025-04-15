@@ -259,6 +259,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             List<ProcessExecutionEnvironmentVariable> result = new List<ProcessExecutionEnvironmentVariable>();
             if (runSettings is not null && !string.IsNullOrEmpty(runSettings.ResourceSearchPaths))
             {
+                // For exclusive search paths, adding to PATH is still needed as anything referenced in the manifest is still searched from PATH.
                 result.Add(new ProcessExecutionEnvironmentVariable { Name = PathEnvironmentVariable, Value = runSettings.ResourceSearchPaths, ValueType = ProcessExecutionEnvironmentVariableValueType.Prepend });
 
                 if (runSettings.ResourceSearchPathsExclusive)

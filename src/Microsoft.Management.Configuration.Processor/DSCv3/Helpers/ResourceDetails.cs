@@ -79,14 +79,14 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// <param name="item">The resource list item.</param>
         public void SetResourceListItem(IResourceListItem item)
         {
-            if (this.resourceListItem != null)
-            {
-                throw new InvalidOperationException("Resource list item is already set");
-            }
-
-            this.resourceListItem = item;
             lock (this.detailsUpdateLock)
             {
+                if (this.resourceListItem != null)
+                {
+                    throw new InvalidOperationException("Resource list item is already set");
+                }
+
+                this.resourceListItem = item;
                 this.currentDetailLevel |= ConfigurationUnitDetailFlags.Local;
             }
         }

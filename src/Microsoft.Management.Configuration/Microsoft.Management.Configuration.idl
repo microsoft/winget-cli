@@ -1012,10 +1012,7 @@ namespace Microsoft.Management.Configuration
             // Returned units may be of types other than the one passed in.
             GetAllConfigurationUnitsResult GetAllUnits(ConfigurationUnit unit);
             Windows.Foundation.IAsyncOperation<GetAllConfigurationUnitsResult> GetAllUnitsAsync(ConfigurationUnit unit);
-        }
 
-        [contract(Microsoft.Management.Configuration.Contract, 4)]
-        {
             // Find unit processors.
             Windows.Foundation.Collections.IVector<IConfigurationUnitProcessorDetails> FindUnitProcessors(FindUnitProcessorsOptions findOptions);
             Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVector<IConfigurationUnitProcessorDetails> > FindUnitProcessorsAsync(FindUnitProcessorsOptions findOptions);
