@@ -38,12 +38,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool m_updateAvailable = false;
         Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageVersionId> m_availableVersions{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageVersionId>() };
         winrt::Microsoft::Management::Deployment::PackageVersionInfo m_installedVersion{ nullptr };
-        winrt::Microsoft::Management::Deployment::PackageVersionInfo m_defaultInstallVersion{ nullptr };
+        winrt::Microsoft::Management::Deployment::PackageVersionInfo m_latestApplicableVersion{ nullptr };
         std::once_flag m_installedVersionOnceFlag;
         std::once_flag m_availableVersionsOnceFlag;
-        std::once_flag m_defaultInstallVersionOnceFlag;
+        std::once_flag m_latestApplicableVersionOnceFlag;
 
-        void InitializeDefaultInstallVersion();
+        void InitializeLatestApplicableVersion();
 #endif
     };
 }
