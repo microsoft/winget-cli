@@ -156,11 +156,11 @@ namespace AppInstaller::Repository
         return GetAvailablePackageFromSource(composite->GetAvailable(), sourceIdentifier);
     }
 
-    DefaultInstallVersionData GetDefaultInstallVersion(const std::shared_ptr<ICompositePackage>& composite)
+    LatestApplicableVersionData GetLatestApplicableVersion(const std::shared_ptr<ICompositePackage>& composite)
     {
         using namespace AppInstaller::Pinning;
 
-        DefaultInstallVersionData result;
+        LatestApplicableVersionData result;
 
         auto installedVersion = AppInstaller::Repository::GetInstalledVersion(composite);
         auto availableVersions = AppInstaller::Repository::GetAvailableVersionsForInstalledVersion(composite, installedVersion);

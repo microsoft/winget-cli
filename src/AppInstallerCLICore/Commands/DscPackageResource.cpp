@@ -174,7 +174,7 @@ namespace AppInstaller::CLI
                             Output.Scope(ConvertScope(scopeItr->second, true));
                         }
 
-                        auto data = Repository::GetDefaultInstallVersion(package);
+                        auto data = Repository::GetLatestApplicableVersion(package);
                         Output.UseLatest(!data.UpdateAvailable);
                     }
                 }

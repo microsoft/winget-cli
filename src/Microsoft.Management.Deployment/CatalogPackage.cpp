@@ -71,7 +71,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::call_once(m_latestApplicableVersionOnceFlag,
             [&]()
             {
-                auto data = AppInstaller::Repository::GetDefaultInstallVersion(m_package);
+                auto data = AppInstaller::Repository::GetLatestApplicableVersion(m_package);
 
                 m_updateAvailable = data.UpdateAvailable;
 
@@ -97,7 +97,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         else if (AvailableVersions().Size() > 0)
         {
-            return GetPackageVersionInfo(AvailableVersions().GetAt(0));
+            return GetPackageVersionInfo(m_availableVersions.GetAt(0));
         }
         else
         {
