@@ -535,7 +535,7 @@ TEST_CASE("SQLBuilder_Update", "[sqlbuilder]")
     SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
 }
 
-TEST_CASE("SQLBuilder_CaseInsensitive", "[sqlbuilder")
+TEST_CASE("SQLBuilder_CaseInsensitive", "[sqlbuilder]")
 {
     Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
 

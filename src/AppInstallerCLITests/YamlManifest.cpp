@@ -53,7 +53,7 @@ namespace
         ValidateError(error, level, message, std::string(), std::string());
     }
 
-    struct ManifestExceptionMatcher : public Catch::MatcherBase<ManifestException>
+    struct ManifestExceptionMatcher : public Catch::Matchers::MatcherBase<ManifestException>
     {
         ManifestExceptionMatcher(std::string expectedMessage, bool expectedWarningOnly = false) :
             m_expectedMessage(expectedMessage), m_expectedWarningOnly(expectedWarningOnly) {}

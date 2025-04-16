@@ -1,47 +1,40 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#define CATCH_CONFIG_RUNNER
-#include <catch.hpp>
-#include <winrt/Windows.Foundation.h>
-#include <iostream>
-#include <string>
-#include <vector>
-
+#include "pch.h"
 #include <AppInstallerLogging.h>
 #include <AppInstallerFileLogger.h>
 #include <Public/AppInstallerTelemetry.h>
 #include <Telemetry/TraceLogging.h>
-
 #include "TestCommon.h"
 #include "TestSettings.h"
 
 using namespace winrt;
-using namespace Windows::Foundation;
+using namespace winrt::Windows::Foundation;
 using namespace std::string_literals;
 using namespace AppInstaller;
 
 
 // Logs the AppInstaller log target to break up individual tests
-struct LoggingBreakListener : public Catch::TestEventListenerBase
+struct LoggingBreakListener : public Catch::EventListenerBase
 {
-    using TestEventListenerBase::TestEventListenerBase;
+    using EventListenerBase::EventListenerBase;
 
     void testCaseStarting(const Catch::TestCaseInfo& info) override
     {
-        Catch::TestEventListenerBase::testCaseStarting(info);
+        Catch::EventListenerBase::testCaseStarting(info);
         AICLI_LOG(Test, Info, << "========== Test Case Begins :: " << info.name << " ==========");
         TestCommon::TempFile::SetTestFailed(false);
     }
 
     void testCaseEnded(const Catch::TestCaseStats& testCaseStats) override
     {
-        AICLI_LOG(Test, Info, << "========== Test Case Ends :: " << currentTestCaseInfo->name << " ==========");
+        AICLI_LOG(Test, Info, << "========== Test Case Ends ==========");
         if (!testCaseStats.totals.delta(lastTotals).testCases.allOk())
         {
             TestCommon::TempFile::SetTestFailed(true);
         }
         lastTotals = testCaseStats.totals;
-        Catch::TestEventListenerBase::testCaseEnded(testCaseStats);
+        Catch::EventListenerBase::testCaseEnded(testCaseStats);
     }
 
     Catch::Totals lastTotals{};

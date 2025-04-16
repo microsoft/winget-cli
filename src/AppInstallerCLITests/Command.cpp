@@ -218,7 +218,7 @@ struct TestCommand : public Command
 };
 
 // Matcher that lets us verify CommandExceptions.
-struct CommandExceptionMatcher : public Catch::MatcherBase<CommandException>
+struct CommandExceptionMatcher : public Catch::Matchers::MatcherBase<CommandException>
 {
     CommandExceptionMatcher(CLI::Resource::LocString message) : m_expectedMessage(std::move(message)) {}
 

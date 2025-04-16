@@ -634,6 +634,13 @@ jobs:
     inputs:
       restoreSolution: '$(solution)'
 
+  - task: CmdLine@2
+    displayName: Enable Vcpkg Install
+    inputs:
+      script: |
+        $(VCPKG_INSTALLATION_ROOT)\vcpkg.exe integrate install
+      workingDirectory: '$(VCPKG_INSTALLATION_ROOT)'
+
   - task: VSBuild@1
     displayName: Build Fuzzing Artifacts
     inputs:

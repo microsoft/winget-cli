@@ -97,16 +97,11 @@
 ^Localization/
 ^NOTICE
 ^src/AppInstallerCLICore/Commands/ExperimentalCommand\.cpp$
-^src/catch2/
-^src/cpprestsdk/
-^src/JsonCppLib/
 ^src/Microsoft.Management.Configuration.Processor/Microsoft.Management.Configuration.Processor.csproj$
 ^src/PowerShell/Help/markdownlint\.yaml$
 ^src/PowerShell/Microsoft.WinGet.Client.Engine/Microsoft.WinGet.Client.Engine.csproj$
+^src/cpprestsdk/
 ^src/PureLib/
 ^src/SfsClient/
-^src/UndockedRegFreeWinRT/
-^src/Valijson/
 ^src/Xlang/
-^src/YamlCppLib/
 ignore$
