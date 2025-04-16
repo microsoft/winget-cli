@@ -268,7 +268,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 else
                 {
                     AICLI_LOG(Config, Error, << "Set Processor does not support FindUnitProcessors operation");
-                    return winrt::single_threaded_vector<IConfigurationUnitProcessorDetails>();
+                    THROW_HR(WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR);
                 }
             }
 

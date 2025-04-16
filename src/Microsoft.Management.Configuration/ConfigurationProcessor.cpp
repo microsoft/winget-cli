@@ -983,7 +983,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
         IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(nullptr);
-        auto result = winrt::single_threaded_vector<IConfigurationUnitProcessorDetails>();
 
         cancellation.ThrowIfCancelled();
 
@@ -991,14 +990,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (setProcessor.try_as<IFindUnitProcessorsSetProcessor>(findUnitProcessorsSetProcessor))
         {
-            result = findUnitProcessorsSetProcessor.FindUnitProcessors(findOptions);
+            return findUnitProcessorsSetProcessor.FindUnitProcessors(findOptions);
         }
         else
         {
             AICLI_LOG(Config, Error, << "Set Processor does not support FindUnitProcessors operation");
+            THROW_HR(WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR);
         }
-
-        return result;
     }
 
     IConfigurationGroupProcessor ConfigurationProcessor::GetSetGroupProcessor(const Configuration::ConfigurationSet& configurationSet)
