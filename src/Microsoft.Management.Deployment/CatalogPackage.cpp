@@ -67,9 +67,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return m_availableVersions.GetView();
     }
 
-    void CatalogPackage::InitializeDefaultInstallVersion()
+    void CatalogPackage::InitializeLatestApplicableVersion()
     {
-        std::call_once(m_defaultInstallVersionOnceFlag,
+        std::call_once(m_latestApplicableVersionOnceFlag,
             [&]()
             {
                 using namespace AppInstaller::Pinning;
@@ -126,15 +126,27 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     auto latestVersionImpl = winrt::make_self<wil::details::module_count_wrapper<
                         winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
                     latestVersionImpl->Initialize(std::move(latestApplicableVersion));
-                    m_defaultInstallVersion = *latestVersionImpl;
+                    m_latestApplicableVersion = *latestVersionImpl;
                 }
             });
     }
 
     Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::DefaultInstallVersion()
     {
-        InitializeDefaultInstallVersion();
-        return m_defaultInstallVersion;
+        InitializeLatestApplicableVersion();
+
+        if (m_latestApplicableVersion)
+        {
+            return m_latestApplicableVersion;
+        }
+        else if (AvailableVersions().Size() > 0)
+        {
+            return GetPackageVersionInfo(AvailableVersions().GetAt(0));
+        }
+        else
+        {
+            return nullptr;
+        }
     }
 
     Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::GetPackageVersionInfo(Microsoft::Management::Deployment::PackageVersionId const& versionKey)
@@ -156,7 +168,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     bool CatalogPackage::IsUpdateAvailable()
     {
-        InitializeDefaultInstallVersion();
+        InitializeLatestApplicableVersion();
         return m_updateAvailable;
     }
 
