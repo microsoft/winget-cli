@@ -95,6 +95,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		nuget.config = nuget.config
 		stylecop.json = stylecop.json
 		vcpkg.json = vcpkg.json
+		vcpkg.props = vcpkg.props
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Management.Deployment", "Microsoft.Management.Deployment\Microsoft.Management.Deployment.vcxproj", "{1CC41A9A-AE66-459D-9210-1E572DD7BE69}"
