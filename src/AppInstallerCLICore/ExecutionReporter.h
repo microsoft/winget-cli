@@ -208,6 +208,8 @@ namespace AppInstaller::CLI::Execution
         wil::srwlock m_progressCallbackLock;
         std::atomic<ProgressCallback*> m_progressCallback;
         std::atomic<IProgressSink*> m_progressSink;
+        DWORD m_outStreamFileType = FILE_TYPE_UNKNOWN;
+        DWORD m_inStreamFileType = FILE_TYPE_UNKNOWN;
 
         // Enable all levels by default
         Level m_enabledLevels = Level::All;
