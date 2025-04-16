@@ -18,7 +18,6 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Set
     internal sealed partial class DSCv3ConfigurationSetProcessor : ConfigurationSetProcessorBase, IConfigurationSetProcessor
     {
         private readonly ProcessorSettings processorSettings;
-        private Dictionary<string, ResourceDetails> resourceDetailsDictionary = new ();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DSCv3ConfigurationSetProcessor"/> class.
@@ -38,7 +37,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Set
             ConfigurationUnitInternal configurationUnitInternal = new ConfigurationUnitInternal(unit, this.ConfigurationSet?.Path);
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating unit processor for: {configurationUnitInternal.QualifiedName}...");
 
-            ResourceDetails? resourceDetails = this.GetResourceDetails(configurationUnitInternal, ConfigurationUnitDetailFlags.Local);
+            ResourceDetails? resourceDetails = this.processorSettings.GetResourceDetails(configurationUnitInternal, ConfigurationUnitDetailFlags.Local);
             if (resourceDetails == null)
             {
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"Resource not found: {configurationUnitInternal.QualifiedName}");
@@ -54,7 +53,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Set
             ConfigurationUnitInternal configurationUnitInternal = new ConfigurationUnitInternal(unit, this.ConfigurationSet?.Path);
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"Getting resource details [{detailFlags}] for: {configurationUnitInternal.QualifiedName}...");
 
-            ResourceDetails? resourceDetails = this.GetResourceDetails(configurationUnitInternal, detailFlags);
+            ResourceDetails? resourceDetails = this.processorSettings.GetResourceDetails(configurationUnitInternal, detailFlags);
             if (resourceDetails == null)
             {
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"Resource not found: {configurationUnitInternal.QualifiedName}");
@@ -62,41 +61,6 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Set
             }
 
             return resourceDetails.GetConfigurationUnitProcessorDetails();
-        }
-
-        private ResourceDetails? GetResourceDetails(ConfigurationUnitInternal configurationUnitInternal, ConfigurationUnitDetailFlags detailFlags)
-        {
-            ResourceDetails? result = null;
-            bool inDictionary = false;
-
-            lock (this.resourceDetailsDictionary)
-            {
-                inDictionary = this.resourceDetailsDictionary.TryGetValue(configurationUnitInternal.QualifiedName, out result);
-            }
-
-            if (result == null)
-            {
-                result = new ResourceDetails(configurationUnitInternal);
-            }
-
-            result.EnsureDetails(this.processorSettings, detailFlags);
-
-            if (result.Exists)
-            {
-                if (!inDictionary)
-                {
-                    lock (this.resourceDetailsDictionary)
-                    {
-                        this.resourceDetailsDictionary.Add(configurationUnitInternal.QualifiedName, result);
-                    }
-                }
-
-                return result;
-            }
-            else
-            {
-                return null;
-            }
         }
     }
 }

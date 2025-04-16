@@ -1,4 +1,6 @@
 # Bad manifest. Same URL points to two different InstallerSha256
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.10.0.schema.json
+
 PackageIdentifier: AppInstallerCliTest.TestPortableInstaller
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
@@ -7,7 +9,8 @@ Publisher: Microsoft Corporation
 AppMoniker: AICLITestPortable
 License: Test
 ProductCode: AppInstallerCliTest.TestPortableInstaller__TestSource
-Installers: 
+ShortDescription: Url points to two different InstallerSha256
+Installers:
     - Architecture: x86
       InstallerUrl: https://ThisIsNotUsed
       InstallerType: portable

@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.4.0.schema.json
+
 PackageIdentifier: AppInstallerCliTest.TestZipInstaller
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
@@ -16,6 +18,6 @@ Installers:
         Custom: /custom /scope=machine
         SilentWithProgress: /silentwithprogress
         Silent: /silence
-        Update: /update 
+        Update: /update
 ManifestType: singleton
 ManifestVersion: 1.4.0

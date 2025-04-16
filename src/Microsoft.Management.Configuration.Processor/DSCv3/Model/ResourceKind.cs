@@ -33,8 +33,8 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
         Group,
 
         /// <summary>
-        /// An import resource.
+        /// An importer resource.
         /// </summary>
-        Import,
+        Importer,
     }
 }

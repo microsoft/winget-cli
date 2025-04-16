@@ -15,7 +15,7 @@ pr:
     - schemas/JSON/manifests/*
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'windows-2025'
 
 variables:
   solution: 'src\AppInstallerCLI.sln'
@@ -186,7 +186,7 @@ jobs:
           Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd
           WindowsPackageManager\WindowsPackageManager.dll
           UndockedRegFreeWinRT\winrtact.dll
-      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net8.0-windows10.0.22000.0\SharedDependencies\$(BuildPlatform)
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net8.0-windows10.0.26100.0\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
 
   - task: CopyFiles@2
@@ -215,7 +215,7 @@ jobs:
     inputs:
       SourceFolder: $(buildOutDirAnyCpu)
       Contents: |
-          Microsoft.Management.Configuration.Projection\net8.0-windows10.0.22000.0\Microsoft.Management.Configuration.Projection.dll
+          Microsoft.Management.Configuration.Projection\net8.0-windows10.0.26100.0\Microsoft.Management.Configuration.Projection.dll
       TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
 
@@ -351,13 +351,7 @@ jobs:
     inputs:
       packageFeedSelector: 'nugetOrg'
 
-  # TODO: Repair-WinGetPackageManager will fail because it tries to install x64 for an x86 build machine.
-  # Remove manual installation of VCLibs (x64) once this is fixed.
   - powershell: |
-      if ("$(buildPlatform)" -eq "x86") {
-        iwr https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx -OutFile Microsoft.VCLibs.x64.appx
-        Add-AppxPackage Microsoft.VCLibs.x64.appx
-      }
       Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
       Install-Module Microsoft.WinGet.Client -Repository PSGallery -Force
       Repair-WingetPackageManager -AllUsers -Latest
@@ -365,7 +359,7 @@ jobs:
     displayName: Install Sysinternals PsTools Using Winget
     condition: succeededOrFailed()
 
-  - powershell: |
+  - pwsh: |
       $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
       PsExec -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
     displayName: Run Unit Tests Unpackaged Under System Context

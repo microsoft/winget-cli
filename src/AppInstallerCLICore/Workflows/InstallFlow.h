@@ -167,24 +167,22 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct ProcessMultiplePackages : public WorkflowTask
     {
+        // Flags to signal change from default behavior of the task.
+        enum class Flags : uint32_t
+        {
+            None =                  0x00,
+            SkipPackageAgreements = 0x01,
+            IgnoreDependencies =    0x02,
+            StopOnFailure =         0x04,
+            RefreshPathVariable =   0x08,
+            DownloadOnly =          0x10,
+        };
+
         ProcessMultiplePackages(
             StringResource::StringId dependenciesReportMessage,
             HRESULT resultOnFailure,
-            std::vector<HRESULT>&& ignorableInstallResults = {},
-            bool ensurePackageAgreements = true,
-            bool ignoreDependencies = false,
-            bool stopOnFailure = false,
-            bool refreshPathVariable = false,
-            bool downloadOnly = false):
-            WorkflowTask("ProcessMultiplePackages"),
-            m_dependenciesReportMessage(dependenciesReportMessage),
-            m_resultOnFailure(resultOnFailure),
-            m_ignorableInstallResults(std::move(ignorableInstallResults)),
-            m_ignorePackageDependencies(ignoreDependencies),
-            m_ensurePackageAgreements(ensurePackageAgreements),
-            m_stopOnFailure(stopOnFailure),
-            m_refreshPathVariable(refreshPathVariable),
-            m_downloadOnly(downloadOnly){}
+            Flags flags = Flags::None,
+            std::vector<HRESULT>&& ignorableInstallResults = {});
 
         void operator()(Execution::Context& context) const override;
 
@@ -198,6 +196,8 @@ namespace AppInstaller::CLI::Workflow
         bool m_refreshPathVariable;
         bool m_downloadOnly;
     };
+
+    DEFINE_ENUM_FLAG_OPERATORS(ProcessMultiplePackages::Flags);
 
     // Stores the existing set of packages in ARP.
     // Required Args: None

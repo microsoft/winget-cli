@@ -1,9 +1,13 @@
 ﻿# Uses the MSI installer; doesn't list the ProductCode, only the UpgradeCode
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.1.0.schema.json
+
 PackageIdentifier: AppInstallerTest.TestMsiInstallerUpgradeCode
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
 PackageName: TestMsiInstallerUpgradeCode
 Publisher: AppInstallerTest
+License: Test
+ShortDescription: Test Installer
 Installers:
     - Architecture: x86
       InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestMsiInstaller/AppInstallerTestMsiInstaller.msi

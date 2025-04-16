@@ -10,7 +10,7 @@
     <!--
     !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
-    <WindowsSdkPackageVersion>10.0.22000.53</WindowsSdkPackageVersion>
+    <WindowsSdkPackageVersion>10.0.26100.53</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +19,7 @@
 
   <!-- CsWinRT properties -->
   <PropertyGroup>
-    <CsWinRTWindowsMetadata>10.0.22000.0</CsWinRTWindowsMetadata>
+    <CsWinRTWindowsMetadata>10.0.26100.0</CsWinRTWindowsMetadata>
     <CsWinRTIncludes>Microsoft.Management.Deployment;Windows.Foundation;Windows.System.ProcessorArchitecture</CsWinRTIncludes>
     <CsWinRTExcludes>Windows.Foundation.Diagnostics</CsWinRTExcludes>
   </PropertyGroup>

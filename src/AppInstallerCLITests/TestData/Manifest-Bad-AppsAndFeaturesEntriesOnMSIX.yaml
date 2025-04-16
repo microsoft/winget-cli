@@ -1,4 +1,6 @@
 # Bad manifest. Invalid Arch value
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.1.0.schema.json
+
 PackageIdentifier: microsoft.msixsdk
 PackageName: MSIX SDK
 PackageVersion: 1.7.32
@@ -8,7 +10,7 @@ ShortDescription: desc
 PackageLocale: en-US
 Installers:
   - Architecture: x86
-    InstallerType: MSIX
+    InstallerType: msix
     InstallerUrl: https://ThisIsNotUsed
     InstallerSha256: 98B67758CEAFFCBB3FE47838FD0A8D7BD581C2650842D6B2B0E0D49A23270CCD
     AppsAndFeaturesEntries:
@@ -17,6 +19,6 @@ Installers:
         Publisher: Publisher
         ProductCode: ProductCode
         UpgradeCode: UpgradeCode
-    
+
 ManifestType: singleton
 ManifestVersion: 1.1.0

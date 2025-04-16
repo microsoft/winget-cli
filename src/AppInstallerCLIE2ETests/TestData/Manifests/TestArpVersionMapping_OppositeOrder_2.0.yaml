@@ -1,5 +1,7 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.2.0.schema.json
+
 PackageIdentifier: AppInstallerTest.TestArpVersionOppositeOrder
-PackageVersion: 2.0
+PackageVersion: '2.0'
 PackageName: TestArpVersionOppositeOrder
 PackageLocale: en-US
 Publisher: Microsoft

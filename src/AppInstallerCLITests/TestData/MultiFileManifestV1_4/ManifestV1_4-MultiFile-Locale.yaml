@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.1.4.0.schema.json
+
 PackageIdentifier: microsoft.msixsdk
 PackageVersion: 1.7.32
 PackageLocale: en-GB
@@ -27,6 +29,6 @@ Agreements:
     AgreementUrl: https://AgreementUrl.net
 Documentations:
   - DocumentLabel: Default document label
-    DocumentUrl: https://DefaultDocumentUrl.com 
+    DocumentUrl: https://DefaultDocumentUrl.com
 ManifestType: locale
 ManifestVersion: 1.4.0

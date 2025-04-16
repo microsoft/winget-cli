@@ -465,7 +465,7 @@ namespace AppInstaller::CLI::Execution
         }
         else if (m_executionStage > stage)
         {
-            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), "Reporting ExecutionStage to an earlier Stage without allowBackward as true");
+            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), "Reporting ExecutionStage to an earlier Stage: current[%d], new[%d]", ToIntegral(m_executionStage), ToIntegral(stage));
         }
 
         m_executionStage = stage;

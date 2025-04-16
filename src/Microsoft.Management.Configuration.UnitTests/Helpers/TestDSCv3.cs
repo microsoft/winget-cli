@@ -102,31 +102,31 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public ExportResourceDelegateType? ExportResourceDelegate { get; set; }
 
         /// <inheritdoc/>
-        public IResourceListItem? GetResourceByType(string resourceType, IDiagnosticsSink? diagnosticsSink = null)
+        public IResourceListItem? GetResourceByType(string resourceType)
         {
             return this.GetResourceByTypeResult ?? this.GetResourceByTypeDelegate?.Invoke(resourceType);
         }
 
         /// <inheritdoc/>
-        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
+        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal)
         {
             return this.GetResourceSettingsResult ?? this.GetResourceSettingsDelegate?.Invoke(unitInternal) ?? throw new System.NotImplementedException();
         }
 
         /// <inheritdoc/>
-        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
+        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal)
         {
             return this.SetResourceSettingsResult ?? this.SetResourceSettingsDelegate?.Invoke(unitInternal) ?? throw new System.NotImplementedException();
         }
 
         /// <inheritdoc/>
-        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
+        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal)
         {
             return this.TestResourceResult ?? this.TestResourceDelegate?.Invoke(unitInternal) ?? throw new System.NotImplementedException();
         }
 
         /// <inheritdoc/>
-        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal, IDiagnosticsSink? diagnosticsSink = null)
+        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal)
         {
             return this.ExportResourceResult ?? this.ExportResourceDelegate?.Invoke(unitInternal) ?? throw new System.NotImplementedException();
         }

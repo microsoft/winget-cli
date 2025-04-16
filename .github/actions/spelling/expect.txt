@@ -428,6 +428,7 @@ PWSTR
 QUERYENDSESSION
 qword
 RAII
+ranm
 rebootinitiated
 rebootrequiredforinstall
 rebootrequiredtofinish

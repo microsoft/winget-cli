@@ -75,6 +75,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         ::AppInstaller::Repository::PackageVersionMetadata metadataKey = GetRepositoryPackageVersionMetadata(metadataField);
         ::AppInstaller::Repository::IPackageVersion::Metadata metadata = m_packageVersion->GetMetadata();
         auto result = metadata.find(metadataKey);
+        if (result == metadata.end())
+        {
+            return {};
+        }
+
         hstring resultString = winrt::to_hstring(result->second);
         // The api uses "System" rather than "Machine" for install scope.
         if (metadataField == PackageVersionMetadataField::InstalledScope && resultString == L"Machine")
