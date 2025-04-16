@@ -44,6 +44,7 @@ namespace AppInstallerCLIE2ETests
             WinGetSettingsHelper.ConfigureFeature("dsc3", true);
             this.DeleteResourceArtifacts();
             EnsureTestResourcePresence();
+            TestCommon.SetupTestSource(false);
         }
 
         /// <summary>
@@ -54,6 +55,7 @@ namespace AppInstallerCLIE2ETests
         {
             WinGetSettingsHelper.ConfigureFeature("dsc3", false);
             this.DeleteResourceArtifacts();
+            TestCommon.TearDownTestSource();
         }
 
         /// <summary>
