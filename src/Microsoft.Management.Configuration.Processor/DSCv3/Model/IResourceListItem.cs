@@ -42,5 +42,10 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
         /// Gets the author of the resource.
         /// </summary>
         public string? Author { get; }
+
+        /// <summary>
+        /// Gets the path of the resource.
+        /// </summary>
+        public string? Path { get; }
     }
 }

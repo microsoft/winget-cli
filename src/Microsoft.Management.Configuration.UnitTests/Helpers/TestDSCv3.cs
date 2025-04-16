@@ -101,34 +101,45 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// </summary>
         public ExportResourceDelegateType? ExportResourceDelegate { get; set; }
 
+        /// <summary>
+        /// Gets or sets the GetAllResources result.
+        /// </summary>
+        public List<IResourceListItem>? GetAllResourcesResult { get; set; }
+
         /// <inheritdoc/>
-        public IResourceListItem? GetResourceByType(string resourceType)
+        public IResourceListItem? GetResourceByType(string resourceType, ProcessorRunSettings? runSettings)
         {
             return this.GetResourceByTypeResult ?? this.GetResourceByTypeDelegate?.Invoke(resourceType);
         }
 
         /// <inheritdoc/>
-        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal)
+        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings)
         {
             return this.GetResourceSettingsResult ?? this.GetResourceSettingsDelegate?.Invoke(unitInternal) ?? throw new System.NotImplementedException();
         }
 
         /// <inheritdoc/>
-        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal)
+        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings)
         {
             return this.SetResourceSettingsResult ?? this.SetResourceSettingsDelegate?.Invoke(unitInternal) ?? throw new System.NotImplementedException();
         }
 
         /// <inheritdoc/>
-        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal)
+        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings)
         {
             return this.TestResourceResult ?? this.TestResourceDelegate?.Invoke(unitInternal) ?? throw new System.NotImplementedException();
         }
 
         /// <inheritdoc/>
-        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal)
+        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings)
         {
             return this.ExportResourceResult ?? this.ExportResourceDelegate?.Invoke(unitInternal) ?? throw new System.NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public List<IResourceListItem> GetAllResources(ProcessorRunSettings? runSettings)
+        {
+            return this.GetAllResourcesResult ?? throw new System.NotImplementedException();
         }
     }
 }

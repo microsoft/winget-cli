@@ -35,6 +35,9 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         private const string FileParameter = "-f";
         private const string StdInputIdentifier = "-";
 
+        private const string PathEnvironmentVariable = "PATH";
+        private const string DSCResourcePathEnvironmentVariable = "DSC_RESOURCE_PATH";
+
         private readonly ProcessorSettings processorSettings;
 
         /// <summary>
@@ -55,9 +58,9 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         }
 
         /// <inheritdoc />
-        public IResourceListItem? GetResourceByType(string resourceType)
+        public IResourceListItem? GetResourceByType(string resourceType, ProcessorRunSettings? runSettings)
         {
-            ResourceListItem? result = this.GetResourceByType(resourceType, null);
+            ResourceListItem? result = this.GetResourceByTypeInternal(resourceType, null, runSettings);
             if (result != null)
             {
                 return result;
@@ -66,11 +69,11 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             // Check for this resource within adapters
             List<ResourceListItem> results = new List<ResourceListItem>();
 
-            foreach (ResourceListItem resource in this.GetAllResources())
+            foreach (ResourceListItem resource in this.GetAllResources(runSettings))
             {
                 if (resource.Kind == Definitions.ResourceKind.Adapter)
                 {
-                    result = this.GetResourceByType(resourceType, resource.Type);
+                    result = this.GetResourceByTypeInternal(resourceType, resource.Type, runSettings);
                     if (result != null)
                     {
                         results.Add(result);
@@ -87,13 +90,14 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         }
 
         /// <inheritdoc />
-        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal)
+        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings)
         {
             ProcessExecution processExecution = new ProcessExecution()
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
                 Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, TestCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
                 Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
+                EnvironmentVariables = CreateEnvironmentVariablesFromProcessorRunSettings(runSettings),
             };
 
             if (this.RunSynchronously(processExecution))
@@ -105,13 +109,14 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         }
 
         /// <inheritdoc />
-        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal)
+        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings)
         {
             ProcessExecution processExecution = new ProcessExecution()
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
                 Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, GetCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
                 Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
+                EnvironmentVariables = CreateEnvironmentVariablesFromProcessorRunSettings(runSettings),
             };
 
             if (this.RunSynchronously(processExecution))
@@ -123,13 +128,14 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         }
 
         /// <inheritdoc />
-        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal)
+        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings)
         {
             ProcessExecution processExecution = new ProcessExecution()
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
                 Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, SetCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
                 Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
+                EnvironmentVariables = CreateEnvironmentVariablesFromProcessorRunSettings(runSettings),
             };
 
             if (this.RunSynchronously(processExecution))
@@ -141,7 +147,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         }
 
         /// <inheritdoc />
-        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal)
+        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings)
         {
             // 3.0 can't handle input to export; 3.1 will fix that.
             ValueSet expandedSettings = unitInternal.GetExpandedSettings();
@@ -154,6 +160,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
                 Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, ExportCommand, ResourceParameter, unitInternal.QualifiedName },
+                EnvironmentVariables = CreateEnvironmentVariablesFromProcessorRunSettings(runSettings),
             };
 
             if (this.RunSynchronously(processExecution))
@@ -162,6 +169,21 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             }
 
             return ConfigurationDocument.CreateFrom(GetRequiredSingleOutputLineAsJSON(processExecution, Exceptions.InvokeDscResourceException.Set, unitInternal.QualifiedName), GetDefaultJsonOptions()).InterfaceResources;
+        }
+
+        /// <inheritdoc />
+        public List<IResourceListItem> GetAllResources(ProcessorRunSettings? runSettings)
+        {
+            ProcessExecution processExecution = new ProcessExecution()
+            {
+                ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
+                Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, ListCommand },
+                EnvironmentVariables = CreateEnvironmentVariablesFromProcessorRunSettings(runSettings),
+            };
+
+            this.RunSynchronously(processExecution);
+
+            return GetOutputLinesAs<ResourceListItem>(processExecution).ToList<IResourceListItem>();
         }
 
         private static void ThrowOnMultipleOutputLines(ProcessExecution processExecution, string method, string resourceName)
@@ -232,6 +254,23 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             return JsonSerializer.Serialize(valueSet.ToHashtable());
         }
 
+        private static List<ProcessExecutionEnvironmentVariable> CreateEnvironmentVariablesFromProcessorRunSettings(ProcessorRunSettings? runSettings)
+        {
+            List<ProcessExecutionEnvironmentVariable> result = new List<ProcessExecutionEnvironmentVariable>();
+            if (runSettings is not null && !string.IsNullOrEmpty(runSettings.ResourceSearchPaths))
+            {
+                // For exclusive search paths, adding to PATH is still needed as anything referenced in the manifest is still searched from PATH.
+                result.Add(new ProcessExecutionEnvironmentVariable { Name = PathEnvironmentVariable, Value = runSettings.ResourceSearchPaths, ValueType = ProcessExecutionEnvironmentVariableValueType.Prepend });
+
+                if (runSettings.ResourceSearchPathsExclusive)
+                {
+                    result.Add(new ProcessExecutionEnvironmentVariable { Name = DSCResourcePathEnvironmentVariable, Value = runSettings.ResourceSearchPaths, ValueType = ProcessExecutionEnvironmentVariableValueType.Override });
+                }
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Runs the process, waiting until it completes.
         /// </summary>
@@ -248,12 +287,13 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             return processExecution.ExitCode != 0;
         }
 
-        private ResourceListItem? GetResourceByType(string resourceType, string? adapter)
+        private ResourceListItem? GetResourceByTypeInternal(string resourceType, string? adapter, ProcessorRunSettings? runSettings)
         {
             ProcessExecution processExecution = new ProcessExecution()
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
                 Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, ListCommand, adapter != null ? $"-a {adapter}" : string.Empty, resourceType },
+                EnvironmentVariables = CreateEnvironmentVariablesFromProcessorRunSettings(runSettings),
             };
 
             this.RunSynchronously(processExecution);
@@ -264,19 +304,6 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
             }
 
             return GetOptionalSingleOutputLineAs<ResourceListItem>(processExecution);
-        }
-
-        private List<ResourceListItem> GetAllResources()
-        {
-            ProcessExecution processExecution = new ProcessExecution()
-            {
-                ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
-                Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, ListCommand },
-            };
-
-            this.RunSynchronously(processExecution);
-
-            return GetOutputLinesAs<ResourceListItem>(processExecution);
         }
     }
 }

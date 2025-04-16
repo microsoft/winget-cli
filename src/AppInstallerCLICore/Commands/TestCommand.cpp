@@ -6,6 +6,7 @@
 
 #include "TestCommand.h"
 #include "AppInstallerRuntime.h"
+#include "TableOutput.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
 #include "Workflows/ConfigurationFlow.h"
 #include <winrt/Microsoft.Management.Configuration.h>
@@ -140,6 +141,80 @@ namespace AppInstaller::CLI
                     WriteConfigFile;
             }
         };
+
+        void InvokeFindUnitProcessors(Execution::Context& context)
+        {
+            auto& configurationContext = context.Get<Execution::Data::ConfigurationContext>();
+
+            winrt::Microsoft::Management::Configuration::FindUnitProcessorsOptions findOptions;
+
+            if (context.Args.Contains(Execution::Args::Type::InstallLocation))
+            {
+                findOptions.SearchPaths(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::InstallLocation)));
+                findOptions.SearchPathsExclusive(true);
+                findOptions.UnitDetailFlags(winrt::Microsoft::Management::Configuration::ConfigurationUnitDetailFlags::Local);
+            }
+
+            auto result = configurationContext.Processor().FindUnitProcessors(findOptions);
+
+            if (result.Size() > 0)
+            {
+                Execution::TableOutput<2> table(context.Reporter,
+                    {
+                        "Type"_lis,
+                        "Description"_lis
+                    });
+
+                for (const auto& resultUnitProcessor : result)
+                {
+                    table.OutputLine({
+                        Utility::ConvertToUTF8(resultUnitProcessor.UnitType()),
+                        Utility::ConvertToUTF8(resultUnitProcessor.UnitDescription())
+                        });
+                }
+
+                table.Complete();
+            }
+            else
+            {
+                context.Reporter.Info() << "No unit processors found."_lis << std::endl;
+            }
+        }
+
+        // Command to directly invoke find unit processors.
+        struct TestConfigurationFindUnitProcessorsCommand final : public Command
+        {
+            TestConfigurationFindUnitProcessorsCommand(std::string_view parent) : Command("config-find-unit-processors", {}, parent) {}
+
+            std::vector<Argument> GetArguments() const override
+            {
+                return {
+                    Argument{ Execution::Args::Type::InstallLocation, Resource::String::LocationArgumentDescription },
+                };
+            }
+
+            Resource::LocString ShortDescription() const override
+            {
+                return "Run find unit processors"_lis;
+            }
+
+            Resource::LocString LongDescription() const override
+            {
+                return "Runs find unit processors. Search paths could be provided."_lis;
+            }
+
+        protected:
+            void ExecuteInternal(Execution::Context& context) const override
+            {
+                context <<
+                    VerifyIsFullPackage <<
+                    CreateConfigurationProcessorWithoutFactory <<
+                    CreateOrOpenConfigurationSet{ "0.3" } <<
+                    EnsureDSCv3Processor <<
+                    CreateConfigurationProcessor <<
+                    InvokeFindUnitProcessors;
+            }
+        };
     }
 
     std::vector<std::unique_ptr<Command>> TestCommand::GetCommands() const
@@ -148,6 +223,7 @@ namespace AppInstaller::CLI
             {
                 std::make_unique<TestAppShutdownCommand>(FullName()),
                 std::make_unique<TestConfigurationExportCommand>(FullName()),
+                std::make_unique<TestConfigurationFindUnitProcessorsCommand>(FullName()),
             });
     }
 

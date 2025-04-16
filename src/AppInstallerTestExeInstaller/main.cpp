@@ -44,12 +44,21 @@ void WriteModifyInvalidOperationScript(std::wofstream& script) {
         << L"EXIT /B 1\n";
 }
 
-void WriteUninstallerScript(std::wofstream& uninstallerScript, const path& uninstallerOutputTextFilePath, const std::wstring& registryKey, const path& modifyScriptPath, const path& repairCompletedTextFilePath) {
+void WriteUninstallerScript(
+    std::wofstream& uninstallerScript,
+    const path& uninstallerOutputTextFilePath,
+    const std::wstring& registryKey,
+    const path& modifyScriptPath,
+    const path& repairCompletedTextFilePath,
+    const path& dscResourceExecutablePath,
+    const path& dscResourceManifestPath) {
     uninstallerScript << "ECHO. >" << uninstallerOutputTextFilePath << "\n";
     uninstallerScript << "ECHO AppInstallerTestExeInstaller.exe uninstalled successfully.\n";
     uninstallerScript << "REG DELETE " << registryKey << " /f\n";
     uninstallerScript << "if exist \"" << modifyScriptPath.wstring() << "\" del \"" << modifyScriptPath.wstring() << "\"\n";
     uninstallerScript << "if exist \"" << repairCompletedTextFilePath.wstring() << "\" del \"" << repairCompletedTextFilePath.wstring() << "\"\n";
+    uninstallerScript << "if exist \"" << dscResourceExecutablePath.wstring() << "\" del \"" << dscResourceExecutablePath.wstring() << "\"\n";
+    uninstallerScript << "if exist \"" << dscResourceManifestPath.wstring() << "\" del \"" << dscResourceManifestPath.wstring() << "\"\n";
 }
 
 path GenerateUninstaller(std::wostream& out, const path& installDirectory, const std::wstring& productID, bool useHKLM)
@@ -68,6 +77,12 @@ path GenerateUninstaller(std::wostream& out, const path& installDirectory, const
     path modifyScriptPath = installDirectory;
     modifyScriptPath /= "ModifyTestExe.bat";
 
+    path dscResourceExecutablePath = installDirectory;
+    dscResourceExecutablePath /= "AppInstallerTestResource.exe";
+
+    path dscResourceManifestPath = installDirectory;
+    dscResourceManifestPath /= "AppInstallerTest.dsc.resource.json";
+
     std::wstring registryKey{ useHKLM ? L"HKEY_LOCAL_MACHINE\\" : L"HKEY_CURRENT_USER\\" };
     registryKey += RegistrySubkey;
     if (!productID.empty())
@@ -84,7 +99,7 @@ path GenerateUninstaller(std::wostream& out, const path& installDirectory, const
     uninstallerScript << L"for %%A in (%*) do (\n";
     WriteModifyRepairScript(uninstallerScript, repairCompletedTextFilePath, false /*isModifyScript*/);
     uninstallerScript << ")\n";
-    WriteUninstallerScript(uninstallerScript, uninstallerOutputTextFilePath, registryKey, modifyScriptPath, repairCompletedTextFilePath);
+    WriteUninstallerScript(uninstallerScript, uninstallerOutputTextFilePath, registryKey, modifyScriptPath, repairCompletedTextFilePath, dscResourceExecutablePath, dscResourceManifestPath);
 
     uninstallerScript.close();
 
@@ -111,6 +126,94 @@ path GenerateModifyPath(const path& installDirectory)
     modifyScript.close();
 
     return modifyScriptPath;
+}
+
+void GenerateDSCv3ProviderFiles(const path& installDirectory)
+{
+    path dscResourceExecutablePath = installDirectory;
+    dscResourceExecutablePath /= "AppInstallerTestResource.exe";
+
+    WCHAR currentExecutable[MAX_PATH];
+    GetModuleFileName(nullptr, currentExecutable, MAX_PATH);
+    path currentExecutablePath{ currentExecutable };
+    copy_file(currentExecutablePath, dscResourceExecutablePath);
+
+    path dscResourceManifestPath = installDirectory;
+    dscResourceManifestPath /= "AppInstallerTest.dsc.resource.json";
+
+    std::wstring DscResourceJsonContent =
+        LR"(
+    {
+        "$schema" : "https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2024/04/bundled/resource/manifest.json",
+        "description" : "AppInstallerTest dsc Resource.",
+        "export" :
+        {
+            "args" :
+            [
+                "/DscExport"
+            ],
+            "executable" : "AppInstallerTestResource.exe"
+        },
+        "get" :
+        {
+            "args" :
+            [
+                "/DscGet"
+            ],
+            "executable" : "AppInstallerTestResource.exe",
+            "input" : "stdin"
+        },
+        "set" :
+        {
+            "args" :
+            [
+                "/DscSet"
+            ] ,
+            "executable" : "AppInstallerTestResource.exe",
+            "handlesExist" : true,
+            "implementsPretest" : true,
+            "input" : "stdin",
+            "return" : "state"
+        },
+        "test" :
+        {
+            "args" :
+            [
+                "/DscTest"
+            ] ,
+            "executable" : "AppInstallerTestResource.exe",
+            "input" : "stdin",
+            "return" : "state"
+        },
+        "schema": {
+            "embedded": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "AppInstallerTestResource",
+                "description": "App Installer Test Resource",
+                "type": "object",
+                "required": [],
+                "additionalProperties": false,
+                "properties": {
+                    "_inDesiredState": {
+                        "description": "Indicates whether an instance is in the desired state.",
+                        "type": "boolean"
+                    },
+                    "data": {
+                        "type": "string",
+                        "description": "Test data."
+                    }
+                }
+            }
+        },
+        "type" : "AppInstallerTest/TestResource",
+        "version" : "1.0.0"
+    }
+        )";
+
+
+    std::wofstream dscResourceJson(dscResourceManifestPath);
+    dscResourceJson << DscResourceJsonContent;
+    dscResourceJson.close();
 }
 
 void WriteToUninstallRegistry(
@@ -293,7 +396,17 @@ void HandleRepairOperation(const std::wstring& productID, const std::wstringstre
     WriteToFile(outFilePath, outContent);
 }
 
-void HandleInstallationOperation(std::wostream& out, const path& installDirectory, const std::wstringstream& outContent, const std::wstring& productCode, bool useHKLM, const std::wstring& displayName, const std::wstring& displayVersion, bool noRepair, bool noModify)
+void HandleInstallationOperation(
+    std::wostream& out,
+    const path& installDirectory,
+    const std::wstringstream& outContent,
+    const std::wstring& productCode,
+    bool useHKLM,
+    const std::wstring& displayName,
+    const std::wstring& displayVersion,
+    bool noRepair,
+    bool noModify,
+    bool generateDscResourceFiles)
 {
     path outFilePath = installDirectory;
     outFilePath /= "TestExeInstalled.txt";
@@ -301,6 +414,11 @@ void HandleInstallationOperation(std::wostream& out, const path& installDirector
     std::wofstream file(outFilePath, std::ofstream::out);
     file << outContent.str();
     file.close();
+
+    if (generateDscResourceFiles)
+    {
+        GenerateDSCv3ProviderFiles(installDirectory);
+    }
 
     path uninstallerPath = GenerateUninstaller(out, installDirectory, productCode, useHKLM);
     path modifyPath = GenerateModifyPath(installDirectory);
@@ -324,6 +442,7 @@ int wmain(int argc, const wchar_t** argv)
     bool isRepair = false;
     bool noRepair = false;
     bool noModify = false;
+    bool generateDscResourceFiles = false;
 
     // Output to cout by default, but swap to a file if requested
     std::wostream* out = &std::wcout;
@@ -339,6 +458,7 @@ int wmain(int argc, const wchar_t** argv)
             if (++i < argc)
             {
                 installDirectory = argv[i];
+                std::filesystem::create_directories(installDirectory);
                 outContent << argv[i] << ' ';
             }
         }
@@ -442,6 +562,40 @@ int wmain(int argc, const wchar_t** argv)
         {
             noOperation = true;
         }
+
+        // Also output dsc resource files
+        else if (_wcsicmp(argv[i], L"/GenerateDscResourceFiles") == 0)
+        {
+            generateDscResourceFiles = true;
+        }
+
+        // Dsc resource get
+        else if (_wcsicmp(argv[i], L"/DscGet") == 0)
+        {
+            std::cout << R"({"data":"TestData"})" << std::endl;
+            return 0;
+        }
+
+        // Dsc resource set
+        else if (_wcsicmp(argv[i], L"/DscSet") == 0)
+        {
+            std::cout << R"({"_inDesiredState":true})" << std::endl;
+            return 0;
+        }
+
+        // Dsc resource test
+        else if (_wcsicmp(argv[i], L"/DscTest") == 0)
+        {
+            std::cout << R"({"_inDesiredState":true})" << std::endl;
+            return 0;
+        }
+
+        // Dsc resource export
+        else if (_wcsicmp(argv[i], L"/DscExport") == 0)
+        {
+            std::cout << R"({"data":"TestData"})" << std::endl;
+            return 0;
+        }
     }
 
     if (noOperation)
@@ -487,7 +641,7 @@ int wmain(int argc, const wchar_t** argv)
     }
     else
     {
-        HandleInstallationOperation(*out, installDirectory, outContent, productCode, useHKLM, displayName, displayVersion, noRepair, noModify);
+        HandleInstallationOperation(*out, installDirectory, outContent, productCode, useHKLM, displayName, displayVersion, noRepair, noModify, generateDscResourceFiles);
     }
 
     return exitCode;

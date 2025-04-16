@@ -7,6 +7,7 @@
 #include "ConfigurationSet.h"
 #include "ConfigurationProcessor.h"
 #include "ConfigurationParameter.h"
+#include "FindUnitProcessorsOptions.h"
 #include <AppInstallerStrings.h>
 #include <winget/ConfigurationSetProcessorHandlers.h>
 
@@ -50,6 +51,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     Configuration::ConfigurationParameter ConfigurationStaticFunctions::CreateConfigurationParameter()
     {
         return *make_self<wil::details::module_count_wrapper<implementation::ConfigurationParameter>>();
+    }
+
+    Configuration::FindUnitProcessorsOptions ConfigurationStaticFunctions::CreateFindUnitProcessorsOptions()
+    {
+        return *make_self<wil::details::module_count_wrapper<implementation::FindUnitProcessorsOptions>>();
     }
 
     HRESULT STDMETHODCALLTYPE ConfigurationStaticFunctions::SetExperimentalState(UINT32 state)

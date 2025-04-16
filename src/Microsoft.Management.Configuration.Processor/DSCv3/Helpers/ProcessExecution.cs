@@ -54,6 +54,12 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         public string? Input { get; init; } = null;
 
         /// <summary>
+        /// Gets the list of custom environment variables to use for the process.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1010:Opening square brackets should be spaced correctly", Justification = "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3687 pending SC 1.2 release")]
+        public IEnumerable<ProcessExecutionEnvironmentVariable> EnvironmentVariables { get; init; } = [];
+
+        /// <summary>
         /// Gets the argument string passed to the process.
         /// </summary>
         public string SerializedArguments
@@ -168,6 +174,24 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 startInfo.RedirectStandardInput = true;
             }
 
+            foreach (var env in this.EnvironmentVariables)
+            {
+                switch (env.ValueType)
+                {
+                    case ProcessExecutionEnvironmentVariableValueType.Override:
+                        startInfo.EnvironmentVariables[env.Name] = env.Value;
+                        break;
+
+                    case ProcessExecutionEnvironmentVariableValueType.Prepend:
+                        startInfo.EnvironmentVariables[env.Name] = MergeStringsWithSeparator(env.Value, startInfo.EnvironmentVariables[env.Name] ?? string.Empty, env.Separator);
+                        break;
+
+                    case ProcessExecutionEnvironmentVariableValueType.Append:
+                        startInfo.EnvironmentVariables[env.Name] = MergeStringsWithSeparator(startInfo.EnvironmentVariables[env.Name] ?? string.Empty, env.Value, env.Separator);
+                        break;
+                }
+            }
+
             this.Process.Start();
             this.Process.BeginOutputReadLine();
             this.Process.BeginErrorReadLine();
@@ -237,6 +261,29 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             }
 
             return stringBuilder.ToString();
+        }
+
+        private static string MergeStringsWithSeparator(string first, string second, string separator)
+        {
+            if (string.IsNullOrEmpty(separator))
+            {
+                return first + second;
+            }
+            else
+            {
+                if (first.EndsWith(separator) && second.StartsWith(separator))
+                {
+                    return first + second.Substring(separator.Length);
+                }
+                else if (first.EndsWith(separator) || second.StartsWith(separator))
+                {
+                    return first + second;
+                }
+                else
+                {
+                    return first + separator + second;
+                }
+            }
         }
     }
 }
