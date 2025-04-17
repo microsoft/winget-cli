@@ -75,7 +75,14 @@ namespace AppInstallerCLIE2ETests
         public void Setup()
         {
             // Try clean up TestExeInstaller for failure cases where cleanup is not successful
-            TestCommon.RunAICLICommand("uninstall", DefaultPackageIdentifier);
+            PackageResourceData packageResourceData = new PackageResourceData()
+            {
+                Identifier = DefaultPackageIdentifier,
+                Exist = false,
+            };
+
+            var result = RunDSCv3Command(PackageResource, SetFunction, packageResourceData);
+            AssertSuccessfulResourceRun(ref result);
         }
 
         /// <summary>

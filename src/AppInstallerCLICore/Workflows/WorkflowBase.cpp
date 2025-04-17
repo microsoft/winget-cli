@@ -493,7 +493,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (context.Args.Contains(Execution::Args::Type::InstallScope))
         {
-            options.CurrentlyInstalledScope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            options.RequestedInstallerScope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
         }
 
         if (context.Contains(Execution::Data::AllowUnknownScope))
