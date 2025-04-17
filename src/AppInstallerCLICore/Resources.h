@@ -212,6 +212,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(Downloading);
         WINGET_DEFINE_RESOURCE_STRINGID(DscCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(DscCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscPackageResourceShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscPackageResourceLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourceFunctionDescriptionGet);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourceFunctionDescriptionSet);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourceFunctionDescriptionWhatIf);
@@ -223,6 +225,16 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourceFunctionDescriptionAdapter);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourceFunctionDescriptionSchema);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourceFunctionDescriptionManifest);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionExist);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionInDesiredState);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageId);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageSource);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageScope);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageMatchOption);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageUseLatest);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageInstallMode);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageAcceptAgreements);
         WINGET_DEFINE_RESOURCE_STRINGID(EnableAdminSettingFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(EnableWindowsFeaturesSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(EnablingWindowsFeature);

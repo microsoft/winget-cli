@@ -83,7 +83,7 @@ namespace AppInstaller::CLI
 
         Logging::UseGlobalTelemetryLoggerActivityIdOnly();
 
-        Execution::Context context{ std::cout, std::cin };
+        Execution::Context context;
         auto previousThreadGlobals = context.SetForCurrentThread();
 
         // Set up debug string logging during initialization

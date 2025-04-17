@@ -55,7 +55,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("download", $"{Constants.ExeInstallerPackageId} --version {packageVersion}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             string downloadDir = Path.Combine(TestCommon.GetDefaultDownloadDirectory(), $"{Constants.ExeInstallerPackageId}_{packageVersion}");
-            TestCommon.AssertInstallerDownload(downloadDir, "TestExeInstaller", packageVersion, ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Exe);
+            TestCommon.AssertInstallerDownload(downloadDir, "TestExeInstaller", packageVersion, ProcessorArchitecture.X86, TestCommon.Scope.User, PackageInstallerType.Exe);
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace AppInstallerCLIE2ETests
             var downloadDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("download", $"{Constants.ExeInstallerPackageId} --download-directory {downloadDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            TestCommon.AssertInstallerDownload(downloadDir, "TestExeInstaller", "2.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Exe);
+            TestCommon.AssertInstallerDownload(downloadDir, "TestExeInstaller", "2.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.User, PackageInstallerType.Exe);
         }
 
         /// <summary>

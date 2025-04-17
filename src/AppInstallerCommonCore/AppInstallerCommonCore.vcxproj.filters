@@ -210,6 +210,12 @@
     <ClInclude Include="Public\winget\OutputDebugStringLogger.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\ManifestComparator.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\StdErrLogger.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -378,6 +384,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OutputDebugStringLogger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\ManifestComparator.cpp">
+      <Filter>Manifest</Filter>
+    </ClCompile>
+    <ClCompile Include="StdErrLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

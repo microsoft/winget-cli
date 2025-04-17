@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "DscCommand.h"
+#include "DscPackageResource.h"
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
 #include "DscTestFileResource.h"
@@ -13,6 +14,7 @@ namespace AppInstaller::CLI
     std::vector<std::unique_ptr<Command>> DscCommand::GetCommands() const
     {
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
+            std::make_unique<DscPackageResource>(FullName()),
 #ifndef AICLI_DISABLE_TEST_HOOKS
             std::make_unique<DscTestFileResource>(FullName()),
             std::make_unique<DscTestJsonResource>(FullName()),

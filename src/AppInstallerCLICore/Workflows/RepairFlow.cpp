@@ -13,7 +13,7 @@
 #include "AppInstallerMsixInfo.h"
 #include "AppInstallerSynchronization.h"
 #include "MSStoreInstallerHandler.h"
-#include "ManifestComparator.h"
+#include <winget/ManifestComparator.h>
 #include <winget/PackageVersionSelection.h>
 
 using namespace AppInstaller::Manifest;

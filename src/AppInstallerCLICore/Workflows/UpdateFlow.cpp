@@ -5,7 +5,7 @@
 #include "DependenciesFlow.h"
 #include "InstallFlow.h"
 #include "UpdateFlow.h"
-#include "ManifestComparator.h"
+#include <winget/ManifestComparator.h>
 #include <winget/PinningData.h>
 #include <winget/PackageVersionSelection.h>
 
@@ -51,7 +51,7 @@ namespace AppInstaller::CLI::Workflow
             installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
         }
 
-        ManifestComparator manifestComparator(context, isUpgrade ? installedPackage->GetMetadata() : IPackageVersion::Metadata{});
+        Manifest::ManifestComparator manifestComparator(GetManifestComparatorOptions(context, isUpgrade ? installedPackage->GetMetadata() : IPackageVersion::Metadata{}));
         bool versionFound = false;
         bool installedTypeInapplicable = false;
         bool packagePinned = false;
@@ -116,7 +116,7 @@ namespace AppInstaller::CLI::Workflow
                 if (!installer.has_value())
                 {
                     // If there is at least one installer whose only reason is InstalledType.
-                    auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), InapplicabilityFlags::InstalledType);
+                    auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), Manifest::InapplicabilityFlags::InstalledType);
                     if (onlyInstalledType != inapplicabilities.end())
                     {
                         installedTypeInapplicable = true;

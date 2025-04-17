@@ -3,7 +3,7 @@
 
 #include "pch.h"
 #include "DependenciesFlow.h"
-#include "ManifestComparator.h"
+#include <winget/ManifestComparator.h>
 #include "InstallFlow.h"
 #include "winget\DependenciesGraph.h"
 #include "DependencyNodeProcessor.h"

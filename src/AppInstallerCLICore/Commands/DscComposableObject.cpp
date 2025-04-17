@@ -5,6 +5,32 @@
 
 namespace AppInstaller::CLI
 {
+    namespace
+    {
+        std::string GetTypeString(Json::ValueType type)
+        {
+            switch (type)
+            {
+            case Json::nullValue:
+                return "null";
+            case Json::intValue:
+            case Json::uintValue:
+            case Json::realValue:
+                return "number";
+            case Json::stringValue:
+                return "string";
+            case Json::booleanValue:
+                return "boolean";
+            case Json::arrayValue:
+                return "array";
+            case Json::objectValue:
+                return "object";
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
+    }
+
     namespace details
     {
         const Json::Value* GetProperty(const Json::Value& object, std::string_view name)
@@ -32,7 +58,14 @@ namespace AppInstaller::CLI
             return result;
         }
 
-        void AddPropertySchema(Json::Value& object, std::string_view name, DscComposablePropertyFlag flags, std::string_view type, std::string_view description)
+        void AddPropertySchema(
+            Json::Value& object,
+            std::string_view name,
+            DscComposablePropertyFlag flags,
+            Json::ValueType type,
+            std::string_view description,
+            const std::vector<std::string>& enumValues,
+            const std::optional<std::string>& defaultValue)
         {
             Json::Value& propertiesObject = object["properties"];
 
@@ -45,12 +78,29 @@ namespace AppInstaller::CLI
 
             Json::Value property{ Json::ValueType::objectValue };
 
-            if (!type.empty())
+            if (type != Json::ValueType::objectValue)
             {
-                property["type"] = std::string{ type };
+                property["type"] = GetTypeString(type);
             }
 
             property["description"] = std::string{ description };
+
+            if (!enumValues.empty())
+            {
+                Json::Value enumArray{ Json::ValueType::arrayValue };
+
+                for (const std::string& enumValue : enumValues)
+                {
+                    enumArray.append(enumValue);
+                }
+
+                property["enum"] = std::move(enumArray);
+            }
+
+            if (defaultValue)
+            {
+                property["default"] = defaultValue.value();
+            }
 
             propertiesObject[nameString] = std::move(property);
 

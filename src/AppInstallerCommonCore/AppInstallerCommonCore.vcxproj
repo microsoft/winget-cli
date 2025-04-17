@@ -348,6 +348,7 @@
     <ClInclude Include="Public\winget\Authentication.h" />
     <ClInclude Include="Public\winget\FileCache.h" />
     <ClInclude Include="Public\winget\FolderFileWatcher.h" />
+    <ClInclude Include="Public\winget\ManifestComparator.h" />
     <ClInclude Include="Public\winget\MsixManifest.h" />
     <ClInclude Include="Public\winget\AdminSettings.h" />
     <ClInclude Include="Public\winget\Debugging.h" />
@@ -402,6 +403,7 @@
     <ClInclude Include="Public\winget\ManifestSchemaValidation.h" />
     <ClInclude Include="Public\winget\SelfManagement.h" />
     <ClInclude Include="Public\winget\Settings.h" />
+    <ClInclude Include="Public\winget\StdErrLogger.h" />
     <ClInclude Include="Public\winget\ThreadGlobals.h" />
     <ClInclude Include="Public\winget\TraceLogger.h" />
     <ClInclude Include="Public\winget\UserSettings.h" />
@@ -431,6 +433,7 @@
     <ClCompile Include="Locale.cpp" />
     <ClCompile Include="Manifest\Manifest.cpp" />
     <ClCompile Include="Manifest\ManifestCommon.cpp" />
+    <ClCompile Include="Manifest\ManifestComparator.cpp" />
     <ClCompile Include="Manifest\ManifestValidation.cpp" />
     <ClCompile Include="Manifest\ManifestSchemaValidation.cpp" />
     <ClCompile Include="Manifest\ManifestYamlPopulator.cpp" />
@@ -466,6 +469,7 @@
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="PathVariable.cpp" />
     <ClCompile Include="PortableARPEntry.cpp" />
+    <ClCompile Include="StdErrLogger.cpp" />
     <ClCompile Include="Synchronization.cpp" />
     <ClCompile Include="Telemetry\TraceLogging.cpp" />
     <ClCompile Include="Architecture.cpp" />
