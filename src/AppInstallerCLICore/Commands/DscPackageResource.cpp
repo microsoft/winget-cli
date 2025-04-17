@@ -241,7 +241,7 @@ namespace AppInstaller::CLI
                 if (SubContext->Contains(Execution::Data::Installer))
                 {
                     const auto& installer = SubContext->Get<Execution::Data::Installer>();
-                    if (installer)
+                    if (installer && installer->Scope != Manifest::ScopeEnum::Unknown)
                     {
                         Output.Scope(ConvertScope(Manifest::ScopeToString(installer->Scope), true));
                     }
