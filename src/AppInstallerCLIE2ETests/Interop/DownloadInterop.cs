@@ -118,7 +118,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var packageVersion = "2.0.0.0";
             Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
             string downloadDir = Path.Combine(TestCommon.GetDefaultDownloadDirectory(), $"{Constants.ExeInstallerPackageId}_{packageVersion}");
-            TestCommon.AssertInstallerDownload(downloadDir, "TestExeInstaller", packageVersion, ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Exe);
+            TestCommon.AssertInstallerDownload(downloadDir, "TestExeInstaller", packageVersion, ProcessorArchitecture.X86, TestCommon.Scope.User, PackageInstallerType.Exe);
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
-            TestCommon.AssertInstallerDownload(downloadDir, "TestExeInstaller", "2.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Exe);
+            TestCommon.AssertInstallerDownload(downloadDir, "TestExeInstaller", "2.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.User, PackageInstallerType.Exe);
         }
 
         /// <summary>
