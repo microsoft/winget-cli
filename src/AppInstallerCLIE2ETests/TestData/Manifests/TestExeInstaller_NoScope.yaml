@@ -1,5 +1,5 @@
 Id: AppInstallerTest.TestExeInstallerNoScope
-Name: TestExeInstaller
+Name: TestExeInstallerNoScope
 Version: 1.0.0.0
 Publisher: AppInstallerTest
 License: Test

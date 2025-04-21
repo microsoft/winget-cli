@@ -19,7 +19,7 @@ namespace AppInstallerCLIE2ETests
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1010:Opening square brackets should be spaced correctly", Justification = "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3687 pending SC 1.2 release")]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1011:Closing square brackets should be spaced correctly", Justification = "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3687 pending SC 1.2 release")]
-    public class DSCv3ResourceCommands
+    public class DSCv3ResourceCommands : BaseCommand
     {
         private const string DefaultPackageIdentifier = Constants.ExeInstallerPackageId;
         private const string DefaultPackageLowVersion = "1.0.0.0";
@@ -748,7 +748,7 @@ namespace AppInstallerCLIE2ETests
 
             public string InstallMode { get; set; }
 
-            public bool? AcceptAgreements { get; set; } = true;
+            public bool? AcceptAgreements { get; set; }
         }
     }
 }
