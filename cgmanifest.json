@@ -23,8 +23,8 @@
       "component": {
         "type": "git",
         "git": {
-          "repositoryUrl": "https://github.com/madler/zlib.git",
-          "commitHash": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf"
+          "repositoryUrl": "https://github.com/microsoft/xlang",
+          "commitHash": "cfe510d0d2b07484fea2c6d77163de017738c100"
         }
       }
     },

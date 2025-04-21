@@ -9,9 +9,9 @@ The PureLib.vcxproj and PureLib.vcxproj.filters are created to make pure code co
 
 #### Steps used to create the VS project files.
 
-1. VS Create project from existing code wizard to point to PureLib directory. Use static library template.
-2. Removed code not needed by WinGet project. Basically keeping only files under src and include.
-3. Modify the created vcxproj file to follow settings from other project files in the WinGet solution.
-4. Configure the additional include path to include the pure directory.
+1. VS Create project from existing code wizard to create a Shared Items template.
+2. Remove code not needed by WinGet project. Basically keeping only the top level headers.
+3. Add the PureLib headers to the shared items.
+4.  Modify the created vcxitems file to add the PureLib directory to the include path.
 
 > **When committing the PR, DO NOT squash it.  The two commits are needed as is to allow for future subtree pulls.**<br>
