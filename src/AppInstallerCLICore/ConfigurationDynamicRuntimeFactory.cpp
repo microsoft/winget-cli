@@ -155,7 +155,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             IConfigurationSetProcessorFactory::Diagnostics_revoker DiagnosticsEventRevoker;
         };
 
-        struct DynamicSetProcessor : winrt::implements<DynamicSetProcessor, IConfigurationSetProcessor>
+        struct DynamicSetProcessor : winrt::implements<DynamicSetProcessor, IConfigurationSetProcessor, IFindUnitProcessorsSetProcessor>
         {
             using ProcessorMap = std::map<Security::IntegrityLevel, DynamicProcessorInfo>;
 
@@ -255,6 +255,21 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 }
 
                 return itr->second.Processor.CreateUnitProcessor(unit);
+            }
+
+            Collections::IVector<IConfigurationUnitProcessorDetails> FindUnitProcessors(const FindUnitProcessorsOptions& findOptions)
+            {
+                IFindUnitProcessorsSetProcessor findUnitProcessorsSetProcessor;
+
+                if (m_setProcessors[m_currentIntegrityLevel].Processor.try_as<IFindUnitProcessorsSetProcessor>(findUnitProcessorsSetProcessor))
+                {
+                    return findUnitProcessorsSetProcessor.FindUnitProcessors(findOptions);
+                }
+                else
+                {
+                    AICLI_LOG(Config, Error, << "Set Processor does not support FindUnitProcessors operation");
+                    THROW_HR(WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR);
+                }
             }
 
         private:

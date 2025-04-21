@@ -30,35 +30,47 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
         /// Gets a single resource by its type name.
         /// </summary>
         /// <param name="resourceType">The type name of the resource.</param>
+        /// <param name="runSettings">The processor run settings.</param>
         /// <returns>A single resource item.</returns>
-        public IResourceListItem? GetResourceByType(string resourceType);
+        public IResourceListItem? GetResourceByType(string resourceType, ProcessorRunSettings? runSettings);
+
+        /// <summary>
+        /// Gets all resource items.
+        /// </summary>
+        /// <param name="runSettings">The processor run settings.</param>
+        /// <returns>A list of resource items.</returns>
+        public List<IResourceListItem> GetAllResources(ProcessorRunSettings? runSettings);
 
         /// <summary>
         /// Tests a configuration unit.
         /// </summary>
         /// <param name="unitInternal">The unit to test.</param>
+        /// <param name="runSettings">The processor run settings.</param>
         /// <returns>A test result.</returns>
-        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal);
+        public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings);
 
         /// <summary>
         /// Gets a configuration unit settings.
         /// </summary>
         /// <param name="unitInternal">The unit to get.</param>
+        /// <param name="runSettings">The processor run settings.</param>
         /// <returns>A get result.</returns>
-        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal);
+        public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings);
 
         /// <summary>
         /// Sets a configuration unit settings.
         /// </summary>
         /// <param name="unitInternal">The unit to set.</param>
+        /// <param name="runSettings">The processor run settings.</param>
         /// <returns>A set result.</returns>
-        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal);
+        public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings);
 
         /// <summary>
         /// Exports configuration unit.
         /// </summary>
         /// <param name="unitInternal">The unit to export.</param>
+        /// <param name="runSettings">The processor run settings.</param>
         /// <returns>A list of export results.</returns>
-        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal);
+        public IList<IResourceExportItem> ExportResource(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings);
     }
 }
