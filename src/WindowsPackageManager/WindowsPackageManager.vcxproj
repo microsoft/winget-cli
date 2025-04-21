@@ -440,9 +440,6 @@
     <ProjectReference Include="..\SfsClient\SfsClient.vcxproj">
       <Project>{1b9077b3-8923-4ecd-8fc9-b3190fcbe4d4}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\PureLib\PureLib.vcxproj">
-      <Project>{bb14d603-f44e-4415-8770-bf3e13f4c17f}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

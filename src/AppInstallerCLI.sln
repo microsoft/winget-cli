@@ -1,4 +1,5 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -140,8 +141,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 		..\templates\e2e-test.template.yml = ..\templates\e2e-test.template.yml
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PureLib", "PureLib\PureLib.vcxproj", "{BB14D603-F44E-4415-8770-BF3E13F4C17F}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerSharedLib", "AppInstallerSharedLib\AppInstallerSharedLib.vcxproj", "{F3F6E699-BC5D-4950-8A05-E49DD9EB0D51}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Management.Configuration", "Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj", "{CA460806-5E41-4E97-9A3D-1D74B433B663}"
@@ -204,6 +203,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "targets", "targets", "{A0B4
 		targets\EmbeddedCsWinRT.targets = targets\EmbeddedCsWinRT.targets
 		targets\ReferenceEmbeddedCsWinRTProject.targets = targets\ReferenceEmbeddedCsWinRTProject.targets
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PureLib", "PureLib\PureLib.vcxitems", "{A33223D2-550B-4D99-A53D-488B1F68683E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -774,33 +775,6 @@ Global
 		{31ED69A8-5310-45A9-953F-56C351D2C3E1}.TestRelease|x64.Build.0 = Release|x64
 		{31ED69A8-5310-45A9-953F-56C351D2C3E1}.TestRelease|x86.ActiveCfg = Release|Win32
 		{31ED69A8-5310-45A9-953F-56C351D2C3E1}.TestRelease|x86.Build.0 = Release|Win32
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.Debug|ARM64.Build.0 = Debug|ARM64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.Debug|x64.ActiveCfg = Debug|x64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.Debug|x64.Build.0 = Debug|x64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.Debug|x86.ActiveCfg = Debug|Win32
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.Debug|x86.Build.0 = Debug|Win32
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.Fuzzing|ARM64.ActiveCfg = Release|ARM64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.Fuzzing|x64.ActiveCfg = Release|x64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.Fuzzing|x86.ActiveCfg = Release|Win32
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.Release|ARM64.ActiveCfg = Release|ARM64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.Release|ARM64.Build.0 = Release|ARM64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.Release|x64.ActiveCfg = Release|x64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.Release|x64.Build.0 = Release|x64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.Release|x86.ActiveCfg = Release|Win32
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.Release|x86.Build.0 = Release|Win32
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.ReleaseStatic|ARM64.ActiveCfg = ReleaseStatic|ARM64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.ReleaseStatic|ARM64.Build.0 = ReleaseStatic|ARM64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.ReleaseStatic|x64.ActiveCfg = ReleaseStatic|x64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.ReleaseStatic|x64.Build.0 = ReleaseStatic|x64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.ReleaseStatic|x86.ActiveCfg = ReleaseStatic|Win32
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.ReleaseStatic|x86.Build.0 = ReleaseStatic|Win32
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.TestRelease|ARM64.ActiveCfg = Release|ARM64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.TestRelease|ARM64.Build.0 = Release|ARM64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.TestRelease|x64.ActiveCfg = Release|x64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.TestRelease|x64.Build.0 = Release|x64
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.TestRelease|x86.ActiveCfg = Release|Win32
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F}.TestRelease|x86.Build.0 = Release|Win32
 		{F3F6E699-BC5D-4950-8A05-E49DD9EB0D51}.Debug|ARM64.ActiveCfg = Debug|ARM64
 		{F3F6E699-BC5D-4950-8A05-E49DD9EB0D51}.Debug|ARM64.Build.0 = Debug|ARM64
 		{F3F6E699-BC5D-4950-8A05-E49DD9EB0D51}.Debug|x64.ActiveCfg = Debug|x64
@@ -1194,7 +1168,6 @@ Global
 		{463C0EF3-DF38-4C3D-8E7E-D4901E0CDC6C} = {7C218A3E-9BC8-48FF-B91B-BCACD828C0C9}
 		{31ED69A8-5310-45A9-953F-56C351D2C3E1} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
 		{8E43F982-40D5-4DF1-9044-C08047B5F43B} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
-		{BB14D603-F44E-4415-8770-BF3E13F4C17F} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
 		{1F56BECB-D65D-4BBA-8788-6671B251392A} = {7C218A3E-9BC8-48FF-B91B-BCACD828C0C9}
 		{167F634B-A3AD-494E-8E67-B888103E35FF} = {7C218A3E-9BC8-48FF-B91B-BCACD828C0C9}
 		{C54F80ED-B736-49B0-9BD3-662F57024D01} = {7C218A3E-9BC8-48FF-B91B-BCACD828C0C9}
@@ -1203,6 +1176,7 @@ Global
 		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
 		{76B26B2C-602A-4AD0-9736-4162D3FCA92A} = {1A5D7A7D-5CB2-47D5-B40D-4E61CAEDC798}
 		{A0B4F808-B190-41C4-97CB-C8EA1932F84F} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
+		{A33223D2-550B-4D99-A53D-488B1F68683E} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6FDB70C-A751-422C-ACD1-E35419495857}
@@ -1228,6 +1202,7 @@ Global
 		ManifestSchema\ManifestSchema.vcxitems*{89b1aab4-2bbc-4b65-9ed7-a01d5cf88230}*SharedItemsImports = 4
 		WinGetSchemas\WinGetSchemas.vcxitems*{89b1aab4-2bbc-4b65-9ed7-a01d5cf88230}*SharedItemsImports = 4
 		WinGetSchemas\WinGetSchemas.vcxitems*{952b513f-8a00-4d74-9271-925afb3c6252}*SharedItemsImports = 9
+		PureLib\PureLib.vcxitems*{a33223d2-550b-4d99-a53d-488b1f68683e}*SharedItemsImports = 9
 		CertificateResources\CertificateResources.vcxitems*{b0bbbd92-943b-408f-b2b2-dbbab4a22d23}*SharedItemsImports = 9
 		binver\binver.vcxitems*{fb313532-38b0-4676-9303-ab200aa13576}*SharedItemsImports = 4
 		ManifestSchema\ManifestSchema.vcxitems*{fb313532-38b0-4676-9303-ab200aa13576}*SharedItemsImports = 4

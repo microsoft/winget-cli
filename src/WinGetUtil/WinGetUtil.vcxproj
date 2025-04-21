@@ -273,9 +273,6 @@
     <ProjectReference Include="..\cpprestsdk\cpprestsdk.vcxproj">
       <Project>{866c3f06-636f-4be8-bc24-5f86ecc606a1}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\PureLib\PureLib.vcxproj">
-      <Project>{bb14d603-f44e-4415-8770-bf3e13f4c17f}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
