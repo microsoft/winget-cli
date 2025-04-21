@@ -179,11 +179,14 @@ namespace AppInstaller::CLI
                     }
                 }
 
+                AICLI_LOG(CLI, Verbose, << "Package::Get found:\n" << Json::writeString(Json::StreamWriterBuilder{}, Output.ToJson()));
                 return true;
             }
 
             void Uninstall()
             {
+                AICLI_LOG(CLI, Verbose, << "Package::Uninstall invoked");
+
                 if (Input.Version())
                 {
                     SubContext->Args.AddArg(Execution::Args::Type::TargetVersion, Input.Version().value());
@@ -210,6 +213,8 @@ namespace AppInstaller::CLI
 
             void Install()
             {
+                AICLI_LOG(CLI, Verbose, << "Package::Install invoked");
+
                 if (Input.Version())
                 {
                     SubContext->Args.AddArg(Execution::Args::Type::Version, Input.Version().value());
@@ -252,6 +257,8 @@ namespace AppInstaller::CLI
 
             void Reinstall()
             {
+                AICLI_LOG(CLI, Verbose, << "Package::Reinstall invoked");
+
                 SubContext->Args.AddArg(Execution::Args::Type::UninstallPrevious);
 
                 Install();
@@ -267,15 +274,18 @@ namespace AppInstaller::CLI
                 {
                     if (Output.Exist().value())
                     {
+                        AICLI_LOG(CLI, Verbose, << "Package::Test needed to inspect these properties: Version(" << TestVersion() << "), Scope(" << TestScope() << "), Latest(" << TestLatest() << ")");
                         return TestVersion() && TestScope() && TestLatest();
                     }
                     else
                     {
+                        AICLI_LOG(CLI, Verbose, << "Package::Test was false because the package was not installed");
                         return false;
                     }
                 }
                 else
                 {
+                    AICLI_LOG(CLI, Verbose, << "Package::Test desired the package to not exist, and it " << (Output.Exist().value() ? "did" : "did not"));
                     return !Output.Exist().value();
                 }
             }
@@ -431,11 +441,13 @@ namespace AppInstaller::CLI
                     {
                         if (!data.TestScope())
                         {
+                            AICLI_LOG(CLI, Info, << "Reinstalling package to change scope");
                             data.Reinstall();
                         }
                         if (!data.TestLatest())
                         {
                             // Install will swap to update flow
+                            AICLI_LOG(CLI, Info, << "Installing package to update to latest");
                             data.Install();
                         }
                         else // (!data.TestVersion())
@@ -446,21 +458,25 @@ namespace AppInstaller::CLI
                             if (outputVersion < inputVersion)
                             {
                                 // Install will swap to update flow
+                                AICLI_LOG(CLI, Info, << "Installing package to update to desired version");
                                 data.Install();
                             }
                             else
                             {
+                                AICLI_LOG(CLI, Info, << "Reinstalling package to downgrade to desired version");
                                 data.Reinstall();
                             }
                         }
                     }
                     else
                     {
+                        AICLI_LOG(CLI, Info, << "Installing package as it was not found");
                         data.Install();
                     }
                 }
                 else
                 {
+                    AICLI_LOG(CLI, Info, << "Uninstalling package as desired");
                     data.Uninstall();
                 }
 

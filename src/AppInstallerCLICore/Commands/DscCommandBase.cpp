@@ -276,6 +276,7 @@ namespace AppInstaller::CLI
             Json::String errors;
             if (Json::parseFromStream(builder, context.Reporter.RawInputStream(), &result, &errors))
             {
+                AICLI_LOG(CLI, Info, << "Json from input stream:\n" << Json::writeString(Json::StreamWriterBuilder{}, result));
                 return result;
             }
 

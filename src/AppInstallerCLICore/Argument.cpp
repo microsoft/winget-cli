@@ -289,6 +289,8 @@ namespace AppInstaller::CLI
             return { type, "force"_liv, ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::OutputFile:
             return { type, "output"_liv, 'o' };
+        case Execution::Args::Type::Correlation:
+            return { type, "correlation"_liv };
 
         case Execution::Args::Type::DependencySource:
             return { type, "dependency-source"_liv, ArgTypeCategory::ExtendedSource };
@@ -468,6 +470,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::NoProxyArgumentDescription, ArgumentType::Flag, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
         case Args::Type::Family:
             return Argument{ type, Resource::String::FontFamilyNameArgumentDescription, ArgumentType::Positional, false };
+        case Args::Type::Correlation:
+            return Argument{ type, Resource::String::CorrelationArgumentDescription, ArgumentType::Standard, Argument::Visibility::Hidden };
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -486,6 +490,7 @@ namespace AppInstaller::CLI
         args.emplace_back(Args::Type::DisableInteractivity, Resource::String::DisableInteractivityArgumentDescription, ArgumentType::Flag, false);
         args.push_back(ForType(Args::Type::Proxy));
         args.push_back(ForType(Args::Type::NoProxy));
+        args.push_back(ForType(Args::Type::Correlation));
     }
 
     std::string Argument::GetUsageString() const

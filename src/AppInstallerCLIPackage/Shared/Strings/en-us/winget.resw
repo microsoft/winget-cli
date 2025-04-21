@@ -3283,4 +3283,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="DscResourcePropertyDescriptionPackageAcceptAgreements" xml:space="preserve">
     <value>Indicates whether to accept agreements for package installs.</value>
   </data>
+  <data name="CorrelationArgumentDescription" xml:space="preserve">
+    <value>An unused argument for logging</value>
+  </data>
 </root>

@@ -184,6 +184,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureValidateCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureValidateCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConvertInstallFlowToUpgrade);
+        WINGET_DEFINE_RESOURCE_STRINGID(CorrelationArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CountArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CountOutOfBoundsError);
         WINGET_DEFINE_RESOURCE_STRINGID(CustomSwitchesArgumentDescription);

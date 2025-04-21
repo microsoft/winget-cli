@@ -576,7 +576,7 @@ namespace AppInstallerCLIE2ETests
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier}");
             Assert.AreEqual(0, setupInstall.ExitCode);
 
-            var result = RunDSCv3Command(PackageResource, ExportFunction, null);
+            var result = RunDSCv3Command(PackageResource, ExportFunction, null, 300000);
             AssertSuccessfulResourceRun(ref result);
 
             List<PackageResourceData> output = GetOutputLinesAs<PackageResourceData>(result.StdOut);
@@ -609,7 +609,7 @@ namespace AppInstallerCLIE2ETests
                 UseLatest = false,
             };
 
-            var result = RunDSCv3Command(PackageResource, ExportFunction, packageResourceData);
+            var result = RunDSCv3Command(PackageResource, ExportFunction, packageResourceData, 300000);
             AssertSuccessfulResourceRun(ref result);
 
             List<PackageResourceData> output = GetOutputLinesAs<PackageResourceData>(result.StdOut);
