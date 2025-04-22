@@ -271,6 +271,8 @@ namespace AppInstaller::CLI
         // Don't attempt to read from an interactive stream as this will just block
         if (!context.Reporter.InputStreamIsInteractive())
         {
+            AICLI_LOG(CLI, Verbose, << "Reading Json from input stream...");
+
             Json::Value result;
             Json::CharReaderBuilder builder;
             Json::String errors;

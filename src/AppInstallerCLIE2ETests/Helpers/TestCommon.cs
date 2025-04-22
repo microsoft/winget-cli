@@ -117,6 +117,15 @@ namespace AppInstallerCLIE2ETests.Helpers
         {
             string correlationParameter = " --correlation " + Guid.NewGuid().ToString();
 
+            // Don't include correlation when the call has an option ending `--` value.
+            foreach (string part in parameters.Split(' ', StringSplitOptions.TrimEntries))
+            {
+                if (part == "--")
+                {
+                    correlationParameter = string.Empty;
+                }
+            }
+
             string inputMsg =
                     "AICLI path: " + TestSetup.Parameters.AICLIPath +
                     " Command: " + command +

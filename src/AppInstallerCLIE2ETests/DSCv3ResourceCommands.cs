@@ -19,7 +19,7 @@ namespace AppInstallerCLIE2ETests
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1010:Opening square brackets should be spaced correctly", Justification = "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3687 pending SC 1.2 release")]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1011:Closing square brackets should be spaced correctly", Justification = "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3687 pending SC 1.2 release")]
-    public class DSCv3ResourceCommands : BaseCommand
+    public class DSCv3ResourceCommands
     {
         private const string DefaultPackageIdentifier = Constants.ExeInstallerPackageId;
         private const string DefaultPackageLowVersion = "1.0.0.0";
@@ -55,7 +55,9 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
+            TestCommon.SetupTestSource();
             WinGetSettingsHelper.ConfigureFeature("dsc3", true);
+            WinGetSettingsHelper.ConfigureLoggingLevel("verbose");
             EnsureTestResourcePresence();
         }
 
@@ -65,7 +67,10 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void OneTimeTeardown()
         {
+            RemoveTestPackage();
+            WinGetSettingsHelper.ConfigureLoggingLevel(null);
             WinGetSettingsHelper.ConfigureFeature("dsc3", false);
+            TestCommon.TearDownTestSource();
         }
 
         /// <summary>
@@ -75,14 +80,7 @@ namespace AppInstallerCLIE2ETests
         public void Setup()
         {
             // Try clean up TestExeInstaller for failure cases where cleanup is not successful
-            PackageResourceData packageResourceData = new PackageResourceData()
-            {
-                Identifier = DefaultPackageIdentifier,
-                Exist = false,
-            };
-
-            var result = RunDSCv3Command(PackageResource, SetFunction, packageResourceData);
-            AssertSuccessfulResourceRun(ref result);
+            RemoveTestPackage();
         }
 
         /// <summary>
@@ -442,7 +440,7 @@ namespace AppInstallerCLIE2ETests
             AssertSuccessfulResourceRun(ref result);
 
             (PackageResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<PackageResourceData>(result.StdOut);
-            AssertExistingPackageResourceData(output, DefaultPackageHighVersion, SystemScope);
+            AssertExistingPackageResourceData(output, DefaultPackageHighVersion, SystemScope, ignoreLatest: true);
 
             AssertDiffState(diff, [ ScopePropertyName ]);
 
@@ -632,6 +630,18 @@ namespace AppInstallerCLIE2ETests
             Assert.IsTrue(foundDefaultPackage);
         }
 
+        private static void RemoveTestPackage()
+        {
+            PackageResourceData packageResourceData = new PackageResourceData()
+            {
+                Identifier = DefaultPackageIdentifier,
+                Exist = false,
+            };
+
+            var result = RunDSCv3Command(PackageResource, SetFunction, packageResourceData);
+            AssertSuccessfulResourceRun(ref result);
+        }
+
         private static TestCommon.RunCommandResult RunDSCv3Command(string resource, string function, object input, int timeOut = 60000, bool throwOnTimeout = true)
         {
             return TestCommon.RunAICLICommand($"dscv3 {resource}", $"--{function}", ConvertToJSON(input), timeOut, throwOnTimeout);
@@ -697,20 +707,24 @@ namespace AppInstallerCLIE2ETests
             return result;
         }
 
-        private static void AssertExistingPackageResourceData(PackageResourceData output, string version, string scope = UserScope)
+        private static void AssertExistingPackageResourceData(PackageResourceData output, string version, string scope = UserScope, bool ignoreLatest = false)
         {
             Assert.IsNotNull(output);
             Assert.True(output.Exist);
             Assert.AreEqual(DefaultPackageIdentifier, output.Identifier);
             Assert.AreEqual(version, output.Version);
             Assert.AreEqual(scope, output.Scope.ToLower());
-            if (version == DefaultPackageHighVersion)
+
+            if (!ignoreLatest)
             {
-                Assert.True(output.UseLatest);
-            }
-            else
-            {
-                Assert.False(output.UseLatest);
+                if (version == DefaultPackageHighVersion)
+                {
+                    Assert.True(output.UseLatest);
+                }
+                else
+                {
+                    Assert.False(output.UseLatest);
+                }
             }
         }
 

@@ -162,16 +162,41 @@ namespace AppInstaller::CLI
 
                     if (installedPackage)
                     {
-                        auto installedVersion = installedPackage->GetLatestVersion();
-                        THROW_HR_IF(E_UNEXPECTED, !installedVersion);
-                        auto metadata = installedVersion->GetMetadata();
+                        auto versionKeys = installedPackage->GetVersionKeys();
+                        AICLI_LOG(CLI, Verbose, << "Package::Get found " << versionKeys.size() << " installed versions");
 
-                        Output.Version(installedVersion->GetProperty(PackageVersionProperty::Version));
+                        std::shared_ptr<Repository::IPackageVersion> installedVersion;
 
-                        auto scopeItr = metadata.find(PackageVersionMetadata::InstalledScope);
-                        if (scopeItr != metadata.end())
+                        // Find the specific version provided if possible
+                        if (Input.Version())
                         {
-                            Output.Scope(ConvertScope(scopeItr->second, true));
+                            Utility::Version inputVersion{ Input.Version().value() };
+
+                            for (const auto& key : versionKeys)
+                            {
+                                if (inputVersion == Utility::Version{ key.Version })
+                                {
+                                    installedVersion = installedPackage->GetVersion(key);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!installedVersion)
+                        {
+                            installedVersion = installedPackage->GetLatestVersion();
+                        }
+
+                        if (installedVersion)
+                        {
+                            Output.Version(installedVersion->GetProperty(PackageVersionProperty::Version));
+
+                            auto metadata = installedVersion->GetMetadata();
+                            auto scopeItr = metadata.find(PackageVersionMetadata::InstalledScope);
+                            if (scopeItr != metadata.end())
+                            {
+                                Output.Scope(ConvertScope(scopeItr->second, true));
+                            }
                         }
 
                         auto data = Repository::GetLatestApplicableVersion(package);
@@ -548,10 +573,10 @@ namespace AppInstaller::CLI
                     output.Version(package.VersionAndChannel.GetVersion().ToString());
                 }
 
-                if (package.Scope != Manifest::ScopeEnum::Unknown)
-                {
-                    output.Scope(ConvertScope(Manifest::ScopeToString(package.Scope), true));
-                }
+                // TODO: Exporting scope requires one or more of the following:
+                //  1. Support for "OrUnknown" scope variants during Set (and workflows)
+                //  2. Tracking scope intent as we do for some other installer properties
+                //  3. Checking for the availability of the current scope in the package
 
                 WriteJsonOutputLine(context, output.ToJson());
             }

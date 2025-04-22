@@ -200,7 +200,7 @@ void WriteToUninstallRegistry(
         }
 
         // Set ModifyPath Property Value
-        if (LONG res = RegSetValueEx(hkey, L"ModifyPath", NULL, REG_EXPAND_SZ, (LPBYTE)modifyPath.c_str(), (DWORD)(modifyPath.wstring().length() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
+        if (LONG res = RegSetValueEx(hkey, L"ModifyPath", NULL, REG_EXPAND_SZ, (LPBYTE)modifyPathString.c_str(), (DWORD)(modifyPathString.length() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
         {
             out << "Failed to write ModifyPath value. Error Code: " << res << std::endl;
         }
