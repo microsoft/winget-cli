@@ -207,7 +207,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>pure;pure\zlib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>pure;</AdditionalIncludeDirectories>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -220,34 +220,6 @@
     <ClInclude Include="pure\pure_errors.h" />
     <ClInclude Include="pure\pure_routines.h" />
     <ClInclude Include="pure\pure_signatures.h" />
-    <ClInclude Include="pure\zlib\crc32.h" />
-    <ClInclude Include="pure\zlib\deflate.h" />
-    <ClInclude Include="pure\zlib\gzguts.h" />
-    <ClInclude Include="pure\zlib\inffast.h" />
-    <ClInclude Include="pure\zlib\inffixed.h" />
-    <ClInclude Include="pure\zlib\inflate.h" />
-    <ClInclude Include="pure\zlib\inftrees.h" />
-    <ClInclude Include="pure\zlib\trees.h" />
-    <ClInclude Include="pure\zlib\zconf.h" />
-    <ClInclude Include="pure\zlib\zlib.h" />
-    <ClInclude Include="pure\zlib\zutil.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="pure\zlib\adler32.c" />
-    <ClCompile Include="pure\zlib\compress.c" />
-    <ClCompile Include="pure\zlib\crc32.c" />
-    <ClCompile Include="pure\zlib\deflate.c" />
-    <ClCompile Include="pure\zlib\gzclose.c" />
-    <ClCompile Include="pure\zlib\gzlib.c" />
-    <ClCompile Include="pure\zlib\gzread.c" />
-    <ClCompile Include="pure\zlib\gzwrite.c" />
-    <ClCompile Include="pure\zlib\infback.c" />
-    <ClCompile Include="pure\zlib\inffast.c" />
-    <ClCompile Include="pure\zlib\inflate.c" />
-    <ClCompile Include="pure\zlib\inftrees.c" />
-    <ClCompile Include="pure\zlib\trees.c" />
-    <ClCompile Include="pure\zlib\uncompr.c" />
-    <ClCompile Include="pure\zlib\zutil.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="readme.md" />

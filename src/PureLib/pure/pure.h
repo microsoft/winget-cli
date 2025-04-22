@@ -14,7 +14,7 @@
 #include "pure_signatures.h"
 #include "pure_routines.h"
 
-#include "zlib/zlib.h"
+#include "zlib.h"
 
 typedef struct pure_ctx {
   uint64_t flags;

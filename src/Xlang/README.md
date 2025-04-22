@@ -16,5 +16,5 @@ The default project files are used to make the UndockedRegFreeWinRT project comp
 #### Steps used to create the VS project files.
 
 1. Add UndockedRegFreeWinRT project files to WinGet solution.
-2. Remove code and files not needed by WinGet project. Basically removing everything except what is contained in UndockedRegFreeWinRT folder.
+2. Remove code and files not needed by WinGet project. Basically removing everything except what is contained in the UndockedRegFreeWinRT folder. Test code from that folder is also removed.
 3. Modify the vcxproj file to follow settings from other project files in the WinGet solution.
