@@ -25,8 +25,6 @@ namespace AppInstallerCLIE2ETests
         private const string DefaultPackageLowVersion = "1.0.0.0";
         private const string DefaultPackageMidVersion = "1.1.0.0";
         private const string DefaultPackageHighVersion = "2.0.0.0";
-        private const string UserScope = "user";
-        private const string SystemScope = "system";
         private const string PackageResource = "package";
         private const string GetFunction = "get";
         private const string TestFunction = "test";
@@ -35,7 +33,6 @@ namespace AppInstallerCLIE2ETests
         private const string ExistPropertyName = "_exist";
         private const string VersionPropertyName = "version";
         private const string UseLatestPropertyName = "useLatest";
-        private const string ScopePropertyName = "scope";
 
         /// <summary>
         /// Ensures that the test resources manifests are present.
@@ -148,7 +145,6 @@ namespace AppInstallerCLIE2ETests
             {
                 Identifier = DefaultPackageIdentifier,
                 Source = Constants.TestSourceName,
-                Scope = UserScope,
                 MatchOption = "equals",
             };
 
@@ -303,56 +299,6 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Calls `test` on the `package` resource with the scope that is present.
-        /// </summary>
-        [Test]
-        public void Package_Test_ScopeMatch()
-        {
-            var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier}");
-            Assert.AreEqual(0, setupInstall.ExitCode);
-
-            PackageResourceData packageResourceData = new PackageResourceData()
-            {
-                Identifier = DefaultPackageIdentifier,
-                Scope = UserScope,
-            };
-
-            var result = RunDSCv3Command(PackageResource, TestFunction, packageResourceData);
-            AssertSuccessfulResourceRun(ref result);
-
-            (PackageResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<PackageResourceData>(result.StdOut);
-            AssertExistingPackageResourceData(output, DefaultPackageHighVersion);
-            Assert.True(output.InDesiredState);
-
-            AssertDiffState(diff, []);
-        }
-
-        /// <summary>
-        /// Calls `test` on the `package` resource with the scope that is not present.
-        /// </summary>
-        [Test]
-        public void Package_Test_ScopeMismatch()
-        {
-            var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier}");
-            Assert.AreEqual(0, setupInstall.ExitCode);
-
-            PackageResourceData packageResourceData = new PackageResourceData()
-            {
-                Identifier = DefaultPackageIdentifier,
-                Scope = SystemScope,
-            };
-
-            var result = RunDSCv3Command(PackageResource, TestFunction, packageResourceData);
-            AssertSuccessfulResourceRun(ref result);
-
-            (PackageResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<PackageResourceData>(result.StdOut);
-            AssertExistingPackageResourceData(output, DefaultPackageHighVersion);
-            Assert.False(output.InDesiredState);
-
-            AssertDiffState(diff, [ ScopePropertyName ]);
-        }
-
-        /// <summary>
         /// Calls `set` on the `package` resource when the package is not present, and again afterward.
         /// </summary>
         [Test]
@@ -419,42 +365,6 @@ namespace AppInstallerCLIE2ETests
             Assert.IsNotNull(output);
             Assert.False(output.Exist);
             Assert.AreEqual(packageResourceDataForGet.Identifier, output.Identifier);
-        }
-
-        /// <summary>
-        /// Calls `set` on the `package` resource with a different scope from the one currently installed.
-        /// </summary>
-        [Test]
-        public void Package_Set_ChangeScope()
-        {
-            var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier}");
-            Assert.AreEqual(0, setupInstall.ExitCode);
-
-            PackageResourceData packageResourceData = new PackageResourceData()
-            {
-                Identifier = DefaultPackageIdentifier,
-                Scope = SystemScope,
-            };
-
-            var result = RunDSCv3Command(PackageResource, SetFunction, packageResourceData);
-            AssertSuccessfulResourceRun(ref result);
-
-            (PackageResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<PackageResourceData>(result.StdOut);
-            AssertExistingPackageResourceData(output, DefaultPackageHighVersion, SystemScope, ignoreLatest: true);
-
-            AssertDiffState(diff, [ ScopePropertyName ]);
-
-            // Call `get` to ensure the result
-            PackageResourceData packageResourceDataForGet = new PackageResourceData()
-            {
-                Identifier = DefaultPackageIdentifier,
-            };
-
-            result = RunDSCv3Command(PackageResource, GetFunction, packageResourceDataForGet);
-            AssertSuccessfulResourceRun(ref result);
-
-            output = GetSingleOutputLineAs<PackageResourceData>(result.StdOut);
-            AssertExistingPackageResourceData(output, DefaultPackageHighVersion, SystemScope);
         }
 
         /// <summary>
@@ -707,13 +617,12 @@ namespace AppInstallerCLIE2ETests
             return result;
         }
 
-        private static void AssertExistingPackageResourceData(PackageResourceData output, string version, string scope = UserScope, bool ignoreLatest = false)
+        private static void AssertExistingPackageResourceData(PackageResourceData output, string version, bool ignoreLatest = false)
         {
             Assert.IsNotNull(output);
             Assert.True(output.Exist);
             Assert.AreEqual(DefaultPackageIdentifier, output.Identifier);
             Assert.AreEqual(version, output.Version);
-            Assert.AreEqual(scope, output.Scope.ToLower());
 
             if (!ignoreLatest)
             {
@@ -753,8 +662,6 @@ namespace AppInstallerCLIE2ETests
             public string Source { get; set; }
 
             public string Version { get; set; }
-
-            public string Scope { get; set; }
 
             public string MatchOption { get; set; }
 

@@ -21,13 +21,17 @@ namespace AppInstaller::CLI
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(IdProperty, std::string, Identifier, "id", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageId);
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SourceProperty, std::string, Source, "source", DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageSource);
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(VersionProperty, std::string, Version, "version", Resource::String::DscResourcePropertyDescriptionPackageVersion);
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM_FLAGS(ScopeProperty, std::string, Scope, "scope", DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageScope, ({ "user", "system" }), {});
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM_FLAGS(MatchOptionProperty, std::string, MatchOption, "matchOption", DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageMatchOption, ({ "equals", "equalsCaseInsensitive", "startsWithCaseInsensitive", "containsCaseInsensitive" }), "equalsCaseInsensitive");
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(MatchOptionProperty, std::string, MatchOption, "matchOption", Resource::String::DscResourcePropertyDescriptionPackageMatchOption, ({ "equals", "equalsCaseInsensitive", "startsWithCaseInsensitive", "containsCaseInsensitive" }), "equalsCaseInsensitive");
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_DEFAULT(UseLatestProperty, bool, UseLatest, "useLatest", Resource::String::DscResourcePropertyDescriptionPackageUseLatest, "false");
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(InstallModeProperty, std::string, InstallMode, "installMode", Resource::String::DscResourcePropertyDescriptionPackageInstallMode, ({ "default", "silent", "interactive" }), "silent");
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(AcceptAgreementsProperty, bool, AcceptAgreements, "acceptAgreements", Resource::String::DscResourcePropertyDescriptionPackageAcceptAgreements);
 
-        using PackageResourceObject = DscComposableObject<StandardExistProperty, StandardInDesiredStateProperty, IdProperty, SourceProperty, VersionProperty, ScopeProperty, MatchOptionProperty, UseLatestProperty, InstallModeProperty, AcceptAgreementsProperty>;
+        // TODO: To support Scope on this resource:
+        //  1. Change the installed source to pull in all package info for both scopes by default
+        //  2. Change the installed source open in workflows to always open for everything, regardless of scope
+        //  3. Improve correlation handling if needed for cross-scope package installations
+        //  4. Update the test EXE installer to handle being installed for both scopes
+        using PackageResourceObject = DscComposableObject<StandardExistProperty, StandardInDesiredStateProperty, IdProperty, SourceProperty, VersionProperty, MatchOptionProperty, UseLatestProperty, InstallModeProperty, AcceptAgreementsProperty>;
 
         std::optional<MatchType> ToMatchType(const std::optional<std::string>& value)
         {
@@ -56,20 +60,6 @@ namespace AppInstaller::CLI
             }
 
             THROW_HR(E_INVALIDARG);
-        }
-
-        std::string ConvertScope(std::string_view value, bool preferSystem)
-        {
-            std::string lowerValue = Utility::ToLower(value);
-
-            if (lowerValue == "machine" || lowerValue == "system")
-            {
-                return preferSystem ? "system" : "machine";
-            }
-            else
-            {
-                return std::string{ value };
-            }
         }
 
         struct PackageFunctionData
@@ -106,11 +96,6 @@ namespace AppInstaller::CLI
                 if (Input.Source())
                 {
                     SubContext->Args.AddArg(Execution::Args::Type::Source, Input.Source().value());
-                }
-
-                if (Input.Scope() && !Input.Scope().value().empty())
-                {
-                    SubContext->Args.AddArg(Execution::Args::Type::InstallScope, ConvertScope(Input.Scope().value(), false));
                 }
             }
 
@@ -190,13 +175,6 @@ namespace AppInstaller::CLI
                         if (installedVersion)
                         {
                             Output.Version(installedVersion->GetProperty(PackageVersionProperty::Version));
-
-                            auto metadata = installedVersion->GetMetadata();
-                            auto scopeItr = metadata.find(PackageVersionMetadata::InstalledScope);
-                            if (scopeItr != metadata.end())
-                            {
-                                Output.Scope(ConvertScope(scopeItr->second, true));
-                            }
                         }
 
                         auto data = Repository::GetLatestApplicableVersion(package);
@@ -232,7 +210,6 @@ namespace AppInstaller::CLI
 
                 Output.Exist(false);
                 Output.Version(std::nullopt);
-                Output.Scope(std::nullopt);
                 Output.UseLatest(std::nullopt);
             }
 
@@ -267,16 +244,6 @@ namespace AppInstaller::CLI
                     }
                 }
 
-                Output.Scope(std::nullopt);
-                if (SubContext->Contains(Execution::Data::Installer))
-                {
-                    const auto& installer = SubContext->Get<Execution::Data::Installer>();
-                    if (installer && installer->Scope != Manifest::ScopeEnum::Unknown)
-                    {
-                        Output.Scope(ConvertScope(Manifest::ScopeToString(installer->Scope), true));
-                    }
-                }
-
                 Output.UseLatest(std::nullopt);
             }
 
@@ -299,8 +266,8 @@ namespace AppInstaller::CLI
                 {
                     if (Output.Exist().value())
                     {
-                        AICLI_LOG(CLI, Verbose, << "Package::Test needed to inspect these properties: Version(" << TestVersion() << "), Scope(" << TestScope() << "), Latest(" << TestLatest() << ")");
-                        return TestVersion() && TestScope() && TestLatest();
+                        AICLI_LOG(CLI, Verbose, << "Package::Test needed to inspect these properties: Version(" << TestVersion() << "), Latest(" << TestLatest() << ")");
+                        return TestVersion() && TestLatest();
                     }
                     else
                     {
@@ -333,11 +300,6 @@ namespace AppInstaller::CLI
                         result.append(std::string{ VersionProperty::Name() });
                     }
 
-                    if (!TestScope())
-                    {
-                        result.append(std::string{ ScopeProperty::Name() });
-                    }
-
                     if (!TestLatest())
                     {
                         result.append(std::string{ UseLatestProperty::Name() });
@@ -354,26 +316,6 @@ namespace AppInstaller::CLI
                     if (Output.Version())
                     {
                         return Utility::Version{ Input.Version().value() } == Utility::Version{ Output.Version().value() };
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return true;
-                }
-            }
-
-            bool TestScope()
-            {
-                if (Input.Scope())
-                {
-                    if (Output.Scope())
-                    {
-                        return Manifest::ConvertToScopeEnum(ConvertScope(Input.Scope().value(), false)) ==
-                            Manifest::ConvertToScopeEnum(ConvertScope(Output.Scope().value(), false));
                     }
                     else
                     {
@@ -464,11 +406,6 @@ namespace AppInstaller::CLI
                 {
                     if (data.Output.Exist().value())
                     {
-                        if (!data.TestScope())
-                        {
-                            AICLI_LOG(CLI, Info, << "Reinstalling package to change scope");
-                            data.Reinstall();
-                        }
                         if (!data.TestLatest())
                         {
                             // Install will swap to update flow

@@ -3284,6 +3284,6 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Indicates whether to accept agreements for package installs.</value>
   </data>
   <data name="CorrelationArgumentDescription" xml:space="preserve">
-    <value>An unused argument for logging</value>
+    <value>Value is logged for correlation</value>
   </data>
 </root>
