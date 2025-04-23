@@ -14,6 +14,8 @@
     !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
     <WindowsSdkPackageVersion>10.0.26100.53</WindowsSdkPackageVersion>
+    <!-- Disables the AssemblyInfo generation override in the internal build. -->
+    <XesDisableAssemblyInfoWrite>True</XesDisableAssemblyInfoWrite>
   </PropertyGroup>
 
   <PropertyGroup>
