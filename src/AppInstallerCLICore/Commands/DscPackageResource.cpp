@@ -213,7 +213,7 @@ namespace AppInstaller::CLI
                 Output.UseLatest(std::nullopt);
             }
 
-            void Install()
+            void Install(bool allowDowngrade = false)
             {
                 AICLI_LOG(CLI, Verbose, << "Package::Install invoked");
 
@@ -223,7 +223,7 @@ namespace AppInstaller::CLI
                 }
 
                 *SubContext <<
-                    Workflow::SelectSinglePackageVersionForInstallOrUpgrade(Workflow::OperationType::Install) <<
+                    Workflow::SelectSinglePackageVersionForInstallOrUpgrade(Workflow::OperationType::Install, allowDowngrade) <<
                     Workflow::InstallSinglePackage;
 
                 if (SubContext->IsTerminated())
@@ -253,7 +253,7 @@ namespace AppInstaller::CLI
 
                 SubContext->Args.AddArg(Execution::Args::Type::UninstallPrevious);
 
-                Install();
+                Install(true);
             }
 
             // Determines if the current Output values match the Input values state.

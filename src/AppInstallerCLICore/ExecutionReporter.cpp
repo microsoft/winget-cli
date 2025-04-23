@@ -166,6 +166,7 @@ namespace AppInstaller::CLI::Execution
 
     bool Reporter::InputStreamIsInteractive() const
     {
+        AICLI_LOG(CLI, Verbose, << "Reporter::m_inStreamFileType is " << m_inStreamFileType);
         return m_inStreamFileType == FILE_TYPE_CHAR;
     }
 

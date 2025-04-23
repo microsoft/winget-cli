@@ -330,7 +330,7 @@ namespace AppInstaller::CLI::Workflow
             // If version specified, use the version and verify applicability
             context << GetManifestFromPackage(/* considerPins */ true);
 
-            if (m_operationType == OperationType::Upgrade)
+            if (m_operationType == OperationType::Upgrade && !m_allowDowngrade)
             {
                 context << EnsureUpdateVersionApplicable;
             }

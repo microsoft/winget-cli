@@ -313,7 +313,7 @@ namespace AppInstallerCLIE2ETests
             AssertSuccessfulResourceRun(ref result);
 
             (PackageResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<PackageResourceData>(result.StdOut);
-            AssertExistingPackageResourceData(output, DefaultPackageHighVersion);
+            AssertExistingPackageResourceData(output, DefaultPackageHighVersion, ignoreLatest: true);
 
             AssertDiffState(diff, [ ExistPropertyName ]);
 
@@ -386,7 +386,7 @@ namespace AppInstallerCLIE2ETests
             AssertSuccessfulResourceRun(ref result);
 
             (PackageResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<PackageResourceData>(result.StdOut);
-            AssertExistingPackageResourceData(output, DefaultPackageHighVersion);
+            AssertExistingPackageResourceData(output, DefaultPackageHighVersion, ignoreLatest: true);
 
             AssertDiffState(diff, [ UseLatestPropertyName ]);
 
@@ -422,7 +422,7 @@ namespace AppInstallerCLIE2ETests
             AssertSuccessfulResourceRun(ref result);
 
             (PackageResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<PackageResourceData>(result.StdOut);
-            AssertExistingPackageResourceData(output, DefaultPackageMidVersion);
+            AssertExistingPackageResourceData(output, DefaultPackageMidVersion, ignoreLatest: true);
 
             AssertDiffState(diff, [ VersionPropertyName ]);
 
@@ -484,7 +484,7 @@ namespace AppInstallerCLIE2ETests
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier}");
             Assert.AreEqual(0, setupInstall.ExitCode);
 
-            var result = RunDSCv3Command(PackageResource, ExportFunction, null, 300000);
+            var result = RunDSCv3Command(PackageResource, ExportFunction, null);
             AssertSuccessfulResourceRun(ref result);
 
             List<PackageResourceData> output = GetOutputLinesAs<PackageResourceData>(result.StdOut);
