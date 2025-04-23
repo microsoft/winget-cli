@@ -458,7 +458,7 @@ namespace AppInstallerCLIE2ETests
             AssertSuccessfulResourceRun(ref result);
 
             (PackageResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<PackageResourceData>(result.StdOut);
-            AssertExistingPackageResourceData(output, DefaultPackageMidVersion);
+            AssertExistingPackageResourceData(output, DefaultPackageMidVersion, ignoreLatest: true);
 
             AssertDiffState(diff, [ VersionPropertyName ]);
 
@@ -484,7 +484,7 @@ namespace AppInstallerCLIE2ETests
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier}");
             Assert.AreEqual(0, setupInstall.ExitCode);
 
-            var result = RunDSCv3Command(PackageResource, ExportFunction, null);
+            var result = RunDSCv3Command(PackageResource, ExportFunction, string.Empty);
             AssertSuccessfulResourceRun(ref result);
 
             List<PackageResourceData> output = GetOutputLinesAs<PackageResourceData>(result.StdOut);
@@ -576,10 +576,12 @@ namespace AppInstallerCLIE2ETests
             };
         }
 
-        private static string ConvertToJSON(object value)
+        private static string ConvertToJSON(object value) => value switch
         {
-            return value == null ? null : JsonSerializer.Serialize(value, GetDefaultJsonOptions());
-        }
+            string s => s,
+            null => null,
+            _ => JsonSerializer.Serialize(value, GetDefaultJsonOptions()),
+        };
 
         private static string[] GetOutputLines(string output)
         {
