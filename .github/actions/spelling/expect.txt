@@ -611,6 +611,7 @@ wto
 wwinmain
 WZDNCRFJ
 xcopy
+Xes
 XFile
 XManifest
 XMUGIWARAMODULE

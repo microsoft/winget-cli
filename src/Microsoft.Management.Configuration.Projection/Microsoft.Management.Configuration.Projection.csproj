@@ -12,8 +12,6 @@
     !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
     -->
     <WindowsSdkPackageVersion>10.0.26100.53</WindowsSdkPackageVersion>
-    <!-- Disables the AssemblyInfo generation override in the internal build. -->
-    <XesDisableAssemblyInfoWrite>True</XesDisableAssemblyInfoWrite>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -22,6 +20,12 @@
     <CsWinRTWindowsMetadata>10.0.26100.0</CsWinRTWindowsMetadata>
     <!-- Ensure Support for Windows 10, Version 1809 -->
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <!-- 
+      Disables the AssemblyInfo generation override in the internal build.
+      Without this, values like TargetPlatformMinVersion are not placed into the assembly attributes
+      and .NET static analysis tools will assume that this assembly requires the OS version in our TargetFramework.
+    -->
+    <XesDisableAssemblyInfoWrite>True</XesDisableAssemblyInfoWrite>
   </PropertyGroup>
   
   <PropertyGroup>
