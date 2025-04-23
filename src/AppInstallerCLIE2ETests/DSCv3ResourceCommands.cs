@@ -484,7 +484,7 @@ namespace AppInstallerCLIE2ETests
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier}");
             Assert.AreEqual(0, setupInstall.ExitCode);
 
-            var result = RunDSCv3Command(PackageResource, ExportFunction, string.Empty);
+            var result = RunDSCv3Command(PackageResource, ExportFunction, " ");
             AssertSuccessfulResourceRun(ref result);
 
             List<PackageResourceData> output = GetOutputLinesAs<PackageResourceData>(result.StdOut);
