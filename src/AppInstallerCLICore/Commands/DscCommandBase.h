@@ -94,7 +94,7 @@ namespace AppInstaller::CLI
         virtual void ResourceFunctionManifest(Execution::Context& context) const;
 
         // Parses a JSON object from stdin.
-        std::optional<Json::Value> GetJsonFromInput(Execution::Context& context) const;
+        std::optional<Json::Value> GetJsonFromInput(Execution::Context& context, bool terminateContextOnError = true) const;
 
         // Writes the value to the context output.
         void WriteJsonOutputLine(Execution::Context& context, const Json::Value& value) const;

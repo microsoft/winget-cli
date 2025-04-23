@@ -9,10 +9,10 @@ using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI
 {
-    namespace anon
+    namespace
     {
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(PropertyProperty, std::string, Property, "property", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, "The JSON property name.");
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(ValueProperty, Json::Value, Value, "value", "The value for the JSON property.");
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(PropertyProperty, std::string, Property, "property", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, "The JSON property name."_lis);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(ValueProperty, Json::Value, Value, "value", "The value for the JSON property."_lis);
 
         using TestJsonObject = DscComposableObject<StandardExistProperty, PropertyProperty, ValueProperty>;
 
@@ -119,7 +119,7 @@ namespace AppInstaller::CLI
     {
         if (context.Args.Contains(Execution::Args::Type::DscResourceFunctionDelete))
         {
-            std::filesystem::remove_all(anon::TestJsonFunctionData::GetFilePath());
+            std::filesystem::remove_all(TestJsonFunctionData::GetFilePath());
             return;
         }
 
@@ -135,7 +135,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            anon::TestJsonFunctionData data{ json };
+            TestJsonFunctionData data{ json };
 
             data.Get();
 
@@ -147,7 +147,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            anon::TestJsonFunctionData data{ json };
+            TestJsonFunctionData data{ json };
 
             data.Get();
 
@@ -181,7 +181,7 @@ namespace AppInstaller::CLI
 
     void DscTestJsonResource::ResourceFunctionExport(Execution::Context& context) const
     {
-        anon::TestJsonFunctionData data;
+        TestJsonFunctionData data;
 
         if (data.RootValue.isObject())
         {
@@ -191,7 +191,7 @@ namespace AppInstaller::CLI
 
                 if (memberValue)
                 {
-                    anon::TestJsonObject output;
+                    TestJsonObject output;
                     output.Property(member);
                     output.Value(*memberValue);
 
@@ -203,6 +203,6 @@ namespace AppInstaller::CLI
 
     void DscTestJsonResource::ResourceFunctionSchema(Execution::Context& context) const
     {
-        WriteJsonOutputLine(context, anon::TestJsonObject::Schema(ResourceType()));
+        WriteJsonOutputLine(context, TestJsonObject::Schema(ResourceType()));
     }
 }

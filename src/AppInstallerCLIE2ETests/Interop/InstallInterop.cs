@@ -482,7 +482,7 @@ namespace AppInstallerCLIE2ETests.Interop
         public async Task InstallRequireUserScope()
         {
             // Find package
-            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstallerNoScope");
 
             // Configure installation
             var installOptions = this.TestFactory.CreateInstallOptions();
@@ -505,7 +505,7 @@ namespace AppInstallerCLIE2ETests.Interop
         public async Task InstallRequireUserScopeAndUnknown()
         {
             // Find package
-            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstallerNoScope");
 
             // Configure installation
             var installOptions = this.TestFactory.CreateInstallOptions();

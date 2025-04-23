@@ -23,6 +23,29 @@ namespace AppInstaller::CLI::Execution
     const Sequence& ConfigurationUnitEmphasis = TextFormat::Foreground::BrightCyan;
     const Sequence& AuthenticationEmphasis = TextFormat::Foreground::BrightYellow;
 
+    namespace
+    {
+        DWORD GetStdHandleType(DWORD stdHandle)
+        {
+            DWORD result = FILE_TYPE_UNKNOWN;
+
+            HANDLE handle = GetStdHandle(stdHandle);
+            if (handle != INVALID_HANDLE_VALUE && handle != NULL)
+            {
+                result = GetFileType(handle);
+            }
+
+            return result;
+        }
+    }
+
+    Reporter::Reporter() :
+        Reporter(std::cout, std::cin)
+    {
+        m_outStreamFileType = GetStdHandleType(STD_OUTPUT_HANDLE);
+        m_inStreamFileType = GetStdHandleType(STD_INPUT_HANDLE);
+    }
+
     Reporter::Reporter(std::ostream& outStream, std::istream& inStream) :
         Reporter(std::make_shared<BaseStream>(outStream, true, ConsoleModeRestore::Instance().IsVTEnabled()), inStream)
     {
@@ -48,6 +71,11 @@ namespace AppInstaller::CLI::Execution
     Reporter::Reporter(const Reporter& other, clone_t) :
         Reporter(other.m_out, other.m_in)
     {
+        m_outStreamFileType = other.m_outStreamFileType;
+        m_inStreamFileType = other.m_inStreamFileType;
+
+        SetChannel(other.m_channel);
+
         if (other.m_style.has_value())
         {
             SetStyle(*other.m_style);
@@ -134,6 +162,12 @@ namespace AppInstaller::CLI::Execution
     std::istream& Reporter::RawInputStream()
     {
         return m_in;
+    }
+
+    bool Reporter::InputStreamIsInteractive() const
+    {
+        AICLI_LOG(CLI, Verbose, << "Reporter::m_inStreamFileType is " << m_inStreamFileType);
+        return m_inStreamFileType == FILE_TYPE_CHAR;
     }
 
     bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level, bool resultIfDisabled)

@@ -8,10 +8,10 @@ using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI
 {
-    namespace anon
+    namespace
     {
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(PathProperty, std::string, Path, "path", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, "The absolute path to a file.");
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(ContentProperty, std::string, Content, "content", "The content of the file.");
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(PathProperty, std::string, Path, "path", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, "The absolute path to a file."_lis);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(ContentProperty, std::string, Content, "content", "The content of the file."_lis);
 
         using TestFileObject = DscComposableObject<StandardExistProperty, StandardInDesiredStateProperty, PathProperty, ContentProperty>;
 
@@ -127,7 +127,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            anon::TestFileFunctionData data{ json };
+            TestFileFunctionData data{ json };
 
             data.Get();
 
@@ -139,7 +139,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            anon::TestFileFunctionData data{ json };
+            TestFileFunctionData data{ json };
 
             data.Get();
 
@@ -186,7 +186,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            anon::TestFileFunctionData data{ json };
+            TestFileFunctionData data{ json };
 
             data.Get();
             data.Output.InDesiredState(data.Test());
@@ -200,7 +200,7 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            anon::TestFileFunctionData data{ json };
+            TestFileFunctionData data{ json };
 
             if (std::filesystem::exists(data.Path))
             {
@@ -215,7 +215,7 @@ namespace AppInstaller::CLI
                     {
                         if (std::filesystem::is_regular_file(file))
                         {
-                            anon::TestFileObject output;
+                            TestFileObject output;
                             output.Path(file.path().u8string());
 
                             std::ifstream stream{ file.path(), std::ios::binary};
@@ -231,6 +231,6 @@ namespace AppInstaller::CLI
 
     void DscTestFileResource::ResourceFunctionSchema(Execution::Context& context) const
     {
-        WriteJsonOutputLine(context, anon::TestFileObject::Schema(ResourceType()));
+        WriteJsonOutputLine(context, TestFileObject::Schema(ResourceType()));
     }
 }

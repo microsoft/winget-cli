@@ -231,6 +231,26 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
+        /// Configure the logging level for the settings.
+        /// </summary>
+        /// <param name="level">The logging level to set; null removes the value.</param>
+        public static void ConfigureLoggingLevel(string level)
+        {
+            JObject settingsJson = GetJsonSettingsObject("logging");
+
+            if (level == null)
+            {
+                settingsJson["logging"]["level"]?.Parent?.Remove();
+            }
+            else
+            {
+                settingsJson["logging"]["level"] = new JValue(level);
+            }
+
+            SetWingetSettings(settingsJson);
+        }
+
+        /// <summary>
         /// Configure experimental features.
         /// </summary>
         /// <param name="settingsJson">The settings JSON object to modify.</param>

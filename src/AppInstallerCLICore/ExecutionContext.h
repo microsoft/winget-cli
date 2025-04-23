@@ -93,6 +93,7 @@ namespace AppInstaller::CLI::Execution
     // arguments via Execution::Args.
     struct Context : EnumBasedVariantMap<Data, details::DataMapping, ContextEnumBasedVariantMapActionCallback>
     {
+        Context() = default;
         Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
 
         // Constructor for creating a sub-context.

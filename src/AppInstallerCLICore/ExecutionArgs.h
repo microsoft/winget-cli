@@ -166,6 +166,7 @@ namespace AppInstaller::CLI::Execution
             OpenLogs, // Opens the default logs directory after executing the command
             Force, // Forces the execution of the workflow with non security related issues
             OutputFile,
+            Correlation,
 
             DependencySource, // Index source to be queried against for finding dependencies
             CustomHeader, // Optional Rest source header

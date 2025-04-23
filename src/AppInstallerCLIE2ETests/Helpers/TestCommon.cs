@@ -115,16 +115,27 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <returns>The result of the command.</returns>
         public static RunCommandResult RunAICLICommand(string command, string parameters, string stdIn = null, int timeOut = 60000, bool throwOnTimeout = true)
         {
+            string correlationParameter = " --correlation " + Guid.NewGuid().ToString();
+
+            // Don't include correlation when the call has an option ending `--` value.
+            foreach (string part in parameters.Split(' ', StringSplitOptions.TrimEntries))
+            {
+                if (part == "--")
+                {
+                    correlationParameter = string.Empty;
+                }
+            }
+
             string inputMsg =
                     "AICLI path: " + TestSetup.Parameters.AICLIPath +
                     " Command: " + command +
-                    " Parameters: " + parameters +
+                    " Parameters: " + parameters + correlationParameter +
                     (string.IsNullOrEmpty(stdIn) ? string.Empty : " StdIn: " + stdIn) +
                     " Timeout: " + timeOut;
 
             TestContext.Out.WriteLine($"Starting command run. {inputMsg}");
 
-            return RunAICLICommandViaDirectProcess(command, parameters, stdIn, timeOut, throwOnTimeout);
+            return RunAICLICommandViaDirectProcess(command, parameters + correlationParameter, stdIn, timeOut, throwOnTimeout);
         }
 
         /// <summary>

@@ -305,6 +305,7 @@
     <ClInclude Include="Commands\DscCommand.h" />
     <ClInclude Include="Commands\DscCommandBase.h" />
     <ClInclude Include="Commands\DscComposableObject.h" />
+    <ClInclude Include="Commands\DscPackageResource.h" />
     <ClInclude Include="Commands\DscTestFileResource.h" />
     <ClInclude Include="Commands\DscTestJsonResource.h" />
     <ClInclude Include="Commands\ErrorCommand.h" />
@@ -369,7 +370,6 @@
     <ClInclude Include="Workflows\SettingsFlow.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />
-    <ClInclude Include="Workflows\ManifestComparator.h" />
     <ClInclude Include="Workflows\ResumeFlow.h" />
     <ClInclude Include="Workflows\ShowFlow.h" />
     <ClInclude Include="Workflows\SourceFlow.h" />
@@ -391,6 +391,7 @@
     <ClCompile Include="Commands\DscCommand.cpp" />
     <ClCompile Include="Commands\DscCommandBase.cpp" />
     <ClCompile Include="Commands\DscComposableObject.cpp" />
+    <ClCompile Include="Commands\DscPackageResource.cpp" />
     <ClCompile Include="Commands\DscTestFileResource.cpp" />
     <ClCompile Include="Commands\DscTestJsonResource.cpp" />
     <ClCompile Include="Commands\ErrorCommand.cpp" />
@@ -456,7 +457,6 @@
     <ClCompile Include="Workflows\SettingsFlow.cpp" />
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />
-    <ClCompile Include="Workflows\ManifestComparator.cpp" />
     <ClCompile Include="Workflows\ResumeFlow.cpp" />
     <ClCompile Include="Workflows\ShowFlow.cpp" />
     <ClCompile Include="Workflows\SourceFlow.cpp" />

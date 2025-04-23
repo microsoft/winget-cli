@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <winget/RepositorySearch.h>
+#include <winget/ManifestComparator.h>
 
 
 namespace AppInstaller::Repository
@@ -25,4 +26,16 @@ namespace AppInstaller::Repository
 
     // Gets the available IPackage corresponding to the given source identifier.
     std::shared_ptr<IPackage> GetAvailablePackageFromSource(const std::shared_ptr<ICompositePackage>& composite, const std::string_view sourceIdentifier);
+
+    struct LatestApplicableVersionData
+    {
+        std::shared_ptr<AppInstaller::Repository::IPackageVersion> LatestApplicableVersion;
+        bool UpdateAvailable = false;
+    };
+
+    // Determines the default install version and whether an update is available.
+    LatestApplicableVersionData GetLatestApplicableVersion(const std::shared_ptr<ICompositePackage>& composite);
+
+    // Fills the options from the given metadata, optionally including the allowed architectures.
+    void GetManifestComparatorOptionsFromMetadata(AppInstaller::Manifest::ManifestComparator::Options& options, const IPackageVersion::Metadata& metadata, bool includeAllowedArchitectures = true);
 }
