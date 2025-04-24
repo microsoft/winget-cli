@@ -101,13 +101,13 @@ namespace AppInstaller::CLI
     //
     // struct Property
     // {
-    //      using Type = { bool, std::string };
+    //      using PropertyType = { bool, std::string };
     //      static std::string_view Name();
     //      static void FromJson(Property*, const Json::Value*);
     //      static std::optional<Json::Value> ToJson(const Property*);
     //
-    //      const Type& PROPERTY_NAME() const;
-    //      void PROPERTY_NAME(const Type&);
+    //      const PropertyType& PROPERTY_NAME() const;
+    //      void PROPERTY_NAME(const PropertyType&);
     // }
     template <typename... Property>
     struct DscComposableObject : public Property...
@@ -149,15 +149,15 @@ namespace AppInstaller::CLI
         static Json::Value Schema(const std::string& title)
         {
             Json::Value result = details::GetBaseSchema(title);
-            (FoldHelper{}, ..., details::AddPropertySchema(result, Property::Name(), Property::Flags, GetJsonTypeValue<typename Property::Type>::SchemaType(), Property::Description(), Property::EnumValues(), Property::Default()));
+            (FoldHelper{}, ..., details::AddPropertySchema(result, Property::Name(), Property::Flags, GetJsonTypeValue<typename Property::PropertyType>::SchemaType(), Property::Description(), Property::EnumValues(), Property::Default()));
             return result;
         }
     };
 
-    template <typename Derived, typename PropertyType, DscComposablePropertyFlag PropertyFlags>
+    template <typename Derived, typename PropertyTypeT, DscComposablePropertyFlag PropertyFlags>
     struct DscComposableProperty
     {
-        using Type = PropertyType;
+        using PropertyType = PropertyTypeT;
         static constexpr DscComposablePropertyFlag Flags = PropertyFlags;
 
         static void FromJson(Derived* self, const Json::Value* value, bool ignoreFieldRequirements)
@@ -201,7 +201,7 @@ namespace AppInstaller::CLI
         }
 
     protected:
-        std::optional<Type> m_value;
+        std::optional<PropertyType> m_value;
     };
 
 #define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL_START(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_, _enum_vals_, _default_) \
@@ -211,9 +211,9 @@ namespace AppInstaller::CLI
         static Resource::LocString Description() { return _description_; } \
         static std::vector<std::string> EnumValues() { return std::vector<std::string> _enum_vals_; } \
         static std::optional<std::string> Default() { return _default_; } \
-        std::optional<Type>& _property_name_() { return m_value; } \
-        const std::optional<Type>& _property_name_() const { return m_value; } \
-        void _property_name_(std::optional<Type> value) { m_value = std::move(value); } \
+        std::optional<PropertyType>& _property_name_() { return m_value; } \
+        const std::optional<PropertyType>& _property_name_() const { return m_value; } \
+        void _property_name_(std::optional<PropertyType> value) { m_value = std::move(value); } \
 
 #define WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_, _enum_vals_, _default_) \
     WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_IMPL_START(_property_type_, _value_type_, _property_name_, _json_name_, _flags_, _description_, _enum_vals_, _default_) \
