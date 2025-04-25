@@ -6,10 +6,7 @@
 
 namespace AppInstallerCLIE2ETests
 {
-    using System;
     using System.Collections.Generic;
-    using System.IO;
-    using System.Text.Json;
     using System.Text.Json.Serialization;
     using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
@@ -19,32 +16,15 @@ namespace AppInstallerCLIE2ETests
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1010:Opening square brackets should be spaced correctly", Justification = "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3687 pending SC 1.2 release")]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1011:Closing square brackets should be spaced correctly", Justification = "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3687 pending SC 1.2 release")]
-    public class DSCv3ResourceCommands
+    public class DSCv3ResourceCommands : DSCv3ResourceTestBase
     {
         private const string DefaultPackageIdentifier = Constants.ExeInstallerPackageId;
         private const string DefaultPackageLowVersion = "1.0.0.0";
         private const string DefaultPackageMidVersion = "1.1.0.0";
         private const string DefaultPackageHighVersion = "2.0.0.0";
         private const string PackageResource = "package";
-        private const string GetFunction = "get";
-        private const string TestFunction = "test";
-        private const string SetFunction = "set";
-        private const string ExportFunction = "export";
-        private const string ExistPropertyName = "_exist";
         private const string VersionPropertyName = "version";
         private const string UseLatestPropertyName = "useLatest";
-
-        /// <summary>
-        /// Ensures that the test resources manifests are present.
-        /// </summary>
-        public static void EnsureTestResourcePresence()
-        {
-            string outputDirectory = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft\\WindowsApps");
-            Assert.IsNotEmpty(outputDirectory);
-
-            var result = TestCommon.RunAICLICommand("dscv3 package", $"--manifest -o {outputDirectory}\\microsoft.winget.package.dsc.resource.json");
-            Assert.AreEqual(0, result.ExitCode);
-        }
 
         /// <summary>
         /// Setup done once before all the tests here.
@@ -55,7 +35,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.SetupTestSource();
             WinGetSettingsHelper.ConfigureFeature("dsc3", true);
             WinGetSettingsHelper.ConfigureLoggingLevel("verbose");
-            EnsureTestResourcePresence();
+            EnsureTestResourcePresence(PackageResource);
         }
 
         /// <summary>
@@ -552,73 +532,6 @@ namespace AppInstallerCLIE2ETests
             AssertSuccessfulResourceRun(ref result);
         }
 
-        private static TestCommon.RunCommandResult RunDSCv3Command(string resource, string function, object input, int timeOut = 60000, bool throwOnTimeout = true)
-        {
-            return TestCommon.RunAICLICommand($"dscv3 {resource}", $"--{function}", ConvertToJSON(input), timeOut, throwOnTimeout);
-        }
-
-        private static void AssertSuccessfulResourceRun(ref TestCommon.RunCommandResult result)
-        {
-            Assert.AreEqual(0, result.ExitCode);
-            Assert.IsNotEmpty(result.StdOut);
-        }
-
-        private static JsonSerializerOptions GetDefaultJsonOptions()
-        {
-            return new JsonSerializerOptions()
-            {
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                Converters =
-                {
-                    new JsonStringEnumConverter(),
-                },
-            };
-        }
-
-        private static string ConvertToJSON(object value) => value switch
-        {
-            string s => s,
-            null => null,
-            _ => JsonSerializer.Serialize(value, GetDefaultJsonOptions()),
-        };
-
-        private static string[] GetOutputLines(string output)
-        {
-            return output.TrimEnd().Split(Environment.NewLine);
-        }
-
-        private static T GetSingleOutputLineAs<T>(string output)
-        {
-            string[] lines = GetOutputLines(output);
-            Assert.AreEqual(1, lines.Length);
-
-            return JsonSerializer.Deserialize<T>(lines[0], GetDefaultJsonOptions());
-        }
-
-        private static (T, List<string>) GetSingleOutputLineAndDiffAs<T>(string output)
-        {
-            string[] lines = GetOutputLines(output);
-            Assert.AreEqual(2, lines.Length);
-
-            var options = GetDefaultJsonOptions();
-            return (JsonSerializer.Deserialize<T>(lines[0], options), JsonSerializer.Deserialize<List<string>>(lines[1], options));
-        }
-
-        private static List<T> GetOutputLinesAs<T>(string output)
-        {
-            List<T> result = new List<T>();
-            string[] lines = GetOutputLines(output);
-            var options = GetDefaultJsonOptions();
-
-            foreach (string line in lines)
-            {
-                result.Add(JsonSerializer.Deserialize<T>(line, options));
-            }
-
-            return result;
-        }
-
         private static void AssertExistingPackageResourceData(PackageResourceData output, string version, bool ignoreLatest = false)
         {
             Assert.IsNotNull(output);
@@ -639,23 +552,12 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
-        private static void AssertDiffState(List<string> diff, IList<string> expected)
-        {
-            Assert.IsNotNull(diff);
-            Assert.AreEqual(expected.Count, diff.Count);
-
-            foreach (string item in expected)
-            {
-                Assert.Contains(item, diff);
-            }
-        }
-
         private class PackageResourceData
         {
             [JsonPropertyName(ExistPropertyName)]
             public bool? Exist { get; set; }
 
-            [JsonPropertyName("_inDesiredState")]
+            [JsonPropertyName(InDesiredStatePropertyName)]
             public bool? InDesiredState { get; set; }
 
             [JsonPropertyName("id")]
