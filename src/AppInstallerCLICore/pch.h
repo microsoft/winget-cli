@@ -10,7 +10,7 @@
 #include <wincodec.h>
 
 #pragma warning( push )
-#pragma warning ( disable : 4458 4100 6031 4702 )
+#pragma warning ( disable : 4458 4100 6031 4702 26439 )
 #include <valijson/schema.hpp>
 #include <valijson/schema_parser.hpp>
 #include <valijson/validator.hpp>
