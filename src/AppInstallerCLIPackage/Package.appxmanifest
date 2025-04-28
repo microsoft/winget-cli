@@ -116,6 +116,7 @@
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationEnvironment&gt;" InterfaceId="47B18106-976B-5532-8E81-F58D304DFA43" />
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.IConfigurationUnitProcessorDetails&gt;" InterfaceId="055865E9-B633-5AD6-9C8F-55DFCD668E74" />
         <Interface Name="Microsoft.Management.Configuration.IConfigurationUnitProcessorDetails2" InterfaceId="E89623ED-76E2-5145-B920-D09659554E35" />
+        <Interface Name="Microsoft.Management.Configuration.IConfigurationUnitProcessorDetails3" InterfaceId="81511CCA-632B-560A-AFE8-D55555EB9937" />
         <Interface Name="Microsoft.Management.Configuration.IGetAllSettingsConfigurationUnitProcessor" InterfaceId="72EB8304-D8D3-57D4-9940-7C1C4AD8C40C" />
         <Interface Name="Microsoft.Management.Configuration.IGetAllUnitsConfigurationUnitProcessor" InterfaceId="D5CB3357-8AD6-5A3C-8695-057C01867D5F" />
         <Interface Name="Microsoft.Management.Configuration.IFindUnitProcessorsSetProcessor" InterfaceId="620628DF-A5DE-591A-B738-FD8370B4E95C" />
