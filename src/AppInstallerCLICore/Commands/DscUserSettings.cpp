@@ -21,8 +21,8 @@ namespace AppInstaller::CLI
 {
     namespace
     {
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SettingsProperty, Json::Value, Settings, "Settings", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionPackageId);
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(ActionProperty, std::string, Action, "Action", Resource::String::DscResourcePropertyDescriptionPackageMatchOption, ({ ACTION_PARTIAL, ACTION_FULL }), ACTION_FULL);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SettingsProperty, Json::Value, Settings, "Settings", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionUserSettings);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(ActionProperty, std::string, Action, "Action", Resource::String::DscResourcePropertyDescriptionUserSettingsAction, ({ ACTION_PARTIAL, ACTION_FULL }), ACTION_FULL);
 
         using UserSettingsObject = DscComposableObject<StandardInDesiredStateProperty, SettingsProperty, ActionProperty>;
 
@@ -152,12 +152,12 @@ namespace AppInstaller::CLI
 
     Resource::LocString DscUserSettings::ShortDescription() const
     {
-        return Resource::String::DscPackageResourceShortDescription;
+        return Resource::String::DscUserSettingsShortDescription;
     }
 
     Resource::LocString DscUserSettings::LongDescription() const
     {
-        return Resource::String::DscPackageResourceLongDescription;
+        return Resource::String::DscUserSettingsLongDescription;
     }
 
     std::string DscUserSettings::ResourceType() const
