@@ -75,6 +75,14 @@ namespace AppInstaller::CLI
                 {
                     return true;
                 }
+                else
+                {
+                    AICLI_LOG(Config, Error, << "Failed to parse user settings file: " << settingsPath << ", error: " << errs);
+                }
+            }
+            else
+            {
+                AICLI_LOG(Config, Error, << "Failed to open user settings file: " << settingsPath);
             }
 
             return false;
@@ -89,9 +97,11 @@ namespace AppInstaller::CLI
             {
                 Json::StreamWriterBuilder writer;
                 file << Json::writeString(writer, root);
+                return true;
             }
 
-            return true;
+            AICLI_LOG(Config, Error, << "Failed to open user settings file for writing: " << settingsPath);
+            return false;
         }
 
         // Processes the user settings by merging them with the existing settings.
