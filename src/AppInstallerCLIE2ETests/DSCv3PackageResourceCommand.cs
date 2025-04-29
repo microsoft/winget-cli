@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// <copyright file="DSCv3ResourceCommands.cs" company="Microsoft Corporation">
+// <copyright file="DSCv3PackageResourceCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -16,7 +16,7 @@ namespace AppInstallerCLIE2ETests
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1010:Opening square brackets should be spaced correctly", Justification = "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3687 pending SC 1.2 release")]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1011:Closing square brackets should be spaced correctly", Justification = "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3687 pending SC 1.2 release")]
-    public class DSCv3ResourceCommands : DSCv3ResourceTestBase
+    public class DSCv3PackageResourceCommand : DSCv3ResourceTestBase
     {
         private const string DefaultPackageIdentifier = Constants.ExeInstallerPackageId;
         private const string DefaultPackageLowVersion = "1.0.0.0";
@@ -152,9 +152,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(packageResourceData.Identifier, output.Identifier);
             Assert.False(output.InDesiredState);
 
-            Assert.IsNotNull(diff);
-            Assert.AreEqual(1, diff.Count);
-            Assert.AreEqual(ExistPropertyName, diff[0]);
+            AssertDiffState(diff, [ ExistPropertyName ]);
         }
 
         /// <summary>

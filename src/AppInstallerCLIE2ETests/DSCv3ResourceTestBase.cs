@@ -97,7 +97,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Asserts the the output is a single line and deserializes that line as JSON.
+        /// Asserts that the output is a single line and deserializes that line as JSON.
         /// </summary>
         /// <typeparam name="T">The type to deserialize from JSON.</typeparam>
         /// <param name="output">The output stream from a DSC v3 resource command.</param>
@@ -111,7 +111,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Asserts the the output is two lines and deserializes them as a JSON object and JSON string array.
+        /// Asserts that the output is two lines and deserializes them as a JSON object and JSON string array.
         /// </summary>
         /// <typeparam name="T">The type to deserialize from JSON.</typeparam>
         /// <param name="output">The output stream from a DSC v3 resource command.</param>
