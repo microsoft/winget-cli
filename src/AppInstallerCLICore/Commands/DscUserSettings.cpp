@@ -26,13 +26,16 @@ namespace AppInstaller::CLI
 
         using UserSettingsObject = DscComposableObject<StandardInDesiredStateProperty, SettingsProperty, ActionProperty>;
 
+        // Merges the overlay settings into the target settings.
         void MergeUserSettings(Json::Value& target, const Json::Value& overlay)
         {
+            // If either is not an object, we can't merge.
             if (!overlay.isObject() || !target.isObject())
             {
                 return;
             }
 
+            // Iterate through the overlay settings and merge them into the target.
             for (const auto& overlayKey : overlay.getMemberNames())
             {
                 const Json::Value& overlayValue = overlay[overlayKey];
@@ -41,20 +44,25 @@ namespace AppInstaller::CLI
                     Json::Value& targetValue = target[overlayKey];
                     if (targetValue.isObject() && overlayValue.isObject())
                     {
+                        // Recursively merge the objects.
                         MergeUserSettings(targetValue, overlayValue);
                     }
                     else
                     {
+                        // Replace the value in the target.
+                        // Note: Arrays are not merged, they are replaced.
                         target[overlayKey] = overlayValue;
                     }
                 }
                 else
                 {
+                    // Add the overlay key to the target.
                     target[overlayKey] = overlayValue;
                 }
             }
         }
 
+        // Reads the user settings from the settings file.
         bool TryReadUserSettings(Json::Value& root)
         {
             auto settingsPath = UserSettings::SettingsFilePath();
@@ -72,6 +80,7 @@ namespace AppInstaller::CLI
             return false;
         }
 
+        // Writes the user settings to the settings file.
         bool TryWriteUserSettings(Json::Value& root)
         {
             auto settingsPath = UserSettings::SettingsFilePath();
@@ -85,14 +94,9 @@ namespace AppInstaller::CLI
             return true;
         }
 
-        bool TryProcessUserSettings(const UserSettingsObject& input, UserSettingsObject& output)
+        // Processes the user settings by merging them with the existing settings.
+        bool TryProcessUserSettings(const UserSettingsObject& input, UserSettingsObject& output, Json::Value userSettings = Json::nullValue)
         {
-            // Input settings property is required
-            if (!input.Settings())
-            {
-                return false;
-            }
-
             // Always return the full settings object
             output.Action(ACTION_FULL);
 
@@ -104,8 +108,7 @@ namespace AppInstaller::CLI
             }
 
             // Partial: merge the settings
-            Json::Value userSettings;
-            if (TryReadUserSettings(userSettings))
+            if (userSettings || TryReadUserSettings(userSettings))
             {
                 MergeUserSettings(userSettings, *input.Settings());
                 output.Settings(userSettings);
@@ -115,6 +118,7 @@ namespace AppInstaller::CLI
             return false;
         }
 
+        // Exports the user settings to the output object.
         bool TryExportUserSettings(UserSettingsObject& output)
         {
             Json::Value userSettings;
@@ -180,7 +184,7 @@ namespace AppInstaller::CLI
             UserSettingsObject input(json);
             UserSettingsObject outputProcess;
             UserSettingsObject outputExport;
-            if (TryProcessUserSettings(input, outputProcess) && TryExportUserSettings(outputExport))
+            if (TryExportUserSettings(outputExport) && TryProcessUserSettings(input, outputProcess, *outputExport.Settings()))
             {
                 outputExport.InDesiredState(outputProcess.Settings() == outputExport.Settings());
                 WriteJsonOutputLine(context, outputExport.ToJson());
