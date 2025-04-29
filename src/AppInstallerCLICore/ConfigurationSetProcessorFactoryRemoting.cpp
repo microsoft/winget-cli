@@ -28,19 +28,6 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         // The string used to divide the arguments sent to the remote server
         constexpr std::wstring_view s_ArgumentsDivider = L"\n~~~~~~\n"sv;
 
-        std::wstring_view ToString(ProcessorEngine value)
-        {
-            switch (value)
-            {
-            case ProcessorEngine::PowerShell:
-                return s_ProcessorEngine_PowerShell;
-            case ProcessorEngine::DSCv3:
-                return s_ProcessorEngine_DSCv3;
-            default:
-                THROW_HR(E_UNEXPECTED);
-            }
-        }
-
         // A helper with a convenient function that we use to receive the remote factory object.
         struct RemoteFactoryCallback : winrt::implements<RemoteFactoryCallback, IConfigurationStatics>
         {
@@ -370,6 +357,19 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         {
             // Intentionally fail out here until a decision is made.
             THROW_HR(E_NOTIMPL);
+        }
+    }
+
+    std::wstring_view ToString(ProcessorEngine value)
+    {
+        switch (value)
+        {
+        case ProcessorEngine::PowerShell:
+            return s_ProcessorEngine_PowerShell;
+        case ProcessorEngine::DSCv3:
+            return s_ProcessorEngine_DSCv3;
+        default:
+            THROW_HR(E_UNEXPECTED);
         }
     }
 

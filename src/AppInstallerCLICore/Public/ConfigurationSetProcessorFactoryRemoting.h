@@ -17,6 +17,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         DSCv3,
     };
 
+    std::wstring_view ToString(ProcessorEngine value);
+
     // Determines the appropriate processor engine to use for the given configuration set.
     ProcessorEngine DetermineProcessorEngine(winrt::Microsoft::Management::Configuration::ConfigurationSet set);
 

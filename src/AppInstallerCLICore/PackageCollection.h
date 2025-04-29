@@ -29,6 +29,7 @@ namespace AppInstaller::CLI
             Utility::LocIndString Id;
             Utility::VersionAndChannel VersionAndChannel;
             Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
+            std::filesystem::path InstalledLocation;
         };
 
         // A source along with a set of packages available from it.
