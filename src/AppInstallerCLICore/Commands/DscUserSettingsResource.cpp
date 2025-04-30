@@ -26,121 +26,154 @@ namespace AppInstaller::CLI
 
         using UserSettingsResourceObject = DscComposableObject<StandardInDesiredStateProperty, SettingsProperty, ActionProperty>;
 
-        // Merges the overlay settings into the target settings.
-        void MergeUserSettings(Json::Value& target, const Json::Value& overlay)
+        struct UserSettingsFunctionData
         {
-            // If either is not an object, we can't merge.
-            if (!overlay.isObject() || !target.isObject())
+            UserSettingsFunctionData(const std::optional<Json::Value>& json, bool ignoreFieldRequirements = false) :
+                Input(json, ignoreFieldRequirements),
+                _userSettings(Json::nullValue),
+                _userSettingsPath(UserSettings::SettingsFilePath())
             {
-                return;
             }
 
-            // Iterate through the overlay settings and merge them into the target.
-            for (const auto& overlayKey : overlay.getMemberNames())
+            const UserSettingsResourceObject Input;
+            UserSettingsResourceObject Output;
+
+            bool Load()
             {
-                const Json::Value& overlayValue = overlay[overlayKey];
-                if (target.isMember(overlayKey))
+                return LoadUserSettings();
+            }
+
+            bool Write()
+            {
+                return WriteOutput();
+            }
+
+            void Get()
+            {
+                THROW_HR_IF(E_UNEXPECTED, _userSettings.isNull());
+                Output.Action(ACTION_FULL);
+                Output.Settings(_userSettings);
+            }
+
+            void Set()
+            {
+                THROW_HR_IF(E_UNEXPECTED, _userSettings.isNull());
+                Output.Action(ACTION_FULL);
+
+                if(Input.Action() == ACTION_FULL)
                 {
-                    Json::Value& targetValue = target[overlayKey];
-                    if (targetValue.isObject() && overlayValue.isObject())
+                    Output.Settings(Input.Settings());
+                }
+                else
+                {
+                    auto mergedUserSettings = MergeUserSettings(*Input.Settings());
+                    Output.Settings(mergedUserSettings);
+                }
+            }
+
+            bool Test()
+            {
+                THROW_HR_IF(E_UNEXPECTED, _userSettings.isNull());
+                return _userSettings == Output.Settings();
+            }
+
+            Json::Value DiffJson()
+            {
+                Json::Value result{ Json::ValueType::arrayValue };
+
+                if (!Test())
+                {
+                    result.append(std::string{ SettingsProperty::Name() });
+                }
+
+                return result;
+            }
+
+        private:
+
+            std::filesystem::path _userSettingsPath;
+            Json::Value _userSettings;
+
+            bool LoadUserSettings()
+            {
+                std::ifstream file(_userSettingsPath, std::ios::binary);
+                if (file)
+                {
+                    Json::CharReaderBuilder builder;
+                    std::string errs;
+                    if (Json::parseFromStream(builder, file, &_userSettings, &errs))
                     {
-                        // Recursively merge the objects.
-                        MergeUserSettings(targetValue, overlayValue);
+                        return true;
+                    }
+
+                    AICLI_LOG(Config, Error, << "Failed to parse user settings file: " << _userSettingsPath << ", error: " << errs);
+                }
+                else
+                {
+                    AICLI_LOG(Config, Error, << "Failed to open user settings file: " << _userSettingsPath);
+                }
+
+                return false;
+            }
+
+            bool WriteOutput()
+            {
+                THROW_HR_IF(E_UNEXPECTED, !Output.Settings().has_value());
+                std::ofstream file(_userSettingsPath, std::ios::binary);
+                if (file)
+                {
+                    Json::StreamWriterBuilder writer;
+                    file << Json::writeString(writer, *Output.Settings());
+                    return true;
+                }
+
+                AICLI_LOG(Config, Error, << "Failed to open user settings file for writing: " << _userSettingsPath);
+                return false;
+            }
+
+            Json::Value MergeUserSettings(const Json::Value& overlay)
+            {
+                Json::Value mergedUserSettings = _userSettings;
+                MergeUserSettings(mergedUserSettings, overlay);
+                return mergedUserSettings;
+            }
+
+            // Merges the overlay settings into the target settings.
+            void MergeUserSettings(Json::Value& target, const Json::Value& overlay)
+            {
+                // If either is not an object, we can't merge.
+                if (!overlay.isObject() || !target.isObject())
+                {
+                    return;
+                }
+
+                // Iterate through the overlay settings and merge them into the target.
+                for (const auto& overlayKey : overlay.getMemberNames())
+                {
+                    const Json::Value& overlayValue = overlay[overlayKey];
+                    if (target.isMember(overlayKey))
+                    {
+                        Json::Value& targetValue = target[overlayKey];
+                        if (targetValue.isObject() && overlayValue.isObject())
+                        {
+                            // Recursively merge the objects.
+                            MergeUserSettings(targetValue, overlayValue);
+                        }
+                        else
+                        {
+                            // Replace the value in the target.
+                            // Note: Arrays are not merged, they are replaced.
+                            target[overlayKey] = overlayValue;
+                        }
                     }
                     else
                     {
-                        // Replace the value in the target.
-                        // Note: Arrays are not merged, they are replaced.
+                        // Add the overlay key to the target.
                         target[overlayKey] = overlayValue;
                     }
                 }
-                else
-                {
-                    // Add the overlay key to the target.
-                    target[overlayKey] = overlayValue;
-                }
             }
-        }
-
-        // Reads the user settings from the settings file.
-        bool TryReadUserSettings(Json::Value& root)
-        {
-            auto settingsPath = UserSettings::SettingsFilePath();
-            std::ifstream file(settingsPath, std::ios::binary);
-            if (file)
-            {
-                Json::CharReaderBuilder builder;
-                std::string errs;
-                if (Json::parseFromStream(builder, file, &root, &errs))
-                {
-                    return true;
-                }
-                else
-                {
-                    AICLI_LOG(Config, Error, << "Failed to parse user settings file: " << settingsPath << ", error: " << errs);
-                }
-            }
-            else
-            {
-                AICLI_LOG(Config, Error, << "Failed to open user settings file: " << settingsPath);
-            }
-
-            return false;
-        }
-
-        // Writes the user settings to the settings file.
-        bool TryWriteUserSettings(Json::Value& root)
-        {
-            auto settingsPath = UserSettings::SettingsFilePath();
-            std::ofstream file(settingsPath, std::ios::binary);
-            if (file)
-            {
-                Json::StreamWriterBuilder writer;
-                file << Json::writeString(writer, root);
-                return true;
-            }
-
-            AICLI_LOG(Config, Error, << "Failed to open user settings file for writing: " << settingsPath);
-            return false;
-        }
-
-        // Processes the user settings by merging them with the existing settings.
-        bool TryProcessUserSettings(const UserSettingsResourceObject& input, UserSettingsResourceObject& output, Json::Value userSettings = Json::nullValue)
-        {
-            // Always return the full settings object
-            output.Action(ACTION_FULL);
-
-            // Full: overwrite the settings file
-            if(input.Action() == ACTION_FULL)
-            {
-                output.Settings(input.Settings());
-                return true;
-            }
-
-            // Partial: merge the settings
-            if (userSettings || TryReadUserSettings(userSettings))
-            {
-                MergeUserSettings(userSettings, *input.Settings());
-                output.Settings(userSettings);
-                return true;
-            }
-
-            return false;
-        }
-
-        // Exports the user settings to the output object.
-        bool TryExportUserSettings(UserSettingsResourceObject& output)
-        {
-            Json::Value userSettings;
-            if (TryReadUserSettings(userSettings))
-            {
-                output.Action(ACTION_FULL);
-                output.Settings(userSettings);
-                return true;
-            }
-
-            return false;
-        }
+        };
     }
 
     DscUserSettingsResource::DscUserSettingsResource(std::string_view parent) :
@@ -167,22 +200,26 @@ namespace AppInstaller::CLI
 
     void DscUserSettingsResource::ResourceFunctionGet(Execution::Context& context) const
     {
-        UserSettingsResourceObject output;
-        if (TryExportUserSettings(output))
-        {
-            WriteJsonOutputLine(context, output.ToJson());
-        }
+        ResourceFunctionExport(context);
     }
 
     void DscUserSettingsResource::ResourceFunctionSet(Execution::Context& context) const
     {
         if (auto json = GetJsonFromInput(context))
         {
-            UserSettingsResourceObject input(json);
-            UserSettingsResourceObject output;
-            if (TryProcessUserSettings(input, output) && TryWriteUserSettings(*output.Settings()))
+            UserSettingsFunctionData data{ json };
+
+            if (data.Load())
             {
-                WriteJsonOutputLine(context, output.ToJson());
+                data.Set();
+                if (!data.Test() && !data.Write())
+                {
+                    AICLI_LOG(Config, Error, << "Failed to write output to user settings file.");
+                    return;
+                }
+
+                WriteJsonOutputLine(context, data.Output.ToJson());
+                WriteJsonOutputLine(context, data.DiffJson());
             }
         }
     }
@@ -191,23 +228,32 @@ namespace AppInstaller::CLI
     {
         if (auto json = GetJsonFromInput(context))
         {
-            UserSettingsResourceObject input(json);
-            UserSettingsResourceObject outputProcess;
-            UserSettingsResourceObject outputExport;
-            if (TryExportUserSettings(outputExport) && TryProcessUserSettings(input, outputProcess, *outputExport.Settings()))
+            UserSettingsFunctionData data{ json };
+
+            if (data.Load())
             {
-                outputExport.InDesiredState(outputProcess.Settings() == outputExport.Settings());
-                WriteJsonOutputLine(context, outputExport.ToJson());
+                data.Set();
+                data.Output.InDesiredState(data.Test());
+
+                // Get diff before updating the output
+                auto diffJson = data.DiffJson();
+
+                data.Get();
+
+                WriteJsonOutputLine(context, data.Output.ToJson());
+                WriteJsonOutputLine(context, diffJson);
             }
         }
     }
 
     void DscUserSettingsResource::ResourceFunctionExport(Execution::Context& context) const
     {
-        UserSettingsResourceObject output;
-        if (TryExportUserSettings(output))
+        auto json = GetJsonFromInput(context, false);
+        UserSettingsFunctionData data{ json, true };
+        if (data.Load())
         {
-            WriteJsonOutputLine(context, output.ToJson());
+            data.Get();
+            WriteJsonOutputLine(context, data.Output.ToJson());
         }
     }
 
