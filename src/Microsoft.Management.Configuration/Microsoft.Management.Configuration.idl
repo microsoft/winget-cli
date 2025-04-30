@@ -1024,6 +1024,10 @@ namespace Microsoft.Management.Configuration
             // Find unit processors.
             Windows.Foundation.Collections.IVector<IConfigurationUnitProcessorDetails> FindUnitProcessors(FindUnitProcessorsOptions findOptions);
             Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVector<IConfigurationUnitProcessorDetails> > FindUnitProcessorsAsync(FindUnitProcessorsOptions findOptions);
+
+            // Apply the current configuration unit.
+            ApplyConfigurationUnitResult ApplyUnit(ConfigurationUnit unit);
+            Windows.Foundation.IAsyncOperation<ApplyConfigurationUnitResult> ApplyUnitAsync(ConfigurationUnit unit);
         }
     }
 

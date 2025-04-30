@@ -1205,6 +1205,26 @@ namespace AppInstaller::CLI::Workflow
             return getResult;
         }
 
+        GetAllConfigurationUnitsResult GetAllUnits(Execution::Context& context, ConfigurationUnit& unit)
+        {
+            unit.Intent(ConfigurationUnitIntent::Inform);
+
+            auto progressScope = context.Reporter.BeginAsyncProgress(true);
+
+            // yaotodo
+            progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationGettingResourceSettings());
+
+            GetAllConfigurationUnitsResult getResult = nullptr;
+            {
+                auto getAction = context.Get<Data::ConfigurationContext>().Processor().GetAllUnitsAsync(unit);
+                auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { getAction.Cancel(); });
+                getResult = getAction.get();
+            }
+
+            progressScope.reset();
+            return getResult;
+        }
+
         ConfigurationUnit CreateConfigurationUnitFromModuleResource(std::string_view moduleName, std::string_view resourceName, std::string_view descriptionResourceName, const Utility::Version& schemaVersion)
         {
             std::wstring moduleNameWide = Utility::ConvertToUTF16(moduleName);
@@ -1256,54 +1276,75 @@ namespace AppInstaller::CLI::Workflow
             return unit;
         }
 
-        std::vector<ConfigurationUnit> ExportConfigurationUnit(Execution::Context& context, ConfigurationUnit& unit, const std::optional<ConfigurationUnit>& dependentUnit)
+        std::vector<ConfigurationUnit> ExportConfigurationUnit(Execution::Context& context, ConfigurationUnit& unit)
         {
-            // Call processor to get settings for the unit.
-            auto getResult = GetUnitSettings(context, unit);
-            winrt::hresult resultCode = getResult.ResultInformation().ResultCode();
-            if (FAILED(resultCode))
-            {
-                // Retry if it fails with not found in the case the module is a pre-released one.
-                bool isPreRelease = false;
-                if (resultCode == WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY)
-                {
-                    directives.Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
-                    unit.Metadata(directives);
+            std::vector<ConfigurationUnit> result;
 
-                    auto preReleaseResult = GetUnitSettings(context, unit);
-                    if (SUCCEEDED(preReleaseResult.ResultInformation().ResultCode()))
+            // Try export first
+            auto exportResult = GetAllUnits(context, unit);
+            auto exportResultCode = exportResult.ResultInformation().ResultCode();
+            if (SUCCEEDED(exportResultCode))
+            {
+                for (auto resultUnit : exportResult.Units())
+                {
+                    result.emplace_back(std::move(resultUnit));
+                }
+            }
+            else if (exportResultCode == WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR)
+            {
+                // Export failed because export not supported, try get unit settings instead.
+                auto getResult = GetUnitSettings(context, unit);
+                winrt::hresult getResultCode = getResult.ResultInformation().ResultCode();
+                if (FAILED(getResultCode))
+                {
+                    // Retry if it fails with not found in the case the module is a pre-released one.
+                    if (getResultCode == WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY)
                     {
-                        isPreRelease = true;
-                        getResult = preReleaseResult;
+                        auto directives = unit.Metadata();
+                        directives.Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
+                        unit.Metadata(directives);
+
+                        auto preReleaseResult = GetUnitSettings(context, unit);
+                        if (SUCCEEDED(preReleaseResult.ResultInformation().ResultCode()))
+                        {
+                            getResult = preReleaseResult;
+                        }
+                        else
+                        {
+                            AICLI_LOG(Config, Error, << "Failed Get allowing prerelease modules");
+                            LogFailedGetConfigurationUnitDetails(unit, preReleaseResult.ResultInformation());
+                        }
                     }
-                    else
+
+                    if (FAILED(getResult.ResultInformation().ResultCode()))
                     {
-                        AICLI_LOG(Config, Error, << "Failed Get allowing prerelease modules");
-                        LogFailedGetConfigurationUnitDetails(unit, preReleaseResult.ResultInformation());
+                        LogFailedGetConfigurationUnitDetails(unit, getResult.ResultInformation());
+                        OutputUnitRunFailure(context, unit, getResult.ResultInformation());
+                        THROW_HR(WINGET_CONFIG_ERROR_GET_FAILED);
                     }
                 }
 
-                if (!isPreRelease)
-                {
-                    OutputUnitRunFailure(context, unit, getResult.ResultInformation());
-                    THROW_HR(WINGET_CONFIG_ERROR_GET_FAILED);
-                }
+                unit.Settings(getResult.Settings());
+
+                result.emplace_back(unit);
             }
-
-            unit.Settings(getResult.Settings());
-
-            // GetUnitSettings will set it to Apply.
-            unit.Intent(ConfigurationUnitIntent::Apply);
-
-            // Add dependency if needed.
-            if (dependentUnit.has_value())
+            else
             {
-                auto dependencies = winrt::single_threaded_vector<winrt::hstring>();
-                dependencies.Append(dependentUnit.value().Identifier());
-                unit.Dependencies(std::move(dependencies));
+                AICLI_LOG(Config, Error, << "Failed exporting unit settings.");
+                LogFailedGetConfigurationUnitDetails(unit, exportResult.ResultInformation());
+                OutputUnitRunFailure(context, unit, exportResult.ResultInformation());
+                THROW_HR(WINGET_CONFIG_ERROR_GET_FAILED);
             }
 
-            return unit;
+            return result;
+        }
+
+        void AddDependentUnit(std::vector<ConfigurationUnit>& units, const ConfigurationUnit& dependentUnit)
+        {
+            for (auto& unit : units)
+            {
+                unit.Dependencies().Append(dependentUnit.Identifier());
+            }
         }
 
         std::vector<IConfigurationUnitProcessorDetails> GetAllUnitProcessors(Execution::Context& context)
@@ -1370,10 +1411,19 @@ namespace AppInstaller::CLI::Workflow
                         itr->try_as(unitProcessor3);
                         if (Filesystem::IsParentPath(std::filesystem::path{ std::wstring{ unitProcessor3.Path() } }, package.InstalledLocation))
                         {
-                            ConfigurationUnit unit;
-                            unit.Type(unitProcessor3.UnitType());
+                            ConfigurationUnit configUnit = anon::CreateConfigurationUnitFromUnitType(
+                                Utility::ConvertToUTF8(unitProcessor3.UnitType()),
+                                Utility::ConvertToUTF8(packageUnit.Identifier()));
 
-                            // Remove the unit processor from the list after exported.
+                            auto exportUnits = anon::ExportConfigurationUnit(context, configUnit);
+                            anon::AddDependentUnit(exportUnits, packageUnit);
+
+                            for (auto exportUnit : exportUnits)
+                            {
+                                configContext.Set().Units().Append(exportUnit);
+                            }
+
+                            // Remove the unit processor from the list after export.
                             itr = unitProcessors.erase(itr);
                         }
                         else
@@ -1388,6 +1438,7 @@ namespace AppInstaller::CLI::Workflow
         void ProcessPackagesForConfigurationExportSingle(Execution::Context& context)
         {
             ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+            Utility::Version schemaVersion = { Utility::ConvertToUTF8(configContext.Set().SchemaVersion()) };
             // When exporting single WinGetPackage unit, the WinGetPackage unit can be used as a dependent unit for following configuration unit.
             std::optional<ConfigurationUnit> singlePackageUnit;
 
@@ -1410,15 +1461,23 @@ namespace AppInstaller::CLI::Workflow
 
             if (context.Args.Contains(Execution::Args::Type::ConfigurationExportModule, Execution::Args::Type::ConfigurationExportResource))
             {
-                auto configUnit = anon::CreateConfigurationUnit(
-                    context,
+                auto configUnit = anon::CreateConfigurationUnitFromModuleResource(
                     context.Args.GetArg(Args::Type::ConfigurationExportModule),
                     context.Args.GetArg(Args::Type::ConfigurationExportResource),
-                    singlePackageUnit);
+                    singlePackageUnit ? Utility::ConvertToUTF8(singlePackageUnit->Identifier()) : "",
+                    schemaVersion);
 
-                configContext.Set().SchemaVersion();
+                auto exportUnits = anon::ExportConfigurationUnit(context, configUnit);
 
-                configContext.Set().Units().Append(configUnit);
+                if (singlePackageUnit)
+                {
+                    anon::AddDependentUnit(exportUnits, singlePackageUnit.value());
+                }
+
+                for (auto exportUnit : exportUnits)
+                {
+                    configContext.Set().Units().Append(exportUnit);
+                }
             }
         }
 

@@ -292,4 +292,7 @@ namespace AppInstaller::Utility
     // Converts most control codes in the input to their corresponding control picture in the output.
     // Exempts tab, line feed, and carriage return from being replaced.
     std::string ConvertControlCodesToPictures(std::string_view input);
+
+    // Generates a random alpha numeric string.
+    std::string GetRandomString(size_t size = 8);
 }
