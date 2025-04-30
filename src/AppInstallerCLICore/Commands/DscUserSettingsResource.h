@@ -6,9 +6,9 @@
 namespace AppInstaller::CLI
 {
     // A resource for managing package state.
-    struct DscUserSettings : public DscCommandBase
+    struct DscUserSettingsResource : public DscCommandBase
     {
-        DscUserSettings(std::string_view parent);
+        DscUserSettingsResource(std::string_view parent);
 
         Resource::LocString ShortDescription() const override;
         Resource::LocString LongDescription() const override;

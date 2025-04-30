@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "DscUserSettings.h"
+#include "DscUserSettingsResource.h"
 #include "DscComposableObject.h"
 #include "Resources.h"
 #include "Workflows/WorkflowBase.h"
@@ -24,7 +24,7 @@ namespace AppInstaller::CLI
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SettingsProperty, Json::Value, Settings, "Settings", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionUserSettings);
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(ActionProperty, std::string, Action, "Action", Resource::String::DscResourcePropertyDescriptionUserSettingsAction, ({ ACTION_PARTIAL, ACTION_FULL }), ACTION_FULL);
 
-        using UserSettingsObject = DscComposableObject<StandardInDesiredStateProperty, SettingsProperty, ActionProperty>;
+        using UserSettingsResourceObject = DscComposableObject<StandardInDesiredStateProperty, SettingsProperty, ActionProperty>;
 
         // Merges the overlay settings into the target settings.
         void MergeUserSettings(Json::Value& target, const Json::Value& overlay)
@@ -105,7 +105,7 @@ namespace AppInstaller::CLI
         }
 
         // Processes the user settings by merging them with the existing settings.
-        bool TryProcessUserSettings(const UserSettingsObject& input, UserSettingsObject& output, Json::Value userSettings = Json::nullValue)
+        bool TryProcessUserSettings(const UserSettingsResourceObject& input, UserSettingsResourceObject& output, Json::Value userSettings = Json::nullValue)
         {
             // Always return the full settings object
             output.Action(ACTION_FULL);
@@ -129,7 +129,7 @@ namespace AppInstaller::CLI
         }
 
         // Exports the user settings to the output object.
-        bool TryExportUserSettings(UserSettingsObject& output)
+        bool TryExportUserSettings(UserSettingsResourceObject& output)
         {
             Json::Value userSettings;
             if (TryReadUserSettings(userSettings))
@@ -143,43 +143,43 @@ namespace AppInstaller::CLI
         }
     }
 
-    DscUserSettings::DscUserSettings(std::string_view parent) :
+    DscUserSettingsResource::DscUserSettingsResource(std::string_view parent) :
         DscCommandBase(parent, "user-settings", DscResourceKind::Resource,
             DscFunctions::Get | DscFunctions::Set | DscFunctions::Test | DscFunctions::Export | DscFunctions::Schema,
             DscFunctionModifiers::ImplementsPretest | DscFunctionModifiers::HandlesExist | DscFunctionModifiers::ReturnsStateAndDiff)
     {
     }
 
-    Resource::LocString DscUserSettings::ShortDescription() const
+    Resource::LocString DscUserSettingsResource::ShortDescription() const
     {
         return Resource::String::DscUserSettingsShortDescription;
     }
 
-    Resource::LocString DscUserSettings::LongDescription() const
+    Resource::LocString DscUserSettingsResource::LongDescription() const
     {
         return Resource::String::DscUserSettingsLongDescription;
     }
 
-    std::string DscUserSettings::ResourceType() const
+    std::string DscUserSettingsResource::ResourceType() const
     {
         return "WinGetUserSettings";
     }
 
-    void DscUserSettings::ResourceFunctionGet(Execution::Context& context) const
+    void DscUserSettingsResource::ResourceFunctionGet(Execution::Context& context) const
     {
-        UserSettingsObject output;
+        UserSettingsResourceObject output;
         if (TryExportUserSettings(output))
         {
             WriteJsonOutputLine(context, output.ToJson());
         }
     }
 
-    void DscUserSettings::ResourceFunctionSet(Execution::Context& context) const
+    void DscUserSettingsResource::ResourceFunctionSet(Execution::Context& context) const
     {
         if (auto json = GetJsonFromInput(context))
         {
-            UserSettingsObject input(json);
-            UserSettingsObject output;
+            UserSettingsResourceObject input(json);
+            UserSettingsResourceObject output;
             if (TryProcessUserSettings(input, output) && TryWriteUserSettings(*output.Settings()))
             {
                 WriteJsonOutputLine(context, output.ToJson());
@@ -187,13 +187,13 @@ namespace AppInstaller::CLI
         }
     }
 
-    void DscUserSettings::ResourceFunctionTest(Execution::Context& context) const
+    void DscUserSettingsResource::ResourceFunctionTest(Execution::Context& context) const
     {
         if (auto json = GetJsonFromInput(context))
         {
-            UserSettingsObject input(json);
-            UserSettingsObject outputProcess;
-            UserSettingsObject outputExport;
+            UserSettingsResourceObject input(json);
+            UserSettingsResourceObject outputProcess;
+            UserSettingsResourceObject outputExport;
             if (TryExportUserSettings(outputExport) && TryProcessUserSettings(input, outputProcess, *outputExport.Settings()))
             {
                 outputExport.InDesiredState(outputProcess.Settings() == outputExport.Settings());
@@ -202,17 +202,17 @@ namespace AppInstaller::CLI
         }
     }
 
-    void DscUserSettings::ResourceFunctionExport(Execution::Context& context) const
+    void DscUserSettingsResource::ResourceFunctionExport(Execution::Context& context) const
     {
-        UserSettingsObject output;
+        UserSettingsResourceObject output;
         if (TryExportUserSettings(output))
         {
             WriteJsonOutputLine(context, output.ToJson());
         }
     }
 
-    void DscUserSettings::ResourceFunctionSchema(Execution::Context& context) const
+    void DscUserSettingsResource::ResourceFunctionSchema(Execution::Context& context) const
     {
-        WriteJsonOutputLine(context, UserSettingsObject::Schema(ResourceType()));
+        WriteJsonOutputLine(context, UserSettingsResourceObject::Schema(ResourceType()));
     }
 }
