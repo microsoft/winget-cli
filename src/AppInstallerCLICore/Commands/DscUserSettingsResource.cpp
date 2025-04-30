@@ -4,12 +4,6 @@
 #include "DscUserSettingsResource.h"
 #include "DscComposableObject.h"
 #include "Resources.h"
-#include "Workflows/WorkflowBase.h"
-#include "Workflows/ConfigurationFlow.h"
-#include "Workflows/InstallFlow.h"
-#include "Workflows/UninstallFlow.h"
-#include "Workflows/UpdateFlow.h"
-#include <winget/PackageVersionSelection.h>
 
 using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Settings;
