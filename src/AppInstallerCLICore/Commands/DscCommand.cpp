@@ -4,6 +4,7 @@
 #include "DscCommand.h"
 #include "DscPackageResource.h"
 #include "DscUserSettings.h"
+#include "DscSourceResource.h"
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
 #include "DscTestFileResource.h"
@@ -16,6 +17,7 @@ namespace AppInstaller::CLI
     {
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
             std::make_unique<DscPackageResource>(FullName()),
+            std::make_unique<DscSourceResource>(FullName()),
             std::make_unique<DscUserSettings>(FullName()),
 #ifndef AICLI_DISABLE_TEST_HOOKS
             std::make_unique<DscTestFileResource>(FullName()),
