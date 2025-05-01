@@ -15,8 +15,8 @@ namespace AppInstaller::CLI
 {
     namespace
     {
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SettingsProperty, Json::Value, Settings, "Settings", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionUserSettings);
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(ActionProperty, std::string, Action, "Action", Resource::String::DscResourcePropertyDescriptionUserSettingsAction, ({ ACTION_PARTIAL, ACTION_FULL }), ACTION_FULL);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SettingsProperty, Json::Value, Settings, "settings", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionUserSettings);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(ActionProperty, std::string, Action, "action", Resource::String::DscResourcePropertyDescriptionUserSettingsAction, ({ ACTION_PARTIAL, ACTION_FULL }), ACTION_FULL);
 
         using UserSettingsResourceObject = DscComposableObject<StandardInDesiredStateProperty, SettingsProperty, ActionProperty>;
 
