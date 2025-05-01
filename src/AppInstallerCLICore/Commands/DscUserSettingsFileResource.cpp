@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "DscUserSettingsResource.h"
+#include "DscUserSettingsFileResource.h"
 #include "DscComposableObject.h"
 #include "Resources.h"
 
@@ -15,27 +15,27 @@ namespace AppInstaller::CLI
 {
     namespace
     {
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SettingsProperty, Json::Value, Settings, "settings", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionUserSettings);
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(ActionProperty, std::string, Action, "action", Resource::String::DscResourcePropertyDescriptionUserSettingsAction, ({ ACTION_PARTIAL, ACTION_FULL }), ACTION_FULL);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SettingsProperty, Json::Value, Settings, "settings", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionUserSettingsFileSettings);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(ActionProperty, std::string, Action, "action", Resource::String::DscResourcePropertyDescriptionUserSettingsFileAction, ({ ACTION_PARTIAL, ACTION_FULL }), ACTION_FULL);
 
-        using UserSettingsResourceObject = DscComposableObject<StandardInDesiredStateProperty, SettingsProperty, ActionProperty>;
+        using UserSettingsFileResourceObject = DscComposableObject<StandardInDesiredStateProperty, SettingsProperty, ActionProperty>;
 
-        struct UserSettingsFunctionData
+        struct UserSettingsFileFunctionData
         {
-            UserSettingsFunctionData()
-                : UserSettingsFunctionData(std::nullopt)
+            UserSettingsFileFunctionData()
+                : UserSettingsFileFunctionData(std::nullopt)
             {
             }
 
-            UserSettingsFunctionData(const std::optional<Json::Value>& json) :
+            UserSettingsFileFunctionData(const std::optional<Json::Value>& json) :
                 Input(json, false),
                 _userSettings(Json::nullValue),
                 _userSettingsPath(UserSettings::SettingsFilePath())
             {
             }
 
-            const UserSettingsResourceObject Input;
-            UserSettingsResourceObject Output;
+            const UserSettingsFileResourceObject Input;
+            UserSettingsFileResourceObject Output;
 
             void Get()
             {
@@ -55,8 +55,8 @@ namespace AppInstaller::CLI
                 }
                 else
                 {
-                    auto mergedUserSettings = MergeUserSettings(*Input.Settings());
-                    Output.Settings(mergedUserSettings);
+                    auto mergedUserSettingsFile = MergeUserSettingsFiles(*Input.Settings());
+                    Output.Settings(mergedUserSettingsFile);
                 }
             }
 
@@ -119,15 +119,15 @@ namespace AppInstaller::CLI
             std::filesystem::path _userSettingsPath;
             Json::Value _userSettings;
 
-            Json::Value MergeUserSettings(const Json::Value& overlay)
+            Json::Value MergeUserSettingsFiles(const Json::Value& overlay)
             {
-                Json::Value mergedUserSettings = _userSettings;
-                MergeUserSettings(mergedUserSettings, overlay);
-                return mergedUserSettings;
+                Json::Value mergedUserSettingsFile = _userSettings;
+                MergeUserSettingsFiles(mergedUserSettingsFile, overlay);
+                return mergedUserSettingsFile;
             }
 
             // Merges the overlay settings into the target settings.
-            void MergeUserSettings(Json::Value& target, const Json::Value& overlay)
+            void MergeUserSettingsFiles(Json::Value& target, const Json::Value& overlay)
             {
                 // If either is not an object, we can't merge.
                 if (!overlay.isObject() || !target.isObject())
@@ -145,7 +145,7 @@ namespace AppInstaller::CLI
                         if (targetValue.isObject() && overlayValue.isObject())
                         {
                             // Recursively merge the objects.
-                            MergeUserSettings(targetValue, overlayValue);
+                            MergeUserSettingsFiles(targetValue, overlayValue);
                         }
                         else
                         {
@@ -164,38 +164,38 @@ namespace AppInstaller::CLI
         };
     }
 
-    DscUserSettingsResource::DscUserSettingsResource(std::string_view parent) :
-        DscCommandBase(parent, "user-settings", DscResourceKind::Resource,
+    DscUserSettingsFileResource::DscUserSettingsFileResource(std::string_view parent) :
+        DscCommandBase(parent, "user-settings-file", DscResourceKind::Resource,
             DscFunctions::Get | DscFunctions::Set | DscFunctions::Test | DscFunctions::Export | DscFunctions::Schema,
             DscFunctionModifiers::ImplementsPretest | DscFunctionModifiers::HandlesExist | DscFunctionModifiers::ReturnsStateAndDiff)
     {
     }
 
-    Resource::LocString DscUserSettingsResource::ShortDescription() const
+    Resource::LocString DscUserSettingsFileResource::ShortDescription() const
     {
-        return Resource::String::DscUserSettingsShortDescription;
+        return Resource::String::DscUserSettingsFileShortDescription;
     }
 
-    Resource::LocString DscUserSettingsResource::LongDescription() const
+    Resource::LocString DscUserSettingsFileResource::LongDescription() const
     {
-        return Resource::String::DscUserSettingsLongDescription;
+        return Resource::String::DscUserSettingsFileLongDescription;
     }
 
-    std::string DscUserSettingsResource::ResourceType() const
+    std::string DscUserSettingsFileResource::ResourceType() const
     {
-        return "UserSettings";
+        return "UserSettingsFile";
     }
 
-    void DscUserSettingsResource::ResourceFunctionGet(Execution::Context& context) const
+    void DscUserSettingsFileResource::ResourceFunctionGet(Execution::Context& context) const
     {
         ResourceFunctionExport(context);
     }
 
-    void DscUserSettingsResource::ResourceFunctionSet(Execution::Context& context) const
+    void DscUserSettingsFileResource::ResourceFunctionSet(Execution::Context& context) const
     {
         if (auto json = GetJsonFromInput(context))
         {
-            UserSettingsFunctionData data{ json };
+            UserSettingsFileFunctionData data{ json };
 
             if (data.LoadUserSettings())
             {
@@ -212,11 +212,11 @@ namespace AppInstaller::CLI
         }
     }
 
-    void DscUserSettingsResource::ResourceFunctionTest(Execution::Context& context) const
+    void DscUserSettingsFileResource::ResourceFunctionTest(Execution::Context& context) const
     {
         if (auto json = GetJsonFromInput(context))
         {
-            UserSettingsFunctionData data{ json };
+            UserSettingsFileFunctionData data{ json };
 
             if (data.LoadUserSettings())
             {
@@ -234,9 +234,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    void DscUserSettingsResource::ResourceFunctionExport(Execution::Context& context) const
+    void DscUserSettingsFileResource::ResourceFunctionExport(Execution::Context& context) const
     {
-        UserSettingsFunctionData data;
+        UserSettingsFileFunctionData data;
         if (data.LoadUserSettings())
         {
             data.Get();
@@ -244,8 +244,8 @@ namespace AppInstaller::CLI
         }
     }
 
-    void DscUserSettingsResource::ResourceFunctionSchema(Execution::Context& context) const
+    void DscUserSettingsFileResource::ResourceFunctionSchema(Execution::Context& context) const
     {
-        WriteJsonOutputLine(context, UserSettingsResourceObject::Schema(ResourceType()));
+        WriteJsonOutputLine(context, UserSettingsFileResourceObject::Schema(ResourceType()));
     }
 }

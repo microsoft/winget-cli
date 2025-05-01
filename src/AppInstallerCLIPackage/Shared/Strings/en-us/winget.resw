@@ -3283,16 +3283,16 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="DscResourcePropertyDescriptionAcceptAgreements" xml:space="preserve">
     <value>Indicates whether to accept agreements for sources and packages.</value>
   </data>
-  <data name="DscUserSettingsShortDescription" xml:space="preserve">
-    <value>Manage user settings</value>
+  <data name="DscUserSettingsFileShortDescription" xml:space="preserve">
+    <value>Manage user settings file</value>
   </data>
-  <data name="DscUserSettingsLongDescription" xml:space="preserve">
-    <value>Allows management of user settings via the DSC v3 command line interface protocol. See the help link for details.</value>
+  <data name="DscUserSettingsFileLongDescription" xml:space="preserve">
+    <value>Allows management of user settings file via the DSC v3 command line interface protocol. See the help link for details.</value>
   </data>
-  <data name="DscResourcePropertyDescriptionUserSettings" xml:space="preserve">
-    <value>The settings json content.</value>
+  <data name="DscResourcePropertyDescriptionUserSettingsFileSettings" xml:space="preserve">
+    <value>The settings json file content.</value>
   </data>
-  <data name="DscResourcePropertyDescriptionUserSettingsAction" xml:space="preserve">
+  <data name="DscResourcePropertyDescriptionUserSettingsFileAction" xml:space="preserve">
     <value>The action used to apply the settings.</value>
   </data>
   <data name="CorrelationArgumentDescription" xml:space="preserve">

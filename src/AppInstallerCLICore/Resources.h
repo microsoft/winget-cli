@@ -236,10 +236,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageMatchOption);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageUseLatest);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageInstallMode);
-        WINGET_DEFINE_RESOURCE_STRINGID(DscUserSettingsShortDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(DscUserSettingsLongDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionUserSettings);
-        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionUserSettingsAction);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscUserSettingsFileShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscUserSettingsFileLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionUserSettingsFileSettings);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionUserSettingsFileAction);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceName);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceArgument);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceType);

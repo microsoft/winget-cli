@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// <copyright file="DSCv3UserSettingsResourceCommand.cs" company="Microsoft Corporation">
+// <copyright file="DSCv3UserSettingsFileResourceCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -18,9 +18,9 @@ using System.Text.Json.Serialization;
 /// </summary>
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1010:Opening square brackets should be spaced correctly", Justification = "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3687 pending SC 1.2 release")]
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1011:Closing square brackets should be spaced correctly", Justification = "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3687 pending SC 1.2 release")]
-public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
+public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 {
-    private const string UserSettingsResource = "user-settings";
+    private const string UserSettingsFileResource = "user-settings-file";
     private const string SettingsPropertyName = "settings";
     private const string ActionPropertyValueFull = "Full";
     private const string ActionPropertyValuePartial = "Partial";
@@ -36,7 +36,7 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
     {
         TestCommon.SetupTestSource();
         WinGetSettingsHelper.ConfigureFeature("dsc3", true);
-        EnsureTestResourcePresence(UserSettingsResource);
+        EnsureTestResourcePresence(UserSettingsFileResource);
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
     /// Calls `get` on the `user-settings` resource.
     /// </summary>
     [Test]
-    public void UserSettings_Get()
+    public void UserSettingsFile_Get()
     {
         var expected = GetCurrentUserSettings();
         var getOutput = Get(new ());
@@ -81,7 +81,7 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
     [Test]
     [TestCase(ActionPropertyValueFull)]
     [TestCase(ActionPropertyValuePartial)]
-    public void UserSettings_Set_NoDiff(string action)
+    public void UserSettingsFile_Set_NoDiff(string action)
     {
         var setSettings = GetSettingsArg(action);
 
@@ -102,7 +102,7 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
     [Test]
     [TestCase(ActionPropertyValueFull)]
     [TestCase(ActionPropertyValuePartial)]
-    public void UserSettings_Set_AddFields(string action)
+    public void UserSettingsFile_Set_AddFields(string action)
     {
         // Call `set` to add mock properties to the settings
         var setSettings = GetSettingsArg(action);
@@ -127,7 +127,7 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
     [Test]
     [TestCase(ActionPropertyValueFull)]
     [TestCase(ActionPropertyValuePartial)]
-    public void UserSettings_Set_UpdateFields(string action)
+    public void UserSettingsFile_Set_UpdateFields(string action)
     {
         // Add mock properties to the settings
         var set1Settings = new JsonObject();
@@ -157,7 +157,7 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
     [Test]
     [TestCase(ActionPropertyValueFull)]
     [TestCase(ActionPropertyValuePartial)]
-    public void UserSettings_Test_InDesiredState(string action)
+    public void UserSettingsFile_Test_InDesiredState(string action)
     {
         // Add mock properties to the settings
         var setSettings = new JsonObject();
@@ -188,7 +188,7 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
     [Test]
     [TestCase(ActionPropertyValueFull)]
     [TestCase(ActionPropertyValuePartial)]
-    public void UserSettings_Test_NotInDesiredState(string action)
+    public void UserSettingsFile_Test_NotInDesiredState(string action)
     {
         // Add mock properties to the settings
         var setSettings = new JsonObject();
@@ -216,7 +216,7 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
     /// Calls `export` on the `user-settings` resource to export the settings.
     /// </summary>
     [Test]
-    public void UserSettings_Export()
+    public void UserSettingsFile_Export()
     {
         var expected = GetCurrentUserSettings();
         var exportOutput = Export(new ());
@@ -231,11 +231,11 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
     /// </summary>
     /// <param name="resourceData">The input resource data.</param>
     /// <returns>The output resource data.</returns>
-    private static UserSettingsResourceData Get(UserSettingsResourceData resourceData)
+    private static UserSettingsFileResourceData Get(UserSettingsFileResourceData resourceData)
     {
-        var result = RunDSCv3Command(UserSettingsResource, GetFunction, resourceData);
+        var result = RunDSCv3Command(UserSettingsFileResource, GetFunction, resourceData);
         AssertSuccessfulResourceRun(ref result);
-        return GetSingleOutputLineAs<UserSettingsResourceData>(result.StdOut);
+        return GetSingleOutputLineAs<UserSettingsFileResourceData>(result.StdOut);
     }
 
     /// <summary>
@@ -243,11 +243,11 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
     /// </summary>
     /// <param name="resourceData">The input resource data.</param>
     /// <returns>The output resource data and the diff.</returns>
-    private static (UserSettingsResourceData, List<string>) Set(UserSettingsResourceData resourceData)
+    private static (UserSettingsFileResourceData, List<string>) Set(UserSettingsFileResourceData resourceData)
     {
-        var result = RunDSCv3Command(UserSettingsResource, SetFunction, resourceData);
+        var result = RunDSCv3Command(UserSettingsFileResource, SetFunction, resourceData);
         AssertSuccessfulResourceRun(ref result);
-        return GetSingleOutputLineAndDiffAs<UserSettingsResourceData>(result.StdOut);
+        return GetSingleOutputLineAndDiffAs<UserSettingsFileResourceData>(result.StdOut);
     }
 
     /// <summary>
@@ -255,11 +255,11 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
     /// </summary>
     /// <param name="resourceData">The input resource data.</param>
     /// <returns>The output resource data and the diff.</returns>
-    private static (UserSettingsResourceData, List<string>) Test(UserSettingsResourceData resourceData)
+    private static (UserSettingsFileResourceData, List<string>) Test(UserSettingsFileResourceData resourceData)
     {
-        var result = RunDSCv3Command(UserSettingsResource, TestFunction, resourceData);
+        var result = RunDSCv3Command(UserSettingsFileResource, TestFunction, resourceData);
         AssertSuccessfulResourceRun(ref result);
-        return GetSingleOutputLineAndDiffAs<UserSettingsResourceData>(result.StdOut);
+        return GetSingleOutputLineAndDiffAs<UserSettingsFileResourceData>(result.StdOut);
     }
 
     /// <summary>
@@ -267,11 +267,11 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
     /// </summary>
     /// <param name="resourceData">The input resource data.</param>
     /// <returns>The output resource data.</returns>
-    private static UserSettingsResourceData Export(UserSettingsResourceData resourceData)
+    private static UserSettingsFileResourceData Export(UserSettingsFileResourceData resourceData)
     {
-        var result = RunDSCv3Command(UserSettingsResource, ExportFunction, resourceData);
+        var result = RunDSCv3Command(UserSettingsFileResource, ExportFunction, resourceData);
         AssertSuccessfulResourceRun(ref result);
-        return GetSingleOutputLineAs<UserSettingsResourceData>(result.StdOut);
+        return GetSingleOutputLineAs<UserSettingsFileResourceData>(result.StdOut);
     }
 
     /// <summary>
@@ -328,7 +328,7 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
     /// <returns>The settings argument as a JsonObject.</returns>
     private static JsonObject GetSettingsArg(string action) => action == ActionPropertyValueFull ? GetCurrentUserSettings() : new ();
 
-    private class UserSettingsResourceData
+    private class UserSettingsFileResourceData
     {
         [JsonPropertyName(InDesiredStatePropertyName)]
         public bool? InDesiredState { get; set; }

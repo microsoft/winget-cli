@@ -287,7 +287,7 @@
     <ClInclude Include="Commands\DscSourceResource.h">
       <Filter>Commands\Configuration</Filter>
     </ClInclude>
-    <ClInclude Include="Commands\DscUserSettingsResource.h">
+    <ClInclude Include="Commands\DscUserSettingsFileResource.h">
       <Filter>Commands\Configuration</Filter>
     </ClInclude>
   </ItemGroup>
@@ -544,7 +544,7 @@
     <ClCompile Include="Commands\DscSourceResource.cpp">
       <Filter>Commands\Configuration</Filter>
     </ClCompile>
-    <ClCompile Include="Commands\DscUserSettingsResource.cpp">
+    <ClCompile Include="Commands\DscUserSettingsFileResource.cpp">
       <Filter>Commands\Configuration</Filter>
     </ClCompile>
   </ItemGroup>
