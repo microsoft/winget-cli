@@ -1,0 +1,68 @@
+diff --git a/Release/include/cpprest/http_client.h b/Release/include/cpprest/http_client.h
+index fb7c606..b862a57 100644
+--- a/Release/include/cpprest/http_client.h
++++ b/Release/include/cpprest/http_client.h
+@@ -362,6 +362,32 @@ public:
+         if (m_set_user_nativehandle_options) m_set_user_nativehandle_options(handle);
+     }
+ 
++    /// <summary>
++    /// Sets a callback to enable custom handling when the server certificate is available.
++    /// </summary>
++    /// <remarks>
++    /// The native_handle is the following type depending on the underlying platform:
++    ///     Windows Desktop, WinHTTP - HINTERNET !!! Is only implemented to call in here !!!
++    ///     Windows Runtime, WinRT - IXMLHTTPRequest2 *
++    ///     All other platforms, Boost.Asio:
++    ///         https - boost::asio::ssl::stream<boost::asio::ip::tcp::socket &> *
++    ///         http - boost::asio::ip::tcp::socket *
++    /// </remarks>
++    /// <param name="callback">A user callback allowing for validation of the server certificate.</param>
++    void set_nativehandle_servercertificate_validation(const std::function<void(native_handle)>& callback)
++    {
++        m_nativehandle_servercertificate_validation = callback;
++    }
++
++    /// <summary>
++    /// Invokes a user's callback to validate the server certificate.
++    /// </summary>
++    /// <param name="handle">A internal implementation handle.</param>
++    void invoke_nativehandle_servercertificate_validation(native_handle handle) const
++    {
++        if (m_nativehandle_servercertificate_validation) m_nativehandle_servercertificate_validation(handle);
++    }
++
+ #if !defined(_WIN32) && !defined(__cplusplus_winrt) || defined(CPPREST_FORCE_HTTP_CLIENT_ASIO)
+     /// <summary>
+     /// Sets a callback to enable custom setting of the ssl context, at construction time.
+@@ -418,6 +444,7 @@ private:
+ 
+     std::function<void(native_handle)> m_set_user_nativehandle_options;
+     std::function<void(native_handle)> m_set_user_nativesessionhandle_options;
++    std::function<void(native_handle)> m_nativehandle_servercertificate_validation;
+ 
+ #if !defined(_WIN32) && !defined(__cplusplus_winrt) || defined(CPPREST_FORCE_HTTP_CLIENT_ASIO)
+     std::function<void(boost::asio::ssl::context&)> m_ssl_context_callback;
+diff --git a/Release/src/http/client/http_client_winhttp.cpp b/Release/src/http/client/http_client_winhttp.cpp
+index d6cdb53..5a517ec 100644
+--- a/Release/src/http/client/http_client_winhttp.cpp
++++ b/Release/src/http/client/http_client_winhttp.cpp
+@@ -2039,6 +2039,18 @@ private:
+             case WINHTTP_CALLBACK_STATUS_SENDING_REQUEST:
+             {
+                 p_request_context->on_send_request_validate_cn();
++
++                try
++                {
++                    p_request_context->m_http_client->client_config().invoke_nativehandle_servercertificate_validation(hRequestHandle);
++                }
++                catch (...)
++                {
++                    p_request_context->report_exception(std::current_exception());
++                    p_request_context->cleanup();
++                    return;
++                }
++
+                 return;
+             }
+             case WINHTTP_CALLBACK_STATUS_SECURE_FAILURE:
