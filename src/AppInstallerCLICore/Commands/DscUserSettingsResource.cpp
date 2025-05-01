@@ -22,8 +22,13 @@ namespace AppInstaller::CLI
 
         struct UserSettingsFunctionData
         {
-            UserSettingsFunctionData(const std::optional<Json::Value>& json, bool ignoreFieldRequirements = false) :
-                Input(json, ignoreFieldRequirements),
+            UserSettingsFunctionData()
+                : UserSettingsFunctionData(std::nullopt)
+            {
+            }
+
+            UserSettingsFunctionData(const std::optional<Json::Value>& json) :
+                Input(json, false),
                 _userSettings(Json::nullValue),
                 _userSettingsPath(UserSettings::SettingsFilePath())
             {
@@ -31,16 +36,6 @@ namespace AppInstaller::CLI
 
             const UserSettingsResourceObject Input;
             UserSettingsResourceObject Output;
-
-            bool Load()
-            {
-                return LoadUserSettings();
-            }
-
-            bool Write()
-            {
-                return WriteOutput();
-            }
 
             void Get()
             {
@@ -83,11 +78,6 @@ namespace AppInstaller::CLI
                 return result;
             }
 
-        private:
-
-            std::filesystem::path _userSettingsPath;
-            Json::Value _userSettings;
-
             bool LoadUserSettings()
             {
                 std::ifstream file(_userSettingsPath, std::ios::binary);
@@ -124,6 +114,10 @@ namespace AppInstaller::CLI
                 AICLI_LOG(Config, Error, << "Failed to open user settings file for writing: " << _userSettingsPath);
                 return false;
             }
+
+        private:
+            std::filesystem::path _userSettingsPath;
+            Json::Value _userSettings;
 
             Json::Value MergeUserSettings(const Json::Value& overlay)
             {
@@ -189,7 +183,7 @@ namespace AppInstaller::CLI
 
     std::string DscUserSettingsResource::ResourceType() const
     {
-        return "WinGetUserSettings";
+        return "UserSettings";
     }
 
     void DscUserSettingsResource::ResourceFunctionGet(Execution::Context& context) const
@@ -203,10 +197,10 @@ namespace AppInstaller::CLI
         {
             UserSettingsFunctionData data{ json };
 
-            if (data.Load())
+            if (data.LoadUserSettings())
             {
                 data.Set();
-                if (!data.Test() && !data.Write())
+                if (!data.Test() && !data.WriteOutput())
                 {
                     AICLI_LOG(Config, Error, << "Failed to write output to user settings file.");
                     return;
@@ -224,7 +218,7 @@ namespace AppInstaller::CLI
         {
             UserSettingsFunctionData data{ json };
 
-            if (data.Load())
+            if (data.LoadUserSettings())
             {
                 data.Set();
                 data.Output.InDesiredState(data.Test());
@@ -242,9 +236,8 @@ namespace AppInstaller::CLI
 
     void DscUserSettingsResource::ResourceFunctionExport(Execution::Context& context) const
     {
-        auto json = GetJsonFromInput(context, false);
-        UserSettingsFunctionData data{ json, true };
-        if (data.Load())
+        UserSettingsFunctionData data;
+        if (data.LoadUserSettings())
         {
             data.Get();
             WriteJsonOutputLine(context, data.Output.ToJson());
