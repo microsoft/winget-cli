@@ -38,7 +38,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Moq" />
-    <PackageReference Include="Microsoft.PowerShell.SDK" />
+    <PackageReference Include="Microsoft.PowerShell.SDK" GeneratePathProperty="true" />
   </ItemGroup>
 
   <ItemGroup>

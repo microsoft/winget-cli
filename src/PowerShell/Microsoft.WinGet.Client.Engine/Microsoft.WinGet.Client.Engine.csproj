@@ -44,7 +44,7 @@
 
   <ItemGroup>
     <PackageReference Include="Octokit" />
-    <PackageReference Include="PowerShellStandard.Library" />
+    <PackageReference Include="PowerShellStandard.Library" PrivateAssets="all" />
     <PackageReference Include="Semver" />
     <PackageReference Include="StyleCop.Analyzers">
       <PrivateAssets>all</PrivateAssets>
@@ -52,10 +52,10 @@
     </PackageReference>
     <PackageReference Include="System.Security.Principal.Windows" />
     <PackageReference Include="Newtonsoft.Json" />
-    <PackageReference Include="Microsoft.CSharp" />
-    <PackageReference Include="Microsoft.Windows.CsWinRT" />
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts" />
-    <PackageReference Include="System.Net.Http" />
+    <PackageReference Include="Microsoft.CSharp" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" PrivateAssets="all" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
+    <PackageReference Include="System.Net.Http" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
   </ItemGroup>
 
   <ItemGroup>

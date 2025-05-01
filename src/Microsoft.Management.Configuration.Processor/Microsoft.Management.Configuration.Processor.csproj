@@ -48,7 +48,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.CsWinRT" />
-    <PackageReference Include="Microsoft.PowerShell.SDK">
+    <PackageReference Include="Microsoft.PowerShell.SDK" GeneratePathProperty="true">
       <ExcludeAssets>contentFiles</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" />
