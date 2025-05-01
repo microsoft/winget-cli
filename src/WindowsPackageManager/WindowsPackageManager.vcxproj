@@ -428,9 +428,6 @@
     <ProjectReference Include="..\AppInstallerRepositoryCore\AppInstallerRepositoryCore.vcxproj">
       <Project>{5eb88068-5fb9-4e69-89b2-72dbc5e068f9}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\cpprestsdk\cpprestsdk.vcxproj">
-      <Project>{866c3f06-636f-4be8-bc24-5f86ecc606a1}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj">
       <Project>{ca460806-5e41-4e97-9a3d-1d74b433b663}</Project>
     </ProjectReference>
