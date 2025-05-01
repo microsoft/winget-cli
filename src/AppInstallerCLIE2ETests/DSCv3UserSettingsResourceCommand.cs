@@ -93,7 +93,6 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
         Assert.AreEqual(ActionPropertyValueFull, setOutput.Action);
         AssertSettingsAreEqual(expected, setOutput.Settings);
         AssertDiffState(setDiff, []);
-
     }
 
     /// <summary>
@@ -281,8 +280,8 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
     /// <returns>The current user settings as a JsonObject.</returns>
     private static JsonObject GetCurrentUserSettings()
     {
-        var settingsContent = File.ReadAllText(WinGetSettingsHelper.GetUserSettingsPath());
-        return JsonNode.Parse(settingsContent).AsObject();
+        var settingsContent = File.ReadAllText(WinGetSettingsHelper.GetUserSettingsPath());
+        return JsonNode.Parse(settingsContent).AsObject();
     }
 
     /// <summary>
@@ -327,7 +326,7 @@ public class DSCv3UserSettingsResourceCommand : DSCv3ResourceTestBase
     /// </summary>
     /// <param name="action">The action value.</param>
     /// <returns>The settings argument as a JsonObject.</returns>
-    private JsonObject GetSettingsArg(string action) => action == ActionPropertyValueFull ? GetCurrentUserSettings() : new ();
+    private static JsonObject GetSettingsArg(string action) => action == ActionPropertyValueFull ? GetCurrentUserSettings() : new ();
 
     private class UserSettingsResourceData
     {
