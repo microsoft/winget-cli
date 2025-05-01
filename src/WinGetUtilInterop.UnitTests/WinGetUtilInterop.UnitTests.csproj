@@ -1,7 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="$(MSBuildThisFileDirectory)\..\common.props" />
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Platforms>x64;x86</Platforms>
