@@ -329,7 +329,7 @@ namespace AppInstaller::Filesystem
 
     bool IsParentPath(const std::filesystem::path& path, const std::filesystem::path& parentPath)
     {
-        return std::filesystem::equivalent(path.parent_path(), parentPath);
+        return std::filesystem::weakly_canonical(path.parent_path()) == std::filesystem::weakly_canonical(parentPath);
     }
 
     void PathDetails::SetOwner(ACEPrincipal owner)

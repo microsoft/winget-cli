@@ -38,6 +38,8 @@ namespace AppInstaller::CLI::Workflow
 
     namespace anon
     {
+        static const AppInstaller::Utility::Version s_MinimumSchemaVersionModuleNameRequiredInType = { "0.3" };
+
         constexpr std::wstring_view s_Directive_Description = L"description";
         constexpr std::wstring_view s_Directive_Module = L"module";
         constexpr std::wstring_view s_Directive_AllowPrerelease = L"allowPrerelease";
@@ -45,7 +47,12 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_Unit_WinGetPackage = L"WinGetPackage";
         constexpr std::wstring_view s_Unit_WinGetSource = L"WinGetSource";
 
+        constexpr std::wstring_view s_UnitType_WinGetPackage_ModuleIncluded = L"Microsoft.WinGet.DSC/WinGetPackage";
+        constexpr std::wstring_view s_UnitType_WinGetSource_ModuleIncluded = L"Microsoft.WinGet.DSC/WinGetSource";
+        constexpr std::wstring_view s_UnitType_PowerShellModuleGet_ModuleIncluded = L"PowerShellGet/PSModule";
+
         constexpr std::wstring_view s_Module_WinGetClient = L"Microsoft.WinGet.DSC";
+        constexpr std::wstring_view s_Module_PowerShellGet = L"PowerShellGet";
 
         constexpr std::wstring_view s_Setting_WinGetPackage_Id = L"id";
         constexpr std::wstring_view s_Setting_WinGetPackage_Source = L"source";
@@ -54,6 +61,21 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_Setting_WinGetSource_Name = L"name";
         constexpr std::wstring_view s_Setting_WinGetSource_Arg = L"argument";
         constexpr std::wstring_view s_Setting_WinGetSource_Type = L"type";
+
+        constexpr std::wstring_view s_Setting_PowerShellGet_ModuleName = L"name";
+
+        struct PredefinedResource
+        {
+            // RequiredModule could be empty, meaning no required modules needed.
+            std::wstring RequiredModule;
+
+            std::vector<std::wstring> UnitTypes;
+        };
+
+        static const PredefinedResource s_PredefinedResourcesForExport[] = {
+            { std::wstring{ s_Module_WinGetClient }, { L"Microsoft.WinGet.DSC/WinGetUserSettings" } },
+            { L"Microsoft.Windows.Developer", { L"Microsoft.Windows.Developer/DeveloperMode", L"Microsoft.Windows.Developer/EnableDarkMode", L"Microsoft.Windows.Developer/ShowSecondsInClock", L"Microsoft.Windows.Developer/Taskbar", L"Microsoft.Windows.Developer/WindowsExplorer" }},
+        };
 
         Logging::Level ConvertLevel(DiagnosticLevel level)
         {
@@ -1116,13 +1138,76 @@ namespace AppInstaller::CLI::Workflow
             context.Get<Data::ConfigurationContext>().Set(result);
         }
 
-        ConfigurationUnit CreateWinGetSourceUnit(const PackageCollection::Source& source)
+        ConfigurationUnit CreateConfigurationUnitFromModuleResource(std::string_view moduleName, std::string_view resourceName, std::string_view descriptionResourceName, const Utility::Version& schemaVersion)
+        {
+            std::wstring moduleNameWide = Utility::ConvertToUTF16(moduleName);
+            std::wstring resourceNameWide = Utility::ConvertToUTF16(resourceName);
+
+            ConfigurationUnit unit;
+            unit.Type(schemaVersion >= s_MinimumSchemaVersionModuleNameRequiredInType ? moduleNameWide + L'/' + resourceNameWide : resourceNameWide);
+            unit.Identifier(unit.Type() + L'_' + Utility::ConvertToUTF16(Utility::GetRandomString()));
+
+            ValueSet directives;
+            directives.Insert(s_Directive_Module, PropertyValue::CreateString(moduleNameWide));
+
+            Utility::LocIndString description;
+            if (!descriptionResourceName.empty())
+            {
+                description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ descriptionResourceName });
+            }
+            else
+            {
+                description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ resourceName });
+            }
+
+            directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
+            unit.Metadata(directives);
+
+            return unit;
+        }
+
+        ConfigurationUnit CreateConfigurationUnitFromUnitType(std::wstring_view unitType, std::string_view descriptionResourceName = "")
+        {
+            ConfigurationUnit unit;
+            unit.Type(unitType);
+            unit.Identifier(unit.Type() + L'_' + Utility::ConvertToUTF16(Utility::GetRandomString()));
+
+            ValueSet directives;
+            Utility::LocIndString description;
+            if (!descriptionResourceName.empty())
+            {
+                description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ descriptionResourceName });
+            }
+            else
+            {
+                description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ Utility::ConvertToUTF8(unitType) });
+            }
+
+            directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
+            unit.Metadata(directives);
+
+            return unit;
+        }
+
+        ConfigurationUnit CreatePowerShellModuleGetUnit(const std::wstring& moduleName)
+        {
+            ConfigurationUnit unit = CreateConfigurationUnitFromUnitType(s_UnitType_PowerShellModuleGet_ModuleIncluded, Utility::ConvertToUTF8(moduleName));
+
+            ValueSet settings;
+            settings.Insert(s_Setting_PowerShellGet_ModuleName, PropertyValue::CreateString(moduleName));
+            unit.Settings(settings);
+
+            return unit;
+        }
+
+        ConfigurationUnit CreateWinGetSourceUnit(const PackageCollection::Source& source, const Utility::Version& schemaVersion)
         {
             std::string sourceUnitId = source.Details.Name + '_' + source.Details.Type;
             std::wstring sourceUnitIdWide = Utility::ConvertToUTF16(sourceUnitId);
 
             ConfigurationUnit unit;
-            unit.Type(s_Unit_WinGetSource);
+            unit.Type(schemaVersion >= s_MinimumSchemaVersionModuleNameRequiredInType ?
+                s_UnitType_WinGetSource_ModuleIncluded : s_Unit_WinGetSource);
             unit.Identifier(sourceUnitIdWide);
             unit.Intent(ConfigurationUnitIntent::Apply);
 
@@ -1144,13 +1229,14 @@ namespace AppInstaller::CLI::Workflow
             return unit;
         }
 
-        ConfigurationUnit CreateWinGetPackageUnit(const PackageCollection::Package& package, const PackageCollection::Source& source, bool includeVersion, const std::optional<ConfigurationUnit>& dependentUnit)
+        ConfigurationUnit CreateWinGetPackageUnit(const PackageCollection::Package& package, const PackageCollection::Source& source, bool includeVersion, const std::optional<ConfigurationUnit>& dependentUnit, const Utility::Version& schemaVersion)
         {
             std::wstring packageIdWide = Utility::ConvertToUTF16(package.Id);
             std::wstring sourceNameWide = Utility::ConvertToUTF16(source.Details.Name);
 
             ConfigurationUnit unit;
-            unit.Type(s_Unit_WinGetPackage);
+            unit.Type(schemaVersion >= s_MinimumSchemaVersionModuleNameRequiredInType ?
+                s_UnitType_WinGetPackage_ModuleIncluded : s_Unit_WinGetPackage);
             unit.Identifier(sourceNameWide + L'_' + packageIdWide);
             unit.Intent(ConfigurationUnitIntent::Apply);
 
@@ -1181,6 +1267,26 @@ namespace AppInstaller::CLI::Workflow
             }
 
             return unit;
+        }
+
+        ApplyConfigurationUnitResult ApplyUnit(Execution::Context& context, ConfigurationUnit& unit)
+        {
+            unit.Intent(ConfigurationUnitIntent::Apply);
+
+            auto progressScope = context.Reporter.BeginAsyncProgress(true);
+
+            // yaotodo
+            progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationGettingResourceSettings());
+
+            ApplyConfigurationUnitResult applyResult = nullptr;
+            {
+                auto applyAction = context.Get<Data::ConfigurationContext>().Processor().ApplyUnitAsync(unit);
+                auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { applyAction.Cancel(); });
+                applyResult = applyAction.get();
+            }
+
+            progressScope.reset();
+            return applyResult;
         }
 
         GetConfigurationUnitSettingsResult GetUnitSettings(Execution::Context& context, ConfigurationUnit& unit)
@@ -1225,58 +1331,7 @@ namespace AppInstaller::CLI::Workflow
             return getResult;
         }
 
-        ConfigurationUnit CreateConfigurationUnitFromModuleResource(std::string_view moduleName, std::string_view resourceName, std::string_view descriptionResourceName, const Utility::Version& schemaVersion)
-        {
-            std::wstring moduleNameWide = Utility::ConvertToUTF16(moduleName);
-            std::wstring resourceNameWide = Utility::ConvertToUTF16(resourceName);
-
-            ConfigurationUnit unit;
-            unit.Type(schemaVersion >= Utility::Version{ "0.3" } ? moduleNameWide + L'/' + resourceNameWide : resourceNameWide);
-
-            ValueSet directives;
-            directives.Insert(s_Directive_Module, PropertyValue::CreateString(moduleNameWide));
-
-            Utility::LocIndString description;
-            if (!descriptionResourceName.empty())
-            {
-                description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ descriptionResourceName });
-            }
-            else
-            {
-                description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ resourceName });
-            }
-
-            directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
-            unit.Metadata(directives);
-
-            return unit;
-        }
-
-        ConfigurationUnit CreateConfigurationUnitFromUnitType(std::string_view unitType, std::string_view descriptionResourceName)
-        {
-            std::wstring unitTypeWide = Utility::ConvertToUTF16(unitType);
-
-            ConfigurationUnit unit;
-            unit.Type(unitTypeWide);
-
-            ValueSet directives;
-            Utility::LocIndString description;
-            if (!descriptionResourceName.empty())
-            {
-                description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ descriptionResourceName });
-            }
-            else
-            {
-                description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ unitType });
-            }
-
-            directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
-            unit.Metadata(directives);
-
-            return unit;
-        }
-
-        std::vector<ConfigurationUnit> ExportConfigurationUnit(Execution::Context& context, ConfigurationUnit& unit)
+        std::vector<ConfigurationUnit> ExportUnit(Execution::Context& context, ConfigurationUnit& unit, bool throwOnFailure = false)
         {
             std::vector<ConfigurationUnit> result;
 
@@ -1290,9 +1345,12 @@ namespace AppInstaller::CLI::Workflow
                     result.emplace_back(std::move(resultUnit));
                 }
             }
-            else if (exportResultCode == WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR)
+            else
             {
-                // Export failed because export not supported, try get unit settings instead.
+                AICLI_LOG(Config, Error, << "Failed GetAllUnits. Will try GetUnitSettings.");
+                LogFailedGetConfigurationUnitDetails(unit, exportResult.ResultInformation());
+
+                // Try GetUnitSettings if export failed.
                 auto getResult = GetUnitSettings(context, unit);
                 winrt::hresult getResultCode = getResult.ResultInformation().ResultCode();
                 if (FAILED(getResultCode))
@@ -1319,21 +1377,18 @@ namespace AppInstaller::CLI::Workflow
                     if (FAILED(getResult.ResultInformation().ResultCode()))
                     {
                         LogFailedGetConfigurationUnitDetails(unit, getResult.ResultInformation());
-                        OutputUnitRunFailure(context, unit, getResult.ResultInformation());
-                        THROW_HR(WINGET_CONFIG_ERROR_GET_FAILED);
+
+                        if (throwOnFailure)
+                        {
+                            OutputUnitRunFailure(context, unit, getResult.ResultInformation());
+                            THROW_HR(WINGET_CONFIG_ERROR_GET_FAILED);
+                        }
                     }
                 }
 
                 unit.Settings(getResult.Settings());
 
                 result.emplace_back(unit);
-            }
-            else
-            {
-                AICLI_LOG(Config, Error, << "Failed exporting unit settings.");
-                LogFailedGetConfigurationUnitDetails(unit, exportResult.ResultInformation());
-                OutputUnitRunFailure(context, unit, exportResult.ResultInformation());
-                THROW_HR(WINGET_CONFIG_ERROR_GET_FAILED);
             }
 
             return result;
@@ -1383,9 +1438,53 @@ namespace AppInstaller::CLI::Workflow
             return result;
         }
 
+        void ExportPredefinedResources(Execution::Context& context)
+        {
+            ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+
+            for (const auto& resources : s_PredefinedResourcesForExport)
+            {
+                std::optional<ConfigurationUnit> requiredModuleUnit;
+                if (!resources.RequiredModule.empty())
+                {
+                    requiredModuleUnit = CreatePowerShellModuleGetUnit(resources.RequiredModule);
+
+                    // Apply the unit to make sure it's on the system.
+                    auto applyResult = ApplyUnit(context, requiredModuleUnit.value());
+                    if (SUCCEEDED(applyResult.ResultInformation().ResultCode()))
+                    {
+                        configContext.Set().Units().Append(requiredModuleUnit.value());
+                    }
+                    else
+                    {
+                        AICLI_LOG(Config, Warning, << "Failed to ensure module. [" << Utility::ConvertToUTF8(resources.RequiredModule) << "] Related settings will not be exported.");
+                        LogFailedGetConfigurationUnitDetails(requiredModuleUnit.value(), applyResult.ResultInformation());
+                        continue;
+                    }
+                }
+
+                for (const auto& resourceType : resources.UnitTypes)
+                {
+                    auto resourceUnit = CreateConfigurationUnitFromUnitType(resourceType);
+                    auto exportedUnits = ExportUnit(context, resourceUnit);
+
+                    if (requiredModuleUnit)
+                    {
+                        AddDependentUnit(exportedUnits, requiredModuleUnit.value());
+                    }
+
+                    for (auto exportedUnit : exportedUnits)
+                    {
+                        configContext.Set().Units().Append(std::move(exportedUnit));
+                    }
+                }
+            }
+        }
+
         void ProcessPackagesForConfigurationExportAll(Execution::Context& context)
         {
             ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+            Utility::Version schemaVersion = { Utility::ConvertToUTF8(configContext.Set().SchemaVersion()) };
             // This will be later used by per package settings export.
             auto unitProcessors = GetAllUnitProcessors(context);
 
@@ -1395,13 +1494,13 @@ namespace AppInstaller::CLI::Workflow
                 std::optional<ConfigurationUnit> sourceUnit;
                 if (!CheckForWellKnownSource(source.Details))
                 {
-                    sourceUnit = anon::CreateWinGetSourceUnit(source);
+                    sourceUnit = anon::CreateWinGetSourceUnit(source, schemaVersion);
                     configContext.Set().Units().Append(sourceUnit.value());
                 }
 
                 for (const auto& package : source.Packages)
                 {
-                    auto packageUnit = anon::CreateWinGetPackageUnit(package, source, context.Args.Contains(Args::Type::IncludeVersions), sourceUnit);
+                    auto packageUnit = anon::CreateWinGetPackageUnit(package, source, context.Args.Contains(Args::Type::IncludeVersions), sourceUnit, schemaVersion);
                     configContext.Set().Units().Append(packageUnit);
 
                     // Try package settings export.
@@ -1412,15 +1511,15 @@ namespace AppInstaller::CLI::Workflow
                         if (Filesystem::IsParentPath(std::filesystem::path{ std::wstring{ unitProcessor3.Path() } }, package.InstalledLocation))
                         {
                             ConfigurationUnit configUnit = anon::CreateConfigurationUnitFromUnitType(
-                                Utility::ConvertToUTF8(unitProcessor3.UnitType()),
+                                unitProcessor3.UnitType(),
                                 Utility::ConvertToUTF8(packageUnit.Identifier()));
 
-                            auto exportUnits = anon::ExportConfigurationUnit(context, configUnit);
-                            anon::AddDependentUnit(exportUnits, packageUnit);
+                            auto exportedUnits = anon::ExportUnit(context, configUnit);
+                            anon::AddDependentUnit(exportedUnits, packageUnit);
 
-                            for (auto exportUnit : exportUnits)
+                            for (auto exportedUnit : exportedUnits)
                             {
-                                configContext.Set().Units().Append(exportUnit);
+                                configContext.Set().Units().Append(exportedUnit);
                             }
 
                             // Remove the unit processor from the list after export.
@@ -1451,11 +1550,11 @@ namespace AppInstaller::CLI::Workflow
                 std::optional<ConfigurationUnit> sourceUnit;
                 if (!CheckForWellKnownSource(exportSources[0].Details))
                 {
-                    sourceUnit = anon::CreateWinGetSourceUnit(exportSources[0]);
+                    sourceUnit = anon::CreateWinGetSourceUnit(exportSources[0], schemaVersion);
                     configContext.Set().Units().Append(sourceUnit.value());
                 }
 
-                singlePackageUnit = anon::CreateWinGetPackageUnit(exportSources[0].Packages[0], exportSources[0], context.Args.Contains(Args::Type::IncludeVersions), sourceUnit);
+                singlePackageUnit = anon::CreateWinGetPackageUnit(exportSources[0].Packages[0], exportSources[0], context.Args.Contains(Args::Type::IncludeVersions), sourceUnit, schemaVersion);
                 configContext.Set().Units().Append(singlePackageUnit.value());
             }
 
@@ -1467,16 +1566,16 @@ namespace AppInstaller::CLI::Workflow
                     singlePackageUnit ? Utility::ConvertToUTF8(singlePackageUnit->Identifier()) : "",
                     schemaVersion);
 
-                auto exportUnits = anon::ExportConfigurationUnit(context, configUnit);
+                auto exportedUnits = anon::ExportUnit(context, configUnit, true);
 
                 if (singlePackageUnit)
                 {
-                    anon::AddDependentUnit(exportUnits, singlePackageUnit.value());
+                    anon::AddDependentUnit(exportedUnits, singlePackageUnit.value());
                 }
 
-                for (auto exportUnit : exportUnits)
+                for (auto exportedUnit : exportedUnits)
                 {
-                    configContext.Set().Units().Append(exportUnit);
+                    configContext.Set().Units().Append(exportedUnit);
                 }
             }
         }
@@ -2147,16 +2246,17 @@ namespace AppInstaller::CLI::Workflow
 
     void PopulateConfigurationSetForExport(Execution::Context& context)
     {
-        
         bool isExportAll = context.Args.Contains(Execution::Args::Type::ConfigurationExportAll);
 
         if (isExportAll)
         {
-            
+            context <<
+                anon::ExportPredefinedResources <<
+                anon::ProcessPackagesForConfigurationExportAll;
         }
         else
         {
-            
+            context << anon::ProcessPackagesForConfigurationExportSingle;
         }
     }
 
