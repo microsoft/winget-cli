@@ -10,10 +10,6 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IsAotCompatible>true</IsAotCompatible>
     <DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
-    <!--
-    !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
-    -->
-    <WindowsSdkPackageVersion>10.0.26100.53</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>

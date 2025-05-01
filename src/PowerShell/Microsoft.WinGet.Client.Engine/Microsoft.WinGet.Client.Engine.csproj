@@ -9,10 +9,6 @@
     <DesktopFramework>net48</DesktopFramework>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
     <CsWinRTCcwLookupTableGeneratorEnabled>false</CsWinRTCcwLookupTableGeneratorEnabled>
-    <!--
-    !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
-    -->
-    <WindowsSdkPackageVersion>10.0.26100.53</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>
