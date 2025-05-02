@@ -47,12 +47,11 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_Unit_WinGetPackage = L"WinGetPackage";
         constexpr std::wstring_view s_Unit_WinGetSource = L"WinGetSource";
 
-        constexpr std::wstring_view s_UnitType_WinGetPackage_ModuleIncluded = L"Microsoft.WinGet.DSC/WinGetPackage";
-        constexpr std::wstring_view s_UnitType_WinGetSource_ModuleIncluded = L"Microsoft.WinGet.DSC/WinGetSource";
-        constexpr std::wstring_view s_UnitType_PowerShellModuleGet_ModuleIncluded = L"PowerShellGet/PSModule";
+        constexpr std::wstring_view s_UnitType_WinGetPackage_DSCv3 = L"Microsoft.WinGet/WinGetPackage";
+        constexpr std::wstring_view s_UnitType_WinGetSource_DSCv3 = L"Microsoft.WinGet/WinGetSource";
+        constexpr std::wstring_view s_UnitType_PowerShellModuleGet = L"PowerShellGet/PSModule";
 
         constexpr std::wstring_view s_Module_WinGetClient = L"Microsoft.WinGet.DSC";
-        constexpr std::wstring_view s_Module_PowerShellGet = L"PowerShellGet";
 
         constexpr std::wstring_view s_Setting_WinGetPackage_Id = L"id";
         constexpr std::wstring_view s_Setting_WinGetPackage_Source = L"source";
@@ -75,6 +74,11 @@ namespace AppInstaller::CLI::Workflow
         static const PredefinedResource s_PredefinedResourcesForExport[] = {
             { std::wstring{ s_Module_WinGetClient }, { L"Microsoft.WinGet.DSC/WinGetUserSettings" } },
             { L"Microsoft.Windows.Developer", { L"Microsoft.Windows.Developer/DeveloperMode", L"Microsoft.Windows.Developer/EnableDarkMode", L"Microsoft.Windows.Developer/ShowSecondsInClock", L"Microsoft.Windows.Developer/Taskbar", L"Microsoft.Windows.Developer/WindowsExplorer" }},
+        };
+
+        static const std::wstring s_PackageSettingsExclusionList[] = {
+            L"Microsoft.WinGet/", L"Microsoft.DSC.Debug/", L"Microsoft.DSC/", L"Microsoft.Windows/RebootPending",
+            L"Microsoft.Windows/Registry", L"Microsoft.Windows/WMI", L"Microsoft.Windows/WindowsPowerShell", L"Microsoft/OSInfo"
         };
 
         Logging::Level ConvertLevel(DiagnosticLevel level)
@@ -1191,7 +1195,7 @@ namespace AppInstaller::CLI::Workflow
 
         ConfigurationUnit CreatePowerShellModuleGetUnit(const std::wstring& moduleName)
         {
-            ConfigurationUnit unit = CreateConfigurationUnitFromUnitType(s_UnitType_PowerShellModuleGet_ModuleIncluded, Utility::ConvertToUTF8(moduleName));
+            ConfigurationUnit unit = CreateConfigurationUnitFromUnitType(s_UnitType_PowerShellModuleGet, Utility::ConvertToUTF8(moduleName));
 
             ValueSet settings;
             settings.Insert(s_Setting_PowerShellGet_ModuleName, PropertyValue::CreateString(moduleName));
@@ -1200,21 +1204,42 @@ namespace AppInstaller::CLI::Workflow
             return unit;
         }
 
-        ConfigurationUnit CreateWinGetSourceUnit(const PackageCollection::Source& source, const Utility::Version& schemaVersion)
+        std::wstring GetWinGetSourceUnitType(const ConfigurationContext& configContext)
+        {
+            Utility::Version schemaVersion = { Utility::ConvertToUTF8(configContext.Set().SchemaVersion()) };
+            ConfigurationRemoting::ProcessorEngine processorEngine = ConfigurationRemoting::DetermineProcessorEngine(configContext.Set());
+
+            if (schemaVersion >= s_MinimumSchemaVersionModuleNameRequiredInType)
+            {
+                if (processorEngine == ConfigurationRemoting::ProcessorEngine::DSCv3)
+                {
+                    return std::wstring{ s_UnitType_WinGetSource_DSCv3 };
+                }
+                else
+                {
+                    return std::wstring{ s_Module_WinGetClient } + L'/' + std::wstring{ s_Unit_WinGetSource };
+                }
+            }
+            else
+            {
+                return std::wstring{ s_Unit_WinGetSource };
+            }
+        }
+
+        ConfigurationUnit CreateWinGetSourceUnit(const PackageCollection::Source& source, std::wstring_view unitType)
         {
             std::string sourceUnitId = source.Details.Name + '_' + source.Details.Type;
             std::wstring sourceUnitIdWide = Utility::ConvertToUTF16(sourceUnitId);
+            std::wstring sourceUnitType;
 
             ConfigurationUnit unit;
-            unit.Type(schemaVersion >= s_MinimumSchemaVersionModuleNameRequiredInType ?
-                s_UnitType_WinGetSource_ModuleIncluded : s_Unit_WinGetSource);
+            unit.Type(sourceUnitType);
             unit.Identifier(sourceUnitIdWide);
             unit.Intent(ConfigurationUnitIntent::Apply);
 
             auto description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ sourceUnitId });
 
             ValueSet directives;
-            directives.Insert(s_Directive_Module, PropertyValue::CreateString(s_Module_WinGetClient));
             directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
             unit.Metadata(directives);
 
@@ -1229,21 +1254,41 @@ namespace AppInstaller::CLI::Workflow
             return unit;
         }
 
-        ConfigurationUnit CreateWinGetPackageUnit(const PackageCollection::Package& package, const PackageCollection::Source& source, bool includeVersion, const std::optional<ConfigurationUnit>& dependentUnit, const Utility::Version& schemaVersion)
+        std::wstring GetWinGetPackageUnitType(const ConfigurationContext& configContext)
+        {
+            Utility::Version schemaVersion = { Utility::ConvertToUTF8(configContext.Set().SchemaVersion()) };
+            ConfigurationRemoting::ProcessorEngine processorEngine = ConfigurationRemoting::DetermineProcessorEngine(configContext.Set());
+
+            if (schemaVersion >= s_MinimumSchemaVersionModuleNameRequiredInType)
+            {
+                if (processorEngine == ConfigurationRemoting::ProcessorEngine::DSCv3)
+                {
+                    return std::wstring{ s_UnitType_WinGetPackage_DSCv3 };
+                }
+                else
+                {
+                    return std::wstring{ s_Module_WinGetClient } + L'/' + std::wstring{ s_Unit_WinGetPackage };
+                }
+            }
+            else
+            {
+                return std::wstring{ s_Unit_WinGetPackage };
+            }
+        }
+
+        ConfigurationUnit CreateWinGetPackageUnit(const PackageCollection::Package& package, const PackageCollection::Source& source, bool includeVersion, const std::optional<ConfigurationUnit>& dependentUnit, std::wstring_view unitType)
         {
             std::wstring packageIdWide = Utility::ConvertToUTF16(package.Id);
             std::wstring sourceNameWide = Utility::ConvertToUTF16(source.Details.Name);
 
             ConfigurationUnit unit;
-            unit.Type(schemaVersion >= s_MinimumSchemaVersionModuleNameRequiredInType ?
-                s_UnitType_WinGetPackage_ModuleIncluded : s_Unit_WinGetPackage);
+            unit.Type(unitType);
             unit.Identifier(sourceNameWide + L'_' + packageIdWide);
             unit.Intent(ConfigurationUnitIntent::Apply);
 
             auto description = Resource::String::ConfigureExportUnitInstallDescription(Utility::LocIndView{ package.Id });
 
             ValueSet directives;
-            directives.Insert(s_Directive_Module, PropertyValue::CreateString(s_Module_WinGetClient));
             directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
             unit.Metadata(directives);
 
@@ -1445,6 +1490,9 @@ namespace AppInstaller::CLI::Workflow
             for (const auto& resources : s_PredefinedResourcesForExport)
             {
                 std::optional<ConfigurationUnit> requiredModuleUnit;
+
+                /* The PowershellGet/PSModule does not work under dsc v3 adaptor yet.
+                *  Uncomment if still applicable after the issue is fixed.
                 if (!resources.RequiredModule.empty())
                 {
                     requiredModuleUnit = CreatePowerShellModuleGetUnit(resources.RequiredModule);
@@ -1462,6 +1510,7 @@ namespace AppInstaller::CLI::Workflow
                         continue;
                     }
                 }
+                */
 
                 for (const auto& resourceType : resources.UnitTypes)
                 {
@@ -1484,9 +1533,30 @@ namespace AppInstaller::CLI::Workflow
         void ProcessPackagesForConfigurationExportAll(Execution::Context& context)
         {
             ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
-            Utility::Version schemaVersion = { Utility::ConvertToUTF8(configContext.Set().SchemaVersion()) };
+            std::wstring sourceUnitType = GetWinGetSourceUnitType(configContext);
+            std::wstring packageUnitType = GetWinGetPackageUnitType(configContext);
+
             // This will be later used by per package settings export.
             auto unitProcessors = GetAllUnitProcessors(context);
+            // Filter out processors in exclusion list.
+            for (auto itr = unitProcessors.begin(); itr != unitProcessors.end(); /* itr incremented in the logic */)
+            {
+                bool processorRemoved = false;
+                for (const auto& exclusionItem : anon::s_PackageSettingsExclusionList)
+                {
+                    if (Utility::CaseInsensitiveStartsWith(itr->UnitType(), exclusionItem))
+                    {
+                        itr = unitProcessors.erase(itr);
+                        processorRemoved = true;
+                        break;
+                    }
+                }
+
+                if (!processorRemoved)
+                {
+                    itr++;
+                }
+            }
 
             for (const auto& source : context.Get<Execution::Data::PackageCollection>().Sources)
             {
@@ -1494,13 +1564,13 @@ namespace AppInstaller::CLI::Workflow
                 std::optional<ConfigurationUnit> sourceUnit;
                 if (!CheckForWellKnownSource(source.Details))
                 {
-                    sourceUnit = anon::CreateWinGetSourceUnit(source, schemaVersion);
+                    sourceUnit = anon::CreateWinGetSourceUnit(source, sourceUnitType);
                     configContext.Set().Units().Append(sourceUnit.value());
                 }
 
                 for (const auto& package : source.Packages)
                 {
-                    auto packageUnit = anon::CreateWinGetPackageUnit(package, source, context.Args.Contains(Args::Type::IncludeVersions), sourceUnit, schemaVersion);
+                    auto packageUnit = anon::CreateWinGetPackageUnit(package, source, context.Args.Contains(Args::Type::IncludeVersions), sourceUnit, packageUnitType);
                     configContext.Set().Units().Append(packageUnit);
 
                     // Try package settings export.
@@ -1537,7 +1607,7 @@ namespace AppInstaller::CLI::Workflow
         void ProcessPackagesForConfigurationExportSingle(Execution::Context& context)
         {
             ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
-            Utility::Version schemaVersion = { Utility::ConvertToUTF8(configContext.Set().SchemaVersion()) };
+
             // When exporting single WinGetPackage unit, the WinGetPackage unit can be used as a dependent unit for following configuration unit.
             std::optional<ConfigurationUnit> singlePackageUnit;
 
@@ -1550,11 +1620,11 @@ namespace AppInstaller::CLI::Workflow
                 std::optional<ConfigurationUnit> sourceUnit;
                 if (!CheckForWellKnownSource(exportSources[0].Details))
                 {
-                    sourceUnit = anon::CreateWinGetSourceUnit(exportSources[0], schemaVersion);
+                    sourceUnit = anon::CreateWinGetSourceUnit(exportSources[0], GetWinGetSourceUnitType(configContext));
                     configContext.Set().Units().Append(sourceUnit.value());
                 }
 
-                singlePackageUnit = anon::CreateWinGetPackageUnit(exportSources[0].Packages[0], exportSources[0], context.Args.Contains(Args::Type::IncludeVersions), sourceUnit, schemaVersion);
+                singlePackageUnit = anon::CreateWinGetPackageUnit(exportSources[0].Packages[0], exportSources[0], context.Args.Contains(Args::Type::IncludeVersions), sourceUnit, GetWinGetPackageUnitType(configContext));
                 configContext.Set().Units().Append(singlePackageUnit.value());
             }
 
@@ -1564,7 +1634,7 @@ namespace AppInstaller::CLI::Workflow
                     context.Args.GetArg(Args::Type::ConfigurationExportModule),
                     context.Args.GetArg(Args::Type::ConfigurationExportResource),
                     singlePackageUnit ? Utility::ConvertToUTF8(singlePackageUnit->Identifier()) : "",
-                    schemaVersion);
+                    Utility::Version{ Utility::ConvertToUTF8(configContext.Set().SchemaVersion()) });
 
                 auto exportedUnits = anon::ExportUnit(context, configUnit, true);
 
@@ -2252,11 +2322,14 @@ namespace AppInstaller::CLI::Workflow
         {
             context <<
                 anon::ExportPredefinedResources <<
+                SearchSourceForPackageExport <<
                 anon::ProcessPackagesForConfigurationExportAll;
         }
         else
         {
-            context << anon::ProcessPackagesForConfigurationExportSingle;
+            context <<
+                SearchSourceForPackageExport <<
+                anon::ProcessPackagesForConfigurationExportSingle;
         }
     }
 

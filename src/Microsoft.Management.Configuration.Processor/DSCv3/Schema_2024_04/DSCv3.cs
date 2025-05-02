@@ -81,12 +81,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
                 }
             }
 
-            if (results.Count > 1)
-            {
-                throw new Exceptions.GetDscResourceMultipleMatches(resourceType, null);
-            }
-
-            return results.FirstOrDefault();
+            return this.GetResourceByLatestVersion(results);
         }
 
         /// <inheritdoc />
@@ -298,12 +293,34 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
 
             this.RunSynchronously(processExecution);
 
-            if (processExecution.Output.Count > 1)
+            List<ResourceListItem> results = GetOutputLinesAs<ResourceListItem>(processExecution);
+
+            return this.GetResourceByLatestVersion(results);
+        }
+
+        private ResourceListItem? GetResourceByLatestVersion(List<ResourceListItem> resources)
+        {
+            // There may be different versions of same resource on the system. We check if all
+            // resource types match, we return the first one.
+            // TODO: May want to pick the latest one from the list. But since we are not using
+            // the version in our commands, picking any one is good for now.
+            ResourceListItem? candidate = null;
+            string candidateType = string.Empty;
+
+            foreach (ResourceListItem resource in resources)
             {
-                throw new Exceptions.GetDscResourceMultipleMatches(resourceType, null);
+                if (candidate == null)
+                {
+                    candidate = resource;
+                    candidateType = resource.Type;
+                }
+                else if (!candidateType.Equals(resource.Type, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new Exceptions.GetDscResourceMultipleMatches(candidateType, null);
+                }
             }
 
-            return GetOptionalSingleOutputLineAs<ResourceListItem>(processExecution);
+            return candidate;
         }
     }
 }

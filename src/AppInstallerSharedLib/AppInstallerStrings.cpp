@@ -120,6 +120,11 @@ namespace AppInstaller::Utility
         return a.length() >= b.length() && CaseInsensitiveEquals(a.substr(0, b.length()), b);
     }
 
+    bool CaseInsensitiveStartsWith(std::wstring_view a, std::wstring_view b)
+    {
+        return a.length() >= b.length() && CaseInsensitiveEquals(a.substr(0, b.length()), b);
+    }
+
     bool CaseInsensitiveContainsSubstring(std::string_view a, std::string_view b)
     {
         auto it = std::search(

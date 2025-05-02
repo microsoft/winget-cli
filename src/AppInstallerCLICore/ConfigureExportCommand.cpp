@@ -47,7 +47,6 @@ namespace AppInstaller::CLI
             CreateConfigurationProcessorWithoutFactory <<
             CreateOrOpenConfigurationSet{ "0.3", context.Args.Contains(Execution::Args::Type::ConfigurationExportAll) } <<
             CreateConfigurationProcessor <<
-            SearchSourceForPackageExport <<
             PopulateConfigurationSetForExport <<
             WriteConfigFile;
     }
