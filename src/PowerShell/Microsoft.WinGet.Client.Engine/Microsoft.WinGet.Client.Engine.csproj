@@ -9,10 +9,6 @@
     <DesktopFramework>net48</DesktopFramework>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
     <CsWinRTCcwLookupTableGeneratorEnabled>false</CsWinRTCcwLookupTableGeneratorEnabled>
-    <!--
-    !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
-    -->
-    <WindowsSdkPackageVersion>10.0.26100.53</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -43,19 +39,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Octokit" Version="4.0.3" />
-    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
-    <PackageReference Include="Semver" Version="2.3.0" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+    <PackageReference Include="Octokit" />
+    <PackageReference Include="PowerShellStandard.Library" PrivateAssets="all" />
+    <PackageReference Include="Semver" />
+    <PackageReference Include="StyleCop.Analyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.6" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.26100.1742" PrivateAssets="all" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
+    <PackageReference Include="System.Security.Principal.Windows" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="Microsoft.CSharp" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" PrivateAssets="all" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
+    <PackageReference Include="System.Net.Http" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
   </ItemGroup>
 
   <ItemGroup>
