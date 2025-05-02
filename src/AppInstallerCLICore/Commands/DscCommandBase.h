@@ -75,6 +75,12 @@ namespace AppInstaller::CLI
 
         Utility::LocIndView HelpLink() const override;
 
+        static std::string_view ModuleName();
+
+        // Writes the manifest for the command to the file path.
+        // If the path is empty, writes the manifest to the output stream.
+        void WriteManifest(Execution::Context& context, const std::filesystem::path& filePath) const;
+
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
 
