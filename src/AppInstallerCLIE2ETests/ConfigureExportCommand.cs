@@ -79,6 +79,38 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Export a specific package with related configuration.
+        /// </summary>
+        [Test]
+        public void ExportTestPackageWithPackageSettings()
+        {
+            var exportDir = TestCommon.GetRandomTestDir();
+            var exportFile = Path.Combine(exportDir, "exported.yml");
+            var result = TestCommon.RunAICLICommand(Command, $"--package-id AppInstallerTest.TestPackageExport --module AppInstallerTest --resource TestResource -o {exportFile}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(File.Exists(exportFile));
+
+            // Check exported file is readable and validate content
+            var showResult = TestCommon.RunAICLICommand(ShowCommand, $"-f {exportFile}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, showResult.ExitCode);
+            Assert.True(showResult.StdOut.Contains("WinGetSource"));
+            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_{Constants.TestSourceType}]"));
+            Assert.True(showResult.StdOut.Contains($"type: {Constants.TestSourceType}"));
+            Assert.True(showResult.StdOut.Contains($"argument: {Constants.TestSourceUrl}"));
+            Assert.True(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"));
+
+            Assert.True(showResult.StdOut.Contains("WinGetPackage"));
+            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"));
+            Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"));
+            Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"));
+            Assert.True(showResult.StdOut.Contains($"source: {Constants.TestSourceName}"));
+
+            Assert.True(showResult.StdOut.Contains("AppInstallerTest/TestResource"));
+            Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_AppInstallerTest.TestPackageExport"));
+            Assert.True(showResult.StdOut.Contains("data: TestData"));
+        }
+
+        /// <summary>
         /// Export a specific package with version.
         /// </summary>
         [Test]
@@ -122,6 +154,11 @@ namespace AppInstallerCLIE2ETests
             // Check exported file is readable and validate content
             var showResult = TestCommon.RunAICLICommand(ShowCommand, $"-f {exportFile}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, showResult.ExitCode);
+
+            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.DSC/WinGetUserSettings"));
+            Assert.True(showResult.StdOut.Contains("Microsoft.Windows.Developer/DeveloperMode"));
+            Assert.True(showResult.StdOut.Contains("Microsoft.Windows.Developer/EnableDarkMode"));
+
             Assert.True(showResult.StdOut.Contains("WinGetSource"));
             Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_{Constants.TestSourceType}]"));
             Assert.True(showResult.StdOut.Contains($"type: {Constants.TestSourceType}"));
@@ -133,6 +170,10 @@ namespace AppInstallerCLIE2ETests
             Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"));
             Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"));
             Assert.True(showResult.StdOut.Contains($"source: {Constants.TestSourceName}"));
+
+            Assert.True(showResult.StdOut.Contains("AppInstallerTest/TestResource"));
+            Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_AppInstallerTest.TestPackageExport"));
+            Assert.True(showResult.StdOut.Contains("data: TestData"));
         }
 
         /// <summary>

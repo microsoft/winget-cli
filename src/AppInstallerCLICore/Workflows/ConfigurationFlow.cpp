@@ -77,7 +77,7 @@ namespace AppInstaller::CLI::Workflow
         };
 
         static const std::wstring s_PackageSettingsExclusionList[] = {
-            L"Microsoft.WinGet/", L"Microsoft.DSC.Debug/", L"Microsoft.DSC/", L"Microsoft.Windows/RebootPending",
+            L"Microsoft.WinGet/", L"Microsoft.DSC.Debug/", L"Microsoft.DSC/", L"Microsoft.DSC.Transitional/", L"Microsoft.Windows/RebootPending",
             L"Microsoft.Windows/Registry", L"Microsoft.Windows/WMI", L"Microsoft.Windows/WindowsPowerShell", L"Microsoft/OSInfo"
         };
 
@@ -1391,48 +1391,39 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                AICLI_LOG(Config, Error, << "Failed GetAllUnits. Will try GetUnitSettings.");
+                AICLI_LOG(Config, Warning, << "Failed GetAllUnits. Will try GetUnitSettings.");
                 LogFailedGetConfigurationUnitDetails(unit, exportResult.ResultInformation());
 
                 // Try GetUnitSettings if export failed.
                 auto getResult = GetUnitSettings(context, unit);
-                winrt::hresult getResultCode = getResult.ResultInformation().ResultCode();
-                if (FAILED(getResultCode))
+                auto getResultCode = getResult.ResultInformation().ResultCode();
+                if (getResultCode == WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY)
                 {
                     // Retry if it fails with not found in the case the module is a pre-released one.
-                    if (getResultCode == WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY)
-                    {
-                        auto directives = unit.Metadata();
-                        directives.Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
-                        unit.Metadata(directives);
+                    AICLI_LOG(Config, Info, << "Failed GetUnitSettings because module not found. Will try allow prerelease.");
+                    auto directives = unit.Metadata();
+                    directives.Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
+                    unit.Metadata(directives);
 
-                        auto preReleaseResult = GetUnitSettings(context, unit);
-                        if (SUCCEEDED(preReleaseResult.ResultInformation().ResultCode()))
-                        {
-                            getResult = preReleaseResult;
-                        }
-                        else
-                        {
-                            AICLI_LOG(Config, Error, << "Failed Get allowing prerelease modules");
-                            LogFailedGetConfigurationUnitDetails(unit, preReleaseResult.ResultInformation());
-                        }
-                    }
-
-                    if (FAILED(getResult.ResultInformation().ResultCode()))
-                    {
-                        LogFailedGetConfigurationUnitDetails(unit, getResult.ResultInformation());
-
-                        if (throwOnFailure)
-                        {
-                            OutputUnitRunFailure(context, unit, getResult.ResultInformation());
-                            THROW_HR(WINGET_CONFIG_ERROR_GET_FAILED);
-                        }
-                    }
+                    getResult = GetUnitSettings(context, unit);
                 }
 
-                unit.Settings(getResult.Settings());
+                if (FAILED(getResult.ResultInformation().ResultCode()))
+                {
+                    AICLI_LOG(Config, Error, << "Failed Get Unit Settings");
+                    LogFailedGetConfigurationUnitDetails(unit, getResult.ResultInformation());
 
-                result.emplace_back(unit);
+                    if (throwOnFailure)
+                    {
+                        OutputUnitRunFailure(context, unit, getResult.ResultInformation());
+                        THROW_HR(WINGET_CONFIG_ERROR_GET_FAILED);
+                    }
+                }
+                else
+                {
+                    unit.Settings(getResult.Settings());
+                    result.emplace_back(unit);
+                }
             }
 
             return result;
