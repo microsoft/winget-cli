@@ -3,6 +3,8 @@
 This directory contains an overlay for vcpkg ports, for cases where we need to apply local patches.
 In all cases, most of the recipe is taken from the [official vcpkg registry](https://github.com/Microsoft/vcpkg), and we only add a patch.
 
+The whole directory can be re-created with `.\CreatePortOverlay.ps1`
+
 ## cpprestsdk
 
 We add support for certificate pinning.

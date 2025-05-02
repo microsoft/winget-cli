@@ -99,6 +99,58 @@ function Select-DirectoryInPatch
     return $result
 }
 
+# Adds a patch to a portfile.cmake
+function Add-PatchToPortFile
+{
+    param(
+        [Parameter(Mandatory)]
+        [string]$Port,
+        [Parameter(Mandatory)]
+        [string]$PatchName
+    )
+
+    <#
+        We're looking for a section that looks like this:
+
+            vcpkg_from_github(
+                OUT_SOURCE_PATH SOURCE_PATH
+                REPO <user/repo>
+                REF <commith hash>
+                SHA512 <hash>
+                HEAD_REF master
+                PATCHES
+                    patch-1.patch
+                    patch-2.patch
+            )
+
+        We look for the line that says "PATCHES" and add the new patch before the closing parenthesis
+    #>
+
+    $portFilePath = Join-Path $OverlayRoot $Port "portfile.cmake"
+    $originalPortFile = Get-Content $portFilePath
+
+    $modifiedPortFile = @()
+    foreach ($line in $originalPortFile)
+    {
+        if (-not $foundParen)
+        {
+            if ($line.EndsWith("PATCHES"))
+            {
+                $foundPatches = $true
+            }
+            elseif ($line -eq ")")
+            {
+                $modifiedPortFile += "        $PatchName"
+                $foundParen = $true
+            }
+        }
+
+        $modifiedPortFile += $line
+    }
+
+    $modifiedPortFile | Out-File $portFilePath
+}
+
 # Adds a patch to a port
 function Add-PatchToPort
 {
@@ -123,6 +175,8 @@ function Add-PatchToPort
 
     $portDir = Join-Path $OverlayRoot $Port
     $patch | Out-File (Join-Path $portDir $PatchName)
+
+    Add-PatchToPortFile -Port $Port -PatchName $PatchName
 }
 
 New-PortOverlay cpprestsdk
