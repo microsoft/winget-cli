@@ -3323,7 +3323,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Applying configuration unit...</value>
   </data>
   <data name="ConfigurationExportingUnit" xml:space="preserve">
-    <value>Applying configuration unit...</value>
+    <value>Exporting configuration unit...</value>
   </data>
   <data name="ConfigurationGettingUnitProcessors" xml:space="preserve">
     <value>Getting configuration unit processors...</value>

@@ -47,8 +47,8 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_Unit_WinGetPackage = L"WinGetPackage";
         constexpr std::wstring_view s_Unit_WinGetSource = L"WinGetSource";
 
-        constexpr std::wstring_view s_UnitType_WinGetPackage_DSCv3 = L"Microsoft.WinGet/WinGetPackage";
-        constexpr std::wstring_view s_UnitType_WinGetSource_DSCv3 = L"Microsoft.WinGet/WinGetSource";
+        constexpr std::wstring_view s_UnitType_WinGetPackage_DSCv3 = L"Microsoft.WinGet/Package";
+        constexpr std::wstring_view s_UnitType_WinGetSource_DSCv3 = L"Microsoft.WinGet/Source";
         constexpr std::wstring_view s_UnitType_PowerShellModuleGet = L"PowerShellGet/PSModule";
 
         constexpr std::wstring_view s_Module_WinGetClient = L"Microsoft.WinGet.DSC";
