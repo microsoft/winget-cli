@@ -11,7 +11,6 @@ vcpkg_from_github(
     PATCHES
         ${PATCHES}
         export-pkgconfig.patch
-        fix-parser-nesting.patch # https://github.com/yaml/libyaml/pull/287
 )
 
 vcpkg_cmake_configure(
