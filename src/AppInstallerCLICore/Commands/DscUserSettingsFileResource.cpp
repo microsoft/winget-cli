@@ -215,7 +215,7 @@ namespace AppInstaller::CLI
                 data.Output.Settings(data.GetResolvedInput());
                 if (!data.WriteOutput())
                 {
-                    AICLI_TERMINATE_CONTEXT(E_FAIL);
+                    AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_OPEN_FAILED));
                     return;
                 }
             }
