@@ -99,7 +99,7 @@
   <!-- Reference the .winmd so that it can be processed by CppWinRT -->
   <ItemGroup>
     <Reference Include="Microsoft.Management.Deployment">
-      <HintPath>..\..\packages\Microsoft.WindowsPackageManager.InProcCom.1.9.25180\lib\Microsoft.Management.Deployment.winmd</HintPath>
+      <HintPath>..\..\packages\Microsoft.WindowsPackageManager.InProcCom.1.10.340\lib\Microsoft.Management.Deployment.winmd</HintPath>
       <IsWinMDFile>true</IsWinMDFile>
     </Reference>
   </ItemGroup>

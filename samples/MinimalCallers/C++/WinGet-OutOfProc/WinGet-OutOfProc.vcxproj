@@ -96,27 +96,14 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <!-- Reference and include necessary binaries -->
   <PropertyGroup>
-    <WinGetNuGetPlatform Condition="'$(Platform)' == 'Win32'">x86</WinGetNuGetPlatform>
-    <WinGetNuGetPlatform Condition="'$(Platform)' != 'Win32'">$(Platform)</WinGetNuGetPlatform>
+    <!-- Use one of static, dynamic, none -->
+    <MicrosoftManagementDeployment-FactoryLinkage>static</MicrosoftManagementDeployment-FactoryLinkage>
   </PropertyGroup>
-  <ItemGroup>
-    <WindowsMetadataReference Include="..\..\packages\Microsoft.WindowsPackageManager.ComInterop.1.9.25180\lib\Microsoft.Management.Deployment.winmd" />
-    <Reference Include="..\..\packages\Microsoft.WindowsPackageManager.ComInterop.1.9.25180\lib\Microsoft.Management.Deployment.winmd">
-      <Implementation>Microsoft.Management.Deployment.dll</Implementation>
-    </Reference>
-    <ReferenceCopyLocalPaths Include="..\..\packages\Microsoft.WindowsPackageManager.ComInterop.1.9.25180\lib\Microsoft.Management.Deployment.winmd">
-      <Implementation>Microsoft.Management.Deployment.dll</Implementation>
-      <IsOutOfProcess>true</IsOutOfProcess>
-    </ReferenceCopyLocalPaths>
-    <!-- Replace 'dynamic' with 'static' to use binaries compiled with static linking -->
-    <ReferenceCopyLocalPaths Include="..\..\packages\Microsoft.WindowsPackageManager.ComInterop.1.9.25180\bin\win10-$(WinGetNuGetPlatform)\native\dynamic\Microsoft.Management.Deployment.dll" />
-    <ReferenceCopyLocalPaths Include="..\..\packages\Microsoft.WindowsPackageManager.ComInterop.1.9.25180\runtimes\win10-$(WinGetNuGetPlatform)\native\winrtact.dll" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets')" />
+    <Import Project="..\..\packages\Microsoft.WindowsPackageManager.ComInterop.1.10.340\build\native\Microsoft.WindowsPackageManager.ComInterop.targets" Condition="Exists('..\..\packages\Microsoft.WindowsPackageManager.ComInterop.1.10.340\build\native\Microsoft.WindowsPackageManager.ComInterop.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -124,5 +111,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.WindowsPackageManager.ComInterop.1.10.340\build\native\Microsoft.WindowsPackageManager.ComInterop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.WindowsPackageManager.ComInterop.1.10.340\build\native\Microsoft.WindowsPackageManager.ComInterop.targets'))" />
   </Target>
 </Project>
