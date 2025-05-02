@@ -1319,8 +1319,7 @@ namespace AppInstaller::CLI::Workflow
 
             auto progressScope = context.Reporter.BeginAsyncProgress(true);
 
-            // yaotodo
-            progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationGettingResourceSettings());
+            progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationApplyingUnit());
 
             ApplyConfigurationUnitResult applyResult = nullptr;
             {
@@ -1361,8 +1360,7 @@ namespace AppInstaller::CLI::Workflow
 
             auto progressScope = context.Reporter.BeginAsyncProgress(true);
 
-            // yaotodo
-            progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationGettingResourceSettings());
+            progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationExportingUnit());
 
             GetAllConfigurationUnitsResult getResult = nullptr;
             {
@@ -1378,6 +1376,8 @@ namespace AppInstaller::CLI::Workflow
         std::vector<ConfigurationUnit> ExportUnit(Execution::Context& context, ConfigurationUnit& unit, bool throwOnFailure = false)
         {
             std::vector<ConfigurationUnit> result;
+
+            context.Reporter.Info() << Resource::String::ConfigurationExportUnitStart(Utility::LocIndView{ Utility::ConvertToUTF8(unit.Type()) }) << std::endl;
 
             // Try export first
             auto exportResult = GetAllUnits(context, unit);
@@ -1415,8 +1415,13 @@ namespace AppInstaller::CLI::Workflow
 
                     if (throwOnFailure)
                     {
+                        context.Reporter.Error() << Resource::String::ConfigurationExportUnitFailed << std::endl;
                         OutputUnitRunFailure(context, unit, getResult.ResultInformation());
                         THROW_HR(WINGET_CONFIG_ERROR_GET_FAILED);
+                    }
+                    else
+                    {
+                        context.Reporter.Warn() << Resource::String::ConfigurationExportUnitFailed << std::endl;
                     }
                 }
                 else
@@ -1447,24 +1452,15 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto progressScope = context.Reporter.BeginAsyncProgress(true);
 
-                // Yaotodo
-                progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationGettingResourceSettings());
+                progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationGettingUnitProcessors());
 
-                try
+                FindUnitProcessorsOptions findOptions;
+                findOptions.UnitDetailFlags(ConfigurationUnitDetailFlags::Local);
+                auto findAction = context.Get<Data::ConfigurationContext>().Processor().FindUnitProcessorsAsync(findOptions);
+                auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { findAction.Cancel(); });
+                for (auto unitProcessor : findAction.get())
                 {
-                    FindUnitProcessorsOptions findOptions;
-                    findOptions.UnitDetailFlags(ConfigurationUnitDetailFlags::Local);
-                    auto findAction = context.Get<Data::ConfigurationContext>().Processor().FindUnitProcessorsAsync(findOptions);
-                    auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { findAction.Cancel(); });
-                    for (auto unitProcessor : findAction.get())
-                    {
-                        result.emplace_back(std::move(unitProcessor));
-                    }
-                }
-                catch (...)
-                {
-                    AICLI_LOG(Config, Warning, << "Finding unit processors failed. Individual package settings may not be exported.");
-                    //Yaotodo
+                    result.emplace_back(std::move(unitProcessor));
                 }
 
                 progressScope.reset();
@@ -1482,12 +1478,13 @@ namespace AppInstaller::CLI::Workflow
                 std::optional<ConfigurationUnit> requiredModuleUnit;
 
                 /* The PowershellGet/PSModule does not work under dsc v3 adaptor yet.
-                *  Uncomment if still applicable after the issue is fixed.
+                 * Uncomment if still applicable after the issue is fixed.
                 if (!resources.RequiredModule.empty())
                 {
                     requiredModuleUnit = CreatePowerShellModuleGetUnit(resources.RequiredModule);
 
                     // Apply the unit to make sure it's on the system.
+                    context.Reporter.Info() << Resource::String::ConfigurationExportInstallRequiredModule(Utility::LocIndView{ Utility::ConvertToUTF8(resources.RequiredModule) }) << std::endl;
                     auto applyResult = ApplyUnit(context, requiredModuleUnit.value());
                     if (SUCCEEDED(applyResult.ResultInformation().ResultCode()))
                     {
@@ -1497,6 +1494,7 @@ namespace AppInstaller::CLI::Workflow
                     {
                         AICLI_LOG(Config, Warning, << "Failed to ensure module. [" << Utility::ConvertToUTF8(resources.RequiredModule) << "] Related settings will not be exported.");
                         LogFailedGetConfigurationUnitDetails(requiredModuleUnit.value(), applyResult.ResultInformation());
+                        context.Reporter.Warn() << Resource::String::ConfigurationExportInstallRequiredModuleFailed << std::endl;
                         continue;
                     }
                 }
@@ -1527,7 +1525,17 @@ namespace AppInstaller::CLI::Workflow
             std::wstring packageUnitType = GetWinGetPackageUnitType(configContext);
 
             // This will be later used by per package settings export.
-            auto unitProcessors = GetAllUnitProcessors(context);
+            std::vector<IConfigurationUnitProcessorDetails> unitProcessors;
+            try
+            {
+                unitProcessors = GetAllUnitProcessors(context);
+            }
+            catch (...)
+            {
+                AICLI_LOG(Config, Warning, << "Finding unit processors failed. Individual package settings will not be exported.");
+                context.Reporter.Warn() << Resource::String::ConfigurationExportFailedToGetUnitProcessors << std::endl;
+            }
+
             // Filter out processors in exclusion list.
             for (auto itr = unitProcessors.begin(); itr != unitProcessors.end(); /* itr incremented in the logic */)
             {
