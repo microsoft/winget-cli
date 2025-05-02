@@ -91,6 +91,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1A5D7A7D-5CB2-47D5-B40D-4E61CAEDC798}"
 	ProjectSection(SolutionItems) = preProject
 		CodeAnalysis.ruleset = CodeAnalysis.ruleset
+		Directory.Packages.props = Directory.Packages.props
 		nuget.config = nuget.config
 		stylecop.json = stylecop.json
 		vcpkg.json = vcpkg.json
@@ -180,6 +181,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VcpkgCustomTriplets", "Vcpk
 		VcpkgCustomTriplets\arm64-release-static.cmake = VcpkgCustomTriplets\arm64-release-static.cmake
 		VcpkgCustomTriplets\arm64-release.cmake = VcpkgCustomTriplets\arm64-release.cmake
 		VcpkgCustomTriplets\arm64.cmake = VcpkgCustomTriplets\arm64.cmake
+		VcpkgCustomTriplets\common.cmake = VcpkgCustomTriplets\common.cmake
 		VcpkgCustomTriplets\x64-release-static.cmake = VcpkgCustomTriplets\x64-release-static.cmake
 		VcpkgCustomTriplets\x64-release.cmake = VcpkgCustomTriplets\x64-release.cmake
 		VcpkgCustomTriplets\x64.cmake = VcpkgCustomTriplets\x64.cmake

@@ -309,6 +309,7 @@
     <ClInclude Include="Commands\DscSourceResource.h" />
     <ClInclude Include="Commands\DscTestFileResource.h" />
     <ClInclude Include="Commands\DscTestJsonResource.h" />
+    <ClInclude Include="Commands\DscUserSettingsFileResource.h" />
     <ClInclude Include="Commands\ErrorCommand.h" />
     <ClInclude Include="Commands\ExperimentalCommand.h" />
     <ClInclude Include="Commands\ExportCommand.h" />
@@ -396,6 +397,7 @@
     <ClCompile Include="Commands\DscSourceResource.cpp" />
     <ClCompile Include="Commands\DscTestFileResource.cpp" />
     <ClCompile Include="Commands\DscTestJsonResource.cpp" />
+    <ClCompile Include="Commands\DscUserSettingsFileResource.cpp" />
     <ClCompile Include="Commands\ErrorCommand.cpp" />
     <ClCompile Include="Commands\FontCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />

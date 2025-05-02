@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
-    <PackageReference Include="Microsoft.WindowsPackageManager.InProcCom" Version="1.9.25180">
+    <PackageReference Include="Microsoft.WindowsPackageManager.InProcCom" Version="1.10.340">
       <!-- NU1701: The package targets .NET Framework, but this uses .NET -->
       <NoWarn>NU1701</NoWarn>
       <GeneratePathProperty>true</GeneratePathProperty>

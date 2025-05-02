@@ -18,10 +18,6 @@
     <NoWarn>1591,8785</NoWarn>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
     <CsWinRTEnableLogging>true</CsWinRTEnableLogging>
-    <!--
-    !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
-    -->
-    <WindowsSdkPackageVersion>10.0.26100.53</WindowsSdkPackageVersion>
     <WinGetCsWinRTEmbedded Condition="'$(WinGetCsWinRTEmbedded)'==''">true</WinGetCsWinRTEmbedded>
   </PropertyGroup>
 
@@ -47,15 +43,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.6" />
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.4.6" GeneratePathProperty="true">
+    <PackageReference Include="Microsoft.Windows.CsWinRT" />
+    <PackageReference Include="Microsoft.PowerShell.SDK" GeneratePathProperty="true">
       <ExcludeAssets>contentFiles</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="StyleCop.Analyzers">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+    <PackageReference Include="System.Data.SqlClient" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(WinGetCsWinRTEmbedded)'!='true'">
