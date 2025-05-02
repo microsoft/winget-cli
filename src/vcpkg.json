@@ -5,7 +5,7 @@
       "./VcpkgCustomTriplets"
     ],
     "overlay-ports": [
-      "./VcpkgOverlay"
+      "./VcpkgPortOverlay"
     ]
   },
   "builtin-baseline": "ce613c41372b23b1f51333815feb3edd87ef8a8b",
