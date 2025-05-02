@@ -77,7 +77,7 @@ namespace AppInstaller::CLI
                 return *_resolvedInputUserSettings;
             }
 
-            void WriteOutput()
+            bool WriteOutput()
             {
                 THROW_HR_IF(E_UNEXPECTED, !Output.Settings().has_value());
                 std::ofstream file(_userSettingsPath, std::ios::binary);
@@ -86,11 +86,11 @@ namespace AppInstaller::CLI
                     Json::StreamWriterBuilder writer;
                     writer["indentation"] = "  ";
                     file << Json::writeString(writer, *Output.Settings());
+                    return true;
                 }
-                else
-                {
-                    AICLI_LOG(Config, Error, << "Failed to open or create user settings file: " << _userSettingsPath);
-                }
+
+                AICLI_LOG(Config, Error, << "Failed to open or create user settings file: " << _userSettingsPath);
+                return false;
             }
 
         private:
@@ -213,7 +213,11 @@ namespace AppInstaller::CLI
             if (!data.Test())
             {
                 data.Output.Settings(data.GetResolvedInput());
-                data.WriteOutput();
+                if (!data.WriteOutput())
+                {
+                    AICLI_TERMINATE_CONTEXT(E_FAIL);
+                    return;
+                }
             }
 
             WriteJsonOutputLine(context, data.Output.ToJson());
