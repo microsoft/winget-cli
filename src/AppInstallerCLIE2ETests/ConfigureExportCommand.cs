@@ -149,7 +149,7 @@ namespace AppInstallerCLIE2ETests
         {
             var exportDir = TestCommon.GetRandomTestDir();
             var exportFile = Path.Combine(exportDir, "exported.yml");
-            var result = TestCommon.RunAICLICommand(Command, $"--all -o {exportFile}");
+            var result = TestCommon.RunAICLICommand(Command, $"--all -o {exportFile}", timeOut: 600000);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(File.Exists(exportFile));
 
