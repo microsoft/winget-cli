@@ -23,13 +23,12 @@ namespace AppInstaller::CLI
         struct UserSettingsFileFunctionData
         {
             UserSettingsFileFunctionData()
-                : UserSettingsFileFunctionData(std::nullopt)
+                : UserSettingsFileFunctionData(std::nullopt, true)
             {
             }
 
-            UserSettingsFileFunctionData(const std::optional<Json::Value>& json) :
-                Input(json, false),
-                _userSettings(Json::nullValue),
+            UserSettingsFileFunctionData(const std::optional<Json::Value>& json, bool ignoreFieldRequirements = false) :
+                Input(json, ignoreFieldRequirements),
                 _userSettingsPath(UserSettings::SettingsFilePath())
             {
             }
@@ -39,31 +38,13 @@ namespace AppInstaller::CLI
 
             void Get()
             {
-                THROW_HR_IF(E_UNEXPECTED, _userSettings.isNull());
                 Output.Action(ACTION_FULL);
-                Output.Settings(_userSettings);
-            }
-
-            void Set()
-            {
-                THROW_HR_IF(E_UNEXPECTED, _userSettings.isNull());
-                Output.Action(ACTION_FULL);
-
-                if(Input.Action() == ACTION_FULL)
-                {
-                    Output.Settings(Input.Settings());
-                }
-                else
-                {
-                    auto mergedUserSettingsFile = MergeUserSettingsFiles(*Input.Settings());
-                    Output.Settings(mergedUserSettingsFile);
-                }
+                Output.Settings(GetUserSettings());
             }
 
             bool Test()
             {
-                THROW_HR_IF(E_UNEXPECTED, _userSettings.isNull());
-                return _userSettings == Output.Settings();
+                return GetResolvedInput() == Output.Settings();
             }
 
             Json::Value DiffJson()
@@ -78,50 +59,48 @@ namespace AppInstaller::CLI
                 return result;
             }
 
-            bool LoadUserSettings()
+            const Json::Value& GetResolvedInput()
             {
-                std::ifstream file(_userSettingsPath, std::ios::binary);
-                if (file)
+                THROW_HR_IF(E_UNEXPECTED, !Input.Settings().has_value());
+                if (!_resolvedInputUserSettings)
                 {
-                    Json::CharReaderBuilder builder;
-                    std::string errs;
-                    if (Json::parseFromStream(builder, file, &_userSettings, &errs))
+                    if(Input.Action() == ACTION_FULL)
                     {
-                        return true;
+                        _resolvedInputUserSettings = Input.Settings();
                     }
-
-                    AICLI_LOG(Config, Error, << "Failed to parse user settings file: " << _userSettingsPath << ", error: " << errs);
-                }
-                else
-                {
-                    AICLI_LOG(Config, Error, << "Failed to open user settings file: " << _userSettingsPath);
+                    else
+                    {
+                        _resolvedInputUserSettings = MergeUserSettingsFiles(*Input.Settings());
+                    }
                 }
 
-                return false;
+                return *_resolvedInputUserSettings;
             }
 
-            bool WriteOutput()
+            void WriteOutput()
             {
                 THROW_HR_IF(E_UNEXPECTED, !Output.Settings().has_value());
                 std::ofstream file(_userSettingsPath, std::ios::binary);
                 if (file)
                 {
                     Json::StreamWriterBuilder writer;
+                    writer["indentation"] = "  ";
                     file << Json::writeString(writer, *Output.Settings());
-                    return true;
                 }
-
-                AICLI_LOG(Config, Error, << "Failed to open user settings file for writing: " << _userSettingsPath);
-                return false;
+                else
+                {
+                    AICLI_LOG(Config, Error, << "Failed to open or create user settings file: " << _userSettingsPath);
+                }
             }
 
         private:
             std::filesystem::path _userSettingsPath;
-            Json::Value _userSettings;
+            std::optional<Json::Value> _userSettings;
+            std::optional<Json::Value> _resolvedInputUserSettings;
 
             Json::Value MergeUserSettingsFiles(const Json::Value& overlay)
             {
-                Json::Value mergedUserSettingsFile = _userSettings;
+                Json::Value mergedUserSettingsFile = GetUserSettings();
                 MergeUserSettingsFiles(mergedUserSettingsFile, overlay);
                 return mergedUserSettingsFile;
             }
@@ -161,6 +140,35 @@ namespace AppInstaller::CLI
                     }
                 }
             }
+
+            const Json::Value& GetUserSettings()
+            {
+                if (!_userSettings)
+                {
+                    _userSettings = Json::objectValue;
+                    std::ifstream file(_userSettingsPath, std::ios::binary);
+                    if (file)
+                    {
+                        Json::CharReaderBuilder builder;
+                        std::string errs;
+                        Json::Value jsonRoot;
+                        if (Json::parseFromStream(builder, file, &jsonRoot, &errs))
+                        {
+                            _userSettings = jsonRoot;
+                        }
+                        else
+                        {
+                            AICLI_LOG(Config, Warning, << "Failed to parse user settings file: " << _userSettingsPath << ", error: " << errs);
+                        }
+                    }
+                    else
+                    {
+                        AICLI_LOG(Config, Warning, << "Failed to open user settings file: " << _userSettingsPath);
+                    }
+                }
+
+                return *_userSettings;
+            }
         };
     }
 
@@ -197,18 +205,19 @@ namespace AppInstaller::CLI
         {
             UserSettingsFileFunctionData data{ json };
 
-            if (data.LoadUserSettings())
-            {
-                data.Set();
-                if (!data.Test() && !data.WriteOutput())
-                {
-                    AICLI_LOG(Config, Error, << "Failed to write output to user settings file.");
-                    return;
-                }
+            data.Get();
 
-                WriteJsonOutputLine(context, data.Output.ToJson());
-                WriteJsonOutputLine(context, data.DiffJson());
+            // Capture the diff before updating the output
+            auto diff = data.DiffJson();
+
+            if (!data.Test())
+            {
+                data.Output.Settings(data.GetResolvedInput());
+                data.WriteOutput();
             }
+
+            WriteJsonOutputLine(context, data.Output.ToJson());
+            WriteJsonOutputLine(context, diff);
         }
     }
 
@@ -218,30 +227,21 @@ namespace AppInstaller::CLI
         {
             UserSettingsFileFunctionData data{ json };
 
-            if (data.LoadUserSettings())
-            {
-                data.Set();
-                data.Output.InDesiredState(data.Test());
+            data.Get();
+            data.Output.InDesiredState(data.Test());
 
-                // Get diff before updating the output
-                auto diffJson = data.DiffJson();
-
-                data.Get();
-
-                WriteJsonOutputLine(context, data.Output.ToJson());
-                WriteJsonOutputLine(context, diffJson);
-            }
+            WriteJsonOutputLine(context, data.Output.ToJson());
+            WriteJsonOutputLine(context, data.DiffJson());
         }
     }
 
     void DscUserSettingsFileResource::ResourceFunctionExport(Execution::Context& context) const
     {
         UserSettingsFileFunctionData data;
-        if (data.LoadUserSettings())
-        {
-            data.Get();
-            WriteJsonOutputLine(context, data.Output.ToJson());
-        }
+
+        data.Get();
+
+        WriteJsonOutputLine(context, data.Output.ToJson());
     }
 
     void DscUserSettingsFileResource::ResourceFunctionSchema(Execution::Context& context) const
