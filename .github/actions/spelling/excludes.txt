@@ -103,4 +103,5 @@
 ^src/PureLib/
 ^src/SfsClient/
 ^src/Xlang/
+^src/VcpkgPortOverlay/
 ignore$
