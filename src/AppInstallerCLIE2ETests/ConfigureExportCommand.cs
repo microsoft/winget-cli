@@ -29,6 +29,7 @@ namespace AppInstallerCLIE2ETests
         {
             TestCommon.SetupTestSource(false);
             WinGetSettingsHelper.ConfigureFeature("configureExport", true);
+            WinGetSettingsHelper.ConfigureFeature("dsc3", true);
             var installDir = TestCommon.GetRandomTestDir();
             TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestPackageExport -v 1.0.0.0 --silent -l {installDir}");
             this.previousPathValue = System.Environment.GetEnvironmentVariable("PATH");
@@ -44,6 +45,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestPackageExport");
             TestCommon.TearDownTestSource();
             WinGetSettingsHelper.ConfigureFeature("configureExport", false);
+            WinGetSettingsHelper.ConfigureFeature("dsc3", false);
             if (!string.IsNullOrEmpty(this.previousPathValue))
             {
                 System.Environment.SetEnvironmentVariable("PATH", this.previousPathValue);
