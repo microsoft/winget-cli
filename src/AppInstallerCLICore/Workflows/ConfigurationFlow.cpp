@@ -1230,10 +1230,9 @@ namespace AppInstaller::CLI::Workflow
         {
             std::string sourceUnitId = source.Details.Name + '_' + source.Details.Type;
             std::wstring sourceUnitIdWide = Utility::ConvertToUTF16(sourceUnitId);
-            std::wstring sourceUnitType;
 
             ConfigurationUnit unit;
-            unit.Type(sourceUnitType);
+            unit.Type(unitType);
             unit.Identifier(sourceUnitIdWide);
             unit.Intent(ConfigurationUnitIntent::Apply);
 

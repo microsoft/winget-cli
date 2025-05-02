@@ -19,6 +19,8 @@ namespace AppInstallerCLIE2ETests
         private const string Command = "configure export";
         private const string ShowCommand = "configure show";
 
+        private string previousPathValue = string.Empty;
+
         /// <summary>
         /// Set up.
         /// </summary>
@@ -29,6 +31,8 @@ namespace AppInstallerCLIE2ETests
             WinGetSettingsHelper.ConfigureFeature("configureExport", true);
             var installDir = TestCommon.GetRandomTestDir();
             TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestPackageExport -v 1.0.0.0 --silent -l {installDir}");
+            this.previousPathValue = System.Environment.GetEnvironmentVariable("PATH");
+            System.Environment.SetEnvironmentVariable("PATH", this.previousPathValue + ";" + installDir);
         }
 
         /// <summary>
@@ -40,6 +44,10 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestPackageExport");
             TestCommon.TearDownTestSource();
             WinGetSettingsHelper.ConfigureFeature("configureExport", false);
+            if (!string.IsNullOrEmpty(this.previousPathValue))
+            {
+                System.Environment.SetEnvironmentVariable("PATH", this.previousPathValue);
+            }
         }
 
         /// <summary>
