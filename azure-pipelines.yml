@@ -379,7 +379,7 @@ jobs:
     displayName: Install DSC v3
     condition: succeededOrFailed()
 
-    # Install required DSC modules until export all command can handle auto acqusition
+    # Install required DSC modules until export all command can handle auto acquisition
   - pwsh: |
       Install-Module -Name Microsoft.WinGet.DSC -Force
       Install-Module -Name Microsoft.Windows.Developer -AllowPrerelease -Force
