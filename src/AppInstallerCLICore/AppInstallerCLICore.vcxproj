@@ -306,6 +306,7 @@
     <ClInclude Include="Commands\DscCommandBase.h" />
     <ClInclude Include="Commands\DscComposableObject.h" />
     <ClInclude Include="Commands\DscPackageResource.h" />
+    <ClInclude Include="Commands\DscSourceResource.h" />
     <ClInclude Include="Commands\DscTestFileResource.h" />
     <ClInclude Include="Commands\DscTestJsonResource.h" />
     <ClInclude Include="Commands\ErrorCommand.h" />
@@ -392,6 +393,7 @@
     <ClCompile Include="Commands\DscCommandBase.cpp" />
     <ClCompile Include="Commands\DscComposableObject.cpp" />
     <ClCompile Include="Commands\DscPackageResource.cpp" />
+    <ClCompile Include="Commands\DscSourceResource.cpp" />
     <ClCompile Include="Commands\DscTestFileResource.cpp" />
     <ClCompile Include="Commands\DscTestJsonResource.cpp" />
     <ClCompile Include="Commands\ErrorCommand.cpp" />

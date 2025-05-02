@@ -8,10 +8,6 @@
     <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <!--
-    !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
-    -->
-    <WindowsSdkPackageVersion>10.0.26100.53</WindowsSdkPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -34,7 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.6" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" />
   </ItemGroup>
 
   <ItemGroup>

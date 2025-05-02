@@ -3280,11 +3280,32 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="DscResourcePropertyDescriptionPackageScope" xml:space="preserve">
     <value>The target scope of the package.</value>
   </data>
-  <data name="DscResourcePropertyDescriptionPackageAcceptAgreements" xml:space="preserve">
-    <value>Indicates whether to accept agreements for package installs.</value>
+  <data name="DscResourcePropertyDescriptionAcceptAgreements" xml:space="preserve">
+    <value>Indicates whether to accept agreements for sources and packages.</value>
   </data>
   <data name="CorrelationArgumentDescription" xml:space="preserve">
     <value>Value is logged for correlation</value>
+  </data>
+  <data name="DscSourceResourceShortDescription" xml:space="preserve">
+    <value>Manage source configuration</value>
+  </data>
+  <data name="DscSourceResourceLongDescription" xml:space="preserve">
+    <value>Allows management of source configuration via the DSC v3 command line interface protocol. See the help link for details.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceName" xml:space="preserve">
+    <value>The name to use for the source.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceArgument" xml:space="preserve">
+    <value>The argument for the source.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceType" xml:space="preserve">
+    <value>The type of the source.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceTrustLevel" xml:space="preserve">
+    <value>The trust level of the source.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceExplicit" xml:space="preserve">
+    <value>Whether the source is included when calls don't specify a source.</value>
   </data>
   <data name="ConfigurationApplyingUnit" xml:space="preserve">
     <value>Applying configuration unit...</value>

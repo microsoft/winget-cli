@@ -236,6 +236,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourceFunctionDescriptionManifest);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionExist);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionInDesiredState);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionAcceptAgreements);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageId);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageSource);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageVersion);
@@ -243,7 +244,13 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageMatchOption);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageUseLatest);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageInstallMode);
-        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionPackageAcceptAgreements);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceName);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceArgument);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceType);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceTrustLevel);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceExplicit);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscSourceResourceShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscSourceResourceLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(EnableAdminSettingFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(EnableWindowsFeaturesSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(EnablingWindowsFeature);

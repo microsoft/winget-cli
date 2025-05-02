@@ -8,9 +8,7 @@ namespace AppInstallerCLIE2ETests
 {
     using System;
     using System.IO;
-    using System.Linq;
     using AppInstallerCLIE2ETests.Helpers;
-    using Microsoft.Win32;
     using NUnit.Framework;
 
     /// <summary>
@@ -25,14 +23,8 @@ namespace AppInstallerCLIE2ETests
         /// </summary>
         public static void EnsureTestResourcePresence()
         {
-            string outputDirectory = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft\\WindowsApps");
-            Assert.IsNotEmpty(outputDirectory);
-
-            var result = TestCommon.RunAICLICommand("dscv3 test-file", $"--manifest -o {outputDirectory}\\test-file.dsc.resource.json");
-            Assert.AreEqual(0, result.ExitCode);
-
-            result = TestCommon.RunAICLICommand("dscv3 test-json", $"--manifest -o {outputDirectory}\\test-json.dsc.resource.json");
-            Assert.AreEqual(0, result.ExitCode);
+            DSCv3ResourceTestBase.EnsureTestResourcePresence("test-file");
+            DSCv3ResourceTestBase.EnsureTestResourcePresence("test-json");
         }
 
         /// <summary>
