@@ -149,12 +149,12 @@ namespace AppInstallerCLIE2ETests
         {
             var exportDir = TestCommon.GetRandomTestDir();
             var exportFile = Path.Combine(exportDir, "exported.yml");
-            var result = TestCommon.RunAICLICommand(Command, $"--all -o {exportFile}", timeOut: 2400000);
+            var result = TestCommon.RunAICLICommand(Command, $"--all -o {exportFile}", timeOut: 1200000);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(File.Exists(exportFile));
 
             // Check exported file is readable and validate content
-            var showResult = TestCommon.RunAICLICommand(ShowCommand, $"-f {exportFile}");
+            var showResult = TestCommon.RunAICLICommand(ShowCommand, $"-f {exportFile}", timeOut: 1200000);
             Assert.AreEqual(Constants.ErrorCode.S_OK, showResult.ExitCode);
 
             Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.DSC/WinGetUserSettings"));
