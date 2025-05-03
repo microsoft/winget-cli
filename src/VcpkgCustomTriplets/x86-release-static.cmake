@@ -1,2 +1,4 @@
-include("${CMAKE_CURRENT_LIST_DIR}/x86.cmake")
-set(VCPKG_CRT_LINKAGE dynamic)
+include("${CMAKE_CURRENT_LIST_DIR}/common.cmake")
+set(VCPKG_TARGET_ARCHITECTURE x86)
+set(VCPKG_CRT_LINKAGE static)
+set(VCPKG_BUILD_TYPE release)
