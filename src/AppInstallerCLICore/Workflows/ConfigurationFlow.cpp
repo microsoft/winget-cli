@@ -1454,13 +1454,15 @@ namespace AppInstaller::CLI::Workflow
 
                 progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationGettingUnitProcessors());
 
-                FindUnitProcessorsOptions findOptions;
-                findOptions.UnitDetailFlags(ConfigurationUnitDetailFlags::Local);
-                auto findAction = context.Get<Data::ConfigurationContext>().Processor().FindUnitProcessorsAsync(findOptions);
-                auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { findAction.Cancel(); });
-                for (auto unitProcessor : findAction.get())
                 {
-                    result.emplace_back(std::move(unitProcessor));
+                    FindUnitProcessorsOptions findOptions;
+                    findOptions.UnitDetailFlags(ConfigurationUnitDetailFlags::Local);
+                    auto findAction = context.Get<Data::ConfigurationContext>().Processor().FindUnitProcessorsAsync(findOptions);
+                    auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { findAction.Cancel(); });
+                    for (auto unitProcessor : findAction.get())
+                    {
+                        result.emplace_back(std::move(unitProcessor));
+                    }
                 }
 
                 progressScope.reset();
