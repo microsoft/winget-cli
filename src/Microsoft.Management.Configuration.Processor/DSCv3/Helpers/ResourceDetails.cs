@@ -130,12 +130,12 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             {
                 if (this.resourceListItem != null)
                 {
-                    // TODO: Expose the Directory; requires adding a new property to the public interface
                     result.UnitType = this.resourceListItem.Type;
                     result.IsGroup = IsGroup(this.resourceListItem.Kind);
                     result.Version = this.resourceListItem.Version;
                     result.UnitDescription = this.resourceListItem.Description;
                     result.Author = this.resourceListItem.Author;
+                    result.Path = this.resourceListItem.Path;
 
                     result.IsLocal = true;
                 }

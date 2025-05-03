@@ -90,6 +90,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Foundation::Collections::IVector<Configuration::IConfigurationUnitProcessorDetails> FindUnitProcessors(const Configuration::FindUnitProcessorsOptions& findOptions);
         Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVector<Configuration::IConfigurationUnitProcessorDetails>> FindUnitProcessorsAsync(const Configuration::FindUnitProcessorsOptions& findOptions);
 
+        Configuration::ApplyConfigurationUnitResult ApplyUnit(const ConfigurationUnit& unit);
+        Windows::Foundation::IAsyncOperation<Configuration::ApplyConfigurationUnitResult> ApplyUnitAsync(const ConfigurationUnit& unit);
+
         HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
@@ -130,6 +133,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Configuration::GetAllConfigurationUnitsResult GetAllUnitsImpl(const ConfigurationUnit& unit, AppInstaller::WinRT::AsyncCancellation cancellation = {});
 
         Windows::Foundation::Collections::IVector<Configuration::IConfigurationUnitProcessorDetails> FindUnitProcessorsImpl(const Configuration::FindUnitProcessorsOptions& findOptions, AppInstaller::WinRT::AsyncCancellation cancellation = {});
+
+        Configuration::ApplyConfigurationUnitResult ApplyUnitImpl(const ConfigurationUnit& unit, AppInstaller::WinRT::AsyncCancellation cancellation = {});
 
         IConfigurationGroupProcessor GetSetGroupProcessor(const Configuration::ConfigurationSet& configurationSet);
 

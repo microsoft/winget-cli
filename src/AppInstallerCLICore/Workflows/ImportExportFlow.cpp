@@ -138,17 +138,15 @@ namespace AppInstaller::CLI::Workflow
 
             // Take the Id from the available package because that is the one used in the source,
             // but take the exported version from the installed package if needed.
+            PackageCollection::Package exportPackage;
+            exportPackage.Id = availablePackageVersion->GetProperty(PackageVersionProperty::Id);
+            exportPackage.InstalledLocation = Utility::ConvertToUTF16(installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledLocation]);
             if (includeVersions)
             {
-                sourceItr->Packages.emplace_back(
-                    availablePackageVersion->GetProperty(PackageVersionProperty::Id),
-                    version.get(),
-                    channel.get());
+                exportPackage.VersionAndChannel = { version.get(), channel.get() };
             }
-            else
-            {
-                sourceItr->Packages.emplace_back(availablePackageVersion->GetProperty(PackageVersionProperty::Id));
-            }
+
+            sourceItr->Packages.emplace_back(std::move(exportPackage));
         }
 
         context.Add<Execution::Data::PackageCollection>(std::move(exportedPackages));
