@@ -999,6 +999,72 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
+    Configuration::ApplyConfigurationUnitResult ConfigurationProcessor::ApplyUnit(const ConfigurationUnit& unit)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+        return ApplyUnitImpl(unit);
+    }
+
+    Windows::Foundation::IAsyncOperation<Configuration::ApplyConfigurationUnitResult> ConfigurationProcessor::ApplyUnitAsync(const ConfigurationUnit& unit)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+
+        auto strong_this{ get_strong() };
+        ConfigurationUnit localUnit = unit;
+
+        co_await winrt::resume_background();
+
+        co_return ApplyUnitImpl(localUnit, { co_await winrt::get_cancellation_token() });
+    }
+
+    Configuration::ApplyConfigurationUnitResult ConfigurationProcessor::ApplyUnitImpl(
+        const ConfigurationUnit& unit,
+        AppInstaller::WinRT::AsyncCancellation cancellation)
+    {
+        auto threadGlobals = m_threadGlobals.SetForCurrentThread();
+
+        IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(nullptr);
+        auto result = make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationUnitResult>>();
+        auto unitResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
+        result->Unit(unit);
+        result->ResultInformation(*unitResult);
+
+        cancellation.ThrowIfCancelled();
+
+        IConfigurationUnitProcessor unitProcessor;
+
+        try
+        {
+            unitProcessor = setProcessor.CreateUnitProcessor(unit);
+        }
+        catch (...)
+        {
+            ExtractUnitResultInformation(std::current_exception(), unitResult);
+        }
+
+        cancellation.ThrowIfCancelled();
+
+        if (unitProcessor)
+        {
+            try
+            {
+                auto applyResult = unitProcessor.ApplySettings();
+                result->Unit(applyResult.Unit());
+                result->State(Configuration::ConfigurationUnitState::Completed);
+                result->ResultInformation(applyResult.ResultInformation());
+                result->RebootRequired(applyResult.RebootRequired());
+            }
+            catch (...)
+            {
+                ExtractUnitResultInformation(std::current_exception(), unitResult);
+            }
+
+            m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(GUID_NULL, unit, ConfigurationUnitIntent::Apply, TelemetryTraceLogger::ApplyAction, result->ResultInformation());
+        }
+
+        return *result;
+    }
+
     IConfigurationGroupProcessor ConfigurationProcessor::GetSetGroupProcessor(const Configuration::ConfigurationSet& configurationSet)
     {
         IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(configurationSet);

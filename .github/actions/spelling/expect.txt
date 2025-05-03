@@ -595,6 +595,7 @@ wingetutil
 winreg
 winrtact
 winstring
+WMI
 Wnd
 WNDCLASS
 WNDCLASSEX

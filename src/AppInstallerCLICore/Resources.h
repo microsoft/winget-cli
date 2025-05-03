@@ -57,6 +57,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationAcceptWarningArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationAllUsersElevated);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationApply);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationApplyingUnit);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationAssert);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDescriptionWasTruncated);
@@ -69,7 +70,13 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnablingMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportAddingToFile);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportFailedToGetUnitProcessors);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportingUnit);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportInstallRequiredModule);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportInstallRequiredModuleFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportSuccessful);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportUnitStart);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportUnitFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToApply);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToGetDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToTest);
@@ -83,6 +90,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileVersionUnknown);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationGettingDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationGettingResourceSettings);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationGettingUnitProcessors);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationHistoryEmpty);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationHistoryItemArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationHistoryItemNotFound);
