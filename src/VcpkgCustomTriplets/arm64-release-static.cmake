@@ -1,2 +1,4 @@
-include("${CMAKE_CURRENT_SOURCE_DIR}/arm64.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/common.cmake")
+set(VCPKG_TARGET_ARCHITECTURE arm64)
 set(VCPKG_CRT_LINKAGE static)
+set(VCPKG_BUILD_TYPE release)
