@@ -82,8 +82,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "spelling", "spelling", "{2A
 		..\.github\actions\spelling\patterns.txt = ..\.github\actions\spelling\patterns.txt
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cpprestsdk", "cpprestsdk\cpprestsdk.vcxproj", "{866C3F06-636F-4BE8-BC24-5F86ECC606A1}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "policy", "policy", "{1A47951F-5C7A-4D6D-BB5F-D77484437940}"
 	ProjectSection(SolutionItems) = preProject
 		..\doc\admx\en-US\DesktopAppInstaller.adml = ..\doc\admx\en-US\DesktopAppInstaller.adml
@@ -93,6 +91,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1A5D7A7D-5CB2-47D5-B40D-4E61CAEDC798}"
 	ProjectSection(SolutionItems) = preProject
 		CodeAnalysis.ruleset = CodeAnalysis.ruleset
+		Directory.Packages.props = Directory.Packages.props
 		nuget.config = nuget.config
 		stylecop.json = stylecop.json
 		vcpkg.json = vcpkg.json
@@ -104,7 +103,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Management.Deploy
 		{1C6E0108-2860-4B17-9F7E-FA5C6C1F3D3D} = {1C6E0108-2860-4B17-9F7E-FA5C6C1F3D3D}
 		{5890D6ED-7C3B-40F3-B436-B54F640D9E65} = {5890D6ED-7C3B-40F3-B436-B54F640D9E65}
 		{5EB88068-5FB9-4E69-89B2-72DBC5E068F9} = {5EB88068-5FB9-4E69-89B2-72DBC5E068F9}
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1} = {866C3F06-636F-4BE8-BC24-5F86ECC606A1}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinGetServer", "WinGetServer\WinGetServer.vcxproj", "{2B00D362-AC92-41F3-A8D2-5B1599BDCA01}"
@@ -183,6 +181,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VcpkgCustomTriplets", "Vcpk
 		VcpkgCustomTriplets\arm64-release-static.cmake = VcpkgCustomTriplets\arm64-release-static.cmake
 		VcpkgCustomTriplets\arm64-release.cmake = VcpkgCustomTriplets\arm64-release.cmake
 		VcpkgCustomTriplets\arm64.cmake = VcpkgCustomTriplets\arm64.cmake
+		VcpkgCustomTriplets\common.cmake = VcpkgCustomTriplets\common.cmake
 		VcpkgCustomTriplets\x64-release-static.cmake = VcpkgCustomTriplets\x64-release-static.cmake
 		VcpkgCustomTriplets\x64-release.cmake = VcpkgCustomTriplets\x64-release.cmake
 		VcpkgCustomTriplets\x64.cmake = VcpkgCustomTriplets\x64.cmake
@@ -535,33 +534,6 @@ Global
 		{3BAF989F-7F65-465B-ACE8-BAFE42D1017E}.TestRelease|ARM64.ActiveCfg = Release|x64
 		{3BAF989F-7F65-465B-ACE8-BAFE42D1017E}.TestRelease|x64.ActiveCfg = Release|x64
 		{3BAF989F-7F65-465B-ACE8-BAFE42D1017E}.TestRelease|x86.ActiveCfg = Release|x86
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.Debug|ARM64.Build.0 = Debug|ARM64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.Debug|x64.ActiveCfg = Debug|x64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.Debug|x64.Build.0 = Debug|x64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.Debug|x86.ActiveCfg = Debug|Win32
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.Debug|x86.Build.0 = Debug|Win32
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.Fuzzing|ARM64.ActiveCfg = Release|ARM64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.Fuzzing|x64.ActiveCfg = Release|x64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.Fuzzing|x86.ActiveCfg = Release|Win32
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.Release|ARM64.ActiveCfg = Release|ARM64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.Release|ARM64.Build.0 = Release|ARM64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.Release|x64.ActiveCfg = Release|x64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.Release|x64.Build.0 = Release|x64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.Release|x86.ActiveCfg = Release|Win32
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.Release|x86.Build.0 = Release|Win32
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.ReleaseStatic|ARM64.ActiveCfg = ReleaseStatic|ARM64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.ReleaseStatic|ARM64.Build.0 = ReleaseStatic|ARM64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.ReleaseStatic|x64.ActiveCfg = ReleaseStatic|x64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.ReleaseStatic|x64.Build.0 = ReleaseStatic|x64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.ReleaseStatic|x86.ActiveCfg = ReleaseStatic|Win32
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.ReleaseStatic|x86.Build.0 = ReleaseStatic|Win32
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.TestRelease|ARM64.ActiveCfg = Release|ARM64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.TestRelease|ARM64.Build.0 = Release|ARM64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.TestRelease|x64.ActiveCfg = Release|x64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.TestRelease|x64.Build.0 = Release|x64
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.TestRelease|x86.ActiveCfg = Release|Win32
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1}.TestRelease|x86.Build.0 = Release|Win32
 		{1CC41A9A-AE66-459D-9210-1E572DD7BE69}.Debug|ARM64.ActiveCfg = Debug|ARM64
 		{1CC41A9A-AE66-459D-9210-1E572DD7BE69}.Debug|ARM64.Build.0 = Debug|ARM64
 		{1CC41A9A-AE66-459D-9210-1E572DD7BE69}.Debug|x64.ActiveCfg = Debug|x64
@@ -1161,7 +1133,6 @@ Global
 		{7D05F64D-CE5A-42AA-A2C1-E91458F061CF} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 		{952B513F-8A00-4D74-9271-925AFB3C6252} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 		{2ACDE176-F13F-42FA-8159-C34FA3D37837} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
-		{866C3F06-636F-4BE8-BC24-5F86ECC606A1} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
 		{1A47951F-5C7A-4D6D-BB5F-D77484437940} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 		{409CD681-22A4-469D-88AE-CB5E4836E07A} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 		{B0BBBD92-943B-408F-B2B2-DBBAB4A22D23} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}

@@ -10,7 +10,6 @@ namespace AppInstallerCLIE2ETests
     using System.Text.Json.Serialization;
     using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
-    using WinRT;
 
     /// <summary>
     /// `Configure` command tests.

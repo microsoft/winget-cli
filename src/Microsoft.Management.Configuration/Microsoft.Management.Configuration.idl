@@ -205,6 +205,14 @@ namespace Microsoft.Management.Configuration
         Boolean IsGroup{ get; };
     }
 
+    // Provides information for a specific configuration unit within the runtime.
+    [contract(Microsoft.Management.Configuration.Contract, 4)]
+    interface IConfigurationUnitProcessorDetails3 requires IConfigurationUnitProcessorDetails2
+    {
+        // The path of the resource.
+        String Path{ get; };
+    }
+
     // Defines how the configuration unit is to be used within the configuration system.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     enum ConfigurationUnitIntent
@@ -1016,6 +1024,10 @@ namespace Microsoft.Management.Configuration
             // Find unit processors.
             Windows.Foundation.Collections.IVector<IConfigurationUnitProcessorDetails> FindUnitProcessors(FindUnitProcessorsOptions findOptions);
             Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVector<IConfigurationUnitProcessorDetails> > FindUnitProcessorsAsync(FindUnitProcessorsOptions findOptions);
+
+            // Apply the current configuration unit.
+            ApplyConfigurationUnitResult ApplyUnit(ConfigurationUnit unit);
+            Windows.Foundation.IAsyncOperation<ApplyConfigurationUnitResult> ApplyUnitAsync(ConfigurationUnit unit);
         }
     }
 

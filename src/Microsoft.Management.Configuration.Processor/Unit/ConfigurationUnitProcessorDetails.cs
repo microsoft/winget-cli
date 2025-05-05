@@ -13,7 +13,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     /// <summary>
     /// Provides information for a specific configuration unit within the runtime.
     /// </summary>
-    internal sealed partial class ConfigurationUnitProcessorDetails : IConfigurationUnitProcessorDetails, IConfigurationUnitProcessorDetails2
+    internal sealed partial class ConfigurationUnitProcessorDetails : IConfigurationUnitProcessorDetails, IConfigurationUnitProcessorDetails2, IConfigurationUnitProcessorDetails3
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationUnitProcessorDetails"/> class.
@@ -116,5 +116,10 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// Gets or sets a value indicating whether this resource is a group.
         /// </summary>
         public bool IsGroup { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets the path of the resource.
+        /// </summary>
+        public string? Path { get; internal set; }
     }
 }

@@ -3283,6 +3283,18 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="DscResourcePropertyDescriptionAcceptAgreements" xml:space="preserve">
     <value>Indicates whether to accept agreements for sources and packages.</value>
   </data>
+  <data name="DscUserSettingsFileShortDescription" xml:space="preserve">
+    <value>Manage user settings file</value>
+  </data>
+  <data name="DscUserSettingsFileLongDescription" xml:space="preserve">
+    <value>Allows management of user settings file via the DSC v3 command line interface protocol. See the help link for details.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionUserSettingsFileSettings" xml:space="preserve">
+    <value>The settings json file content.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionUserSettingsFileAction" xml:space="preserve">
+    <value>The action used to apply the settings.</value>
+  </data>
   <data name="CorrelationArgumentDescription" xml:space="preserve">
     <value>Value is logged for correlation</value>
   </data>
@@ -3306,5 +3318,31 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="DscResourcePropertyDescriptionSourceExplicit" xml:space="preserve">
     <value>Whether the source is included when calls don't specify a source.</value>
+  </data>
+  <data name="ConfigurationApplyingUnit" xml:space="preserve">
+    <value>Applying configuration unit...</value>
+  </data>
+  <data name="ConfigurationExportingUnit" xml:space="preserve">
+    <value>Exporting configuration unit...</value>
+  </data>
+  <data name="ConfigurationGettingUnitProcessors" xml:space="preserve">
+    <value>Getting configuration unit processors...</value>
+  </data>
+  <data name="ConfigurationExportInstallRequiredModule" xml:space="preserve">
+    <value>Ensure required module for export [{0}]</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationExportInstallRequiredModuleFailed" xml:space="preserve">
+    <value>Failed to test or acquire required module. Related settings will not be exported.</value>
+  </data>
+  <data name="ConfigurationExportUnitStart" xml:space="preserve">
+    <value>Export [{0}]</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationExportUnitFailed" xml:space="preserve">
+    <value>Failed to export the resource.</value>
+  </data>
+  <data name="ConfigurationExportFailedToGetUnitProcessors" xml:space="preserve">
+    <value>Failed to get unit processors. Individual package settings will not be exported.</value>
   </data>
 </root>

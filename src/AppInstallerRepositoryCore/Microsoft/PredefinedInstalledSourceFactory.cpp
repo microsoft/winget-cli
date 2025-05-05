@@ -207,6 +207,18 @@ namespace AppInstaller::Repository::Microsoft
                     index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledArchitecture,
                         ToString(architecture.value()));
                 }
+
+                // May not be present on our oldest supported systems; simply ignore for the time being.
+                IPackage8 package8 = package.try_as<IPackage8>();
+                if (package8)
+                {
+                    index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledLocation,
+                        Utility::ConvertToUTF8(package8.InstalledPath()));
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Warning, << "Windows::ApplicationModel::Package::InstalledPath is not available on this version of Windows");
+                }
             }
         }
 

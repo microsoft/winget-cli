@@ -115,9 +115,13 @@ namespace AppInstaller::Utility
     // Returns if a UTF8 string is contained within a vector in a case-insensitive manner.
     bool CaseInsensitiveContains(const std::vector<std::string_view>& a, std::string_view b);
 
-    // Determines if string a starts with string b.
+    // Determines if string a starts with string b. UTF8.
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveStartsWith(std::string_view a, std::string_view b);
+
+    // Determines if string a starts with string b. UTF16.
+    // Use this if one of the values is a known value, and thus ToLower is sufficient.
+    bool CaseInsensitiveStartsWith(std::wstring_view a, std::wstring_view b);
 
     // Determines if string a contains string b.
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
@@ -292,4 +296,7 @@ namespace AppInstaller::Utility
     // Converts most control codes in the input to their corresponding control picture in the output.
     // Exempts tab, line feed, and carriage return from being replaced.
     std::string ConvertControlCodesToPictures(std::string_view input);
+
+    // Generates a random alpha numeric string.
+    std::string GetRandomString(size_t size = 8);
 }

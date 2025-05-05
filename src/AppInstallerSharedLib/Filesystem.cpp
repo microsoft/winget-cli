@@ -327,6 +327,11 @@ namespace AppInstaller::Filesystem
         return Utility::ICUCaseInsensitiveEquals(Utility::ConvertToUTF8(volumeName1), Utility::ConvertToUTF8(volumeName2));
     }
 
+    bool IsParentPath(const std::filesystem::path& path, const std::filesystem::path& parentPath)
+    {
+        return std::filesystem::weakly_canonical(path.parent_path()) == std::filesystem::weakly_canonical(parentPath);
+    }
+
     void PathDetails::SetOwner(ACEPrincipal owner)
     {
         Owner = owner;

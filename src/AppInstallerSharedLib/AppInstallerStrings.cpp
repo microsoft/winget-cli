@@ -120,6 +120,11 @@ namespace AppInstaller::Utility
         return a.length() >= b.length() && CaseInsensitiveEquals(a.substr(0, b.length()), b);
     }
 
+    bool CaseInsensitiveStartsWith(std::wstring_view a, std::wstring_view b)
+    {
+        return a.length() >= b.length() && CaseInsensitiveEquals(a.substr(0, b.length()), b);
+    }
+
     bool CaseInsensitiveContainsSubstring(std::string_view a, std::string_view b)
     {
         auto it = std::search(
@@ -994,6 +999,23 @@ namespace AppInstaller::Utility
 
                 pos = nextControl + 1;
             }
+        }
+
+        return result;
+    }
+
+    std::string GetRandomString(size_t size)
+    {
+        static constexpr char chars[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+        static std::default_random_engine randomEngine(std::random_device{}());
+        static std::uniform_int_distribution<long long> distribution(0, 35);
+
+        std::string result;
+        result.resize(size);
+
+        for (size_t i = 0; i < size; i++)
+        {
+            result[i] = chars[distribution(randomEngine)];
         }
 
         return result;
