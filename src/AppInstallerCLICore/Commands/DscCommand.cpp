@@ -17,7 +17,7 @@ namespace AppInstaller::CLI
     {
         Argument GetOutputFileArgument()
         {
-            return { Execution::Args::Type::OutputFile, Resource::String::OutputFileArgumentDescription, ArgumentType::Standard };
+            return { Execution::Args::Type::OutputFile, Resource::String::OutputDirectoryArgumentDescription, ArgumentType::Standard };
         }
     }
 

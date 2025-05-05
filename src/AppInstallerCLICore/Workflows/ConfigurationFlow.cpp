@@ -77,7 +77,7 @@ namespace AppInstaller::CLI::Workflow
         };
 
         static const std::wstring s_PackageSettingsExclusionList[] = {
-            L"Microsoft.WinGet/", L"Microsoft.DSC.Debug/", L"Microsoft.DSC/", L"Microsoft.DSC.Transitional/", L"Microsoft.Windows/RebootPending",
+            L"Microsoft.WinGet/", L"Microsoft.WinGet.Dev/", L"Microsoft.DSC.Debug/", L"Microsoft.DSC/", L"Microsoft.DSC.Transitional/", L"Microsoft.Windows/RebootPending",
             L"Microsoft.Windows/Registry", L"Microsoft.Windows/WMI", L"Microsoft.Windows/WindowsPowerShell", L"Microsoft/OSInfo"
         };
 

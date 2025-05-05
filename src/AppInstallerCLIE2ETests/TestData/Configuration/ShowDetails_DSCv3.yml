@@ -4,7 +4,7 @@ metadata:
     processor: dscv3
 resources:
   - name: Test File
-    type: Microsoft.WinGet/TestFile
+    type: Microsoft.WinGet.Dev/TestFile
     metadata:
       description: Description 1.
     properties:

@@ -330,12 +330,12 @@ namespace AppInstallerCLIE2ETests
             var exportDir = TestCommon.GetRandomTestDir();
             var exportFile = Path.Combine(exportDir, "exported.yml");
 
-            result = TestCommon.RunAICLICommand("test config-export-units", $"-o {exportFile} --resource Microsoft.WinGet/TestJSON --verbose");
+            result = TestCommon.RunAICLICommand("test config-export-units", $"-o {exportFile} --resource Microsoft.WinGet.Dev/TestJSON --verbose");
             Assert.AreEqual(0, result.ExitCode);
 
             Assert.True(File.Exists(exportFile));
             string exportText = File.ReadAllText(exportFile);
-            Assert.True(exportText.Contains("Microsoft.WinGet/TestJSON"));
+            Assert.True(exportText.Contains("Microsoft.WinGet.Dev/TestJSON"));
             Assert.True(exportText.Contains(propertyName1));
             Assert.True(exportText.Contains(propertyName2));
             Assert.True(exportText.Contains(propertyValue1));
