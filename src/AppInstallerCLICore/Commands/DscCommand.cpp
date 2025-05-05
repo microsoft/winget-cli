@@ -21,7 +21,7 @@ namespace AppInstaller::CLI
     }
 
     DscCommand::DscCommand(std::string_view parent) :
-        Command(StaticName(), parent, Settings::ExperimentalFeature::Feature::ConfigurationDSCv3)
+        Command(StaticName(), parent)
     {
     }
 

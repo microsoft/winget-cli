@@ -218,6 +218,12 @@
   <PropertyGroup Condition="'$(Platform)'=='x86'">
     <ConfigServerRid>win-x86</ConfigServerRid>
   </PropertyGroup>
+  <Target Name="WinGetGenerateDSCv3Manifests" BeforeTargets="WinGetIncludeAdditionalFilesInPackage">
+    <Message Importance="normal" Text="Generating DSCv3 manifests..." />
+    <Copy SourceFiles="$(SolutionDir)\$(PlatformTarget)\$(Configuration)\WindowsPackageManager\WindowsPackageManager.dll" DestinationFolder="$(SolutionDir)\$(PlatformTarget)\$(Configuration)\AppInstallerCLI" SkipUnchangedFiles="true" />
+    <Exec Command="$(SolutionDir)\$(PlatformTarget)\$(Configuration)\AppInstallerCLI\winget.exe dscv3 --manifest -o $(SolutionDir)\$(PlatformTarget)\$(Configuration)\AppInstallerCLI\DSCv3Manifests" />
+    <Message Importance="normal" Text="DSCv3 manifests generated." />
+  </Target>
   <Target Name="WinGetIncludeAdditionalFilesInPackage" AfterTargets="_ComputeAppxPackagePayload">
     <PropertyGroup>
       <WinGetAdditionalPackageFileRoot>$(SolutionDir)</WinGetAdditionalPackageFileRoot>
@@ -242,6 +248,10 @@
       </WinGetAdditionalPackageFile>
       <WinGetAdditionalPackageFile Include="$(SolutionDir)\PowerShell\ExternalModules\**\*">
         <PackagePath>ExternalModules</PackagePath>
+        <Recurse>true</Recurse>
+      </WinGetAdditionalPackageFile>
+      <WinGetAdditionalPackageFile Include="$(SolutionDir)\$(PlatformTarget)\$(Configuration)\AppInstallerCLI\DSCv3Manifests\*">
+        <PackagePath>.</PackagePath>
         <Recurse>true</Recurse>
       </WinGetAdditionalPackageFile>
     </ItemGroup>

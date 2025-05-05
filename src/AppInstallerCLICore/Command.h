@@ -59,6 +59,8 @@ namespace AppInstaller::CLI
             Command(name, aliases, parent, visibility, Settings::ExperimentalFeature::Feature::None) {}
         Command(std::string_view name, std::string_view parent, Settings::ExperimentalFeature::Feature feature) :
             Command(name, {}, parent, Command::Visibility::Show, feature) {}
+        Command(std::string_view name, std::string_view parent, Settings::ExperimentalFeature::Feature feature, CommandOutputFlags outputFlags) :
+            Command(name, {}, parent, Command::Visibility::Show, feature, Settings::TogglePolicy::Policy::None, outputFlags) {}
         Command(std::string_view name, std::vector<std::string_view> aliases, std::string_view parent, Settings::ExperimentalFeature::Feature feature) :
             Command(name, aliases, parent, Command::Visibility::Show, feature) {}
         Command(std::string_view name, std::vector<std::string_view> aliases, std::string_view parent, Settings::TogglePolicy::Policy groupPolicy) :
