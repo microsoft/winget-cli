@@ -1,6 +1,0 @@
-.ninja_*
-*.ninja
-CMakeFiles/
-CMakeCache.txt
-CTestTestfile.cmake
-cmake_install.cmake

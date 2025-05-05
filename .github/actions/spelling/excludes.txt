@@ -100,8 +100,8 @@
 ^src/Microsoft.Management.Configuration.Processor/Microsoft.Management.Configuration.Processor.csproj$
 ^src/PowerShell/Help/markdownlint\.yaml$
 ^src/PowerShell/Microsoft.WinGet.Client.Engine/Microsoft.WinGet.Client.Engine.csproj$
-^src/cpprestsdk/
 ^src/PureLib/
 ^src/SfsClient/
 ^src/Xlang/
+^src/VcpkgPortOverlay/
 ignore$

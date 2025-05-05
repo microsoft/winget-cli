@@ -1,0 +1,229 @@
+From 51843fe48257c6b7b6e70cdec1db634f64a40818 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tina=20M=C3=BCller?= <cpan2@tinita.de>
+Date: Tue, 2 Apr 2024 00:50:40 +0200
+Subject: [PATCH] Limit depth of nesting by default
+
+Each nesting level increases the stack and the number of previous
+starting events that the parser has to check.
+
+The default maximum is 1000 and can be set via yaml_set_max_nest_level()
+
+I also added new options to run-parser and run-parser-test-suite:
+* --max-level: you can now try out this feature on the command line
+* --show-error: By default, run-parser doesn't show errors. The new option
+  helps with debugging
+---
+ include/yaml.h                | 14 ++++++++++++++
+ src/parser.c                  | 36 +++++++++++++++++++++++++++++++++++
+ tests/run-parser-test-suite.c |  9 ++++++++-
+ tests/run-parser.c            | 31 +++++++++++++++++++++++++++---
+ 4 files changed, 86 insertions(+), 4 deletions(-)
+
+diff --git a/include/yaml.h b/include/yaml.h
+index 89050e4f..e1467b0b 100644
+--- a/include/yaml.h
++++ b/include/yaml.h
+@@ -1456,6 +1456,20 @@ yaml_parser_parse(yaml_parser_t *parser, yaml_event_t *event);
+ YAML_DECLARE(int)
+ yaml_parser_load(yaml_parser_t *parser, yaml_document_t *document);
+ 
++/**
++ * Set the maximum depth of nesting.
++ *
++ * Default: 1000
++ *
++ * Each nesting level increases the stack and the number of previous
++ * starting events that the parser has to check.
++ *
++ * @param[in]       max         The maximum number of allowed nested events
++ */
++
++YAML_DECLARE(void)
++yaml_set_max_nest_level(int max);
++
+ /** @} */
+ 
+ /**
+diff --git a/src/parser.c b/src/parser.c
+index ec2f8d3e..9c266de6 100644
+--- a/src/parser.c
++++ b/src/parser.c
+@@ -64,6 +64,8 @@
+  * Public API declarations.
+  */
+ 
++int MAX_NESTING_LEVEL = 1000;
++
+ YAML_DECLARE(int)
+ yaml_parser_parse(yaml_parser_t *parser, yaml_event_t *event);
+ 
+@@ -80,6 +82,10 @@ yaml_parser_set_parser_error_context(yaml_parser_t *parser,
+         const char *context, yaml_mark_t context_mark,
+         const char *problem, yaml_mark_t problem_mark);
+ 
++static int
++yaml_maximum_level_reached(yaml_parser_t *parser,
++        yaml_mark_t context_mark, yaml_mark_t problem_mark);
++
+ /*
+  * State functions.
+  */
+@@ -162,6 +168,12 @@ static int
+ yaml_parser_append_tag_directive(yaml_parser_t *parser,
+         yaml_tag_directive_t value, int allow_duplicates, yaml_mark_t mark);
+ 
++YAML_DECLARE(void)
++yaml_set_max_nest_level(int max)
++{
++    MAX_NESTING_LEVEL = max;
++}
++
+ /*
+  * Get the next event.
+  */
+@@ -217,6 +229,14 @@ yaml_parser_set_parser_error_context(yaml_parser_t *parser,
+     return 0;
+ }
+ 
++static int
++yaml_maximum_level_reached(yaml_parser_t *parser,
++        yaml_mark_t context_mark, yaml_mark_t problem_mark)
++{
++    yaml_parser_set_parser_error_context(parser,
++            "while parsing", context_mark, "Maximum nesting level reached, set with yaml_set_max_nest_level())", problem_mark);
++    return 0;
++}
+ 
+ /*
+  * State dispatcher.
+@@ -657,6 +677,10 @@ yaml_parser_parse_node(yaml_parser_t *parser, yaml_event_t *event,
+                 return 1;
+             }
+             else if (token->type == YAML_FLOW_SEQUENCE_START_TOKEN) {
++                if (!STACK_LIMIT(parser, parser->indents, MAX_NESTING_LEVEL - parser->flow_level)) {
++                    yaml_maximum_level_reached(parser, start_mark, token->start_mark);
++                    goto error;
++                }
+                 end_mark = token->end_mark;
+                 parser->state = YAML_PARSE_FLOW_SEQUENCE_FIRST_ENTRY_STATE;
+                 SEQUENCE_START_EVENT_INIT(*event, anchor, tag, implicit,
+@@ -664,6 +688,10 @@ yaml_parser_parse_node(yaml_parser_t *parser, yaml_event_t *event,
+                 return 1;
+             }
+             else if (token->type == YAML_FLOW_MAPPING_START_TOKEN) {
++                if (!STACK_LIMIT(parser, parser->indents, MAX_NESTING_LEVEL - parser->flow_level)) {
++                    yaml_maximum_level_reached(parser, start_mark, token->start_mark);
++                    goto error;
++                }
+                 end_mark = token->end_mark;
+                 parser->state = YAML_PARSE_FLOW_MAPPING_FIRST_KEY_STATE;
+                 MAPPING_START_EVENT_INIT(*event, anchor, tag, implicit,
+@@ -671,6 +699,10 @@ yaml_parser_parse_node(yaml_parser_t *parser, yaml_event_t *event,
+                 return 1;
+             }
+             else if (block && token->type == YAML_BLOCK_SEQUENCE_START_TOKEN) {
++                if (!STACK_LIMIT(parser, parser->indents, MAX_NESTING_LEVEL - parser->flow_level)) {
++                    yaml_maximum_level_reached(parser, start_mark, token->start_mark);
++                    goto error;
++                }
+                 end_mark = token->end_mark;
+                 parser->state = YAML_PARSE_BLOCK_SEQUENCE_FIRST_ENTRY_STATE;
+                 SEQUENCE_START_EVENT_INIT(*event, anchor, tag, implicit,
+@@ -678,6 +710,10 @@ yaml_parser_parse_node(yaml_parser_t *parser, yaml_event_t *event,
+                 return 1;
+             }
+             else if (block && token->type == YAML_BLOCK_MAPPING_START_TOKEN) {
++                if (!STACK_LIMIT(parser, parser->indents, MAX_NESTING_LEVEL - parser->flow_level)) {
++                    yaml_maximum_level_reached(parser, start_mark, token->start_mark);
++                    goto error;
++                }
+                 end_mark = token->end_mark;
+                 parser->state = YAML_PARSE_BLOCK_MAPPING_FIRST_KEY_STATE;
+                 MAPPING_START_EVENT_INIT(*event, anchor, tag, implicit,
+diff --git a/tests/run-parser-test-suite.c b/tests/run-parser-test-suite.c
+index 5bdd6623..5e29caff 100644
+--- a/tests/run-parser-test-suite.c
++++ b/tests/run-parser-test-suite.c
+@@ -14,9 +14,16 @@ int main(int argc, char *argv[])
+     int flow = -1; /** default no flow style collections */
+     int i = 0;
+     int foundfile = 0;
++    int max_level;
++    char *output;
+ 
+     for (i = 1; i < argc; i++) {
+-        if (strncmp(argv[i], "--flow", 6) == 0) {
++        if (strncmp(argv[i], "--max-level", 11) == 0) {
++            i++;
++            max_level = strtol(argv[i], &output, 10);
++            yaml_set_max_nest_level(max_level);
++        }
++        else if (strncmp(argv[i], "--flow", 6) == 0) {
+             if (i+1 == argc)
+                 return usage(1);
+             i++;
+diff --git a/tests/run-parser.c b/tests/run-parser.c
+index 13031121..9e382504 100644
+--- a/tests/run-parser.c
++++ b/tests/run-parser.c
+@@ -12,13 +12,31 @@ int
+ main(int argc, char *argv[])
+ {
+     int number;
++    int start = 0;
++    int i = 0;
++    char *filename;
++    char *output;
++    int max_level;
++    int show_error = 0;
+ 
+     if (argc < 2) {
+         printf("Usage: %s file1.yaml ...\n", argv[0]);
+         return 0;
+     }
++    for (i = 1; i < argc; i++) {
++        if (strncmp(argv[i], "--max-level", 11) == 0) {
++            i++;
++            max_level = strtol(argv[i], &output, 10);
++            yaml_set_max_nest_level(max_level);
++            start = i+1;
++        }
++        else if (strncmp(argv[i], "--show-error", 12) == 0) {
++            show_error = 1;
++            start = i+1;
++        }
++    }
+ 
+-    for (number = 1; number < argc; number ++)
++    for (number = start; number < argc; number ++)
+     {
+         FILE *file;
+         yaml_parser_t parser;
+@@ -27,10 +45,11 @@ main(int argc, char *argv[])
+         int count = 0;
+         int error = 0;
+ 
+-        printf("[%d] Parsing '%s': ", number, argv[number]);
++        filename = argv[number];
++        printf("[%d] Parsing '%s': ", number, filename);
+         fflush(stdout);
+ 
+-        file = fopen(argv[number], "rb");
++        file = fopen(filename, "rb");
+         assert(file);
+ 
+         assert(yaml_parser_initialize(&parser));
+@@ -41,6 +60,12 @@ main(int argc, char *argv[])
+         {
+             if (!yaml_parser_parse(&parser, &event)) {
+                 error = 1;
++                if (show_error) {
++                    fprintf(stderr, "Parse error: %s\nLine: %lu Column: %lu\n",
++                        parser.problem,
++                        (unsigned long)parser.problem_mark.line + 1,
++                        (unsigned long)parser.problem_mark.column + 1);
++                }
+                 break;
+             }
+ 
+
