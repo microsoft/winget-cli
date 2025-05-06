@@ -172,7 +172,7 @@ namespace AppInstallerCLIE2ETests
             int startLine = -1;
             for (int i = 0; i < outputLines.Length; ++i)
             {
-                if (outputLines[i].Trim() == "Microsoft.WinGet/TestFile [Test File]")
+                if (outputLines[i].Trim() == "Microsoft.WinGet.Dev/TestFile [Test File]")
                 {
                     startLine = i;
                 }
@@ -202,7 +202,7 @@ namespace AppInstallerCLIE2ETests
             int startLine = -1;
             for (int i = 0; i < outputLines.Length; ++i)
             {
-                if (outputLines[i].Trim() == "Microsoft.WinGet/TestFile [Test File]")
+                if (outputLines[i].Trim() == "Microsoft.WinGet.Dev/TestFile [Test File]")
                 {
                     startLine = i;
                 }
