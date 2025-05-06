@@ -35,7 +35,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.SetupTestSource();
             WinGetSettingsHelper.ConfigureFeature("dsc3", true);
             WinGetSettingsHelper.ConfigureLoggingLevel("verbose");
-            EnsureTestResourcePresence(PackageResource);
+            EnsureTestResourcePresence();
         }
 
         /// <summary>

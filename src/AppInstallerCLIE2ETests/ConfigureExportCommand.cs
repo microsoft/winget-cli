@@ -34,6 +34,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestPackageExport -v 1.0.0.0 --silent -l {installDir}");
             this.previousPathValue = System.Environment.GetEnvironmentVariable("PATH");
             System.Environment.SetEnvironmentVariable("PATH", this.previousPathValue + ";" + installDir);
+            DSCv3ResourceTestBase.EnsureTestResourcePresence();
         }
 
         /// <summary>

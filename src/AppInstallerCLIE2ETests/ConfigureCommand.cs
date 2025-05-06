@@ -23,8 +23,7 @@ namespace AppInstallerCLIE2ETests
         /// </summary>
         public static void EnsureTestResourcePresence()
         {
-            DSCv3ResourceTestBase.EnsureTestResourcePresence("test-file");
-            DSCv3ResourceTestBase.EnsureTestResourcePresence("test-json");
+            DSCv3ResourceTestBase.EnsureTestResourcePresence();
         }
 
         /// <summary>
