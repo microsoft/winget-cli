@@ -22,8 +22,6 @@ namespace AppInstaller::CLI
 {
     namespace
     {
-        constexpr std::string_view s_WingetModuleName = "Microsoft.WinGet"sv;
-
         std::string GetFunctionManifestString(DscFunctions function)
         {
             THROW_HR_IF(E_INVALIDARG, !WI_IsSingleFlagSet(function));
@@ -167,7 +165,7 @@ namespace AppInstaller::CLI
     }
 
     DscCommandBase::DscCommandBase(std::string_view parent, std::string_view resourceName, DscResourceKind kind, DscFunctions functions, DscFunctionModifiers modifiers) :
-        Command(resourceName, parent, CommandOutputFlags::IgnoreSettingsWarnings), m_kind(kind), m_functions(functions), m_modifiers(modifiers)
+        Command(resourceName, parent, Settings::ExperimentalFeature::Feature::ConfigurationDSCv3, CommandOutputFlags::IgnoreSettingsWarnings), m_kind(kind), m_functions(functions), m_modifiers(modifiers)
     {
         // Limits on current implementation
         THROW_HR_IF(E_NOTIMPL, kind != DscResourceKind::Resource);
@@ -224,14 +222,14 @@ namespace AppInstaller::CLI
 
     WINGET_DSC_FUNCTION_FOREACH(WINGET_DSC_FUNCTION_METHOD);
 
-    void DscCommandBase::ResourceFunctionManifest(Execution::Context& context) const
+    void DscCommandBase::WriteManifest(Execution::Context& context, const std::filesystem::path& filePath) const
     {
         Json::Value json{ Json::ValueType::objectValue };
 
         // TODO: Move to release schema when released (there should be an aka.ms link as well, but it wasn't active yet)
         //json["$schema"] = "https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/v3/bundled/resource/manifest.json";
         json["$schema"] = "https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2024/04/bundled/resource/manifest.json";
-        json["type"] = std::string{ s_WingetModuleName } + '/' + ResourceType();
+        json["type"] = std::string{ ModuleName() } + '/' + ResourceType();
         json["description"] = LongDescription().get();
         json["version"] = Runtime::GetClientVersion().get();
 
@@ -253,15 +251,25 @@ namespace AppInstaller::CLI
         writerBuilder.settings_["indentation"] = "  ";
         std::string jsonString = Json::writeString(writerBuilder, json);
 
-        if (context.Args.Contains(Execution::Args::Type::OutputFile))
+        if (!filePath.empty())
         {
-            std::ofstream stream{ Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::OutputFile)), std::ios::binary };
+            std::ofstream stream{ filePath, std::ios::binary };
             stream.write(jsonString.c_str(), jsonString.length());
         }
         else
         {
             context.Reporter.Json() << jsonString;
         }
+    }
+
+    void DscCommandBase::ResourceFunctionManifest(Execution::Context& context) const
+    {
+        std::filesystem::path path;
+        if (context.Args.Contains(Execution::Args::Type::OutputFile))
+        {
+            path = std::filesystem::path{ Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::OutputFile)) };
+        }
+        WriteManifest(context, path);
     }
 
 #undef WINGET_DSC_FUNCTION_METHOD

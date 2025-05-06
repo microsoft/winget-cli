@@ -36,7 +36,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
     {
         TestCommon.SetupTestSource();
         WinGetSettingsHelper.ConfigureFeature("dsc3", true);
-        EnsureTestResourcePresence(UserSettingsFileResource);
+        EnsureTestResourcePresence();
     }
 
     /// <summary>

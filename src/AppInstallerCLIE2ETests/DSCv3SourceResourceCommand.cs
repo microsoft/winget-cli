@@ -57,7 +57,7 @@ namespace AppInstallerCLIE2ETests
         {
             TestCommon.SetupTestSource();
             WinGetSettingsHelper.ConfigureFeature("dsc3", true);
-            EnsureTestResourcePresence(SourceResource);
+            EnsureTestResourcePresence();
         }
 
         /// <summary>

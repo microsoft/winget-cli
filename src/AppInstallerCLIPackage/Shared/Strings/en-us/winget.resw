@@ -3345,4 +3345,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationExportFailedToGetUnitProcessors" xml:space="preserve">
     <value>Failed to get unit processors. Individual package settings will not be exported.</value>
   </data>
+  <data name="OutputDirectoryArgumentDescription" xml:space="preserve">
+    <value>Directory where the results are to be written</value>
+  </data>
 </root>

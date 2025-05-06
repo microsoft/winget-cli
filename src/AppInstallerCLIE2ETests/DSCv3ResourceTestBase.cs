@@ -50,15 +50,14 @@ namespace AppInstallerCLIE2ETests
         public const string InDesiredStatePropertyName = "_inDesiredState";
 
         /// <summary>
-        /// Write the resource manifest out to the WindowsApps alias directory.
+        /// Write the resource manifests out to the WindowsApps alias directory.
         /// </summary>
-        /// <param name="resource">The resource manifest to write.</param>
-        public static void EnsureTestResourcePresence(string resource)
+        public static void EnsureTestResourcePresence()
         {
             string outputDirectory = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft\\WindowsApps");
             Assert.IsNotEmpty(outputDirectory);
 
-            var result = TestCommon.RunAICLICommand($"dscv3 {resource}", $"--manifest -o {outputDirectory}\\microsoft.winget.{resource}.dsc.resource.json");
+            var result = TestCommon.RunAICLICommand($"dscv3", $"--manifest -o {outputDirectory}");
             Assert.AreEqual(0, result.ExitCode);
         }
 

@@ -1165,6 +1165,7 @@ Global
 		CertificateResources\CertificateResources.vcxitems*{5890d6ed-7c3b-40f3-b436-b54f640d9e65}*SharedItemsImports = 4
 		COMServer\COMServer.vcxitems*{5890d6ed-7c3b-40f3-b436-b54f640d9e65}*SharedItemsImports = 4
 		ManifestSchema\ManifestSchema.vcxitems*{5890d6ed-7c3b-40f3-b436-b54f640d9e65}*SharedItemsImports = 4
+		PureLib\PureLib.vcxitems*{5890d6ed-7c3b-40f3-b436-b54f640d9e65}*SharedItemsImports = 4
 		binver\binver.vcxitems*{5b6f90df-fd19-4bae-83d9-24dad128e777}*SharedItemsImports = 4
 		CertificateResources\CertificateResources.vcxitems*{5eb88068-5fb9-4e69-89b2-72dbc5e068f9}*SharedItemsImports = 4
 		binver\binver.vcxitems*{6e36ddd7-1602-474e-b1d7-d0a7e1d5ad86}*SharedItemsImports = 9

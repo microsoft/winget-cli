@@ -8,6 +8,7 @@
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
 #include "ConfigurationCommon.h"
 #include "ConfigurationWingetDscModuleUnitValidation.h"
+#include "Commands/DscCommandBase.h"
 #include <AppInstallerDateTime.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
@@ -47,8 +48,9 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_Unit_WinGetPackage = L"WinGetPackage";
         constexpr std::wstring_view s_Unit_WinGetSource = L"WinGetSource";
 
-        constexpr std::wstring_view s_UnitType_WinGetPackage_DSCv3 = L"Microsoft.WinGet/Package";
-        constexpr std::wstring_view s_UnitType_WinGetSource_DSCv3 = L"Microsoft.WinGet/Source";
+        constexpr std::wstring_view s_UnitType_WinGetPackage_DSCv3 = WINGET_DSCV3_MODULE_NAME_WIDE L"/Package";
+        constexpr std::wstring_view s_UnitType_WinGetSource_DSCv3 = WINGET_DSCV3_MODULE_NAME_WIDE L"/Source";
+        constexpr std::wstring_view s_UnitType_WinGetUserSettingsFile_DSCv3 = WINGET_DSCV3_MODULE_NAME_WIDE L"/UserSettingsFile";
         constexpr std::wstring_view s_UnitType_PowerShellModuleGet = L"PowerShellGet/PSModule";
 
         constexpr std::wstring_view s_Module_WinGetClient = L"Microsoft.WinGet.DSC";
@@ -66,19 +68,33 @@ namespace AppInstaller::CLI::Workflow
         struct PredefinedResource
         {
             // RequiredModule could be empty, meaning no required modules needed.
-            std::wstring RequiredModule;
+            std::wstring_view RequiredModule;
 
-            std::vector<std::wstring> UnitTypes;
+            std::vector<std::wstring_view> UnitTypes;
         };
 
-        static const PredefinedResource s_PredefinedResourcesForExport[] = {
-            { std::wstring{ s_Module_WinGetClient }, { L"Microsoft.WinGet.DSC/WinGetUserSettings" } },
-            { L"Microsoft.Windows.Developer", { L"Microsoft.Windows.Developer/DeveloperMode", L"Microsoft.Windows.Developer/EnableDarkMode", L"Microsoft.Windows.Developer/ShowSecondsInClock", L"Microsoft.Windows.Developer/Taskbar", L"Microsoft.Windows.Developer/WindowsExplorer" }},
-        };
+        std::vector<PredefinedResource> PredefinedResourcesForExport()
+        {
+            return {
+                { {}, { s_UnitType_WinGetUserSettingsFile_DSCv3 } },
+                { L"Microsoft.Windows.Developer", { L"Microsoft.Windows.Developer/DeveloperMode", L"Microsoft.Windows.Developer/EnableDarkMode", L"Microsoft.Windows.Developer/ShowSecondsInClock", L"Microsoft.Windows.Developer/Taskbar", L"Microsoft.Windows.Developer/WindowsExplorer" } },
+            };
+        }
 
-        static const std::wstring s_PackageSettingsExclusionList[] = {
-            L"Microsoft.WinGet/", L"Microsoft.DSC.Debug/", L"Microsoft.DSC/", L"Microsoft.DSC.Transitional/", L"Microsoft.Windows/RebootPending",
-            L"Microsoft.Windows/Registry", L"Microsoft.Windows/WMI", L"Microsoft.Windows/WindowsPowerShell", L"Microsoft/OSInfo"
+        std::vector<std::wstring_view> PackageSettingsExclusionList()
+        {
+            return {
+                L"Microsoft.WinGet/",
+                L"Microsoft.WinGet.Dev/",
+                L"Microsoft.DSC.Debug/",
+                L"Microsoft.DSC/",
+                L"Microsoft.DSC.Transitional/",
+                L"Microsoft.Windows/RebootPending",
+                L"Microsoft.Windows/Registry",
+                L"Microsoft.Windows/WMI",
+                L"Microsoft.Windows/WindowsPowerShell",
+                L"Microsoft/OSInfo"
+            };
         };
 
         Logging::Level ConvertLevel(DiagnosticLevel level)
@@ -1475,7 +1491,7 @@ namespace AppInstaller::CLI::Workflow
         {
             ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
 
-            for (const auto& resources : s_PredefinedResourcesForExport)
+            for (const auto& resources : PredefinedResourcesForExport())
             {
                 std::optional<ConfigurationUnit> requiredModuleUnit;
 
@@ -1538,11 +1554,13 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Warn() << Resource::String::ConfigurationExportFailedToGetUnitProcessors << std::endl;
             }
 
+            auto exclusionList = PackageSettingsExclusionList();
+
             // Filter out processors in exclusion list.
             for (auto itr = unitProcessors.begin(); itr != unitProcessors.end(); /* itr incremented in the logic */)
             {
                 bool processorRemoved = false;
-                for (const auto& exclusionItem : anon::s_PackageSettingsExclusionList)
+                for (const auto& exclusionItem : exclusionList)
                 {
                     if (Utility::CaseInsensitiveStartsWith(itr->UnitType(), exclusionItem))
                     {
