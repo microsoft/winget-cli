@@ -222,15 +222,6 @@ namespace AppInstaller::CLI
 
     WINGET_DSC_FUNCTION_FOREACH(WINGET_DSC_FUNCTION_METHOD);
 
-    std::string_view DscCommandBase::ModuleName()
-    {
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        return "Microsoft.WinGet.Dev"sv;
-#else
-        return "Microsoft.WinGet"sv;
-#endif
-    }
-
     void DscCommandBase::WriteManifest(Execution::Context& context, const std::filesystem::path& filePath) const
     {
         Json::Value json{ Json::ValueType::objectValue };

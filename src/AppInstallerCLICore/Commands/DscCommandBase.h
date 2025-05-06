@@ -5,6 +5,14 @@
 #include <json/json.h>
 #include <optional>
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+#define WINGET_DSCV3_MODULE_NAME "Microsoft.WinGet.Dev"
+#define WINGET_DSCV3_MODULE_NAME_WIDE L"Microsoft.WinGet.Dev"
+#else
+#define WINGET_DSCV3_MODULE_NAME "Microsoft.WinGet"
+#define WINGET_DSCV3_MODULE_NAME_WIDE L"Microsoft.WinGet"
+#endif
+
 namespace AppInstaller::CLI
 {
     // The kind of resource that this command is implementing.
@@ -75,7 +83,10 @@ namespace AppInstaller::CLI
 
         Utility::LocIndView HelpLink() const override;
 
-        static std::string_view ModuleName();
+        static constexpr std::string_view ModuleName()
+        {
+            return WINGET_DSCV3_MODULE_NAME;
+        }
 
         // Writes the manifest for the command to the file path.
         // If the path is empty, writes the manifest to the output stream.

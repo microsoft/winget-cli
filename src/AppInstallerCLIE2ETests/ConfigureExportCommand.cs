@@ -67,13 +67,13 @@ namespace AppInstallerCLIE2ETests
             // Check exported file is readable and validate content
             var showResult = TestCommon.RunAICLICommand(ShowCommand, $"-f {exportFile}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, showResult.ExitCode);
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet/Source"));
+            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Source"));
             Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_{Constants.TestSourceType}]"));
             Assert.True(showResult.StdOut.Contains($"type: {Constants.TestSourceType}"));
             Assert.True(showResult.StdOut.Contains($"argument: {Constants.TestSourceUrl}"));
             Assert.True(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"));
 
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet/Package"));
+            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Package"));
             Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"));
             Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"));
             Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"));
@@ -95,13 +95,13 @@ namespace AppInstallerCLIE2ETests
             // Check exported file is readable and validate content
             var showResult = TestCommon.RunAICLICommand(ShowCommand, $"-f {exportFile}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, showResult.ExitCode);
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet/Source"));
+            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Source"));
             Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_{Constants.TestSourceType}]"));
             Assert.True(showResult.StdOut.Contains($"type: {Constants.TestSourceType}"));
             Assert.True(showResult.StdOut.Contains($"argument: {Constants.TestSourceUrl}"));
             Assert.True(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"));
 
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet/Package"));
+            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Package"));
             Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"));
             Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"));
             Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"));
@@ -127,13 +127,13 @@ namespace AppInstallerCLIE2ETests
             // Check exported file is readable and validate content
             var showResult = TestCommon.RunAICLICommand(ShowCommand, $"-f {exportFile}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, showResult.ExitCode);
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet/Source"));
+            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Source"));
             Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_{Constants.TestSourceType}]"));
             Assert.True(showResult.StdOut.Contains($"type: {Constants.TestSourceType}"));
             Assert.True(showResult.StdOut.Contains($"argument: {Constants.TestSourceUrl}"));
             Assert.True(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"));
 
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet/Package"));
+            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Package"));
             Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"));
             Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"));
             Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"));
@@ -157,17 +157,17 @@ namespace AppInstallerCLIE2ETests
             var showResult = TestCommon.RunAICLICommand(ShowCommand, $"-f {exportFile}", timeOut: 1200000);
             Assert.AreEqual(Constants.ErrorCode.S_OK, showResult.ExitCode);
 
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.DSC/WinGetUserSettings"));
+            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/UserSettingsFile"));
             Assert.True(showResult.StdOut.Contains("Microsoft.Windows.Developer/DeveloperMode"));
             Assert.True(showResult.StdOut.Contains("Microsoft.Windows.Developer/EnableDarkMode"));
 
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet/Source"));
+            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Source"));
             Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_{Constants.TestSourceType}]"));
             Assert.True(showResult.StdOut.Contains($"type: {Constants.TestSourceType}"));
             Assert.True(showResult.StdOut.Contains($"argument: {Constants.TestSourceUrl}"));
             Assert.True(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"));
 
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet/Package"));
+            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Package"));
             Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"));
             Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"));
             Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"));

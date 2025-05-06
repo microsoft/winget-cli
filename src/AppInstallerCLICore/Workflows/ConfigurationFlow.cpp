@@ -8,6 +8,7 @@
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
 #include "ConfigurationCommon.h"
 #include "ConfigurationWingetDscModuleUnitValidation.h"
+#include "Commands/DscCommandBase.h"
 #include <AppInstallerDateTime.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
@@ -47,8 +48,9 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_Unit_WinGetPackage = L"WinGetPackage";
         constexpr std::wstring_view s_Unit_WinGetSource = L"WinGetSource";
 
-        constexpr std::wstring_view s_UnitType_WinGetPackage_DSCv3 = L"Microsoft.WinGet/Package";
-        constexpr std::wstring_view s_UnitType_WinGetSource_DSCv3 = L"Microsoft.WinGet/Source";
+        constexpr std::wstring_view s_UnitType_WinGetPackage_DSCv3 = WINGET_DSCV3_MODULE_NAME_WIDE L"/Package";
+        constexpr std::wstring_view s_UnitType_WinGetSource_DSCv3 = WINGET_DSCV3_MODULE_NAME_WIDE L"/Source";
+        constexpr std::wstring_view s_UnitType_WinGetUserSettingsFile_DSCv3 = WINGET_DSCV3_MODULE_NAME_WIDE L"/UserSettingsFile";
         constexpr std::wstring_view s_UnitType_PowerShellModuleGet = L"PowerShellGet/PSModule";
 
         constexpr std::wstring_view s_Module_WinGetClient = L"Microsoft.WinGet.DSC";
@@ -74,7 +76,7 @@ namespace AppInstaller::CLI::Workflow
         std::vector<PredefinedResource> PredefinedResourcesForExport()
         {
             return {
-                { {}, { L"Microsoft.WinGet/UserSettingsFile" } },
+                { {}, { s_UnitType_WinGetUserSettingsFile_DSCv3 } },
                 { L"Microsoft.Windows.Developer", { L"Microsoft.Windows.Developer/DeveloperMode", L"Microsoft.Windows.Developer/EnableDarkMode", L"Microsoft.Windows.Developer/ShowSecondsInClock", L"Microsoft.Windows.Developer/Taskbar", L"Microsoft.Windows.Developer/WindowsExplorer" } },
             };
         }
