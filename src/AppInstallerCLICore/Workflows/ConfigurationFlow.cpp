@@ -5,6 +5,7 @@
 #include "ImportExportFlow.h"
 #include "PromptFlow.h"
 #include "TableOutput.h"
+#include "MSStoreInstallerHandler.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
 #include "ConfigurationCommon.h"
 #include "ConfigurationWingetDscModuleUnitValidation.h"
@@ -186,6 +187,41 @@ namespace AppInstaller::CLI::Workflow
                 if (context.Args.Contains(Args::Type::ConfigurationProcessorPath))
                 {
                     factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePath), Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationProcessorPath)));
+                }
+                else
+                {
+                    // Make sure DSC executable path can be found. Otherwise, we'll install the DSC v3 package.
+                    winrt::hstring foundExecutablePath = factoryMap.Lookup(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::FoundDscExecutablePath));
+                    if (foundExecutablePath.empty())
+                    {
+                        AICLI_LOG(Config, Info, << "dsc.exe not found and not provided. Installing dsc package from store.");
+                        context.Reporter.Info() << Resource::String::ConfigurationInstallDscPackage;
+
+                        auto installDscContextPtr = context.CreateSubContext();
+                        Execution::Context& installDscContext = *installDscContextPtr;
+                        auto previousThreadGlobals = installDscContext.SetForCurrentThread();
+
+                        Manifest::ManifestInstaller dscInstaller;
+// TEMP: Until DSCv3 support is not experimental, allow the preview build to be installed automatically.
+// #ifndef AICLI_DISABLE_TEST_HOOKS
+                        dscInstaller.ProductId = "9PCX3HX4HZ0Z";
+// #else
+//                      dscInstaller.ProductId = "9NVTPZWRC6KQ";
+// #endif
+                        installDscContext.Add<Execution::Data::Installer>(std::move(dscInstaller));
+                        installDscContext.Args.AddArg(Execution::Args::Type::InstallScope, Manifest::ScopeToString(Manifest::ScopeEnum::User));
+                        installDscContext.Args.AddArg(Execution::Args::Type::Silent);
+                        installDscContext.Args.AddArg(Execution::Args::Type::Force);
+
+                        installDscContext << MSStoreInstall;
+
+                        if (installDscContext.IsTerminated())
+                        {
+                            AICLI_LOG(Config, Error, << "Failed to install dsc v3 package and could not find dsc.exe, it must be provided by the user.");
+                            context.Reporter.Error() << Resource::String::ConfigurationInstallDscPackageFailed;
+                            THROW_WIN32(ERROR_FILE_NOT_FOUND);
+                        }
+                    }
                 }
 
                 if (Logging::Log().IsEnabled(Logging::Channel::Config, Logging::Level::Verbose))

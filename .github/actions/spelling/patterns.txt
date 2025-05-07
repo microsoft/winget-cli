@@ -35,6 +35,7 @@ GetRestAPIBaseUri\(".*"\) == L".*"
 # Sample store product id for App Installer
 9nblggh4nns1
 9NVTPZWRC6KQ
+9PCX3HX4HZ0Z
 
 # Automatically suggested patterns
 

@@ -3348,4 +3348,11 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="OutputDirectoryArgumentDescription" xml:space="preserve">
     <value>Directory where the results are to be written</value>
   </data>
+  <data name="ConfigurationInstallDscPackage" xml:space="preserve">
+    <value>Desired State Configuration package not found on the system. Installing the package...</value>
+  </data>
+  <data name="ConfigurationInstallDscPackageFailed" xml:space="preserve">
+    <value>Failed to install Desired State Configuration package. Install the package manually or provide the path to dsc.exe through --processor-path argument.</value>
+    <comment>{Locked="dsc.exe","--processor-path"}</comment>
+  </data>
 </root>

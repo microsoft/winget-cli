@@ -371,17 +371,8 @@ jobs:
     displayName: Clean up Sysinternals PsTools
     condition: succeededOrFailed()
 
-    # Install DSC v3 until the DSC v3 processor handles that on its own
-  - powershell: |
-      $installResult = Install-WinGetPackage -Id Microsoft.DSC.Preview -Source winget -InstallerType Msix -Version 3.1.1
-      $installResult | Format-List
-      if ($installResult.ExtendedErrorCode) { throw $installResult.ExtendedErrorCode }
-    displayName: Install DSC v3
-    condition: succeededOrFailed()
-
     # Install required DSC modules until export all command can handle auto acquisition
   - pwsh: |
-      Install-Module -Name Microsoft.WinGet.DSC -Force
       Install-Module -Name Microsoft.Windows.Developer -AllowPrerelease -Force
     displayName: Install Required DSC Modules for Tests
     condition: succeededOrFailed()

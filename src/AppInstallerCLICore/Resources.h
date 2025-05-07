@@ -98,6 +98,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInDesiredState);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInform);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInitializing);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInstallDscPackage);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInstallDscPackageFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationLocal);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModuleNameOnly);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModulePath);
