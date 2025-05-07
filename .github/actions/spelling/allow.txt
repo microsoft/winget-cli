@@ -427,3 +427,10 @@ Xlang
 XResource
 XTOKEN
 xunit
+advancedinstaller
+advinst
+advinstexe
+advinstmsi
+aespassword
+APPDIR
+exenoui
