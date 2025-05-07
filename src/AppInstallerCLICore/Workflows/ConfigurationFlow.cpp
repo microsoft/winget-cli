@@ -195,6 +195,7 @@ namespace AppInstaller::CLI::Workflow
                     if (foundExecutablePath.empty())
                     {
                         AICLI_LOG(Config, Info, << "dsc.exe not found and not provided. Installing dsc package from store.");
+                        context.Reporter.Info() << Resource::String::ConfigurationInstallDscPackage;
 
                         auto installDscContextPtr = context.CreateSubContext();
                         Execution::Context& installDscContext = *installDscContextPtr;
@@ -216,7 +217,8 @@ namespace AppInstaller::CLI::Workflow
 
                         if (installDscContext.IsTerminated())
                         {
-                            AICLI_LOG(Config, Error, << "Could not find dsc.exe, it must be provided by the user.");
+                            AICLI_LOG(Config, Error, << "Failed to install dsc v3 package and could not find dsc.exe, it must be provided by the user.");
+                            context.Reporter.Error() << Resource::String::ConfigurationInstallDscPackageFailed;
                             THROW_WIN32(ERROR_FILE_NOT_FOUND);
                         }
                     }
