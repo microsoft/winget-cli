@@ -87,7 +87,8 @@ namespace AppInstaller::CLI::Workflow
         {
             return {
                 { {}, { { s_UnitType_WinGetUserSettingsFile_DSCv3 } } },
-                { L"Microsoft.Windows.Settings", { { L"Microsoft.Windows.Settings/WindowsSettings", true } } },
+                // TODO: Set ElevationRequired to true after https://github.com/PowerShell/DSC/issues/786 is fixed
+                { L"Microsoft.Windows.Settings", { { L"Microsoft.Windows.Settings/WindowsSettings", false } } },
             };
         }
 
