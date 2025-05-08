@@ -135,7 +135,6 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 
         (var setOutput, var setDiff) = Set(new () { Settings = setSettings });
 
-
         // Assert that the settings are added
         Assert.IsNotNull(setOutput);
         Assert.AreEqual(setOutput.Action, ActionPropertyValuePartial);
