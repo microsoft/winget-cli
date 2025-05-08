@@ -78,7 +78,7 @@ namespace AppInstaller::CLI::Workflow
         {
             return {
                 { {}, { s_UnitType_WinGetUserSettingsFile_DSCv3 } },
-                { L"Microsoft.Windows.Developer", { L"Microsoft.Windows.Developer/DeveloperMode", L"Microsoft.Windows.Developer/EnableDarkMode", L"Microsoft.Windows.Developer/ShowSecondsInClock", L"Microsoft.Windows.Developer/Taskbar", L"Microsoft.Windows.Developer/WindowsExplorer" } },
+                { L"Microsoft.Windows.Settings", { L"Microsoft.Windows.Settings/WindowsSettings" } },
             };
         }
 

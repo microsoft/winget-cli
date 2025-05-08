@@ -159,8 +159,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, showResult.ExitCode);
 
             Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/UserSettingsFile"));
-            Assert.True(showResult.StdOut.Contains("Microsoft.Windows.Developer/DeveloperMode"));
-            Assert.True(showResult.StdOut.Contains("Microsoft.Windows.Developer/EnableDarkMode"));
+            Assert.True(showResult.StdOut.Contains("Microsoft.Windows.Settings/WindowsSettings"));
 
             Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Source"));
             Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_{Constants.TestSourceType}]"));
