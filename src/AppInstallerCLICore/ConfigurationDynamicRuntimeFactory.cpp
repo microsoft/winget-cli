@@ -435,6 +435,13 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                                 strong_this->m_dynamicFactory->SendDiagnostics(information);
                             }
                         });
+
+                    auto factoryMap = factory.try_as<Collections::IMap<winrt::hstring, winrt::hstring>>();
+                    if (factoryMap)
+                    {
+                        winrt::hstring propertyName = ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DiagnosticTraceEnabled);
+                        factoryMap.Insert(propertyName, m_dynamicFactory->GetFactoryMapValue(propertyName));
+                    }
                 }
 
                 return m_setProcessors.emplace(integrityLevel, DynamicProcessorInfo{ factory, factory.CreateSetProcessor(m_configurationSet), std::move(factoryDiagnosticsEventRevoker) }).first;
