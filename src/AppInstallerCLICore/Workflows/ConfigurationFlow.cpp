@@ -66,19 +66,29 @@ namespace AppInstaller::CLI::Workflow
 
         constexpr std::wstring_view s_Setting_PowerShellGet_ModuleName = L"name";
 
+        struct PredefinedResourceInfo
+        {
+            std::wstring_view UnitType;
+            bool ElevationRequired = false;
+
+            PredefinedResourceInfo(std::wstring_view unitType) : UnitType(unitType) {}
+            PredefinedResourceInfo(std::wstring_view unitType, bool elevationRequired) : UnitType(unitType), ElevationRequired(elevationRequired) {}
+        };
+
         struct PredefinedResource
         {
             // RequiredModule could be empty, meaning no required modules needed.
             std::wstring_view RequiredModule;
 
-            std::vector<std::wstring_view> UnitTypes;
+            std::vector<PredefinedResourceInfo> ResourceInfos;
         };
 
         std::vector<PredefinedResource> PredefinedResourcesForExport()
         {
             return {
-                { {}, { s_UnitType_WinGetUserSettingsFile_DSCv3 } },
-                { L"Microsoft.Windows.Developer", { L"Microsoft.Windows.Developer/DeveloperMode", L"Microsoft.Windows.Developer/EnableDarkMode", L"Microsoft.Windows.Developer/ShowSecondsInClock", L"Microsoft.Windows.Developer/Taskbar", L"Microsoft.Windows.Developer/WindowsExplorer" } },
+                { {}, { { s_UnitType_WinGetUserSettingsFile_DSCv3 } } },
+                // TODO: Set ElevationRequired to true after https://github.com/PowerShell/DSC/issues/786 is fixed
+                { L"Microsoft.Windows.Settings", { { L"Microsoft.Windows.Settings/WindowsSettings", false } } },
             };
         }
 
@@ -1494,6 +1504,14 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        void AddElevatedEnvironment(std::vector<ConfigurationUnit>& units)
+        {
+            for (auto& unit : units)
+            {
+                unit.Environment().Context(SecurityContext::Elevated);
+            }
+        }
+
         std::vector<IConfigurationUnitProcessorDetails> GetAllUnitProcessors(Execution::Context& context)
         {
             ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
@@ -1554,14 +1572,22 @@ namespace AppInstaller::CLI::Workflow
                 }
                 */
 
-                for (const auto& resourceType : resources.UnitTypes)
+                for (const auto& resourceInfo : resources.ResourceInfos)
                 {
-                    auto resourceUnit = CreateConfigurationUnitFromUnitType(resourceType);
+                    auto resourceUnit = CreateConfigurationUnitFromUnitType(resourceInfo.UnitType);
                     auto exportedUnits = ExportUnit(context, resourceUnit);
 
                     if (requiredModuleUnit)
                     {
                         AddDependentUnit(exportedUnits, requiredModuleUnit.value());
+                    }
+
+                    // The dynamic processor factory does not support operating elevated units without a set.
+                    // Luckily the Get/Export for all PreDefinedResources do not require elevation.
+                    // Here we add elevation environment to exported results.
+                    if (resourceInfo.ElevationRequired)
+                    {
+                        AddElevatedEnvironment(exportedUnits);
                     }
 
                     for (auto exportedUnit : exportedUnits)
