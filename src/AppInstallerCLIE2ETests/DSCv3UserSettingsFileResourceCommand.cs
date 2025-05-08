@@ -61,7 +61,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
     }
 
     /// <summary>
-    /// Calls `get` on the `user-settings` resource.
+    /// Calls `get` on the `user-settings-file` resource.
     /// </summary>
     [Test]
     public void UserSettingsFile_Get()
@@ -70,12 +70,12 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
         var getOutput = Get(new ());
 
         Assert.IsNotNull(getOutput);
-        Assert.AreEqual(ActionPropertyValueFull, getOutput.Action);
+        Assert.AreEqual(ActionPropertyValuePartial, getOutput.Action);
         AssertSettingsAreEqual(expected, getOutput.Settings);
     }
 
     /// <summary>
-    /// Calls `set` on the `user-settings` resource with no diff.
+    /// Calls `set` on the `user-settings-file` resource with no diff.
     /// </summary>
     /// <param name="action">The action value.</param>
     [Test]
@@ -90,13 +90,13 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
         var expected = GetCurrentUserSettings();
 
         Assert.IsNotNull(setOutput);
-        Assert.AreEqual(ActionPropertyValueFull, setOutput.Action);
+        Assert.AreEqual(ActionPropertyValuePartial, setOutput.Action);
         AssertSettingsAreEqual(expected, setOutput.Settings);
         AssertDiffState(setDiff, []);
     }
 
     /// <summary>
-    /// Calls `set` on the `user-settings` resource to add fields.
+    /// Calls `set` on the `user-settings-file` resource to add fields.
     /// </summary>
     /// <param name="action">The action value.</param>
     [Test]
@@ -114,14 +114,38 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 
         // Assert that the settings are added
         Assert.IsNotNull(setOutput);
-        Assert.AreEqual(ActionPropertyValueFull, setOutput.Action);
+        Assert.AreEqual(ActionPropertyValuePartial, setOutput.Action);
         AssertMockProperties(setOutput.Settings, "mock");
         AssertSettingsAreEqual(expected, setOutput.Settings);
         AssertDiffState(setDiff, [ SettingsPropertyName ]);
     }
 
     /// <summary>
-    /// Calls `set` on the `user-settings` resource to update fields.
+    /// Calls `set` on the `user-settings-file` resource to ensure action is partial by default.
+    /// </summary>
+    [Test]
+    public void UserSettingsFile_Set_ActionIsPartialByDefault()
+    {
+        // Call `set` to add mock properties to the settings
+        var setSettings = GetSettingsArg(ActionPropertyValuePartial);
+        AddOrModifyMockProperties(setSettings, "mock");
+
+        var expected = GetCurrentUserSettings();
+        AddOrModifyMockProperties(expected, "mock");
+
+        (var setOutput, var setDiff) = Set(new () { Settings = setSettings });
+
+
+        // Assert that the settings are added
+        Assert.IsNotNull(setOutput);
+        Assert.AreEqual(ActionPropertyValuePartial, setOutput.Action);
+        AssertMockProperties(setOutput.Settings, "mock");
+        AssertSettingsAreEqual(expected, setOutput.Settings);
+        AssertDiffState(setDiff, [ SettingsPropertyName ]);
+    }
+
+    /// <summary>
+    /// Calls `set` on the `user-settings-file` resource to update fields.
     /// </summary>
     /// <param name="action">The action value.</param>
     [Test]
@@ -144,14 +168,14 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 
         // Assert that the settings are updated
         Assert.IsNotNull(setOutput);
-        Assert.AreEqual(ActionPropertyValueFull, setOutput.Action);
+        Assert.AreEqual(ActionPropertyValuePartial, setOutput.Action);
         AssertMockProperties(setOutput.Settings, "mock_new");
         AssertSettingsAreEqual(expected, setOutput.Settings);
         AssertDiffState(setDiff, [ SettingsPropertyName ]);
     }
 
     /// <summary>
-    /// Calls `test` on the `user-settings` resource to check if the settings are in desired state.
+    /// Calls `test` on the `user-settings-file` resource to check if the settings are in desired state.
     /// </summary>
     /// <param name="action">The action value.</param>
     [Test]
@@ -174,7 +198,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 
         // Assert that the settings are in desired state
         Assert.IsNotNull(testOutput);
-        Assert.AreEqual(ActionPropertyValueFull, testOutput.Action);
+        Assert.AreEqual(ActionPropertyValuePartial, testOutput.Action);
         AssertMockProperties(testOutput.Settings, "mock");
         AssertSettingsAreEqual(expected, testOutput.Settings);
         Assert.IsTrue(testOutput.InDesiredState);
@@ -182,7 +206,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
     }
 
     /// <summary>
-    /// Calls `test` on the `user-settings` resource to check if the settings are not in desired state.
+    /// Calls `test` on the `user-settings-file` resource to check if the settings are not in desired state.
     /// </summary>
     /// <param name="action">The action value.</param>
     [Test]
@@ -205,7 +229,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 
         // Assert that the settings are not in desired state
         Assert.IsNotNull(testOutput);
-        Assert.AreEqual(ActionPropertyValueFull, testOutput.Action);
+        Assert.AreEqual(ActionPropertyValuePartial, testOutput.Action);
         AssertMockProperties(testOutput.Settings, "mock_set");
         AssertSettingsAreEqual(expected, testOutput.Settings);
         Assert.IsFalse(testOutput.InDesiredState);
@@ -213,7 +237,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
     }
 
     /// <summary>
-    /// Calls `export` on the `user-settings` resource to export the settings.
+    /// Calls `export` on the `user-settings-file` resource to export the settings.
     /// </summary>
     [Test]
     public void UserSettingsFile_Export()
@@ -222,12 +246,12 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
         var exportOutput = Export(new ());
 
         Assert.IsNotNull(exportOutput);
-        Assert.AreEqual(ActionPropertyValueFull, exportOutput.Action);
+        Assert.AreEqual(ActionPropertyValuePartial, exportOutput.Action);
         AssertSettingsAreEqual(expected, exportOutput.Settings);
     }
 
     /// <summary>
-    /// Calls `get` on the `user-settings` resource.
+    /// Calls `get` on the `user-settings-file` resource.
     /// </summary>
     /// <param name="resourceData">The input resource data.</param>
     /// <returns>The output resource data.</returns>
@@ -239,7 +263,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
     }
 
     /// <summary>
-    /// Calls `set` on the `user-settings` resource.
+    /// Calls `set` on the `user-settings-file` resource.
     /// </summary>
     /// <param name="resourceData">The input resource data.</param>
     /// <returns>The output resource data and the diff.</returns>
@@ -251,7 +275,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
     }
 
     /// <summary>
-    /// Calls `test` on the `user-settings` resource.
+    /// Calls `test` on the `user-settings-file` resource.
     /// </summary>
     /// <param name="resourceData">The input resource data.</param>
     /// <returns>The output resource data and the diff.</returns>
@@ -263,7 +287,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
     }
 
     /// <summary>
-    /// Calls `export` on the `user-settings` resource.
+    /// Calls `export` on the `user-settings-file` resource.
     /// </summary>
     /// <param name="resourceData">The input resource data.</param>
     /// <returns>The output resource data.</returns>
@@ -333,6 +357,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
         [JsonPropertyName(InDesiredStatePropertyName)]
         public bool? InDesiredState { get; set; }
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string Action { get; set; }
 
         public JsonObject Settings { get; set; }
