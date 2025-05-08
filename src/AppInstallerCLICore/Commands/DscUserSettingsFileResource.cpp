@@ -33,9 +33,13 @@ namespace AppInstaller::CLI
                 _userSettingsPath(UserSettings::SettingsFilePath())
             {
                 const auto& action = Input.Action();
-                if (action.has_value() && (Utility::CaseInsensitiveEquals(action.value(), ACTION_FULL) || Utility::CaseInsensitiveEquals(action.value(), ACTION_PARTIAL)))
+                if (action.has_value() && Utility::CaseInsensitiveEquals(action.value(), ACTION_FULL))
                 {
-                    Output.Action(Input.Action());
+                    Output.Action(ACTION_FULL);
+                }
+                else
+                {
+                    Output.Action(ACTION_PARTIAL);
                 }
             }
 

@@ -138,7 +138,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 
         // Assert that the settings are added
         Assert.IsNotNull(setOutput);
-        Assert.IsNull(setOutput.Action);
+        Assert.AreEqual(setOutput.Action, ActionPropertyValuePartial);
         AssertMockProperties(setOutput.Settings, "mock");
         AssertSettingsAreEqual(expected, setOutput.Settings);
         AssertDiffState(setDiff, [ SettingsPropertyName ]);
