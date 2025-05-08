@@ -32,18 +32,6 @@ namespace AppInstaller::CLI
                 Input(json, ignoreFieldRequirements),
                 _userSettingsPath(UserSettings::SettingsFilePath())
             {
-                const auto& action = Input.Action();
-                if (action.has_value())
-                {
-                    if (Utility::CaseInsensitiveEquals(action.value(), ACTION_FULL))
-                    {
-                        Output.Action(ACTION_FULL);
-                    }
-                    else
-                    {
-                        Output.Action(ACTION_PARTIAL);
-                    }
-                }
             }
 
             const UserSettingsFileResourceObject Input;
@@ -78,10 +66,12 @@ namespace AppInstaller::CLI
                 {
                     if(Input.Action().has_value() && Utility::CaseInsensitiveEquals(Input.Action().value(), ACTION_FULL))
                     {
+                        Output.Action(ACTION_FULL);
                         _resolvedInputUserSettings = Input.Settings();
                     }
                     else
                     {
+                        Output.Action(ACTION_PARTIAL);
                         _resolvedInputUserSettings = MergeUserSettingsFiles(*Input.Settings());
                     }
                 }
