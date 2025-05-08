@@ -70,7 +70,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
         var getOutput = Get(new ());
 
         Assert.IsNotNull(getOutput);
-        Assert.AreEqual(ActionPropertyValuePartial, getOutput.Action);
+        Assert.IsNull(getOutput.Action);
         AssertSettingsAreEqual(expected, getOutput.Settings);
     }
 
@@ -90,7 +90,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
         var expected = GetCurrentUserSettings();
 
         Assert.IsNotNull(setOutput);
-        Assert.AreEqual(ActionPropertyValuePartial, setOutput.Action);
+        Assert.AreEqual(action, setOutput.Action);
         AssertSettingsAreEqual(expected, setOutput.Settings);
         AssertDiffState(setDiff, []);
     }
@@ -114,7 +114,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 
         // Assert that the settings are added
         Assert.IsNotNull(setOutput);
-        Assert.AreEqual(ActionPropertyValuePartial, setOutput.Action);
+        Assert.AreEqual(action, setOutput.Action);
         AssertMockProperties(setOutput.Settings, "mock");
         AssertSettingsAreEqual(expected, setOutput.Settings);
         AssertDiffState(setDiff, [ SettingsPropertyName ]);
@@ -138,7 +138,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 
         // Assert that the settings are added
         Assert.IsNotNull(setOutput);
-        Assert.AreEqual(ActionPropertyValuePartial, setOutput.Action);
+        Assert.IsNull(setOutput.Action);
         AssertMockProperties(setOutput.Settings, "mock");
         AssertSettingsAreEqual(expected, setOutput.Settings);
         AssertDiffState(setDiff, [ SettingsPropertyName ]);
@@ -168,7 +168,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 
         // Assert that the settings are updated
         Assert.IsNotNull(setOutput);
-        Assert.AreEqual(ActionPropertyValuePartial, setOutput.Action);
+        Assert.AreEqual(action, setOutput.Action);
         AssertMockProperties(setOutput.Settings, "mock_new");
         AssertSettingsAreEqual(expected, setOutput.Settings);
         AssertDiffState(setDiff, [ SettingsPropertyName ]);
@@ -198,7 +198,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 
         // Assert that the settings are in desired state
         Assert.IsNotNull(testOutput);
-        Assert.AreEqual(ActionPropertyValuePartial, testOutput.Action);
+        Assert.AreEqual(action, testOutput.Action);
         AssertMockProperties(testOutput.Settings, "mock");
         AssertSettingsAreEqual(expected, testOutput.Settings);
         Assert.IsTrue(testOutput.InDesiredState);
@@ -229,7 +229,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 
         // Assert that the settings are not in desired state
         Assert.IsNotNull(testOutput);
-        Assert.AreEqual(ActionPropertyValuePartial, testOutput.Action);
+        Assert.AreEqual(action, testOutput.Action);
         AssertMockProperties(testOutput.Settings, "mock_set");
         AssertSettingsAreEqual(expected, testOutput.Settings);
         Assert.IsFalse(testOutput.InDesiredState);
@@ -246,7 +246,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
         var exportOutput = Export(new ());
 
         Assert.IsNotNull(exportOutput);
-        Assert.AreEqual(ActionPropertyValuePartial, exportOutput.Action);
+        Assert.IsNull(exportOutput.Action);
         AssertSettingsAreEqual(expected, exportOutput.Settings);
     }
 

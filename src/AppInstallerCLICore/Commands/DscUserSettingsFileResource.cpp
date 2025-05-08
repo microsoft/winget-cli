@@ -4,6 +4,7 @@
 #include "DscUserSettingsFileResource.h"
 #include "DscComposableObject.h"
 #include "Resources.h"
+#include "AppInstallerStrings.h"
 
 using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Settings;
@@ -31,6 +32,11 @@ namespace AppInstaller::CLI
                 Input(json, ignoreFieldRequirements),
                 _userSettingsPath(UserSettings::SettingsFilePath())
             {
+                const auto& action = Input.Action();
+                if (action.has_value() && (Utility::CaseInsensitiveEquals(action.value(), ACTION_FULL) || Utility::CaseInsensitiveEquals(action.value(), ACTION_PARTIAL)))
+                {
+                    Output.Action(Input.Action());
+                }
             }
 
             const UserSettingsFileResourceObject Input;
@@ -38,7 +44,6 @@ namespace AppInstaller::CLI
 
             void Get()
             {
-                Output.Action(ACTION_PARTIAL);
                 Output.Settings(GetUserSettings());
             }
 
@@ -64,7 +69,7 @@ namespace AppInstaller::CLI
                 THROW_HR_IF(E_UNEXPECTED, !Input.Settings().has_value());
                 if (!_resolvedInputUserSettings)
                 {
-                    if(Input.Action() == ACTION_FULL)
+                    if(Input.Action().has_value() && Utility::CaseInsensitiveEquals(Input.Action().value(), ACTION_FULL))
                     {
                         _resolvedInputUserSettings = Input.Settings();
                     }
