@@ -123,6 +123,7 @@ deliveryoptimizationerrors
 DENYWR
 desktopappinstaller
 devhome
+DFX
 dic
 diskfull
 DISPLAYCATALOG
