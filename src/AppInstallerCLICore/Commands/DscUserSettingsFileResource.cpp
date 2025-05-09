@@ -4,6 +4,7 @@
 #include "DscUserSettingsFileResource.h"
 #include "DscComposableObject.h"
 #include "Resources.h"
+#include "AppInstallerStrings.h"
 
 using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Settings;
@@ -16,7 +17,7 @@ namespace AppInstaller::CLI
     namespace
     {
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SettingsProperty, Json::Value, Settings, "settings", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionUserSettingsFileSettings);
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(ActionProperty, std::string, Action, "action", Resource::String::DscResourcePropertyDescriptionUserSettingsFileAction, ({ ACTION_PARTIAL, ACTION_FULL }), ACTION_FULL);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(ActionProperty, std::string, Action, "action", Resource::String::DscResourcePropertyDescriptionUserSettingsFileAction, ({ ACTION_PARTIAL, ACTION_FULL }), ACTION_PARTIAL);
 
         using UserSettingsFileResourceObject = DscComposableObject<StandardInDesiredStateProperty, SettingsProperty, ActionProperty>;
 
@@ -38,7 +39,6 @@ namespace AppInstaller::CLI
 
             void Get()
             {
-                Output.Action(ACTION_FULL);
                 Output.Settings(GetUserSettings());
             }
 
@@ -64,12 +64,14 @@ namespace AppInstaller::CLI
                 THROW_HR_IF(E_UNEXPECTED, !Input.Settings().has_value());
                 if (!_resolvedInputUserSettings)
                 {
-                    if(Input.Action() == ACTION_FULL)
+                    if(Input.Action().has_value() && Utility::CaseInsensitiveEquals(Input.Action().value(), ACTION_FULL))
                     {
+                        Output.Action(ACTION_FULL);
                         _resolvedInputUserSettings = Input.Settings();
                     }
                     else
                     {
+                        Output.Action(ACTION_PARTIAL);
                         _resolvedInputUserSettings = MergeUserSettingsFiles(*Input.Settings());
                     }
                 }
