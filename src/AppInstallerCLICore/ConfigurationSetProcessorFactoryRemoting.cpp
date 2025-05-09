@@ -300,12 +300,14 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
             bool Insert(winrt::hstring key, winrt::hstring value)
             {
-                return m_remoteFactory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Insert(key, value);
+                auto map = m_remoteFactory.try_as<Collections::IMap<winrt::hstring, winrt::hstring>>();
+                return map ? map.Insert(key, value) : false;
             }
 
             winrt::hstring Lookup(winrt::hstring key)
             {
-                return m_remoteFactory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Lookup(key);
+                auto map = m_remoteFactory.try_as<Collections::IMap<winrt::hstring, winrt::hstring>>();
+                return map ? map.Lookup(key) : winrt::hstring{};
             }
 
             HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher)

@@ -435,6 +435,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                                 strong_this->m_dynamicFactory->SendDiagnostics(information);
                             }
                         });
+
+                    winrt::hstring propertyName = ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DiagnosticTraceEnabled);
+                    factory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Insert(propertyName, m_dynamicFactory->GetFactoryMapValue(propertyName));
                 }
 
                 return m_setProcessors.emplace(integrityLevel, DynamicProcessorInfo{ factory, factory.CreateSetProcessor(m_configurationSet), std::move(factoryDiagnosticsEventRevoker) }).first;
