@@ -307,6 +307,8 @@ namespace AppInstaller::CLI
     {
         Json::StreamWriterBuilder writerBuilder;
         writerBuilder.settings_["indentation"] = "";
+        writerBuilder.settings_["commentStyle"] = "None";
+        writerBuilder.settings_["emitUTF8"] = true;
         context.Reporter.Json() << Json::writeString(writerBuilder, value) << std::endl;
     }
 }
