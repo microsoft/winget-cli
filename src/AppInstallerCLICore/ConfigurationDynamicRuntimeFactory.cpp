@@ -130,10 +130,10 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 return m_processorEngine;
             }
 
-            winrt::hstring GetFactoryMapValue(winrt::hstring key)
+            std::optional<winrt::hstring> GetFactoryMapValue(winrt::hstring key)
             {
                 auto itr = m_factoryMapValues.find(key);
-                return itr != m_factoryMapValues.end() ? itr->second : winrt::hstring{};
+                return itr != m_factoryMapValues.end() ? std::make_optional(itr->second) : std::nullopt;
             }
 
         private:
@@ -340,21 +340,21 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 if (m_dynamicFactory->Engine() == ProcessorEngine::DSCv3)
                 {
                     winrt::hstring dscExecutablePathPropertyName = ToHString(PropertyName::DscExecutablePath);
-                    winrt::hstring dscExecutablePath = m_dynamicFactory->GetFactoryMapValue(dscExecutablePathPropertyName);
+                    std::optional<winrt::hstring> dscExecutablePath = m_dynamicFactory->GetFactoryMapValue(dscExecutablePathPropertyName);
 
-                    if (dscExecutablePath.empty())
+                    if (!dscExecutablePath)
                     {
                         dscExecutablePath = m_dynamicFactory->Lookup(ToHString(PropertyName::FoundDscExecutablePath));
                     }
 
-                    if (dscExecutablePath.empty())
+                    if (dscExecutablePath->empty())
                     {
                         // This is backstop to prevent a case where dsc.exe not found.
                         AICLI_LOG(Config, Error, << "Could not find dsc.exe, it must be provided by the user.");
                         THROW_WIN32(ERROR_FILE_NOT_FOUND);
                     }
 
-                    json["processorPath"] = Utility::ConvertToUTF8(dscExecutablePath);
+                    json["processorPath"] = Utility::ConvertToUTF8(dscExecutablePath.value());
                 }
 
                 Json::StreamWriterBuilder writerBuilder;
@@ -437,7 +437,10 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                         });
 
                     winrt::hstring propertyName = ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DiagnosticTraceEnabled);
-                    factory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Insert(propertyName, m_dynamicFactory->GetFactoryMapValue(propertyName));
+                    if (auto propertyValue = m_dynamicFactory->GetFactoryMapValue(propertyName))
+                    {
+                        factory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Insert(propertyName, propertyValue.value());
+                    }
                 }
 
                 return m_setProcessors.emplace(integrityLevel, DynamicProcessorInfo{ factory, factory.CreateSetProcessor(m_configurationSet), std::move(factoryDiagnosticsEventRevoker) }).first;
