@@ -99,6 +99,21 @@ function Select-DirectoryInPatch
     return $result
 }
 
+<#
+    When updating a portfile, we look for a section that looks like this:
+
+        vcpkg_from_github(
+            OUT_SOURCE_PATH SOURCE_PATH
+            REPO <user/repo>
+            REF <commith hash>
+            SHA512 <code .tar.gz hash>
+            HEAD_REF master
+            PATCHES
+                patch-1.patch
+                patch-2.patch
+        )
+#>
+
 # Adds a patch to a portfile.cmake
 function Add-PatchToPortFile
 {
@@ -109,22 +124,7 @@ function Add-PatchToPortFile
         [string]$PatchName
     )
 
-    <#
-        We're looking for a section that looks like this:
-
-            vcpkg_from_github(
-                OUT_SOURCE_PATH SOURCE_PATH
-                REPO <user/repo>
-                REF <commith hash>
-                SHA512 <hash>
-                HEAD_REF master
-                PATCHES
-                    patch-1.patch
-                    patch-2.patch
-            )
-
-        We look for the line that says "PATCHES" and add the new patch before the closing parenthesis
-    #>
+    # Look for the line that says "PATCHES" and add the new patch before the closing parenthesis
 
     $portFilePath = Join-Path $OverlayRoot $Port "portfile.cmake"
     $originalPortFile = Get-Content $portFilePath
@@ -179,8 +179,57 @@ function Add-PatchToPort
     Add-PatchToPortFile -Port $Port -PatchName $PatchName
 }
 
+# Sets the value of an existing function parameter.
+# For example, REF in vcpkg_from_github
+function Set-ParameterInPortFile
+{
+    param(
+        [Parameter(Mandatory)]
+        [string]$Port,
+        [Parameter(Mandatory)]
+        [string]$ParameterName,
+        [Parameter(Mandatory)]
+        [string]$CurrentValuePattern,
+        [Parameter(Mandatory)]
+        [string]$NewValue
+    )
+
+    $portFilePath = Join-Path $OverlayRoot $Port 'portfile.cmake'
+    $originalPortFile = Get-Content $portFilePath
+
+    # Explanation for the regex:
+    # '(?<=)' - lookbehind without matching
+    # '^ +'   - the parameter is only preceeded by spaces (and followed by a single space)
+    # '(?=)'  - lookahead without matching
+    # ' |$'   - the parameter may be the end of the line, or be followed by something else after a space (e.g. a comment)
+    $regex = "(?<=^ +$ParameterName )$CurrentValuePattern(?= |$)"
+
+    $modifiedPortFile = $originalPortFile -replace $regex, $NewValue
+    $modifiedPortFile | Out-File $portFilePath
+}
+
+# Updates the source commit used for a port.
+# Takes the commit hash, and the hash of the archive with the code that vcpkg will download.
+function Update-PortSource
+{
+    param(
+        [Parameter(Mandatory)]
+        [string]$Port,
+        [Parameter(Mandatory)]
+        [string]$Commit,
+        [Parameter(Mandatory)]
+        [string]$SourceHash
+    )
+
+    $portDir = Join-Path $OverlayRoot $Port
+
+    Set-ParameterInPortFile $Port -ParameterName 'REF' -CurrentValuePattern '[0-9a-f]{40}' -NewValue $Commit
+    Set-ParameterInPortFile $Port -ParameterName 'SHA512' -CurrentValuePattern '[0-9a-f]{128}' -NewValue $SourceHash
+}
+
+
 New-PortOverlay cpprestsdk
-Add-PatchToPort cpprestsdk -PatchRepo "microsoft/winget-cli" -PatchCommit "888b4ed8f4f7d25cb05a47210e083fe29348163b" -PatchName "add-server-certificate-validation.patch" -PatchRoot "src/cpprestsdk/cpprestsdk"
+Add-PatchToPort cpprestsdk -PatchRepo 'microsoft/winget-cli' -PatchCommit '888b4ed8f4f7d25cb05a47210e083fe29348163b' -PatchName 'add-server-certificate-validation.patch' -PatchRoot 'src/cpprestsdk/cpprestsdk'
 
 New-PortOverlay libyaml
-Add-PatchToPort libyaml -PatchRepo "yaml/libyaml" -PatchCommit "51843fe48257c6b7b6e70cdec1db634f64a40818" -PatchName "fix-parser-nesting.patch"
+Update-PortSource libyaml -Commit '840b65c40675e2d06bf40405ad3f12dec7f35923' -SourceHash 'de85560312d53a007a2ddf1fe403676bbd34620480b1ba446b8c16bb366524ba7a6ed08f6316dd783bf980d9e26603a9efc82f134eb0235917b3be1d3eb4b302'

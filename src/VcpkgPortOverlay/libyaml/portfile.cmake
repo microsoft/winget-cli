@@ -5,13 +5,12 @@ endif()
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO yaml/libyaml
-    REF 2c891fc7a770e8ba2fec34fc6b545c672beb37e6 # 0.2.5
-    SHA512 7cdde7b48c937777b851747f7e0b9a74cb7da30173e09305dad931ef83c3fcee3e125e721166690fe6a0987ba897564500530e5518e4b66b1c9b1db8900bf320
+    REF 840b65c40675e2d06bf40405ad3f12dec7f35923 # 0.2.5
+    SHA512 de85560312d53a007a2ddf1fe403676bbd34620480b1ba446b8c16bb366524ba7a6ed08f6316dd783bf980d9e26603a9efc82f134eb0235917b3be1d3eb4b302
     HEAD_REF master
     PATCHES
         ${PATCHES}
         export-pkgconfig.patch
-        fix-parser-nesting.patch
 )
 
 vcpkg_cmake_configure(
