@@ -22,7 +22,7 @@ namespace AppInstaller::CLI
             virtual Utility::LocIndView SettingName() const = 0;
 
             // Tests the value.
-            // Returns true if in the deired state; false if not.
+            // Returns true if in the desired state; false if not.
             virtual bool Test() const = 0;
 
             // Sets the value.
@@ -120,9 +120,20 @@ namespace AppInstaller::CLI
                         auto stringSetting = Settings::StringToStringAdminSetting(property);
                         if (stringSetting != Settings::StringAdminSetting::Unknown)
                         {
-                            std::string value = inputSettings[property].asString();
-                            AICLI_LOG(Config, Info, << "String admin setting: " << property << " => " << value);
-                            InputSettings.emplace_back(std::make_unique<AdminSettingsDetails::AdminSetting_String>(stringSetting, value));
+                            const auto& propertyNode = inputSettings[property];
+                            std::optional<std::string> value;
+
+                            if (propertyNode.isNull())
+                            {
+                                AICLI_LOG(Config, Info, << "String admin setting: " << property << " => null");
+                            }
+                            else
+                            {
+                                value = propertyNode.asString();
+                                AICLI_LOG(Config, Info, << "String admin setting: " << property << " => `" << value.value() << "`");
+                            }
+
+                            InputSettings.emplace_back(std::make_unique<AdminSettingsDetails::AdminSetting_String>(stringSetting, std::move(value)));
                             continue;
                         }
 

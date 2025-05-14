@@ -162,7 +162,7 @@ namespace AppInstaller::CLI
 
         static void FromJson(Derived* self, const Json::Value* value, bool ignoreFieldRequirements)
         {
-            if (value)
+            if (value && !value->isNull())
             {
                 self->m_value = GetJsonTypeValue<PropertyType>::Get(*value);
             }
