@@ -3364,4 +3364,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="DscAdminSettingsResourceLongDescription" xml:space="preserve">
     <value>Allows management of administrator settings the DSC v3 command line interface protocol. See the help link for details.</value>
   </data>
+  <data name="ResetAllAdminSettingsArgumentDescription" xml:space="preserve">
+    <value>Resets all admin settings</value>
+  </data>
+  <data name="ResetAllAdminSettingsSucceeded" xml:space="preserve">
+    <value>All admin settings reset.</value>
+  </data>
 </root>

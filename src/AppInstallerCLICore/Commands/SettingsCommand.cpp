@@ -162,7 +162,8 @@ namespace AppInstaller::CLI
     std::vector<Argument> SettingsResetCommand::GetArguments() const
     {
         return {
-            Argument { Execution::Args::Type::SettingName, Resource::String::SettingNameArgumentDescription, ArgumentType::Positional, true },
+            Argument { Execution::Args::Type::SettingName, Resource::String::SettingNameArgumentDescription, ArgumentType::Positional },
+            Argument { Execution::Args::Type::All, Resource::String::ResetAllAdminSettingsArgumentDescription, ArgumentType::Flag },
         };
     }
 
@@ -183,6 +184,21 @@ namespace AppInstaller::CLI
 
     void SettingsResetCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
+        if (execArgs.Contains(Execution::Args::Type::All))
+        {
+            if (execArgs.Contains(Execution::Args::Type::SettingName))
+            {
+                throw CommandException(Resource::String::InvalidArgumentSpecifierError(ArgumentCommon::ForType(Execution::Args::Type::SettingName).Name));
+            }
+
+            return;
+        }
+
+        if (!execArgs.Contains(Execution::Args::Type::SettingName))
+        {
+            throw CommandException(Resource::String::RequiredArgError(ArgumentCommon::ForType(Execution::Args::Type::SettingName).Name));
+        }
+
         // Get admin setting string for all available options except Unknown.
         // We accept both bool and string settings
         std::vector<Utility::LocIndString> adminSettingList;
@@ -208,6 +224,6 @@ namespace AppInstaller::CLI
     {
         context <<
             Workflow::EnsureRunningAsAdmin <<
-            Workflow::ResetAdminSetting;
+            (context.Args.Contains(Execution::Args::Type::All) ? Workflow::ResetAllAdminSettings : Workflow::ResetAdminSetting);
     }
 }

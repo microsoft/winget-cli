@@ -574,6 +574,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ReservedFilenameError);
         WINGET_DEFINE_RESOURCE_STRINGID(ResetAdminSettingFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ResetAdminSettingSucceeded);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResetAllAdminSettingsArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResetAllAdminSettingsSucceeded);
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeIdArgumentDescription);

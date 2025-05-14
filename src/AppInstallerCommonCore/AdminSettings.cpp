@@ -60,6 +60,8 @@ namespace AppInstaller::Settings
             bool GetAdminSettingValue(BoolAdminSetting setting) const;
             std::optional<std::string> GetAdminSettingValue(StringAdminSetting setting) const;
 
+            void Reset();
+
         private:
             void LoadAdminSettings();
             [[nodiscard]] bool SaveAdminSettings();
@@ -169,6 +171,11 @@ namespace AppInstaller::Settings
             default:
                 return std::nullopt;
             }
+        }
+
+        void AdminSettingsInternal::Reset()
+        {
+            m_settingStream.Remove();
         }
 
         void AdminSettingsInternal::LoadAdminSettings()
@@ -404,6 +411,11 @@ namespace AppInstaller::Settings
         AdminSettingsInternal adminSettingsInternal;
         adminSettingsInternal.SetAdminSetting(setting, std::nullopt);
         return true;
+    }
+
+    void ResetAllAdminSettings()
+    {
+        AdminSettingsInternal{}.Reset();
     }
 
     std::optional<std::string> GetAdminSetting(StringAdminSetting setting)

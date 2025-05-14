@@ -29,6 +29,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ResetAdminSetting(Execution::Context& context);
 
+    // Resets all admin settings to the default.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void ResetAllAdminSettings(Execution::Context& context);
+
     // Opens the user settings.
     // Required Args: None
     // Inputs: None
