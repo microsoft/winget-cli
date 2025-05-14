@@ -5,6 +5,7 @@
 #include "DscPackageResource.h"
 #include "DscUserSettingsFileResource.h"
 #include "DscSourceResource.h"
+#include "DscAdminSettingsResource.h"
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
 #include "DscTestFileResource.h"
@@ -33,6 +34,7 @@ namespace AppInstaller::CLI
             std::make_unique<DscPackageResource>(FullName()),
             std::make_unique<DscSourceResource>(FullName()),
             std::make_unique<DscUserSettingsFileResource>(FullName()),
+            std::make_unique<DscAdminSettingsResource>(FullName()),
 #ifndef AICLI_DISABLE_TEST_HOOKS
             std::make_unique<DscTestFileResource>(FullName()),
             std::make_unique<DscTestJsonResource>(FullName()),

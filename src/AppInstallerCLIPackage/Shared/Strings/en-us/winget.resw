@@ -3355,4 +3355,13 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Failed to install Desired State Configuration package. Install the package manually or provide the path to dsc.exe through --processor-path argument.</value>
     <comment>{Locked="dsc.exe","--processor-path"}</comment>
   </data>
+  <data name="DscResourcePropertyDescriptionAdminSettingsSettings" xml:space="preserve">
+    <value>An object containing the administrator settings and their values.</value>
+  </data>
+  <data name="DscAdminSettingsResourceShortDescription" xml:space="preserve">
+    <value>Manage administrator settings</value>
+  </data>
+  <data name="DscAdminSettingsResourceLongDescription" xml:space="preserve">
+    <value>Allows management of administrator settings the DSC v3 command line interface protocol. See the help link for details.</value>
+  </data>
 </root>
