@@ -5,7 +5,7 @@
 
 namespace AppInstaller::CLI
 {
-    // A resource for managing source configuration.
+    // A resource for managing admin settings.
     struct DscAdminSettingsResource : public DscCommandBase
     {
         DscAdminSettingsResource(std::string_view parent);

@@ -188,7 +188,7 @@ namespace AppInstaller::CLI
         {
             if (execArgs.Contains(Execution::Args::Type::SettingName))
             {
-                throw CommandException(Resource::String::InvalidArgumentSpecifierError(ArgumentCommon::ForType(Execution::Args::Type::SettingName).Name));
+                throw CommandException(Resource::String::MultipleExclusiveArgumentsProvided("all|setting"_liv));
             }
 
             return;
