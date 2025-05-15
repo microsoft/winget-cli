@@ -52,6 +52,7 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_UnitType_WinGetPackage_DSCv3 = WINGET_DSCV3_MODULE_NAME_WIDE L"/Package";
         constexpr std::wstring_view s_UnitType_WinGetSource_DSCv3 = WINGET_DSCV3_MODULE_NAME_WIDE L"/Source";
         constexpr std::wstring_view s_UnitType_WinGetUserSettingsFile_DSCv3 = WINGET_DSCV3_MODULE_NAME_WIDE L"/UserSettingsFile";
+        constexpr std::wstring_view s_UnitType_WinGetAdminSettings_DSCv3 = WINGET_DSCV3_MODULE_NAME_WIDE L"/AdminSettings";
         constexpr std::wstring_view s_UnitType_PowerShellModuleGet = L"PowerShellGet/PSModule";
 
         constexpr std::wstring_view s_Module_WinGetClient = L"Microsoft.WinGet.DSC";
@@ -86,7 +87,7 @@ namespace AppInstaller::CLI::Workflow
         std::vector<PredefinedResource> PredefinedResourcesForExport()
         {
             return {
-                { {}, { { s_UnitType_WinGetUserSettingsFile_DSCv3 } } },
+                { {}, { { s_UnitType_WinGetUserSettingsFile_DSCv3 }, { s_UnitType_WinGetAdminSettings_DSCv3, true } } },
                 { L"Microsoft.Windows.Settings", { { L"Microsoft.Windows.Settings/WindowsSettings", true } } },
             };
         }
