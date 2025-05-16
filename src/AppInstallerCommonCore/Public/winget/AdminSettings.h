@@ -38,6 +38,7 @@ namespace AppInstaller::Settings
     bool DisableAdminSetting(BoolAdminSetting setting);
     bool SetAdminSetting(StringAdminSetting setting, std::string_view value);
     bool ResetAdminSetting(StringAdminSetting setting);
+    void ResetAllAdminSettings();
 
     bool IsAdminSettingEnabled(BoolAdminSetting setting);
     std::optional<std::string> GetAdminSetting(StringAdminSetting setting);

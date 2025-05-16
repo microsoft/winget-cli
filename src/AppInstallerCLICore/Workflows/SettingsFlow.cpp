@@ -113,6 +113,12 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void ResetAllAdminSettings(Execution::Context& context)
+    {
+        Settings::ResetAllAdminSettings();
+        context.Reporter.Info() << Resource::String::ResetAllAdminSettingsSucceeded << std::endl;
+    }
+
     void OpenUserSetting(Execution::Context& context)
     {
         // Show warnings only when the setting command is executed.
