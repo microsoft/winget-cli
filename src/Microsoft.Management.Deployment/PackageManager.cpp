@@ -898,8 +898,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     std::unique_ptr<Execution::OrchestratorQueueItem> CreateQueueItemForRepair(
         std::unique_ptr<::AppInstaller::CLI::Execution::COMContext> comContext,
-        winrt::Microsoft::Management::Deployment::CatalogPackage package,
-        winrt::Microsoft::Management::Deployment::RepairOptions options)
+        winrt::Microsoft::Management::Deployment::CatalogPackage package)
     {
         // Add installed version
         AddInstalledVersionToContext(package.InstalledVersion(), comContext.get());
@@ -956,7 +955,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 }
                 else if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::RepairOptions>)
                 {
-                    queueItem = CreateQueueItemForRepair(std::move(comContext), package, options);
+                    queueItem = CreateQueueItemForRepair(std::move(comContext), package);
                 }
 
                 Execution::ContextOrchestrator::Instance().EnqueueAndRunItem(queueItem);

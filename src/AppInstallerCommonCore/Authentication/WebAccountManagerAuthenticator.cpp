@@ -220,7 +220,14 @@ namespace AppInstaller::Authentication
             return {};
         }
 
-        return HandleGetTokenResult(WebAuthenticationCoreManager::GetTokenSilentlyAsync(request).get());
+        if (webAccount)
+        {
+            return HandleGetTokenResult(WebAuthenticationCoreManager::GetTokenSilentlyAsync(request, webAccount).get());
+        }
+        else
+        {
+            return HandleGetTokenResult(WebAuthenticationCoreManager::GetTokenSilentlyAsync(request).get());
+        }
     }
 
     AuthenticationResult WebAccountManagerAuthenticator::HandleGetTokenResult(WebTokenRequestResult requestResult)
