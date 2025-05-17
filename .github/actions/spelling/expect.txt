@@ -116,6 +116,7 @@ Dcom
 debian
 decompressor
 dedupe
+DEFT
 deigh
 deleteifnotneeded
 deliveryoptimization
