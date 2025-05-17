@@ -38,7 +38,7 @@ TEST_CASE("DependencyGraph_BFirst", "[dependencyGraph][dependencies]")
     DependencyList rootDependencies;
     std::for_each(installers.begin(), installers.end(), [&](ManifestInstaller installer) { rootDependencies.Add(installer.Dependencies); });
 
-    DependencyGraph graph(rootAsDependency, rootDependencies, [&](Dependency node)
+    DependencyGraph graph(rootAsDependency, rootDependencies, [&](Dependency)
         {
             DependencyList dependencyList;
             auto dependencyManifest = CreateFakeManifestWithDependencies(manifest.Id);
@@ -72,7 +72,7 @@ TEST_CASE("DependencyGraph_InStackNoLoop", "[dependencyGraph][dependencies]")
     DependencyList rootDependencies;
     std::for_each(installers.begin(), installers.end(), [&](ManifestInstaller installer) { rootDependencies.Add(installer.Dependencies); });
 
-    DependencyGraph graph(rootAsDependency, rootDependencies, [&](Dependency node)
+    DependencyGraph graph(rootAsDependency, rootDependencies, [&](Dependency)
         {
             DependencyList dependencyList;
             auto dependencyManifest = CreateFakeManifestWithDependencies(manifest.Id);
@@ -106,7 +106,7 @@ TEST_CASE("DependencyGraph_EasyToSeeLoop", "[dependencyGraph][dependencies]")
     DependencyList rootDependencies;
     std::for_each(installers.begin(), installers.end(), [&](ManifestInstaller installer) { rootDependencies.Add(installer.Dependencies); });
 
-    DependencyGraph graph(rootAsDependency, rootDependencies, [&](Dependency node) {
+    DependencyGraph graph(rootAsDependency, rootDependencies, [&](Dependency) {
         DependencyList dependencyList;
         auto dependencyManifest = CreateFakeManifestWithDependencies(manifest.Id);
 
