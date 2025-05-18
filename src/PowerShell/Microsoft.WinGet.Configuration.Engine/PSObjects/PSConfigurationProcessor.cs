@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PSConfigurationProcessor.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -27,10 +27,10 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
         /// <summary>
         /// Initializes a new instance of the <see cref="PSConfigurationProcessor"/> class.
         /// </summary>
-        /// <param name="factory">Factory.</param>
+        /// <param name="factory">Processor Factory. If null, the functions (i.e. set/unit operations) may be limited.</param>
         /// <param name="diagnosticCommand">AsyncCommand to use for diagnostics.</param>
         /// <param name="canUseTelemetry">If telemetry can be used.</param>
-        internal PSConfigurationProcessor(IConfigurationSetProcessorFactory factory, PowerShellCmdlet diagnosticCommand, bool canUseTelemetry)
+        internal PSConfigurationProcessor(IConfigurationSetProcessorFactory? factory, PowerShellCmdlet diagnosticCommand, bool canUseTelemetry)
         {
             this.Processor = new ConfigurationProcessor(factory);
             this.Processor.MinimumLevel = DiagnosticLevel.Verbose;

@@ -31,6 +31,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
                     this.File,
                     this.ModulePath,
                     this.ExecutionPolicy,
+                    this.ProcessorPath,
                     this.CanUseTelemetry);
             }
             else if (this.ParameterSetName == Helpers.Constants.ParameterSet.OpenConfigurationSetFromHistory)
@@ -39,6 +40,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
                     this.InstanceIdentifier,
                     this.ModulePath,
                     this.ExecutionPolicy,
+                    this.ProcessorPath,
                     this.CanUseTelemetry);
             }
             else if (this.ParameterSetName == Helpers.Constants.ParameterSet.OpenAllConfigurationSetsFromHistory)
@@ -46,6 +48,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
                 configCommand.GetAllFromHistory(
                     this.ModulePath,
                     this.ExecutionPolicy,
+                    this.ProcessorPath,
                     this.CanUseTelemetry);
             }
         }
