@@ -9,7 +9,7 @@
 std::shared_ptr<TestRestRequestHandler> GetTestRestRequestHandler(
     const web::http::status_code statusCode, const utility::string_t& sampleResponseString, const utility::string_t& mimeType)
 {
-    return std::make_shared<TestRestRequestHandler>([statusCode, sampleResponseString, mimeType](web::http::http_request request) ->
+    return std::make_shared<TestRestRequestHandler>([statusCode, sampleResponseString, mimeType](web::http::http_request) ->
         pplx::task<web::http::http_response>
         {
             web::http::http_response response;

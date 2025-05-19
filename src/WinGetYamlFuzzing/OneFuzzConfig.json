@@ -24,7 +24,7 @@
         "Org": "microsoft",
         "Project": "OS",
         "AssignedTo": "ranm@microsoft.com",
-        "AreaPath": "OS\\Windows Client and Services\\WinPD\\DFX-Developer Fundamentals and Experiences\\InstaDev",
+        "AreaPath": "OS\\Windows Client and Services\\WinPD\\DFX-Developer Fundamentals and Experiences\\DEFT\\InstaDev",
         "IterationPath": "OS"
       },
       "codeCoverage": {
