@@ -22,9 +22,6 @@ BeforeAll {
 
     Import-Module Microsoft.WinGet.Configuration
 
-    # The msstore source will be used to install DSCv3 package
-    wingetdev source reset --force
-
     function CreatePolicyKeyIfNotExists()
     {
         $registryExists = test-path  -Path $wingetGroupPolicyRegistryRoot
@@ -216,7 +213,8 @@ BeforeAll {
 
     function EnsureDSCv3TestResourcePresence()
     {
-        $resourcePath = Join-Path $env:LOCALAPPDATA "Microsoft\WindowsApps\test-file.dsc.resource.json"
+        $localAppDataPath = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData)
+        $resourcePath = Join-Path $localAppDataPath "Microsoft\WindowsApps\test-file.dsc.resource.json"
         if (-not (Test-Path $resourcePath))
         {
             wingetdev dscv3 test-file --manifest -o $resourcePath

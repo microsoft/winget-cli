@@ -520,7 +520,7 @@ jobs:
 # Build and test PowerShell module
 
 - job: 'BuildPowerShellModule'
-  timeoutInMinutes: 120
+  timeoutInMinutes: 240
   dependsOn: 'Build'
   condition: succeeded('Build')
   variables:
@@ -602,6 +602,16 @@ jobs:
       testResultsFiles: '$(Pipeline.Workspace)\WPPesterTest\Test*.xml'
       failTaskOnFailedTests: true
     condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: Copy winget logs
+    inputs:
+      pwsh: true
+      targetType: inline
+      script: |
+        $sourceDir = Join-Path $env:LocalAppData Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir
+        $destinationDir = $(Build.ArtifactStagingDirectory)\WinGetLogs
+        Copy-Item -Path $sourceDir -Destination $destinationDir -Recurse -Force
 
   - task: PublishPipelineArtifact@1
     displayName: Publish PowerShell Module Artifacts

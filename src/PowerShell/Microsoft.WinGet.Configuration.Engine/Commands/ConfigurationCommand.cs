@@ -434,10 +434,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     Install-Module -Name {WinGetClientModule} -Confirm:$False -Force
                 }}
 
-                $InstallResult = Install-WingetPackage -Id {DSCv3PackageId} -Source msstore
-                if ($InstallResult.Status -ne 'Ok')
+                $installResult = Install-WingetPackage -Id {DSCv3PackageId} -Source msstore
+                if ($installResult.Status -ne 'Ok')
                 {{
-                    Write-Error 'Failed to install DSCv3 package.' -ErrorAction Stop
+                    Write-Error ""Failed to install DSCv3 package. Status: $($installResult.Status). ExtendedErrorCode $($installResult.ExtendedErrorCode)"" -ErrorAction Stop
                 }}
                 ");
 
