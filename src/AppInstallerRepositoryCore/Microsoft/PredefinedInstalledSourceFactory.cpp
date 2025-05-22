@@ -262,6 +262,43 @@ namespace AppInstaller::Repository::Microsoft
 
         struct CachedInstalledIndex
         {
+            // https://devblogs.microsoft.com/oldnewthing/20210215-00/?p=104865
+            struct Singleton
+            {
+                struct Holder : public winrt::implements<Holder, winrt::Windows::Foundation::IInspectable>
+                {
+                    static constexpr std::wstring_view Guid{ L"{48c47064-4fff-4eca-812c-dbb4f33a8fcb}" };
+                    std::shared_ptr<CachedInstalledIndex> m_shared{ std::make_shared<CachedInstalledIndex>() };
+                };
+
+                std::weak_ptr<CachedInstalledIndex> m_weak;
+                winrt::slim_mutex m_lock;
+
+                std::shared_ptr<CachedInstalledIndex> Get()
+                {
+                    {
+                        const std::shared_lock lock{ m_lock };
+                        if (auto cachedIndex = m_weak.lock())
+                        {
+                            return cachedIndex;
+                        }
+                    }
+
+                    auto value = winrt::make_self<Holder>();
+
+                    const std::shared_lock lock{ m_lock };
+                    if (auto cachedIndex = m_weak.lock())
+                    {
+                        return cachedIndex;
+                    }
+
+                    winrt::Windows::ApplicationModel::Core::CoreApplication::Properties().Insert(Holder::Guid, value.as<winrt::Windows::Foundation::IInspectable>());
+
+                    m_weak = value->m_shared;
+                    return value->m_shared;
+                }
+            };
+
             CachedInstalledIndex()
             {
                 ARPHelper arpHelper;
@@ -340,7 +377,7 @@ namespace AppInstaller::Repository::Microsoft
 
                 if (PredefinedInstalledSourceFactory::StringToFilter(m_details.Arg) == PredefinedInstalledSourceFactory::Filter::NoneWithForcedCacheUpdate)
                 {
-                    GetCachedInstalledIndex().ForceNextUpdate();
+                    GetCachedInstalledIndex()->ForceNextUpdate();
                 }
             }
 
@@ -359,9 +396,9 @@ namespace AppInstaller::Repository::Microsoft
                 // Only cache for the unfiltered install data
                 if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::NoneWithForcedCacheUpdate)
                 {
-                    CachedInstalledIndex& cachedIndex = GetCachedInstalledIndex();
-                    cachedIndex.UpdateIndexIfNeeded();
-                    return std::make_shared<SQLiteIndexSource>(m_details, cachedIndex.GetCopy(), true);
+                    std::shared_ptr<CachedInstalledIndex> cachedIndex = GetCachedInstalledIndex();
+                    cachedIndex->UpdateIndexIfNeeded();
+                    return std::make_shared<SQLiteIndexSource>(m_details, cachedIndex->GetCopy(), true);
                 }
                 else
                 {
@@ -370,10 +407,10 @@ namespace AppInstaller::Repository::Microsoft
             }
 
         private:
-            CachedInstalledIndex& GetCachedInstalledIndex()
+            std::shared_ptr<CachedInstalledIndex> GetCachedInstalledIndex()
             {
-                static CachedInstalledIndex s_installedIndex;
-                return s_installedIndex;
+                static CachedInstalledIndex::Singleton s_installedIndex;
+                return s_installedIndex.Get();
             }
 
             SourceDetails m_details;
