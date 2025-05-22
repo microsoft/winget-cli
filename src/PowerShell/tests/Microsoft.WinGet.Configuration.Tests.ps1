@@ -22,6 +22,9 @@ BeforeAll {
 
     Import-Module Microsoft.WinGet.Configuration
 
+    # The msstore source will be used to install DSCv3 package
+    Import-Module Microsoft.WinGet.Client
+
     function CreatePolicyKeyIfNotExists()
     {
         $registryExists = test-path  -Path $wingetGroupPolicyRegistryRoot
