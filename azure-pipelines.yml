@@ -520,7 +520,7 @@ jobs:
 # Build and test PowerShell module
 
 - job: 'BuildPowerShellModule'
-  timeoutInMinutes: 240
+  timeoutInMinutes: 120
   dependsOn: 'Build'
   condition: succeeded('Build')
   variables:
@@ -604,7 +604,7 @@ jobs:
     condition: succeededOrFailed()
 
   - task: PowerShell@2
-    displayName: Copy winget logs
+    displayName: Copy WinGet Logs
     inputs:
       pwsh: true
       targetType: inline

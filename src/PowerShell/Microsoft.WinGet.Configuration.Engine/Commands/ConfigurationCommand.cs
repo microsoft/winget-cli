@@ -424,8 +424,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             this.Write(StreamType.Information, Resources.ConfigurationInstallDscPackage);
 
             InitialSessionState initialSessionState = InitialSessionState.CreateDefault();
-
-            // initialSessionState.ExecutionPolicy = openParams.ExecutionPolicy;
+            initialSessionState.ExecutionPolicy = openParams.ExecutionPolicy;
             Runspace runspace = RunspaceFactory.CreateRunspace(initialSessionState);
             runspace.Open();
             PowerShell installDSCv3 = PowerShell.Create(runspace).AddScript(

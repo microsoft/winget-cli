@@ -22,8 +22,16 @@ BeforeAll {
 
     Import-Module Microsoft.WinGet.Configuration
 
-    # The msstore source will be used to install DSCv3 package
+    # TODO: Installing within the test run on the build server (only) somehow causes below error:
+    #       [CORE] Started MSStore package execution. ProductId: 9PCX3HX4HZ0Z PackageFamilyName: Microsoft.DesiredStateConfiguration-Preview_8wekyb3d8bbwe
+    #       [CLI ] MSStore install failed. ProductId: 9PCX3HX4HZ0Z HResult: 0x80010002
+    #       So install the DSCv3 package here.
     Import-Module Microsoft.WinGet.Client
+    $installResult = Install-WingetPackage -Id 9PCX3HX4HZ0Z -Source msstore
+    if ($installResult.Status -ne 'Ok')
+    {
+        Write-Error "Failed to install DSCv3 package. Status: $($installResult.Status). ExtendedErrorCode: $($installResult.ExtendedErrorCode)." -ErrorAction Stop
+    }
 
     function CreatePolicyKeyIfNotExists()
     {
