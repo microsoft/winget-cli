@@ -69,12 +69,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
     }
 
-    bool HasPackageId()
-    {
-        std::uint32_t bufferLength{};
-        return GetCurrentPackageId(&bufferLength, nullptr) != APPMODEL_ERROR_NO_PACKAGE;
-    }
-
     HRESULT EnsureProcessHasCapability(Capability requiredCapability, DWORD callerProcessId)
     {
         bool allowed = false;
