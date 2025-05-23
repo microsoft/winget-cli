@@ -92,7 +92,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 status = capability.CheckAccess();
 
-                return (status == winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus::Allowed);
+                return ((status == winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus::Allowed) ? S_OK : E_ACCESSDENIED);
             }
         }
 
