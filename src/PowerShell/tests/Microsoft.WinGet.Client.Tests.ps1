@@ -24,6 +24,7 @@ BeforeAll {
     }
 
     $settingsFilePath = (ConvertFrom-Json (& $wingetExeName settings export)).userSettingsFile
+    $originalSettingsContent = Get-Content -Path $settingsFilePath -Raw
 
     $deviceGroupPolicyRoot = "HKLM:\Software\Policies\Microsoft\Windows"
     $wingetPolicyKeyName = "AppInstaller"
@@ -34,6 +35,10 @@ BeforeAll {
     function SetWinGetSettingsHelper($settings) {
         $content = ConvertTo-Json $settings -Depth 4
         Set-Content -Path $settingsFilePath -Value $content
+    }
+
+    function RestoreWinGetSettings() {
+        Set-Content -Path $settingsFilePath -Value $originalSettingsContent
     }
 
     # Source Add requires admin privileges, this will only execute successfully in an elevated PowerShell.
@@ -640,6 +645,10 @@ Describe 'Get-WinGetUserSetting' {
         Set-Content -Path $settingsFilePath -Value "Hi, im not a json. Thank you, Test."
         { Get-WinGetUserSetting } | Should -Throw
     }
+
+    AfterAll {
+        RestoreWinGetSettings
+    }
 }
 
 Describe 'Test-WinGetUserSetting' {
@@ -743,10 +752,9 @@ Describe 'Test-WinGetUserSetting' {
         $inputSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=4 ; experimentalCmd=$true}}
         Test-WinGetUserSetting -UserSettings $inputSettings -IgnoreNotSet | Should -Be $false
     }
-    
 
     AfterAll {
-        SetWinGetSettingsHelper @{ debugging= @{ enableSelfInitiatedMinidump=$true ; keepAllLogFiles=$true } }
+        RestoreWinGetSettings
     }
 }
 
@@ -817,7 +825,7 @@ Describe 'Set-WinGetUserSetting' {
     }
 
     AfterAll {
-        SetWinGetSettingsHelper @{ debugging= @{ enableSelfInitiatedMinidump=$true ; keepAllLogFiles=$true } }
+        RestoreWinGetSettings
     }
 }
 
@@ -959,5 +967,6 @@ Describe 'WindowsPackageManagerServer' -Skip:($PSEdition -eq "Desktop") {
 }
 
 AfterAll {
+    RestoreWinGetSettings
     RemoveTestSource
 }
