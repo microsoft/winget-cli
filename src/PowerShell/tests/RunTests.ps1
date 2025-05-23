@@ -44,10 +44,10 @@ if (-not [System.String]::IsNullOrEmpty($packageLayoutPath))
     {
         $local:wingetExeName = "wingetdev.exe"
     }
-    
+
     $local:settingsExport = ConvertFrom-Json (& $local:wingetExeName settings export)
     $local:settingsFilePath = $local:settingsExport.userSettingsFile
-    $local:settingsFileContent = ConvertTo-Json @{ debugging= @{ enableSelfInitiatedMinidump=$true ; keepAllLogFiles=$true } }
+    $local:settingsFileContent = ConvertTo-Json @{ debugging= @{ enableSelfInitiatedMinidump=$true ; keepAllLogFiles=$true }; experimentalFeatures= @{ dsc3=$true } }
 
     Set-Content -Path $local:settingsFilePath -Value $local:settingsFileContent
 }

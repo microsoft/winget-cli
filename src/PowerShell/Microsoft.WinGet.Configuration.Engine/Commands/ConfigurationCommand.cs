@@ -11,6 +11,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using System.IO;
     using System.Linq;
     using System.Management.Automation;
+    using System.Management.Automation.Runspaces;
     using System.Text;
     using System.Threading.Tasks;
     using Microsoft.Management.Configuration;
@@ -31,6 +32,19 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     /// </summary>
     public sealed class ConfigurationCommand : PowerShellCmdlet
     {
+        private const string ProcessorEngineDSCv3 = "dscv3";
+        private const string ProcessorEnginePowerShell = "pwsh";
+
+        private const string DSCv3FactoryMapKeyDscExecutablePath = "DscExecutablePath";
+        private const string DSCv3FactoryMapKeyFoundDscExecutablePath = "FoundDscExecutablePath";
+
+        private const string WinGetClientModule = "Microsoft.WinGet.Client";
+#if USE_PROD_CLSIDS
+        private const string DSCv3PackageId = "9NVTPZWRC6KQ";
+#else
+        private const string DSCv3PackageId = "9PCX3HX4HZ0Z";
+#endif
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationCommand"/> class.
         /// </summary>
@@ -83,15 +97,17 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <param name="configFile">Configuration file path.</param>
         /// <param name="modulePath">The module path to use.</param>
         /// <param name="executionPolicy">Execution policy.</param>
+        /// <param name="processorPath">The processor path to use.</param>
         /// <param name="canUseTelemetry">If telemetry can be used.</param>
         public void Get(
             string configFile,
             string modulePath,
             ExecutionPolicy executionPolicy,
+            string processorPath,
             bool canUseTelemetry)
         {
             var openParams = new OpenConfigurationParameters(
-                this, configFile, modulePath, executionPolicy, canUseTelemetry);
+                this, configFile, modulePath, executionPolicy, processorPath, canUseTelemetry);
 
             // Start task.
             var runningTask = this.RunOnMTA<PSConfigurationSet>(
@@ -110,15 +126,17 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <param name="instanceIdentifier">Instance identifier.</param>
         /// <param name="modulePath">The module path to use.</param>
         /// <param name="executionPolicy">Execution policy.</param>
+        /// <param name="processorPath">The processor path to use.</param>
         /// <param name="canUseTelemetry">If telemetry can be used.</param>
         public void GetFromHistory(
             string instanceIdentifier,
             string modulePath,
             ExecutionPolicy executionPolicy,
+            string processorPath,
             bool canUseTelemetry)
         {
             var openParams = new OpenConfigurationParameters(
-                this, instanceIdentifier, modulePath, executionPolicy, canUseTelemetry, fromHistory: true);
+                this, instanceIdentifier, modulePath, executionPolicy, processorPath, canUseTelemetry, fromHistory: true);
 
             // Start task.
             var runningTask = this.RunOnMTA<PSConfigurationSet?>(
@@ -139,14 +157,16 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// </summary>
         /// <param name="modulePath">The module path to use.</param>
         /// <param name="executionPolicy">Execution policy.</param>
+        /// <param name="processorPath">The processor path to use.</param>
         /// <param name="canUseTelemetry">If telemetry can be used.</param>
         public void GetAllFromHistory(
             string modulePath,
             ExecutionPolicy executionPolicy,
+            string processorPath,
             bool canUseTelemetry)
         {
             var openParams = new OpenConfigurationParameters(
-                this, modulePath, executionPolicy, canUseTelemetry);
+                this, modulePath, executionPolicy, processorPath, canUseTelemetry);
 
             // Start task.
             var runningTask = this.RunOnMTA<PSConfigurationSet[]>(
@@ -361,7 +381,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             this.Write(StreamType.Object, psConfigurationJob.ApplyConfigurationTask.Result);
         }
 
-        private IConfigurationSetProcessorFactory CreateFactory(OpenConfigurationParameters openParams)
+        private IConfigurationSetProcessorFactory CreatePowerShellProcessorFactory(OpenConfigurationParameters openParams)
         {
             var factory = new PowerShellConfigurationSetProcessorFactory();
 
@@ -377,18 +397,90 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             return factory;
         }
 
+        private async Task<IConfigurationSetProcessorFactory> CreateDSCv3ProcessorFactory(OpenConfigurationParameters openParams)
+        {
+            var factory = new DSCv3ConfigurationSetProcessorFactory();
+
+            var factoryMap = factory.As<IDictionary<string, string>>();
+            if (!string.IsNullOrEmpty(openParams.ProcessorPath))
+            {
+                factoryMap.Add(DSCv3FactoryMapKeyDscExecutablePath, openParams.ProcessorPath);
+            }
+            else
+            {
+                string? foundProcessorPath = null;
+                if (!factoryMap.TryGetValue(DSCv3FactoryMapKeyFoundDscExecutablePath, out foundProcessorPath) ||
+                    string.IsNullOrEmpty(foundProcessorPath))
+                {
+                    await this.InstallDSCv3Package(openParams);
+                }
+            }
+
+            return factory;
+        }
+
+        private async Task InstallDSCv3Package(OpenConfigurationParameters openParams)
+        {
+            this.Write(StreamType.Information, Resources.ConfigurationInstallDscPackage);
+
+            InitialSessionState initialSessionState = InitialSessionState.CreateDefault();
+            initialSessionState.ExecutionPolicy = openParams.ExecutionPolicy;
+            Runspace runspace = RunspaceFactory.CreateRunspace(initialSessionState);
+            runspace.Open();
+            PowerShell installDSCv3 = PowerShell.Create(runspace).AddScript(
+                $@"
+                if (-not (Get-Module -ListAvailable -Name {WinGetClientModule}))
+                {{
+                    Install-Module -Name {WinGetClientModule} -Confirm:$False -Force
+                }}
+
+                $installResult = Install-WingetPackage -Id {DSCv3PackageId} -Source msstore
+                if ($installResult.Status -ne 'Ok')
+                {{
+                    Write-Error ""Failed to install DSCv3 package. Status: $($installResult.Status). ExtendedErrorCode: $($installResult.ExtendedErrorCode)."" -ErrorAction Stop
+                }}
+                ");
+
+            await installDSCv3.InvokeAsync();
+
+            if (installDSCv3.HadErrors)
+            {
+                this.Write(StreamType.Error, Resources.ConfigurationInstallDscPackageFailed);
+                throw new FileNotFoundException(Resources.DscExeNotFound, "dsc.exe");
+            }
+        }
+
+        private async Task<PSConfigurationProcessor> CreateConfigurationProcessorWithSet(OpenConfigurationParameters openParams, ConfigurationSet set)
+        {
+            string processorIdentifier = set.Environment.ProcessorIdentifier;
+
+            if (string.IsNullOrEmpty(processorIdentifier) || ProcessorEnginePowerShell.Equals(processorIdentifier, StringComparison.OrdinalIgnoreCase))
+            {
+                // Default to PowerShell
+                return new PSConfigurationProcessor(this.CreatePowerShellProcessorFactory(openParams), this, openParams.CanUseTelemetry);
+            }
+            else if (ProcessorEngineDSCv3.Equals(processorIdentifier, StringComparison.OrdinalIgnoreCase))
+            {
+                return new PSConfigurationProcessor(await this.CreateDSCv3ProcessorFactory(openParams), this, openParams.CanUseTelemetry);
+            }
+            else
+            {
+                throw new NotSupportedException(string.Format(Resources.ProcessorEngineNotSupported, processorIdentifier));
+            }
+        }
+
         private async Task<PSConfigurationSet?> OpenConfigurationSetAsync(OpenConfigurationParameters openParams)
         {
             this.Write(StreamType.Verbose, Resources.ConfigurationInitializing);
 
-            var psProcessor = new PSConfigurationProcessor(this.CreateFactory(openParams), this, openParams.CanUseTelemetry);
+            var processorWithoutFactory = new PSConfigurationProcessor(null, this, openParams.CanUseTelemetry);
 
             if (!openParams.FromHistory)
             {
                 this.Write(StreamType.Verbose, Resources.ConfigurationReadingConfigFile);
                 var stream = await FileRandomAccessStream.OpenAsync(openParams.ConfigFile, FileAccessMode.Read);
 
-                OpenConfigurationSetResult openResult = await psProcessor.Processor.OpenConfigurationSetAsync(stream);
+                OpenConfigurationSetResult openResult = await processorWithoutFactory.Processor.OpenConfigurationSetAsync(stream);
                 if (openResult.ResultCode != null)
                 {
                     throw new OpenConfigurationSetException(openResult, openParams.ConfigFile);
@@ -402,7 +494,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 set.Origin = Path.GetDirectoryName(openParams.ConfigFile);
                 set.Path = openParams.ConfigFile;
 
-                return new PSConfigurationSet(psProcessor, set);
+                return new PSConfigurationSet(await this.CreateConfigurationProcessorWithSet(openParams, set), set);
             }
             else
             {
@@ -410,7 +502,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
                 this.Write(StreamType.Verbose, Resources.ConfigurationReadingConfigHistory);
 
-                var historySets = await psProcessor.Processor.GetConfigurationHistoryAsync();
+                var historySets = await processorWithoutFactory.Processor.GetConfigurationHistoryAsync();
 
                 ConfigurationSet? result = null;
                 foreach (var historySet in historySets)
@@ -422,7 +514,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     }
                 }
 
-                return result != null ? new PSConfigurationSet(psProcessor, result) : null;
+                return result != null ? new PSConfigurationSet(await this.CreateConfigurationProcessorWithSet(openParams, result), result) : null;
             }
         }
 
@@ -430,16 +522,16 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             this.Write(StreamType.Verbose, Resources.ConfigurationInitializing);
 
-            var psProcessor = new PSConfigurationProcessor(this.CreateFactory(openParams), this, openParams.CanUseTelemetry);
+            var processorWithoutFactory = new PSConfigurationProcessor(null, this, openParams.CanUseTelemetry);
 
             this.Write(StreamType.Verbose, Resources.ConfigurationReadingConfigHistory);
 
-            var historySets = await psProcessor.Processor.GetConfigurationHistoryAsync();
+            var historySets = await processorWithoutFactory.Processor.GetConfigurationHistoryAsync();
 
             PSConfigurationSet[] result = new PSConfigurationSet[historySets.Count];
             for (int i = 0; i < historySets.Count; ++i)
             {
-                result[i] = new PSConfigurationSet(psProcessor, historySets[i]);
+                result[i] = new PSConfigurationSet(await this.CreateConfigurationProcessorWithSet(openParams, historySets[i]), historySets[i]);
             }
 
             return result;

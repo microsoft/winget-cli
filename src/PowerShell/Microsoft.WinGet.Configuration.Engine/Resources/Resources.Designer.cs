@@ -223,6 +223,24 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Desired State Configuration package not found on the system. Installing the package....
+        /// </summary>
+        internal static string ConfigurationInstallDscPackage {
+            get {
+                return ResourceManager.GetString("ConfigurationInstallDscPackage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to install Desired State Configuration package. Install the package manually or provide the path to dsc.exe through -ProcessorPath argument..
+        /// </summary>
+        internal static string ConfigurationInstallDscPackageFailed {
+            get {
+                return ResourceManager.GetString("ConfigurationInstallDscPackageFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Local.
         /// </summary>
         internal static string ConfigurationLocal {
@@ -538,6 +556,15 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot find dsc.exe..
+        /// </summary>
+        internal static string DscExeNotFound {
+            get {
+                return ResourceManager.GetString("DscExeNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Completed.
         /// </summary>
         internal static string OperationCompleted {
@@ -552,6 +579,15 @@ namespace Microsoft.WinGet.Resources {
         internal static string OperationInProgress {
             get {
                 return ResourceManager.GetString("OperationInProgress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Processor engine not supported. Processor engine: {0}.
+        /// </summary>
+        internal static string ProcessorEngineNotSupported {
+            get {
+                return ResourceManager.GetString("ProcessorEngineNotSupported", resourceCulture);
             }
         }
         

@@ -52,6 +52,12 @@ namespace Microsoft.WinGet.Configuration.Cmdlets.Common
         public string ModulePath { get; set; }
 
         /// <summary>
+        /// Gets or sets custom DSCv3 processor path.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public string ProcessorPath { get; set; }
+
+        /// <summary>
         /// Gets the execution policy to use.
         /// </summary>
         protected ExecutionPolicy ExecutionPolicy { get; private set; } = ExecutionPolicy.Undefined;

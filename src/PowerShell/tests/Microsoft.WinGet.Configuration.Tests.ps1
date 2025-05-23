@@ -22,6 +22,17 @@ BeforeAll {
 
     Import-Module Microsoft.WinGet.Configuration
 
+    # TODO: Installing within the test run on the build server (only) somehow causes below error:
+    #       [CORE] Started MSStore package execution. ProductId: 9PCX3HX4HZ0Z PackageFamilyName: Microsoft.DesiredStateConfiguration-Preview_8wekyb3d8bbwe
+    #       [CLI ] MSStore install failed. ProductId: 9PCX3HX4HZ0Z HResult: 0x80010002
+    #       So install the DSCv3 package here.
+    Import-Module Microsoft.WinGet.Client
+    $installResult = Install-WingetPackage -Id 9PCX3HX4HZ0Z -Source msstore
+    if ($installResult.Status -ne 'Ok')
+    {
+        Write-Error "Failed to install DSCv3 package. Status: $($installResult.Status). ExtendedErrorCode: $($installResult.ExtendedErrorCode)." -ErrorAction Stop
+    }
+
     function CreatePolicyKeyIfNotExists()
     {
         $registryExists = test-path  -Path $wingetGroupPolicyRegistryRoot
@@ -210,6 +221,16 @@ BeforeAll {
 
         CleanupPsModulePath
     }
+
+    function EnsureDSCv3TestResourcePresence()
+    {
+        $localAppDataPath = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData)
+        $resourcePath = Join-Path $localAppDataPath "Microsoft\WindowsApps\test-file.dsc.resource.json"
+        if (-not (Test-Path $resourcePath))
+        {
+            wingetdev dscv3 test-file --manifest -o $resourcePath
+        }
+    }
 }
 
 Describe 'Test-GroupPolicies' {
@@ -276,6 +297,17 @@ Describe 'Get configuration' {
         EnsureModuleState $e2eTestModule $false
 
         $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $set = Get-WinGetConfigurationDetails -Set $set
+        $set | Should -Not -BeNullOrEmpty
+    }
+
+    It 'Get configuration and details DSCv3' {
+        EnsureDSCv3TestResourcePresence
+
+        $testFile = GetConfigTestDataFile "ShowDetails_DSCv3.yml"
         $set = Get-WinGetConfiguration -File $testFile
         $set | Should -Not -BeNullOrEmpty
 
@@ -439,6 +471,25 @@ Describe 'Invoke-WinGetConfiguration' {
 
         $expectedModule = Join-Path $(GetExpectedModulePath $location) $e2eTestModule
         Test-Path $expectedModule | Should -Be $true
+    }
+
+    It 'From DSCv3' {
+        EnsureDSCv3TestResourcePresence
+
+        $testFile = GetConfigTestDataFile "ShowDetails_DSCv3.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = Invoke-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be 0
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be 0
+
+        $expectedFile = Join-Path $(GetConfigTestDataPath) "ShowDetails_DSCv3.txt"
+        Test-Path $expectedFile | Should -Be $true
+        Get-Content $expectedFile -Raw | Should -Be "DSCv3 Contents!"
     }
 
     It 'Piped' {
@@ -629,6 +680,31 @@ Describe 'Start|Complete-WinGetConfiguration' {
         Test-Path $expectedModule | Should -Be $true
     }
 
+    It 'From DSCv3' {
+        EnsureDSCv3TestResourcePresence
+
+        $testFile = GetConfigTestDataFile "ShowDetails_DSCv3.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $job = Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $job | Should -Not -BeNullOrEmpty
+
+        $result = Complete-WinGetConfiguration -ConfigurationJob $job
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be 0
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be 0
+
+        $expectedFile = Join-Path $(GetConfigTestDataPath) "ShowDetails_DSCv3.txt"
+        Test-Path $expectedFile | Should -Be $true
+        Get-Content $expectedFile -Raw | Should -Be "DSCv3 Contents!"
+
+        # Verify can't be used after.
+        { Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set } | Should -Throw "Operation is not valid due to the current state of the object."
+    }
+
     It 'Piped' {
         DeleteConfigTxtFiles
         $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
@@ -756,6 +832,39 @@ Describe 'Test-WinGetConfiguration' {
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
         Set-Content -Path $expectedFile -Value "Contents!" -NoNewline
+
+        $result = Test-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.TestResult | Should -Be "Positive"
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].TestResult | Should -Be "Positive"
+        $result.UnitResults[0].ResultCode | Should -Be 0
+    }
+
+    It 'Negative DSCv3' {
+        EnsureDSCv3TestResourcePresence
+
+        $testFile = GetConfigTestDataFile "ShowDetails_DSCv3.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = Test-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.TestResult | Should -Be "Negative"
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].TestResult | Should -Be "Negative"
+        $result.UnitResults[0].ResultCode | Should -Be 0
+    }
+
+    It 'Positive DSCv3' {
+        EnsureDSCv3TestResourcePresence
+
+        $testFile = GetConfigTestDataFile "ShowDetails_DSCv3.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $expectedFile = Join-Path $(GetConfigTestDataPath) "ShowDetails_DSCv3.txt"
+        Set-Content -Path $expectedFile -Value "DSCv3 Contents!" -NoNewline
 
         $result = Test-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
         $result | Should -Not -BeNullOrEmpty
