@@ -25,6 +25,12 @@ BeforeAll {
     # The msstore source will be used to install DSCv3 package
     Import-Module Microsoft.WinGet.Client
 
+    $installResult = Install-WingetPackage -Id 9PCX3HX4HZ0Z -Source msstore
+    if ($installResult.Status -ne 'Ok')
+    {
+        Write-Error "Failed to install DSCv3 package. Status: $($installResult.Status). ExtendedErrorCode $($installResult.ExtendedErrorCode)" -ErrorAction Stop
+    }
+
     function CreatePolicyKeyIfNotExists()
     {
         $registryExists = test-path  -Path $wingetGroupPolicyRegistryRoot
