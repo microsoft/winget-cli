@@ -25,12 +25,6 @@ BeforeAll {
     # The msstore source will be used to install DSCv3 package
     Import-Module Microsoft.WinGet.Client
 
-    $installResult = Install-WingetPackage -Id 9PCX3HX4HZ0Z -Source msstore
-    if ($installResult.Status -ne 'Ok')
-    {
-        Write-Error "Failed to install DSCv3 package. Status: $($installResult.Status). ExtendedErrorCode $($installResult.ExtendedErrorCode)" -ErrorAction Stop
-    }
-
     function CreatePolicyKeyIfNotExists()
     {
         $registryExists = test-path  -Path $wingetGroupPolicyRegistryRoot
@@ -487,7 +481,7 @@ Describe 'Invoke-WinGetConfiguration' {
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "ShowDetails_DSCv3.txt"
         Test-Path $expectedFile | Should -Be $true
-        Get-Content $expectedFile -Raw | Should -Be "Contents!"
+        Get-Content $expectedFile -Raw | Should -Be "DSCv3 Contents!"
     }
 
     It 'Piped' {
@@ -697,7 +691,7 @@ Describe 'Start|Complete-WinGetConfiguration' {
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "ShowDetails_DSCv3.txt"
         Test-Path $expectedFile | Should -Be $true
-        Get-Content $expectedFile -Raw | Should -Be "Contents!"
+        Get-Content $expectedFile -Raw | Should -Be "DSCv3 Contents!"
 
         # Verify can't be used after.
         { Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set } | Should -Throw "Operation is not valid due to the current state of the object."
@@ -862,7 +856,7 @@ Describe 'Test-WinGetConfiguration' {
         $set | Should -Not -BeNullOrEmpty
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "ShowDetails_DSCv3.txt"
-        Set-Content -Path $expectedFile -Value "Contents!" -NoNewline
+        Set-Content -Path $expectedFile -Value "DSCv3 Contents!" -NoNewline
 
         $result = Test-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
         $result | Should -Not -BeNullOrEmpty

@@ -424,7 +424,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             this.Write(StreamType.Information, Resources.ConfigurationInstallDscPackage);
 
             InitialSessionState initialSessionState = InitialSessionState.CreateDefault();
-            initialSessionState.ExecutionPolicy = openParams.ExecutionPolicy;
+
+            // initialSessionState.ExecutionPolicy = openParams.ExecutionPolicy;
             Runspace runspace = RunspaceFactory.CreateRunspace(initialSessionState);
             runspace.Open();
             PowerShell installDSCv3 = PowerShell.Create(runspace).AddScript(
@@ -437,7 +438,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 $installResult = Install-WingetPackage -Id {DSCv3PackageId} -Source msstore
                 if ($installResult.Status -ne 'Ok')
                 {{
-                    Write-Error ""Failed to install DSCv3 package. Status: $($installResult.Status). ExtendedErrorCode $($installResult.ExtendedErrorCode)"" -ErrorAction Stop
+                    Write-Error ""Failed to install DSCv3 package. Status: $($installResult.Status). ExtendedErrorCode: $($installResult.ExtendedErrorCode)."" -ErrorAction Stop
                 }}
                 ");
 
