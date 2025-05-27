@@ -30,6 +30,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         /// <param name="file">The configuration file.</param>
         /// <param name="modulePath">The module path to use.</param>
         /// <param name="executionPolicy">Execution policy.</param>
+        /// <param name="processorPath">The processor path to use.</param>
         /// <param name="canUseTelemetry">If telemetry can be used.</param>
         /// <param name="fromHistory">If the configuration is from history; changes the meaning of `ConfigFile` to the instance identifier.</param>
         public OpenConfigurationParameters(
@@ -37,6 +38,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             string file,
             string modulePath,
             ExecutionPolicy executionPolicy,
+            string processorPath,
             bool canUseTelemetry,
             bool fromHistory = false)
         {
@@ -50,7 +52,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             }
 
             this.InitializeModulePath(modulePath);
+            this.ExecutionPolicy = executionPolicy;
             this.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
+            this.ProcessorPath = processorPath;
             this.CanUseTelemetry = canUseTelemetry;
             this.FromHistory = fromHistory;
         }
@@ -61,16 +65,20 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         /// <param name="pwshCmdlet">PowerShellCmdlet.</param>
         /// <param name="modulePath">The module path to use.</param>
         /// <param name="executionPolicy">Execution policy.</param>
+        /// <param name="processorPath">The processor path to use.</param>
         /// <param name="canUseTelemetry">If telemetry can be used.</param>
         public OpenConfigurationParameters(
             PowerShellCmdlet pwshCmdlet,
             string modulePath,
             ExecutionPolicy executionPolicy,
+            string processorPath,
             bool canUseTelemetry)
         {
             this.ConfigFile = string.Empty;
             this.InitializeModulePath(modulePath);
+            this.ExecutionPolicy = executionPolicy;
             this.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
+            this.ProcessorPath = processorPath;
             this.CanUseTelemetry = canUseTelemetry;
         }
 
@@ -90,9 +98,19 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         public string? CustomLocation { get; private set; }
 
         /// <summary>
+        /// Gets the original ExecutionPolicy value.
+        /// </summary>
+        public ExecutionPolicy ExecutionPolicy { get; private set; } = ExecutionPolicy.Undefined;
+
+        /// <summary>
         /// Gets execution policy of the processor.
         /// </summary>
         public PowerShellConfigurationProcessorPolicy Policy { get; }
+
+        /// <summary>
+        /// Gets DSCv3 processor path.
+        /// </summary>
+        public string ProcessorPath { get; }
 
         /// <summary>
         /// Gets a value indicating whether to use telemetry or not.

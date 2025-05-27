@@ -603,6 +603,17 @@ jobs:
       failTaskOnFailedTests: true
     condition: succeededOrFailed()
 
+  - task: PowerShell@2
+    displayName: Copy WinGet Logs
+    inputs:
+      pwsh: true
+      targetType: inline
+      script: |
+        $sourceDir = Join-Path $env:LocalAppData Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir
+        $destinationDir = Join-Path $(Build.ArtifactStagingDirectory) WinGetLogs
+        Copy-Item -Path $sourceDir -Destination $destinationDir -Recurse -Force
+    condition: succeededOrFailed()
+
   - task: PublishPipelineArtifact@1
     displayName: Publish PowerShell Module Artifacts
     inputs:

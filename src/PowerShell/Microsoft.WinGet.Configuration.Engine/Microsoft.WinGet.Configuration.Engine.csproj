@@ -12,6 +12,10 @@
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(UseProdCLSIDs)' == 'true'">
+    <DefineConstants>$(DefineConstants);USE_PROD_CLSIDS</DefineConstants>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>

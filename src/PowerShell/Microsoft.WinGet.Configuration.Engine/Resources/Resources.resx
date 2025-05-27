@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -317,5 +317,20 @@
   </data>
   <data name="ConfigurationReadingConfigHistory" xml:space="preserve">
     <value>Reading configuration history</value>
+  </data>
+  <data name="ConfigurationInstallDscPackage" xml:space="preserve">
+    <value>Desired State Configuration package not found on the system. Installing the package...</value>
+  </data>
+  <data name="ConfigurationInstallDscPackageFailed" xml:space="preserve">
+    <value>Failed to install Desired State Configuration package. Install the package manually or provide the path to dsc.exe through -ProcessorPath argument.</value>
+    <comment>{Locked="dsc.exe","-ProcessorPath"}</comment>
+  </data>
+  <data name="ProcessorEngineNotSupported" xml:space="preserve">
+    <value>Processor engine not supported. Processor engine: {0}</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="DscExeNotFound" xml:space="preserve">
+    <value>Cannot find dsc.exe.</value>
+    <comment>{Locked="{dsc.exe}"}</comment>
   </data>
 </root>
