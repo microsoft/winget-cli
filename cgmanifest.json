@@ -36,7 +36,7 @@
           "commitHash": "ff315ecfa2ef2953d8a808e51e8a61a4e0759180"
         }
       }
-    }
+    },
     {
       "component": {
         "type": "git",
