@@ -78,24 +78,34 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             // Get the caller process id and use it to check if the caller has permissions to access the feature.
             winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus status = winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus::DeniedBySystem;
 
-            auto capability = winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapability::CreateWithProcessIdForUser(nullptr, GetStringForCapability(requiredCapability), callerProcessId);
-            status = capability.CheckAccess();
+            winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapability capability{ nullptr };
 
-            allowed = (status == winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus::Allowed);
+            try
+            {
+                capability = winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapability::CreateWithProcessIdForUser(nullptr, GetStringForCapability(requiredCapability), callerProcessId);
+            }
+            catch (const winrt::hresult_invalid_argument&)
+            {
+            }
+
+            if (capability)
+            {
+                status = capability.CheckAccess();
+
+                return ((status == winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus::Allowed) ? S_OK : E_ACCESSDENIED);
+            }
+        }
+
+        // If AppCapability is not present, require at least medium IL callers
+        auto requiredIntegrityLevel = AppInstaller::Security::IntegrityLevel::Medium;
+
+        if (callerProcessId != GetCurrentProcessId())
+        {
+            allowed = AppInstaller::Security::IsCOMCallerIntegrityLevelAtLeast(requiredIntegrityLevel);
         }
         else
         {
-            // If AppCapability is not present, require at least medium IL callers
-            auto requiredIntegrityLevel = AppInstaller::Security::IntegrityLevel::Medium;
-
-            if (callerProcessId != GetCurrentProcessId())
-            {
-                allowed = AppInstaller::Security::IsCOMCallerIntegrityLevelAtLeast(requiredIntegrityLevel);
-            }
-            else
-            {
-                allowed = AppInstaller::Security::IsCurrentIntegrityLevelAtLeast(requiredIntegrityLevel);
-            }
+            allowed = AppInstaller::Security::IsCurrentIntegrityLevelAtLeast(requiredIntegrityLevel);
         }
 
         return (allowed ? S_OK : E_ACCESSDENIED);
