@@ -22,6 +22,7 @@
 #include <winsqlite/winsqlite3.h>
 
 #include <winrt/Windows.ApplicationModel.h>
+#include <winrt/Windows.ApplicationModel.Core.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Management.Deployment.h>
@@ -42,6 +43,7 @@
 #include <optional>
 #include <random>
 #include <set>
+#include <shared_mutex>
 #include <string>
 #include <string_view>
 #include <sstream>
