@@ -42,7 +42,6 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            WinGetSettingsHelper.ConfigureFeature("dsc3", true);
             EnsureTestResourcePresence();
         }
 
@@ -52,7 +51,6 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void OneTimeTeardown()
         {
-            WinGetSettingsHelper.ConfigureFeature("dsc3", false);
             ResetAllSettings();
             GroupPolicyHelper.DeleteExistingPolicies();
         }

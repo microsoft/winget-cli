@@ -266,8 +266,6 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
         WINGET_VALIDATE_PASS_THROUGH(EFResume)
-        WINGET_VALIDATE_PASS_THROUGH(EFConfigurationDSCv3)
-        WINGET_VALIDATE_PASS_THROUGH(EFConfigureExport)
         WINGET_VALIDATE_PASS_THROUGH(EFFonts)
         WINGET_VALIDATE_PASS_THROUGH(AnonymizePathForDisplay)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)

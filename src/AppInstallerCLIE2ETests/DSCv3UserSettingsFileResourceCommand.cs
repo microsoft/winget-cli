@@ -35,7 +35,6 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
     public void OneTimeSetup()
     {
         TestCommon.SetupTestSource();
-        WinGetSettingsHelper.ConfigureFeature("dsc3", true);
         EnsureTestResourcePresence();
     }
 
@@ -46,7 +45,6 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
     public void OneTimeTeardown()
     {
         WinGetSettingsHelper.InitializeWingetSettings();
-        WinGetSettingsHelper.ConfigureFeature("dsc3", false);
     }
 
     /// <summary>

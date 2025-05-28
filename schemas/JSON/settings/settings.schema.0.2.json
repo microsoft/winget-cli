@@ -294,21 +294,6 @@
           "type": "boolean",
           "default": false
         },
-        "configuration03": {
-          "description": "Enable support for configuration schema 0.3",
-          "type": "boolean",
-          "default": false
-        },
-        "configureSelfElevate": {
-          "description": "Enable configure commands request elevation as needed",
-          "type": "boolean",
-          "default": false
-        },
-        "configureExport": {
-          "description": "Enable support for the configure export command",
-          "type": "boolean",
-          "default": false
-        },
         "fonts": {
           "description": "Enable support for managing fonts",
           "type": "boolean",

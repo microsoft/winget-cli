@@ -354,25 +354,3 @@ You can enable the feature as shown below.
        "resume": true
    },
 ```
-
-### dsc3
-
-This feature enables support for DSC v3 integration.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "dsc3": true
-   },
-```
-
-### configureExport
-
-This feature enables exporting a configuration file.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "configureExport": true
-   },
-```
