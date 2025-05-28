@@ -3251,7 +3251,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Manage package state</value>
   </data>
   <data name="DscPackageResourceLongDescription" xml:space="preserve">
-    <value>Allows management of package state via the DSC v3 command line interface protocol. See the help link for details.</value>
+    <value>Manage packages through winget.</value>
   </data>
   <data name="DscResourcePropertyDescriptionExist" xml:space="preserve">
     <value>Indicates whether an instance should or does exist.</value>
@@ -3287,7 +3287,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Manage user settings file</value>
   </data>
   <data name="DscUserSettingsFileLongDescription" xml:space="preserve">
-    <value>Allows management of user settings file via the DSC v3 command line interface protocol. See the help link for details.</value>
+    <value>Manage the user settings of winget.</value>
   </data>
   <data name="DscResourcePropertyDescriptionUserSettingsFileSettings" xml:space="preserve">
     <value>The settings json file content.</value>
@@ -3302,7 +3302,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Manage source configuration</value>
   </data>
   <data name="DscSourceResourceLongDescription" xml:space="preserve">
-    <value>Allows management of source configuration via the DSC v3 command line interface protocol. See the help link for details.</value>
+    <value>Manage the sources of winget.</value>
   </data>
   <data name="DscResourcePropertyDescriptionSourceName" xml:space="preserve">
     <value>The name to use for the source.</value>
@@ -3362,7 +3362,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Manage administrator settings</value>
   </data>
   <data name="DscAdminSettingsResourceLongDescription" xml:space="preserve">
-    <value>Allows management of administrator settings via the DSC v3 command line interface protocol. See the help link for details.</value>
+    <value>Manage the administrator settings of winget.</value>
   </data>
   <data name="ResetAllAdminSettingsArgumentDescription" xml:space="preserve">
     <value>Resets all admin settings</value>
