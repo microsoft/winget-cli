@@ -33,7 +33,6 @@ namespace AppInstallerCLIE2ETests
         public void OneTimeSetup()
         {
             TestCommon.SetupTestSource();
-            WinGetSettingsHelper.ConfigureFeature("dsc3", true);
             WinGetSettingsHelper.ConfigureLoggingLevel("verbose");
             EnsureTestResourcePresence();
         }
@@ -46,7 +45,6 @@ namespace AppInstallerCLIE2ETests
         {
             RemoveTestPackage();
             WinGetSettingsHelper.ConfigureLoggingLevel(null);
-            WinGetSettingsHelper.ConfigureFeature("dsc3", false);
             TestCommon.TearDownTestSource();
         }
 

@@ -42,10 +42,6 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFDirectMSI>();
             case ExperimentalFeature::Feature::Resume:
                 return userSettings.Get<Setting::EFResume>();
-            case ExperimentalFeature::Feature::ConfigurationDSCv3:
-                return userSettings.Get<Setting::EFConfigurationDSCv3>();
-            case ExperimentalFeature::Feature::ConfigureExport:
-                return userSettings.Get<Setting::EFConfigureExport>();
             case ExperimentalFeature::Feature::Font:
                 return userSettings.Get<Setting::EFFonts>();
             default:
@@ -79,10 +75,6 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Direct MSI Installation", "directMSI", "https://aka.ms/winget-settings", Feature::DirectMSI };
         case Feature::Resume:
             return ExperimentalFeature{ "Resume", "resume", "https://aka.ms/winget-settings", Feature::Resume };
-        case Feature::ConfigurationDSCv3:
-            return ExperimentalFeature{ "Support for DSC v3", "dsc3", "https://aka.ms/winget-settings", Feature::ConfigurationDSCv3 };
-        case Feature::ConfigureExport:
-            return ExperimentalFeature{ "Configure Export", "configureExport", "https://aka.ms/winget-settings", Feature::ConfigureExport };
         case Feature::Font:
             return ExperimentalFeature{ "Font", "Font", "https://aka.ms/winget-settings", Feature::Font };
             

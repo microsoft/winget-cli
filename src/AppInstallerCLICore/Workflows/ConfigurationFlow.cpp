@@ -167,15 +167,6 @@ namespace AppInstaller::CLI::Workflow
 
             THROW_HR_IF(WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE, processorEngine == ConfigurationRemoting::ProcessorEngine::Unknown);
 
-            if (processorEngine == ConfigurationRemoting::ProcessorEngine::DSCv3)
-            {
-                context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ConfigurationDSCv3);
-                if (context.IsTerminated())
-                {
-                    THROW_HR(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
-                }
-            }
-
             // Since downgrading is not currently supported, only use dynamic if running limited.
             if (Runtime::IsRunningWithLimitedToken())
             {
@@ -1872,11 +1863,7 @@ namespace AppInstaller::CLI::Workflow
         {
             ConfigurationSet set;
             set.SchemaVersion(Utility::ConvertToUTF16(m_defaultSchemaVersion));
-
-            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ConfigurationDSCv3))
-            {
-                set.Environment().ProcessorIdentifier(ConfigurationRemoting::ToString(ConfigurationRemoting::ProcessorEngine::DSCv3));
-            }
+            set.Environment().ProcessorIdentifier(ConfigurationRemoting::ToString(ConfigurationRemoting::ProcessorEngine::DSCv3));
 
             std::wstring argPathWide = Utility::ConvertToUTF16(argPath);
             auto absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPathWide });

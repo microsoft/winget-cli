@@ -7,7 +7,7 @@ namespace AppInstaller::CLI
 {
     struct ConfigureExportCommand final : public Command
     {
-        ConfigureExportCommand(std::string_view parent) : Command("export", parent, Settings::ExperimentalFeature::Feature::ConfigureExport) {}
+        ConfigureExportCommand(std::string_view parent) : Command("export", parent) {}
 
         std::vector<Argument> GetArguments() const override;
 

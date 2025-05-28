@@ -32,7 +32,6 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            WinGetSettingsHelper.ConfigureFeature("dsc3", true);
             this.DeleteResourceArtifacts();
             EnsureTestResourcePresence();
             TestCommon.SetupTestSource(false);
@@ -44,7 +43,6 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void OneTimeTeardown()
         {
-            WinGetSettingsHelper.ConfigureFeature("dsc3", false);
             this.DeleteResourceArtifacts();
             TestCommon.TearDownTestSource();
         }

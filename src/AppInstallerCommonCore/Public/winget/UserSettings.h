@@ -75,8 +75,6 @@ namespace AppInstaller::Settings
         EFExperimentalArg,
         EFDirectMSI,
         EFResume,
-        EFConfigurationDSCv3,
-        EFConfigureExport,
         EFFonts,
         // Telemetry
         TelemetryDisable,
@@ -160,8 +158,6 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFResume, bool, bool, false, ".experimentalFeatures.resume"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFConfigurationDSCv3, bool, bool, false, ".experimentalFeatures.dsc3"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFConfigureExport, bool, bool, false, ".experimentalFeatures.configureExport"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFFonts, bool, bool, false, ".experimentalFeatures.fonts"sv);
         // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
