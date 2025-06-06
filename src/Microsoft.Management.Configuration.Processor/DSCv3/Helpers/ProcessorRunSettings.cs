@@ -47,11 +47,11 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// </summary>
         /// <param name="resourceDetails">The resource details to be used.</param>
         /// <returns>A ProcessorRunSettings.</returns>
-        public static ProcessorRunSettings CreateFromResourceDetails(ResourceDetails? resourceDetails)
+        public static ProcessorRunSettings CreateFromResourceDetails(ResourceDetails resourceDetails)
         {
             return new ProcessorRunSettings
             {
-                ResourceSearchPaths = Path.GetDirectoryName(resourceDetails?.Path) ?? string.Empty,
+                ResourceSearchPaths = Path.GetDirectoryName(resourceDetails.Path) ?? string.Empty,
                 ResourceSearchPathsExclusive = false,
             };
         }
