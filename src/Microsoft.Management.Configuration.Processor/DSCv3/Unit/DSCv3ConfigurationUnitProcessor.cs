@@ -21,7 +21,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Unit
     internal sealed partial class DSCv3ConfigurationUnitProcessor : ConfigurationUnitProcessorBase, IConfigurationUnitProcessor, IGetAllSettingsConfigurationUnitProcessor, IGetAllUnitsConfigurationUnitProcessor, IDiagnosticsSink
     {
         private readonly ProcessorSettings processorSettings;
-        private readonly ResourceDetails? resourceDetails;
+        private readonly ResourceDetails resourceDetails;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DSCv3ConfigurationUnitProcessor"/> class.
@@ -30,7 +30,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Unit
         /// <param name="resourceDetails">The resource to use.</param>
         /// <param name="unitInternal">Internal unit.</param>
         /// <param name="isLimitMode">Whether it is under limit mode.</param>
-        internal DSCv3ConfigurationUnitProcessor(ProcessorSettings processorSettings, ResourceDetails? resourceDetails, ConfigurationUnitInternal unitInternal, bool isLimitMode = false)
+        internal DSCv3ConfigurationUnitProcessor(ProcessorSettings processorSettings, ResourceDetails resourceDetails, ConfigurationUnitInternal unitInternal, bool isLimitMode = false)
             : base(unitInternal, isLimitMode)
         {
             this.processorSettings = processorSettings;
