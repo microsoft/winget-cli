@@ -203,12 +203,12 @@ namespace AppInstaller::CLI::Workflow
                         auto previousThreadGlobals = installDscContext.SetForCurrentThread();
 
                         Manifest::ManifestInstaller dscInstaller;
-// TEMP: Until DSCv3 support is not experimental, allow the preview build to be installed automatically.
-// #ifndef AICLI_DISABLE_TEST_HOOKS
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
                         dscInstaller.ProductId = "9PCX3HX4HZ0Z";
-// #else
-//                      dscInstaller.ProductId = "9NVTPZWRC6KQ";
-// #endif
+#else
+                        dscInstaller.ProductId = "9NVTPZWRC6KQ";
+#endif
                         installDscContext.Add<Execution::Data::Installer>(std::move(dscInstaller));
                         installDscContext.Args.AddArg(Execution::Args::Type::InstallScope, Manifest::ScopeToString(Manifest::ScopeEnum::User));
                         installDscContext.Args.AddArg(Execution::Args::Type::Silent);
