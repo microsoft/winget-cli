@@ -171,7 +171,7 @@
     <value>需要具有管理员权限才能执行此命令。</value>
   </data>
   <data name="CompleteCommandLongDescription" xml:space="preserve">
-    <value>此命令可用于请求上下文相关的命令行补全。传入命令行、光标位置和要补全的单词。输出是基于输入的一组潜在值，每行一个可能的值。</value>
+    <value>此命令可用于请求上下文敏感命令行补全。已传入要补全的命令行、光标位置和单词。输出是基于输入的一组可能值，其中每行一个可能的值。</value>
   </data>
   <data name="CompleteCommandShortDescription" xml:space="preserve">
     <value>启用上下文相关的命令行补全</value>
@@ -1025,11 +1025,11 @@
     <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
-    <value>处理包依赖项时出错，是否要继续安装？</value>
+    <value>处理包依赖项时出错。是否希望继续安装?</value>
     <comment>Prompt message shown when dependencies processing yields errors.</comment>
   </data>
   <data name="DependenciesManagementExitMessage" xml:space="preserve">
-    <value>处理包依赖项时出错，正在退出...</value>
+    <value>处理包依赖项时出错。正在退出...</value>
   </data>
   <data name="PackageDependencies" xml:space="preserve">
     <value>程序包</value>
@@ -1379,7 +1379,7 @@
     <value>提示用户在退出前按任意键</value>
   </data>
   <data name="InstallerElevationExpected" xml:space="preserve">
-    <value>安装程序将请求以管理员身份运行，需要提示。</value>
+    <value>安装程序将请求以管理员身份运行。期待提示。</value>
   </data>
   <data name="InstallerProhibitsElevation" xml:space="preserve">
     <value>无法从管理员上下文运行安装程序。</value>
@@ -2086,7 +2086,7 @@
     <comment>{Locked="%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules"}</comment>
   </data>
   <data name="ConfigurationModulePathArgError" xml:space="preserve">
-    <value>“--module-path”值必须是“currentuser”、“allusers”、“default”或绝对路径。</value>
+    <value>`--module-path` 值必须为 `currentuser`、`allusers`、`default` 或绝对路径。</value>
     <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
   </data>
   <data name="PolicyEnableWinGetConfiguration" xml:space="preserve">
@@ -2360,7 +2360,7 @@
     <value>已存在来自其他源的可移植包。</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY" xml:space="preserve">
-    <value>无法创建符号链接，路径指向目录。</value>
+    <value>无法创建符号链接。路径指向目录。</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION" xml:space="preserve">
     <value>无法从管理员上下文运行安装程序。</value>
@@ -2662,7 +2662,7 @@
   </data>
   <data name="ResumeIdNotFoundError" xml:space="preserve">
     <value>恢复状态不存在: {0}</value>
-    <comment>{Locked="{0}" Error message displayed when the user provides a guid that does not correspond to a valid saved state. {0} is a placeholder replaced by the provided guid string.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a guid that does not correspond to a valid saved state. {0} is a placeholder replaced by the provided guid string.</comment>
   </data>
   <data name="ResumeStateDataNotFoundError" xml:space="preserve">
     <value>在恢复状态下找不到数据。</value>
@@ -3203,5 +3203,171 @@
   </data>
   <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
     <value>未能下载安装程序。身份验证失败。</value>
+  </data>
+  <data name="ConfigurationProcessorPath" xml:space="preserve">
+    <value>指定配置处理器的路径</value>
+  </data>
+  <data name="DscCommandShortDescription" xml:space="preserve">
+    <value>DSC v3 资源命令</value>
+    <comment>DSC stands for "Desired State Configuration". It should already have a locked translation.</comment>
+  </data>
+  <data name="DscCommandLongDescription" xml:space="preserve">
+    <value>此处的子命令实现Desired State Configuration (DSC) v3 资源来配置 winget 和包。</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionGet" xml:space="preserve">
+    <value>获取资源状态</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionSet" xml:space="preserve">
+    <value>设置资源状态</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionWhatIf" xml:space="preserve">
+    <value>描述所需的状态更改</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionTest" xml:space="preserve">
+    <value>测试资源状态</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionDelete" xml:space="preserve">
+    <value>删除资源状态</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionExport" xml:space="preserve">
+    <value>获取所有状态实例</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionValidate" xml:space="preserve">
+    <value>验证组内容</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionResolve" xml:space="preserve">
+    <value>解析外部状态</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionAdapter" xml:space="preserve">
+    <value>运行适配器</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionSchema" xml:space="preserve">
+    <value>获取资源架构</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionManifest" xml:space="preserve">
+    <value>获取资源清单</value>
+  </data>
+  <data name="DscPackageResourceShortDescription" xml:space="preserve">
+    <value>管理包状态</value>
+  </data>
+  <data name="DscPackageResourceLongDescription" xml:space="preserve">
+    <value>通过 winget 管理包。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionExist" xml:space="preserve">
+    <value>指示实例是否应存在。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionInDesiredState" xml:space="preserve">
+    <value>指示实例是否处于所需状态。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageId" xml:space="preserve">
+    <value>包的标识符。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageSource" xml:space="preserve">
+    <value>包的源。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageVersion" xml:space="preserve">
+    <value>包的版本。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageMatchOption" xml:space="preserve">
+    <value>用于将标识符与包匹配的方法。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageUseLatest" xml:space="preserve">
+    <value>指示应安装该包的最新可用版本。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageInstallMode" xml:space="preserve">
+    <value>要使用的安装模式(如需要)。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageScope" xml:space="preserve">
+    <value>包的目标范围。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionAcceptAgreements" xml:space="preserve">
+    <value>指示是否接受源和包的协议。</value>
+  </data>
+  <data name="DscUserSettingsFileShortDescription" xml:space="preserve">
+    <value>管理用户设置文件</value>
+  </data>
+  <data name="DscUserSettingsFileLongDescription" xml:space="preserve">
+    <value>管理 winget 的用户设置。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionUserSettingsFileSettings" xml:space="preserve">
+    <value>设置 json 文件内容。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionUserSettingsFileAction" xml:space="preserve">
+    <value>用于应用设置的操作。</value>
+  </data>
+  <data name="CorrelationArgumentDescription" xml:space="preserve">
+    <value>已为相关性记录值</value>
+  </data>
+  <data name="DscSourceResourceShortDescription" xml:space="preserve">
+    <value>管理源配置</value>
+  </data>
+  <data name="DscSourceResourceLongDescription" xml:space="preserve">
+    <value>管理 winget 的源。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceName" xml:space="preserve">
+    <value>用于源的名称。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceArgument" xml:space="preserve">
+    <value>源的参数。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceType" xml:space="preserve">
+    <value>源的类型。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceTrustLevel" xml:space="preserve">
+    <value>源的信任级别。</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceExplicit" xml:space="preserve">
+    <value>调用未指定源时是否包含源。</value>
+  </data>
+  <data name="ConfigurationApplyingUnit" xml:space="preserve">
+    <value>正在应用配置单元...</value>
+  </data>
+  <data name="ConfigurationExportingUnit" xml:space="preserve">
+    <value>正在导出配置单元...</value>
+  </data>
+  <data name="ConfigurationGettingUnitProcessors" xml:space="preserve">
+    <value>正在获取配置单元处理器...</value>
+  </data>
+  <data name="ConfigurationExportInstallRequiredModule" xml:space="preserve">
+    <value>确保导出所需的模块 [{0}]</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationExportInstallRequiredModuleFailed" xml:space="preserve">
+    <value>未能测试或获取所需的模块。将不导出相关设置。</value>
+  </data>
+  <data name="ConfigurationExportUnitStart" xml:space="preserve">
+    <value>导出 [{0}]</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationExportUnitFailed" xml:space="preserve">
+    <value>无法导出资源。</value>
+  </data>
+  <data name="ConfigurationExportFailedToGetUnitProcessors" xml:space="preserve">
+    <value>未能获取单元处理器。将不导出单个包设置。</value>
+  </data>
+  <data name="OutputDirectoryArgumentDescription" xml:space="preserve">
+    <value>要在其中写入结果的目录</value>
+  </data>
+  <data name="ConfigurationInstallDscPackage" xml:space="preserve">
+    <value>在系统上找不到Desired State Configuration包。正在安装包...</value>
+  </data>
+  <data name="ConfigurationInstallDscPackageFailed" xml:space="preserve">
+    <value>未能安装Desired State Configuration包。手动安装包或提供通过 --processor-path 参数 dsc.exe 的路径。</value>
+    <comment>{Locked="dsc.exe","--processor-path"}</comment>
+  </data>
+  <data name="DscResourcePropertyDescriptionAdminSettingsSettings" xml:space="preserve">
+    <value>包含管理员设置及其值的对象。</value>
+  </data>
+  <data name="DscAdminSettingsResourceShortDescription" xml:space="preserve">
+    <value>管理管理员设置</value>
+  </data>
+  <data name="DscAdminSettingsResourceLongDescription" xml:space="preserve">
+    <value>管理 winget 的管理员设置。</value>
+  </data>
+  <data name="ResetAllAdminSettingsArgumentDescription" xml:space="preserve">
+    <value>重置所有管理员设置</value>
+  </data>
+  <data name="ResetAllAdminSettingsSucceeded" xml:space="preserve">
+    <value>已重置所有管理员设置。</value>
   </data>
 </root>
