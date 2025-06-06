@@ -121,13 +121,13 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             // To start, only attempt to find the package and launch it via app execution alias.
             // In the future, consider discovering it through %PATH% searching, but probably don't allow that from an elevated process.
             // That probably means creating another read property for finding the secure path.
-            // TEMP: Until DSCv3 support is not experimental, allow the preview build to be found automatically.
-// #if !AICLI_DISABLE_TEST_HOOKS
+#if !AICLI_DISABLE_TEST_HOOKS
             string? result = GetDscExecutablePathForPackage("Microsoft.DesiredStateConfiguration-Preview_8wekyb3d8bbwe");
             if (result != null)
             {
                 return result;
             }
+#endif
 
             return GetDscExecutablePathForPackage("Microsoft.DesiredStateConfiguration_8wekyb3d8bbwe");
         }
