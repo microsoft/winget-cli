@@ -13,6 +13,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     namespace
     {
+        constexpr std::wstring_view s_ResourceType_RunCommandOnSet = L"Microsoft.DSC.Transitional/RunCommandOnSet";
+
         std::string GetNormalizedIdentifier(hstring identifier)
         {
             using namespace AppInstaller::Utility;
@@ -32,6 +34,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         bool ApplyFilter(ConfigurationUnitIntent intent)
         {
             return intent == ConfigurationUnitIntent::Apply || intent == ConfigurationUnitIntent::Unknown;
+        }
+
+        // Check if a unit should always be applied. No TestSettings is needed.
+        bool ShouldApplyAlways(const Configuration::ConfigurationUnit& unit)
+        {
+            if (AppInstaller::Utility::CaseInsensitiveEquals(s_ResourceType_RunCommandOnSet, unit.Type()))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 
@@ -454,14 +467,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 }
                 else
                 {
-                    ITestSettingsResult testSettingsResult = unitProcessor.TestSettings();
+                    ITestSettingsResult testSettingsResult = nullptr;
+                    bool applyAlways = ShouldApplyAlways(unitProcessor.Unit());
 
-                    if (testSettingsResult.TestResult() == ConfigurationTestResult::Positive)
+                    if (!applyAlways)
                     {
-                        unitInfo.Result->PreviouslyInDesiredState(true);
-                        result = true;
+                        testSettingsResult = unitProcessor.TestSettings();
                     }
-                    else if (testSettingsResult.TestResult() == ConfigurationTestResult::Negative)
+
+                    if (applyAlways || testSettingsResult.TestResult() == ConfigurationTestResult::Negative)
                     {
                         // Just in case testing took a while, check for cancellation before moving on to applying
                         m_progress.ThrowIfCancelled();
@@ -476,6 +490,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                         {
                             unitInfo.ResultInformation->Initialize(applySettingsResult.ResultInformation());
                         }
+                    }
+                    else if (testSettingsResult.TestResult() == ConfigurationTestResult::Positive)
+                    {
+                        unitInfo.Result->PreviouslyInDesiredState(true);
+                        result = true;
                     }
                     else if (testSettingsResult.TestResult() == ConfigurationTestResult::Failed)
                     {
