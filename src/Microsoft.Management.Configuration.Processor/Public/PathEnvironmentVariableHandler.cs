@@ -47,7 +47,9 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             }
         }
 
+#pragma warning disable SA1011 // Closing square brackets should be spaced correctly
         private static void AddPathsIfNotExist(List<string> currentPaths, string[]? paths)
+#pragma warning restore SA1011 // Closing square brackets should be spaced correctly
         {
             if (paths is not null)
             {
