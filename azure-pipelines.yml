@@ -64,7 +64,6 @@ jobs:
     buildOutDirAnyCpu: $(Build.SourcesDirectory)\src\AnyCPU\$(buildConfiguration)
     artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
     appxPackageDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)\AppxPackages
-    packageLayoutDir: $(Build.BinariesDirectory)\WingetPackageLayout
 
   steps:
   - task: NuGetToolInstaller@1
@@ -153,7 +152,6 @@ jobs:
     displayName: 'Copy specific build artifacts'
     inputs:
       Contents: |
-          $(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb
           $(buildOutDir)\WinGetUtil\WinGetUtil.dll
           $(buildOutDir)\WinGetUtil\WinGetUtil.pdb
       TargetFolder: '$(artifactsDir)'
@@ -162,20 +160,8 @@ jobs:
     displayName: Create Package Layout
     inputs:
       filePath: 'src\AppInstallerCLIPackage\Execute-AppxRecipe.ps1'
-      arguments: '-AppxRecipePath AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLIPackage.build.appxrecipe -LayoutPath $(packageLayoutDir) -Force -Verbose'
+      arguments: '-AppxRecipePath AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLIPackage.build.appxrecipe -LayoutPath $(artifactsDir)\DevPackage -Force -Verbose'
       workingDirectory: 'src'
-
-  - task: CopyFiles@2
-    displayName: 'Copy Dev Package (Loose Files)'
-    inputs:
-      SourceFolder: '$(packageLayoutDir)'
-      TargetFolder: '$(artifactsDir)\DevPackage'
-
-  - task: DeleteFiles@1
-    displayName: Clean up Package Layout after copy
-    inputs:
-      SourceFolder: '$(packageLayoutDir)'
-      Contents: '**/*'
 
   - task: CopyFiles@2
     displayName: 'Copy native binaries for Microsoft.WinGet.Client (net8)'
