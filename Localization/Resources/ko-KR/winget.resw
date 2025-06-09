@@ -1025,7 +1025,7 @@
     <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
-    <value>패키지 종속성을 처리하는 동안 오류가 발생했습니다. 설치를 계속하시겠습니까?</value>
+    <value>패키지 종속성을 처리하는 동안 오류가 발생했습니다. 설치를 계속하시겠나요?</value>
     <comment>Prompt message shown when dependencies processing yields errors.</comment>
   </data>
   <data name="DependenciesManagementExitMessage" xml:space="preserve">
@@ -1379,7 +1379,7 @@
     <value>종료하기 전에 아무 키나 누르라는 메시지를 사용자에게 표시합니다.</value>
   </data>
   <data name="InstallerElevationExpected" xml:space="preserve">
-    <value>설치 관리자가 관리자 권한으로 실행을 요청합니다. 프롬프트가 필요합니다.</value>
+    <value>설치 관리자가 관리자 권한으로 실행을 요청합니다. 프롬프트가 표시됩니다.</value>
   </data>
   <data name="InstallerProhibitsElevation" xml:space="preserve">
     <value>관리자 컨텍스트에서 설치 관리자를 실행할 수 없습니다.</value>
@@ -2662,7 +2662,7 @@
   </data>
   <data name="ResumeIdNotFoundError" xml:space="preserve">
     <value>다시 시작 상태가 없습니다. {0}</value>
-    <comment>{Locked="{0}" Error message displayed when the user provides a guid that does not correspond to a valid saved state. {0} is a placeholder replaced by the provided guid string.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a guid that does not correspond to a valid saved state. {0} is a placeholder replaced by the provided guid string.</comment>
   </data>
   <data name="ResumeStateDataNotFoundError" xml:space="preserve">
     <value>다시 시작 상태에서 데이터를 찾을 수 없습니다.</value>
@@ -3203,5 +3203,171 @@
   </data>
   <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
     <value>설치 관리자를 다운로드하지 못했습니다. 인증에 실패했습니다.</value>
+  </data>
+  <data name="ConfigurationProcessorPath" xml:space="preserve">
+    <value>구성 프로세서의 경로를 지정합니다.</value>
+  </data>
+  <data name="DscCommandShortDescription" xml:space="preserve">
+    <value>DSC v3 리소스 명령</value>
+    <comment>DSC stands for "Desired State Configuration". It should already have a locked translation.</comment>
+  </data>
+  <data name="DscCommandLongDescription" xml:space="preserve">
+    <value>여기서 하위 명령은 WinGet 및 패키지를 구성하기 위한 DSC(Desired State Configuration) v3 리소스를 구현합니다.</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionGet" xml:space="preserve">
+    <value>리소스 상태 가져오기</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionSet" xml:space="preserve">
+    <value>리소스 상태 설정</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionWhatIf" xml:space="preserve">
+    <value>필요한 상태 변경 설명하기</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionTest" xml:space="preserve">
+    <value>리소스 상태 테스트</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionDelete" xml:space="preserve">
+    <value>리소스 상태 삭제</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionExport" xml:space="preserve">
+    <value>모든 상태 인스턴스 가져오기</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionValidate" xml:space="preserve">
+    <value>그룹 콘텐츠 유효성 검사</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionResolve" xml:space="preserve">
+    <value>외부 상태 해결</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionAdapter" xml:space="preserve">
+    <value>어댑터 실행</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionSchema" xml:space="preserve">
+    <value>리소스 스키마 가져오기</value>
+  </data>
+  <data name="DscResourceFunctionDescriptionManifest" xml:space="preserve">
+    <value>리소스 매니페스트 가져오기</value>
+  </data>
+  <data name="DscPackageResourceShortDescription" xml:space="preserve">
+    <value>패키지 상태 관리</value>
+  </data>
+  <data name="DscPackageResourceLongDescription" xml:space="preserve">
+    <value>WinGet을 통해 패키지를 관리하세요.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionExist" xml:space="preserve">
+    <value>instance 있는지 여부를 나타냅니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionInDesiredState" xml:space="preserve">
+    <value>instance 원하는 상태에 있는지 여부를 나타냅니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageId" xml:space="preserve">
+    <value>패키지의 식별자입니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageSource" xml:space="preserve">
+    <value>패키지의 원본입니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageVersion" xml:space="preserve">
+    <value>패키지 버전입니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageMatchOption" xml:space="preserve">
+    <value>식별자를 패키지와 일치시키는 메서드입니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageUseLatest" xml:space="preserve">
+    <value>사용 가능한 최신 버전의 패키지를 설치해야 합니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageInstallMode" xml:space="preserve">
+    <value>필요한 경우 사용할 설치 모드입니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageScope" xml:space="preserve">
+    <value>패키지의 대상 범위입니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionAcceptAgreements" xml:space="preserve">
+    <value>소스 및 패키지에 대한 계약에 동의할지 여부를 나타냅니다.</value>
+  </data>
+  <data name="DscUserSettingsFileShortDescription" xml:space="preserve">
+    <value>사용자 설정 파일 관리</value>
+  </data>
+  <data name="DscUserSettingsFileLongDescription" xml:space="preserve">
+    <value>WinGet의 사용자 설정을 관리합니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionUserSettingsFileSettings" xml:space="preserve">
+    <value>설정 JSON 파일 콘텐츠입니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionUserSettingsFileAction" xml:space="preserve">
+    <value>설정을 적용하는 데 사용되는 작업입니다.</value>
+  </data>
+  <data name="CorrelationArgumentDescription" xml:space="preserve">
+    <value>상관 관계를 위해 값이 기록되었습니다.</value>
+  </data>
+  <data name="DscSourceResourceShortDescription" xml:space="preserve">
+    <value>데이터 원본 구성</value>
+  </data>
+  <data name="DscSourceResourceLongDescription" xml:space="preserve">
+    <value>WinGet의 소스를 관리합니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceName" xml:space="preserve">
+    <value>원본에 사용할 이름입니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceArgument" xml:space="preserve">
+    <value>원본의 인수입니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceType" xml:space="preserve">
+    <value>원본의 유형입니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceTrustLevel" xml:space="preserve">
+    <value>원본의 신뢰 수준입니다.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceExplicit" xml:space="preserve">
+    <value>호출 시 원본이 지정되지 않았을 때 원본이 포함되는지 여부입니다.</value>
+  </data>
+  <data name="ConfigurationApplyingUnit" xml:space="preserve">
+    <value>구성 단위 적용 중...</value>
+  </data>
+  <data name="ConfigurationExportingUnit" xml:space="preserve">
+    <value>단위를 내보내는 중...</value>
+  </data>
+  <data name="ConfigurationGettingUnitProcessors" xml:space="preserve">
+    <value>구성 단위 프로세서를 가져오는 중...</value>
+  </data>
+  <data name="ConfigurationExportInstallRequiredModule" xml:space="preserve">
+    <value>[{0}] 내보내기에 필요한 모듈을 확인하세요.</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationExportInstallRequiredModuleFailed" xml:space="preserve">
+    <value>필수 모듈을 테스트하거나 가져오지 못했습니다. 관련 설정을 내보내지 않습니다.</value>
+  </data>
+  <data name="ConfigurationExportUnitStart" xml:space="preserve">
+    <value>[{0}] 내보내기</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationExportUnitFailed" xml:space="preserve">
+    <value>리소스를 내보내지 못했습니다.</value>
+  </data>
+  <data name="ConfigurationExportFailedToGetUnitProcessors" xml:space="preserve">
+    <value>단위 프로세서를 가져오지 못했습니다. 개별 패키지 설정을 내보내지 않습니다.</value>
+  </data>
+  <data name="OutputDirectoryArgumentDescription" xml:space="preserve">
+    <value>결과를 쓸 디렉터리</value>
+  </data>
+  <data name="ConfigurationInstallDscPackage" xml:space="preserve">
+    <value>Desired State Configuration 패키지를 시스템에서 찾을 수 없습니다. 패키지... 설치 중</value>
+  </data>
+  <data name="ConfigurationInstallDscPackageFailed" xml:space="preserve">
+    <value>Desired State Configuration 패키지를 설치하지 못했습니다. 패키지를 수동으로 설치하거나 --processor-path 인수를 통해 dsc.exe 경로를 제공하십시오.</value>
+    <comment>{Locked="dsc.exe","--processor-path"}</comment>
+  </data>
+  <data name="DscResourcePropertyDescriptionAdminSettingsSettings" xml:space="preserve">
+    <value>관리자 설정 및 해당 값을 포함하는 개체입니다.</value>
+  </data>
+  <data name="DscAdminSettingsResourceShortDescription" xml:space="preserve">
+    <value>관리자 설정 관리</value>
+  </data>
+  <data name="DscAdminSettingsResourceLongDescription" xml:space="preserve">
+    <value>WinGet의 관리자 설정을 관리합니다.</value>
+  </data>
+  <data name="ResetAllAdminSettingsArgumentDescription" xml:space="preserve">
+    <value>모든 관리자 설정을 초기화합니다.</value>
+  </data>
+  <data name="ResetAllAdminSettingsSucceeded" xml:space="preserve">
+    <value>모든 관리자 설정이 초기화되었습니다.</value>
   </data>
 </root>
