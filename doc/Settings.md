@@ -354,3 +354,13 @@ You can enable the feature as shown below.
        "resume": true
    },
 ```
+
+### fonts
+
+This feature enables support for fonts via `winget settings`. The `winget font list` command will list installed font families and the number of installed font faces.
+
+```json
+  "experimentalFeatures": {
+        "fonts": true
+  },
+```
