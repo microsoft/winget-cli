@@ -18,8 +18,6 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
     /// </summary>
     internal class ProcessorSettings
     {
-        private const string DscExecutableFileName = "dsc.exe";
-
         private readonly object dscV3Lock = new ();
         private readonly object defaultPathLock = new ();
 
@@ -250,19 +248,6 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 }
 
                 result.Add(details);
-            }
-
-            return result;
-        }
-
-        private static string? GetDscExecutablePathForPackage(string packageFamilyName)
-        {
-            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string result = Path.Combine(localAppData, "Microsoft\\WindowsApps", packageFamilyName, DscExecutableFileName);
-
-            if (!Path.Exists(result))
-            {
-                return null;
             }
 
             return result;
