@@ -41,7 +41,9 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Set
             if (resourceDetails == null)
             {
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"Resource not found: {configurationUnitInternal.QualifiedName}");
-                throw new Exceptions.FindDscResourceNotFoundException(configurationUnitInternal.QualifiedName, null);
+
+                // Don't throw when the resource is not found until https://github.com/PowerShell/DSC/issues/786 is resolved
+                // throw new Exceptions.FindDscResourceNotFoundException(configurationUnitInternal.QualifiedName, null);
             }
 
             return new DSCv3ConfigurationUnitProcessor(this.processorSettings, resourceDetails, configurationUnitInternal, this.IsLimitMode) { SetProcessorFactory = this.SetProcessorFactory };

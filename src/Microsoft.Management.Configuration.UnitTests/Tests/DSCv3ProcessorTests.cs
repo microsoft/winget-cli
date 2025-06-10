@@ -93,7 +93,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Test for unit processor creation requiring resource to be found.
         /// </summary>
-        [Fact]
+        [Fact(Skip = "Disable this test while we have the bypass in place")]
         public void Set_ResourceNotFoundIsError()
         {
             var (factory, dsc) = CreateTestFactory();
