@@ -32,7 +32,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// </summary>
         public static void UpdatePath()
         {
-            List<string> paths = new List<string>(Environment.GetEnvironmentVariable(PathEnvironmentVariable)?.Split(';') ?? Array.Empty<string>());
+            HashSet<string> paths = new HashSet<string>(Environment.GetEnvironmentVariable(PathEnvironmentVariable)?.Split(';') ?? Array.Empty<string>());
             var originalPathsSize = paths.Count;
 
             AddPathsIfNotExist(paths, Environment.GetEnvironmentVariable(PathEnvironmentVariable, EnvironmentVariableTarget.Machine)?.Split(';'));
@@ -47,8 +47,11 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             }
         }
 
+        // TODO: Currently it always adds new paths to the end. The "proper" thing to do would probably be to calculate
+        // the full new list of paths (what one would expect to get from a new process launch) and use a line merge algorithm
+        // with a strategy that puts the ephemeral entries before the new permanent ones.
 #pragma warning disable SA1011 // Closing square brackets should be spaced correctly
-        private static void AddPathsIfNotExist(List<string> currentPaths, string[]? paths)
+        private static void AddPathsIfNotExist(HashSet<string> currentPaths, string[]? paths)
 #pragma warning restore SA1011 // Closing square brackets should be spaced correctly
         {
             if (paths is not null)
