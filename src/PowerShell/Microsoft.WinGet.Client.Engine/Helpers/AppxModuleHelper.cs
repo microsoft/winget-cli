@@ -67,6 +67,8 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string PackageFullName = "PackageFullName";
         private const string Version = "Version";
 
+        private const string DependencyArchitectureEnvironmentVariable = "WINGET_PACKAGE_MANAGER_REPAIR_DEPENDENCY_ARCHITECTURES";
+
         // Assets
         private const string MsixBundleName = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle";
         private const string DependenciesJsonName = "DesktopAppInstaller_Dependencies.json";
@@ -353,14 +355,34 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>The set of architectures used by installed framework packages.</returns>
         private HashSet<Architecture> InitFrameworkArchitectures()
         {
+            HashSet<Architecture> architectures = new HashSet<Architecture>();
+
+            string? environmentVariable = Environment.GetEnvironmentVariable(DependencyArchitectureEnvironmentVariable);
+            if (environmentVariable != null)
+            {
+                this.pwshCmdlet.Write(StreamType.Verbose, $"Using environment variable {DependencyArchitectureEnvironmentVariable} for frameworks: {environmentVariable}");
+
+                foreach (string architectureString in environmentVariable.Split(',', ';'))
+                {
+                    Architecture architecture;
+                    if (Enum.TryParse(architectureString, true, out architecture))
+                    {
+                        if (architectures.Add(architecture))
+                        {
+                            this.pwshCmdlet.Write(StreamType.Verbose, $"Framework architecture from environment variable: {architectureString}");
+                        }
+                    }
+                }
+
+                return architectures;
+            }
+
             var result = this.ExecuteAppxCmdlet(
                 GetAppxPackage,
                 new Dictionary<string, object>
                 {
                     { PackageTypeFilter, Framework },
                 });
-
-            HashSet<Architecture> architectures = new HashSet<Architecture>();
 
             if (result != null &&
                 result.Count > 0)
