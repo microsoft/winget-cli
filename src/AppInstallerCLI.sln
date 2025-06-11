@@ -37,6 +37,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{8D53
 		..\cgmanifest.json = ..\cgmanifest.json
 		..\README.md = ..\README.md
 		..\doc\Settings.md = ..\doc\Settings.md
+		..\doc\ReleaseNotes.md = ..\doc\ReleaseNotes.md
 		..\WinGetInProcCom.nuspec = ..\WinGetInProcCom.nuspec
 		..\WinGetUtil.nuspec = ..\WinGetUtil.nuspec
 	EndProjectSection
