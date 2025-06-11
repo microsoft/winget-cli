@@ -1028,6 +1028,10 @@ namespace Microsoft.Management.Configuration
             // Apply the current configuration unit.
             ApplyConfigurationUnitResult ApplyUnit(ConfigurationUnit unit);
             Windows.Foundation.IAsyncOperation<ApplyConfigurationUnitResult> ApplyUnitAsync(ConfigurationUnit unit);
+            
+            // Test the current configuration unit.
+            TestConfigurationUnitResult TestUnit(ConfigurationUnit unit);
+            Windows.Foundation.IAsyncOperation<TestConfigurationUnitResult> TestUnitAsync(ConfigurationUnit unit);
         }
     }
 
