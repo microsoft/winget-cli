@@ -45,6 +45,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string LicensePath = "LicensePath";
         private const string Module = "Module";
         private const string StubPackageOption = "StubPackageOption";
+        private const string PackageTypeFilter = "PackageTypeFilter";
 
         // Parameter Values
         private const string Appx = "Appx";
@@ -52,6 +53,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string SilentlyContinue = "SilentlyContinue";
         private const string Online = "Online";
         private const string UsePreference = "UsePreference";
+        private const string Framework = "Framework";
 
         // Options
         private const string UseWindowsPowerShell = "UseWindowsPowerShell";
@@ -64,6 +66,8 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string AppxManifest = "AppxManifest.xml";
         private const string PackageFullName = "PackageFullName";
         private const string Version = "Version";
+
+        private const string DependencyArchitectureEnvironmentVariable = "WINGET_PACKAGE_MANAGER_REPAIR_DEPENDENCY_ARCHITECTURES";
 
         // Assets
         private const string MsixBundleName = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle";
@@ -92,6 +96,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
         private readonly PowerShellCmdlet pwshCmdlet;
         private readonly HttpClientHelper httpClientHelper;
+        private Lazy<HashSet<Architecture>> frameworkArchitectures;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppxModuleHelper"/> class.
@@ -101,6 +106,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         {
             this.pwshCmdlet = pwshCmdlet;
             this.httpClientHelper = new HttpClientHelper();
+            this.frameworkArchitectures = new Lazy<HashSet<Architecture>>(() => this.InitFrameworkArchitectures());
         }
 
         /// <summary>
@@ -343,33 +349,87 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
+        /// <summary>
+        /// Extracts all of the architectures used by framework packages.
+        /// </summary>
+        /// <returns>The set of architectures used by installed framework packages.</returns>
+        private HashSet<Architecture> InitFrameworkArchitectures()
+        {
+            HashSet<Architecture> architectures = new HashSet<Architecture>();
+
+            string? environmentVariable = Environment.GetEnvironmentVariable(DependencyArchitectureEnvironmentVariable);
+            if (environmentVariable != null)
+            {
+                this.pwshCmdlet.Write(StreamType.Verbose, $"Using environment variable {DependencyArchitectureEnvironmentVariable} for frameworks: {environmentVariable}");
+
+                foreach (string architectureString in environmentVariable.Split(',', ';'))
+                {
+                    Architecture architecture;
+                    if (Enum.TryParse(architectureString, true, out architecture))
+                    {
+                        if (architectures.Add(architecture))
+                        {
+                            this.pwshCmdlet.Write(StreamType.Verbose, $"Framework architecture from environment variable: {architectureString}");
+                        }
+                    }
+                }
+
+                return architectures;
+            }
+
+            var result = this.ExecuteAppxCmdlet(
+                GetAppxPackage,
+                new Dictionary<string, object>
+                {
+                    { PackageTypeFilter, Framework },
+                });
+
+            if (result != null &&
+                result.Count > 0)
+            {
+                foreach (dynamic psobject in result)
+                {
+                    string? architectureString = psobject?.Architecture?.ToString();
+                    if (architectureString == null)
+                    {
+                        continue;
+                    }
+
+                    Architecture architecture;
+                    if (Enum.TryParse(architectureString, true, out architecture))
+                    {
+                        if (architectures.Add(architecture))
+                        {
+                            this.pwshCmdlet.Write(StreamType.Verbose, $"Found framework architecture: {architectureString}");
+                        }
+                    }
+                }
+            }
+
+            return architectures;
+        }
+
         private Dictionary<string, string> GetDependenciesByArch(PackageDependency dependencies)
         {
             Dictionary<string, string> appxPackages = new Dictionary<string, string>();
-            var arch = RuntimeInformation.OSArchitecture;
 
-            string appxPackageX64 = string.Format(ExtractedDependencyPath, "x64", dependencies.Name, dependencies.Version);
-            string appxPackageX86 = string.Format(ExtractedDependencyPath, "x86", dependencies.Name, dependencies.Version);
-            string appxPackageArm64 = string.Format(ExtractedDependencyPath, "arm64", dependencies.Name, dependencies.Version);
-
-            if (arch == Architecture.X64)
+            foreach (var architecture in this.frameworkArchitectures.Value)
             {
-                appxPackages.Add("x64", appxPackageX64);
-            }
-            else if (arch == Architecture.X86)
-            {
-                appxPackages.Add("x86", appxPackageX86);
-            }
-            else if (arch == Architecture.Arm64)
-            {
-                // Deployment please figure out for me.
-                appxPackages.Add("x64", appxPackageX64);
-                appxPackages.Add("x86", appxPackageX86);
-                appxPackages.Add("arm64", appxPackageArm64);
-            }
-            else
-            {
-                throw new PSNotSupportedException(arch.ToString());
+                switch (architecture)
+                {
+                    case Architecture.X86:
+                        appxPackages.Add("x86", string.Format(ExtractedDependencyPath, "x86", dependencies.Name, dependencies.Version));
+                        break;
+                    case Architecture.X64:
+                        appxPackages.Add("x64", string.Format(ExtractedDependencyPath, "x64", dependencies.Name, dependencies.Version));
+                        break;
+                    case Architecture.Arm64:
+                        appxPackages.Add("arm64", string.Format(ExtractedDependencyPath, "arm64", dependencies.Name, dependencies.Version));
+                        break;
+                    default:
+                        this.pwshCmdlet.Write(StreamType.Verbose, $"GetDependenciesByArch: Ignoring {architecture}");
+                        break;
+                }
             }
 
             return appxPackages;
@@ -522,25 +582,24 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private Dictionary<string, string> GetVCLibsDependencies()
         {
             Dictionary<string, string> vcLibsDependencies = new Dictionary<string, string>();
-            var arch = RuntimeInformation.OSArchitecture;
-            if (arch == Architecture.X64)
+
+            foreach (var architecture in this.frameworkArchitectures.Value)
             {
-                vcLibsDependencies.Add("x64", VCLibsUWPDesktopX64);
-            }
-            else if (arch == Architecture.X86)
-            {
-                vcLibsDependencies.Add("x86", VCLibsUWPDesktopX86);
-            }
-            else if (arch == Architecture.Arm64)
-            {
-                // Deployment please figure out for me.
-                vcLibsDependencies.Add("x64", VCLibsUWPDesktopX64);
-                vcLibsDependencies.Add("x86", VCLibsUWPDesktopX86);
-                vcLibsDependencies.Add("arm64", VCLibsUWPDesktopArm64);
-            }
-            else
-            {
-                throw new PSNotSupportedException(arch.ToString());
+                switch (architecture)
+                {
+                    case Architecture.X86:
+                        vcLibsDependencies.Add("x86", VCLibsUWPDesktopX86);
+                        break;
+                    case Architecture.X64:
+                        vcLibsDependencies.Add("x64", VCLibsUWPDesktopX64);
+                        break;
+                    case Architecture.Arm64:
+                        vcLibsDependencies.Add("arm64", VCLibsUWPDesktopArm64);
+                        break;
+                    default:
+                        this.pwshCmdlet.Write(StreamType.Verbose, $"GetVCLibsDependencies: Ignoring {architecture}");
+                        break;
+                }
             }
 
             return vcLibsDependencies;
@@ -561,25 +620,24 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 var xamlRelease = await githubRelease.GetReleaseAsync(xamlReleaseTag);
 
                 var packagesToInstall = new List<ReleaseAsset>();
-                var arch = RuntimeInformation.OSArchitecture;
-                if (arch == Architecture.X64)
+
+                foreach (var architecture in this.frameworkArchitectures.Value)
                 {
-                    packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetX64));
-                }
-                else if (arch == Architecture.X86)
-                {
-                    packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetX86));
-                }
-                else if (arch == Architecture.Arm64)
-                {
-                    // Deployment please figure out for me.
-                    packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetX64));
-                    packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetX86));
-                    packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetArm64));
-                }
-                else
-                {
-                    throw new PSNotSupportedException(arch.ToString());
+                    switch (architecture)
+                    {
+                        case Architecture.X86:
+                            packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetX86));
+                            break;
+                        case Architecture.X64:
+                            packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetX64));
+                            break;
+                        case Architecture.Arm64:
+                            packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetArm64));
+                            break;
+                        default:
+                            this.pwshCmdlet.Write(StreamType.Verbose, $"InstallUiXamlAsync: Ignoring {architecture}");
+                            break;
+                    }
                 }
 
                 foreach (var package in packagesToInstall)
