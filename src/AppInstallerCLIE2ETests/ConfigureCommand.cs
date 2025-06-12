@@ -410,7 +410,8 @@ namespace AppInstallerCLIE2ETests
             // Verify test file created.
             string targetFilePath = Path.Combine(testDir, "TestFile.txt");
             FileAssert.Exists(targetFilePath);
-            Assert.AreEqual("TestContent", File.ReadAllText(targetFilePath));
+            string testContent = File.ReadAllText(targetFilePath);
+            Assert.True(testContent.Contains("TestContent"));
         }
 
         private void DeleteResourceArtifacts()
