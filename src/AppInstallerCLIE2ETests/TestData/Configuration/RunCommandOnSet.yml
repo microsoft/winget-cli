@@ -12,4 +12,4 @@ resources:
         - -NoLogo
         - -Command
         - |
-          Set-Content -Path ${WinGetConfigRoot}\TestFile.txt -Value 'TestContent'
+          Set-Content -Path <PathToBeReplaced>\TestFile.txt -Value 'TestContent'

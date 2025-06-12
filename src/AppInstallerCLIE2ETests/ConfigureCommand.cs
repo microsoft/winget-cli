@@ -400,6 +400,10 @@ namespace AppInstallerCLIE2ETests
             var testConfigFile = Path.Combine(testDir, "RunCommandOnSet.yml");
             File.Copy(TestCommon.GetTestDataFile("Configuration\\RunCommandOnSet.yml"), testConfigFile);
 
+            var content = File.ReadAllText(testConfigFile);
+            content = content.Replace("<PathToBeReplaced>", testDir);
+            File.WriteAllText(testConfigFile, content);
+
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, testConfigFile, timeOut: 300000);
             Assert.AreEqual(0, result.ExitCode);
 
