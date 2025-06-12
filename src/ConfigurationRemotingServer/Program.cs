@@ -8,6 +8,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Management.Configuration;
 using Microsoft.Management.Configuration.Processor;
+using Microsoft.Management.Configuration.Processor.Helpers;
+using Microsoft.Win32;
 using WinRT;
 using IConfigurationSetProcessorFactory = global::Microsoft.Management.Configuration.IConfigurationSetProcessorFactory;
 
@@ -79,6 +81,18 @@ namespace ConfigurationRemotingServer
 
             string staticsCallback = args[1];
 
+            // Listen for setting change message and update PATH if needed.
+            HiddenForm hiddenForm = new HiddenForm();
+            var settingChangedListenerThread = new Thread(
+                () =>
+                {
+                    SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
+                    Application.Run(hiddenForm);
+                    SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
+                });
+
+            settingChangedListenerThread.Start();
+
             try
             {
                 string completionEventName = args[2];
@@ -147,11 +161,32 @@ namespace ConfigurationRemotingServer
 
                 return WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(0, factoryInterface.ThisPtr, staticsCallback, completionEventName, parentProcessId);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(ex.HResult, IntPtr.Zero, staticsCallback, null, 0);
                 return ex.HResult;
             }
+            finally
+            {
+                hiddenForm.BeginInvoke(new Action(() => { hiddenForm.Close(); }));
+                settingChangedListenerThread.Join();
+            }
+        }
+
+        private class HiddenForm : Form
+        {
+            public HiddenForm()
+            {
+                this.Width = 0;
+                this.Height = 0;
+                this.Visible = false;
+                this.Load += (sender, e) => this.Hide();
+            }
+        }
+
+        private static void OnUserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+        {
+            PathEnvironmentVariableHandler.UpdatePath();
         }
 
         private class LimitationSetMetadata

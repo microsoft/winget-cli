@@ -11,6 +11,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
     using System.Diagnostics;
     using System.Text;
     using System.Threading;
+    using Microsoft.Management.Configuration.Processor.Helpers;
 
     /// <summary>
     /// Wrapper for a single process execution and its output.
@@ -134,7 +135,13 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 throw new InvalidOperationException("Process has already been started.");
             }
 
-            ProcessStartInfo startInfo = new ProcessStartInfo(this.ExecutablePath, this.SerializedArguments);
+            ProcessStartInfo startInfo;
+
+            lock (PathEnvironmentVariableHandler.Lock)
+            {
+                startInfo = new ProcessStartInfo(this.ExecutablePath, this.SerializedArguments);
+            }
+
             this.Process = new Process() { StartInfo = startInfo };
 
             startInfo.UseShellExecute = false;
