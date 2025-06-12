@@ -6,6 +6,14 @@
 
 namespace Microsoft.WinGet.Configuration.Engine.Commands
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Management.Automation;
+    using System.Management.Automation.Runspaces;
+    using System.Text;
+    using System.Threading.Tasks;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor;
     using Microsoft.Management.Configuration.Processor.PowerShell.Extensions;
@@ -16,18 +24,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
     using Microsoft.WinGet.Resources;
     using Microsoft.WinGet.SharedLib.PolicySettings;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Management.Automation;
-    using System.Management.Automation.Runspaces;
-    using System.Text;
-    using System.Threading.Tasks;
     using Windows.Storage;
     using Windows.Storage.Streams;
     using WinRT;
-    using static System.Runtime.InteropServices.JavaScript.JSType;
 
     /// <summary>
     /// Class that deals configuration commands.
