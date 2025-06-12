@@ -1271,7 +1271,7 @@ namespace AppInstaller::CLI::Workflow
             return result;
         }
 
-        // TODO: This is a work around unit to ensure v2 dsc resource modules. Move to dsc v3 resource when available.
+        // TODO: This is a workaround unit to ensure v2 dsc resource modules. Move to dsc v3 resource when available.
         ConfigurationUnit CreateRequiredModuleUnit(std::wstring_view moduleName, const ConfigurationUnit& dependentUnit)
         {
             std::wstring moduleNameString{ moduleName };
