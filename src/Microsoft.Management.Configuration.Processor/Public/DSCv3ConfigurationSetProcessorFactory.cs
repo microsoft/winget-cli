@@ -23,6 +23,7 @@ namespace Microsoft.Management.Configuration.Processor
         private const string DscExecutablePathPropertyName = "DscExecutablePath";
         private const string FoundDscExecutablePathPropertyName = "FoundDscExecutablePath";
         private const string DiagnosticTraceEnabledPropertyName = "DiagnosticTraceEnabled";
+        private const string FindDscStateMachinePropertyName = "FindDscStateMachine";
 
         private ProcessorSettings processorSettings = new ();
 
@@ -154,10 +155,13 @@ namespace Microsoft.Management.Configuration.Processor
                     value = this.DscExecutablePath!;
                     return true;
                 case FoundDscExecutablePathPropertyName:
-                    value = ProcessorSettings.FindDscExecutablePath() !;
+                    value = this.processorSettings.GetFoundDscExecutablePath() !;
                     return true;
                 case DiagnosticTraceEnabledPropertyName:
                     value = this.processorSettings.DiagnosticTraceEnabled.ToString();
+                    return true;
+                case FindDscStateMachinePropertyName:
+                    value = this.processorSettings.PumpFindDscStateMachine().ToString();
                     return true;
             }
 
