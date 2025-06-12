@@ -400,7 +400,7 @@ namespace AppInstallerCLIE2ETests
             var testConfigFile = Path.Combine(testDir, "RunCommandOnSet.yml");
             File.Copy(TestCommon.GetTestDataFile("Configuration\\RunCommandOnSet.yml"), testConfigFile);
 
-            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\RunCommandOnSet.yml"), timeOut: 300000);
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, testConfigFile, timeOut: 300000);
             Assert.AreEqual(0, result.ExitCode);
 
             // Verify test file created.

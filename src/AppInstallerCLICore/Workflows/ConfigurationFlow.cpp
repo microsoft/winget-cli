@@ -1255,7 +1255,7 @@ namespace AppInstaller::CLI::Workflow
             return unit;
         }
 
-        ValueSet CreateValueSetFromStringArray(const std::vector<std::wstring>& values)
+        ValueSet CreateValueSetFromStringVector(const std::vector<std::wstring>& values)
         {
             ValueSet result;
             size_t index = 0;
@@ -1287,7 +1287,7 @@ namespace AppInstaller::CLI::Workflow
                 L"-Command",
                 L"if (-not (Get-Module -ListAvailable -Name " + moduleNameString + L")) { Install-Module -Name " + moduleNameString + L" -Confirm:$False -Force -AllowPrerelease -AllowClobber }"
             };
-            settings.Insert(L"arguments", CreateValueSetFromStringArray(arguments));
+            settings.Insert(L"arguments", CreateValueSetFromStringVector(arguments));
             unit.Settings(settings);
 
             unit.Dependencies().Append(dependentUnit.Identifier());
@@ -1574,22 +1574,18 @@ namespace AppInstaller::CLI::Workflow
         {
             ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
 
-            // PowerShell package needs to be present for later certain predefined modules to work.
-            std::optional<ConfigurationUnit> powerShellPackageUnit = CreatePowerShellPackageUnit();
+            // PowerShell package needs to be present for certain predefined modules to work.
+            ConfigurationUnit powerShellPackageUnit = CreatePowerShellPackageUnit();
+            configContext.Set().Units().Append(powerShellPackageUnit);
 
             // Apply the unit to make sure it's on the system.
-            context.Reporter.Info() << Resource::String::ConfigurationExportInstallRequiredModule(Utility::LocIndView{ "Microsoft PowerShell" }) << std::endl;
-            auto applyPowerShellResult = ApplyUnit(context, powerShellPackageUnit.value());
-            if (SUCCEEDED(applyPowerShellResult.ResultInformation().ResultCode()))
+            context.Reporter.Info() << Resource::String::ConfigurationExportInstallRequiredModule(Utility::LocIndView{ "Microsoft PowerShell Package" }) << std::endl;
+            auto applyPowerShellResult = ApplyUnit(context, powerShellPackageUnit);
+            if (FAILED(applyPowerShellResult.ResultInformation().ResultCode()))
             {
-                configContext.Set().Units().Append(powerShellPackageUnit.value());
-            }
-            else
-            {
-                AICLI_LOG(Config, Warning, << "Failed to ensure module. [Microsoft PowerShell] Related settings will not be exported.");
-                LogFailedGetConfigurationUnitDetails(powerShellPackageUnit.value(), applyPowerShellResult.ResultInformation());
+                AICLI_LOG(Config, Warning, << "Failed to ensure module. [Microsoft PowerShell Package] Related settings may not be exported.");
+                LogFailedGetConfigurationUnitDetails(powerShellPackageUnit, applyPowerShellResult.ResultInformation());
                 context.Reporter.Warn() << Resource::String::ConfigurationExportInstallRequiredModuleFailed << std::endl;
-                powerShellPackageUnit = std::nullopt;
             }
 
             for (const auto& resources : PredefinedResourcesForExport())
@@ -1598,13 +1594,7 @@ namespace AppInstaller::CLI::Workflow
 
                 if (!resources.RequiredModule.empty())
                 {
-                    if (!powerShellPackageUnit)
-                    {
-                        // PowerShell package not present, skip.
-                        continue;
-                    }
-
-                    requiredModuleUnit = CreateRequiredModuleUnit(resources.RequiredModule, powerShellPackageUnit.value());
+                    requiredModuleUnit = CreateRequiredModuleUnit(resources.RequiredModule, powerShellPackageUnit);
 
                     // Apply the unit to make sure it's on the system.
                     context.Reporter.Info() << Resource::String::ConfigurationExportInstallRequiredModule(Utility::LocIndView{ Utility::ConvertToUTF8(resources.RequiredModule) }) << std::endl;
