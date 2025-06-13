@@ -64,6 +64,9 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_Setting_WinGetSource_Arg = L"argument";
         constexpr std::wstring_view s_Setting_WinGetSource_Type = L"type";
 
+        constexpr std::wstring_view s_Predefined_PowerShell_PackageId = L"Microsoft.PowerShell";
+        constexpr std::wstring_view s_Predefined_PowerShell_PackageSource = L"winget";
+
         struct PredefinedResourceInfo
         {
             std::wstring_view UnitType;
@@ -1248,8 +1251,8 @@ namespace AppInstaller::CLI::Workflow
             ConfigurationUnit unit = CreateConfigurationUnitFromUnitType(s_UnitType_WinGetPackage_DSCv3, "Microsoft.PowerShell");
 
             ValueSet settings;
-            settings.Insert(s_Setting_WinGetPackage_Id, PropertyValue::CreateString(L"Microsoft.PowerShell"));
-            settings.Insert(s_Setting_WinGetPackage_Source, PropertyValue::CreateString(L"winget"));
+            settings.Insert(s_Setting_WinGetPackage_Id, PropertyValue::CreateString(s_Predefined_PowerShell_PackageId));
+            settings.Insert(s_Setting_WinGetPackage_Source, PropertyValue::CreateString(s_Predefined_PowerShell_PackageSource));
             unit.Settings(settings);
 
             return unit;
