@@ -390,6 +390,30 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(0, result.ExitCode);
         }
 
+        /// <summary>
+        /// RunCommandOnSet test.
+        /// </summary>
+        [Test]
+        public void RunCommandOnSetResourceTest()
+        {
+            var testDir = TestCommon.GetRandomTestDir();
+            var testConfigFile = Path.Combine(testDir, "RunCommandOnSet.yml");
+            File.Copy(TestCommon.GetTestDataFile("Configuration\\RunCommandOnSet.yml"), testConfigFile);
+
+            var content = File.ReadAllText(testConfigFile);
+            content = content.Replace("<PathToBeReplaced>", testDir);
+            File.WriteAllText(testConfigFile, content);
+
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, testConfigFile, timeOut: 300000);
+            Assert.AreEqual(0, result.ExitCode);
+
+            // Verify test file created.
+            string targetFilePath = Path.Combine(testDir, "TestFile.txt");
+            FileAssert.Exists(targetFilePath);
+            string testContent = File.ReadAllText(targetFilePath);
+            Assert.True(testContent.Contains("TestContent"));
+        }
+
         private void DeleteResourceArtifacts()
         {
             // Delete all .txt files in the test directory; they are placed there by the tests

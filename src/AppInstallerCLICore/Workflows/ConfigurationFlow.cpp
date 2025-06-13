@@ -53,7 +53,6 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_UnitType_WinGetSource_DSCv3 = WINGET_DSCV3_MODULE_NAME_WIDE L"/Source";
         constexpr std::wstring_view s_UnitType_WinGetUserSettingsFile_DSCv3 = WINGET_DSCV3_MODULE_NAME_WIDE L"/UserSettingsFile";
         constexpr std::wstring_view s_UnitType_WinGetAdminSettings_DSCv3 = WINGET_DSCV3_MODULE_NAME_WIDE L"/AdminSettings";
-        constexpr std::wstring_view s_UnitType_PowerShellModuleGet = L"PowerShellGet/PSModule";
 
         constexpr std::wstring_view s_Module_WinGetClient = L"Microsoft.WinGet.DSC";
 
@@ -65,7 +64,8 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_Setting_WinGetSource_Arg = L"argument";
         constexpr std::wstring_view s_Setting_WinGetSource_Type = L"type";
 
-        constexpr std::wstring_view s_Setting_PowerShellGet_ModuleName = L"name";
+        constexpr std::wstring_view s_Predefined_PowerShell_PackageId = L"Microsoft.PowerShell";
+        constexpr std::wstring_view s_Predefined_PowerShell_PackageSource = L"winget";
 
         struct PredefinedResourceInfo
         {
@@ -1246,13 +1246,54 @@ namespace AppInstaller::CLI::Workflow
             return unit;
         }
 
-        ConfigurationUnit CreatePowerShellModuleGetUnit(const std::wstring& moduleName)
+        ConfigurationUnit CreatePowerShellPackageUnit()
         {
-            ConfigurationUnit unit = CreateConfigurationUnitFromUnitType(s_UnitType_PowerShellModuleGet, Utility::ConvertToUTF8(moduleName));
+            ConfigurationUnit unit = CreateConfigurationUnitFromUnitType(s_UnitType_WinGetPackage_DSCv3, "Microsoft.PowerShell");
 
             ValueSet settings;
-            settings.Insert(s_Setting_PowerShellGet_ModuleName, PropertyValue::CreateString(moduleName));
+            settings.Insert(s_Setting_WinGetPackage_Id, PropertyValue::CreateString(s_Predefined_PowerShell_PackageId));
+            settings.Insert(s_Setting_WinGetPackage_Source, PropertyValue::CreateString(s_Predefined_PowerShell_PackageSource));
             unit.Settings(settings);
+
+            return unit;
+        }
+
+        ValueSet CreateValueSetFromStringVector(const std::vector<std::wstring>& values)
+        {
+            ValueSet result;
+            size_t index = 0;
+
+            for (const auto& value : values)
+            {
+                std::wostringstream strstr;
+                strstr << index++;
+                result.Insert(strstr.str(), PropertyValue::CreateString(value));
+            }
+
+            result.Insert(L"treatAsArray", PropertyValue::CreateBoolean(true));
+            return result;
+        }
+
+        // TODO: This is a workaround unit to ensure v2 dsc resource modules. Move to dsc v3 resource when available.
+        ConfigurationUnit CreateRequiredModuleUnit(std::wstring_view moduleName, const ConfigurationUnit& dependentUnit)
+        {
+            std::wstring moduleNameString{ moduleName };
+
+            ConfigurationUnit unit = CreateConfigurationUnitFromUnitType(L"Microsoft.DSC.Transitional/RunCommandOnSet", Utility::ConvertToUTF8(moduleName));
+
+            ValueSet settings;
+            settings.Insert(L"executable", PropertyValue::CreateString(L"pwsh"));
+            std::vector<std::wstring> arguments =
+            {
+                L"-NoProfile",
+                L"-NoLogo",
+                L"-Command",
+                L"if (-not (Get-Module -ListAvailable -Name " + moduleNameString + L")) { Install-Module -Name " + moduleNameString + L" -Confirm:$False -Force -AllowPrerelease -AllowClobber }"
+            };
+            settings.Insert(L"arguments", CreateValueSetFromStringVector(arguments));
+            unit.Settings(settings);
+
+            unit.Dependencies().Append(dependentUnit.Identifier());
 
             return unit;
         }
@@ -1536,15 +1577,27 @@ namespace AppInstaller::CLI::Workflow
         {
             ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
 
+            // PowerShell package needs to be present for certain predefined modules to work.
+            ConfigurationUnit powerShellPackageUnit = CreatePowerShellPackageUnit();
+            configContext.Set().Units().Append(powerShellPackageUnit);
+
+            // Apply the unit to make sure it's on the system.
+            context.Reporter.Info() << Resource::String::ConfigurationExportInstallRequiredModule(Utility::LocIndView{ "Microsoft PowerShell Package" }) << std::endl;
+            auto applyPowerShellResult = ApplyUnit(context, powerShellPackageUnit);
+            if (FAILED(applyPowerShellResult.ResultInformation().ResultCode()))
+            {
+                AICLI_LOG(Config, Warning, << "Failed to ensure module. [Microsoft PowerShell Package] Related settings may not be exported.");
+                LogFailedGetConfigurationUnitDetails(powerShellPackageUnit, applyPowerShellResult.ResultInformation());
+                context.Reporter.Warn() << Resource::String::ConfigurationExportInstallRequiredModuleFailed << std::endl;
+            }
+
             for (const auto& resources : PredefinedResourcesForExport())
             {
                 std::optional<ConfigurationUnit> requiredModuleUnit;
 
-                /* The PowershellGet/PSModule does not work under dsc v3 adaptor yet.
-                 * Uncomment if still applicable after the issue is fixed.
                 if (!resources.RequiredModule.empty())
                 {
-                    requiredModuleUnit = CreatePowerShellModuleGetUnit(resources.RequiredModule);
+                    requiredModuleUnit = CreateRequiredModuleUnit(resources.RequiredModule, powerShellPackageUnit);
 
                     // Apply the unit to make sure it's on the system.
                     context.Reporter.Info() << Resource::String::ConfigurationExportInstallRequiredModule(Utility::LocIndView{ Utility::ConvertToUTF8(resources.RequiredModule) }) << std::endl;
@@ -1561,7 +1614,6 @@ namespace AppInstaller::CLI::Workflow
                         continue;
                     }
                 }
-                */
 
                 for (const auto& resourceInfo : resources.ResourceInfos)
                 {

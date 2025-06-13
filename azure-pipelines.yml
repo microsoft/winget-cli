@@ -357,12 +357,6 @@ jobs:
     displayName: Clean up Sysinternals PsTools
     condition: succeededOrFailed()
 
-    # Install required DSC modules until export all command can handle auto acquisition
-  - pwsh: |
-      Install-Module -Name Microsoft.Windows.Settings -AllowPrerelease -Force
-    displayName: Install Required DSC Modules for Tests
-    condition: succeededOrFailed()
-
   - task: PowerShell@2
     displayName: Run Unit Tests Packaged
     inputs:

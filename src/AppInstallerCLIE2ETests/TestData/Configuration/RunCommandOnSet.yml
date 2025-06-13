@@ -1,0 +1,15 @@
+$schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
+metadata:
+  winget:
+    processor: dscv3
+resources:
+  - name: Test RunCommandOnSet
+    type: Microsoft.DSC.Transitional/RunCommandOnSet
+    properties:
+      executable: pwsh
+      arguments:
+        - -NoProfile
+        - -NoLogo
+        - -Command
+        - |
+          Set-Content -Path <PathToBeReplaced>\TestFile.txt -Value 'TestContent'

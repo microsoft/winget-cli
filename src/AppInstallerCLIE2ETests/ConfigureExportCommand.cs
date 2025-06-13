@@ -154,7 +154,10 @@ namespace AppInstallerCLIE2ETests
             var showResult = TestCommon.RunAICLICommand(ShowCommand, $"-f {exportFile}", timeOut: 1200000);
             Assert.AreEqual(Constants.ErrorCode.S_OK, showResult.ExitCode);
 
+            Assert.True(showResult.StdOut.Contains("Microsoft.PowerShell"));
+
             Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/UserSettingsFile"));
+            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/AdminSettings"));
             Assert.True(showResult.StdOut.Contains("Microsoft.Windows.Settings/WindowsSettings"));
 
             Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Source"));
