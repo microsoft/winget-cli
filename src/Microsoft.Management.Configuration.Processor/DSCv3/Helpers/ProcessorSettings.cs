@@ -18,11 +18,10 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
     /// </summary>
     internal class ProcessorSettings
     {
-        private const string DscExecutableFileName = "dsc.exe";
-
         private readonly object dscV3Lock = new ();
         private readonly object defaultPathLock = new ();
 
+        private FindDscPackageStateMachine dscPackageStateMachine = new ();
         private IDSCv3? dscV3 = null;
         private string? defaultPath = null;
 
@@ -53,7 +52,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                     }
                 }
 
-                string? localDefaultPath = FindDscExecutablePath();
+                string? localDefaultPath = this.GetFoundDscExecutablePath();
 
                 if (localDefaultPath == null)
                 {
@@ -116,20 +115,18 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// Find the DSC v3 executable.
         /// </summary>
         /// <returns>The full path to the dsc.exe executable, or null if not found.</returns>
-        public static string? FindDscExecutablePath()
+        public string? GetFoundDscExecutablePath()
         {
-            // To start, only attempt to find the package and launch it via app execution alias.
-            // In the future, consider discovering it through %PATH% searching, but probably don't allow that from an elevated process.
-            // That probably means creating another read property for finding the secure path.
-#if !AICLI_DISABLE_TEST_HOOKS
-            string? result = GetDscExecutablePathForPackage("Microsoft.DesiredStateConfiguration-Preview_8wekyb3d8bbwe");
-            if (result != null)
-            {
-                return result;
-            }
-#endif
+            return this.dscPackageStateMachine.DscExecutablePath;
+        }
 
-            return GetDscExecutablePathForPackage("Microsoft.DesiredStateConfiguration_8wekyb3d8bbwe");
+        /// <summary>
+        /// Invokes a step in the DSC search state machine.
+        /// </summary>
+        /// <returns>The transition to take in the state machine.</returns>
+        public FindDscPackageStateMachine.Transition PumpFindDscStateMachine()
+        {
+            return this.dscPackageStateMachine.DetermineNextTransition();
         }
 
         /// <summary>
@@ -250,19 +247,6 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 }
 
                 result.Add(details);
-            }
-
-            return result;
-        }
-
-        private static string? GetDscExecutablePathForPackage(string packageFamilyName)
-        {
-            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string result = Path.Combine(localAppData, "Microsoft\\WindowsApps", packageFamilyName, DscExecutableFileName);
-
-            if (!Path.Exists(result))
-            {
-                return null;
             }
 
             return result;

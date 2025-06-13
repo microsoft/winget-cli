@@ -67,6 +67,9 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_Predefined_PowerShell_PackageId = L"Microsoft.PowerShell";
         constexpr std::wstring_view s_Predefined_PowerShell_PackageSource = L"winget";
 
+        constexpr std::string_view s_DscPackage_StoreId_Stable = "9NVTPZWRC6KQ";
+        constexpr std::string_view s_DscPackage_StoreId_Preview = "9PCX3HX4HZ0Z";
+
         struct PredefinedResourceInfo
         {
             std::wstring_view UnitType;
@@ -147,6 +150,37 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        void InstallDscPackage(Execution::Context& context, std::string_view productId, std::unique_ptr<Reporter::AsyncProgressScope>& progressScope)
+        {
+            progressScope.reset();
+
+            context.Reporter.Info() << Resource::String::ConfigurationInstallDscPackage << std::endl;
+
+            auto installDscContextPtr = context.CreateSubContext();
+            Execution::Context& installDscContext = *installDscContextPtr;
+            auto previousThreadGlobals = installDscContext.SetForCurrentThread();
+
+            Manifest::ManifestInstaller dscInstaller;
+            dscInstaller.ProductId = productId;
+
+            installDscContext.Add<Execution::Data::Installer>(std::move(dscInstaller));
+            installDscContext.Args.AddArg(Execution::Args::Type::InstallScope, Manifest::ScopeToString(Manifest::ScopeEnum::User));
+            installDscContext.Args.AddArg(Execution::Args::Type::Silent);
+            installDscContext.Args.AddArg(Execution::Args::Type::Force);
+
+            installDscContext << MSStoreInstall;
+
+            if (installDscContext.IsTerminated())
+            {
+                AICLI_LOG(Config, Error, << "Failed to install dsc v3 package: " << productId);
+                context.Reporter.Error() << Resource::String::ConfigurationInstallDscPackageFailed << std::endl;
+                THROW_WIN32(ERROR_FILE_NOT_FOUND);
+            }
+
+            progressScope = context.Reporter.BeginAsyncProgress(true);
+            progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
+        }
+
         IConfigurationSetProcessorFactory CreateConfigurationSetProcessorFactory(Execution::Context& context)
         {
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -156,6 +190,9 @@ namespace AppInstaller::CLI::Workflow
                 return s_override_IConfigurationSetProcessorFactory;
             }
 #endif
+
+            auto progressScope = context.Reporter.BeginAsyncProgress(true);
+            progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
 
             // The configuration set must have already been opened to create the proper factory.
             THROW_WIN32_IF(ERROR_INVALID_STATE, !context.Contains(Data::ConfigurationContext));
@@ -191,36 +228,36 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else
                 {
-                    // Make sure DSC executable path can be found. Otherwise, we'll install the DSC v3 package.
-                    winrt::hstring foundExecutablePath = factoryMap.Lookup(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::FoundDscExecutablePath));
-                    if (foundExecutablePath.empty())
+                    for (;;)
                     {
-                        AICLI_LOG(Config, Info, << "dsc.exe not found and not provided. Installing dsc package from store.");
-                        context.Reporter.Info() << Resource::String::ConfigurationInstallDscPackage;
+                        // Get the next transition for the state machine
+                        winrt::hstring nextTransition = factoryMap.Lookup(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::FindDscStateMachine));
+                        AICLI_LOG(Config, Verbose, << "FindDscStateMachine returned " << Utility::ConvertToUTF8(nextTransition));
 
-                        auto installDscContextPtr = context.CreateSubContext();
-                        Execution::Context& installDscContext = *installDscContextPtr;
-                        auto previousThreadGlobals = installDscContext.SetForCurrentThread();
-
-                        Manifest::ManifestInstaller dscInstaller;
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-                        dscInstaller.ProductId = "9PCX3HX4HZ0Z";
-#else
-                        dscInstaller.ProductId = "9NVTPZWRC6KQ";
-#endif
-                        installDscContext.Add<Execution::Data::Installer>(std::move(dscInstaller));
-                        installDscContext.Args.AddArg(Execution::Args::Type::InstallScope, Manifest::ScopeToString(Manifest::ScopeEnum::User));
-                        installDscContext.Args.AddArg(Execution::Args::Type::Silent);
-                        installDscContext.Args.AddArg(Execution::Args::Type::Force);
-
-                        installDscContext << MSStoreInstall;
-
-                        if (installDscContext.IsTerminated())
+                        if (nextTransition == L"Found")
                         {
-                            AICLI_LOG(Config, Error, << "Failed to install dsc v3 package and could not find dsc.exe, it must be provided by the user.");
-                            context.Reporter.Error() << Resource::String::ConfigurationInstallDscPackageFailed;
+                            break;
+                        }
+                        else if (nextTransition == L"InstallStable")
+                        {
+                            AICLI_LOG(Config, Info, << "Installing stable DSC package from store...");
+                            InstallDscPackage(context, s_DscPackage_StoreId_Stable, progressScope);
+                        }
+                        else if (nextTransition == L"InstallPreview")
+                        {
+                            AICLI_LOG(Config, Info, << "Installing preview DSC package from store...");
+                            InstallDscPackage(context, s_DscPackage_StoreId_Preview, progressScope);
+                        }
+                        else if (nextTransition == L"NotFound")
+                        {
+                            AICLI_LOG(Config, Error, << "Failed to find appropriate dsc v3 package, it must be provided by the user.");
+                            context.Reporter.Error() << Resource::String::ConfigurationInstallDscPackageFailed << std::endl;
                             THROW_WIN32(ERROR_FILE_NOT_FOUND);
+                        }
+                        else
+                        {
+                            AICLI_LOG(Config, Error, << "FindDscStateMachine returned unknown value `" << Utility::ConvertToUTF8(nextTransition) << "`");
+                            THROW_HR(E_UNEXPECTED);
                         }
                     }
                 }
@@ -1875,9 +1912,6 @@ namespace AppInstaller::CLI::Workflow
 
     void CreateConfigurationProcessor(Context& context)
     {
-        auto progressScope = context.Reporter.BeginAsyncProgress(true);
-        progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
-
         anon::ConfigureProcessorForUse(context, ConfigurationProcessor{ anon::CreateConfigurationSetProcessorFactory(context) });
     }
 

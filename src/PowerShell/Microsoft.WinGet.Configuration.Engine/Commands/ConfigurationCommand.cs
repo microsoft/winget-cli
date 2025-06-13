@@ -16,6 +16,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using System.Threading.Tasks;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor;
+    using Microsoft.Management.Configuration.Processor.PowerShell.Extensions;
     using Microsoft.PowerShell;
     using Microsoft.WinGet.Common.Command;
     using Microsoft.WinGet.Configuration.Engine.Exceptions;
@@ -37,13 +38,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
         private const string DSCv3FactoryMapKeyDscExecutablePath = "DscExecutablePath";
         private const string DSCv3FactoryMapKeyFoundDscExecutablePath = "FoundDscExecutablePath";
+        private const string DSCv3FactoryMapKeyFindDscStateMachine = "FindDscStateMachine";
 
         private const string WinGetClientModule = "Microsoft.WinGet.Client";
-#if USE_PROD_CLSIDS
-        private const string DSCv3PackageId = "9NVTPZWRC6KQ";
-#else
-        private const string DSCv3PackageId = "9PCX3HX4HZ0Z";
-#endif
+        private const string StableDSCv3PackageId = "9NVTPZWRC6KQ";
+        private const string PreviewDSCv3PackageId = "9PCX3HX4HZ0Z";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationCommand"/> class.
@@ -408,18 +407,42 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             }
             else
             {
-                string? foundProcessorPath = null;
-                if (!factoryMap.TryGetValue(DSCv3FactoryMapKeyFoundDscExecutablePath, out foundProcessorPath) ||
-                    string.IsNullOrEmpty(foundProcessorPath))
+                while (true)
                 {
-                    await this.InstallDSCv3Package(openParams);
+                    string? nextTransition = null;
+                    factoryMap.TryGetValue(DSCv3FactoryMapKeyFindDscStateMachine, out nextTransition);
+
+                    if (nextTransition == "Found")
+                    {
+                        break;
+                    }
+                    else if (nextTransition == "InstallStable")
+                    {
+                        this.Write(StreamType.Verbose, "Installing stable DSC...");
+                        await this.InstallDSCv3Package(openParams, StableDSCv3PackageId);
+                    }
+                    else if (nextTransition == "InstallPreview")
+                    {
+                        this.Write(StreamType.Verbose, "Installing preview DSC...");
+                        await this.InstallDSCv3Package(openParams, PreviewDSCv3PackageId);
+                    }
+                    else if (nextTransition == "NotFound")
+                    {
+                        this.Write(StreamType.Warning, Resources.ConfigurationInstallDscPackageFailed);
+                        throw new FileNotFoundException(Resources.DscExeNotFound, "dsc.exe");
+                    }
+                    else
+                    {
+                        this.Write(StreamType.Warning, $"Unrecognized value from FindDscStateMachine: {nextTransition ?? "<null>"}");
+                        throw new InvalidOperationException($"Internal error: Unrecognized value from FindDscStateMachine: {nextTransition ?? "<null>"}");
+                    }
                 }
             }
 
             return factory;
         }
 
-        private async Task InstallDSCv3Package(OpenConfigurationParameters openParams)
+        private async Task InstallDSCv3Package(OpenConfigurationParameters openParams, string productId)
         {
             this.Write(StreamType.Information, Resources.ConfigurationInstallDscPackage);
 
@@ -434,10 +457,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     Install-Module -Name {WinGetClientModule} -Confirm:$False -Force
                 }}
 
-                $installResult = Install-WingetPackage -Id {DSCv3PackageId} -Source msstore
+                $installResult = Install-WingetPackage -Id {productId} -Source msstore
                 if ($installResult.Status -ne 'Ok')
                 {{
-                    Write-Error ""Failed to install DSCv3 package. Status: $($installResult.Status). ExtendedErrorCode: $($installResult.ExtendedErrorCode)."" -ErrorAction Stop
+                    Write-Error ""Failed to install DSCv3 package. Status: $($installResult.Status). ExtendedErrorCode: $($installResult.ExtendedErrorCode).""
                 }}
                 ");
 
@@ -445,7 +468,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             if (installDSCv3.HadErrors)
             {
-                this.Write(StreamType.Error, Resources.ConfigurationInstallDscPackageFailed);
+                this.Write(StreamType.Verbose, installDSCv3.GetErrorMessage() ?? "<Unknown error>");
+                this.Write(StreamType.Warning, Resources.ConfigurationInstallDscPackageFailed);
                 throw new FileNotFoundException(Resources.DscExeNotFound, "dsc.exe");
             }
         }
