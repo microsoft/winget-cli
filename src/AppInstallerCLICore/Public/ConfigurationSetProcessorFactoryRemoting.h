@@ -40,7 +40,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         // Whether to request detailed traces from the processor.
         // Read / Write
         DiagnosticTraceEnabled,
-        // The path to the dsc.exe executable, as discovered.
+        // Getting this value pumps the state machine to determine the best DSC to use.
+        // We must respond to the value it returns to properly transition states.
         // Read only.
         FindDscStateMachine,
     };

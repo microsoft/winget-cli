@@ -434,7 +434,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     else
                     {
                         this.Write(StreamType.Warning, $"Unrecognized value from FindDscStateMachine: {nextTransition ?? "<null>"}");
-                        throw new FileNotFoundException(Resources.DscExeNotFound, "dsc.exe");
+                        throw new InvalidOperationException($"Internal error: Unrecognized value from FindDscStateMachine: {nextTransition ?? "<null>"}");
                     }
                 }
             }
