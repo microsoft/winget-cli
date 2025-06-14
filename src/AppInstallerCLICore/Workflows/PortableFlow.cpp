@@ -111,7 +111,11 @@ namespace AppInstaller::CLI::Workflow
     {
         Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown;
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
-        auto installedVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+        std::shared_ptr<Repository::IPackageVersion> installedVersion;
+        if (context.Contains(Execution::Data::InstalledPackageVersion))
+        {
+            installedVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+        }
         if (isUpdate && installedVersion)
         {
             IPackageVersion::Metadata installationMetadata = installedVersion->GetMetadata();
