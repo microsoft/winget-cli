@@ -74,7 +74,7 @@ namespace ConfigurationRemotingServer
             public IntPtr hInstance;
             public IntPtr hIcon;
             public IntPtr hCursor;
-            public IntPtr hbrBackground;
+            public IntPtr hBackground;
             [MarshalAs(UnmanagedType.LPStr)]
             public string? lpszMenuName;
             [MarshalAs(UnmanagedType.LPStr)]
@@ -121,7 +121,7 @@ namespace ConfigurationRemotingServer
                 hInstance = GetModuleHandle(null),
                 hIcon = IntPtr.Zero,
                 hCursor = IntPtr.Zero,
-                hbrBackground = IntPtr.Zero,
+                hBackground = IntPtr.Zero,
                 lpszMenuName = "",
                 lpszClassName = className
             };
@@ -130,10 +130,10 @@ namespace ConfigurationRemotingServer
 
             // Create hidden window
             const uint WS_OVERLAPPED = 0x00000000;
-            const uint WS_EX_TOOLWINDOW = 0x00000080; // Doesn't appear in taskbar
+            const uint WS_EX_TOOL_WINDOW = 0x00000080;
 
             _hwnd = CreateWindowEx(
-                WS_EX_TOOLWINDOW,
+                WS_EX_TOOL_WINDOW,
                 className,
                 "Environment Monitor",
                 WS_OVERLAPPED,
