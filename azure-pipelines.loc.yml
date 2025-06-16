@@ -34,7 +34,7 @@ jobs:
 
     # Upload Group Policy ADML
     # Do it as a separate step as we need the result in a different location
-  - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@4
+  - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@5
     displayName: Send ADML to Touchdown Build
     inputs:
       teamId: $(tdbuildTeamId)
