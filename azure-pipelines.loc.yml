@@ -21,7 +21,7 @@ jobs:
     tdbuildTeamId: 8343
   steps:
     # Upload client resources
-  - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@4
+  - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@5
     displayName: Send resources to Touchdown Build
     inputs:
       teamId: $(tdbuildTeamId)
