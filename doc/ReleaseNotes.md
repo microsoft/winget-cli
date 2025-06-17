@@ -1,7 +1,5 @@
-## New in v1.11
-* Dropped support for running on 32-bit ARM
-* Support for [Microsoft Desired State Configuration (DSC) v3](https://learn.microsoft.com/powershell/dsc/overview?view=dsc-3.0).
-* Support for exporting the configuration of the current device. This includes Windows Settings, packages from configured WinGet sources, and package settings from DSC v3 enabled packages.
+## New in v1.12
+*No applicable update found*
 
 ## Experimental Features
 * Experimental support for Fonts
