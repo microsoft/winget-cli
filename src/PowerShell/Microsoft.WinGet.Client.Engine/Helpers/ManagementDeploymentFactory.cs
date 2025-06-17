@@ -231,6 +231,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         [DllImport("ole32.dll", ExactSpelling = true, PreserveSig = true)]
-        private static extern int CoAllowSetForegroundWindow([MarshalAs(UnmanagedType.IUnknown)] object pUnk, IntPtr lpvReserved);
+        private static extern int CoAllowSetForegroundWindow([MarshalAs(UnmanagedType.IUnknown)] object pUnk, IntPtr reserved);
     }
 }
