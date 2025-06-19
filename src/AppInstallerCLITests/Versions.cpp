@@ -470,3 +470,33 @@ TEST_CASE("OpenTypeFontVersion", "[versions]")
     REQUIRE(version.IsUnknown());
     REQUIRE(version.ToString() == "Unknown");
 }
+
+TEST_CASE("VersionParseIgnoreParentheses", "[versions]")
+{
+    // Test case for GitHub issue #5540
+    // Version strings with parenthetical text should be treated the same as without
+    Version versionWithParens("17.14.6 (June 2025)");
+    Version versionWithoutParens("17.14.6");
+    
+    // These should be considered equal for comparison purposes
+    REQUIRE(versionWithParens == versionWithoutParens);
+    REQUIRE_FALSE(versionWithParens < versionWithoutParens);
+    REQUIRE_FALSE(versionWithParens > versionWithoutParens);
+    
+    // Test VersionAndChannel comparison which is used in IsUpdatedBy
+    VersionAndChannel versionWithParensVC(versionWithParens, Channel("");
+    VersionAndChannel versionWithoutParensVC(versionWithoutParens, Channel("");
+    
+    // Should not consider this an update
+    REQUIRE_FALSE(versionWithParensVC.IsUpdatedBy(versionWithoutParensVC));
+    REQUIRE_FALSE(versionWithoutParensVC.IsUpdatedBy(versionWithParensVC));
+    
+    // Test with different formats of parenthetical text
+    Version version1("1.2.3 (Build 456)");
+    Version version2("1.2.3");
+    Version version3("1.2.3 (Release)");
+    
+    REQUIRE(version1 == version2);
+    REQUIRE(version2 == version3);
+    REQUIRE(version1 == version3);
+}

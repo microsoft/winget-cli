@@ -67,8 +67,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     void CatalogPackage::InitializeDefaultInstallVersion()
     {
-        std::call_once(m_defaultInstallVersionOnceFlag,
-            [&]()
+        std::call_once(m_defaultInstallVersionOnceFlag,            [&]()
             {
                 using namespace AppInstaller::Pinning;
 
@@ -77,10 +76,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
                 std::shared_ptr<::AppInstaller::Repository::IPackageVersion> latestVersion =
                     evaluator.GetLatestAvailableVersionForPins(::AppInstaller::Repository::GetAvailableVersionsForInstalledVersion(m_package));
+                
+                // Always set m_updateAvailable, regardless of whether latestVersion is null
+                m_updateAvailable = latestVersion && evaluator.IsUpdate(latestVersion);
+
                 if (latestVersion)
                 {
-                    m_updateAvailable = evaluator.IsUpdate(latestVersion);
-
                     // DefaultInstallVersion hasn't been created yet, create and populate it.
                     // DefaultInstallVersion is the LatestAvailableVersion of the internal package object.
                     auto latestVersionImpl = winrt::make_self<wil::details::module_count_wrapper<

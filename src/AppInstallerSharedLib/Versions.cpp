@@ -279,11 +279,18 @@ namespace AppInstaller::Utility
         // Only true if this is less than, other is not, OR this is none, other is greater than
         return (m_approximateComparator == ApproximateComparator::LessThan && other.m_approximateComparator != ApproximateComparator::LessThan) ||
             (m_approximateComparator == ApproximateComparator::None && other.m_approximateComparator == ApproximateComparator::GreaterThan);
-    }
-
-    Version::Part::Part(const std::string& part)
+    }    Version::Part::Part(const std::string& part)
     {
         std::string interimPart = Utility::Trim(part.c_str());
+        
+        // Strip parenthetical text for version comparison
+        // e.g., "17.14.6 (June 2025)" becomes "17.14.6"
+        size_t parenPos = interimPart.find('(');
+        if (parenPos != std::string::npos)
+        {
+            interimPart = Utility::Trim(interimPart.substr(0, parenPos));
+        }
+        
         const char* begin = interimPart.c_str();
         char* end = nullptr;
         errno = 0;
