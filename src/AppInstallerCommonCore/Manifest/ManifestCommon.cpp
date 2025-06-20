@@ -24,9 +24,11 @@ namespace AppInstaller::Manifest
             case InstallerTypeEnum::Nullsoft:
             case InstallerTypeEnum::Exe:
             case InstallerTypeEnum::Burn:
+            case InstallerTypeEnum::AdvinstExe:
                 return CompatibilitySet::Exe;
             case InstallerTypeEnum::Wix:
             case InstallerTypeEnum::Msi:
+            case InstallerTypeEnum::AdvinstMsi:
                 return CompatibilitySet::Msi;
             case InstallerTypeEnum::Msix:
             case InstallerTypeEnum::MSStore:
@@ -161,6 +163,14 @@ namespace AppInstaller::Manifest
         else if (inStrLower == "portable") 
         {
             result = InstallerTypeEnum::Portable;
+        }
+        else if (inStrLower == "advinstexe")
+        {
+            result = InstallerTypeEnum::AdvinstExe;
+        }
+        else if (inStrLower == "advinstmsi")
+        {
+            result = InstallerTypeEnum::AdvinstMsi;
         }
 
         return result;
@@ -583,6 +593,10 @@ namespace AppInstaller::Manifest
             return "msstore"sv;
         case InstallerTypeEnum::Portable:
             return "portable"sv;
+        case InstallerTypeEnum::AdvinstExe:
+          return "advinstexe"sv;
+        case InstallerTypeEnum::AdvinstMsi:
+          return "advinstmsi"sv;
         }
 
         return "unknown"sv;
@@ -888,7 +902,9 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn ||
-            installerType == InstallerTypeEnum::Portable
+            installerType == InstallerTypeEnum::Portable ||
+            installerType == InstallerTypeEnum::AdvinstExe ||
+            installerType == InstallerTypeEnum::AdvinstMsi
             );
     }
 
@@ -901,7 +917,9 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn ||
-            installerType == InstallerTypeEnum::Portable
+            installerType == InstallerTypeEnum::Portable ||
+            installerType == InstallerTypeEnum::AdvinstExe ||
+            installerType == InstallerTypeEnum::AdvinstMsi
             );
     }
 
@@ -913,7 +931,9 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Msi ||
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Wix ||
-            installerType == InstallerTypeEnum::Burn
+            installerType == InstallerTypeEnum::Burn ||
+            installerType == InstallerTypeEnum::AdvinstExe ||
+            installerType == InstallerTypeEnum::AdvinstMsi
             );
     }
 
@@ -939,7 +959,8 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Burn ||
             installerType == InstallerTypeEnum::Inno ||
             installerType == InstallerTypeEnum::Nullsoft ||
-            installerType == InstallerTypeEnum::Exe;
+            installerType == InstallerTypeEnum::Exe ||
+            installerType == InstallerTypeEnum::AdvinstExe;
     }
 
     bool IsArchiveType(InstallerTypeEnum installerType)
@@ -962,7 +983,9 @@ namespace AppInstaller::Manifest
             nestedInstallerType == InstallerTypeEnum::Wix ||
             nestedInstallerType == InstallerTypeEnum::Burn ||
             nestedInstallerType == InstallerTypeEnum::Portable ||
-            nestedInstallerType == InstallerTypeEnum::Msix
+            nestedInstallerType == InstallerTypeEnum::Msix ||
+            nestedInstallerType == InstallerTypeEnum::AdvinstExe ||
+            nestedInstallerType == InstallerTypeEnum::AdvinstMsi
             );
     }
 
@@ -1021,6 +1044,22 @@ namespace AppInstaller::Manifest
                 {InstallerSwitchType::Log, ManifestInstaller::string_t("/LOG=\"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
                 {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };
+        case InstallerTypeEnum::AdvinstExe:
+          return
+          {
+                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/exenoui /quiet /norestart")},
+                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/exenoui /passive /norestart")},
+                {InstallerSwitchType::Log, ManifestInstaller::string_t("/log \"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
+                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("APPDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
+            };
+        case InstallerTypeEnum::AdvinstMsi:
+          return
+            {
+                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/quiet /norestart")},
+                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/passive /norestart")},
+                {InstallerSwitchType::Log, ManifestInstaller::string_t("/log \"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
+                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("APPDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
+            };
         default:
             return {};
         }
@@ -1054,6 +1093,7 @@ namespace AppInstaller::Manifest
         case InstallerTypeEnum::Burn:
         case InstallerTypeEnum::Wix:
         case InstallerTypeEnum::Msi:
+        case InstallerTypeEnum::AdvinstMsi:
             // See https://docs.microsoft.com/windows/win32/msi/error-codes
             return
             {
@@ -1103,6 +1143,32 @@ namespace AppInstaller::Manifest
                 { HRESULT_FROM_WIN32(ERROR_PACKAGE_NOT_SUPPORTED_ON_FILESYSTEM), ExpectedReturnCodeEnum::SystemNotSupported },
                 { HRESULT_FROM_WIN32(ERROR_DEPLOYMENT_OPTION_NOT_SUPPORTED), ExpectedReturnCodeEnum::SystemNotSupported },
                 { HRESULT_FROM_WIN32(ERROR_PACKAGE_LACKS_CAPABILITY_TO_DEPLOY_ON_HOST), ExpectedReturnCodeEnum::SystemNotSupported },
+            };
+        case InstallerTypeEnum::AdvinstExe:
+          // See https://www.advancedinstaller.com/user-guide/exe-setup-file.html
+            return
+            {
+                { ERROR_INSTALL_ALREADY_RUNNING, ExpectedReturnCodeEnum::InstallInProgress },
+                { ERROR_DISK_FULL, ExpectedReturnCodeEnum::DiskFull },
+                { ERROR_INSTALL_SERVICE_FAILURE, ExpectedReturnCodeEnum::ContactSupport },
+                { ERROR_SUCCESS_REBOOT_REQUIRED, ExpectedReturnCodeEnum::RebootRequiredToFinish },
+                { ERROR_SUCCESS_REBOOT_INITIATED, ExpectedReturnCodeEnum::RebootInitiated },
+                { ERROR_INSTALL_USEREXIT, ExpectedReturnCodeEnum::CancelledByUser },
+                { ERROR_PRODUCT_VERSION, ExpectedReturnCodeEnum::AlreadyInstalled },
+                { ERROR_INSTALL_REJECTED, ExpectedReturnCodeEnum::SystemNotSupported },
+                { ERROR_INSTALL_PACKAGE_REJECTED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_INSTALL_TRANSFORM_REJECTED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_PATCH_PACKAGE_REJECTED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_PATCH_REMOVAL_DISALLOWED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_INSTALL_REMOTE_DISALLOWED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_INVALID_PARAMETER, ExpectedReturnCodeEnum::InvalidParameter },
+                { ERROR_INVALID_TABLE, ExpectedReturnCodeEnum::InvalidParameter },
+                { ERROR_INVALID_COMMAND_LINE, ExpectedReturnCodeEnum::InvalidParameter },
+                { ERROR_INVALID_PATCH_XML, ExpectedReturnCodeEnum::InvalidParameter },
+                { ERROR_INSTALL_LANGUAGE_UNSUPPORTED, ExpectedReturnCodeEnum::SystemNotSupported },
+                { ERROR_INSTALL_PLATFORM_UNSUPPORTED, ExpectedReturnCodeEnum::SystemNotSupported },
+                { -1, ExpectedReturnCodeEnum::CancelledByUser }
+                //1, when EXE bootstrapper is launched with wrong value for /aespassword parameter
             };
         default:
             return {};
