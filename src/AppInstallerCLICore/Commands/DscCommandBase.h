@@ -5,7 +5,7 @@
 #include <json/json.h>
 #include <optional>
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
+#ifndef USE_PROD_CLSIDS
 #define WINGET_DSCV3_MODULE_NAME "Microsoft.WinGet.Dev"
 #define WINGET_DSCV3_MODULE_NAME_WIDE L"Microsoft.WinGet.Dev"
 #else
