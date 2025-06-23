@@ -3370,4 +3370,25 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ResetAllAdminSettingsSucceeded" xml:space="preserve">
     <value>All admin settings reset.</value>
   </data>
+  <data name="FontInstallCommandShortDescription" xml:space="preserve">
+    <value>Install a font</value>
+  </data>
+  <data name="FontInstallCommandLongDescription" xml:space="preserve">
+    <value>Installs the selected font package, either found by searching a configured source or directly from a manifest.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED" xml:space="preserve">
+    <value>Failed installing one or more fonts.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED" xml:space="preserve">
+    <value>Font file is not supported and cannot be installed.</value>
+  </data>
+  <data name="FontFileNotSupported" xml:space="preserve">
+    <value>The font file is not supported and cannot be installed.</value>
+  </data>
+  <data name="FontInstallFailed" xml:space="preserve">
+    <value>Font install failed; cleaning up.</value>
+  </data>
+  <data name="FontAlreadyInstalled" xml:space="preserve">
+    <value>Font already installed.</value>
+  </data>
 </root>

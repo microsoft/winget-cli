@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace WinGetSourceCreator.Model
@@ -9,5 +9,6 @@ namespace WinGetSourceCreator.Model
         Exe,
         Msi,
         Zip,
+        Font,
     }
 }

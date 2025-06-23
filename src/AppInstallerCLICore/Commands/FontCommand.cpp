@@ -3,8 +3,9 @@
 #include "pch.h"
 #include "FontCommand.h"
 #include "Workflows/CompletionFlow.h"
-#include "Workflows/WorkflowBase.h"
 #include "Workflows/FontFlow.h"
+#include "Workflows/InstallFlow.h"
+#include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
 namespace AppInstaller::CLI
@@ -20,6 +21,7 @@ namespace AppInstaller::CLI
     {
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
             std::make_unique<FontListCommand>(FullName()),
+            std::make_unique<FontInstallCommand>(FullName()),
         });
     }
 
@@ -82,5 +84,53 @@ namespace AppInstaller::CLI
     void FontListCommand::ExecuteInternal(Execution::Context& context) const
     {
         context << Workflow::ReportInstalledFonts;
+    }
+
+    std::vector<Argument> FontInstallCommand::GetArguments() const
+    {
+        return {
+            Argument::ForType(Args::Type::Manifest),
+            Argument{ Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument::ForType(Args::Type::Force),
+        };
+    }
+
+    Resource::LocString FontInstallCommand::ShortDescription() const
+    {
+        return { Resource::String::FontInstallCommandShortDescription };
+    }
+
+    Resource::LocString FontInstallCommand::LongDescription() const
+    {
+        return { Resource::String::FontInstallCommandLongDescription };
+    }
+
+    void FontInstallCommand::Complete(Execution::Context& context, Args::Type valueType) const
+    {
+        UNREFERENCED_PARAMETER(valueType);
+        context.Reporter.Error() << Resource::String::PendingWorkError << std::endl;
+        THROW_HR(E_NOTIMPL);
+    }
+
+    Utility::LocIndView FontInstallCommand::HelpLink() const
+    {
+        return s_FontCommand_HelpLink;
+    }
+
+    void FontInstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        Argument::ValidateCommonArguments(execArgs);
+    }
+
+    void FontInstallCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        if (context.Args.Contains(Execution::Args::Type::Manifest))
+        {
+            context <<
+                Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
+                Workflow::GetManifestFromArg <<
+                Workflow::SelectInstaller <<
+                Workflow::InstallSinglePackage;
+        }
     }
 }

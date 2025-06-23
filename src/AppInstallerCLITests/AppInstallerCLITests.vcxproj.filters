@@ -834,6 +834,9 @@
     <CopyFileToFolders Include="TestData\ManifestV1_10-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_11-Singleton.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ManifestV1_10-InstallerAuthentication.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -944,6 +947,18 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_10\ManifestV1_10-MultiFile-Version.yaml">
       <Filter>TestData\MultiFileManifestV1_10</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_11\ManifestV1_11-MultiFile-DefaultLocale.yaml">
+      <Filter>TestData\MultiFileManifestV1_11</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_11\ManifestV1_11-MultiFile-Installer.yaml">
+      <Filter>TestData\MultiFileManifestV1_11</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_11\ManifestV1_11-MultiFile-Locale.yaml">
+      <Filter>TestData\MultiFileManifestV1_11</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_11\ManifestV1_11-MultiFile-Version.yaml">
+      <Filter>TestData\MultiFileManifestV1_11</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
       <Filter>TestData</Filter>
@@ -1078,6 +1093,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-PortableNotExe_Root.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestFont.ttf">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>

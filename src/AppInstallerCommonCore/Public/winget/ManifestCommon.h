@@ -50,6 +50,9 @@ namespace AppInstaller::Manifest
     // V1.10 manifest version
     constexpr std::string_view s_ManifestVersionV1_10 = "1.10.0"sv;
 
+    // V1.11 manifest version
+    constexpr std::string_view s_ManifestVersionV1_11 = "1.11.0"sv;
+
     // The manifest extension for the MS Store
     constexpr std::string_view s_MSStoreExtension = "msstore"sv;
 
@@ -101,6 +104,7 @@ namespace AppInstaller::Manifest
         Burn,
         MSStore,
         Portable,
+        Font,
     };
 
     enum class UpdateBehaviorEnum
@@ -447,6 +451,9 @@ namespace AppInstaller::Manifest
 
     // Gets a value indicating whether the given installer requires RepairBehavior for repair.
     bool DoesInstallerTypeRequireRepairBehaviorForRepair(InstallerTypeEnum installerType);
+
+    // Gets a value indicating whether the given installer can have multiple file extensions.
+    bool DoesInstallerTypeSupportMultipleFileExtensions(InstallerTypeEnum installerType);
 
     // Gets a value indicating whether the given installer type is an archive.
     bool IsArchiveType(InstallerTypeEnum installerType);
