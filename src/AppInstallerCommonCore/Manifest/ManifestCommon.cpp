@@ -926,6 +926,7 @@ namespace AppInstaller::Manifest
     bool DoesInstallerTypeIgnoreScopeFromManifest(InstallerTypeEnum installerType)
     {
         return
+            installerType == InstallerTypeEnum::Font ||
             installerType == InstallerTypeEnum::Portable ||
             installerType == InstallerTypeEnum::Msix ||
             installerType == InstallerTypeEnum::MSStore;
@@ -934,6 +935,7 @@ namespace AppInstaller::Manifest
     bool DoesInstallerTypeRequireAdminForMachineScopeInstall(InstallerTypeEnum installerType)
     {
         return
+            installerType == InstallerTypeEnum::Font ||
             installerType == InstallerTypeEnum::Portable ||
             installerType == InstallerTypeEnum::MSStore ||
             installerType == InstallerTypeEnum::Msix;
@@ -946,6 +948,11 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Inno ||
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Exe;
+    }
+
+    bool DoesInstallerTypeSupportMultipleFileExtensions(InstallerTypeEnum installerType)
+    {
+        return (installerType == InstallerTypeEnum::Font);
     }
 
     bool IsArchiveType(InstallerTypeEnum installerType)

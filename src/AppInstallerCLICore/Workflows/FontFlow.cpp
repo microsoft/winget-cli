@@ -1,21 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 #include "pch.h"
 #include "FontFlow.h"
 #include "TableOutput.h"
 #include <winget/Fonts.h>
 #include <AppInstallerRuntime.h>
+#include <FontInstaller.h>
 
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::CLI::Font;
 
     namespace
     {
         struct InstalledFontFamiliesTableLine
         {
             InstalledFontFamiliesTableLine(Utility::LocIndString familyName, int faceCount)
-                : FamilyName(familyName), FaceCount(faceCount) {}
+                : FamilyName(familyName), FaceCount(faceCount) {
+            }
 
             Utility::LocIndString FamilyName;
             int FaceCount;
@@ -24,7 +28,8 @@ namespace AppInstaller::CLI::Workflow
         struct InstalledFontFacesTableLine
         {
             InstalledFontFacesTableLine(Utility::LocIndString familyName, Utility::LocIndString faceName, Utility::LocIndString faceVersion, std::filesystem::path filePath)
-                : FamilyName(familyName), FaceName(faceName), FaceVersion(faceVersion), FilePath(filePath) {}
+                : FamilyName(familyName), FaceName(faceName), FaceVersion(faceVersion), FilePath(filePath) {
+            }
 
             Utility::LocIndString FamilyName;
             Utility::LocIndString FaceName;
@@ -119,6 +124,76 @@ namespace AppInstaller::CLI::Workflow
             }
 
             OutputInstalledFontFamiliesTable(context, lines);
+        }
+    }
+
+    void FontInstallImpl(Execution::Context& context)
+    {
+        Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown;
+        if (context.Args.Contains(Execution::Args::Type::InstallScope))
+        {
+            scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+        }
+
+        FontInstaller fontInstaller = FontInstaller(scope);
+
+        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+
+        try
+        {
+            const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
+            std::vector<std::filesystem::path> filePaths;
+
+            // InstallerPath will point to a directory if extracted from an archive.
+            if (std::filesystem::is_directory(installerPath))
+            {
+                const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles = context.Get<Execution::Data::Installer>()->NestedInstallerFiles;
+                for (const auto& nestedInstallerFile : nestedInstallerFiles)
+                {
+                    filePaths.emplace_back(installerPath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath));
+                }
+            }
+            else
+            {
+                filePaths.emplace_back(installerPath);
+            }
+
+            Fonts::FontCatalog fontCatalog;
+            std::vector<FontFile> fontFiles;
+
+            for (const std::filesystem::path filePath : filePaths)
+            {
+                DWRITE_FONT_FILE_TYPE fileType;
+                if (!fontCatalog.IsFontFileSupported(filePath, fileType))
+                {
+                    AICLI_LOG(CLI, Warning, << "Font file is not supported: " << filePath);
+                    context.Reporter.Error() << Resource::String::FontFileNotSupported << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Verbose, << "Font file is supported: " << filePath);
+                    fontFiles.emplace_back(FontFile(filePath, fileType, L"unknown"));
+                }
+            }
+
+            fontInstaller.SetFontFiles(fontFiles);
+
+            if (!fontInstaller.EnsureInstall())
+            {
+                context.Reporter.Warn() << Resource::String::FontAlreadyInstalled << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED);
+            }
+
+            fontInstaller.Install();
+            context.Add<Execution::Data::OperationReturnCode>(S_OK);
+        }
+        catch (...)
+        {
+            context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
+            context.Reporter.Warn() << Resource::String::FontInstallFailed << std::endl;
+            fontInstaller.Uninstall();
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
         }
     }
 }

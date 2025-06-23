@@ -346,6 +346,7 @@
     <ClInclude Include="ConfigureExportCommand.h" />
     <ClInclude Include="ContextOrchestrator.h" />
     <ClInclude Include="COMContext.h" />
+    <ClInclude Include="FontInstaller.h" />
     <ClInclude Include="Public\ConfigurationSetProcessorFactoryRemoting.h" />
     <ClInclude Include="Public\ShutdownMonitoring.h" />
     <ClInclude Include="Sixel.h" />
@@ -423,6 +424,7 @@
     <ClCompile Include="ConfigureExportCommand.cpp" />
     <ClCompile Include="ContextOrchestrator.cpp" />
     <ClCompile Include="ShutdownMonitoring.cpp" />
+    <ClCompile Include="FontInstaller.cpp" />
     <ClCompile Include="Sixel.cpp" />
     <ClCompile Include="Workflows\ConfigurationFlow.cpp" />
     <ClCompile Include="Workflows\DependenciesFlow.cpp" />
