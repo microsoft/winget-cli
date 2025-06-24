@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.1.11.0.schema.json
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.1.12.0.schema.json
 
 PackageIdentifier: microsoft.msixsdk
 PackageVersion: 1.7.32
@@ -37,4 +37,4 @@ Icons:
     IconTheme: light
     IconSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321
 ManifestType: locale
-ManifestVersion: 1.11.0
+ManifestVersion: 1.12.0

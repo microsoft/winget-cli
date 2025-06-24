@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.11.0.schema.json
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.12.0.schema.json
 
 PackageIdentifier: microsoft.msixsdk
 PackageVersion: 1.7.32
@@ -38,4 +38,4 @@ Agreements:
     Agreement: DefaultText
     AgreementUrl: https://DefaultAgreementUrl.net
 ManifestType: defaultLocale
-ManifestVersion: 1.11.0
+ManifestVersion: 1.12.0

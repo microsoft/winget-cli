@@ -1,7 +1,42 @@
-# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.11.0.schema.json
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.12.0.schema.json
 
 PackageIdentifier: microsoft.msixsdk
 PackageVersion: 1.7.32
+PackageLocale: en-US
+Publisher: Microsoft
+PublisherUrl: https://www.microsoft.com
+PublisherSupportUrl: https://www.microsoft.com/support
+PrivacyUrl: https://www.microsoft.com/privacy
+Author: Microsoft
+PackageName: MSIX SDK
+PackageUrl: https://www.microsoft.com/msixsdk/home
+License: MIT License
+LicenseUrl: https://www.microsoft.com/msixsdk/license
+Copyright: Copyright Microsoft Corporation
+CopyrightUrl: https://www.microsoft.com/msixsdk/copyright
+ShortDescription: This is MSIX SDK
+Description: The MSIX SDK project is an effort to enable developers
+Moniker: msixsdk
+Tags:
+  - "appxsdk"
+  - "msixsdk"
+ReleaseNotes: Default release notes
+ReleaseNotesUrl: https://DefaultReleaseNotes.net
+PurchaseUrl: https://DefaultPurchaseUrl.com
+InstallationNotes: Default installation notes
+Documentations:
+  - DocumentLabel: Default document label
+    DocumentUrl: https://DefaultDocumentUrl.com
+Icons:
+  - IconUrl: https://testIcon-en-US
+    IconFileType: ico
+    IconResolution: custom
+    IconTheme: default
+    IconSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123
+Agreements:
+  - AgreementLabel: DefaultLabel
+    Agreement: DefaultText
+    AgreementUrl: https://DefaultAgreementUrl.net
 InstallerLocale: en-US
 Platform:
   - Windows.Desktop
@@ -71,7 +106,7 @@ AppsAndFeaturesEntries:
     InstallerType: exe
 Markets:
   AllowedMarkets:
-    - "US"
+    - US
 ExpectedReturnCodes:
   - InstallerReturnCode: 10
     ReturnResponse: packageInUse
@@ -148,6 +183,8 @@ Installers:
     RequireExplicitUpgrade: false
     DisplayInstallWarnings: false
     ElevationRequirement: elevationRequired
+    UnsupportedArguments:
+      - location
     UnsupportedOSArchitectures:
       - arm64
     Markets:
@@ -159,55 +196,7 @@ Installers:
       - InstallerReturnCode: 3
         ReturnResponse: custom
         ReturnResponseUrl: https://defaultReturnResponseUrl.com
-    UnsupportedArguments:
-      - location
     DownloadCommandProhibited: false
     ArchiveBinariesDependOnPath: false
-  - Architecture: x64
-    InstallerType: exe
-    InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
-    InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
-    ProductCode: "{Bar}"
-    InstallerSwitches:
-      Repair: /r
-    UpgradeBehavior: deny
-    RepairBehavior: uninstaller
-  - Architecture: x86
-    InstallerType: portable
-    InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx86.exe
-    InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
-    DisplayInstallWarnings: false
-    Commands:
-      - standalone
-    ExpectedReturnCodes:
-      - InstallerReturnCode: 11
-        ReturnResponse: custom
-        ReturnResponseUrl: https://defaultReturnResponseUrl.com
-  - Architecture: x64
-    InstallerType: zip
-    InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
-    InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
-    NestedInstallerType: portable
-    NestedInstallerFiles:
-      - RelativeFilePath: relativeFilePath1
-        PortableCommandAlias: portableAlias1
-      - RelativeFilePath: relativeFilePath2
-        PortableCommandAlias: portableAlias2
-    InstallationMetadata:
-      DefaultInstallLocation: "%ProgramFiles%\\TestApp2"
-      Files:
-      - RelativeFilePath: "main2.exe"
-        FileSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
-        FileType: other
-        InvocationParameter: "/arg2"
-        DisplayName: "DisplayName2"
-    ArchiveBinariesDependOnPath: true
-  - Architecture: x64
-    InstallerType: burn
-    InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
-    InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
-    ProductCode: "{Bar}"
-    UpgradeBehavior: deny
-    RepairBehavior: modify
-ManifestType: installer
-ManifestVersion: 1.11.0
+ManifestType: singleton
+ManifestVersion: 1.12.0
