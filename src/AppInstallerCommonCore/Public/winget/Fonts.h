@@ -82,6 +82,8 @@ namespace AppInstaller::Fonts
     {
         FontResult Result = FontResult::Unknown;
         winrt::hresult HResult = winrt::hresult(S_OK);
+
+        // TODO: Add optional rollback context to unwind forced installs.
     };
 
     std::wstring GetFontRegistryPath(const FontContext& context);
@@ -93,6 +95,10 @@ namespace AppInstaller::Fonts
     std::vector<FontFileInfo> GetInstalledFontFiles();
 
     FontFileInfo CreateFontFileInfo(const FontContext& context);
+
+    FontOperationResult InstallFontFile(FontContext& context, const bool notifySystem = false, const bool force = false);
+
+    FontOperationResult UninstallFontFile(FontContext& context, const bool notifySystem = false);
 
     struct FontCatalog
     {

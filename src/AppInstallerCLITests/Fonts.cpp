@@ -93,3 +93,34 @@ TEST_CASE("GetInstalledFontFiles", "[fonts]")
     const auto& fontFiles = GetInstalledFontFiles();
     REQUIRE(fontFiles.size() > 0);
 }
+
+TEST_CASE("InstallInvalidFontFile", "[fonts]")
+{
+    TestDataFile testFont(s_InvalidFontFile);
+
+    auto context = FontContext();
+    context.FilePath = testFont.GetPath();
+    context.PackageName = L"TestPackage";
+    context.InstallerSource = InstallerSource::WinGet;
+    context.Scope = ScopeEnum::User;
+
+    const auto& result = InstallFontFile(context, true);
+
+    REQUIRE(result.Result == FontResult::Error);
+}
+
+TEST_CASE("InstallValidFontFile", "[fonts]")
+{
+    TestDataFile testFont(s_FontFile);
+
+    auto context = FontContext();
+    context.FilePath = testFont.GetPath();
+    context.PackageName = L"TestPackage";
+    context.InstallerSource = InstallerSource::WinGet;
+    context.Scope = ScopeEnum::User;
+
+    const auto& result = InstallFontFile(context, true);
+
+    REQUIRE(result.Result == FontResult::Success);
+}
+
