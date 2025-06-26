@@ -25,8 +25,6 @@ namespace AppInstaller::Fonts
 
     namespace
     {
-        constexpr std::wstring_view s_HiveHKLM = L"HKEY_LOCAL_MACHINE";
-        constexpr std::wstring_view s_HiveHKCU = L"HKEY_CURRENT_USER";
         constexpr std::wstring_view s_RegistrySeparator = L"\\";
         constexpr std::wstring_view s_FontsWinGetPrefix = L"winget_v1";
 
@@ -92,23 +90,7 @@ namespace AppInstaller::Fonts
     std::wstring GetFontRegistryPath(const FontContext& context)
     {
         // Registry path for a font is well-defined based on installer source, and if present a package name.
-        // Scope is used when determining which hive to open so it may not be needed in most cases.
         auto path = std::wstringstream();
-
-        switch (context.Scope)
-        {
-        case Manifest::ScopeEnum::Unknown:
-            // Do not prepend machine scope
-            break;
-        case Manifest::ScopeEnum::Machine:
-            path << s_HiveHKLM << s_RegistrySeparator;
-            break;
-        case Manifest::ScopeEnum::User:
-            path << s_HiveHKCU << s_RegistrySeparator;
-            break;
-        default:
-            throw std::runtime_error("Unexpected scope in GetFontRegistryPath");
-        }
 
         path << s_FontsPathSubkey;
 
@@ -243,6 +225,7 @@ namespace AppInstaller::Fonts
 
     FontOperationResult InstallFontFile(FontContext& context, const bool notifySystem, const bool force)
     {
+        DBG_UNREFERENCED_PARAMETER(notifySystem);
         DBG_UNREFERENCED_PARAMETER(force);
 
         FontOperationResult result;
@@ -289,6 +272,7 @@ namespace AppInstaller::Fonts
         try
         {
             AICLI_LOG(Core, Info, << "Moving " << context.FilePath.value().filename() << " to " << destinationFilePath);
+            std::filesystem::create_directories(destinationFilePath);
             AppInstaller::Filesystem::RenameFile(context.FilePath.value(), destinationFilePath);
         }
         catch (const wil::ResultException& e)
@@ -321,6 +305,7 @@ namespace AppInstaller::Fonts
         }
 
         // Add Font Resource to the session.
+        // Commenting out due to AddFontResource linking issue.
         auto fontsAdded = ::AddFontResource(destinationFilePath.c_str());
         if (fontsAdded == 0)
         {
@@ -349,7 +334,7 @@ namespace AppInstaller::Fonts
 
     // Uninstall is at the package level. We remove all fonts for the specified package name.
     // A package in this context is just the namespace under the WinGet subfolders/subkeys.
-    FontOperationResult UninstallFontPackage(FontContext& context, const bool notifySystem = false)
+    FontOperationResult UninstallFontFile(FontContext& context, const bool notifySystem)
     {
         DBG_UNREFERENCED_PARAMETER(context);
         DBG_UNREFERENCED_PARAMETER(notifySystem);
