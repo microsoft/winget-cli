@@ -5,6 +5,7 @@
 #include <winget/Fonts.h>
 
 using namespace AppInstaller::Fonts;
+using namespace AppInstaller::Manifest;
 using namespace TestCommon;
 
 constexpr std::wstring_view s_testFontName = L"Times New Roman";
@@ -58,4 +59,37 @@ TEST_CASE("InvalidFontFile", "[fonts]")
     DWRITE_FONT_FILE_TYPE fontFileType;
     REQUIRE_FALSE(fontCatalog.IsFontFileSupported(testFontPath, fontFileType));
     REQUIRE(fontFileType == DWRITE_FONT_FILE_TYPE::DWRITE_FONT_FILE_TYPE_UNKNOWN);
+}
+
+TEST_CASE("GetFontRegistryPath", "[fonts]")
+{
+    auto context = FontContext();
+    context.PackageName = L"TestPackage";
+    context.InstallerSource = InstallerSource::WinGet;
+    context.Scope = ScopeEnum::Unknown;
+
+    auto fontPath = GetFontRegistryPath(context);
+    REQUIRE(fontPath == L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts\\winget_v1\\TestPackage");
+
+    context.InstallerSource = InstallerSource::UWP;
+    fontPath = GetFontRegistryPath(context);
+    REQUIRE(fontPath == L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts\\TestPackage");
+
+    context.InstallerSource = InstallerSource::Unknown;
+    fontPath = GetFontRegistryPath(context);
+    REQUIRE(fontPath == L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts");
+
+    context.Scope = ScopeEnum::Machine;
+    fontPath = GetFontRegistryPath(context);
+    REQUIRE(fontPath == L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts");
+
+    context.Scope = ScopeEnum::User;
+    fontPath = GetFontRegistryPath(context);
+    REQUIRE(fontPath == L"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts");
+}
+
+TEST_CASE("GetInstalledFontFiles", "[fonts]")
+{
+    const auto& fontFiles = GetInstalledFontFiles();
+    REQUIRE(fontFiles.size() > 0);
 }

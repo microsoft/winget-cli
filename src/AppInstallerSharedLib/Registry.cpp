@@ -133,7 +133,7 @@ namespace AppInstaller::Registry
             return true;
         }
 
-        bool TryDeleteRegistryValueData(const wil::shared_hkey& key, const std::wstring& valueName)
+        bool DeleteRegistryValueData(const wil::shared_hkey& key, const std::wstring& valueName)
         {
             LSTATUS status = RegDeleteValueW(key.get(), valueName.c_str());
 
@@ -436,7 +436,7 @@ namespace AppInstaller::Registry
 
     void Key::DeleteValue(const std::wstring& name) const
     {
-        if (TryDeleteRegistryValueData(m_key, name))
+        if (DeleteRegistryValueData(m_key, name))
         {
             AICLI_LOG(Core, Verbose, << "Registry value '" << Utility::ConvertToUTF8(name) << "' deleted successfully.");
         }
