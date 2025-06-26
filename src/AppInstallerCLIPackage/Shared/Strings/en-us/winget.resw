@@ -3391,4 +3391,16 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="FontAlreadyInstalled" xml:space="preserve">
     <value>Font already installed.</value>
   </data>
+  <data name="FontPackage" xml:space="preserve">
+    <value>Package</value>
+  </data>
+  <data name="FontWinGetSupported" xml:space="preserve">
+    <value>WinGet Supported</value>
+  </data>
+  <data name="FontTitle" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND" xml:space="preserve">
+    <value>Font file not found.</value>
+  </data>
 </root>
