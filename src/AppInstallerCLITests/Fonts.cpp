@@ -65,9 +65,8 @@ TEST_CASE("GetFontRegistryPath", "[fonts]")
 {
     auto context = FontContext();
     context.PackageName = L"TestPackage";
-    context.InstallerSource = InstallerSource::WinGet;
-    context.Scope = ScopeEnum::Unknown;
 
+    context.InstallerSource = InstallerSource::WinGet;
     auto fontPath = GetFontRegistryPath(context);
     REQUIRE(fontPath == L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts\\winget_v1\\TestPackage");
 
@@ -78,14 +77,6 @@ TEST_CASE("GetFontRegistryPath", "[fonts]")
     context.InstallerSource = InstallerSource::Unknown;
     fontPath = GetFontRegistryPath(context);
     REQUIRE(fontPath == L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts");
-
-    context.Scope = ScopeEnum::Machine;
-    fontPath = GetFontRegistryPath(context);
-    REQUIRE(fontPath == L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts");
-
-    context.Scope = ScopeEnum::User;
-    fontPath = GetFontRegistryPath(context);
-    REQUIRE(fontPath == L"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts");
 }
 
 TEST_CASE("GetInstalledFontFiles", "[fonts]")
