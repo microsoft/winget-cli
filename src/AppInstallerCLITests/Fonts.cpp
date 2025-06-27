@@ -100,6 +100,18 @@ TEST_CASE("InstallInvalidFontFile", "[fonts]")
     REQUIRE(result.Result == FontResult::Error);
 }
 
+TEST_CASE("RemoveFontPackage", "[fonts]")
+{
+    auto context = FontContext();
+    context.PackageName = L"TestPackage";
+    context.InstallerSource = InstallerSource::WinGet;
+    context.Scope = ScopeEnum::User;
+
+    const auto& result = UninstallFontPackage(context);
+
+    REQUIRE(result.Result == FontResult::Success);
+}
+
 TEST_CASE("InstallValidFontFile", "[fonts]")
 {
     TestDataFile testFont(s_FontFile);

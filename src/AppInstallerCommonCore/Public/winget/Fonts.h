@@ -98,6 +98,8 @@ namespace AppInstaller::Fonts
 
     FontOperationResult InstallFontFile(FontContext& context, const bool notifySystem = false, const bool force = false);
 
+    FontOperationResult UninstallFontPackage(FontContext& context);
+
     FontOperationResult UninstallFontFile(FontContext& context, const bool notifySystem = false);
 
     struct FontCatalog

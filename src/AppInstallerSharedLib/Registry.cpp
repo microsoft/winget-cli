@@ -543,6 +543,26 @@ namespace AppInstaller::Registry
         return false;
     }
 
+    bool Key::DeleteTree(HKEY key, const std::wstring& subKey)
+    {
+        LSTATUS status = RegDeleteTree(key, subKey.c_str());
+        if (status == ERROR_SUCCESS)
+        {
+            AICLI_LOG(Core, Verbose, << "Subkey '" << Utility::ConvertToUTF8(subKey) << "' was deleted successfully.");
+            return true;
+        }
+        else if (status == ERROR_FILE_NOT_FOUND)
+        {
+            AICLI_LOG(Core, Verbose, << "Subkey '" << Utility::ConvertToUTF8(subKey) << "' was not found.");
+        }
+        else
+        {
+            THROW_IF_WIN32_ERROR(status);
+        }
+
+        return false;
+    }
+
     bool Key::CreateAndOpen(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access)
     {
         m_access = access;
