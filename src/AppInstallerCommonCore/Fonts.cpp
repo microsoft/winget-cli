@@ -27,6 +27,8 @@ namespace AppInstaller::Fonts
     {
         constexpr std::wstring_view s_RegistrySeparator = L"\\";
         constexpr std::wstring_view s_FontsWinGetPrefix = L"winget_v1";
+        constexpr std::wstring_view s_FontsWinGetRegistryRoot = L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts\\winget_v1";
+        const int s_RemoveFontResourceMaxTries = 1000;
 
         std::vector<std::filesystem::path> GetFontFilePaths(const wil::com_ptr<IDWriteFontFace>& fontFace)
         {
@@ -64,6 +66,22 @@ namespace AppInstaller::Fonts
             return filePaths;
         }
 
+        void RemoveAllFontResources(std::filesystem::path filePath)
+        {
+            // The recommended uninstall method of a font is to call RemoveFontResource until it fails,
+            // This is not guaranteed to remove the file from use, but it is the best we have.
+            // https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-removefontresourcea
+            int i = 0;
+            while (::RemoveFontResource(filePath.c_str()))
+            {
+                // Let us not loop endlessly.
+                if (++i >= s_RemoveFontResourceMaxTries)
+                {
+                    break;
+                }
+            }
+        }
+
         winrt::hresult NotifyFontChange()
         {
             // Send the WM_FONTCHANGE message so the system and apps know that there has been a font change.
@@ -91,8 +109,6 @@ namespace AppInstaller::Fonts
     {
         // Registry path for a font is well-defined based on installer source, and if present a package name.
         auto path = std::wstringstream();
-
-        path << s_FontsPathSubkey;
 
         switch (context.InstallerSource)
         {
@@ -232,7 +248,12 @@ namespace AppInstaller::Fonts
 
         if (context.InstallerSource != InstallerSource::WinGet)
         {
-            // THROW_EXCEPTION(E_NOTIMPL);
+            THROW_EXCEPTION(std::logic_error("Only WinGet format of font install is supported."));
+        }
+
+        if (!context.PackageName.has_value() || context.PackageName.value().empty())
+        {
+            THROW_EXCEPTION(std::invalid_argument("Non-empty Package Name is required for font install."));
         }
 
         if (!context.FilePath.has_value() || !std::filesystem::exists(context.FilePath.value()))
@@ -325,6 +346,84 @@ namespace AppInstaller::Fonts
             {
                 // Notifying the system of a font change is best-effort and does not affect the install state.
                 LOG_IF_FAILED(NotifyFontChange());
+            }
+        }
+
+        result.Result = FontResult::Success;
+        return result;
+    }
+
+    FontOperationResult UninstallFontPackage(FontContext& context)
+    {
+        FontOperationResult result;
+
+        if (context.InstallerSource != InstallerSource::WinGet)
+        {
+            THROW_EXCEPTION(std::logic_error("Only WinGet format of font package uninstall is supported."));
+        }
+
+        if (!context.PackageName.has_value() || context.PackageName.value().empty())
+        {
+            THROW_EXCEPTION(std::invalid_argument("Non-empty Package Name is required for font install."));
+        }
+
+        const auto& installFolderPath = GetFontFileInstallPath(context);
+        const auto& installRegistryPath = GetFontRegistryPath(context);
+
+        try
+        {
+            auto hive = context.Scope == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+            auto wingetRoot = Registry::Key::OpenIfExists(hive, installRegistryPath, 0ul, KEY_ALL_ACCESS);
+            auto key = Registry::Key::OpenIfExists(hive, installRegistryPath, 0ul, KEY_ALL_ACCESS);
+
+            // Remove all fonts for this package key.
+            if (wingetRoot && key)
+            {
+                // Assume all values in this key are fonts related to this package.
+                for (const auto& fontEntry : key.Values())
+                {
+                    auto value = fontEntry.Value();
+                    if (!value.has_value() || (value.value().GetType() != Registry::Value::Type::String))
+                    {
+                        // Not a valid entry, nothing to do here.
+                        continue;
+                    }
+
+                    std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
+                    if (!std::filesystem::exists(filePath))
+                    {
+                        // File doesn't exist, nothing to do here.
+                        continue;
+                    }
+
+                    // Call font remove.
+                    RemoveAllFontResources(filePath);
+
+                    // Now remove the registry value.
+                    key.DeleteValue(fontEntry.Name());
+                }
+
+                // Delete the key
+                Registry::Key::DeleteTree(wingetRoot, context.PackageName.value().c_str());
+            }
+        }
+        catch (const wil::ResultException& e)
+        {
+            // For uninstall we will log the error and continue trying to remove it, since we have partial remove and are in an unknown state.
+            AICLI_LOG(Core, Error, << L"Failed removing fonts in the registry: " << e.GetFailureInfo().pszMessage << " - " << e.GetErrorCode());
+        }
+
+        // Remove the font files in the font folder.
+        if (std::filesystem::exists(installFolderPath))
+        {
+            try
+            {
+                auto count = std::filesystem::remove_all(installFolderPath);
+                // At this point none of the files should be in use, but they might be.
+            }
+            catch (const std::exception& e)
+            {
+                AICLI_LOG(Core, Error, << L"Failed removing files in the registry: " << e.what());
             }
         }
 

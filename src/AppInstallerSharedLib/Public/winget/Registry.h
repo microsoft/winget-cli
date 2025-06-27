@@ -298,6 +298,7 @@ namespace AppInstaller::Registry
         // Delete a key
         static bool Delete(HKEY key, std::string_view subkey, DWORD samDesired);
         static bool Delete(HKEY key, const std::wstring& subKey, DWORD samDesired);
+        static bool DeleteTree(HKEY key, const std::wstring& subKey);
 
     private:
         // When ignoring error, returns whether the key existed
