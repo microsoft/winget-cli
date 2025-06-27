@@ -85,7 +85,7 @@ namespace AppInstaller::Fonts
         winrt::hresult NotifyFontChange()
         {
             // Send the WM_FONTCHANGE message so the system and apps know that there has been a font change.
-            RETURN_LAST_ERROR_IF(0 <= SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0));
+            RETURN_LAST_ERROR_IF(0 != ::SendNotifyMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0));
             AICLI_LOG(Core, Info, << L"Notified system of font change.");
             return S_OK;
         }
@@ -109,6 +109,7 @@ namespace AppInstaller::Fonts
     {
         // Registry path for a font is well-defined based on installer source, and if present a package name.
         auto path = std::wstringstream();
+        path << s_FontsPathSubkey;
 
         switch (context.InstallerSource)
         {
@@ -241,19 +242,18 @@ namespace AppInstaller::Fonts
 
     FontOperationResult InstallFontFile(FontContext& context, const bool notifySystem, const bool force)
     {
-        DBG_UNREFERENCED_PARAMETER(notifySystem);
         DBG_UNREFERENCED_PARAMETER(force);
 
         FontOperationResult result;
 
         if (context.InstallerSource != InstallerSource::WinGet)
         {
-            THROW_EXCEPTION(std::logic_error("Only WinGet format of font install is supported."));
+            throw std::logic_error("Only WinGet format of font install is supported.");
         }
 
         if (!context.PackageName.has_value() || context.PackageName.value().empty())
         {
-            THROW_EXCEPTION(std::invalid_argument("Non-empty Package Name is required for font install."));
+            throw std::invalid_argument("Non-empty Package Name is required for font install.");
         }
 
         if (!context.FilePath.has_value() || !std::filesystem::exists(context.FilePath.value()))
@@ -359,12 +359,12 @@ namespace AppInstaller::Fonts
 
         if (context.InstallerSource != InstallerSource::WinGet)
         {
-            THROW_EXCEPTION(std::logic_error("Only WinGet format of font package uninstall is supported."));
+            throw std::logic_error("Only WinGet format of font package uninstall is supported.");
         }
 
         if (!context.PackageName.has_value() || context.PackageName.value().empty())
         {
-            THROW_EXCEPTION(std::invalid_argument("Non-empty Package Name is required for font install."));
+            throw std::invalid_argument("Non-empty Package Name is required for font install.");
         }
 
         const auto& installFolderPath = GetFontFileInstallPath(context);
@@ -418,8 +418,7 @@ namespace AppInstaller::Fonts
         {
             try
             {
-                auto count = std::filesystem::remove_all(installFolderPath);
-                // At this point none of the files should be in use, but they might be.
+                std::filesystem::remove_all(installFolderPath);
             }
             catch (const std::exception& e)
             {
