@@ -3423,4 +3423,7 @@ An unlocalized JSON fragment will follow on another line.</comment>
   <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND" xml:space="preserve">
     <value>Font file not found.</value>
   </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED" xml:space="preserve">
+    <value>Font uninstall failed.</value>
+  </data>
 </root>

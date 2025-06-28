@@ -10,6 +10,7 @@ using namespace TestCommon;
 
 constexpr std::wstring_view s_testFontName = L"Times New Roman";
 constexpr std::string_view s_FontFile = "TestFont.ttf";
+constexpr std::string_view s_FontFileTemp = "TestFont_temp.ttf";
 constexpr std::string_view s_InvalidFontFile = "Installer-Good.msix";
 
 TEST_CASE("GetInstalledFonts", "[fonts]")
@@ -97,11 +98,12 @@ TEST_CASE("InstallInvalidFontFile", "[fonts]")
 
     const auto& result = InstallFontFile(context, true);
 
-    REQUIRE(result.Result == FontResult::Error);
+    REQUIRE(result.HResult == S_OK);
 }
 
 TEST_CASE("RemoveFontPackage", "[fonts]")
 {
+    // Calling remove should always be successful when font doesn't exist.
     auto context = FontContext();
     context.PackageName = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
@@ -109,12 +111,23 @@ TEST_CASE("RemoveFontPackage", "[fonts]")
 
     const auto& result = UninstallFontPackage(context);
 
-    REQUIRE(result.Result == FontResult::Success);
+    REQUIRE(result.HResult == S_OK);
 }
 
 TEST_CASE("InstallValidFontFile", "[fonts]")
 {
-    TestDataFile testFont(s_FontFile);
+    // The test will move the file, so for idempotency we need
+    // to use a file that can be replaced.
+    TestDataFile testFontBase(s_FontFile);
+    TestCommon::TempDirectory tempDirectory("TempDirectory");
+    std::filesystem::path testFontCopyPath = tempDirectory.GetPath() / s_FontFileTemp;
+    if (!std::filesystem::exists(testFontCopyPath))
+    {
+        std::filesystem::copy(testFontBase.GetPath(), testFontCopyPath);
+    }
+
+    // Use the copied font for the test
+    TestDataFile testFont(testFontCopyPath);
 
     auto context = FontContext();
     context.FilePath = testFont.GetPath();
@@ -122,8 +135,8 @@ TEST_CASE("InstallValidFontFile", "[fonts]")
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::User;
 
-    const auto& result = InstallFontFile(context, true);
+    const auto& result = InstallFontFile(context, true, true);
 
-    REQUIRE(result.Result == FontResult::Success);
+    REQUIRE(result.HResult == S_OK);
 }
 
