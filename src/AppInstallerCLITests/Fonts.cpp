@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include <AppInstallerRuntime.h>
 #include <winget/Fonts.h>
 
 using namespace AppInstaller::Fonts;
@@ -134,6 +135,59 @@ TEST_CASE("InstallValidFontFile", "[fonts]")
     context.PackageName = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::User;
+
+    auto result = InstallFontFile(context, true, true);
+    REQUIRE(result.HResult == S_OK);
+
+    result = UninstallFontPackage(context);
+    REQUIRE(result.HResult == S_OK);
+}
+
+TEST_CASE("RemoveFontPackageMachine", "[fonts]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    // Calling remove should always be successful when font doesn't exist.
+    auto context = FontContext();
+    context.PackageName = L"TestPackage";
+    context.InstallerSource = InstallerSource::WinGet;
+    context.Scope = ScopeEnum::Machine;
+
+    const auto& result = UninstallFontPackage(context);
+
+    REQUIRE(result.HResult == S_OK);
+}
+
+TEST_CASE("InstallValidFontFileMachine", "[fonts]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    // The test will move the file, so for idempotency we need
+    // to use a file that can be replaced.
+    TestDataFile testFontBase(s_FontFile);
+    TestCommon::TempDirectory tempDirectory("TempDirectory");
+    std::filesystem::path testFontCopyPath = tempDirectory.GetPath() / s_FontFileTemp;
+    if (!std::filesystem::exists(testFontCopyPath))
+    {
+        std::filesystem::copy(testFontBase.GetPath(), testFontCopyPath);
+    }
+
+    // Use the copied font for the test
+    TestDataFile testFont(testFontCopyPath);
+
+    auto context = FontContext();
+    context.FilePath = testFont.GetPath();
+    context.PackageName = L"TestPackage";
+    context.InstallerSource = InstallerSource::WinGet;
+    context.Scope = ScopeEnum::Machine;
 
     auto result = InstallFontFile(context, true, true);
     REQUIRE(result.HResult == S_OK);
