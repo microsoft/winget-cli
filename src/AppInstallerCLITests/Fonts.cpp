@@ -98,7 +98,7 @@ TEST_CASE("InstallInvalidFontFile", "[fonts]")
 
     const auto& result = InstallFontFile(context, true);
 
-    REQUIRE(result.HResult == S_OK);
+    REQUIRE(result.HResult == APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
 }
 
 TEST_CASE("RemoveFontPackage", "[fonts]")
@@ -135,8 +135,10 @@ TEST_CASE("InstallValidFontFile", "[fonts]")
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::User;
 
-    const auto& result = InstallFontFile(context, true, true);
+    auto result = InstallFontFile(context, true, true);
+    REQUIRE(result.HResult == S_OK);
 
+    result = UninstallFontPackage(context);
     REQUIRE(result.HResult == S_OK);
 }
 
