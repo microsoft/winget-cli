@@ -275,13 +275,29 @@ namespace AppInstaller::Fonts
             }
         }
 
+        bool supported = false;
         auto fontCatalog = FontCatalog();
-        DWRITE_FONT_FILE_TYPE fileType = DWRITE_FONT_FILE_TYPE_UNKNOWN;
-        const auto& supported = fontCatalog.IsFontFileSupported(context.FilePath.value(), fileType);
-        if (!supported)
+        std::wstring fontTitle;
+
+        try
         {
-            result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
-            AICLI_LOG(Core, Error, << L"Font file is not supported: " << context.FilePath.value() << " - " << APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
+            DWRITE_FONT_FILE_TYPE fileType = DWRITE_FONT_FILE_TYPE_UNKNOWN;
+            supported = fontCatalog.IsFontFileSupported(context.FilePath.value(), fileType);
+            if (!supported)
+            {
+                result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
+                AICLI_LOG(Core, Error, << L"Font file is not supported: " << context.FilePath.value() << " - " << APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
+                return result;
+            }
+
+            fontTitle = GetFontFileTitle(context.FilePath.value());
+        }
+        catch (const wil::ResultException& e)
+        {
+            result.HResult = e.GetErrorCode();
+            AICLI_LOG(Core, Error, << L"Failed getting font information: " << e.GetFailureInfo().pszMessage << " - " << e.GetErrorCode());
+
+            // TODO: Rollback
             return result;
         }
 
@@ -333,7 +349,6 @@ namespace AppInstaller::Fonts
         // Set Registry key to winget package identifiable location.
         try
         {
-            const auto& fontTitle = GetFontFileTitle(destinationFilePath);
             AICLI_LOG(Core, Info, << "Adding " << AppInstaller::Utility::ConvertToUTF8(fontTitle) << " to " << AppInstaller::Utility::ConvertToUTF8(installRegistryPath));
             auto hive = context.Scope == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
             auto key = Registry::Key::Create(hive, installRegistryPath);
