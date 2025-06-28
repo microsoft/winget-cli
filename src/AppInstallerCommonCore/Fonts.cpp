@@ -89,20 +89,18 @@ namespace AppInstaller::Fonts
             AICLI_LOG(Core, Info, << L"Notified system of font change.");
             return S_OK;
         }
+    }
 
-        // Rollback is best-effort and does not throw, as it is expected to be called in a catch block.
-        // Normal rollback of a WinGet install is:
-        // 1) Remove any font references for parts of the install that were successful (any registry keys already set)
-        // 2) Move the folder with the fonts and delete the folder (or mark it for deletion next restart).
-        // 3) Send update that fonts have changed.
-        bool RollbackFontInstalls(/* Rollback Context*/) try
+    FontResult FontOperationResult::Result()
+    {
+        if (FAILED(HResult))
         {
-            bool success = false;
-
-            // Report to caller whether rollback was successful without error.
-            return success;
+            return FontResult::Error;
         }
-        CATCH_LOG()
+        else
+        {
+            return FontResult::Success;
+        }
     }
 
     std::wstring GetFontRegistryPath(const FontContext& context)
@@ -234,7 +232,7 @@ namespace AppInstaller::Fonts
         {
             fontFile.WinGetSupported = false;
             fontFile.FileType = DWRITE_FONT_FILE_TYPE_UNKNOWN;
-            fontFile.Status = FontStatus::Missing;
+            fontFile.Status = FontStatus::Absent;
         }
 
         return fontFile;
@@ -242,8 +240,6 @@ namespace AppInstaller::Fonts
 
     FontOperationResult InstallFontFile(FontContext& context, const bool notifySystem, const bool force)
     {
-        DBG_UNREFERENCED_PARAMETER(force);
-
         FontOperationResult result;
 
         if (context.InstallerSource != InstallerSource::WinGet)
@@ -258,7 +254,6 @@ namespace AppInstaller::Fonts
 
         if (!context.FilePath.has_value() || !std::filesystem::exists(context.FilePath.value()))
         {
-            result.Result = FontResult::Error;
             result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND);
             AICLI_LOG(Core, Error, << L"Font file was not found: " << context.FilePath.value_or(L"") << " - " << APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND);
             return result;
@@ -266,12 +261,25 @@ namespace AppInstaller::Fonts
 
         AICLI_LOG(Core, Info, << "Starting install of " << context.FilePath.value());
 
+        if (force)
+        {
+            // Force install of a font can have problems because if the font is already there then it
+            // may be in use. The scenarios for using force is if a prior install attempt failed, so
+            // we will try to clean up the existing font registration so it may be successful this time.
+            AICLI_LOG(Core, Info, << "Force install specified, attempting to remove any existing registration.");
+            auto uninstallResult = UninstallFontPackage(context);  // change to file
+            if (uninstallResult.Result() != FontResult::Success)
+            {
+                result.HResult = APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED;
+                return result;
+            }
+        }
+
         auto fontCatalog = FontCatalog();
         DWRITE_FONT_FILE_TYPE fileType = DWRITE_FONT_FILE_TYPE_UNKNOWN;
         const auto& supported = fontCatalog.IsFontFileSupported(context.FilePath.value(), fileType);
         if (!supported)
         {
-            result.Result = FontResult::Error;
             result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
             AICLI_LOG(Core, Error, << L"Font file is not supported: " << context.FilePath.value() << " - " << APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
             return result;
@@ -288,17 +296,33 @@ namespace AppInstaller::Fonts
         //   Note presence if forced install.
 
         // Font install step 1: Copy file to winget package identifiable location.
-        // TODO: Handle case of two font files in same package with the same filename. Is this possible?
-        // TODO: Handle forced install and files-in-use.
         try
         {
             AICLI_LOG(Core, Info, << "Moving " << context.FilePath.value().filename() << " to " << destinationFilePath);
-            std::filesystem::create_directories(destinationFilePath);
+            if (!std::filesystem::exists(destinationFilePath.parent_path()))
+            {
+                std::filesystem::create_directories(destinationFilePath.parent_path());
+            }
+
+            if (std::filesystem::exists(destinationFilePath))
+            {
+                // Try to remove the file.
+                // Try to remove font resource to avoid file-in-use.
+                RemoveAllFontResources(destinationFilePath);
+
+                // TODO: More robust removal methods (rename folder, mark for deletion on reboot).
+                if (!std::filesystem::remove(destinationFilePath))
+                {
+                    AICLI_LOG(Core, Error, << L"Font file already exists and was unable to be removed.");
+                    result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED);
+                    return result;
+                }
+            }
+
             AppInstaller::Filesystem::RenameFile(context.FilePath.value(), destinationFilePath);
         }
         catch (const wil::ResultException& e)
         {
-            result.Result = FontResult::Error;
             result.HResult = e.GetErrorCode();
             AICLI_LOG(Core, Error, << L"Failed moving font file: " << e.GetFailureInfo().pszMessage << " - " << e.GetErrorCode());
 
@@ -309,7 +333,7 @@ namespace AppInstaller::Fonts
         // Set Registry key to winget package identifiable location.
         try
         {
-            const auto& fontTitle = GetFontFileTitle(context.FilePath.value());
+            const auto& fontTitle = GetFontFileTitle(destinationFilePath);
             AICLI_LOG(Core, Info, << "Adding " << AppInstaller::Utility::ConvertToUTF8(fontTitle) << " to " << AppInstaller::Utility::ConvertToUTF8(installRegistryPath));
             auto hive = context.Scope == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
             auto key = Registry::Key::Create(hive, installRegistryPath);
@@ -317,7 +341,6 @@ namespace AppInstaller::Fonts
         }
         catch (const wil::ResultException& e)
         {
-            result.Result = FontResult::Error;
             result.HResult = e.GetErrorCode();
             AICLI_LOG(Core, Error, << L"Failed setting registry: " << e.GetFailureInfo().pszMessage << " - " << e.GetErrorCode());
 
@@ -334,7 +357,7 @@ namespace AppInstaller::Fonts
             // only that they were not added. At this point the "install" is successful, but we were not able to
             // add the font to the system, which means subsequent adds on session start may also fail, but is not
             // guaranteed to fail. We will note it in the log and carry on.
-            AICLI_LOG(Core, Info, << L"Failed to add font resource: " << destinationFilePath);
+            AICLI_LOG(Core, Warning, << L"Failed to add font resource: " << destinationFilePath);
         }
         else
         {
@@ -349,7 +372,6 @@ namespace AppInstaller::Fonts
             }
         }
 
-        result.Result = FontResult::Success;
         return result;
     }
 
@@ -396,37 +418,43 @@ namespace AppInstaller::Fonts
                         continue;
                     }
 
-                    // Call font remove.
+                    // The font may be in use by the system or other apps, it needs to be removed from
+                    // from use or at least attempted to be removed from use.
                     RemoveAllFontResources(filePath);
-
-                    // Now remove the registry value.
                     key.DeleteValue(fontEntry.Name());
                 }
 
                 // Delete the key
-                Registry::Key::DeleteTree(wingetRoot, context.PackageName.value().c_str());
+                if (!Registry::Key::DeleteTree(hive, installRegistryPath))
+                {
+                    AICLI_LOG(Core, Warning, << L"Failed removing registry tree " << AppInstaller::Utility::ConvertToUTF8(installRegistryPath));
+                }
             }
         }
         catch (const wil::ResultException& e)
         {
             // For uninstall we will log the error and continue trying to remove it, since we have partial remove and are in an unknown state.
             AICLI_LOG(Core, Error, << L"Failed removing fonts in the registry: " << e.GetFailureInfo().pszMessage << " - " << e.GetErrorCode());
+            result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED);
         }
 
         // Remove the font files in the font folder.
+        // Removing fonts is not guaranteed due to files in use and registry and file collisions.
         if (std::filesystem::exists(installFolderPath))
         {
             try
             {
                 std::filesystem::remove_all(installFolderPath);
+
+                // TODO: Add robustness for removing files.
             }
             catch (const std::exception& e)
             {
-                AICLI_LOG(Core, Error, << L"Failed removing files in the registry: " << e.what());
+                AICLI_LOG(Core, Error, << L"Failed removing font files: " << e.what());
+                result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED);
             }
         }
 
-        result.Result = FontResult::Success;
         return result;
     }
 

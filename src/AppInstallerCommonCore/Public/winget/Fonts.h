@@ -23,14 +23,13 @@ namespace AppInstaller::Fonts
     enum class FontStatus
     {
         Unknown,
-        Missing,    // Font file is missing from it's expected location.
+        Absent,     // Font is missing from it's expected location.
         OK,         // Font is in a good state.
     };
 
     enum class FontResult
     {
         Unknown,
-        Cancelled,
         Success,
         Error,
     };
@@ -80,10 +79,10 @@ namespace AppInstaller::Fonts
 
     struct FontOperationResult
     {
-        FontResult Result = FontResult::Unknown;
         winrt::hresult HResult = winrt::hresult(S_OK);
+        FontResult Result();
 
-        // TODO: Add optional rollback context to unwind forced installs.
+        // TODO: Add optional rollback context to unwind installs if one operation succeeded but a subsequent one failed.
     };
 
     std::wstring GetFontRegistryPath(const FontContext& context);
