@@ -22,9 +22,11 @@ namespace AppInstaller::Fonts
 
     enum class FontStatus
     {
+        // The current status of a particular font file / package.
         Unknown,
-        Absent,     // Font is missing from it's expected location.
-        OK,         // Font is in a good state.
+        Absent,     // Font is not present at all.
+        OK,         // Font is present and in a good state.
+        Corrupt,    // Font is partially installed (has a file, but no registry, or vice-versa)
     };
 
     enum class FontResult
@@ -47,34 +49,42 @@ namespace AppInstaller::Fonts
         std::vector<FontFace> Faces;
     };
 
+    struct FontValidationResult
+    {
+        FontResult Result = FontResult::Unknown;
+        FontStatus Status = FontStatus::Unknown;
+        bool HasUnsupportedFonts = false;
+        winrt::hresult HResult = winrt::hresult(S_OK);
+    };
 
     // Represents information about a font file used for its installation, query, and removal.
     struct FontFileInfo
     {
-        std::filesystem::path FilePath;
+        std::filesystem::path FilePath;         // Where the file currently is
+        std::filesystem::path InstallPath;      // Where the file should be if installed.
         std::wstring Title;
         Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
         DWRITE_FONT_FILE_TYPE FileType = DWRITE_FONT_FILE_TYPE_UNKNOWN;
         InstallerSource InstallerSource = InstallerSource::Unknown;
         FontStatus Status = FontStatus::Unknown;
         bool WinGetSupported = false;
+        bool IsFontFileInstalled = false;
+        bool IsFontFileRegistered = false;
 
-        // A file may be present and not properly linked to a registry location
+        // Registry path of the FontFile, if exists, or where it should be if it is not installed.
         std::optional<std::wstring> RegistryPath;
-
-        // For Fonts installed with WinGet
         std::optional<std::wstring> PackageName;
         std::optional<std::wstring> PackageFullName;
-        std::optional<Utility::Version> PackageVersion;
     };
 
     struct FontContext
     {
         InstallerSource InstallerSource = InstallerSource::Unknown;
         Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
-        std::optional<std::filesystem::path> FilePath;
+        std::optional<std::filesystem::path> PackagePath;
+        std::optional<std::vector<std::filesystem::path>> PackageFiles;
         std::optional<std::wstring> PackageName;
-        std::optional<std::wstring> Title;
+        bool Force = false;
     };
 
     struct FontOperationResult
@@ -93,9 +103,11 @@ namespace AppInstaller::Fonts
 
     std::vector<FontFileInfo> GetInstalledFontFiles();
 
-    FontFileInfo CreateFontFileInfo(const FontContext& context);
+    FontFileInfo CreateFontFileInfo(const FontContext& context, const std::filesystem::path& filePath, const std::optional<std::wstring>& title);
 
-    FontOperationResult InstallFontFile(FontContext& context, const bool notifySystem = false, const bool force = false);
+    FontValidationResult ValidateFontPackage(FontContext& context);
+
+    FontOperationResult InstallFontFile(FontContext& context, const bool notifySystem = false);
 
     FontOperationResult UninstallFontPackage(FontContext& context);
 
