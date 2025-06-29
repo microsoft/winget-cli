@@ -49,14 +49,6 @@ namespace AppInstaller::Fonts
         std::vector<FontFace> Faces;
     };
 
-    struct FontValidationResult
-    {
-        FontResult Result = FontResult::Unknown;
-        FontStatus Status = FontStatus::Unknown;
-        bool HasUnsupportedFonts = false;
-        winrt::hresult HResult = winrt::hresult(S_OK);
-    };
-
     // Represents information about a font file used for its installation, query, and removal.
     struct FontFileInfo
     {
@@ -81,10 +73,20 @@ namespace AppInstaller::Fonts
     {
         InstallerSource InstallerSource = InstallerSource::Unknown;
         Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
-        std::optional<std::filesystem::path> PackagePath;
         std::optional<std::vector<std::filesystem::path>> PackageFiles;
         std::optional<std::wstring> PackageName;
         bool Force = false;
+
+        void AddPackageFile(const std::filesystem::path& filePath);
+    };
+
+    struct FontValidationResult
+    {
+        FontResult Result = FontResult::Unknown;
+        FontStatus Status = FontStatus::Unknown;
+        bool HasUnsupportedFonts = false;
+        winrt::hresult HResult = winrt::hresult(S_OK);
+        std::vector<FontFileInfo> FontFileInfos = std::vector<FontFileInfo>();
     };
 
     struct FontOperationResult
@@ -107,7 +109,7 @@ namespace AppInstaller::Fonts
 
     FontValidationResult ValidateFontPackage(FontContext& context);
 
-    FontOperationResult InstallFontFile(FontContext& context, const bool notifySystem = false);
+    FontOperationResult InstallFontPackage(FontContext& context);
 
     FontOperationResult UninstallFontPackage(FontContext& context);
 
