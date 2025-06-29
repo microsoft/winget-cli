@@ -60,7 +60,7 @@ TEST_CASE("GetFontFileInfo", "[fonts]")
     context.Scope = ScopeEnum::User;
     context.PackageName = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
-    const auto& fontFileInfo = CreateFontFileInfo(context, testFont.GetPath(), std::nullopt);
+    const auto& fontFileInfo = CreateFontFileInfo(context, testFont.GetPath());
 
     REQUIRE(fontFileInfo.Status == FontStatus::Absent);
 }
@@ -145,21 +145,25 @@ TEST_CASE("InstallInvalidFontPackageUser", "[fonts]")
     context.AddPackageFile(testFont.GetPath());
 
     const auto& result = InstallFontPackage(context);
-
     REQUIRE(result.HResult == APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
 }
 
 TEST_CASE("RemoveFontPackageUser", "[fonts]")
 {
+    TestDataFile testFont(s_FontFile);
+
     // Calling remove should always be successful when font doesn't exist.
     auto context = FontContext();
     context.PackageName = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::User;
+    context.AddPackageFile(testFont.GetPath());
 
     const auto& result = UninstallFontPackage(context);
-
     REQUIRE(result.HResult == S_OK);
+
+    auto fontValidationResult = ValidateFontPackage(context);
+    REQUIRE(fontValidationResult.Status == FontStatus::Absent);
 }
 
 TEST_CASE("InstallValidFontPackageUser", "[fonts]")
@@ -184,11 +188,20 @@ TEST_CASE("InstallValidFontPackageUser", "[fonts]")
     context.Force = true;
     context.AddPackageFile(testFont.GetPath());
 
-    auto result = InstallFontPackage(context);
-    REQUIRE(result.HResult == S_OK);
+    auto preinstallValidation = ValidateFontPackage(context);
+    REQUIRE(preinstallValidation.Status == FontStatus::Absent);
 
-    result = UninstallFontPackage(context);
-    REQUIRE(result.HResult == S_OK);
+    auto installResult = InstallFontPackage(context);
+    REQUIRE(installResult.HResult == S_OK);
+
+    auto postinstallValidation = ValidateFontPackage(context);
+    REQUIRE(postinstallValidation.Status == FontStatus::OK);
+
+    auto uninstallResult = UninstallFontPackage(context);
+    REQUIRE(uninstallResult.HResult == S_OK);
+
+    auto postuninstallValidation = ValidateFontPackage(context);
+    REQUIRE(postuninstallValidation.Status == FontStatus::Absent);
 }
 
 TEST_CASE("RemoveFontPackageMachine", "[fonts]")
@@ -199,15 +212,20 @@ TEST_CASE("RemoveFontPackageMachine", "[fonts]")
         return;
     }
 
+    TestDataFile testFont(s_FontFile);
+
     // Calling remove should always be successful when font doesn't exist.
     auto context = FontContext();
     context.PackageName = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::Machine;
+    context.AddPackageFile(testFont.GetPath());
 
     const auto& result = UninstallFontPackage(context);
-
     REQUIRE(result.HResult == S_OK);
+
+    auto fontValidationResult = ValidateFontPackage(context);
+    REQUIRE(fontValidationResult.Status == FontStatus::Absent);
 }
 
 TEST_CASE("InstallValidFontPackageMachine", "[fonts]")
@@ -238,10 +256,19 @@ TEST_CASE("InstallValidFontPackageMachine", "[fonts]")
     context.Force = true;
     context.AddPackageFile(testFont.GetPath());
 
-    auto result = InstallFontPackage(context);
-    REQUIRE(result.HResult == S_OK);
+    auto preinstallValidation = ValidateFontPackage(context);
+    REQUIRE(preinstallValidation.Status == FontStatus::Absent);
 
-    result = UninstallFontPackage(context);
-    REQUIRE(result.HResult == S_OK);
+    auto installResult = InstallFontPackage(context);
+    REQUIRE(installResult.HResult == S_OK);
+
+    auto postinstallValidation = ValidateFontPackage(context);
+    REQUIRE(postinstallValidation.Status == FontStatus::OK);
+
+    auto uninstallResult = UninstallFontPackage(context);
+    REQUIRE(uninstallResult.HResult == S_OK);
+
+    auto postuninstallValidation = ValidateFontPackage(context);
+    REQUIRE(postuninstallValidation.Status == FontStatus::Absent);
 }
 
