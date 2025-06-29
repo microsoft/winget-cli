@@ -172,16 +172,16 @@ namespace AppInstaller::Fonts
             break;
         case InstallerSource::UWP:
             // UWP path adds the package full name
-            if (context.PackageName.has_value() && !context.PackageName.value().empty())
+            if (context.PackageIdentifier.has_value() && !context.PackageIdentifier.value().empty())
             {
-                path << s_RegistrySeparator << context.PackageName.value();
+                path << s_RegistrySeparator << context.PackageIdentifier.value();
             }
             break;
         case InstallerSource::WinGet:
             // WinGet path adds the WinGet prefix and the package name
-            if (context.PackageName.has_value() && !context.PackageName.value().empty())
+            if (context.PackageIdentifier.has_value() && !context.PackageIdentifier.value().empty())
             {
-                path << s_RegistrySeparator << s_FontsWinGetPrefix << s_RegistrySeparator << context.PackageName.value();
+                path << s_RegistrySeparator << s_FontsWinGetPrefix << s_RegistrySeparator << context.PackageIdentifier.value();
             }
             else
             {
@@ -236,10 +236,10 @@ namespace AppInstaller::Fonts
             break;
         case InstallerSource::WinGet:
             // WinGet path adds the WinGet prefix and the package name
-            if (context.PackageName.has_value() && !context.PackageName.value().empty())
+            if (context.PackageIdentifier.has_value() && !context.PackageIdentifier.value().empty())
             {
                 path /= s_FontsWinGetPrefix;
-                path /= context.PackageName.value();
+                path /= context.PackageIdentifier.value();
             }
             else
             {
@@ -258,7 +258,7 @@ namespace AppInstaller::Fonts
     {
         auto fileInfo = FontFileInfo();
         fileInfo.FilePath = filePath;
-        fileInfo.PackageFullName = context.PackageName.value_or(L"");
+        fileInfo.PackageFullName = context.PackageIdentifier.value_or(L"");
         fileInfo.InstallerSource = context.InstallerSource;
         fileInfo.Scope = context.Scope;
         if (title.has_value())
@@ -414,7 +414,7 @@ namespace AppInstaller::Fonts
     {
         auto result = FontValidationResult();
 
-        AICLI_LOG(Core, Info, << L"Validating font package: " << context.PackageName.value_or(L"Unknown").c_str());
+        AICLI_LOG(Core, Info, << L"Validating font package: " << context.PackageIdentifier.value_or(L"Unknown").c_str());
 
         auto fontFileInfos = std::vector<FontFileInfo>();
         try
@@ -477,7 +477,7 @@ namespace AppInstaller::Fonts
             throw std::logic_error("Only WinGet format of font install is supported.");
         }
 
-        if (!context.PackageName.has_value() || context.PackageName.value().empty())
+        if (!context.PackageIdentifier.has_value() || context.PackageIdentifier.value().empty())
         {
             throw std::invalid_argument("Non-empty Package Name is required for font install.");
         }
@@ -485,7 +485,7 @@ namespace AppInstaller::Fonts
         if (!context.PackageFiles.has_value() || context.PackageFiles.value().size() == 0)
         {
             result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND);
-            AICLI_LOG(Core, Error, << L"Font package has no files: " << context.PackageName.value().c_str() << " - " << result.HResult);
+            AICLI_LOG(Core, Error, << L"Font package has no files: " << context.PackageIdentifier.value().c_str() << " - " << result.HResult);
             return result;
         }
 
@@ -494,7 +494,7 @@ namespace AppInstaller::Fonts
         if (validationResult.Result != FontResult::Success)
         {
             result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
-            AICLI_LOG(Core, Error, << L"Font package validation failed: " << context.PackageName.value().c_str() << " - " << validationResult.HResult);
+            AICLI_LOG(Core, Error, << L"Font package validation failed: " << context.PackageIdentifier.value().c_str() << " - " << validationResult.HResult);
             return result;
         }
 
@@ -502,7 +502,7 @@ namespace AppInstaller::Fonts
         if (validationResult.HasUnsupportedFonts)
         {
             result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
-            AICLI_LOG(Core, Error, << L"Font package has unsupported fonts: " << context.PackageName.value().c_str() << " - " << result.HResult);
+            AICLI_LOG(Core, Error, << L"Font package has unsupported fonts: " << context.PackageIdentifier.value().c_str() << " - " << result.HResult);
             return result;
         }
 
@@ -510,7 +510,7 @@ namespace AppInstaller::Fonts
         if (validationResult.Status == FontStatus::OK && !context.Force)
         {
             result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED);
-            AICLI_LOG(Core, Info, << L"Font package is already installed and in a good state.: " << context.PackageName.value().c_str() << " - " << result.HResult);
+            AICLI_LOG(Core, Info, << L"Font package is already installed and in a good state.: " << context.PackageIdentifier.value().c_str() << " - " << result.HResult);
             return result;
         }
 
@@ -525,12 +525,12 @@ namespace AppInstaller::Fonts
             if (uninstallResult.Result() != FontResult::Success)
             {
                 result.HResult = uninstallResult.HResult;
-                AICLI_LOG(Core, Error, << L"Font cleanup uninstall failed: " << context.PackageName.value().c_str() << L"-" << uninstallResult.HResult);
+                AICLI_LOG(Core, Error, << L"Font cleanup uninstall failed: " << context.PackageIdentifier.value().c_str() << L"-" << uninstallResult.HResult);
                 return result;
             }
         }
 
-        AICLI_LOG(Core, Info, << L"Starting install of " << context.PackageName.value().c_str());
+        AICLI_LOG(Core, Info, << L"Starting install of " << context.PackageIdentifier.value().c_str());
 
         try
         {
@@ -586,7 +586,7 @@ namespace AppInstaller::Fonts
         catch (...)
         {
             LOG_CAUGHT_EXCEPTION();
-            AICLI_LOG(Core, Error, << L"Install failed for " << context.PackageName.value().c_str() << L", attempting rollback.");
+            AICLI_LOG(Core, Error, << L"Install failed for " << context.PackageIdentifier.value().c_str() << L", attempting rollback.");
 
             try
             {
@@ -595,11 +595,11 @@ namespace AppInstaller::Fonts
                 auto rollbackResult = UninstallFontPackage(context);
                 if (rollbackResult.Result() == FontResult::Success)
                 {
-                    AICLI_LOG(Core, Info, << L"Rollback for " << context.PackageName.value().c_str() << L" successful.");
+                    AICLI_LOG(Core, Info, << L"Rollback for " << context.PackageIdentifier.value().c_str() << L" successful.");
                 }
                 else
                 {
-                    AICLI_LOG(Core, Error, << L"Rollback for " << context.PackageName.value().c_str() << L" failed: " << rollbackResult.HResult);
+                    AICLI_LOG(Core, Error, << L"Rollback for " << context.PackageIdentifier.value().c_str() << L" failed: " << rollbackResult.HResult);
                 }
             }
             CATCH_LOG();
@@ -621,7 +621,7 @@ namespace AppInstaller::Fonts
             throw std::logic_error("Only WinGet format of font package uninstall is supported.");
         }
 
-        if (!context.PackageName.has_value() || context.PackageName.value().empty())
+        if (!context.PackageIdentifier.has_value() || context.PackageIdentifier.value().empty())
         {
             throw std::invalid_argument("Non-empty Package Name is required for font uninstall.");
         }
@@ -901,7 +901,7 @@ namespace AppInstaller::Fonts
                                 auto context = FontContext();
                                 context.Scope = scope;
                                 context.InstallerSource = InstallerSource::WinGet;
-                                context.PackageName = ConvertToUTF16(packageSubKey.Name());
+                                context.PackageIdentifier = ConvertToUTF16(packageSubKey.Name());
                                 std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
                                 auto fontFile = CreateFontFileInfo(context, filePath, ConvertToUTF16(wingetPackageValue.Name()));
                                 fontFiles.push_back(std::move(fontFile));
@@ -922,7 +922,7 @@ namespace AppInstaller::Fonts
                             auto context = FontContext();
                             context.Scope = scope;
                             context.InstallerSource = InstallerSource::UWP;
-                            context.PackageName = subkeyName;
+                            context.PackageIdentifier = subkeyName;
                             std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
                             auto fontFile = CreateFontFileInfo(context, filePath, ConvertToUTF16(uapPackageValue.Name()));
                             fontFiles.push_back(std::move(fontFile));

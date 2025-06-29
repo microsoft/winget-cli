@@ -124,6 +124,7 @@ namespace AppInstaller::CLI::Execution
 
             // Font Command
             Family,
+            Files,
 
             // Configuration
             ConfigurationFile,

@@ -58,7 +58,7 @@ TEST_CASE("GetFontFileInfo", "[fonts]")
 
     auto context = FontContext();
     context.Scope = ScopeEnum::User;
-    context.PackageName = L"TestPackage";
+    context.PackageIdentifier = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     const auto& fontFileInfo = CreateFontFileInfo(context, testFont.GetPath());
 
@@ -79,7 +79,7 @@ TEST_CASE("InvalidFontFile", "[fonts]")
 TEST_CASE("GetFontRegistryPath", "[fonts]")
 {
     auto context = FontContext();
-    context.PackageName = L"TestPackage";
+    context.PackageIdentifier = L"TestPackage";
 
     context.InstallerSource = InstallerSource::WinGet;
     auto fontPath = GetFontRegistryPath(context);
@@ -108,7 +108,7 @@ TEST_CASE("ValidateInvalidFontPackage", "[fonts]")
 
     auto context = FontContext();
     context.Scope = ScopeEnum::User;
-    context.PackageName = L"TestPackage";
+    context.PackageIdentifier = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.AddPackageFile(testFont.GetPath());
     const auto& fontValidationResult = ValidateFontPackage(context);
@@ -124,7 +124,7 @@ TEST_CASE("ValidateValidFontPackage", "[fonts]")
 
     auto context = FontContext();
     context.Scope = ScopeEnum::User;
-    context.PackageName = L"TestPackage";
+    context.PackageIdentifier = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.AddPackageFile(testFont.GetPath());
     const auto& fontValidationResult = ValidateFontPackage(context);
@@ -139,7 +139,7 @@ TEST_CASE("InstallInvalidFontPackageUser", "[fonts]")
     TestDataFile testFont(s_InvalidFontFile);
 
     auto context = FontContext();
-    context.PackageName = L"TestPackage";
+    context.PackageIdentifier = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::User;
     context.AddPackageFile(testFont.GetPath());
@@ -154,7 +154,7 @@ TEST_CASE("RemoveFontPackageUser", "[fonts]")
 
     // Calling remove should always be successful when font doesn't exist.
     auto context = FontContext();
-    context.PackageName = L"TestPackage";
+    context.PackageIdentifier = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::User;
     context.AddPackageFile(testFont.GetPath());
@@ -182,7 +182,7 @@ TEST_CASE("InstallValidFontPackageUser", "[fonts]")
     TestDataFile testFont(testFontCopyPath);
 
     auto context = FontContext();
-    context.PackageName = L"TestPackage";
+    context.PackageIdentifier = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::User;
     context.Force = true;
@@ -216,7 +216,7 @@ TEST_CASE("RemoveFontPackageMachine", "[fonts]")
 
     // Calling remove should always be successful when font doesn't exist.
     auto context = FontContext();
-    context.PackageName = L"TestPackage";
+    context.PackageIdentifier = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::Machine;
     context.AddPackageFile(testFont.GetPath());
@@ -250,7 +250,7 @@ TEST_CASE("InstallValidFontPackageMachine", "[fonts]")
     TestDataFile testFont(testFontCopyPath);
 
     auto context = FontContext();
-    context.PackageName = L"TestPackage";
+    context.PackageIdentifier = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::Machine;
     context.Force = true;

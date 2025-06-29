@@ -74,7 +74,7 @@ namespace AppInstaller::Fonts
         InstallerSource InstallerSource = InstallerSource::Unknown;
         Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
         std::optional<std::vector<std::filesystem::path>> PackageFiles;
-        std::optional<std::wstring> PackageName;
+        std::optional<std::wstring> PackageIdentifier;
         bool Force = false;
 
         void AddPackageFile(const std::filesystem::path& filePath);

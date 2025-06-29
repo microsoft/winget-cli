@@ -12,6 +12,7 @@ namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::CLI::Execution;
     using namespace AppInstaller::CLI::Font;
+    using namespace AppInstaller::Fonts;
 
     namespace
     {
@@ -102,7 +103,6 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportInstalledFonts(Execution::Context& context)
     {
-        /*
         Fonts::FontCatalog fontCatalog;
 
         if (context.Args.Contains(Args::Type::Family))
@@ -140,6 +140,24 @@ namespace AppInstaller::CLI::Workflow
 
             OutputInstalledFontFacesTable(context, lines);
         }
+        else if (context.Args.Contains(Args::Type::Files))
+        {
+            const auto& fontFiles = AppInstaller::Fonts::GetInstalledFontFiles();
+            std::vector<InstalledFontFilesTableLine> lines;
+            for (const auto& fontFile : fontFiles)
+            {
+
+                InstalledFontFilesTableLine line(
+                    Utility::LocIndString(Utility::ConvertToUTF8(fontFile.Title)),
+                    Utility::LocIndString(Utility::ConvertToUTF8(fontFile.PackageFullName.value_or(L" "))),
+                    Utility::LocIndString(Utility::ConvertToUTF8(fontFile.Status == Fonts::FontStatus::OK ? L"OK" : L"Missing")),
+                    fontFile.FilePath.u8string());
+
+                lines.push_back(std::move(line));
+            }
+
+            OutputInstalledFontFilesTable(context, lines);
+        }
         else
         {
             const auto& fontFamilies = fontCatalog.GetInstalledFontFamilies();
@@ -157,23 +175,6 @@ namespace AppInstaller::CLI::Workflow
 
             OutputInstalledFontFamiliesTable(context, lines);
         }
-        */
-
-        const auto& fontFiles = AppInstaller::Fonts::GetInstalledFontFiles();
-        std::vector<InstalledFontFilesTableLine> lines;
-        for (const auto& fontFile : fontFiles)
-        {
-
-            InstalledFontFilesTableLine line(
-                Utility::LocIndString(Utility::ConvertToUTF8(fontFile.Title)),
-                Utility::LocIndString(Utility::ConvertToUTF8(fontFile.PackageFullName.value_or(L" "))),
-                Utility::LocIndString(Utility::ConvertToUTF8(fontFile.Status == Fonts::FontStatus::OK ? L"OK" : L"Missing")),
-                fontFile.FilePath.u8string());
-
-            lines.push_back(std::move(line));
-        }
-
-        OutputInstalledFontFilesTable(context, lines);
     }
 
     void FontInstallImpl(Execution::Context& context)
@@ -184,14 +185,30 @@ namespace AppInstaller::CLI::Workflow
             scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
         }
 
-        FontInstaller fontInstaller = FontInstaller(scope);
+        // Scope may still be unknown, which is a failure for an install operation.
+        if (scope == Manifest::ScopeEnum::Unknown)
+        {
+            // We will default to User scope.
+            scope = Manifest::ScopeEnum::User;
+        }
 
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+
+        Fonts::FontContext fontContext;
+        fontContext.InstallerSource = InstallerSource::WinGet;
+        fontContext.Scope = scope;
+
+        // Fonts are single instanced by an identifier which is:
+        //   PackageId + '_' + PackageVersion
+        // The PackageIdentifier is used to uniquely identify this package.
+        auto manifest = context.Get<Execution::Data::Manifest>();
+        const auto& packageId = ConvertToUTF16(manifest.Id);
+        const auto& packageVersion = ConvertToUTF16(manifest.Version);
+        fontContext.PackageIdentifier = packageId + L"_" + packageVersion;
 
         try
         {
             const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
-            std::vector<std::filesystem::path> filePaths;
 
             // InstallerPath will point to a directory if extracted from an archive.
             if (std::filesystem::is_directory(installerPath))
@@ -199,50 +216,60 @@ namespace AppInstaller::CLI::Workflow
                 const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles = context.Get<Execution::Data::Installer>()->NestedInstallerFiles;
                 for (const auto& nestedInstallerFile : nestedInstallerFiles)
                 {
-                    filePaths.emplace_back(installerPath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath));
+                    fontContext.AddPackageFile(installerPath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath));
                 }
             }
             else
             {
-                filePaths.emplace_back(installerPath);
+                fontContext.AddPackageFile(installerPath);
             }
 
-            Fonts::FontCatalog fontCatalog;
-            std::vector<FontFile> fontFiles;
-
-            for (const std::filesystem::path filePath : filePaths)
+            const auto& fontValidationResult = Fonts::ValidateFontPackage(fontContext);
+            if (fontValidationResult.Result != FontResult::Success)
             {
-                DWRITE_FONT_FILE_TYPE fileType;
-                if (!fontCatalog.IsFontFileSupported(filePath, fileType))
-                {
-                    AICLI_LOG(CLI, Warning, << "Font file is not supported: " << filePath);
-                    context.Reporter.Error() << Resource::String::FontFileNotSupported << std::endl;
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
-                }
-                else
-                {
-                    AICLI_LOG(CLI, Verbose, << "Font file is supported: " << filePath);
-                    fontFiles.emplace_back(FontFile(filePath, fileType, L"unknown"));
-                }
+                context.Reporter.Error() << Resource::String::FontValidationFailed << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED);
             }
 
-            fontInstaller.SetFontFiles(fontFiles);
+            if (fontValidationResult.HasUnsupportedFonts)
+            {
+                context.Reporter.Error() << Resource::String::FontFileNotSupported << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
+            }
 
-            if (!fontInstaller.EnsureInstall())
+            if (fontValidationResult.Status == FontStatus::OK && !fontContext.Force)
             {
                 context.Reporter.Warn() << Resource::String::FontAlreadyInstalled << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED);
             }
 
-            fontInstaller.Install();
-            context.Add<Execution::Data::OperationReturnCode>(S_OK);
+            auto installResult = Fonts::InstallFontPackage(fontContext);
+            if (installResult.Result() != FontResult::Success)
+            {
+                context.Reporter.Error() << Resource::String::FontInstallFailed << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED);
+            }
+
+            context.Add<Execution::Data::OperationReturnCode>(installResult.HResult);
         }
         catch (...)
         {
             context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
             context.Reporter.Warn() << Resource::String::FontInstallFailed << std::endl;
-            fontInstaller.Uninstall();
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
+
+            try
+            {
+                // The Font Install code handles rollback where appropriate. If we hit an
+                // unexpected exception, try to uninstall anyway as this is idempotent.
+                auto uninstallResult = Fonts::InstallFontPackage(fontContext);
+                if (uninstallResult.Result() != FontResult::Success)
+                {
+                    context.Reporter.Warn() << Resource::String::FontRollbackFailed << std::endl;
+                }
+            }
+            CATCH_LOG();
+
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED);
         }
     }
 }
