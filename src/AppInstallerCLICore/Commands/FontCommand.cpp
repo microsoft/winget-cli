@@ -49,6 +49,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Args::Type::Family),
+            Argument::ForType(Args::Type::Files),
             Argument::ForType(Args::Type::Moniker),
             Argument::ForType(Args::Type::Source),
             Argument::ForType(Args::Type::Tag),

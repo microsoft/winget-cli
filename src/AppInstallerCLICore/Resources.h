@@ -310,6 +310,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FontFaces);
         WINGET_DEFINE_RESOURCE_STRINGID(FontFamily);
         WINGET_DEFINE_RESOURCE_STRINGID(FontFamilyNameArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontFilesArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FontFileNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(FontFilePaths);
         WINGET_DEFINE_RESOURCE_STRINGID(FontInstallCommandLongDescription);
@@ -318,7 +319,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FontListCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FontListCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FontPackage);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontRollbackFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(FontTitle);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontUninstallFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontValidationFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(FontVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(FontWinGetSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(ForceArgumentDescription);
