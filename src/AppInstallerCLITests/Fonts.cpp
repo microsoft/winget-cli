@@ -97,6 +97,8 @@ TEST_CASE("GetFontRegistryPath", "[fonts]")
 TEST_CASE("GetInstalledFontFiles", "[fonts]")
 {
     const auto& fontFiles = GetInstalledFontFiles();
+
+    // There should be at least one font installed on the system.
     REQUIRE(fontFiles.size() > 0);
 }
 
@@ -108,8 +110,7 @@ TEST_CASE("ValidateInvalidFontPackage", "[fonts]")
     context.Scope = ScopeEnum::User;
     context.PackageName = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
-    context.PackageFiles = std::vector<std::filesystem::path>();
-    context.PackageFiles.value().push_back(testFont.GetPath());
+    context.AddPackageFile(testFont.GetPath());
     const auto& fontValidationResult = ValidateFontPackage(context);
     REQUIRE(fontValidationResult.HResult == S_OK);
     REQUIRE(fontValidationResult.Result == FontResult::Success);
@@ -125,8 +126,7 @@ TEST_CASE("ValidateValidFontPackage", "[fonts]")
     context.Scope = ScopeEnum::User;
     context.PackageName = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
-    context.PackageFiles = std::vector<std::filesystem::path>();
-    context.PackageFiles.value().push_back(testFont.GetPath());
+    context.AddPackageFile(testFont.GetPath());
     const auto& fontValidationResult = ValidateFontPackage(context);
     REQUIRE(fontValidationResult.HResult == S_OK);
     REQUIRE(fontValidationResult.Result == FontResult::Success);
@@ -134,22 +134,22 @@ TEST_CASE("ValidateValidFontPackage", "[fonts]")
     REQUIRE(fontValidationResult.Status == FontStatus::Absent);
 }
 
-TEST_CASE("InstallInvalidFontFile", "[fonts]")
+TEST_CASE("InstallInvalidFontPackageUser", "[fonts]")
 {
     TestDataFile testFont(s_InvalidFontFile);
 
     auto context = FontContext();
-    context.PackagePath = testFont.GetPath();
     context.PackageName = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::User;
+    context.AddPackageFile(testFont.GetPath());
 
-    const auto& result = InstallFontFile(context, true);
+    const auto& result = InstallFontPackage(context);
 
     REQUIRE(result.HResult == APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
 }
 
-TEST_CASE("RemoveFontPackage", "[fonts]")
+TEST_CASE("RemoveFontPackageUser", "[fonts]")
 {
     // Calling remove should always be successful when font doesn't exist.
     auto context = FontContext();
@@ -162,7 +162,7 @@ TEST_CASE("RemoveFontPackage", "[fonts]")
     REQUIRE(result.HResult == S_OK);
 }
 
-TEST_CASE("InstallValidFontFile", "[fonts]")
+TEST_CASE("InstallValidFontPackageUser", "[fonts]")
 {
     // The test will move the file, so for idempotency we need
     // to use a file that can be replaced.
@@ -178,13 +178,13 @@ TEST_CASE("InstallValidFontFile", "[fonts]")
     TestDataFile testFont(testFontCopyPath);
 
     auto context = FontContext();
-    context.PackagePath = testFont.GetPath();
     context.PackageName = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::User;
     context.Force = true;
+    context.AddPackageFile(testFont.GetPath());
 
-    auto result = InstallFontFile(context, true);
+    auto result = InstallFontPackage(context);
     REQUIRE(result.HResult == S_OK);
 
     result = UninstallFontPackage(context);
@@ -210,7 +210,7 @@ TEST_CASE("RemoveFontPackageMachine", "[fonts]")
     REQUIRE(result.HResult == S_OK);
 }
 
-TEST_CASE("InstallValidFontFileMachine", "[fonts]")
+TEST_CASE("InstallValidFontPackageMachine", "[fonts]")
 {
     if (!AppInstaller::Runtime::IsRunningAsAdmin())
     {
@@ -232,13 +232,13 @@ TEST_CASE("InstallValidFontFileMachine", "[fonts]")
     TestDataFile testFont(testFontCopyPath);
 
     auto context = FontContext();
-    context.PackagePath = testFont.GetPath();
     context.PackageName = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::Machine;
     context.Force = true;
+    context.AddPackageFile(testFont.GetPath());
 
-    auto result = InstallFontFile(context, true);
+    auto result = InstallFontPackage(context);
     REQUIRE(result.HResult == S_OK);
 
     result = UninstallFontPackage(context);

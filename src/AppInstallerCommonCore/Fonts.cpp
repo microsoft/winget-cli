@@ -22,8 +22,8 @@ namespace AppInstaller::Fonts
     constexpr std::wstring_view s_FontsPathSubkey = L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts";
     constexpr std::wstring_view s_FontsUserInstallFolder = L"Microsoft\\Windows\\Fonts";
     constexpr std::wstring_view s_TrueType = L" (TrueType)";
-    constexpr std::wstring_view s_UnknownInstallerPrefixUser = L"U\\FONTS\\";
-    constexpr std::wstring_view s_UnknownInstallerPrefixMachine = L"M\\FONTS\\";
+    constexpr std::wstring_view s_UnknownInstallerPrefixUser = L"U\\F\\";
+    constexpr std::wstring_view s_UnknownInstallerPrefixMachine = L"M\\F\\";
 
     namespace
     {
@@ -147,6 +147,16 @@ namespace AppInstaller::Fonts
         {
             return FontResult::Success;
         }
+    }
+
+    void FontContext::AddPackageFile(const std::filesystem::path& filePath)
+    {
+        if (!PackageFiles.has_value())
+        {
+            PackageFiles = std::vector<std::filesystem::path>();
+        }
+
+        PackageFiles.value().push_back(filePath);
     }
 
     std::wstring GetFontRegistryPath(const FontContext& context)
@@ -393,25 +403,26 @@ namespace AppInstaller::Fonts
     {
         auto result = FontValidationResult();
 
+        AICLI_LOG(Core, Info, << L"Validating font package: " << context.PackageName.value_or(L"Unknown").c_str());
+
+        auto fontFileInfos = std::vector<FontFileInfo>();
         try
         {
             if (context.PackageFiles.has_value())
             {
-                auto fontFileInfos = std::vector<FontFileInfo>();
-
                 // Create font file info for each package file
                 for (const auto& file : context.PackageFiles.value())
                 {
-                    fontFileInfos.push_back(CreateFontFileInfo(context, file, std::nullopt));
+                    result.FontFileInfos.push_back(CreateFontFileInfo(context, file, std::nullopt));
                 }
 
                 // We create an overall status for the validation with the following determination:
                 // If ALL of the files are OK, the package is OK.
                 // If ALL of the files are Absent, the package is Absent.
                 // If there is any combination, the package is Corrupt.
-                // If ALL of the files are Absent, and any files are not supported, the package is Invalid.
-                // If Package is not OK and any files are unsupported then the package is Invalid.
-                for (const auto& fontFileInfo : fontFileInfos)
+                // We must check each file info to see if the package is supported by WinGet.
+                // If any file is unsupported then there are unsupported fonts in the package.
+                for (const auto& fontFileInfo : result.FontFileInfos)
                 {
                     if (!fontFileInfo.WinGetSupported)
                     {
@@ -440,13 +451,13 @@ namespace AppInstaller::Fonts
         {
             result.HResult = e.GetErrorCode();
             result.Result = FontResult::Error;
-            AICLI_LOG(Core, Error, << L"Failed validating font package: " << e.GetFailureInfo().pszMessage << " - " << e.GetErrorCode());
+            AICLI_LOG(Core, Error, << L"Failed validating font package: " << e.GetFailureInfo().pszMessage << L" - " << e.GetErrorCode());
         }
 
         return result;
     }
 
-    FontOperationResult InstallFontFile(FontContext& context, const bool notifySystem)
+    FontOperationResult InstallFontPackage(FontContext& context)
     {
         FontOperationResult result;
 
@@ -460,141 +471,132 @@ namespace AppInstaller::Fonts
             throw std::invalid_argument("Non-empty Package Name is required for font install.");
         }
 
-        if (!context.PackagePath.has_value() || !std::filesystem::exists(context.PackagePath.value()))
+        if (!context.PackageFiles.has_value() || context.PackageFiles.value().size() == 0)
         {
             result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND);
-            AICLI_LOG(Core, Error, << L"Font file was not found: " << context.PackagePath.value_or(L"") << " - " << result.HResult);
+            AICLI_LOG(Core, Error, << L"Font package has no files: " << context.PackageName.value() << " - " << result.HResult);
             return result;
         }
 
-        AICLI_LOG(Core, Info, << "Starting install of " << context.PackagePath.value());
+        // Validate the package data was all processed successfully.
+        const auto& validationResult = ValidateFontPackage(context);
+        if (validationResult.Result != FontResult::Success)
+        {
+            result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
+            AICLI_LOG(Core, Error, << L"Font package validation failed: " << context.PackageName.value() << " - " << validationResult.HResult);
+            return result;
+        }
 
-        if (context.Force)
+        // Check for unsupported font files.
+        if (validationResult.HasUnsupportedFonts)
+        {
+            result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
+            AICLI_LOG(Core, Error, << L"Font package has unsupported fonts: " << context.PackageName.value() << " - " << result.HResult);
+            return result;
+        }
+
+        // Check for package already installed and correct unless this is a force install.
+        if (validationResult.Status == FontStatus::OK && !context.Force)
+        {
+            result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED);
+            AICLI_LOG(Core, Info, << L"Font package is already installed and in a good state.: " << context.PackageName.value() << " - " << result.HResult);
+            return result;
+        }
+
+        // We will attempt a cleanup / force install if either this is a forced intall or the package was not in a good state.
+        if (validationResult.Status == FontStatus::Corrupt || context.Force)
         {
             // Force install of a font can have problems because if the font is already there then it
             // may be in use. The scenarios for using force is if a prior install attempt failed, so
             // we will try to clean up the existing font registration so it may be successful this time.
-            AICLI_LOG(Core, Info, << "Force install specified, attempting to remove any existing registration.");
-            auto uninstallResult = UninstallFontPackage(context);  // change to file
+            AICLI_LOG(Core, Info, << L"Package is corrupt or forced install, attempting to remove any existing registration.");
+            auto uninstallResult = UninstallFontPackage(context);
             if (uninstallResult.Result() != FontResult::Success)
             {
-                result.HResult = APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED;
+                result.HResult = uninstallResult.HResult;
+                AICLI_LOG(Core, Error, << L"Font cleanup uninstall failed: " << context.PackageName.value() << uninstallResult.HResult);
                 return result;
             }
         }
 
-        bool supported = false;
-        auto fontCatalog = FontCatalog();
-        std::wstring fontTitle;
+        AICLI_LOG(Core, Info, << L"Starting install of " << context.PackageName.value());
 
         try
         {
-            DWRITE_FONT_FILE_TYPE fileType = DWRITE_FONT_FILE_TYPE_UNKNOWN;
-            supported = fontCatalog.IsFontFileSupported(context.PackagePath.value(), fileType);
-            if (!supported)
+            // Install each file from the file info.
+            for (const auto& fontFileInfo : validationResult.FontFileInfos)
             {
-                result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
-                AICLI_LOG(Core, Error, << L"Font file is not supported: " << context.PackagePath.value() << " - " << APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
-                return result;
-            }
-
-            fontTitle = GetFontFileTitle(context.PackagePath.value());
-        }
-        catch (const wil::ResultException& e)
-        {
-            result.HResult = e.GetErrorCode();
-            AICLI_LOG(Core, Error, << L"Failed getting font information: " << e.GetFailureInfo().pszMessage << " - " << e.GetErrorCode());
-
-            // TODO: Rollback
-            return result;
-        }
-
-        // Determine locations for install
-        const auto& installFolderPath = GetFontFileInstallPath(context);
-        const auto& installRegistryPath = GetFontRegistryPath(context);
-        const auto& destinationFilePath = installFolderPath / context.PackagePath.value().filename();
-
-        // Check if already installed
-        //   1) Check registry key existence
-        //   2) Check file existence
-        //   Note presence if forced install.
-
-        // Font install step 1: Copy file to winget package identifiable location.
-        try
-        {
-            AICLI_LOG(Core, Info, << "Moving " << context.PackagePath.value().filename() << " to " << destinationFilePath);
-            if (!std::filesystem::exists(destinationFilePath.parent_path()))
-            {
-                std::filesystem::create_directories(destinationFilePath.parent_path());
-            }
-
-            if (std::filesystem::exists(destinationFilePath))
-            {
-                // Try to remove the file.
-                // Try to remove font resource to avoid file-in-use.
-                RemoveAllFontResources(destinationFilePath);
-
-                // TODO: More robust removal methods (rename folder, mark for deletion on reboot).
-                if (!std::filesystem::remove(destinationFilePath))
+                // Font install step 1: Copy file to winget package identifiable location.
+                AICLI_LOG(Core, Info, << L"Moving " << fontFileInfo.FilePath.wstring() << L" to " << fontFileInfo.InstallPath.wstring());
+                if (!std::filesystem::exists(fontFileInfo.InstallPath.parent_path()))
                 {
-                    AICLI_LOG(Core, Error, << L"Font file already exists and was unable to be removed.");
-                    result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED);
-                    return result;
+                    std::filesystem::create_directories(fontFileInfo.InstallPath.parent_path());
+                }
+
+                // The file should not be present, but if it is, do another attempt to remove it.
+                if (std::filesystem::exists(fontFileInfo.InstallPath))
+                {
+                    // Try to remove font resource to avoid file-in-use.
+                    RemoveAllFontResources(fontFileInfo.InstallPath);
+                    if (!std::filesystem::remove(fontFileInfo.InstallPath))
+                    {
+                        AICLI_LOG(Core, Error, << L"Font file already exists and was unable to be removed.");
+                        THROW_HR(APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED);
+                    }
+                }
+
+                // Note this is a move, not a copy (unless there are many failed attempts to move).
+                AppInstaller::Filesystem::RenameFile(fontFileInfo.FilePath, fontFileInfo.InstallPath);
+
+                // Set Registry key to winget package identifiable location.
+                AICLI_LOG(Core, Info, << L"Adding " << fontFileInfo.Title << " to " << fontFileInfo.InstallPath.wstring());
+                auto hive = context.Scope == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+                auto key = Registry::Key::Create(hive, fontFileInfo.RegistryPath.value());
+                key.SetValue(fontFileInfo.Title, fontFileInfo.InstallPath, REG_SZ);
+
+                // Add Font Resource to the session.
+                const auto& fontsAdded = ::AddFontResource(fontFileInfo.InstallPath.c_str());
+                if (fontsAdded == 0)
+                {
+                    // AddFontResource does not add additional information for us, so we dont know why they were not added,
+                    // only that they were not added. At this point the "install" is successful, but we were not able to
+                    // add the font to the system, which means subsequent adds on session start may also fail, but is not
+                    // guaranteed to fail. We will note it in the log and carry on.
+                    AICLI_LOG(Core, Warning, << L"Failed to add font resource: " << fontFileInfo.InstallPath.wstring());
+                }
+                else
+                {
+                    AICLI_LOG(Core, Info, << L"Added " << fontsAdded << L" fonts to the session.");
                 }
             }
 
-            AppInstaller::Filesystem::RenameFile(context.PackagePath.value(), destinationFilePath);
+            result.HResult = S_OK;
         }
-        catch (const wil::ResultException& e)
+        catch (const std::exception& e)
         {
-            result.HResult = e.GetErrorCode();
-            AICLI_LOG(Core, Error, << L"Failed moving font file: " << e.GetFailureInfo().pszMessage << " - " << e.GetErrorCode());
+            AICLI_LOG(Core, Error, << L"Install failed for " << context.PackageName.value() << L", attempting rollback. Error: " << e.what());
 
-            // TODO: Rollback
-            return result;
-        }
-
-        // Set Registry key to winget package identifiable location.
-        try
-        {
-            AICLI_LOG(Core, Info, << "Adding " << AppInstaller::Utility::ConvertToUTF8(fontTitle) << " to " << AppInstaller::Utility::ConvertToUTF8(installRegistryPath));
-            auto hive = context.Scope == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
-            auto key = Registry::Key::Create(hive, installRegistryPath);
-            key.SetValue(fontTitle, destinationFilePath, REG_SZ);
-        }
-        catch (const wil::ResultException& e)
-        {
-            result.HResult = e.GetErrorCode();
-            AICLI_LOG(Core, Error, << L"Failed setting registry: " << e.GetFailureInfo().pszMessage << " - " << e.GetErrorCode());
-
-            // TODO: Rollback
-            return result;
-        }
-
-        // Add Font Resource to the session.
-        // Commenting out due to AddFontResource linking issue.
-        auto fontsAdded = ::AddFontResource(destinationFilePath.c_str());
-        if (fontsAdded == 0)
-        {
-            // AddFontResource does not add additional information for us, so we dont know why they were not added,
-            // only that they were not added. At this point the "install" is successful, but we were not able to
-            // add the font to the system, which means subsequent adds on session start may also fail, but is not
-            // guaranteed to fail. We will note it in the log and carry on.
-            AICLI_LOG(Core, Warning, << L"Failed to add font resource: " << destinationFilePath);
-        }
-        else
-        {
-            AICLI_LOG(Core, Info, << L"Added " << fontsAdded << " fonts to the session.");
-
-            // Notifying the system of a font change is optional, as we do not want to slam the system with
-            // messages when installing a large number of fonts. This is used for a single font file install.
-            if (notifySystem)
+            try
             {
-                // Notifying the system of a font change is best-effort and does not affect the install state.
-                LOG_IF_FAILED(NotifyFontChange());
+                // Rollback. In this case, rollback is uninstall, which should remove any partial installation.
+                // This is best-effort.
+                auto rollbackResult = UninstallFontPackage(context);
+                if (rollbackResult.Result() == FontResult::Success)
+                {
+                    AICLI_LOG(Core, Info, << L"Rollback for " << context.PackageName.value() << L" successful.");
+                }
+                else
+                {
+                    AICLI_LOG(Core, Error, << L"Rollback for " << context.PackageName.value() << L" failed: " << rollbackResult.HResult);
+                }
             }
+            CATCH_LOG();
+
+            result.HResult = APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED;
         }
 
+        // Regardless of the result there's likely some changes that occurred.
+        LOG_IF_FAILED(NotifyFontChange());
         return result;
     }
 
@@ -649,14 +651,14 @@ namespace AppInstaller::Fonts
                 // Delete the key
                 if (!Registry::Key::DeleteTree(hive, installRegistryPath))
                 {
-                    AICLI_LOG(Core, Warning, << L"Failed removing registry tree " << AppInstaller::Utility::ConvertToUTF8(installRegistryPath));
+                    AICLI_LOG(Core, Warning, << L"Failed removing registry tree " << ConvertToUTF8(installRegistryPath));
                 }
             }
         }
         catch (const wil::ResultException& e)
         {
             // For uninstall we will log the error and continue trying to remove it, since we have partial remove and are in an unknown state.
-            AICLI_LOG(Core, Error, << L"Failed removing fonts in the registry: " << e.GetFailureInfo().pszMessage << " - " << e.GetErrorCode());
+            AICLI_LOG(Core, Error, << L"Failed removing fonts in the registry: " << e.GetFailureInfo().pszMessage << L" - " << e.GetErrorCode());
         }
 
         // Remove the font files in the font folder.
@@ -676,6 +678,8 @@ namespace AppInstaller::Fonts
             }
         }
 
+        // Notify system of font changes.
+        LOG_IF_FAILED(NotifyFontChange());
         return result;
     }
 
@@ -818,7 +822,7 @@ namespace AppInstaller::Fonts
             return {};
         }
 
-        std::string value = AppInstaller::Utility::ConvertToUTF8(GetLocalizedStringFromFont(fontVersion));
+        std::string value = ConvertToUTF8(GetLocalizedStringFromFont(fontVersion));
         Utility::OpenTypeFontVersion openTypeFontVersion{ value };
         return openTypeFontVersion;
     }
@@ -895,7 +899,7 @@ namespace AppInstaller::Fonts
                 auto subkeyKey = subkey.Open();
                 if (subkeyName == s_FontsWinGetPrefix)
                 {
-                    // Assum all subkeys are WinGet Packages
+                    // Assume all subkeys are WinGet Packages
                     for (const auto& packageSubKey : subkeyKey)
                     {
                         auto wingetPackageSubKey = packageSubKey.Open();
@@ -910,6 +914,7 @@ namespace AppInstaller::Fonts
                             auto context = FontContext();
                             context.Scope = scope;
                             context.InstallerSource = InstallerSource::WinGet;
+                            context.PackageName = ConvertToUTF16(packageSubKey.Name());
                             std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
                             auto fontFile = CreateFontFileInfo(context, filePath, ConvertToUTF16(wingetPackageValue.Name()));
                             fontFiles.push_back(std::move(fontFile));
