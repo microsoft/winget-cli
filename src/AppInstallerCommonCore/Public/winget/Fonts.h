@@ -99,21 +99,21 @@ namespace AppInstaller::Fonts
 
     std::wstring GetFontRegistryPath(const FontContext& context);
 
+    std::filesystem::path GetRootFontPath(Manifest::ScopeEnum scope);
+
     std::filesystem::path GetFontFileInstallPath(const FontContext& context);
 
     std::wstring GetFontFileTitle(const std::filesystem::path& fontFilePath);
 
     std::vector<FontFileInfo> GetInstalledFontFiles();
 
-    FontFileInfo CreateFontFileInfo(const FontContext& context, const std::filesystem::path& filePath, const std::optional<std::wstring>& title);
+    FontFileInfo CreateFontFileInfo(const FontContext& context, const std::filesystem::path& filePath, const std::optional<std::wstring>& title = std::nullopt);
 
     FontValidationResult ValidateFontPackage(FontContext& context);
 
     FontOperationResult InstallFontPackage(FontContext& context);
 
     FontOperationResult UninstallFontPackage(FontContext& context);
-
-    FontOperationResult UninstallFontFile(FontContext& context, const bool notifySystem = false);
 
     struct FontCatalog
     {

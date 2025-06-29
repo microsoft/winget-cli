@@ -3404,6 +3404,12 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Font file not found.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED" xml:space="preserve">
-    <value>Font uninstall failed.</value>
+    <value>Font uninstall failed. The font may not be in a good state. Try uninstalling after a restart.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED" xml:space="preserve">
+    <value>"Font validation failed."</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED" xml:space="preserve">
+    <value>Font rollback failed. The font may not be in a good state. Try uninstalling after a restart.</value>
   </data>
 </root>

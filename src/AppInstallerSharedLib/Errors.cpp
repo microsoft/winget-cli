@@ -226,7 +226,9 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED, "Font file is not supported and cannot be installed."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED, "Font already installed."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND, "Font file not found."),
-            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED, "Font uninstall failed."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED, "Font uninstall failed. The font may not be in a good state. Try uninstalling after a restart."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED, "Font validation failed."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED, "Font rollback failed. The font may not be in a good state. Try uninstalling after a restart."),
 
             // Install errors.
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, "Application is currently running. Exit the application then try again."),
