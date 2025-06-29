@@ -52,6 +52,19 @@ TEST_CASE("ValidFontFile", "[fonts]")
     REQUIRE(fontFileType == DWRITE_FONT_FILE_TYPE::DWRITE_FONT_FILE_TYPE_TRUETYPE);
 }
 
+TEST_CASE("GetFontFileInfo", "[fonts]")
+{
+    TestDataFile testFont(s_FontFile);
+
+    auto context = FontContext();
+    context.Scope = ScopeEnum::User;
+    context.PackageName = L"TestPackage";
+    context.InstallerSource = InstallerSource::WinGet;
+    const auto& fontFileInfo = CreateFontFileInfo(context, testFont.GetPath(), std::nullopt);
+
+    REQUIRE(fontFileInfo.Status == FontStatus::Absent);
+}
+
 TEST_CASE("InvalidFontFile", "[fonts]")
 {
     TestDataFile testFont(s_InvalidFontFile);
@@ -87,12 +100,46 @@ TEST_CASE("GetInstalledFontFiles", "[fonts]")
     REQUIRE(fontFiles.size() > 0);
 }
 
+TEST_CASE("ValidateInvalidFontPackage", "[fonts]")
+{
+    TestDataFile testFont(s_InvalidFontFile);
+
+    auto context = FontContext();
+    context.Scope = ScopeEnum::User;
+    context.PackageName = L"TestPackage";
+    context.InstallerSource = InstallerSource::WinGet;
+    context.PackageFiles = std::vector<std::filesystem::path>();
+    context.PackageFiles.value().push_back(testFont.GetPath());
+    const auto& fontValidationResult = ValidateFontPackage(context);
+    REQUIRE(fontValidationResult.HResult == S_OK);
+    REQUIRE(fontValidationResult.Result == FontResult::Success);
+    REQUIRE(fontValidationResult.HasUnsupportedFonts == true);
+    REQUIRE(fontValidationResult.Status == FontStatus::Absent);
+}
+
+TEST_CASE("ValidateValidFontPackage", "[fonts]")
+{
+    TestDataFile testFont(s_FontFile);
+
+    auto context = FontContext();
+    context.Scope = ScopeEnum::User;
+    context.PackageName = L"TestPackage";
+    context.InstallerSource = InstallerSource::WinGet;
+    context.PackageFiles = std::vector<std::filesystem::path>();
+    context.PackageFiles.value().push_back(testFont.GetPath());
+    const auto& fontValidationResult = ValidateFontPackage(context);
+    REQUIRE(fontValidationResult.HResult == S_OK);
+    REQUIRE(fontValidationResult.Result == FontResult::Success);
+    REQUIRE(fontValidationResult.HasUnsupportedFonts == false);
+    REQUIRE(fontValidationResult.Status == FontStatus::Absent);
+}
+
 TEST_CASE("InstallInvalidFontFile", "[fonts]")
 {
     TestDataFile testFont(s_InvalidFontFile);
 
     auto context = FontContext();
-    context.FilePath = testFont.GetPath();
+    context.PackagePath = testFont.GetPath();
     context.PackageName = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::User;
@@ -131,12 +178,13 @@ TEST_CASE("InstallValidFontFile", "[fonts]")
     TestDataFile testFont(testFontCopyPath);
 
     auto context = FontContext();
-    context.FilePath = testFont.GetPath();
+    context.PackagePath = testFont.GetPath();
     context.PackageName = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::User;
+    context.Force = true;
 
-    auto result = InstallFontFile(context, true, true);
+    auto result = InstallFontFile(context, true);
     REQUIRE(result.HResult == S_OK);
 
     result = UninstallFontPackage(context);
@@ -184,12 +232,13 @@ TEST_CASE("InstallValidFontFileMachine", "[fonts]")
     TestDataFile testFont(testFontCopyPath);
 
     auto context = FontContext();
-    context.FilePath = testFont.GetPath();
+    context.PackagePath = testFont.GetPath();
     context.PackageName = L"TestPackage";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::Machine;
+    context.Force = true;
 
-    auto result = InstallFontFile(context, true, true);
+    auto result = InstallFontFile(context, true);
     REQUIRE(result.HResult == S_OK);
 
     result = UninstallFontPackage(context);

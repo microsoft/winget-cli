@@ -22,6 +22,8 @@ namespace AppInstaller::Fonts
     constexpr std::wstring_view s_FontsPathSubkey = L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts";
     constexpr std::wstring_view s_FontsUserInstallFolder = L"Microsoft\\Windows\\Fonts";
     constexpr std::wstring_view s_TrueType = L" (TrueType)";
+    constexpr std::wstring_view s_UnknownInstallerPrefixUser = L"U\\FONTS\\";
+    constexpr std::wstring_view s_UnknownInstallerPrefixMachine = L"M\\FONTS\\";
 
     namespace
     {
@@ -89,6 +91,50 @@ namespace AppInstaller::Fonts
             AICLI_LOG(Core, Info, << L"Notified system of font change.");
             return S_OK;
         }
+
+        // Checks the registry path for the file specified, and returns the key value if it finds one.
+        std::optional<std::wstring> CheckRegistryForFontFileReference(const std::wstring& registryPath, const std::filesystem::path& filePath, Manifest::ScopeEnum scope)
+        {
+            try
+            {
+                const auto& hive = scope == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+                const auto& key = Registry::Key::OpenIfExists(hive, registryPath, 0UL, KEY_READ);
+                if (key)
+                {
+                    // Check for the file being present in this key.
+                    for (const auto& valueRef : key.Values())
+                    {
+                        const auto& value = valueRef.Value();
+                        if (!value.has_value() || (value.value().GetType() != Registry::Value::Type::String))
+                        {
+                            continue;
+                        }
+                        const auto& valueName = ConvertToUTF16(valueRef.Name());
+                        const std::filesystem::path& valuePath = { value->GetValue<Registry::Value::Type::String>() };
+                        if (valuePath.is_relative())
+                        {
+                            // Relative value is OK, just compare the filenames.
+                            // We will assume this is in the standard font paths.
+                            if (valuePath.filename() == filePath.filename())
+                            {
+                                return valueName;
+                            }
+                        }
+                        else
+                        {
+                            if (valuePath == filePath)
+                            {
+                                return valueName;
+                            }
+                        }
+                    }
+                }
+            }
+            CATCH_LOG();
+
+            return std::nullopt;
+        }
+
     }
 
     FontResult FontOperationResult::Result()
@@ -162,8 +208,9 @@ namespace AppInstaller::Fonts
             break;
         case InstallerSource::UWP:
             // UWP path could be anywhere, but is probably in the single instanced store.
-            // Since we have no intended support to mess with UWP fonts, we will assume it
-            // is in the default location.
+            // Since the UWP app is what determines the install path, we will check the
+            // registry for an install path and use the one they specify.
+
             break;
         case InstallerSource::WinGet:
             // WinGet path adds the WinGet prefix and the package name
@@ -184,61 +231,222 @@ namespace AppInstaller::Fonts
         return path;
     }
 
-    // Creates font file info given a path, title, package name, scope and installer source.
-    FontFileInfo CreateFontFileInfo(const FontContext& context)
+    // Creates font file info used for install, validation, and enumeration.
+    FontFileInfo CreateFontFileInfo(const FontContext& context, const std::filesystem::path& filePath, const std::optional<std::wstring>& title)
     {
-        auto fontFile = FontFileInfo();
-        fontFile.Title = context.Title.value_or(L"");
-        fontFile.FilePath = context.FilePath.value_or(L"");
-        fontFile.PackageFullName = context.PackageName.value_or(L"");
-        fontFile.InstallerSource = context.InstallerSource;
-        fontFile.Scope = context.Scope;
+        auto fileInfo = FontFileInfo();
+        fileInfo.FilePath = filePath;
+        fileInfo.PackageFullName = context.PackageName.value_or(L"");
+        fileInfo.InstallerSource = context.InstallerSource;
+        fileInfo.Scope = context.Scope;
+        if (title.has_value())
+        {
+            fileInfo.Title = title.value();
+        }
 
         auto fontCatalog = FontCatalog();
 
-        switch (fontFile.InstallerSource)
+        switch (fileInfo.InstallerSource)
         {
         case InstallerSource::UWP:
+
+            // PackageName must be provided for UWP packages.
+            if (fileInfo.PackageFullName.value().empty())
             {
-                const auto& sepPosition = fontFile.PackageFullName.value_or(L"").find('_');
-                fontFile.PackageName = fontFile.PackageFullName.value_or(L"").substr(0, sepPosition);
+                throw std::logic_error("UWP Font packages must provide a package full name.");
             }
+
+            {
+                const auto& sepPosition = fileInfo.PackageFullName.value().find('_');
+                fileInfo.PackageName = fileInfo.PackageFullName.value().substr(0, sepPosition);
+            }
+
             break;
 
         case InstallerSource::WinGet:
+
+            // PackageName must be provided for WinGet Packages.
+            if (fileInfo.PackageFullName.value().empty())
+            {
+                throw std::logic_error("WinGet Font packages must provide a package full name.");
+            }
+
             break;
 
         case InstallerSource::Unknown:
+
+            // For unknown installers, give them a name that reflects this so
+            // they can be referenced.
+            // We will assume the title is provided for these, since we do
+            // not install them, they must already exist on the system or
+            // have a reference in the registry.
+            if (fileInfo.PackageFullName.value().empty())
+            {
+                if (fileInfo.Scope == Manifest::ScopeEnum::Machine)
+                {
+                    fileInfo.PackageFullName = s_UnknownInstallerPrefixMachine.data() + filePath.filename().wstring();
+                }
+                else
+                {
+                    fileInfo.PackageFullName = s_UnknownInstallerPrefixUser.data() + filePath.filename().wstring();
+                }
+            }
+
             break;
         }
 
-        fontFile.RegistryPath = GetFontRegistryPath(context);
-
-        if (fontFile.FilePath.is_relative())
+        // For font file paths in the registry, we may have a relative filename (becuase the path is assumed).
+        if (fileInfo.FilePath.is_relative())
         {
             // Relative path is assumed to be relative to the default location for the scope.
-            auto fullPath = fontCatalog.GetRootFontPath(fontFile.Scope);
-            fullPath /= fontFile.FilePath;
-            fontFile.FilePath = std::move(fullPath);
+            // We are assuming that a relative file path input refers to an already-installed file.
+            auto fullPath = fontCatalog.GetRootFontPath(fileInfo.Scope);
+            fullPath /= fileInfo.FilePath;
+            fileInfo.FilePath = std::move(fullPath);
         }
 
-        // The registry could refer to a file that is not present.
-        if (std::filesystem::exists(fontFile.FilePath))
+        // Get information about the font file itself.
+        if (std::filesystem::exists(fileInfo.FilePath))
         {
-            fontFile.WinGetSupported = fontCatalog.IsFontFileSupported(fontFile.FilePath, fontFile.FileType);
-            fontFile.Status = FontStatus::OK;
+            fileInfo.WinGetSupported = fontCatalog.IsFontFileSupported(fileInfo.FilePath, fileInfo.FileType);
+
+            if (fileInfo.WinGetSupported && fileInfo.Title.empty())
+            {
+                try
+                {
+                    // The GetFontTitle call can fail with E_INVALIDARG if the font file is located in
+                    // a subdirectory of the system Fonts folder. The system does not seem to expect
+                    // font files to be in subfolders and the shell methods to get the item fail to
+                    // resolve the path correctly.
+                    fileInfo.Title = GetFontFileTitle(fileInfo.FilePath);
+                }
+                CATCH_LOG();
+            }
         }
         else
         {
-            fontFile.WinGetSupported = false;
-            fontFile.FileType = DWRITE_FONT_FILE_TYPE_UNKNOWN;
-            fontFile.Status = FontStatus::Absent;
+            fileInfo.WinGetSupported = false;
+            fileInfo.FileType = DWRITE_FONT_FILE_TYPE_UNKNOWN;
         }
 
-        return fontFile;
+        if (fileInfo.Title.empty())
+        {
+            // If the title is still empty (such as failure to set it from the File), use the Filename
+            fileInfo.Title = fileInfo.FilePath.filename().wstring();
+        }
+
+        // This is the expected full registry path of the font file.
+        fileInfo.RegistryPath = GetFontRegistryPath(context);
+
+        // This is the expected full install path of the font file, were it to be installed.
+        if (fileInfo.InstallerSource != InstallerSource::UWP)
+        {
+            fileInfo.InstallPath = GetFontFileInstallPath(context) / fileInfo.FilePath.filename();
+        }
+        else
+        {
+            // For UWP it is the UWP package that decides where the font is to be, which we cannot
+            // know and wouldn't ever be trying to install, so this scenario must be a query for
+            // information. If it is a query, then the install path is the file path.
+            fileInfo.InstallPath = fileInfo.FilePath;
+        }
+
+        // Check whether the install path is in the registry.
+        const auto& registryTitle = CheckRegistryForFontFileReference(fileInfo.RegistryPath.value(), fileInfo.InstallPath, fileInfo.Scope);
+
+        // Use the registry title as the title if we still dont' know.
+        if (fileInfo.Title.empty())
+        {
+            if (registryTitle.has_value())
+            {
+                fileInfo.Title = registryTitle.value();
+            }
+            else
+            {
+                // If the title is still empty, use the Filename
+                fileInfo.Title = fileInfo.FilePath.filename().wstring();
+            }
+        }
+
+        // Confirm install states
+        fileInfo.IsFontFileInstalled = std::filesystem::exists(fileInfo.InstallPath) ? true : false;
+        fileInfo.IsFontFileRegistered = registryTitle.has_value() ? true : false;
+
+        // Set status
+        if (fileInfo.IsFontFileInstalled && fileInfo.IsFontFileRegistered)
+        {
+            fileInfo.Status = FontStatus::OK;
+        }
+        else if (fileInfo.IsFontFileInstalled || fileInfo.IsFontFileRegistered)
+        {
+            fileInfo.Status = FontStatus::Corrupt;
+        }
+        else
+        {
+            fileInfo.Status = FontStatus::Absent;
+        }
+
+        return fileInfo;
     }
 
-    FontOperationResult InstallFontFile(FontContext& context, const bool notifySystem, const bool force)
+    FontValidationResult ValidateFontPackage(FontContext& context)
+    {
+        auto result = FontValidationResult();
+
+        try
+        {
+            if (context.PackageFiles.has_value())
+            {
+                auto fontFileInfos = std::vector<FontFileInfo>();
+
+                // Create font file info for each package file
+                for (const auto& file : context.PackageFiles.value())
+                {
+                    fontFileInfos.push_back(CreateFontFileInfo(context, file, std::nullopt));
+                }
+
+                // We create an overall status for the validation with the following determination:
+                // If ALL of the files are OK, the package is OK.
+                // If ALL of the files are Absent, the package is Absent.
+                // If there is any combination, the package is Corrupt.
+                // If ALL of the files are Absent, and any files are not supported, the package is Invalid.
+                // If Package is not OK and any files are unsupported then the package is Invalid.
+                for (const auto& fontFileInfo : fontFileInfos)
+                {
+                    if (!fontFileInfo.WinGetSupported)
+                    {
+                        result.HasUnsupportedFonts = true;
+                    }
+
+                    if (fontFileInfo.Status != result.Status)
+                    {
+                        if (result.Status == FontStatus::Unknown)
+                        {
+                            // This is the first status we've seen, make it the default.
+                            result.Status = fontFileInfo.Status;
+                        }
+                        else
+                        {
+                            // Previous status now differs from current status, package is corrupt.
+                            result.Status = FontStatus::Corrupt;
+                        }
+                    }
+                }
+            }
+
+            result.Result = FontResult::Success;
+        }
+        catch (const wil::ResultException& e)
+        {
+            result.HResult = e.GetErrorCode();
+            result.Result = FontResult::Error;
+            AICLI_LOG(Core, Error, << L"Failed validating font package: " << e.GetFailureInfo().pszMessage << " - " << e.GetErrorCode());
+        }
+
+        return result;
+    }
+
+    FontOperationResult InstallFontFile(FontContext& context, const bool notifySystem)
     {
         FontOperationResult result;
 
@@ -252,16 +460,16 @@ namespace AppInstaller::Fonts
             throw std::invalid_argument("Non-empty Package Name is required for font install.");
         }
 
-        if (!context.FilePath.has_value() || !std::filesystem::exists(context.FilePath.value()))
+        if (!context.PackagePath.has_value() || !std::filesystem::exists(context.PackagePath.value()))
         {
             result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND);
-            AICLI_LOG(Core, Error, << L"Font file was not found: " << context.FilePath.value_or(L"") << " - " << APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND);
+            AICLI_LOG(Core, Error, << L"Font file was not found: " << context.PackagePath.value_or(L"") << " - " << result.HResult);
             return result;
         }
 
-        AICLI_LOG(Core, Info, << "Starting install of " << context.FilePath.value());
+        AICLI_LOG(Core, Info, << "Starting install of " << context.PackagePath.value());
 
-        if (force)
+        if (context.Force)
         {
             // Force install of a font can have problems because if the font is already there then it
             // may be in use. The scenarios for using force is if a prior install attempt failed, so
@@ -282,15 +490,15 @@ namespace AppInstaller::Fonts
         try
         {
             DWRITE_FONT_FILE_TYPE fileType = DWRITE_FONT_FILE_TYPE_UNKNOWN;
-            supported = fontCatalog.IsFontFileSupported(context.FilePath.value(), fileType);
+            supported = fontCatalog.IsFontFileSupported(context.PackagePath.value(), fileType);
             if (!supported)
             {
                 result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
-                AICLI_LOG(Core, Error, << L"Font file is not supported: " << context.FilePath.value() << " - " << APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
+                AICLI_LOG(Core, Error, << L"Font file is not supported: " << context.PackagePath.value() << " - " << APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
                 return result;
             }
 
-            fontTitle = GetFontFileTitle(context.FilePath.value());
+            fontTitle = GetFontFileTitle(context.PackagePath.value());
         }
         catch (const wil::ResultException& e)
         {
@@ -304,7 +512,7 @@ namespace AppInstaller::Fonts
         // Determine locations for install
         const auto& installFolderPath = GetFontFileInstallPath(context);
         const auto& installRegistryPath = GetFontRegistryPath(context);
-        const auto& destinationFilePath = installFolderPath / context.FilePath.value().filename();
+        const auto& destinationFilePath = installFolderPath / context.PackagePath.value().filename();
 
         // Check if already installed
         //   1) Check registry key existence
@@ -314,7 +522,7 @@ namespace AppInstaller::Fonts
         // Font install step 1: Copy file to winget package identifiable location.
         try
         {
-            AICLI_LOG(Core, Info, << "Moving " << context.FilePath.value().filename() << " to " << destinationFilePath);
+            AICLI_LOG(Core, Info, << "Moving " << context.PackagePath.value().filename() << " to " << destinationFilePath);
             if (!std::filesystem::exists(destinationFilePath.parent_path()))
             {
                 std::filesystem::create_directories(destinationFilePath.parent_path());
@@ -335,7 +543,7 @@ namespace AppInstaller::Fonts
                 }
             }
 
-            AppInstaller::Filesystem::RenameFile(context.FilePath.value(), destinationFilePath);
+            AppInstaller::Filesystem::RenameFile(context.PackagePath.value(), destinationFilePath);
         }
         catch (const wil::ResultException& e)
         {
@@ -401,7 +609,7 @@ namespace AppInstaller::Fonts
 
         if (!context.PackageName.has_value() || context.PackageName.value().empty())
         {
-            throw std::invalid_argument("Non-empty Package Name is required for font install.");
+            throw std::invalid_argument("Non-empty Package Name is required for font uninstall.");
         }
 
         const auto& installFolderPath = GetFontFileInstallPath(context);
@@ -410,11 +618,10 @@ namespace AppInstaller::Fonts
         try
         {
             auto hive = context.Scope == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
-            auto wingetRoot = Registry::Key::OpenIfExists(hive, installRegistryPath, 0ul, KEY_ALL_ACCESS);
             auto key = Registry::Key::OpenIfExists(hive, installRegistryPath, 0ul, KEY_ALL_ACCESS);
 
             // Remove all fonts for this package key.
-            if (wingetRoot && key)
+            if (key)
             {
                 // Assume all values in this key are fonts related to this package.
                 for (const auto& fontEntry : key.Values())
@@ -450,7 +657,6 @@ namespace AppInstaller::Fonts
         {
             // For uninstall we will log the error and continue trying to remove it, since we have partial remove and are in an unknown state.
             AICLI_LOG(Core, Error, << L"Failed removing fonts in the registry: " << e.GetFailureInfo().pszMessage << " - " << e.GetErrorCode());
-            result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED);
         }
 
         // Remove the font files in the font folder.
@@ -461,7 +667,7 @@ namespace AppInstaller::Fonts
             {
                 std::filesystem::remove_all(installFolderPath);
 
-                // TODO: Add robustness for removing files.
+                // TODO: Add robustness for removing files-in-use.
             }
             catch (const std::exception& e)
             {
@@ -648,12 +854,18 @@ namespace AppInstaller::Fonts
 
     std::wstring GetFontFileTitle(const std::filesystem::path& fontFilePath)
     {
+        // This code can fail in a number of ways, including if the file isn't actually
+        // a font file or does not have a title.
         wil::com_ptr<IPropertyStore> pPropertyStore;
         THROW_IF_FAILED(SHGetPropertyStoreFromParsingName(fontFilePath.c_str(), nullptr, GPS_DEFAULT, IID_PPV_ARGS(&pPropertyStore)));
         PROPVARIANT prop;
         PropVariantInit(&prop);
         THROW_IF_FAILED(pPropertyStore->GetValue(PKEY_Title, &prop));
-        std::wstring title = prop.pwszVal;
+        std::wstring title;
+        if (prop.pwszVal)
+        {
+            title = prop.pwszVal;
+        }
         THROW_IF_FAILED(PropVariantClear(&prop));
         return title;
     }
@@ -684,6 +896,25 @@ namespace AppInstaller::Fonts
                 if (subkeyName == s_FontsWinGetPrefix)
                 {
                     // Assum all subkeys are WinGet Packages
+                    for (const auto& packageSubKey : subkeyKey)
+                    {
+                        auto wingetPackageSubKey = packageSubKey.Open();
+                        for (const auto& wingetPackageValue : wingetPackageSubKey.Values())
+                        {
+                            auto value = wingetPackageValue.Value();
+                            if (!value.has_value() || (value.value().GetType() != Registry::Value::Type::String))
+                            {
+                                continue;
+                            }
+
+                            auto context = FontContext();
+                            context.Scope = scope;
+                            context.InstallerSource = InstallerSource::WinGet;
+                            std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
+                            auto fontFile = CreateFontFileInfo(context, filePath, ConvertToUTF16(wingetPackageValue.Name()));
+                            fontFiles.push_back(std::move(fontFile));
+                        }
+                    }
                 }
                 else
                 {
@@ -697,11 +928,11 @@ namespace AppInstaller::Fonts
                         }
 
                         auto context = FontContext();
-                        context.Title = ConvertToUTF16(uapPackageValue.Name());
                         context.Scope = scope;
                         context.InstallerSource = InstallerSource::UWP;
-                        context.FilePath = { value->GetValue<Registry::Value::Type::String>() };
-                        auto fontFile = CreateFontFileInfo(context);
+                        context.PackageName = subkeyName;
+                        std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
+                        auto fontFile = CreateFontFileInfo(context, filePath, ConvertToUTF16(uapPackageValue.Name()));
                         fontFiles.push_back(std::move(fontFile));
                     }
                 }
@@ -717,11 +948,10 @@ namespace AppInstaller::Fonts
                 }
 
                 auto context = FontContext();
-                context.Title = ConvertToUTF16(rootValue.Name());
                 context.Scope = scope;
                 context.InstallerSource = InstallerSource::Unknown;
-                context.FilePath = { value->GetValue<Registry::Value::Type::String>() };
-                auto fontFile = CreateFontFileInfo(context);
+                std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
+                auto fontFile = CreateFontFileInfo(context, filePath, ConvertToUTF16(rootValue.Name()));
                 fontFiles.push_back(std::move(fontFile));
             }
         }
