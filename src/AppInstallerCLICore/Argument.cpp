@@ -475,7 +475,7 @@ namespace AppInstaller::CLI
         case Args::Type::Family:
             return Argument{ type, Resource::String::FontFamilyNameArgumentDescription, ArgumentType::Positional, false };
         case Args::Type::Files:
-            return Argument{ type, Resource::String::FontFamilyNameArgumentDescription, ArgumentType::Flag, false };
+            return Argument{ type, Resource::String::FontFilesArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::Correlation:
             return Argument{ type, Resource::String::CorrelationArgumentDescription, ArgumentType::Standard, Argument::Visibility::Hidden };
         default:
