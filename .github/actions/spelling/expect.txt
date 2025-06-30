@@ -599,7 +599,7 @@ winreg
 winrtact
 winstring
 WMI
-Wnd
+wnd
 WNDCLASS
 WNDCLASSEX
 workaround

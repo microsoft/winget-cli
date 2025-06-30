@@ -113,7 +113,7 @@ namespace AppInstaller::CLI
 
             Json::Value result{ Json::ValueType::objectValue };
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
+#ifndef USE_PROD_CLSIDS
             result["executable"] = "wingetdev";
 #else
             result["executable"] = "winget";

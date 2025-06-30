@@ -24,7 +24,10 @@
 ## Building the client
 
 1. Clone the repository
-2. Configure your system using the [configuration file](../.config/configuration.winget) in the repository. To run the configuration, use `winget configure .config/configuration.winget` from the project root so relative paths resolve correctly.
+2. Configure your system using the [configuration file](../.config/configuration.winget) in the repository. Run one of the following configurations from the project root so relative paths resolve correctly:
+   - For VS Community: `winget configure .config/configuration.winget`
+   - For VS Professional: `winget configure .config/configuration.vsProfessional.winget`
+   - For VS Enterprise: `winget configure .config/configuration.vsEnterprise.winget`
 3. Run `vcpkg integrate install` from the Developer Command Prompt / Developer PowerShell for VS 2022. This is a one-time setup step until the configuration file in step 2 is updated to work with vcpkg setup.
 
 Open `winget-cli\src\AppInstallerCLI.sln` in Visual Studio and build. We currently only build using the solution; command-line methods of building a VS solution should work as well.

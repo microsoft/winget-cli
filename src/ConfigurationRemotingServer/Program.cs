@@ -9,7 +9,6 @@ using System.Text.Json.Serialization;
 using Microsoft.Management.Configuration;
 using Microsoft.Management.Configuration.Processor;
 using Microsoft.Management.Configuration.Processor.Helpers;
-using Microsoft.Win32;
 using WinRT;
 using IConfigurationSetProcessorFactory = global::Microsoft.Management.Configuration.IConfigurationSetProcessorFactory;
 
@@ -82,16 +81,8 @@ namespace ConfigurationRemotingServer
             string staticsCallback = args[1];
 
             // Listen for setting change message and update PATH if needed.
-            HiddenForm hiddenForm = new HiddenForm();
-            var settingChangedListenerThread = new Thread(
-                () =>
-                {
-                    SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
-                    Application.Run(hiddenForm);
-                    SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
-                });
-
-            settingChangedListenerThread.Start();
+            EnvironmentChangeListener.EnvironmentChanged += OnEnvironmentChanged;
+            EnvironmentChangeListener environmentChangeListener = new EnvironmentChangeListener();
 
             try
             {
@@ -168,23 +159,11 @@ namespace ConfigurationRemotingServer
             }
             finally
             {
-                hiddenForm.BeginInvoke(new Action(() => { hiddenForm.Close(); }));
-                settingChangedListenerThread.Join();
+                environmentChangeListener.Stop();
             }
         }
 
-        private class HiddenForm : Form
-        {
-            public HiddenForm()
-            {
-                this.Width = 0;
-                this.Height = 0;
-                this.Visible = false;
-                this.Load += (sender, e) => this.Hide();
-            }
-        }
-
-        private static void OnUserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+        private static void OnEnvironmentChanged()
         {
             PathEnvironmentVariableHandler.UpdatePath();
         }
