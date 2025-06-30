@@ -38,13 +38,13 @@ namespace AppInstaller::CLI::Workflow
 
         struct InstalledFontFilesTableLine
         {
-            InstalledFontFilesTableLine(Utility::LocIndString title, Utility::LocIndString packageName, Utility::LocIndString winGetInstalled, std::filesystem::path filePath)
-                : Title(title), PackageName(packageName), WinGetInstalled(winGetInstalled), FilePath(filePath) {
+            InstalledFontFilesTableLine(Utility::LocIndString title, Utility::LocIndString packageName, Resource::LocString fontStatus, std::filesystem::path filePath)
+                : Title(title), PackageName(packageName), FontStatus(fontStatus), FilePath(filePath) {
             }
 
             Utility::LocIndString Title;
             Utility::LocIndString PackageName;
-            Utility::LocIndString WinGetInstalled;
+            Resource::LocString FontStatus;
             std::filesystem::path FilePath;
         };
 
@@ -81,7 +81,7 @@ namespace AppInstaller::CLI::Workflow
 
         void OutputInstalledFontFilesTable(Execution::Context& context, const std::vector<InstalledFontFilesTableLine>& lines)
         {
-            Execution::TableOutput<4> table(context.Reporter, { Resource::String::FontTitle, Resource::String::FontPackage, Resource::String::FontWinGetSupported, Resource::String::FontFilePaths });
+            Execution::TableOutput<4> table(context.Reporter, { Resource::String::FontTitle, Resource::String::FontPackage, Resource::String::FontStatus, Resource::String::FontFilePaths });
 
             bool anonymizePath = Settings::User().Get<Settings::Setting::AnonymizePathForDisplay>();
 
@@ -92,7 +92,7 @@ namespace AppInstaller::CLI::Workflow
                     AppInstaller::Runtime::ReplaceProfilePathsWithEnvironmentVariable(line.FilePath);
                 }
 
-                table.OutputLine({ line.Title, line.PackageName, line.WinGetInstalled, line.FilePath.u8string() });
+                table.OutputLine({ line.Title, line.PackageName, line.FontStatus, line.FilePath.u8string() });
             }
 
             table.Complete();
@@ -144,11 +144,24 @@ namespace AppInstaller::CLI::Workflow
             std::vector<InstalledFontFilesTableLine> lines;
             for (const auto& fontFile : fontFiles)
             {
+                Resource::LocString status;
+                switch (fontFile.Status)
+                {
+                case FontStatus::OK:
+                    status = Resource::LocString(Resource::String::FontStatusOK);
+                    break;
+                case FontStatus::Corrupt:
+                    status = Resource::LocString(Resource::String::FontStatusCorrupt);
+                    break;
+                default:
+                    status = Resource::LocString(Resource::String::FontStatusUnknown);
+                    break;
+                }
 
                 InstalledFontFilesTableLine line(
                     Utility::LocIndString(Utility::ConvertToUTF8(fontFile.Title)),
                     Utility::LocIndString(Utility::ConvertToUTF8(fontFile.PackageIdentifier.value_or(L" "))),
-                    Utility::LocIndString(Utility::ConvertToUTF8(fontFile.Status == Fonts::FontStatus::OK ? L"OK" : L"Missing")),
+                    status,
                     fontFile.FilePath.u8string());
 
                 lines.push_back(std::move(line));
