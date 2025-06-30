@@ -3430,4 +3430,18 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="FontUninstallCommandShortDescription" xml:space="preserve">
     <value>Uninstall a font package</value>
   </data>
+  <data name="FontStatusOK" xml:space="preserve">
+    <value>OK</value>
+    <comment>"OK" means the font is in a good healthy state</comment>
+  </data>
+  <data name="FontStatusCorrupt" xml:space="preserve">
+    <value>Corrupt</value>
+    <comment>"Corrupt" refers to an install that is in a corrupted or bad state, and needs repair.</comment>
+  </data>
+  <data name="FontStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="FontStatusUnknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
 </root>
