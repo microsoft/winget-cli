@@ -528,7 +528,6 @@ STRRET
 stylecop
 subdir
 subkey
-subkeys
 Sudarshan
 superstring
 swgus
