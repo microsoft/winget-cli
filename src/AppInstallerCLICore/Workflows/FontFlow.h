@@ -16,4 +16,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Manifest, Scope, Rename, Location
     // Outputs: None
     void FontInstallImpl(Execution::Context& context);
+
+    // Uninstalls the font package.
+    // Required Args: None
+    // Inputs: Manifest, Scope, Rename, Location
+    // Outputs: None
+    void FontUninstallImpl(Execution::Context& context);
 }

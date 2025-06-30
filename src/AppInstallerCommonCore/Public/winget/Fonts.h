@@ -65,8 +65,9 @@ namespace AppInstaller::Fonts
 
         // Registry path of the FontFile, if exists, or where it should be if it is not installed.
         std::optional<std::wstring> RegistryPath;
-        std::optional<std::wstring> PackageName;
-        std::optional<std::wstring> PackageFullName;
+        std::optional<std::wstring> PackageId;
+        std::optional<std::wstring> PackageVersion;
+        std::optional<std::wstring> PackageIdentifier;
     };
 
     struct FontContext
@@ -74,6 +75,8 @@ namespace AppInstaller::Fonts
         InstallerSource InstallerSource = InstallerSource::Unknown;
         Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
         std::optional<std::vector<std::filesystem::path>> PackageFiles;
+        std::optional<std::wstring> PackageId;
+        std::optional<std::wstring> PackageVersion;
         std::optional<std::wstring> PackageIdentifier;
         bool Force = false;
 

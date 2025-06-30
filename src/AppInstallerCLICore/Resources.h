@@ -321,6 +321,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FontPackage);
         WINGET_DEFINE_RESOURCE_STRINGID(FontRollbackFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(FontTitle);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontUninstallCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(FontUninstallCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FontUninstallFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(FontValidationFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(FontVersion);

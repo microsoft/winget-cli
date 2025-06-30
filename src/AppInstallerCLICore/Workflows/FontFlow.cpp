@@ -6,12 +6,10 @@
 #include "TableOutput.h"
 #include <winget/Fonts.h>
 #include <AppInstallerRuntime.h>
-#include <FontInstaller.h>
 
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::CLI::Execution;
-    using namespace AppInstaller::CLI::Font;
     using namespace AppInstaller::Fonts;
 
     namespace
@@ -149,7 +147,7 @@ namespace AppInstaller::CLI::Workflow
 
                 InstalledFontFilesTableLine line(
                     Utility::LocIndString(Utility::ConvertToUTF8(fontFile.Title)),
-                    Utility::LocIndString(Utility::ConvertToUTF8(fontFile.PackageFullName.value_or(L" "))),
+                    Utility::LocIndString(Utility::ConvertToUTF8(fontFile.PackageIdentifier.value_or(L" "))),
                     Utility::LocIndString(Utility::ConvertToUTF8(fontFile.Status == Fonts::FontStatus::OK ? L"OK" : L"Missing")),
                     fontFile.FilePath.u8string());
 
@@ -205,6 +203,11 @@ namespace AppInstaller::CLI::Workflow
         const auto& packageId = ConvertToUTF16(manifest.Id);
         const auto& packageVersion = ConvertToUTF16(manifest.Version);
         fontContext.PackageIdentifier = packageId + L"_" + packageVersion;
+
+        if (context.Args.Contains(Execution::Args::Type::Force))
+        {
+            fontContext.Force = true;
+        }
 
         try
         {
@@ -270,6 +273,54 @@ namespace AppInstaller::CLI::Workflow
             CATCH_LOG();
 
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED);
+        }
+    }
+
+    void FontUninstallImpl(Execution::Context& context)
+    {
+        Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown;
+        if (context.Args.Contains(Execution::Args::Type::InstallScope))
+        {
+            scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+        }
+
+        // Scope may still be unknown, which is a failure for an install operation.
+        if (scope == Manifest::ScopeEnum::Unknown)
+        {
+            // We will default to User scope.
+            scope = Manifest::ScopeEnum::User;
+        }
+
+        context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
+
+        Fonts::FontContext fontContext;
+        fontContext.InstallerSource = InstallerSource::WinGet;
+        fontContext.Scope = scope;
+
+        // Fonts are single instanced by an identifier which is:
+        //   PackageId + '_' + PackageVersion
+        // The PackageIdentifier is used to uniquely identify this package.
+        auto manifest = context.Get<Execution::Data::Manifest>();
+        const auto& packageId = ConvertToUTF16(manifest.Id);
+        const auto& packageVersion = ConvertToUTF16(manifest.Version);
+        fontContext.PackageIdentifier = packageId + L"_" + packageVersion;
+
+        try
+        {
+            auto uninstallResult = Fonts::UninstallFontPackage(fontContext);
+            if (uninstallResult.Result() != FontResult::Success)
+            {
+                context.Reporter.Error() << Resource::String::FontUninstallFailed << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED);
+            }
+
+            context.Add<Execution::Data::OperationReturnCode>(uninstallResult.HResult);
+        }
+        catch (...)
+        {
+            context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
+            context.Reporter.Error() << Resource::String::FontUninstallFailed << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED);
         }
     }
 }

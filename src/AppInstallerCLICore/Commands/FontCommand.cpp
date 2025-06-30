@@ -5,6 +5,7 @@
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/FontFlow.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/UninstallFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
@@ -17,11 +18,14 @@ namespace AppInstaller::CLI
 
     Utility::LocIndView s_FontCommand_HelpLink = "https://aka.ms/winget-command-font"_liv;
 
+    // Base Font Command
+
     std::vector<std::unique_ptr<Command>> FontCommand::GetCommands() const
     {
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
             std::make_unique<FontListCommand>(FullName()),
             std::make_unique<FontInstallCommand>(FullName()),
+            std::make_unique<FontUninstallCommand>(FullName()),
         });
     }
 
@@ -45,18 +49,13 @@ namespace AppInstaller::CLI
         OutputHelp(context.Reporter);
     }
 
+    // FontListCommand
+
     std::vector<Argument> FontListCommand::GetArguments() const
     {
         return {
             Argument::ForType(Args::Type::Family),
             Argument::ForType(Args::Type::Files),
-            Argument::ForType(Args::Type::Moniker),
-            Argument::ForType(Args::Type::Source),
-            Argument::ForType(Args::Type::Tag),
-            Argument::ForType(Args::Type::Exact),
-            Argument::ForType(Args::Type::AuthenticationMode),
-            Argument::ForType(Args::Type::AuthenticationAccount),
-            Argument::ForType(Args::Type::AcceptSourceAgreements),
         };
     }
 
@@ -86,6 +85,9 @@ namespace AppInstaller::CLI
     {
         context << Workflow::ReportInstalledFonts;
     }
+
+
+    // FontInstallCommand
 
     std::vector<Argument> FontInstallCommand::GetArguments() const
     {
@@ -132,6 +134,64 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromArg <<
                 Workflow::SelectInstaller <<
                 Workflow::InstallSinglePackage;
+        }
+    }
+
+    // Font Uninstall Command
+
+    std::vector<Argument> FontUninstallCommand::GetArguments() const
+    {
+        return {
+            Argument::ForType(Args::Type::Manifest),
+            Argument::ForType(Args::Type::Id),
+            Argument::ForType(Args::Type::TargetVersion),
+            Argument::ForType(Args::Type::AllVersions),
+            Argument{ Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
+        };
+    }
+
+    Resource::LocString FontUninstallCommand::ShortDescription() const
+    {
+        return { Resource::String::FontUninstallCommandShortDescription };
+    }
+
+    Resource::LocString FontUninstallCommand::LongDescription() const
+    {
+        return { Resource::String::FontUninstallCommandLongDescription };
+    }
+
+    void FontUninstallCommand::Complete(Execution::Context& context, Args::Type valueType) const
+    {
+        UNREFERENCED_PARAMETER(valueType);
+        context.Reporter.Error() << Resource::String::PendingWorkError << std::endl;
+        THROW_HR(E_NOTIMPL);
+    }
+
+    Utility::LocIndView FontUninstallCommand::HelpLink() const
+    {
+        return s_FontCommand_HelpLink;
+    }
+
+    void FontUninstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        Argument::ValidateCommonArguments(execArgs);
+    }
+
+    void FontUninstallCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
+
+        context <<
+            Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
+            Workflow::OpenSource() <<
+            Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context));
+
+        if (context.Args.Contains(Execution::Args::Type::Manifest))
+        {
+            context <<
+                Workflow::GetManifestFromArg <<
+                Workflow::FontUninstallImpl <<
+                ReportUninstallerResult("FontUninstall"sv, APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED, true);
         }
     }
 }

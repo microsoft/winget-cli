@@ -346,7 +346,6 @@
     <ClInclude Include="ConfigureExportCommand.h" />
     <ClInclude Include="ContextOrchestrator.h" />
     <ClInclude Include="COMContext.h" />
-    <ClInclude Include="FontInstaller.h" />
     <ClInclude Include="Public\ConfigurationSetProcessorFactoryRemoting.h" />
     <ClInclude Include="Public\ShutdownMonitoring.h" />
     <ClInclude Include="Sixel.h" />
