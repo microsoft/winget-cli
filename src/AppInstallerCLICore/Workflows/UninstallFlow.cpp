@@ -282,7 +282,7 @@ namespace AppInstaller::CLI::Workflow
 
             const std::string installedScope = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
             const std::string installedArch = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledArchitecture];
-            
+
             PortableInstaller portableInstaller = PortableInstaller(
                 Manifest::ConvertToScopeEnum(installedScope),
                 Utility::ConvertToArchitectureEnum(installedArch),

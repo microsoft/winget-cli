@@ -293,9 +293,6 @@
     <ClInclude Include="Commands\DscAdminSettingsResource.h">
       <Filter>Commands\Configuration</Filter>
     </ClInclude>
-    <ClInclude Include="FontInstaller.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -555,9 +552,6 @@
     </ClCompile>
     <ClCompile Include="Commands\DscAdminSettingsResource.cpp">
       <Filter>Commands\Configuration</Filter>
-    </ClCompile>
-    <ClCompile Include="FontInstaller.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

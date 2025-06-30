@@ -258,7 +258,7 @@ namespace AppInstaller::Fonts
     {
         auto fileInfo = FontFileInfo();
         fileInfo.FilePath = filePath;
-        fileInfo.PackageFullName = context.PackageIdentifier.value_or(L"");
+        fileInfo.PackageIdentifier = context.PackageIdentifier.value_or(L"");
         fileInfo.InstallerSource = context.InstallerSource;
         fileInfo.Scope = context.Scope;
         if (title.has_value())
@@ -271,14 +271,14 @@ namespace AppInstaller::Fonts
         case InstallerSource::UWP:
 
             // PackageName must be provided for UWP packages.
-            if (fileInfo.PackageFullName.value().empty())
+            if (fileInfo.PackageIdentifier.value().empty())
             {
                 throw std::logic_error("UWP Font packages must provide a package full name.");
             }
 
             {
-                const auto& sepPosition = fileInfo.PackageFullName.value().find('_');
-                fileInfo.PackageName = fileInfo.PackageFullName.value().substr(0, sepPosition);
+                const auto& sepPosition = fileInfo.PackageIdentifier.value().find('_');
+                fileInfo.PackageIdentifier = fileInfo.PackageIdentifier.value().substr(0, sepPosition);
             }
 
             break;
@@ -286,7 +286,7 @@ namespace AppInstaller::Fonts
         case InstallerSource::WinGet:
 
             // PackageName must be provided for WinGet Packages.
-            if (fileInfo.PackageFullName.value().empty())
+            if (fileInfo.PackageIdentifier.value().empty())
             {
                 throw std::logic_error("WinGet Font packages must provide a package full name.");
             }
@@ -300,15 +300,15 @@ namespace AppInstaller::Fonts
             // We will assume the title is provided for these, since we do
             // not install them, they must already exist on the system or
             // have a reference in the registry.
-            if (fileInfo.PackageFullName.value().empty())
+            if (fileInfo.PackageIdentifier.value().empty())
             {
                 if (fileInfo.Scope == Manifest::ScopeEnum::Machine)
                 {
-                    fileInfo.PackageFullName = s_UnknownInstallerPrefixMachine.data() + filePath.filename().wstring();
+                    fileInfo.PackageIdentifier = s_UnknownInstallerPrefixMachine.data() + filePath.filename().wstring();
                 }
                 else
                 {
-                    fileInfo.PackageFullName = s_UnknownInstallerPrefixUser.data() + filePath.filename().wstring();
+                    fileInfo.PackageIdentifier = s_UnknownInstallerPrefixUser.data() + filePath.filename().wstring();
                 }
             }
 
