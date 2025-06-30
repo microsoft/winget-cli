@@ -315,7 +315,7 @@ namespace AppInstaller::Fonts
             break;
         }
 
-        // For font file paths in the registry, we may have a relative filename (becuase the path is assumed).
+        // For font file paths in the registry, we may have a relative filename (because the path is assumed).
         if (fileInfo.FilePath.is_relative())
         {
             // Relative path is assumed to be relative to the default location for the scope.
