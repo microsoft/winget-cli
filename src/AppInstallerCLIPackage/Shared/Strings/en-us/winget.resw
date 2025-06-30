@@ -3427,7 +3427,7 @@ An unlocalized JSON fragment will follow on another line.</comment>
     <value>Font uninstall failed. The font may not be in a good state. Try uninstalling after a restart.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED" xml:space="preserve">
-    <value>"Font validation failed."</value>
+    <value>Font validation failed.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED" xml:space="preserve">
     <value>Font rollback failed. The font may not be in a good state. Try uninstalling after a restart.</value>
@@ -3463,5 +3463,8 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="FontStatusUnknown" xml:space="preserve">
     <value>Unknown</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED" xml:space="preserve">
+    <value>Font package is already installed.</value>
   </data>
 </root>

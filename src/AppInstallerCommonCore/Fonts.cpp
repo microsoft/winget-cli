@@ -514,7 +514,7 @@ namespace AppInstaller::Fonts
             return result;
         }
 
-        // We will attempt a cleanup / force install if either this is a forced intall or the package was not in a good state.
+        // We will attempt a cleanup / force install if either this is a forced install or the package was not in a good state.
         if (validationResult.Status == FontStatus::Corrupt || context.Force)
         {
             // Force install of a font can have problems because if the font is already there then it

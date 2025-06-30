@@ -11,4 +11,4 @@ Installers:
     InstallerType: font
     InstallerSha256: <FONTHASH>
 ManifestType: singleton
-ManifestVersion: 1.11.0
+ManifestVersion: 1.12.0
