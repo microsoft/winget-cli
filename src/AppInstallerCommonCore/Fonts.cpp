@@ -875,10 +875,10 @@ namespace AppInstaller::Fonts
                 auto hive = scope == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
                 auto root = Registry::Key::OpenIfExists(hive, std::wstring{ s_FontsPathSubkey });
 
-                // There are two supported scenarios for tracking subkeys.
+                // There are two supported scenarios for tracking sub-keys.
                 // 1) We created the subkey, therefore it is a winget installed font.
                 // 2) A package created the subkey for a package-deployed font
-                // We assume that all subkeys not the WinGet key are packaged keys. It is not guaranteed that
+                // We assume that all sub-keys not the WinGet key are packaged keys. It is not guaranteed that
                 // a package created the font, but we will assume that it is to be safe in how we handle them.
                 for (const auto& subkey : root)
                 {
@@ -886,7 +886,7 @@ namespace AppInstaller::Fonts
                     auto subkeyKey = subkey.Open();
                     if (subkeyName == s_FontsWinGetPrefix)
                     {
-                        // Assume all subkeys are WinGet Packages
+                        // Assume all sub-keys are WinGet Packages
                         for (const auto& packageSubKey : subkeyKey)
                         {
                             auto wingetPackageSubKey = packageSubKey.Open();
@@ -910,7 +910,7 @@ namespace AppInstaller::Fonts
                     }
                     else
                     {
-                        // Assume all subkeys are fonts installed by a UAP package.
+                        // Assume all sub-keys are fonts installed by a UAP package.
                         for (const auto& uapPackageValue : subkeyKey.Values())
                         {
                             auto value = uapPackageValue.Value();
