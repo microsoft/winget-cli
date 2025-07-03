@@ -280,8 +280,23 @@ function Update-PortSource
 
     $portDir = Join-Path $OverlayRoot $Port
 
-    Set-ParameterInPortFile $Port -ParameterName 'REF' -CurrentValuePattern '[0-9a-f]{40}' -NewValue $Commit
+    # For the REF, we also delete any comments after it that may say the wrong version
+    Set-ParameterInPortFile $Port -ParameterName 'REF' -CurrentValuePattern '[0-9a-f]{40}( #.*)?$' -NewValue "$Commit # Unreleased"
     Set-ParameterInPortFile $Port -ParameterName 'SHA512' -CurrentValuePattern '[0-9a-f]{128}' -NewValue $SourceHash
+}
+
+# Updates the port version by one.
+function Update-PortVersion
+{
+    param(
+        [Parameter(Mandatory)]
+        [string]$Port
+    )
+
+    $portJsonPath = Join-Path $OverlayRoot $Port "vcpkg.json"
+    $portDefinition = Get-Content $portJsonPath | ConvertFrom-Json
+    $portDefinition."port-version" += 1
+    $portDefinition | ConvertTo-Json -Depth 5 | Out-File $portJsonPath
 }
 
 New-PortOverlay cpprestsdk -Version 2.10.18 -PortVersion 4
@@ -289,3 +304,4 @@ Add-PatchToPort cpprestsdk -PatchRepo 'microsoft/winget-cli' -PatchCommit '888b4
 
 New-PortOverlay libyaml -Version 0.2.5 -PortVersion 5
 Update-PortSource libyaml -Commit '840b65c40675e2d06bf40405ad3f12dec7f35923' -SourceHash 'de85560312d53a007a2ddf1fe403676bbd34620480b1ba446b8c16bb366524ba7a6ed08f6316dd783bf980d9e26603a9efc82f134eb0235917b3be1d3eb4b302'
+Update-PortVersion libyaml

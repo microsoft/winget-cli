@@ -20,3 +20,4 @@ We use an unreleased version that fixes a vulnerability.
 
 Changes:
 * New source commit: https://github.com/yaml/libyaml/commit/840b65c40675e2d06bf40405ad3f12dec7f35923
+* Increase the port version so that Component Governance doesn't see it as the vulnerable version anymore
