@@ -357,6 +357,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         {
             HashSet<Architecture> architectures = new HashSet<Architecture>();
 
+            // Read the override from the environment variable if it exists.
             string? environmentVariable = Environment.GetEnvironmentVariable(DependencyArchitectureEnvironmentVariable);
             if (environmentVariable != null)
             {
@@ -377,6 +378,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 return architectures;
             }
 
+            // If there are any framework packages already installed, use the same architecture as them.
             var result = this.ExecuteAppxCmdlet(
                 GetAppxPackage,
                 new Dictionary<string, object>
@@ -403,6 +405,31 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                             this.pwshCmdlet.Write(StreamType.Verbose, $"Found framework architecture: {architectureString}");
                         }
                     }
+                }
+            }
+
+            // Fall back to guessing from the current OS architecture.
+            // This may have issues on ARM64 because RuntimeInformation.OSArchitecture seems to just lie sometimes.
+            // See https://github.com/microsoft/winget-cli/issues/5020
+            if (architectures.Count == 0)
+            {
+                var arch = RuntimeInformation.OSArchitecture;
+                this.pwshCmdlet.Write(StreamType.Verbose, $"OS architecture: {arch.ToString()}");
+
+                if (arch == Architecture.X64)
+                {
+                    architectures.Add(Architecture.X64);
+                }
+                else if (arch == Architecture.X86)
+                {
+                    architectures.Add(Architecture.X86);
+                }
+                else if (arch == Architecture.Arm64)
+                {
+                    // Let deployment figure it out
+                    architectures.Add(Architecture.Arm64);
+                    architectures.Add(Architecture.X64);
+                    architectures.Add(Architecture.X86);
                 }
             }
 
