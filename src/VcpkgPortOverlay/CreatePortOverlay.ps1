@@ -4,52 +4,109 @@ $OverlayRoot = $PSScriptRoot
 
 $ErrorActionPreference = "Stop"
 
-# Hacky way of getting a single directory from the vcpkg repo:
-# - Download the vcpkg repo as a zip to a memory stream
-# - Parse the zip archive
-# - Extract the files we want
-function Get-VcpkgRepoAsZipArchive
-{
-    $vcpkgZipUri = "https://github.com/microsoft/vcpkg/archive/refs/heads/master.zip"
-    $response = Invoke-WebRequest -Uri $vcpkgZipUri
-    $zipStream = [System.IO.MemoryStream]::new($response.Content)
-    $zipArchive = [System.IO.Compression.ZipArchive]::new($zipStream)
-    return $zipArchive
-}
 
-$VcpkgAsArchive = Get-VcpkgRepoAsZipArchive
-
-# Copies an port from the official registry to this overlay
-function New-PortOverlay
+# Gets the versions of a port available from the official registry.
+# This is read from the versions JSON in the main branch.
+# A version looks like this:
+#    {
+#      "git-tree": "9f5e160191038cbbd2470e534c43f051c80e7d44",
+#      "version": "2.10.19",
+#      "port-version": 3
+#    }
+function Get-PortVersions
 {
     param(
         [Parameter(Mandatory)]
         [string]$Port
     )
 
-    $portDir = Join-Path $OverlayRoot $Port
+    $initial = $Port[0]
+    $jsonUri = "https://raw.githubusercontent.com/microsoft/vcpkg/heads/master/versions/$initial-/$Port.json"
+    $versions = (Invoke-WebRequest -Uri $jsonUri).Content | ConvertFrom-Json -Depth 5
+    return $versions.versions
+}
 
-    # Delete existing port if needed
-    if (Test-Path $portDir)
+# Gets the git-tree associated with a specific version of a port.
+# The git-tree is a git object hash that represents the port directory
+# from the appropriate version of the registry.
+function Get-PortVersionGitTree
+{
+    param(
+        [Parameter(Mandatory)]
+        [string]$Port,
+        [Parameter(Mandatory)]
+        [string]$Version,
+        [Parameter(Mandatory)]
+        [string]$PortVersion
+    )
+
+    $versions = Get-PortVersions $Port
+    $versionData = $versions | Where-Object { ($_.version -eq $Version) -and ($_."port-version" -eq $portVersion) }
+    return $versionData."git-tree"
+}
+
+# Fetches and parses a git-tree as a ZIP file
+function Get-GitTreeAsArchive
+{
+    param(
+        [Parameter(Mandatory)]
+        [string]$GitTree
+    )
+
+    $archiveUri = "https://github.com/microsoft/vcpkg/archive/$gitTree.zip"
+    $response = Invoke-WebRequest -Uri $archiveUri
+    $zipStream = [System.IO.MemoryStream]::new($response.Content)
+    $zipArchive = [System.IO.Compression.ZipArchive]::new($zipStream)
+    return $zipArchive
+}
+
+# Expands an in-memory archive and writes it to disk
+function Expand-ArchiveFromMemory
+{
+    param(
+        [Parameter(Mandatory)]
+        [System.IO.Compression.ZipArchive]$Archive,
+        [Parameter(Mandatory)]
+        [string]$Destination
+    )
+
+    # Delete existing directory
+    if (Test-Path $Destination)
     {
-        Remove-Item -Force -Recurse $portDir
+        Remove-Item -Force -Recurse $Destination
     }
 
     # Remove length=0 to ignore the directory itself
-    $portZipEntries = $VcpkgAsArchive.Entries |
-        Where-Object { ($_.Length -ne 0) -and $_.FullName.StartsWith("vcpkg-master/ports/$Port/") }
-
-    if (-not $portZipEntries)
+    $entries = $archive.Entries | Where-Object { $_.Length -ne 0 }
+    if (-not $entries)
     {
-        throw "Port $port not found"
+        throw "Archive is empty"
     }
 
-    New-Item -Type Directory $portDir | Out-Null
-    foreach ($zipEntry in $portZipEntries)
+    New-Item -Type Directory $Destination | Out-Null
+    foreach ($entry in $entries)
     {
-        $targetPath = Join-Path $portDir $zipEntry.Name
-        [System.IO.Compression.ZipFileExtensions]::ExtractToFile($zipEntry, $targetPath)
+        $targetPath = Join-Path $Destination $entry.Name
+        [System.IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $targetPath)
     }
+}
+
+# Creates a copy of a port version from the official registry in this overlay
+function New-PortOverlay
+{
+    param(
+        [Parameter(Mandatory)]
+        [string]$Port,
+        [Parameter(Mandatory)]
+        [string]$Version,
+        [Parameter(Mandatory)]
+        [string]$PortVersion
+    )
+
+    $gitTree = Get-PortVersionGitTree $Port $Version $PortVersion
+    $archive = Get-GitTreeAsArchive $gitTree
+    $portDir = Join-Path $OverlayRoot $Port
+    Expand-ArchiveFromMemory $archive $portDir
 }
 
 # Gets a git patch from a GitHub commit
@@ -223,13 +280,28 @@ function Update-PortSource
 
     $portDir = Join-Path $OverlayRoot $Port
 
-    Set-ParameterInPortFile $Port -ParameterName 'REF' -CurrentValuePattern '[0-9a-f]{40}' -NewValue $Commit
+    # For the REF, we also delete any comments after it that may say the wrong version
+    Set-ParameterInPortFile $Port -ParameterName 'REF' -CurrentValuePattern '[0-9a-f]{40}( #.*)?$' -NewValue "$Commit # Unreleased"
     Set-ParameterInPortFile $Port -ParameterName 'SHA512' -CurrentValuePattern '[0-9a-f]{128}' -NewValue $SourceHash
 }
 
+# Updates the port version by one.
+function Update-PortVersion
+{
+    param(
+        [Parameter(Mandatory)]
+        [string]$Port
+    )
 
-New-PortOverlay cpprestsdk
+    $portJsonPath = Join-Path $OverlayRoot $Port "vcpkg.json"
+    $portDefinition = Get-Content $portJsonPath | ConvertFrom-Json
+    $portDefinition."port-version" += 1
+    $portDefinition | ConvertTo-Json -Depth 5 | Out-File $portJsonPath
+}
+
+New-PortOverlay cpprestsdk -Version 2.10.18 -PortVersion 4
 Add-PatchToPort cpprestsdk -PatchRepo 'microsoft/winget-cli' -PatchCommit '888b4ed8f4f7d25cb05a47210e083fe29348163b' -PatchName 'add-server-certificate-validation.patch' -PatchRoot 'src/cpprestsdk/cpprestsdk'
 
-New-PortOverlay libyaml
+New-PortOverlay libyaml -Version 0.2.5 -PortVersion 5
 Update-PortSource libyaml -Commit '840b65c40675e2d06bf40405ad3f12dec7f35923' -SourceHash 'de85560312d53a007a2ddf1fe403676bbd34620480b1ba446b8c16bb366524ba7a6ed08f6316dd783bf980d9e26603a9efc82f134eb0235917b3be1d3eb4b302'
+Update-PortVersion libyaml
