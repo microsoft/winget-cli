@@ -59,7 +59,7 @@ namespace AppInstaller::CLI
             // very few users are likely to put any spaces at the front of their statements, let alone many.
             else
             {
-                for (; cursor > 0 && !std::isspace(commandLine[cursor - 1]); --cursor);
+                for (; cursor > 0 && !std::isspace(static_cast<unsigned char>(commandLine[cursor - 1])); --cursor);
 
                 AICLI_LOG(CLI, Info, << "Cursor position moved to '" << cursor << '\'');
 
