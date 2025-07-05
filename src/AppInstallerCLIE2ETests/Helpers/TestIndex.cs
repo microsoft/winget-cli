@@ -25,6 +25,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             TestIndex.MsiInstallerV2 = Path.Combine(TestSetup.Parameters.StaticFileRootPath, Constants.MsiInstaller, Constants.MsiInstallerV2FileName);
             TestIndex.MsixInstaller = Path.Combine(TestSetup.Parameters.StaticFileRootPath, Constants.MsixInstaller, Constants.MsixInstallerFileName);
             TestIndex.ZipInstaller = Path.Combine(TestSetup.Parameters.StaticFileRootPath, Constants.ZipInstaller, Constants.ZipInstallerFileName);
+            TestIndex.Font = Path.Combine(TestSetup.Parameters.StaticFileRootPath, Constants.FontFileName, Constants.FontFileName);
         }
 
         /// <summary>
@@ -51,6 +52,11 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// Gets the zip installer path used by the manifests in the E2E test.
         /// </summary>
         public static string ZipInstaller { get; private set; }
+
+        /// <summary>
+        /// Gets the font file path used by the manifests in the E2E test.
+        /// </summary>
+        public static string Font { get; private set; }
 
         /// <summary>
         /// Generate test source.
@@ -97,6 +103,16 @@ namespace AppInstallerCLIE2ETests.Helpers
             if (!File.Exists(testParams.MsixInstallerPath))
             {
                 throw new FileNotFoundException(testParams.MsixInstallerPath);
+            }
+
+            if (string.IsNullOrEmpty(testParams.FontPath))
+            {
+                throw new ArgumentNullException($"{Constants.FontPathParameter} is required");
+            }
+
+            if (!File.Exists(testParams.FontPath))
+            {
+                throw new FileNotFoundException(testParams.FontPath);
             }
 
             if (string.IsNullOrEmpty(testParams.PackageCertificatePath))
@@ -147,6 +163,13 @@ namespace AppInstallerCLIE2ETests.Helpers
                         Input = testParams.MsixInstallerPath,
                         HashToken = "<MSIXHASH>",
                         SignatureToken = "<SIGNATUREHASH>",
+                    },
+                    new LocalInstaller
+                    {
+                        Type = InstallerType.Font,
+                        Name = Path.Combine(Constants.FontFileName, Constants.FontFileName),
+                        Input = testParams.FontPath,
+                        HashToken = "<FONTHASH>",
                     },
                 },
                 DynamicInstallers = new ()
