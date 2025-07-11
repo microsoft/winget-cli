@@ -14,11 +14,6 @@ namespace WinGetMCPServer
 
         static void Main(string[] args)
         {
-            RunWithToolsType<WingetPackage_Reflection>();
-        }
-
-        private static void RunWithToolsType<ToolsType>()
-        {
             var builder = Host.CreateApplicationBuilder();
             builder.Logging.AddConsole(consoleOptions => { consoleOptions.LogToStandardErrorThreshold = LogLevel.Trace; });
 
@@ -29,7 +24,7 @@ namespace WinGetMCPServer
                     configureOptions.ServerInfo = new Implementation() { Name = ServerName, Version = ServerVersion };
                 })
                 .WithStdioServerTransport()
-                .WithTools<ToolsType>();
+                .WithTools<WingetPackage_Reflection>();
 
             builder.Build().Run();
         }
