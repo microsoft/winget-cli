@@ -149,6 +149,14 @@ jobs:
       maximumCpuCount: true
 
   - task: CopyFiles@2
+    displayName: Copy vcpkg logs
+    inputs:
+      SourceFolder: $(VCPKG_INSTALLATION_ROOT)\buildtrees
+      Contents: '**\*.log'
+      TargetFolder: '$(artifactsDir)\vcpkgLogs'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
     displayName: 'Copy specific build artifacts'
     inputs:
       Contents: |
@@ -285,6 +293,7 @@ jobs:
     inputs:
       targetPath: '$(artifactsDir)'
       artifact: 'Build.$(artifactIdentifier)'
+    condition: succeededOrFailed()
 
   - task: ComponentGovernanceComponentDetection@0
     displayName: Component Governance
@@ -640,6 +649,14 @@ jobs:
       maximumCpuCount: true
 
   - task: CopyFiles@2
+    displayName: Copy vcpkg logs
+    inputs:
+      SourceFolder: $(VCPKG_INSTALLATION_ROOT)\buildtrees
+      Contents: '**\*.log'
+      TargetFolder: '$(artifactsDir)\vcpkgLogs'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
     displayName: Copy Fuzzing Artifacts for Publishing
     inputs:
       SourceFolder: '$(buildOutDir)\WinGetYamlFuzzing'
@@ -650,6 +667,7 @@ jobs:
     displayName: Publish Fuzzing Artifacts
     inputs:
       targetPath: '$(artifactsDir)'
+    condition: succeededOrFailed()
 
   - task: onefuzz-task@0
     inputs:
