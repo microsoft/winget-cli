@@ -40,7 +40,6 @@
 
   <Import Project="..\targets\EmbeddedCsWinRT.targets" />
 
-  <!-- TODO: CLEAN ME UP! -->
   <PropertyGroup>
     <CsWinRTIncludes>
       Microsoft.Management.Deployment;
