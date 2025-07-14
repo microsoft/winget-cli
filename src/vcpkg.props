@@ -41,11 +41,11 @@
     <VcpkgConfiguration>Release</VcpkgConfiguration>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">
-    <VcpkgTriplet>x64-release-static</VcpkgTriplet>
+    <VcpkgTriplet>x64-fuzzing</VcpkgTriplet>
     <VcpkgConfiguration>Release</VcpkgConfiguration>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">
-    <VcpkgTriplet>x86-release-static</VcpkgTriplet>
+    <VcpkgTriplet>x86-fuzzing</VcpkgTriplet>
     <VcpkgConfiguration>Release</VcpkgConfiguration>
   </PropertyGroup>
 </Project>
