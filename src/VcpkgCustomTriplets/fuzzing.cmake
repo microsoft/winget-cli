@@ -1,0 +1,5 @@
+if(PORT MATCHES "jsoncpp|libyaml")
+    set(VCPKG_C_FLAGS "${VCPKG_C_FLAGS} /fsanitize=address /fsanitize-coverage=inline-8bit-counters /fsanitize-coverage=edge /fsanitize-coverage=trace-cmp /fsanitize-coverage=trace-div")
+    set(VCPKG_CXX_FLAGS "${VCPKG_CXX_FLAGS} /fsanitize=address /fsanitize-coverage=inline-8bit-counters /fsanitize-coverage=edge /fsanitize-coverage=trace-cmp /fsanitize-coverage=trace-div")
+    set(VCPKG_LINKER_FLAGS libsancov.lib)
+endif()
