@@ -246,6 +246,13 @@
         <PackagePath>ConfigurationRemotingServer</PackagePath>
         <Recurse>true</Recurse>
       </WinGetAdditionalPackageFile>
+      <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\WinGetMCPServer\net8.0-windows10.0.26100.0\$(ConfigServerRid)\**\*">
+        <PackagePath>WinGetMCPServer</PackagePath>
+        <Recurse>true</Recurse>
+      </WinGetAdditionalPackageFile>
+      <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Deployment.OutOfProc\Microsoft.Management.Deployment.OutOfProc.dll">
+        <PackagePath>WinGetMCPServer\Microsoft.Management.Deployment.dll</PackagePath>
+      </WinGetAdditionalPackageFile>
       <WinGetAdditionalPackageFile Include="$(SolutionDir)\PowerShell\ExternalModules\**\*">
         <PackagePath>ExternalModules</PackagePath>
         <Recurse>true</Recurse>

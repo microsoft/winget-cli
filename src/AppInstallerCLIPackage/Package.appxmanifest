@@ -97,6 +97,18 @@
         </com:Extension>
       </Extensions>
     </Application>
+    <Application Id="WinGetMCPServer" Executable="WinGetMCPServer\WinGetMCPServer.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements DisplayName="WinGet Dev MCP Server" Square150x150Logo="Images\MedTile.png" Square44x44Logo="Images\AppList.png" Description="The WinGet MCP server." BackgroundColor="#0078d7" AppListEntry="none" >
+        <uap:DefaultTile/>
+      </uap:VisualElements >
+      <Extensions>
+        <uap5:Extension Category="windows.appExecutionAlias">
+          <uap5:AppExecutionAlias>
+            <uap5:ExecutionAlias Alias="WindowsPackageManagerMCPServerDev.exe" />
+          </uap5:AppExecutionAlias>
+        </uap5:Extension>
+      </Extensions>
+    </Application>
   </Applications>
   <Extensions>
     <Extension Category="windows.activatableClass.proxyStub">
