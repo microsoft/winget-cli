@@ -68,6 +68,7 @@ Browsable
 BSODs
 Buf
 buildtransitive
+buildtrees
 cancelledbyuser
 casemap
 casemappings
@@ -113,6 +114,7 @@ dacl
 datetimeoffset
 Dbg
 Dcom
+DCPPREST
 debian
 decompressor
 dedupe
@@ -126,6 +128,7 @@ desktopappinstaller
 devblogs
 devhome
 DFX
+DHAVE
 dic
 diskfull
 DISPLAYCATALOG
@@ -139,6 +142,7 @@ dustojnikhummer
 dvinns
 dwgs
 dwrite
+DYAML
 ecfr
 ecfrbrowse
 EFGH
@@ -468,6 +472,7 @@ rwgch
 rwgs
 ryfu
 sacl
+sancov
 SARL
 savepoint
 sawgc
