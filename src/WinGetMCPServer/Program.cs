@@ -1,11 +1,16 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using ModelContextProtocol.Protocol;
-using ModelContextProtocol.Server;
+// -----------------------------------------------------------------------------
+// <copyright file="Program.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace WinGetMCPServer
 {
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
+    using ModelContextProtocol.Protocol;
+
     internal class Program
     {
         private const string ServerName = "winget-mcp";
@@ -24,7 +29,7 @@ namespace WinGetMCPServer
                     configureOptions.ServerInfo = new Implementation() { Name = ServerName, Version = ServerVersion };
                 })
                 .WithStdioServerTransport()
-                .WithTools<WingetPackage_Reflection>();
+                .WithTools<WingetPackageTools>();
 
             builder.Build().Run();
         }
