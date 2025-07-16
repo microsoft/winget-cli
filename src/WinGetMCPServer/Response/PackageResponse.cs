@@ -74,6 +74,13 @@ namespace WinGetMCPServer.Response
             return ToolResponse.FromObject(result);
         }
 
+        /// <summary>
+        /// Creates a response for finding multiple packages when only 1 is required.
+        /// </summary>
+        /// <param name="identifer">The identifier used when searching.</param>
+        /// <param name="catalog">The catalog that was searched.</param>
+        /// <param name="findResult">The result that contains multiple packages.</param>
+        /// <returns>The response.</returns>
         public static CallToolResponse ForMultiFind(string identifer, string? catalog, FindPackagesResult findResult)
         {
             PackageIdentityErrorResult result = new()
@@ -88,6 +95,12 @@ namespace WinGetMCPServer.Response
             return ToolResponse.FromObject(result);
         }
 
+        /// <summary>
+        /// Creates a response for an install operation.
+        /// </summary>
+        /// <param name="installResult">The install operation result.</param>
+        /// <param name="findResult">The post-install package data.</param>
+        /// <returns>The response.</returns>
         public static CallToolResponse ForInstallOperation(InstallResult installResult, FindPackagesResult? findResult)
         {
             InstallOperationResult result = new InstallOperationResult();

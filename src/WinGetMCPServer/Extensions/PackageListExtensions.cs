@@ -14,6 +14,12 @@ namespace WinGetMCPServer.Extensions
     /// </summary>
     internal static class PackageListExtensions
     {
+        /// <summary>
+        /// Adds the packages from a find to the list.
+        /// </summary>
+        /// <param name="list">The list to add to.</param>
+        /// <param name="findResult">A find result.</param>
+        /// <returns>The list.</returns>
         static public List<FindPackageResult> AddPackages(this List<FindPackageResult> list, FindPackagesResult findResult)
         {
             for (int i = 0; i < findResult.Matches!.Count; ++i)
@@ -23,6 +29,16 @@ namespace WinGetMCPServer.Extensions
 
             return list;
         }
+
+        /// <summary>
+        /// Creates a <see cref="FindPackageResult"/> from the specified <see cref="CatalogPackage"/>.
+        /// </summary>
+        /// <remarks>The method populates the <see cref="FindPackageResult"/> with details such as the
+        /// package identifier, name, installation status, and update availability. If the package is installed,
+        /// additional information such as the catalog name and installed location is included.</remarks>
+        /// <param name="package">The catalog package from which to create the result. Cannot be null.</param>
+        /// <returns>A <see cref="FindPackageResult"/> representing the state of the specified catalog package, including
+        /// installation status and available updates.</returns>
         static public FindPackageResult FindPackageResultFromCatalogPackage(CatalogPackage package)
         {
             FindPackageResult findPackageResult = new FindPackageResult()
