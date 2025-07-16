@@ -1,6 +1,6 @@
 set(VCPKG_LIBRARY_LINKAGE static)
-set(VCPKG_C_FLAGS "/Qspectre /W3 /guard:cf")
-set(VCPKG_CXX_FLAGS "/Qspectre /W3 /guard:cf")
+set(VCPKG_C_FLAGS "/Qspectre /W3 /guard:cf /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR")
+set(VCPKG_CXX_FLAGS "/Qspectre /W3 /guard:cf /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR")
 set(VCPKG_INSTALL_OPTIONS, "--debug")
 
 if(PORT MATCHES "cpprestsdk")
