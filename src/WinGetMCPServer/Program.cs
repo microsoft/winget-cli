@@ -14,8 +14,6 @@ namespace WinGetMCPServer
     internal class Program
     {
         private const string ServerName = "winget-mcp";
-        // TODO: Same version as winget
-        private const string ServerVersion = "0.0.1";
 
         static void Main(string[] args)
         {
@@ -26,7 +24,7 @@ namespace WinGetMCPServer
                 .AddMcpServer(configureOptions =>
                 {
                     // TODO: More options setup?
-                    configureOptions.ServerInfo = new Implementation() { Name = ServerName, Version = ServerVersion };
+                    configureOptions.ServerInfo = new Implementation() { Name = ServerName, Version = ServerConnection.Instance.Version };
                 })
                 .WithStdioServerTransport()
                 .WithTools<WingetPackageTools>();

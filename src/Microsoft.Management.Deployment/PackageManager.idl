@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(12)] // For version 1.10
+    [contractversion(13)] // For version 1.12
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -1568,6 +1568,12 @@ namespace Microsoft.Management.Deployment
         {
             // Repair the specified package
             Windows.Foundation.IAsyncOperationWithProgress<RepairResult, RepairProgress> RepairPackageAsync(CatalogPackage package, RepairOptions options);
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 13)]
+        {
+            // The version of the Windows Package Manager that is running.
+            String Version{ get; };
         }
     }
 

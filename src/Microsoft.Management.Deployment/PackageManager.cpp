@@ -1408,5 +1408,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         co_return GetRemovePackageCatalogResult(terminationHR);
     }
 
+    winrt::hstring PackageManager::Version() const
+    {
+        return winrt::hstring{ AppInstaller::Utility::ConvertToUTF16(AppInstaller::Runtime::GetClientVersion()) };
+    }
+
     CoCreatableMicrosoftManagementDeploymentClass(PackageManager);
 }

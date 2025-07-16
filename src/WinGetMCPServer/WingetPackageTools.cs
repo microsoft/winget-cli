@@ -25,7 +25,7 @@ namespace WinGetMCPServer
 
         public WingetPackageTools()
         {
-            packageManager = new PackageManager();
+            packageManager = ServerConnection.Instance;
         }
 
         [McpServerTool(

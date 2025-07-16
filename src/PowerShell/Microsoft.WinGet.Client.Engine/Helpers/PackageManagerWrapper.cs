@@ -136,6 +136,22 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 false);
         }
 
+        /// <summary>
+        /// Gets the version of the package manager that is running.
+        /// </summary>
+        /// <returns>The version string.</returns>
+        public string? GetVersion()
+        {
+            try
+            {
+                return this.Execute(() => this.packageManager.Version, true);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private TReturn Execute<TReturn>(Func<TReturn> func, bool canRetry)
         {
             if (Utilities.UsesInProcWinget && Utilities.ThreadIsSTA)
