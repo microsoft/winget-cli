@@ -104,4 +104,5 @@
 ^src/SfsClient/
 ^src/Xlang/
 ^src/VcpkgPortOverlay/
+^src/WinGetMCPServer/WinGetMCPServer.csproj$
 ignore$

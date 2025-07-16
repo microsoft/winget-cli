@@ -8,23 +8,33 @@ namespace WinGetMCPServer.Response
 {
     using Microsoft.Management.Deployment;
     using ModelContextProtocol.Protocol;
-    using System.Text.Json;
+    using WinGetMCPServer.Extensions;
 
     /// <summary>
     /// Contains reusable responses for package tools.
     /// </summary>
     internal static class PackageResponse
     {
-        public static CallToolResponse ResponseForConnectError(ConnectResult connectResult)
+        /// <summary>
+        /// Creates a response for a ConnectResult error.
+        /// </summary>
+        /// <param name="connectResult">The connect result.</param>
+        /// <returns>The response.</returns>
+        public static CallToolResponse ForConnectError(ConnectResult connectResult)
         {
             return new CallToolResponse()
             {
                 IsError = true,
-                Content = [new Content() { Text = $"Failed when connecting to the WinGet package catalog with error: {connectResult.ExtendedErrorCode.Message} [0x{connectResult.ExtendedErrorCode.HResult:X8}]" }],
+                Content = [new Content() { Text = $"Failed when connecting to the package catalog with error: {connectResult.ExtendedErrorCode.Message} [0x{connectResult.ExtendedErrorCode.HResult:X8}]" }],
             };
         }
 
-        public static CallToolResponse ResponseForFindError(FindPackagesResult findResult)
+        /// <summary>
+        /// Creates a response for a FindPackagesResult error.
+        /// </summary>
+        /// <param name="findResult">The find packages result.</param>
+        /// <returns>The response.</returns>
+        public static CallToolResponse ForFindError(FindPackagesResult findResult)
         {
             return new CallToolResponse()
             {
@@ -33,7 +43,11 @@ namespace WinGetMCPServer.Response
             };
         }
 
-        public static CallToolResponse ResponseForCancelBeforeSystemChange()
+        /// <summary>
+        /// Creates a response that indicates the operation was cancelled before any changes were made.
+        /// </summary>
+        /// <returns>The response.</returns>
+        public static CallToolResponse ForCancelBeforeSystemChange()
         {
             return new CallToolResponse()
             {
@@ -42,7 +56,13 @@ namespace WinGetMCPServer.Response
             };
         }
 
-        public static CallToolResponse ResponseForEmptyFind(string identifer, string? catalog)
+        /// <summary>
+        /// Creates a response for not finding any packages.
+        /// </summary>
+        /// <param name="identifer">The identifier used when searching.</param>
+        /// <param name="catalog">The catalog that was searched.</param>
+        /// <returns>The response.</returns>
+        public static CallToolResponse ForEmptyFind(string identifer, string? catalog)
         {
             PackageIdentityErrorResult result = new()
             {
@@ -51,10 +71,10 @@ namespace WinGetMCPServer.Response
                 Catalog = catalog,
             };
 
-            return ResponseFromObject(result);
+            return ToolResponse.FromObject(result);
         }
 
-        public static CallToolResponse ResponseForMultiFind(string identifer, string? catalog, FindPackagesResult findResult)
+        public static CallToolResponse ForMultiFind(string identifer, string? catalog, FindPackagesResult findResult)
         {
             PackageIdentityErrorResult result = new()
             {
@@ -63,12 +83,12 @@ namespace WinGetMCPServer.Response
                 Catalog = catalog,
             };
 
-            AddFoundPackagesToList(result.Packages, findResult);
+            result.Packages.AddPackages(findResult);
 
-            return ResponseFromObject(result);
+            return ToolResponse.FromObject(result);
         }
 
-        public static CallToolResponse ResponseForInstallOperation(InstallResult installResult, FindPackagesResult? findResult)
+        public static CallToolResponse ForInstallOperation(InstallResult installResult, FindPackagesResult? findResult)
         {
             InstallOperationResult result = new InstallOperationResult();
 
@@ -126,10 +146,10 @@ namespace WinGetMCPServer.Response
 
             if (findResult != null && findResult.Status == FindPackagesResultStatus.Ok && findResult.Matches?.Count == 1)
             {
-                result.InstalledPackageInformation = FindPackageResultFromCatalogPackage(findResult.Matches[0].CatalogPackage);
+                result.InstalledPackageInformation = PackageListExtensions.FindPackageResultFromCatalogPackage(findResult.Matches[0].CatalogPackage);
             }
 
-            return ResponseFromObject(result, installResult.Status != InstallResultStatus.Ok);
+            return ToolResponse.FromObject(result, installResult.Status != InstallResultStatus.Ok);
         }
     }
 }

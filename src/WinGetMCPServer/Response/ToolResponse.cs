@@ -33,7 +33,7 @@ namespace WinGetMCPServer.Response
         /// <param name="isError">Whether or not the response is an error.</param>
         /// <param name="jsonSerializerOptions">The JSON serializer options for serializing the object.</param>
         /// <returns>The response.</returns>
-        public static CallToolResponse FromObject(object value, bool isError = false, JsonSerializerOptions jsonSerializerOptions)
+        public static CallToolResponse FromObject(object value, bool isError, JsonSerializerOptions jsonSerializerOptions)
         {
             return new CallToolResponse()
             {

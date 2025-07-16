@@ -10,10 +10,10 @@ namespace WinGetMCPServer
     using ModelContextProtocol.Protocol;
     using ModelContextProtocol.Server;
     using System.ComponentModel;
-    using System.Text.Json.Serialization;
-    using System.Text.Json;
     using ModelContextProtocol;
     using Windows.Foundation;
+    using WinGetMCPServer.Extensions;
+    using WinGetMCPServer.Response;
 
     /// <summary>
     /// WinGet package tools.
@@ -41,7 +41,7 @@ namespace WinGetMCPServer
 
             if (connectResult.Status != ConnectResultStatus.Ok)
             {
-                return ResponseForConnectError(connectResult);
+                return PackageResponse.ForConnectError(connectResult);
             }
 
             var catalog = connectResult.PackageCatalog;
@@ -57,13 +57,13 @@ namespace WinGetMCPServer
 
             if (findResult.Status != FindPackagesResultStatus.Ok)
             {
-                return ResponseForFindError(findResult);
+                return PackageResponse.ForFindError(findResult);
             }
 
             List<FindPackageResult> contents = new List<FindPackageResult>();
-            AddFoundPackagesToList(contents, findResult);
+            contents.AddPackages(findResult);
 
-            return ResponseFromObject(contents);
+            return ToolResponse.FromObject(contents);
         }
 
         [McpServerTool(
@@ -84,12 +84,12 @@ namespace WinGetMCPServer
 
             if (connectResult.Status != ConnectResultStatus.Ok)
             {
-                return ResponseForConnectError(connectResult);
+                return PackageResponse.ForConnectError(connectResult);
             }
 
             if (cancellationToken.IsCancellationRequested)
             {
-                return ResponseForCancelBeforeSystemChange();
+                return PackageResponse.ForCancelBeforeSystemChange();
             }
 
             var packageCatalog = connectResult.PackageCatalog;
@@ -105,16 +105,16 @@ namespace WinGetMCPServer
 
             if (findResult.Status != FindPackagesResultStatus.Ok)
             {
-                return ResponseForFindError(findResult);
+                return PackageResponse.ForFindError(findResult);
             }
 
             if (findResult.Matches?.Count == 0)
             {
-                return ResponseForEmptyFind(identifier, catalog);
+                return PackageResponse.ForEmptyFind(identifier, catalog);
             }
             else if (findResult.Matches?.Count > 1)
             {
-                return ResponseForMultiFind(identifier, catalog, findResult);
+                return PackageResponse.ForMultiFind(identifier, catalog, findResult);
             }
 
             CatalogPackage catalogPackage = findResult.Matches![0].CatalogPackage;
@@ -123,7 +123,7 @@ namespace WinGetMCPServer
 
             if (cancellationToken.IsCancellationRequested)
             {
-                return ResponseForCancelBeforeSystemChange();
+                return PackageResponse.ForCancelBeforeSystemChange();
             }
 
             if (catalogPackage.InstalledVersion == null)
@@ -146,7 +146,7 @@ namespace WinGetMCPServer
                 findResult = ReFindForPackage(catalogPackage.DefaultInstallVersion);
             }
 
-            return ResponseForInstallOperation(installResult, findResult);
+            return PackageResponse.ForInstallOperation(installResult, findResult);
         }
 
         private ConnectResult ConnectCatalog(string? catalog = null)
@@ -211,50 +211,6 @@ namespace WinGetMCPServer
             return catalog!.FindPackages(findPackageOptions);
         }
 
-        private FindPackageResult FindPackageResultFromCatalogPackage(CatalogPackage package)
-        {
-            FindPackageResult findPackageResult = new FindPackageResult()
-            {
-                Identifier = package.Id,
-                Name = package.Name,
-            };
-
-            var installedVersion = package.InstalledVersion;
-            findPackageResult.IsInstalled = installedVersion != null;
-
-            if (installedVersion != null)
-            {
-                findPackageResult.Catalog = installedVersion.PackageCatalog?.Info?.Name;
-                if (string.IsNullOrEmpty(findPackageResult.Catalog))
-                {
-                    findPackageResult.Catalog = package.DefaultInstallVersion?.PackageCatalog?.Info?.Name;
-                }
-
-                findPackageResult.InstalledVersion = installedVersion.Version;
-                findPackageResult.IsUpdateAvailable = package.IsUpdateAvailable;
-
-                string installLocation = installedVersion.GetMetadata(PackageVersionMetadataField.InstalledLocation);
-                if (!string.IsNullOrEmpty(installLocation))
-                {
-                    findPackageResult.InstalledLocation = installLocation;
-                }
-            }
-            else
-            {
-                findPackageResult.Catalog = package.DefaultInstallVersion.PackageCatalog.Info.Name;
-            }
-
-            return findPackageResult;
-        }
-
-        private void AddFoundPackagesToList(List<FindPackageResult> list, FindPackagesResult findResult)
-        {
-            for (int i = 0; i < findResult.Matches!.Count; ++i)
-            {
-                list.Add(FindPackageResultFromCatalogPackage(findResult.Matches[i].CatalogPackage));
-            }
-        }
-
         private static ProgressNotificationValue CreateInstallProgressNotification(ref InstallProgress installProgress)
         {
             string? message = null;
@@ -290,48 +246,6 @@ namespace WinGetMCPServer
             };
 
             return result;
-        }
-
-
-        private class FindPackageResult
-        {
-            public required string Identifier { get; init; }
-
-            public string? Name { get; set; }
-
-            public string? Catalog { get; set; }
-
-            public bool? IsInstalled { get; set; }
-
-            public string? InstalledVersion { get; set; }
-
-            public string? InstalledLocation { get; set; }
-
-            public bool? IsUpdateAvailable { get; set; }
-        }
-
-        private class PackageIdentityErrorResult
-        {
-            public required string Message { get; init; }
-
-            public required string Identifier { get; init; }
-
-            public string? Catalog { get; set; }
-
-            public List<FindPackageResult> Packages { get; set; } = new List<FindPackageResult>();
-        }
-
-        private class InstallOperationResult
-        {
-            public string? Message { get; set; }
-
-            public bool? RebootRequired { get; set; }
-
-            public int? ErrorCode { get; set; }
-
-            public uint? InstallerErrorCode { get; set; }
-
-            public FindPackageResult? InstalledPackageInformation { get; set; }
         }
     }
 }
