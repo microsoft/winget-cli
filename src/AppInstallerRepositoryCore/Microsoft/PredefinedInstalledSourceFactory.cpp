@@ -75,7 +75,15 @@ namespace AppInstaller::Repository::Microsoft
                 IPackageManager9 packageManager9 = packageManager.try_as<IPackageManager9>();
                 if (packageManager9)
                 {
-                    packages = packageManager.FindProvisionedPackages();
+                    try
+                    {
+                        packages = packageManager.FindProvisionedPackages();
+                    }
+                    catch (const winrt::hresult_error& hre)
+                    {
+                        // Historically this API has not been accessible unelevated; if it fails, try to carry on
+                        AICLI_LOG(Repo, Warning, << "FindProvisionedPackages failed, bypassing provisioned packages: 0x" << Logging::SetHRFormat << hre.code());
+                    }
                 }
                 else
                 {
