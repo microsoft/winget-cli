@@ -7,6 +7,7 @@
 #include <appmodel.h>
 #include <Helpers.h>
 #include <winget/Security.h>
+#include <AppInstallerRuntime.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -135,7 +136,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             UINT32 length = ARRAYSIZE(packageFamilyName);
             if (::GetPackageFamilyName(processHandle.get(), &length, packageFamilyName) == ERROR_SUCCESS)
             {
-                return { packageFamilyName };
+                // If the package is calling into itself, fall through to the executable name
+                if (AppInstaller::Runtime::GetPackageFamilyName() != packageFamilyName)
+                {
+                    return { packageFamilyName };
+                }
             }
 
             // if the caller doesn't have an AppUserModelID then fall back to the executable name

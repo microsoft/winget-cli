@@ -14,6 +14,7 @@ namespace WinGetMCPServer
     using Windows.Foundation;
     using WinGetMCPServer.Extensions;
     using WinGetMCPServer.Response;
+    using WinGetMCPServer.Exceptions;
 
     /// <summary>
     /// WinGet package tools.
@@ -37,33 +38,33 @@ namespace WinGetMCPServer
         public CallToolResponse FindPackages(
             [Description("Find packages identified by this value")] string query)
         {
-            var connectResult = ConnectCatalog();
-
-            if (connectResult.Status != ConnectResultStatus.Ok)
+            try
             {
-                return PackageResponse.ForConnectError(connectResult);
+                var catalog = ConnectCatalog();
+
+                // First attempt a more exact match
+                var findResult = FindForQuery(catalog, query, fullStringMatch: true);
+
+                // If nothing is found, expand to a looser search
+                if ((findResult.Matches?.Count ?? 0) == 0)
+                {
+                    findResult = FindForQuery(catalog, query, fullStringMatch: false);
+                }
+
+                if (findResult.Status != FindPackagesResultStatus.Ok)
+                {
+                    return PackageResponse.ForFindError(findResult);
+                }
+
+                List<FindPackageResult> contents = new List<FindPackageResult>();
+                contents.AddPackages(findResult);
+
+                return ToolResponse.FromObject(contents);
             }
-
-            var catalog = connectResult.PackageCatalog;
-
-            // First attempt a more exact match
-            var findResult = FindForQuery(catalog, query, fullStringMatch: true);
-
-            // If nothing is found, expand to a looser search
-            if ((findResult.Matches?.Count ?? 0) == 0)
+            catch (ToolResponseException e)
             {
-                findResult = FindForQuery(catalog, query, fullStringMatch: false);
+                return e.Response;
             }
-
-            if (findResult.Status != FindPackagesResultStatus.Ok)
-            {
-                return PackageResponse.ForFindError(findResult);
-            }
-
-            List<FindPackageResult> contents = new List<FindPackageResult>();
-            contents.AddPackages(findResult);
-
-            return ToolResponse.FromObject(contents);
         }
 
         [McpServerTool(
@@ -80,76 +81,76 @@ namespace WinGetMCPServer
             CancellationToken cancellationToken,
             [Description("The catalog containing the package")] string? catalog = null)
         {
-            var connectResult = ConnectCatalog(catalog);
-
-            if (connectResult.Status != ConnectResultStatus.Ok)
+            try
             {
-                return PackageResponse.ForConnectError(connectResult);
-            }
+                var packageCatalog = ConnectCatalog(catalog);
 
-            if (cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return PackageResponse.ForCancelBeforeSystemChange();
+                }
+
+                // First attempt a more exact match
+                var findResult = FindForIdentifier(packageCatalog, identifier, expandedFields: false);
+
+                // If nothing is found, expand to a looser search
+                if ((findResult.Matches?.Count ?? 0) == 0)
+                {
+                    findResult = FindForIdentifier(packageCatalog, identifier, expandedFields: true);
+                }
+
+                if (findResult.Status != FindPackagesResultStatus.Ok)
+                {
+                    return PackageResponse.ForFindError(findResult);
+                }
+
+                if (findResult.Matches?.Count == 0)
+                {
+                    return PackageResponse.ForEmptyFind(identifier, catalog);
+                }
+                else if (findResult.Matches?.Count > 1)
+                {
+                    return PackageResponse.ForMultiFind(identifier, catalog, findResult);
+                }
+
+                CatalogPackage catalogPackage = findResult.Matches![0].CatalogPackage;
+                InstallOptions options = new InstallOptions();
+                IAsyncOperationWithProgress<InstallResult, InstallProgress>? operation = null;
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return PackageResponse.ForCancelBeforeSystemChange();
+                }
+
+                if (catalogPackage.InstalledVersion == null)
+                {
+                    operation = packageManager.InstallPackageAsync(catalogPackage, options);
+                }
+                else
+                {
+                    operation = packageManager.UpgradePackageAsync(catalogPackage, options);
+                }
+
+                operation.Progress = (asyncInfo, progressInfo) => progress.Report(CreateInstallProgressNotification(ref progressInfo));
+                using CancellationTokenRegistration registration = cancellationToken.Register(() => operation.Cancel());
+
+                var installResult = await operation;
+                findResult = null;
+
+                if (installResult.Status == InstallResultStatus.Ok)
+                {
+                    findResult = ReFindForPackage(catalogPackage.DefaultInstallVersion);
+                }
+
+                return PackageResponse.ForInstallOperation(installResult, findResult);
+            }
+            catch (ToolResponseException e)
             {
-                return PackageResponse.ForCancelBeforeSystemChange();
+                return e.Response;
             }
-
-            var packageCatalog = connectResult.PackageCatalog;
-
-            // First attempt a more exact match
-            var findResult = FindForIdentifier(packageCatalog, identifier, expandedFields: false);
-
-            // If nothing is found, expand to a looser search
-            if ((findResult.Matches?.Count ?? 0) == 0)
-            {
-                findResult = FindForIdentifier(packageCatalog, identifier, expandedFields: true);
-            }
-
-            if (findResult.Status != FindPackagesResultStatus.Ok)
-            {
-                return PackageResponse.ForFindError(findResult);
-            }
-
-            if (findResult.Matches?.Count == 0)
-            {
-                return PackageResponse.ForEmptyFind(identifier, catalog);
-            }
-            else if (findResult.Matches?.Count > 1)
-            {
-                return PackageResponse.ForMultiFind(identifier, catalog, findResult);
-            }
-
-            CatalogPackage catalogPackage = findResult.Matches![0].CatalogPackage;
-            InstallOptions options = new InstallOptions();
-            IAsyncOperationWithProgress<InstallResult, InstallProgress>? operation = null;
-
-            if (cancellationToken.IsCancellationRequested)
-            {
-                return PackageResponse.ForCancelBeforeSystemChange();
-            }
-
-            if (catalogPackage.InstalledVersion == null)
-            {
-                operation = packageManager.InstallPackageAsync(catalogPackage, options);
-            }
-            else
-            {
-                operation = packageManager.UpgradePackageAsync(catalogPackage, options);
-            }
-
-            operation.Progress = (asyncInfo, progressInfo) => progress.Report(CreateInstallProgressNotification(ref progressInfo));
-            using CancellationTokenRegistration registration = cancellationToken.Register(() => operation.Cancel());
-
-            var installResult = await operation;
-            findResult = null;
-
-            if (installResult.Status == InstallResultStatus.Ok)
-            {
-                findResult = ReFindForPackage(catalogPackage.DefaultInstallVersion);
-            }
-
-            return PackageResponse.ForInstallOperation(installResult, findResult);
         }
 
-        private ConnectResult ConnectCatalog(string? catalog = null)
+        private ConnectResult ConnectCatalogWithResult(string? catalog = null)
         {
             CreateCompositePackageCatalogOptions createCompositePackageCatalogOptions = new CreateCompositePackageCatalogOptions();
 
@@ -166,6 +167,16 @@ namespace WinGetMCPServer
 
             var compositeRef = packageManager.CreateCompositePackageCatalog(createCompositePackageCatalogOptions);
             return compositeRef.Connect();
+        }
+
+        private PackageCatalog ConnectCatalog(string? catalog = null)
+        {
+            var result = ConnectCatalogWithResult(catalog);
+            if (result.Status != ConnectResultStatus.Ok)
+            {
+                throw new ToolResponseException(PackageResponse.ForConnectError(result));
+            }
+            return result.PackageCatalog;
         }
 
         private FindPackagesResult FindForQuery(PackageCatalog catalog, string query, bool fullStringMatch)
@@ -196,7 +207,7 @@ namespace WinGetMCPServer
 
         private FindPackagesResult? ReFindForPackage(PackageVersionInfo packageVersionInfo)
         {
-            var connectResult = ConnectCatalog(packageVersionInfo.PackageCatalog.Info.Id);
+            var connectResult = ConnectCatalogWithResult(packageVersionInfo.PackageCatalog.Info.Id);
 
             if (connectResult.Status != ConnectResultStatus.Ok)
             {
