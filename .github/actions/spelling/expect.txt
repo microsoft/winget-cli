@@ -47,6 +47,7 @@ awgs
 azurewebsites
 Baz
 bcp
+BEBOM
 BEFACEF
 bfd
 BFirst
@@ -268,6 +269,7 @@ kool
 ktf
 LCID
 learnxinyminutes
+LEBOM
 lhs
 LIBYAML
 liv
