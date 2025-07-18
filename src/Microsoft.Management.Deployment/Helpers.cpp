@@ -6,6 +6,7 @@
 #include <winrt/Windows.Security.Authorization.AppCapabilityAccess.h>
 #include <appmodel.h>
 #include <Helpers.h>
+#include <winget/Filesystem.h>
 #include <winget/Security.h>
 #include <AppInstallerRuntime.h>
 
@@ -144,11 +145,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
 
             // if the caller doesn't have an AppUserModelID then fall back to the executable name
-            wil::unique_cotaskmem_string imageName = nullptr;
-            if (SUCCEEDED(wil::QueryFullProcessImageNameW(processHandle.get(), 0, imageName)) &&
-                (imageName.get() != nullptr))
+            std::filesystem::path executablePath = AppInstaller::Filesystem::GetExecutablePathForProcess(processHandle.get());
+            if (executablePath.has_filename())
             {
-                return imageName.get();
+                return executablePath.filename();
             }
         }
 
