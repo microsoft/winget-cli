@@ -236,6 +236,26 @@ function Add-PatchToPort
     Add-PatchToPortFile -Port $Port -PatchName $PatchName
 }
 
+# Copies a patch to a port
+function Copy-PatchToPort
+{
+    param(
+        [Parameter(Mandatory)]
+        [string]$Port,
+        [Parameter(Mandatory)]
+        [string]$PatchPath,  # overlay relative directory
+        [Parameter(Mandatory)]
+        [string]$PatchName
+    )
+
+    $portSource = Join-Path $OverlayRoot $PatchPath $PatchName
+
+    $portDir = Join-Path $OverlayRoot $Port
+    Copy-Item -Path $portSource -Destination (Join-Path $portDir $PatchName)
+
+    Add-PatchToPortFile -Port $Port -PatchName $PatchName
+}
+
 # Sets the value of an existing function parameter.
 # For example, REF in vcpkg_from_github
 function Set-ParameterInPortFile
@@ -301,6 +321,9 @@ function Update-PortVersion
 
 New-PortOverlay cpprestsdk -Version 2.10.18 -PortVersion 4
 Add-PatchToPort cpprestsdk -PatchRepo 'microsoft/winget-cli' -PatchCommit '888b4ed8f4f7d25cb05a47210e083fe29348163b' -PatchName 'add-server-certificate-validation.patch' -PatchRoot 'src/cpprestsdk/cpprestsdk'
+
+New-PortOverlay detours -Version 4.0.1 -PortVersion 8
+Copy-PatchToPort detours -PatchPath 'detours_manual' -PatchName 'undockedregfreewinrt-version.patch'
 
 New-PortOverlay libyaml -Version 0.2.5 -PortVersion 5
 Update-PortSource libyaml -Commit '840b65c40675e2d06bf40405ad3f12dec7f35923' -SourceHash 'de85560312d53a007a2ddf1fe403676bbd34620480b1ba446b8c16bb366524ba7a6ed08f6316dd783bf980d9e26603a9efc82f134eb0235917b3be1d3eb4b302'

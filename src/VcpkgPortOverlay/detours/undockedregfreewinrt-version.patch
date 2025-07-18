@@ -1,0 +1,2153 @@
+diff --git a/src/creatwth.cpp b/src/creatwth.cpp
+index 341a62e..300bb2c 100644
+--- a/src/creatwth.cpp
++++ b/src/creatwth.cpp
+@@ -7,34 +7,15 @@
+ //  Copyright (c) Microsoft Corporation.  All rights reserved.
+ //
+ 
+-#if _MSC_VER >= 1900
+-#pragma warning(push)
+-#pragma warning(disable:4091) // empty typedef
+-#endif
+-#define _CRT_STDIO_ARBITRARY_WIDE_SPECIFIERS 1
+-#define _ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE 1
+-#include <windows.h>
+-#include <stddef.h>
+-#pragma warning(push)
+-#if _MSC_VER > 1400
+-#pragma warning(disable:6102 6103) // /analyze warnings
+-#endif
+-#include <strsafe.h>
+-#pragma warning(pop)
+-
+ // #define DETOUR_DEBUG 1
+ #define DETOURS_INTERNAL
+-
+ #include "detours.h"
++#include <stddef.h>
+ 
+ #if DETOURS_VERSION != 0x4c0c1   // 0xMAJORcMINORcPATCH
+ #error detours.h version mismatch
+ #endif
+ 
+-#if _MSC_VER >= 1900
+-#pragma warning(pop)
+-#endif
+-
+ #define IMPORT_DIRECTORY OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT]
+ #define BOUND_DIRECTORY OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT]
+ #define CLR_DIRECTORY OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR]
+@@ -148,7 +129,7 @@ static HMODULE WINAPI EnumerateModulesInProcess(HANDLE hProcess,
+ //
+ // Find a region of memory in which we can create a replacement import table.
+ //
+-static PBYTE FindAndAllocateNearBase(HANDLE hProcess, PBYTE pbBase, DWORD cbAlloc)
++static PBYTE FindAndAllocateNearBase(HANDLE hProcess, PBYTE pbModule, PBYTE pbBase, DWORD cbAlloc)
+ {
+     MEMORY_BASIC_INFORMATION mbi;
+     ZeroMemory(&mbi, sizeof(mbi));
+@@ -178,16 +159,24 @@ static PBYTE FindAndAllocateNearBase(HANDLE hProcess, PBYTE pbBase, DWORD cbAllo
+             continue;
+         }
+ 
+-        PBYTE pbAddress = (PBYTE)(((DWORD_PTR)mbi.BaseAddress + 0xffff) & ~(DWORD_PTR)0xffff);
++        // Use the max of mbi.BaseAddress and pbBase, in case mbi.BaseAddress < pbBase.
++        PBYTE pbAddress = (PBYTE)mbi.BaseAddress > pbBase ? (PBYTE)mbi.BaseAddress : pbBase;
++
++        // Round pbAddress up to the nearest MM allocation boundary.
++        const DWORD_PTR mmGranularityMinusOne = (DWORD_PTR)(MM_ALLOCATION_GRANULARITY -1);
++        pbAddress = (PBYTE)(((DWORD_PTR)pbAddress + mmGranularityMinusOne) & ~mmGranularityMinusOne);
+ 
+ #ifdef _WIN64
+-        // The distance from pbBase to pbAddress must fit in 32 bits.
+-        //
++        // The offset from pbModule to any replacement import must fit into 32 bits.
++        // For simplicity, we check that the offset to the last byte fits into 32 bits,
++        // instead of the largest offset we'll actually use. The values are very similar.
+         const size_t GB4 = ((((size_t)1) << 32) - 1);
+-        if ((size_t)(pbAddress - pbBase) > GB4) {
++        if ((size_t)(pbAddress + cbAlloc - 1 - pbModule) > GB4) {
+             DETOUR_TRACE(("FindAndAllocateNearBase(1) failing due to distance >4GB %p\n", pbAddress));
+             return NULL;
+         }
++#else
++        UNREFERENCED_PARAMETER(pbModule);
+ #endif
+ 
+         DETOUR_TRACE(("Free region %p..%p\n",
+@@ -202,9 +191,8 @@ static PBYTE FindAndAllocateNearBase(HANDLE hProcess, PBYTE pbBase, DWORD cbAllo
+                 continue;
+             }
+ #ifdef _WIN64
+-            // The distance from pbBase to pbAddress must fit in 32 bits.
+-            //
+-            if ((size_t)(pbAddress - pbBase) > GB4) {
++            // The offset from pbModule to any replacement import must fit into 32 bits.
++            if ((size_t)(pbAddress + cbAlloc - 1 - pbModule) > GB4) {
+                 DETOUR_TRACE(("FindAndAllocateNearBase(2) failing due to distance >4GB %p\n", pbAddress));
+                 return NULL;
+             }
+@@ -949,6 +937,9 @@ VOID CALLBACK DetourFinishHelperProcess(_In_ HWND,
+ {
+     LPCSTR * rlpDlls = NULL;
+     DWORD Result = 9900;
++    DWORD cOffset = 0;
++    DWORD cSize = 0;
++    HANDLE hProcess = NULL;
+ 
+     if (s_pHelper == NULL) {
+         DETOUR_TRACE(("DetourFinishHelperProcess called with s_pHelper = NULL.\n"));
+@@ -956,7 +947,7 @@ VOID CALLBACK DetourFinishHelperProcess(_In_ HWND,
+         goto Cleanup;
+     }
+ 
+-    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, s_pHelper->pid);
++    hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, s_pHelper->pid);
+     if (hProcess == NULL) {
+         DETOUR_TRACE(("OpenProcess(pid=%d) failed: %d\n",
+                       s_pHelper->pid, GetLastError()));
+@@ -965,8 +956,7 @@ VOID CALLBACK DetourFinishHelperProcess(_In_ HWND,
+     }
+ 
+     rlpDlls = new NOTHROW LPCSTR [s_pHelper->nDlls];
+-    DWORD cSize = s_pHelper->cb - sizeof(DETOUR_EXE_HELPER);
+-    DWORD cOffset = 0;
++    cSize = s_pHelper->cb - sizeof(DETOUR_EXE_HELPER);
+     for (DWORD n = 0; n < s_pHelper->nDlls; n++) {
+         size_t cchDest = 0;
+         HRESULT hr = StringCchLengthA(&s_pHelper->rDlls[cOffset], cSize - cOffset, &cchDest);
+@@ -1029,6 +1019,8 @@ BOOL WINAPI AllocExeHelper(_Out_ PDETOUR_EXE_HELPER *pHelper,
+ {
+     PDETOUR_EXE_HELPER Helper = NULL;
+     BOOL Result = FALSE;
++    _Field_range_(0, cSize - 4) DWORD cOffset = 0;
++    DWORD cSize = 4;
+ 
+     if (pHelper == NULL) {
+         goto Cleanup;
+@@ -1040,7 +1032,6 @@ BOOL WINAPI AllocExeHelper(_Out_ PDETOUR_EXE_HELPER *pHelper,
+         goto Cleanup;
+     }
+ 
+-    DWORD cSize = 4;
+     for (DWORD n = 0; n < nDlls; n++) {
+         HRESULT hr;
+         size_t cchDest = 0;
+@@ -1062,7 +1053,6 @@ BOOL WINAPI AllocExeHelper(_Out_ PDETOUR_EXE_HELPER *pHelper,
+     Helper->pid = dwTargetPid;
+     Helper->nDlls = nDlls;
+ 
+-    _Field_range_(0, cSize - 4) DWORD cOffset = 0;
+     for (DWORD n = 0; n < nDlls; n++) {
+         HRESULT hr;
+         size_t cchDest = 0;
+@@ -1154,6 +1144,7 @@ BOOL WINAPI DetourProcessViaHelperDllsA(_In_ DWORD dwTargetPid,
+     CHAR szCommand[MAX_PATH];
+     PDETOUR_EXE_HELPER helper = NULL;
+     HRESULT hr;
++    DWORD nLen = GetEnvironmentVariableA("WINDIR", szExe, ARRAYSIZE(szExe));
+ 
+     DETOUR_TRACE(("DetourProcessViaHelperDlls(pid=%d,dlls=%d)\n", dwTargetPid, nDlls));
+     if (nDlls < 1 || nDlls > 4096) {
+@@ -1164,7 +1155,6 @@ BOOL WINAPI DetourProcessViaHelperDllsA(_In_ DWORD dwTargetPid,
+         goto Cleanup;
+     }
+ 
+-    DWORD nLen = GetEnvironmentVariableA("WINDIR", szExe, ARRAYSIZE(szExe));
+     if (nLen == 0 || nLen >= ARRAYSIZE(szExe)) {
+         goto Cleanup;
+     }
+@@ -1250,6 +1240,7 @@ BOOL WINAPI DetourProcessViaHelperDllsW(_In_ DWORD dwTargetPid,
+     WCHAR szCommand[MAX_PATH];
+     PDETOUR_EXE_HELPER helper = NULL;
+     HRESULT hr;
++    DWORD nLen = GetEnvironmentVariableW(L"WINDIR", szExe, ARRAYSIZE(szExe));
+ 
+     DETOUR_TRACE(("DetourProcessViaHelperDlls(pid=%d,dlls=%d)\n", dwTargetPid, nDlls));
+     if (nDlls < 1 || nDlls > 4096) {
+@@ -1260,7 +1251,6 @@ BOOL WINAPI DetourProcessViaHelperDllsW(_In_ DWORD dwTargetPid,
+         goto Cleanup;
+     }
+ 
+-    DWORD nLen = GetEnvironmentVariableW(L"WINDIR", szExe, ARRAYSIZE(szExe));
+     if (nLen == 0 || nLen >= ARRAYSIZE(szExe)) {
+         goto Cleanup;
+     }
+diff --git a/src/detours.cpp b/src/detours.cpp
+index 8345c4d..e126cf0 100644
+--- a/src/detours.cpp
++++ b/src/detours.cpp
+@@ -7,33 +7,15 @@
+ //  Copyright (c) Microsoft Corporation.  All rights reserved.
+ //
+ 
+-#pragma warning(disable:4068) // unknown pragma (suppress)
+-
+-#if _MSC_VER >= 1900
+-#pragma warning(push)
+-#pragma warning(disable:4091) // empty typedef
+-#endif
+-
+-#define _ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE 1
+-#include <windows.h>
+-
+-#if (_MSC_VER < 1299)
+-#pragma warning(disable: 4710)
+-#endif
+ 
+ //#define DETOUR_DEBUG 1
+ #define DETOURS_INTERNAL
+-
+ #include "detours.h"
+ 
+ #if DETOURS_VERSION != 0x4c0c1   // 0xMAJORcMINORcPATCH
+ #error detours.h version mismatch
+ #endif
+ 
+-#if _MSC_VER >= 1900
+-#pragma warning(pop)
+-#endif
+-
+ #define NOTHROW
+ 
+ //////////////////////////////////////////////////////////////////////////////
+@@ -879,7 +861,29 @@ inline ULONG detour_is_code_filler(PBYTE pbCode)
+ struct _DETOUR_TRAMPOLINE
+ {
+     // An ARM64 instruction is 4 bytes long.
+-    BYTE            rbCode[64];     // target code + jmp to pbRemain
++    //
++    // The overwrite is always 2 instructions plus a literal, so 16 bytes, 4 instructions.
++    //
++    // Copied instructions can expand.
++    //
++    // The scheme using MovImmediate can cause an instruction
++    // to grow as much as 6 times.
++    // That would be Bcc or Tbz with a large address space:
++    //   4 instructions to form immediate
++    //   inverted tbz/bcc
++    //   br
++    //
++    // An expansion of 4 is not uncommon -- bl/blr and small address space:
++    //   3 instructions to form immediate
++    //   br or brl
++    //
++    // A theoretical maximum for rbCode is thefore 4*4*6 + 16 = 112 (another 16 for jmp to pbRemain).
++    //
++    // With literals, the maximum expansion is 5, including the literals: 4*4*5 + 16 = 96.
++    //
++    // The number is rounded up to 128. m_rbScratchDst should match this.
++    //
++    BYTE            rbCode[128];    // target code + jmp to pbRemain
+     BYTE            cbCode;         // size of moved target code.
+     BYTE            cbCodeBreak[3]; // padding to make debugging easier.
+     BYTE            rbRestore[24];  // original target code.
+@@ -890,10 +894,10 @@ struct _DETOUR_TRAMPOLINE
+     PBYTE           pbDetour;       // first instruction of detour function.
+ };
+ 
+-C_ASSERT(sizeof(_DETOUR_TRAMPOLINE) == 120);
++C_ASSERT(sizeof(_DETOUR_TRAMPOLINE) == 184);
+ 
+ enum {
+-    SIZE_OF_JMP = 8
++    SIZE_OF_JMP = 16
+ };
+ 
+ inline ULONG fetch_opcode(PBYTE pbCode)
+@@ -915,7 +919,7 @@ PBYTE detour_gen_jmp_immediate(PBYTE pbCode, PBYTE *ppPool, PBYTE pbJmpVal)
+         pbLiteral = *ppPool;
+     }
+     else {
+-        pbLiteral = pbCode + 2*4;
++        pbLiteral = pbCode + 8;
+     }
+ 
+     *((PBYTE*&)pbLiteral) = pbJmpVal;
+@@ -938,6 +942,15 @@ inline PBYTE detour_gen_brk(PBYTE pbCode, PBYTE pbLimit)
+     return pbCode;
+ }
+ 
++inline INT64 detour_sign_extend(UINT64 value, UINT bits)
++{
++    const UINT left = 64 - bits;
++    const INT64 m1 = -1;
++    const INT64 wide = (INT64)(value << left);
++    const INT64 sign = (wide < 0) ? (m1 << left) : 0;
++    return value | sign;
++}
++
+ inline PBYTE detour_skip_jmp(PBYTE pbCode, PVOID *ppGlobals)
+ {
+     if (pbCode == NULL) {
+@@ -950,19 +963,72 @@ inline PBYTE detour_skip_jmp(PBYTE pbCode, PVOID *ppGlobals)
+     // Skip over the import jump if there is one.
+     pbCode = (PBYTE)pbCode;
+     ULONG Opcode = fetch_opcode(pbCode);
++
+     if ((Opcode & 0x9f00001f) == 0x90000010) {           // adrp  x16, IAT
+-        ULONG Opcode2 = fetch_opcode(pbCode+4);
++        ULONG Opcode2 = fetch_opcode(pbCode + 4);
+ 
+         if ((Opcode2 & 0xffe003ff) == 0xf9400210) {      // ldr   x16, [x16, IAT]
+-            ULONG Opcode3 = fetch_opcode(pbCode+8);
++            ULONG Opcode3 = fetch_opcode(pbCode + 8);
+ 
+             if (Opcode3 == 0xd61f0200) {                 // br    x16
+ 
+-                ULONG PageOffset = ((Opcode & 0x60000000) >> 29) | ((Opcode & 0x00ffffe0) >> 3);
+-                PageOffset = (LONG)(Opcode << 11) >> 11;
++/* https://static.docs.arm.com/ddi0487/bb/DDI0487B_b_armv8_arm.pdf
++    The ADRP instruction shifts a signed, 21-bit immediate left by 12 bits, adds it to the value of the program counter with
++    the bottom 12 bits cleared to zero, and then writes the result to a general-purpose register. This permits the
++    calculation of the address at a 4KB aligned memory region. In conjunction with an ADD (immediate) instruction, or
++    a Load/Store instruction with a 12-bit immediate offset, this allows for the calculation of, or access to, any address
++    within +/- 4GB of the current PC.
++
++PC-rel. addressing
++    This section describes the encoding of the PC-rel. addressing instruction class. The encodings in this section are
++    decoded from Data Processing -- Immediate on page C4-226.
++    Add/subtract (immediate)
++    This section describes the encoding of the Add/subtract (immediate) instruction class. The encodings in this section
++    are decoded from Data Processing -- Immediate on page C4-226.
++    Decode fields
++    Instruction page
++    op
++    0 ADR
++    1 ADRP
++
++C6.2.10 ADRP
++    Form PC-relative address to 4KB page adds an immediate value that is shifted left by 12 bits, to the PC value to
++    form a PC-relative address, with the bottom 12 bits masked out, and writes the result to the destination register.
++    ADRP <Xd>, <label>
++    imm = SignExtend(immhi:immlo:Zeros(12), 64);
++
++    31  30 29 28 27 26 25 24 23 5    4 0
++    1   immlo  1  0  0  0  0  immhi  Rd
++         9             0
++
++Rd is hardcoded as 0x10 above.
++Immediate is 21 signed bits split into 2 bits and 19 bits, and is scaled by 4K.
++*/
++                UINT64 const pageLow2 = (Opcode >> 29) & 3;
++                UINT64 const pageHigh19 = (Opcode >> 5) & ~(~0ui64 << 19);
++                INT64 const page = detour_sign_extend((pageHigh19 << 2) | pageLow2, 21) << 12;
++
++/* https://static.docs.arm.com/ddi0487/bb/DDI0487B_b_armv8_arm.pdf
++
++    C6.2.101 LDR (immediate)
++    Load Register (immediate) loads a word or doubleword from memory and writes it to a register. The address that is
++    used for the load is calculated from a base register and an immediate offset.
++    The Unsigned offset variant scales the immediate offset value by the size of the value accessed before adding it
++    to the base register value.
++
++Unsigned offset
++64-bit variant Applies when size == 11.
++    31 30 29 28  27 26 25 24  23 22  21   10   9 5   4 0
++     1  x  1  1   1  0  0  1   0  1  imm12      Rn    Rt
++         F             9        4              200    10
++
++That is, two low 5 bit fields are registers, hardcoded as 0x10 and 0x10 << 5 above,
++then unsigned size-unscaled (8) 12-bit offset, then opcode bits 0xF94.
++*/
++                UINT64 const offset = ((Opcode2 >> 10) & ~(~0ui64 << 12)) << 3;
++
++                PBYTE const pbTarget = (PBYTE)((ULONG64)pbCode & 0xfffffffffffff000ULL) + page + offset;
+ 
+-                PBYTE pbTarget = (PBYTE)(((ULONG64)pbCode & 0xfffffffffffff000ULL) + PageOffset +
+-                                         ((Opcode2 >> 10) & 0xfff));
+                 if (detour_is_imported(pbCode, pbTarget)) {
+                     PBYTE pbNew = *(PBYTE *)pbTarget;
+                     DETOUR_TRACE(("%p->%p: skipped over import table.\n", pbCode, pbNew));
+@@ -974,6 +1040,19 @@ inline PBYTE detour_skip_jmp(PBYTE pbCode, PVOID *ppGlobals)
+     return pbCode;
+ }
+ 
++inline void detour_find_jmp_bounds(PBYTE pbCode,
++                                   PDETOUR_TRAMPOLINE *ppLower,
++                                   PDETOUR_TRAMPOLINE *ppUpper)
++{
++    // We have to place trampolines within +/- 2GB of code.
++    ULONG_PTR lo = detour_2gb_below((ULONG_PTR)pbCode);
++    ULONG_PTR hi = detour_2gb_above((ULONG_PTR)pbCode);
++    DETOUR_TRACE(("[%p..%p..%p]\n", lo, pbCode, hi));
++
++    *ppLower = (PDETOUR_TRAMPOLINE)lo;
++    *ppUpper = (PDETOUR_TRAMPOLINE)hi;
++}
++
+ inline BOOL detour_does_code_end_function(PBYTE pbCode)
+ {
+     ULONG Opcode = fetch_opcode(pbCode);
+@@ -1153,6 +1232,65 @@ static PVOID detour_alloc_region_from_hi(PBYTE pbLo, PBYTE pbHi)
+     return NULL;
+ }
+ 
++static PVOID detour_alloc_trampoline_allocate_new(PBYTE pbTarget,
++                                                  PDETOUR_TRAMPOLINE pLo,
++                                                  PDETOUR_TRAMPOLINE pHi)
++{
++    PVOID pbTry = NULL;
++
++    // NB: We must always also start the search at an offset from pbTarget
++    //     in order to maintain ASLR entropy.
++
++#if defined(DETOURS_64BIT)
++    // Try looking 1GB below or lower.
++    if (pbTry == NULL && pbTarget > (PBYTE)0x40000000) {
++        pbTry = detour_alloc_region_from_hi((PBYTE)pLo, pbTarget - 0x40000000);
++    }
++    // Try looking 1GB above or higher.
++    if (pbTry == NULL && pbTarget < (PBYTE)0xffffffff40000000) {
++        pbTry = detour_alloc_region_from_lo(pbTarget + 0x40000000, (PBYTE)pHi);
++    }
++    // Try looking 1GB below or higher.
++    if (pbTry == NULL && pbTarget > (PBYTE)0x40000000) {
++        pbTry = detour_alloc_region_from_lo(pbTarget - 0x40000000, pbTarget);
++    }
++    // Try looking 1GB above or lower.
++    if (pbTry == NULL && pbTarget < (PBYTE)0xffffffff40000000) {
++        pbTry = detour_alloc_region_from_hi(pbTarget, pbTarget + 0x40000000);
++    }
++#endif
++
++    // Try anything below.
++    if (pbTry == NULL) {
++        pbTry = detour_alloc_region_from_hi((PBYTE)pLo, pbTarget);
++    }
++    // try anything above.
++    if (pbTry == NULL) {
++        pbTry = detour_alloc_region_from_lo(pbTarget, (PBYTE)pHi);
++    }
++
++    return pbTry;
++}
++
++PVOID WINAPI DetourAllocateRegionWithinJumpBounds(_In_ LPCVOID pbTarget,
++                                                  _Out_ PDWORD pcbAllocatedSize)
++{
++    PDETOUR_TRAMPOLINE pLo;
++    PDETOUR_TRAMPOLINE pHi;
++    detour_find_jmp_bounds((PBYTE)pbTarget, &pLo, &pHi);
++
++    PVOID pbNewlyAllocated =
++        detour_alloc_trampoline_allocate_new((PBYTE)pbTarget, pLo, pHi);
++    if (pbNewlyAllocated == NULL) {
++        DETOUR_TRACE(("Couldn't find available memory region!\n"));
++        *pcbAllocatedSize = 0;
++        return NULL;
++    }
++
++    *pcbAllocatedSize = DETOUR_REGION_SIZE;
++    return pbNewlyAllocated;
++}
++
+ static PDETOUR_TRAMPOLINE detour_alloc_trampoline(PBYTE pbTarget)
+ {
+     // We have to place trampolines within +/- 2GB of target.
+@@ -1197,41 +1335,10 @@ static PDETOUR_TRAMPOLINE detour_alloc_trampoline(PBYTE pbTarget)
+     // Round pbTarget down to 64KB block.
+     pbTarget = pbTarget - (PtrToUlong(pbTarget) & 0xffff);
+ 
+-    PVOID pbTry = NULL;
+-
+-    // NB: We must always also start the search at an offset from pbTarget
+-    //     in order to maintain ASLR entropy.
+-
+-#if defined(DETOURS_64BIT)
+-    // Try looking 1GB below or lower.
+-    if (pbTry == NULL && pbTarget > (PBYTE)0x40000000) {
+-        pbTry = detour_alloc_region_from_hi((PBYTE)pLo, pbTarget - 0x40000000);
+-    }
+-    // Try looking 1GB above or higher.
+-    if (pbTry == NULL && pbTarget < (PBYTE)0xffffffff40000000) {
+-        pbTry = detour_alloc_region_from_lo(pbTarget + 0x40000000, (PBYTE)pHi);
+-    }
+-    // Try looking 1GB below or higher.
+-    if (pbTry == NULL && pbTarget > (PBYTE)0x40000000) {
+-        pbTry = detour_alloc_region_from_lo(pbTarget - 0x40000000, pbTarget);
+-    }
+-    // Try looking 1GB above or lower.
+-    if (pbTry == NULL && pbTarget < (PBYTE)0xffffffff40000000) {
+-        pbTry = detour_alloc_region_from_hi(pbTarget, pbTarget + 0x40000000);
+-    }
+-#endif
+-
+-    // Try anything below.
+-    if (pbTry == NULL) {
+-        pbTry = detour_alloc_region_from_hi((PBYTE)pLo, pbTarget);
+-    }
+-    // try anything above.
+-    if (pbTry == NULL) {
+-        pbTry = detour_alloc_region_from_lo(pbTarget, (PBYTE)pHi);
+-    }
+-
+-    if (pbTry != NULL) {
+-        s_pRegion = (DETOUR_REGION*)pbTry;
++    PVOID pbNewlyAllocated =
++        detour_alloc_trampoline_allocate_new(pbTarget, pLo, pHi);
++    if (pbNewlyAllocated != NULL) {
++        s_pRegion = (DETOUR_REGION*)pbNewlyAllocated;
+         s_pRegion->dwSignature = DETOUR_REGION_SIGNATURE;
+         s_pRegion->pFree = NULL;
+         s_pRegion->pNext = s_pRegions;
+diff --git a/src/detours.h b/src/detours.h
+index fe7acf1..c1ef281 100644
+--- a/src/detours.h
++++ b/src/detours.h
+@@ -16,6 +16,34 @@
+ //////////////////////////////////////////////////////////////////////////////
+ //
+ 
++#ifdef DETOURS_INTERNAL
++
++#define _CRT_STDIO_ARBITRARY_WIDE_SPECIFIERS 1
++#define _ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE 1
++
++#pragma warning(disable:4068) // unknown pragma (suppress)
++
++#if _MSC_VER >= 1900
++#pragma warning(push)
++#pragma warning(disable:4091) // empty typedef
++#endif
++
++#include <windows.h>
++#if (_MSC_VER < 1310)
++#else
++#pragma warning(push)
++#if _MSC_VER > 1400
++#pragma warning(disable:6102 6103) // /analyze warnings
++#endif
++#include <strsafe.h>
++#pragma warning(pop)
++#endif
++
++#endif // DETOURS_INTERNAL
++
++//////////////////////////////////////////////////////////////////////////////
++//
++
+ #undef DETOURS_X64
+ #undef DETOURS_X86
+ #undef DETOURS_IA64
+@@ -267,7 +295,7 @@ typedef struct  _GUID
+     DWORD Data1;
+     WORD Data2;
+     WORD Data3;
+-    BYTE Data4[ 8 ];
++    BYTE Data4[8];
+ } GUID;
+ 
+ #ifdef INITGUID
+@@ -303,97 +331,116 @@ typedef struct  _GUID
+ extern "C" {
+ #endif // __cplusplus
+ 
+-/////////////////////////////////////////////////// Instruction Target Macros.
+-//
++    /////////////////////////////////////////////////// Instruction Target Macros.
++    //
+ #define DETOUR_INSTRUCTION_TARGET_NONE          ((PVOID)0)
+ #define DETOUR_INSTRUCTION_TARGET_DYNAMIC       ((PVOID)(LONG_PTR)-1)
+ #define DETOUR_SECTION_HEADER_SIGNATURE         0x00727444   // "Dtr\0"
+ 
+-extern const GUID DETOUR_EXE_RESTORE_GUID;
+-extern const GUID DETOUR_EXE_HELPER_GUID;
++    extern const GUID DETOUR_EXE_RESTORE_GUID;
++    extern const GUID DETOUR_EXE_HELPER_GUID;
+ 
+ #define DETOUR_TRAMPOLINE_SIGNATURE             0x21727444  // Dtr!
+-typedef struct _DETOUR_TRAMPOLINE DETOUR_TRAMPOLINE, *PDETOUR_TRAMPOLINE;
++    typedef struct _DETOUR_TRAMPOLINE DETOUR_TRAMPOLINE, * PDETOUR_TRAMPOLINE;
+ 
+-/////////////////////////////////////////////////////////// Binary Structures.
+-//
++    /////////////////////////////////////////////////////////// Binary Structures.
++    //
+ #pragma pack(push, 8)
+-typedef struct _DETOUR_SECTION_HEADER
+-{
+-    DWORD       cbHeaderSize;
+-    DWORD       nSignature;
+-    DWORD       nDataOffset;
+-    DWORD       cbDataSize;
+-
+-    DWORD       nOriginalImportVirtualAddress;
+-    DWORD       nOriginalImportSize;
+-    DWORD       nOriginalBoundImportVirtualAddress;
+-    DWORD       nOriginalBoundImportSize;
+-
+-    DWORD       nOriginalIatVirtualAddress;
+-    DWORD       nOriginalIatSize;
+-    DWORD       nOriginalSizeOfImage;
+-    DWORD       cbPrePE;
+-
+-    DWORD       nOriginalClrFlags;
+-    DWORD       reserved1;
+-    DWORD       reserved2;
+-    DWORD       reserved3;
+-
+-    // Followed by cbPrePE bytes of data.
+-} DETOUR_SECTION_HEADER, *PDETOUR_SECTION_HEADER;
+-
+-typedef struct _DETOUR_SECTION_RECORD
+-{
+-    DWORD       cbBytes;
+-    DWORD       nReserved;
+-    GUID        guid;
+-} DETOUR_SECTION_RECORD, *PDETOUR_SECTION_RECORD;
++    typedef struct _DETOUR_SECTION_HEADER
++    {
++        DWORD       cbHeaderSize;
++        DWORD       nSignature;
++        DWORD       nDataOffset;
++        DWORD       cbDataSize;
++
++        DWORD       nOriginalImportVirtualAddress;
++        DWORD       nOriginalImportSize;
++        DWORD       nOriginalBoundImportVirtualAddress;
++        DWORD       nOriginalBoundImportSize;
++
++        DWORD       nOriginalIatVirtualAddress;
++        DWORD       nOriginalIatSize;
++        DWORD       nOriginalSizeOfImage;
++        DWORD       cbPrePE;
++
++        DWORD       nOriginalClrFlags;
++        DWORD       reserved1;
++        DWORD       reserved2;
++        DWORD       reserved3;
++
++        // Followed by cbPrePE bytes of data.
++    } DETOUR_SECTION_HEADER, * PDETOUR_SECTION_HEADER;
++
++    typedef struct _DETOUR_SECTION_RECORD
++    {
++        DWORD       cbBytes;
++        DWORD       nReserved;
++        GUID        guid;
++    } DETOUR_SECTION_RECORD, * PDETOUR_SECTION_RECORD;
+ 
+-typedef struct _DETOUR_CLR_HEADER
+-{
+-    // Header versioning
+-    ULONG                   cb;
+-    USHORT                  MajorRuntimeVersion;
+-    USHORT                  MinorRuntimeVersion;
++    typedef struct _DETOUR_CLR_HEADER
++    {
++        // Header versioning
++        ULONG                   cb;
++        USHORT                  MajorRuntimeVersion;
++        USHORT                  MinorRuntimeVersion;
+ 
+-    // Symbol table and startup information
+-    IMAGE_DATA_DIRECTORY    MetaData;
+-    ULONG                   Flags;
++        // Symbol table and startup information
++        IMAGE_DATA_DIRECTORY    MetaData;
++        ULONG                   Flags;
+ 
+-    // Followed by the rest of the IMAGE_COR20_HEADER
+-} DETOUR_CLR_HEADER, *PDETOUR_CLR_HEADER;
++        // Followed by the rest of the IMAGE_COR20_HEADER
++    } DETOUR_CLR_HEADER, * PDETOUR_CLR_HEADER;
+ 
+-typedef struct _DETOUR_EXE_RESTORE
+-{
+-    DWORD               cb;
+-    DWORD               cbidh;
+-    DWORD               cbinh;
+-    DWORD               cbclr;
+-
+-    PBYTE               pidh;
+-    PBYTE               pinh;
+-    PBYTE               pclr;
+-
+-    IMAGE_DOS_HEADER    idh;
+-    union {
+-        IMAGE_NT_HEADERS    inh;
+-        IMAGE_NT_HEADERS32  inh32;
+-        IMAGE_NT_HEADERS64  inh64;
+-        BYTE                raw[sizeof(IMAGE_NT_HEADERS64) +
+-                                sizeof(IMAGE_SECTION_HEADER) * 32];
+-    };
+-    DETOUR_CLR_HEADER   clr;
++    typedef struct _DETOUR_EXE_RESTORE
++    {
++        DWORD               cb;
++        DWORD               cbidh;
++        DWORD               cbinh;
++        DWORD               cbclr;
++
++        PBYTE               pidh;
++        PBYTE               pinh;
++        PBYTE               pclr;
++
++        IMAGE_DOS_HEADER    idh;
++        union {
++            IMAGE_NT_HEADERS    inh;        // all environments have this
++#ifdef IMAGE_NT_OPTIONAL_HDR32_MAGIC    // some environments do not have this
++            IMAGE_NT_HEADERS32  inh32;
++#endif
++#ifdef IMAGE_NT_OPTIONAL_HDR64_MAGIC    // some environments do not have this
++            IMAGE_NT_HEADERS64  inh64;
++#endif
++#ifdef IMAGE_NT_OPTIONAL_HDR64_MAGIC    // some environments do not have this
++            BYTE                raw[sizeof(IMAGE_NT_HEADERS64) +
++                sizeof(IMAGE_SECTION_HEADER) * 32];
++#else
++            BYTE                raw[0x108 + sizeof(IMAGE_SECTION_HEADER) * 32];
++#endif
++        };
++        DETOUR_CLR_HEADER   clr;
+ 
+-} DETOUR_EXE_RESTORE, *PDETOUR_EXE_RESTORE;
++    } DETOUR_EXE_RESTORE, * PDETOUR_EXE_RESTORE;
+ 
+-typedef struct _DETOUR_EXE_HELPER
+-{
+-    DWORD               cb;
+-    DWORD               pid;
+-    DWORD               nDlls;
+-    CHAR                rDlls[4];
+-} DETOUR_EXE_HELPER, *PDETOUR_EXE_HELPER;
++#ifdef IMAGE_NT_OPTIONAL_HDR64_MAGIC
++    C_ASSERT(sizeof(IMAGE_NT_HEADERS64) == 0x108);
++#endif
++
++    // The size can change, but assert for clarity due to the muddying #ifdefs.
++#ifdef _WIN64
++    C_ASSERT(sizeof(DETOUR_EXE_RESTORE) == 0x688);
++#else
++    C_ASSERT(sizeof(DETOUR_EXE_RESTORE) == 0x678);
++#endif
++
++    typedef struct _DETOUR_EXE_HELPER
++    {
++        DWORD               cb;
++        DWORD               pid;
++        DWORD               nDlls;
++        CHAR                rDlls[4];
++    } DETOUR_EXE_HELPER, * PDETOUR_EXE_HELPER;
+ 
+ #pragma pack(pop)
+ 
+@@ -415,220 +462,222 @@ typedef struct _DETOUR_EXE_HELPER
+       0,\
+ }
+ 
+-/////////////////////////////////////////////////////////////// Helper Macros.
+-//
++    /////////////////////////////////////////////////////////////// Helper Macros.
++    //
+ #define DETOURS_STRINGIFY(x)    DETOURS_STRINGIFY_(x)
+ #define DETOURS_STRINGIFY_(x)    #x
+ 
+ ///////////////////////////////////////////////////////////// Binary Typedefs.
+ //
+-typedef BOOL (CALLBACK *PF_DETOUR_BINARY_BYWAY_CALLBACK)(
+-    _In_opt_ PVOID pContext,
+-    _In_opt_ LPCSTR pszFile,
+-    _Outptr_result_maybenull_ LPCSTR *ppszOutFile);
+-
+-typedef BOOL (CALLBACK *PF_DETOUR_BINARY_FILE_CALLBACK)(
+-    _In_opt_ PVOID pContext,
+-    _In_ LPCSTR pszOrigFile,
+-    _In_ LPCSTR pszFile,
+-    _Outptr_result_maybenull_ LPCSTR *ppszOutFile);
+-
+-typedef BOOL (CALLBACK *PF_DETOUR_BINARY_SYMBOL_CALLBACK)(
+-    _In_opt_ PVOID pContext,
+-    _In_ ULONG nOrigOrdinal,
+-    _In_ ULONG nOrdinal,
+-    _Out_ ULONG *pnOutOrdinal,
+-    _In_opt_ LPCSTR pszOrigSymbol,
+-    _In_opt_ LPCSTR pszSymbol,
+-    _Outptr_result_maybenull_ LPCSTR *ppszOutSymbol);
+-
+-typedef BOOL (CALLBACK *PF_DETOUR_BINARY_COMMIT_CALLBACK)(
+-    _In_opt_ PVOID pContext);
+-
+-typedef BOOL (CALLBACK *PF_DETOUR_ENUMERATE_EXPORT_CALLBACK)(_In_opt_ PVOID pContext,
+-                                                             _In_ ULONG nOrdinal,
+-                                                             _In_opt_ LPCSTR pszName,
+-                                                             _In_opt_ PVOID pCode);
+-
+-typedef BOOL (CALLBACK *PF_DETOUR_IMPORT_FILE_CALLBACK)(_In_opt_ PVOID pContext,
+-                                                        _In_opt_ HMODULE hModule,
+-                                                        _In_opt_ LPCSTR pszFile);
+-
+-typedef BOOL (CALLBACK *PF_DETOUR_IMPORT_FUNC_CALLBACK)(_In_opt_ PVOID pContext,
+-                                                        _In_ DWORD nOrdinal,
+-                                                        _In_opt_ LPCSTR pszFunc,
+-                                                        _In_opt_ PVOID pvFunc);
+-
+-// Same as PF_DETOUR_IMPORT_FUNC_CALLBACK but extra indirection on last parameter.
+-typedef BOOL (CALLBACK *PF_DETOUR_IMPORT_FUNC_CALLBACK_EX)(_In_opt_ PVOID pContext,
+-                                                           _In_ DWORD nOrdinal,
+-                                                           _In_opt_ LPCSTR pszFunc,
+-                                                           _In_opt_ PVOID* ppvFunc);
+-
+-typedef VOID * PDETOUR_BINARY;
+-typedef VOID * PDETOUR_LOADED_BINARY;
+-
+-//////////////////////////////////////////////////////////// Transaction APIs.
+-//
+-LONG WINAPI DetourTransactionBegin(VOID);
+-LONG WINAPI DetourTransactionAbort(VOID);
+-LONG WINAPI DetourTransactionCommit(VOID);
+-LONG WINAPI DetourTransactionCommitEx(_Out_opt_ PVOID **pppFailedPointer);
+-
+-LONG WINAPI DetourUpdateThread(_In_ HANDLE hThread);
+-
+-LONG WINAPI DetourAttach(_Inout_ PVOID *ppPointer,
+-                         _In_ PVOID pDetour);
+-
+-LONG WINAPI DetourAttachEx(_Inout_ PVOID *ppPointer,
+-                           _In_ PVOID pDetour,
+-                           _Out_opt_ PDETOUR_TRAMPOLINE *ppRealTrampoline,
+-                           _Out_opt_ PVOID *ppRealTarget,
+-                           _Out_opt_ PVOID *ppRealDetour);
+-
+-LONG WINAPI DetourDetach(_Inout_ PVOID *ppPointer,
+-                         _In_ PVOID pDetour);
+-
+-BOOL WINAPI DetourSetIgnoreTooSmall(_In_ BOOL fIgnore);
+-BOOL WINAPI DetourSetRetainRegions(_In_ BOOL fRetain);
+-PVOID WINAPI DetourSetSystemRegionLowerBound(_In_ PVOID pSystemRegionLowerBound);
+-PVOID WINAPI DetourSetSystemRegionUpperBound(_In_ PVOID pSystemRegionUpperBound);
+-
+-////////////////////////////////////////////////////////////// Code Functions.
+-//
+-PVOID WINAPI DetourFindFunction(_In_ LPCSTR pszModule,
+-                                _In_ LPCSTR pszFunction);
+-PVOID WINAPI DetourCodeFromPointer(_In_ PVOID pPointer,
+-                                   _Out_opt_ PVOID *ppGlobals);
+-PVOID WINAPI DetourCopyInstruction(_In_opt_ PVOID pDst,
+-                                   _Inout_opt_ PVOID *ppDstPool,
+-                                   _In_ PVOID pSrc,
+-                                   _Out_opt_ PVOID *ppTarget,
+-                                   _Out_opt_ LONG *plExtra);
+-BOOL WINAPI DetourSetCodeModule(_In_ HMODULE hModule,
+-                                _In_ BOOL fLimitReferencesToModule);
+-
+-///////////////////////////////////////////////////// Loaded Binary Functions.
+-//
+-HMODULE WINAPI DetourGetContainingModule(_In_ PVOID pvAddr);
+-HMODULE WINAPI DetourEnumerateModules(_In_opt_ HMODULE hModuleLast);
+-PVOID WINAPI DetourGetEntryPoint(_In_opt_ HMODULE hModule);
+-ULONG WINAPI DetourGetModuleSize(_In_opt_ HMODULE hModule);
+-BOOL WINAPI DetourEnumerateExports(_In_ HMODULE hModule,
+-                                   _In_opt_ PVOID pContext,
+-                                   _In_ PF_DETOUR_ENUMERATE_EXPORT_CALLBACK pfExport);
+-BOOL WINAPI DetourEnumerateImports(_In_opt_ HMODULE hModule,
+-                                   _In_opt_ PVOID pContext,
+-                                   _In_opt_ PF_DETOUR_IMPORT_FILE_CALLBACK pfImportFile,
+-                                   _In_opt_ PF_DETOUR_IMPORT_FUNC_CALLBACK pfImportFunc);
+-
+-BOOL WINAPI DetourEnumerateImportsEx(_In_opt_ HMODULE hModule,
+-                                     _In_opt_ PVOID pContext,
+-                                     _In_opt_ PF_DETOUR_IMPORT_FILE_CALLBACK pfImportFile,
+-                                     _In_opt_ PF_DETOUR_IMPORT_FUNC_CALLBACK_EX pfImportFuncEx);
+-
+-_Writable_bytes_(*pcbData)
+-_Readable_bytes_(*pcbData)
+-_Success_(return != NULL)
+-PVOID WINAPI DetourFindPayload(_In_opt_ HMODULE hModule,
+-                               _In_ REFGUID rguid,
+-                               _Out_ DWORD *pcbData);
+-
+-_Writable_bytes_(*pcbData)
+-_Readable_bytes_(*pcbData)
+-_Success_(return != NULL)
+-PVOID WINAPI DetourFindPayloadEx(_In_ REFGUID rguid,
+-                                 _Out_ DWORD * pcbData);
+-
+-DWORD WINAPI DetourGetSizeOfPayloads(_In_opt_ HMODULE hModule);
+-
+-///////////////////////////////////////////////// Persistent Binary Functions.
+-//
+-
+-PDETOUR_BINARY WINAPI DetourBinaryOpen(_In_ HANDLE hFile);
+-
+-_Writable_bytes_(*pcbData)
+-_Readable_bytes_(*pcbData)
+-_Success_(return != NULL)
+-PVOID WINAPI DetourBinaryEnumeratePayloads(_In_ PDETOUR_BINARY pBinary,
+-                                           _Out_opt_ GUID *pGuid,
+-                                           _Out_ DWORD *pcbData,
+-                                           _Inout_ DWORD *pnIterator);
+-
+-_Writable_bytes_(*pcbData)
+-_Readable_bytes_(*pcbData)
+-_Success_(return != NULL)
+-PVOID WINAPI DetourBinaryFindPayload(_In_ PDETOUR_BINARY pBinary,
+-                                     _In_ REFGUID rguid,
+-                                     _Out_ DWORD *pcbData);
+-
+-PVOID WINAPI DetourBinarySetPayload(_In_ PDETOUR_BINARY pBinary,
+-                                    _In_ REFGUID rguid,
+-                                    _In_reads_opt_(cbData) PVOID pData,
+-                                    _In_ DWORD cbData);
+-BOOL WINAPI DetourBinaryDeletePayload(_In_ PDETOUR_BINARY pBinary, _In_ REFGUID rguid);
+-BOOL WINAPI DetourBinaryPurgePayloads(_In_ PDETOUR_BINARY pBinary);
+-BOOL WINAPI DetourBinaryResetImports(_In_ PDETOUR_BINARY pBinary);
+-BOOL WINAPI DetourBinaryEditImports(_In_ PDETOUR_BINARY pBinary,
+-                                    _In_opt_ PVOID pContext,
+-                                    _In_opt_ PF_DETOUR_BINARY_BYWAY_CALLBACK pfByway,
+-                                    _In_opt_ PF_DETOUR_BINARY_FILE_CALLBACK pfFile,
+-                                    _In_opt_ PF_DETOUR_BINARY_SYMBOL_CALLBACK pfSymbol,
+-                                    _In_opt_ PF_DETOUR_BINARY_COMMIT_CALLBACK pfCommit);
+-BOOL WINAPI DetourBinaryWrite(_In_ PDETOUR_BINARY pBinary, _In_ HANDLE hFile);
+-BOOL WINAPI DetourBinaryClose(_In_ PDETOUR_BINARY pBinary);
+-
+-/////////////////////////////////////////////////// Create Process & Load Dll.
+-//
+-typedef BOOL (WINAPI *PDETOUR_CREATE_PROCESS_ROUTINEA)(
+-    _In_opt_ LPCSTR lpApplicationName,
+-    _Inout_opt_ LPSTR lpCommandLine,
+-    _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
+-    _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+-    _In_ BOOL bInheritHandles,
+-    _In_ DWORD dwCreationFlags,
+-    _In_opt_ LPVOID lpEnvironment,
+-    _In_opt_ LPCSTR lpCurrentDirectory,
+-    _In_ LPSTARTUPINFOA lpStartupInfo,
+-    _Out_ LPPROCESS_INFORMATION lpProcessInformation);
+-
+-typedef BOOL (WINAPI *PDETOUR_CREATE_PROCESS_ROUTINEW)(
+-    _In_opt_ LPCWSTR lpApplicationName,
+-    _Inout_opt_ LPWSTR lpCommandLine,
+-    _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
+-    _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+-    _In_ BOOL bInheritHandles,
+-    _In_ DWORD dwCreationFlags,
+-    _In_opt_ LPVOID lpEnvironment,
+-    _In_opt_ LPCWSTR lpCurrentDirectory,
+-    _In_ LPSTARTUPINFOW lpStartupInfo,
+-    _Out_ LPPROCESS_INFORMATION lpProcessInformation);
+-
+-BOOL WINAPI DetourCreateProcessWithDllA(_In_opt_ LPCSTR lpApplicationName,
+-                                        _Inout_opt_ LPSTR lpCommandLine,
+-                                        _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
+-                                        _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+-                                        _In_ BOOL bInheritHandles,
+-                                        _In_ DWORD dwCreationFlags,
+-                                        _In_opt_ LPVOID lpEnvironment,
+-                                        _In_opt_ LPCSTR lpCurrentDirectory,
+-                                        _In_ LPSTARTUPINFOA lpStartupInfo,
+-                                        _Out_ LPPROCESS_INFORMATION lpProcessInformation,
+-                                        _In_ LPCSTR lpDllName,
+-                                        _In_opt_ PDETOUR_CREATE_PROCESS_ROUTINEA pfCreateProcessA);
+-
+-BOOL WINAPI DetourCreateProcessWithDllW(_In_opt_ LPCWSTR lpApplicationName,
+-                                        _Inout_opt_ LPWSTR lpCommandLine,
+-                                        _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
+-                                        _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+-                                        _In_ BOOL bInheritHandles,
+-                                        _In_ DWORD dwCreationFlags,
+-                                        _In_opt_ LPVOID lpEnvironment,
+-                                        _In_opt_ LPCWSTR lpCurrentDirectory,
+-                                        _In_ LPSTARTUPINFOW lpStartupInfo,
+-                                        _Out_ LPPROCESS_INFORMATION lpProcessInformation,
+-                                        _In_ LPCSTR lpDllName,
+-                                        _In_opt_ PDETOUR_CREATE_PROCESS_ROUTINEW pfCreateProcessW);
++    typedef BOOL(CALLBACK* PF_DETOUR_BINARY_BYWAY_CALLBACK)(
++        _In_opt_ PVOID pContext,
++        _In_opt_ LPCSTR pszFile,
++        _Outptr_result_maybenull_ LPCSTR* ppszOutFile);
++
++    typedef BOOL(CALLBACK* PF_DETOUR_BINARY_FILE_CALLBACK)(
++        _In_opt_ PVOID pContext,
++        _In_ LPCSTR pszOrigFile,
++        _In_ LPCSTR pszFile,
++        _Outptr_result_maybenull_ LPCSTR* ppszOutFile);
++
++    typedef BOOL(CALLBACK* PF_DETOUR_BINARY_SYMBOL_CALLBACK)(
++        _In_opt_ PVOID pContext,
++        _In_ ULONG nOrigOrdinal,
++        _In_ ULONG nOrdinal,
++        _Out_ ULONG* pnOutOrdinal,
++        _In_opt_ LPCSTR pszOrigSymbol,
++        _In_opt_ LPCSTR pszSymbol,
++        _Outptr_result_maybenull_ LPCSTR* ppszOutSymbol);
++
++    typedef BOOL(CALLBACK* PF_DETOUR_BINARY_COMMIT_CALLBACK)(
++        _In_opt_ PVOID pContext);
++
++    typedef BOOL(CALLBACK* PF_DETOUR_ENUMERATE_EXPORT_CALLBACK)(_In_opt_ PVOID pContext,
++        _In_ ULONG nOrdinal,
++        _In_opt_ LPCSTR pszName,
++        _In_opt_ PVOID pCode);
++
++    typedef BOOL(CALLBACK* PF_DETOUR_IMPORT_FILE_CALLBACK)(_In_opt_ PVOID pContext,
++        _In_opt_ HMODULE hModule,
++        _In_opt_ LPCSTR pszFile);
++
++    typedef BOOL(CALLBACK* PF_DETOUR_IMPORT_FUNC_CALLBACK)(_In_opt_ PVOID pContext,
++        _In_ DWORD nOrdinal,
++        _In_opt_ LPCSTR pszFunc,
++        _In_opt_ PVOID pvFunc);
++
++    // Same as PF_DETOUR_IMPORT_FUNC_CALLBACK but extra indirection on last parameter.
++    typedef BOOL(CALLBACK* PF_DETOUR_IMPORT_FUNC_CALLBACK_EX)(_In_opt_ PVOID pContext,
++        _In_ DWORD nOrdinal,
++        _In_opt_ LPCSTR pszFunc,
++        _In_opt_ PVOID* ppvFunc);
++
++    typedef VOID* PDETOUR_BINARY;
++    typedef VOID* PDETOUR_LOADED_BINARY;
++
++    //////////////////////////////////////////////////////////// Transaction APIs.
++    //
++    LONG WINAPI DetourTransactionBegin(VOID);
++    LONG WINAPI DetourTransactionAbort(VOID);
++    LONG WINAPI DetourTransactionCommit(VOID);
++    LONG WINAPI DetourTransactionCommitEx(_Out_opt_ PVOID** pppFailedPointer);
++
++    LONG WINAPI DetourUpdateThread(_In_ HANDLE hThread);
++
++    LONG WINAPI DetourAttach(_Inout_ PVOID* ppPointer,
++        _In_ PVOID pDetour);
++
++    LONG WINAPI DetourAttachEx(_Inout_ PVOID* ppPointer,
++        _In_ PVOID pDetour,
++        _Out_opt_ PDETOUR_TRAMPOLINE* ppRealTrampoline,
++        _Out_opt_ PVOID* ppRealTarget,
++        _Out_opt_ PVOID* ppRealDetour);
++
++    LONG WINAPI DetourDetach(_Inout_ PVOID* ppPointer,
++        _In_ PVOID pDetour);
++
++    BOOL WINAPI DetourSetIgnoreTooSmall(_In_ BOOL fIgnore);
++    BOOL WINAPI DetourSetRetainRegions(_In_ BOOL fRetain);
++    PVOID WINAPI DetourSetSystemRegionLowerBound(_In_ PVOID pSystemRegionLowerBound);
++    PVOID WINAPI DetourSetSystemRegionUpperBound(_In_ PVOID pSystemRegionUpperBound);
++
++    ////////////////////////////////////////////////////////////// Code Functions.
++    //
++    PVOID WINAPI DetourFindFunction(_In_ LPCSTR pszModule,
++        _In_ LPCSTR pszFunction);
++    PVOID WINAPI DetourCodeFromPointer(_In_ PVOID pPointer,
++        _Out_opt_ PVOID* ppGlobals);
++    PVOID WINAPI DetourCopyInstruction(_In_opt_ PVOID pDst,
++        _Inout_opt_ PVOID* ppDstPool,
++        _In_ PVOID pSrc,
++        _Out_opt_ PVOID* ppTarget,
++        _Out_opt_ LONG* plExtra);
++    BOOL WINAPI DetourSetCodeModule(_In_ HMODULE hModule,
++        _In_ BOOL fLimitReferencesToModule);
++    PVOID WINAPI DetourAllocateRegionWithinJumpBounds(_In_ LPCVOID pbTarget,
++        _Out_ PDWORD pcbAllocatedSize);
++
++    ///////////////////////////////////////////////////// Loaded Binary Functions.
++    //
++    HMODULE WINAPI DetourGetContainingModule(_In_ PVOID pvAddr);
++    HMODULE WINAPI DetourEnumerateModules(_In_opt_ HMODULE hModuleLast);
++    PVOID WINAPI DetourGetEntryPoint(_In_opt_ HMODULE hModule);
++    ULONG WINAPI DetourGetModuleSize(_In_opt_ HMODULE hModule);
++    BOOL WINAPI DetourEnumerateExports(_In_ HMODULE hModule,
++        _In_opt_ PVOID pContext,
++        _In_ PF_DETOUR_ENUMERATE_EXPORT_CALLBACK pfExport);
++    BOOL WINAPI DetourEnumerateImports(_In_opt_ HMODULE hModule,
++        _In_opt_ PVOID pContext,
++        _In_opt_ PF_DETOUR_IMPORT_FILE_CALLBACK pfImportFile,
++        _In_opt_ PF_DETOUR_IMPORT_FUNC_CALLBACK pfImportFunc);
++
++    BOOL WINAPI DetourEnumerateImportsEx(_In_opt_ HMODULE hModule,
++        _In_opt_ PVOID pContext,
++        _In_opt_ PF_DETOUR_IMPORT_FILE_CALLBACK pfImportFile,
++        _In_opt_ PF_DETOUR_IMPORT_FUNC_CALLBACK_EX pfImportFuncEx);
++
++    _Writable_bytes_(*pcbData)
++        _Readable_bytes_(*pcbData)
++        _Success_(return != NULL)
++        PVOID WINAPI DetourFindPayload(_In_opt_ HMODULE hModule,
++            _In_ REFGUID rguid,
++            _Out_ DWORD* pcbData);
++
++    _Writable_bytes_(*pcbData)
++        _Readable_bytes_(*pcbData)
++        _Success_(return != NULL)
++        PVOID WINAPI DetourFindPayloadEx(_In_ REFGUID rguid,
++            _Out_ DWORD* pcbData);
++
++    DWORD WINAPI DetourGetSizeOfPayloads(_In_opt_ HMODULE hModule);
++
++    ///////////////////////////////////////////////// Persistent Binary Functions.
++    //
++
++    PDETOUR_BINARY WINAPI DetourBinaryOpen(_In_ HANDLE hFile);
++
++    _Writable_bytes_(*pcbData)
++        _Readable_bytes_(*pcbData)
++        _Success_(return != NULL)
++        PVOID WINAPI DetourBinaryEnumeratePayloads(_In_ PDETOUR_BINARY pBinary,
++            _Out_opt_ GUID* pGuid,
++            _Out_ DWORD* pcbData,
++            _Inout_ DWORD* pnIterator);
++
++    _Writable_bytes_(*pcbData)
++        _Readable_bytes_(*pcbData)
++        _Success_(return != NULL)
++        PVOID WINAPI DetourBinaryFindPayload(_In_ PDETOUR_BINARY pBinary,
++            _In_ REFGUID rguid,
++            _Out_ DWORD* pcbData);
++
++    PVOID WINAPI DetourBinarySetPayload(_In_ PDETOUR_BINARY pBinary,
++        _In_ REFGUID rguid,
++        _In_reads_opt_(cbData) PVOID pData,
++        _In_ DWORD cbData);
++    BOOL WINAPI DetourBinaryDeletePayload(_In_ PDETOUR_BINARY pBinary, _In_ REFGUID rguid);
++    BOOL WINAPI DetourBinaryPurgePayloads(_In_ PDETOUR_BINARY pBinary);
++    BOOL WINAPI DetourBinaryResetImports(_In_ PDETOUR_BINARY pBinary);
++    BOOL WINAPI DetourBinaryEditImports(_In_ PDETOUR_BINARY pBinary,
++        _In_opt_ PVOID pContext,
++        _In_opt_ PF_DETOUR_BINARY_BYWAY_CALLBACK pfByway,
++        _In_opt_ PF_DETOUR_BINARY_FILE_CALLBACK pfFile,
++        _In_opt_ PF_DETOUR_BINARY_SYMBOL_CALLBACK pfSymbol,
++        _In_opt_ PF_DETOUR_BINARY_COMMIT_CALLBACK pfCommit);
++    BOOL WINAPI DetourBinaryWrite(_In_ PDETOUR_BINARY pBinary, _In_ HANDLE hFile);
++    BOOL WINAPI DetourBinaryClose(_In_ PDETOUR_BINARY pBinary);
++
++    /////////////////////////////////////////////////// Create Process & Load Dll.
++    //
++    typedef BOOL(WINAPI* PDETOUR_CREATE_PROCESS_ROUTINEA)(
++        _In_opt_ LPCSTR lpApplicationName,
++        _Inout_opt_ LPSTR lpCommandLine,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
++        _In_ BOOL bInheritHandles,
++        _In_ DWORD dwCreationFlags,
++        _In_opt_ LPVOID lpEnvironment,
++        _In_opt_ LPCSTR lpCurrentDirectory,
++        _In_ LPSTARTUPINFOA lpStartupInfo,
++        _Out_ LPPROCESS_INFORMATION lpProcessInformation);
++
++    typedef BOOL(WINAPI* PDETOUR_CREATE_PROCESS_ROUTINEW)(
++        _In_opt_ LPCWSTR lpApplicationName,
++        _Inout_opt_ LPWSTR lpCommandLine,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
++        _In_ BOOL bInheritHandles,
++        _In_ DWORD dwCreationFlags,
++        _In_opt_ LPVOID lpEnvironment,
++        _In_opt_ LPCWSTR lpCurrentDirectory,
++        _In_ LPSTARTUPINFOW lpStartupInfo,
++        _Out_ LPPROCESS_INFORMATION lpProcessInformation);
++
++    BOOL WINAPI DetourCreateProcessWithDllA(_In_opt_ LPCSTR lpApplicationName,
++        _Inout_opt_ LPSTR lpCommandLine,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
++        _In_ BOOL bInheritHandles,
++        _In_ DWORD dwCreationFlags,
++        _In_opt_ LPVOID lpEnvironment,
++        _In_opt_ LPCSTR lpCurrentDirectory,
++        _In_ LPSTARTUPINFOA lpStartupInfo,
++        _Out_ LPPROCESS_INFORMATION lpProcessInformation,
++        _In_ LPCSTR lpDllName,
++        _In_opt_ PDETOUR_CREATE_PROCESS_ROUTINEA pfCreateProcessA);
++
++    BOOL WINAPI DetourCreateProcessWithDllW(_In_opt_ LPCWSTR lpApplicationName,
++        _Inout_opt_ LPWSTR lpCommandLine,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
++        _In_ BOOL bInheritHandles,
++        _In_ DWORD dwCreationFlags,
++        _In_opt_ LPVOID lpEnvironment,
++        _In_opt_ LPCWSTR lpCurrentDirectory,
++        _In_ LPSTARTUPINFOW lpStartupInfo,
++        _Out_ LPPROCESS_INFORMATION lpProcessInformation,
++        _In_ LPCSTR lpDllName,
++        _In_opt_ PDETOUR_CREATE_PROCESS_ROUTINEW pfCreateProcessW);
+ 
+ #ifdef UNICODE
+ #define DetourCreateProcessWithDll      DetourCreateProcessWithDllW
+@@ -638,31 +687,31 @@ BOOL WINAPI DetourCreateProcessWithDllW(_In_opt_ LPCWSTR lpApplicationName,
+ #define PDETOUR_CREATE_PROCESS_ROUTINE  PDETOUR_CREATE_PROCESS_ROUTINEA
+ #endif // !UNICODE
+ 
+-BOOL WINAPI DetourCreateProcessWithDllExA(_In_opt_ LPCSTR lpApplicationName,
+-                                          _Inout_opt_ LPSTR lpCommandLine,
+-                                          _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
+-                                          _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+-                                          _In_ BOOL bInheritHandles,
+-                                          _In_ DWORD dwCreationFlags,
+-                                          _In_opt_ LPVOID lpEnvironment,
+-                                          _In_opt_ LPCSTR lpCurrentDirectory,
+-                                          _In_ LPSTARTUPINFOA lpStartupInfo,
+-                                          _Out_ LPPROCESS_INFORMATION lpProcessInformation,
+-                                          _In_ LPCSTR lpDllName,
+-                                          _In_opt_ PDETOUR_CREATE_PROCESS_ROUTINEA pfCreateProcessA);
+-
+-BOOL WINAPI DetourCreateProcessWithDllExW(_In_opt_ LPCWSTR lpApplicationName,
+-                                          _Inout_opt_  LPWSTR lpCommandLine,
+-                                          _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
+-                                          _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+-                                          _In_ BOOL bInheritHandles,
+-                                          _In_ DWORD dwCreationFlags,
+-                                          _In_opt_ LPVOID lpEnvironment,
+-                                          _In_opt_ LPCWSTR lpCurrentDirectory,
+-                                          _In_ LPSTARTUPINFOW lpStartupInfo,
+-                                          _Out_ LPPROCESS_INFORMATION lpProcessInformation,
+-                                          _In_ LPCSTR lpDllName,
+-                                          _In_opt_ PDETOUR_CREATE_PROCESS_ROUTINEW pfCreateProcessW);
++    BOOL WINAPI DetourCreateProcessWithDllExA(_In_opt_ LPCSTR lpApplicationName,
++        _Inout_opt_ LPSTR lpCommandLine,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
++        _In_ BOOL bInheritHandles,
++        _In_ DWORD dwCreationFlags,
++        _In_opt_ LPVOID lpEnvironment,
++        _In_opt_ LPCSTR lpCurrentDirectory,
++        _In_ LPSTARTUPINFOA lpStartupInfo,
++        _Out_ LPPROCESS_INFORMATION lpProcessInformation,
++        _In_ LPCSTR lpDllName,
++        _In_opt_ PDETOUR_CREATE_PROCESS_ROUTINEA pfCreateProcessA);
++
++    BOOL WINAPI DetourCreateProcessWithDllExW(_In_opt_ LPCWSTR lpApplicationName,
++        _Inout_opt_  LPWSTR lpCommandLine,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
++        _In_ BOOL bInheritHandles,
++        _In_ DWORD dwCreationFlags,
++        _In_opt_ LPVOID lpEnvironment,
++        _In_opt_ LPCWSTR lpCurrentDirectory,
++        _In_ LPSTARTUPINFOW lpStartupInfo,
++        _Out_ LPPROCESS_INFORMATION lpProcessInformation,
++        _In_ LPCSTR lpDllName,
++        _In_opt_ PDETOUR_CREATE_PROCESS_ROUTINEW pfCreateProcessW);
+ 
+ #ifdef UNICODE
+ #define DetourCreateProcessWithDllEx    DetourCreateProcessWithDllExW
+@@ -670,33 +719,33 @@ BOOL WINAPI DetourCreateProcessWithDllExW(_In_opt_ LPCWSTR lpApplicationName,
+ #define DetourCreateProcessWithDllEx    DetourCreateProcessWithDllExA
+ #endif // !UNICODE
+ 
+-BOOL WINAPI DetourCreateProcessWithDllsA(_In_opt_ LPCSTR lpApplicationName,
+-                                         _Inout_opt_ LPSTR lpCommandLine,
+-                                         _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
+-                                         _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+-                                         _In_ BOOL bInheritHandles,
+-                                         _In_ DWORD dwCreationFlags,
+-                                         _In_opt_ LPVOID lpEnvironment,
+-                                         _In_opt_ LPCSTR lpCurrentDirectory,
+-                                         _In_ LPSTARTUPINFOA lpStartupInfo,
+-                                         _Out_ LPPROCESS_INFORMATION lpProcessInformation,
+-                                         _In_ DWORD nDlls,
+-                                         _In_reads_(nDlls) LPCSTR *rlpDlls,
+-                                         _In_opt_ PDETOUR_CREATE_PROCESS_ROUTINEA pfCreateProcessA);
+-
+-BOOL WINAPI DetourCreateProcessWithDllsW(_In_opt_ LPCWSTR lpApplicationName,
+-                                         _Inout_opt_ LPWSTR lpCommandLine,
+-                                         _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
+-                                         _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+-                                         _In_ BOOL bInheritHandles,
+-                                         _In_ DWORD dwCreationFlags,
+-                                         _In_opt_ LPVOID lpEnvironment,
+-                                         _In_opt_ LPCWSTR lpCurrentDirectory,
+-                                         _In_ LPSTARTUPINFOW lpStartupInfo,
+-                                         _Out_ LPPROCESS_INFORMATION lpProcessInformation,
+-                                         _In_ DWORD nDlls,
+-                                         _In_reads_(nDlls) LPCSTR *rlpDlls,
+-                                         _In_opt_ PDETOUR_CREATE_PROCESS_ROUTINEW pfCreateProcessW);
++    BOOL WINAPI DetourCreateProcessWithDllsA(_In_opt_ LPCSTR lpApplicationName,
++        _Inout_opt_ LPSTR lpCommandLine,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
++        _In_ BOOL bInheritHandles,
++        _In_ DWORD dwCreationFlags,
++        _In_opt_ LPVOID lpEnvironment,
++        _In_opt_ LPCSTR lpCurrentDirectory,
++        _In_ LPSTARTUPINFOA lpStartupInfo,
++        _Out_ LPPROCESS_INFORMATION lpProcessInformation,
++        _In_ DWORD nDlls,
++        _In_reads_(nDlls) LPCSTR* rlpDlls,
++        _In_opt_ PDETOUR_CREATE_PROCESS_ROUTINEA pfCreateProcessA);
++
++    BOOL WINAPI DetourCreateProcessWithDllsW(_In_opt_ LPCWSTR lpApplicationName,
++        _Inout_opt_ LPWSTR lpCommandLine,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpProcessAttributes,
++        _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
++        _In_ BOOL bInheritHandles,
++        _In_ DWORD dwCreationFlags,
++        _In_opt_ LPVOID lpEnvironment,
++        _In_opt_ LPCWSTR lpCurrentDirectory,
++        _In_ LPSTARTUPINFOW lpStartupInfo,
++        _Out_ LPPROCESS_INFORMATION lpProcessInformation,
++        _In_ DWORD nDlls,
++        _In_reads_(nDlls) LPCSTR* rlpDlls,
++        _In_opt_ PDETOUR_CREATE_PROCESS_ROUTINEW pfCreateProcessW);
+ 
+ #ifdef UNICODE
+ #define DetourCreateProcessWithDlls     DetourCreateProcessWithDllsW
+@@ -704,13 +753,13 @@ BOOL WINAPI DetourCreateProcessWithDllsW(_In_opt_ LPCWSTR lpApplicationName,
+ #define DetourCreateProcessWithDlls     DetourCreateProcessWithDllsA
+ #endif // !UNICODE
+ 
+-BOOL WINAPI DetourProcessViaHelperA(_In_ DWORD dwTargetPid,
+-                                    _In_ LPCSTR lpDllName,
+-                                    _In_ PDETOUR_CREATE_PROCESS_ROUTINEA pfCreateProcessA);
++    BOOL WINAPI DetourProcessViaHelperA(_In_ DWORD dwTargetPid,
++        _In_ LPCSTR lpDllName,
++        _In_ PDETOUR_CREATE_PROCESS_ROUTINEA pfCreateProcessA);
+ 
+-BOOL WINAPI DetourProcessViaHelperW(_In_ DWORD dwTargetPid,
+-                                    _In_ LPCSTR lpDllName,
+-                                    _In_ PDETOUR_CREATE_PROCESS_ROUTINEW pfCreateProcessW);
++    BOOL WINAPI DetourProcessViaHelperW(_In_ DWORD dwTargetPid,
++        _In_ LPCSTR lpDllName,
++        _In_ PDETOUR_CREATE_PROCESS_ROUTINEW pfCreateProcessW);
+ 
+ #ifdef UNICODE
+ #define DetourProcessViaHelper          DetourProcessViaHelperW
+@@ -718,15 +767,15 @@ BOOL WINAPI DetourProcessViaHelperW(_In_ DWORD dwTargetPid,
+ #define DetourProcessViaHelper          DetourProcessViaHelperA
+ #endif // !UNICODE
+ 
+-BOOL WINAPI DetourProcessViaHelperDllsA(_In_ DWORD dwTargetPid,
+-                                        _In_ DWORD nDlls,
+-                                        _In_reads_(nDlls) LPCSTR *rlpDlls,
+-                                        _In_ PDETOUR_CREATE_PROCESS_ROUTINEA pfCreateProcessA);
++    BOOL WINAPI DetourProcessViaHelperDllsA(_In_ DWORD dwTargetPid,
++        _In_ DWORD nDlls,
++        _In_reads_(nDlls) LPCSTR* rlpDlls,
++        _In_ PDETOUR_CREATE_PROCESS_ROUTINEA pfCreateProcessA);
+ 
+-BOOL WINAPI DetourProcessViaHelperDllsW(_In_ DWORD dwTargetPid,
+-                                        _In_ DWORD nDlls,
+-                                        _In_reads_(nDlls) LPCSTR *rlpDlls,
+-                                        _In_ PDETOUR_CREATE_PROCESS_ROUTINEW pfCreateProcessW);
++    BOOL WINAPI DetourProcessViaHelperDllsW(_In_ DWORD dwTargetPid,
++        _In_ DWORD nDlls,
++        _In_reads_(nDlls) LPCSTR* rlpDlls,
++        _In_ PDETOUR_CREATE_PROCESS_ROUTINEW pfCreateProcessW);
+ 
+ #ifdef UNICODE
+ #define DetourProcessViaHelperDlls      DetourProcessViaHelperDllsW
+@@ -734,31 +783,31 @@ BOOL WINAPI DetourProcessViaHelperDllsW(_In_ DWORD dwTargetPid,
+ #define DetourProcessViaHelperDlls      DetourProcessViaHelperDllsA
+ #endif // !UNICODE
+ 
+-BOOL WINAPI DetourUpdateProcessWithDll(_In_ HANDLE hProcess,
+-                                       _In_reads_(nDlls) LPCSTR *rlpDlls,
+-                                       _In_ DWORD nDlls);
+-
+-BOOL WINAPI DetourUpdateProcessWithDllEx(_In_ HANDLE hProcess,
+-                                         _In_ HMODULE hImage,
+-                                         _In_ BOOL bIs32Bit,
+-                                         _In_reads_(nDlls) LPCSTR *rlpDlls,
+-                                         _In_ DWORD nDlls);
+-
+-BOOL WINAPI DetourCopyPayloadToProcess(_In_ HANDLE hProcess,
+-                                       _In_ REFGUID rguid,
+-                                       _In_reads_bytes_(cbData) PVOID pvData,
+-                                       _In_ DWORD cbData);
+-BOOL WINAPI DetourRestoreAfterWith(VOID);
+-BOOL WINAPI DetourRestoreAfterWithEx(_In_reads_bytes_(cbData) PVOID pvData,
+-                                     _In_ DWORD cbData);
+-BOOL WINAPI DetourIsHelperProcess(VOID);
+-VOID CALLBACK DetourFinishHelperProcess(_In_ HWND,
+-                                        _In_ HINSTANCE,
+-                                        _In_ LPSTR,
+-                                        _In_ INT);
+-
+-//
+-//////////////////////////////////////////////////////////////////////////////
++    BOOL WINAPI DetourUpdateProcessWithDll(_In_ HANDLE hProcess,
++        _In_reads_(nDlls) LPCSTR* rlpDlls,
++        _In_ DWORD nDlls);
++
++    BOOL WINAPI DetourUpdateProcessWithDllEx(_In_ HANDLE hProcess,
++        _In_ HMODULE hImage,
++        _In_ BOOL bIs32Bit,
++        _In_reads_(nDlls) LPCSTR* rlpDlls,
++        _In_ DWORD nDlls);
++
++    BOOL WINAPI DetourCopyPayloadToProcess(_In_ HANDLE hProcess,
++        _In_ REFGUID rguid,
++        _In_reads_bytes_(cbData) PVOID pvData,
++        _In_ DWORD cbData);
++    BOOL WINAPI DetourRestoreAfterWith(VOID);
++    BOOL WINAPI DetourRestoreAfterWithEx(_In_reads_bytes_(cbData) PVOID pvData,
++        _In_ DWORD cbData);
++    BOOL WINAPI DetourIsHelperProcess(VOID);
++    VOID CALLBACK DetourFinishHelperProcess(_In_ HWND,
++        _In_ HINSTANCE,
++        _In_ LPSTR,
++        _In_ INT);
++
++    //
++    //////////////////////////////////////////////////////////////////////////////
+ #ifdef __cplusplus
+ }
+ #endif // __cplusplus
+@@ -781,7 +830,7 @@ typedef IMAGEHLP_SYMBOL SYMBOL_INFO;
+ typedef PIMAGEHLP_SYMBOL PSYMBOL_INFO;
+ 
+ static inline
+-LONG InterlockedCompareExchange(_Inout_ LONG *ptr, _In_ LONG nval, _In_ LONG oval)
++LONG InterlockedCompareExchange(_Inout_ LONG* ptr, _In_ LONG nval, _In_ LONG oval)
+ {
+     return (LONG)::InterlockedCompareExchange((PVOID*)ptr, (PVOID)nval, (PVOID)oval);
+ }
+@@ -793,25 +842,25 @@ LONG InterlockedCompareExchange(_Inout_ LONG *ptr, _In_ LONG nval, _In_ LONG ova
+ #endif
+ 
+ #ifdef IMAGEAPI // defined by DBGHELP.H
+-typedef LPAPI_VERSION (NTAPI *PF_ImagehlpApiVersionEx)(_In_ LPAPI_VERSION AppVersion);
+-
+-typedef BOOL (NTAPI *PF_SymInitialize)(_In_ HANDLE hProcess,
+-                                       _In_opt_ LPCSTR UserSearchPath,
+-                                       _In_ BOOL fInvadeProcess);
+-typedef DWORD (NTAPI *PF_SymSetOptions)(_In_ DWORD SymOptions);
+-typedef DWORD (NTAPI *PF_SymGetOptions)(VOID);
+-typedef DWORD64 (NTAPI *PF_SymLoadModule64)(_In_ HANDLE hProcess,
+-                                            _In_opt_ HANDLE hFile,
+-                                            _In_ LPSTR ImageName,
+-                                            _In_opt_ LPSTR ModuleName,
+-                                            _In_ DWORD64 BaseOfDll,
+-                                            _In_opt_ DWORD SizeOfDll);
+-typedef BOOL (NTAPI *PF_SymGetModuleInfo64)(_In_ HANDLE hProcess,
+-                                            _In_ DWORD64 qwAddr,
+-                                            _Out_ PIMAGEHLP_MODULE64 ModuleInfo);
+-typedef BOOL (NTAPI *PF_SymFromName)(_In_ HANDLE hProcess,
+-                                     _In_ LPSTR Name,
+-                                     _Out_ PSYMBOL_INFO Symbol);
++typedef LPAPI_VERSION(NTAPI* PF_ImagehlpApiVersionEx)(_In_ LPAPI_VERSION AppVersion);
++
++typedef BOOL(NTAPI* PF_SymInitialize)(_In_ HANDLE hProcess,
++    _In_opt_ LPCSTR UserSearchPath,
++    _In_ BOOL fInvadeProcess);
++typedef DWORD(NTAPI* PF_SymSetOptions)(_In_ DWORD SymOptions);
++typedef DWORD(NTAPI* PF_SymGetOptions)(VOID);
++typedef DWORD64(NTAPI* PF_SymLoadModule64)(_In_ HANDLE hProcess,
++    _In_opt_ HANDLE hFile,
++    _In_ LPSTR ImageName,
++    _In_opt_ LPSTR ModuleName,
++    _In_ DWORD64 BaseOfDll,
++    _In_opt_ DWORD SizeOfDll);
++typedef BOOL(NTAPI* PF_SymGetModuleInfo64)(_In_ HANDLE hProcess,
++    _In_ DWORD64 qwAddr,
++    _Out_ PIMAGEHLP_MODULE64 ModuleInfo);
++typedef BOOL(NTAPI* PF_SymFromName)(_In_ HANDLE hProcess,
++    _In_ LPSTR Name,
++    _Out_ PSYMBOL_INFO Symbol);
+ 
+ typedef struct _DETOUR_SYM_INFO
+ {
+@@ -824,7 +873,7 @@ typedef struct _DETOUR_SYM_INFO
+     PF_SymLoadModule64      pfSymLoadModule64;
+     PF_SymGetModuleInfo64   pfSymGetModuleInfo64;
+     PF_SymFromName          pfSymFromName;
+-} DETOUR_SYM_INFO, *PDETOUR_SYM_INFO;
++} DETOUR_SYM_INFO, * PDETOUR_SYM_INFO;
+ 
+ PDETOUR_SYM_INFO DetourLoadImageHlp(VOID);
+ 
+@@ -867,7 +916,7 @@ C_ASSERT(DETOUR_IA64_TEMPLATE_SIZE + DETOUR_IA64_INSTRUCTIONS_PER_BUNDLE * DETOU
+ 
+ __declspec(align(16)) struct DETOUR_IA64_BUNDLE
+ {
+-  public:
++public:
+     union
+     {
+         BYTE    data[16];
+@@ -875,30 +924,30 @@ __declspec(align(16)) struct DETOUR_IA64_BUNDLE
+     };
+ 
+     enum {
+-        A_UNIT  = 1u,
+-        I_UNIT  = 2u,
+-        M_UNIT  = 3u,
+-        B_UNIT  = 4u,
+-        F_UNIT  = 5u,
+-        L_UNIT  = 6u,
+-        X_UNIT  = 7u,
++        A_UNIT = 1u,
++        I_UNIT = 2u,
++        M_UNIT = 3u,
++        B_UNIT = 4u,
++        F_UNIT = 5u,
++        L_UNIT = 6u,
++        X_UNIT = 7u,
+     };
+     struct DETOUR_IA64_METADATA
+     {
+-        ULONG       nTemplate       : 8;    // Instruction template.
+-        ULONG       nUnit0          : 4;    // Unit for slot 0
+-        ULONG       nUnit1          : 4;    // Unit for slot 1
+-        ULONG       nUnit2          : 4;    // Unit for slot 2
++        ULONG       nTemplate : 8;    // Instruction template.
++        ULONG       nUnit0 : 4;    // Unit for slot 0
++        ULONG       nUnit1 : 4;    // Unit for slot 1
++        ULONG       nUnit2 : 4;    // Unit for slot 2
+     };
+ 
+-  protected:
++protected:
+     static const DETOUR_IA64_METADATA s_rceCopyTable[33];
+ 
+     UINT RelocateBundle(_Inout_ DETOUR_IA64_BUNDLE* pDst, _Inout_opt_ DETOUR_IA64_BUNDLE* pBundleExtra) const;
+ 
+     bool RelocateInstruction(_Inout_ DETOUR_IA64_BUNDLE* pDst,
+-                             _In_ BYTE slot,
+-                             _Inout_opt_ DETOUR_IA64_BUNDLE* pBundleExtra) const;
++        _In_ BYTE slot,
++        _Inout_opt_ DETOUR_IA64_BUNDLE* pBundleExtra) const;
+ 
+     // 120 112 104 96 88 80 72 64 56 48 40 32 24 16  8  0
+     //  f.  e.  d. c. b. a. 9. 8. 7. 6. 5. 4. 3. 2. 1. 0.
+@@ -975,7 +1024,7 @@ __declspec(align(16)) struct DETOUR_IA64_BUNDLE
+     BOOL    SetNop1();
+     BOOL    SetNop2();
+ 
+-  public:
++public:
+     BOOL    IsBrl() const;
+     VOID    SetBrl();
+     VOID    SetBrl(UINT64 target);
+@@ -989,7 +1038,7 @@ __declspec(align(16)) struct DETOUR_IA64_BUNDLE
+ 
+     VOID    SetStop();
+ 
+-    UINT    Copy(_Out_ DETOUR_IA64_BUNDLE *pDst, _Inout_opt_ DETOUR_IA64_BUNDLE* pBundleExtra = NULL) const;
++    UINT    Copy(_Out_ DETOUR_IA64_BUNDLE* pDst, _Inout_opt_ DETOUR_IA64_BUNDLE* pBundleExtra = NULL) const;
+ };
+ #endif // DETOURS_IA64
+ 
+@@ -1016,31 +1065,31 @@ PVOID WINAPI DetourCopyInstruction##x(_In_opt_ PVOID pDst,              \
+ BOOL WINAPI DetourSetCodeModule##x(_In_ HMODULE hModule,                \
+                                    _In_ BOOL fLimitReferencesToModule); \
+ 
+-DETOUR_OFFLINE_LIBRARY(X86)
+-DETOUR_OFFLINE_LIBRARY(X64)
+-DETOUR_OFFLINE_LIBRARY(ARM)
+-DETOUR_OFFLINE_LIBRARY(ARM64)
+-DETOUR_OFFLINE_LIBRARY(IA64)
++    DETOUR_OFFLINE_LIBRARY(X86)
++        DETOUR_OFFLINE_LIBRARY(X64)
++        DETOUR_OFFLINE_LIBRARY(ARM)
++        DETOUR_OFFLINE_LIBRARY(ARM64)
++        DETOUR_OFFLINE_LIBRARY(IA64)
+ 
+ #undef DETOUR_OFFLINE_LIBRARY
+ 
+-//////////////////////////////////////////////////////////////////////////////
+-//
+-// Helpers for manipulating page protection.
+-//
+-
+-_Success_(return != FALSE)
+-BOOL WINAPI DetourVirtualProtectSameExecuteEx(_In_  HANDLE hProcess,
+-                                              _In_  PVOID pAddress,
+-                                              _In_  SIZE_T nSize,
+-                                              _In_  DWORD dwNewProtect,
+-                                              _Out_ PDWORD pdwOldProtect);
+-
+-_Success_(return != FALSE)
+-BOOL WINAPI DetourVirtualProtectSameExecute(_In_  PVOID pAddress,
+-                                            _In_  SIZE_T nSize,
+-                                            _In_  DWORD dwNewProtect,
+-                                            _Out_ PDWORD pdwOldProtect);
++        //////////////////////////////////////////////////////////////////////////////
++        //
++        // Helpers for manipulating page protection.
++        //
++
++        _Success_(return != FALSE)
++        BOOL WINAPI DetourVirtualProtectSameExecuteEx(_In_  HANDLE hProcess,
++            _In_  PVOID pAddress,
++            _In_  SIZE_T nSize,
++            _In_  DWORD dwNewProtect,
++            _Out_ PDWORD pdwOldProtect);
++
++    _Success_(return != FALSE)
++        BOOL WINAPI DetourVirtualProtectSameExecute(_In_  PVOID pAddress,
++            _In_  SIZE_T nSize,
++            _In_  DWORD dwNewProtect,
++            _Out_ PDWORD pdwOldProtect);
+ #ifdef __cplusplus
+ }
+ #endif // __cplusplus
+diff --git a/src/disasm.cpp b/src/disasm.cpp
+index f002ff4..ce666fb 100644
+--- a/src/disasm.cpp
++++ b/src/disasm.cpp
+@@ -7,28 +7,15 @@
+ //  Copyright (c) Microsoft Corporation.  All rights reserved.
+ //
+ 
+-#if _MSC_VER >= 1900
+-#pragma warning(push)
+-#pragma warning(disable:4091) // empty typedef
+-#endif
+-
+-#define _ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE 1
+-#include <windows.h>
+-#include <limits.h>
+-
+ // #define DETOUR_DEBUG 1
+ #define DETOURS_INTERNAL
+-
+ #include "detours.h"
++#include <limits.h>
+ 
+ #if DETOURS_VERSION != 0x4c0c1   // 0xMAJORcMINORcPATCH
+ #error detours.h version mismatch
+ #endif
+ 
+-#if _MSC_VER >= 1900
+-#pragma warning(pop)
+-#endif
+-
+ #undef ASSERT
+ #define ASSERT(x)
+ 
+@@ -205,46 +192,45 @@ class CDetourDis
+         ULONG       nFixedSize16    : 4;    // Fixed size when 16 bit operand
+         ULONG       nModOffset      : 4;    // Offset to mod/rm byte (0=none)
+         ULONG       nRelOffset      : 4;    // Offset to relative target.
+-        ULONG       nTargetBack     : 4;    // Offset back to absolute or rip target
+         ULONG       nFlagBits       : 4;    // Flags for DYNAMIC, etc.
+         COPYFUNC    pfCopy;                 // Function pointer.
+     };
+ 
+   protected:
+-    // These macros define common uses of nFixedSize..pfCopy.
+-#define ENTRY_DataIgnored           0, 0, 0, 0, 0, 0,
+-#define ENTRY_CopyBytes1            1, 1, 0, 0, 0, 0, &CDetourDis::CopyBytes
++// These macros define common uses of nFixedSize, nFixedSize16, nModOffset, nRelOffset, nFlagBits, pfCopy.
++#define ENTRY_DataIgnored           0, 0, 0, 0, 0,
++#define ENTRY_CopyBytes1            1, 1, 0, 0, 0, &CDetourDis::CopyBytes
+ #ifdef DETOURS_X64
+-#define ENTRY_CopyBytes1Address     9, 5, 0, 0, 0, ADDRESS, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes1Address     9, 5, 0, 0, ADDRESS, &CDetourDis::CopyBytes
+ #else
+-#define ENTRY_CopyBytes1Address     5, 3, 0, 0, 0, ADDRESS, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes1Address     5, 3, 0, 0, ADDRESS, &CDetourDis::CopyBytes
+ #endif
+-#define ENTRY_CopyBytes1Dynamic     1, 1, 0, 0, 0, DYNAMIC, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes2            2, 2, 0, 0, 0, 0, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes1Dynamic     1, 1, 0, 0, DYNAMIC, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes2            2, 2, 0, 0, 0, &CDetourDis::CopyBytes
+ #define ENTRY_CopyBytes2Jump        ENTRY_DataIgnored &CDetourDis::CopyBytesJump
+-#define ENTRY_CopyBytes2CantJump    2, 2, 0, 1, 0, NOENLARGE, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes2Dynamic     2, 2, 0, 0, 0, DYNAMIC, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes3            3, 3, 0, 0, 0, 0, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes3Dynamic     3, 3, 0, 0, 0, DYNAMIC, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes3Or5         5, 3, 0, 0, 0, 0, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes3Or5Dynamic  5, 3, 0, 0, 0, DYNAMIC, &CDetourDis::CopyBytes // x86 only
++#define ENTRY_CopyBytes2CantJump    2, 2, 0, 1, NOENLARGE, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes2Dynamic     2, 2, 0, 0, DYNAMIC, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes3            3, 3, 0, 0, 0, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes3Dynamic     3, 3, 0, 0, DYNAMIC, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes3Or5         5, 3, 0, 0, 0, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes3Or5Dynamic  5, 3, 0, 0, DYNAMIC, &CDetourDis::CopyBytes // x86 only
+ #ifdef DETOURS_X64
+-#define ENTRY_CopyBytes3Or5Rax      5, 3, 0, 0, 0, RAX, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes3Or5Target   5, 5, 0, 1, 0, 0, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes3Or5Rax      5, 3, 0, 0, RAX, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes3Or5Target   5, 5, 0, 1, 0, &CDetourDis::CopyBytes
+ #else
+-#define ENTRY_CopyBytes3Or5Rax      5, 3, 0, 0, 0, 0, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes3Or5Target   5, 3, 0, 1, 0, 0, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes3Or5Rax      5, 3, 0, 0, 0, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes3Or5Target   5, 3, 0, 1, 0, &CDetourDis::CopyBytes
+ #endif
+-#define ENTRY_CopyBytes4            4, 4, 0, 0, 0, 0, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes5            5, 5, 0, 0, 0, 0, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes5Or7Dynamic  7, 5, 0, 0, 0, DYNAMIC, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes7            7, 7, 0, 0, 0, 0, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes2Mod         2, 2, 1, 0, 0, 0, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes2ModDynamic  2, 2, 1, 0, 0, DYNAMIC, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes2Mod1        3, 3, 1, 0, 1, 0, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes2ModOperand  6, 4, 1, 0, 4, 0, &CDetourDis::CopyBytes
+-#define ENTRY_CopyBytes3Mod         3, 3, 2, 0, 0, 0, &CDetourDis::CopyBytes // SSE3 0F 38 opcode modrm
+-#define ENTRY_CopyBytes3Mod1        4, 4, 2, 0, 1, 0, &CDetourDis::CopyBytes // SSE3 0F 3A opcode modrm .. imm8
++#define ENTRY_CopyBytes4            4, 4, 0, 0, 0, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes5            5, 5, 0, 0, 0, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes5Or7Dynamic  7, 5, 0, 0, DYNAMIC, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes7            7, 7, 0, 0, 0, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes2Mod         2, 2, 1, 0, 0, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes2ModDynamic  2, 2, 1, 0, DYNAMIC, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes2Mod1        3, 3, 1, 0, 0, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes2ModOperand  6, 4, 1, 0, 0, &CDetourDis::CopyBytes
++#define ENTRY_CopyBytes3Mod         3, 3, 2, 0, 0, &CDetourDis::CopyBytes // SSE3 0F 38 opcode modrm
++#define ENTRY_CopyBytes3Mod1        4, 4, 2, 0, 0, &CDetourDis::CopyBytes // SSE3 0F 3A opcode modrm .. imm8
+ #define ENTRY_CopyBytesPrefix       ENTRY_DataIgnored &CDetourDis::CopyBytesPrefix
+ #define ENTRY_CopyBytesSegment      ENTRY_DataIgnored &CDetourDis::CopyBytesSegment
+ #define ENTRY_CopyBytesRax          ENTRY_DataIgnored &CDetourDis::CopyBytesRax
+@@ -261,6 +247,11 @@ class CDetourDis
+ #define ENTRY_CopyFF                ENTRY_DataIgnored &CDetourDis::CopyFF
+ #define ENTRY_CopyVex2              ENTRY_DataIgnored &CDetourDis::CopyVex2
+ #define ENTRY_CopyVex3              ENTRY_DataIgnored &CDetourDis::CopyVex3
++#define ENTRY_CopyEvex              ENTRY_DataIgnored &CDetourDis::CopyEvex // 62, 3 byte payload, then normal with implied prefixes like vex
++#define ENTRY_CopyXop               ENTRY_DataIgnored &CDetourDis::CopyXop   // 0x8F ... POP /0 or AMD XOP
++#define ENTRY_CopyBytesXop          5, 5, 4, 0, 0, &CDetourDis::CopyBytes // 0x8F xop1 xop2 opcode modrm
++#define ENTRY_CopyBytesXop1         6, 6, 4, 0, 0, &CDetourDis::CopyBytes // 0x8F xop1 xop2 opcode modrm ... imm8
++#define ENTRY_CopyBytesXop4         9, 9, 4, 0, 0, &CDetourDis::CopyBytes // 0x8F xop1 xop2 opcode modrm ... imm32
+ #define ENTRY_Invalid               ENTRY_DataIgnored &CDetourDis::Invalid
+ #define ENTRY_End                   ENTRY_DataIgnored NULL
+ 
+@@ -290,6 +281,9 @@ class CDetourDis
+     PBYTE CopyVex2(REFCOPYENTRY pEntry, PBYTE pbDst, PBYTE pbSrc);
+     PBYTE CopyVex3(REFCOPYENTRY pEntry, PBYTE pbDst, PBYTE pbSrc);
+     PBYTE CopyVexCommon(BYTE m, PBYTE pbDst, PBYTE pbSrc);
++    PBYTE CopyVexEvexCommon(BYTE m, PBYTE pbDst, PBYTE pbSrc, BYTE p);
++    PBYTE CopyEvex(REFCOPYENTRY pEntry, PBYTE pbDst, PBYTE pbSrc);
++    PBYTE CopyXop(REFCOPYENTRY pEntry, PBYTE pbDst, PBYTE pbSrc);
+ 
+   protected:
+     static const COPYENTRY  s_rceCopyTable[257];
+@@ -304,6 +298,7 @@ class CDetourDis
+     BOOL                m_bAddressOverride;
+     BOOL                m_bRaxOverride; // AMD64 only
+     BOOL                m_bVex;
++    BOOL                m_bEvex;
+     BOOL                m_bF2;
+     BOOL                m_bF3; // x86 only
+     BYTE                m_nSegmentOverride;
+@@ -313,7 +308,7 @@ class CDetourDis
+ 
+     LONG                m_lScratchExtra;
+     PBYTE               m_pbScratchTarget;
+-    BYTE                m_rbScratchDst[64];
++    BYTE                m_rbScratchDst[64]; // matches or exceeds rbCode
+ };
+ 
+ PVOID WINAPI DetourCopyInstruction(_In_opt_ PVOID pDst,
+@@ -338,6 +333,7 @@ CDetourDis::CDetourDis(_Out_opt_ PBYTE *ppbTarget, _Out_opt_ LONG *plExtra)
+     m_bF2 = FALSE;
+     m_bF3 = FALSE;
+     m_bVex = FALSE;
++    m_bEvex = FALSE;
+ 
+     m_ppbTarget = ppbTarget ? ppbTarget : &m_pbScratchTarget;
+     m_plExtra = plExtra ? plExtra : &m_lScratchExtra;
+@@ -369,8 +365,11 @@ PBYTE CDetourDis::CopyBytes(REFCOPYENTRY pEntry, PBYTE pbDst, PBYTE pbSrc)
+ {
+     UINT nBytesFixed;
+ 
+-    ASSERT(!m_bVex || pEntry->nFlagBits == 0);
+-    ASSERT(!m_bVex || pEntry->nFixedSize == pEntry->nFixedSize16);
++    if (m_bVex || m_bEvex)
++    {
++        ASSERT(pEntry->nFlagBits == 0);
++        ASSERT(pEntry->nFixedSize == pEntry->nFixedSize16);
++    }
+ 
+     UINT const nModOffset = pEntry->nModOffset;
+     UINT const nFlagBits = pEntry->nFlagBits;
+@@ -418,15 +417,7 @@ PBYTE CDetourDis::CopyBytes(REFCOPYENTRY pEntry, PBYTE pbDst, PBYTE pbSrc)
+         }
+ #ifdef DETOURS_X64
+         else if (bFlags & RIP) {
+-            UINT nTargetBack = pEntry->nTargetBack;
+-            // nTargetBack describes immediate bytes at the end: 1, 2, or 4.
+-            // 2 vs. 4 is selected via 66 operand size override.
+-            ASSERT(nTargetBack == 0 || nTargetBack == 1 || nTargetBack == 4);
+-            if (nTargetBack == 4 && m_bOperandOverride && !m_bRaxOverride) {
+-                nTargetBack = 2;
+-            }
+-
+-            nRelOffset = nBytes - (4 + nTargetBack);
++            nRelOffset = nModOffset + 1;
+             cbTarget = 4;
+         }
+ #endif
+@@ -757,33 +748,42 @@ PBYTE CDetourDis::CopyFF(REFCOPYENTRY pEntry, PBYTE pbDst, PBYTE pbSrc)
+     return pbOut;
+ }
+ 
+-PBYTE CDetourDis::CopyVexCommon(BYTE m, PBYTE pbDst, PBYTE pbSrc)
++PBYTE CDetourDis::CopyVexEvexCommon(BYTE m, PBYTE pbDst, PBYTE pbSrc, BYTE p)
+ // m is first instead of last in the hopes of pbDst/pbSrc being
+ // passed along efficiently in the registers they were already in.
+ {
+     static const COPYENTRY ceF38 = { 0x38, ENTRY_CopyBytes2Mod };
+     static const COPYENTRY ceF3A = { 0x3A, ENTRY_CopyBytes2Mod1 };
+-    static const COPYENTRY Invalid = { 0xC4, ENTRY_Invalid };
++    static const COPYENTRY ceInvalid = { 0xC4, ENTRY_Invalid };
+ 
+-    m_bVex = TRUE;
+-    REFCOPYENTRY pEntry;
+-    switch (m) {
+-    default: pEntry = &Invalid; break;
+-    case 1:  pEntry = &s_rceCopyTable0F[pbSrc[0]]; break;
+-    case 2:  pEntry = &ceF38; break;
+-    case 3:  pEntry = &ceF3A; break;
+-    }
+-
+-    switch (pbSrc[-1] & 3) { // p in last byte
++    switch (p & 3) {
+     case 0: break;
+     case 1: m_bOperandOverride = TRUE; break;
+     case 2: m_bF3 = TRUE; break;
+     case 3: m_bF2 = TRUE; break;
+     }
+ 
+-    return (this->*pEntry->pfCopy)(pEntry, pbDst, pbSrc);
++    REFCOPYENTRY pEntry;
++
++    switch (m) {
++    default: return Invalid(&ceInvalid, pbDst, pbSrc);
++    case 1:  pEntry = &s_rceCopyTable0F[pbSrc[0]];
++             return (this->*pEntry->pfCopy)(pEntry, pbDst, pbSrc);
++    case 2:  return CopyBytes(&ceF38, pbDst, pbSrc);
++    case 3:  return CopyBytes(&ceF3A, pbDst, pbSrc);
++    }
++}
++
++PBYTE CDetourDis::CopyVexCommon(BYTE m, PBYTE pbDst, PBYTE pbSrc)
++// m is first instead of last in the hopes of pbDst/pbSrc being
++// passed along efficiently in the registers they were already in.
++{
++    m_bVex = TRUE;
++    BYTE const p = (BYTE)(pbSrc[-1] & 3); // p in last byte
++    return CopyVexEvexCommon(m, pbDst, pbSrc, p);
+ }
+ 
++
+ PBYTE CDetourDis::CopyVex3(REFCOPYENTRY, PBYTE pbDst, PBYTE pbSrc)
+ // 3 byte VEX prefix 0xC4
+ {
+@@ -844,6 +844,78 @@ PBYTE CDetourDis::CopyVex2(REFCOPYENTRY, PBYTE pbDst, PBYTE pbSrc)
+     return CopyVexCommon(1, pbDst + 2, pbSrc + 2);
+ }
+ 
++PBYTE CDetourDis::CopyEvex(REFCOPYENTRY, PBYTE pbDst, PBYTE pbSrc)
++// 62, 3 byte payload, x86 with implied prefixes like Vex
++// for 32bit, mode 0xC0 else fallback to bound /r
++{
++    // NOTE: Intel and Wikipedia number these differently.
++    // Intel says 0-2, Wikipedia says 1-3.
++
++    BYTE const p0 = pbSrc[1];
++
++#ifdef DETOURS_X86
++    const static COPYENTRY ceBound = { 0x62, ENTRY_CopyBytes2Mod };
++    if ((p0 & 0xC0) != 0xC0) {
++        return CopyBytes(&ceBound, pbDst, pbSrc);
++    }
++#endif
++
++    static const COPYENTRY ceInvalid = { 0x62, ENTRY_Invalid };
++
++    if ((p0 & 0x0C) != 0)
++        return Invalid(&ceInvalid, pbDst, pbSrc);
++
++    BYTE const p1 = pbSrc[2];
++
++    if ((p1 & 0x04) != 0x04)
++        return Invalid(&ceInvalid, pbDst, pbSrc);
++
++    // Copy 4 byte prefix.
++    *(UNALIGNED ULONG *)pbDst = *(UNALIGNED ULONG*)pbSrc;
++
++    m_bEvex = TRUE;
++
++#ifdef DETOURS_X64
++    m_bRaxOverride |= !!(p1 & 0x80); // w
++#endif
++
++    return CopyVexEvexCommon(p0 & 3u, pbDst + 4, pbSrc + 4, p1 & 3u);
++}
++
++PBYTE CDetourDis::CopyXop(REFCOPYENTRY, PBYTE pbDst, PBYTE pbSrc)
++/* 3 byte AMD XOP prefix 0x8F
++byte0: 0x8F
++byte1: RXBmmmmm
++byte2: WvvvvLpp
++byte3: opcode
++mmmmm >= 8, else pop
++mmmmm only otherwise defined for 8, 9, A.
++pp is like VEX but only instructions with 0 are defined
++*/
++{
++    const static COPYENTRY cePop = { 0x8F, ENTRY_CopyBytes2Mod };
++    const static COPYENTRY ceXop = { 0x8F, ENTRY_CopyBytesXop };
++    const static COPYENTRY ceXop1 = { 0x8F, ENTRY_CopyBytesXop1 };
++    const static COPYENTRY ceXop4 = { 0x8F, ENTRY_CopyBytesXop4 };
++
++    BYTE const m = (BYTE)(pbSrc[1] & 0x1F);
++    ASSERT(m <= 10);
++    switch (m)
++    {
++    default:
++        return CopyBytes(&cePop, pbDst, pbSrc);
++
++    case 8: // modrm with 8bit immediate
++        return CopyBytes(&ceXop1, pbDst, pbSrc);
++
++    case 9: // modrm with no immediate
++        return CopyBytes(&ceXop, pbDst, pbSrc);
++
++    case 10: // modrm with 32bit immediate
++        return CopyBytes(&ceXop4, pbDst, pbSrc);
++    }
++}
++
+ //////////////////////////////////////////////////////////////////////////////
+ //
+ PBYTE CDetourDis::s_pbModuleBeg = NULL;
+@@ -1039,11 +1111,11 @@ const CDetourDis::COPYENTRY CDetourDis::s_rceCopyTable[257] =
+ #ifdef DETOURS_X64
+     { 0x60, ENTRY_Invalid },                            // Invalid
+     { 0x61, ENTRY_Invalid },                            // Invalid
+-    { 0x62, ENTRY_Invalid },                            // Invalid (not yet implemented Intel EVEX support)
++    { 0x62, ENTRY_CopyEvex },                           // EVEX / AVX512
+ #else
+     { 0x60, ENTRY_CopyBytes1 },                         // PUSHAD
+     { 0x61, ENTRY_CopyBytes1 },                         // POPAD
+-    { 0x62, ENTRY_CopyBytes2Mod },                      // BOUND /r
++    { 0x62, ENTRY_CopyEvex },                           // BOUND /r and EVEX / AVX512
+ #endif
+     { 0x63, ENTRY_CopyBytes2Mod },                      // 32bit ARPL /r, 64bit MOVSXD
+     { 0x64, ENTRY_CopyBytesSegment },                   // FS prefix
+@@ -1093,7 +1165,7 @@ const CDetourDis::COPYENTRY CDetourDis::s_rceCopyTable[257] =
+     { 0x8C, ENTRY_CopyBytes2Mod },                      // MOV /r
+     { 0x8D, ENTRY_CopyBytes2Mod },                      // LEA /r
+     { 0x8E, ENTRY_CopyBytes2Mod },                      // MOV /r
+-    { 0x8F, ENTRY_CopyBytes2Mod },                      // POP /0
++    { 0x8F, ENTRY_CopyXop },                            // POP /0 or AMD XOP
+     { 0x90, ENTRY_CopyBytes1 },                         // NOP
+     { 0x91, ENTRY_CopyBytes1 },                         // XCHG
+     { 0x92, ENTRY_CopyBytes1 },                         // XCHG
+@@ -2547,7 +2619,7 @@ class CDetourDis
+     PBYTE   m_pbPool;
+     LONG    m_lExtra;
+ 
+-    BYTE    m_rbScratchDst[64];
++    BYTE    m_rbScratchDst[64]; // matches or exceeds rbCode
+ 
+     static const COPYENTRY s_rceCopyTable[33];
+ };
+@@ -3695,16 +3767,27 @@ class CDetourDis
+         {
+             DWORD Opcode1 : 5;      // Must be 00000 == 0
+             DWORD Rn : 5;           // Register number
+-            DWORD Opcode2 : 22;     // Must be 1101011000011111000000 == 0x3587c0
++            DWORD Opcode2 : 22;     // Must be 1101011000011111000000 == 0x3587c0 for Br
++                                    //                                   0x358fc0 for Brl
+         } s;
+-        static DWORD AssembleBr(DWORD rn)
++        static DWORD Assemble(DWORD rn, bool link)
+         {
+             Br temp;
+             temp.s.Opcode1 = 0;
+             temp.s.Rn = rn;
+             temp.s.Opcode2 = 0x3587c0;
++            if (link)
++                temp.Assembled |= 0x00200000;
+             return temp.Assembled;
+         }
++        static DWORD AssembleBr(DWORD rn)
++        {
++            return Assemble(rn, false);
++        }
++        static DWORD AssembleBrl(DWORD rn)
++        {
++            return Assemble(rn, true);
++        }
+     };
+ 
+     union Cbz19
+@@ -3848,6 +3931,8 @@ class CDetourDis
+     BYTE    CopyAdr(BYTE* pSource, BYTE* pDest, ULONG instruction);
+     BYTE    CopyBcc(BYTE* pSource, BYTE* pDest, ULONG instruction);
+     BYTE    CopyB(BYTE* pSource, BYTE* pDest, ULONG instruction);
++    BYTE    CopyBl(BYTE* pSource, BYTE* pDest, ULONG instruction);
++    BYTE    CopyB_or_Bl(BYTE* pSource, BYTE* pDest, ULONG instruction, bool link);
+     BYTE    CopyCbz(BYTE* pSource, BYTE* pDest, ULONG instruction);
+     BYTE    CopyTbz(BYTE* pSource, BYTE* pDest, ULONG instruction);
+     BYTE    CopyLdrLiteral(BYTE* pSource, BYTE* pDest, ULONG instruction);
+@@ -3866,7 +3951,7 @@ class CDetourDis
+ 
+   protected:
+     PBYTE   m_pbTarget;
+-    BYTE    m_rbScratchDst[64];
++    BYTE    m_rbScratchDst[128]; // matches or exceeds rbCode
+ };
+ 
+ BYTE CDetourDis::PureCopy32(BYTE* pSource, BYTE* pDest)
+@@ -3899,7 +3984,7 @@ PBYTE CDetourDis::CopyInstruction(PBYTE pDst,
+     } else if ((Instruction & 0xff000010) == 0x54000000) {
+         CopiedSize = CopyBcc(pSrc, pDst, Instruction);
+     } else if ((Instruction & 0x7c000000) == 0x14000000) {
+-        CopiedSize = CopyB(pSrc, pDst, Instruction);
++        CopiedSize = CopyB_or_Bl(pSrc, pDst, Instruction, (Instruction & 0x80000000) != 0);
+     } else if ((Instruction & 0x7e000000) == 0x34000000) {
+         CopiedSize = CopyCbz(pSrc, pDst, Instruction);
+     } else if ((Instruction & 0x7e000000) == 0x36000000) {
+@@ -4060,7 +4145,7 @@ BYTE CDetourDis::CopyBcc(BYTE* pSource, BYTE* pDest, ULONG instruction)
+     return (BYTE)((BYTE*)pDstInst - pDest);
+ }
+ 
+-BYTE CDetourDis::CopyB(BYTE* pSource, BYTE* pDest, ULONG instruction)
++BYTE CDetourDis::CopyB_or_Bl(BYTE* pSource, BYTE* pDest, ULONG instruction, bool link)
+ {
+     Branch26& decoded = (Branch26&)(instruction);
+     PULONG pDstInst = (PULONG)(pDest);
+@@ -4069,22 +4154,32 @@ BYTE CDetourDis::CopyB(BYTE* pSource, BYTE* pDest, ULONG instruction)
+     m_pbTarget = pTarget;
+     LONG64 delta = pTarget - pDest;
+ 
+-    // output as B
++    // output as B or BRL
+     if (delta >= -(1 << 27) && (delta < (1 << 27)))
+     {
+-        EmitInstruction(pDstInst, Branch26::AssembleB((LONG)delta));
++        EmitInstruction(pDstInst, Branch26::Assemble(link, (LONG)delta));
+     }
+ 
+-    // output as MOV x17, Target; BR x17 (BIG assumption that x17 isn't being used for anything!!)
++    // output as MOV x17, Target; BR or BRL x17 (BIG assumption that x17 isn't being used for anything!!)
+     else
+     {
+         EmitMovImmediate(pDstInst, 17, (ULONG_PTR)pTarget);
+-        EmitInstruction(pDstInst, Br::AssembleBr(17));
++        EmitInstruction(pDstInst, Br::Assemble(17, link));
+     }
+ 
+     return (BYTE)((BYTE*)pDstInst - pDest);
+ }
+ 
++BYTE CDetourDis::CopyB(BYTE* pSource, BYTE* pDest, ULONG instruction)
++{
++    return CopyB_or_Bl(pSource, pDest, instruction, false);
++}
++
++BYTE CDetourDis::CopyBl(BYTE* pSource, BYTE* pDest, ULONG instruction)
++{
++    return CopyB_or_Bl(pSource, pDest, instruction, true);
++}
++
+ BYTE CDetourDis::CopyCbz(BYTE* pSource, BYTE* pDest, ULONG instruction)
+ {
+     Cbz19& decoded = (Cbz19&)(instruction);
+diff --git a/src/image.cpp b/src/image.cpp
+index 21ff501..a3ac44b 100644
+--- a/src/image.cpp
++++ b/src/image.cpp
+@@ -9,39 +9,18 @@
+ //  Used for for payloads, byways, and imports.
+ //
+ 
+-#if _MSC_VER >= 1900
+-#pragma warning(push)
+-#pragma warning(disable:4091) // empty typedef
+-#endif
+-#define _CRT_STDIO_ARBITRARY_WIDE_SPECIFIERS 1
+-#define _ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE 1
+-#include <windows.h>
+-#if _MSC_VER >= 1310
+-#pragma warning(push)
+-#if _MSC_VER > 1400
+-#pragma warning(disable:6102 6103) // /analyze warnings
+-#endif
+-#include <strsafe.h>
+-#pragma warning(pop)
+-#endif
+-
+-#if (_MSC_VER < 1299)
++#if _MSC_VER < 1299
+ #pragma warning(disable: 4710)
+ #endif
+ 
+ // #define DETOUR_DEBUG 1
+ #define DETOURS_INTERNAL
+-
+ #include "detours.h"
+ 
+ #if DETOURS_VERSION != 0x4c0c1   // 0xMAJORcMINORcPATCH
+ #error detours.h version mismatch
+ #endif
+ 
+-#if _MSC_VER >= 1900
+-#pragma warning(pop)
+-#endif
+-
+ namespace Detour
+ {
+ //////////////////////////////////////////////////////////////////////////////
+@@ -1714,17 +1693,13 @@ BOOL CImage::Write(HANDLE hFile)
+         m_nNextFileAddr = Max(m_SectionHeaders[n].PointerToRawData +
+                               m_SectionHeaders[n].SizeOfRawData,
+                               m_nNextFileAddr);
+-#if 0
+-        m_nNextVirtAddr = Max(m_SectionHeaders[n].VirtualAddress +
+-                              m_SectionHeaders[n].Misc.VirtualSize,
+-                              m_nNextVirtAddr);
+-#else
++        // Old images have VirtualSize == 0 as a matter of course, e.g. NT 3.1.
++        // In which case, use SizeOfRawData instead.
+         m_nNextVirtAddr = Max(m_SectionHeaders[n].VirtualAddress +
+                               (m_SectionHeaders[n].Misc.VirtualSize
+                                ? m_SectionHeaders[n].Misc.VirtualSize
+                                : SectionAlign(m_SectionHeaders[n].SizeOfRawData)),
+                               m_nNextVirtAddr);
+-#endif
+ 
+         m_nExtraOffset = Max(m_nNextFileAddr, m_nExtraOffset);
+ 
+diff --git a/src/modules.cpp b/src/modules.cpp
+index 3416730..9b8cd1c 100644
+--- a/src/modules.cpp
++++ b/src/modules.cpp
+@@ -9,27 +9,6 @@
+ //  Module enumeration functions.
+ //
+ 
+-#define _CRT_STDIO_ARBITRARY_WIDE_SPECIFIERS 1
+-
+-#pragma warning(disable:4068) // unknown pragma (suppress)
+-
+-#if _MSC_VER >= 1900
+-#pragma warning(push)
+-#pragma warning(disable:4091) // empty typedef
+-#endif
+-
+-#define _ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE 1
+-#include <windows.h>
+-#if (_MSC_VER < 1310)
+-#else
+-#pragma warning(push)
+-#if _MSC_VER > 1400
+-#pragma warning(disable:6102 6103) // /analyze warnings
+-#endif
+-#include <strsafe.h>
+-#pragma warning(pop)
+-#endif
+-
+ // #define DETOUR_DEBUG 1
+ #define DETOURS_INTERNAL
+ #include "detours.h"
+@@ -38,10 +17,6 @@
+ #error detours.h version mismatch
+ #endif
+ 
+-#if _MSC_VER >= 1900
+-#pragma warning(pop)
+-#endif
+-
+ #define CLR_DIRECTORY OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR]
+ #define IAT_DIRECTORY OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IAT]
+ 
+diff --git a/src/uimports.cpp b/src/uimports.cpp
+index 052be9b..1e8cbd7 100644
+--- a/src/uimports.cpp
++++ b/src/uimports.cpp
+@@ -138,7 +138,7 @@ static BOOL UPDATE_IMPORTS_XX(HANDLE hProcess,
+     }
+     DETOUR_TRACE(("pbBase = %p\n", pbBase));
+ 
+-    PBYTE pbNewIid = FindAndAllocateNearBase(hProcess, pbBase, cbNew);
++    PBYTE pbNewIid = FindAndAllocateNearBase(hProcess, pbModule, pbBase, cbNew);
+     if (pbNewIid == NULL) {
+         DETOUR_TRACE(("FindAndAllocateNearBase failed.\n"));
+         goto finish;
