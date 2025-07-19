@@ -118,6 +118,12 @@ namespace AppInstaller::CLI
     void InstallCommand::ExecuteInternal(Context& context) const
     {
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
+        auto overrideArg = context.Args.GetArg(Execution::Args::Type::Override);
+        if (overrideArg)
+        {
+            std::wstring expanded = wil::ExpandEnvironmentStringsW<std::wstring>(overrideArg.value());
+            context.Args.SetArg(Execution::Args::Type::Override, expanded);
+        }
 
         context << InitializeInstallerDownloadAuthenticatorsMap;
 
