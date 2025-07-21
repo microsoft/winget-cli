@@ -56,6 +56,8 @@ namespace AppInstaller::Runtime
         CheckpointsLocation,
         // The location of the CLI executable file.
         CLIExecutable,
+        // The directory containing the CLI executable file.
+        MCPExecutable,
         // The location of the image assets, if it exists.
         ImageAssets,
         // The location where fonts are installed with user scope.

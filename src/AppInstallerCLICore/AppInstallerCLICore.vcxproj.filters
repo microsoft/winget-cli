@@ -293,6 +293,9 @@
     <ClInclude Include="Commands\DscAdminSettingsResource.h">
       <Filter>Commands\Configuration</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\McpCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -552,6 +555,9 @@
     </ClCompile>
     <ClCompile Include="Commands\DscAdminSettingsResource.cpp">
       <Filter>Commands\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\McpCommand.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

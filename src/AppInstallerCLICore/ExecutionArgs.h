@@ -125,12 +125,14 @@ namespace AppInstaller::CLI::Execution
             // Font Command
             Family,
 
+            // Stub package (extended features)
+            ExtendedFeaturesEnable,
+            ExtendedFeaturesDisable,
+
             // Configuration
             ConfigurationFile,
             ConfigurationAcceptWarning,
             ConfigurationSuppressPrologue,
-            ConfigurationEnable,
-            ConfigurationDisable,
             ConfigurationProcessorPath,
             ConfigurationModulePath,
             ConfigurationExportPackageId,

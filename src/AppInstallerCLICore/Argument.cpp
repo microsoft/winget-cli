@@ -211,9 +211,9 @@ namespace AppInstaller::CLI
             return { type, "accept-configuration-agreements"_liv };
         case Execution::Args::Type::ConfigurationSuppressPrologue:
             return { type, "suppress-initial-details"_liv };
-        case Execution::Args::Type::ConfigurationEnable:
+        case Execution::Args::Type::ExtendedFeaturesEnable:
             return { type, "enable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
-        case Execution::Args::Type::ConfigurationDisable:
+        case Execution::Args::Type::ExtendedFeaturesDisable:
             return { type, "disable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
         case Execution::Args::Type::ConfigurationModulePath:
             return { type, "module-path"_liv };

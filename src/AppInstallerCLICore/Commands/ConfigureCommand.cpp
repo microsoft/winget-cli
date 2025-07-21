@@ -41,8 +41,8 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::ConfigurationHistoryItem, Resource::String::ConfigurationHistoryItemArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument{ Execution::Args::Type::ConfigurationAcceptWarning, Resource::String::ConfigurationAcceptWarningArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::ConfigurationSuppressPrologue, Resource::String::ConfigurationSuppressPrologueArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
-            Argument{ Execution::Args::Type::ConfigurationEnable, Resource::String::ConfigurationEnableMessage, ArgumentType::Flag, Argument::Visibility::Help },
-            Argument{ Execution::Args::Type::ConfigurationDisable, Resource::String::ConfigurationDisableMessage, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::ExtendedFeaturesEnable, Resource::String::ExtendedFeaturesEnableMessage, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::ExtendedFeaturesDisable, Resource::String::ExtendedFeaturesDisableMessage, ArgumentType::Flag, Argument::Visibility::Help },
         };
     }
 
@@ -63,15 +63,15 @@ namespace AppInstaller::CLI
 
     void ConfigureCommand::ExecuteInternal(Execution::Context& context) const
     {
-        if (context.Args.Contains(Execution::Args::Type::ConfigurationEnable))
+        if (context.Args.Contains(Execution::Args::Type::ExtendedFeaturesEnable))
         {
             context <<
-                EnableConfiguration;
+                EnableExtendedFeatures;
         }
-        else if (context.Args.Contains(Execution::Args::Type::ConfigurationDisable))
+        else if (context.Args.Contains(Execution::Args::Type::ExtendedFeaturesDisable))
         {
             context <<
-                DisableConfiguration;
+                DisableExtendedFeatures;
         }
         else
         {
@@ -90,12 +90,12 @@ namespace AppInstaller::CLI
 
     void ConfigureCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        if (execArgs.Contains(Execution::Args::Type::ConfigurationEnable) ||
-            execArgs.Contains(Execution::Args::Type::ConfigurationDisable))
+        if (execArgs.Contains(Execution::Args::Type::ExtendedFeaturesEnable) ||
+            execArgs.Contains(Execution::Args::Type::ExtendedFeaturesDisable))
         {
             if (execArgs.GetArgsCount() > 1)
             {
-                throw CommandException(Resource::String::ConfigurationEnableArgumentError);
+                throw CommandException(Resource::String::ExtendedFeaturesEnableArgumentError);
             }
         }
         else

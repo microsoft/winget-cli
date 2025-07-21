@@ -29,6 +29,7 @@
 #include "ResumeCommand.h"
 #include "RepairCommand.h"
 #include "DscCommand.h"
+#include "McpCommand.h"
 
 #include "Resources.h"
 #include "TableOutput.h"
@@ -199,6 +200,7 @@ namespace AppInstaller::CLI
             std::make_unique<RepairCommand>(FullName()),
             std::make_unique<FontCommand>(FullName()),
             std::make_unique<DscCommand>(FullName()),
+            std::make_unique<McpCommand>(FullName()),
 #if _DEBUG
             std::make_unique<DebugCommand>(FullName()),
 #endif

@@ -9,6 +9,7 @@
 #include "TableOutput.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
 #include "Workflows/ConfigurationFlow.h"
+#include "Workflows/MSStoreInstallerHandler.h"
 #include <winrt/Microsoft.Management.Configuration.h>
 
 using namespace AppInstaller::CLI::Workflow;

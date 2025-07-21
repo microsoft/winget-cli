@@ -77,12 +77,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void TestConfigurationSet(Execution::Context& context);
 
-    // Verifies the full package is installed.
-    // Required Args: None
-    // Inputs: None
-    // Outputs: None
-    void VerifyIsFullPackage(Execution::Context& context);
-
     // Validates the configuration set semantically.
     // Required Args: None
     // Inputs: ConfigurationProcessor, ConfigurationSet

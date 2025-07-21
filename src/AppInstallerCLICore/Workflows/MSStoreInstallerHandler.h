@@ -36,19 +36,21 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void EnsureStorePolicySatisfied(Execution::Context& context);
 
-    // Change stub preference to full and installs full package if needed.
-    // This should go into configuration flow once installing from the store is
-    // moved out of this work flow.
+    // Verifies the full package is installed.
     // Required Args: None
     // Inputs: None
     // Outputs: None
-    void EnableConfiguration(Execution::Context& context);
+    void VerifyIsFullPackage(Execution::Context& context);
+
+    // Change stub preference to full and installs full package if needed.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void EnableExtendedFeatures(Execution::Context& context);
 
     // Change stub preference to stub and installs stub package if needed.
-    // This should go into configuration flow once installing from the store is
-    // moved out of this work flow.
     // Required Args: None
     // Inputs: None
     // Outputs: None
-    void DisableConfiguration(Execution::Context& context);
+    void DisableExtendedFeatures(Execution::Context& context);
 }
