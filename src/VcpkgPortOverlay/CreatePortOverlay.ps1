@@ -208,6 +208,44 @@ function Add-PatchToPortFile
     $modifiedPortFile | Out-File $portFilePath
 }
 
+# Removes all patches from portfile.cmake
+function Remove-PortPatches
+{
+    param(
+        [Parameter(Mandatory)]
+        [string]$Port
+    )
+
+    # Look for the line that says "PATCHES"
+
+    $portFilePath = Join-Path $OverlayRoot $Port "portfile.cmake"
+    $originalPortFile = Get-Content $portFilePath
+
+    $modifiedPortFile = @()
+    foreach ($line in $originalPortFile)
+    {
+        if ($line.TrimEnd().EndsWith("PATCHES"))
+        {
+            $foundPatches = $true
+        }
+        elseif ($line -eq ")")
+        {
+            $foundParen = $true
+            $modifiedPortFile += $line
+        }
+        elseif ($foundPatches -and -not $foundParen)
+        {
+            # Drop line
+        }
+        else
+        {
+            $modifiedPortFile += $line
+        }
+    }
+
+    $modifiedPortFile | Out-File $portFilePath
+}
+
 # Adds a patch to a port
 function Add-PatchToPort
 {
@@ -275,13 +313,12 @@ function Update-PortSource
         [Parameter(Mandatory)]
         [string]$Commit,
         [Parameter(Mandatory)]
-        [string]$SourceHash
+        [string]$SourceHash,
+        [string]$RefPattern = '[0-9a-f]{40}( #.*)?$'
     )
 
-    $portDir = Join-Path $OverlayRoot $Port
-
     # For the REF, we also delete any comments after it that may say the wrong version
-    Set-ParameterInPortFile $Port -ParameterName 'REF' -CurrentValuePattern '[0-9a-f]{40}( #.*)?$' -NewValue "$Commit # Unreleased"
+    Set-ParameterInPortFile $Port -ParameterName 'REF' -CurrentValuePattern $RefPattern -NewValue "$Commit # Unreleased"
     Set-ParameterInPortFile $Port -ParameterName 'SHA512' -CurrentValuePattern '[0-9a-f]{128}' -NewValue $SourceHash
 }
 
@@ -301,6 +338,10 @@ function Update-PortVersion
 
 New-PortOverlay cpprestsdk -Version 2.10.18 -PortVersion 4
 Add-PatchToPort cpprestsdk -PatchRepo 'microsoft/winget-cli' -PatchCommit '888b4ed8f4f7d25cb05a47210e083fe29348163b' -PatchName 'add-server-certificate-validation.patch' -PatchRoot 'src/cpprestsdk/cpprestsdk'
+
+New-PortOverlay detours -Version 4.0.1 -PortVersion 8
+Update-PortSource detours -RefPattern 'v4.0.1' -Commit '404c153ff390cb14f1787c7feeb4908c6d79b0ab' -SourceHash '1f3f26657927fa153116dce13dbfa3319ea368e6c9017f4999b6ec24d6356c335b3d5326718d3ec707b92832763ffea092088df52596f016d7ca9b8127f7033d'
+Remove-PortPatches detours
 
 New-PortOverlay libyaml -Version 0.2.5 -PortVersion 5
 Update-PortSource libyaml -Commit '840b65c40675e2d06bf40405ad3f12dec7f35923' -SourceHash 'de85560312d53a007a2ddf1fe403676bbd34620480b1ba446b8c16bb366524ba7a6ed08f6316dd783bf980d9e26603a9efc82f134eb0235917b3be1d3eb4b302'
