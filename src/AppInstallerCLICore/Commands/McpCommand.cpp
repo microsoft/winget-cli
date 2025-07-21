@@ -10,7 +10,7 @@ using namespace AppInstaller::CLI::Workflow;
 namespace AppInstaller::CLI
 {
     McpCommand::McpCommand(std::string_view parent) :
-        Command("mcp", {}, parent, Settings::TogglePolicy::Policy::Configuration)
+        Command("mcp", {}, parent, Settings::TogglePolicy::Policy::McpServer)
     {
     }
 

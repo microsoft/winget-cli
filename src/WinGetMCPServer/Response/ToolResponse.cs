@@ -6,15 +6,33 @@
 
 namespace WinGetMCPServer.Response
 {
+    using Microsoft.WinGet.SharedLib.PolicySettings;
     using ModelContextProtocol.Protocol;
     using System.Text.Json;
     using System.Text.Json.Serialization;
+    using WinGetMCPServer.Exceptions;
+    using static System.Runtime.InteropServices.JavaScript.JSType;
 
     /// <summary>
     /// Contains reusable responses for tools.
     /// </summary>
     internal static class ToolResponse
     {
+        /// <summary>
+        /// Checks whether the server is disabled by group policy.
+        /// </summary>
+        public static void CheckGroupPolicy()
+        {
+            if (!GroupPolicy.GetInstance().IsEnabled(Policy.McpServer))
+            {
+                throw new ToolResponseException(new CallToolResponse()
+                {
+                    IsError = true,
+                    Content = [new Content() { Text = "The Windows Package Manager MCP server is disabled by group policy." }]
+                });
+            }
+        }
+
         /// <summary>
         /// Constructs a response from an object.
         /// </summary>

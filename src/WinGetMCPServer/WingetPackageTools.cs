@@ -40,6 +40,8 @@ namespace WinGetMCPServer
         {
             try
             {
+                ToolResponse.CheckGroupPolicy();
+
                 var catalog = ConnectCatalog();
 
                 // First attempt a more exact match
@@ -83,6 +85,8 @@ namespace WinGetMCPServer
         {
             try
             {
+                ToolResponse.CheckGroupPolicy();
+
                 var packageCatalog = ConnectCatalog(catalog);
 
                 if (cancellationToken.IsCancellationRequested)

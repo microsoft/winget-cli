@@ -176,6 +176,16 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
+    <policy name="EnableWindowsPackageManagerMcpServer" class="Machine" displayName="$(string.EnableWindowsPackageManagerMcpServer)" explainText="$(string.EnableWindowsPackageManagerMcpServerExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerMcpServer">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
     <policy name="WindowsPackageManagerDefaultProxy" class="Machine" displayName="$(string.WindowsPackageManagerDefaultProxy)" explainText="$(string.WindowsPackageManagerDefaultProxyExplanation)" presentation="$(presentation.WindowsPackageManagerDefaultProxy)" key="Software\Policies\Microsoft\Windows\AppInstaller">
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />

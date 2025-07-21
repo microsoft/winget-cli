@@ -35,6 +35,7 @@
     <ProjectReference Include="..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.vcxproj">
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\PowerShell\Microsoft.WinGet.SharedLib\Microsoft.WinGet.SharedLib.csproj" />
   </ItemGroup>
 
   <Import Project="..\targets\EmbeddedCsWinRT.targets" />

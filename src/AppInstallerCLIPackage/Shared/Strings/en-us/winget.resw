@@ -3384,4 +3384,7 @@ Please specify one of them using the --source option to proceed.</value>
 MCP stands for Model Context Protocol and should probably remain as-is.
 An unlocalized JSON fragment will follow on another line.</comment>
   </data>
+  <data name="PolicyEnableMcpServer" xml:space="preserve">
+    <value>Enable Windows Package Manager MCP Server</value>
+  </data>
 </root>

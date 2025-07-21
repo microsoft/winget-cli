@@ -326,6 +326,8 @@ namespace AppInstaller::Settings
             return TogglePolicy(policy, "EnableWindowsPackageManagerConfiguration"sv, String::PolicyEnableWinGetConfiguration);
         case TogglePolicy::Policy::ProxyCommandLineOptions:
             return TogglePolicy(policy, "EnableWindowsPackageManagerProxyCommandLineOptions"sv, String::PolicyEnableProxyCommandLineOptions);
+        case TogglePolicy::Policy::McpServer:
+            return TogglePolicy(policy, "EnableWindowsPackageManagerMcpServer"sv, String::PolicyEnableMcpServer);
         default:
             THROW_HR(E_UNEXPECTED);
         }

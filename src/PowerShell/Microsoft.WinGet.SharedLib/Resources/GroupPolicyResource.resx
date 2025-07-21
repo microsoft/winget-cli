@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -143,6 +143,9 @@
   </data>
   <data name="PolicyEnableLocalManifests" xml:space="preserve">
     <value>Enable Windows App Installer Local Manifest Files</value>
+  </data>
+  <data name="PolicyEnableMcpServer" xml:space="preserve">
+    <value>Enable Windows Package Manager MCP Server</value>
   </data>
   <data name="PolicyEnableMSStoreSource" xml:space="preserve">
     <value>Enable Windows App Installer Microsoft Store Source</value>
