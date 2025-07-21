@@ -103,3 +103,13 @@ TEST_CASE("ReplaceCommonPathPrefix", "[filesystem]")
     REQUIRE(!ReplaceCommonPathPrefix(shouldNotReplace, prefix, replacement));
     REQUIRE(shouldNotReplace.u8string() == "C:\\test1\\test3\\subdir1\\subdir2");
 }
+
+TEST_CASE("GetExecutablePathForProcess", "[filesystem]")
+{
+    std::filesystem::path thisExecutable = GetExecutablePathForProcess(GetCurrentProcess());
+    REQUIRE(!thisExecutable.empty());
+    REQUIRE(thisExecutable.is_absolute());
+    REQUIRE(thisExecutable.has_filename());
+    REQUIRE(thisExecutable.has_extension());
+    REQUIRE(thisExecutable.filename() == L"AppInstallerCLITests.exe");
+}
