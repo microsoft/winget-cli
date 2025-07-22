@@ -50,12 +50,10 @@ jobs:
       x86_release:
         buildConfiguration: 'Release'
         buildPlatform: 'x86'
-        testBuildConfiguration: 'TestRelease'
         artifactIdentifier: 'x86release'
       x64_release:
         buildConfiguration: 'Release'
         buildPlatform: 'x64'
-        testBuildConfiguration: 'TestRelease'
         artifactIdentifier: 'x64release'
 
   variables:
@@ -117,19 +115,6 @@ jobs:
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
       msbuildArgs: '/bl:$(artifactsDir)\msbuild.binlog
-                    /p:AppxBundlePlatforms="$(buildPlatform)"
-                    /p:AppxPackageDir="$(appxPackageDir)"
-                    /p:AppxBundle=Always
-                    /p:UapAppxPackageBuildMode=SideloadOnly'
-      maximumCpuCount: true
-
-  - task: VSBuild@1
-    displayName: Build Test Project
-    inputs:
-      platform: '$(buildPlatform)'
-      solution: '$(solution)'
-      configuration: '$(testBuildConfiguration)'
-      msbuildArgs: '/bl:$(artifactsDir)\msbuild-testProject.binlog
                     /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
@@ -314,12 +299,10 @@ jobs:
       x86_release:
         buildConfiguration: 'Release'
         buildPlatform: 'x86'
-        testBuildConfiguration: 'TestRelease'
         artifactIdentifier: 'x86release'
       x64_release:
         buildConfiguration: 'Release'
         buildPlatform: 'x64'
-        testBuildConfiguration: 'TestRelease'
         artifactIdentifier: 'x64release'
 
   variables:
