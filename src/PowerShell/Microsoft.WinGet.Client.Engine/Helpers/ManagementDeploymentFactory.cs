@@ -103,7 +103,14 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>A <see cref="PackageManager" /> instance.</returns>
         public PackageManager CreatePackageManager()
         {
-            return Create<PackageManager>(PackageManagerType, PackageManagerIid);
+            var result = Create<PackageManager>(PackageManagerType, PackageManagerIid);
+
+            if (!Utilities.UsesInProcWinget)
+            {
+                _ = CoAllowSetForegroundWindow(result, IntPtr.Zero);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -222,5 +229,8 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             return (T)instance;
 #endif
         }
+
+        [DllImport("ole32.dll", ExactSpelling = true, PreserveSig = true)]
+        private static extern int CoAllowSetForegroundWindow([MarshalAs(UnmanagedType.IUnknown)] object pUnk, IntPtr reserved);
     }
 }

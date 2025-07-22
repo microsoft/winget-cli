@@ -15,13 +15,13 @@ name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
 jobs:
 - job: Localize
   pool:
-    vmImage: windows-2019
+    vmImage: windows-latest
   variables:
     skipComponentGovernanceDetection: true
     tdbuildTeamId: 8343
   steps:
     # Upload client resources
-  - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@4
+  - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@5
     displayName: Send resources to Touchdown Build
     inputs:
       teamId: $(tdbuildTeamId)
@@ -34,7 +34,7 @@ jobs:
 
     # Upload Group Policy ADML
     # Do it as a separate step as we need the result in a different location
-  - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@4
+  - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@5
     displayName: Send ADML to Touchdown Build
     inputs:
       teamId: $(tdbuildTeamId)

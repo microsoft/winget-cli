@@ -279,6 +279,11 @@
       <SubSystem Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|x64'">Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(UseProdCLSIDs)' == 'true'">
+    <ClCompile>
+      <PreprocessorDefinitions>USE_PROD_CLSIDS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(WingetDisableTestHooks)'=='true'">
     <ClCompile>
       <PreprocessorDefinitions>AICLI_DISABLE_TEST_HOOKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>

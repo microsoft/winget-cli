@@ -36,6 +36,10 @@
       "version": "1.0"
     },
     {
+      "name": "cpprestsdk",
+      "version": "2.10.18"
+    },
+    {
       "name": "curl",
       "version": "8.12.1"
     },
