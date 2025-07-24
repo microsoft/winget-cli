@@ -149,6 +149,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
     }
 
+    PackageManager::PackageManager()
+    {
+        Execution::ContextOrchestrator::RegisterForShutdownSynchronization();
+    }
+
     winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> PackageManager::GetPackageCatalogs()
     {
         LogStartupIfApplicable();

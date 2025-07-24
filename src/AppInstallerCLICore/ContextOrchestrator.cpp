@@ -5,6 +5,7 @@
 #include "ContextOrchestrator.h"
 #include "COMContext.h"
 #include "Commands/COMCommand.h"
+#include "Public/ShutdownMonitoring.h"
 #include "winget/UserSettings.h"
 #include <Commands/RootCommand.h>
 
@@ -90,10 +91,19 @@ namespace AppInstaller::CLI::Execution
 
         if (item->IsOnFirstCommand())
         {
+            // Directly error on attempting to enqueue first time
+            THROW_HR_IF(m_disabledResult, !m_enabled);
+
             THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSTALL_ALREADY_RUNNING), FindById(item->GetId()));
 
             // Log the beginning of the item
             item->GetContext().GetThreadGlobals().GetTelemetryLogger().LogCommand(item->GetItemCommandName());
+        }
+        else if (!m_enabled)
+        {
+            // On subsequent command enqueues, cancel and complete the item
+            item->GetContext().Cancel(m_disabledReason, true);
+            item->HandleItemCompletion();
         }
 
         std::string commandQueueName{ GetCommandQueueName(item->GetNextCommand().Name()) };
@@ -143,6 +153,41 @@ namespace AppInstaller::CLI::Execution
             const auto& manifest = queueItem.GetContext().Get<Execution::Data::Manifest>();
             m_installingWriteableSource.RemovePackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
         }
+    }
+
+    void ContextOrchestrator::RegisterForShutdownSynchronization()
+    {
+        static std::once_flag registerComponentOnceFlag;
+        std::call_once(registerComponentOnceFlag,
+            [&]()
+            {
+                using namespace ShutdownMonitoring;
+
+                ServerShutdownSynchronization::ComponentSystem component;
+                component.BlockNewWork = Disable;
+                component.BeginShutdown = CancelQueuedItems;
+                component.Wait = WaitForRunningItems;
+
+                ServerShutdownSynchronization::AddComponent(component);
+            });
+    }
+
+    void ContextOrchestrator::Disable(CancelReason reason)
+    {
+        ContextOrchestrator& instance = Instance();
+        std::lock_guard<std::mutex> lock{ instance.m_queueLock };
+        instance.m_enabled = false;
+        instance.m_disabledReason = reason;
+    }
+
+    void ContextOrchestrator::CancelQueuedItems(CancelReason reason)
+    {
+
+    }
+
+    void ContextOrchestrator::WaitForRunningItems()
+    {
+
     }
 
     _Requires_lock_held_(m_queueLock)
@@ -340,8 +385,7 @@ namespace AppInstaller::CLI::Execution
 
         if (foundItem && isGlobalRemove)
         {
-            ContextOrchestrator::Instance().RemoveItemManifestFromInstallingSource(item);
-            item.GetCompletedEvent().SetEvent();
+            item.HandleItemCompletion();
         }
 
         return foundItem;
@@ -366,6 +410,12 @@ namespace AppInstaller::CLI::Execution
         case PackageOperationType::Repair: return "root:repair"sv;
         default: return "unknown";
         }
+    }
+
+    void OrchestratorQueueItem::HandleItemCompletion() const
+    {
+        ContextOrchestrator::Instance().RemoveItemManifestFromInstallingSource(*this);
+        GetCompletedEvent().SetEvent();
     }
 
     std::unique_ptr<OrchestratorQueueItem> OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context, bool isUpgrade)

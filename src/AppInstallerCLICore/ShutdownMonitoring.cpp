@@ -6,7 +6,7 @@
 #include <AppInstallerLogging.h>
 #include <AppInstallerRuntime.h>
 
-namespace AppInstaller::CLI::ShutdownMonitoring
+namespace AppInstaller::ShutdownMonitoring
 {
     TerminationSignalHandler& TerminationSignalHandler::Instance()
     {
@@ -288,16 +288,6 @@ namespace AppInstaller::CLI::ShutdownMonitoring
 
     void ServerShutdownSynchronization::SynchronizeShutdown(CancelReason reason) try
     {
-        HRESULT hr = E_ABORT;
-        if (reason == CancelReason::CtrlCSignal)
-        {
-            hr = APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED;
-        }
-        else if (reason == CancelReason::AppShutdown)
-        {
-            hr = APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED;
-        }
-
         std::vector<ComponentSystem> components;
         {
             std::lock_guard<std::mutex> lock{ m_componentsLock };
@@ -306,12 +296,12 @@ namespace AppInstaller::CLI::ShutdownMonitoring
 
         for (const auto& component : components)
         {
-            component.BlockNewWork(hr);
+            component.BlockNewWork(reason);
         }
 
         for (const auto& component : components)
         {
-            component.BeginShutdown(hr);
+            component.BeginShutdown(reason);
         }
 
         for (const auto& component : components)

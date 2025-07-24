@@ -81,6 +81,8 @@ namespace AppInstaller::CLI::Execution
         PackageOperationType GetPackageOperationType() const { return m_operationType; }
         std::string_view GetItemCommandName() const;
 
+        void HandleItemCompletion() const;
+
     private:
         OrchestratorQueueItemState m_state = OrchestratorQueueItemState::NotQueued;
         std::unique_ptr<COMContext> m_context;
@@ -119,8 +121,16 @@ namespace AppInstaller::CLI::Execution
         void AddItemManifestToInstallingSource(const OrchestratorQueueItem& queueItem);
         void RemoveItemManifestFromInstallingSource(const OrchestratorQueueItem& queueItem);
 
+        // Functions for ServerShutdownSynchronization::ComponentSystem registration
+        static void RegisterForShutdownSynchronization();
+        static void Disable(CancelReason reason);
+        static void CancelQueuedItems(CancelReason reason);
+        static void WaitForRunningItems();
+
     private:
         std::mutex m_queueLock;
+        bool m_enabled = true;
+        CancelReason m_disabledReason = CancelReason::None;
         void AddCommandQueue(std::string_view commandName, UINT32 allowedThreads);
         void RemoveItemInState(const OrchestratorQueueItem& item, OrchestratorQueueItemState state);
 

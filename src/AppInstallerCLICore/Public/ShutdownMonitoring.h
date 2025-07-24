@@ -3,9 +3,10 @@
 #pragma once
 #include <Windows.h>
 #include <AppInstallerProgress.h>
+#include <winrt/Windows.ApplicationModel.h>
 #include <mutex>
 
-namespace AppInstaller::CLI::ShutdownMonitoring
+namespace AppInstaller::ShutdownMonitoring
 {
     // Type to contain the CTRL signal and window messages handler.
     struct TerminationSignalHandler
@@ -75,10 +76,10 @@ namespace AppInstaller::CLI::ShutdownMonitoring
         {
             // Initiate the shutdown process.
             // Components are expected to set flags to prevent any further work from beginning and return as quickly as possible.
-            void (*BlockNewWork)(HRESULT reason) = nullptr;
+            void (*BlockNewWork)(CancelReason reason) = nullptr;
 
             // Components are expected to cancel active or pending work as asynchronously as possible.
-            void (*BeginShutdown)(HRESULT reason) = nullptr;
+            void (*BeginShutdown)(CancelReason reason) = nullptr;
 
             // Components wait until all active and pending work have completed their 
             void (*Wait)() = nullptr;
