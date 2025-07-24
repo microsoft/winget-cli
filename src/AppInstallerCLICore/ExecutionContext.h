@@ -7,6 +7,7 @@
 #include "ExecutionContextData.h"
 #include "CompletionData.h"
 #include "CheckpointManager.h"
+#include <AppInstallerProgress.h>
 #include <winget/Checkpoint.h>
 
 #include <string_view>
@@ -91,7 +92,7 @@ namespace AppInstaller::CLI::Execution
     // The context within which all commands execute.
     // Contains input/output via Execution::Reporter and
     // arguments via Execution::Args.
-    struct Context : EnumBasedVariantMap<Data, details::DataMapping, ContextEnumBasedVariantMapActionCallback>
+    struct Context : EnumBasedVariantMap<Data, details::DataMapping, ContextEnumBasedVariantMapActionCallback>, ICancellable
     {
         Context() = default;
         Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
@@ -139,7 +140,7 @@ namespace AppInstaller::CLI::Execution
         // Cancel the context; this terminates it as well as informing any in progress task to stop cooperatively.
         // Multiple attempts with CancelReason::CancelSignal may cause the process to simply exit.
         // The bypassUser indicates whether the user should be asked for cancellation (does not currently have any effect).
-        void Cancel(CancelReason reason, bool bypassUser = false);
+        void Cancel(CancelReason reason, bool bypassUser = false) override;
 
         // Gets context flags
         ContextFlag GetFlags() const
