@@ -40,6 +40,9 @@ namespace AppInstaller
 
     DEFINE_ENUM_FLAG_OPERATORS(CancelReason);
 
+    // Gets the HRESULT associated with the given reason.
+    HRESULT ToHRESULT(CancelReason reason);
+
     // Interface that provides a callback to inform of cancellation.
     struct ICancellable
     {

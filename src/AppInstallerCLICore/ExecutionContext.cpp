@@ -188,15 +188,7 @@ namespace AppInstaller::CLI::Execution
 
     void Context::Cancel(CancelReason reason, bool bypassUser)
     {
-        HRESULT hr = E_ABORT;
-        if (reason == CancelReason::CtrlCSignal)
-        {
-            hr = APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED;
-        }
-        else if (reason == CancelReason::AppShutdown)
-        {
-            hr = APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED;
-        }
+        HRESULT hr = ToHRESULT(reason);
 
         Terminate(hr);
         Reporter.CancelInProgressTask(bypassUser, reason);

@@ -55,7 +55,7 @@ extern "C"
 
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerModuleCreate(WindowsPackageManagerServerModuleTerminationCallback callback) try
     {
-        AppInstaller::CLI::ShutdownMonitoring::ServerShutdownSynchronization::Initialize(callback);
+        AppInstaller::ShutdownMonitoring::ServerShutdownSynchronization::Initialize(callback);
         ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::Create(callback);
         return S_OK;
     }

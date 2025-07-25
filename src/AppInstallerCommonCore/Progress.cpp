@@ -2,9 +2,27 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "AppInstallerProgress.h"
+#include <AppInstallerErrors.h>
 
 namespace AppInstaller
 {
+    HRESULT ToHRESULT(CancelReason reason)
+    {
+        HRESULT hr = E_ABORT;
+
+        switch (reason)
+        {
+        case CancelReason::CtrlCSignal:
+            hr = APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED;
+            break;
+        case CancelReason::AppShutdown:
+            hr = APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED;
+            break;
+        }
+
+        return hr;
+    }
+
     ProgressCallback::ProgressCallback(IProgressSink* sink) : m_sink(sink)
     {
     }

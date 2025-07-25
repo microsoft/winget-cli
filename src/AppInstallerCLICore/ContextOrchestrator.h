@@ -161,17 +161,20 @@ namespace AppInstaller::CLI::Execution
         bool RemoveItemInState(const OrchestratorQueueItem& item, OrchestratorQueueItemState state, bool isGlobalRemove);
 
         // Finds an item by id, if it is in the queue.
-        _Requires_lock_held_(m_queueLock)
+        _Requires_lock_held_(m_itemLock)
         std::shared_ptr<OrchestratorQueueItem> FindById(const OrchestratorQueueItemId& queueItemId);
 
         // Runs a single item from the queue.
         void RunItem(const OrchestratorQueueItemId& itemId);
 
+        // Cancels and "removes" all items in the queue.
+        void CancelAllItems(CancelReason reason);
+
     private:
         // Enqueues an item.
         void EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item);
 
-        _Requires_lock_held_(m_queueLock)
+        _Requires_lock_held_(m_itemLock)
         std::deque<std::shared_ptr<OrchestratorQueueItem>>::iterator FindIteratorById(const OrchestratorQueueItemId& comparisonQueueItemId);
 
         std::string_view m_commandName;
@@ -187,7 +190,7 @@ namespace AppInstaller::CLI::Execution
         wil::unique_any<PTP_POOL, decltype(CloseThreadpool), CloseThreadpool> m_threadPool;
         wil::unique_any<PTP_CLEANUP_GROUP, decltype(CloseThreadpoolCleanupGroup), CloseThreadpoolCleanupGroup> m_threadPoolCleanupGroup;
 
-        std::mutex m_queueLock;
+        std::mutex m_itemLock;
         std::deque<std::shared_ptr<OrchestratorQueueItem>> m_queueItems;
     };
 }
