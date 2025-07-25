@@ -348,12 +348,12 @@ namespace AppInstaller::YAML::Wrapper
         constexpr char c_utf8BOM[3] = { static_cast<char>(0xEF), static_cast<char>(0xBB), static_cast<char>(0xBF) };
 
         // If input has a BOM, we want to remove it to prevent errors with checking for comments within the input document.
-       
+
         // Check for UTF-16 BOMs
         if (m_input.size() >= sizeof(c_utf16LEBOM) && std::memcmp(m_input.data(), c_utf16LEBOM, sizeof(c_utf16LEBOM)) == 0)
         {
             AICLI_LOG(YAML, Verbose, << "Found UTF-16 LE BOM");
-			yaml_parser_set_encoding(&m_parser, YAML_UTF16LE_ENCODING); // Without the BOM, the encoding must be explicitly set
+            yaml_parser_set_encoding(&m_parser, YAML_UTF16LE_ENCODING); // Without the BOM, the encoding must be explicitly set
             m_input.erase(0, sizeof(c_utf16LEBOM)); // Remove the BOM from the input
             return;
         }
@@ -370,8 +370,8 @@ namespace AppInstaller::YAML::Wrapper
         if (m_input.size() >= sizeof(c_utf8BOM) && std::memcmp(m_input.data(), c_utf8BOM, sizeof(c_utf8BOM)) == 0)
         {
             AICLI_LOG(YAML, Verbose, << "Found UTF-8 BOM");
-			yaml_parser_set_encoding(&m_parser, YAML_UTF8_ENCODING); // Without the BOM, the encoding must be explicitly set
-			m_input.erase(0, sizeof(c_utf8BOM)); // Remove the BOM from the input
+            yaml_parser_set_encoding(&m_parser, YAML_UTF8_ENCODING); // Without the BOM, the encoding must be explicitly set
+            m_input.erase(0, sizeof(c_utf8BOM)); // Remove the BOM from the input
             return;
         }
 
