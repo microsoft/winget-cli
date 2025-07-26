@@ -209,6 +209,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "targets", "targets", "{A0B4
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PureLib", "PureLib\PureLib.vcxitems", "{A33223D2-550B-4D99-A53D-488B1F68683E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinGetMCPServer", "WinGetMCPServer\WinGetMCPServer.csproj", "{33745E4A-39E2-676F-7E23-50FB43848D25}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -966,6 +968,30 @@ Global
 		{9406322E-6272-487E-902A-9953889719EA}.ReleaseStatic|x64.Build.0 = ReleaseStatic|Any CPU
 		{9406322E-6272-487E-902A-9953889719EA}.ReleaseStatic|x86.ActiveCfg = ReleaseStatic|Any CPU
 		{9406322E-6272-487E-902A-9953889719EA}.ReleaseStatic|x86.Build.0 = ReleaseStatic|Any CPU
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Debug|ARM64.ActiveCfg = Debug|arm64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Debug|ARM64.Build.0 = Debug|arm64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Debug|x64.ActiveCfg = Debug|x64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Debug|x64.Build.0 = Debug|x64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Debug|x86.ActiveCfg = Debug|x86
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Debug|x86.Build.0 = Debug|x86
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Fuzzing|ARM64.ActiveCfg = Release|arm64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Fuzzing|ARM64.Build.0 = Release|arm64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Fuzzing|x64.ActiveCfg = Release|x64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Fuzzing|x64.Build.0 = Release|x64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Fuzzing|x86.ActiveCfg = Release|x86
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Fuzzing|x86.Build.0 = Release|x86
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Release|ARM64.ActiveCfg = Release|arm64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Release|ARM64.Build.0 = Release|arm64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Release|x64.ActiveCfg = Release|x64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Release|x64.Build.0 = Release|x64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Release|x86.ActiveCfg = Release|x86
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.Release|x86.Build.0 = Release|x86
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.ReleaseStatic|ARM64.ActiveCfg = Release|arm64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.ReleaseStatic|ARM64.Build.0 = Release|arm64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.ReleaseStatic|x64.ActiveCfg = Release|x64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.ReleaseStatic|x64.Build.0 = Release|x64
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.ReleaseStatic|x86.ActiveCfg = Release|x86
+		{33745E4A-39E2-676F-7E23-50FB43848D25}.ReleaseStatic|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

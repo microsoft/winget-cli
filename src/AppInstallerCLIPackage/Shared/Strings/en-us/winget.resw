@@ -1975,30 +1975,31 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>Install the full package for AppInstaller</value>
   </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>Enable configuration components. Requires store access.</value>
+  <data name="ExtendedFeaturesEnableMessage" xml:space="preserve">
+    <value>Enable extended features. Requires store access.</value>
   </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
+  <data name="ExtendedFeaturesEnableArgumentError" xml:space="preserve">
     <value>Option '--enable' and '--disable' cannot be used with other arguments.</value>
     <comment>{Locked="--enable", "--disable"}</comment>
   </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>Enabling configuration components. Requires store access.</value>
+  <data name="ExtendedFeaturesEnablingMessage" xml:space="preserve">
+    <value>Enabling extended features. Requires store access.</value>
   </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>Configuration is not enabled. Run `winget configure --enable` to enable it.</value>
+  <data name="ExtendedFeaturesNotEnabledMessage" xml:space="preserve">
+    <value>Extended features are not enabled. Run `winget configure --enable` to enable them.</value>
+    <comment>{Locked="winget configure --enable"}</comment>
   </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>Configuration is enabled.</value>
+  <data name="ExtendedFeaturesEnabledMessage" xml:space="preserve">
+    <value>Extended features are enabled.</value>
   </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>Disable configuration components. Requires store access.</value>
+  <data name="ExtendedFeaturesDisableMessage" xml:space="preserve">
+    <value>Disable extended features. Requires store access.</value>
   </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>Disabling configuration components. Requires store access.</value>
+  <data name="ExtendedFeaturesDisablingMessage" xml:space="preserve">
+    <value>Disabling extended features. Requires store access.</value>
   </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>Configuration is disabled.</value>
+  <data name="ExtendedFeaturesDisabledMessage" xml:space="preserve">
+    <value>Extended features are disabled.</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>Skips processing package dependencies and Windows features</value>
@@ -3369,5 +3370,21 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="ResetAllAdminSettingsSucceeded" xml:space="preserve">
     <value>All admin settings reset.</value>
+  </data>
+  <data name="McpCommandShortDescription" xml:space="preserve">
+    <value>MCP information</value>
+    <comment>MCP stands for Model Context Protocol and should probably remain as-is</comment>
+  </data>
+  <data name="McpCommandLongDescription" xml:space="preserve">
+    <value>MCP (Model Context Protocol) information for the Windows Package Manager.</value>
+  </data>
+  <data name="McpConfigurationPreamble" xml:space="preserve">
+    <value>To manually configure the Windows Package Manager MCP server with your MCP client, use the following JSON fragment in the `servers` object:</value>
+    <comment>{Locked="`servers`"}
+MCP stands for Model Context Protocol and should probably remain as-is.
+An unlocalized JSON fragment will follow on another line.</comment>
+  </data>
+  <data name="PolicyEnableMcpServer" xml:space="preserve">
+    <value>Enable Windows Package Manager MCP Server</value>
   </data>
 </root>

@@ -418,38 +418,47 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void EnableConfiguration(Execution::Context& context)
+    void VerifyIsFullPackage(Execution::Context& context)
+    {
+        if (IsStubPackage())
+        {
+            context.Reporter.Error() << Resource::String::ExtendedFeaturesNotEnabledMessage << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB);
+        }
+    }
+
+    void EnableExtendedFeatures(Execution::Context& context)
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         AppInstallerUpdate(false, true, context);
 #else
         if (IsStubPackage())
         {
-            context.Reporter.Info() << Resource::String::ConfigurationEnablingMessage << std::endl;
+            context.Reporter.Info() << Resource::String::ExtendedFeaturesEnablingMessage << std::endl;
             bool bypassStorePolicy = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::BypassIsStoreClientBlockedPolicyCheck);
             AppInstallerUpdate(false, bypassStorePolicy, context);
         }
         else
         {
-            context.Reporter.Info() << Resource::String::ConfigurationEnabledMessage << std::endl;
+            context.Reporter.Info() << Resource::String::ExtendedFeaturesEnabledMessage << std::endl;
         }
 #endif
     }
 
-    void DisableConfiguration(Execution::Context& context)
+    void DisableExtendedFeatures(Execution::Context& context)
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         AppInstallerUpdate(true, true, context);
 #else
         if (!IsStubPackage())
         {
-            context.Reporter.Info() << Resource::String::ConfigurationDisablingMessage << std::endl;
+            context.Reporter.Info() << Resource::String::ExtendedFeaturesDisablingMessage << std::endl;
             bool bypassStorePolicy = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::BypassIsStoreClientBlockedPolicyCheck);
             AppInstallerUpdate(true, bypassStorePolicy, context);
         }
         else
         {
-            context.Reporter.Info() << Resource::String::ConfigurationDisabledMessage << std::endl;
+            context.Reporter.Info() << Resource::String::ExtendedFeaturesDisabledMessage << std::endl;
         }
 #endif
     }

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="Enums.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -96,6 +96,11 @@ namespace Microsoft.WinGet.SharedLib.PolicySettings
         /// Enabled configuration.
         /// </summary>
         Configuration,
+
+        /// <summary>
+        /// Enabled MCP server.
+        /// </summary>
+        McpServer,
     }
 
     /// <summary>

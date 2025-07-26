@@ -497,4 +497,16 @@ namespace AppInstaller::Filesystem
 
         return result;
     }
+
+    std::filesystem::path GetExecutablePathForProcess(HANDLE process)
+    {
+        wil::unique_cotaskmem_string imageName = nullptr;
+        if (SUCCEEDED(wil::QueryFullProcessImageNameW(process, 0, imageName)) &&
+            (imageName.get() != nullptr))
+        {
+            return imageName.get();
+        }
+
+        return {};
+    }
 }

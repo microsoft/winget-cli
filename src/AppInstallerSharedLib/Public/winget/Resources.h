@@ -60,6 +60,7 @@ namespace AppInstaller
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableWindowsPackageManagerCommandLineInterfaces);
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableWinGetConfiguration);
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableProxyCommandLineOptions);
+            WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableMcpServer);
 
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidFieldFormat);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidFieldValue);

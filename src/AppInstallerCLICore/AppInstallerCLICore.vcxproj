@@ -325,6 +325,7 @@
     <ClInclude Include="Commands\FeaturesCommand.h" />
     <ClInclude Include="Commands\HashCommand.h" />
     <ClInclude Include="Commands\ListCommand.h" />
+    <ClInclude Include="Commands\McpCommand.h" />
     <ClInclude Include="Commands\PinCommand.h" />
     <ClInclude Include="Commands\RepairCommand.h" />
     <ClInclude Include="Commands\SearchCommand.h" />
@@ -409,6 +410,7 @@
     <ClCompile Include="Commands\ErrorCommand.cpp" />
     <ClCompile Include="Commands\FontCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
+    <ClCompile Include="Commands\McpCommand.cpp" />
     <ClCompile Include="Commands\PinCommand.cpp" />
     <ClCompile Include="Commands\RepairCommand.cpp" />
     <ClCompile Include="Commands\TestCommand.cpp" />

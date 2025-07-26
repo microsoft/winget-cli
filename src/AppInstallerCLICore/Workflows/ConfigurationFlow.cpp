@@ -2152,15 +2152,6 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void VerifyIsFullPackage(Execution::Context& context)
-    {
-        if (IsStubPackage())
-        {
-            context.Reporter.Error() << Resource::String::ConfigurationNotEnabledMessage << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB);
-        }
-    }
-
     void ValidateConfigurationSetSemantics(Execution::Context& context)
     {
         ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();

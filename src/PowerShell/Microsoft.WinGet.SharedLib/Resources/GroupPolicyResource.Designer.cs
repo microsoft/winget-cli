@@ -142,6 +142,15 @@ namespace Microsoft.WinGet.SharedLib.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enable Windows Package Manager MCP Server.
+        /// </summary>
+        internal static string PolicyEnableMcpServer {
+            get {
+                return ResourceManager.GetString("PolicyEnableMcpServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enable Windows App Installer Microsoft Store Source.
         /// </summary>
         internal static string PolicyEnableMSStoreSource {
