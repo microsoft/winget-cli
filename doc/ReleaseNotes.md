@@ -1,6 +1,9 @@
 ## New in v1.12
 *No applicable update found*
 
+## Bug Fixes
+* Manifest validation no longer fails using `UTF-8 BOM` encoding when the schema header is on the first line
+
 ## Experimental Features
 * Experimental support for Fonts
 
