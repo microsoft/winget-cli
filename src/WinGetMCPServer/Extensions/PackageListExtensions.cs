@@ -52,10 +52,10 @@ namespace WinGetMCPServer.Extensions
 
             if (installedVersion != null)
             {
-                findPackageResult.Catalog = installedVersion.PackageCatalog?.Info?.Name;
-                if (string.IsNullOrEmpty(findPackageResult.Catalog))
+                findPackageResult.Source = installedVersion.PackageCatalog?.Info?.Name;
+                if (string.IsNullOrEmpty(findPackageResult.Source))
                 {
-                    findPackageResult.Catalog = package.DefaultInstallVersion?.PackageCatalog?.Info?.Name;
+                    findPackageResult.Source = package.DefaultInstallVersion?.PackageCatalog?.Info?.Name;
                 }
 
                 findPackageResult.InstalledVersion = installedVersion.Version;
@@ -69,7 +69,7 @@ namespace WinGetMCPServer.Extensions
             }
             else
             {
-                findPackageResult.Catalog = package.DefaultInstallVersion.PackageCatalog.Info.Name;
+                findPackageResult.Source = package.DefaultInstallVersion.PackageCatalog.Info.Name;
             }
 
             return findPackageResult;

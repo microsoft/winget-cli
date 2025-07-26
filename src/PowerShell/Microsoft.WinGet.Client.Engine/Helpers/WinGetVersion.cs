@@ -71,6 +71,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>The WinGetVersion.</returns>
         public static WinGetVersion InstalledWinGetVersion(PowerShellCmdlet pwshCmdlet)
         {
+            // Try getting the version through COM if it is available (user might have an older build installed)
             string? comVersion = PackageManagerWrapper.Instance.GetVersion();
             if (comVersion != null)
             {

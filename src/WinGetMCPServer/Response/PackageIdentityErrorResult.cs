@@ -17,7 +17,7 @@ namespace WinGetMCPServer.Response
 
         public required string Identifier { get; init; }
 
-        public string? Catalog { get; set; }
+        public string? Source { get; set; }
 
         public List<FindPackageResult> Packages { get; set; } = new List<FindPackageResult>();
     }

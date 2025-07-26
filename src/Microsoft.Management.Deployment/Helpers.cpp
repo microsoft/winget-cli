@@ -9,6 +9,7 @@
 #include <winget/Filesystem.h>
 #include <winget/Security.h>
 #include <AppInstallerRuntime.h>
+#include <AppInstallerLogging.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -149,6 +150,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             if (executablePath.has_filename())
             {
                 return executablePath.filename();
+            }
+            else if (!executablePath.empty())
+            {
+                AICLI_LOG(Fail, Error, << "Unable to get valid executable for process ID [" << callerProcessId << "]: " << executablePath);
             }
         }
 

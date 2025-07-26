@@ -25,7 +25,7 @@ namespace WinGetMCPServer.Response
             return new CallToolResponse()
             {
                 IsError = true,
-                Content = [new Content() { Text = $"Failed when connecting to the package catalog with error: {connectResult.ExtendedErrorCode.Message} [0x{connectResult.ExtendedErrorCode.HResult:X8}]" }],
+                Content = [new Content() { Text = $"Failed when connecting to the package source with error: {connectResult.ExtendedErrorCode.Message} [0x{connectResult.ExtendedErrorCode.HResult:X8}]" }],
             };
         }
 
@@ -60,15 +60,15 @@ namespace WinGetMCPServer.Response
         /// Creates a response for not finding any packages.
         /// </summary>
         /// <param name="identifer">The identifier used when searching.</param>
-        /// <param name="catalog">The catalog that was searched.</param>
+        /// <param name="source">The source that was searched.</param>
         /// <returns>The response.</returns>
-        public static CallToolResponse ForEmptyFind(string identifer, string? catalog)
+        public static CallToolResponse ForEmptyFind(string identifer, string? source)
         {
             PackageIdentityErrorResult result = new()
             {
                 Message = "Did not find a package with the requested identifier",
                 Identifier = identifer,
-                Catalog = catalog,
+                Source = source,
             };
 
             return ToolResponse.FromObject(result);
@@ -78,16 +78,16 @@ namespace WinGetMCPServer.Response
         /// Creates a response for finding multiple packages when only 1 is required.
         /// </summary>
         /// <param name="identifer">The identifier used when searching.</param>
-        /// <param name="catalog">The catalog that was searched.</param>
+        /// <param name="source">The source that was searched.</param>
         /// <param name="findResult">The result that contains multiple packages.</param>
         /// <returns>The response.</returns>
-        public static CallToolResponse ForMultiFind(string identifer, string? catalog, FindPackagesResult findResult)
+        public static CallToolResponse ForMultiFind(string identifer, string? source, FindPackagesResult findResult)
         {
             PackageIdentityErrorResult result = new()
             {
-                Message = "Found multiple packages matching the requested identifier; provide a more specific identifier and/or catalog",
+                Message = "Found multiple packages matching the requested identifier; provide a more specific identifier and/or source",
                 Identifier = identifer,
-                Catalog = catalog,
+                Source = source,
             };
 
             result.Packages.AddPackages(findResult);
@@ -114,7 +114,7 @@ namespace WinGetMCPServer.Response
                     result.Message = "Installation was blocked by policy";
                     break;
                 case InstallResultStatus.CatalogError:
-                    result.Message = "An error occurred with the catalog";
+                    result.Message = "An error occurred with the source";
                     break;
                 case InstallResultStatus.InternalError:
                     result.Message = "An internal WinGet error occurred";

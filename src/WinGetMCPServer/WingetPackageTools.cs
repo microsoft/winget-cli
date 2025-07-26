@@ -6,10 +6,10 @@
 
 namespace WinGetMCPServer
 {
+    using System.ComponentModel;
     using Microsoft.Management.Deployment;
     using ModelContextProtocol.Protocol;
     using ModelContextProtocol.Server;
-    using System.ComponentModel;
     using ModelContextProtocol;
     using Windows.Foundation;
     using WinGetMCPServer.Extensions;
@@ -81,13 +81,13 @@ namespace WinGetMCPServer
             [Description("The identifier of the WinGet package")] string identifier,
             IProgress<ProgressNotificationValue> progress,
             CancellationToken cancellationToken,
-            [Description("The catalog containing the package")] string? catalog = null)
+            [Description("The source containing the package")] string? source = null)
         {
             try
             {
                 ToolResponse.CheckGroupPolicy();
 
-                var packageCatalog = ConnectCatalog(catalog);
+                var packageCatalog = ConnectCatalog(source);
 
                 if (cancellationToken.IsCancellationRequested)
                 {
@@ -96,6 +96,11 @@ namespace WinGetMCPServer
 
                 // First attempt a more exact match
                 var findResult = FindForIdentifier(packageCatalog, identifier, expandedFields: false);
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return PackageResponse.ForCancelBeforeSystemChange();
+                }
 
                 // If nothing is found, expand to a looser search
                 if ((findResult.Matches?.Count ?? 0) == 0)
@@ -110,11 +115,11 @@ namespace WinGetMCPServer
 
                 if (findResult.Matches?.Count == 0)
                 {
-                    return PackageResponse.ForEmptyFind(identifier, catalog);
+                    return PackageResponse.ForEmptyFind(identifier, source);
                 }
                 else if (findResult.Matches?.Count > 1)
                 {
-                    return PackageResponse.ForMultiFind(identifier, catalog, findResult);
+                    return PackageResponse.ForMultiFind(identifier, source, findResult);
                 }
 
                 CatalogPackage catalogPackage = findResult.Matches![0].CatalogPackage;

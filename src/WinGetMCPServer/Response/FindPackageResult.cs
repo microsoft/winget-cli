@@ -15,7 +15,7 @@ namespace WinGetMCPServer.Response
 
         public string? Name { get; set; }
 
-        public string? Catalog { get; set; }
+        public string? Source { get; set; }
 
         public bool? IsInstalled { get; set; }
 

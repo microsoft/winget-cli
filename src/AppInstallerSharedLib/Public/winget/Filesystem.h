@@ -120,6 +120,6 @@ namespace AppInstaller::Filesystem
     // This is exposed primarily to allow for testing, GetPathTo should be preferred.
     PathDetails GetPathDetailsFor(PathName path, bool forDisplay = false);
 
-    // Gets the path to the executable for the given process id.
+    // Gets the path to the executable for the given process.
     std::filesystem::path GetExecutablePathForProcess(HANDLE process);
 }

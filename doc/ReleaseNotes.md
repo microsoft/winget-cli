@@ -1,5 +1,5 @@
 ## New in v1.12
-*No applicable update found*
+MCP server available; run `winget mcp` for assistance on configuring your client.
 
 ## Experimental Features
 * Experimental support for Fonts

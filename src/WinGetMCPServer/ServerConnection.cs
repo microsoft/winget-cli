@@ -9,7 +9,7 @@ namespace WinGetMCPServer
     using Microsoft.Management.Deployment;
 
     /// <summary>
-    /// Maintains the connection to the server.
+    /// Maintains the connection to the COM server.
     /// </summary>
     internal static class ServerConnection
     {
@@ -26,6 +26,7 @@ namespace WinGetMCPServer
 
                 try
                 {
+                    // Perform the simplest available call to check if the COM server is still active.
                     _ = packageManager.Version;
                 }
                 catch
