@@ -1,6 +1,9 @@
 ## New in v1.12
 MCP server available; run `winget mcp` for assistance on configuring your client.
 
+## Bug Fixes
+* Manifest validation no longer fails using `UTF-8 BOM` encoding when the schema header is on the first line
+
 ## Experimental Features
 * Experimental support for Fonts
 
