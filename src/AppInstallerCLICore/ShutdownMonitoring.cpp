@@ -58,39 +58,31 @@ namespace AppInstaller::ShutdownMonitoring
 
     TerminationSignalHandler::TerminationSignalHandler()
     {
-        if (Runtime::IsRunningAsAdmin() && Runtime::IsRunningInPackagedContext())
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        m_appShutdownEvent.create();
+#endif
+
+        if (Runtime::IsRunningInPackagedContext())
         {
+            // Create package update listener
             m_catalog = winrt::Windows::ApplicationModel::PackageCatalog::OpenForCurrentPackage();
             m_updatingEvent = m_catalog.PackageUpdating(
-                winrt::auto_revoke, [this](winrt::Windows::ApplicationModel::PackageCatalog, winrt::Windows::ApplicationModel::PackageUpdatingEventArgs args)
+                winrt::auto_revoke, [this](winrt::Windows::ApplicationModel::PackageCatalog, winrt::Windows::ApplicationModel::PackageUpdatingEventArgs)
                 {
-                    // There are 3 events being hit with 0%, 1% and 38%
-                    // Typically the window message is received between the first two.
-                    constexpr double minProgress = 0;
-                    auto progress = args.Progress();
-                    if (progress > minProgress)
-                    {
-                        this->StartAppShutdown();
-                    }
+                    this->StartAppShutdown();
                 });
         }
-        else
+
+        // Create message only window.
+        m_messageQueueReady.create();
+        m_windowThread = std::thread(&TerminationSignalHandler::CreateWindowAndStartMessageLoop, this);
+        if (!m_messageQueueReady.wait(100))
         {
-            // Create message only window.
-            m_messageQueueReady.create();
-            m_windowThread = std::thread(&TerminationSignalHandler::CreateWindowAndStartMessageLoop, this);
-            if (!m_messageQueueReady.wait(100))
-            {
-                AICLI_LOG(CLI, Warning, << "Timeout creating winget window");
-            }
+            AICLI_LOG(CLI, Warning, << "Timeout creating winget window");
         }
 
         // Set up ctrl-c handler.
         LOG_IF_WIN32_BOOL_FALSE(SetConsoleCtrlHandler(StaticCtrlHandlerFunction, TRUE));
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        m_appShutdownEvent.create();
-#endif
     }
 
     TerminationSignalHandler::~TerminationSignalHandler()
@@ -129,6 +121,8 @@ namespace AppInstaller::ShutdownMonitoring
             return TRUE;
         case WM_ENDSESSION:
         case WM_CLOSE:
+            // We delay as long as needed during the WM_ENDSESSION as we will be terminated on return.
+            ServerShutdownSynchronization::WaitForShutdown();
             DestroyWindow(hWnd);
             break;
         case WM_DESTROY:
@@ -270,14 +264,44 @@ namespace AppInstaller::ShutdownMonitoring
         instance.m_components.push_back(component);
     }
 
+    void ServerShutdownSynchronization::WaitForShutdown()
+    {
+        ServerShutdownSynchronization& instance = Instance();
+
+        {
+            std::lock_guard<std::mutex> lock{ instance.m_threadLock };
+            if (!instance.m_shutdownThread.joinable())
+            {
+                AICLI_LOG(Core, Warning, << "Attempt to wait for shutdown when shutdown has not been initiated.");
+                return;
+            }
+        }
+
+        instance.m_shutdownComplete.wait();
+    }
+
     void ServerShutdownSynchronization::Cancel(CancelReason reason, bool)
     {
-        std::thread(&ServerShutdownSynchronization::SynchronizeShutdown, this, reason).detach();
+        std::lock_guard<std::mutex> lock{ m_threadLock };
+
+        if (!m_shutdownThread.joinable())
+        {
+            m_shutdownThread = std::thread(&ServerShutdownSynchronization::SynchronizeShutdown, this, reason);
+        }
     }
 
     ServerShutdownSynchronization::ServerShutdownSynchronization()
     {
         TerminationSignalHandler::Instance().AddListener(this);
+    }
+
+    ServerShutdownSynchronization::~ServerShutdownSynchronization()
+    {
+        TerminationSignalHandler::Instance().RemoveListener(this);
+        if (m_shutdownThread.joinable())
+        {
+            m_shutdownThread.detach();
+        }
     }
 
     ServerShutdownSynchronization& ServerShutdownSynchronization::Instance()
@@ -288,6 +312,8 @@ namespace AppInstaller::ShutdownMonitoring
 
     void ServerShutdownSynchronization::SynchronizeShutdown(CancelReason reason) try
     {
+        auto setShutdownComplete = wil::scope_exit([this]() { this->m_shutdownComplete.SetEvent(); });
+
         std::vector<ComponentSystem> components;
         {
             std::lock_guard<std::mutex> lock{ m_componentsLock };

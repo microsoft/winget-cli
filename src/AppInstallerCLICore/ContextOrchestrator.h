@@ -9,7 +9,7 @@
 #include "CompletionData.h"
 #include "Command.h"
 #include "COMContext.h"
-
+#include <wil/resource.h>
 #include <string_view>
 
 namespace AppInstaller::CLI::Execution
@@ -170,6 +170,10 @@ namespace AppInstaller::CLI::Execution
         // Cancels and "removes" all items in the queue.
         void CancelAllItems(CancelReason reason);
 
+        // Waits until the empty queue event is signaled.
+        // Intended for use during shutdown handling.
+        void WaitForEmptyQueue();
+
     private:
         // Enqueues an item.
         void EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item);
@@ -192,5 +196,6 @@ namespace AppInstaller::CLI::Execution
 
         std::mutex m_itemLock;
         std::deque<std::shared_ptr<OrchestratorQueueItem>> m_queueItems;
+        wil::slim_event_manual_reset m_queueEmpty{ true };
     };
 }

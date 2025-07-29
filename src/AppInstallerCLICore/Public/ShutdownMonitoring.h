@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include <AppInstallerProgress.h>
 #include <winrt/Windows.ApplicationModel.h>
+#include <wil/resource.h>
 #include <mutex>
 
 namespace AppInstaller::ShutdownMonitoring
@@ -88,11 +89,15 @@ namespace AppInstaller::ShutdownMonitoring
         // Adds a component to the system.
         static void AddComponent(const ComponentSystem& component);
 
+        // Waits for the shutdown to complete.
+        static void WaitForShutdown();
+
         // Listens for a termination signal.
         void Cancel(CancelReason reason, bool force) override;
 
     private:
         ServerShutdownSynchronization();
+        ~ServerShutdownSynchronization();
 
         static ServerShutdownSynchronization& Instance();
 
@@ -102,5 +107,8 @@ namespace AppInstaller::ShutdownMonitoring
         ShutdownCompleteCallback m_callback = nullptr;
         std::mutex m_componentsLock;
         std::vector<ComponentSystem> m_components;
+        std::mutex m_threadLock;
+        std::thread m_shutdownThread;
+        wil::slim_event_manual_reset m_shutdownComplete;
     };
 }

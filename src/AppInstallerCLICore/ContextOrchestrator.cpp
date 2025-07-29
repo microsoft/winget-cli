@@ -193,7 +193,12 @@ namespace AppInstaller::CLI::Execution
 
     void ContextOrchestrator::WaitForRunningItems()
     {
-
+        ContextOrchestrator& instance = Instance();
+        std::lock_guard<std::mutex> lock{ instance.m_queueLock };
+        for (const auto& queue : instance.m_commandQueues)
+        {
+            queue.second->WaitForEmptyQueue();
+        }
     }
 
     _Requires_lock_held_(m_itemLock)
@@ -219,6 +224,7 @@ namespace AppInstaller::CLI::Execution
         {
             std::lock_guard<std::mutex> lockQueue{ m_itemLock };
             m_queueItems.push_back(item);
+            m_queueEmpty.ResetEvent();
         }
 
         // Add the package to the Installing source so that it can be queried using the Source interface.
@@ -236,6 +242,11 @@ namespace AppInstaller::CLI::Execution
                 if (itr != m_queueItems.end())
                 {
                     m_queueItems.erase(itr);
+
+                    if (m_queueItems.empty())
+                    {
+                        m_queueEmpty.SetEvent();
+                    }
                 }
                 throw;
             }
@@ -377,6 +388,11 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    void OrchestratorQueue::WaitForEmptyQueue()
+    {
+        m_queueEmpty.wait();
+    }
+
     bool OrchestratorQueue::RemoveItemInState(const OrchestratorQueueItem& item, OrchestratorQueueItemState state, bool isGlobalRemove)
     {
         // OrchestratorQueueItemState::Running items should only be removed by the thread that ran the item.
@@ -400,6 +416,11 @@ namespace AppInstaller::CLI::Execution
                 {
                     (*itr)->SetCurrentQueue(nullptr);
                     m_queueItems.erase(itr);
+
+                    if (m_queueItems.empty())
+                    {
+                        m_queueEmpty.SetEvent();
+                    }
                 }
                 else if (state == OrchestratorQueueItemState::Queued)
                 {

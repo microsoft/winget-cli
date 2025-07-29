@@ -49,6 +49,7 @@
 
 #pragma warning( push )
 #pragma warning ( disable : 6001 6285 6340 6388 )
+#include <wil/resource.h>
 #include <wil/result.h>
 #include <wil/result_macros.h>
 #include <wil/safecast.h>
