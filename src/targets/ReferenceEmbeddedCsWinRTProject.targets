@@ -17,7 +17,7 @@
       <!--Do not publish projection source winmd files, but do include implementation dlls -->
       <ReferenceCopyLocalPaths Remove="@(WinGetRemovedReferences)" />
       <ReferenceCopyLocalPaths Include="@(WinGetRemovedReferences->'%(RootDir)%(Directory)%(DestinationSubDirectory)%(Implementation)')"
-                               Condition="'%(WinGetRemovedReferences.Implementation)' != '' AND Exists('%(WinGetRemovedReferences.RootDir)%(WinGetRemovedReferences.Directory)%(WinGetRemovedReferences.DestinationSubDirectory)%(WinGetRemovedReferences.Implementation)')" />
+                               Condition="'%(WinGetRemovedReferences.Implementation)' != '' AND '$([System.IO.Path]::GetExtension(%(WinGetRemovedReferences.Implementation)))' == '.dll' AND Exists('%(WinGetRemovedReferences.RootDir)%(WinGetRemovedReferences.Directory)%(WinGetRemovedReferences.DestinationSubDirectory)%(WinGetRemovedReferences.Implementation)')" />
       <!--Remove winmd references from deps.json to prevent CLR failing unit test execution-->
       <ReferenceDependencyPaths Remove="@(ReferenceDependencyPaths)" Condition="%(ReferenceDependencyPaths.Extension) == '.winmd'"/>
     </ItemGroup>
@@ -34,6 +34,13 @@
       <Reference Remove="WinRT.Runtime" /> 
       <RuntimeCopyLocalItems Remove="@(RuntimeCopyLocalItems)" Condition="'%(DestinationSubPath)' == 'WinRT.Runtime.dll'"/>
       <ResolvedCompileFileDefinitions Remove="@(ResolvedCompileFileDefinitions)" Condition="'$([System.IO.Path]::GetFileName(%(HintPath)))' == 'WinRT.Runtime.dll'"/>
+    </ItemGroup>
+  </Target>
+
+  <!-- Remove any items from ReferenceCopyLocalPaths that have CopyLocal set to false. -->
+  <Target Name="WinGetRemoveCopyLocalReferencesAsNeeded" AfterTargets="WinGetRemoveWinMDReferences">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="%(ReferenceCopyLocalPaths.CopyLocal) == 'false'" />
     </ItemGroup>
   </Target>
 </Project>

@@ -20,7 +20,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
     namespace
     {
         // The executable file name for the remote server process.
-        constexpr std::wstring_view s_RemoteServerFileName = L"ConfigurationRemotingServer\\ConfigurationRemotingServer.exe"sv;
+        constexpr std::wstring_view s_RemoteServerFileName = L"DotNet\\ConfigurationRemotingServer.exe"sv;
 
         constexpr std::wstring_view s_ProcessorEngine_PowerShell = L"pwsh"sv;
         constexpr std::wstring_view s_ProcessorEngine_DSCv3 = L"dscv3"sv;

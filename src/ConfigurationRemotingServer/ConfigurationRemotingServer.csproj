@@ -33,6 +33,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj" />
     <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj" />
+    <!-- Pull in any other .NET projects that need to ship with the package so that they can resolve the nuget graph together and land in the same output location. -->
+    <ProjectReference Include="..\WinGetMCPServer\WinGetMCPServer.csproj" />
   </ItemGroup>
 
   <Target Name="PwshFiles" AfterTargets="AfterBuild">

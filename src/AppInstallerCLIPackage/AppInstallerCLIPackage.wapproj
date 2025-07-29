@@ -227,6 +227,7 @@
   <Target Name="WinGetIncludeAdditionalFilesInPackage" AfterTargets="_ComputeAppxPackagePayload">
     <PropertyGroup>
       <WinGetAdditionalPackageFileRoot>$(SolutionDir)</WinGetAdditionalPackageFileRoot>
+      <WinGetDotNetDirectoryName>DotNet</WinGetDotNetDirectoryName>
     </PropertyGroup>
     <Message Importance="normal" Text="WinGetAdditionalPackageFileRoot = $(WinGetAdditionalPackageFileRoot)" />
     <ItemGroup>
@@ -243,15 +244,11 @@
         <PackagePath>Microsoft.Management.Configuration.winmd</PackagePath>
       </WinGetAdditionalPackageFile>
       <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\ConfigurationRemotingServer\net8.0-windows10.0.26100.0\$(ConfigServerRid)\**\*">
-        <PackagePath>ConfigurationRemotingServer</PackagePath>
-        <Recurse>true</Recurse>
-      </WinGetAdditionalPackageFile>
-      <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\WinGetMCPServer\net8.0-windows10.0.26100.0\$(ConfigServerRid)\**\*">
-        <PackagePath>WinGetMCPServer</PackagePath>
+        <PackagePath>$(WinGetDotNetDirectoryName)</PackagePath>
         <Recurse>true</Recurse>
       </WinGetAdditionalPackageFile>
       <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Deployment.OutOfProc\Microsoft.Management.Deployment.OutOfProc.dll">
-        <PackagePath>WinGetMCPServer\Microsoft.Management.Deployment.dll</PackagePath>
+        <PackagePath>$(WinGetDotNetDirectoryName)\Microsoft.Management.Deployment.dll</PackagePath>
       </WinGetAdditionalPackageFile>
       <WinGetAdditionalPackageFile Include="$(SolutionDir)\PowerShell\ExternalModules\**\*">
         <PackagePath>ExternalModules</PackagePath>
