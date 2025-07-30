@@ -14,7 +14,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     /// <summary>
     /// Version commands.
     /// </summary>
-    public sealed class VersionCommand : BaseCommand
+    public sealed class VersionCommand : ManagementDeploymentCommand
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="VersionCommand"/> class.
@@ -30,7 +30,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// </summary>
         public void Get()
         {
-            this.Write(StreamType.Object, WinGetVersion.InstalledWinGetVersion(this).TagVersion);
+            this.Write(StreamType.Object, this.Execute(() => WinGetVersion.InstalledWinGetVersion(this).TagVersion));
         }
     }
 }

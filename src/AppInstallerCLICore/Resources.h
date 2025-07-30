@@ -61,13 +61,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationAssert);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDescriptionWasTruncated);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDisabledMessage);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDisableMessage);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDisablingMessage);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnableArgumentError);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnabledMessage);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnableMessage);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnablingMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportAddingToFile);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportFailedToGetUnitProcessors);
@@ -106,7 +99,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModulePathArgError);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModules);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModuleWithDetails);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNotEnabledMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNoTestRun);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNotInDesiredState);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationProcessorPath);
@@ -276,6 +268,14 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ExportedPackageRequiresLicenseAgreement);
         WINGET_DEFINE_RESOURCE_STRINGID(ExportIncludeVersionsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExportSourceArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExtendedFeaturesDisabledMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExtendedFeaturesDisableMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExtendedFeaturesDisablingMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExtendedFeaturesEnableArgumentError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExtendedFeaturesEnabledMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExtendedFeaturesEnableMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExtendedFeaturesEnablingMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExtendedFeaturesNotEnabledMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ExternalDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ExtractArchiveFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ExtractArchiveSucceeded);
@@ -428,6 +428,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ManifestValidationFail);
         WINGET_DEFINE_RESOURCE_STRINGID(ManifestValidationSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(ManifestValidationWarning);
+        WINGET_DEFINE_RESOURCE_STRINGID(McpCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(McpCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(McpConfigurationPreamble);
         WINGET_DEFINE_RESOURCE_STRINGID(MissingArgumentError);
         WINGET_DEFINE_RESOURCE_STRINGID(ModifiedPathRequiresShellRestart);
         WINGET_DEFINE_RESOURCE_STRINGID(MonikerArgumentDescription);

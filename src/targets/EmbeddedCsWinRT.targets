@@ -23,4 +23,11 @@
       <Compile Remove="$(CsWinRTGeneratedFilesDir)Module.cs" />
     </ItemGroup>
   </Target>
+
+  <!-- Remove any items from ReferenceCopyLocalPaths that have CopyLocal set to false. -->
+  <Target Name="WinGetRemoveCopyLocalReferencesAsNeeded" AfterTargets="CsWinRTRemoveWinMDReferences">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="%(ReferenceCopyLocalPaths.CopyLocal) == 'false'" />
+    </ItemGroup>
+  </Target>
 </Project>

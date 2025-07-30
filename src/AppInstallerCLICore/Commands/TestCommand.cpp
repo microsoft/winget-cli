@@ -10,6 +10,7 @@
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
 #include "Public/ShutdownMonitoring.h"
 #include "Workflows/ConfigurationFlow.h"
+#include "Workflows/MSStoreInstallerHandler.h"
 #include <winrt/Microsoft.Management.Configuration.h>
 
 using namespace AppInstaller::CLI::Workflow;

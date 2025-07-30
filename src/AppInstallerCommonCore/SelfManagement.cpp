@@ -15,7 +15,7 @@ namespace AppInstaller::SelfManagement
 
     // Always use AppInstaller's package family name for wingetdev
     static constexpr std::wstring_view s_AppInstallerPfn = L"Microsoft.DesktopAppInstaller_8wekyb3d8bbwe"sv;
-    constexpr std::wstring_view s_RemoteServerFileName = L"ConfigurationRemotingServer\\ConfigurationRemotingServer.exe";
+    constexpr std::wstring_view s_RemoteServerFileName = L"DotNet\\ConfigurationRemotingServer.exe";
 
     bool IsStubPreferred()
     {

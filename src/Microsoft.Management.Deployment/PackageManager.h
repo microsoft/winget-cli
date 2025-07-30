@@ -49,6 +49,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             AddPackageCatalogAsync(winrt::Microsoft::Management::Deployment::AddPackageCatalogOptions options);
         winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RemovePackageCatalogResult, double>
             RemovePackageCatalogAsync(winrt::Microsoft::Management::Deployment::RemovePackageCatalogOptions options);
+        // Contract 13.0
+        winrt::hstring Version() const;
     };
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)

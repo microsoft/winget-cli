@@ -167,6 +167,7 @@ MAKEINTRESOURCE
 makemsix
 MANIFESTSCHEMA
 MANIFESTVERSION
+mcp
 Memberwise
 meme
 metadatas

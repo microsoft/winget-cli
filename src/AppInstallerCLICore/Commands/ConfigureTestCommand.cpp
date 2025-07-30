@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ConfigureTestCommand.h"
 #include "Workflows/ConfigurationFlow.h"
+#include "Workflows/MSStoreInstallerHandler.h"
 #include "ConfigurationCommon.h"
 
 using namespace AppInstaller::CLI::Workflow;

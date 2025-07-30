@@ -116,6 +116,13 @@ If you disable this setting, users will not be able to use the Windows Package M
         If you enable this setting, users will be able to configure the Windows Package Manager's use of proxy through the command line.
 
         If you disable or do not configure this setting, users will not be able to to configure the Windows Package Manager's use of proxy through the command line.</string>
+      <string id="EnableWindowsPackageManagerMcpServer">Enable Windows Package Manager MCP Server</string>
+      <string id="EnableWindowsPackageManagerMcpServerExplanation">
+        This policy controls whether the Windows Package Manager Model Context Protocol (MCP) server can be used.
+
+        If you enable or do not configure this setting, users will be able to use the Windows Package Manager's MCP server.
+
+        If you disable this setting, users will not be able to to use the Windows Package Manager's MCP server.</string>
       <string id="WindowsPackageManagerDefaultProxy">Set Windows Package Manager Default Proxy</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">This policy controls the default proxy used by the Windows Package Manager.
 

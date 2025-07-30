@@ -296,6 +296,9 @@
     <ClInclude Include="Public\ShutdownMonitoring.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\McpCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -558,6 +561,9 @@
     </ClCompile>
     <ClCompile Include="ShutdownMonitoring.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\McpCommand.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
