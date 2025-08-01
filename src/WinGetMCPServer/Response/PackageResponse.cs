@@ -20,12 +20,12 @@ namespace WinGetMCPServer.Response
         /// </summary>
         /// <param name="connectResult">The connect result.</param>
         /// <returns>The response.</returns>
-        public static CallToolResponse ForConnectError(ConnectResult connectResult)
+        public static CallToolResult ForConnectError(ConnectResult connectResult)
         {
-            return new CallToolResponse()
+            return new CallToolResult()
             {
                 IsError = true,
-                Content = [new Content() { Text = $"Failed when connecting to the package source with error: {connectResult.ExtendedErrorCode.Message} [0x{connectResult.ExtendedErrorCode.HResult:X8}]" }],
+                Content = [new TextContentBlock() { Text = $"Failed when connecting to the package source with error: {connectResult.ExtendedErrorCode.Message} [0x{connectResult.ExtendedErrorCode.HResult:X8}]" }],
             };
         }
 
@@ -34,12 +34,12 @@ namespace WinGetMCPServer.Response
         /// </summary>
         /// <param name="findResult">The find packages result.</param>
         /// <returns>The response.</returns>
-        public static CallToolResponse ForFindError(FindPackagesResult findResult)
+        public static CallToolResult ForFindError(FindPackagesResult findResult)
         {
-            return new CallToolResponse()
+            return new CallToolResult()
             {
                 IsError = true,
-                Content = [new Content() { Text = $"Failed when finding packages with reason {findResult.Status} and error: {findResult.ExtendedErrorCode.Message} [0x{findResult.ExtendedErrorCode.HResult:X8}]" }],
+                Content = [new TextContentBlock() { Text = $"Failed when finding packages with reason {findResult.Status} and error: {findResult.ExtendedErrorCode.Message} [0x{findResult.ExtendedErrorCode.HResult:X8}]" }],
             };
         }
 
@@ -47,12 +47,12 @@ namespace WinGetMCPServer.Response
         /// Creates a response that indicates the operation was cancelled before any changes were made.
         /// </summary>
         /// <returns>The response.</returns>
-        public static CallToolResponse ForCancelBeforeSystemChange()
+        public static CallToolResult ForCancelBeforeSystemChange()
         {
-            return new CallToolResponse()
+            return new CallToolResult()
             {
                 IsError = true,
-                Content = [new Content() { Text = $"The operation was cancelled before any system change was started" }],
+                Content = [new TextContentBlock() { Text = $"The operation was cancelled before any system change was started" }],
             };
         }
 
@@ -62,7 +62,7 @@ namespace WinGetMCPServer.Response
         /// <param name="identifer">The identifier used when searching.</param>
         /// <param name="source">The source that was searched.</param>
         /// <returns>The response.</returns>
-        public static CallToolResponse ForEmptyFind(string identifer, string? source)
+        public static CallToolResult ForEmptyFind(string identifer, string? source)
         {
             PackageIdentityErrorResult result = new()
             {
@@ -81,7 +81,7 @@ namespace WinGetMCPServer.Response
         /// <param name="source">The source that was searched.</param>
         /// <param name="findResult">The result that contains multiple packages.</param>
         /// <returns>The response.</returns>
-        public static CallToolResponse ForMultiFind(string identifer, string? source, FindPackagesResult findResult)
+        public static CallToolResult ForMultiFind(string identifer, string? source, FindPackagesResult findResult)
         {
             PackageIdentityErrorResult result = new()
             {
@@ -101,7 +101,7 @@ namespace WinGetMCPServer.Response
         /// <param name="installResult">The install operation result.</param>
         /// <param name="findResult">The post-install package data.</param>
         /// <returns>The response.</returns>
-        public static CallToolResponse ForInstallOperation(InstallResult installResult, FindPackagesResult? findResult)
+        public static CallToolResult ForInstallOperation(InstallResult installResult, FindPackagesResult? findResult)
         {
             InstallOperationResult result = new InstallOperationResult();
 

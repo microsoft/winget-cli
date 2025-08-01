@@ -35,7 +35,7 @@ namespace WinGetMCPServer
             ReadOnly = true,
             OpenWorld = false)]
         [Description("Find installed and available packages using WinGet")]
-        public CallToolResponse FindPackages(
+        public CallToolResult FindPackages(
             [Description("Find packages identified by this value")] string query)
         {
             try
@@ -77,7 +77,7 @@ namespace WinGetMCPServer
             Idempotent = false,
             OpenWorld = false)]
         [Description("Install or update a package using WinGet")]
-        public async Task<CallToolResponse> InstallPackage(
+        public async Task<CallToolResult> InstallPackage(
             [Description("The identifier of the WinGet package")] string identifier,
             IProgress<ProgressNotificationValue> progress,
             CancellationToken cancellationToken,

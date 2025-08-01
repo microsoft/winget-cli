@@ -13,11 +13,11 @@ namespace WinGetMCPServer.Exceptions
     /// </summary>
     internal class ToolResponseException : Exception
     {
-        public ToolResponseException(CallToolResponse toolResponse)
+        public ToolResponseException(CallToolResult toolResponse)
         {
             this.Response = toolResponse;
         }
 
-        public CallToolResponse Response { get; private set; }
+        public CallToolResult Response { get; private set; }
     }
 }
