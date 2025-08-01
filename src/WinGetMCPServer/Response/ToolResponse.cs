@@ -25,10 +25,10 @@ namespace WinGetMCPServer.Response
         {
             if (!GroupPolicy.GetInstance().IsEnabled(Policy.McpServer))
             {
-                throw new ToolResponseException(new CallToolResponse()
+                throw new ToolResponseException(new CallToolResult()
                 {
                     IsError = true,
-                    Content = [new Content() { Text = "The Windows Package Manager MCP server is disabled by group policy." }]
+                    Content = [new TextContentBlock() { Text = "The Windows Package Manager MCP server is disabled by group policy." }]
                 });
             }
         }
@@ -39,7 +39,7 @@ namespace WinGetMCPServer.Response
         /// <param name="value">The object to return in the response.</param>
         /// <param name="isError">Whether or not the response is an error.</param>
         /// <returns>The response.</returns>
-        public static CallToolResponse FromObject(object value, bool isError = false)
+        public static CallToolResult FromObject(object value, bool isError = false)
         {
             return FromObject(value, isError, GetDefaultJsonOptions());
         }
@@ -51,12 +51,12 @@ namespace WinGetMCPServer.Response
         /// <param name="isError">Whether or not the response is an error.</param>
         /// <param name="jsonSerializerOptions">The JSON serializer options for serializing the object.</param>
         /// <returns>The response.</returns>
-        public static CallToolResponse FromObject(object value, bool isError, JsonSerializerOptions jsonSerializerOptions)
+        public static CallToolResult FromObject(object value, bool isError, JsonSerializerOptions jsonSerializerOptions)
         {
-            return new CallToolResponse()
+            return new CallToolResult()
             {
                 IsError = isError,
-                Content = [new Content() { Text = JsonSerializer.Serialize(value, GetDefaultJsonOptions()) }]
+                Content = [new TextContentBlock() { Text = JsonSerializer.Serialize(value, GetDefaultJsonOptions()) }]
             };
         }
 
