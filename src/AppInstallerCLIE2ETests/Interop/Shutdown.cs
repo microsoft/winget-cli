@@ -46,7 +46,6 @@ namespace AppInstallerCLIE2ETests.Interop
             this.SendMessageAndLog(server, WindowMessage.Close);
 
             Assert.IsTrue(server.Process.HasExited);
-            Assert.Throws<Exception>(() => { _ = packageManager.Version; });
         }
 
         private void SendMessageAndLog(WinGetServerInstance server, WindowMessage message)

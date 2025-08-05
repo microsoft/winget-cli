@@ -113,14 +113,15 @@ namespace AppInstaller::ShutdownMonitoring
 
     LRESULT WINAPI TerminationSignalHandler::WindowMessageProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
-        AICLI_LOG(CLI, Verbose, << "Received window message type: " << uMsg);
         switch (uMsg)
         {
         case WM_QUERYENDSESSION:
+            AICLI_LOG(CLI, Verbose, << "Received WM_QUERYENDSESSION");
             Instance().StartAppShutdown();
             return TRUE;
         case WM_ENDSESSION:
         case WM_CLOSE:
+            AICLI_LOG(CLI, Verbose, << "Received window message type: " << uMsg);
             // We delay as long as needed during the WM_ENDSESSION as we will be terminated on return.
             ServerShutdownSynchronization::WaitForShutdown();
             DestroyWindow(hWnd);

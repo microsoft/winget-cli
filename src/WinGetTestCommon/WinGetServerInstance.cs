@@ -19,7 +19,7 @@ namespace WinGetTestCommon
         /// <summary>
         /// The name of the executable for the COM server.
         /// </summary>
-        public const string ServerExecutableName = "WindowsPackageManagerServer.exe";
+        public const string ServerExecutableName = "WindowsPackageManagerServer";
 
         /// <summary>
         /// The package family name for the development package.
