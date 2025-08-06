@@ -68,7 +68,7 @@ namespace AppInstaller::CLI::Execution
     void ContextOrchestrator::AddCommandQueue(std::string_view commandName, UINT32 allowedThreads)
     {
         std::lock_guard<std::mutex> lockQueue{ m_queueLock };
-        m_commandQueues.emplace(commandName, std::make_unique<OrchestratorQueue>(commandName, allowedThreads));
+        m_commandQueues.emplace(commandName, std::make_unique<OrchestratorQueue>(*this, commandName, allowedThreads));
     }
 
     _Requires_lock_held_(m_queueLock)
@@ -104,7 +104,7 @@ namespace AppInstaller::CLI::Execution
         {
             // On subsequent command enqueues, cancel and complete the item
             item->GetContext().Cancel(m_disabledReason, true);
-            item->HandleItemCompletion();
+            item->HandleItemCompletion(*this);
         }
 
         std::string commandQueueName{ GetCommandQueueName(item->GetNextCommand().Name()) };
@@ -165,27 +165,40 @@ namespace AppInstaller::CLI::Execution
                 using namespace ShutdownMonitoring;
 
                 ServerShutdownSynchronization::ComponentSystem component;
-                component.BlockNewWork = Disable;
-                component.BeginShutdown = CancelQueuedItems;
-                component.Wait = WaitForRunningItems;
+                component.BlockNewWork = StaticDisable;
+                component.BeginShutdown = StaticCancelQueuedItems;
+                component.Wait = StaticWaitForRunningItems;
 
                 ServerShutdownSynchronization::AddComponent(component);
             });
     }
 
+    void ContextOrchestrator::StaticDisable(CancelReason reason)
+    {
+        Instance().Disable(reason);
+    }
+
+    void ContextOrchestrator::StaticCancelQueuedItems(CancelReason reason)
+    {
+        Instance().CancelQueuedItems(reason);
+    }
+
+    void ContextOrchestrator::StaticWaitForRunningItems()
+    {
+        Instance().WaitForRunningItems();
+    }
+
     void ContextOrchestrator::Disable(CancelReason reason)
     {
-        ContextOrchestrator& instance = Instance();
-        std::lock_guard<std::mutex> lock{ instance.m_queueLock };
-        instance.m_enabled = false;
-        instance.m_disabledReason = reason;
+        std::lock_guard<std::mutex> lock{ m_queueLock };
+        m_enabled = false;
+        m_disabledReason = reason;
     }
 
     void ContextOrchestrator::CancelQueuedItems(CancelReason reason)
     {
-        ContextOrchestrator& instance = Instance();
-        std::lock_guard<std::mutex> lock{ instance.m_queueLock };
-        for (const auto& queue : instance.m_commandQueues)
+        std::lock_guard<std::mutex> lock{ m_queueLock };
+        for (const auto& queue : m_commandQueues)
         {
             queue.second->CancelAllItems(reason);
         }
@@ -193,12 +206,25 @@ namespace AppInstaller::CLI::Execution
 
     void ContextOrchestrator::WaitForRunningItems()
     {
-        ContextOrchestrator& instance = Instance();
-        std::lock_guard<std::mutex> lock{ instance.m_queueLock };
-        for (const auto& queue : instance.m_commandQueues)
+        std::lock_guard<std::mutex> lock{ m_queueLock };
+        for (const auto& queue : m_commandQueues)
         {
             queue.second->WaitForEmptyQueue();
         }
+    }
+
+    bool ContextOrchestrator::WaitForRunningItems(DWORD timeoutMiliseconds)
+    {
+        std::lock_guard<std::mutex> lock{ m_queueLock };
+        for (const auto& queue : m_commandQueues)
+        {
+            if (!queue.second->WaitForEmptyQueue(timeoutMiliseconds))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     _Requires_lock_held_(m_itemLock)
@@ -233,7 +259,7 @@ namespace AppInstaller::CLI::Execution
         {
             try
             {
-                ContextOrchestrator::Instance().AddItemManifestToInstallingSource(*item);
+                m_orchestrator.AddItemManifestToInstallingSource(*item);
             }
             catch (...)
             {
@@ -258,8 +284,8 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    OrchestratorQueue::OrchestratorQueue(std::string_view commandName, UINT32 allowedThreads) :
-        m_commandName(commandName), m_allowedThreads(allowedThreads)
+    OrchestratorQueue::OrchestratorQueue(ContextOrchestrator& orchestrator, std::string_view commandName, UINT32 allowedThreads) :
+        m_orchestrator(orchestrator), m_commandName(commandName), m_allowedThreads(allowedThreads)
     {
         m_threadPool.reset(CreateThreadpool(nullptr));
         THROW_LAST_ERROR_IF_NULL(m_threadPool);
@@ -361,7 +387,7 @@ namespace AppInstaller::CLI::Execution
             {
                 // Remove item from this queue and add it to the queue for the next command.
                 RemoveItemInState(*item, OrchestratorQueueItemState::Running, false);
-                ContextOrchestrator::Instance().EnqueueAndRunItem(item);
+                m_orchestrator.EnqueueAndRunItem(item);
             }
         }
         catch (...)
@@ -383,7 +409,7 @@ namespace AppInstaller::CLI::Execution
             if (item->GetState() == OrchestratorQueueItemState::Queued)
             {
                 item->SetState(OrchestratorQueueItemState::Cancelled);
-                item->HandleItemCompletion();
+                item->HandleItemCompletion(m_orchestrator);
             }
         }
     }
@@ -391,6 +417,11 @@ namespace AppInstaller::CLI::Execution
     void OrchestratorQueue::WaitForEmptyQueue()
     {
         m_queueEmpty.wait();
+    }
+
+    bool OrchestratorQueue::WaitForEmptyQueue(DWORD timeoutMiliseconds)
+    {
+        return m_queueEmpty.wait(timeoutMiliseconds);
     }
 
     bool OrchestratorQueue::RemoveItemInState(const OrchestratorQueueItem& item, OrchestratorQueueItemState state, bool isGlobalRemove)
@@ -431,7 +462,7 @@ namespace AppInstaller::CLI::Execution
 
         if (foundItem && isGlobalRemove)
         {
-            item.HandleItemCompletion();
+            item.HandleItemCompletion(m_orchestrator);
         }
 
         return foundItem;
@@ -458,9 +489,9 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    void OrchestratorQueueItem::HandleItemCompletion() const
+    void OrchestratorQueueItem::HandleItemCompletion(ContextOrchestrator& orchestrator) const
     {
-        ContextOrchestrator::Instance().RemoveItemManifestFromInstallingSource(*this);
+        orchestrator.RemoveItemManifestFromInstallingSource(*this);
         GetCompletedEvent().SetEvent();
     }
 

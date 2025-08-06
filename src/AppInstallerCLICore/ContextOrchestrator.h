@@ -50,6 +50,8 @@ namespace AppInstaller::CLI::Execution
         Repair,
     };
 
+    struct ContextOrchestrator;
+
     struct OrchestratorQueueItem
     {
         OrchestratorQueueItem(OrchestratorQueueItemId id, std::unique_ptr<COMContext> context, PackageOperationType operationType) :
@@ -81,7 +83,7 @@ namespace AppInstaller::CLI::Execution
         PackageOperationType GetPackageOperationType() const { return m_operationType; }
         std::string_view GetItemCommandName() const;
 
-        void HandleItemCompletion() const;
+        void HandleItemCompletion(ContextOrchestrator& orchestrator) const;
 
     private:
         OrchestratorQueueItemState m_state = OrchestratorQueueItemState::NotQueued;
@@ -123,9 +125,18 @@ namespace AppInstaller::CLI::Execution
 
         // Functions for ServerShutdownSynchronization::ComponentSystem registration
         static void RegisterForShutdownSynchronization();
-        static void Disable(CancelReason reason);
-        static void CancelQueuedItems(CancelReason reason);
-        static void WaitForRunningItems();
+        static void StaticDisable(CancelReason reason);
+        static void StaticCancelQueuedItems(CancelReason reason);
+        static void StaticWaitForRunningItems();
+
+        void Disable(CancelReason reason);
+        void CancelQueuedItems(CancelReason reason);
+        void WaitForRunningItems();
+
+        // Waits for running items to complete; waits up to full time out in *each* queue.
+        // Returns true to indicate all queues are empty before the timeout.
+        // Intended for test use.
+        bool WaitForRunningItems(DWORD timeoutMiliseconds);
 
     private:
         std::mutex m_queueLock;
@@ -146,7 +157,7 @@ namespace AppInstaller::CLI::Execution
     // The queue allows multiple items to run at the same time, up to a limit.
     struct OrchestratorQueue
     {
-        OrchestratorQueue(std::string_view commandName, UINT32 allowedThreads);
+        OrchestratorQueue(ContextOrchestrator& orchestrator, std::string_view commandName, UINT32 allowedThreads);
         ~OrchestratorQueue();
 
         // Name of the command this queue can execute
@@ -174,6 +185,11 @@ namespace AppInstaller::CLI::Execution
         // Intended for use during shutdown handling.
         void WaitForEmptyQueue();
 
+        // Waits until the empty queue event is signaled.
+        // Returns true to indicate the queue is empty before the timeout.
+        // Intended for tests.
+        bool WaitForEmptyQueue(DWORD timeoutMiliseconds);
+
     private:
         // Enqueues an item.
         void EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item);
@@ -181,6 +197,7 @@ namespace AppInstaller::CLI::Execution
         _Requires_lock_held_(m_itemLock)
         std::deque<std::shared_ptr<OrchestratorQueueItem>>::iterator FindIteratorById(const OrchestratorQueueItemId& comparisonQueueItemId);
 
+        ContextOrchestrator& m_orchestrator;
         std::string_view m_commandName;
 
         // Number of threads allowed to run items in this queue.
