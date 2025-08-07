@@ -46,7 +46,9 @@ namespace AppInstaller::CLI::Execution
         return s_instance;
     }
 
-    ContextOrchestrator::ContextOrchestrator()
+    ContextOrchestrator::ContextOrchestrator() : ContextOrchestrator(std::thread::hardware_concurrency()) {}
+
+    ContextOrchestrator::ContextOrchestrator(unsigned int hardwareConcurrency)
     {
         ProgressCallback progress;
         m_installingWriteableSource = Repository::Source(Repository::PredefinedSource::Installing);
@@ -56,10 +58,9 @@ namespace AppInstaller::CLI::Execution
         // We always allow only one install at a time.
         // For download, if we can find the number of supported concurrent threads,
         // use that as the maximum (up to 3); otherwise use a single thread.
-        const auto supportedConcurrentThreads = std::thread::hardware_concurrency();
         const UINT32 maxDownloadThreads = 3;
         const UINT32 operationThreads = 1;
-        const UINT32 downloadThreads = std::min(supportedConcurrentThreads > 1 ? supportedConcurrentThreads - 1 : 1, maxDownloadThreads);
+        const UINT32 downloadThreads = std::min(hardwareConcurrency > 1 ? hardwareConcurrency - 1 : 1, maxDownloadThreads);
 
         AddCommandQueue(COMDownloadCommand::CommandName, downloadThreads);
         AddCommandQueue(OperationCommandQueueName, operationThreads);

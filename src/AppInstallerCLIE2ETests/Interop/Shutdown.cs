@@ -7,6 +7,9 @@
 namespace AppInstallerCLIE2ETests.Interop
 {
     using System;
+    using System.Threading.Tasks;
+    using AppInstallerCLIE2ETests.Helpers;
+    using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;
     using WinGetTestCommon;
@@ -46,6 +49,47 @@ namespace AppInstallerCLIE2ETests.Interop
             this.SendMessageAndLog(server, WindowMessage.Close);
 
             Assert.IsTrue(server.Process.HasExited);
+        }
+
+        /// <summary>
+        /// Checks that shutdown will proceed even though an operation is active.
+        /// </summary>
+        /// <returns>The task.</returns>
+        [Test]
+        public async Task ActiveInstallOperation()
+        {
+            var packageManager = this.TestFactory.CreatePackageManager();
+            var testSource = packageManager.GetPackageCatalogByName(Constants.TestSourceName);
+            var installDir = TestCommon.GetRandomTestDir();
+
+            var servers = WinGetServerInstance.GetInstances();
+            Assert.AreEqual(1, servers.Count);
+
+            var server = servers[0];
+            Assert.IsTrue(server.HasWindow);
+
+            // Find package
+            var searchResult = this.FindOnePackage(testSource, PackageMatchField.Name, PackageFieldMatchOption.Equals, "InapplicableOsVersion");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = installDir;
+
+            // Install
+            var installOperation = packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // This is the call pattern from Windows
+            this.SendMessageAndLog(server, WindowMessage.QueryEndSession);
+            this.SendMessageAndLog(server, WindowMessage.EndSession);
+            this.SendMessageAndLog(server, WindowMessage.Close);
+
+            Assert.IsTrue(server.Process.HasExited);
+
+            var installResult = await installOperation;
+
+            Assert.AreEqual(Constants.ErrorCode.E_ABORT, installResult.ExtendedErrorCode);
+            Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
 
         private void SendMessageAndLog(WinGetServerInstance server, WindowMessage message)

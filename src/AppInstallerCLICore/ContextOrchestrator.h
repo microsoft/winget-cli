@@ -113,6 +113,7 @@ namespace AppInstaller::CLI::Execution
     struct ContextOrchestrator
     {
         ContextOrchestrator();
+        ContextOrchestrator(unsigned int hardwareConcurrency);
         static ContextOrchestrator& Instance();
 
         void EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> queueItem);

@@ -87,11 +87,10 @@ namespace AppInstaller::ShutdownMonitoring
 
     TerminationSignalHandler::~TerminationSignalHandler()
     {
-        // At this point the thread is gone, but it will get angry
-        // if there's no call to join.
+        // std::thread requires that any managed thread (joinable) be joined or detached before destructing
         if (m_windowThread.joinable())
         {
-            m_windowThread.join();
+            m_windowThread.detach();
         }
     }
 
