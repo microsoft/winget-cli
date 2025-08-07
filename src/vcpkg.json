@@ -37,15 +37,15 @@
     },
     {
       "name": "cpprestsdk",
-      "version": "2.10.18"
+      "version": "2.10.19"
     },
     {
       "name": "curl",
-      "version": "8.12.1"
+      "version": "8.15.0"
     },
     {
       "name": "nlohmann-json",
-      "version": "3.11.3"
+      "version": "3.12.0"
     },
     {
       "name": "zlib",
