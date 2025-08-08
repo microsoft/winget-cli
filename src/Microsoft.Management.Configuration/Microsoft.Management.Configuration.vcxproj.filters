@@ -162,6 +162,9 @@
     <ClCompile Include="FindUnitProcessorsOptions.cpp">
       <Filter>API Source</Filter>
     </ClCompile>
+    <ClCompile Include="ShutdownSynchronization.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -332,6 +335,9 @@
     </ClInclude>
     <ClInclude Include="FindUnitProcessorsOptions.h">
       <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ShutdownSynchronization.h">
+      <Filter>Internals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

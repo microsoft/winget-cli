@@ -21,6 +21,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         // IConfigurationStaticsInternals
         HRESULT STDMETHODCALLTYPE SetExperimentalState(UINT32 state);
+        HRESULT STDMETHODCALLTYPE BlockNewWorkForShutdown();
+        HRESULT STDMETHODCALLTYPE WaitForShutdown();
 
     private:
         // By default, enable all state so that in-proc usage contains it.

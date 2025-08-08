@@ -322,17 +322,26 @@ namespace AppInstaller::ShutdownMonitoring
 
         for (const auto& component : components)
         {
-            component.BlockNewWork(reason);
+            if (component.BlockNewWork)
+            {
+                component.BlockNewWork(reason);
+            }
         }
 
         for (const auto& component : components)
         {
-            component.BeginShutdown(reason);
+            if (component.BeginShutdown)
+            {
+                component.BeginShutdown(reason);
+            }
         }
 
         for (const auto& component : components)
         {
-            component.Wait();
+            if (component.Wait)
+            {
+                component.Wait();
+            }
         }
 
         ShutdownCompleteCallback callback = m_callback;
