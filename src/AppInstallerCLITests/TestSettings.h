@@ -17,6 +17,7 @@ namespace TestCommon
     const std::wstring EnableLocalArchiveMalwareScanOverridePolicyValueName = L"EnableLocalArchiveMalwareScanOverride";
     const std::wstring DefaultSourcePolicyValueName = L"EnableDefaultSource";
     const std::wstring MSStoreSourcePolicyValueName = L"EnableMicrosoftStoreSource";
+    const std::wstring FontSourcePolicyValueName = L"EnableFontSource";
     const std::wstring AdditionalSourcesPolicyValueName = L"EnableAdditionalSources";
     const std::wstring AllowedSourcesPolicyValueName = L"EnableAllowedSources";
     const std::wstring BypassCertificatePinningForMicrosoftStoreValueName = L"EnableBypassCertificatePinningForMicrosoftStore";

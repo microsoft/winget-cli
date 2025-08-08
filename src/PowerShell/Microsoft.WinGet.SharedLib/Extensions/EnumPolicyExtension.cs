@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="EnumPolicyExtension.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -40,6 +40,8 @@ namespace Microsoft.WinGet.SharedLib.Extensions
                     return GroupPolicyResource.PolicyEnableDefaultSource;
                 case Policy.MSStoreSource:
                     return GroupPolicyResource.PolicyEnableMSStoreSource;
+                case Policy.FontSource:
+                    return GroupPolicyResource.PolicyEnableFontSource;
                 case Policy.AdditionalSources:
                     return GroupPolicyResource.PolicyAdditionalSources;
                 case Policy.AllowedSources:
