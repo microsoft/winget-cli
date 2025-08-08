@@ -41,6 +41,7 @@ namespace AppInstaller::Settings
             LocalArchiveMalwareScanOverride,
             DefaultSource,
             MSStoreSource,
+            FontSource,
             AdditionalSources,
             AllowedSources,
             BypassCertificatePinningForMicrosoftStore,

@@ -161,6 +161,23 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test font source is enabled by policy.
+        /// </summary>
+        [Test]
+        public void EnableFontSource()
+        {
+            // Default sources are disabled during setup so they are missing.
+            var result = TestCommon.RunAICLICommand("source list", "font");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
+
+            GroupPolicyHelper.EnableMicrosoftStoreSource.Enable();
+
+            // To be enabled when the Font Source exists
+            // result = TestCommon.RunAICLICommand("source list", "font");
+            // Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+        }
+
+        /// <summary>
         /// Test additional sources are enabled by policy.
         /// </summary>
         [Test]
