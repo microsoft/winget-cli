@@ -24,7 +24,7 @@ namespace AppInstaller::WinRT
 
         virtual /* [local] */ HRESULT STDMETHODCALLTYPE BlockNewWorkForShutdown() = 0;
 
-        virtual /* [local] */ HRESULT STDMETHODCALLTYPE BlockNewWorkForShutdown() = 0;
+        virtual /* [local] */ HRESULT STDMETHODCALLTYPE BeginShutdown() = 0;
 
         virtual /* [local] */ HRESULT STDMETHODCALLTYPE WaitForShutdown() = 0;
     };

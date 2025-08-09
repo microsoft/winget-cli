@@ -5,6 +5,69 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    ShutdownAwareAsyncCancellation::ShutdownAwareAsyncCancellation() : AsyncCancellation(winrt::impl::cancellation_token<ShutdownAwareAsyncCancellationBase>{ this }) {}
+
+    ShutdownAwareAsyncCancellation::~ShutdownAwareAsyncCancellation()
+    {
+        if (m_destruction)
+        {
+            ShutdownSynchronization::Instance().RegisterWorkEnd(GetWeak());
+        }
+    }
+
+    Windows::Foundation::AsyncStatus ShutdownAwareAsyncCancellationBase::Status() noexcept
+    {
+        return m_status.load(std::memory_order_acquire);
+    }
+
+    void ShutdownAwareAsyncCancellationBase::cancellation_callback(winrt::delegate<>&& cancel) noexcept
+    {
+        {
+            slim_lock_guard const guard(m_lock);
+
+            if (m_status.load(std::memory_order_relaxed) != Windows::Foundation::AsyncStatus::Canceled)
+            {
+                m_cancel = std::move(cancel);
+                return;
+            }
+        }
+
+        if (cancel)
+        {
+            cancel();
+        }
+    }
+
+    bool ShutdownAwareAsyncCancellationBase::enable_cancellation_propagation(bool) noexcept
+    {
+        THROW_HR(E_NOTIMPL);
+    }
+
+    void ShutdownAwareAsyncCancellationBase::Cancel() noexcept
+    {
+        winrt::delegate<> cancel;
+
+        {
+            slim_lock_guard const guard(m_lock);
+
+            if (m_status.load(std::memory_order_relaxed) == Windows::Foundation::AsyncStatus::Started)
+            {
+                m_status.store(Windows::Foundation::AsyncStatus::Canceled, std::memory_order_relaxed);
+                cancel = std::move(m_cancel);
+            }
+        }
+
+        if (cancel)
+        {
+            cancel();
+        }
+    }
+
+    void ShutdownAwareAsyncCancellation::RegisterWithShutdownSynchronization()
+    {
+        ShutdownSynchronization::Instance().RegisterWorkBegin(GetWeak());
+    }
+
     ShutdownSynchronization& ShutdownSynchronization::Instance()
     {
         static ShutdownSynchronization s_instance;
@@ -16,20 +79,51 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_disabled = true;
     }
 
-    bool ShutdownSynchronization::IsNewWorkBlocked() const
+    void ShutdownSynchronization::RegisterWorkBegin(CancellableWeakPtr&& ptr)
     {
-        return m_disabled;
-    }
+        if (m_disabled)
+        {
+            THROW_HR(E_ABORT);
+        }
 
-    void ShutdownSynchronization::RegisterWorkBegin()
-    {
-        m_workCount += 1;
+        std::lock_guard<std::mutex> lock{ m_workLock };
+        m_work.emplace(std::move(ptr));
         m_noActiveWork.ResetEvent();
     }
 
-    void ShutdownSynchronization::RegisterWorkEnd()
+    void ShutdownSynchronization::RegisterWorkEnd(CancellableWeakPtr&& ptr)
     {
-        if (m_workCount.fetch_sub(1) == 1)
+        std::lock_guard<std::mutex> lock{ m_workLock };
+
+        auto itr = m_work.find(ptr);
+        if (itr != m_work.end())
+        {
+            m_work.erase(itr);
+
+            if (m_work.empty())
+            {
+                m_noActiveWork.SetEvent();
+            }
+        }
+    }
+
+    void ShutdownSynchronization::CancelAllWork()
+    {
+        std::lock_guard<std::mutex> lock{ m_workLock };
+
+        for (auto itr = m_work.begin(); itr != m_work.end(); ++itr)
+        {
+            if (auto locked = itr->lock())
+            {
+                locked->Cancel();
+            }
+            else
+            {
+                m_work.erase(itr);
+            }
+        }
+
+        if (m_work.empty())
         {
             m_noActiveWork.SetEvent();
         }
@@ -37,6 +131,30 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ShutdownSynchronization::Wait()
     {
-        m_noActiveWork.wait();
+        for (;;)
+        {
+            {
+                std::lock_guard<std::mutex> lock{ m_workLock };
+
+                // Check for any inactive work before waiting
+                for (auto itr = m_work.begin(); itr != m_work.end(); ++itr)
+                {
+                    if (!itr->lock())
+                    {
+                        m_work.erase(itr);
+                    }
+                }
+
+                if (m_work.empty())
+                {
+                    break;
+                }
+            }
+
+            if (m_noActiveWork.wait(250))
+            {
+                break;
+            }
+        }
     }
 }

@@ -22,6 +22,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // IConfigurationStaticsInternals
         HRESULT STDMETHODCALLTYPE SetExperimentalState(UINT32 state);
         HRESULT STDMETHODCALLTYPE BlockNewWorkForShutdown();
+        HRESULT STDMETHODCALLTYPE BeginShutdown();
         HRESULT STDMETHODCALLTYPE WaitForShutdown();
 
     private:

@@ -41,6 +41,11 @@ namespace ConfigurationShim
             GetInternalStatics()->BlockNewWorkForShutdown();
         }
 
+        void BeginShutdown(AppInstaller::CancelReason)
+        {
+            GetInternalStatics()->BeginShutdown();
+        }
+
         void WaitForShutdown()
         {
             GetInternalStatics()->WaitForShutdown();
@@ -56,7 +61,7 @@ namespace ConfigurationShim
 
                     ServerShutdownSynchronization::ComponentSystem component;
                     component.BlockNewWork = BlockNewWorkForShutdown;
-                    component.BeginShutdown = nullptr;
+                    component.BeginShutdown = BeginShutdown;
                     component.Wait = WaitForShutdown;
 
                     ServerShutdownSynchronization::AddComponent(component);

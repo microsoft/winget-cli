@@ -71,6 +71,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return S_OK;
     }
 
+    HRESULT STDMETHODCALLTYPE ConfigurationStaticFunctions::BeginShutdown()
+    {
+        ShutdownSynchronization::Instance().CancelAllWork();
+        return S_OK;
+    }
+
     HRESULT STDMETHODCALLTYPE ConfigurationStaticFunctions::WaitForShutdown()
     {
         ShutdownSynchronization::Instance().Wait();
