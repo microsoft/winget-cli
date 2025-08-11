@@ -88,7 +88,6 @@ namespace AppInstaller::WinRT
             }
         }
 
-    protected:
         std::weak_ptr<details::AsyncCancellationTypeErasure> GetWeak()
         {
             return m_token;
@@ -181,6 +180,13 @@ namespace AppInstaller::WinRT
             m_token = std::make_unique<details::AsyncProgressEventHandlerT<ResultT, ProgressT>>(std::move(progress));
         }
 
+        // Create a cancellation only object.
+        template <typename Promise>
+        AsyncProgress(winrt::impl::cancellation_token<Promise>&& cancellation) :
+            AsyncCancellation(std::move(cancellation))
+        {
+        }
+
         // Sends progress if this object is not empty.
         void Progress(ProgressT const& progress) const
         {
@@ -197,14 +203,6 @@ namespace AppInstaller::WinRT
             {
                 m_token->Result(result);
             }
-        }
-
-    protected:
-        // Create a cancellation only object.
-        template <typename Promise>
-        AsyncProgress(winrt::impl::cancellation_token<Promise>&& cancellation) :
-            AsyncCancellation(std::move(cancellation))
-        {
         }
 
     private:

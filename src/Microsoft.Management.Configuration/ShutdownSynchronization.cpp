@@ -5,22 +5,47 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    ShutdownAwareAsyncCancellation::ShutdownAwareAsyncCancellation() : AsyncCancellation(winrt::impl::cancellation_token<ShutdownAwareAsyncCancellationBase>{ this }) {}
+    ShutdownAwareAsyncCancellation::ShutdownAwareAsyncCancellation()
+    {
+        m_defaultPromise = std::make_unique<ShutdownAwareAsyncCancellationPromise>();
+        m_cancellation = std::make_unique<AppInstaller::WinRT::AsyncCancellation>(winrt::impl::cancellation_token<ShutdownAwareAsyncCancellationPromise>{ m_defaultPromise.get() });
+        RegisterWithShutdownSynchronization();
+    }
 
     ShutdownAwareAsyncCancellation::~ShutdownAwareAsyncCancellation()
     {
-        if (m_destruction)
+        if (m_cancellation)
         {
-            ShutdownSynchronization::Instance().RegisterWorkEnd(GetWeak());
+            ShutdownSynchronization::Instance().RegisterWorkEnd(m_cancellation->GetWeak());
         }
     }
 
-    Windows::Foundation::AsyncStatus ShutdownAwareAsyncCancellationBase::Status() noexcept
+    bool ShutdownAwareAsyncCancellation::IsCancelled() const noexcept
+    {
+        return m_cancellation->IsCancelled();
+    }
+
+    void ShutdownAwareAsyncCancellation::ThrowIfCancelled() const
+    {
+        m_cancellation->ThrowIfCancelled();
+    }
+
+    void ShutdownAwareAsyncCancellation::Callback(winrt::delegate<>&& callback) const noexcept
+    {
+        m_cancellation->Callback(std::move(callback));
+    }
+
+    void ShutdownAwareAsyncCancellation::RegisterWithShutdownSynchronization()
+    {
+        ShutdownSynchronization::Instance().RegisterWorkBegin(m_cancellation->GetWeak());
+    }
+
+    Windows::Foundation::AsyncStatus ShutdownAwareAsyncCancellationPromise::Status() noexcept
     {
         return m_status.load(std::memory_order_acquire);
     }
 
-    void ShutdownAwareAsyncCancellationBase::cancellation_callback(winrt::delegate<>&& cancel) noexcept
+    void ShutdownAwareAsyncCancellationPromise::cancellation_callback(winrt::delegate<>&& cancel) noexcept
     {
         {
             slim_lock_guard const guard(m_lock);
@@ -38,12 +63,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    bool ShutdownAwareAsyncCancellationBase::enable_cancellation_propagation(bool) noexcept
+    bool ShutdownAwareAsyncCancellationPromise::enable_cancellation_propagation(bool) noexcept
     {
         THROW_HR(E_NOTIMPL);
     }
 
-    void ShutdownAwareAsyncCancellationBase::Cancel() noexcept
+    void ShutdownAwareAsyncCancellationPromise::Cancel() noexcept
     {
         winrt::delegate<> cancel;
 
@@ -61,11 +86,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             cancel();
         }
-    }
-
-    void ShutdownAwareAsyncCancellation::RegisterWithShutdownSynchronization()
-    {
-        ShutdownSynchronization::Instance().RegisterWorkBegin(GetWeak());
     }
 
     ShutdownSynchronization& ShutdownSynchronization::Instance()

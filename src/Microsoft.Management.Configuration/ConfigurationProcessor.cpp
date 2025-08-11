@@ -561,7 +561,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 if (sequencer.Enqueue(configurationSet))
                 {
                     updateState(ConfigurationSetState::Pending);
-                    sequencer.Wait(progress);
+                    sequencer.Wait(progress.GetCancellation());
                 }
             }
 
