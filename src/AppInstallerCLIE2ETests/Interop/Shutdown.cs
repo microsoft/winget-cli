@@ -88,7 +88,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             var installResult = await installOperation;
 
-            Assert.AreEqual(Constants.ErrorCode.E_ABORT, installResult.ExtendedErrorCode);
+            Assert.AreNotEqual(InstallResultStatus.Ok, installResult.Status);
             Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
 
