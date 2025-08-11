@@ -214,18 +214,37 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    bool ContextOrchestrator::WaitForRunningItems(DWORD timeoutMiliseconds)
+    bool ContextOrchestrator::WaitForRunningItems(DWORD timeoutMilliseconds)
     {
         std::lock_guard<std::mutex> lock{ m_queueLock };
         for (const auto& queue : m_commandQueues)
         {
-            if (!queue.second->WaitForEmptyQueue(timeoutMiliseconds))
+            if (!queue.second->WaitForEmptyQueue(timeoutMilliseconds))
             {
                 return false;
             }
         }
 
         return true;
+    }
+
+    std::string ContextOrchestrator::GetStatusString()
+    {
+        std::ostringstream stream;
+
+        std::lock_guard<std::mutex> lock{ m_queueLock };
+
+        if (!m_enabled)
+        {
+            stream << "Disabled due to " << ToIntegral(m_disabledReason) << std::endl;
+        }
+
+        for (const auto& queue : m_commandQueues)
+        {
+            stream << queue.second->GetStatusString();
+        }
+
+        return stream.str();
     }
 
     _Requires_lock_held_(m_itemLock)
@@ -420,9 +439,37 @@ namespace AppInstaller::CLI::Execution
         m_queueEmpty.wait();
     }
 
-    bool OrchestratorQueue::WaitForEmptyQueue(DWORD timeoutMiliseconds)
+    bool OrchestratorQueue::WaitForEmptyQueue(DWORD timeoutMilliseconds)
     {
-        return m_queueEmpty.wait(timeoutMiliseconds);
+        return m_queueEmpty.wait(timeoutMilliseconds);
+    }
+
+    std::string OrchestratorQueue::GetStatusString()
+    {
+        std::ostringstream stream;
+        stream << m_commandName << '[' << m_allowedThreads << "]\n";
+
+        std::map<OrchestratorQueueItemState, size_t> stateCounts;
+        stateCounts[OrchestratorQueueItemState::NotQueued] = 0;
+        stateCounts[OrchestratorQueueItemState::Queued] = 0;
+        stateCounts[OrchestratorQueueItemState::Running] = 0;
+        stateCounts[OrchestratorQueueItemState::Cancelled] = 0;
+
+        {
+            std::lock_guard<std::mutex> lock{ m_itemLock };
+
+            for (const auto& item : m_queueItems)
+            {
+                stateCounts[item->GetState()] += 1;
+            }
+        }
+
+        for (const auto& stateCount : stateCounts)
+        {
+            stream << "  " << ToString(stateCount.first) << " : " << stateCount.second << std::endl;
+        }
+
+        return stream.str();
     }
 
     bool OrchestratorQueue::RemoveItemInState(const OrchestratorQueueItem& item, OrchestratorQueueItemState state, bool isGlobalRemove)
@@ -529,5 +576,17 @@ namespace AppInstaller::CLI::Execution
         std::unique_ptr<OrchestratorQueueItem> item = std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context), PackageOperationType::Repair);
         item->AddCommand(std::make_unique<::AppInstaller::CLI::COMRepairCommand>(RootCommand::CommandName));
         return item;
+    }
+
+    std::string_view ToString(OrchestratorQueueItemState state)
+    {
+        switch (state)
+        {
+        case OrchestratorQueueItemState::NotQueued: return "NotQueued";
+        case OrchestratorQueueItemState::Queued: return "Queued";
+        case OrchestratorQueueItemState::Running: return "Running";
+        case OrchestratorQueueItemState::Cancelled: return "Cancelled";
+        default: return "Unknown";
+        }
     }
 }

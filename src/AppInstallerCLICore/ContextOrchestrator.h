@@ -10,6 +10,7 @@
 #include "Command.h"
 #include "COMContext.h"
 #include <wil/resource.h>
+#include <string>
 #include <string_view>
 
 namespace AppInstaller::CLI::Execution
@@ -25,6 +26,8 @@ namespace AppInstaller::CLI::Execution
         // Cancelled before it was run; will be deleted when we try to run it
         Cancelled
     };
+
+    std::string_view ToString(OrchestratorQueueItemState state);
 
     struct OrchestratorQueueItemId
     {
@@ -137,7 +140,10 @@ namespace AppInstaller::CLI::Execution
         // Waits for running items to complete; waits up to full time out in *each* queue.
         // Returns true to indicate all queues are empty before the timeout.
         // Intended for test use.
-        bool WaitForRunningItems(DWORD timeoutMiliseconds);
+        bool WaitForRunningItems(DWORD timeoutMilliseconds);
+
+        // Gets a string that represents the current state of the orchestrator.
+        std::string GetStatusString();
 
     private:
         std::mutex m_queueLock;
@@ -189,7 +195,10 @@ namespace AppInstaller::CLI::Execution
         // Waits until the empty queue event is signaled.
         // Returns true to indicate the queue is empty before the timeout.
         // Intended for tests.
-        bool WaitForEmptyQueue(DWORD timeoutMiliseconds);
+        bool WaitForEmptyQueue(DWORD timeoutMilliseconds);
+
+        // Gets a string that represents the current state of the queue.
+        std::string GetStatusString();
 
     private:
         // Enqueues an item.

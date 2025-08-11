@@ -38,6 +38,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void ShutdownSynchronization_SyncCall()
         {
+            this.Fixture.RecreateStatics();
+
             ConfigurationSet configurationSet = this.ConfigurationSet();
             ConfigurationUnit configurationUnitWaits = this.ConfigurationUnit();
             ConfigurationUnit configurationUnitWorks = this.ConfigurationUnit();
@@ -112,6 +114,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void ShutdownSynchronization_AsyncCall()
         {
+            this.Fixture.RecreateStatics();
+
             ConfigurationSet configurationSet = this.ConfigurationSet();
             ConfigurationUnit configurationUnitWaits = this.ConfigurationUnit();
             ConfigurationUnit configurationUnitWorks = this.ConfigurationUnit();

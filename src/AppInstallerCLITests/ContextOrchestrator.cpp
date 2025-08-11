@@ -157,31 +157,50 @@ TEST_CASE("ContextOrchestrator_CancelAllItems", "[context_orchestrator]")
 
     auto downloadQueued = CreateTestItem("downloadQueued");
     auto downloadRunning = CreateTestItem("downloadRunning");
-    wil::slim_event_manual_reset downloadRunningEvent;
-    downloadRunning.Context->OperationCallback = [&]() { downloadRunningEvent.wait(); };
+    wil::slim_event_manual_reset downloadBegunEvent;
+    wil::slim_event_manual_reset downloadWaitingEvent;
+    downloadRunning.Context->DownloadCallback = [&]()
+        {
+            downloadBegunEvent.SetEvent();
+            downloadWaitingEvent.wait();
+        };
 
     auto operationQueued = CreateTestItem("operationQueued");
     auto operationRunning = CreateTestItem("operationRunning");
-    wil::slim_event_manual_reset operationRunningEvent;
-    operationRunning.Context->OperationCallback = [&]() { operationRunningEvent.wait(); };
+    wil::slim_event_manual_reset operationBegunEvent;
+    wil::slim_event_manual_reset operationWaitingEvent;
+    operationRunning.Context->OperationCallback = [&]()
+        {
+            operationBegunEvent.SetEvent();
+            operationWaitingEvent.wait();
+        };
 
     orchestrator.EnqueueAndRunItem(operationRunning.QueueItem);
     orchestrator.EnqueueAndRunItem(operationQueued.QueueItem);
     orchestrator.EnqueueAndRunItem(downloadRunning.QueueItem);
     orchestrator.EnqueueAndRunItem(downloadQueued.QueueItem);
 
+    operationBegunEvent.wait(c_DefaultWaitInMs);
+    downloadBegunEvent.wait(c_DefaultWaitInMs);
+
+    INFO("Pre-shutdown state: \n" << orchestrator.GetStatusString());
+
     auto reason = AppInstaller::CancelReason::AppShutdown;
     orchestrator.Disable(reason);
     orchestrator.CancelQueuedItems(reason);
 
-    operationRunningEvent.SetEvent();
-    downloadRunningEvent.SetEvent();
+    operationWaitingEvent.SetEvent();
+    downloadWaitingEvent.SetEvent();
 
-    REQUIRE(orchestrator.WaitForRunningItems(c_DefaultWaitInMs));
+    if (!orchestrator.WaitForRunningItems(c_DefaultWaitInMs))
+    {
+        INFO("Post-wait state: \n" << orchestrator.GetStatusString());
+        FAIL("Timed out waiting for orchestrator to empty");
+    }
 
     auto checkQueueItem = [](TestQueueItem& item)
         {
-            REQUIRE(item.QueueItem->GetCompletedEvent().wait(c_DefaultWaitInMs));
+            REQUIRE(item.QueueItem->GetCompletedEvent().wait(0));
             REQUIRE(item.Context->IsTerminated());
             REQUIRE(E_ABORT == item.Context->GetTerminationHR());
         };

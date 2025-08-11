@@ -48,7 +48,7 @@ namespace AppInstallerCLIE2ETests.Interop
             this.SendMessageAndLog(server, WindowMessage.EndSession);
             this.SendMessageAndLog(server, WindowMessage.Close);
 
-            Assert.IsTrue(server.Process.HasExited);
+            Assert.IsTrue(server.Process.WaitForExit(5000));
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace AppInstallerCLIE2ETests.Interop
             this.SendMessageAndLog(server, WindowMessage.EndSession);
             this.SendMessageAndLog(server, WindowMessage.Close);
 
-            Assert.IsTrue(server.Process.HasExited);
+            Assert.IsTrue(server.Process.WaitForExit(5000));
 
             var installResult = await installOperation;
 
