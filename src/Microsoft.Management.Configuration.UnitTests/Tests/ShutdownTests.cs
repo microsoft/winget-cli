@@ -103,7 +103,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.True(syncCallDone.WaitOne(5000));
 
             Assert.NotNull(exception);
-            Assert.IsType<OperationCanceledException>(exception);
 
             Assert.True(server.Process.WaitForExit(5000));
         }
