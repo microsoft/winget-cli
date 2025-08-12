@@ -20,10 +20,10 @@ namespace AppInstaller::CLI
 {
     namespace
     {
-        void LogAndReport(Execution::Context& context, const std::string& message)
+        void LogAndReport(Execution::Context& context, std::string_view message)
         {
-            AICLI_LOG(CLI, Info, << message);
             context.Reporter.Info() << message << std::endl;
+            AICLI_LOG(CLI, Info, << message);
         }
 
         HRESULT WaitForShutdown(Execution::Context& context)

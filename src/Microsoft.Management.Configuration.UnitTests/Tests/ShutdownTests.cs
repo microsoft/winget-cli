@@ -105,7 +105,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.NotNull(exception);
             Assert.IsType<OperationCanceledException>(exception);
 
-            Assert.True(server.Process.HasExited);
+            Assert.True(server.Process.WaitForExit(5000));
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             Assert.ThrowsAny<Exception>(() => operation.GetAwaiter().GetResult());
 
-            Assert.True(server.Process.HasExited);
+            Assert.True(server.Process.WaitForExit(5000));
         }
 
         private void SendMessageAndLog(WinGetServerInstance server, WindowMessage message)

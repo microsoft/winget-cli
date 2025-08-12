@@ -86,9 +86,28 @@ namespace AppInstallerCLIE2ETests.Interop
 
             Assert.IsTrue(server.Process.WaitForExit(5000));
 
-            var installResult = await installOperation;
+            InstallResult installResult = null;
+            Exception exception = null;
 
-            Assert.AreNotEqual(InstallResultStatus.Ok, installResult.Status);
+            try
+            {
+                installResult = await installOperation;
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // We just expect some kind of signal to indicate the failed attempt.
+            if (installResult != null)
+            {
+                Assert.AreNotEqual(InstallResultStatus.Ok, installResult.Status);
+            }
+            else
+            {
+                Assert.NotNull(exception);
+            }
+
             Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
 

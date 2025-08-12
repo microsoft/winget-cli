@@ -87,7 +87,7 @@ namespace AppInstaller::CLI::Execution
         return {};
     }
 
-    void ContextOrchestrator::EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item)
+    void ContextOrchestrator::EnqueueAndRunItem(const std::shared_ptr<OrchestratorQueueItem>& item)
     {
         std::lock_guard<std::mutex> lockQueue{ m_queueLock };
 
@@ -265,7 +265,7 @@ namespace AppInstaller::CLI::Execution
         return {};
     }
 
-    void OrchestratorQueue::EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item)
+    void OrchestratorQueue::EnqueueItem(const std::shared_ptr<OrchestratorQueueItem>& item)
     {
         {
             std::lock_guard<std::mutex> lockQueue{ m_itemLock };
@@ -324,7 +324,7 @@ namespace AppInstaller::CLI::Execution
         CloseThreadpoolCleanupGroupMembers(m_threadPoolCleanupGroup.get(), false, nullptr);
     }
 
-    void OrchestratorQueue::EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item)
+    void OrchestratorQueue::EnqueueAndRunItem(const std::shared_ptr<OrchestratorQueueItem>& item)
     {
         EnqueueItem(item);
 

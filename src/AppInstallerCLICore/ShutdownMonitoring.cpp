@@ -96,13 +96,13 @@ namespace AppInstaller::ShutdownMonitoring
 
     void TerminationSignalHandler::StartAppShutdown()
     {
-        // Lifetime manager sends CTRL-C after the WM_QUERYENDSESSION is processed.
-        // If we disable the CTRL-C handler, the default handler will kill us.
-        InformListeners(CancelReason::AppShutdown, true);
-
 #ifndef AICLI_DISABLE_TEST_HOOKS
         m_appShutdownEvent.SetEvent();
 #endif
+
+        // Lifetime manager sends CTRL-C after the WM_QUERYENDSESSION is processed.
+        // If we disable the CTRL-C handler, the default handler will kill us.
+        InformListeners(CancelReason::AppShutdown, true);
     }
 
     BOOL WINAPI TerminationSignalHandler::StaticCtrlHandlerFunction(DWORD ctrlType)

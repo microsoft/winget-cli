@@ -119,7 +119,7 @@ namespace AppInstaller::CLI::Execution
         ContextOrchestrator(unsigned int hardwareConcurrency);
         static ContextOrchestrator& Instance();
 
-        void EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> queueItem);
+        void EnqueueAndRunItem(const std::shared_ptr<OrchestratorQueueItem>& queueItem);
         void CancelQueueItem(const OrchestratorQueueItem& item);
 
         std::shared_ptr<OrchestratorQueueItem> GetQueueItem(const OrchestratorQueueItemId& queueItemId);
@@ -139,7 +139,6 @@ namespace AppInstaller::CLI::Execution
 
         // Waits for running items to complete; waits up to full time out in *each* queue.
         // Returns true to indicate all queues are empty before the timeout.
-        // Intended for test use.
         bool WaitForRunningItems(DWORD timeoutMilliseconds);
 
         // Gets a string that represents the current state of the orchestrator.
@@ -171,7 +170,7 @@ namespace AppInstaller::CLI::Execution
         std::string_view CommandName() const { return m_commandName; }
 
         // Enqueues an item to be run when there are threads available.
-        void EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item);
+        void EnqueueAndRunItem(const std::shared_ptr<OrchestratorQueueItem>& item);
 
         // Removes an item by id, provided that it is in the given state.
         // Returns true if an item was removed.
@@ -189,12 +188,10 @@ namespace AppInstaller::CLI::Execution
         void CancelAllItems(CancelReason reason);
 
         // Waits until the empty queue event is signaled.
-        // Intended for use during shutdown handling.
         void WaitForEmptyQueue();
 
         // Waits until the empty queue event is signaled.
         // Returns true to indicate the queue is empty before the timeout.
-        // Intended for tests.
         bool WaitForEmptyQueue(DWORD timeoutMilliseconds);
 
         // Gets a string that represents the current state of the queue.
@@ -202,7 +199,7 @@ namespace AppInstaller::CLI::Execution
 
     private:
         // Enqueues an item.
-        void EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item);
+        void EnqueueItem(const std::shared_ptr<OrchestratorQueueItem>& item);
 
         _Requires_lock_held_(m_itemLock)
         std::deque<std::shared_ptr<OrchestratorQueueItem>>::iterator FindIteratorById(const OrchestratorQueueItemId& comparisonQueueItemId);
