@@ -1,5 +1,8 @@
 name: '🐛 Bug Report'
 description: Report errors or unexpected behavior.
+labels:
+- Issue-Bug
+- Needs-Triage
 body:
   - type: markdown
     attributes:
@@ -14,6 +17,19 @@ body:
         > Alternatively, use the category "Apps > Windows Package Manager" and choose "Share My Feedback" after submission to get the link.
         >
         > Please use this form and describe your issue, concisely but precisely, with as much detail as possible.
+  - type: dropdown
+    attributes:
+      label: Relevant area(s)
+      description: What things had an issue? Check all that apply.
+      multiple: true
+      options:
+        - WinGet CLI
+        - PowerShell Module
+        - COM API
+        - WinGet DSC Resource
+      default: WinGet CLI
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Brief description of your issue
