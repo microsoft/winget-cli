@@ -23,5 +23,38 @@ configuration:
         then:
           - addLabel:
               label: Needs-Triage
+      - description: Add area label for PowerShell Module
+        if:
+          - payloadType: Issues
+          - isAction:
+              action: Opened
+          - bodyContains:
+              pattern: 'Relevant area\(s\)\s*\n.*PowerShell Module'
+              isRegex: True
+        then:
+          - addLabel:
+              label: PowerShell
+      - description: Add area label for COM API
+        if:
+          - payloadType: Issues
+          - isAction:
+              action: Opened
+          - bodyContains:
+              pattern: 'Relevant area\(s\)\s*\n.*COM API'
+              isRegex: True
+        then:
+          - addLabel:
+              label: Area-COM-API
+      - description: Add area label for WinGet DSC Resources
+        if:
+          - payloadType: Issues
+          - isAction:
+              action: Opened
+          - bodyContains:
+              pattern: 'Relevant area\(s\)\s*\n.*DSC Resource'
+              isRegex: True
+        then:
+          - addLabel:
+              label: DSC-Resource
 onFailure:
 onSuccess:

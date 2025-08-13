@@ -13,7 +13,7 @@ body:
         - WinGet CLI
         - PowerShell Module
         - COM API
-        - WinGet DSC Resource
+        - DSC Resource
       default: 0
     validations:
       required: true
