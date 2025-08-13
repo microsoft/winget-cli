@@ -1,5 +1,8 @@
 name: '🐛 Bug Report'
 description: Report errors or unexpected behavior.
+labels:
+- Issue-Bug
+- Needs-Triage
 body:
   - type: markdown
     attributes:
@@ -14,6 +17,47 @@ body:
         > Alternatively, use the category "Apps > Windows Package Manager" and choose "Share My Feedback" after submission to get the link.
         >
         > Please use this form and describe your issue, concisely but precisely, with as much detail as possible.
+  - type: dropdown
+    attributes:
+      label: Relevant area(s)
+      description: What things had an issue? Check all that apply.
+      multiple: true
+      options:
+        - WinGet CLI
+        - PowerShell Module
+        - COM API
+        - DSC Resource
+      default: 0
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Relevant command(s)
+      description: If you selected 'WinGet CLI' above, specify the command(s) that had an issue.
+      multiple: true
+      options:
+        - winget configure
+        - winget download
+        - winget dscv3
+        - winget export
+        - winget features
+        - winget font
+        - winget hash
+        - winget import
+        - winget install
+        - winget list
+        - winget mcp
+        - winget pin
+        - winget repair
+        - winget search
+        - winget settings
+        - winget show
+        - winget source
+        - winget uninstall
+        - winget upgrade
+        - winget validate
+    validations:
+      required: false
   - type: textarea
     attributes:
       label: Brief description of your issue
