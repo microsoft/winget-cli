@@ -21,5 +21,11 @@ namespace AppInstaller::WinRT
     public:
         virtual /* [local] */ HRESULT STDMETHODCALLTYPE SetExperimentalState(
             UINT32 state) = 0;
+
+        virtual /* [local] */ HRESULT STDMETHODCALLTYPE BlockNewWorkForShutdown() = 0;
+
+        virtual /* [local] */ HRESULT STDMETHODCALLTYPE BeginShutdown() = 0;
+
+        virtual /* [local] */ HRESULT STDMETHODCALLTYPE WaitForShutdown() = 0;
     };
 }

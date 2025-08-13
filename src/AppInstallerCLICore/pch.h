@@ -27,6 +27,7 @@
 #include <functional>
 #include <iterator>
 #include <memory>
+#include <mutex>
 #include <numeric>
 #include <optional>
 #include <set>
@@ -39,6 +40,7 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Management.Deployment.h>
 #include <winrt/Windows.UI.ViewManagement.h>
+#include <winrt/Windows.ApplicationModel.h>
 #include <winrt/Windows.ApplicationModel.Resources.h>
 #include <winrt/Windows.ApplicationModel.Resources.Core.h>
 #include <winrt/Windows.ApplicationModel.Store.Preview.InstallControl.h>
@@ -47,6 +49,7 @@
 
 #pragma warning( push )
 #pragma warning ( disable : 6001 6285 6340 6388 )
+#include <wil/resource.h>
 #include <wil/result.h>
 #include <wil/result_macros.h>
 #include <wil/safecast.h>

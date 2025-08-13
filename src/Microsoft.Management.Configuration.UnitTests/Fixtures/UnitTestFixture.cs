@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.UnitTests.Fixtures
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Reflection;
     using Microsoft.Management.Configuration.Processor;
@@ -62,7 +63,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
                 throw new DirectoryNotFoundException(this.ExternalModulesPath);
             }
 
-            this.ConfigurationStatics = new ConfigurationStaticFunctions().As<IConfigurationStatics2>();
+            this.RecreateStatics();
         }
 
         /// <summary>
@@ -88,7 +89,16 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
         /// <summary>
         /// Gets the configuration statics object to use.
         /// </summary>
-        internal IConfigurationStatics2 ConfigurationStatics { get; private init; }
+        internal IConfigurationStatics2 ConfigurationStatics { get; private set; }
+
+        /// <summary>
+        /// Creates a new statics object for use by the tests.
+        /// </summary>
+        [MemberNotNull("ConfigurationStatics")]
+        public void RecreateStatics()
+        {
+            this.ConfigurationStatics = new ConfigurationStaticFunctions().As<IConfigurationStatics2>();
+        }
 
         /// <summary>
         /// Creates a runspace adding the test module path.

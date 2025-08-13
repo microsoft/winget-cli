@@ -15,6 +15,7 @@
 #include <AppInstallerTelemetry.h>
 #include <AppInstallerErrors.h>
 #include <winget/GroupPolicy.h>
+#include <ShutdownMonitoring.h>
 #include <ComClsids.h>
 
 using namespace winrt::Microsoft::Management::Deployment;
@@ -54,6 +55,7 @@ extern "C"
 
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerModuleCreate(WindowsPackageManagerServerModuleTerminationCallback callback) try
     {
+        AppInstaller::ShutdownMonitoring::ServerShutdownSynchronization::Initialize(callback);
         ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::Create(callback);
         return S_OK;
     }

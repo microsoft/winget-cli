@@ -238,6 +238,7 @@
     <ClInclude Include="OpenConfigurationSetResult.h" />
     <ClInclude Include="ParsingMacros.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="ShutdownSynchronization.h" />
     <ClInclude Include="Telemetry\Telemetry.h" />
     <ClInclude Include="Telemetry\TraceLogging.h" />
     <ClInclude Include="TestConfigurationSetResult.h" />
@@ -297,6 +298,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="ShutdownSynchronization.cpp" />
     <ClCompile Include="Telemetry\Telemetry.cpp" />
     <ClCompile Include="Telemetry\TraceLogging.cpp" />
     <ClCompile Include="TestConfigurationSetResult.cpp" />

@@ -40,6 +40,17 @@ namespace AppInstaller
 
     DEFINE_ENUM_FLAG_OPERATORS(CancelReason);
 
+    // Gets the HRESULT associated with the given reason.
+    HRESULT ToHRESULT(CancelReason reason);
+
+    // Interface that provides a callback to inform of cancellation.
+    struct ICancellable
+    {
+        // Inform of cancellation with provided reason.
+        // When `force` is true, it is expected to happen regardless of user intent.
+        virtual void Cancel(CancelReason reason, bool force) = 0;
+    };
+
     // Interface that only receives progress, and does not participate in cancellation.
     // This allows a sink be simple, and let ProgressCallback handle the complications
     // of cancel state.

@@ -11,6 +11,7 @@
 #include <AppInstallerStrings.h>
 #include <winget/ConfigurationSetProcessorHandlers.h>
 #include <ConfigurationSetProcessorFactoryRemoting.h>
+#include <ShutdownMonitoring.h>
 #include <winget/ILifetimeWatcher.h>
 #include <winget/IConfigurationStaticsInternals.h>
 #include <winget/GroupPolicy.h>
@@ -29,6 +30,43 @@ namespace ConfigurationShim
     namespace
     {
         static std::atomic_bool s_canBeCreated{ true };
+
+        auto GetInternalStatics()
+        {
+            return winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions().as<AppInstaller::WinRT::IConfigurationStaticsInternals>();
+        }
+
+        void BlockNewWorkForShutdown(AppInstaller::CancelReason)
+        {
+            GetInternalStatics()->BlockNewWorkForShutdown();
+        }
+
+        void BeginShutdown(AppInstaller::CancelReason)
+        {
+            GetInternalStatics()->BeginShutdown();
+        }
+
+        void WaitForShutdown()
+        {
+            GetInternalStatics()->WaitForShutdown();
+        }
+
+        void RegisterForShutdownSynchronization()
+        {
+            static std::once_flag registerComponentOnceFlag;
+            std::call_once(registerComponentOnceFlag,
+                [&]()
+                {
+                    using namespace AppInstaller::ShutdownMonitoring;
+
+                    ServerShutdownSynchronization::ComponentSystem component;
+                    component.BlockNewWork = BlockNewWorkForShutdown;
+                    component.BeginShutdown = BeginShutdown;
+                    component.Wait = WaitForShutdown;
+
+                    ServerShutdownSynchronization::AddComponent(component);
+                });
+        }
     }
 
     CLSID CLSID_ConfigurationObjectLifetimeWatcher = { 0x89a8f1d4,0x1e24,0x46a4,{0x9f,0x6c,0x65,0x78,0xb0,0x47,0xf2,0xf7} };
@@ -57,6 +95,7 @@ namespace ConfigurationShim
             if (IsConfigurationAvailable())
             {
                 m_statics = winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions().as<winrt::Microsoft::Management::Configuration::IConfigurationStatics3>();
+                RegisterForShutdownSynchronization();
             }
         }
 

@@ -10,6 +10,7 @@
 #include "COMContext.h"
 #include <AppInstallerFileLogger.h>
 #include <winget/OutputDebugStringLogger.h>
+#include "Public/ShutdownMonitoring.h"
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
 #include <winget/Debugging.h>
@@ -59,10 +60,32 @@ namespace AppInstaller::CLI
 
             std::_Exit(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
         }
+
+        wil::slim_event_manual_reset& GetMainWaitEvent()
+        {
+            static wil::slim_event_manual_reset s_mainWait;
+            return s_mainWait;
+        }
+
+        void WaitOnMainWaitEvent()
+        {
+            GetMainWaitEvent().wait(5000);
+        }
+
+        void RegisterShutdownBlocker()
+        {
+            ShutdownMonitoring::ServerShutdownSynchronization::ComponentSystem main{};
+            main.Wait = WaitOnMainWaitEvent;
+            ShutdownMonitoring::ServerShutdownSynchronization::AddComponent(main);
+        }
     }
 
     int CoreMain(int argc, wchar_t const** argv) try
     {
+        // This prevents the OS package management from terminating the CLI process before it has had a chance to gracefully exit.
+        RegisterShutdownBlocker();
+        auto signalMainExit = wil::scope_exit([]() { GetMainWaitEvent().SetEvent(); });
+
         std::signal(SIGABRT, abort_signal_handler);
 
         init_apartment();

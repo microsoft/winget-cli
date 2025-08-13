@@ -49,6 +49,9 @@
       <Private>True</Private>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </ProjectReference>
+    <ProjectReference Include="..\WinGetTestCommon\WinGetTestCommon.csproj">
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
 
   <Import Project="..\targets\ReferenceEmbeddedCsWinRTProject.targets" />

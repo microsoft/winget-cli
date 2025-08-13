@@ -9,7 +9,8 @@
 #include "CompletionData.h"
 #include "Command.h"
 #include "COMContext.h"
-
+#include <wil/resource.h>
+#include <string>
 #include <string_view>
 
 namespace AppInstaller::CLI::Execution
@@ -25,6 +26,8 @@ namespace AppInstaller::CLI::Execution
         // Cancelled before it was run; will be deleted when we try to run it
         Cancelled
     };
+
+    std::string_view ToString(OrchestratorQueueItemState state);
 
     struct OrchestratorQueueItemId
     {
@@ -49,6 +52,8 @@ namespace AppInstaller::CLI::Execution
         Download,
         Repair,
     };
+
+    struct ContextOrchestrator;
 
     struct OrchestratorQueueItem
     {
@@ -81,6 +86,8 @@ namespace AppInstaller::CLI::Execution
         PackageOperationType GetPackageOperationType() const { return m_operationType; }
         std::string_view GetItemCommandName() const;
 
+        void HandleItemCompletion(ContextOrchestrator& orchestrator) const;
+
     private:
         OrchestratorQueueItemState m_state = OrchestratorQueueItemState::NotQueued;
         std::unique_ptr<COMContext> m_context;
@@ -109,9 +116,10 @@ namespace AppInstaller::CLI::Execution
     struct ContextOrchestrator
     {
         ContextOrchestrator();
+        ContextOrchestrator(unsigned int hardwareConcurrency);
         static ContextOrchestrator& Instance();
 
-        void EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> queueItem);
+        void EnqueueAndRunItem(const std::shared_ptr<OrchestratorQueueItem>& queueItem);
         void CancelQueueItem(const OrchestratorQueueItem& item);
 
         std::shared_ptr<OrchestratorQueueItem> GetQueueItem(const OrchestratorQueueItemId& queueItemId);
@@ -119,8 +127,27 @@ namespace AppInstaller::CLI::Execution
         void AddItemManifestToInstallingSource(const OrchestratorQueueItem& queueItem);
         void RemoveItemManifestFromInstallingSource(const OrchestratorQueueItem& queueItem);
 
+        // Functions for ServerShutdownSynchronization::ComponentSystem registration
+        static void RegisterForShutdownSynchronization();
+        static void StaticDisable(CancelReason reason);
+        static void StaticCancelQueuedItems(CancelReason reason);
+        static void StaticWaitForRunningItems();
+
+        void Disable(CancelReason reason);
+        void CancelQueuedItems(CancelReason reason);
+        void WaitForRunningItems();
+
+        // Waits for running items to complete; waits up to full time out in *each* queue.
+        // Returns true to indicate all queues are empty before the timeout.
+        bool WaitForRunningItems(DWORD timeoutMilliseconds);
+
+        // Gets a string that represents the current state of the orchestrator.
+        std::string GetStatusString();
+
     private:
         std::mutex m_queueLock;
+        bool m_enabled = true;
+        CancelReason m_disabledReason = CancelReason::None;
         void AddCommandQueue(std::string_view commandName, UINT32 allowedThreads);
         void RemoveItemInState(const OrchestratorQueueItem& item, OrchestratorQueueItemState state);
 
@@ -136,14 +163,14 @@ namespace AppInstaller::CLI::Execution
     // The queue allows multiple items to run at the same time, up to a limit.
     struct OrchestratorQueue
     {
-        OrchestratorQueue(std::string_view commandName, UINT32 allowedThreads);
+        OrchestratorQueue(ContextOrchestrator& orchestrator, std::string_view commandName, UINT32 allowedThreads);
         ~OrchestratorQueue();
 
         // Name of the command this queue can execute
         std::string_view CommandName() const { return m_commandName; }
 
         // Enqueues an item to be run when there are threads available.
-        void EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item);
+        void EnqueueAndRunItem(const std::shared_ptr<OrchestratorQueueItem>& item);
 
         // Removes an item by id, provided that it is in the given state.
         // Returns true if an item was removed.
@@ -151,19 +178,33 @@ namespace AppInstaller::CLI::Execution
         bool RemoveItemInState(const OrchestratorQueueItem& item, OrchestratorQueueItemState state, bool isGlobalRemove);
 
         // Finds an item by id, if it is in the queue.
-        _Requires_lock_held_(m_queueLock)
+        _Requires_lock_held_(m_itemLock)
         std::shared_ptr<OrchestratorQueueItem> FindById(const OrchestratorQueueItemId& queueItemId);
 
         // Runs a single item from the queue.
         void RunItem(const OrchestratorQueueItemId& itemId);
 
+        // Cancels and "removes" all items in the queue.
+        void CancelAllItems(CancelReason reason);
+
+        // Waits until the empty queue event is signaled.
+        void WaitForEmptyQueue();
+
+        // Waits until the empty queue event is signaled.
+        // Returns true to indicate the queue is empty before the timeout.
+        bool WaitForEmptyQueue(DWORD timeoutMilliseconds);
+
+        // Gets a string that represents the current state of the queue.
+        std::string GetStatusString();
+
     private:
         // Enqueues an item.
-        void EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item);
+        void EnqueueItem(const std::shared_ptr<OrchestratorQueueItem>& item);
 
-        _Requires_lock_held_(m_queueLock)
+        _Requires_lock_held_(m_itemLock)
         std::deque<std::shared_ptr<OrchestratorQueueItem>>::iterator FindIteratorById(const OrchestratorQueueItemId& comparisonQueueItemId);
 
+        ContextOrchestrator& m_orchestrator;
         std::string_view m_commandName;
 
         // Number of threads allowed to run items in this queue.
@@ -177,7 +218,8 @@ namespace AppInstaller::CLI::Execution
         wil::unique_any<PTP_POOL, decltype(CloseThreadpool), CloseThreadpool> m_threadPool;
         wil::unique_any<PTP_CLEANUP_GROUP, decltype(CloseThreadpoolCleanupGroup), CloseThreadpoolCleanupGroup> m_threadPoolCleanupGroup;
 
-        std::mutex m_queueLock;
+        std::mutex m_itemLock;
         std::deque<std::shared_ptr<OrchestratorQueueItem>> m_queueItems;
+        wil::slim_event_manual_reset m_queueEmpty{ true };
     };
 }

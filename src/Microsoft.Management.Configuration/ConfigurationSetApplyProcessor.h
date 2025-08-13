@@ -6,7 +6,7 @@
 #include "ApplyGroupSettingsResult.h"
 #include "ApplyConfigurationUnitResult.h"
 #include "ConfigurationUnitResultInformation.h"
-#include <winget/AsyncTokens.h>
+#include "ShutdownSynchronization.h"
 
 #include <map>
 #include <string>
@@ -22,7 +22,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         using ConfigurationSetChangeData = Configuration::ConfigurationSetChangeData;
 
         using result_type = decltype(make_self<wil::details::module_count_wrapper<implementation::ApplyGroupSettingsResult>>());
-        using progress_type = AppInstaller::WinRT::AsyncProgress<IApplyGroupSettingsResult, IApplyGroupMemberSettingsResult>;
+        using progress_type = ShutdownAwareAsyncProgress<IApplyGroupSettingsResult, IApplyGroupMemberSettingsResult>;
 
         ConfigurationSetApplyProcessor(const ConfigurationSet& configurationSet, IConfigurationSetProcessor setProcessor, progress_type&& progress);
 

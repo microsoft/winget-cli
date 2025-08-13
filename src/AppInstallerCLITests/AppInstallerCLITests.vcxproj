@@ -229,6 +229,7 @@
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Completion.cpp" />
     <ClCompile Include="CompositeSource.cpp" />
+    <ClCompile Include="ContextOrchestrator.cpp" />
     <ClCompile Include="Correlation.cpp" />
     <ClCompile Include="CustomHeader.cpp" />
     <ClCompile Include="DateTime.cpp" />

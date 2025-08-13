@@ -8,6 +8,7 @@
 #include "AppInstallerRuntime.h"
 #include "TableOutput.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
+#include "Public/ShutdownMonitoring.h"
 #include "Workflows/ConfigurationFlow.h"
 #include "Workflows/MSStoreInstallerHandler.h"
 #include <winrt/Microsoft.Management.Configuration.h>
@@ -19,16 +20,16 @@ namespace AppInstaller::CLI
 {
     namespace
     {
-        void LogAndReport(Execution::Context& context, const std::string& message)
+        void LogAndReport(Execution::Context& context, std::string_view message)
         {
-            AICLI_LOG(CLI, Info, << message);
             context.Reporter.Info() << message << std::endl;
+            AICLI_LOG(CLI, Info, << message);
         }
 
         HRESULT WaitForShutdown(Execution::Context& context)
         {
             LogAndReport(context, "Waiting for app shutdown event");
-            if (!Execution::WaitForAppShutdownEvent())
+            if (!ShutdownMonitoring::TerminationSignalHandler::Instance().WaitForAppShutdownEvent())
             {
                 LogAndReport(context, "Failed getting app shutdown event");
                 return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
@@ -40,7 +41,7 @@ namespace AppInstaller::CLI
 
         HRESULT AppShutdownWindowMessage(Execution::Context& context)
         {
-            auto windowHandle = Execution::GetWindowHandle();
+            auto windowHandle = ShutdownMonitoring::TerminationSignalHandler::Instance().GetWindowHandle();
 
             if (windowHandle == NULL)
             {
