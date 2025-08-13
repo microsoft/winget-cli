@@ -14,7 +14,7 @@ body:
         - PowerShell Module
         - COM API
         - WinGet DSC Resource
-      default: WinGet CLI
+      default: 0
     validations:
       required: true
   - type: textarea
