@@ -36,26 +36,26 @@ body:
       description: If you selected 'WinGet CLI' above, specify the command(s) that had an issue.
       multiple: true
       options:
-        - winget install
-        - winget upgrade
-        - winget uninstall
-        - winget show
-        - winget source
-        - winget search
-        - winget list
-        - winget hash
-        - winget validate
-        - winget settings
-        - winget features
-        - winget export
-        - winget import
-        - winget pin
         - winget configure
         - winget download
-        - winget repair
-        - winget font
         - winget dscv3
+        - winget export
+        - winget features
+        - winget font
+        - winget hash
+        - winget import
+        - winget install
+        - winget list
         - winget mcp
+        - winget pin
+        - winget repair
+        - winget search
+        - winget settings
+        - winget show
+        - winget source
+        - winget uninstall
+        - winget upgrade
+        - winget validate
     validations:
       required: false
   - type: textarea
