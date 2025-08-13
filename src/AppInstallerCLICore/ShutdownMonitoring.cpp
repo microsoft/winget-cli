@@ -96,6 +96,8 @@ namespace AppInstaller::ShutdownMonitoring
 
     void TerminationSignalHandler::StartAppShutdown()
     {
+        AICLI_LOG(CLI, Info, << "Initiating shutdown procedure");
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         m_appShutdownEvent.SetEvent();
 #endif
