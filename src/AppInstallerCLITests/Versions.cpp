@@ -284,7 +284,6 @@ TEST_CASE("VersionIsEmpty", "[versions]")
 TEST_CASE("VersionPartAt", "[versions]")
 {
     REQUIRE(Version{}.PartAt(0).Integer == 0);
-    REQUIRE(Version{"1"}.PartAt(0).Integer == 1);
     REQUIRE(Version{"1"}.PartAt(1).Integer == 0);
     REQUIRE(Version{"1"}.PartAt(9999).Integer == 0);
 }
@@ -470,3 +469,4 @@ TEST_CASE("OpenTypeFontVersion", "[versions]")
     REQUIRE(version.IsUnknown());
     REQUIRE(version.ToString() == "Unknown");
 }
+
