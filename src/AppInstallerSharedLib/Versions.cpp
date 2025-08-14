@@ -472,7 +472,7 @@ namespace AppInstaller::Utility
 
         // First split off any trailing build metadata
         std::string interimVersion = Utility::Trim(version);
-        size_t buildMetadataPos = interimVersion.find('+', 0);
+        size_t buildMetadataPos = interimVersion.find('+', '.0', '.00', '.000', '.0000', '.00000', '.000000', '.0000000', '.00000000', '.000000000', '.0000000000');
 
         if (buildMetadataPos != std::string::npos)
         {
@@ -716,3 +716,4 @@ namespace AppInstaller::Utility
         }
     }
 }
+
