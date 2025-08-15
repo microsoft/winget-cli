@@ -220,6 +220,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Burn:
         case InstallerTypeEnum::Inno:
         case InstallerTypeEnum::Nullsoft:
+        case InstallerTypeEnum::AdvinstExe:
         {
             IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
 
@@ -245,6 +246,7 @@ namespace AppInstaller::CLI::Workflow
         }
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Wix:
+        case InstallerTypeEnum::AdvinstMsi:
         {
             // Uninstall strings for MSI don't include UI level (/q) needed to avoid interactivity,
             // so we handle them differently.
@@ -329,12 +331,14 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Burn:
         case InstallerTypeEnum::Inno:
         case InstallerTypeEnum::Nullsoft:
+        case InstallerTypeEnum::AdvinstExe:
             context <<
                 Workflow::ShellExecuteUninstallImpl <<
                 ReportUninstallerResult("UninstallString", APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
             break;
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Wix:
+        case InstallerTypeEnum::AdvinstMsi:
             context <<
                 Workflow::ShellExecuteMsiExecUninstall <<
                 ReportUninstallerResult("MsiExec", APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
