@@ -104,6 +104,11 @@ namespace AppInstallerCLIE2ETests
         public static GroupPolicyHelper EnableMicrosoftStoreSource { get; private set; } = new GroupPolicyHelper("EnableMicrosoftStoreSource");
 
         /// <summary>
+        /// Gets the Enable font source policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableFontSource { get; private set; } = new GroupPolicyHelper("EnableFontSource");
+
+        /// <summary>
         /// Gets the Enable additional sources policy.
         /// </summary>
         public static GroupPolicyHelper EnableAdditionalSources { get; private set; } = new GroupPolicyHelper("EnableAdditionalSources", "AdditionalSources");
@@ -138,6 +143,7 @@ namespace AppInstallerCLIE2ETests
             EnableLocalArchiveMalwareScanOverride,
             EnableDefaultSource,
             EnableMicrosoftStoreSource,
+            EnableFontSource,
             EnableAdditionalSources,
             EnableAllowedSources,
             SourceAutoUpdateInterval,
