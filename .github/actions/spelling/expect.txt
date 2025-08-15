@@ -17,6 +17,7 @@ alreadyinstalled
 AMap
 Amd
 amrutha
+amsi
 ansistring
 Aot
 APARTMENTTHREADED
@@ -204,6 +205,8 @@ gwgso
 gwgus
 gwgv
 Hackathon
+HAMSICONTEXT
+HAMSISESSION
 hashtables
 helplib
 helplibrary
