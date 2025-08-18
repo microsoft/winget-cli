@@ -183,7 +183,8 @@
         "nullsoft",
         "wix",
         "burn",
-        "portable"
+        "portable",
+        "font"
       ],
       "description": "Enumeration of supported nested installer types contained inside an archive file"
     },

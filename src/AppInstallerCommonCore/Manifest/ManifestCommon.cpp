@@ -965,6 +965,14 @@ namespace AppInstaller::Manifest
         return (installerType == InstallerTypeEnum::Portable);
     }
 
+    bool DoesInstallerTypeSupportMultipleNestedInstallers(InstallerTypeEnum installerType)
+    {
+        return (
+            installerType == InstallerTypeEnum::Portable ||
+            installerType == InstallerTypeEnum::Font
+            );
+    }
+
     bool IsNestedInstallerTypeSupported(InstallerTypeEnum nestedInstallerType)
     {
         return (
