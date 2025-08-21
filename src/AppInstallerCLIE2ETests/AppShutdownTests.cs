@@ -95,5 +95,15 @@ namespace AppInstallerCLIE2ETests
             // Look for the output.
             Assert.True(testCmdTask.Result.StdOut.Contains("Succeeded waiting for app shutdown event"));
         }
+
+        /// <summary>
+        /// Runs winget test canunloadnow expecting that it cannot be unloaded.
+        /// </summary>
+        [Test]
+        public void CanUnloadNowTest()
+        {
+            var result = TestCommon.RunAICLICommand("test", "canunloadnow --verbose");
+            Assert.True(result.StdOut.Contains("DllCannotUnloadNow"));
+        }
     }
 }

@@ -37,6 +37,10 @@ CoCreatableClassWrlCreatorMapInclude(RemovePackageCatalogOptions);
 // Shim for configuration static functions
 CoCreatableClassWrlCreatorMapInclude(ConfigurationStaticFunctionsShim);
 
+// Generated C++/WinRT implementation of DllCanUnloadNow.
+// No header is generated, so we just declare it here.
+bool __stdcall Microsoft_Management_Deployment_can_unload_now() noexcept;
+
 extern "C"
 {
     int WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerCLIMain(int argc, wchar_t const** argv) try
@@ -100,7 +104,18 @@ extern "C"
     {
         try
         {
-            return ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::GetModule().Terminate();
+            // The OOP server monitors *only* WRL object count, which largely means objects created with the `wil::details::module_count_wrapper` type wrapper.
+            // Configuration objects use a composition based tracking that is similar in nature.
+            // When there are no more WRL tracked objects, the callback is invoked and the server exits (see WindowsPackageManagerServerModuleCreate above).
+            // If the server isn't exiting when there are no more external objects, WRL object counting probably got added to a static object.
+            // 
+            // In-proc DllCanUnloadNow needs to monitor all objects created by this module, which means both WRL and C++/WinRT object counts.
+            // Anything with `winrt::implements` and any "automagic" objects (like event handlers) should be properly tracked via C++/WinRT event count,
+            // which is checked via `Microsoft_Management_Deployment_can_unload_now`.
+            // This should be a superset of the objects tracked by WRL, but since we activate through WRL registrations, we want its class factories to
+            // be released as well.
+            return Microsoft_Management_Deployment_can_unload_now() &&
+                ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::GetModule().Terminate();
         }
         catch (...)
         {

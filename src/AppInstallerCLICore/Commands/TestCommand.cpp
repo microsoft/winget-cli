@@ -11,6 +11,7 @@
 #include "Public/ShutdownMonitoring.h"
 #include "Workflows/ConfigurationFlow.h"
 #include "Workflows/MSStoreInstallerHandler.h"
+#include <winget/RepositorySource.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 
 using namespace AppInstaller::CLI::Workflow;
@@ -217,6 +218,41 @@ namespace AppInstaller::CLI
                     InvokeFindUnitProcessors;
             }
         };
+
+        struct TestCanUnloadNowCommand final : public Command
+        {
+            TestCanUnloadNowCommand(std::string_view parent) : Command("canunloadnow", {}, parent, Visibility::Hidden) {}
+
+            Resource::LocString ShortDescription() const override
+            {
+                return "Test DllCanUnloadNow"_lis;
+            }
+
+            Resource::LocString LongDescription() const override
+            {
+                return "Verifies that the function that implements the inproc DllCanUnloadNow properly blocks unload due to static storage object."_lis;
+            }
+
+        protected:
+            void ExecuteInternal(Execution::Context& context) const override
+            {
+                Repository::Source source{ Repository::PredefinedSource::Installed };
+
+                ProgressCallback progress;
+                source.Open(progress);
+
+                HMODULE self = GetModuleHandle(L"WindowsPackageManager.dll");
+                if (!self)
+                {
+                    LogAndReport(context, "Couldn't get WindowsPackageManager module");
+                    return;
+                }
+
+                auto WindowsPackageManagerInProcModuleTerminate = reinterpret_cast<bool (__stdcall *)()>(GetProcAddress(self, "WindowsPackageManagerInProcModuleTerminate"));
+
+                LogAndReport(context, WindowsPackageManagerInProcModuleTerminate() ? "DllCanUnloadNow" : "DllCannotUnloadNow");
+            }
+        };
     }
 
     std::vector<std::unique_ptr<Command>> TestCommand::GetCommands() const
@@ -226,6 +262,7 @@ namespace AppInstaller::CLI
                 std::make_unique<TestAppShutdownCommand>(FullName()),
                 std::make_unique<TestConfigurationExportCommand>(FullName()),
                 std::make_unique<TestConfigurationFindUnitProcessorsCommand>(FullName()),
+                std::make_unique<TestCanUnloadNowCommand>(FullName()),
             });
     }
 

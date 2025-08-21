@@ -294,7 +294,7 @@ namespace AppInstaller::Repository::Microsoft
 
                     auto value = winrt::make_self<Holder>();
 
-                    const std::shared_lock lock{ m_lock };
+                    const winrt::slim_lock_guard lock{ m_lock };
                     if (auto cachedIndex = m_weak.lock())
                     {
                         return cachedIndex;
