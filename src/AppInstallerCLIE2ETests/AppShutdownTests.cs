@@ -111,7 +111,7 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("test", "can-unload-now --verbose");
 
-            var lines = result.StdOut.Split('\n', StringSplitOptions.TrimEntries);
+            var lines = result.StdOut.Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
             Assert.AreEqual(5, lines.Length);
             Assert.True(lines[0].Contains("Internal objects:"));
