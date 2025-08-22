@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
@@ -33,6 +34,12 @@ namespace AppInstallerCLIE2ETests
             if (!TestCommon.ExecutingAsAdministrator && TestCommon.IsCIEnvironment)
             {
                 Assert.Ignore("This test won't work on Window Server as non-admin");
+            }
+
+            if (!Environment.Is64BitProcess)
+            {
+                // My guess is that HAM terminates us faster after the CTRL-C on x86...
+                Assert.Ignore("This test is flaky when run as x86.");
             }
 
             if (string.IsNullOrEmpty(TestSetup.Parameters.AICLIPackagePath))
@@ -104,7 +111,7 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("test", "can-unload-now --verbose");
 
-            var lines = result.StdOut.Split();
+            var lines = result.StdOut.Split('\n', StringSplitOptions.TrimEntries);
 
             Assert.AreEqual(5, lines.Length);
             Assert.True(lines[0].Contains("Internal objects:"));
