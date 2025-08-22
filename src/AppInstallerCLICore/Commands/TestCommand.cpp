@@ -221,7 +221,7 @@ namespace AppInstaller::CLI
 
         struct TestCanUnloadNowCommand final : public Command
         {
-            TestCanUnloadNowCommand(std::string_view parent) : Command("canunloadnow", {}, parent, Visibility::Hidden) {}
+            TestCanUnloadNowCommand(std::string_view parent) : Command("can-unload-now", {}, parent, Visibility::Hidden) {}
 
             Resource::LocString ShortDescription() const override
             {
@@ -250,7 +250,31 @@ namespace AppInstaller::CLI
 
                 auto WindowsPackageManagerInProcModuleTerminate = reinterpret_cast<bool (__stdcall *)()>(GetProcAddress(self, "WindowsPackageManagerInProcModuleTerminate"));
 
+                // Report the object counts, attempt to terminate, report the object counts again
+                ReportObjectCounts(context);
                 LogAndReport(context, WindowsPackageManagerInProcModuleTerminate() ? "DllCanUnloadNow" : "DllCannotUnloadNow");
+                ReportObjectCounts(context);
+            }
+
+        private:
+            void ReportObjectCounts(Execution::Context& context) const
+            {
+                std::ostringstream stream;
+                stream << "Internal objects: " << GetInternalObjectCount() << '\n';
+                stream << "External objects: " << GetExternalObjectCount();
+
+                LogAndReport(context, stream.str());
+            }
+
+            uint32_t GetInternalObjectCount() const
+            {
+                return winrt::get_module_lock().operator unsigned int();
+            }
+
+            unsigned long GetExternalObjectCount() const
+            {
+                auto module = Microsoft::WRL::GetModuleBase();
+                return module ? module->GetObjectCount() : 0;
             }
         };
     }

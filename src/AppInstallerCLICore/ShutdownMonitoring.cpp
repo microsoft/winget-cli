@@ -34,8 +34,14 @@ namespace AppInstaller::ShutdownMonitoring
         std::lock_guard<std::mutex> lock{ m_listenersLock };
 
         auto itr = std::find(m_listeners.begin(), m_listeners.end(), cancellable);
-        THROW_HR_IF(E_NOT_VALID_STATE, itr == m_listeners.end());
-        m_listeners.erase(itr);
+        if (itr == m_listeners.end())
+        {
+            AICLI_LOG(CLI, Warning, << "TerminationSignalHandler::RemoveListener did not find requested object");
+        }
+        else
+        {
+            m_listeners.erase(itr);
+        }
     }
 
     void TerminationSignalHandler::EnableListener(bool enabled, ICancellable* cancellable)

@@ -102,8 +102,17 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void CanUnloadNowTest()
         {
-            var result = TestCommon.RunAICLICommand("test", "canunloadnow --verbose");
-            Assert.True(result.StdOut.Contains("DllCannotUnloadNow"));
+            var result = TestCommon.RunAICLICommand("test", "can-unload-now --verbose");
+
+            var lines = result.StdOut.Split();
+
+            Assert.AreEqual(5, lines.Length);
+            Assert.True(lines[0].Contains("Internal objects:"));
+            Assert.False(lines[0].Contains("Internal objects: 0"));
+            Assert.True(lines[1].Contains("External objects: 0"));
+            Assert.True(lines[2].Contains("DllCanUnloadNow"));
+            Assert.True(lines[3].Contains("Internal objects: 0"));
+            Assert.True(lines[4].Contains("External objects: 0"));
         }
     }
 }
