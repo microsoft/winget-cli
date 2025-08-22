@@ -30,7 +30,7 @@ namespace AppInstaller::CLI
         HRESULT WaitForShutdown(Execution::Context& context)
         {
             LogAndReport(context, "Waiting for app shutdown event");
-            if (!ShutdownMonitoring::TerminationSignalHandler::Instance().WaitForAppShutdownEvent())
+            if (!ShutdownMonitoring::TerminationSignalHandler::Instance()->WaitForAppShutdownEvent())
             {
                 LogAndReport(context, "Failed getting app shutdown event");
                 return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
@@ -42,7 +42,7 @@ namespace AppInstaller::CLI
 
         HRESULT AppShutdownWindowMessage(Execution::Context& context)
         {
-            auto windowHandle = ShutdownMonitoring::TerminationSignalHandler::Instance().GetWindowHandle();
+            auto windowHandle = ShutdownMonitoring::TerminationSignalHandler::Instance()->GetWindowHandle();
 
             if (windowHandle == NULL)
             {

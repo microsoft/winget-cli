@@ -5,13 +5,19 @@
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerRuntime.h>
+#include <winget/COMStaticStorage.h>
 
 namespace AppInstaller::ShutdownMonitoring
 {
-    TerminationSignalHandler& TerminationSignalHandler::Instance()
+    std::shared_ptr<TerminationSignalHandler> TerminationSignalHandler::Instance()
     {
-        static TerminationSignalHandler s_instance;
-        return s_instance;
+        struct Singleton : public WinRT::COMStaticStorageBase<TerminationSignalHandler>
+        {
+            Singleton() : COMStaticStorageBase(L"WindowsPackageManager.TerminationSignalHandler") {}
+        };
+
+        static Singleton s_instance;
+        return s_instance.Get();
     }
 
     void TerminationSignalHandler::AddListener(ICancellable* cancellable)
@@ -36,11 +42,11 @@ namespace AppInstaller::ShutdownMonitoring
     {
         if (enabled)
         {
-            Instance().AddListener(cancellable);
+            Instance()->AddListener(cancellable);
         }
         else
         {
-            Instance().RemoveListener(cancellable);
+            Instance()->RemoveListener(cancellable);
         }
     }
 
@@ -109,7 +115,7 @@ namespace AppInstaller::ShutdownMonitoring
 
     BOOL WINAPI TerminationSignalHandler::StaticCtrlHandlerFunction(DWORD ctrlType)
     {
-        return Instance().CtrlHandlerFunction(ctrlType);
+        return Instance()->CtrlHandlerFunction(ctrlType);
     }
 
     LRESULT WINAPI TerminationSignalHandler::WindowMessageProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -118,7 +124,7 @@ namespace AppInstaller::ShutdownMonitoring
         {
         case WM_QUERYENDSESSION:
             AICLI_LOG(CLI, Verbose, << "Received WM_QUERYENDSESSION");
-            Instance().StartAppShutdown();
+            Instance()->StartAppShutdown();
             return TRUE;
         case WM_ENDSESSION:
         case WM_CLOSE:
@@ -294,12 +300,12 @@ namespace AppInstaller::ShutdownMonitoring
 
     ServerShutdownSynchronization::ServerShutdownSynchronization()
     {
-        TerminationSignalHandler::Instance().AddListener(this);
+        TerminationSignalHandler::Instance()->AddListener(this);
     }
 
     ServerShutdownSynchronization::~ServerShutdownSynchronization()
     {
-        TerminationSignalHandler::Instance().RemoveListener(this);
+        TerminationSignalHandler::Instance()->RemoveListener(this);
         if (m_shutdownThread.joinable())
         {
             m_shutdownThread.detach();

@@ -349,6 +349,7 @@
     <ClInclude Include="Public\winget\AsyncTokens.h" />
     <ClInclude Include="Public\winget\Certificates.h" />
     <ClInclude Include="Public\winget\Compression.h" />
+    <ClInclude Include="Public\winget\COMStaticStorage.h" />
     <ClInclude Include="Public\winget\ConfigurationSetProcessorHandlers.h" />
     <ClInclude Include="Public\winget\Filesystem.h" />
     <ClInclude Include="Public\winget\GroupPolicy.h" />
@@ -379,6 +380,7 @@
     <ClCompile Include="AppInstallerStrings.cpp" />
     <ClCompile Include="Certificates.cpp" />
     <ClCompile Include="Compression.cpp" />
+    <ClCompile Include="COMStaticStorage.cpp" />
     <ClCompile Include="DateTime.cpp" />
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="Filesystem.cpp" />

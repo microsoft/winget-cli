@@ -16,6 +16,7 @@
 #include <AppInstallerErrors.h>
 #include <winget/GroupPolicy.h>
 #include <ShutdownMonitoring.h>
+#include <winget/COMStaticStorage.h>
 #include <ComClsids.h>
 
 using namespace winrt::Microsoft::Management::Deployment;
@@ -36,10 +37,6 @@ CoCreatableClassWrlCreatorMapInclude(RemovePackageCatalogOptions);
 
 // Shim for configuration static functions
 CoCreatableClassWrlCreatorMapInclude(ConfigurationStaticFunctionsShim);
-
-// Generated C++/WinRT implementation of DllCanUnloadNow.
-// No header is generated, so we just declare it here.
-bool __stdcall Microsoft_Management_Deployment_can_unload_now() noexcept;
 
 extern "C"
 {
@@ -104,23 +101,21 @@ extern "C"
     {
         try
         {
-            // The OOP server monitors *only* WRL object count, which largely means objects created with the `wil::details::module_count_wrapper` type wrapper.
-            // Configuration objects use a composition based tracking that is similar in nature.
-            // When there are no more WRL tracked objects, the callback is invoked and the server exits (see WindowsPackageManagerServerModuleCreate above).
-            // If the server isn't exiting when there are no more external objects, WRL object counting probably got added to a static object.
+            // The WRL object count is used to track externally visible objects, which largely means objects created with the `wil::details::module_count_wrapper` type wrapper.
+            // Configuration objects use a composition based tracking that is similar in nature (only when OOP).
             // 
-            // In-proc DllCanUnloadNow needs to monitor all objects created by this module, which means both WRL and C++/WinRT object counts.
-            // Anything with `winrt::implements` and any "automagic" objects (like event handlers) should be properly tracked via C++/WinRT event count,
-            // which is checked via `Microsoft_Management_Deployment_can_unload_now`.
-            // This should be a superset of the objects tracked by WRL, but since we activate through WRL registrations, we want its class factories to
-            // be released as well.
-            return Microsoft_Management_Deployment_can_unload_now() &&
-                ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::GetModule().Terminate();
+            // In-proc DllCanUnloadNow should not be blocked by our internal objects, but they must be destroyed on unload or a future reload will attempt to destroy them
+            // and our module may have moved.  So when we don't have any more objects that we gave to callers, remove all of our static lifetime objects and indicate
+            // that we can now be unloaded.
+            if (::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::GetModule().Terminate())
+            {
+                AppInstaller::WinRT::COMStaticStorageStatics::ResetAll();
+                return true;
+            }
         }
-        catch (...)
-        {
-            return false;
-        }
+        catch (...) {}
+
+        return false;
     }
 
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleGetClassObject(
