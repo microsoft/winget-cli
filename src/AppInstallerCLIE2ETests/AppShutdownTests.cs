@@ -97,7 +97,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Runs winget test canunloadnow expecting that it cannot be unloaded.
+        /// Runs winget test can-unload-now expecting that it cannot be unloaded.
         /// </summary>
         [Test]
         public void CanUnloadNowTest()
