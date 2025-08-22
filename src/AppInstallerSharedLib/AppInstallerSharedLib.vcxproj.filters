@@ -140,6 +140,9 @@
     <ClInclude Include="Public\winget\ModuleCountBase.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\COMStaticStorage.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -228,6 +231,9 @@
     </ClCompile>
     <ClCompile Include="SQLiteDynamicStorage.cpp">
       <Filter>SQLite</Filter>
+    </ClCompile>
+    <ClCompile Include="COMStaticStorage.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

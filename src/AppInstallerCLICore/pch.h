@@ -57,4 +57,5 @@
 #pragma warning( pop )
 
 #include <wrl/client.h>
+#include <wrl/implements.h>
 #include <AppxPackaging.h>

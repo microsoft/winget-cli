@@ -5,6 +5,7 @@
 #include <AppInstallerProgress.h>
 #include <winrt/Windows.ApplicationModel.h>
 #include <wil/resource.h>
+#include <memory>
 #include <mutex>
 
 namespace AppInstaller::ShutdownMonitoring
@@ -12,8 +13,12 @@ namespace AppInstaller::ShutdownMonitoring
     // Type to contain the CTRL signal and window messages handler.
     struct TerminationSignalHandler
     {
+        TerminationSignalHandler();
+
+        ~TerminationSignalHandler();
+
         // Gets the singleton handler.
-        static TerminationSignalHandler& Instance();
+        static std::shared_ptr<TerminationSignalHandler> Instance();
 
         // Add a termination listener.
         void AddListener(ICancellable* cancellable);
@@ -33,10 +38,6 @@ namespace AppInstaller::ShutdownMonitoring
 #endif
 
     private:
-        TerminationSignalHandler();
-
-        ~TerminationSignalHandler();
-
         void StartAppShutdown();
 
         static BOOL WINAPI StaticCtrlHandlerFunction(DWORD ctrlType);
