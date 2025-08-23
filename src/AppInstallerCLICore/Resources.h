@@ -491,6 +491,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatchHelp);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoSourceDefined);
         WINGET_DEFINE_RESOURCE_STRINGID(Options);
+        WINGET_DEFINE_RESOURCE_STRINGID(OSVersionDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OutputDirectoryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OutputFileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OverrideArgumentDescription);

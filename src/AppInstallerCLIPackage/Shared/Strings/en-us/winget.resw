@@ -3387,4 +3387,7 @@ An unlocalized JSON fragment will follow on another line.</comment>
   <data name="PolicyEnableMcpServer" xml:space="preserve">
     <value>Enable Windows Package Manager MCP Server</value>
   </data>
+  <data name="OSVersionDescription" xml:space="preserve">
+    <value>Target OS version</value>
+  </data>
 </root>
