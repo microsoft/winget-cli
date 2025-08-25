@@ -162,6 +162,10 @@ namespace AppInstaller::Manifest
         {
             result = InstallerTypeEnum::Portable;
         }
+        else if (inStrLower == "font")
+        {
+            result = InstallerTypeEnum::Font;
+        }
 
         return result;
     }
@@ -583,6 +587,8 @@ namespace AppInstaller::Manifest
             return "msstore"sv;
         case InstallerTypeEnum::Portable:
             return "portable"sv;
+        case InstallerTypeEnum::Font:
+            return "font"sv;
         }
 
         return "unknown"sv;
@@ -962,7 +968,8 @@ namespace AppInstaller::Manifest
             nestedInstallerType == InstallerTypeEnum::Wix ||
             nestedInstallerType == InstallerTypeEnum::Burn ||
             nestedInstallerType == InstallerTypeEnum::Portable ||
-            nestedInstallerType == InstallerTypeEnum::Msix
+            nestedInstallerType == InstallerTypeEnum::Msix ||
+            nestedInstallerType == InstallerTypeEnum::Font
             );
     }
 

@@ -50,6 +50,9 @@ namespace AppInstaller::Manifest
     // V1.10 manifest version
     constexpr std::string_view s_ManifestVersionV1_10 = "1.10.0"sv;
 
+    // V1.12 manifest version
+    constexpr std::string_view s_ManifestVersionV1_12 = "1.12.0"sv;
+
     // The manifest extension for the MS Store
     constexpr std::string_view s_MSStoreExtension = "msstore"sv;
 
@@ -101,6 +104,7 @@ namespace AppInstaller::Manifest
         Burn,
         MSStore,
         Portable,
+        Font,
     };
 
     enum class UpdateBehaviorEnum
