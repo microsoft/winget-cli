@@ -149,5 +149,24 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 _ => throw new InvalidOperationException(),
             };
         }
+
+        /// <summary>
+        /// Converts PSWindowsPlatform string value to WindowsPlatform.
+        /// </summary>
+        /// <param name="value">PSWindowsPlatform string value.</param>
+        /// <returns>WindowsPlatform.</returns>
+        public static WindowsPlatform ToWindowsPlatform(string value)
+        {
+            return value switch
+            {
+                "Default" => WindowsPlatform.Unknown,
+                "Universal" => WindowsPlatform.Universal,
+                "Desktop" => WindowsPlatform.Desktop,
+                "IoT" => WindowsPlatform.IoT,
+                "Team" => WindowsPlatform.Team,
+                "Holographic" => WindowsPlatform.Holographic,
+                _ => throw new InvalidOperationException(),
+            };
+        }
     }
 }

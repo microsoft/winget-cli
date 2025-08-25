@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ExportPackageCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -32,6 +32,24 @@ namespace Microsoft.WinGet.Client.Commands
         public string DownloadDirectory { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to skip acquiring the license from a Store package.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter SkipMicrosoftStoreLicense { get; set; }
+
+        /// <summary>
+        /// Gets or sets the platform to download the package for.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public PSObjects.PSWindowsPlatform Platform { get; set; }
+
+        /// <summary>
+        /// Gets or sets the target OS version to download for.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public string TargetOSVersion { get; set; }
+
+        /// <summary>
         /// Installs a package from the pipeline or from a configured source.
         /// </summary>
         protected override void ProcessRecord()
@@ -48,7 +66,15 @@ namespace Microsoft.WinGet.Client.Commands
                         this.AllowHashMismatch.ToBool(),
                         this.SkipDependencies.ToBool(),
                         this.Locale);
-            this.command.Download(this.DownloadDirectory, this.MatchOption.ToString(), this.Scope.ToString(), this.Architecture.ToString(), this.InstallerType.ToString());
+            this.command.Download(
+                this.DownloadDirectory,
+                this.MatchOption.ToString(),
+                this.Scope.ToString(),
+                this.Architecture.ToString(),
+                this.InstallerType.ToString(),
+                this.SkipMicrosoftStoreLicense.ToBool(),
+                this.Platform.ToString(),
+                this.TargetOSVersion);
         }
 
         /// <summary>
