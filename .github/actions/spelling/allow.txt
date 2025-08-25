@@ -110,6 +110,7 @@ FILESUBTYPE
 FILEVERSION
 florelis
 FLUSHEACHLINE
+fnt
 forcerestart
 gdi
 HCCE
@@ -211,6 +212,7 @@ ODR
 opencode
 openxmlformats
 OSVERSIONINFOEXW
+otf
 OUTOFDISKSPACE
 OUTOFPROC
 packagefamilyname
