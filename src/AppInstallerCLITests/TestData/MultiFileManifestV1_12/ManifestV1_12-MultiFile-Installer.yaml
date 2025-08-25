@@ -215,9 +215,11 @@ Installers:
     InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
     NestedInstallerType: font
     NestedInstallerFiles:
-      - RelativeFilePath: relativeFilePath1
-      - RelativeFilePath: relativeFilePath2
-      - RelativeFilePath: relativeFilePath3
+      - RelativeFilePath: relativeFilePath1.otf
+      - RelativeFilePath: relativeFilePath2.ttf
+      - RelativeFilePath: relativeFilePath3.fnt
+      - RelativeFilePath: relativeFilePath4.ttc
+      - RelativeFilePath: relativeFilePath5.otc
   - Architecture: neutral
     InstallerType: font
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
