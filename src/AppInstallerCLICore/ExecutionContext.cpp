@@ -7,6 +7,7 @@
 #include "Command.h"
 #include "ExecutionContext.h"
 #include <winget/Checkpoint.h>
+#include <winget/COMStaticStorage.h>
 #include <winget/Reboot.h>
 #include <winget/UserSettings.h>
 #include <winget/NetworkSettings.h>
@@ -22,10 +23,15 @@ namespace AppInstaller::CLI::Execution
         // Type to contain the CTRL signal and window messages handler.
         struct SignalTerminationHandler
         {
-            static SignalTerminationHandler& Instance()
+            static std::shared_ptr<SignalTerminationHandler> Instance()
             {
-                static SignalTerminationHandler s_instance;
-                return s_instance;
+                struct Singleton : public WinRT::COMStaticStorageBase<SignalTerminationHandler>
+                {
+                    Singleton() : COMStaticStorageBase(L"WindowsPackageManager.SignalTerminationHandler") {}
+                };
+
+                static Singleton s_instance;
+                return s_instance.Get();
             }
 
             void AddContext(Context* context)
@@ -42,8 +48,14 @@ namespace AppInstaller::CLI::Execution
                 std::lock_guard<std::mutex> lock{ m_contextsLock };
 
                 auto itr = std::find(m_contexts.begin(), m_contexts.end(), context);
-                THROW_HR_IF(E_NOT_VALID_STATE, itr == m_contexts.end());
-                m_contexts.erase(itr);
+                if (itr == m_contexts.end())
+                {
+                    AICLI_LOG(CLI, Warning, << "SignalTerminationHandler::RemoveContext did not find requested object");
+                }
+                else
+                {
+                    m_contexts.erase(itr);
+                }
             }
 
             void StartAppShutdown()
@@ -66,7 +78,6 @@ namespace AppInstaller::CLI::Execution
             }
 #endif
 
-        private:
             SignalTerminationHandler()
             {
                 if (Runtime::IsRunningAsAdmin() && Runtime::IsRunningInPackagedContext())
@@ -81,7 +92,7 @@ namespace AppInstaller::CLI::Execution
                             auto progress = args.Progress();
                             if (progress > minProgress)
                             {
-                                SignalTerminationHandler::Instance().StartAppShutdown();
+                                SignalTerminationHandler::Instance()->StartAppShutdown();
                             }
                         });
                 }
@@ -110,13 +121,14 @@ namespace AppInstaller::CLI::Execution
                 // if there's no call to join.
                 if (m_windowThread.joinable())
                 {
-                    m_windowThread.join();
+                    m_windowThread.detach();
                 }
             }
 
+        private:
             static BOOL WINAPI StaticCtrlHandlerFunction(DWORD ctrlType)
             {
-                return Instance().CtrlHandlerFunction(ctrlType);
+                return Instance()->CtrlHandlerFunction(ctrlType);
             }
 
             static LRESULT WINAPI WindowMessageProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -125,7 +137,7 @@ namespace AppInstaller::CLI::Execution
                 switch (uMsg)
                 {
                 case WM_QUERYENDSESSION:
-                    SignalTerminationHandler::Instance().StartAppShutdown();
+                    SignalTerminationHandler::Instance()->StartAppShutdown();
                     return TRUE;
                 case WM_ENDSESSION:
                 case WM_CLOSE:
@@ -267,11 +279,11 @@ namespace AppInstaller::CLI::Execution
 
             if (add)
             {
-                SignalTerminationHandler::Instance().AddContext(context);
+                SignalTerminationHandler::Instance()->AddContext(context);
             }
             else
             {
-                SignalTerminationHandler::Instance().RemoveContext(context);
+                SignalTerminationHandler::Instance()->RemoveContext(context);
             }
         }
 
@@ -490,12 +502,12 @@ namespace AppInstaller::CLI::Execution
 
     HWND GetWindowHandle()
     {
-        return SignalTerminationHandler::Instance().GetWindowHandle();
+        return SignalTerminationHandler::Instance()->GetWindowHandle();
     }
 
     bool WaitForAppShutdownEvent()
     {
-        return SignalTerminationHandler::Instance().WaitForAppShutdownEvent();
+        return SignalTerminationHandler::Instance()->WaitForAppShutdownEvent();
     }
 #endif
 
