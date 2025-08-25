@@ -843,6 +843,9 @@
     <CopyFileToFolders Include="TestData\ManifestV1_10-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_12-Singleton.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ManifestV1_10-InstallerAuthentication.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

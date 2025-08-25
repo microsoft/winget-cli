@@ -782,6 +782,9 @@
     <CopyFileToFolders Include="TestData\ManifestV1_10-Singleton.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_12-Singleton.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ManifestV1_10-InstallerAuthentication.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -1037,7 +1040,6 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-PortableNotExe_Root.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <None Include="TestData\ManifestV1_12-Singleton.yaml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLICore\AppInstallerCLICore.vcxproj">
