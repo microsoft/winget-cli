@@ -15,6 +15,7 @@
 #include <AppInstallerTelemetry.h>
 #include <AppInstallerErrors.h>
 #include <winget/GroupPolicy.h>
+#include <winget/COMStaticStorage.h>
 #include <ComClsids.h>
 
 using namespace winrt::Microsoft::Management::Deployment;
@@ -98,12 +99,21 @@ extern "C"
     {
         try
         {
-            return ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::GetModule().Terminate();
+            // The WRL object count is used to track externally visible objects, which largely means objects created with the `wil::details::module_count_wrapper` type wrapper.
+            // Configuration objects use a composition based tracking that is similar in nature (only when OOP).
+            // 
+            // In-proc DllCanUnloadNow should not be blocked by our internal objects, but they must be destroyed on unload or a future reload will attempt to destroy them
+            // and our module may have moved.  So when we don't have any more objects that we gave to callers, remove all of our static lifetime objects and indicate
+            // that we can now be unloaded.
+            if (::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::GetModule().Terminate())
+            {
+                AppInstaller::WinRT::COMStaticStorageStatics::ResetAll();
+                return true;
+            }
         }
-        catch (...)
-        {
-            return false;
-        }
+        catch (...) {}
+
+        return false;
     }
 
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleGetClassObject(
