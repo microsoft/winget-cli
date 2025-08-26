@@ -245,6 +245,6 @@ if (-not $SkipImportModule)
     foreach($module in $modules)
     {
         Write-Host "Importing module $($module.Name)" -ForegroundColor Green
-        Import-Module "$moduleRootOutput\$($module.Name)\" -Force
+        Import-Module "$moduleRootOutput\$($module.Name)\$($module.Name).psd1" -Force
     }
 }

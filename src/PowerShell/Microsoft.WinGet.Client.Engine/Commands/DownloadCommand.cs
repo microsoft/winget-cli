@@ -136,7 +136,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                             options.Platform = PSEnumHelpers.ToWindowsPlatform(psWindowsPlatform);
                         }
 
-                        options.TargetOSVersion = targetOSVersion;
+                        if (!string.IsNullOrEmpty(targetOSVersion))
+                        {
+                            options.TargetOSVersion = targetOSVersion;
+                        }
 
                         return await this.DownloadPackageAsync(package, options);
                     }));
