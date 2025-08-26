@@ -252,15 +252,6 @@ namespace AppInstaller::Manifest
         bool m_warningOnly;
     };
 
-    static const std::unordered_set<std::filesystem::path> s_AllowedPortableFiletypes = { L".exe" };
-    static const std::unordered_set<std::filesystem::path> s_AllowedFontFiletypes = {
-        L".otf",         // OpenType Font
-        L".ttf",         // TrueType Font
-        L".fnt",         // Font
-        L".ttc",         // TrueType Font Collection
-        L".otc",         // OpenType Font Collection
-    };
-
     // fullValidation: bool to set if manifest validation should perform extra validation that is not required for reading a manifest.
     std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation = true);
     std::vector<ValidationError> ValidateManifestLocalization(const ManifestLocalization& localization, bool treatErrorAsWarning = false);

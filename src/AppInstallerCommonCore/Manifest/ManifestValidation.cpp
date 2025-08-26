@@ -13,6 +13,18 @@ namespace AppInstaller::Manifest
 {
     namespace
     {
+        constexpr std::array<std::wstring_view, 1> s_AllowedPortableFiletypes = {
+            L".exe",
+        };
+
+        constexpr std::array<std::wstring_view, 5> s_AllowedFontFiletypes = {
+            L".otf",         // OpenType Font
+            L".ttf",         // TrueType Font
+            L".fnt",         // Font
+            L".ttc",         // TrueType Font Collection
+            L".otc",         // OpenType Font Collection
+        };
+
         const auto& GetErrorIdToMessageMap()
         {
             static std::map<AppInstaller::StringResource::StringId, std::string_view> ErrorIdToMessageMap = {
@@ -342,7 +354,7 @@ namespace AppInstaller::Manifest
                     {
                         if (isPortable)
                         {
-                            if (fullPath.has_extension() && s_AllowedPortableFiletypes.find(fullPath.extension()) == s_AllowedPortableFiletypes.end())
+                            if (fullPath.has_extension() && std::find(s_AllowedPortableFiletypes.begin(), s_AllowedPortableFiletypes.end(), fullPath.extension()) == s_AllowedPortableFiletypes.end())
                             {
                                 resultErrors.emplace_back(ManifestError::InvalidPortableFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
                             }
@@ -350,7 +362,7 @@ namespace AppInstaller::Manifest
 
                         if (isFont)
                         {
-                            if (fullPath.has_extension() && s_AllowedFontFiletypes.find(fullPath.extension()) == s_AllowedFontFiletypes.end())
+                            if (fullPath.has_extension() && std::find(s_AllowedFontFiletypes.begin(), s_AllowedFontFiletypes.end(), fullPath.extension()) == s_AllowedFontFiletypes.end())
                             {
                                 resultErrors.emplace_back(ManifestError::InvalidFontFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
                             }
