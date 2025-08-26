@@ -703,7 +703,6 @@ namespace AppInstaller::MSStore
             Manifest::PlatformEnum requiredPlatform,
             const std::optional<Utility::UInt64Version>& targetOSVersion)
         {
-            UNREFERENCED_PARAMETER(targetOSVersion);
             std::vector<Manifest::PlatformEnum> supportedPlatforms;
 
             for (auto const& applicability : appFile.GetApplicabilityDetails().GetPlatformApplicabilityForPackage())
