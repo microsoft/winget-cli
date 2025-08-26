@@ -337,6 +337,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Burn:
         case InstallerTypeEnum::Inno:
         case InstallerTypeEnum::Nullsoft:
+        case InstallerTypeEnum::AdvinstExe:
         {
             context <<
                 RunRepairForRepairBehaviorBasedInstaller;
@@ -344,6 +345,7 @@ namespace AppInstaller::CLI::Workflow
         break;
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Wix:
+        case InstallerTypeEnum::AdvinstMsi:
         {
             context <<
                 RepairMsiBasedInstaller;
@@ -379,6 +381,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Exe:
         case InstallerTypeEnum::Inno:
         case InstallerTypeEnum::Nullsoft:
+        case InstallerTypeEnum::AdvinstExe:
         {
             context <<
                 GenerateRepairString;
@@ -387,6 +390,7 @@ namespace AppInstaller::CLI::Workflow
         // MSI based installers, for installed package all gets mapped to msi extension.
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Wix:
+        case InstallerTypeEnum::AdvinstMsi:
         {
             context <<
                 SetProductCodesInContext;
