@@ -314,6 +314,8 @@ namespace AppInstaller::Settings
             return TogglePolicy(policy, "EnableDefaultSource"sv, String::PolicyEnableDefaultSource);
         case TogglePolicy::Policy::MSStoreSource:
             return TogglePolicy(policy, "EnableMicrosoftStoreSource"sv, String::PolicyEnableMSStoreSource);
+        case TogglePolicy::Policy::FontSource:
+            return TogglePolicy(policy, "EnableFontSource"sv, String::PolicyEnableFontSource);
         case TogglePolicy::Policy::AdditionalSources:
             return TogglePolicy(policy, "EnableAdditionalSources"sv, String::PolicyAdditionalSources);
         case TogglePolicy::Policy::AllowedSources:
