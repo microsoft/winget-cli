@@ -61,7 +61,7 @@ TEST_CASE("GetSupportedInterface", "[RestSource]")
     REQUIRE(RestClient::GetSupportedInterface(TestRestUri, {}, info, {}, version, {})->GetVersion() == version);
 
     // Update this test to next version so that we don't forget to add to supported versions before rest e2e tests are available.
-    Version invalid{ "1.11.0" };
+    Version invalid{ "1.13.0" };
     REQUIRE_THROWS_HR(RestClient::GetSupportedInterface(TestRestUri, {}, info, {}, invalid, {}), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
 
     Authentication::AuthenticationArguments authArgs;

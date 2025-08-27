@@ -377,6 +377,9 @@
     <ClCompile Include="RestInterface_1_10.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
+    <ClCompile Include="RestInterface_1_12.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
     <ClCompile Include="ManifestComparator.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>

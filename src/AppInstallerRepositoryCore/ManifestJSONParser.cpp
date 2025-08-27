@@ -10,6 +10,7 @@
 #include "Rest/Schema/1_7/Json/ManifestDeserializer.h"
 #include "Rest/Schema/1_9/Json/ManifestDeserializer.h"
 #include "Rest/Schema/1_10/Json/ManifestDeserializer.h"
+#include "Rest/Schema/1_12/Json/ManifestDeserializer.h"
 
 namespace AppInstaller::Repository::JSON
 {
@@ -56,9 +57,13 @@ namespace AppInstaller::Repository::JSON
             {
                 m_pImpl->m_deserializer = std::make_unique<Rest::Schema::V1_9::Json::ManifestDeserializer>();
             }
-            else
+            else if (parts.size() > 1 && parts[1].Integer < 12)
             {
                 m_pImpl->m_deserializer = std::make_unique<Rest::Schema::V1_10::Json::ManifestDeserializer>();
+            }
+            else
+            {
+                m_pImpl->m_deserializer = std::make_unique<Rest::Schema::V1_12::Json::ManifestDeserializer>();
             }
         }
         else
