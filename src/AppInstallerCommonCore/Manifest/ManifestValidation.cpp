@@ -13,6 +13,18 @@ namespace AppInstaller::Manifest
 {
     namespace
     {
+        constexpr std::array<std::wstring_view, 1> s_AllowedPortableFiletypes = {
+            L".exe",
+        };
+
+        constexpr std::array<std::wstring_view, 5> s_AllowedFontFiletypes = {
+            L".otf",         // OpenType Font
+            L".ttf",         // TrueType Font
+            L".fnt",         // Font
+            L".ttc",         // TrueType Font Collection
+            L".otc",         // OpenType Font Collection
+        };
+
         const auto& GetErrorIdToMessageMap()
         {
             static std::map<AppInstaller::StringResource::StringId, std::string_view> ErrorIdToMessageMap = {
@@ -72,6 +84,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::SchemaHeaderManifestVersionMismatch, "The manifest version in the schema header does not match the ManifestVersion property value in the manifest."sv },
                 { AppInstaller::Manifest::ManifestError::SchemaHeaderUrlPatternMismatch, "The schema header URL does not match the expected pattern."sv },
                 { AppInstaller::Manifest::ManifestError::InvalidPortableFiletype, "The file type of the referenced file is not allowed."sv },
+                { AppInstaller::Manifest::ManifestError::InvalidFontFiletype, "The file type of the referenced file is not a supported font file type."sv },
             };
 
             return ErrorIdToMessageMap;
@@ -287,6 +300,9 @@ namespace AppInstaller::Manifest
 
             if (IsArchiveType(installer.BaseInstallerType))
             {
+                bool isPortable = installer.NestedInstallerType == InstallerTypeEnum::Portable;
+                bool isFont = installer.NestedInstallerType == InstallerTypeEnum::Font;
+
                 if (installer.NestedInstallerType == InstallerTypeEnum::Unknown)
                 {
                     resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "NestedInstallerType");
@@ -295,14 +311,13 @@ namespace AppInstaller::Manifest
                 {
                     resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "NestedInstallerFiles");
                 }
-                if (installer.NestedInstallerType != InstallerTypeEnum::Portable && installer.NestedInstallerFiles.size() != 1)
+                if (!isPortable && !isFont && installer.NestedInstallerFiles.size() != 1)
                 {
                     resultErrors.emplace_back(ManifestError::ExceededNestedInstallerFilesLimit, "NestedInstallerFiles");
                 }
 
                 std::set<std::string> commandAliasSet;
                 std::set<std::string> relativeFilePathSet;
-                bool isPortable = installer.NestedInstallerType == InstallerTypeEnum::Portable;
 
                 for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
                 {
@@ -335,11 +350,22 @@ namespace AppInstaller::Manifest
                     }
 
                     // If running full validation, check filetype
-                    if (fullValidation && isPortable)
+                    if (fullValidation)
                     {
-                        if (fullPath.has_extension() && s_AllowedPortableFiletypes.find(fullPath.extension()) == s_AllowedPortableFiletypes.end())
+                        if (isPortable)
                         {
-                            resultErrors.emplace_back(ManifestError::InvalidPortableFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
+                            if (fullPath.has_extension() && std::find(s_AllowedPortableFiletypes.begin(), s_AllowedPortableFiletypes.end(), fullPath.extension()) == s_AllowedPortableFiletypes.end())
+                            {
+                                resultErrors.emplace_back(ManifestError::InvalidPortableFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
+                            }
+                        }
+
+                        if (isFont)
+                        {
+                            if (fullPath.has_extension() && std::find(s_AllowedFontFiletypes.begin(), s_AllowedFontFiletypes.end(), fullPath.extension()) == s_AllowedFontFiletypes.end())
+                            {
+                                resultErrors.emplace_back(ManifestError::InvalidFontFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
+                            }
                         }
                     }
                 }

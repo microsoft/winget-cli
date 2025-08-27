@@ -4,6 +4,9 @@
     <Filter Include="schema">
       <UniqueIdentifier>{d6998b42-8ce1-440a-ad12-8b505a284d7b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="schema\latest">
+      <UniqueIdentifier>{f392b73a-3389-4d29-86d9-539a98e2bf3b}</UniqueIdentifier>
+    </Filter>
     <Filter Include="schema\preview">
       <UniqueIdentifier>{fe494b58-5e5c-415a-922f-c6e10725e06a}</UniqueIdentifier>
     </Filter>
@@ -43,6 +46,21 @@
     <ResourceCompile Include="$(MSBuildThisFileDirectory)ManifestSchema.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\latest\manifest.defaultLocale.latest.json">
+      <Filter>schema\latest</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\latest\manifest.installer.latest.json">
+      <Filter>schema\latest</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\latest\manifest.locale.latest.json">
+      <Filter>schema\latest</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\latest\manifest.singleton.latest.json">
+      <Filter>schema\latest</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\latest\manifest.version.latest.json">
+      <Filter>schema\latest</Filter>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\preview\manifest.0.1.0.json">
       <Filter>schema\preview</Filter>
     </None>
