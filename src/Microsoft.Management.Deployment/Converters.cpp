@@ -530,4 +530,17 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
     }
 
+    ::AppInstaller::Manifest::PlatformEnum GetPlatformEnum(WindowsPlatform value)
+    {
+        switch (value)
+        {
+        case WindowsPlatform::Unknown: return AppInstaller::Manifest::PlatformEnum::Unknown;
+        case WindowsPlatform::Universal: return AppInstaller::Manifest::PlatformEnum::Universal;
+        case WindowsPlatform::Desktop: return AppInstaller::Manifest::PlatformEnum::Desktop;
+        case WindowsPlatform::IoT: return AppInstaller::Manifest::PlatformEnum::IoT;
+        case WindowsPlatform::Team: return AppInstaller::Manifest::PlatformEnum::Team;
+        case WindowsPlatform::Holographic: return AppInstaller::Manifest::PlatformEnum::Holographic;
+        default: return AppInstaller::Manifest::PlatformEnum::Unknown;
+        }
+    }
 }

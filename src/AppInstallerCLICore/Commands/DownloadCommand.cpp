@@ -42,6 +42,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::SkipMicrosoftStorePackageLicense),
             Argument::ForType(Args::Type::Platform),
+            Argument{ Args::Type::OSVersion, Resource::String::OSVersionDescription, ArgumentType::Standard, Argument::Visibility::Help },
         };
     }
 

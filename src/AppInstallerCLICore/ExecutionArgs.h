@@ -91,6 +91,7 @@ namespace AppInstaller::CLI::Execution
             DownloadDirectory,
             SkipMicrosoftStorePackageLicense,
             Platform,
+            OSVersion,
 
             // Setting Command
             AdminSettingEnable,

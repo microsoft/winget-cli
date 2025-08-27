@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="DownloadCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -92,12 +92,18 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="psPackageInstallScope">PSPackageInstallScope.</param>
         /// <param name="psProcessorArchitecture">PSProcessorArchitecture.</param>
         /// <param name="psPackageInstallerType">PSPackageInstallerType.</param>
+        /// <param name="skipMicrosoftStoreLicense">If true, skips downloading a Store license.</param>
+        /// <param name="psWindowsPlatform">The platform to download the package for.</param>
+        /// <param name="targetOSVersion">The target OS version to download for.</param>
         public void Download(
             string downloadDirectory,
             string psPackageFieldMatchOption,
             string psPackageInstallScope,
             string psProcessorArchitecture,
-            string psPackageInstallerType)
+            string psPackageInstallerType,
+            bool skipMicrosoftStoreLicense,
+            string psWindowsPlatform,
+            string targetOSVersion)
         {
             var result = this.Execute(
                 async () => await this.GetPackageAndExecuteAsync(
@@ -123,6 +129,17 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                         }
 
                         options.Scope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
+                        options.SkipMicrosoftStoreLicense = skipMicrosoftStoreLicense;
+
+                        if (!PSEnumHelpers.IsDefaultEnum(psWindowsPlatform))
+                        {
+                            options.Platform = PSEnumHelpers.ToWindowsPlatform(psWindowsPlatform);
+                        }
+
+                        if (!string.IsNullOrEmpty(targetOSVersion))
+                        {
+                            options.TargetOSVersion = targetOSVersion;
+                        }
 
                         return await this.DownloadPackageAsync(package, options);
                     }));

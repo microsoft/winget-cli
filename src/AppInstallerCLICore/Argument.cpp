@@ -265,6 +265,8 @@ namespace AppInstaller::CLI
             return { type, "platform"_liv, ArgTypeCategory::None };
         case Execution::Args::Type::SkipMicrosoftStorePackageLicense:
             return { type, "skip-microsoft-store-package-license"_liv, "skip-license"_liv, ArgTypeCategory::None };
+        case Execution::Args::Type::OSVersion:
+            return { type, "os-version"_liv, ArgTypeCategory::None };
 
         // Common arguments
         case Execution::Args::Type::NoVT:

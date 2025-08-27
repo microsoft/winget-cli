@@ -1159,6 +1159,24 @@ namespace Microsoft.Management.Deployment
         }
     }
 
+    /// The Windows platform type.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 13)]
+    enum WindowsPlatform
+    {
+        /// An unknown platform
+        Unknown,
+        /// Windows.Universal
+        Universal,
+        /// Windows.Desktop
+        Desktop,
+        /// Windows.IoT
+        IoT,
+        /// Windows.Team
+        Team,
+        /// Windows.Holographic
+        Holographic,
+    };
+
     /// Options when downloading a package.
     /// Intended to allow full compatibility with the "winget download" command line interface.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
@@ -1202,6 +1220,18 @@ namespace Microsoft.Management.Deployment
         {
             /// Authentication arguments used when downloading the package installer if authentication is required.
             AuthenticationArguments AuthenticationArguments;
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 13)]
+        {
+            /// If the package is licensed from the Microsoft Store, setting this value to true will not attempt to download the license file.
+            Boolean SkipMicrosoftStoreLicense;
+
+            /// The platform to download the package for.
+            WindowsPlatform Platform;
+
+            /// When applicable, uses the provided value as the target OS version for the download.
+            String TargetOSVersion;
         }
     }
 

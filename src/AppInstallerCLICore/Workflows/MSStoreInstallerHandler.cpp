@@ -293,6 +293,12 @@ namespace AppInstaller::CLI::Workflow
 
         MSStoreDownloadContext downloadContext{ installer.ProductId, requiredArchitecture, requiredPlatform, requiredLocale, GetAuthenticationArguments(context) };
 
+        if (context.Args.Contains(Execution::Args::Type::OSVersion))
+        {
+            Utility::UInt64Version targetOSVersion{ std::string{ context.Args.GetArg(Execution::Args::Type::OSVersion) } };
+            downloadContext.TargetOSVersion(std::move(targetOSVersion));
+        }
+
         MSStoreDownloadInfo downloadInfo;
         try
         {

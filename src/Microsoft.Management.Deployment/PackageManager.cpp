@@ -690,6 +690,23 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 context->Args.AddArg(Execution::Args::Type::AuthenticationMode, ::AppInstaller::Authentication::AuthenticationModeToString(GetAuthenticationMode(options.AuthenticationArguments().AuthenticationMode())));
                 context->Args.AddArg(Execution::Args::Type::AuthenticationAccount, ::AppInstaller::Utility::ConvertToUTF8(options.AuthenticationArguments().AuthenticationAccount()));
             }
+
+            if (options.SkipMicrosoftStoreLicense())
+            {
+                context->Args.AddArg(Execution::Args::Type::SkipMicrosoftStorePackageLicense);
+            }
+
+            WindowsPlatform platform = options.Platform();
+            if (platform != WindowsPlatform::Unknown)
+            {
+                context->Args.AddArg(Execution::Args::Type::Platform, AppInstaller::Manifest::PlatformToString(GetPlatformEnum(platform)));
+            }
+
+            hstring targetOSVersion = options.TargetOSVersion();
+            if (!targetOSVersion.empty())
+            {
+                context->Args.AddArg(Execution::Args::Type::OSVersion, ::AppInstaller::Utility::ConvertToUTF8(targetOSVersion));
+            }
         }
     }
 
