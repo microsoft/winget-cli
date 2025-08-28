@@ -445,6 +445,19 @@ namespace AppInstaller::Repository::Microsoft::details::V2
         return LocIndString{ result ? std::move(result).value() : std::string{} };
     }
 
+    std::vector<Utility::LocIndString> SQLitePackage::GetMultiProperty(PackageMultiProperty property) const
+    {
+        std::vector<LocIndString> result;
+
+        for (auto&& value : GetReferenceSource()->GetIndex().GetMultiPropertyByPrimaryId(m_packageRowId, PackageMultiPropertyToPackageVersionMultiProperty(property)))
+        {
+            // Values coming from the index will always be localized/independent.
+            result.emplace_back(std::move(value));
+        }
+
+        return result;
+    }
+
     std::vector<PackageVersionKey> SQLitePackage::GetVersionKeys() const
     {
         std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();

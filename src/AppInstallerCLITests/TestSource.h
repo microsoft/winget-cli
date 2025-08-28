@@ -68,6 +68,7 @@ namespace TestCommon
         }
 
         AppInstaller::Utility::LocIndString GetProperty(AppInstaller::Repository::PackageProperty property) const override;
+        std::vector<AppInstaller::Utility::LocIndString> GetMultiProperty(AppInstaller::Repository::PackageMultiProperty property) const override;
         std::vector<AppInstaller::Repository::PackageVersionKey> GetVersionKeys() const override;
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetLatestVersion() const override;
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetVersion(const AppInstaller::Repository::PackageVersionKey& versionKey) const override;

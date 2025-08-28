@@ -115,6 +115,28 @@ namespace AppInstaller::Repository::Microsoft::details::V1
         return result;
     }
 
+    std::vector<Utility::LocIndString> SQLitePackage::GetMultiProperty(PackageMultiProperty property) const
+    {
+        std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
+        std::vector<Utility::LocIndString> result;
+        PackageVersionMultiProperty mappedProperty = PackageMultiPropertyToPackageVersionMultiProperty(property);
+
+        for (const auto& version : source->GetIndex().GetVersionKeysById(m_idId))
+        {
+            for (auto&& string : source->GetIndex().GetMultiPropertyByPrimaryId(version.ManifestId, mappedProperty))
+            {
+                auto itr = std::lower_bound(result.begin(), result.end(), string);
+
+                if (itr == result.end() || itr->get() != string)
+                {
+                    result.emplace(itr, std::move(string));
+                }
+            }
+        }
+
+        return result;
+    }
+
     std::vector<PackageVersionKey> SQLitePackage::GetVersionKeys() const
     {
         std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();

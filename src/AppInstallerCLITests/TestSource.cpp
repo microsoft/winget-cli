@@ -191,6 +191,27 @@ namespace TestCommon
         }
     }
 
+    std::vector<TestPackage::LocIndString> TestPackage::GetMultiProperty(PackageMultiProperty property) const
+    {
+        std::vector<LocIndString> result;
+        PackageVersionMultiProperty mappedProperty = PackageMultiPropertyToPackageVersionMultiProperty(property);
+
+        for (const auto& version : Versions)
+        {
+            for (auto&& string : version->GetMultiProperty(mappedProperty))
+            {
+                auto itr = std::lower_bound(result.begin(), result.end(), string);
+
+                if (itr == result.end() || *itr != string)
+                {
+                    result.emplace(itr, std::move(string));
+                }
+            }
+        }
+
+        return result;
+    }
+
     std::vector<PackageVersionKey> TestPackage::GetVersionKeys() const
     {
         if (auto source = GetTestSource())

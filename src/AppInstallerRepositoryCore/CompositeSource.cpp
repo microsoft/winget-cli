@@ -369,6 +369,26 @@ namespace AppInstaller::Repository
                 return m_packages[m_versionKeyData[0].PackageIndex]->GetProperty(property);
             }
 
+            std::vector<Utility::LocIndString> GetMultiProperty(PackageMultiProperty property) const override
+            {
+                std::vector<Utility::LocIndString> result;
+
+                for (const auto& package : m_packages)
+                {
+                    for (auto&& string : package->GetMultiProperty(property))
+                    {
+                        auto itr = std::lower_bound(result.begin(), result.end(), string);
+
+                        if (itr == result.end() || *itr != string)
+                        {
+                            result.emplace(itr, std::move(string));
+                        }
+                    }
+                }
+
+                return result;
+            }
+
             std::vector<PackageVersionKey> GetVersionKeys() const override
             {
                 return { m_versionKeyData.begin(), m_versionKeyData.end() };
@@ -897,48 +917,40 @@ namespace AppInstaller::Repository
                     trackingRequest.Filters.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, identifier.get());
 
                     SearchResult trackingResult = trackingCatalog.Search(trackingRequest);
+                    std::shared_ptr<IPackage> result;
 
                     if (trackingResult.Matches.size() == 1)
                     {
-                        std::shared_ptr<IPackage> result = OnlyAvailable(trackingResult.Matches[0].Package);
+                        result = OnlyAvailable(trackingResult.Matches[0].Package);
                         AddSystemReferenceStrings(result.get());
-                        return result;
                     }
-                    else
+                    else if (trackingResult.Matches.size() > 1)
                     {
-                        AICLI_LOG(Repo, Warning, << "Found multiple results for Id [" << identifier << "] in tracking catalog for: " << sourceIdentifier);
-                        return {};
+                        AICLI_LOG(Repo, Warning, << "Found " << trackingResult.Matches.size() << " results for Id [" << identifier << "] in tracking catalog for: " << sourceIdentifier);
                     }
+
+                    return result;
                 }
 
                 void AddSystemReferenceStrings(IPackage* package)
                 {
-                    for (auto const& versionKey : package->GetVersionKeys())
-                    {
-                        auto version = package->GetVersion(versionKey);
-                        AddSystemReferenceStrings(version.get());
-                    }
-                }
-
-                void AddSystemReferenceStrings(IPackageVersion* version)
-                {
                     GetSystemReferenceStrings(
-                        version,
-                        PackageVersionMultiProperty::PackageFamilyName,
+                        package,
+                        PackageMultiProperty::PackageFamilyName,
                         PackageMatchField::PackageFamilyName);
 
                     GetSystemReferenceStrings(
-                        version,
-                        PackageVersionMultiProperty::ProductCode,
+                        package,
+                        PackageMultiProperty::ProductCode,
                         PackageMatchField::ProductCode);
 
                     GetSystemReferenceStrings(
-                        version,
-                        PackageVersionMultiProperty::UpgradeCode,
+                        package,
+                        PackageMultiProperty::UpgradeCode,
                         PackageMatchField::UpgradeCode);
 
                     GetNameAndPublisher(
-                        version);
+                        package);
                 }
 
                 void AddSystemReferenceStringsFromManifest(const Manifest::Manifest& manifest)
@@ -969,33 +981,33 @@ namespace AppInstaller::Repository
 
             private:
                 void GetSystemReferenceStrings(
-                    IPackageVersion* installedVersion,
-                    PackageVersionMultiProperty prop,
+                    IPackage* package,
+                    PackageMultiProperty prop,
                     PackageMatchField field)
                 {
-                    for (auto&& string : installedVersion->GetMultiProperty(prop))
+                    for (auto&& string : package->GetMultiProperty(prop))
                     {
                         AddIfNotPresent(SystemReferenceString{ field, std::move(string) });
                     }
                 }
 
                 void GetNameAndPublisher(
-                    IPackageVersion* installedVersion)
+                    IPackage* package)
                 {
                     // Unfortunately the names and publishers are unique and not tied to each other strictly, so we need
                     // to go broad on the matches. Future work can hopefully make name and publisher operate more as a unit,
                     // but for now we have to search for the cartesian of these...
-                    auto names = installedVersion->GetMultiProperty(PackageVersionMultiProperty::Name);
-                    auto publishers = installedVersion->GetMultiProperty(PackageVersionMultiProperty::Publisher);
+                    auto names = package->GetMultiProperty(PackageMultiProperty::NormalizedName);
+                    auto publishers = package->GetMultiProperty(PackageMultiProperty::NormalizedPublisher);
 
-                    for (size_t i = 0; i < names.size(); ++i)
+                    for (const auto& name : names)
                     {
-                        for (size_t j = 0; j < publishers.size(); ++j)
+                        for (const auto& publisher : publishers)
                         {
                             AddIfNotPresent(SystemReferenceString{
                                 PackageMatchField::NormalizedNameAndPublisher,
-                                names[i],
-                                publishers[j] });
+                                name,
+                                publisher });
                         }
                     }
                 }
@@ -1031,20 +1043,27 @@ namespace AppInstaller::Repository
                 }
 
                 PackageData result;
-                constexpr int c_downloadManifestsLimit = 3;
-                int manifestsDownloaded = 0;
-                for (auto const& versionKey : availablePackage->GetVersionKeys())
-                {
-                    auto packageVersion = availablePackage->GetVersion(versionKey);
-                    result.AddSystemReferenceStrings(packageVersion.get());
+                result.AddSystemReferenceStrings(availablePackage.get());
 
-                    if (downloadManifests && manifestsDownloaded < c_downloadManifestsLimit)
+                if (downloadManifests)
+                {
+                    constexpr int c_downloadManifestsLimit = 3;
+                    int manifestsDownloaded = 0;
+                    for (auto const& versionKey : availablePackage->GetVersionKeys())
                     {
+                        auto packageVersion = availablePackage->GetVersion(versionKey);
+
                         auto manifest = packageVersion->GetManifest();
                         result.AddSystemReferenceStringsFromManifest(manifest);
                         manifestsDownloaded++;
+
+                        if (manifestsDownloaded >= c_downloadManifestsLimit)
+                        {
+                            break;
+                        }
                     }
                 }
+
                 return result;
             }
 

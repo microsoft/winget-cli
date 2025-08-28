@@ -47,6 +47,7 @@ namespace AppInstaller::Utility
         bool operator!=(const LocIndString& other) const { return m_value != other.m_value; }
 
         bool operator<(const LocIndString& other) const { return m_value < other.m_value; }
+        bool operator<(const std::string& other) const { return m_value < other; }
 
         friend std::ostream& operator<<(std::ostream& out, const AppInstaller::Utility::LocIndString& lis)
         {
