@@ -166,6 +166,16 @@ struct CompositeTestSetup
         Composite.AddAvailableSource(Source{ Available });
     }
 
+    ~CompositeTestSetup()
+    {
+        if (Available->CountOfCallsRequiringVersionData || Available->CountOfCallsRequiringManifestData)
+        {
+            std::ostringstream stream;
+            stream << "Version data calls [" << Available->CountOfCallsRequiringVersionData << "] : Manifest data calls [" << Available->CountOfCallsRequiringManifestData << "]";
+            FAIL_CHECK(stream.str());
+        }
+    }
+
     SearchResult Search()
     {
         SearchRequest request;
