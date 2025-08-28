@@ -299,9 +299,6 @@
     <ClInclude Include="Commands\McpCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
-    <ClInclude Include="FontInstaller.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -567,9 +564,6 @@
     </ClCompile>
     <ClCompile Include="Commands\McpCommand.cpp">
       <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="FontInstaller.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

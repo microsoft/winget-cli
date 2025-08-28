@@ -423,7 +423,6 @@
     <ClCompile Include="ConfigureExportCommand.cpp" />
     <ClCompile Include="ContextOrchestrator.cpp" />
     <ClCompile Include="ShutdownMonitoring.cpp" />
-    <ClCompile Include="FontInstaller.cpp" />
     <ClCompile Include="Sixel.cpp" />
     <ClCompile Include="Workflows\ConfigurationFlow.cpp" />
     <ClCompile Include="Workflows\DependenciesFlow.cpp" />
