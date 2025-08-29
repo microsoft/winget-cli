@@ -207,19 +207,19 @@ namespace AppInstaller::Repository::Rest
             switch (property)
             {
             case PackageVersionMultiProperty::PackageFamilyName:
-                for (std::string pfn : versionInfo.PackageFamilyNames)
+                for (const std::string& pfn : versionInfo.PackageFamilyNames)
                 {
                     Action(result, Utility::LocIndString{ pfn });
                 }
                 break;
             case PackageVersionMultiProperty::ProductCode:
-                for (std::string productCode : versionInfo.ProductCodes)
+                for (const std::string& productCode : versionInfo.ProductCodes)
                 {
                     Action(result, Utility::LocIndString{ productCode });
                 }
                 break;
             case PackageVersionMultiProperty::UpgradeCode:
-                for (std::string upgradeCode : versionInfo.UpgradeCodes)
+                for (const std::string& upgradeCode : versionInfo.UpgradeCodes)
                 {
                     Action(result, Utility::LocIndString{ upgradeCode });
                 }
@@ -227,7 +227,7 @@ namespace AppInstaller::Repository::Rest
             case PackageVersionMultiProperty::Name:
                 if (versionInfo.Manifest)
                 {
-                    for (auto name : versionInfo.Manifest->GetPackageNames())
+                    for (auto&& name : versionInfo.Manifest->GetPackageNames())
                     {
                         Action(result, Utility::LocIndString{ std::move(name) });
                     }
@@ -240,7 +240,7 @@ namespace AppInstaller::Repository::Rest
             case PackageVersionMultiProperty::Publisher:
                 if (versionInfo.Manifest)
                 {
-                    for (auto publisher : versionInfo.Manifest->GetPublishers())
+                    for (auto&& publisher : versionInfo.Manifest->GetPublishers())
                     {
                         Action(result, Utility::LocIndString{ std::move(publisher) });
                     }

@@ -117,7 +117,7 @@ namespace AppInstaller::Repository
         case PackageMultiProperty::Tag: return PackageVersionMultiProperty::Tag;
         case PackageMultiProperty::Command: return PackageVersionMultiProperty::Command;
         default:
-            THROW_HR(E_UNEXPECTED);
+            THROW_HR_MSG(E_UNEXPECTED, "PackageMultiProperty must map to a PackageVersionMultiProperty");
         }
     }
 
