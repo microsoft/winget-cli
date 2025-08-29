@@ -34,7 +34,6 @@ namespace Microsoft.WinGet.Client.Commands.Common
         /// Gets or sets a value indicating whether to include prerelease winget versions.
         /// </summary>
         [Parameter(
-            ParameterSetName = Constants.IntegrityLatestSet,
             ValueFromPipelineByPropertyName = true)]
         public SwitchParameter IncludePrerelease { get; set; }
     }

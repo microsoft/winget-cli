@@ -49,7 +49,7 @@ namespace Microsoft.WinGet.Client.Commands
             }
             else
             {
-                this.command.Repair(this.Version, this.AllUsers.ToBool(), this.Force.ToBool());
+                this.command.Repair(this.Version, this.AllUsers.ToBool(), this.Force.ToBool(), this.IncludePrerelease.ToBool());
             }
         }
 
