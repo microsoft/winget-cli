@@ -82,3 +82,12 @@ TEST_CASE("GetTimePointFromVersion", "[datetime]")
     system_clock::time_point now = system_clock::now();
     REQUIRE(GetTimePointFromVersion(UInt64Version{ StringFromTimePoint(now) }) == time_point_cast<minutes>(now));
 }
+
+TEST_CASE("ShortFileTime", "[datetime]")
+{
+    auto shortTime = GetCurrentTimeForFilename(true);
+    auto longTime = GetCurrentTimeForFilename(false);
+    INFO(shortTime);
+    INFO(longTime);
+    REQUIRE(shortTime.length() < longTime.length());
+}
