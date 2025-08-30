@@ -105,6 +105,22 @@ namespace AppInstaller::Repository
         return Version.empty() && Channel.empty();
     }
 
+    PackageVersionMultiProperty PackageMultiPropertyToPackageVersionMultiProperty(PackageMultiProperty property)
+    {
+        switch (property)
+        {
+        case PackageMultiProperty::PackageFamilyName: return PackageVersionMultiProperty::PackageFamilyName;
+        case PackageMultiProperty::ProductCode: return PackageVersionMultiProperty::ProductCode;
+        case PackageMultiProperty::UpgradeCode: return PackageVersionMultiProperty::UpgradeCode;
+        case PackageMultiProperty::NormalizedName: return PackageVersionMultiProperty::Name;
+        case PackageMultiProperty::NormalizedPublisher: return PackageVersionMultiProperty::Publisher;
+        case PackageMultiProperty::Tag: return PackageVersionMultiProperty::Tag;
+        case PackageMultiProperty::Command: return PackageVersionMultiProperty::Command;
+        default:
+            THROW_HR_MSG(E_UNEXPECTED, "PackageMultiProperty must map to a PackageVersionMultiProperty");
+        }
+    }
+
     const char* UnsupportedRequestException::what() const noexcept
     {
         if (m_whatMessage.empty())
