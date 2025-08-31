@@ -259,7 +259,9 @@ namespace AppInstaller::Fonts
     {
         auto fileInfo = FontFileInfo();
         fileInfo.FilePath = filePath;
-        fileInfo.PackageIdentifier = context.PackageIdentifier.value_or(L"");
+        fileInfo.PackageIdentifier = context.PackageIdentifier;
+        fileInfo.PackageId = context.PackageId;
+        fileInfo.PackageVersion = context.PackageVersion;
         fileInfo.InstallerSource = context.InstallerSource;
         fileInfo.Scope = context.Scope;
         if (title.has_value())
@@ -272,7 +274,7 @@ namespace AppInstaller::Fonts
         case InstallerSource::UWP:
 
             // PackageName must be provided for UWP packages.
-            if (fileInfo.PackageIdentifier.value().empty())
+            if (!fileInfo.PackageIdentifier.has_value() || fileInfo.PackageIdentifier.value().empty())
             {
                 throw std::logic_error("UWP Font packages must provide a package full name.");
             }
@@ -285,7 +287,16 @@ namespace AppInstaller::Fonts
             break;
 
         case InstallerSource::WinGet:
-            fileInfo.PackageIdentifier = CreateFontPackageIdentifier(fileInfo.PackageId.value(), fileInfo.PackageVersion.value());
+            if (!fileInfo.PackageIdentifier.has_value() || fileInfo.PackageIdentifier.value().empty())
+            {
+                if (!fileInfo.PackageId.has_value() || !fileInfo.PackageVersion.has_value())
+                {
+                    throw std::logic_error("WinGet Font packages must provide a PackageIdentifier or package Id and Version");
+                }
+
+                fileInfo.PackageIdentifier = CreateFontPackageIdentifier(fileInfo.PackageId.value(), fileInfo.PackageVersion.value());
+            }
+
             break;
 
         case InstallerSource::Unknown:
@@ -295,7 +306,7 @@ namespace AppInstaller::Fonts
             // We will assume the title is provided for these, since we do
             // not install them, they must already exist on the system or
             // have a reference in the registry.
-            if (fileInfo.PackageIdentifier.value().empty())
+            if (!fileInfo.PackageIdentifier.has_value() || fileInfo.PackageIdentifier.value().empty())
             {
                 if (fileInfo.Scope == Manifest::ScopeEnum::Machine)
                 {
@@ -887,8 +898,8 @@ namespace AppInstaller::Fonts
             return;
         }
 
-        // Programmer error if we reach here.
-        THROW_HR(E_UNEXPECTED);
+        // This is a programming error if we reach this point where the package identifer cannot be created or derived.
+        THROW_HR_MSG(E_UNEXPECTED, "Package Identifier must be specified or package Id and Version provided.");
     }
 
     // This will create an inventory of all known permanently installed fonts to the user.
