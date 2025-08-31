@@ -881,7 +881,7 @@ namespace AppInstaller::Fonts
     std::tuple<std::wstring, std::wstring> GetPackageIdAndVersionFromIdentifier(const std::wstring& packageIdentifier)
     {
         const auto& sepPosition = packageIdentifier.rfind(s_PackageIdentifierSeparator);
-        THROW_HR_IF(E_UNEXPECTED, sepPosition == packageIdentifier.npos);
+        THROW_HR_IF_MSG(E_UNEXPECTED, sepPosition == packageIdentifier.npos, "Invalid package identifier format; no separator.");
         return { packageIdentifier.substr(0, sepPosition), packageIdentifier.substr(sepPosition + 1) };
     }
 
@@ -1020,32 +1020,42 @@ namespace AppInstaller::Fonts
                         // Assume all sub-keys are WinGet Packages
                         for (const auto& packageSubKey : subkeyKey)
                         {
-                            auto context = FontContext();
-                            context.Scope = scope;
-                            context.InstallerSource = InstallerSource::WinGet;
-                            context.PackageIdentifier = ConvertToUTF16(packageSubKey.Name());
-
-                            auto wingetPackageSubKey = packageSubKey.Open();
-                            for (const auto& wingetPackageValue : wingetPackageSubKey.Values())
+                            try
                             {
-                                auto value = wingetPackageValue.Value();
-                                if (!value.has_value() || (value.value().GetType() != Registry::Value::Type::String))
+                                auto context = FontContext();
+                                context.Scope = scope;
+                                context.InstallerSource = InstallerSource::WinGet;
+                                context.PackageIdentifier = ConvertToUTF16(packageSubKey.Name());
+
+                                auto wingetPackageSubKey = packageSubKey.Open();
+                                for (const auto& wingetPackageValue : wingetPackageSubKey.Values())
                                 {
-                                    continue;
+                                    auto value = wingetPackageValue.Value();
+                                    if (!value.has_value() || (value.value().GetType() != Registry::Value::Type::String))
+                                    {
+                                        continue;
+                                    }
+
+                                    std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
+                                    context.AddPackageFile(filePath);
                                 }
 
-                                std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
-                                context.AddPackageFile(filePath);
+                                auto validationResult = ValidateFontPackage(context);
+                                auto packageInfo = FontPackageInfo();
+                                packageInfo.Scope = scope;
+                                packageInfo.Status = validationResult.Status;
+                                auto [id, version] = GetPackageIdAndVersionFromIdentifier(context.PackageIdentifier.value());
+                                packageInfo.PackageId = id;
+                                packageInfo.PackageVersion = version;
+                                fontPackages.push_back(std::move(packageInfo));
                             }
-
-                            auto validationResult = ValidateFontPackage(context);
-                            auto packageInfo = FontPackageInfo();
-                            packageInfo.Scope = scope;
-                            packageInfo.Status = validationResult.Status;
-                            auto [id, version] = GetPackageIdAndVersionFromIdentifier(context.PackageIdentifier.value());
-                            packageInfo.PackageId = id;
-                            packageInfo.PackageVersion = version;
-                            fontPackages.push_back(std::move(packageInfo));
+                            catch (...)
+                            {
+                                // If we have bad data in the registry for this entry, log it and skip.
+                                LOG_CAUGHT_EXCEPTION();
+                                AICLI_LOG(Core, Error, << L"Failed getting font package information for: " << packageSubKey.Name().c_str());
+                                continue;
+                            }
                         }
                     }
                 }
