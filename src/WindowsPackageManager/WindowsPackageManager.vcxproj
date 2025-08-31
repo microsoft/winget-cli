@@ -259,6 +259,7 @@
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Source.def</ModuleDefinitionFile>
       <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <CETCompat Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</CETCompat>
+      <DelayLoadDLLs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">gdi32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>

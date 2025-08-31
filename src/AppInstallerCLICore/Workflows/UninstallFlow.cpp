@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "UninstallFlow.h"
 #include "InstallFlow.h"
+#include "FontFlow.h"
 #include "WorkflowBase.h"
 #include "DependenciesFlow.h"
 #include "ShellExecuteInstallerHandler.h"
@@ -290,6 +291,9 @@ namespace AppInstaller::CLI::Workflow
             context.Add<Execution::Data::PortableInstaller>(std::move(portableInstaller));
             break;
         }
+        case InstallerTypeEnum::Font:
+            break;
+
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
@@ -347,6 +351,11 @@ namespace AppInstaller::CLI::Workflow
             context <<
                 Workflow::PortableUninstallImpl <<
                 ReportUninstallerResult("PortableUninstall"sv, APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED, true);
+            break;
+        case InstallerTypeEnum::Font:
+            context <<
+                Workflow::FontUninstallImpl <<
+                ReportUninstallerResult("Font"sv, APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED, true);
             break;
         default:
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));

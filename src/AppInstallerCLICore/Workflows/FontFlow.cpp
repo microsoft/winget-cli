@@ -6,6 +6,7 @@
 #include "TableOutput.h"
 #include <winget/Fonts.h>
 #include <AppInstallerRuntime.h>
+using namespace AppInstaller::Utility;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -209,13 +210,9 @@ namespace AppInstaller::CLI::Workflow
         fontContext.InstallerSource = InstallerSource::WinGet;
         fontContext.Scope = scope;
 
-        // Fonts are single instanced by an identifier which is:
-        //   PackageId + '_' + PackageVersion
-        // The PackageIdentifier is used to uniquely identify this package.
-        auto manifest = context.Get<Execution::Data::Manifest>();
-        const auto& packageId = ConvertToUTF16(manifest.Id);
-        const auto& packageVersion = ConvertToUTF16(manifest.Version);
-        fontContext.PackageIdentifier = packageId + L"_" + packageVersion;
+        auto& manifest = context.Get<Execution::Data::Manifest>();
+        fontContext.PackageId = ConvertToUTF16(manifest.Id);
+        fontContext.PackageVersion = ConvertToUTF16(manifest.Version);
 
         if (context.Args.Contains(Execution::Args::Type::Force))
         {
@@ -297,7 +294,6 @@ namespace AppInstaller::CLI::Workflow
             scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
         }
 
-        // Scope may still be unknown, which is a failure for an install operation.
         if (scope == Manifest::ScopeEnum::Unknown)
         {
             // We will default to User scope.
@@ -310,13 +306,17 @@ namespace AppInstaller::CLI::Workflow
         fontContext.InstallerSource = InstallerSource::WinGet;
         fontContext.Scope = scope;
 
-        // Fonts are single instanced by an identifier which is:
-        //   PackageId + '_' + PackageVersion
-        // The PackageIdentifier is used to uniquely identify this package.
-        auto manifest = context.Get<Execution::Data::Manifest>();
-        const auto& packageId = ConvertToUTF16(manifest.Id);
-        const auto& packageVersion = ConvertToUTF16(manifest.Version);
-        fontContext.PackageIdentifier = packageId + L"_" + packageVersion;
+        const std::string packageId = context.Get<Execution::Data::InstalledPackageVersion>()->GetProperty(AppInstaller::Repository::PackageVersionProperty::Id);
+        const std::string version = context.Get<Execution::Data::InstalledPackageVersion>()->GetProperty(AppInstaller::Repository::PackageVersionProperty::Version);
+
+        /*
+        const auto& manifest = context.Get<Execution::Data::InstalledPackageVersion>()->GetManifest();
+        fontContext.PackageId = ConvertToUTF16(manifest.Id);
+        fontContext.PackageVersion = ConvertToUTF16(manifest.Version);
+        */
+
+        fontContext.PackageId = ConvertToUTF16(packageId);
+        fontContext.PackageVersion = ConvertToUTF16(version);
 
         try
         {

@@ -70,6 +70,15 @@ namespace AppInstaller::Fonts
         std::optional<std::wstring> PackageIdentifier;
     };
 
+    // Represents information about a WinGet-installed font package.
+    struct FontPackageInfo
+    {
+        Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
+        FontStatus Status = FontStatus::Unknown;
+        std::wstring PackageId;
+        std::wstring PackageVersion;
+    };
+
     struct FontContext
     {
         InstallerSource InstallerSource = InstallerSource::Unknown;
@@ -108,7 +117,15 @@ namespace AppInstaller::Fonts
 
     std::wstring GetFontFileTitle(const std::filesystem::path& fontFilePath);
 
+    std::wstring CreateFontPackageIdentifier(const std::wstring& packageId, const std::wstring& version);
+
+    std::tuple<std::wstring, std::wstring> GetPackageIdAndVersionFromIdentifier(const std::wstring& packageIdentifier);
+
+    void EnsurePackageIdentifier(FontContext& context);
+
     std::vector<FontFileInfo> GetInstalledFontFiles();
+
+    std::vector<FontPackageInfo> GetInstalledFontPackages(Manifest::ScopeEnum scope);
 
     FontFileInfo CreateFontFileInfo(const FontContext& context, const std::filesystem::path& filePath, const std::optional<std::wstring>& title = std::nullopt);
 

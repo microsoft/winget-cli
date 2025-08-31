@@ -10,6 +10,7 @@
 #include <winget/Registry.h>
 #include <AppInstallerArchitecture.h>
 #include <winget/ExperimentalFeature.h>
+#include <FontHelper.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -261,6 +262,22 @@ namespace AppInstaller::Repository::Microsoft
             else if (filter == PredefinedInstalledSourceFactory::Filter::Machine)
             {
                 PopulateIndexFromMSIX(index, Manifest::ScopeEnum::Machine);
+            }
+
+            // Put Installed Fonts into the index.
+            if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP ||
+                filter == PredefinedInstalledSourceFactory::Filter::User || filter == PredefinedInstalledSourceFactory::Filter::Machine)
+            {
+                FontHelper fontHelper;
+                if (filter != PredefinedInstalledSourceFactory::Filter::User)
+                {
+                    fontHelper.PopulateIndex(index, Manifest::ScopeEnum::Machine);
+                }
+
+                if (filter != PredefinedInstalledSourceFactory::Filter::Machine)
+                {
+                    fontHelper.PopulateIndex(index, Manifest::ScopeEnum::User);
+                }
             }
 
             AICLI_LOG(Repo, Verbose, << " ... finished creating PredefinedInstalledSource");

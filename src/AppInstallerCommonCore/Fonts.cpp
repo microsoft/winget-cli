@@ -28,6 +28,7 @@ namespace AppInstaller::Fonts
     namespace
     {
         constexpr std::wstring_view s_RegistrySeparator = L"\\";
+        constexpr std::wstring_view s_PackageIdentifierSeparator = L"!";
         constexpr std::wstring_view s_FontsWinGetPrefix = L"winget_v1";
         constexpr std::wstring_view s_FontsWinGetRegistryRoot = L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts\\winget_v1";
         const int s_RemoveFontResourceMaxTries = 1000;
@@ -284,13 +285,7 @@ namespace AppInstaller::Fonts
             break;
 
         case InstallerSource::WinGet:
-
-            // PackageName must be provided for WinGet Packages.
-            if (fileInfo.PackageIdentifier.value().empty())
-            {
-                throw std::logic_error("WinGet Font packages must provide a package full name.");
-            }
-
+            fileInfo.PackageIdentifier = CreateFontPackageIdentifier(fileInfo.PackageId.value(), fileInfo.PackageVersion.value());
             break;
 
         case InstallerSource::Unknown:
@@ -412,9 +407,11 @@ namespace AppInstaller::Fonts
 
     FontValidationResult ValidateFontPackage(FontContext& context)
     {
+        EnsurePackageIdentifier(context);
+
         auto result = FontValidationResult();
 
-        AICLI_LOG(Core, Info, << L"Validating font package: " << context.PackageIdentifier.value_or(L"Unknown").c_str());
+        AICLI_LOG(Core, Info, << L"Validating font package: " << context.PackageIdentifier.value_or(L"<Unknown>").c_str());
 
         auto fontFileInfos = std::vector<FontFileInfo>();
         try
@@ -470,6 +467,8 @@ namespace AppInstaller::Fonts
 
     FontOperationResult InstallFontPackage(FontContext& context)
     {
+        EnsurePackageIdentifier(context);
+
         FontOperationResult result;
 
         if (context.InstallerSource != InstallerSource::WinGet)
@@ -477,7 +476,7 @@ namespace AppInstaller::Fonts
             throw std::logic_error("Only WinGet format of font install is supported.");
         }
 
-        if (!context.PackageIdentifier.has_value() || context.PackageIdentifier.value().empty())
+        if (context.PackageIdentifier.value().empty())
         {
             throw std::invalid_argument("Non-empty Package Name is required for font install.");
         }
@@ -614,6 +613,8 @@ namespace AppInstaller::Fonts
 
     FontOperationResult UninstallFontPackage(FontContext& context)
     {
+        EnsurePackageIdentifier(context);
+
         FontOperationResult result;
 
         if (context.InstallerSource != InstallerSource::WinGet)
@@ -621,7 +622,7 @@ namespace AppInstaller::Fonts
             throw std::logic_error("Only WinGet format of font package uninstall is supported.");
         }
 
-        if (!context.PackageIdentifier.has_value() || context.PackageIdentifier.value().empty())
+        if (context.PackageIdentifier.value().empty())
         {
             throw std::invalid_argument("Non-empty Package Name is required for font uninstall.");
         }
@@ -859,6 +860,37 @@ namespace AppInstaller::Fonts
         return title;
     }
 
+    std::wstring CreateFontPackageIdentifier(const std::wstring& packageId, const std::wstring& version)
+    {
+        auto stream = std::wstringstream();
+        stream << packageId << s_PackageIdentifierSeparator << version;
+        return stream.str();
+    }
+
+    std::tuple<std::wstring, std::wstring> GetPackageIdAndVersionFromIdentifier(const std::wstring& packageIdentifier)
+    {
+        const auto& sepPosition = packageIdentifier.rfind(s_PackageIdentifierSeparator);
+        THROW_HR_IF(E_UNEXPECTED, sepPosition == packageIdentifier.npos);
+        return { packageIdentifier.substr(0, sepPosition), packageIdentifier.substr(sepPosition + 1) };
+    }
+
+    void EnsurePackageIdentifier(FontContext& context)
+    {
+        if (context.PackageIdentifier.has_value())
+        {
+            return;
+        }
+
+        if (context.PackageId.has_value() && context.PackageVersion.has_value())
+        {
+            context.PackageIdentifier = CreateFontPackageIdentifier(context.PackageId.value(), context.PackageVersion.value());
+            return;
+        }
+
+        // Programmer error if we reach here.
+        THROW_HR(E_UNEXPECTED);
+    }
+
     // This will create an inventory of all known permanently installed fonts to the user.
     // A font is "permanently installed" if it is present in the Font registry for the machine or the user.
     // This will not include fonts that are temporarily installed for the session.
@@ -955,5 +987,65 @@ namespace AppInstaller::Fonts
         }
 
         return fontFiles;
+    }
+
+    std::vector<FontPackageInfo> GetInstalledFontPackages(Manifest::ScopeEnum scope)
+    {
+        auto fontPackages = std::vector<FontPackageInfo>();
+
+        try
+        {
+            auto hive = scope == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+            auto root = Registry::Key::OpenIfExists(hive, std::wstring{ s_FontsPathSubkey });
+
+            if (scope == Manifest::ScopeEnum::User)
+            {
+                for (const auto& subkey : root)
+                {
+                    auto subkeyName = ConvertToUTF16(subkey.Name());
+                    auto subkeyKey = subkey.Open();
+                    if (subkeyName == s_FontsWinGetPrefix)
+                    {
+                        // Assume all sub-keys are WinGet Packages
+                        for (const auto& packageSubKey : subkeyKey)
+                        {
+                            auto context = FontContext();
+                            context.Scope = scope;
+                            context.InstallerSource = InstallerSource::WinGet;
+                            context.PackageIdentifier = ConvertToUTF16(packageSubKey.Name());
+
+                            auto wingetPackageSubKey = packageSubKey.Open();
+                            for (const auto& wingetPackageValue : wingetPackageSubKey.Values())
+                            {
+                                auto value = wingetPackageValue.Value();
+                                if (!value.has_value() || (value.value().GetType() != Registry::Value::Type::String))
+                                {
+                                    continue;
+                                }
+
+                                std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
+                                context.AddPackageFile(filePath);
+                            }
+
+                            auto validationResult = ValidateFontPackage(context);
+                            auto packageInfo = FontPackageInfo();
+                            packageInfo.Scope = scope;
+                            packageInfo.Status = validationResult.Status;
+                            auto [id, version] = GetPackageIdAndVersionFromIdentifier(context.PackageIdentifier.value());
+                            packageInfo.PackageId = id;
+                            packageInfo.PackageVersion = version;
+                            fontPackages.push_back(std::move(packageInfo));
+                        }
+                    }
+                }
+            }
+        }
+        catch (...)
+        {
+            LOG_CAUGHT_EXCEPTION();
+            AICLI_LOG(Core, Error, << L"Failed getting font package information.");
+        }
+
+        return fontPackages;
     }
 }
