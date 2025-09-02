@@ -3390,12 +3390,6 @@ An unlocalized JSON fragment will follow on another line.</comment>
   <data name="OSVersionDescription" xml:space="preserve">
     <value>Target OS version</value>
   </data>
-  <data name="FontInstallCommandShortDescription" xml:space="preserve">
-    <value>Install a font package</value>
-  </data>
-  <data name="FontInstallCommandLongDescription" xml:space="preserve">
-    <value>Installs the selected font package, either found by searching a configured source or directly from a manifest.</value>
-  </data>
   <data name="APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED" xml:space="preserve">
     <value>Failed installing one or more fonts.</value>
   </data>
@@ -3443,12 +3437,6 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="FontUninstallFailed" xml:space="preserve">
     <value>Font package uninstall failed. This is often due to the fonts being in use by the system or an application. Uninstall may be successful after restarting your computer.</value>
-  </data>
-  <data name="FontUninstallCommandLongDescription" xml:space="preserve">
-    <value>Uninstalls the selected font package and all fonts that were delivered with that package.</value>
-  </data>
-  <data name="FontUninstallCommandShortDescription" xml:space="preserve">
-    <value>Uninstall a font package</value>
   </data>
   <data name="FontStatusOK" xml:space="preserve">
     <value>OK</value>

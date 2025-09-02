@@ -191,6 +191,8 @@ namespace AppInstaller::CLI::Workflow
 
     void FontInstallImpl(Execution::Context& context)
     {
+        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+
         Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown;
         if (context.Args.Contains(Execution::Args::Type::InstallScope))
         {
@@ -203,8 +205,6 @@ namespace AppInstaller::CLI::Workflow
             // We will default to User scope.
             scope = Manifest::ScopeEnum::User;
         }
-
-        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
         Fonts::FontContext fontContext;
         fontContext.InstallerSource = InstallerSource::WinGet;
@@ -288,38 +288,35 @@ namespace AppInstaller::CLI::Workflow
 
     void FontUninstallImpl(Execution::Context& context)
     {
-        Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown;
-        if (context.Args.Contains(Execution::Args::Type::InstallScope))
-        {
-            scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-        }
-
-        if (scope == Manifest::ScopeEnum::Unknown)
-        {
-            // We will default to User scope.
-            scope = Manifest::ScopeEnum::User;
-        }
-
         context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
-
-        Fonts::FontContext fontContext;
-        fontContext.InstallerSource = InstallerSource::WinGet;
-        fontContext.Scope = scope;
-
-        const std::string packageId = context.Get<Execution::Data::InstalledPackageVersion>()->GetProperty(AppInstaller::Repository::PackageVersionProperty::Id);
-        const std::string version = context.Get<Execution::Data::InstalledPackageVersion>()->GetProperty(AppInstaller::Repository::PackageVersionProperty::Version);
-
-        /*
-        const auto& manifest = context.Get<Execution::Data::InstalledPackageVersion>()->GetManifest();
-        fontContext.PackageId = ConvertToUTF16(manifest.Id);
-        fontContext.PackageVersion = ConvertToUTF16(manifest.Version);
-        */
-
-        fontContext.PackageId = ConvertToUTF16(packageId);
-        fontContext.PackageVersion = ConvertToUTF16(version);
 
         try
         {
+            // We will default to User scope.
+            Manifest::ScopeEnum scope = Manifest::ScopeEnum::User;
+            if (context.Args.Contains(Execution::Args::Type::InstallScope))
+            {
+                scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            }
+
+            Fonts::FontContext fontContext;
+            fontContext.InstallerSource = InstallerSource::WinGet;
+            fontContext.Scope = scope;
+
+            if (context.Args.Contains(Execution::Args::Type::Manifest))
+            {
+                const auto& manifest = context.Get<Execution::Data::Manifest>();
+                fontContext.PackageId = ConvertToUTF16(manifest.Id);
+                fontContext.PackageVersion = ConvertToUTF16(manifest.Version);
+            }
+            else
+            {
+                const std::string packageId = context.Get<Execution::Data::InstalledPackageVersion>()->GetProperty(AppInstaller::Repository::PackageVersionProperty::Id);
+                const std::string version = context.Get<Execution::Data::InstalledPackageVersion>()->GetProperty(AppInstaller::Repository::PackageVersionProperty::Version);
+                fontContext.PackageId = ConvertToUTF16(packageId);
+                fontContext.PackageVersion = ConvertToUTF16(version);
+            }
+
             auto uninstallResult = Fonts::UninstallFontPackage(fontContext);
             if (uninstallResult.Result() != FontResult::Success)
             {
