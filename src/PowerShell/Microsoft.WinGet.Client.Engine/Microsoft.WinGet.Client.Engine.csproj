@@ -21,7 +21,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(UseProdCLSIDs)' == 'true'">
+  <PropertyGroup>
     <DefineConstants>$(DefineConstants);USE_PROD_CLSIDS</DefineConstants>
   </PropertyGroup>
 

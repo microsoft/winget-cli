@@ -138,11 +138,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                             this.RepairEnvPath();
                             break;
                         case IntegrityCategory.AppInstallerNotRegistered:
-                            this.Register(expectedVersion);
+                            await this.RegisterAsync(expectedVersion, allUsers);
                             break;
                         case IntegrityCategory.AppInstallerNotInstalled:
                         case IntegrityCategory.AppInstallerNotSupported:
                         case IntegrityCategory.Failure:
+                            System.Diagnostics.Debugger.Launch();
+                            System.Diagnostics.Debugger.Break();
                             await this.InstallAsync(expectedVersion, allUsers, force);
                             break;
                         case IntegrityCategory.AppInstallerNoLicense:
@@ -197,10 +199,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             await appxModule.InstallFromGitHubReleaseAsync(toInstallVersion, allUsers, false, force);
         }
 
-        private void Register(string toRegisterVersion)
+        private async Task RegisterAsync(string toRegisterVersion, bool allUsers)
         {
             var appxModule = new AppxModuleHelper(this);
-            appxModule.RegisterAppInstaller(toRegisterVersion);
+            await appxModule.RegisterAppInstallerAsync(toRegisterVersion, allUsers);
         }
 
         private void RepairEnvPath()

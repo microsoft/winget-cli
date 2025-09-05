@@ -16,7 +16,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using Microsoft.WinGet.Client.Engine.Common;
-    using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Extensions;
     using Microsoft.WinGet.Common.Command;
     using Newtonsoft.Json;
@@ -61,6 +60,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string Register = "Register";
         private const string DisableDevelopmentMode = "DisableDevelopmentMode";
         private const string ForceTargetApplicationShutdown = "ForceTargetApplicationShutdown";
+        private const string AllUsers = "AllUsers";
 
         private const string AppInstallerName = "Microsoft.DesktopAppInstaller";
         private const string AppxManifest = "AppxManifest.xml";
@@ -112,21 +112,23 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <summary>
         /// Calls Get-AppxPackage Microsoft.DesktopAppInstaller.
         /// </summary>
+        /// <param name="allUsers">Whether to get for all users.</param>
         /// <returns>Result of Get-AppxPackage.</returns>
-        public PSObject? GetAppInstallerObject()
+        public PSObject? GetAppInstallerObject(bool allUsers = false)
         {
-            return this.GetAppxObject(AppInstallerName);
+            return this.GetAppxObject(AppInstallerName, allUsers);
         }
 
         /// <summary>
         /// Gets the string value a property from the Get-AppxPackage object of AppInstaller.
         /// </summary>
         /// <param name="propertyName">Property name.</param>
+        /// <param name="allUsers">Whether to get for all users.</param>
         /// <returns>Value, null if doesn't exist.</returns>
-        public string? GetAppInstallerPropertyValue(string propertyName)
+        public string? GetAppInstallerPropertyValue(string propertyName, bool allUsers = false)
         {
             string? result = null;
-            var packageObj = this.GetAppInstallerObject();
+            var packageObj = this.GetAppInstallerObject(allUsers);
             if (packageObj is not null)
             {
                 var property = packageObj.Properties.Where(p => p.Name == propertyName).FirstOrDefault();
@@ -143,11 +145,13 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Calls Add-AppxPackage to register with AppInstaller's AppxManifest.xml.
         /// </summary>
         /// <param name="releaseTag">Release tag of GitHub release.</param>
-        public void RegisterAppInstaller(string releaseTag)
+        /// <param name="allUsers">Whether to register for all users.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task RegisterAppInstallerAsync(string releaseTag, bool allUsers)
         {
             if (string.IsNullOrEmpty(releaseTag))
             {
-                string? versionFromLocalPackage = this.GetAppInstallerPropertyValue(Version);
+                string? versionFromLocalPackage = this.GetAppInstallerPropertyValue(Version, allUsers);
 
                 if (versionFromLocalPackage == null)
                 {
@@ -157,11 +161,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 var packageVersion = new Version(versionFromLocalPackage);
                 if (packageVersion.Major == 1 && packageVersion.Minor > 15)
                 {
-                    releaseTag = $"1.{packageVersion.Minor - 15}.{packageVersion.Build}";
+                    releaseTag = $"v1.{packageVersion.Minor - 15}.{packageVersion.Build}";
                 }
                 else
                 {
-                    releaseTag = $"{packageVersion.Major}.{packageVersion.Minor}.{packageVersion.Build}";
+                    releaseTag = $"v{packageVersion.Major}.{packageVersion.Minor}.{packageVersion.Build}";
                 }
             }
 
@@ -169,31 +173,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             // If dependencies are missing, a provisioned package can appear to only need registration,
             // but will fail to register. `InstallDependenciesAsync` checks for the packages before
             // acting, so it should be mostly a no-op if they are already available.
-            this.InstallDependenciesAsync(releaseTag).Wait();
+            await this.InstallDependenciesAsync(releaseTag);
 
-            string? packageFullName = this.GetAppInstallerPropertyValue(PackageFullName);
-
-            if (packageFullName == null)
-            {
-                throw new ArgumentNullException(PackageFullName);
-            }
-
-            string appxManifestPath = System.IO.Path.Combine(
-                Utilities.ProgramFilesWindowsAppPath,
-                packageFullName,
-                AppxManifest);
-
-            _ = this.ExecuteAppxCmdlet(
-                AddAppxPackage,
-                new Dictionary<string, object>
-                {
-                    { Path, appxManifestPath },
-                },
-                new List<string>
-                {
-                    Register,
-                    DisableDevelopmentMode,
-                });
+            this.RegisterAppInstallerInternal(allUsers);
         }
 
         /// <summary>
@@ -278,6 +260,10 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                           .AddParameter(ErrorAction, Stop)
                           .Invoke();
                     });
+
+                // Register the package after provisioning so that it is
+                // available immediately.
+                this.RegisterAppInstallerInternal(allUsers: true);
             }
             catch (RuntimeException e)
             {
@@ -320,14 +306,21 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private PSObject? GetAppxObject(string packageName)
+        private PSObject? GetAppxObject(string packageName, bool allUsers = false)
         {
+            var options = new List<string>();
+            if (allUsers)
+            {
+                options.Add(AllUsers);
+            }
+
             return this.ExecuteAppxCmdlet(
                 GetAppxPackage,
                 new Dictionary<string, object>
                 {
                     { Name, packageName },
-                })
+                },
+                options)
                 .FirstOrDefault();
         }
 
@@ -807,6 +800,33 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 });
 
             return result;
+        }
+
+        private void RegisterAppInstallerInternal(bool allUsers = false)
+        {
+            string? packageFullName = this.GetAppInstallerPropertyValue(PackageFullName, allUsers);
+
+            if (packageFullName == null)
+            {
+                throw new ArgumentNullException(PackageFullName);
+            }
+
+            string appxManifestPath = System.IO.Path.Combine(
+                Utilities.ProgramFilesWindowsAppPath,
+                packageFullName,
+                AppxManifest);
+
+            _ = this.ExecuteAppxCmdlet(
+                AddAppxPackage,
+                new Dictionary<string, object>
+                {
+                    { Path, appxManifestPath },
+                },
+                new List<string>
+                {
+                    Register,
+                    DisableDevelopmentMode,
+                });
         }
     }
 }
