@@ -94,6 +94,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string XamlPackage27 = "Microsoft.UI.Xaml.2.7";
         private const string XamlReleaseTag273 = "v2.7.3";
 
+        // WinGet Source
+        private const string WinGetSourceName = "Microsoft.Winget.Source";
+        private const string WinGetSourceMsixName = "source2.msix";
+        private const string WinGetSourceUrl = "https://cdn.winget.microsoft.com/cache/source2.msix";
+
         private readonly PowerShellCmdlet pwshCmdlet;
         private readonly HttpClientHelper httpClientHelper;
         private Lazy<HashSet<Architecture>> frameworkArchitectures;
@@ -120,6 +125,16 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
+        /// Calls Get-AppxPackage Microsoft.Winget.Source.
+        /// </summary>
+        /// <param name="allUsers">Whether to get for all users.</param>
+        /// <returns>Result of Get-AppxPackage.</returns>
+        public PSObject? GetWinGetSourceObject(bool allUsers = false)
+        {
+            return this.GetAppxObject(WinGetSourceName, allUsers);
+        }
+
+        /// <summary>
         /// Gets the string value a property from the Get-AppxPackage object of AppInstaller.
         /// </summary>
         /// <param name="propertyName">Property name.</param>
@@ -139,6 +154,15 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Checks if winget source is installed.
+        /// </summary>
+        /// <returns>True if installed.</returns>
+        public bool IsWinGetSourceInstalled()
+        {
+            return this.GetWinGetSourceObject() is not null;
         }
 
         /// <summary>
@@ -211,6 +235,15 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                     await this.AddAppInstallerBundleAsync(releaseTag, false, force);
                 }
             }
+        }
+
+        /// <summary>
+        /// Installs the WinGet source by downloading and adding package.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task InstallWinGetSourceAsync()
+        {
+            await this.DownloadPackageAndAddAsync(WinGetSourceUrl, WinGetSourceMsixName, null);
         }
 
         /// <summary>

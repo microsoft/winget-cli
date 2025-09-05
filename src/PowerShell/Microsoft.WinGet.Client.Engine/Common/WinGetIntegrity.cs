@@ -79,6 +79,13 @@ namespace Microsoft.WinGet.Client.Engine.Common
                             expectedVersion));
                 }
             }
+
+            // Verify that the winget source is installed.
+            var appxModule = new AppxModuleHelper(pwshCmdlet);
+            if (!appxModule.IsWinGetSourceInstalled())
+            {
+                throw new WinGetIntegrityException(IntegrityCategory.WinGetSourceNotInstalled);
+            }
         }
 
         private static IntegrityCategory GetReason(PowerShellCmdlet pwshCmdlet)

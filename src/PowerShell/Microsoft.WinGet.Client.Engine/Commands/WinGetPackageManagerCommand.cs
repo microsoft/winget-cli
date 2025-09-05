@@ -144,7 +144,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                         case IntegrityCategory.AppInstallerNotSupported:
                         case IntegrityCategory.Failure:
                             System.Diagnostics.Debugger.Launch();
-                            System.Diagnostics.Debugger.Break();
                             await this.InstallAsync(expectedVersion, allUsers, force);
                             break;
                         case IntegrityCategory.AppInstallerNoLicense:
@@ -158,6 +157,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                                 throw new WinGetRepairException(e);
                             }
 
+                            break;
+                        case IntegrityCategory.WinGetSourceNotInstalled:
+                            await this.InstallWinGetSourceAsync();
                             break;
                         case IntegrityCategory.AppExecutionAliasDisabled:
                         case IntegrityCategory.Unknown:
@@ -197,6 +199,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
             var appxModule = new AppxModuleHelper(this);
             await appxModule.InstallFromGitHubReleaseAsync(toInstallVersion, allUsers, false, force);
+        }
+
+        private async Task InstallWinGetSourceAsync()
+        {
+            this.Write(StreamType.Verbose, "Installing winget source");
+            var appxModule = new AppxModuleHelper(this);
+            await appxModule.InstallWinGetSourceAsync();
         }
 
         private async Task RegisterAsync(string toRegisterVersion, bool allUsers)
