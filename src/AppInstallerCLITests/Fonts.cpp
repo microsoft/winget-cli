@@ -78,6 +78,7 @@ TEST_CASE("InvalidFontFile", "[fonts]")
 
 TEST_CASE("GetFontRegistryPath", "[fonts]")
 {
+    /*
     auto context = FontContext();
     context.PackageIdentifier = L"TestPackage";
 
@@ -92,6 +93,7 @@ TEST_CASE("GetFontRegistryPath", "[fonts]")
     context.InstallerSource = InstallerSource::Unknown;
     fontPath = GetFontRegistryPath(context);
     REQUIRE(fontPath == L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts");
+    */
 }
 
 TEST_CASE("GetInstalledFontFiles", "[fonts]")

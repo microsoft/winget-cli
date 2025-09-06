@@ -15,9 +15,7 @@ namespace AppInstaller::Fonts
         // filesystem and registry. We make assumptions based on the structure of how
         // the font is installed to make a best-effort determination.
         Unknown,    // Can be any external font installer
-        UWP,        // Font installed by a Universal Windows Platform app
         WinGet,     // Font installed by WinGet
-        Any,        // Can be any installer.
     };
 
     enum class FontStatus
@@ -63,11 +61,16 @@ namespace AppInstaller::Fonts
         bool IsFontFileInstalled = false;
         bool IsFontFileRegistered = false;
 
-        // Registry path of the FontFile, if exists, or where it should be if it is not installed.
-        std::optional<std::wstring> RegistryPath;
+        // Registry Install path is where the installation with the system is located.
+        std::optional<std::wstring> RegistryInstallPath;
+
+        // Registry Source path is where package mapping of the package is.
+        std::optional<std::wstring> RegistryPackagePath;
+
         std::optional<std::wstring> PackageId;
         std::optional<std::wstring> PackageVersion;
         std::optional<std::wstring> PackageIdentifier;
+        std::optional<std::wstring> SourceIdentifier;
     };
 
     // Represents information about a WinGet-installed font package.
@@ -104,24 +107,10 @@ namespace AppInstaller::Fonts
     struct FontOperationResult
     {
         winrt::hresult HResult = winrt::hresult(S_OK);
-        FontResult Result();
+        FontResult Result() const;
 
         // TODO: Add optional rollback context to unwind installs if one operation succeeded but a subsequent one failed.
     };
-
-    std::wstring GetFontRegistryPath(const FontContext& context);
-
-    std::filesystem::path GetRootFontPath(Manifest::ScopeEnum scope);
-
-    std::filesystem::path GetFontFileInstallPath(const FontContext& context);
-
-    std::wstring GetFontFileTitle(const std::filesystem::path& fontFilePath);
-
-    std::wstring CreateFontPackageIdentifier(const std::wstring& packageId, const std::wstring& version);
-
-    std::tuple<std::wstring, std::wstring> GetPackageIdAndVersionFromIdentifier(const std::wstring& packageIdentifier);
-
-    void EnsurePackageIdentifier(FontContext& context);
 
     std::vector<FontFileInfo> GetInstalledFontFiles();
 
