@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Management.Automation;
     using System.Threading.Tasks;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
@@ -88,16 +89,79 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="expectedVersion">The expected version, if any.</param>
         /// <param name="allUsers">Install for all users. Requires admin.</param>
         /// <param name="force">Force application shutdown.</param>
-        public void Repair(string expectedVersion, bool allUsers, bool force)
+        /// <param name="includePrerelease">Include prerelease versions when matching version.</param>
+        public void Repair(string expectedVersion, bool allUsers, bool force, bool includePrerelease)
         {
             this.ValidateWhenAllUsers(allUsers);
             var runningTask = this.RunOnMTA(
                 async () =>
                 {
+                    if (!string.IsNullOrWhiteSpace(expectedVersion))
+                    {
+                        var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                        var allReleases = await gitHubClient.GetAllReleasesAsync();
+                        var allWinGetReleases = allReleases.Select(r => new WinGetVersion(r.TagName));
+                        var latestVersion = GetLatestMatchingVersion(allWinGetReleases, expectedVersion, includePrerelease);
+                        if (latestVersion == null)
+                        {
+                            this.Write(StreamType.Warning, $"No matching version found for {expectedVersion}");
+                        }
+                        else
+                        {
+                            expectedVersion = latestVersion.TagVersion;
+                            this.Write(StreamType.Verbose, $"Matching version found: {expectedVersion}");
+                        }
+                    }
+                    else
+                    {
+                        this.Write(StreamType.Verbose, "No version specified.");
+                    }
+
                     await this.RepairStateMachineAsync(expectedVersion, allUsers, force);
                     return true;
                 });
             this.Wait(runningTask);
+        }
+
+        private static WinGetVersion GetLatestMatchingVersion(IEnumerable<WinGetVersion> versions, string pattern, bool includePrerelease)
+        {
+            pattern = string.IsNullOrWhiteSpace(pattern) ? "*" : pattern;
+
+            var parts = pattern.Split('.');
+            string? major = parts[0];
+            string? minor = parts.Length > 1 ? parts[1] : null;
+            string? build = parts.Length > 2 ? parts[2] : null;
+            string? revision = parts.Length > 3 ? parts[3] : null;
+
+            if (!includePrerelease)
+            {
+                versions = versions.Where(v => !v.IsPrerelease);
+            }
+
+            versions = versions
+                .Where(v =>
+                    VersionPartMatch(major, v.Version.Major) &&
+                    VersionPartMatch(minor, v.Version.Minor) &&
+                    VersionPartMatch(build, v.Version.Build) &&
+                    VersionPartMatch(revision, v.Version.Revision))
+                .OrderBy(f => f.Version);
+
+            return versions.Count() == 0 ? null : versions.Last();
+        }
+
+        private static bool VersionPartMatch(string? partPattern, int partValue)
+        {
+            if (string.IsNullOrWhiteSpace(partPattern))
+            {
+                return true;
+            }
+
+            if (partPattern.EndsWith("*"))
+            {
+                return partValue.ToString().StartsWith(partPattern.TrimEnd('*'));
+            }
+
+            return partPattern == partValue.ToString();
         }
 
         private async Task RepairStateMachineAsync(string expectedVersion, bool allUsers, bool force)
@@ -143,7 +207,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                         case IntegrityCategory.AppInstallerNotInstalled:
                         case IntegrityCategory.AppInstallerNotSupported:
                         case IntegrityCategory.Failure:
-                            System.Diagnostics.Debugger.Launch();
                             await this.InstallAsync(expectedVersion, allUsers, force);
                             break;
                         case IntegrityCategory.AppInstallerNoLicense:

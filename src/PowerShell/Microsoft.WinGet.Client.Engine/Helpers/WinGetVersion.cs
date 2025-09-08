@@ -20,9 +20,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="version">String Version.</param>
         public WinGetVersion(string version)
         {
-            if (string.IsNullOrEmpty(version))
+            if (string.IsNullOrWhiteSpace(version))
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(version));
             }
 
             string toParseVersion = version;
@@ -32,6 +32,10 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             {
                 this.TagVersion = version;
                 toParseVersion = toParseVersion.Substring(1);
+                if (toParseVersion.Length > 0 && toParseVersion[0] == '-')
+                {
+                    toParseVersion = toParseVersion.Substring(1);
+                }
             }
             else
             {
