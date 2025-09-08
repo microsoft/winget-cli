@@ -32,6 +32,8 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             {
                 this.TagVersion = version;
                 toParseVersion = toParseVersion.Substring(1);
+
+                // Handle v-0.2*, v-0.3*, v-0.4*
                 if (toParseVersion.Length > 0 && toParseVersion[0] == '-')
                 {
                     toParseVersion = toParseVersion.Substring(1);

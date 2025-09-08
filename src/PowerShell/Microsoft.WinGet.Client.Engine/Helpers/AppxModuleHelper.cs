@@ -243,7 +243,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task InstallWinGetSourceAsync()
         {
-            await this.DownloadPackageAndAddAsync(WinGetSourceUrl, WinGetSourceMsixName, null);
+            await this.DownloadPackageAndAddAsync(WinGetSourceUrl, WinGetSourceMsixName, options: null);
         }
 
         /// <summary>
