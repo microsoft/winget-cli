@@ -17,7 +17,7 @@ Repairs the installation of the WinGet client on your computer.
 ### IntegrityVersionSet (Default)
 
 ```
-Repair-WinGetPackageManager [-AllUsers] [-Force] [-Version <String>] [<CommonParameters>]
+Repair-WinGetPackageManager [-AllUsers] [-Force] [-Version <String>] [<CommonParameters>] [-IncludePreRelease]
 ```
 
 ### IntegrityLatestSet
@@ -53,6 +53,16 @@ Repair-WinGetPackageManager -Latest -Force
 This example shows how to repair they WinGet client by installing the latest version and ensuring
 it functions properly. The **Force** parameter shuts down the version that is currently running so
 that it can update the application files.
+
+### Example 3: Install a version with wildcards
+
+```powershell
+Repair-WinGetPackageManager -Version "1.*.1*" -Force
+```
+
+This example shows how to repair the WinGet client by installing a version that matches the
+specified version pattern. The **Force** parameter shuts down the version that is currently running
+so that it can update the application files.
 
 ## PARAMETERS
 
@@ -123,8 +133,7 @@ Accept wildcard characters: False
 ```
 
 ### -Version
-
-Use this parameter to specify the specific version of the WinGet client to install.
+Specifies the version of the WinGet client to install or repair. You can provide an exact version number or use wildcard characters (for example, `"1.*.1*"`) to match and install the latest version that fits the pattern.
 
 ```yaml
 Type: System.String

@@ -112,15 +112,28 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Wait(runningTask);
         }
 
-        private static WinGetVersion GetLatestMatchingVersion(IEnumerable<WinGetVersion> versions, string pattern, bool includePrerelease)
+        /// <summary>
+        /// Tries to get the latest version matching the pattern.
+        /// </summary>
+        /// <remarks>
+        /// Pattern only supports trailing wildcards.
+        /// - For example, the pattern can be: 1.11.*, 1.11.3*
+        /// - But it cannot be: 1.*1.1 or 1.*1*.1.
+        /// </remarks>
+        /// <param name="versions">List of versions to match against.</param>
+        /// <param name="pattern">Pattern to match.</param>
+        /// <param name="includePrerelease">Include prerelease versions.</param>
+        /// <param name="result">The resulting version.</param>
+        /// <returns>True if a matching version was found.</returns>
+        private static bool TryGetLatestMatchingVersion(IEnumerable<WinGetVersion> versions, string pattern, bool includePrerelease, out WinGetVersion result)
         {
             pattern = string.IsNullOrWhiteSpace(pattern) ? "*" : pattern;
 
             var parts = pattern.Split('.');
-            string? major = parts[0];
-            string? minor = parts.Length > 1 ? parts[1] : null;
-            string? build = parts.Length > 2 ? parts[2] : null;
-            string? revision = parts.Length > 3 ? parts[3] : null;
+            string major = parts[0];
+            string minor = parts.Length > 1 ? parts[1] : string.Empty;
+            string build = parts.Length > 2 ? parts[2] : string.Empty;
+            string revision = parts.Length > 3 ? parts[3] : string.Empty;
 
             if (!includePrerelease)
             {
@@ -135,10 +148,17 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     VersionPartMatch(revision, v.Version.Revision))
                 .OrderBy(f => f.Version);
 
-            return versions.Count() == 0 ? null : versions.Last();
+            if (!versions.Any())
+            {
+                result = null!;
+                return false;
+            }
+
+            result = versions.Last();
+            return true;
         }
 
-        private static bool VersionPartMatch(string? partPattern, int partValue)
+        private static bool VersionPartMatch(string partPattern, int partValue)
         {
             if (string.IsNullOrWhiteSpace(partPattern))
             {
@@ -160,17 +180,14 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
                 var allReleases = await gitHubClient.GetAllReleasesAsync();
                 var allWinGetReleases = allReleases.Select(r => new WinGetVersion(r.TagName));
-                var latestVersion = GetLatestMatchingVersion(allWinGetReleases, version, includePrerelease);
-                if (latestVersion == null)
-                {
-                    this.Write(StreamType.Warning, $"No matching version found for {version}");
-                    return version;
-                }
-                else
+                if (TryGetLatestMatchingVersion(allWinGetReleases, version, includePrerelease, out var latestVersion))
                 {
                     this.Write(StreamType.Verbose, $"Matching version found: {latestVersion.TagVersion}");
                     return latestVersion.TagVersion;
                 }
+
+                this.Write(StreamType.Warning, $"No matching version found for {version}");
+                return version;
             }
             catch (Exception e)
             {
