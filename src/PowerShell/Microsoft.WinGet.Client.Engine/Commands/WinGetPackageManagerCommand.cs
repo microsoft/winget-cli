@@ -98,19 +98,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 {
                     if (!string.IsNullOrWhiteSpace(expectedVersion))
                     {
-                        var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
-                        var allReleases = await gitHubClient.GetAllReleasesAsync();
-                        var allWinGetReleases = allReleases.Select(r => new WinGetVersion(r.TagName));
-                        var latestVersion = GetLatestMatchingVersion(allWinGetReleases, expectedVersion, includePrerelease);
-                        if (latestVersion == null)
-                        {
-                            this.Write(StreamType.Warning, $"No matching version found for {expectedVersion}");
-                        }
-                        else
-                        {
-                            expectedVersion = latestVersion.TagVersion;
-                            this.Write(StreamType.Verbose, $"Matching version found: {expectedVersion}");
-                        }
+                        this.Write(StreamType.Verbose, $"Attempting to resolve version '{expectedVersion}'");
+                        expectedVersion = await this.ResolveVersionAsync(expectedVersion, includePrerelease);
                     }
                     else
                     {
@@ -162,6 +151,32 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             }
 
             return partPattern == partValue.ToString();
+        }
+
+        private async Task<string> ResolveVersionAsync(string version, bool includePrerelease)
+        {
+            try
+            {
+                var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                var allReleases = await gitHubClient.GetAllReleasesAsync();
+                var allWinGetReleases = allReleases.Select(r => new WinGetVersion(r.TagName));
+                var latestVersion = GetLatestMatchingVersion(allWinGetReleases, version, includePrerelease);
+                if (latestVersion == null)
+                {
+                    this.Write(StreamType.Warning, $"No matching version found for {version}");
+                    return version;
+                }
+                else
+                {
+                    this.Write(StreamType.Verbose, $"Matching version found: {latestVersion.TagVersion}");
+                    return latestVersion.TagVersion;
+                }
+            }
+            catch (Exception e)
+            {
+                this.Write(StreamType.Warning, $"Could not resolve version '{version}': {e.Message}");
+                return version;
+            }
         }
 
         private async Task RepairStateMachineAsync(string expectedVersion, bool allUsers, bool force)
