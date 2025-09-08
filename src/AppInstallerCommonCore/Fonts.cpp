@@ -127,6 +127,29 @@ namespace AppInstaller::Fonts
             return path;
         }
 
+        // For machine-installed fonts the files all reside in the same folder. We need a unique name that is reasonably human
+        // readable. The way system fonts normally do this is by appending a number to the end of the file stem. We will follow
+        // the same pattern by using the original file and adding a number until we arrive at a unique filename.
+        std::filesystem::path GetUniquePathForDestination(const std::filesystem::path& source, const std::filesystem::path& destination)
+        {
+            const auto stem = source.stem();
+            const auto ext = source.extension();
+            auto uniqueName = source.filename();
+            auto candidatePath = destination / uniqueName;
+            int index = 0;
+            while (std::filesystem::exists(candidatePath))
+            {
+                std::filesystem::path appendId = { std::to_string(index) };
+                uniqueName = stem;
+                uniqueName += appendId;
+                uniqueName += ext;
+                candidatePath = destination / uniqueName;
+                index++;
+            }
+
+            return candidatePath;
+        }
+
         std::vector<std::filesystem::path> GetFontFilePaths(const wil::com_ptr<IDWriteFontFace>& fontFace)
         {
             UINT32 fileCount = 0;
@@ -163,7 +186,7 @@ namespace AppInstaller::Fonts
             return filePaths;
         }
 
-        void RemoveAllFontResources(std::filesystem::path filePath)
+        void RemoveAllFontResources(const std::filesystem::path& filePath)
         {
             // The recommended uninstall method of a font is to call RemoveFontResource until it fails,
             // This is not guaranteed to remove the file from use, but it is the best we have.
@@ -222,6 +245,37 @@ namespace AppInstaller::Fonts
                             {
                                 return valueName;
                             }
+                        }
+                    }
+                }
+            }
+            CATCH_LOG();
+
+            return std::nullopt;
+        }
+
+        // The package registry for machine installed fonts stores the package filename as a registry value.
+        // This is so we can map the original package filename to the installed filename since they may be different.
+        std::optional<std::filesystem::path> GetRegisteredMachineFontInstallPath(const std::wstring& registryPath, const std::filesystem::path& filePath)
+        {
+            try
+            {
+                const auto& key = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, registryPath, 0UL, KEY_ALL_ACCESS);
+                if (key)
+                {
+                    for (const auto& valueRef : key.Values())
+                    {
+                        const auto& value = valueRef.Value();
+                        if (!value.has_value() || (value.value().GetType() != Registry::Value::Type::String))
+                        {
+                            continue;
+                        }
+
+                        const auto& valueName = ConvertToUTF16(valueRef.Name());
+                        if (valueName == filePath.filename())
+                        {
+                            const std::filesystem::path& valuePath = { value->GetValue<Registry::Value::Type::String>() };
+                            return valuePath;
                         }
                     }
                 }
@@ -320,10 +374,6 @@ namespace AppInstaller::Fonts
             {
                 try
                 {
-                    // The GetFontTitle call can fail with E_INVALIDARG if the font file is located in
-                    // a subdirectory of the system Fonts folder. The system does not seem to expect
-                    // font files to be in subfolders and the shell methods to get the item fail to
-                    // resolve the path correctly.
                     fileInfo.Title = GetFontFileTitle(fileInfo.FilePath);
                 }
                 CATCH_LOG();
@@ -364,14 +414,23 @@ namespace AppInstaller::Fonts
         {
             if (fileInfo.InstallerSource == InstallerSource::WinGet && fileInfo.Scope == Manifest::ScopeEnum::Machine)
             {
-                // Machine-installed WinGet must provide a non-conflicting filename to the root install location.
-                // TODO: Generate a user-readable filename based on package that is unique in the fonts folder.
-                // Use a GUID for now.
-                GUID guid;
-                THROW_IF_FAILED(CoCreateGuid(&guid));
-                auto fileName = Utility::ConvertGuidToString(guid);
-                fileInfo.InstallPath = installPath / fileName;
-                fileInfo.InstallPath.replace_extension(fileInfo.FilePath.extension());
+                // Machine installed WinGet fonts must have a non-conflicting filename in the root font folder.
+                // To ensure a unique font name and allow different versions to exist side by side, the install file
+                // name may be a different name from the original package install. To account for this, the Package
+                // registry location uses the original filename as the registry value name and the value as the
+                // resulting path. If we are installing a machine font that already exists, we must check to see
+                // if this file already has a mapping defined.
+                const auto& installedFilePath = GetRegisteredMachineFontInstallPath(fileInfo.RegistryPackagePath.value(), fileInfo.FilePath.filename());
+                if (installedFilePath.has_value())
+                {
+                    fileInfo.InstallPath = installedFilePath.value();
+                }
+                else
+                {
+                    // File not already defined, we need to create a non-conflicting filename.
+                    // Machine-installed WinGet must provide a non-conflicting filename to the root install location.
+                    fileInfo.InstallPath = GetUniquePathForDestination(fileInfo.FilePath, installPath);
+                }
             }
             else
             {
@@ -379,28 +438,24 @@ namespace AppInstaller::Fonts
             }
         }
 
-        // Check whether the install path is in the registry.
+        // If our font file is regstered it will exist in the install path and have a registry value.
         const auto& registryTitle = CheckRegistryForFontFileReference(fileInfo.RegistryInstallPath.value(), fileInfo.InstallPath, fileInfo.Scope);
 
-        // Use the registry title as the title if we still dont' know.
         if (fileInfo.Title.empty())
         {
+            // Use the registry title or filename if we still dont' know.
             if (registryTitle.has_value())
             {
                 fileInfo.Title = registryTitle.value();
             }
             else
             {
-                // If the title is still empty, use the Filename
                 fileInfo.Title = fileInfo.FilePath.filename().wstring();
             }
         }
 
-        // Confirm install states
         fileInfo.IsFontFileInstalled = std::filesystem::exists(fileInfo.InstallPath) ? true : false;
         fileInfo.IsFontFileRegistered = registryTitle.has_value() ? true : false;
-
-        // Set status
         if (fileInfo.IsFontFileInstalled && fileInfo.IsFontFileRegistered)
         {
             fileInfo.Status = FontStatus::OK;
@@ -564,9 +619,10 @@ namespace AppInstaller::Fonts
 
                 if (context.Scope == Manifest::ScopeEnum::Machine)
                 {
-                    // For an unknown reason, std::filesystem::rename does not work when installing into the system
-                    // Fonts folder; the system does not recognize the font files. std::filesystem::copy_file does work.
+                    // Using std::filesystem::rename does not work when installing into the system Fonts
+                    // folder; the system does not recognize the font files. std::filesystem::copy_file does work.
                     std::filesystem::copy_file(fontFileInfo.FilePath, fontFileInfo.InstallPath);
+                    std::filesystem::remove(fontFileInfo.FilePath);
                 }
                 else
                 {
@@ -583,8 +639,9 @@ namespace AppInstaller::Fonts
                 else
                 {
                     // Machine install we set two keys, one for sourcing, and one for the actual install.
+                    // The value name is the source filename so we can map this later for validation.
                     auto sourceKey = Registry::Key::Create(HKEY_LOCAL_MACHINE, fontFileInfo.RegistryPackagePath.value(), 0UL, KEY_ALL_ACCESS);
-                    sourceKey.SetValue(fontFileInfo.Title, fontFileInfo.InstallPath, REG_SZ);
+                    sourceKey.SetValue(fontFileInfo.FilePath.filename(), fontFileInfo.InstallPath, REG_SZ);
 
                     // Machine font install uses relative filename. Use filename as value to avoid collisions in the key.
                     auto installKey = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, fontFileInfo.RegistryInstallPath.value(), 0UL, KEY_ALL_ACCESS);
@@ -912,6 +969,8 @@ namespace AppInstaller::Fonts
 
         try
         {
+            auto wingetMachineFonts = std::unordered_map<std::filesystem::path, bool>();
+
             // Iterate through scopes for machine and user
             std::vector<Manifest::ScopeEnum> scopes = { Manifest::ScopeEnum::Machine, Manifest::ScopeEnum::User };
             for (const auto& scope : scopes)
@@ -949,12 +1008,18 @@ namespace AppInstaller::Fonts
                                         continue;
                                     }
 
+                                    std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
+                                    if (scope == Manifest::ScopeEnum::Machine)
+                                    {
+                                        // Capture the filename for winget machine fonts so we can avoid duplicates.
+                                        wingetMachineFonts[filePath.filename()] = true;
+                                    }
+
                                     auto context = FontContext();
                                     context.Scope = scope;
                                     context.InstallerSource = InstallerSource::WinGet;
                                     context.PackageId = packageId;
                                     context.PackageVersion = version;
-                                    std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
                                     auto fontFile = CreateFontFileInfo(context, filePath, ConvertToUTF16(versionValue.Name()));
                                     fontFiles.push_back(std::move(fontFile));
                                 }
@@ -972,13 +1037,19 @@ namespace AppInstaller::Fonts
                         continue;
                     }
 
-                    // We must check if the file is the same as was already in WinGet Machine fonts.
-                    // TODO check if file already in font file info list
+                    std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
+                    if (scope == Manifest::ScopeEnum::Machine)
+                    {
+                        // Skip it if this is already identified in the WinGet machine fonts.
+                        if (wingetMachineFonts[filePath.filename()])
+                        {
+                            continue;
+                        }
+                    }
 
                     auto context = FontContext();
                     context.Scope = scope;
                     context.InstallerSource = InstallerSource::Unknown;
-                    std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
                     auto fontFile = CreateFontFileInfo(context, filePath, ConvertToUTF16(rootValue.Name()));
                     fontFiles.push_back(std::move(fontFile));
                 }

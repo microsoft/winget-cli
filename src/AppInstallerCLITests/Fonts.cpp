@@ -45,7 +45,6 @@ TEST_CASE("ValidFontFile", "[fonts]")
 {
     TestDataFile testFont(s_FontFile);
     const auto& testFontPath = testFont.GetPath();
-
     FontCatalog fontCatalog;
     DWRITE_FONT_FILE_TYPE fontFileType;
     REQUIRE(fontCatalog.IsFontFileSupported(testFontPath, fontFileType));
@@ -55,13 +54,12 @@ TEST_CASE("ValidFontFile", "[fonts]")
 TEST_CASE("GetFontFileInfo", "[fonts]")
 {
     TestDataFile testFont(s_FontFile);
-
     auto context = FontContext();
     context.Scope = ScopeEnum::User;
-    context.PackageIdentifier = L"TestPackage";
+    context.PackageId = L"TestPackage";
+    context.PackageVersion = L"1.0.0.0";
     context.InstallerSource = InstallerSource::WinGet;
     const auto& fontFileInfo = CreateFontFileInfo(context, testFont.GetPath());
-
     REQUIRE(fontFileInfo.Status == FontStatus::Absent);
 }
 
@@ -69,31 +67,10 @@ TEST_CASE("InvalidFontFile", "[fonts]")
 {
     TestDataFile testFont(s_InvalidFontFile);
     const auto& testFontPath = testFont.GetPath();
-
     FontCatalog fontCatalog;
     DWRITE_FONT_FILE_TYPE fontFileType;
     REQUIRE_FALSE(fontCatalog.IsFontFileSupported(testFontPath, fontFileType));
     REQUIRE(fontFileType == DWRITE_FONT_FILE_TYPE::DWRITE_FONT_FILE_TYPE_UNKNOWN);
-}
-
-TEST_CASE("GetFontRegistryPath", "[fonts]")
-{
-    /*
-    auto context = FontContext();
-    context.PackageIdentifier = L"TestPackage";
-
-    context.InstallerSource = InstallerSource::WinGet;
-    auto fontPath = GetFontRegistryPath(context);
-    REQUIRE(fontPath == L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts\\winget_v1\\TestPackage");
-
-    context.InstallerSource = InstallerSource::UWP;
-    fontPath = GetFontRegistryPath(context);
-    REQUIRE(fontPath == L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts\\TestPackage");
-
-    context.InstallerSource = InstallerSource::Unknown;
-    fontPath = GetFontRegistryPath(context);
-    REQUIRE(fontPath == L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts");
-    */
 }
 
 TEST_CASE("GetInstalledFontFiles", "[fonts]")
@@ -107,10 +84,10 @@ TEST_CASE("GetInstalledFontFiles", "[fonts]")
 TEST_CASE("ValidateInvalidFontPackage", "[fonts]")
 {
     TestDataFile testFont(s_InvalidFontFile);
-
     auto context = FontContext();
     context.Scope = ScopeEnum::User;
-    context.PackageIdentifier = L"TestPackage";
+    context.PackageId = L"TestPackage";
+    context.PackageVersion = L"1.0.0.0";
     context.InstallerSource = InstallerSource::WinGet;
     context.AddPackageFile(testFont.GetPath());
     const auto& fontValidationResult = ValidateFontPackage(context);
@@ -123,10 +100,10 @@ TEST_CASE("ValidateInvalidFontPackage", "[fonts]")
 TEST_CASE("ValidateValidFontPackage", "[fonts]")
 {
     TestDataFile testFont(s_FontFile);
-
     auto context = FontContext();
     context.Scope = ScopeEnum::User;
-    context.PackageIdentifier = L"TestPackage";
+    context.PackageId = L"TestPackage";
+    context.PackageVersion = L"1.0.0.0";
     context.InstallerSource = InstallerSource::WinGet;
     context.AddPackageFile(testFont.GetPath());
     const auto& fontValidationResult = ValidateFontPackage(context);
@@ -139,13 +116,12 @@ TEST_CASE("ValidateValidFontPackage", "[fonts]")
 TEST_CASE("InstallInvalidFontPackageUser", "[fonts]")
 {
     TestDataFile testFont(s_InvalidFontFile);
-
     auto context = FontContext();
-    context.PackageIdentifier = L"TestPackage";
+    context.PackageId = L"TestPackage";
+    context.PackageVersion = L"1.0.0.0";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::User;
     context.AddPackageFile(testFont.GetPath());
-
     const auto& result = InstallFontPackage(context);
     REQUIRE(result.HResult == APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
 }
@@ -156,7 +132,8 @@ TEST_CASE("RemoveFontPackageUser", "[fonts]")
 
     // Calling remove should always be successful when font doesn't exist.
     auto context = FontContext();
-    context.PackageIdentifier = L"TestPackage";
+    context.PackageId = L"TestPackage";
+    context.PackageVersion = L"1.0.0.0";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::User;
     context.AddPackageFile(testFont.GetPath());
@@ -182,9 +159,9 @@ TEST_CASE("InstallValidFontPackageUser", "[fonts]")
 
     // Use the copied font for the test
     TestDataFile testFont(testFontCopyPath);
-
     auto context = FontContext();
-    context.PackageIdentifier = L"TestPackage";
+    context.PackageId = L"TestPackage";
+    context.PackageVersion = L"1.0.0.0";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::User;
     context.Force = true;
@@ -218,7 +195,8 @@ TEST_CASE("RemoveFontPackageMachine", "[fonts]")
 
     // Calling remove should always be successful when font doesn't exist.
     auto context = FontContext();
-    context.PackageIdentifier = L"TestPackage";
+    context.PackageId = L"TestPackage";
+    context.PackageVersion = L"1.0.0.0";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::Machine;
     context.AddPackageFile(testFont.GetPath());
@@ -252,7 +230,8 @@ TEST_CASE("InstallValidFontPackageMachine", "[fonts]")
     TestDataFile testFont(testFontCopyPath);
 
     auto context = FontContext();
-    context.PackageIdentifier = L"TestPackage";
+    context.PackageId = L"TestPackage";
+    context.PackageVersion = L"1.0.0.0";
     context.InstallerSource = InstallerSource::WinGet;
     context.Scope = ScopeEnum::Machine;
     context.Force = true;
@@ -273,4 +252,3 @@ TEST_CASE("InstallValidFontPackageMachine", "[fonts]")
     auto postuninstallValidation = ValidateFontPackage(context);
     REQUIRE(postuninstallValidation.Status == FontStatus::Absent);
 }
-
