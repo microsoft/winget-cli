@@ -17,7 +17,7 @@ Repairs the installation of the WinGet client on your computer.
 ### IntegrityVersionSet (Default)
 
 ```
-Repair-WinGetPackageManager [-AllUsers] [-Force] [-Version <String>] [<CommonParameters>] [-IncludePreRelease]
+Repair-WinGetPackageManager [-AllUsers] [-Force] [-Version <String>] [-IncludePreRelease] [<CommonParameters>]
 ```
 
 ### IntegrityLatestSet
@@ -57,7 +57,7 @@ that it can update the application files.
 ### Example 3: Install a version with wildcards
 
 ```powershell
-Repair-WinGetPackageManager -Version "1.*.1*" -Force
+Repair-WinGetPackageManager -Version "1.12.*" -Force
 ```
 
 This example shows how to repair the WinGet client by installing a version that matches the

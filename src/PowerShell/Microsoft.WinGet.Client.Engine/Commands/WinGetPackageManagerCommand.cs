@@ -116,9 +116,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// Tries to get the latest version matching the pattern.
         /// </summary>
         /// <remarks>
-        /// Pattern only supports trailing wildcards.
-        /// - For example, the pattern can be: 1.11.*, 1.11.3*
-        /// - But it cannot be: 1.*1.1 or 1.*1*.1.
+        /// Pattern only supports leading and trailing wildcards.
+        /// - For example, the pattern can be: 1.11.*, 1.11.3*, 1.11.*3
+        /// - But it cannot be: 1.*1*.1 or 1.1*1.1.
         /// </remarks>
         /// <param name="versions">List of versions to match against.</param>
         /// <param name="pattern">Pattern to match.</param>
@@ -130,10 +130,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             pattern = string.IsNullOrWhiteSpace(pattern) ? "*" : pattern;
 
             var parts = pattern.Split('.');
-            string major = parts[0];
-            string minor = parts.Length > 1 ? parts[1] : string.Empty;
-            string build = parts.Length > 2 ? parts[2] : string.Empty;
-            string revision = parts.Length > 3 ? parts[3] : string.Empty;
+            var major = parts.ElementAtOrDefault(0);
+            var minor = parts.ElementAtOrDefault(1);
+            var build = parts.ElementAtOrDefault(2);
+            var revision = parts.ElementAtOrDefault(3);
 
             if (!includePrerelease)
             {
@@ -158,14 +158,19 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             return true;
         }
 
-        private static bool VersionPartMatch(string partPattern, int partValue)
+        private static bool VersionPartMatch(string? partPattern, int partValue)
         {
             if (string.IsNullOrWhiteSpace(partPattern))
             {
                 return true;
             }
 
-            if (partPattern.EndsWith("*"))
+            if (partPattern!.StartsWith("*"))
+            {
+                return partValue.ToString().EndsWith(partPattern.TrimStart('*'));
+            }
+
+            if (partPattern!.EndsWith("*"))
             {
                 return partValue.ToString().StartsWith(partPattern.TrimEnd('*'));
             }
