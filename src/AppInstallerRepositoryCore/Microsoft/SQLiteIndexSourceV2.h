@@ -45,7 +45,7 @@ namespace AppInstaller::Repository::Microsoft::details::V2
         // Contains the information needed to map a version key to it's rows.
         struct MapKey
         {
-            Utility::NormalizedString Version;
+            Utility::Version Version;
             Utility::NormalizedString Channel;
 
             bool operator<(const MapKey& other) const;
