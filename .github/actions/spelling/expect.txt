@@ -582,6 +582,7 @@ vns
 vsconfig
 vstest
 waitable
+wal
 wcex
 WDAG
 webpages

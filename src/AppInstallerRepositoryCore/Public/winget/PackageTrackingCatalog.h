@@ -6,6 +6,9 @@
 
 #include <memory>
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+#include <filesystem>
+#endif
 
 namespace AppInstaller::Repository
 {
@@ -55,7 +58,7 @@ namespace AppInstaller::Repository
             struct implementation;
             Version(PackageTrackingCatalog& catalog, std::shared_ptr<implementation>&& value);
             std::shared_ptr<implementation> m_implementation;
-            PackageTrackingCatalog& m_catalog;
+            PackageTrackingCatalog* m_catalog;
         };
 
         // Records an installation of the given package.
@@ -63,6 +66,11 @@ namespace AppInstaller::Repository
 
         // Records an uninstall of the given package.
         void RecordUninstall(const Utility::LocIndString& packageIdentifier);
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        // Gets the path to the database file.
+        std::filesystem::path GetFilePath() const;
+#endif
 
     protected:
         // Creates or opens the tracking catalog for the given source.

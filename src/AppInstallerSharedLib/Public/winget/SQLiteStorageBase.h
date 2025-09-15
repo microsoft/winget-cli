@@ -5,6 +5,7 @@
 #include <winget/SQLiteVersion.h>
 #include <winget/ManagedFile.h>
 
+#include <filesystem>
 #include <mutex>
 
 namespace AppInstaller::SQLite
@@ -31,6 +32,11 @@ namespace AppInstaller::SQLite
 
         // Gets the schema version of the database.
         const Version& GetVersion() const { return m_version; }
+
+        // Renames the database file and any auxiliary files given the inputs.
+        // Should only be used on an inactive database.
+        // If overwrite is given, existing destination files will be removed first.
+        static void RenameSQLiteDatabase(const std::filesystem::path& source, const std::filesystem::path& destination, bool overwrite = false);
 
     protected:
         SQLiteStorageBase(const std::string& target, const Version& version);
