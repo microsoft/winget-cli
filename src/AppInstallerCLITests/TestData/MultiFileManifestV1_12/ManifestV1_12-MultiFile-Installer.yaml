@@ -115,6 +115,12 @@ Installers:
       InstallLocation: /d=<INSTALLPATH>
       Upgrade: /u
       Repair: /r
+    UninstallerSwitches:
+      Custom: /c
+      SilentWithProgress: /sp
+      Silent: /s
+      Interactive: /i
+      Log: /l=<LOGPATH>
     UpgradeBehavior: install
     Commands:
       - makemsixPreview
@@ -159,6 +165,11 @@ Installers:
       - InstallerReturnCode: 3
         ReturnResponse: custom
         ReturnResponseUrl: https://defaultReturnResponseUrl.com
+      - UninstallerReturnCode: 5
+        ReturnResponse: rebootRequired
+      - UninstallerReturnCode: 9
+        ReturnResponse: custom
+        ReturnResponseUrl: https://defaultReturnResponseUrl.com
     UnsupportedArguments:
       - location
     DownloadCommandProhibited: false
@@ -170,6 +181,9 @@ Installers:
     ProductCode: "{Bar}"
     InstallerSwitches:
       Repair: /r
+    UninstallerSwitches:
+      Silent: /s
+      Custom: /foo
     UpgradeBehavior: deny
     RepairBehavior: uninstaller
   - Architecture: x86

@@ -57,6 +57,12 @@ InstallerSwitches:
   InstallLocation: /dir=<INSTALLPATH>
   Upgrade: /upgrade
   Repair: /repair
+UninstallerSwitches:
+  Custom: /custom
+  SilentWithProgress: /silentwithprogress
+  Silent: /silence
+  Interactive: /interactive
+  Log: /log=<LOGPATH>
 InstallerSuccessCodes:
   - 1
   - 0x80070005
@@ -111,6 +117,8 @@ ExpectedReturnCodes:
   - InstallerReturnCode: 10
     ReturnResponse: packageInUse
     ReturnResponseUrl: https://DefaultReturnResponseUrl.com
+  - UninstallerReturnCode: 2
+    ReturnResponse: rebootRequiredToFinish
 UnsupportedArguments:
   - log
 NestedInstallerType: msi

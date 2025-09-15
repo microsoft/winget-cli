@@ -76,6 +76,7 @@ namespace AppInstaller::Manifest::YamlWriter
 
         // Installer switches
         constexpr std::string_view InstallerSwitches = "InstallerSwitches"sv;
+        constexpr std::string_view UninstallerSwitches = "UninstallerSwitches"sv;
         constexpr std::string_view Silent = "Silent"sv;
         constexpr std::string_view SilentWithProgress = "SilentWithProgress"sv;
         constexpr std::string_view Interactive = "Interactive"sv;
@@ -86,6 +87,7 @@ namespace AppInstaller::Manifest::YamlWriter
         constexpr std::string_view Repair = "Repair"sv;
 
         constexpr std::string_view InstallerSuccessCodes = "InstallerSuccessCodes"sv;
+        constexpr std::string_view UninstallerSuccessCodes = "UninstallerSuccessCodes"sv;
         constexpr std::string_view UpgradeBehavior = "UpgradeBehavior"sv;
         constexpr std::string_view Commands = "Commands"sv;
         constexpr std::string_view Protocols = "Protocols"sv;
