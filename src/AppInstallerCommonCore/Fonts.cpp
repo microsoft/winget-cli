@@ -480,7 +480,6 @@ namespace AppInstaller::Fonts
 
         AICLI_LOG(Core, Info, << L"Validating font package: " << context.PackageIdentifier.value_or(L"<Unknown>").c_str());
 
-        auto fontFileInfos = std::vector<FontFileInfo>();
         try
         {
             if (context.PackageFiles.has_value())
