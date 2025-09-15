@@ -42,6 +42,8 @@ namespace AppInstaller::Settings
         UserFile,
         // A settings stream that should not be modified except by admin privileges.
         Secure,
+        // A settings stream that is encrypted. It does not require admin privileges to write to.
+        Encrypted,
     };
 
     // Converts the Type enum to a string.
@@ -76,6 +78,8 @@ namespace AppInstaller::Settings
         constexpr static StreamDefinition BackupUserSettings{ Type::UserFile, "settings.json.backup"sv };
         // The admin settings.
         constexpr static StreamDefinition AdminSettings{ Type::Secure, "admin_settings"sv };
+        // The REST information cache.
+        constexpr static StreamDefinition RestInformationCache{ Type::Encrypted, "rest_information"sv };
 
         // Gets a Stream for the StreamDefinition.
         // If the stream is synchronized, attempts to Set the value can fail due to another writer

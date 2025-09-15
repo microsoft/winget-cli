@@ -281,3 +281,29 @@ TEST_CASE("AttemptSetOnNewValue", "[settings]")
     settingValue = ReadEntireStream(*result);
     REQUIRE(value2 == settingValue);
 }
+
+TEST_CASE("SetAndReadSettingEncrypted", "[settings]")
+{
+    StreamDefinition name{ Type::Encrypted, "encrypted_test_setting" };
+    std::string value = "This is the test setting value";
+
+    Stream stream{ name };
+    REQUIRE(stream.Set(value));
+
+    auto result = stream.Get();
+    REQUIRE(static_cast<bool>(result));
+
+    std::string settingValue = ReadEntireStream(*result);
+    REQUIRE(value == settingValue);
+
+    // Ensure that the data is encrypted
+    name.Type = Type::Standard;
+
+    Stream streamDirect{ name };
+
+    auto resultDirect = streamDirect.Get();
+    REQUIRE(static_cast<bool>(resultDirect));
+
+    std::string settingValueDirect = ReadEntireStream(*resultDirect);
+    REQUIRE(value != settingValueDirect);
+}

@@ -197,11 +197,16 @@ namespace AppInstaller::Settings
             }
 
         protected:
+            std::optional<std::string> GetAsString()
+            {
+                return GetAsStringInternal(m_hash);
+            }
+
             std::string_view m_name;
             std::optional<SHA256::HashBuffer> m_hash;
 
         private:
-            std::unique_ptr<std::istream> GetInternal(std::optional<SHA256::HashBuffer>& hashStorage)
+            std::optional<std::string> GetAsStringInternal(std::optional<SHA256::HashBuffer>& hashStorage)
             {
                 std::unique_ptr<std::istream> stream = m_container->Get();
 
@@ -210,7 +215,7 @@ namespace AppInstaller::Settings
                     // If no stream exists, then no hashing needs to be done.
                     // Return an empty hash vector to indicate the attempted read but no result.
                     hashStorage.emplace();
-                    return stream;
+                    return std::nullopt;
                 }
 
                 std::string streamContents = Utility::ReadEntireStream(*stream);
@@ -218,8 +223,15 @@ namespace AppInstaller::Settings
 
                 hashStorage = SHA256::ComputeHash(reinterpret_cast<const uint8_t*>(streamContents.c_str()), static_cast<uint32_t>(streamContents.size()));
 
+                return streamContents;
+            }
+
+            std::unique_ptr<std::istream> GetInternal(std::optional<SHA256::HashBuffer>& hashStorage)
+            {
+                auto string = GetAsStringInternal(hashStorage);
+
                 // Return a stream over the contents that we read in and hashed, to prevent a race.
-                return std::make_unique<std::istringstream>(streamContents);
+                return string ? std::make_unique<std::istringstream>(string.value()) : nullptr;
             }
 
             std::unique_ptr<ISettingsContainer> m_container;
@@ -347,6 +359,55 @@ namespace AppInstaller::Settings
             FileSettingsContainer m_secure;
         };
 
+        // A settings container wrapper that enforces privacy.
+        struct EncryptedSettingsContainer : public ExchangeSettingsContainer
+        {
+            EncryptedSettingsContainer(std::unique_ptr<ISettingsContainer>&& container, const std::string_view& name) :
+                ExchangeSettingsContainer(std::move(container), name) {
+            }
+
+            std::unique_ptr<std::istream> Get() override
+            {
+                std::optional<std::string> stream = ExchangeSettingsContainer::GetAsString();
+
+                if (!stream)
+                {
+                    // If no stream exists, then nothing needs to be done.
+                    return nullptr;
+                }
+
+                DATA_BLOB data{};
+                data.pbData = reinterpret_cast<BYTE*>(stream->data());
+                data.cbData = static_cast<DWORD>(stream->size());
+
+                DATA_BLOB out{};
+                auto freeOut = wil::scope_exit([&]() { LocalFree(out.pbData); });
+
+                THROW_IF_WIN32_BOOL_FALSE(CryptUnprotectData(&data, NULL, NULL, NULL, NULL, CRYPTPROTECT_UI_FORBIDDEN, &out));
+
+                return std::make_unique<std::istringstream>(std::string{ reinterpret_cast<char*>(out.pbData), out.cbData });
+            }
+
+            bool Set(std::string_view value) override
+            {
+                DATA_BLOB data{};
+                data.pbData = reinterpret_cast<BYTE*>(const_cast<char*>(value.data()));
+                data.cbData = static_cast<DWORD>(value.size());
+
+                DATA_BLOB out{};
+                auto freeOut = wil::scope_exit([&]() { LocalFree(out.pbData); });
+
+                THROW_IF_WIN32_BOOL_FALSE(CryptProtectData(&data, NULL, NULL, NULL, NULL, CRYPTPROTECT_UI_FORBIDDEN, &out));
+
+                return ExchangeSettingsContainer::Set(std::string_view{ reinterpret_cast<char*>(out.pbData), out.cbData });
+            }
+
+            std::filesystem::path PathTo() override
+            {
+                THROW_HR(E_UNEXPECTED);
+            }
+        };
+
         std::unique_ptr<details::ISettingsContainer> GetRawSettingsContainer(Type type, const std::string_view& name)
         {
 #ifndef WINGET_DISABLE_FOR_FUZZING
@@ -393,6 +454,10 @@ namespace AppInstaller::Settings
                 // Secure settings add hash verification on reads on top of exchange semantics
                 return std::make_unique<SecureSettingsContainer>(GetRawSettingsContainer(Type::Standard, name), name);
 
+            case Type::Encrypted:
+                // Encrypted settings add encryption on top of exchange semantics
+                return std::make_unique<EncryptedSettingsContainer>(GetRawSettingsContainer(Type::Standard, name), name);
+
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -414,6 +479,8 @@ namespace AppInstaller::Settings
             return "UserFile"sv;
         case Type::Secure:
             return "Secure"sv;
+        case Type::Encrypted:
+            return "Encrypted"sv;
         default:
             THROW_HR(E_UNEXPECTED);
         }
