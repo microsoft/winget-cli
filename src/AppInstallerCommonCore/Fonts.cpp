@@ -971,8 +971,7 @@ namespace AppInstaller::Fonts
             auto wingetMachineFonts = std::unordered_map<std::filesystem::path, bool>();
 
             // Iterate through scopes for machine and user
-            std::vector<Manifest::ScopeEnum> scopes = { Manifest::ScopeEnum::Machine, Manifest::ScopeEnum::User };
-            for (const auto& scope : scopes)
+            for (const auto& scope : { Manifest::ScopeEnum::Machine, Manifest::ScopeEnum::User })
             {
                 auto hive = scope == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
                 auto root = Registry::Key::OpenIfExists(hive, std::wstring{ s_FontsPathSubkey });
