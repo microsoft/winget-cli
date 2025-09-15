@@ -467,8 +467,11 @@ namespace Microsoft.Management.Deployment
         MSStore,
         /// Portable type.
         Portable,
-        /// Font type.
-        Font,
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 13)]
+        {
+            /// Font type.
+            Font,
+        },
     };
 
     /// The package installer scope.
