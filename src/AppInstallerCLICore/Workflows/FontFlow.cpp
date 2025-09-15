@@ -208,17 +208,11 @@ namespace AppInstaller::CLI::Workflow
 
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
-        Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown;
+        // We will default to User scope.
+        Manifest::ScopeEnum scope = Manifest::ScopeEnum::User;
         if (context.Args.Contains(Execution::Args::Type::InstallScope))
         {
             scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-        }
-
-        // Scope may still be unknown, which is a failure for an install operation.
-        if (scope == Manifest::ScopeEnum::Unknown)
-        {
-            // We will default to User scope.
-            scope = Manifest::ScopeEnum::User;
         }
 
         Fonts::FontContext fontContext;

@@ -64,14 +64,16 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Zip:
                 return L".zip"sv;
             case InstallerTypeEnum::Font:
-                const auto& fileName = GetFileNameFromURI(installer->Url);
-                if (fileName.has_extension())
                 {
-                    return fileName.extension().c_str();
-                }
-                else
-                {
-                    THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+                    const auto& fileName = GetFileNameFromURI(installer->Url);
+                    if (fileName.has_extension())
+                    {
+                        return fileName.extension().c_str();
+                    }
+                    else
+                    {
+                        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+                    }
                 }
             default:
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
