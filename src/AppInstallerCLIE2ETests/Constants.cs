@@ -121,7 +121,6 @@ namespace AppInstallerCLIE2ETests
         public const string PathSubKey_User = @"Environment";
         public const string PathSubKey_Machine = @"SYSTEM\CurrentControlSet\Control\Session Manager\Environment";
         public const string FontsSubKey = @"Software\Microsoft\Windows NT\CurrentVersion\Fonts";
-        public const string TestFontSubKeyName = "Cascadia Code PL Regular (TrueType)";
 
         // User settings
         public const string ArchiveExtractionMethod = "archiveExtractionMethod";

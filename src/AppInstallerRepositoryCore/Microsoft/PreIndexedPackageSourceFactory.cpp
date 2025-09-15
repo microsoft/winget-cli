@@ -20,12 +20,6 @@ namespace AppInstaller::Repository::Microsoft
 {
     namespace
     {
-#if ! defined( AICLI_DISABLE_TEST_HOOKS ) && defined( AICLI_ALLOW_UNSIGNED_SOURCE )
-        static bool s_AllowUnsignedSource = true
-#else
-        static bool s_AllowUnsignedSource = true;
-#endif
-
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageFileName = "source.msix"sv;
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_V2_PackageFileName = "source2.msix"sv;
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageVersionHeader = "x-ms-meta-sourceversion"sv;
@@ -599,7 +593,7 @@ namespace AppInstaller::Repository::Microsoft
                 Msix::WriteLockedMsixFile indexPackage{ packageLocation };
 
                 // Validate index package trust info.
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, !s_AllowUnsignedSource && !indexPackage.ValidateTrustInfo(WI_IsFlagSet(m_details.TrustLevel, SourceTrustLevel::StoreOrigin)));
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, !indexPackage.ValidateTrustInfo(WI_IsFlagSet(m_details.TrustLevel, SourceTrustLevel::StoreOrigin)));
 
                 // Create a temp lock exclusive index file.
                 auto tempIndexFilePath = Runtime::GetNewTempFilePath();
@@ -689,7 +683,7 @@ namespace AppInstaller::Repository::Microsoft
                     THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE,
                         GetPackageFamilyNameFromDetails(details) != Msix::GetPackageFamilyNameFromFullName(tempMsixInfo.GetPackageFullName()));
 
-                    if (!s_AllowUnsignedSource && !tempIndexPackage.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)))
+                    if (!tempIndexPackage.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)))
                     {
                         AICLI_LOG(Repo, Error, << "Source update failed. Source package failed trust validation.");
                         THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
@@ -725,7 +719,7 @@ namespace AppInstaller::Repository::Microsoft
 
     std::unique_ptr<ISourceFactory> PreIndexedPackageSourceFactory::Create()
     {
-        if (!s_AllowUnsignedSource && Runtime::IsRunningInPackagedContext())
+        if (Runtime::IsRunningInPackagedContext())
         {
             return std::make_unique<PackagedContextFactory>();
         }

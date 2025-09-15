@@ -201,6 +201,11 @@ namespace AppInstaller::CLI::Workflow
 
     void FontInstallImpl(Execution::Context& context)
     {
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Font))
+        {
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
+        }
+
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
         Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown;
@@ -298,6 +303,11 @@ namespace AppInstaller::CLI::Workflow
 
     void FontUninstallImpl(Execution::Context& context)
     {
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Font))
+        {
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
+        }
+
         context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
 
         try

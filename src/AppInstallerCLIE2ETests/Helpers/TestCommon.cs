@@ -375,59 +375,58 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <summary>
         /// Verify font package.
         /// </summary>
-        /// <param name="fontSubKeyName">Name of the font registry subkey entry.</param>
-        /// <param name="fontFileName">Filename of the installed font file.</param>
+        /// <param name="packageName">Name of the package.</param>
+        /// <param name="packageVersion">Name of the package version.</param>
         /// <param name="scope">Scope.</param>
-        /// <param name="shouldExist">Should exist.</param>
+        /// <param name="shouldExist">If package should exist.</param>
         public static void VerifyFontPackage(
-            string fontSubKeyName,
-            string fontFileName,
+            string packageName,
+            string packageVersion,
             Scope scope = Scope.User,
             bool shouldExist = true)
         {
-            // Expected font file path.
-            string expectedFontInstallPath = Path.Combine(GetFontsDirectory(scope), fontFileName);
-            bool fontFileExists = File.Exists(expectedFontInstallPath);
-
-            // Expected font registry entry.
-            bool fontEntryExists = false;
             RegistryKey baseKey = (scope == Scope.Machine) ? Registry.LocalMachine : Registry.CurrentUser;
-            string expectedSubKeyValue = (scope == Scope.Machine) ? Path.GetFileName(expectedFontInstallPath) : expectedFontInstallPath;
+
+            var fileList = new List<string>();
             using (RegistryKey fontsRegistryKey = baseKey.OpenSubKey(Constants.FontsSubKey, true))
             {
-                var fontSubKeyValue = fontsRegistryKey.GetValue(fontSubKeyName);
-                if (fontSubKeyValue != null)
+                var packageNameSubkey = fontsRegistryKey.OpenSubKey(packageName);
+                if (shouldExist)
                 {
-                    fontEntryExists = fontSubKeyValue.Equals(expectedSubKeyValue);
+                    Assert.IsNotNull(packageNameSubkey);
+                }
+
+                if (packageNameSubkey is not null)
+                {
+                    var versionSubkey = packageNameSubkey.OpenSubKey(packageVersion);
+
+                    if (!shouldExist)
+                    {
+                        Assert.IsNull(versionSubkey);
+                    }
+                    else
+                    {
+                        Assert.IsNotNull(versionSubkey);
+                    }
+
+                    if (versionSubkey is not null)
+                    {
+                        var valueNames = versionSubkey.GetValueNames();
+                        foreach (var valueName in valueNames)
+                        {
+                            fileList.Add(fontsRegistryKey.GetValue(valueName).ToString());
+                        }
+
+                        Assert.AreEqual(valueNames.Length, fileList.Count);
+                    }
                 }
             }
 
-            if (shouldExist)
+            // Verify each package file we expect to exist actually exists.
+            foreach (var file in fileList)
             {
-                // TODO: Replace with font uninstall when implemented.
-                if (fontEntryExists)
-                {
-                    using (RegistryKey fontsRegistryKey = baseKey.OpenSubKey(Constants.FontsSubKey, true))
-                    {
-                        fontsRegistryKey.DeleteValue(fontSubKeyName);
-                    }
-                }
-
-                if (fontFileExists)
-                {
-                    try
-                    {
-                        File.Delete(expectedFontInstallPath);
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        // TODO: This error occurs for user mode if the font is in use. Skip cleanup.
-                    }
-                }
+                Assert.IsTrue(File.Exists(file));
             }
-
-            Assert.AreEqual(shouldExist, fontFileExists, $"Expected font path: {expectedFontInstallPath}");
-            Assert.AreEqual(shouldExist, fontEntryExists, $"Expected {fontSubKeyName} subkey with value {expectedSubKeyValue} in registry path: {Constants.FontsSubKey}");
         }
 
         /// <summary>

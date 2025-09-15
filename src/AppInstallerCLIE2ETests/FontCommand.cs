@@ -29,10 +29,16 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallFont_UserScope()
         {
-            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestFont");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            TestCommon.VerifyFontPackage(Constants.TestFontSubKeyName, Constants.FontFileName, TestCommon.Scope.User);
+            var fontPackageName = "AppInstallerTest.TestFont";
+            var fontPackageVersion = "1.0.0.0";
+            var installResult = TestCommon.RunAICLICommand("install", fontPackageName);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
+            Assert.True(installResult.StdOut.Contains("Successfully installed"));
+            TestCommon.VerifyFontPackage(fontPackageName, fontPackageVersion, TestCommon.Scope.User);
+
+            var uninstallResult = TestCommon.RunAICLICommand("uninstall", fontPackageName);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, uninstallResult.ExitCode);
+            TestCommon.VerifyFontPackage(fontPackageName, fontPackageVersion, TestCommon.Scope.User, false);
         }
 
         /// <summary>
@@ -41,10 +47,16 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallFont_MachineScope()
         {
-            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestFont --scope Machine");
+            var fontPackageName = "AppInstallerTest.TestFont";
+            var fontPackageVersion = "1.0.0.0";
+            var result = TestCommon.RunAICLICommand("install", $"{fontPackageName} --scope Machine");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            TestCommon.VerifyFontPackage(Constants.TestFontSubKeyName, Constants.FontFileName, TestCommon.Scope.Machine);
+            TestCommon.VerifyFontPackage(fontPackageName, fontPackageVersion, TestCommon.Scope.Machine);
+
+            var uninstallResult = TestCommon.RunAICLICommand("uninstall", fontPackageName);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, uninstallResult.ExitCode);
+            TestCommon.VerifyFontPackage(fontPackageName, fontPackageVersion, TestCommon.Scope.Machine, false);
         }
 
         /// <summary>
