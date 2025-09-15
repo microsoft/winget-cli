@@ -88,8 +88,7 @@ namespace AppInstaller::CLI::Workflow
         std::filesystem::path GetInstallerPostHashValidationFileName(Execution::Context& context)
         {
             // Get file name from download URI
-            const auto& installer = context.Get<Execution::Data::Installer>();
-            std::filesystem::path filename = GetFileNameFromURI(installer->Url);
+            std::filesystem::path filename = GetFileNameFromURI(context.Get<Execution::Data::Installer>()->Url);
             std::wstring_view installerExtension = GetInstallerFileExtension(context);
 
             // Assuming that we find a safe stem value in the URI, use it.
