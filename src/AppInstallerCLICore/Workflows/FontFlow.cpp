@@ -288,8 +288,11 @@ namespace AppInstaller::CLI::Workflow
             try
             {
                 // The Font Install code handles rollback where appropriate. If we hit an
-                // unexpected exception, try to uninstall anyway as this is idempotent.
-                auto uninstallResult = Fonts::InstallFontPackage(fontContext);
+                // unexpected exception, try to uninstall anyway to arrive at a consistent
+                // absent state. Since we install side-by-side for versions, this should
+                // only result in an absent state of an installed font if this were a forced
+                // install of an existing version.
+                auto uninstallResult = Fonts::UninstallFontPackage(fontContext);
                 if (uninstallResult.Result() != FontResult::Success)
                 {
                     context.Reporter.Warn() << Resource::String::FontRollbackFailed << std::endl;
