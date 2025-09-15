@@ -63,6 +63,16 @@ namespace AppInstaller::CLI::Workflow
                 return L".msix"sv;
             case InstallerTypeEnum::Zip:
                 return L".zip"sv;
+            case InstallerTypeEnum::Font:
+                const auto& fileName = GetFileNameFromURI(installer->Url);
+                if (fileName.has_extension())
+                {
+                    return fileName.extension().c_str();
+                }
+                else
+                {
+                    THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+                }
             default:
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
@@ -80,26 +90,21 @@ namespace AppInstaller::CLI::Workflow
             // Get file name from download URI
             const auto& installer = context.Get<Execution::Data::Installer>();
             std::filesystem::path filename = GetFileNameFromURI(installer->Url);
+            std::wstring_view installerExtension = GetInstallerFileExtension(context);
 
-            // Installers that support multiple extensions will use the Url.
-            if (!DoesInstallerTypeSupportMultipleFileExtensions(installer->BaseInstallerType))
+            // Assuming that we find a safe stem value in the URI, use it.
+            // This should be extremely common, but just in case fall back to the older name style.
+            if (filename.has_stem() && ((filename.wstring().size() + installerExtension.size()) < MAX_PATH))
             {
-                std::wstring_view installerExtension = GetInstallerFileExtension(context);
-
-                // Assuming that we find a safe stem value in the URI, use it.
-                // This should be extremely common, but just in case fall back to the older name style.
-                if (filename.has_stem() && ((filename.wstring().size() + installerExtension.size()) < MAX_PATH))
-                {
-                    filename = filename.stem();
-                }
-                else
-                {
-                    const auto& manifest = context.Get<Execution::Data::Manifest>();
-                    filename = Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
-                }
-
-                filename += installerExtension;
+                filename = filename.stem();
             }
+            else
+            {
+                const auto& manifest = context.Get<Execution::Data::Manifest>();
+                filename = Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
+            }
+
+            filename += installerExtension;
 
             // Make file name suitable for file system path
             filename = Utility::ConvertToUTF16(Utility::MakeSuitablePathPart(filename.u8string()));

@@ -950,11 +950,6 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Exe;
     }
 
-    bool DoesInstallerTypeSupportMultipleFileExtensions(InstallerTypeEnum installerType)
-    {
-        return (installerType == InstallerTypeEnum::Font);
-    }
-
     bool IsArchiveType(InstallerTypeEnum installerType)
     {
         return (installerType == InstallerTypeEnum::Zip);
