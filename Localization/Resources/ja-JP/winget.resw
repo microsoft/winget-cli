@@ -463,7 +463,7 @@
     <value>アプリの基本情報を見つけて表示</value>
   </data>
   <data name="SearchId" xml:space="preserve">
-    <value>ID</value>
+    <value>Id</value>
     <comment>Abbreviation of Identifier.</comment>
   </data>
   <data name="SearchMatch" xml:space="preserve">
