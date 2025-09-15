@@ -30,7 +30,7 @@
     <Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
     <Parameter name="LooseFileRegistration" value="false" />
     <Parameter name="InvokeCommandInDesktopPackage" value="false" />
-    <Parameter name="StaticFileRootPath" value="D:\dev\TestLocalIndex" />
+    <Parameter name="StaticFileRootPath" value="TestLocalIndex" />
     <Parameter name="MsiTestInstallerPath" value="MsiTestInstaller.msi" />
     <Parameter name="MsixTestInstallerPath" value="MsixTestInstaller.msix" />
     <Parameter name="ExeTestInstallerPath" value="ExeTestInstaller.exe" />
