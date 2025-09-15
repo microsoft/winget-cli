@@ -3,37 +3,93 @@
 #include "pch.h"
 #include "Public/AppInstallerDateTime.h"
 
+using namespace std::chrono;
+
 namespace AppInstaller::Utility
 {
-    // If moved to C++20, this can be replaced with standard library implementations.
+    namespace
+    {
+        struct OutputTimePointContext
+        {
+            OutputTimePointContext(std::ostream& stream, const std::chrono::system_clock::time_point& time, TimeFacet facet) :
+                Stream(stream), Time(time), Facet(facet)
+            {
+                auto tt = system_clock::to_time_t(time);
+                _localtime64_s(&LocalTime, &tt);
+            }
+
+            std::ostream& Stream;
+            const std::chrono::system_clock::time_point& Time;
+            tm LocalTime{};
+            TimeFacet Facet;
+        };
+
+        struct OutputTimePointFacetInfo
+        {
+            TimeFacet Facet;
+            char FollowingSeparator;
+            void (*Action)(const OutputTimePointContext&);
+        };
+    }
+
     void OutputTimePoint(std::ostream& stream, const std::chrono::system_clock::time_point& time, bool useRFC3339)
     {
-        using namespace std::chrono;
+        OutputTimePoint(stream, time, TimeFacet::Default | (useRFC3339 ? TimeFacet::RFC3339 : TimeFacet::None));
+    }
 
-        tm localTime{};
-        auto tt = system_clock::to_time_t(time);
-        _localtime64_s(&localTime, &tt);
+    // If moved to C++20, this can be replaced with standard library implementations.
+    void OutputTimePoint(std::ostream& stream, const std::chrono::system_clock::time_point& time, TimeFacet facet)
+    {
+        OutputTimePointContext context{ stream, time, facet };
+        using Ctx = const OutputTimePointContext&;
 
-        stream
-            << std::setw(4) << (1900 + localTime.tm_year) << '-'
-            << std::setw(2) << std::setfill('0') << (1 + localTime.tm_mon) << '-'
-            << std::setw(2) << std::setfill('0') << localTime.tm_mday << (useRFC3339 ? 'T' : ' ')
-            << std::setw(2) << std::setfill('0') << localTime.tm_hour << ':'
-            << std::setw(2) << std::setfill('0') << localTime.tm_min << ':'
-            << std::setw(2) << std::setfill('0') << localTime.tm_sec << '.';
+        bool useRFC3339 = WI_IsFlagSet(facet, TimeFacet::RFC3339);
+        bool filename = WI_IsFlagSet(facet, TimeFacet::Filename);
+        char day_time_separator = useRFC3339 ? 'T' : (filename ? '-' : ' ');
+        char time_field_separator = filename ? '-' : ':';
 
-        // Get partial seconds
-        auto sinceEpoch = time.time_since_epoch();
-        auto leftoverMillis = duration_cast<milliseconds>(sinceEpoch) - duration_cast<seconds>(sinceEpoch);
+        bool needsSeparator = false;
+        char currentSeparator = '-';
 
-        stream << std::setw(3) << std::setfill('0') << leftoverMillis.count();
+        for (const auto& info : {
+            OutputTimePointFacetInfo{ TimeFacet::ShortYear, '-', [](Ctx ctx) { ctx.Stream << (ctx.LocalTime.tm_year - 100); }},
+            OutputTimePointFacetInfo{ TimeFacet::Year, '-', [](Ctx ctx) { ctx.Stream << (1900 + ctx.LocalTime.tm_year); }},
+            OutputTimePointFacetInfo{ TimeFacet::Month, '-', [](Ctx ctx) { ctx.Stream << std::setw(2) << std::setfill('0') << (1 + ctx.LocalTime.tm_mon); }},
+            OutputTimePointFacetInfo{ TimeFacet::Day, day_time_separator, [](Ctx ctx) { ctx.Stream << std::setw(2) << std::setfill('0') << ctx.LocalTime.tm_mday; }},
+            OutputTimePointFacetInfo{ TimeFacet::Hour, time_field_separator, [](Ctx ctx) { ctx.Stream << std::setw(2) << std::setfill('0') << ctx.LocalTime.tm_hour; }},
+            OutputTimePointFacetInfo{ TimeFacet::Minute, time_field_separator, [](Ctx ctx) { ctx.Stream << std::setw(2) << std::setfill('0') << ctx.LocalTime.tm_min; }},
+            OutputTimePointFacetInfo{ TimeFacet::Second, '.', [](Ctx ctx) { ctx.Stream << std::setw(2) << std::setfill('0') << ctx.LocalTime.tm_sec; }},
+            OutputTimePointFacetInfo{ TimeFacet::Millisecond, '-', [](Ctx ctx)
+            {
+                // Get partial seconds
+                auto sinceEpoch = ctx.Time.time_since_epoch();
+                auto leftoverMillis = duration_cast<milliseconds>(sinceEpoch) - duration_cast<seconds>(sinceEpoch);
 
-        if (useRFC3339)
+                ctx.Stream << std::setw(3) << std::setfill('0') << leftoverMillis.count();
+            }},
+            OutputTimePointFacetInfo{ TimeFacet::RFC3339, '\0', [](Ctx ctx)
+            {
+                // RFC 3339 requires adding time zone info.
+                // No need to bother getting the actual time zone as we don't need it.
+                // -00:00 represents an unspecified time zone, not UTC.
+                ctx.Stream << "00:00";
+            }},
+            })
         {
-            // RFC 3339 requires adding time zone info.
-            // No need to bother getting the actual time zone as we don't need it.
-            // -00:00 represents an unspecified time zone, not UTC.
-            stream << "-00:00";
+            if (WI_AreAllFlagsSet(facet, info.Facet))
+            {
+                if (needsSeparator)
+                {
+                    stream << currentSeparator;
+                }
+
+                info.Action(context);
+                needsSeparator = true;
+            }
+
+            // Getting this right for every mix of facets is probably not possible.
+            // Future needs can dictate changes here.
+            currentSeparator = info.FollowingSeparator;
         }
     }
 
@@ -44,16 +100,16 @@ namespace AppInstaller::Utility
         return std::move(stream).str();
     }
 
-    std::string GetCurrentTimeForFilename()
+    std::string TimePointToString(const std::chrono::system_clock::time_point& time, TimeFacet facet)
     {
-        std::stringstream stream;
-        OutputTimePoint(stream, std::chrono::system_clock::now());
+        std::ostringstream stream;
+        OutputTimePoint(stream, time, facet);
+        return std::move(stream).str();
+    }
 
-        auto result = stream.str();
-        std::replace(result.begin(), result.end(), ':', '-');
-        std::replace(result.begin(), result.end(), ' ', '-');
-
-        return result;
+    std::string GetCurrentTimeForFilename(bool shortTime)
+    {
+        return TimePointToString(std::chrono::system_clock::now(), (shortTime ? TimeFacet::ShortYearSecondPrecision : TimeFacet::Default) | TimeFacet::Filename);
     }
 
     std::string GetCurrentDateForARP()

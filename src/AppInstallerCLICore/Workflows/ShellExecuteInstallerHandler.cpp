@@ -173,11 +173,9 @@ namespace AppInstaller::CLI::Workflow
                 const auto& manifest = context.Get<Execution::Data::Manifest>();
 
                 auto path = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
-                path /= Logging::FileLogger::DefaultPrefix();
+                path /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
                 path += '-';
-                path += Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
-                path += '-';
-                path += Utility::GetCurrentTimeForFilename();
+                path += Utility::GetCurrentTimeForFilename(true);
                 path += Logging::FileLogger::DefaultExt();
 
                 logPath = path.u8string();

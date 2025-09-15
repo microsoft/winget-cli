@@ -16,6 +16,19 @@ namespace TestCommon
             static std::atomic_size_t packageId(0);
             return ++packageId;
         }
+
+        TestSource* GetTestSourceFromWeakPtr(const std::weak_ptr<const ISource>& weakSource)
+        {
+            if (auto source = weakSource.lock())
+            {
+                if (auto testSource = const_cast<ISource*>(source.get())->CastTo(TestSource::SourceType))
+                {
+                    return reinterpret_cast<TestSource*>(testSource);
+                }
+            }
+
+            return nullptr;
+        }
     }
 
     TestPackageVersion::TestPackageVersion(const Manifest& manifest, MetadataMap installationMetadata, std::weak_ptr<const ISource> source) :
@@ -100,6 +113,11 @@ namespace TestCommon
 
     TestPackageVersion::Manifest TestPackageVersion::GetManifest()
     {
+        if (auto source = GetTestSource())
+        {
+            source->IncrementCountOfCallsRequiringManifestData();
+        }
+
         return VersionManifest;
     }
 
@@ -124,6 +142,11 @@ namespace TestCommon
                 target.emplace_back(std::move(valueString));
             }
         }
+    }
+
+    TestSource* TestPackageVersion::GetTestSource() const
+    {
+        return GetTestSourceFromWeakPtr(Source);
     }
 
     TestPackage::TestPackage(const std::vector<Manifest>& available, std::weak_ptr<const ISource> source, bool hideSystemReferenceStringsOnVersion) :
@@ -168,8 +191,34 @@ namespace TestCommon
         }
     }
 
+    std::vector<TestPackage::LocIndString> TestPackage::GetMultiProperty(PackageMultiProperty property) const
+    {
+        std::vector<LocIndString> result;
+        PackageVersionMultiProperty mappedProperty = PackageMultiPropertyToPackageVersionMultiProperty(property);
+
+        for (const auto& version : Versions)
+        {
+            for (auto&& string : version->GetMultiProperty(mappedProperty))
+            {
+                auto itr = std::lower_bound(result.begin(), result.end(), string);
+
+                if (itr == result.end() || *itr != string)
+                {
+                    result.emplace(itr, std::move(string));
+                }
+            }
+        }
+
+        return result;
+    }
+
     std::vector<PackageVersionKey> TestPackage::GetVersionKeys() const
     {
+        if (auto source = GetTestSource())
+        {
+            source->IncrementCountOfCallsRequiringVersionData();
+        }
+
         std::vector<PackageVersionKey> result;
         for (const auto& version : Versions)
         {
@@ -190,6 +239,14 @@ namespace TestCommon
 
     std::shared_ptr<IPackageVersion> TestPackage::GetVersion(const PackageVersionKey& versionKey) const
     {
+        if (!versionKey.IsDefaultLatest())
+        {
+            if (auto source = GetTestSource())
+            {
+                source->IncrementCountOfCallsRequiringVersionData();
+            }
+        }
+
         for (const auto& version : Versions)
         {
             if ((versionKey.Version.empty() || versionKey.Version == version->GetProperty(PackageVersionProperty::Version).get()) && 
@@ -232,6 +289,11 @@ namespace TestCommon
         }
 
         return nullptr;
+    }
+
+    TestSource* TestPackage::GetTestSource() const
+    {
+        return GetTestSourceFromWeakPtr(Source);
     }
 
     TestCompositePackage::TestCompositePackage(const std::vector<Manifest>& available, std::weak_ptr<const ISource> source, bool hideSystemReferenceStringsOnVersion)
@@ -330,6 +392,16 @@ namespace TestCommon
         }
 
         return nullptr;
+    }
+
+    void TestSource::IncrementCountOfCallsRequiringVersionData()
+    {
+        ++CountOfCallsRequiringVersionData;
+    }
+
+    void TestSource::IncrementCountOfCallsRequiringManifestData()
+    {
+        ++CountOfCallsRequiringManifestData;
     }
 
     std::string_view TestSourceFactory::TypeName() const

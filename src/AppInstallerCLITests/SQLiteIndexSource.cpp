@@ -233,3 +233,29 @@ TEST_CASE("SQLiteIndexSource_IsSame", "[sqliteindexsource]")
 
     REQUIRE(result1.Matches[0].Package->GetAvailable()[0]->IsSame(result2.Matches[0].Package->GetAvailable()[0].get()));
 }
+
+TEST_CASE("SQLiteIndexSource_Package_ProductCodes", "[sqliteindexsource]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SourceDetails details;
+    Manifest manifest;
+    std::string relativePath;
+    std::shared_ptr<SQLiteIndexSource> source = SimpleTestSetup(tempFile, details, manifest, relativePath);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, manifest.Id);
+
+    auto results = source->Search(request);
+    REQUIRE(results.Matches.size() == 1);
+    REQUIRE(results.Matches[0].Package);
+
+    auto package = results.Matches[0].Package->GetAvailable()[0];
+
+    auto manifestPCs = manifest.GetProductCodes();
+    auto propertyPCs = package->GetMultiProperty(PackageMultiProperty::ProductCode);
+    REQUIRE(manifestPCs.size() == 1);
+    REQUIRE(propertyPCs.size() == 1);
+    REQUIRE(manifestPCs[0] == propertyPCs[0].get());
+}

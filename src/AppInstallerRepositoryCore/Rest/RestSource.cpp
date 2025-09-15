@@ -54,6 +54,8 @@ namespace AppInstaller::Repository::Rest
                 }
             }
 
+            std::vector<Utility::LocIndString> GetMultiProperty(PackageMultiProperty property) const override;
+
             std::vector<PackageVersionKey> GetVersionKeys() const override
             {
                 std::shared_ptr<const RestSource> source = GetReferenceSource();
@@ -195,6 +197,99 @@ namespace AppInstaller::Repository::Rest
             mutable std::mutex m_packageVersionsLock;
         };
 
+        void GetMultiPropertyValues(
+            const RestPackage* package,
+            const IRestClient::VersionInfo& versionInfo,
+            PackageVersionMultiProperty property,
+            std::vector<Utility::LocIndString>& result,
+            void (*Action)(std::vector<Utility::LocIndString>&, Utility::LocIndString&&))
+        {
+            switch (property)
+            {
+            case PackageVersionMultiProperty::PackageFamilyName:
+                for (const std::string& pfn : versionInfo.PackageFamilyNames)
+                {
+                    Action(result, Utility::LocIndString{ pfn });
+                }
+                break;
+            case PackageVersionMultiProperty::ProductCode:
+                for (const std::string& productCode : versionInfo.ProductCodes)
+                {
+                    Action(result, Utility::LocIndString{ productCode });
+                }
+                break;
+            case PackageVersionMultiProperty::UpgradeCode:
+                for (const std::string& upgradeCode : versionInfo.UpgradeCodes)
+                {
+                    Action(result, Utility::LocIndString{ upgradeCode });
+                }
+                break;
+            case PackageVersionMultiProperty::Name:
+                if (versionInfo.Manifest)
+                {
+                    for (auto&& name : versionInfo.Manifest->GetPackageNames())
+                    {
+                        Action(result, Utility::LocIndString{ std::move(name) });
+                    }
+                }
+                else
+                {
+                    Action(result, Utility::LocIndString{ package->PackageInfo().PackageName });
+                }
+                break;
+            case PackageVersionMultiProperty::Publisher:
+                if (versionInfo.Manifest)
+                {
+                    for (auto&& publisher : versionInfo.Manifest->GetPublishers())
+                    {
+                        Action(result, Utility::LocIndString{ std::move(publisher) });
+                    }
+                }
+                else
+                {
+                    Action(result, Utility::LocIndString{ package->PackageInfo().Publisher });
+                }
+                break;
+            case PackageVersionMultiProperty::Locale:
+                if (versionInfo.Manifest)
+                {
+                    Action(result, Utility::LocIndString{ versionInfo.Manifest->DefaultLocalization.Locale });
+                    for (const auto& loc : versionInfo.Manifest->Localizations)
+                    {
+                        Action(result, Utility::LocIndString{ loc.Locale });
+                    }
+                }
+                break;
+            }
+        }
+
+        std::vector<Utility::LocIndString> RestPackage::GetMultiProperty(PackageMultiProperty property) const
+        {
+            std::scoped_lock versionsLock{ m_packageVersionsLock };
+            std::vector<Utility::LocIndString> result;
+            PackageVersionMultiProperty mappedProperty = PackageMultiPropertyToPackageVersionMultiProperty(property);
+
+            for (const auto& versionInfo : m_package.Versions)
+            {
+                GetMultiPropertyValues(
+                    this,
+                    versionInfo,
+                    mappedProperty,
+                    result,
+                    [](std::vector<Utility::LocIndString>& result, Utility::LocIndString&& string)
+                    {
+                        auto itr = std::lower_bound(result.begin(), result.end(), string);
+
+                        if (itr == result.end() || *itr != string)
+                        {
+                            result.emplace(itr, std::move(string));
+                        }
+                    });
+            }
+
+            return result;
+        }
+
         // The IPackageVersion impl for RestSource.
         struct PackageVersion : public SourceReference, public IPackageVersion
         {
@@ -257,63 +352,16 @@ namespace AppInstaller::Repository::Rest
             std::vector<Utility::LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const override
             {
                 std::vector<Utility::LocIndString> result;
-                switch (property)
-                {
-                case PackageVersionMultiProperty::PackageFamilyName:
-                    for (std::string pfn : m_versionInfo.PackageFamilyNames)
+
+                GetMultiPropertyValues(
+                    m_package.get(),
+                    m_versionInfo,
+                    property,
+                    result,
+                    [](std::vector<Utility::LocIndString>& result, Utility::LocIndString&& string)
                     {
-                        result.emplace_back(Utility::LocIndString{ pfn });
-                    }
-                    break;
-                case PackageVersionMultiProperty::ProductCode:
-                    for (std::string productCode : m_versionInfo.ProductCodes)
-                    {
-                        result.emplace_back(Utility::LocIndString{ productCode });
-                    }
-                    break;
-                case PackageVersionMultiProperty::UpgradeCode:
-                    for (std::string upgradeCode : m_versionInfo.UpgradeCodes)
-                    {
-                        result.emplace_back(Utility::LocIndString{ upgradeCode });
-                    }
-                    break;
-                case PackageVersionMultiProperty::Name:
-                    if (m_versionInfo.Manifest)
-                    {
-                        for (auto name : m_versionInfo.Manifest->GetPackageNames())
-                        {
-                            result.emplace_back(std::move(name));
-                        }
-                    }
-                    else
-                    {
-                        result.emplace_back(m_package->PackageInfo().PackageName);
-                    }
-                    break;
-                case PackageVersionMultiProperty::Publisher:
-                    if (m_versionInfo.Manifest)
-                    {
-                        for (auto publisher : m_versionInfo.Manifest->GetPublishers())
-                        {
-                            result.emplace_back(std::move(publisher));
-                        }
-                    }
-                    else
-                    {
-                        result.emplace_back(m_package->PackageInfo().Publisher);
-                    }
-                    break;
-                case PackageVersionMultiProperty::Locale:
-                    if (m_versionInfo.Manifest)
-                    {
-                        result.emplace_back(m_versionInfo.Manifest->DefaultLocalization.Locale);
-                        for (const auto& loc : m_versionInfo.Manifest->Localizations)
-                        {
-                            result.emplace_back(loc.Locale);
-                        }
-                    }
-                    break;
-                }
+                        result.emplace_back(std::move(string));
+                    });
 
                 return result;
             }

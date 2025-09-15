@@ -16,6 +16,8 @@ namespace AppInstaller::Repository::Microsoft::details::V1
         // Inherited via IPackage
         Utility::LocIndString GetProperty(PackageProperty property) const;
 
+        std::vector<Utility::LocIndString> GetMultiProperty(PackageMultiProperty property) const override;
+
         std::vector<PackageVersionKey> GetVersionKeys() const override;
 
         std::shared_ptr<IPackageVersion> GetLatestVersion() const override;

@@ -281,6 +281,28 @@ namespace AppInstaller::Repository
         Name,
     };
 
+    // A property of a package that can have multiple values.
+    enum class PackageMultiProperty
+    {
+        // The package family names (PFN) associated with the package.
+        PackageFamilyName,
+        // The product codes associated with the package.
+        ProductCode,
+        // The upgrade codes associated with the package.
+        UpgradeCode,
+        // The normalized names for the package.
+        NormalizedName,
+        // The normalized publisher names for the package.
+        NormalizedPublisher,
+        // The tags associated with the package.
+        Tag,
+        // The commands associated with the package.
+        Command,
+    };
+
+    // Maps the package multi-property value to its package version multi-property value for internal use.
+    PackageVersionMultiProperty PackageMultiPropertyToPackageVersionMultiProperty(PackageMultiProperty property);
+
     // To allow for runtime casting from IPackage to the specific types, this enum contains all of the IPackage implementations.
     enum class IPackageType
     {
@@ -316,6 +338,9 @@ namespace AppInstaller::Repository
 
         // Gets a property of this package.
         virtual Utility::LocIndString GetProperty(PackageProperty property) const = 0;
+
+        // Gets a property of this package that can have multiple values.
+        virtual std::vector<Utility::LocIndString> GetMultiProperty(PackageMultiProperty property) const = 0;
 
         // Gets the source that this package is from.
         virtual Source GetSource() const = 0;

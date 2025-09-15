@@ -10,6 +10,8 @@
 
 namespace TestCommon
 {
+    struct TestSource;
+
     // IPackageVersion for TestSource
     struct TestPackageVersion : public AppInstaller::Repository::IPackageVersion
     {
@@ -40,6 +42,7 @@ namespace TestCommon
 
     protected:
         static void AddIfHasValueAndNotPresent(const AppInstaller::Utility::NormalizedString& value, std::vector<LocIndString>& target, bool folded = false);
+        TestSource* GetTestSource() const;
     };
 
     // IPackage for TestSource
@@ -65,6 +68,7 @@ namespace TestCommon
         }
 
         AppInstaller::Utility::LocIndString GetProperty(AppInstaller::Repository::PackageProperty property) const override;
+        std::vector<AppInstaller::Utility::LocIndString> GetMultiProperty(AppInstaller::Repository::PackageMultiProperty property) const override;
         std::vector<AppInstaller::Repository::PackageVersionKey> GetVersionKeys() const override;
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetLatestVersion() const override;
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetVersion(const AppInstaller::Repository::PackageVersionKey& versionKey) const override;
@@ -76,6 +80,9 @@ namespace TestCommon
         std::weak_ptr<const ISource> Source;
         size_t DefaultIsSameIdentity = 0;
         std::function<bool(const IPackage*, const IPackage*)> IsSameOverride;
+
+    protected:
+        TestSource* GetTestSource() const;
     };
 
     // ICompositePackage for TestSource
@@ -127,6 +134,13 @@ namespace TestCommon
 
         TestSource() = default;
         TestSource(const AppInstaller::Repository::SourceDetails& details) : Details(details) {}
+
+        // Tracking for potential network impacts
+        void IncrementCountOfCallsRequiringVersionData();
+        size_t CountOfCallsRequiringVersionData = 0;
+
+        void IncrementCountOfCallsRequiringManifestData();
+        size_t CountOfCallsRequiringManifestData = 0;
     };
 
     struct TestSourceReference : public AppInstaller::Repository::ISourceReference
