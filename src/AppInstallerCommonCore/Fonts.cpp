@@ -438,7 +438,7 @@ namespace AppInstaller::Fonts
             }
         }
 
-        // If our font file is regstered it will exist in the install path and have a registry value.
+        // If our font file is registered it will exist in the install path and have a registry value.
         const auto& registryTitle = CheckRegistryForFontFileReference(fileInfo.RegistryInstallPath.value(), fileInfo.InstallPath, fileInfo.Scope);
 
         if (fileInfo.Title.empty())
@@ -638,7 +638,7 @@ namespace AppInstaller::Fonts
                 }
                 else
                 {
-                    // Machine install we set two keys, one for sourcing, and one for the actual install.
+                    // Machine install we set two keys, one for source information, and one for the actual install.
                     // The value name is the source filename so we can map this later for validation.
                     auto sourceKey = Registry::Key::Create(HKEY_LOCAL_MACHINE, fontFileInfo.RegistryPackagePath.value(), 0UL, KEY_ALL_ACCESS);
                     sourceKey.SetValue(fontFileInfo.FilePath.filename(), fontFileInfo.InstallPath, REG_SZ);
@@ -992,7 +992,7 @@ namespace AppInstaller::Fonts
                         // Assume all sub-keys are WinGet Packages
                         for (const auto& packageSubKey : subkeyKey)
                         {
-                            // All subkeys should be versions of the package.
+                            // All sub-keys should be versions of the package.
                             auto wingetPackageSubKey = packageSubKey.Open();
                             for (const auto& versionSubKey : wingetPackageSubKey)
                             {
@@ -1084,7 +1084,7 @@ namespace AppInstaller::Fonts
                     {
                         try
                         {
-                            // All subkeys should be versions of the package.
+                            // All sub-keys should be versions of the package.
                             auto wingetPackageSubKey = packageSubKey.Open();
                             for (const auto& versionSubKey : wingetPackageSubKey)
                             {
