@@ -6,6 +6,7 @@
 
 namespace Microsoft.WinGet.Client.Engine.Helpers
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Octokit;
 
@@ -63,7 +64,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             if (includePrerelease)
             {
                 // GetAll orders by newest and includes pre releases.
-                release = (await this.gitHubClient.Repository.Release.GetAll(this.owner, this.repo))[0];
+                release = (await this.GetAllReleasesAsync())[0];
             }
             else
             {
@@ -71,6 +72,15 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
 
             return release;
+        }
+
+        /// <summary>
+        /// Gets all releases.
+        /// </summary>
+        /// <returns>All releases.</returns>
+        public async Task<IReadOnlyList<Release>> GetAllReleasesAsync()
+        {
+            return await this.gitHubClient.Repository.Release.GetAll(this.owner, this.repo);
         }
     }
 }
