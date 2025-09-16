@@ -117,4 +117,26 @@ namespace AppInstaller::Utility
 
     // Gets the retry after value in terms of a delay in seconds.
     std::chrono::seconds GetRetryAfter(const winrt::Windows::Web::Http::HttpResponseMessage& response);
+
+    // Data about the cache-control header.
+    struct CacheControlPolicy
+    {
+        CacheControlPolicy() = default;
+        CacheControlPolicy(std::wstring_view header);
+
+        // True only if the cache-control header was present and contained at least one directive.
+        bool Present = false;
+
+        // The max-age directive; in seconds.
+        size_t MaxAge = 0;
+
+        // The no-cache directive; indicates that the cache should always revalidate.
+        bool NoCache = false;
+
+        // The no-store directive; indicates that the data should not be cached.
+        bool NoStore = false;
+
+        // The public directive; indicates that the data is not user specific.
+        bool Public = false;
+    };
 }

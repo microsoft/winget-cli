@@ -613,4 +613,19 @@ namespace AppInstaller::Utility
     {
         return GetRetryAfter(response.Headers().RetryAfter());
     }
+
+    CacheControlPolicy::CacheControlPolicy(std::wstring_view header)
+    {
+        if (header.empty())
+        {
+            return;
+        }
+
+        std::vector<std::wstring_view> directives = Utility::Split(header, L',', true);
+
+        for (std::wstring_view directive : directives)
+        {
+
+        }
+    }
 }

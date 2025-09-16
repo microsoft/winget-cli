@@ -68,21 +68,6 @@ namespace AppInstaller::Repository::Rest
 
             return headers;
         }
-
-        IRestClient::Information GetInformationInternal(
-            const utility::string_t& restApi, const HttpClientHelper::HttpRequestHeaders& additionalHeaders, const HttpClientHelper& clientHelper)
-        {
-            // Call information endpoint
-            utility::string_t endpoint = AppInstaller::Rest::AppendPathToUri(restApi, JSON::GetUtilityString(InformationGetEndpoint));
-            std::optional<web::json::value> response = clientHelper.HandleGet(endpoint, additionalHeaders);
-
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !response);
-
-            InformationResponseDeserializer responseDeserializer;
-            IRestClient::Information information = responseDeserializer.Deserialize(response.value());
-
-            return information;
-        }
     }
 
     RestClient::RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier)
@@ -149,12 +134,46 @@ namespace AppInstaller::Repository::Rest
 
     Schema::IRestClient::Information RestClient::GetInformation(const std::string& restApi, const std::optional<std::string>& customHeader, std::string_view caller, const HttpClientHelper& helper)
     {
+        // Check the cache for a valid information entry
+        RestInformationCache informationCache;
+        std::optional<Schema::IRestClient::Information> cachedInformation = informationCache.Get(restApi, customHeader, caller);
+
+        if (cachedInformation)
+        {
+            return std::move(cachedInformation).value();
+        }
+
+        // Not in cache, make REST call to retrieve it
         utility::string_t restEndpoint = AppInstaller::Rest::GetRestAPIBaseUri(restApi);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !AppInstaller::Rest::IsValidUri(restEndpoint));
 
         auto headers = GetHeaders(customHeader, caller);
+        CacheControlPolicy cacheControl;
 
-        return GetInformationInternal(restEndpoint, headers, helper);
+        utility::string_t endpoint = AppInstaller::Rest::AppendPathToUri(restEndpoint, JSON::GetUtilityString(InformationGetEndpoint));
+        std::optional<web::json::value> response = helper.HandleGet(
+            endpoint,
+            headers,
+            {},
+            [&](const web::http::http_response& httpResponse)
+            {
+                // TODO: Extract cache time out
+                // MaxAge [(in seconds) - Age == end of cache]
+                // NoCache/NoStore [don't cache]
+                // Public [ignore headers]
+                cacheControl = CacheControlPolicy{ httpResponse.headers().cache_control() };
+                return Http::HttpClientHelper::HttpResponseHandlerResult{ std::nullopt, true };
+            });
+
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !response);
+
+        InformationResponseDeserializer responseDeserializer;
+        auto result = responseDeserializer.Deserialize(response.value());
+
+        // Cache the information value as requested
+        informationCache.Cache(restApi, customHeader, caller, cacheControl, response.value());
+
+        return result;
     }
 
     std::unique_ptr<Schema::IRestClient> RestClient::GetSupportedInterface(

@@ -178,6 +178,9 @@ namespace AppInstaller::Utility
     // Removes whitespace from the beginning and end of the string.
     std::wstring& Trim(std::wstring& str);
 
+    // Removes whitespace from the beginning and end of the string.
+    std::wstring_view Trim(std::wstring_view str);
+
     // Reads the entire stream into a string.
     std::string ReadEntireStream(std::istream& stream);
 
@@ -266,6 +269,9 @@ namespace AppInstaller::Utility
 
     // Splits the string using the provided separator. Entries can also be trimmed.
     std::vector<std::string> Split(const std::string& input, char separator, bool trim = false);
+
+    // Splits the string using the provided separator. Entries can also be trimmed.
+    std::vector<std::wstring_view> Split(std::wstring_view input, wchar_t separator, bool trim = false);
 
     // Format an input string by replacing placeholders {index} with provided values at corresponding indices.
     // Note: After upgrading to C++20, this function should be deprecated in favor of std::format.
