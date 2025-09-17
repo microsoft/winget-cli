@@ -22,6 +22,7 @@ namespace AppInstaller::Runtime
     {
         using namespace std::string_view_literals;
         constexpr std::string_view s_DefaultTempDirectory = "WinGet"sv;
+        constexpr std::string_view s_SettingsFile_Relative = "Settings"sv;
         constexpr std::string_view s_SecureSettings_Base = "Microsoft\\WinGet"sv;
         constexpr std::string_view s_SecureSettings_UserRelative = "settings"sv;
         constexpr std::string_view s_SecureSettings_Relative_Unpackaged = "win"sv;
@@ -288,9 +289,9 @@ namespace AppInstaller::Runtime
             result.Path.assign(appStorage.LocalFolder().Path().c_str());
             mayBeInProfilePath = true;
             break;
-        case PathName::PackagedTemp:
-            result.Path.assign(appStorage.TemporaryFolder().Path().c_str());
-            result.Path /= s_DefaultTempDirectory;
+        case PathName::StandardFileSettings:
+            result.Path.assign(appStorage.LocalFolder().Path().c_str());
+            result.Path /= s_SettingsFile_Relative;
             mayBeInProfilePath = true;
             break;
         case PathName::DefaultLogLocation:
@@ -399,7 +400,6 @@ namespace AppInstaller::Runtime
         switch (path)
         {
         case PathName::Temp:
-        case PathName::PackagedTemp:
         case PathName::DefaultLogLocation:
         {
             result.Path = GetPathToUserTemp(forDisplay);
@@ -419,6 +419,7 @@ namespace AppInstaller::Runtime
             result.Path /= GetRuntimePathStateName();
             break;
         case PathName::StandardSettings:
+        case PathName::StandardFileSettings:
         case PathName::UserFileSettings:
             result = Filesystem::GetPathDetailsFor(Filesystem::PathName::UnpackagedSettingsRoot, anonymize);
             result.Create = !forDisplay;

@@ -297,7 +297,7 @@ TEST_CASE("SetAndReadSettingEncrypted", "[settings]")
     REQUIRE(value == settingValue);
 
     // Ensure that the data is encrypted
-    name.Type = Type::Standard;
+    name.Type = Type::StandardFile;
 
     Stream streamDirect{ name };
 

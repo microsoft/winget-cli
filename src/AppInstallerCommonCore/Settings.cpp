@@ -420,8 +420,8 @@ namespace AppInstaller::Settings
                         ApplicationDataSettingsContainer::GetRelativeContainer(
                             winrt::Windows::Storage::ApplicationData::Current().LocalSettings(), GetPathTo(PathName::StandardSettings)),
                         name);
-                case Type::Encrypted:
-                    return std::make_unique<FileSettingsContainer>(GetPathTo(PathName::PackagedTemp), name);
+                case Type::StandardFile:
+                    return std::make_unique<FileSettingsContainer>(GetPathTo(PathName::StandardFileSettings), name);
                 default:
                     THROW_HR(E_UNEXPECTED);
                 }
@@ -432,7 +432,7 @@ namespace AppInstaller::Settings
                 switch (type)
                 {
                 case Type::Standard:
-                case Type::Encrypted:
+                case Type::StandardFile:
                     return std::make_unique<FileSettingsContainer>(GetPathTo(PathName::StandardSettings), name);
                 default:
                     THROW_HR(E_UNEXPECTED);
@@ -459,7 +459,11 @@ namespace AppInstaller::Settings
 
             case Type::Encrypted:
                 // Encrypted settings add encryption on top of exchange semantics
-                return std::make_unique<EncryptedSettingsContainer>(GetRawSettingsContainer(Type::Encrypted, name), name);
+                return std::make_unique<EncryptedSettingsContainer>(GetRawSettingsContainer(Type::StandardFile, name), name);
+
+            case Type::StandardFile:
+                // Standard settings should use exchange semantics to prevent overwrites
+                return std::make_unique<ExchangeSettingsContainer>(GetRawSettingsContainer(type, name), name);
 
             default:
                 THROW_HR(E_UNEXPECTED);
@@ -484,6 +488,8 @@ namespace AppInstaller::Settings
             return "Secure"sv;
         case Type::Encrypted:
             return "Encrypted"sv;
+        case Type::StandardFile:
+            return "StandardFile"sv;
         default:
             THROW_HR(E_UNEXPECTED);
         }

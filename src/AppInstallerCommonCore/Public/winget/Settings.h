@@ -36,7 +36,7 @@ namespace AppInstaller::Settings
     // Names should still be unique, as there is no guarantee made about types mapping to unique roots.
     enum class Type
     {
-        // A Standard setting stream has no special requirements.
+        // A Standard setting stream has no special requirements (limited to 8K contents and no embedded null characters).
         Standard,
         // A UserFile setting stream should be located in a file that is easily editable by the user.
         UserFile,
@@ -44,6 +44,8 @@ namespace AppInstaller::Settings
         Secure,
         // A settings stream that is encrypted. It does not require admin privileges to write to.
         Encrypted,
+        // A setting stream has should be stored in a file, removing the limitations of the Standard type.
+        StandardFile,
     };
 
     // Converts the Type enum to a string.
