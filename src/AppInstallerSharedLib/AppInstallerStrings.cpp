@@ -139,6 +139,11 @@ namespace AppInstaller::Utility
         return std::any_of(a.begin(), a.end(), [&](const std::string_view& s) { return ToLower(s) == B; });
     }
 
+    bool StartsWith(std::wstring_view a, std::wstring_view b)
+    {
+        return a.length() >= b.length() && a.substr(0, b.length()) == b;
+    }
+
     bool CaseInsensitiveStartsWith(std::string_view a, std::string_view b)
     {
         return a.length() >= b.length() && CaseInsensitiveEquals(a.substr(0, b.length()), b);
@@ -590,7 +595,7 @@ namespace AppInstaller::Utility
         return str;
     }
 
-    std::wstring_view Trim(std::wstring_view str)
+    std::wstring_view& Trim(std::wstring_view& str)
     {
         if (!str.empty())
         {
@@ -608,6 +613,13 @@ namespace AppInstaller::Utility
         }
 
         return str;
+    }
+
+    std::wstring_view Trim(std::wstring_view&& str)
+    {
+        std::wstring_view result = std::move(str);
+        Utility::Trim(result);
+        return result;
     }
 
     std::string Trim(std::string&& str)

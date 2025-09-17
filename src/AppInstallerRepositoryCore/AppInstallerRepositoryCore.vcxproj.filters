@@ -492,11 +492,14 @@
     <ClInclude Include="Rest\Schema\1_10\Json\ManifestDeserializer.h">
       <Filter>Rest\Schema\1_10\Json</Filter>
     </ClInclude>
-      <ClInclude Include="Rest\Schema\1_12\Interface.h">
+    <ClInclude Include="Rest\Schema\1_12\Interface.h">
       <Filter>Rest\Schema\1_12</Filter>
     </ClInclude>
     <ClInclude Include="Rest\Schema\1_12\Json\ManifestDeserializer.h">
       <Filter>Rest\Schema\1_12\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\RestInformationCache.h">
+      <Filter>Rest</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -775,6 +778,9 @@
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_12\Json\ManifestDeserializer_1_12.cpp">
       <Filter>Rest\Schema\1_12\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\RestInformationCache.cpp">
+      <Filter>Rest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

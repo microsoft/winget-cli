@@ -101,7 +101,7 @@ namespace AppInstaller::Settings
             {
                 if (std::filesystem::exists(m_settingFile))
                 {
-                    auto result = std::make_unique<std::ifstream>(m_settingFile);
+                    auto result = std::make_unique<std::ifstream>(m_settingFile, std::ios_base::in | std::ios_base::binary);
                     THROW_LAST_ERROR_IF(result->fail());
                     return result;
                 }
@@ -420,6 +420,8 @@ namespace AppInstaller::Settings
                         ApplicationDataSettingsContainer::GetRelativeContainer(
                             winrt::Windows::Storage::ApplicationData::Current().LocalSettings(), GetPathTo(PathName::StandardSettings)),
                         name);
+                case Type::Encrypted:
+                    return std::make_unique<FileSettingsContainer>(GetPathTo(PathName::PackagedTemp), name);
                 default:
                     THROW_HR(E_UNEXPECTED);
                 }
@@ -430,6 +432,7 @@ namespace AppInstaller::Settings
                 switch (type)
                 {
                 case Type::Standard:
+                case Type::Encrypted:
                     return std::make_unique<FileSettingsContainer>(GetPathTo(PathName::StandardSettings), name);
                 default:
                     THROW_HR(E_UNEXPECTED);
@@ -456,7 +459,7 @@ namespace AppInstaller::Settings
 
             case Type::Encrypted:
                 // Encrypted settings add encryption on top of exchange semantics
-                return std::make_unique<EncryptedSettingsContainer>(GetRawSettingsContainer(Type::Standard, name), name);
+                return std::make_unique<EncryptedSettingsContainer>(GetRawSettingsContainer(Type::Encrypted, name), name);
 
             default:
                 THROW_HR(E_UNEXPECTED);

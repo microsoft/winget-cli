@@ -288,6 +288,11 @@ namespace AppInstaller::Runtime
             result.Path.assign(appStorage.LocalFolder().Path().c_str());
             mayBeInProfilePath = true;
             break;
+        case PathName::PackagedTemp:
+            result.Path.assign(appStorage.TemporaryFolder().Path().c_str());
+            result.Path /= s_DefaultTempDirectory;
+            mayBeInProfilePath = true;
+            break;
         case PathName::DefaultLogLocation:
             // To enable UIF collection through Feedback hub, we must put our logs here.
             result.Path.assign(appStorage.LocalFolder().Path().c_str());
@@ -394,6 +399,7 @@ namespace AppInstaller::Runtime
         switch (path)
         {
         case PathName::Temp:
+        case PathName::PackagedTemp:
         case PathName::DefaultLogLocation:
         {
             result.Path = GetPathToUserTemp(forDisplay);

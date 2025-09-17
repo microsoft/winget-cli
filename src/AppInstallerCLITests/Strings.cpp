@@ -306,6 +306,14 @@ TEST_CASE("SplitWithSeparator", "[strings]")
     REQUIRE(test5[0] == L"trim");
     REQUIRE(test5[1] == L"spaces");
     REQUIRE(test5[2] == L"");
+
+    std::vector<std::wstring_view> test6 = Split(L" ", '/', true);
+    REQUIRE(test6.size() == 1);
+    REQUIRE(test6[0] == L"");
+
+    std::vector<std::string> test7 = Split("", ';');
+    REQUIRE(test7.size() == 1);
+    REQUIRE(test7[0] == "");
 }
 
 TEST_CASE("ConvertGuid", "[strings]")

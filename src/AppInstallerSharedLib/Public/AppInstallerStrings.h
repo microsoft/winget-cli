@@ -115,6 +115,9 @@ namespace AppInstaller::Utility
     // Returns if a UTF8 string is contained within a vector in a case-insensitive manner.
     bool CaseInsensitiveContains(const std::vector<std::string_view>& a, std::string_view b);
 
+    // Determines if string a starts with string b. UTF16.
+    bool StartsWith(std::wstring_view a, std::wstring_view b);
+
     // Determines if string a starts with string b. UTF8.
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveStartsWith(std::string_view a, std::string_view b);
@@ -179,7 +182,8 @@ namespace AppInstaller::Utility
     std::wstring& Trim(std::wstring& str);
 
     // Removes whitespace from the beginning and end of the string.
-    std::wstring_view Trim(std::wstring_view str);
+    std::wstring_view& Trim(std::wstring_view& str);
+    std::wstring_view Trim(std::wstring_view&& str);
 
     // Reads the entire stream into a string.
     std::string ReadEntireStream(std::istream& stream);

@@ -121,6 +121,9 @@ namespace AppInstaller::Utility
     // Data about the cache-control header.
     struct CacheControlPolicy
     {
+        // Limit max age to a year
+        static constexpr unsigned long long MaximumMaxAge = 60 * 60 * 24 * 365;
+
         CacheControlPolicy() = default;
         CacheControlPolicy(std::wstring_view header);
 
@@ -128,7 +131,7 @@ namespace AppInstaller::Utility
         bool Present = false;
 
         // The max-age directive; in seconds.
-        size_t MaxAge = 0;
+        unsigned long long MaxAge = 0;
 
         // The no-cache directive; indicates that the cache should always revalidate.
         bool NoCache = false;
