@@ -11,11 +11,13 @@ namespace AppInstaller::Certificates
 {
     namespace
     {
-        std::string GetSimpleDisplayName(PCCERT_CONTEXT certContext)
+        std::string GetNameString(PCCERT_CONTEXT certContext, DWORD nameType, bool forIssuer, void* typeParam = nullptr)
         {
-            DWORD characterCount = CertGetNameStringW(certContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, nullptr, nullptr, 0);
+            DWORD flags = forIssuer ? CERT_NAME_ISSUER_FLAG : 0;
+
+            DWORD characterCount = CertGetNameStringW(certContext, nameType, flags, typeParam, nullptr, 0);
             std::wstring result(characterCount, L'\0');
-            characterCount = CertGetNameStringW(certContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, nullptr, &result[0], characterCount);
+            characterCount = CertGetNameStringW(certContext, nameType, flags, typeParam, &result[0], characterCount);
 
             if (static_cast<size_t>(characterCount) == result.size())
             {
@@ -25,6 +27,23 @@ namespace AppInstaller::Certificates
             {
                 return "<unknown>";
             }
+        }
+
+        std::string GetSimpleDisplayName(PCCERT_CONTEXT certContext, bool forIssuer = false)
+        {
+            return GetNameString(certContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, forIssuer);
+        }
+
+        std::string GetX500Name(PCCERT_CONTEXT certContext, bool forIssuer = false)
+        {
+            DWORD stringType = CERT_X500_NAME_STR;
+            return GetNameString(certContext, CERT_NAME_RDN_TYPE, forIssuer, &stringType);
+        }
+
+        std::string GetCommonName(PCCERT_CONTEXT certContext, bool forIssuer = false)
+        {
+            std::string commonName = szOID_COMMON_NAME;
+            return GetNameString(certContext, CERT_NAME_ATTR_TYPE, forIssuer, &commonName[0]);
         }
 
         std::string GetDescriptionOfCertChain(PCCERT_CHAIN_CONTEXT chainContext)
@@ -72,8 +91,79 @@ namespace AppInstaller::Certificates
             {
                 return PinningVerificationType::Issuer;
             }
+            else if (lowerValue == "subjectcommonname")
+            {
+                return PinningVerificationType::SubjectCommonName;
+            }
+            else if (lowerValue == "issuercommonname")
+            {
+                return PinningVerificationType::IssuerCommonName;
+            }
 
             return {};
+        }
+
+        bool CheckCommonName(const std::string& expectedName, const std::vector<std::string>& commonNames, const std::string& actualName, std::string_view logName)
+        {
+            bool foundAcceptedName = false;
+
+            if (!expectedName.empty() && expectedName == actualName)
+            {
+                foundAcceptedName = true;
+            }
+            else
+            {
+                for (const std::string& name : commonNames)
+                {
+                    if (name == actualName)
+                    {
+                        foundAcceptedName = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!foundAcceptedName)
+            {
+                AICLI_LOG(Core, Verbose, << logName << " common name mismatch: Expected one of [" << expectedName << (expectedName.empty() || commonNames.empty() ? "" : ", ") << Utility::Join(", ", commonNames) << "], Actual common name [" << actualName << "]");
+            }
+
+            return foundAcceptedName;
+        }
+
+        void SetCommonNames(std::vector<std::string> names, std::vector<std::string>& target, bool append)
+        {
+            if (append)
+            {
+                for (auto& name : names)
+                {
+                    target.emplace_back(std::move(name));
+                }
+            }
+            else
+            {
+                target = std::move(names);
+            }
+        }
+
+        bool TryLoadCommonNames(const Json::Value& configuration, const std::string& memberName, std::vector<std::string>& target)
+        {
+            if (configuration.isMember(memberName))
+            {
+                auto memberValue = JSON::GetValue<std::vector<std::string>>(configuration[memberName]);
+                if (!memberValue)
+                {
+                    AICLI_LOG(Core, Warning, << "Details JSON item member " << memberName << " was not an array of strings");
+                    return false;
+                }
+
+                for (std::string& singleValue : memberValue.value())
+                {
+                    target.emplace_back(std::move(singleValue));
+                }
+            }
+
+            return true;
         }
     }
 
@@ -92,6 +182,16 @@ namespace AppInstaller::Certificates
         m_certificateContext.reset(CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, certificateBytes.first, static_cast<DWORD>(certificateBytes.second)));
         THROW_LAST_ERROR_IF(!m_certificateContext);
         return *this;
+    }
+
+    void PinningDetails::SetSubjectCommonNames(std::vector<std::string> names, bool append)
+    {
+        SetCommonNames(names, m_subjectCommonNames, append);
+    }
+
+    void PinningDetails::SetIssuerCommonNames(std::vector<std::string> names, bool append)
+    {
+        SetCommonNames(names, m_issuerCommonNames, append);
     }
 
     PinningDetails& PinningDetails::SetPinning(PinningVerificationType type)
@@ -143,21 +243,28 @@ namespace AppInstaller::Certificates
 
         const std::string embeddedCertificateName = "EmbeddedCertificate";
 
-        if (!configuration.isMember(embeddedCertificateName))
+        if (configuration.isMember(embeddedCertificateName))
         {
-            AICLI_LOG(Core, Warning, << "Details JSON item has no member " << embeddedCertificateName);
+            auto embeddedCertificateValue = JSON::GetValue<std::string>(configuration[embeddedCertificateName]);
+            if (!validationValue)
+            {
+                AICLI_LOG(Core, Warning, << "Details JSON item member " << embeddedCertificateName << " was not a string");
+                return false;
+            }
+
+            auto embeddedCertificateBytes = Utility::ParseFromHexString(embeddedCertificateValue.value());
+            LoadCertificate(embeddedCertificateBytes);
+        }
+
+        if (!TryLoadCommonNames(configuration, "SubjectCommonNames", m_subjectCommonNames))
+        {
             return false;
         }
 
-        auto embeddedCertificateValue = JSON::GetValue<std::string>(configuration[embeddedCertificateName]);
-        if (!validationValue)
+        if (!TryLoadCommonNames(configuration, "IssuerCommonNames", m_issuerCommonNames))
         {
-            AICLI_LOG(Core, Warning, << "Details JSON item member " << embeddedCertificateName << " was not a string");
             return false;
         }
-
-        auto embeddedCertificateBytes = Utility::ParseFromHexString(embeddedCertificateValue.value());
-        LoadCertificate(embeddedCertificateBytes);
 
         return true;
     }
@@ -166,6 +273,8 @@ namespace AppInstaller::Certificates
     {
         if (WI_IsFlagSet(m_pinning, PinningVerificationType::PublicKey))
         {
+            THROW_HR_IF(E_NOT_VALID_STATE, !m_certificateContext);
+
             if (!CertComparePublicKeyInfo(
                 X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                 &m_certificateContext.get()->pCertInfo->SubjectPublicKeyInfo,
@@ -178,6 +287,8 @@ namespace AppInstaller::Certificates
 
         if (WI_IsFlagSet(m_pinning, PinningVerificationType::Subject))
         {
+            THROW_HR_IF(E_NOT_VALID_STATE, !m_certificateContext);
+
             if (!CertCompareCertificateName(
                 X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                 &m_certificateContext.get()->pCertInfo->Subject,
@@ -190,6 +301,8 @@ namespace AppInstaller::Certificates
 
         if (WI_IsFlagSet(m_pinning, PinningVerificationType::Issuer))
         {
+            THROW_HR_IF(E_NOT_VALID_STATE, !m_certificateContext);
+
             if (!CertCompareCertificateName(
                 X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                 &m_certificateContext.get()->pCertInfo->Issuer,
@@ -200,7 +313,70 @@ namespace AppInstaller::Certificates
             }
         }
 
+        if (WI_IsFlagSet(m_pinning, PinningVerificationType::SubjectCommonName))
+        {
+            std::string certificateSubject;
+            if (m_certificateContext)
+            {
+                certificateSubject = GetCommonName(m_certificateContext.get());
+            }
+
+            if (!CheckCommonName(certificateSubject, m_subjectCommonNames, GetCommonName(certContext), "Subject"))
+            {
+                return false;
+            }
+        }
+
+        if (WI_IsFlagSet(m_pinning, PinningVerificationType::IssuerCommonName))
+        {
+            std::string certificateIssuer;
+            if (m_certificateContext)
+            {
+                certificateIssuer = GetCommonName(m_certificateContext.get(), true);
+            }
+
+            if (!CheckCommonName(certificateIssuer, m_issuerCommonNames, GetCommonName(certContext, true), "Issuer"))
+            {
+                return false;
+            }
+        }
+
         return true;
+    }
+
+    // TODO: Output common names and handle no certificate better
+    void PinningDetails::OutputDescription(std::ostream& stream, std::string_view indent) const
+    {
+        if (m_certificateContext)
+        {
+            stream << GetSimpleDisplayName(m_certificateContext.get()) << " : ";
+        }
+
+        if (m_pinning == PinningVerificationType::None)
+        {
+            stream << "<No verification>";
+        }
+
+        bool prepend = false;
+
+        for (const auto& flag : std::initializer_list<std::pair<PinningVerificationType, std::string_view>>{
+            { PinningVerificationType::PublicKey, "PublicKey" },
+            { PinningVerificationType::Subject, "Subject" },
+            { PinningVerificationType::Issuer, "Issuer" },
+            { PinningVerificationType::SubjectCommonName, "SubjectCommonName" },
+            { PinningVerificationType::IssuerCommonName, "IssuerCommonName" },
+            })
+        {
+            if (WI_IsAnyFlagSet(m_pinning, flag.first))
+            {
+                if (prepend)
+                {
+                    stream << " | ";
+                }
+                stream << flag.second;
+                prepend = true;
+            }
+        }
     }
 
     PinningChain::Node PinningChain::Node::Next()
@@ -323,46 +499,7 @@ namespace AppInstaller::Certificates
                 stream << std::endl;
             }
 
-            stream << indent;
-
-            if (details.GetCertificate())
-            {
-                stream << GetSimpleDisplayName(details.GetCertificate()) << " : ";
-            }
-
-            if (details.GetPinning() == PinningVerificationType::None)
-            {
-                stream << "<No verification>";
-            }
-
-            bool prepend = false;
-
-            if (WI_IsFlagSet(details.GetPinning(), PinningVerificationType::PublicKey))
-            {
-                stream << "PublicKey";
-                prepend = true;
-            }
-
-            if (WI_IsFlagSet(details.GetPinning(), PinningVerificationType::Subject))
-            {
-                if (prepend)
-                {
-                    stream << " | ";
-                }
-                stream << "Subject";
-                prepend = true;
-            }
-
-            if (WI_IsFlagSet(details.GetPinning(), PinningVerificationType::Issuer))
-            {
-                if (prepend)
-                {
-                    stream << " | ";
-                }
-                stream << "Issuer";
-                prepend = true;
-            }
-
+            details.OutputDescription(stream, indent);
             indent.append("  ");
         }
 

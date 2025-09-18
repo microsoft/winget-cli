@@ -19,6 +19,8 @@ namespace AppInstaller::Certificates
         PublicKey = 0x1,
         Subject = 0x2,
         Issuer = 0x4,
+        SubjectCommonName = 0x8,
+        IssuerCommonName = 0x10,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(PinningVerificationType);
@@ -40,6 +42,12 @@ namespace AppInstaller::Certificates
         PinningDetails& LoadCertificate(const std::pair<const BYTE*,size_t> certificateBytes);
         PCCERT_CONTEXT GetCertificate() const { return m_certificateContext.get(); }
 
+        // Manage common names
+        void SetSubjectCommonNames(std::vector<std::string> names, bool append = false);
+        void SetIssuerCommonNames(std::vector<std::string> names, bool append = false);
+        const std::vector<std::string>& GetSubjectCommonNames() const { return m_subjectCommonNames; }
+        const std::vector<std::string>& GetIssuerCommonNames() const { return m_issuerCommonNames; }
+
         PinningDetails& SetPinning(PinningVerificationType type);
         PinningVerificationType GetPinning() const { return m_pinning; }
 
@@ -48,11 +56,16 @@ namespace AppInstaller::Certificates
         // Returns false to indicate the it does not.
         bool Validate(PCCERT_CONTEXT certContext) const;
 
+        // Outputs a description of the pinning details.
+        void OutputDescription(std::ostream& stream, std::string_view indent) const;
+
         // Loads the pinning details from the given JSON.
         [[nodiscard]] bool LoadFrom(const Json::Value& configuration);
 
     private:
         wil::shared_cert_context m_certificateContext;
+        std::vector<std::string> m_subjectCommonNames;
+        std::vector<std::string> m_issuerCommonNames;
         PinningVerificationType m_pinning = PinningVerificationType::None;
     };
 
