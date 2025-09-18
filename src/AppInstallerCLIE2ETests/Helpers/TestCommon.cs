@@ -390,7 +390,17 @@ namespace AppInstallerCLIE2ETests.Helpers
             var fileList = new List<string>();
             using (RegistryKey fontsRegistryKey = baseKey.OpenSubKey(Constants.FontsSubKey, true))
             {
-                var packageNameSubkey = fontsRegistryKey.OpenSubKey(packageName);
+                using var winGetRootKey = fontsRegistryKey.OpenSubKey("winget_v1");
+                if (shouldExist)
+                {
+                    Assert.IsNotNull(winGetRootKey);
+                }
+                else
+                {
+                    return;
+                }
+
+                using var packageNameSubkey = winGetRootKey.OpenSubKey(packageName);
                 if (shouldExist)
                 {
                     Assert.IsNotNull(packageNameSubkey);
@@ -398,15 +408,15 @@ namespace AppInstallerCLIE2ETests.Helpers
 
                 if (packageNameSubkey is not null)
                 {
-                    var versionSubkey = packageNameSubkey.OpenSubKey(packageVersion);
+                    using var versionSubkey = packageNameSubkey.OpenSubKey(packageVersion);
 
-                    if (!shouldExist)
+                    if (shouldExist)
                     {
-                        Assert.IsNull(versionSubkey);
+                        Assert.IsNotNull(versionSubkey);
                     }
                     else
                     {
-                        Assert.IsNotNull(versionSubkey);
+                        Assert.IsNull(versionSubkey);
                     }
 
                     if (versionSubkey is not null)
@@ -414,7 +424,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                         var valueNames = versionSubkey.GetValueNames();
                         foreach (var valueName in valueNames)
                         {
-                            fileList.Add(fontsRegistryKey.GetValue(valueName).ToString());
+                            fileList.Add(versionSubkey.GetValue(valueName).ToString());
                         }
 
                         Assert.AreEqual(valueNames.Length, fileList.Count);

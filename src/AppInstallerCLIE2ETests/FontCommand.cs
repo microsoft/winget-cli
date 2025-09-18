@@ -67,7 +67,7 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestInvalidFont");
             Assert.AreEqual(Constants.ErrorCode.ERROR_FONT_FILE_NOT_SUPPORTED, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The font file is not supported and cannot be installed."));
+            Assert.True(result.StdOut.Contains("One or more fonts in the font package is not supported and cannot be installed."));
         }
     }
 }
