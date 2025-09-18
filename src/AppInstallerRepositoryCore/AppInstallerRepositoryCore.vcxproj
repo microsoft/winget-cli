@@ -286,6 +286,7 @@
   <ItemGroup>
     <ClInclude Include="ArpVersionValidation.h" />
     <ClInclude Include="CompositeSource.h" />
+    <ClInclude Include="FontHelper.h" />
     <ClInclude Include="IconDefs.h" />
     <ClInclude Include="ISource.h" />
     <ClInclude Include="Microsoft\ARPHelper.h" />
@@ -413,6 +414,7 @@
   <ItemGroup>
     <ClCompile Include="ARPCorrelation.cpp" />
     <ClCompile Include="ARPCorrelationAlgorithms.cpp" />
+    <ClCompile Include="FontHelper.cpp" />
     <ClCompile Include="IconExtraction.cpp" />
     <ClCompile Include="ArpVersionValidation.cpp" />
     <ClCompile Include="CompositeSource.cpp" />

@@ -63,6 +63,18 @@ namespace AppInstaller::CLI::Workflow
                 return L".msix"sv;
             case InstallerTypeEnum::Zip:
                 return L".zip"sv;
+            case InstallerTypeEnum::Font:
+                {
+                    const auto& fileName = GetFileNameFromURI(installer->Url);
+                    if (fileName.has_extension())
+                    {
+                        return fileName.extension().c_str();
+                    }
+                    else
+                    {
+                        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+                    }
+                }
             default:
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
@@ -288,6 +300,7 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Nullsoft:
             case InstallerTypeEnum::Portable: 
             case InstallerTypeEnum::Wix:
+            case InstallerTypeEnum::Font:
             case InstallerTypeEnum::Zip:
                 context << DownloadInstallerFile;
                 break;
