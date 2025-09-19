@@ -96,7 +96,7 @@ namespace AppInstaller::Repository
     {
         return
             ((other.SourceId.empty() || other.SourceId == SourceId) &&
-             (other.Version.empty() || Utility::ICUCaseInsensitiveEquals(other.Version, Version)) &&
+             (other.Version.empty() || Utility::Version{ other.Version } == Utility::Version{ Version }) &&
              (other.Channel.empty() || Utility::ICUCaseInsensitiveEquals(other.Channel, Channel)));
     }
 

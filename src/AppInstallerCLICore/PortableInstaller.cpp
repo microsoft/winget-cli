@@ -281,7 +281,7 @@ namespace AppInstaller::CLI::Portable
         return true;
     }
 
-    void PortableInstaller::Install( Workflow::OperationType operation = Workflow::OperationType::Install)
+    void PortableInstaller::Install(Workflow::OperationType operation)
     {
         // If the operation is an install, the ARP entry should be created first so that a catastrophic failure
         // leaves the system in a state where an uninstall may be possible
@@ -418,6 +418,19 @@ namespace AppInstaller::CLI::Portable
         InstallDate = Utility::GetCurrentDateForARP();
         URLInfoAbout = manifest.CurrentLocalization.Get<Manifest::Localization::PackageUrl>();
         HelpLink = manifest.CurrentLocalization.Get<Manifest::Localization::PublisherSupportUrl>();
+    }
+
+    AppInstaller::Manifest::AppsAndFeaturesEntry PortableInstaller::GetAppsAndFeaturesEntry()
+    {
+        Manifest::AppsAndFeaturesEntry entry;
+
+        entry.DisplayName = DisplayName;
+        entry.Publisher = Publisher;
+        entry.DisplayVersion = DisplayVersion;
+        entry.InstallerType = Manifest::InstallerTypeEnum::Portable;
+        entry.ProductCode = GetProductCode();
+
+        return entry;
     }
 
     void PortableInstaller::SetExpectedState()

@@ -59,7 +59,7 @@ namespace AppInstaller::CLI::Portable
             m_desiredEntries = {};
         }
 
-        void Install( AppInstaller::CLI::Workflow::OperationType operation );
+        void Install(AppInstaller::CLI::Workflow::OperationType operation = Workflow::OperationType::Install);
 
         void Uninstall();
 
@@ -90,6 +90,8 @@ namespace AppInstaller::CLI::Portable
         void SetAppsAndFeaturesMetadata(
             const Manifest::Manifest& manifest,
             const std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry>& entries);
+
+        AppInstaller::Manifest::AppsAndFeaturesEntry GetAppsAndFeaturesEntry();
 
     private:
         PortableARPEntry m_portableARPEntry;
