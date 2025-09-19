@@ -1339,3 +1339,24 @@ TEST_CASE("RepoSources_BuiltInDesktopFrameworkSourceAlwaysCreatable", "[sources]
     Source source(WellKnownSource::DesktopFrameworks);
     REQUIRE(source);
 }
+
+TEST_CASE("RepoSources_MicrosoftStore_CertificatePinningLifetimeCheck", "[sources]")
+{
+    TestHook_ClearSourceFactoryOverrides();
+
+    GroupPolicyTestOverride policies;
+    policies.SetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore, PolicyState::Disabled);
+    Source source(WellKnownSource::MicrosoftStore);
+    REQUIRE_FALSE(source.GetDetails().CertificatePinningConfiguration.IsEmpty());
+
+    // The configuration's remaining lifetime is the *maximum* of the remaining lifetimes of the individual chains.
+    // A chain's remaining lifetime is the *minimum* of the remaining lifetimes of the individual certificates.
+    // A certificate's remaining lifetime is a value between 0.0 and 1.0 that is the ratio of remaining valid time to total valid time.
+
+    // The goal of this test is to warn when the pinning configuration may be in danger of expiration; either via certificate validity or
+    // more likely by renewals causing the pinning to reject the new, correct certificates. It operates in percentage lifetime to normalize
+    // the values across the chain.
+    INFO("If this test has failed, the pinning certificates may be nearing expiration and should be investigated.");
+    double lifetimePercentage = source.GetDetails().CertificatePinningConfiguration.GetRemainingLifetimePercentage();
+    REQUIRE(lifetimePercentage > 0.25);
+}

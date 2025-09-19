@@ -24,6 +24,12 @@
     <None Include="$(MSBuildThisFileDirectory)StoreLeaf2.cer">
       <Filter>Certificates</Filter>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)Microsoft_TLS_ECC_Root_G2.crt">
+      <Filter>Certificates</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)Microsoft_TLS_RSA_Root_G2.crt">
+      <Filter>Certificates</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)resource.h" />
