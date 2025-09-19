@@ -375,6 +375,7 @@
     <ClInclude Include="Public\winget\RepositorySearch.h" />
     <ClInclude Include="Public\winget\RepositorySource.h" />
     <ClInclude Include="Rest\RestClient.h" />
+    <ClInclude Include="Rest\RestInformationCache.h" />
     <ClInclude Include="Rest\RestSource.h" />
     <ClInclude Include="Rest\RestSourceFactory.h" />
     <ClInclude Include="Rest\Schema\1_0\Interface.h" />
@@ -474,6 +475,7 @@
     <ClCompile Include="RepositorySearch.cpp" />
     <ClCompile Include="RepositorySource.cpp" />
     <ClCompile Include="Rest\RestClient.cpp" />
+    <ClCompile Include="Rest\RestInformationCache.cpp" />
     <ClCompile Include="Rest\RestSource.cpp" />
     <ClCompile Include="Rest\RestSourceFactory.cpp" />
     <ClCompile Include="Rest\Schema\1_0\RestInterface_1_0.cpp" />

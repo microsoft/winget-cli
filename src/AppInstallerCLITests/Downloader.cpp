@@ -109,3 +109,63 @@ TEST_CASE("HttpStream_ReadLastFullPage", "[HttpStream]")
     REQUIRE(stream->Read(buffer.get(), static_cast<ULONG>(HttpStream::HttpLocalCache::PAGE_SIZE), &read) >= S_OK);
     REQUIRE(read == (stat.cbSize.QuadPart % HttpStream::HttpLocalCache::PAGE_SIZE));
 }
+
+TEST_CASE("CacheControl", "[Downloader]")
+{
+    SECTION("Empty")
+    {
+        CacheControlPolicy test{ L"" };
+        REQUIRE(!test.Present);
+    }
+    SECTION("Space")
+    {
+        CacheControlPolicy test{ L" " };
+        REQUIRE(!test.Present);
+    }
+    SECTION("Standard")
+    {
+        CacheControlPolicy test{ L"public, max-age=77287" };
+        REQUIRE(test.Present);
+        REQUIRE(test.Public);
+        REQUIRE(!test.NoCache);
+        REQUIRE(!test.NoStore);
+        REQUIRE(test.MaxAge == 77287);
+    }
+    SECTION("All")
+    {
+        CacheControlPolicy test{ L"public, no-cache, no-store, max-age = 77" };
+        REQUIRE(test.Present);
+        REQUIRE(test.Public);
+        REQUIRE(test.NoCache);
+        REQUIRE(test.NoStore);
+        REQUIRE(test.MaxAge == 77);
+    }
+    SECTION("Casing")
+    {
+        CacheControlPolicy test{ L"Public, Max-Age=42" };
+        REQUIRE(test.Present);
+        REQUIRE(test.Public);
+        REQUIRE(!test.NoCache);
+        REQUIRE(!test.NoStore);
+        REQUIRE(test.MaxAge == 42);
+    }
+    SECTION("Unknown")
+    {
+        CacheControlPolicy test{ L"public, max-age=77287, not-real" };
+        REQUIRE(test.Present);
+        REQUIRE(test.Public);
+        REQUIRE(!test.NoCache);
+        REQUIRE(!test.NoStore);
+        REQUIRE(test.MaxAge == 77287);
+    }
+    SECTION("MaxAge Negative")
+    {
+        CacheControlPolicy test{ L"max-age=-1" };
+        REQUIRE(test.MaxAge == CacheControlPolicy::MaximumMaxAge);
+    }
+    SECTION("MaxAge not a number")
+    {
+        CacheControlPolicy test{ L"max-age=FOO" };
+        REQUIRE(test.MaxAge == 0);
+    }
+}

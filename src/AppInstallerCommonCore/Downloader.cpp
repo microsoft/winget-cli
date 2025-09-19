@@ -613,4 +613,52 @@ namespace AppInstaller::Utility
     {
         return GetRetryAfter(response.Headers().RetryAfter());
     }
+
+    CacheControlPolicy::CacheControlPolicy(std::wstring_view header)
+    {
+        static constexpr std::wstring_view s_MaxAge = L"max-age"sv;
+
+        if (header.empty())
+        {
+            return;
+        }
+
+        std::vector<std::wstring_view> directives = Utility::Split(header, L',', true);
+
+        for (std::wstring_view directive : directives)
+        {
+            if (!directive.empty())
+            {
+                // Even if we don't understand the directive, the value was not empty
+                Present = true;
+            }
+
+            std::wstring lowerDirective = ToLower(directive);
+
+            if (lowerDirective == L"public"sv)
+            {
+                Public = true;
+            }
+            else if (lowerDirective == L"no-cache"sv)
+            {
+                NoCache = true;
+            }
+            else if (lowerDirective == L"no-store"sv)
+            {
+                NoStore = true;
+            }
+            else if (StartsWith(lowerDirective, s_MaxAge))
+            {
+                std::vector<std::wstring_view> parts = Utility::Split(lowerDirective, L'=', true);
+                if (parts.size() == 2)
+                {
+                    try
+                    {
+                        MaxAge = std::min(std::stoull(std::wstring{ parts[1] }), MaximumMaxAge);
+                    }
+                    CATCH_LOG();
+                }
+            }
+        }
+    }
 }

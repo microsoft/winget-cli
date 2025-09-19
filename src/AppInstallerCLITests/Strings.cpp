@@ -117,6 +117,9 @@ TEST_CASE("Trim", "[strings]")
     REQUIRE(Trim(str.assign("Multiple words")) == "Multiple words");
     REQUIRE(Trim(str.assign("         Multiple words")) == "Multiple words");
     REQUIRE(Trim(str.assign("Much after is taken \f\n\r\t\v\v\t\r\n\f ")) == "Much after is taken");
+
+    REQUIRE(Trim(L" Test") == L"Test");
+    REQUIRE(Trim(L"   ") == L"");
 }
 
 TEST_CASE("CaseInsensitiveStartsWith", "[strings]")
@@ -297,6 +300,20 @@ TEST_CASE("SplitWithSeparator", "[strings]")
     REQUIRE(test4.size() == 2);
     REQUIRE(test4[0] == "trim");
     REQUIRE(test4[1] == "spaces");
+
+    std::vector<std::wstring_view> test5 = Split(L" trim /spaces /  ", '/', true);
+    REQUIRE(test5.size() == 3);
+    REQUIRE(test5[0] == L"trim");
+    REQUIRE(test5[1] == L"spaces");
+    REQUIRE(test5[2] == L"");
+
+    std::vector<std::wstring_view> test6 = Split(L" ", '/', true);
+    REQUIRE(test6.size() == 1);
+    REQUIRE(test6[0] == L"");
+
+    std::vector<std::string> test7 = Split("", ';');
+    REQUIRE(test7.size() == 1);
+    REQUIRE(test7[0] == "");
 }
 
 TEST_CASE("ConvertGuid", "[strings]")

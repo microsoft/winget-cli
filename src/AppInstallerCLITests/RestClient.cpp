@@ -4,7 +4,9 @@
 #include "TestCommon.h"
 #include "TestRestRequestHandler.h"
 #include <Rest/RestClient.h>
+#include <Rest/RestInformationCache.h>
 #include <Rest/Schema/IRestClient.h>
+#include <Rest/Schema/InformationResponseDeserializer.h>
 #include <AppInstallerVersions.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerRuntime.h>
@@ -487,4 +489,183 @@ TEST_CASE("RestClientCreate_1.7_Success", "[RestSource]")
     REQUIRE(information.Authentication.MicrosoftEntraIdInfo.has_value());
     REQUIRE(information.Authentication.MicrosoftEntraIdInfo->Resource == "GUID");
     REQUIRE(information.Authentication.MicrosoftEntraIdInfo->Scope == "test");
+}
+
+// Simulate the msstore cache round trip using real world data.
+TEST_CASE("RestInformationCache_RoundTrip", "[RestInformationCache]")
+{
+    Settings::Stream{ Settings::Stream::RestInformationCache }.Remove();
+
+    std::wstring endpoint = L"https://test-url-com/information";
+    CacheControlPolicy cacheControl{ L"public, max-age=77287" };
+    auto response = web::json::value::parse(
+R"delimiter({
+    "$type": "Microsoft.Marketplace.Storefront.StoreEdgeFD.BusinessLogic.Response.PackageMetadata.PackageMetadataResponse, StoreEdgeFD",
+    "Data": {
+        "$type": "Microsoft.Marketplace.Storefront.StoreEdgeFD.BusinessLogic.Response.PackageMetadata.PackageMetadataData, StoreEdgeFD",
+        "SourceIdentifier": "StoreEdgeFD",
+        "SourceAgreements": {
+            "$type": "Microsoft.Marketplace.Storefront.StoreEdgeFD.BusinessLogic.Response.PackageMetadata.SourceAgreements, StoreEdgeFD",
+            "AgreementsIdentifier": "StoreEdgeFD",
+            "Agreements": [
+                {
+                    "$type": "Microsoft.Marketplace.Storefront.StoreEdgeFD.BusinessLogic.Response.PackageManifest.AgreementDetail, StoreEdgeFD",
+                    "AgreementLabel": "Terms of Transaction",
+                    "AgreementUrl": "https://aka.ms/microsoft-store-terms-of-transaction"
+                }
+            ]
+        },
+        "ServerSupportedVersions": [ "1.0.0", "1.1.0", "1.6.0" ],
+        "RequiredQueryParameters": [ "market" ],
+        "RequiredPackageMatchFields": [ "market" ]
+    }
+})delimiter");
+
+    RestInformationCache cache;
+    cache.Cache(endpoint, {}, {}, cacheControl, response);
+    auto cachedValue = cache.Get(endpoint, {}, {});
+
+    REQUIRE(cachedValue.has_value());
+
+    InformationResponseDeserializer deserializer;
+    const auto expected = deserializer.Deserialize(response);
+    const auto& actual = cachedValue.value();
+
+    REQUIRE(expected.SourceIdentifier == actual.SourceIdentifier);
+    REQUIRE(expected.SourceAgreementsIdentifier == actual.SourceAgreementsIdentifier);
+    REQUIRE(expected.SourceAgreements.size() == actual.SourceAgreements.size());
+    REQUIRE(1 == actual.SourceAgreements.size());
+    REQUIRE(expected.SourceAgreements[0].Label == actual.SourceAgreements[0].Label);
+    REQUIRE(expected.SourceAgreements[0].Text == actual.SourceAgreements[0].Text);
+    REQUIRE(expected.SourceAgreements[0].Url == actual.SourceAgreements[0].Url);
+
+    REQUIRE(expected.ServerSupportedVersions.size() == actual.ServerSupportedVersions.size());
+    for (const auto& expectedVersion : expected.ServerSupportedVersions)
+    {
+        REQUIRE(std::find(actual.ServerSupportedVersions.begin(), actual.ServerSupportedVersions.end(), expectedVersion) != actual.ServerSupportedVersions.end());
+    }
+
+    REQUIRE(expected.RequiredQueryParameters.size() == actual.RequiredQueryParameters.size());
+    REQUIRE(1 == actual.RequiredQueryParameters.size());
+    REQUIRE(expected.RequiredQueryParameters[0] == actual.RequiredQueryParameters[0]);
+
+    REQUIRE(expected.RequiredPackageMatchFields.size() == actual.RequiredPackageMatchFields.size());
+    REQUIRE(1 == actual.RequiredPackageMatchFields.size());
+    REQUIRE(expected.RequiredPackageMatchFields[0] == actual.RequiredPackageMatchFields[0]);
+}
+
+web::json::value CreateInformationResponse(std::string_view identifier)
+{
+    std::ostringstream stream;
+    stream << R"({ "Data": { "SourceIdentifier": ")" << identifier << R"(", "ServerSupportedVersions": [ "1.0.0" ] } })";
+
+    return web::json::value::parse(stream.str());
+}
+
+TEST_CASE("RestInformationCache_Get", "[RestInformationCache]")
+{
+    Settings::Stream{ Settings::Stream::RestInformationCache }.Remove();
+
+    std::wstring endpoint1 = L"https://test-url1-com/information";
+    std::wstring endpoint2 = L"https://test-url2-com/information";
+    std::wstring endpointNotPresent = L"https://test-url-not-present-com/information";
+    std::string header = "Header";
+    std::string caller = "Caller";
+    std::string publicEndpoint1Identifier = "Identifier1";
+    std::string privateEndpoint1Identifier = "Identifier2";
+    std::string privateEndpoint2Identifier = "Identifier3";
+    auto publicEndpoint1Response = CreateInformationResponse(publicEndpoint1Identifier);
+    auto privateEndpoint1Response = CreateInformationResponse(privateEndpoint1Identifier);
+    auto privateEndpoint2Response = CreateInformationResponse(privateEndpoint2Identifier);
+
+    RestInformationCache cache;
+
+    // Cache:
+    //  1. public and private for same endpoint
+    cache.Cache(endpoint1, header, caller, { L"public" }, publicEndpoint1Response);
+    cache.Cache(endpoint1, header, caller, {}, privateEndpoint1Response);
+    //  2. another endpoint with private data (same headers)
+    cache.Cache(endpoint2, header, caller, {}, privateEndpoint2Response);
+
+    SECTION("Same headers prefers private")
+    {
+        auto cachedValue = cache.Get(endpoint1, header, caller);
+        REQUIRE(cachedValue.has_value());
+        REQUIRE(privateEndpoint1Identifier == cachedValue->SourceIdentifier);
+    }
+    SECTION("Different headers falls back to public")
+    {
+        auto cachedValue = cache.Get(endpoint1, "Different", "Different");
+        REQUIRE(cachedValue.has_value());
+        REQUIRE(publicEndpoint1Identifier == cachedValue->SourceIdentifier);
+    }
+    SECTION("Second endpoint")
+    {
+        auto cachedValue = cache.Get(endpoint2, header, caller);
+        REQUIRE(cachedValue.has_value());
+        REQUIRE(privateEndpoint2Identifier == cachedValue->SourceIdentifier);
+    }
+    SECTION("Second endpoint different headers")
+    {
+        auto cachedValue = cache.Get(endpoint2, {}, {});
+        REQUIRE(!cachedValue.has_value());
+    }
+    SECTION("Missing endpoint")
+    {
+        auto cachedValue = cache.Get(endpointNotPresent, header, caller);
+        REQUIRE(!cachedValue.has_value());
+    }
+}
+
+TEST_CASE("RestInformationCache_Cache_NoStore", "[RestInformationCache]")
+{
+    Settings::Stream{ Settings::Stream::RestInformationCache }.Remove();
+
+    std::wstring endpoint = L"https://test-url-com/information";
+
+    RestInformationCache cache;
+    cache.Cache(endpoint, {}, {}, { L"no-store" }, CreateInformationResponse("Identifier"));
+
+    auto cachedValue = cache.Get(endpoint, {}, {});
+    REQUIRE(!cachedValue.has_value());
+}
+
+TEST_CASE("RestInformationCache_Cache_Expiration", "[RestInformationCache]")
+{
+    Settings::Stream{ Settings::Stream::RestInformationCache }.Remove();
+
+    std::wstring endpoint = L"https://test-url-com/information";
+
+    RestInformationCache cache;
+    cache.Cache(endpoint, {}, {}, { L"max-age=2" }, CreateInformationResponse("Identifier"));
+
+    auto cachedValue = cache.Get(endpoint, {}, {});
+    REQUIRE(cachedValue.has_value());
+
+    std::this_thread::sleep_for(5s);
+
+    cachedValue = cache.Get(endpoint, {}, {});
+    REQUIRE(!cachedValue.has_value());
+}
+
+TEST_CASE("RestInformationCache_Cache_Overwrite", "[RestInformationCache]")
+{
+    Settings::Stream{ Settings::Stream::RestInformationCache }.Remove();
+
+    std::wstring endpoint = L"https://test-url-com/information";
+    std::string identifier1 = "Identifier1";
+    std::string identifier2 = "Identifier2";
+
+    RestInformationCache cache;
+    cache.Cache(endpoint, {}, {}, {}, CreateInformationResponse(identifier1));
+
+    auto cachedValue = cache.Get(endpoint, {}, {});
+    REQUIRE(cachedValue.has_value());
+    REQUIRE(identifier1 == cachedValue->SourceIdentifier);
+
+    cache.Cache(endpoint, {}, {}, {}, CreateInformationResponse(identifier2));
+
+    cachedValue = cache.Get(endpoint, {}, {});
+    REQUIRE(cachedValue.has_value());
+    REQUIRE(identifier2 == cachedValue->SourceIdentifier);
 }

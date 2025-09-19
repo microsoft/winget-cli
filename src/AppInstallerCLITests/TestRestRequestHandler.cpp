@@ -23,6 +23,7 @@ std::shared_ptr<TestRestRequestHandler> GetTestRestRequestHandler(
             }
 
             response.headers().set_content_type(mimeType);
+            response.headers().set_cache_control(L"no-store");
             response.set_status_code(statusCode);
             return pplx::task_from_result(response);
         });
@@ -38,6 +39,7 @@ std::shared_ptr<TestRestRequestHandler> GetTestRestRequestHandler(
             response.set_body(utf16string{});
 
             response.headers().set_content_type(web::http::details::mime_types::application_json);
+            response.headers().set_cache_control(L"no-store");
             response.set_status_code(handler(request));
             return pplx::task_from_result(response);
         });
@@ -65,6 +67,7 @@ std::shared_ptr<TestRestRequestHandler> GetHeaderVerificationHandler(
             }
 
             response.headers().set_content_type(web::http::details::mime_types::application_json);
+            response.headers().set_cache_control(L"no-store");
             response.set_status_code(statusCode);
             return pplx::task_from_result(response);
         });

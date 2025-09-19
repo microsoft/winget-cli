@@ -53,6 +53,7 @@ createpintable
 createportabletable
 createtables
 CRTDECL
+CRYPTPROTECT
 CTLs
 curated
 CURSORPOSITON

@@ -39,8 +39,10 @@ namespace AppInstaller::JSON
     std::optional<std::reference_wrapper<const web::json::value>> GetJsonValueFromNode(const web::json::value& node, const utility::string_t& keyName);
 
     std::optional<std::string> GetRawStringValueFromJsonValue(const web::json::value& value);
+    std::optional<std::wstring> GetWideStringValueFromJsonValue(const web::json::value& value);
 
     std::optional<std::string> GetRawStringValueFromJsonNode(const web::json::value& node, const utility::string_t& keyName);
+    std::optional<std::wstring> GetWideStringValueFromJsonNode(const web::json::value& node, const utility::string_t& keyName);
 
     std::optional<bool> GetRawBoolValueFromJsonValue(const web::json::value& value);
 
@@ -53,7 +55,11 @@ namespace AppInstaller::JSON
 
     std::optional<int> GetRawIntValueFromJsonValue(const web::json::value& value);
 
-    std::optional<int> GetRawIntValueFromJsonNode(const web::json::value& value, const utility::string_t& keyName);
+    std::optional<uint64_t> GetRawUInt64ValueFromJsonValue(const web::json::value& value);
+
+    std::optional<int> GetRawIntValueFromJsonNode(const web::json::value& node, const utility::string_t& keyName);
+
+    std::optional<uint64_t> GetRawUInt64ValueFromJsonNode(const web::json::value& node, const utility::string_t& keyName);
 
     utility::string_t GetUtilityString(std::string_view nodeName);
 
@@ -63,8 +69,9 @@ namespace AppInstaller::JSON
     std::string Base64Encode(const std::vector<BYTE>& input);
 
     // Base64 decode
-    std::vector<BYTE>Base64Decode(const std::string& input);
+    std::vector<BYTE> Base64Decode(const std::string& input);
 #endif
 
     bool IsValidNonEmptyStringValue(std::optional<std::string>& value);
+    bool IsValidNonEmptyStringValue(std::optional<std::wstring>& value);
 }

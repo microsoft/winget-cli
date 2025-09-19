@@ -36,12 +36,16 @@ namespace AppInstaller::Settings
     // Names should still be unique, as there is no guarantee made about types mapping to unique roots.
     enum class Type
     {
-        // A Standard setting stream has no special requirements.
+        // A Standard setting stream has no special requirements (limited to 8K contents and no embedded null characters).
         Standard,
         // A UserFile setting stream should be located in a file that is easily editable by the user.
         UserFile,
         // A settings stream that should not be modified except by admin privileges.
         Secure,
+        // A settings stream that is encrypted. It does not require admin privileges to write to.
+        Encrypted,
+        // A setting stream has should be stored in a file, removing the limitations of the Standard type.
+        StandardFile,
     };
 
     // Converts the Type enum to a string.
@@ -76,6 +80,8 @@ namespace AppInstaller::Settings
         constexpr static StreamDefinition BackupUserSettings{ Type::UserFile, "settings.json.backup"sv };
         // The admin settings.
         constexpr static StreamDefinition AdminSettings{ Type::Secure, "admin_settings"sv };
+        // The REST information cache.
+        constexpr static StreamDefinition RestInformationCache{ Type::Encrypted, "rest_information"sv };
 
         // Gets a Stream for the StreamDefinition.
         // If the stream is synchronized, attempts to Set the value can fail due to another writer
