@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/Certificates.h"
+#include "AppInstallerDateTime.h"
 #include "AppInstallerLogging.h"
 #include "AppInstallerStrings.h"
 #include "winget/JsonUtil.h"
@@ -13,6 +14,11 @@ namespace AppInstaller::Certificates
     {
         std::string GetNameString(PCCERT_CONTEXT certContext, DWORD nameType, bool forIssuer, void* typeParam = nullptr)
         {
+            if (!certContext)
+            {
+                return "<no certificate loaded>";
+            }
+
             DWORD flags = forIssuer ? CERT_NAME_ISSUER_FLAG : 0;
 
             DWORD characterCount = CertGetNameStringW(certContext, nameType, flags, typeParam, nullptr, 0);
@@ -275,6 +281,7 @@ namespace AppInstaller::Certificates
         LoadCertificate(embeddedCertificateBytes);
 
         return true;
+
     }
 
     CertificatePinningValidationResult PinningDetails::Validate(PCCERT_CONTEXT certContext, CertificateChainPosition position) const
@@ -330,23 +337,48 @@ namespace AppInstaller::Certificates
             }
         }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (m_customValidation)
+        {
+            if (!m_customValidation(*this, certContext, position))
+            {
+                AICLI_LOG(Core, Verbose, << "Custom validation returned false: Expected certificate [" << GetSimpleDisplayName(m_certificateContext.get()) << "], Actual certificate [" << GetSimpleDisplayName(certContext) << "]");
+                return failResult;
+            }
+        }
+#endif
+
         return CertificatePinningValidationResult::Accepted;
     }
 
     void PinningDetails::OutputDescription(std::ostream& stream, std::string_view indent) const
     {
-        stream << indent;
+        stream << indent << GetSimpleDisplayName(m_certificateContext.get()) << " : " << m_pinning;
+    }
 
-        if (m_certificateContext)
+    double PinningDetails::GetRemainingLifetimePercentage() const
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_certificateContext);
+
+        auto notBefore = Utility::ConvertFiletimeToSystemClock(m_certificateContext.get()->pCertInfo->NotBefore);
+        auto notAfter = Utility::ConvertFiletimeToSystemClock(m_certificateContext.get()->pCertInfo->NotAfter);
+        THROW_HR_IF(E_NOT_VALID_STATE, notBefore > notAfter);
+
+        auto now = std::chrono::system_clock::now();
+
+        if (now < notBefore)
         {
-            stream << GetSimpleDisplayName(m_certificateContext.get());
+            return 1.0;
         }
-        else
+        else if (now > notAfter)
         {
-            stream << "<no certificate loaded>";
+            return 0.0;
         }
 
-        stream << " : " << m_pinning;
+        auto totalTime = notAfter - notBefore;
+        auto remainingTime = notAfter - now;
+
+        return static_cast<double>(remainingTime.count()) / static_cast<double>(totalTime.count());
     }
 
     PinningChain::Node PinningChain::Node::Next()
@@ -493,6 +525,10 @@ namespace AppInstaller::Certificates
             {
                 stream << std::endl;
             }
+            else if (m_partial)
+            {
+                stream << "[Partial Chain Validation]" << std::endl;
+            }
 
             details.OutputDescription(stream, indent);
             indent.append("  ");
@@ -543,6 +579,18 @@ namespace AppInstaller::Certificates
         }
 
         return true;
+    }
+
+    double PinningChain::GetRemainingLifetimePercentage() const
+    {
+        double result = 1.0;
+
+        for (const auto& details : m_chain)
+        {
+            result = std::min(result, details.GetRemainingLifetimePercentage());
+        }
+
+        return result;
     }
 
     PinningConfiguration::PinningConfiguration(std::string identifier) : m_identifier(identifier)
@@ -674,5 +722,17 @@ namespace AppInstaller::Certificates
         }
 
         return true;
+    }
+
+    double PinningConfiguration::GetRemainingLifetimePercentage() const
+    {
+        double result = 0.0;
+
+        for (const auto& chain : m_configuration)
+        {
+            result = std::max(result, chain.GetRemainingLifetimePercentage());
+        }
+
+        return result;
     }
 }

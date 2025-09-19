@@ -59,7 +59,7 @@ namespace AppInstaller::Certificates
         // The certificate was rejected as invalid.
         Rejected,
         // The next certificate in the chain should be validated against the current details.
-        // For use by looser validation that does not require exacting chain configurations.
+        // For use by partial chain validation that does not require exacting chain configurations.
         Skipped,
     };
 
@@ -91,6 +91,16 @@ namespace AppInstaller::Certificates
 
         // Loads the pinning details from the given JSON.
         [[nodiscard]] bool LoadFrom(const Json::Value& configuration);
+
+        // Determines how far the certificate is through its lifespan.
+        double GetRemainingLifetimePercentage() const;
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        using CustomValidationFunction = std::function<bool(const PinningDetails&, PCCERT_CONTEXT, CertificateChainPosition)>;
+        void SetCustomValidationFunction(CustomValidationFunction function) { m_customValidation = std::move(function); }
+    private:
+        CustomValidationFunction m_customValidation;
+#endif
 
     private:
         wil::shared_cert_context m_certificateContext;
@@ -153,6 +163,9 @@ namespace AppInstaller::Certificates
         // Loads the pinning chain from the given JSON.
         [[nodiscard]] bool LoadFrom(const Json::Value& configuration);
 
+        // Determines how far the certificate chain is through its lifespan (the minimum of all of its certificates).
+        double GetRemainingLifetimePercentage() const;
+
     private:
         std::vector<PinningDetails> m_chain;
         bool m_partial = false;
@@ -183,6 +196,9 @@ namespace AppInstaller::Certificates
 
         // Loads the pinning configuration from the given JSON.
         [[nodiscard]] bool LoadFrom(const Json::Value& configuration);
+
+        // Determines how far the configuration is through its lifespan (the maximum of all of its chains).
+        double GetRemainingLifetimePercentage() const;
 
     private:
         // The identifier used when logging.

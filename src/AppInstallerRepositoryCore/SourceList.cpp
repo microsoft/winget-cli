@@ -343,9 +343,22 @@ namespace AppInstaller::Repository
                 chainElement2 = chainElement2.Next();
                 chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
 
+                // See https://aka.ms/AzureTLSCAs (internal) for the source of these CAs
+                PinningChain chain3;
+                chain3.PartialChain().Root()->
+                    LoadCertificate(IDX_CERTIFICATE_MS_TLS_ECC_ROOT_G2, CERTIFICATE_RESOURCE_TYPE).
+                    SetPinning(PinningVerificationType::PublicKey | PinningVerificationType::AnyIssuer | PinningVerificationType::RequireNonLeaf);
+
+                PinningChain chain4;
+                chain4.PartialChain().Root()->
+                    LoadCertificate(IDX_CERTIFICATE_MS_TLS_RSA_ROOT_G2, CERTIFICATE_RESOURCE_TYPE).
+                    SetPinning(PinningVerificationType::PublicKey | PinningVerificationType::AnyIssuer | PinningVerificationType::RequireNonLeaf);
+
                 details.CertificatePinningConfiguration = PinningConfiguration("Microsoft Store Source");
                 details.CertificatePinningConfiguration.AddChain(std::move(chain));
                 details.CertificatePinningConfiguration.AddChain(std::move(chain2));
+                details.CertificatePinningConfiguration.AddChain(std::move(chain3));
+                details.CertificatePinningConfiguration.AddChain(std::move(chain4));
             }
 
             return details;
