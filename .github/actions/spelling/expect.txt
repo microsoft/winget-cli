@@ -107,6 +107,7 @@ countryregion
 Cov
 CPIL
 createmanifestmetadata
+crt
 cswinrt
 ctc
 CTL
@@ -168,6 +169,7 @@ FECAFEB
 fedorapeople
 fileinuse
 filemode
+Filetime
 Filtercriteria
 Finalizers
 fintimes
@@ -540,6 +542,7 @@ thiscouldbeapc
 threehundred
 timespan
 Tlg
+TLSCAs
 tombstoned
 transitioning
 trimstart
