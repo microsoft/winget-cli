@@ -147,6 +147,9 @@ namespace
                     "InstallerSuccessCodes": [
                       0
                     ],
+                    "UninstallerSuccessCodes": [
+                      1
+                    ],
                     "UpgradeBehavior": "deny",
                     "Commands": [
                       "command1"
@@ -337,6 +340,8 @@ namespace
             REQUIRE(actualInstaller.Switches.at(InstallerSwitchType::Repair) == "/repair");
             REQUIRE(actualInstaller.InstallerSuccessCodes.size() == 1);
             REQUIRE(actualInstaller.InstallerSuccessCodes.at(0) == 0);
+            REQUIRE(actualInstaller.UninstallerSuccessCodes.size() == 1);
+            REQUIRE(actualInstaller.UninstallerSuccessCodes.at(0) == 1);
             REQUIRE(actualInstaller.UpdateBehavior == UpdateBehaviorEnum::Deny);
             REQUIRE(actualInstaller.Commands.at(0) == "command1");
             REQUIRE(actualInstaller.Protocols.at(0) == "protocol1");

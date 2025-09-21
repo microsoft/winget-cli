@@ -128,6 +128,15 @@ namespace AppInstaller::Manifest
         Repair,
     };
 
+    enum class UninstallerSwitchType
+    {
+        Custom,
+        Silent,
+        SilentWithProgress,
+        Interactive,
+        Log,
+    };
+
     enum class RepairBehaviorEnum
     {
         Unknown,

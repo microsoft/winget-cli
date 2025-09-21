@@ -10,6 +10,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_12::Json
     {
     protected:
 
+        std::optional<Manifest::ManifestInstaller> DeserializeInstaller(const web::json::value& installerJsonObject) const override;
+
         Manifest::InstallerTypeEnum ConvertToInstallerType(std::string_view in) const override;
 
         Manifest::ManifestVer GetManifestVersion() const override;

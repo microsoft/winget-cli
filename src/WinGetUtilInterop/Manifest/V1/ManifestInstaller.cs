@@ -81,6 +81,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         public List<long> InstallerSuccessCodes { get; set; }
 
         /// <summary>
+        /// Gets or sets the list of additional installer success codes.
+        /// </summary>
+        public List<long> UninstallerSuccessCodes { get; set; }
+
+        /// <summary>
         /// Gets or sets the upgrade behavior.
         /// </summary>
         public string UpgradeBehavior { get; set; }

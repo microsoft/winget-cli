@@ -428,7 +428,8 @@ namespace AppInstaller::CLI::Workflow
     void ReportUninstallerResult::operator()(Execution::Context& context) const
     {
         DWORD uninstallResult = context.Get<Execution::Data::OperationReturnCode>();
-        if (uninstallResult != 0)
+        const auto& additionalSuccessCodes = context.Get<Execution::Data::Installer>()->UninstallerSuccessCodes;
+        if (uninstallResult != 0 && (std::find(additionalSuccessCodes.begin(), additionalSuccessCodes.end(), uninstallResult) == additionalSuccessCodes.end()))
         {
             const auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
             Logging::Telemetry().LogUninstallerFailure(

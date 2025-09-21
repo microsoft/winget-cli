@@ -373,30 +373,6 @@
             "uniqueItems": true,
             "description": "List of additional non-zero uninstaller success exit codes other than known default values by winget"
         },
-        "ReturnResponse": {
-            "type": "string",
-            "enum": [
-                "packageInUse",
-                "packageInUseByApplication",
-                "installInProgress",
-                "fileInUse",
-                "missingDependency",
-                "diskFull",
-                "insufficientMemory",
-                "invalidParameter",
-                "noNetwork",
-                "contactSupport",
-                "rebootRequiredToFinish",
-                "rebootRequiredForInstall",
-                "rebootInitiated",
-                "cancelledByUser",
-                "alreadyInstalled",
-                "downgrade",
-                "blockedByPolicy",
-                "systemNotSupported",
-                "custom"
-            ]
-        },
         "ExpectedReturnCodes": {
             "type": [ "array", "null" ],
             "items": {
@@ -406,25 +382,36 @@
                     "InstallerReturnCode": {
                         "$ref": "#/definitions/InstallerReturnCode"
                     },
-                    "UninstallerReturnCode": {
-                        "$ref": "#/definitions/UninstallerReturnCode"
-                    },
                     "ReturnResponse": {
-                        "$ref": "#/definitions/ReturnResponse"
+                        "type": "string",
+                        "enum": [
+                            "packageInUse",
+                            "packageInUseByApplication",
+                            "installInProgress",
+                            "fileInUse",
+                            "missingDependency",
+                            "diskFull",
+                            "insufficientMemory",
+                            "invalidParameter",
+                            "noNetwork",
+                            "contactSupport",
+                            "rebootRequiredToFinish",
+                            "rebootRequiredForInstall",
+                            "rebootInitiated",
+                            "cancelledByUser",
+                            "alreadyInstalled",
+                            "downgrade",
+                            "blockedByPolicy",
+                            "systemNotSupported",
+                            "custom"
+                        ]
                     },
                     "ReturnResponseUrl": {
                         "$ref": "#/definitions/Url",
                         "description": "The return response url to provide additional guidance for expected return codes"
                     }
                 },
-                "anyOf": [
-                    {
-                        "required:": [ "InstallerReturnCode", "ReturnResponse" ]
-                    },
-                    {
-                        "required": [ "UninstallerReturnCode", "ReturnResponse" ]
-                    }
-                ]
+                "required": [ "InstallerReturnCode", "ReturnResponse" ]
             },
             "maxItems": 128,
             "description": "Installer exit codes for common errors"
@@ -1111,6 +1098,12 @@
     },
     "InstallerSuccessCodes": {
       "$ref": "#/definitions/InstallerSuccessCodes"
+    },
+    "UninstallerSwitches": {
+      "$ref": "#/definitions/UninstallerSwitches"
+    },
+    "UninstallerSuccessCodes": {
+      "$ref": "#/definitions/UninstallerSuccessCodes"
     },
     "ExpectedReturnCodes": {
       "$ref": "#/definitions/ExpectedReturnCodes"

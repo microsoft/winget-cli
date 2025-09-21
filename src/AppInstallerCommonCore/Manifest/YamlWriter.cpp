@@ -433,6 +433,23 @@ namespace AppInstaller::Manifest::YamlWriter
             out << YAML::EndSeq;
         }
 
+
+        void ProcessUninstallerSuccessCodes(YAML::Emitter& out, const std::vector<DWORD>& uninstallerSuccessCodes)
+        {
+            if (uninstallerSuccessCodes.empty())
+            {
+                return;
+            }
+
+            out << YAML::Key << UninstallerSuccessCodes;
+            out << YAML::BeginSeq;
+            for (auto const& uninstallerSuccessCode : uninstallerSuccessCodes)
+            {
+                out << std::to_string(uninstallerSuccessCode);
+            }
+            out << YAML::EndSeq;
+        }
+
         void ProcessMarkets(YAML::Emitter& out, const MarketsInfo& marketsInfo)
         {
             if (marketsInfo.AllowedMarkets.empty() && marketsInfo.ExcludedMarkets.empty())
@@ -634,6 +651,7 @@ namespace AppInstaller::Manifest::YamlWriter
             ProcessUnsupportedArguments(out, installer.UnsupportedArguments);
             ProcessUnsupportedOSArchitecture(out, installer.UnsupportedOSArchitectures);
             ProcessAuthentication(out, installer.AuthInfo);
+            ProcessUninstallerSuccessCodes(out, installer.UninstallerSuccessCodes);
         }
 
         void ProcessInstaller(YAML::Emitter& out, const ManifestInstaller& installer)

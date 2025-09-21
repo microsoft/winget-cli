@@ -25,6 +25,9 @@ InstallerSwitches:
 InstallerSuccessCodes:
   - 1
   - 0x80070005
+UninstallerSuccessCodes:
+  - 2
+  - 0x80070002
 UpgradeBehavior: uninstallPrevious
 RepairBehavior: modify
 Commands:
@@ -163,11 +166,6 @@ Installers:
       - InstallerReturnCode: 2
         ReturnResponse: contactSupport
       - InstallerReturnCode: 3
-        ReturnResponse: custom
-        ReturnResponseUrl: https://defaultReturnResponseUrl.com
-      - UninstallerReturnCode: 5
-        ReturnResponse: rebootRequired
-      - UninstallerReturnCode: 9
         ReturnResponse: custom
         ReturnResponseUrl: https://defaultReturnResponseUrl.com
     UnsupportedArguments:

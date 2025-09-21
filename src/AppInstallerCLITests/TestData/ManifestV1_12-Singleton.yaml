@@ -66,6 +66,9 @@ UninstallerSwitches:
 InstallerSuccessCodes:
   - 1
   - 0x80070005
+UninstallerSuccessCodes:
+  - 2
+  - 0x80070002
 UpgradeBehavior: uninstallPrevious
 RepairBehavior: modify
 Commands:
@@ -117,8 +120,6 @@ ExpectedReturnCodes:
   - InstallerReturnCode: 10
     ReturnResponse: packageInUse
     ReturnResponseUrl: https://DefaultReturnResponseUrl.com
-  - UninstallerReturnCode: 2
-    ReturnResponse: rebootRequiredToFinish
 UnsupportedArguments:
   - log
 NestedInstallerType: msi

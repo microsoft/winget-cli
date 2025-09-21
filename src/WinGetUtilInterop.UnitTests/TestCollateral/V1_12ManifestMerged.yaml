@@ -58,6 +58,9 @@ InstallerSwitches:
 InstallerSuccessCodes:
   - 1
   - 0x80070005
+UninstallerSuccessCodes:
+  - 2
+  - 0x80070002
 UpgradeBehavior: uninstallPrevious
 Commands:
   - makemsix

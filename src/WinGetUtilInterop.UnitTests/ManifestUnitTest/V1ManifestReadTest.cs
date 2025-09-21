@@ -197,6 +197,14 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             Assert.Equal(2, manifest.InstallerSuccessCodes.Count);
             Assert.Equal(1, manifest.InstallerSuccessCodes[0]);
             Assert.Equal(0x80070005, manifest.InstallerSuccessCodes[1]);
+
+            if (manifestVersion >= TestManifestVersion.V1_12_0)
+            {
+                Assert.Equal(2, manifest.UninstallerSuccessCodes.Count);
+                Assert.Equal(2, manifest.UninstallerSuccessCodes[0]);
+                Assert.Equal(0x80070002, manifest.UninstallerSuccessCodes[1]);
+            }
+
             Assert.Equal("uninstallPrevious", manifest.UpgradeBehavior);
             Assert.Equal(2, manifest.Commands.Count);
             Assert.Equal("makemsix", manifest.Commands[0]);

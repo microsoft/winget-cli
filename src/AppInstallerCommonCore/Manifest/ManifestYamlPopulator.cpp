@@ -297,6 +297,7 @@ namespace AppInstaller::Manifest
                     { "Dependencies", [this](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { return ValidateAndProcessFields(value, DependenciesFieldInfos, VariantManifestPtr(&(GetManifestInstallerPtr(v)->Dependencies))); }},
                     { "Capabilities", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestInstallerPtr(v)->Capabilities = ProcessStringSequenceNode(value); return {}; } },
                     { "RestrictedCapabilities", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestInstallerPtr(v)->RestrictedCapabilities = ProcessStringSequenceNode(value); return {}; } },
+                    { "UninstallerSuccessCodes", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestInstallerPtr(v)->UninstallerSuccessCodes = ProcessInstallerSuccessCodeSequenceNode(value); return {}; } },
                 };
 
                 std::move(v1CommonFields.begin(), v1CommonFields.end(), std::inserter(result, result.end()));
