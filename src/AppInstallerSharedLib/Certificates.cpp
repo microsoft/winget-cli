@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/Certificates.h"
+#include "AppInstallerDateTime.h"
 #include "AppInstallerLogging.h"
 #include "AppInstallerStrings.h"
 #include "winget/JsonUtil.h"
@@ -11,11 +12,18 @@ namespace AppInstaller::Certificates
 {
     namespace
     {
-        std::string GetSimpleDisplayName(PCCERT_CONTEXT certContext)
+        std::string GetNameString(PCCERT_CONTEXT certContext, DWORD nameType, bool forIssuer, void* typeParam = nullptr)
         {
-            DWORD characterCount = CertGetNameStringW(certContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, nullptr, nullptr, 0);
+            if (!certContext)
+            {
+                return "<no certificate loaded>";
+            }
+
+            DWORD flags = forIssuer ? CERT_NAME_ISSUER_FLAG : 0;
+
+            DWORD characterCount = CertGetNameStringW(certContext, nameType, flags, typeParam, nullptr, 0);
             std::wstring result(characterCount, L'\0');
-            characterCount = CertGetNameStringW(certContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, nullptr, &result[0], characterCount);
+            characterCount = CertGetNameStringW(certContext, nameType, flags, typeParam, &result[0], characterCount);
 
             if (static_cast<size_t>(characterCount) == result.size())
             {
@@ -25,6 +33,23 @@ namespace AppInstaller::Certificates
             {
                 return "<unknown>";
             }
+        }
+
+        std::string GetSimpleDisplayName(PCCERT_CONTEXT certContext, bool forIssuer = false)
+        {
+            return GetNameString(certContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, forIssuer);
+        }
+
+        std::string GetX500Name(PCCERT_CONTEXT certContext, bool forIssuer = false)
+        {
+            DWORD stringType = CERT_X500_NAME_STR;
+            return GetNameString(certContext, CERT_NAME_RDN_TYPE, forIssuer, &stringType);
+        }
+
+        std::string GetCommonName(PCCERT_CONTEXT certContext, bool forIssuer = false)
+        {
+            std::string commonName = szOID_COMMON_NAME;
+            return GetNameString(certContext, CERT_NAME_ATTR_TYPE, forIssuer, &commonName[0]);
         }
 
         std::string GetDescriptionOfCertChain(PCCERT_CHAIN_CONTEXT chainContext)
@@ -72,9 +97,105 @@ namespace AppInstaller::Certificates
             {
                 return PinningVerificationType::Issuer;
             }
+            else if (lowerValue == "anyissuer")
+            {
+                return PinningVerificationType::AnyIssuer;
+            }
+            else if (lowerValue == "requirenonleaf")
+            {
+                return PinningVerificationType::RequireNonLeaf;
+            }
 
             return {};
         }
+
+        CertificateChainPosition GetCertificateChainPosition(DWORD index, DWORD count)
+        {
+            THROW_HR_IF(E_INVALIDARG, count == 0);
+
+            CertificateChainPosition position = CertificateChainPosition::Unknown;
+
+            if (index == 0)
+            {
+                position |= CertificateChainPosition::Root;
+            }
+
+            if (index > 0 && index < (count - 1))
+            {
+                position |= CertificateChainPosition::Intermediate;
+            }
+
+            if (index == (count - 1))
+            {
+                position |= CertificateChainPosition::Leaf;
+            }
+
+            return position;
+        }
+    }
+
+    std::ostream& operator<<(std::ostream& out, PinningVerificationType value)
+    {
+        if (value == PinningVerificationType::None)
+        {
+            out << "None";
+        }
+        else
+        {
+            bool prepend = false;
+
+            for (const auto& flag : std::initializer_list<std::pair<PinningVerificationType, std::string_view>>{
+                { PinningVerificationType::PublicKey, "PublicKey" },
+                { PinningVerificationType::Subject, "Subject" },
+                { PinningVerificationType::Issuer, "Issuer" },
+                { PinningVerificationType::AnyIssuer, "AnyIssuer" },
+                { PinningVerificationType::RequireNonLeaf, "RequireNonLeaf" },
+                })
+            {
+                if (WI_IsAnyFlagSet(value, flag.first))
+                {
+                    if (prepend)
+                    {
+                        out << " | ";
+                    }
+                    out << flag.second;
+                    prepend = true;
+                }
+            }
+        }
+
+        return out;
+    }
+
+    std::ostream& operator<<(std::ostream& out, CertificateChainPosition value)
+    {
+        if (value == CertificateChainPosition::Unknown)
+        {
+            out << "Unknown";
+        }
+        else
+        {
+            bool prepend = false;
+
+            for (const auto& flag : std::initializer_list<std::pair<CertificateChainPosition, std::string_view>>{
+                { CertificateChainPosition::Root, "Root" },
+                { CertificateChainPosition::Intermediate, "Intermediate" },
+                { CertificateChainPosition::Leaf, "Leaf" },
+                })
+            {
+                if (WI_IsAnyFlagSet(value, flag.first))
+                {
+                    if (prepend)
+                    {
+                        out << " | ";
+                    }
+                    out << flag.second;
+                    prepend = true;
+                }
+            }
+        }
+
+        return out;
     }
 
     PinningDetails& PinningDetails::LoadCertificate(int resource, int resourceType)
@@ -160,47 +281,104 @@ namespace AppInstaller::Certificates
         LoadCertificate(embeddedCertificateBytes);
 
         return true;
+
     }
 
-    bool PinningDetails::Validate(PCCERT_CONTEXT certContext) const
+    CertificatePinningValidationResult PinningDetails::Validate(PCCERT_CONTEXT certContext, CertificateChainPosition position) const
     {
+        CertificatePinningValidationResult failResult = WI_IsFlagSet(m_pinning, PinningVerificationType::AnyIssuer) ? CertificatePinningValidationResult::Skipped : CertificatePinningValidationResult::Rejected;
+
+        if (WI_IsFlagSet(m_pinning, PinningVerificationType::RequireNonLeaf) &&
+            WI_IsFlagSet(position, CertificateChainPosition::Leaf))
+        {
+            AICLI_LOG(Core, Verbose, << "Required non-leaf mismatch: Expected certificate [" << GetSimpleDisplayName(m_certificateContext.get()) << "], Actual certificate [" << GetSimpleDisplayName(certContext) << "] was " << position);
+            return CertificatePinningValidationResult::Rejected;
+        }
+
         if (WI_IsFlagSet(m_pinning, PinningVerificationType::PublicKey))
         {
+            THROW_HR_IF(E_NOT_VALID_STATE, !m_certificateContext);
+
             if (!CertComparePublicKeyInfo(
                 X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                 &m_certificateContext.get()->pCertInfo->SubjectPublicKeyInfo,
                 &certContext->pCertInfo->SubjectPublicKeyInfo))
             {
                 AICLI_LOG(Core, Verbose, << "Public key mismatch: Expected certificate [" << GetSimpleDisplayName(m_certificateContext.get()) << "], Actual certificate [" << GetSimpleDisplayName(certContext) << "]");
-                return false;
+                return failResult;
             }
         }
 
         if (WI_IsFlagSet(m_pinning, PinningVerificationType::Subject))
         {
+            THROW_HR_IF(E_NOT_VALID_STATE, !m_certificateContext);
+
             if (!CertCompareCertificateName(
                 X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                 &m_certificateContext.get()->pCertInfo->Subject,
                 &certContext->pCertInfo->Subject))
             {
                 AICLI_LOG(Core, Verbose, << "Subject mismatch: Expected certificate [" << GetSimpleDisplayName(m_certificateContext.get()) << "], Actual certificate [" << GetSimpleDisplayName(certContext) << "]");
-                return false;
+                return failResult;
             }
         }
 
         if (WI_IsFlagSet(m_pinning, PinningVerificationType::Issuer))
         {
+            THROW_HR_IF(E_NOT_VALID_STATE, !m_certificateContext);
+
             if (!CertCompareCertificateName(
                 X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                 &m_certificateContext.get()->pCertInfo->Issuer,
                 &certContext->pCertInfo->Issuer))
             {
                 AICLI_LOG(Core, Verbose, << "Issuer mismatch: Expected certificate [" << GetSimpleDisplayName(m_certificateContext.get()) << "], Actual certificate [" << GetSimpleDisplayName(certContext) << "]");
-                return false;
+                return failResult;
             }
         }
 
-        return true;
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (m_customValidation)
+        {
+            if (!m_customValidation(*this, certContext, position))
+            {
+                AICLI_LOG(Core, Verbose, << "Custom validation returned false: Expected certificate [" << GetSimpleDisplayName(m_certificateContext.get()) << "], Actual certificate [" << GetSimpleDisplayName(certContext) << "]");
+                return failResult;
+            }
+        }
+#endif
+
+        return CertificatePinningValidationResult::Accepted;
+    }
+
+    void PinningDetails::OutputDescription(std::ostream& stream, std::string_view indent) const
+    {
+        stream << indent << GetSimpleDisplayName(m_certificateContext.get()) << " : " << m_pinning;
+    }
+
+    double PinningDetails::GetRemainingLifetimePercentage() const
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_certificateContext);
+
+        auto notBefore = Utility::ConvertFiletimeToSystemClock(m_certificateContext.get()->pCertInfo->NotBefore);
+        auto notAfter = Utility::ConvertFiletimeToSystemClock(m_certificateContext.get()->pCertInfo->NotAfter);
+        THROW_HR_IF(E_NOT_VALID_STATE, notBefore > notAfter);
+
+        auto now = std::chrono::system_clock::now();
+
+        if (now < notBefore)
+        {
+            return 1.0;
+        }
+        else if (now > notAfter)
+        {
+            return 0.0;
+        }
+
+        auto totalTime = notAfter - notBefore;
+        auto remainingTime = notAfter - now;
+
+        return static_cast<double>(remainingTime.count()) / static_cast<double>(totalTime.count());
     }
 
     PinningChain::Node PinningChain::Node::Next()
@@ -248,6 +426,12 @@ namespace AppInstaller::Certificates
         return { const_cast<std::vector<PinningDetails>&>(m_chain), 0 };
     }
 
+    PinningChain& PinningChain::PartialChain(bool isPartial)
+    {
+        m_partial = isPartial;
+        return *this;
+    }
+
     bool PinningChain::Validate(PCCERT_CHAIN_CONTEXT chainContext) const
     {
         if (m_chain.empty())
@@ -281,11 +465,13 @@ namespace AppInstaller::Certificates
             return false;
         }
 
-        if (static_cast<size_t>(chain->cElement) != m_chain.size())
+        if (!m_partial && static_cast<size_t>(chain->cElement) != m_chain.size())
         {
             AICLI_LOG(Core, Verbose, << "Rejecting simple chain context based on size: expected " << m_chain.size() << ", got " << chain->cElement);
             return false;
         }
+
+        size_t currentDetailsIndex = 0;
 
         for (DWORD i = 0; i < chain->cElement; ++i)
         {
@@ -297,13 +483,30 @@ namespace AppInstaller::Certificates
                 return false;
             }
 
-            if (!m_chain[i].Validate(element->pCertContext))
+            CertificatePinningValidationResult result = m_chain[currentDetailsIndex].Validate(element->pCertContext, GetCertificateChainPosition(i, chain->cElement));
+
+            if (result == CertificatePinningValidationResult::Rejected)
             {
                 return false;
             }
+            else if (result == CertificatePinningValidationResult::Accepted)
+            {
+                ++currentDetailsIndex;
+            }
+            else
+            {
+                THROW_HR_IF(E_UNEXPECTED, !m_partial || result != CertificatePinningValidationResult::Skipped);
+                AICLI_LOG(Core, Verbose, << "Skipping [" << GetSimpleDisplayName(element->pCertContext) << "] in partial chain validation.");
+            }
+
+            if (m_partial && m_chain.size() == currentDetailsIndex)
+            {
+                break;
+            }
         }
 
-        return true;
+        // Ensure that all chain elements have been accepted
+        return m_chain.size() == currentDetailsIndex;
     }
 
     std::string PinningChain::GetDescription() const
@@ -322,47 +525,12 @@ namespace AppInstaller::Certificates
             {
                 stream << std::endl;
             }
-
-            stream << indent;
-
-            if (details.GetCertificate())
+            else if (m_partial)
             {
-                stream << GetSimpleDisplayName(details.GetCertificate()) << " : ";
+                stream << "[Partial Chain Validation]" << std::endl;
             }
 
-            if (details.GetPinning() == PinningVerificationType::None)
-            {
-                stream << "<No verification>";
-            }
-
-            bool prepend = false;
-
-            if (WI_IsFlagSet(details.GetPinning(), PinningVerificationType::PublicKey))
-            {
-                stream << "PublicKey";
-                prepend = true;
-            }
-
-            if (WI_IsFlagSet(details.GetPinning(), PinningVerificationType::Subject))
-            {
-                if (prepend)
-                {
-                    stream << " | ";
-                }
-                stream << "Subject";
-                prepend = true;
-            }
-
-            if (WI_IsFlagSet(details.GetPinning(), PinningVerificationType::Issuer))
-            {
-                if (prepend)
-                {
-                    stream << " | ";
-                }
-                stream << "Issuer";
-                prepend = true;
-            }
-
+            details.OutputDescription(stream, indent);
             indent.append("  ");
         }
 
@@ -411,6 +579,18 @@ namespace AppInstaller::Certificates
         }
 
         return true;
+    }
+
+    double PinningChain::GetRemainingLifetimePercentage() const
+    {
+        double result = 1.0;
+
+        for (const auto& details : m_chain)
+        {
+            result = std::min(result, details.GetRemainingLifetimePercentage());
+        }
+
+        return result;
     }
 
     PinningConfiguration::PinningConfiguration(std::string identifier) : m_identifier(identifier)
@@ -542,5 +722,17 @@ namespace AppInstaller::Certificates
         }
 
         return true;
+    }
+
+    double PinningConfiguration::GetRemainingLifetimePercentage() const
+    {
+        double result = 0.0;
+
+        for (const auto& chain : m_configuration)
+        {
+            result = std::max(result, chain.GetRemainingLifetimePercentage());
+        }
+
+        return result;
     }
 }

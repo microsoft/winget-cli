@@ -57,6 +57,9 @@ namespace AppInstaller::Utility
     // Converts the given unix epoch time to a system_clock::time_point.
     std::chrono::system_clock::time_point ConvertUnixEpochToSystemClock(int64_t epoch);
 
+    // Converts the given file time to a system_clock::time_point.
+    std::chrono::system_clock::time_point ConvertFiletimeToSystemClock(const FILETIME& fileTime);
+
     // Converts the given package version into a time_point using our custom format.
     // Ensure that the package is expected to use this format, or you may get strange times.
     // If the version is not convertable, the minimum time is returned.
