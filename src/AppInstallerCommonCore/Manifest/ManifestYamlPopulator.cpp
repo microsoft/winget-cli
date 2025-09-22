@@ -297,7 +297,6 @@ namespace AppInstaller::Manifest
                     { "Dependencies", [this](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { return ValidateAndProcessFields(value, DependenciesFieldInfos, VariantManifestPtr(&(GetManifestInstallerPtr(v)->Dependencies))); }},
                     { "Capabilities", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestInstallerPtr(v)->Capabilities = ProcessStringSequenceNode(value); return {}; } },
                     { "RestrictedCapabilities", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestInstallerPtr(v)->RestrictedCapabilities = ProcessStringSequenceNode(value); return {}; } },
-                    { "UninstallerSuccessCodes", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestInstallerPtr(v)->UninstallerSuccessCodes = ProcessInstallerSuccessCodeSequenceNode(value); return {}; } },
                 };
 
                 std::move(v1CommonFields.begin(), v1CommonFields.end(), std::inserter(result, result.end()));
@@ -399,6 +398,17 @@ namespace AppInstaller::Manifest
 
                 std::move(fields_v1_10.begin(), fields_v1_10.end(), std::inserter(result, result.end()));
             }
+
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_12 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_12 =
+                {
+                    { "UninstallerSwitches", [this](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { return ValidateAndProcessFields(value, UninstallerSwitchesFieldInfos, VariantManifestPtr(&(GetManifestInstallerPtr(v)->UninstallerSwitches))); }},
+                    { "UninstallerSuccessCodes", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestInstallerPtr(v)->UninstallerSuccessCodes = ProcessInstallerSuccessCodeSequenceNode(value); return {}; } },
+                };
+
+                std::move(fields_v1_12.begin(), fields_v1_12.end(), std::inserter(result, result.end()));
+            }
         }
 
         return result;
@@ -432,6 +442,27 @@ namespace AppInstaller::Manifest
             {
                 result.emplace_back("Repair", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(v))[InstallerSwitchType::Repair] = value.as<std::string>(); return{}; });
             };
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetUninstallerSwitchesFieldProcessInfo()
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_12 })
+        {
+            std::vector<FieldProcessInfo> uninstallerSwitches_v1_12 =
+            {
+                { "Custom", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<UninstallerSwitchType, Utility::NormalizedString>>(v))[UninstallerSwitchType::Custom] = value.as<std::string>(); return{}; } },
+                { "Silent", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<UninstallerSwitchType, Utility::NormalizedString>>(v))[UninstallerSwitchType::Silent] = value.as<std::string>(); return{}; } },
+                { "SilentWithProgress", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<UninstallerSwitchType, Utility::NormalizedString>>(v))[UninstallerSwitchType::SilentWithProgress] = value.as<std::string>(); return{}; } },
+                { "Interactive", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<UninstallerSwitchType, Utility::NormalizedString>>(v))[UninstallerSwitchType::Interactive] = value.as<std::string>(); return{}; } },
+                { "Log", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<UninstallerSwitchType, Utility::NormalizedString>>(v))[UninstallerSwitchType::Log] = value.as<std::string>(); return{}; } },
+            };
+
+            std::move(uninstallerSwitches_v1_12.begin(), uninstallerSwitches_v1_12.end(), std::inserter(result, result.end()));
         }
 
         return result;
@@ -1101,6 +1132,7 @@ namespace AppInstaller::Manifest
         RootFieldInfos = GetRootFieldProcessInfo();
         InstallerFieldInfos = GetInstallerFieldProcessInfo();
         SwitchesFieldInfos = GetSwitchesFieldProcessInfo();
+        UninstallerSwitchesFieldInfos = GetUninstallerSwitchesFieldProcessInfo();
         ExpectedReturnCodesFieldInfos = GetExpectedReturnCodesFieldProcessInfo();
         DependenciesFieldInfos = GetDependenciesFieldProcessInfo();
         PackageDependenciesFieldInfos = GetPackageDependenciesFieldProcessInfo();

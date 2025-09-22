@@ -413,6 +413,8 @@ namespace AppInstaller::Manifest
 
     std::string_view InstallerSwitchTypeToString(InstallerSwitchType installerSwitchType);
 
+    std::string_view UninstallerSwitchTypeToString(UninstallerSwitchType uninstallerSwitchType);
+
     std::string_view ElevationRequirementToString(ElevationRequirementEnum elevationRequirement);
 
     std::string_view InstallModeToString(InstallModeEnum installMode);

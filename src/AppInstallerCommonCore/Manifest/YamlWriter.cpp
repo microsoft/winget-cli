@@ -322,6 +322,22 @@ namespace AppInstaller::Manifest::YamlWriter
             out << YAML::EndMap;
         }
 
+        void ProcessUninstallerSwitches(YAML::Emitter& out, const std::map<UninstallerSwitchType, string_t>& uninstallerSwitches)
+        {
+            if (uninstallerSwitches.empty())
+            {
+                return;
+            }
+
+            out << YAML::Key << UninstallerSwitches;
+            out << YAML::BeginMap;
+            for (auto const& [type, value] : uninstallerSwitches)
+            {
+                WRITE_PROPERTY_IF_EXISTS(out, UninstallerSwitchTypeToString(type), value);
+            }
+            out << YAML::EndMap;
+        }
+
         void ProcessExpectedReturnCodes(YAML::Emitter& out, const std::map<DWORD, ManifestInstaller::ExpectedReturnCodeInfo>& expectedReturnCodes)
         {
             if (expectedReturnCodes.empty())
@@ -651,6 +667,7 @@ namespace AppInstaller::Manifest::YamlWriter
             ProcessUnsupportedArguments(out, installer.UnsupportedArguments);
             ProcessUnsupportedOSArchitecture(out, installer.UnsupportedOSArchitectures);
             ProcessAuthentication(out, installer.AuthInfo);
+            ProcessUninstallerSwitches(out, installer.UninstallerSwitches);
             ProcessUninstallerSuccessCodes(out, installer.UninstallerSuccessCodes);
         }
 

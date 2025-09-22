@@ -255,6 +255,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         public InstallerSwitches Switches { get; set; }
 
         /// <summary>
+        /// Gets or sets UninstallerSwitches.
+        /// </summary>
+        public UninstallerSwitches UninstallerSwitches { get; set; }
+
+        /// <summary>
         /// Gets or sets the default installer markets info.
         /// </summary>
         public InstallerMarkets Markets { get; set; }

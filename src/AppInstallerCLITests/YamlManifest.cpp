@@ -266,6 +266,16 @@ namespace
             {
                 REQUIRE(manifest.DefaultInstallerInfo.ArchiveBinariesDependOnPath);
             }
+
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_12 })
+            {
+                auto defaultUninstallerSwitches = manifest.DefaultInstallerInfo.UninstallerSwitches;
+                REQUIRE(defaultUninstallerSwitches.at(UninstallerSwitchType::Custom) == "/custom");
+                REQUIRE(defaultUninstallerSwitches.at(UninstallerSwitchType::SilentWithProgress) == "/silentwithprogress");
+                REQUIRE(defaultUninstallerSwitches.at(UninstallerSwitchType::Silent) == "/silence");
+                REQUIRE(defaultUninstallerSwitches.at(UninstallerSwitchType::Interactive) == "/interactive");
+                REQUIRE(defaultUninstallerSwitches.at(UninstallerSwitchType::Log) == "/log=<LOGPATH>");
+            }
         }
 
         if (isSingleton || isExported)
@@ -382,6 +392,16 @@ namespace
         {
             REQUIRE(installer1.Switches.at(InstallerSwitchType::Repair) == "/r");
             REQUIRE(installer1.RepairBehavior == RepairBehaviorEnum::Modify);
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_12 })
+        {
+            auto installer1UninstallSwitches = installer1.UninstallerSwitches;
+            REQUIRE(installer1UninstallSwitches.at(UninstallerSwitchType::Custom) == "/c");
+            REQUIRE(installer1UninstallSwitches.at(UninstallerSwitchType::SilentWithProgress) == "/sp");
+            REQUIRE(installer1UninstallSwitches.at(UninstallerSwitchType::Silent) == "/s");
+            REQUIRE(installer1UninstallSwitches.at(UninstallerSwitchType::Interactive) == "/i");
+            REQUIRE(installer1UninstallSwitches.at(UninstallerSwitchType::Log) == "/l=<LOGPATH>");
         }
 
         if (manifestVer >= ManifestVer{ s_ManifestVersionV1_9 })

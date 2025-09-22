@@ -200,6 +200,13 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
 
             if (manifestVersion >= TestManifestVersion.V1_12_0)
             {
+                var defaultUninstallerSwitches = manifest.UninstallerSwitches;
+                Assert.Equal("/custom", defaultUninstallerSwitches.Custom);
+                Assert.Equal("/silentwithprogress", defaultUninstallerSwitches.SilentWithProgress);
+                Assert.Equal("/silence", defaultUninstallerSwitches.Silent);
+                Assert.Equal("/interactive", defaultUninstallerSwitches.Interactive);
+                Assert.Equal("/log=<LOGPATH>", defaultUninstallerSwitches.Log);
+
                 Assert.Equal(2, manifest.UninstallerSuccessCodes.Count);
                 Assert.Equal(2, manifest.UninstallerSuccessCodes[0]);
                 Assert.Equal(0x80070002, manifest.UninstallerSuccessCodes[1]);
@@ -431,6 +438,16 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Assert.Equal("microsoftEntraId", installer1.Authentication.AuthenticationType);
                 Assert.Equal("Resource", installer1.Authentication.MicrosoftEntraIdAuthenticationInfo.Resource);
                 Assert.Equal("Scope", installer1.Authentication.MicrosoftEntraIdAuthenticationInfo.Scope);
+            }
+
+            if (manifestVersion >= TestManifestVersion.V1_12_0)
+            {
+                var installer1UninstallerSwitches = installer1.UninstallerSwitches;
+                Assert.Equal("/c", installer1UninstallerSwitches.Custom);
+                Assert.Equal("/sp", installer1UninstallerSwitches.SilentWithProgress);
+                Assert.Equal("/s", installer1UninstallerSwitches.Silent);
+                Assert.Equal("/i", installer1UninstallerSwitches.Interactive);
+                Assert.Equal("/l=<LOGPATH>", installer1UninstallerSwitches.Log);
             }
 
             // Additional Localizations

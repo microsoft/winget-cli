@@ -159,6 +159,12 @@ Installers:
       InstallLocation: /d=<INSTALLPATH>
       Upgrade: /u
       Repair: /r
+    UninstallerSwitches:
+      Custom: /c
+      SilentWithProgress: /sp
+      Silent: /s
+      Interactive: /i
+      Log: /l=<LOGPATH>
     UpgradeBehavior: install
     Commands:
       - makemsixPreview

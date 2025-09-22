@@ -22,6 +22,12 @@ InstallerSwitches:
   InstallLocation: /dir=<INSTALLPATH>
   Upgrade: /upgrade
   Repair: /repair
+UninstallerSwitches:
+  Custom: /custom
+  SilentWithProgress: /silentwithprogress
+  Silent: /silence
+  Interactive: /interactive
+  Log: /log=<LOGPATH>
 InstallerSuccessCodes:
   - 1
   - 0x80070005
