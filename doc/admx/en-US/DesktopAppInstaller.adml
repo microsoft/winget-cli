@@ -116,7 +116,7 @@ If you disable this setting, users will not be able to use the Windows Package M
         If you enable this setting, users will be able to configure the Windows Package Manager's use of proxy through the command line.
 
         If you disable or do not configure this setting, users will not be able to to configure the Windows Package Manager's use of proxy through the command line.</string>
-      <string id="EnableWindowsPackageManagerMcpServer">Enable Windows Package Manager MCP Server</string>
+      <string id="EnableWindowsPackageManagerMcpServer">Enable MCP Server for Windows Package Manager</string>
       <string id="EnableWindowsPackageManagerMcpServerExplanation">
         This policy controls whether the Windows Package Manager Model Context Protocol (MCP) server can be used.
 
@@ -169,3 +169,4 @@ If you disable, Microsoft SmartScreen will not be consulted before installing a 
     </presentationTable>
   </resources>
 </policyDefinitionResources>
+
