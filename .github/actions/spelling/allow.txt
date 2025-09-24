@@ -63,6 +63,7 @@ datetime
 dbconn
 DBId
 debugbreak
+dedup
 defaultlocale
 delstore
 Demitrius
@@ -113,6 +114,7 @@ FLUSHEACHLINE
 fnt
 forcerestart
 gdi
+genai
 HCCE
 hcertstore
 HCRYPTMSG
@@ -228,6 +230,7 @@ Pathto
 PBYTE
 pch
 PCWSTR
+pelikhan
 PEVENT
 pfns
 pfp
