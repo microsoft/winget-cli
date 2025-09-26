@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Consume containing solution build props if present. -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+  
+  <ItemDefinitionGroup Condition="'$(UseProdCLSIDs)'=='true'">
+    <ClCompile>
+      <PreprocessorDefinitions>USE_PROD_CLSIDS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <PropertyGroup Condition="'$(UseProdCLSIDs)'=='true'">
+    <DefineConstants>$(DefineConstants);USE_PROD_CLSIDS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(WingetDisableTestHooks)'=='true'">
+    <ClCompile>
+      <PreprocessorDefinitions>AICLI_DISABLE_TEST_HOOKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(WingetDisableExperimentalFeatures)'=='true'">
+    <ClCompile>
+      <PreprocessorDefinitions>WINGET_DISABLE_EXPERIMENTAL_FEATURES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  
+  <ItemDefinitionGroup Condition="'$(UseProdWingetServer)'=='true'">
+    <ClCompile>
+      <PreprocessorDefinitions>USE_PROD_WINGET_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  
+  <ItemDefinitionGroup Condition="'$(WingetEnableReleaseBuild)'=='true'">
+    <ClCompile>
+      <PreprocessorDefinitions>WINGET_ENABLE_RELEASE_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+</Project>
