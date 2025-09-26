@@ -21,10 +21,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(UseProdCLSIDs)' == 'true'">
-    <DefineConstants>$(DefineConstants);USE_PROD_CLSIDS</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
     <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
   </ItemGroup>

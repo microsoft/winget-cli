@@ -4,6 +4,9 @@
 #include <winget/LocIndependent.h>
 #include <wil/result_macros.h>
 
+// Errors is the most ubiquitous header; including the mismatch detection in it should reach everywhere.
+#include <winget/DetectMismatch.h>
+
 #ifndef WINGET_DISABLE_FOR_FUZZING
 #include <winrt/base.h>
 #endif

@@ -37,6 +37,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{8D53
 		..\azure-pipelines.nuget.yml = ..\azure-pipelines.nuget.yml
 		..\azure-pipelines.yml = ..\azure-pipelines.yml
 		..\cgmanifest.json = ..\cgmanifest.json
+		Directory.Build.props = Directory.Build.props
 		..\README.md = ..\README.md
 		..\doc\ReleaseNotes.md = ..\doc\ReleaseNotes.md
 		..\doc\Settings.md = ..\doc\Settings.md

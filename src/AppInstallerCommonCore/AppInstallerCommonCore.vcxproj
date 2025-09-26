@@ -204,11 +204,6 @@
       <AdditionalOptions>%(AdditionalOptions) /permissive- /D _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(UseProdCLSIDs)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>USE_PROD_CLSIDS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
@@ -327,21 +322,6 @@
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <SubSystem>Windows</SubSystem>
     </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(WingetDisableTestHooks)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>AICLI_DISABLE_TEST_HOOKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(WingetDisableExperimentalFeatures)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>WINGET_DISABLE_EXPERIMENTAL_FEATURES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(WingetEnableReleaseBuild)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>WINGET_ENABLE_RELEASE_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Authentication\WebAccountManagerAuthenticator.h" />
