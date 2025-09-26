@@ -2,54 +2,24 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Consume containing solution build props if present. -->
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
-  
-  <ItemDefinitionGroup Condition="'$(UseProdCLSIDs)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>USE_PROD_CLSIDS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
 
-  <PropertyGroup Condition="'$(UseProdCLSIDs)'=='true'">
-    <DefineConstants>$(DefineConstants);USE_PROD_CLSIDS</DefineConstants>
+  <PropertyGroup>
+    <WinGetMacros Condition="'$(UseProdCLSIDs)' == 'true'">USE_PROD_CLSIDS;$(WinGetMacros)</WinGetMacros>
+    <WinGetMacros Condition="'$(WingetDisableTestHooks)' == 'true'">AICLI_DISABLE_TEST_HOOKS;$(WinGetMacros)</WinGetMacros>
+    <WinGetMacros Condition="'$(WingetDisableExperimentalFeatures)' == 'true'">WINGET_DISABLE_EXPERIMENTAL_FEATURES;$(WinGetMacros)</WinGetMacros>
+    <WinGetMacros Condition="'$(UseProdWingetServer)' == 'true'">USE_PROD_WINGET_SERVER;$(WinGetMacros)</WinGetMacros>
+    <WinGetMacros Condition="'$(WingetEnableReleaseBuild)' == 'true'">WINGET_ENABLE_RELEASE_BUILD;$(WinGetMacros)</WinGetMacros>
   </PropertyGroup>
 
-  <ItemDefinitionGroup Condition="'$(WingetDisableTestHooks)'=='true'">
+  <!-- For C++ -->
+  <ItemDefinitionGroup Condition="'$(WinGetMacros)' != ''">
     <ClCompile>
-      <PreprocessorDefinitions>AICLI_DISABLE_TEST_HOOKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>$(WinGetMacros)%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
 
-  <PropertyGroup Condition="'$(WingetDisableTestHooks)'=='true'">
-    <DefineConstants>$(DefineConstants);AICLI_DISABLE_TEST_HOOKS</DefineConstants>
-  </PropertyGroup>
-
-  <ItemDefinitionGroup Condition="'$(WingetDisableExperimentalFeatures)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>WINGET_DISABLE_EXPERIMENTAL_FEATURES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
-
-  <PropertyGroup Condition="'$(WingetDisableExperimentalFeatures)'=='true'">
-    <DefineConstants>$(DefineConstants);WINGET_DISABLE_EXPERIMENTAL_FEATURES</DefineConstants>
-  </PropertyGroup>
-
-  <ItemDefinitionGroup Condition="'$(UseProdWingetServer)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>USE_PROD_WINGET_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
-
-  <PropertyGroup Condition="'$(UseProdWingetServer)'=='true'">
-    <DefineConstants>$(DefineConstants);USE_PROD_WINGET_SERVER</DefineConstants>
-  </PropertyGroup>
-  
-  <ItemDefinitionGroup Condition="'$(WingetEnableReleaseBuild)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>WINGET_ENABLE_RELEASE_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
-
-  <PropertyGroup Condition="'$(WingetEnableReleaseBuild)'=='true'">
-    <DefineConstants>$(DefineConstants);WINGET_ENABLE_RELEASE_BUILD</DefineConstants>
+  <!-- For C# -->
+  <PropertyGroup Condition="'$(WinGetMacros)' != ''">
+    <DefineConstants>$(WinGetMacros)$(DefineConstants)</DefineConstants>
   </PropertyGroup>
 </Project>
