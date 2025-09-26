@@ -19,12 +19,16 @@
     </ClCompile>
   </ItemDefinitionGroup>
 
+  <PropertyGroup Condition="'$(WingetDisableTestHooks)'=='true'">
+    <DefineConstants>$(DefineConstants);AICLI_DISABLE_TEST_HOOKS</DefineConstants>
+  </PropertyGroup>
+
   <ItemDefinitionGroup Condition="'$(WingetDisableExperimentalFeatures)'=='true'">
     <ClCompile>
       <PreprocessorDefinitions>WINGET_DISABLE_EXPERIMENTAL_FEATURES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-  
+
   <ItemDefinitionGroup Condition="'$(UseProdWingetServer)'=='true'">
     <ClCompile>
       <PreprocessorDefinitions>USE_PROD_WINGET_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
