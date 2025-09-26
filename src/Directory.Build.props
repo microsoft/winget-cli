@@ -29,15 +29,27 @@
     </ClCompile>
   </ItemDefinitionGroup>
 
+  <PropertyGroup Condition="'$(WingetDisableExperimentalFeatures)'=='true'">
+    <DefineConstants>$(DefineConstants);WINGET_DISABLE_EXPERIMENTAL_FEATURES</DefineConstants>
+  </PropertyGroup>
+
   <ItemDefinitionGroup Condition="'$(UseProdWingetServer)'=='true'">
     <ClCompile>
       <PreprocessorDefinitions>USE_PROD_WINGET_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
+
+  <PropertyGroup Condition="'$(UseProdWingetServer)'=='true'">
+    <DefineConstants>$(DefineConstants);USE_PROD_WINGET_SERVER</DefineConstants>
+  </PropertyGroup>
   
   <ItemDefinitionGroup Condition="'$(WingetEnableReleaseBuild)'=='true'">
     <ClCompile>
       <PreprocessorDefinitions>WINGET_ENABLE_RELEASE_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
+
+  <PropertyGroup Condition="'$(WingetEnableReleaseBuild)'=='true'">
+    <DefineConstants>$(DefineConstants);WINGET_ENABLE_RELEASE_BUILD</DefineConstants>
+  </PropertyGroup>
 </Project>
