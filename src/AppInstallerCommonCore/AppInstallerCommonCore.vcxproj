@@ -323,11 +323,6 @@
       <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(WingetEnableReleaseBuild)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>WINGET_ENABLE_RELEASE_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Authentication\WebAccountManagerAuthenticator.h" />
     <ClInclude Include="DODownloader.h" />
