@@ -1475,8 +1475,8 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>No nested installers specified for this package</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>Only one non-portable nested installer can be specified for an archive installer</value>
+  <data name="MultipleUnsupportedNestedInstallersSpecified" xml:space="preserve">
+    <value>Only one nested installer can be specified for an archive installer unless it is a portable or font nested installer</value>
   </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>Incompatible command line arguments provided</value>

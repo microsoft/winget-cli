@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Microsoft/ARPHelper.h"
+#include "Microsoft/FontHelper.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include "Microsoft/SQLiteIndex.h"
 #include "Microsoft/SQLiteIndexSource.h"
@@ -10,7 +11,6 @@
 #include <winget/Registry.h>
 #include <AppInstallerArchitecture.h>
 #include <winget/ExperimentalFeature.h>
-#include <FontHelper.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -297,6 +297,10 @@ namespace AppInstaller::Repository::Microsoft
                 ARPHelper arpHelper;
                 m_registryWatchers = arpHelper.CreateRegistryWatchers(Manifest::ScopeEnum::Unknown,
                     [this](Manifest::ScopeEnum, Utility::Architecture, wil::RegistryChangeKind) { ForceNextUpdate(); });
+
+                FontHelper fontHelper;
+                fontHelper.AddRegistryWatchers(Manifest::ScopeEnum::Unknown,
+                    [this](Manifest::ScopeEnum, wil::RegistryChangeKind) { ForceNextUpdate(); }, m_registryWatchers);
 
                 m_catalog = winrt::Windows::ApplicationModel::PackageCatalog::OpenForCurrentUser();
                 m_eventRevoker = m_catalog.PackageStatusChanged(winrt::auto_revoke, [this](auto...) { ForceNextUpdate(); });

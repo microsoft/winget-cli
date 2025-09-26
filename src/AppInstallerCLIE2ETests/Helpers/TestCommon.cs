@@ -390,7 +390,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             var fileList = new List<string>();
             using (RegistryKey fontsRegistryKey = baseKey.OpenSubKey(Constants.FontsSubKey, true))
             {
-                using var winGetRootKey = fontsRegistryKey.OpenSubKey("winget_v1");
+                using var winGetRootKey = fontsRegistryKey.OpenSubKey("Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
                 if (shouldExist)
                 {
                     Assert.IsNotNull(winGetRootKey);

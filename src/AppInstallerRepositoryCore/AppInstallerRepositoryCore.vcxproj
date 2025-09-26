@@ -286,10 +286,10 @@
   <ItemGroup>
     <ClInclude Include="ArpVersionValidation.h" />
     <ClInclude Include="CompositeSource.h" />
-    <ClInclude Include="FontHelper.h" />
     <ClInclude Include="IconDefs.h" />
     <ClInclude Include="ISource.h" />
     <ClInclude Include="Microsoft\ARPHelper.h" />
+    <ClInclude Include="Microsoft\FontHelper.h" />
     <ClInclude Include="Microsoft\PinningIndex.h" />
     <ClInclude Include="Microsoft\PredefinedInstalledSourceFactory.h" />
     <ClInclude Include="Microsoft\PredefinedWriteableSourceFactory.h" />
@@ -414,7 +414,6 @@
   <ItemGroup>
     <ClCompile Include="ARPCorrelation.cpp" />
     <ClCompile Include="ARPCorrelationAlgorithms.cpp" />
-    <ClCompile Include="FontHelper.cpp" />
     <ClCompile Include="IconExtraction.cpp" />
     <ClCompile Include="ArpVersionValidation.cpp" />
     <ClCompile Include="CompositeSource.cpp" />
@@ -422,6 +421,7 @@
     <ClCompile Include="InstallerMetadataCollectionContext.cpp" />
     <ClCompile Include="ManifestJSONParser.cpp" />
     <ClCompile Include="Microsoft\ARPHelper.cpp" />
+    <ClCompile Include="Microsoft\FontHelper.cpp" />
     <ClCompile Include="Microsoft\ConfigurableTestSourceFactory.cpp" />
     <ClCompile Include="Microsoft\PinningIndex.cpp" />
     <ClCompile Include="Microsoft\PortableIndex.cpp" />

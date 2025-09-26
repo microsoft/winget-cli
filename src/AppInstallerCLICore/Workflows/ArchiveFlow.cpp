@@ -140,8 +140,8 @@ namespace AppInstaller::CLI::Workflow
 
             if (!DoesInstallerTypeSupportMultipleNestedInstallers(installer.NestedInstallerType) && (nestedInstallerFiles.size() != 1))
             {
-                AICLI_LOG(CLI, Error, << "Multiple nested installers specified for non-portable nested installerType");
-                context.Reporter.Error() << Resource::String::MultipleNonPortableNestedInstallersSpecified << std::endl;
+                AICLI_LOG(CLI, Error, << "Multiple nested installers specified for unsupported nested installerType");
+                context.Reporter.Error() << Resource::String::MultipleUnsupportedNestedInstallersSpecified << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
             }
         }

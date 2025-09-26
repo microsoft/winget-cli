@@ -4,6 +4,7 @@
 #include <AppInstallerVersions.h>
 #include <dwrite_3.h>
 #include <wil/com.h>
+#include <wil/registry.h>
 #include <winget/Manifest.h>
 #include <winget/ManifestCommon.h>
 
@@ -60,17 +61,17 @@ namespace AppInstaller::Fonts
         bool WinGetSupported = false;
         bool IsFontFileInstalled = false;
         bool IsFontFileRegistered = false;
+        std::wstring PackageId;
+        std::wstring PackageVersion;
+
+        // Fonts that are not winget-packaged will use this for an identifier.
+        std::wstring PackageIdentifier;
 
         // Registry Install path is where the installation with the system is located.
-        std::optional<std::wstring> RegistryInstallPath;
+        std::wstring RegistryInstallPath;
 
         // Registry Source path is where package mapping of the package is.
-        std::optional<std::wstring> RegistryPackagePath;
-
-        std::optional<std::wstring> PackageId;
-        std::optional<std::wstring> PackageVersion;
-        std::optional<std::wstring> PackageIdentifier;
-        std::optional<std::wstring> SourceIdentifier;
+        std::wstring RegistryPackagePath;
     };
 
     // Represents information about a WinGet-installed font package.
@@ -86,10 +87,10 @@ namespace AppInstaller::Fonts
     {
         InstallerSource InstallerSource = InstallerSource::Unknown;
         Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
-        std::optional<std::vector<std::filesystem::path>> PackageFiles;
-        std::optional<std::wstring> PackageId;
-        std::optional<std::wstring> PackageVersion;
-        std::optional<std::wstring> PackageIdentifier;
+        std::vector<std::filesystem::path> PackageFiles = std::vector<std::filesystem::path>();
+        std::wstring PackageId;
+        std::wstring PackageVersion;
+        std::wstring PackageIdentifier;
         bool Force = false;
 
         void AddPackageFile(const std::filesystem::path& filePath);
@@ -123,6 +124,8 @@ namespace AppInstaller::Fonts
     FontOperationResult InstallFontPackage(FontContext& context);
 
     FontOperationResult UninstallFontPackage(FontContext& context);
+
+    std::wstring GetFontRegistryRoot();
 
     struct FontCatalog
     {

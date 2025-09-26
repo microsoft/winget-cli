@@ -160,13 +160,13 @@ namespace AppInstaller::CLI::Workflow
                 }
 
                 std::wstring packageId;
-                if (fontFile.PackageId.has_value())
+                if (!fontFile.PackageId.empty())
                 {
-                    packageId = fontFile.PackageId.value();
+                    packageId = fontFile.PackageId;
                 }
                 else
                 {
-                    packageId = fontFile.PackageIdentifier.value_or(L" ");
+                    packageId = fontFile.PackageIdentifier;
                 }
 
                 InstalledFontFilesTableLine line(
@@ -201,11 +201,6 @@ namespace AppInstaller::CLI::Workflow
 
     void FontInstallImpl(Execution::Context& context)
     {
-        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Font))
-        {
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
-        }
-
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
         // We will default to User scope.
@@ -300,17 +295,12 @@ namespace AppInstaller::CLI::Workflow
 
     void FontUninstallImpl(Execution::Context& context)
     {
-        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Font))
-        {
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
-        }
-
         context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
 
         try
         {
-            // We will default to User scope.
-            Manifest::ScopeEnum scope = Manifest::ScopeEnum::User;
+            // We will default to installed scope.
+            auto scope = Manifest::ConvertToScopeEnum(context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope]);
             if (context.Args.Contains(Execution::Args::Type::InstallScope))
             {
                 scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
@@ -323,19 +313,15 @@ namespace AppInstaller::CLI::Workflow
                 const auto& manifest = context.Get<Execution::Data::Manifest>();
                 fontContext.PackageId = ConvertToUTF16(manifest.Id);
                 fontContext.PackageVersion = ConvertToUTF16(manifest.Version);
-                if (context.Args.Contains(Execution::Args::Type::InstallScope))
-                {
-                    fontContext.Scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-                }
+                fontContext.Scope = scope;
             }
             else
             {
                 const std::string packageId = context.Get<Execution::Data::InstalledPackageVersion>()->GetProperty(AppInstaller::Repository::PackageVersionProperty::Id);
                 const std::string version = context.Get<Execution::Data::InstalledPackageVersion>()->GetProperty(AppInstaller::Repository::PackageVersionProperty::Version);
-                const std::string installedScope = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
                 fontContext.PackageId = ConvertToUTF16(packageId);
                 fontContext.PackageVersion = ConvertToUTF16(version);
-                fontContext.Scope = Manifest::ConvertToScopeEnum(installedScope);
+                fontContext.Scope = scope;
             }
 
             auto uninstallResult = Fonts::UninstallFontPackage(fontContext);

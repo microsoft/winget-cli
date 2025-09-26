@@ -17,5 +17,7 @@ namespace AppInstaller::Repository::Microsoft
     struct FontHelper
     {
         void PopulateIndex(SQLiteIndex& index, Manifest::ScopeEnum scope) const;
+
+        void AddRegistryWatchers(Manifest::ScopeEnum scope, std::function<void(Manifest::ScopeEnum, wil::RegistryChangeKind)> callback, std::vector<wil::unique_registry_watcher>& watchers);
     };
 }

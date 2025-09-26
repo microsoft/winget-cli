@@ -8,6 +8,16 @@ using namespace AppInstaller::Utility;
 
 namespace AppInstaller::Repository::Microsoft
 {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    using GetFontRegistryRootFunc = std::function<Registry::Key(Manifest::ScopeEnum)>;
+    static GetFontRegistryRootFunc s_FontRegistryRoot_Override;
+
+    void TestHook_SetGetFontRegistryRootFunc(GetFontRegistryRootFunc value)
+    {
+        s_FontRegistryRoot_Override = value;
+    }
+#endif
+
     void FontHelper::PopulateIndex(SQLiteIndex& index, Manifest::ScopeEnum scope) const
     {
         const auto& fontPackages = AppInstaller::Fonts::GetInstalledFontPackages(scope);
@@ -53,6 +63,36 @@ namespace AppInstaller::Repository::Microsoft
                 AICLI_LOG(Repo, Warning, << "Failed to process font package entry, ignoring it: " << scope << '|' << ConvertToUTF8(fontPackage.PackageId));
                 LOG_CAUGHT_EXCEPTION();
             }
+        }
+    }
+
+    void FontHelper::AddRegistryWatchers(Manifest::ScopeEnum scope, std::function<void(Manifest::ScopeEnum, wil::RegistryChangeKind)> callback, std::vector<wil::unique_registry_watcher>& watchers)
+    {
+        auto addToWatchers = [&](Manifest::ScopeEnum scopeToUse)
+            {
+                auto hive = scopeToUse == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+                auto root = Registry::Key::OpenIfExists(hive, AppInstaller::Fonts::GetFontRegistryRoot(), 0UL, KEY_READ);
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+                if (s_FontRegistryRoot_Override)
+                {
+                    root = s_FontRegistryRoot_Override(scopeToUse);
+                }
+#endif
+                if (root)
+                {
+                    watchers.emplace_back(wil::make_registry_watcher(root, L"", true, [scopeToUse, callback](wil::RegistryChangeKind change) { callback(scopeToUse, change); }));
+                }
+            };
+
+        if (scope == Manifest::ScopeEnum::Unknown)
+        {
+            addToWatchers(Manifest::ScopeEnum::User);
+            addToWatchers(Manifest::ScopeEnum::Machine);
+        }
+        else
+        {
+            addToWatchers(scope);
         }
     }
 }

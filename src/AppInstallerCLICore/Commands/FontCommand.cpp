@@ -4,8 +4,6 @@
 #include "FontCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/FontFlow.h"
-#include "Workflows/InstallFlow.h"
-#include "Workflows/UninstallFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
