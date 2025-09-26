@@ -336,6 +336,7 @@
     <ClInclude Include="Public\winget\Compression.h" />
     <ClInclude Include="Public\winget\COMStaticStorage.h" />
     <ClInclude Include="Public\winget\ConfigurationSetProcessorHandlers.h" />
+    <ClInclude Include="Public\winget\DetectMismatch.h" />
     <ClInclude Include="Public\winget\Filesystem.h" />
     <ClInclude Include="Public\winget\GroupPolicy.h" />
     <ClInclude Include="Public\winget\IConfigurationStaticsInternals.h" />
