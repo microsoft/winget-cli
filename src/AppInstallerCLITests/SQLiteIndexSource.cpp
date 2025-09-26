@@ -14,7 +14,7 @@ using namespace AppInstaller::SQLite;
 
 using SQLiteVersion = AppInstaller::SQLite::Version;
 
-static std::shared_ptr<SQLiteIndexSource> SimpleTestSetup(const std::string& filePath, SourceDetails& details, Manifest& manifest, std::string& relativePath)
+static std::shared_ptr<SQLiteIndexSource> SimpleTestSetup(const std::string& filePath, SourceDetails& details, Manifest& manifest, std::string& relativePath, const std::filesystem::path& manifestFile = "Manifest-Good.yaml")
 {
     SQLiteVersion latest1 = Version::LatestForMajor(1);
     SQLiteVersion latest2 = Version::LatestForMajor(2);
@@ -23,7 +23,7 @@ static std::shared_ptr<SQLiteIndexSource> SimpleTestSetup(const std::string& fil
 
     SQLiteIndex index = SQLiteIndex::CreateNew(filePath, versionToUse);
 
-    TestDataFile testManifest("Manifest-Good.yaml");
+    TestDataFile testManifest(manifestFile);
     manifest = YamlParser::CreateFromPath(testManifest);
 
     std::filesystem::path testManifestPath = testManifest.GetPath();
@@ -258,4 +258,28 @@ TEST_CASE("SQLiteIndexSource_Package_ProductCodes", "[sqliteindexsource]")
     REQUIRE(manifestPCs.size() == 1);
     REQUIRE(propertyPCs.size() == 1);
     REQUIRE(manifestPCs[0] == propertyPCs[0].get());
+}
+
+TEST_CASE("SQLiteIndexSource_VersionSelection", "[sqliteindexsource]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SourceDetails details;
+    Manifest manifest;
+    std::string relativePath;
+    std::shared_ptr<SQLiteIndexSource> source = SimpleTestSetup(tempFile, details, manifest, relativePath, "InstallFlowTest_Exe.yaml");
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, manifest.Id);
+
+    auto results = source->Search(request);
+    REQUIRE(results.Matches.size() == 1);
+    REQUIRE(results.Matches[0].Package);
+
+    auto package = results.Matches[0].Package->GetAvailable()[0];
+
+    PackageVersionKey key{ {}, "1", {} };
+    auto version = package->GetVersion(key);
+    REQUIRE(version);
 }

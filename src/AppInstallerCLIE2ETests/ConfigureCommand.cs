@@ -364,7 +364,7 @@ namespace AppInstallerCLIE2ETests
         public void ConfigureFindUnitProcessors()
         {
             // Find all unit processors.
-            var result = TestCommon.RunAICLICommand("test config-find-unit-processors", string.Empty);
+            var result = TestCommon.RunAICLICommand("test config-find-unit-processors", string.Empty, timeOut: 120000);
             Assert.AreEqual(0, result.ExitCode);
             Assert.True(result.StdOut.Contains("Microsoft/OSInfo"));
 

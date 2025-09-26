@@ -18,6 +18,7 @@ AMap
 Amd
 amrutha
 ansistring
+anyissuer
 Aot
 APARTMENTTHREADED
 apfn
@@ -106,6 +107,7 @@ countryregion
 Cov
 CPIL
 createmanifestmetadata
+crt
 cswinrt
 ctc
 CTL
@@ -167,6 +169,7 @@ FECAFEB
 fedorapeople
 fileinuse
 filemode
+Filetime
 Filtercriteria
 Finalizers
 fintimes
@@ -458,6 +461,7 @@ removefile
 reparse
 repeatedkey
 REQS
+requirenonleaf
 restsource
 RGBQUAD
 rgp
@@ -544,6 +548,7 @@ thiscouldbeapc
 threehundred
 timespan
 Tlg
+TLSCAs
 tombstoned
 transitioning
 trimstart
@@ -588,6 +593,7 @@ vns
 vsconfig
 vstest
 waitable
+wal
 wcex
 WDAG
 webpages

@@ -304,11 +304,6 @@
       <AdditionalLibraryDirectories>$(VC_LibraryPath_VC_ARM64_Desktop_spectre);$(VC_LibraryPath_VC_ARM64_OneCore_spectre);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(UseProdWingetServer)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>USE_PROD_WINGET_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="packages.config" />

@@ -23,6 +23,20 @@ namespace AppInstaller::SQLite
                 return "Unknown";
             }
         }
+
+        std::filesystem::path AddSuffix(const std::filesystem::path& source, std::wstring_view suffix)
+        {
+            std::filesystem::path result{ source };
+
+            if (!suffix.empty())
+            {
+                std::wstring filename = result.filename().wstring();
+                filename += suffix;
+                result.replace_filename(std::move(filename));
+            }
+
+            return result;
+        }
     }
 
     // One method for converting open disposition to proper open disposition
@@ -43,6 +57,37 @@ namespace AppInstaller::SQLite
     std::string SQLiteStorageBase::GetDatabaseIdentifier() const
     {
         return MetadataTable::TryGetNamedValue<std::string>(m_dbconn, s_MetadataValueName_DatabaseIdentifier).value_or(std::string{});
+    }
+
+    void SQLiteStorageBase::RenameSQLiteDatabase(const std::filesystem::path& source, const std::filesystem::path& destination, bool overwrite)
+    {
+        auto fileSuffixes = { L"", L"-journal", L"-wal" };
+
+        THROW_WIN32_IF(ERROR_FILE_NOT_FOUND, !std::filesystem::exists(source));
+        THROW_WIN32_IF(ERROR_DIRECTORY, std::filesystem::is_directory(source));
+
+        if (overwrite)
+        {
+            for (const auto& suffix : fileSuffixes)
+            {
+                std::filesystem::path target = AddSuffix(destination, suffix);
+
+                if (std::filesystem::exists(target))
+                {
+                    std::filesystem::remove_all(target);
+                }
+            }
+        }
+
+        for (const auto& suffix : fileSuffixes)
+        {
+            std::filesystem::path target = AddSuffix(source, suffix);
+
+            if (std::filesystem::exists(target))
+            {
+                std::filesystem::rename(target, AddSuffix(destination, suffix));
+            }
+        }
     }
 
     SQLiteStorageBase::SQLiteStorageBase(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& file) :

@@ -102,6 +102,11 @@ namespace AppInstaller::Utility {
         return Utility::ParseFromHexString(hashStr, HashBufferSizeInBytes);
     }
 
+    SHA256::HashBuffer SHA256::ConvertToBytes(const std::wstring& hashStr)
+    {
+        return Utility::ParseFromHexString(Utility::ConvertToUTF8(hashStr), HashBufferSizeInBytes);
+    }
+
     SHA256::HashBuffer SHA256::ComputeHash(const std::uint8_t* buffer, std::uint32_t cbBuffer)
     {
         SHA256 hasher;
