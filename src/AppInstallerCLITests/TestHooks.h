@@ -46,6 +46,9 @@ namespace AppInstaller
 
         using GetARPKeyFunc = std::function<Registry::Key(Manifest::ScopeEnum, Utility::Architecture)>;
         void SetGetARPKeyOverride(GetARPKeyFunc value);
+
+        using GetFontRegistryRootFunc = std::function<Registry::Key(Manifest::ScopeEnum)>;
+        void TestHook_SetGetFontRegistryRootFunc(GetFontRegistryRootFunc value);
     }
 
     namespace Logging
@@ -337,5 +340,20 @@ namespace TestHook
             AppInstaller::Utility::DownloadType type,
             AppInstaller::IProgressCallback& progress,
             std::optional<AppInstaller::Utility::DownloadInfo> info)> m_downloadFunction;
+    };
+
+    struct SetGetFontRegistryRoot_Override
+    {
+        SetGetFontRegistryRoot_Override(std::function<AppInstaller::Registry::Key(AppInstaller::Manifest::ScopeEnum)> function)
+        {
+            AppInstaller::Repository::Microsoft::TestHook_SetGetFontRegistryRootFunc(function);
+        }
+
+        ~SetGetFontRegistryRoot_Override()
+        {
+            AppInstaller::Repository::Microsoft::TestHook_SetGetFontRegistryRootFunc({});
+        }
+
+    private:
     };
 }

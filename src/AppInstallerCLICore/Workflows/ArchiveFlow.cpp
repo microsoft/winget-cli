@@ -106,7 +106,7 @@ namespace AppInstaller::CLI::Workflow
                     << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND);
             }
-            else if (!IsPortableType(installer.NestedInstallerType))
+            else if (!DoesInstallerTypeSupportMultipleNestedInstallers(installer.NestedInstallerType))
             {
                 // Update the installerPath to the extracted non-portable installer. 
                 AICLI_LOG(CLI, Info, << "Setting installerPath to: " << nestedInstallerPath);
@@ -138,10 +138,10 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
             }
 
-            if (installer.NestedInstallerType != InstallerTypeEnum::Portable && nestedInstallerFiles.size() != 1)
+            if (!DoesInstallerTypeSupportMultipleNestedInstallers(installer.NestedInstallerType) && (nestedInstallerFiles.size() != 1))
             {
-                AICLI_LOG(CLI, Error, << "Multiple nested installers specified for non-portable nested installerType");
-                context.Reporter.Error() << Resource::String::MultipleNonPortableNestedInstallersSpecified << std::endl;
+                AICLI_LOG(CLI, Error, << "Multiple nested installers specified for unsupported nested installerType");
+                context.Reporter.Error() << Resource::String::MultipleUnsupportedNestedInstallersSpecified << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
             }
         }

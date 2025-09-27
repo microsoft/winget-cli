@@ -55,6 +55,24 @@ TEST_CASE("SetKeyValue", "[registry]")
     REQUIRE(value->GetValue<Value::Type::String>() == ConvertToUTF8(valueValue));
 }
 
+TEST_CASE("DeleteKeyValue", "[registry]")
+{
+    std::wstring valueName = L"TestValueName";
+    std::wstring valueValue = L"TestValueValue";
+    std::wstring subkey = L"FooBar";
+
+    wil::unique_hkey root = RegCreateVolatileTestRoot();
+    Key key = Key::Create(root.get(), subkey, REG_OPTION_VOLATILE);
+
+    key.SetValue(valueName, valueValue, REG_SZ);
+    auto value = key[valueName];
+    REQUIRE(value);
+
+    key.DeleteValue(valueName);
+    value = key[valueName];
+    REQUIRE(!value);
+}
+
 TEST_CASE("EnumerateKeys", "[registry]")
 {
     wil::unique_hkey root = RegCreateVolatileTestRoot();
