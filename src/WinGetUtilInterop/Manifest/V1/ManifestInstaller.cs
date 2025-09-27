@@ -81,6 +81,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         public List<long> InstallerSuccessCodes { get; set; }
 
         /// <summary>
+        /// Gets or sets the list of additional uninstaller success codes.
+        /// </summary>
+        public List<long> UninstallerSuccessCodes { get; set; }
+
+        /// <summary>
         /// Gets or sets the upgrade behavior.
         /// </summary>
         public string UpgradeBehavior { get; set; }
@@ -130,6 +135,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// </summary>
         [YamlMember(Alias = "InstallerSwitches")]
         public InstallerSwitches Switches { get; set; }
+
+        /// <summary>
+        /// Gets or sets UninstallerSwitches.
+        /// </summary>
+        public UninstallerSwitches UninstallerSwitches { get; set; }
 
         /// <summary>
         /// Gets or sets the installer markets info.
@@ -279,6 +289,7 @@ namespace Microsoft.WinGetUtil.Models.V1
                    (this.Scope == other.Scope) &&
                    (this.InstallerType == other.InstallerType) &&
                    (this.Switches == other.Switches) &&
+                   (this.UninstallerSwitches == other.UninstallerSwitches) &&
                    (this.NestedInstallerType == other.NestedInstallerType) &&
                    (this.NestedInstallerFiles == other.NestedInstallerFiles);
     }
@@ -297,6 +308,7 @@ namespace Microsoft.WinGetUtil.Models.V1
                     this.Scope,
                     this.InstallerType,
                     this.Switches,
+                    this.UninstallerSwitches,
                     this.NestedInstallerType,
                     this.NestedInstallerFiles).GetHashCode();
         }

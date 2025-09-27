@@ -8,7 +8,7 @@
 namespace AppInstaller::Manifest
 {
     // Add here new manifest pointer types.
-    using VariantManifestPtr = std::variant<Agreement*, AppsAndFeaturesEntry*, Dependency*, DependencyList*, Documentation*, ExpectedReturnCode*, Icon*, InstallationMetadataInfo*, InstalledFile*, Manifest*, ManifestInstaller*, ManifestLocalization*, MarketsInfo*, NestedInstallerFile*, std::map<InstallerSwitchType, Utility::NormalizedString>*, AppInstaller::Authentication::AuthenticationInfo*, AppInstaller::Authentication::MicrosoftEntraIdAuthenticationInfo*>;
+    using VariantManifestPtr = std::variant<Agreement*, AppsAndFeaturesEntry*, Dependency*, DependencyList*, Documentation*, ExpectedReturnCode*, Icon*, InstallationMetadataInfo*, InstalledFile*, Manifest*, ManifestInstaller*, ManifestLocalization*, MarketsInfo*, NestedInstallerFile*, std::map<InstallerSwitchType, Utility::NormalizedString>*, AppInstaller::Authentication::AuthenticationInfo*, AppInstaller::Authentication::MicrosoftEntraIdAuthenticationInfo*, std::map<UninstallerSwitchType, Utility::NormalizedString>*>;
 
     struct ManifestYamlPopulator
     {
@@ -43,6 +43,7 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> RootFieldInfos;
         std::vector<FieldProcessInfo> InstallerFieldInfos;
         std::vector<FieldProcessInfo> SwitchesFieldInfos;
+        std::vector<FieldProcessInfo> UninstallerSwitchesFieldInfos;
         std::vector<FieldProcessInfo> ExpectedReturnCodesFieldInfos;
         std::vector<FieldProcessInfo> DependenciesFieldInfos;
         std::vector<FieldProcessInfo> PackageDependenciesFieldInfos;
@@ -65,6 +66,7 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> GetRootFieldProcessInfo();
         std::vector<FieldProcessInfo> GetInstallerFieldProcessInfo(bool forRootFields = false);
         std::vector<FieldProcessInfo> GetSwitchesFieldProcessInfo();
+        std::vector<FieldProcessInfo> GetUninstallerSwitchesFieldProcessInfo();
         std::vector<FieldProcessInfo> GetExpectedReturnCodesFieldProcessInfo();
         std::vector<FieldProcessInfo> GetDependenciesFieldProcessInfo();
         std::vector<FieldProcessInfo> GetPackageDependenciesFieldProcessInfo();

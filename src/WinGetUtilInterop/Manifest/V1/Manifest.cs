@@ -199,6 +199,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         public List<long> InstallerSuccessCodes { get; set; }
 
         /// <summary>
+        /// Gets or sets the default list of additional installer success codes.
+        /// </summary>
+        public List<long> UninstallerSuccessCodes { get; set; }
+
+        /// <summary>
         /// Gets or sets the default upgrade behavior.
         /// </summary>
         public string UpgradeBehavior { get; set; }
@@ -248,6 +253,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// </summary>
         [YamlMember(Alias = "InstallerSwitches")]
         public InstallerSwitches Switches { get; set; }
+
+        /// <summary>
+        /// Gets or sets UninstallerSwitches.
+        /// </summary>
+        public UninstallerSwitches UninstallerSwitches { get; set; }
 
         /// <summary>
         /// Gets or sets the default installer markets info.

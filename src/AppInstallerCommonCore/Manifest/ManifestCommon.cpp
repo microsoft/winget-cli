@@ -621,6 +621,25 @@ namespace AppInstaller::Manifest
         return "Unknown"sv;
     }
 
+    std::string_view UninstallerSwitchTypeToString(UninstallerSwitchType uninstallerSwitchType)
+    {
+        switch (uninstallerSwitchType)
+        {
+        case UninstallerSwitchType::Custom:
+            return "Custom"sv;
+        case UninstallerSwitchType::Silent:
+            return "Silent"sv;
+        case UninstallerSwitchType::SilentWithProgress:
+            return "SilentWithProgress"sv;
+        case UninstallerSwitchType::Interactive:
+            return "Interactive"sv;
+        case UninstallerSwitchType::Log:
+            return "Log"sv;
+        }
+
+        return "Unknown"sv;
+    }
+
     std::string_view ElevationRequirementToString(ElevationRequirementEnum elevationRequirement)
     {
         switch (elevationRequirement)
