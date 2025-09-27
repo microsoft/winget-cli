@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Management.Automation;
     using System.Threading.Tasks;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
@@ -88,16 +89,116 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="expectedVersion">The expected version, if any.</param>
         /// <param name="allUsers">Install for all users. Requires admin.</param>
         /// <param name="force">Force application shutdown.</param>
-        public void Repair(string expectedVersion, bool allUsers, bool force)
+        /// <param name="includePrerelease">Include prerelease versions when matching version.</param>
+        public void Repair(string expectedVersion, bool allUsers, bool force, bool includePrerelease)
         {
             this.ValidateWhenAllUsers(allUsers);
             var runningTask = this.RunOnMTA(
                 async () =>
                 {
+                    if (!string.IsNullOrWhiteSpace(expectedVersion))
+                    {
+                        this.Write(StreamType.Verbose, $"Attempting to resolve version '{expectedVersion}'");
+                        expectedVersion = await this.ResolveVersionAsync(expectedVersion, includePrerelease);
+                    }
+                    else
+                    {
+                        this.Write(StreamType.Verbose, "No version specified.");
+                    }
+
                     await this.RepairStateMachineAsync(expectedVersion, allUsers, force);
                     return true;
                 });
             this.Wait(runningTask);
+        }
+
+        /// <summary>
+        /// Tries to get the latest version matching the pattern.
+        /// </summary>
+        /// <remarks>
+        /// Pattern only supports leading and trailing wildcards.
+        /// - For example, the pattern can be: 1.11.*, 1.11.3*, 1.11.*3
+        /// - But it cannot be: 1.*1*.1 or 1.1*1.1.
+        /// </remarks>
+        /// <param name="versions">List of versions to match against.</param>
+        /// <param name="pattern">Pattern to match.</param>
+        /// <param name="includePrerelease">Include prerelease versions.</param>
+        /// <param name="result">The resulting version.</param>
+        /// <returns>True if a matching version was found.</returns>
+        private static bool TryGetLatestMatchingVersion(IEnumerable<WinGetVersion> versions, string pattern, bool includePrerelease, out WinGetVersion result)
+        {
+            pattern = string.IsNullOrWhiteSpace(pattern) ? "*" : pattern;
+
+            var parts = pattern.Split('.');
+            var major = parts.ElementAtOrDefault(0);
+            var minor = parts.ElementAtOrDefault(1);
+            var build = parts.ElementAtOrDefault(2);
+            var revision = parts.ElementAtOrDefault(3);
+
+            if (!includePrerelease)
+            {
+                versions = versions.Where(v => !v.IsPrerelease);
+            }
+
+            versions = versions
+                .Where(v =>
+                    VersionPartMatch(major, v.Version.Major) &&
+                    VersionPartMatch(minor, v.Version.Minor) &&
+                    VersionPartMatch(build, v.Version.Build) &&
+                    VersionPartMatch(revision, v.Version.Revision))
+                .OrderBy(f => f.Version);
+
+            if (!versions.Any())
+            {
+                result = null!;
+                return false;
+            }
+
+            result = versions.Last();
+            return true;
+        }
+
+        private static bool VersionPartMatch(string? partPattern, int partValue)
+        {
+            if (string.IsNullOrWhiteSpace(partPattern))
+            {
+                return true;
+            }
+
+            if (partPattern!.StartsWith("*"))
+            {
+                return partValue.ToString().EndsWith(partPattern.TrimStart('*'));
+            }
+
+            if (partPattern!.EndsWith("*"))
+            {
+                return partValue.ToString().StartsWith(partPattern.TrimEnd('*'));
+            }
+
+            return partPattern == partValue.ToString();
+        }
+
+        private async Task<string> ResolveVersionAsync(string version, bool includePrerelease)
+        {
+            try
+            {
+                var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                var allReleases = await gitHubClient.GetAllReleasesAsync();
+                var allWinGetReleases = allReleases.Select(r => new WinGetVersion(r.TagName));
+                if (TryGetLatestMatchingVersion(allWinGetReleases, version, includePrerelease, out var latestVersion))
+                {
+                    this.Write(StreamType.Verbose, $"Matching version found: {latestVersion.TagVersion}");
+                    return latestVersion.TagVersion;
+                }
+
+                this.Write(StreamType.Warning, $"No matching version found for {version}");
+                return version;
+            }
+            catch (Exception e)
+            {
+                this.Write(StreamType.Warning, $"Could not resolve version '{version}': {e.Message}");
+                return version;
+            }
         }
 
         private async Task RepairStateMachineAsync(string expectedVersion, bool allUsers, bool force)
@@ -138,7 +239,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                             this.RepairEnvPath();
                             break;
                         case IntegrityCategory.AppInstallerNotRegistered:
-                            this.Register(expectedVersion);
+                            await this.RegisterAsync(expectedVersion, allUsers);
                             break;
                         case IntegrityCategory.AppInstallerNotInstalled:
                         case IntegrityCategory.AppInstallerNotSupported:
@@ -156,6 +257,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                                 throw new WinGetRepairException(e);
                             }
 
+                            break;
+                        case IntegrityCategory.WinGetSourceNotInstalled:
+                            await this.InstallWinGetSourceAsync();
                             break;
                         case IntegrityCategory.AppExecutionAliasDisabled:
                         case IntegrityCategory.Unknown:
@@ -197,10 +301,17 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             await appxModule.InstallFromGitHubReleaseAsync(toInstallVersion, allUsers, false, force);
         }
 
-        private void Register(string toRegisterVersion)
+        private async Task InstallWinGetSourceAsync()
+        {
+            this.Write(StreamType.Verbose, "Installing winget source");
+            var appxModule = new AppxModuleHelper(this);
+            await appxModule.InstallWinGetSourceAsync();
+        }
+
+        private async Task RegisterAsync(string toRegisterVersion, bool allUsers)
         {
             var appxModule = new AppxModuleHelper(this);
-            appxModule.RegisterAppInstaller(toRegisterVersion);
+            await appxModule.RegisterAppInstallerAsync(toRegisterVersion, allUsers);
         }
 
         private void RepairEnvPath()
