@@ -8,7 +8,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Management.Automation;
     using System.Threading.Tasks;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
@@ -99,7 +98,24 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     if (!string.IsNullOrWhiteSpace(expectedVersion))
                     {
                         this.Write(StreamType.Verbose, $"Attempting to resolve version '{expectedVersion}'");
-                        expectedVersion = await this.ResolveVersionAsync(expectedVersion, includePrerelease);
+                        var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                        try
+                        {
+                            var resolvedVersion = await gitHubClient.ResolveVersionAsync(expectedVersion, includePrerelease);
+                            if (!string.IsNullOrEmpty(resolvedVersion))
+                            {
+                                this.Write(StreamType.Verbose, $"Matching version found: {resolvedVersion}");
+                                expectedVersion = resolvedVersion!;
+                            }
+                            else
+                            {
+                                this.Write(StreamType.Warning, $"No matching version found for {expectedVersion}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            this.Write(StreamType.Warning, $"Could not resolve version '{expectedVersion}': {ex.Message}");
+                        }
                     }
                     else
                     {
@@ -110,95 +126,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     return true;
                 });
             this.Wait(runningTask);
-        }
-
-        /// <summary>
-        /// Tries to get the latest version matching the pattern.
-        /// </summary>
-        /// <remarks>
-        /// Pattern only supports leading and trailing wildcards.
-        /// - For example, the pattern can be: 1.11.*, 1.11.3*, 1.11.*3
-        /// - But it cannot be: 1.*1*.1 or 1.1*1.1.
-        /// </remarks>
-        /// <param name="versions">List of versions to match against.</param>
-        /// <param name="pattern">Pattern to match.</param>
-        /// <param name="includePrerelease">Include prerelease versions.</param>
-        /// <param name="result">The resulting version.</param>
-        /// <returns>True if a matching version was found.</returns>
-        private static bool TryGetLatestMatchingVersion(IEnumerable<WinGetVersion> versions, string pattern, bool includePrerelease, out WinGetVersion result)
-        {
-            pattern = string.IsNullOrWhiteSpace(pattern) ? "*" : pattern;
-
-            var parts = pattern.Split('.');
-            var major = parts.ElementAtOrDefault(0);
-            var minor = parts.ElementAtOrDefault(1);
-            var build = parts.ElementAtOrDefault(2);
-            var revision = parts.ElementAtOrDefault(3);
-
-            if (!includePrerelease)
-            {
-                versions = versions.Where(v => !v.IsPrerelease);
-            }
-
-            versions = versions
-                .Where(v =>
-                    VersionPartMatch(major, v.Version.Major) &&
-                    VersionPartMatch(minor, v.Version.Minor) &&
-                    VersionPartMatch(build, v.Version.Build) &&
-                    VersionPartMatch(revision, v.Version.Revision))
-                .OrderBy(f => f.Version);
-
-            if (!versions.Any())
-            {
-                result = null!;
-                return false;
-            }
-
-            result = versions.Last();
-            return true;
-        }
-
-        private static bool VersionPartMatch(string? partPattern, int partValue)
-        {
-            if (string.IsNullOrWhiteSpace(partPattern))
-            {
-                return true;
-            }
-
-            if (partPattern!.StartsWith("*"))
-            {
-                return partValue.ToString().EndsWith(partPattern.TrimStart('*'));
-            }
-
-            if (partPattern!.EndsWith("*"))
-            {
-                return partValue.ToString().StartsWith(partPattern.TrimEnd('*'));
-            }
-
-            return partPattern == partValue.ToString();
-        }
-
-        private async Task<string> ResolveVersionAsync(string version, bool includePrerelease)
-        {
-            try
-            {
-                var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
-                var allReleases = await gitHubClient.GetAllReleasesAsync();
-                var allWinGetReleases = allReleases.Select(r => new WinGetVersion(r.TagName));
-                if (TryGetLatestMatchingVersion(allWinGetReleases, version, includePrerelease, out var latestVersion))
-                {
-                    this.Write(StreamType.Verbose, $"Matching version found: {latestVersion.TagVersion}");
-                    return latestVersion.TagVersion;
-                }
-
-                this.Write(StreamType.Warning, $"No matching version found for {version}");
-                return version;
-            }
-            catch (Exception e)
-            {
-                this.Write(StreamType.Warning, $"Could not resolve version '{version}': {e.Message}");
-                return version;
-            }
         }
 
         private async Task RepairStateMachineAsync(string expectedVersion, bool allUsers, bool force)

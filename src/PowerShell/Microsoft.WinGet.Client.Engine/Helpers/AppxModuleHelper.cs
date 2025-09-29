@@ -127,11 +127,10 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <summary>
         /// Calls Get-AppxPackage Microsoft.Winget.Source.
         /// </summary>
-        /// <param name="allUsers">Whether to get for all users.</param>
         /// <returns>Result of Get-AppxPackage.</returns>
-        public PSObject? GetWinGetSourceObject(bool allUsers = false)
+        public PSObject? GetWinGetSourceObject()
         {
-            return this.GetAppxObject(WinGetSourceName, allUsers);
+            return this.GetAppxObject(WinGetSourceName);
         }
 
         /// <summary>
