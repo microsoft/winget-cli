@@ -382,6 +382,7 @@ namespace AppInstaller::CLI::Portable
         {
             if (PathVariable(GetScope()).Remove(value))
             {
+                InstallDirectoryAddedToPath = false;
                 AICLI_LOG(CLI, Info, << "Removed target directory from PATH registry: " << value);
             }
             else
