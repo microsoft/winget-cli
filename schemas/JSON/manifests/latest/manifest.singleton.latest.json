@@ -319,6 +319,60 @@
       "uniqueItems": true,
       "description": "List of additional non-zero installer success exit codes other than known default values by winget"
     },
+    "UninstallerSwitches": {
+      "type": "object",
+      "properties": {
+        "Silent": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Silent is the value that should be passed to the uninstaller when user chooses a silent or quiet uninstall"
+        },
+        "SilentWithProgress": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "SilentWithProgress is the value that should be passed to the uninstaller when user chooses a non-interactive uninstall"
+        },
+        "Interactive": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Interactive is the value that should be passed to the uninstaller when user chooses an interactive uninstall"
+        },
+        "Log": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Log is the value passed to the uninstaller for custom log file path. <LOGPATH> token can be included in the switch value so that winget will replace the token with user provided path"
+        },
+        "Custom": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 2048,
+          "description": "Custom switches will be passed directly to the uninstaller by winget"
+        }
+      }
+    },
+    "UninstallerReturnCode": {
+      "type": "integer",
+      "format": "long",
+      "not": {
+        "enum": [ 0 ]
+      },
+      "minimum": -2147483648,
+      "maximum": 4294967295,
+      "description": "An exit code that can be returned by the uninstaller after execution"
+    },
+    "UninstallerSuccessCodes": {
+      "type": [ "array", "null" ],
+      "items": {
+        "$ref": "#/definitions/UninstallerReturnCode"
+      },
+      "maxItems": 16,
+      "uniqueItems": true,
+      "description": "List of additional non-zero uninstaller success exit codes other than known default values by winget"
+    },
     "ExpectedReturnCodes": {
       "type": [ "array", "null" ],
       "items": {
@@ -866,6 +920,12 @@
         },
         "Authentication": {
           "$ref": "#/definitions/Authentication"
+        },
+        "UninstallerSwitches": {
+          "$ref": "#/definitions/UninstallerSwitches"
+        },
+        "UninstallerSuccessCodes": {
+          "$ref": "#/definitions/UninstallerSuccessCodes"
         }
       },
       "required": [
@@ -1113,6 +1173,12 @@
     },
     "Authentication": {
       "$ref": "#/definitions/Authentication"
+    },
+    "UninstallerSwitches": {
+      "$ref": "#/definitions/UninstallerSwitches"
+    },
+    "UninstallerSuccessCodes": {
+      "$ref": "#/definitions/UninstallerSuccessCodes"
     },
     "Installers": {
       "type": "array",

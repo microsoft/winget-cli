@@ -61,6 +61,10 @@ namespace AppInstaller::Manifest
 
         std::vector<DWORD> InstallerSuccessCodes;
 
+        std::map<UninstallerSwitchType, string_t> UninstallerSwitches;
+
+        std::vector<DWORD> UninstallerSuccessCodes;
+
         struct ExpectedReturnCodeInfo
         {
             ExpectedReturnCodeEnum ReturnResponseEnum = ExpectedReturnCodeEnum::Unknown;

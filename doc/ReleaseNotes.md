@@ -2,6 +2,7 @@
 * MCP server available; run `winget mcp` for assistance on configuring your client.
 * App Installer now uses WinUI 3. The package dependency on WinUI 2 has been replaced by a dependency on the Windows App Runtime 1.7.
 * Manifest schema and validation updated to v1.12. This version update adds "Font" as an InstallerType and NestedInstallerType.
+* Added UninstallerSwitches and UninstallerSuccessCodes to the manifest schema for v1.12.
 
 ## Bug Fixes
 * Manifest validation no longer fails using `UTF-8 BOM` encoding when the schema header is on the first line

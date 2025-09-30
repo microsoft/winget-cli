@@ -147,6 +147,16 @@ namespace
                     "InstallerSuccessCodes": [
                       0
                     ],
+                    "UninstallerSwitches": {
+                      "Silent": "/s",
+                      "SilentWithProgress": "/s",
+                      "Interactive": "/i",
+                      "Log": "/l",
+                      "Custom": "/custom"
+                    },
+                    "UninstallerSuccessCodes": [
+                      1
+                    ],
                     "UpgradeBehavior": "deny",
                     "Commands": [
                       "command1"
@@ -337,6 +347,14 @@ namespace
             REQUIRE(actualInstaller.Switches.at(InstallerSwitchType::Repair) == "/repair");
             REQUIRE(actualInstaller.InstallerSuccessCodes.size() == 1);
             REQUIRE(actualInstaller.InstallerSuccessCodes.at(0) == 0);
+            REQUIRE(actualInstaller.UninstallerSwitches.size() == 5);
+            REQUIRE(actualInstaller.UninstallerSwitches.at(UninstallerSwitchType::Silent) == "/s");
+            REQUIRE(actualInstaller.UninstallerSwitches.at(UninstallerSwitchType::SilentWithProgress) == "/s");
+            REQUIRE(actualInstaller.UninstallerSwitches.at(UninstallerSwitchType::Interactive) == "/i");
+            REQUIRE(actualInstaller.UninstallerSwitches.at(UninstallerSwitchType::Log) == "/l");
+            REQUIRE(actualInstaller.UninstallerSwitches.at(UninstallerSwitchType::Custom) == "/custom");
+            REQUIRE(actualInstaller.UninstallerSuccessCodes.size() == 1);
+            REQUIRE(actualInstaller.UninstallerSuccessCodes.at(0) == 1);
             REQUIRE(actualInstaller.UpdateBehavior == UpdateBehaviorEnum::Deny);
             REQUIRE(actualInstaller.Commands.at(0) == "command1");
             REQUIRE(actualInstaller.Protocols.at(0) == "protocol1");

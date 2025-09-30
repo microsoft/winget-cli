@@ -128,6 +128,15 @@ namespace AppInstaller::Manifest
         Repair,
     };
 
+    enum class UninstallerSwitchType
+    {
+        Custom,
+        Silent,
+        SilentWithProgress,
+        Interactive,
+        Log,
+    };
+
     enum class RepairBehaviorEnum
     {
         Unknown,
@@ -403,6 +412,8 @@ namespace AppInstaller::Manifest
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType);
 
     std::string_view InstallerSwitchTypeToString(InstallerSwitchType installerSwitchType);
+
+    std::string_view UninstallerSwitchTypeToString(UninstallerSwitchType uninstallerSwitchType);
 
     std::string_view ElevationRequirementToString(ElevationRequirementEnum elevationRequirement);
 

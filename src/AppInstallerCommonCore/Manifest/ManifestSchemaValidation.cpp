@@ -33,7 +33,8 @@ namespace AppInstaller::Manifest::YamlParser
             { "DisplayInstallWarnings"sv, YamlScalarType::Bool },
             { "InstallerReturnCode"sv, YamlScalarType::Int },
             { "DownloadCommandProhibited", YamlScalarType::Bool },
-            { "ArchiveBinariesDependOnPath", YamlScalarType::Bool }
+            { "ArchiveBinariesDependOnPath", YamlScalarType::Bool },
+            { "UninstallerSuccessCodes"sv, YamlScalarType::Int },
         };
 
         YamlScalarType GetManifestScalarValueType(const std::string& key)

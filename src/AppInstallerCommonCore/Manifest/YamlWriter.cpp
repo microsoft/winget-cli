@@ -76,6 +76,7 @@ namespace AppInstaller::Manifest::YamlWriter
 
         // Installer switches
         constexpr std::string_view InstallerSwitches = "InstallerSwitches"sv;
+        constexpr std::string_view UninstallerSwitches = "UninstallerSwitches"sv;
         constexpr std::string_view Silent = "Silent"sv;
         constexpr std::string_view SilentWithProgress = "SilentWithProgress"sv;
         constexpr std::string_view Interactive = "Interactive"sv;
@@ -86,6 +87,7 @@ namespace AppInstaller::Manifest::YamlWriter
         constexpr std::string_view Repair = "Repair"sv;
 
         constexpr std::string_view InstallerSuccessCodes = "InstallerSuccessCodes"sv;
+        constexpr std::string_view UninstallerSuccessCodes = "UninstallerSuccessCodes"sv;
         constexpr std::string_view UpgradeBehavior = "UpgradeBehavior"sv;
         constexpr std::string_view Commands = "Commands"sv;
         constexpr std::string_view Protocols = "Protocols"sv;
@@ -320,6 +322,22 @@ namespace AppInstaller::Manifest::YamlWriter
             out << YAML::EndMap;
         }
 
+        void ProcessUninstallerSwitches(YAML::Emitter& out, const std::map<UninstallerSwitchType, string_t>& uninstallerSwitches)
+        {
+            if (uninstallerSwitches.empty())
+            {
+                return;
+            }
+
+            out << YAML::Key << UninstallerSwitches;
+            out << YAML::BeginMap;
+            for (auto const& [type, value] : uninstallerSwitches)
+            {
+                WRITE_PROPERTY_IF_EXISTS(out, UninstallerSwitchTypeToString(type), value);
+            }
+            out << YAML::EndMap;
+        }
+
         void ProcessExpectedReturnCodes(YAML::Emitter& out, const std::map<DWORD, ManifestInstaller::ExpectedReturnCodeInfo>& expectedReturnCodes)
         {
             if (expectedReturnCodes.empty())
@@ -427,6 +445,23 @@ namespace AppInstaller::Manifest::YamlWriter
             for (auto const& installerSuccessCode : installerSuccessCodes)
             {
                 out << std::to_string(installerSuccessCode);
+            }
+            out << YAML::EndSeq;
+        }
+
+
+        void ProcessUninstallerSuccessCodes(YAML::Emitter& out, const std::vector<DWORD>& uninstallerSuccessCodes)
+        {
+            if (uninstallerSuccessCodes.empty())
+            {
+                return;
+            }
+
+            out << YAML::Key << UninstallerSuccessCodes;
+            out << YAML::BeginSeq;
+            for (auto const& uninstallerSuccessCode : uninstallerSuccessCodes)
+            {
+                out << std::to_string(uninstallerSuccessCode);
             }
             out << YAML::EndSeq;
         }
@@ -632,6 +667,8 @@ namespace AppInstaller::Manifest::YamlWriter
             ProcessUnsupportedArguments(out, installer.UnsupportedArguments);
             ProcessUnsupportedOSArchitecture(out, installer.UnsupportedOSArchitectures);
             ProcessAuthentication(out, installer.AuthInfo);
+            ProcessUninstallerSwitches(out, installer.UninstallerSwitches);
+            ProcessUninstallerSuccessCodes(out, installer.UninstallerSuccessCodes);
         }
 
         void ProcessInstaller(YAML::Emitter& out, const ManifestInstaller& installer)
