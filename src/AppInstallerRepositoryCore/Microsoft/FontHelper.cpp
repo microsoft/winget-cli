@@ -25,7 +25,7 @@ namespace AppInstaller::Repository::Microsoft
         {
             try
             {
-                // Font packages are collections of installable fonts; the PackageId is treated as the productCode.
+                // Font packages are collections of fonts; the PackageId is treated as the productCode.
                 std::string productCode = ConvertToUTF8(fontPackage.PackageId);
 
                 Manifest::Manifest manifest;
