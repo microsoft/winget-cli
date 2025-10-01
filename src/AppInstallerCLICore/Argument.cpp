@@ -203,8 +203,8 @@ namespace AppInstaller::CLI
         // Font command
         case Execution::Args::Type::Family:
             return { type, "family"_liv, ArgTypeCategory::None };
-        case Execution::Args::Type::Files:
-            return { type, "files"_liv, ArgTypeCategory::None };
+        case Execution::Args::Type::Details:
+            return { type, "details"_liv, ArgTypeCategory::None };
 
         // Configuration commands
         case Execution::Args::Type::ConfigurationFile:
@@ -474,8 +474,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::NoProxyArgumentDescription, ArgumentType::Flag, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
         case Args::Type::Family:
             return Argument{ type, Resource::String::FontFamilyNameArgumentDescription, ArgumentType::Positional, false };
-        case Args::Type::Files:
-            return Argument{ type, Resource::String::FontFilesArgumentDescription, ArgumentType::Flag, false };
+        case Args::Type::Details:
+            return Argument{ type, Resource::String::FontDetailsArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::Correlation:
             return Argument{ type, Resource::String::CorrelationArgumentDescription, ArgumentType::Standard, Argument::Visibility::Hidden };
         default:

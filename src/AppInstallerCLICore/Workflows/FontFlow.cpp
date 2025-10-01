@@ -139,7 +139,7 @@ namespace AppInstaller::CLI::Workflow
 
             OutputInstalledFontFacesTable(context, lines);
         }
-        else if (context.Args.Contains(Args::Type::Files))
+        else if (context.Args.Contains(Args::Type::Details))
         {
             const auto& fontFiles = AppInstaller::Fonts::GetInstalledFontFiles();
             std::vector<InstalledFontFilesTableLine> lines;
@@ -159,19 +159,9 @@ namespace AppInstaller::CLI::Workflow
                     break;
                 }
 
-                std::wstring packageId;
-                if (!fontFile.PackageId.empty())
-                {
-                    packageId = fontFile.PackageId;
-                }
-                else
-                {
-                    packageId = fontFile.PackageIdentifier;
-                }
-
                 InstalledFontFilesTableLine line(
                     Utility::LocIndString(Utility::ConvertToUTF8(fontFile.Title)),
-                    Utility::LocIndString(Utility::ConvertToUTF8(packageId)),
+                    Utility::LocIndString(Utility::ConvertToUTF8(fontFile.PackageIdentifier)),
                     status,
                     fontFile.FilePath.u8string());
 
@@ -267,6 +257,7 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED);
             }
 
+            context.Add<Execution::Data::CorrelatedAppsAndFeaturesEntries>({ fontContext.GetAppsAndFeaturesEntry() });
             context.Add<Execution::Data::OperationReturnCode>(installResult.HResult);
         }
         catch (...)
@@ -317,9 +308,9 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                const std::string packageId = context.Get<Execution::Data::InstalledPackageVersion>()->GetProperty(AppInstaller::Repository::PackageVersionProperty::Id);
+                const std::string moniker = context.Get<Execution::Data::InstalledPackageVersion>()->GetProperty(AppInstaller::Repository::PackageVersionProperty::Moniker);
                 const std::string version = context.Get<Execution::Data::InstalledPackageVersion>()->GetProperty(AppInstaller::Repository::PackageVersionProperty::Version);
-                fontContext.PackageId = ConvertToUTF16(packageId);
+                fontContext.PackageId = ConvertToUTF16(moniker);
                 fontContext.PackageVersion = ConvertToUTF16(version);
                 fontContext.Scope = scope;
             }

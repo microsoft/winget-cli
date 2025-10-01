@@ -386,6 +386,9 @@
     <ClCompile Include="ContextOrchestrator.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
+    <ClCompile Include="FontHelper.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

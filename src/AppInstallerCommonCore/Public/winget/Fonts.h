@@ -81,6 +81,7 @@ namespace AppInstaller::Fonts
         FontStatus Status = FontStatus::Unknown;
         std::wstring PackageId;
         std::wstring PackageVersion;
+        std::wstring PackageIdentifier;
     };
 
     struct FontContext
@@ -90,10 +91,11 @@ namespace AppInstaller::Fonts
         std::vector<std::filesystem::path> PackageFiles = std::vector<std::filesystem::path>();
         std::wstring PackageId;
         std::wstring PackageVersion;
-        std::wstring PackageIdentifier;
         bool Force = false;
 
         void AddPackageFile(const std::filesystem::path& filePath);
+        Manifest::AppsAndFeaturesEntry GetAppsAndFeaturesEntry() const;
+        std::wstring GetPackageIdentifier() const;
     };
 
     struct FontValidationResult
@@ -117,7 +119,7 @@ namespace AppInstaller::Fonts
 
     std::vector<FontPackageInfo> GetInstalledFontPackages(Manifest::ScopeEnum scope);
 
-    FontFileInfo CreateFontFileInfo(const FontContext& context, const std::filesystem::path& filePath, const std::optional<std::wstring>& title = std::nullopt);
+    FontFileInfo CreateFontFileInfo(const FontContext& context, const std::filesystem::path& filePath, const std::wstring& title = std::wstring());
 
     FontValidationResult ValidateFontPackage(FontContext& context);
 

@@ -3426,8 +3426,8 @@ An unlocalized JSON fragment will follow on another line.</comment>
   <data name="APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED" xml:space="preserve">
     <value>Font rollback failed. The font may not be in a good state. Try uninstalling after a restart.</value>
   </data>
-  <data name="FontFilesArgumentDescription" xml:space="preserve">
-    <value>Show fonts by installed font file</value>
+  <data name="FontDetailsArgumentDescription" xml:space="preserve">
+    <value>Show font file detailed information.</value>
   </data>
   <data name="FontValidationFailed" xml:space="preserve">
     <value>Validation of the font package failed.</value>

@@ -51,7 +51,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Args::Type::Family),
-            Argument::ForType(Args::Type::Files),
+            Argument::ForType(Args::Type::Details),
         };
     }
 

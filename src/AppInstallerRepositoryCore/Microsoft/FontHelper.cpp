@@ -25,14 +25,19 @@ namespace AppInstaller::Repository::Microsoft
         {
             try
             {
+                // Font packages are collections of installable fonts; the PackageId is treated as the productCode.
+                std::string productCode = ConvertToUTF8(fontPackage.PackageId);
+
                 Manifest::Manifest manifest;
                 manifest.DefaultLocalization.Add<Manifest::Localization::Tags>({ "Font" });
-                manifest.Id = ConvertToUTF8(fontPackage.PackageId);
+                manifest.Id = ConvertToUTF8(fontPackage.PackageIdentifier);
                 manifest.Version = ConvertToUTF8(fontPackage.PackageVersion);
+                manifest.Moniker = productCode;
                 manifest.Installers.emplace_back();
+                manifest.Installers[0].ProductCode = productCode;
 
                 // We don't know the package name from the install information. The best we can do is reuse the id.
-                manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(manifest.Id);
+                manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(productCode);
 
                 std::optional<SQLiteIndex::IdType> manifestIdOpt;
                 try
