@@ -20,5 +20,9 @@ The following snippet enables experimental support for fonts via `winget setting
     "fonts": true
   }
 }
-
 ```
+Manifest Schema version updated to 1.12.0 to add support for fonts.
+
+Experimental initial Font Install and Uninstall via manifest for user and machine scopes has been added.
+
+The font 'list' command has been updated with a new '--details' feature for an alternate view of the installed fonts.

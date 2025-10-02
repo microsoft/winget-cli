@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Microsoft/ARPHelper.h"
+#include "Microsoft/FontHelper.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include "Microsoft/SQLiteIndex.h"
 #include "Microsoft/SQLiteIndexSource.h"
@@ -263,6 +264,22 @@ namespace AppInstaller::Repository::Microsoft
                 PopulateIndexFromMSIX(index, Manifest::ScopeEnum::Machine);
             }
 
+            // Put Installed Fonts into the index.
+            if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP ||
+                filter == PredefinedInstalledSourceFactory::Filter::User || filter == PredefinedInstalledSourceFactory::Filter::Machine)
+            {
+                FontHelper fontHelper;
+                if (filter != PredefinedInstalledSourceFactory::Filter::User)
+                {
+                    fontHelper.PopulateIndex(index, Manifest::ScopeEnum::Machine);
+                }
+
+                if (filter != PredefinedInstalledSourceFactory::Filter::Machine)
+                {
+                    fontHelper.PopulateIndex(index, Manifest::ScopeEnum::User);
+                }
+            }
+
             AICLI_LOG(Repo, Verbose, << " ... finished creating PredefinedInstalledSource");
 
             return index;
@@ -280,6 +297,10 @@ namespace AppInstaller::Repository::Microsoft
                 ARPHelper arpHelper;
                 m_registryWatchers = arpHelper.CreateRegistryWatchers(Manifest::ScopeEnum::Unknown,
                     [this](Manifest::ScopeEnum, Utility::Architecture, wil::RegistryChangeKind) { ForceNextUpdate(); });
+
+                FontHelper fontHelper;
+                fontHelper.AddRegistryWatchers(Manifest::ScopeEnum::Unknown,
+                    [this](Manifest::ScopeEnum, wil::RegistryChangeKind) { ForceNextUpdate(); }, m_registryWatchers);
 
                 m_catalog = winrt::Windows::ApplicationModel::PackageCatalog::OpenForCurrentUser();
                 m_eventRevoker = m_catalog.PackageStatusChanged(winrt::auto_revoke, [this](auto...) { ForceNextUpdate(); });

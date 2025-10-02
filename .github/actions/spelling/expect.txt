@@ -177,6 +177,8 @@ flargle
 flexera
 FOF
 FOLDERID
+FONTCHANGE
+FONTHASH
 FORPARSING
 foundfr
 fsanitize
@@ -417,12 +419,15 @@ placeholders
 PMS
 positionals
 posix
+postuninstall
 powershellgallery
 pri
 PRIMARYKEY
 processthreads
 productcode
 PRODUCTICON
+propkey
+PROPVARIANT
 proxystub
 pscustomobject
 pseudocode
@@ -437,6 +442,7 @@ pvm
 pwabuilder
 PWAs
 PWSTR
+pwsz
 QUERYENDSESSION
 qword
 RAII
@@ -604,6 +610,7 @@ wincodec
 windir
 windowsdeveloper
 winerror
+wingdi
 wingetconfigroot
 wingetcreate
 wingetdev

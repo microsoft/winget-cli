@@ -926,6 +926,7 @@ namespace AppInstaller::Manifest
     bool DoesInstallerTypeIgnoreScopeFromManifest(InstallerTypeEnum installerType)
     {
         return
+            installerType == InstallerTypeEnum::Font ||
             installerType == InstallerTypeEnum::Portable ||
             installerType == InstallerTypeEnum::Msix ||
             installerType == InstallerTypeEnum::MSStore;
@@ -934,6 +935,7 @@ namespace AppInstaller::Manifest
     bool DoesInstallerTypeRequireAdminForMachineScopeInstall(InstallerTypeEnum installerType)
     {
         return
+            installerType == InstallerTypeEnum::Font ||
             installerType == InstallerTypeEnum::Portable ||
             installerType == InstallerTypeEnum::MSStore ||
             installerType == InstallerTypeEnum::Msix;
@@ -956,6 +958,14 @@ namespace AppInstaller::Manifest
     bool IsPortableType(InstallerTypeEnum installerType)
     {
         return (installerType == InstallerTypeEnum::Portable);
+    }
+
+    bool DoesInstallerTypeSupportMultipleNestedInstallers(InstallerTypeEnum installerType)
+    {
+        return (
+            installerType == InstallerTypeEnum::Portable ||
+            installerType == InstallerTypeEnum::Font
+            );
     }
 
     bool IsNestedInstallerTypeSupported(InstallerTypeEnum nestedInstallerType)

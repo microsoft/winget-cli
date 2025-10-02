@@ -252,8 +252,9 @@
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Source.def</ModuleDefinitionFile>
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Source.def</ModuleDefinitionFile>
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Source.def</ModuleDefinitionFile>
-      <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <CETCompat Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</CETCompat>
+      <DelayLoadDLLs Condition="'$(Configuration)'=='Debug'">gdi32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -322,12 +323,13 @@
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Source.def</ModuleDefinitionFile>
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Source.def</ModuleDefinitionFile>
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Source.def</ModuleDefinitionFile>
-      <AdditionalDependencies Condition="'$(Configuration)'=='Release'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)'=='Release'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
       <CETCompat Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</CETCompat>
       <CETCompat Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</CETCompat>
+      <DelayLoadDLLs Condition="'$(Configuration)'=='Release'">gdi32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -383,12 +385,13 @@
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">Source.def</ModuleDefinitionFile>
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM64'">Source.def</ModuleDefinitionFile>
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|x64'">Source.def</ModuleDefinitionFile>
-      <AdditionalDependencies Condition="'$(Configuration)'=='ReleaseStatic'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)'=='ReleaseStatic'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM64'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|x64'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
       <CETCompat Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">true</CETCompat>
       <CETCompat Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|x64'">true</CETCompat>
+      <DelayLoadDLLs Condition="'$(Configuration)'=='ReleaseStatic'">gdi32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM64'">$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>

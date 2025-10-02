@@ -284,6 +284,7 @@
     <ClInclude Include="IconDefs.h" />
     <ClInclude Include="ISource.h" />
     <ClInclude Include="Microsoft\ARPHelper.h" />
+    <ClInclude Include="Microsoft\FontHelper.h" />
     <ClInclude Include="Microsoft\PinningIndex.h" />
     <ClInclude Include="Microsoft\PredefinedInstalledSourceFactory.h" />
     <ClInclude Include="Microsoft\PredefinedWriteableSourceFactory.h" />
@@ -416,6 +417,7 @@
     <ClCompile Include="InstallerMetadataCollectionContext.cpp" />
     <ClCompile Include="ManifestJSONParser.cpp" />
     <ClCompile Include="Microsoft\ARPHelper.cpp" />
+    <ClCompile Include="Microsoft\FontHelper.cpp" />
     <ClCompile Include="Microsoft\ConfigurableTestSourceFactory.cpp" />
     <ClCompile Include="Microsoft\PinningIndex.cpp" />
     <ClCompile Include="Microsoft\PortableIndex.cpp" />

@@ -125,6 +125,7 @@ namespace AppInstaller::CLI::Execution
 
             // Font Command
             Family,
+            Details,
 
             // Stub package (extended features)
             ExtendedFeaturesEnable,
