@@ -463,7 +463,7 @@
     <value>패키지의 기본 정보를 찾아 표시</value>
   </data>
   <data name="SearchId" xml:space="preserve">
-    <value>장치 ID</value>
+    <value>장치 Id</value>
     <comment>Abbreviation of Identifier.</comment>
   </data>
   <data name="SearchMatch" xml:space="preserve">
