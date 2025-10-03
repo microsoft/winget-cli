@@ -358,7 +358,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         co_return GetSetDetailsImpl(localSet, detailFlags, { co_await winrt::get_progress_token(), co_await winrt::get_cancellation_token()});
     }
 
-    Windows::Foundation::Collections::IVector<Configuration::ConfigurationSet> ConfigurationProcessor::GetConfigurationHistoryImpl(AppInstaller::WinRT::AsyncCancellation cancellation)
+    Windows::Foundation::Collections::IVector<Configuration::ConfigurationSet> ConfigurationProcessor::GetConfigurationHistoryImpl(ShutdownAwareAsyncCancellation cancellation)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
@@ -378,7 +378,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     Configuration::GetConfigurationSetDetailsResult ConfigurationProcessor::GetSetDetailsImpl(
         const Configuration::ConfigurationSet& configurationSet,
         ConfigurationUnitDetailFlags detailFlags,
-        AppInstaller::WinRT::AsyncProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> progress)
+        ShutdownAwareAsyncProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> progress)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
@@ -480,7 +480,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     Configuration::ApplyConfigurationSetResult ConfigurationProcessor::ApplySetImpl(
         const Configuration::ConfigurationSet& configurationSet,
         ApplyConfigurationSetFlags flags,
-        AppInstaller::WinRT::AsyncProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> progress)
+        ShutdownAwareAsyncProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> progress)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
@@ -561,7 +561,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 if (sequencer.Enqueue(configurationSet))
                 {
                     updateState(ConfigurationSetState::Pending);
-                    sequencer.Wait(progress);
+                    sequencer.Wait(progress.GetCancellation());
                 }
             }
 
@@ -654,7 +654,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     Configuration::TestConfigurationSetResult ConfigurationProcessor::TestSetImpl(
         const Configuration::ConfigurationSet& configurationSet,
-        AppInstaller::WinRT::AsyncProgress<TestConfigurationSetResult, TestConfigurationUnitResult> progress)
+        ShutdownAwareAsyncProgress<TestConfigurationSetResult, TestConfigurationUnitResult> progress)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
@@ -727,7 +727,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     Configuration::GetConfigurationUnitSettingsResult ConfigurationProcessor::GetUnitSettingsImpl(
         const ConfigurationUnit& unit,
-        AppInstaller::WinRT::AsyncCancellation cancellation)
+        ShutdownAwareAsyncCancellation cancellation)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
@@ -790,7 +790,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     Configuration::GetAllConfigurationUnitSettingsResult ConfigurationProcessor::GetAllUnitSettingsImpl(
         const ConfigurationUnit& unit,
-        AppInstaller::WinRT::AsyncCancellation cancellation)
+        ShutdownAwareAsyncCancellation cancellation)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
@@ -861,7 +861,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     Configuration::GetAllConfigurationUnitsResult ConfigurationProcessor::GetAllUnitsImpl(
         const ConfigurationUnit& unit,
-        AppInstaller::WinRT::AsyncCancellation cancellation)
+        ShutdownAwareAsyncCancellation cancellation)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
@@ -978,7 +978,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     Windows::Foundation::Collections::IVector<IConfigurationUnitProcessorDetails> ConfigurationProcessor::FindUnitProcessorsImpl(
         const FindUnitProcessorsOptions& findOptions,
-        AppInstaller::WinRT::AsyncCancellation cancellation)
+        ShutdownAwareAsyncCancellation cancellation)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
@@ -1019,7 +1019,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     Configuration::ApplyConfigurationUnitResult ConfigurationProcessor::ApplyUnitImpl(
         const ConfigurationUnit& unit,
-        AppInstaller::WinRT::AsyncCancellation cancellation)
+        ShutdownAwareAsyncCancellation cancellation)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
@@ -1085,7 +1085,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     Configuration::TestConfigurationUnitResult ConfigurationProcessor::TestUnitImpl(
         const ConfigurationUnit& unit,
-        AppInstaller::WinRT::AsyncCancellation cancellation)
+        ShutdownAwareAsyncCancellation cancellation)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 

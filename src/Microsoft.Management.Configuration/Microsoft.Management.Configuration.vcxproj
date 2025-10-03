@@ -119,7 +119,7 @@
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <ModuleDefinitionFile>Microsoft_Management_Configuration.def</ModuleDefinitionFile>
       <WindowsMetadataFile>$(OutDir)$(ProjectName).winmd</WindowsMetadataFile>
-      <AdditionalDependencies>Advapi32.lib;onecoreuap.lib;winsqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Advapi32.lib;icuuc.lib;icuin.lib;onecoreuap.lib;winsqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
@@ -181,11 +181,6 @@
       <CETCompat Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|x64'">true</CETCompat>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(WingetDisableTestHooks)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>AICLI_DISABLE_TEST_HOOKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ApplyConfigurationSetResult.h" />
     <ClInclude Include="ApplyConfigurationUnitResult.h" />
@@ -238,6 +233,7 @@
     <ClInclude Include="OpenConfigurationSetResult.h" />
     <ClInclude Include="ParsingMacros.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="ShutdownSynchronization.h" />
     <ClInclude Include="Telemetry\Telemetry.h" />
     <ClInclude Include="Telemetry\TraceLogging.h" />
     <ClInclude Include="TestConfigurationSetResult.h" />
@@ -297,6 +293,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="ShutdownSynchronization.cpp" />
     <ClCompile Include="Telemetry\Telemetry.cpp" />
     <ClCompile Include="Telemetry\TraceLogging.cpp" />
     <ClCompile Include="TestConfigurationSetResult.cpp" />

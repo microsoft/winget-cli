@@ -7,6 +7,7 @@
 #include <wil/resource.h>
 
 #include <functional>
+#include <ostream>
 #include <vector>
 
 
@@ -15,13 +16,52 @@ namespace AppInstaller::Certificates
     // Defines the types of certificate pinning to perform.
     enum class PinningVerificationType : uint32_t
     {
+        // No validation; accepts anything.
         None = 0x0,
+        // Validates that the public keys match; requires a certificate to be loaded.
         PublicKey = 0x1,
+        // Validates that the full subjects match; requires a certificate to be loaded.
         Subject = 0x2,
+        // Validates that the full issuers match; requires a certificate to be loaded.
         Issuer = 0x4,
+        // Allows for unknown certificates in the chain; will continue to consume certificates from the chain until it matches.
+        // Requires partial chain.
+        AnyIssuer = 0x8,
+        // Requires that the certificate is not a leaf.
+        RequireNonLeaf = 0x10,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(PinningVerificationType);
+
+    std::ostream& operator<<(std::ostream& out, PinningVerificationType value);
+
+    // The position within a chain that a certificate is located.
+    enum class CertificateChainPosition
+    {
+        Unknown = 0x0,
+        // The start of the chain.
+        Root = 0x1,
+        // An indeterminate intermediate along the chain.
+        Intermediate = 0x2,
+        // The final certificate of the chain.
+        Leaf = 0x4,
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(CertificateChainPosition);
+
+    std::ostream& operator<<(std::ostream& out, CertificateChainPosition value);
+
+    // The result of validating a single certificate.
+    enum class CertificatePinningValidationResult
+    {
+        // The certificate was accepted as valid.
+        Accepted,
+        // The certificate was rejected as invalid.
+        Rejected,
+        // The next certificate in the chain should be validated against the current details.
+        // For use by partial chain validation that does not require exacting chain configurations.
+        Skipped,
+    };
 
     // Contains the specific information about a certificate to pin.
     struct PinningDetails
@@ -44,12 +84,23 @@ namespace AppInstaller::Certificates
         PinningVerificationType GetPinning() const { return m_pinning; }
 
         // Validates the given certificate against the pinning information.
-        // Returns true to indicate that the certificate meets the pinning configuration criteria.
-        // Returns false to indicate the it does not.
-        bool Validate(PCCERT_CONTEXT certContext) const;
+        CertificatePinningValidationResult Validate(PCCERT_CONTEXT certContext, CertificateChainPosition position) const;
+
+        // Outputs a description of the pinning details.
+        void OutputDescription(std::ostream& stream, std::string_view indent) const;
 
         // Loads the pinning details from the given JSON.
         [[nodiscard]] bool LoadFrom(const Json::Value& configuration);
+
+        // Determines how far the certificate is through its lifespan.
+        double GetRemainingLifetimePercentage() const;
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        using CustomValidationFunction = std::function<bool(const PinningDetails&, PCCERT_CONTEXT, CertificateChainPosition)>;
+        void SetCustomValidationFunction(CustomValidationFunction function) { m_customValidation = std::move(function); }
+    private:
+        CustomValidationFunction m_customValidation;
+#endif
 
     private:
         wil::shared_cert_context m_certificateContext;
@@ -97,6 +148,10 @@ namespace AppInstaller::Certificates
         Node Root();
         const Node Root() const;
 
+        // A partial chain will validate success if all of its components are successful.
+        PinningChain& PartialChain(bool isPartial = true);
+        bool IsPartialChain() const { return m_partial; }
+
         // Validates the given certificate chain against the configuration.
         // Returns true to indicate that the chain meets the pinning configuration criteria.
         // Returns false to indicate the it does not.
@@ -108,8 +163,12 @@ namespace AppInstaller::Certificates
         // Loads the pinning chain from the given JSON.
         [[nodiscard]] bool LoadFrom(const Json::Value& configuration);
 
+        // Determines how far the certificate chain is through its lifespan (the minimum of all of its certificates).
+        double GetRemainingLifetimePercentage() const;
+
     private:
         std::vector<PinningDetails> m_chain;
+        bool m_partial = false;
     };
 
     // Holds the details about how a certificate chain is to be validated (aka "pinned").
@@ -137,6 +196,9 @@ namespace AppInstaller::Certificates
 
         // Loads the pinning configuration from the given JSON.
         [[nodiscard]] bool LoadFrom(const Json::Value& configuration);
+
+        // Determines how far the configuration is through its lifespan (the maximum of all of its chains).
+        double GetRemainingLifetimePercentage() const;
 
     private:
         // The identifier used when logging.

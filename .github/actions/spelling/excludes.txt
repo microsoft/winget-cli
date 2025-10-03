@@ -33,6 +33,7 @@
 \.eot$
 \.eps$
 \.exe$
+\.fnt$
 \.gif$
 \.git-blame-ignore-revs$
 \.gitattributes$
@@ -56,6 +57,7 @@
 \.o$
 \.ocf$
 \.otf$
+\.otc$
 \.p12$
 \.parquet$
 \.pdf$
@@ -75,6 +77,7 @@
 \.tar$
 \.tgz$
 \.tiff?$
+\.ttc$
 \.ttf$
 \.vcxitems$
 \.vcxproj$

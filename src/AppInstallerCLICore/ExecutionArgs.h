@@ -91,6 +91,7 @@ namespace AppInstaller::CLI::Execution
             DownloadDirectory,
             SkipMicrosoftStorePackageLicense,
             Platform,
+            OSVersion,
 
             // Setting Command
             AdminSettingEnable,
@@ -124,6 +125,7 @@ namespace AppInstaller::CLI::Execution
 
             // Font Command
             Family,
+            Details,
 
             // Stub package (extended features)
             ExtendedFeaturesEnable,

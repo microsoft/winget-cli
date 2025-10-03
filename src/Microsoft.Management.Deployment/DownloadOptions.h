@@ -33,6 +33,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void CorrelationData(hstring const& value);
         winrt::Microsoft::Management::Deployment::AuthenticationArguments AuthenticationArguments();
         void AuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments const& value);
+        bool SkipMicrosoftStoreLicense();
+        void SkipMicrosoftStoreLicense(bool value);
+        winrt::Microsoft::Management::Deployment::WindowsPlatform Platform();
+        void Platform(winrt::Microsoft::Management::Deployment::WindowsPlatform value);
+        hstring TargetOSVersion();
+        void TargetOSVersion(hstring const& value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -47,6 +53,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool m_acceptPackageAgreements = true;
         std::wstring m_correlationData = L"";
         winrt::Microsoft::Management::Deployment::AuthenticationArguments m_authenticationArguments{ nullptr };
+        bool m_skipMicrosoftStoreLicense = false;
+        winrt::Microsoft::Management::Deployment::WindowsPlatform m_platform = winrt::Microsoft::Management::Deployment::WindowsPlatform::Unknown;
+        std::wstring m_targetOSVersion;
 #endif
     };
 }

@@ -274,7 +274,11 @@ namespace
         }
         else
         {
-            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_12 })
+            {
+                REQUIRE(manifest.Installers.size() == 7);
+            }
+            else if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
             {
                 REQUIRE(manifest.Installers.size() == 5);
             }
@@ -482,6 +486,28 @@ namespace
                 {
                     ManifestInstaller installer4 = manifest.Installers.at(3);
                     REQUIRE(installer4.ArchiveBinariesDependOnPath);
+                }
+
+                if (manifestVer >= ManifestVer{ s_ManifestVersionV1_12 })
+                {
+                    ManifestInstaller installer6 = manifest.Installers.at(5);
+                    REQUIRE(installer6.BaseInstallerType == InstallerTypeEnum::Zip);
+                    REQUIRE(installer6.Arch == Architecture::Neutral);
+                    REQUIRE(installer6.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
+                    REQUIRE(installer6.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+                    REQUIRE(installer6.NestedInstallerType == InstallerTypeEnum::Font);
+                    REQUIRE(installer6.NestedInstallerFiles.size() == 5);
+                    REQUIRE(installer6.NestedInstallerFiles.at(0).RelativeFilePath == "relativeFilePath1.otf");
+                    REQUIRE(installer6.NestedInstallerFiles.at(1).RelativeFilePath == "relativeFilePath2.ttf");
+                    REQUIRE(installer6.NestedInstallerFiles.at(2).RelativeFilePath == "relativeFilePath3.fnt");
+                    REQUIRE(installer6.NestedInstallerFiles.at(3).RelativeFilePath == "relativeFilePath4.ttc");
+                    REQUIRE(installer6.NestedInstallerFiles.at(4).RelativeFilePath == "relativeFilePath5.otc");
+
+                    ManifestInstaller installer7 = manifest.Installers.at(6);
+                    REQUIRE(installer7.BaseInstallerType == InstallerTypeEnum::Font);
+                    REQUIRE(installer7.Arch == Architecture::Neutral);
+                    REQUIRE(installer7.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
+                    REQUIRE(installer7.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
                 }
             }
 
@@ -1141,6 +1167,31 @@ TEST_CASE("ValidateV1_10GoodManifestAndVerifyContents", "[ManifestValidation]")
     // Read from merged manifest should have the same content as multi file manifest
     Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
     VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_10 });
+}
+
+TEST_CASE("ValidateV1_12GoodManifestAndVerifyContents", "[ManifestValidation]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_12-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
+    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{ s_ManifestVersionV1_12 });
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_12-MultiFile-Version.yaml",
+        "ManifestV1_12-MultiFile-Installer.yaml",
+        "ManifestV1_12-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_12-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
+    VerifyV1ManifestContent(multiFileManifest, false, ManifestVer{ s_ManifestVersionV1_12 });
+
+    // Read from merged manifest should have the same content as multi file manifest
+    Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
+    VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_12 });
 }
 
 TEST_CASE("WriteV1SingletonManifestAndVerifyContents", "[ManifestCreation]")

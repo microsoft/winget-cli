@@ -8,6 +8,7 @@
 #include "ConfigurationProcessor.h"
 #include "ConfigurationParameter.h"
 #include "FindUnitProcessorsOptions.h"
+#include "ShutdownSynchronization.h"
 #include <AppInstallerStrings.h>
 #include <winget/ConfigurationSetProcessorHandlers.h>
 
@@ -61,6 +62,24 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     HRESULT STDMETHODCALLTYPE ConfigurationStaticFunctions::SetExperimentalState(UINT32 state)
     {
         m_state = static_cast<AppInstaller::WinRT::ConfigurationStaticsInternalsStateFlags>(state);
+        return S_OK;
+    }
+
+    HRESULT STDMETHODCALLTYPE ConfigurationStaticFunctions::BlockNewWorkForShutdown()
+    {
+        ShutdownSynchronization::Instance().BlockNewWork();
+        return S_OK;
+    }
+
+    HRESULT STDMETHODCALLTYPE ConfigurationStaticFunctions::BeginShutdown()
+    {
+        ShutdownSynchronization::Instance().CancelAllWork();
+        return S_OK;
+    }
+
+    HRESULT STDMETHODCALLTYPE ConfigurationStaticFunctions::WaitForShutdown()
+    {
+        ShutdownSynchronization::Instance().Wait();
         return S_OK;
     }
 }

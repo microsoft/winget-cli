@@ -1,7 +1,22 @@
 name: '🚀 Feature Request / Idea'
 description: Suggest a new feature or improvement (this does not mean you have to implement it).
-labels: ['Issue-Feature']
+labels:
+- Issue-Feature
+- Needs-Triage
 body:
+  - type: dropdown
+    attributes:
+      label: Relevant area(s)
+      description: What area does this feature request relate to? Check all that apply.
+      multiple: true
+      options:
+        - WinGet CLI
+        - PowerShell Module
+        - COM API
+        - DSC Resource
+      default: 0
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Description of the new feature / enhancement

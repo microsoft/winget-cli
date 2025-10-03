@@ -1,0 +1,14 @@
+PackageIdentifier: AppInstallerTest.TestFont
+PackageVersion: 1.0.0.0
+PackageName: TestFont
+PackageLocale: en-US
+Publisher: AppInstallerTest
+License: Test
+ShortDescription: E2E test for font install.
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestFont/AppInstallerTestFont.ttf
+    InstallerType: font
+    InstallerSha256: <FONTHASH>
+ManifestType: singleton
+ManifestVersion: 1.12.0

@@ -21,6 +21,11 @@
     <ResourceCompile Include="$(MSBuildThisFileDirectory)ManifestSchema.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\latest\manifest.defaultLocale.latest.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\latest\manifest.installer.latest.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\latest\manifest.locale.latest.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\latest\manifest.singleton.latest.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\latest\manifest.version.latest.json" />
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\preview\manifest.0.1.0.json" />
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.defaultLocale.1.0.0.json" />
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.installer.1.0.0.json" />
@@ -61,11 +66,11 @@
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.9.0\manifest.installer.1.9.0.json" />
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.9.0\manifest.locale.1.9.0.json" />
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.9.0\manifest.singleton.1.9.0.json" />
-    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.9.0\manifest.version.1.9.0.json" />  
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.9.0\manifest.version.1.9.0.json" />
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.10.0\manifest.defaultLocale.1.10.0.json" />
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.10.0\manifest.installer.1.10.0.json" />
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.10.0\manifest.locale.1.10.0.json" />
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.10.0\manifest.singleton.1.10.0.json" />
-    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.10.0\manifest.version.1.10.0.json" />  
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.10.0\manifest.version.1.10.0.json" />
   </ItemGroup>
 </Project>

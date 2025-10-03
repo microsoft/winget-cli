@@ -41,6 +41,8 @@ namespace AppInstaller::MSStore
             std::string locale,
             AppInstaller::Authentication::AuthenticationArguments authArgs);
 
+        void TargetOSVersion(std::optional<Utility::UInt64Version> targetOSVersion);
+
         // Calls display catalog API and sfs-client to get download info.
         MSStoreDownloadInfo GetDownloadInfo();
 
@@ -51,6 +53,7 @@ namespace AppInstaller::MSStore
         std::string m_productId;
         AppInstaller::Utility::Architecture m_architecture = AppInstaller::Utility::Architecture::Unknown;
         AppInstaller::Manifest::PlatformEnum m_platform = AppInstaller::Manifest::PlatformEnum::Unknown;
+        std::optional<Utility::UInt64Version> m_targetOSVersion = std::nullopt;
         std::string m_locale;
         std::unique_ptr<AppInstaller::Authentication::Authenticator> m_displayCatalogAuthenticator;
         std::unique_ptr<AppInstaller::Authentication::Authenticator> m_licensingAuthenticator;

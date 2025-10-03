@@ -106,5 +106,36 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_authenticationArguments = value;
     }
+
+    bool DownloadOptions::SkipMicrosoftStoreLicense()
+    {
+        return m_skipMicrosoftStoreLicense;
+    }
+
+    void DownloadOptions::SkipMicrosoftStoreLicense(bool value)
+    {
+        m_skipMicrosoftStoreLicense = value;
+    }
+
+    winrt::Microsoft::Management::Deployment::WindowsPlatform DownloadOptions::Platform()
+    {
+        return m_platform;
+    }
+
+    void DownloadOptions::Platform(winrt::Microsoft::Management::Deployment::WindowsPlatform value)
+    {
+        m_platform = value;
+    }
+
+    hstring DownloadOptions::TargetOSVersion()
+    {
+        return hstring(m_targetOSVersion);
+    }
+
+    void DownloadOptions::TargetOSVersion(hstring const& value)
+    {
+        m_targetOSVersion = value;
+    }
+
     CoCreatableMicrosoftManagementDeploymentClass(DownloadOptions);
 }

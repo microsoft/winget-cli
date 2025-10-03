@@ -651,6 +651,34 @@ namespace AppInstaller::MSStore
             return Manifest::PlatformEnum::Unknown;
         }
 
+        // Parses a string of the form `<PLATFORM>=<MINIMUM REQUIRED VERSION>{,}?`.
+        struct PlatformApplicability
+        {
+            explicit PlatformApplicability(std::string_view input, bool extractVersion = true) :
+                Platform(ConvertFromSfsPlatform(input))
+            {
+                if (extractVersion)
+                {
+                    THROW_HR_IF(E_INVALIDARG, input.empty());
+
+                    size_t position = input.find('=');
+                    THROW_HR_IF(E_INVALIDARG, std::string_view::npos == position);
+
+                    position += 1;
+                    size_t length = input.size() - position;
+                    if (length > 0 && input.back() == ',')
+                    {
+                        length -= 1;
+                    }
+
+                    MinimumVersion = Utility::UInt64Version{ std::string{ input.substr(position, length) } };
+                }
+            }
+
+            Manifest::PlatformEnum Platform;
+            std::optional<Utility::UInt64Version> MinimumVersion;
+        };
+
         Utility::Architecture ConvertFromSfsArchitecture(SFS::Architecture sfsArchitecture)
         {
             switch (sfsArchitecture)
@@ -670,17 +698,43 @@ namespace AppInstaller::MSStore
             return Utility::Architecture::Unknown;
         }
 
-        std::vector<Manifest::PlatformEnum> GetSfsPackageFileSupportedPlatforms(const SFS::AppFile& appFile, Manifest::PlatformEnum requiredPlatform)
+        std::vector<Manifest::PlatformEnum> GetSfsPackageFileSupportedPlatforms(
+            const SFS::AppFile& appFile,
+            Manifest::PlatformEnum requiredPlatform,
+            const std::optional<Utility::UInt64Version>& targetOSVersion)
         {
             std::vector<Manifest::PlatformEnum> supportedPlatforms;
 
             for (auto const& applicability : appFile.GetApplicabilityDetails().GetPlatformApplicabilityForPackage())
             {
-                auto platform = ConvertFromSfsPlatform(applicability);
-                if (platform != Manifest::PlatformEnum::Unknown &&
-                    (platform == requiredPlatform || requiredPlatform == Manifest::PlatformEnum::Unknown))
+                AICLI_LOG(Core, Verbose, << "  examining platform [" << applicability << "] for applicability...");
+                PlatformApplicability platform(applicability, targetOSVersion.has_value());
+
+                if (platform.Platform == Manifest::PlatformEnum::Unknown)
                 {
-                    supportedPlatforms.emplace_back(platform);
+                    AICLI_LOG(Core, Verbose, << "    not applicable due to unknown platform");
+                    continue;
+                }
+
+                if (platform.MinimumVersion && targetOSVersion)
+                {
+                    if (targetOSVersion.value() < platform.MinimumVersion.value())
+                    {
+                        AICLI_LOG(Core, Verbose, << "    not applicable due to OS version; target ["
+                            << targetOSVersion.value().ToString() << "] is lower than minimum ["
+                            << platform.MinimumVersion.value().ToString() << "]");
+                        continue;
+                    }
+                }
+
+                if (platform.Platform == requiredPlatform || requiredPlatform == Manifest::PlatformEnum::Unknown)
+                {
+                    AICLI_LOG(Core, Verbose, << "    applicable");
+                    supportedPlatforms.emplace_back(platform.Platform);
+                }
+                else
+                {
+                    AICLI_LOG(Core, Verbose, << "    not applicable due to platform requirement");
                 }
             }
 
@@ -709,27 +763,22 @@ namespace AppInstaller::MSStore
             return supportedArchitectures;
         }
 
-        // This also checks if the file type is supported. If not supported, the return is empty string.
         std::string GetSfsPackageFileExtension(const SFS::AppFile& appFile)
         {
-            std::string fileExtension = std::filesystem::path{ appFile.GetFileId() }.extension().u8string();
+            return std::filesystem::path{ appFile.GetFileId() }.extension().u8string();
+        }
 
-            bool fileTypeSupported = false;
+        bool IsFileExtensionSupported(std::string_view fileExtension)
+        {
             for (auto const& supportedFileType : SupportedFileTypes)
             {
                 if (Utility::CaseInsensitiveEquals(supportedFileType, fileExtension))
                 {
-                    fileTypeSupported = true;
-                    break;
+                    return true;
                 }
             }
 
-            if (!fileTypeSupported)
-            {
-                return {};
-            }
-
-            return fileExtension;
+            return false;
         }
 
         // The file name will be {Name}_{Version}_{Platform list}_{Arch list}.{File Extension}
@@ -824,7 +873,8 @@ namespace AppInstaller::MSStore
         std::vector<MSStoreDownloadFile> PopulateSfsAppFileToMSStoreDownloadFileVector(
             const std::vector<SFS::AppFile>& appFiles,
             Utility::Architecture requiredArchitecture = Utility::Architecture::Unknown,
-            Manifest::PlatformEnum requiredPlatform = Manifest::PlatformEnum::Unknown)
+            Manifest::PlatformEnum requiredPlatform = Manifest::PlatformEnum::Unknown,
+            const std::optional<Utility::UInt64Version>& targetOSVersion = std::nullopt)
         {
             using PlatformAndArchitectureKey = std::pair<Manifest::PlatformEnum, Utility::Architecture>;
 
@@ -834,23 +884,25 @@ namespace AppInstaller::MSStore
 
             for (auto const& appFile : appFiles)
             {
+                AICLI_LOG(Core, Info, << "Examining package [" << appFile.GetFileMoniker() << " (" << appFile.GetFileId() << ")] for download...");
+
                 // Filter out unsupported packages
-                auto supportedPlatforms = GetSfsPackageFileSupportedPlatforms(appFile, requiredPlatform);
+                auto supportedPlatforms = GetSfsPackageFileSupportedPlatforms(appFile, requiredPlatform, targetOSVersion);
                 if (supportedPlatforms.empty())
                 {
-                    AICLI_LOG(Core, Info, << "Package skipped due to unsupported platforms. FileId:" << appFile.GetFileId());
+                    AICLI_LOG(Core, Verbose, << "  package has no applicable platform.");
                     continue;
                 }
                 auto supportedArchitectures = GetSfsPackageFileSupportedArchitectures(appFile, requiredArchitecture);
                 if (supportedArchitectures.empty())
                 {
-                    AICLI_LOG(Core, Info, << "Package skipped due to unsupported architecture. FileId:" << appFile.GetFileId());
+                    AICLI_LOG(Core, Verbose, << "  package has no applicable architecture.");
                     continue;
                 }
                 std::string fileExtension = GetSfsPackageFileExtension(appFile);
-                if (fileExtension.empty())
+                if (!IsFileExtensionSupported(fileExtension))
                 {
-                    AICLI_LOG(Core, Info, << "Package skipped due to unsupported file type. FileId:" << appFile.GetFileId());
+                    AICLI_LOG(Core, Verbose, << "  package has unsupported file type [" << fileExtension << "].");
                     continue;
                 }
 
@@ -895,9 +947,15 @@ namespace AppInstaller::MSStore
             return result;
         }
 
-        MSStoreDownloadInfo CallSfsClientAndGetMSStoreDownloadInfo(std::string_view wuCategoryId, Utility::Architecture requiredArchitecture, Manifest::PlatformEnum requiredPlatform)
+        MSStoreDownloadInfo CallSfsClientAndGetMSStoreDownloadInfo(
+            std::string_view wuCategoryId,
+            Utility::Architecture requiredArchitecture,
+            Manifest::PlatformEnum requiredPlatform,
+            const std::optional<Utility::UInt64Version>& targetOSVersion)
         {
-            AICLI_LOG(Core, Info, << "CallSfsClientAndGetMSStoreDownloadInfo with WuCategoryId: " << wuCategoryId << " Architecture: " << Utility::ToString(requiredArchitecture) << " Platform: " << Manifest::PlatformToString(requiredPlatform));
+            AICLI_LOG(Core, Info, << "CallSfsClientAndGetMSStoreDownloadInfo with WuCategoryId: " << wuCategoryId
+                << " Architecture: " << Utility::ToString(requiredArchitecture) << " Platform: " << Manifest::PlatformToString(requiredPlatform)
+                << " Target OS Version: " << (targetOSVersion ? targetOSVersion.value().ToString() : "any"));
 
             std::vector<SFS::AppContent> appContents;
 
@@ -941,13 +999,13 @@ namespace AppInstaller::MSStore
             const auto& appContent = appContents.at(0);
 
             // Populate main packages
-            result.MainPackages = PopulateSfsAppFileToMSStoreDownloadFileVector(appContent.GetFiles(), requiredArchitecture, requiredPlatform);
+            result.MainPackages = PopulateSfsAppFileToMSStoreDownloadFileVector(appContent.GetFiles(), requiredArchitecture, requiredPlatform, targetOSVersion);
 
             // Populate dependency packages
             for (auto const& dependencyEntry : appContent.GetPrerequisites())
             {
                 // Not passing in required platform for dependencies. Dependencies are mostly Windows.Universal.
-                auto dependencyPackages = PopulateSfsAppFileToMSStoreDownloadFileVector(dependencyEntry.GetFiles(), requiredArchitecture);
+                auto dependencyPackages = PopulateSfsAppFileToMSStoreDownloadFileVector(dependencyEntry.GetFiles(), requiredArchitecture, Manifest::PlatformEnum::Unknown, targetOSVersion);
                 std::move(dependencyPackages.begin(), dependencyPackages.end(), std::inserter(result.DependencyPackages, result.DependencyPackages.end()));
             }
 
@@ -1111,11 +1169,16 @@ namespace AppInstaller::MSStore
         }
     }
 
+    void MSStoreDownloadContext::TargetOSVersion(std::optional<Utility::UInt64Version> targetOSVersion)
+    {
+        m_targetOSVersion = std::move(targetOSVersion);
+    }
+
     MSStoreDownloadInfo MSStoreDownloadContext::GetDownloadInfo()
     {
 #ifndef WINGET_DISABLE_FOR_FUZZING
         auto displayCatalogPackage = DisplayCatalogDetails::CallDisplayCatalogAndGetPreferredPackage(m_productId, m_locale, m_architecture, GetAuthHeaders(m_displayCatalogAuthenticator));
-        auto downloadInfo = SfsClientDetails::CallSfsClientAndGetMSStoreDownloadInfo(displayCatalogPackage.WuCategoryId, m_architecture, m_platform);
+        auto downloadInfo = SfsClientDetails::CallSfsClientAndGetMSStoreDownloadInfo(displayCatalogPackage.WuCategoryId, m_architecture, m_platform, m_targetOSVersion);
         downloadInfo.ContentId = displayCatalogPackage.ContentId;
         return downloadInfo;
 #else

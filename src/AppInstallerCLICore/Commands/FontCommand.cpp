@@ -3,8 +3,8 @@
 #include "pch.h"
 #include "FontCommand.h"
 #include "Workflows/CompletionFlow.h"
-#include "Workflows/WorkflowBase.h"
 #include "Workflows/FontFlow.h"
+#include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
 namespace AppInstaller::CLI
@@ -15,6 +15,8 @@ namespace AppInstaller::CLI
     using namespace std::string_view_literals;
 
     Utility::LocIndView s_FontCommand_HelpLink = "https://aka.ms/winget-command-font"_liv;
+
+    // Base Font Command
 
     std::vector<std::unique_ptr<Command>> FontCommand::GetCommands() const
     {
@@ -43,17 +45,13 @@ namespace AppInstaller::CLI
         OutputHelp(context.Reporter);
     }
 
+    // FontListCommand
+
     std::vector<Argument> FontListCommand::GetArguments() const
     {
         return {
             Argument::ForType(Args::Type::Family),
-            Argument::ForType(Args::Type::Moniker),
-            Argument::ForType(Args::Type::Source),
-            Argument::ForType(Args::Type::Tag),
-            Argument::ForType(Args::Type::Exact),
-            Argument::ForType(Args::Type::AuthenticationMode),
-            Argument::ForType(Args::Type::AuthenticationAccount),
-            Argument::ForType(Args::Type::AcceptSourceAgreements),
+            Argument::ForType(Args::Type::Details),
         };
     }
 

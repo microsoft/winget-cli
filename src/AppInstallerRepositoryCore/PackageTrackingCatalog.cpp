@@ -17,6 +17,7 @@ namespace AppInstaller::Repository
     namespace
     {
         constexpr std::string_view c_PackageTrackingFileName = "installed.db";
+        constexpr std::string_view c_PackageTrackingCorruptedFileName = "installed-corrupted.db";
 
         std::string CreateNameForCPL(const std::string& pathName)
         {
@@ -32,18 +33,38 @@ namespace AppInstaller::Repository
         }
 
         // Call while holding the CrossProcessLock
+        SQLiteIndex CreateOnlyTrackingIndex(const std::filesystem::path& trackingDB)
+        {
+            return SQLiteIndex::CreateNew(trackingDB.u8string(), SQLite::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
+        }
+
+        // Call while holding the CrossProcessLock
         SQLiteIndex CreateOrOpenTrackingIndex(const std::filesystem::path& trackingDB)
         {
             if (!std::filesystem::exists(trackingDB))
             {
                 std::filesystem::create_directories(trackingDB.parent_path());
-                return SQLiteIndex::CreateNew(trackingDB.u8string(), SQLite::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
+                return CreateOnlyTrackingIndex(trackingDB);
             }
             else
             {
-                // TODO: Check schema version and upgrade as necessary when there is a relevant new schema.
-                //       Could write this all now but it will be better tested when there is a new schema.
-                return SQLiteIndex::Open(trackingDB.u8string(), SQLiteIndex::OpenDisposition::ReadWrite);
+                try
+                {
+                    // TODO: Check schema version and upgrade as necessary when there is a relevant new schema.
+                    //       Could write this all now but it will be better tested when there is a new schema.
+                    return SQLiteIndex::Open(trackingDB.u8string(), SQLiteIndex::OpenDisposition::ReadWrite);
+                }
+                catch(...)
+                {
+                    LOG_CAUGHT_EXCEPTION_MSG("Exception opening tracking catalog");
+                }
+
+                // Move existing database and create a new one
+                std::filesystem::path destination{ trackingDB };
+                destination.replace_filename(c_PackageTrackingCorruptedFileName);
+                SQLite::SQLiteStorageBase::RenameSQLiteDatabase(trackingDB, destination, true);
+
+                return CreateOnlyTrackingIndex(trackingDB);
             }
         }
 
@@ -205,11 +226,11 @@ namespace AppInstaller::Repository
     PackageTrackingCatalog::Version::~Version() = default;
 
     PackageTrackingCatalog::Version::Version(PackageTrackingCatalog& catalog, std::shared_ptr<implementation>&& value) :
-        m_catalog(catalog), m_implementation(std::move(value)) {}
+        m_catalog(&catalog), m_implementation(std::move(value)) {}
 
     void PackageTrackingCatalog::Version::SetMetadata(PackageVersionMetadata metadata, const Utility::NormalizedString& value)
     {
-        auto& index = m_catalog.m_implementation->Source->GetIndex();
+        auto& index = m_catalog->m_implementation->Source->GetIndex();
         index.SetMetadataByManifestId(m_implementation->Id, metadata, value);
     }
 
@@ -286,6 +307,13 @@ namespace AppInstaller::Repository
             }
         }
     }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    std::filesystem::path PackageTrackingCatalog::GetFilePath() const
+    {
+        return m_implementation->Source->GetIndex().GetContextData().Get<Schema::Property::DatabaseFilePath>();
+    }
+#endif
 
     std::unique_ptr<ISourceFactory> PackageTrackingCatalogSourceFactory::Create()
     {

@@ -5,6 +5,7 @@
 #include "ContextOrchestrator.h"
 #include "COMContext.h"
 #include "Commands/COMCommand.h"
+#include "Public/ShutdownMonitoring.h"
 #include "winget/UserSettings.h"
 #include <Commands/RootCommand.h>
 
@@ -45,7 +46,9 @@ namespace AppInstaller::CLI::Execution
         return s_instance;
     }
 
-    ContextOrchestrator::ContextOrchestrator()
+    ContextOrchestrator::ContextOrchestrator() : ContextOrchestrator(std::thread::hardware_concurrency()) {}
+
+    ContextOrchestrator::ContextOrchestrator(unsigned int hardwareConcurrency)
     {
         ProgressCallback progress;
         m_installingWriteableSource = Repository::Source(Repository::PredefinedSource::Installing);
@@ -55,10 +58,9 @@ namespace AppInstaller::CLI::Execution
         // We always allow only one install at a time.
         // For download, if we can find the number of supported concurrent threads,
         // use that as the maximum (up to 3); otherwise use a single thread.
-        const auto supportedConcurrentThreads = std::thread::hardware_concurrency();
         const UINT32 maxDownloadThreads = 3;
         const UINT32 operationThreads = 1;
-        const UINT32 downloadThreads = std::min(supportedConcurrentThreads > 1 ? supportedConcurrentThreads - 1 : 1, maxDownloadThreads);
+        const UINT32 downloadThreads = std::min(hardwareConcurrency > 1 ? hardwareConcurrency - 1 : 1, maxDownloadThreads);
 
         AddCommandQueue(COMDownloadCommand::CommandName, downloadThreads);
         AddCommandQueue(OperationCommandQueueName, operationThreads);
@@ -66,7 +68,8 @@ namespace AppInstaller::CLI::Execution
 
     void ContextOrchestrator::AddCommandQueue(std::string_view commandName, UINT32 allowedThreads)
     {
-        m_commandQueues.emplace(commandName, std::make_unique<OrchestratorQueue>(commandName, allowedThreads));
+        std::lock_guard<std::mutex> lockQueue{ m_queueLock };
+        m_commandQueues.emplace(commandName, std::make_unique<OrchestratorQueue>(*this, commandName, allowedThreads));
     }
 
     _Requires_lock_held_(m_queueLock)
@@ -84,16 +87,25 @@ namespace AppInstaller::CLI::Execution
         return {};
     }
 
-    void ContextOrchestrator::EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item)
+    void ContextOrchestrator::EnqueueAndRunItem(const std::shared_ptr<OrchestratorQueueItem>& item)
     {
         std::lock_guard<std::mutex> lockQueue{ m_queueLock };
 
         if (item->IsOnFirstCommand())
         {
+            // Directly error on attempting to enqueue first time
+            THROW_HR_IF(ToHRESULT(m_disabledReason), !m_enabled);
+
             THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSTALL_ALREADY_RUNNING), FindById(item->GetId()));
 
             // Log the beginning of the item
             item->GetContext().GetThreadGlobals().GetTelemetryLogger().LogCommand(item->GetItemCommandName());
+        }
+        else if (!m_enabled)
+        {
+            // On subsequent command enqueues, cancel and complete the item
+            item->GetContext().Cancel(m_disabledReason, true);
+            item->HandleItemCompletion(*this);
         }
 
         std::string commandQueueName{ GetCommandQueueName(item->GetNextCommand().Name()) };
@@ -145,13 +157,103 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    _Requires_lock_held_(m_queueLock)
+    void ContextOrchestrator::RegisterForShutdownSynchronization()
+    {
+        static std::once_flag registerComponentOnceFlag;
+        std::call_once(registerComponentOnceFlag,
+            [&]()
+            {
+                using namespace ShutdownMonitoring;
+
+                ServerShutdownSynchronization::ComponentSystem component;
+                component.BlockNewWork = StaticDisable;
+                component.BeginShutdown = StaticCancelQueuedItems;
+                component.Wait = StaticWaitForRunningItems;
+
+                ServerShutdownSynchronization::AddComponent(component);
+            });
+    }
+
+    void ContextOrchestrator::StaticDisable(CancelReason reason)
+    {
+        Instance().Disable(reason);
+    }
+
+    void ContextOrchestrator::StaticCancelQueuedItems(CancelReason reason)
+    {
+        Instance().CancelQueuedItems(reason);
+    }
+
+    void ContextOrchestrator::StaticWaitForRunningItems()
+    {
+        Instance().WaitForRunningItems();
+    }
+
+    void ContextOrchestrator::Disable(CancelReason reason)
+    {
+        std::lock_guard<std::mutex> lock{ m_queueLock };
+        m_enabled = false;
+        m_disabledReason = reason;
+    }
+
+    void ContextOrchestrator::CancelQueuedItems(CancelReason reason)
+    {
+        std::lock_guard<std::mutex> lock{ m_queueLock };
+        for (const auto& queue : m_commandQueues)
+        {
+            queue.second->CancelAllItems(reason);
+        }
+    }
+
+    void ContextOrchestrator::WaitForRunningItems()
+    {
+        std::lock_guard<std::mutex> lock{ m_queueLock };
+        for (const auto& queue : m_commandQueues)
+        {
+            queue.second->WaitForEmptyQueue();
+        }
+    }
+
+    bool ContextOrchestrator::WaitForRunningItems(DWORD timeoutMilliseconds)
+    {
+        std::lock_guard<std::mutex> lock{ m_queueLock };
+        for (const auto& queue : m_commandQueues)
+        {
+            if (!queue.second->WaitForEmptyQueue(timeoutMilliseconds))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    std::string ContextOrchestrator::GetStatusString()
+    {
+        std::ostringstream stream;
+
+        std::lock_guard<std::mutex> lock{ m_queueLock };
+
+        if (!m_enabled)
+        {
+            stream << "Disabled due to " << ToIntegral(m_disabledReason) << std::endl;
+        }
+
+        for (const auto& queue : m_commandQueues)
+        {
+            stream << queue.second->GetStatusString();
+        }
+
+        return stream.str();
+    }
+
+    _Requires_lock_held_(m_itemLock)
     std::deque<std::shared_ptr<OrchestratorQueueItem>>::iterator OrchestratorQueue::FindIteratorById(const OrchestratorQueueItemId& comparisonQueueItemId)
     {
         return std::find_if(m_queueItems.begin(), m_queueItems.end(), [&comparisonQueueItemId](const std::shared_ptr<OrchestratorQueueItem>& item) {return (item->GetId().IsSame(comparisonQueueItemId)); });
     }
 
-    _Requires_lock_held_(m_queueLock)
+    _Requires_lock_held_(m_itemLock)
     std::shared_ptr<OrchestratorQueueItem> OrchestratorQueue::FindById(const OrchestratorQueueItemId& comparisonQueueItemId)
     {
         auto itr = FindIteratorById(comparisonQueueItemId);
@@ -163,11 +265,12 @@ namespace AppInstaller::CLI::Execution
         return {};
     }
 
-    void OrchestratorQueue::EnqueueItem(std::shared_ptr<OrchestratorQueueItem> item)
+    void OrchestratorQueue::EnqueueItem(const std::shared_ptr<OrchestratorQueueItem>& item)
     {
         {
-            std::lock_guard<std::mutex> lockQueue{ m_queueLock };
+            std::lock_guard<std::mutex> lockQueue{ m_itemLock };
             m_queueItems.push_back(item);
+            m_queueEmpty.ResetEvent();
         }
 
         // Add the package to the Installing source so that it can be queried using the Source interface.
@@ -176,28 +279,33 @@ namespace AppInstaller::CLI::Execution
         {
             try
             {
-                ContextOrchestrator::Instance().AddItemManifestToInstallingSource(*item);
+                m_orchestrator.AddItemManifestToInstallingSource(*item);
             }
             catch (...)
             {
-                std::lock_guard<std::mutex> lockQueue{ m_queueLock };
+                std::lock_guard<std::mutex> lockQueue{ m_itemLock };
                 auto itr = FindIteratorById(item->GetId());
                 if (itr != m_queueItems.end())
                 {
                     m_queueItems.erase(itr);
+
+                    if (m_queueItems.empty())
+                    {
+                        m_queueEmpty.SetEvent();
+                    }
                 }
                 throw;
             }
         }
 
         {
-            std::lock_guard<std::mutex> lockQueue{ m_queueLock };
+            std::lock_guard<std::mutex> lockQueue{ m_itemLock };
             item->SetState(OrchestratorQueueItemState::Queued);
         }
     }
 
-    OrchestratorQueue::OrchestratorQueue(std::string_view commandName, UINT32 allowedThreads) :
-        m_commandName(commandName), m_allowedThreads(allowedThreads)
+    OrchestratorQueue::OrchestratorQueue(ContextOrchestrator& orchestrator, std::string_view commandName, UINT32 allowedThreads) :
+        m_orchestrator(orchestrator), m_commandName(commandName), m_allowedThreads(allowedThreads)
     {
         m_threadPool.reset(CreateThreadpool(nullptr));
         THROW_LAST_ERROR_IF_NULL(m_threadPool);
@@ -216,7 +324,7 @@ namespace AppInstaller::CLI::Execution
         CloseThreadpoolCleanupGroupMembers(m_threadPoolCleanupGroup.get(), false, nullptr);
     }
 
-    void OrchestratorQueue::EnqueueAndRunItem(std::shared_ptr<OrchestratorQueueItem> item)
+    void OrchestratorQueue::EnqueueAndRunItem(const std::shared_ptr<OrchestratorQueueItem>& item)
     {
         EnqueueItem(item);
 
@@ -234,7 +342,7 @@ namespace AppInstaller::CLI::Execution
 
             // Try to find the item in the queue.
             {
-                std::lock_guard<std::mutex> lockQueue{ m_queueLock };
+                std::lock_guard<std::mutex> lockQueue{ m_itemLock };
                 item = FindById(itemId);
 
                 if (!item)
@@ -299,12 +407,69 @@ namespace AppInstaller::CLI::Execution
             {
                 // Remove item from this queue and add it to the queue for the next command.
                 RemoveItemInState(*item, OrchestratorQueueItemState::Running, false);
-                ContextOrchestrator::Instance().EnqueueAndRunItem(item);
+                m_orchestrator.EnqueueAndRunItem(item);
             }
         }
         catch (...)
         {
         }
+    }
+
+    void OrchestratorQueue::CancelAllItems(CancelReason reason)
+    {
+        std::lock_guard<std::mutex> lockQueue{ m_itemLock };
+
+        for (auto itr = m_queueItems.begin(); itr != m_queueItems.end(); itr++)
+        {
+            auto& item = *itr;
+
+            item->GetContext().Cancel(reason, true);
+
+            // This mimics ContextOrchestrator::CancelQueueItem, which speeds up the process of cancelling queued items
+            if (item->GetState() == OrchestratorQueueItemState::Queued)
+            {
+                item->SetState(OrchestratorQueueItemState::Cancelled);
+                item->HandleItemCompletion(m_orchestrator);
+            }
+        }
+    }
+
+    void OrchestratorQueue::WaitForEmptyQueue()
+    {
+        m_queueEmpty.wait();
+    }
+
+    bool OrchestratorQueue::WaitForEmptyQueue(DWORD timeoutMilliseconds)
+    {
+        return m_queueEmpty.wait(timeoutMilliseconds);
+    }
+
+    std::string OrchestratorQueue::GetStatusString()
+    {
+        std::ostringstream stream;
+        stream << m_commandName << '[' << m_allowedThreads << "]\n";
+
+        std::map<OrchestratorQueueItemState, size_t> stateCounts;
+        stateCounts[OrchestratorQueueItemState::NotQueued] = 0;
+        stateCounts[OrchestratorQueueItemState::Queued] = 0;
+        stateCounts[OrchestratorQueueItemState::Running] = 0;
+        stateCounts[OrchestratorQueueItemState::Cancelled] = 0;
+
+        {
+            std::lock_guard<std::mutex> lock{ m_itemLock };
+
+            for (const auto& item : m_queueItems)
+            {
+                stateCounts[item->GetState()] += 1;
+            }
+        }
+
+        for (const auto& stateCount : stateCounts)
+        {
+            stream << "  " << ToString(stateCount.first) << " : " << stateCount.second << std::endl;
+        }
+
+        return stream.str();
     }
 
     bool OrchestratorQueue::RemoveItemInState(const OrchestratorQueueItem& item, OrchestratorQueueItemState state, bool isGlobalRemove)
@@ -315,7 +480,7 @@ namespace AppInstaller::CLI::Execution
         bool foundItem = false;
 
         {
-            std::lock_guard<std::mutex> lockQueue{ m_queueLock };
+            std::lock_guard<std::mutex> lockQueue{ m_itemLock };
 
             // Look for the item. It's ok if the item is not found since multiple listeners may try to remove the same item.
             auto itr = FindIteratorById(item.GetId());
@@ -330,6 +495,11 @@ namespace AppInstaller::CLI::Execution
                 {
                     (*itr)->SetCurrentQueue(nullptr);
                     m_queueItems.erase(itr);
+
+                    if (m_queueItems.empty())
+                    {
+                        m_queueEmpty.SetEvent();
+                    }
                 }
                 else if (state == OrchestratorQueueItemState::Queued)
                 {
@@ -340,8 +510,7 @@ namespace AppInstaller::CLI::Execution
 
         if (foundItem && isGlobalRemove)
         {
-            ContextOrchestrator::Instance().RemoveItemManifestFromInstallingSource(item);
-            item.GetCompletedEvent().SetEvent();
+            item.HandleItemCompletion(m_orchestrator);
         }
 
         return foundItem;
@@ -366,6 +535,12 @@ namespace AppInstaller::CLI::Execution
         case PackageOperationType::Repair: return "root:repair"sv;
         default: return "unknown";
         }
+    }
+
+    void OrchestratorQueueItem::HandleItemCompletion(ContextOrchestrator& orchestrator) const
+    {
+        orchestrator.RemoveItemManifestFromInstallingSource(*this);
+        GetCompletedEvent().SetEvent();
     }
 
     std::unique_ptr<OrchestratorQueueItem> OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context, bool isUpgrade)
@@ -401,5 +576,17 @@ namespace AppInstaller::CLI::Execution
         std::unique_ptr<OrchestratorQueueItem> item = std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context), PackageOperationType::Repair);
         item->AddCommand(std::make_unique<::AppInstaller::CLI::COMRepairCommand>(RootCommand::CommandName));
         return item;
+    }
+
+    std::string_view ToString(OrchestratorQueueItemState state)
+    {
+        switch (state)
+        {
+        case OrchestratorQueueItemState::NotQueued: return "NotQueued";
+        case OrchestratorQueueItemState::Queued: return "Queued";
+        case OrchestratorQueueItemState::Running: return "Running";
+        case OrchestratorQueueItemState::Cancelled: return "Cancelled";
+        default: return "Unknown";
+        }
     }
 }

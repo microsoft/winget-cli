@@ -29,7 +29,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
             for (const ColumnInfo& value : values)
             {
-                ColumnBuilder columnBuilder(value.Name, Type::Int64);
+                ColumnBuilder columnBuilder(value.Name, value.Type);
 
                 if (!value.AllowNull)
                 {

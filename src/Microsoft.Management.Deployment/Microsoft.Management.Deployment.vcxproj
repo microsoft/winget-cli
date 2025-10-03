@@ -161,11 +161,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(UseProdCLSIDs)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>USE_PROD_CLSIDS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AddPackageCatalogOptions.h" />
     <ClInclude Include="AddPackageCatalogResult.h" />

@@ -279,21 +279,6 @@
       <SubSystem Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|x64'">Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(UseProdCLSIDs)' == 'true'">
-    <ClCompile>
-      <PreprocessorDefinitions>USE_PROD_CLSIDS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(WingetDisableTestHooks)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>AICLI_DISABLE_TEST_HOOKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(WingetDisableExperimentalFeatures)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>WINGET_DISABLE_EXPERIMENTAL_FEATURES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Argument.h" />
     <ClInclude Include="ChannelStreams.h" />
@@ -347,6 +332,7 @@
     <ClInclude Include="ContextOrchestrator.h" />
     <ClInclude Include="COMContext.h" />
     <ClInclude Include="Public\ConfigurationSetProcessorFactoryRemoting.h" />
+    <ClInclude Include="Public\ShutdownMonitoring.h" />
     <ClInclude Include="Sixel.h" />
     <ClInclude Include="Workflows\ConfigurationFlow.h" />
     <ClInclude Include="Workflows\DependenciesFlow.h" />
@@ -421,6 +407,7 @@
     <ClCompile Include="ConfigurationWingetDscModuleUnitValidation.cpp" />
     <ClCompile Include="ConfigureExportCommand.cpp" />
     <ClCompile Include="ContextOrchestrator.cpp" />
+    <ClCompile Include="ShutdownMonitoring.cpp" />
     <ClCompile Include="Sixel.cpp" />
     <ClCompile Include="Workflows\ConfigurationFlow.cpp" />
     <ClCompile Include="Workflows\DependenciesFlow.cpp" />

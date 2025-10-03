@@ -1478,8 +1478,8 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>No nested installers specified for this package</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>Only one non-portable nested installer can be specified for an archive installer</value>
+  <data name="MultipleUnsupportedNestedInstallersSpecified" xml:space="preserve">
+    <value>Only one nested installer can be specified for an archive installer unless it is a portable or font nested installer</value>
   </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>Incompatible command line arguments provided</value>
@@ -3189,7 +3189,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>List installed fonts</value>
   </data>
   <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>List all installed fonts, or full details of a specific font.</value>
+    <value>List all installed fonts, all font files, or full details of a specific font.</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>Version</value>
@@ -3389,5 +3389,73 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="PolicyEnableMcpServer" xml:space="preserve">
     <value>Enable Windows Package Manager MCP Server</value>
+  </data>
+  <data name="OSVersionDescription" xml:space="preserve">
+    <value>Target OS version</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED" xml:space="preserve">
+    <value>Failed installing one or more fonts.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED" xml:space="preserve">
+    <value>Font file is not supported and cannot be installed.</value>
+  </data>
+  <data name="FontFileNotSupported" xml:space="preserve">
+    <value>One or more fonts in the font package is not supported and cannot be installed.</value>
+  </data>
+  <data name="FontInstallFailed" xml:space="preserve">
+    <value>Font install failed; cleaning up.</value>
+  </data>
+  <data name="FontAlreadyInstalled" xml:space="preserve">
+    <value>Font already installed.</value>
+  </data>
+  <data name="FontPackage" xml:space="preserve">
+    <value>Package Id</value>
+  </data>
+  <data name="FontWinGetSupported" xml:space="preserve">
+    <value>WinGet Supported</value>
+  </data>
+  <data name="FontTitle" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND" xml:space="preserve">
+    <value>Font file not found.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED" xml:space="preserve">
+    <value>Font uninstall failed. The font may not be in a good state. Try uninstalling after a restart.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED" xml:space="preserve">
+    <value>Font validation failed.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED" xml:space="preserve">
+    <value>Font rollback failed. The font may not be in a good state. Try uninstalling after a restart.</value>
+  </data>
+  <data name="FontDetailsArgumentDescription" xml:space="preserve">
+    <value>Show font file detailed information.</value>
+  </data>
+  <data name="FontValidationFailed" xml:space="preserve">
+    <value>Validation of the font package failed.</value>
+  </data>
+  <data name="FontRollbackFailed" xml:space="preserve">
+    <value>Rollback attempt for failed font install was unsuccessful. A restart may be required to successfully uninstall the font.</value>
+  </data>
+  <data name="FontUninstallFailed" xml:space="preserve">
+    <value>Font package uninstall failed. This is often due to the fonts being in use by the system or an application. Uninstall may be successful after restarting your computer.</value>
+  </data>
+  <data name="FontStatusOK" xml:space="preserve">
+    <value>OK</value>
+    <comment>"OK" means the font is in a good healthy state</comment>
+  </data>
+  <data name="FontStatusCorrupt" xml:space="preserve">
+    <value>Corrupt</value>
+    <comment>"Corrupt" refers to an install that is in a corrupted or bad state, and needs repair.</comment>
+  </data>
+  <data name="FontStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="FontStatusUnknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED" xml:space="preserve">
+    <value>Font package is already installed.</value>
   </data>
 </root>

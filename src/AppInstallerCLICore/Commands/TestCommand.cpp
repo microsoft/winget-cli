@@ -8,8 +8,10 @@
 #include "AppInstallerRuntime.h"
 #include "TableOutput.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
+#include "Public/ShutdownMonitoring.h"
 #include "Workflows/ConfigurationFlow.h"
 #include "Workflows/MSStoreInstallerHandler.h"
+#include <winget/RepositorySource.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 
 using namespace AppInstaller::CLI::Workflow;
@@ -19,16 +21,16 @@ namespace AppInstaller::CLI
 {
     namespace
     {
-        void LogAndReport(Execution::Context& context, const std::string& message)
+        void LogAndReport(Execution::Context& context, std::string_view message)
         {
-            AICLI_LOG(CLI, Info, << message);
             context.Reporter.Info() << message << std::endl;
+            AICLI_LOG(CLI, Info, << message);
         }
 
         HRESULT WaitForShutdown(Execution::Context& context)
         {
             LogAndReport(context, "Waiting for app shutdown event");
-            if (!Execution::WaitForAppShutdownEvent())
+            if (!ShutdownMonitoring::TerminationSignalHandler::Instance()->WaitForAppShutdownEvent())
             {
                 LogAndReport(context, "Failed getting app shutdown event");
                 return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
@@ -40,7 +42,7 @@ namespace AppInstaller::CLI
 
         HRESULT AppShutdownWindowMessage(Execution::Context& context)
         {
-            auto windowHandle = Execution::GetWindowHandle();
+            auto windowHandle = ShutdownMonitoring::TerminationSignalHandler::Instance()->GetWindowHandle();
 
             if (windowHandle == NULL)
             {
@@ -216,6 +218,65 @@ namespace AppInstaller::CLI
                     InvokeFindUnitProcessors;
             }
         };
+
+        struct TestCanUnloadNowCommand final : public Command
+        {
+            TestCanUnloadNowCommand(std::string_view parent) : Command("can-unload-now", {}, parent, Visibility::Hidden) {}
+
+            Resource::LocString ShortDescription() const override
+            {
+                return "Test DllCanUnloadNow"_lis;
+            }
+
+            Resource::LocString LongDescription() const override
+            {
+                return "Verifies that the function that implements the inproc DllCanUnloadNow properly blocks unload due to static storage object."_lis;
+            }
+
+        protected:
+            void ExecuteInternal(Execution::Context& context) const override
+            {
+                Repository::Source source{ Repository::PredefinedSource::Installed };
+
+                ProgressCallback progress;
+                source.Open(progress);
+
+                HMODULE self = GetModuleHandle(L"WindowsPackageManager.dll");
+                if (!self)
+                {
+                    LogAndReport(context, "Couldn't get WindowsPackageManager module");
+                    return;
+                }
+
+                auto WindowsPackageManagerInProcModuleTerminate = reinterpret_cast<bool (__stdcall *)()>(GetProcAddress(self, "WindowsPackageManagerInProcModuleTerminate"));
+
+                // Report the object counts, attempt to terminate, report the object counts again
+                ReportObjectCounts(context);
+                LogAndReport(context, WindowsPackageManagerInProcModuleTerminate() ? "DllCanUnloadNow" : "DllCannotUnloadNow");
+                ReportObjectCounts(context);
+            }
+
+        private:
+            void ReportObjectCounts(Execution::Context& context) const
+            {
+                std::ostringstream stream;
+                stream << "Internal objects: " << GetInternalObjectCount() << '\n';
+                stream << "External objects: " << GetExternalObjectCount();
+
+                LogAndReport(context, stream.str());
+            }
+
+            uint32_t GetInternalObjectCount() const
+            {
+                return winrt::get_module_lock().operator unsigned int();
+            }
+
+            unsigned long GetExternalObjectCount() const
+            {
+                auto module = Microsoft::WRL::GetModuleBase();
+                return module ? module->GetObjectCount() : 0;
+            }
+        };
     }
 
     std::vector<std::unique_ptr<Command>> TestCommand::GetCommands() const
@@ -225,6 +286,7 @@ namespace AppInstaller::CLI
                 std::make_unique<TestAppShutdownCommand>(FullName()),
                 std::make_unique<TestConfigurationExportCommand>(FullName()),
                 std::make_unique<TestConfigurationFindUnitProcessorsCommand>(FullName()),
+                std::make_unique<TestCanUnloadNowCommand>(FullName()),
             });
     }
 

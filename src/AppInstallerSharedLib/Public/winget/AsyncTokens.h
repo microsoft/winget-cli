@@ -16,6 +16,7 @@ namespace AppInstaller::WinRT
 
             virtual bool IsCancelled() const noexcept = 0;
             virtual void Callback(winrt::delegate<>&& callback) const noexcept = 0;
+            virtual void Cancel() noexcept = 0;
         };
 
         // Type containing winrt cancellation token wrapper.
@@ -36,6 +37,13 @@ namespace AppInstaller::WinRT
                 m_token.callback(std::move(callback));
             }
 
+            void Cancel() noexcept override
+            {
+                // This is a bit of a hack, but the cancellation_token provides no access to the underlying promise for the purpose of cancellation.
+                static_assert(sizeof(Token) == sizeof(Promise*), "We expect that the cancellation_token has only 1 member and it is a Promise*");
+                (*reinterpret_cast<Promise**>(&m_token))->Cancel();
+            }
+
         private:
             Token m_token;
         };
@@ -52,7 +60,7 @@ namespace AppInstaller::WinRT
         template <typename Promise>
         AsyncCancellation(winrt::impl::cancellation_token<Promise>&& token)
         {
-            m_token = std::make_unique<details::AsyncCancellationT<Promise>>(std::move(token));
+            m_token = std::make_shared<details::AsyncCancellationT<Promise>>(std::move(token));
         }
 
         // Returns true if the operation has been cancelled, false if not.
@@ -80,8 +88,13 @@ namespace AppInstaller::WinRT
             }
         }
 
+        std::weak_ptr<details::AsyncCancellationTypeErasure> GetWeak()
+        {
+            return m_token;
+        }
+
     private:
-        std::unique_ptr<details::AsyncCancellationTypeErasure> m_token;
+        std::shared_ptr<details::AsyncCancellationTypeErasure> m_token;
     };
 
     namespace details
@@ -165,6 +178,13 @@ namespace AppInstaller::WinRT
             AsyncCancellation(std::move(cancellation))
         {
             m_token = std::make_unique<details::AsyncProgressEventHandlerT<ResultT, ProgressT>>(std::move(progress));
+        }
+
+        // Create a cancellation only object.
+        template <typename Promise>
+        AsyncProgress(winrt::impl::cancellation_token<Promise>&& cancellation) :
+            AsyncCancellation(std::move(cancellation))
+        {
         }
 
         // Sends progress if this object is not empty.

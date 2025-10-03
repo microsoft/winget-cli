@@ -133,6 +133,19 @@ std::vector<SFS::AppContent> GetSfsAppContentsOverrideFunction(std::string_view 
             dependencyX64);
         dependencyPackages.emplace_back(std::move(*dependencyX64));
 
+        // Lower target OS dependency
+        std::unique_ptr<SFS::AppFile> dependencyX64_lower;
+        std::ignore = SFS::AppFile::Make(
+            wuCategoryIdStr + ".appx",
+            "https://NotUsed/" + wuCategoryIdStr + "/dependency/x64",
+            100,
+            { { SFS::HashType::Sha256, base64EncodedSha256 } },
+            { SFS::Architecture::Amd64 },
+            { "Universal=9.0.0.0" },
+            wuCategoryIdStr + ".Dependency_0.9.3.4_x64__8wekyb3d8bbwe",
+            dependencyX64_lower);
+        dependencyPackages.emplace_back(std::move(*dependencyX64_lower));
+
         std::unique_ptr<SFS::AppFile> dependencyArm;
         std::ignore = SFS::AppFile::Make(
             wuCategoryIdStr + ".appx",
@@ -165,6 +178,19 @@ std::vector<SFS::AppContent> GetSfsAppContentsOverrideFunction(std::string_view 
             wuCategoryIdStr + "_1.0.0.0_x64__8wekyb3d8bbwe",
             packageX64);
         packages.emplace_back(std::move(*packageX64));
+
+        // Good candidate x64, lower minimum OS version, lower package version
+        std::unique_ptr<SFS::AppFile> packageX64_lower;
+        std::ignore = SFS::AppFile::Make(
+            wuCategoryIdStr + ".appx",
+            "https://NotUsed/" + wuCategoryIdStr + "/x64",
+            100,
+            { { SFS::HashType::Sha256, base64EncodedSha256 } },
+            { SFS::Architecture::Amd64 },
+            { "Desktop=9.0.0.0" },
+            wuCategoryIdStr + "_0.9.0.0_x64__8wekyb3d8bbwe",
+            packageX64_lower);
+        packages.emplace_back(std::move(*packageX64_lower));
 
         // Good candidate arm
         std::unique_ptr<SFS::AppFile> packageArm;
@@ -594,4 +620,44 @@ TEST_CASE("MSStoreDownloadFlow_Fail_Licensing_Forbidden", "[MSStoreDownloadFlow]
     download.Execute(context);
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN);
     INFO(downloadOutput.str());
+}
+
+TEST_CASE("MSStoreDownloadFlow_Success_TargetOSVersion", "[MSStoreDownloadFlow][workflow]")
+{
+    TestCommon::TempDirectory tempDirectory("TestDownloadDirectory", false);
+
+    std::ostringstream downloadOutput;
+    TestContext context{ downloadOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideDownloadInstallerFileForMSStoreDownload(context);
+    TestHook::SetDisplayCatalogHttpPipelineStage_Override displayCatalogOverride(GetTestRestRequestHandler(web::http::status_codes::OK, TestDisplayCatalogResponse));
+    TestHook::SetSfsClientAppContents_Override sfsClientOverride({ &GetSfsAppContentsOverrideFunction });
+    TestHook::SetLicensingHttpPipelineStage_Override licensingOverride(GetTestRestRequestHandler(web::http::status_codes::OK, TestLicensingResponse));
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("DownloadFlowTest_MSStore.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::DownloadDirectory, tempDirectory);
+    context.Args.AddArg(Execution::Args::Type::Locale, "en-US"sv);
+    context.Args.AddArg(Execution::Args::Type::Platform, "Windows.Desktop"sv);
+    context.Args.AddArg(Execution::Args::Type::OSVersion, "9.0.0.0"sv);
+
+    DownloadCommand download({});
+    download.Execute(context);
+    REQUIRE(context.GetTerminationHR() == S_OK);
+    INFO(downloadOutput.str());
+
+    // Verify downloaded files
+    REQUIRE(std::filesystem::exists(tempDirectory.GetPath()));
+    REQUIRE(std::filesystem::exists(tempDirectory.GetPath() / L"Dependencies"));
+    REQUIRE(std::filesystem::exists(tempDirectory.GetPath() / L"Dependencies" / L"TestCategoryIdEnglish.Dependency_0.9.3.4_Universal_X64.appx"));
+    REQUIRE_FALSE(std::filesystem::exists(tempDirectory.GetPath() / L"Dependencies" / L"TestCategoryIdEnglish.Dependency_1.2.3.4_Universal_Arm.appx"));
+    REQUIRE(std::filesystem::exists(tempDirectory.GetPath() / L"TestCategoryIdEnglish_0.9.0.0_Desktop_X64.appx"));
+    REQUIRE_FALSE(std::filesystem::exists(tempDirectory.GetPath() / L"TestCategoryIdEnglish_1.0.0.0_Desktop_Arm.appx"));
+    REQUIRE_FALSE(std::filesystem::exists(tempDirectory.GetPath() / L"TestCategoryIdEnglish.IoT_2.0.0.0_IoT_Arm.appx"));
+
+    // Verify license
+    REQUIRE(std::filesystem::exists(tempDirectory.GetPath() / L"9WZDNCRFJ364_License.xml"));
+    std::ifstream licenseFile(tempDirectory.GetPath() / L"9WZDNCRFJ364_License.xml");
+    REQUIRE(licenseFile.is_open());
+    std::string licenseFileStr;
+    std::getline(licenseFile, licenseFileStr);
+    REQUIRE(licenseFileStr == LicenseContent);
 }

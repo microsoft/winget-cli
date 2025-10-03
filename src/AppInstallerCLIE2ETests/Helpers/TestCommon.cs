@@ -356,6 +356,90 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
+        /// Gets the fonts directory based on scope.
+        /// </summary>
+        /// <param name="scope">Scope.</param>
+        /// <returns>The path of the fonts directory.</returns>
+        public static string GetFontsDirectory(Scope scope)
+        {
+            if (scope == Scope.Machine)
+            {
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Fonts");
+            }
+            else
+            {
+                return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "Windows", "Fonts");
+            }
+        }
+
+        /// <summary>
+        /// Verify font package.
+        /// </summary>
+        /// <param name="packageName">Name of the package.</param>
+        /// <param name="packageVersion">Name of the package version.</param>
+        /// <param name="scope">Scope.</param>
+        /// <param name="shouldExist">If package should exist.</param>
+        public static void VerifyFontPackage(
+            string packageName,
+            string packageVersion,
+            Scope scope = Scope.User,
+            bool shouldExist = true)
+        {
+            RegistryKey baseKey = (scope == Scope.Machine) ? Registry.LocalMachine : Registry.CurrentUser;
+
+            var fileList = new List<string>();
+            using (RegistryKey fontsRegistryKey = baseKey.OpenSubKey(Constants.FontsSubKey, true))
+            {
+                using var winGetRootKey = fontsRegistryKey.OpenSubKey("Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
+                if (shouldExist)
+                {
+                    Assert.IsNotNull(winGetRootKey);
+                }
+                else
+                {
+                    return;
+                }
+
+                using var packageNameSubkey = winGetRootKey.OpenSubKey(packageName);
+                if (shouldExist)
+                {
+                    Assert.IsNotNull(packageNameSubkey);
+                }
+
+                if (packageNameSubkey is not null)
+                {
+                    using var versionSubkey = packageNameSubkey.OpenSubKey(packageVersion);
+
+                    if (shouldExist)
+                    {
+                        Assert.IsNotNull(versionSubkey);
+                    }
+                    else
+                    {
+                        Assert.IsNull(versionSubkey);
+                    }
+
+                    if (versionSubkey is not null)
+                    {
+                        var valueNames = versionSubkey.GetValueNames();
+                        foreach (var valueName in valueNames)
+                        {
+                            fileList.Add(versionSubkey.GetValue(valueName).ToString());
+                        }
+
+                        Assert.AreEqual(valueNames.Length, fileList.Count);
+                    }
+                }
+            }
+
+            // Verify each package file we expect to exist actually exists.
+            foreach (var file in fileList)
+            {
+                Assert.IsTrue(File.Exists(file));
+            }
+        }
+
+        /// <summary>
         /// Verify portable package.
         /// </summary>
         /// <param name="installDir">Install dir.</param>

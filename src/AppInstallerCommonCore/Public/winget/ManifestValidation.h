@@ -75,6 +75,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(SchemaHeaderManifestVersionMismatch);
         WINGET_DEFINE_RESOURCE_STRINGID(SchemaHeaderUrlPatternMismatch);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidPortableFiletype);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidFontFiletype);
     }
 
     struct ValidationError
@@ -250,8 +251,6 @@ namespace AppInstaller::Manifest
         mutable std::string m_manifestErrorMessage;
         bool m_warningOnly;
     };
-
-    static const std::unordered_set<std::filesystem::path> s_AllowedPortableFiletypes = { L".exe" };
 
     // fullValidation: bool to set if manifest validation should perform extra validation that is not required for reading a manifest.
     std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation = true);

@@ -166,11 +166,26 @@ struct CompositeTestSetup
         Composite.AddAvailableSource(Source{ Available });
     }
 
-    SearchResult Search()
+    SearchResult Search(bool disableDataChecks = false)
     {
+        size_t initialCountOfCallsRequiringVersionData = Available->CountOfCallsRequiringVersionData;
+        size_t initialCountOfCallsRequiringManifestData = Available->CountOfCallsRequiringManifestData;
+
         SearchRequest request;
         request.Query = RequestMatch(MatchType::Exact, s_Everything_Query);
-        return Composite.Search(request);
+        auto result = Composite.Search(request);
+
+        // We want to prevent calls to these functions for Search as they can require network or I/O activity.
+        size_t countOfCallsRequiringVersionData = Available->CountOfCallsRequiringVersionData - initialCountOfCallsRequiringVersionData;
+        size_t countOfCallsRequiringManifestData = Available->CountOfCallsRequiringManifestData - initialCountOfCallsRequiringManifestData;
+        if (!disableDataChecks && (countOfCallsRequiringVersionData || countOfCallsRequiringManifestData))
+        {
+            std::ostringstream stream;
+            stream << "Version data calls [" << countOfCallsRequiringVersionData << "] : Manifest data calls [" << countOfCallsRequiringManifestData << "]";
+            FAIL(stream.str());
+        }
+
+        return result;
     }
 
     TestPackageHelper MakeInstalled(std::shared_ptr<ISource> source)
@@ -572,7 +587,8 @@ TEST_CASE("CompositePackage_AvailableVersions_ChannelFilteredOut", "[CompositeSo
         return result;
     };
 
-    SearchResult result = setup.Search();
+    // Disable data checks as we call one of the data methods as validation in the search
+    SearchResult result = setup.Search(true);
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetAvailable().size() == 1);
@@ -614,7 +630,8 @@ TEST_CASE("CompositePackage_AvailableVersions_NoChannelFilteredOut", "[Composite
         return result;
     };
 
-    SearchResult result = setup.Search();
+    // Disable data checks as we call one of the data methods as validation in the search
+    SearchResult result = setup.Search(true);
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetAvailable().size() == 1);

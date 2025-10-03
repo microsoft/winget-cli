@@ -21,8 +21,6 @@ configuration:
               - labelAdded:
                   label: Area-Build
               - labelAdded:
-                  label: Area-COM-API
-              - labelAdded:
                   label: Area-External
               - labelAdded:
                   label: Area-GPO
@@ -53,35 +51,7 @@ configuration:
               - labelAdded:
                   label: Breaking-Change
               - labelAdded:
-                  label: Command-Configure
-              - labelAdded:
-                  label: Command-Download
-              - labelAdded:
-                  label: Command-Export
-              - labelAdded:
-                  label: Command-Import
-              - labelAdded:
-                  label: Command-Install
-              - labelAdded:
-                  label: Command-List
-              - labelAdded:
-                  label: Command-Pin
-              - labelAdded:
-                  label: Command-Search
-              - labelAdded:
-                  label: Command-Show
-              - labelAdded:
-                  label: Command-Source
-              - labelAdded:
-                  label: Command-Uninstall
-              - labelAdded:
-                  label: Command-Upgrade
-              - labelAdded:
-                  label: Command-Validate
-              - labelAdded:
                   label: Dependencies
-              - labelAdded:
-                  label: DSC-Resource
               - labelAdded:
                   label: Experimental
               - labelAdded:
@@ -98,8 +68,6 @@ configuration:
                   label: Needs-Author-Feedback
               - labelAdded:
                   label: Portable
-              - labelAdded:
-                  label: PowerShell
               - labelAdded:
                   label: Public-Service-Announcement
               - labelAdded:

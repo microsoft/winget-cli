@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="AppShutdownTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
@@ -33,6 +34,12 @@ namespace AppInstallerCLIE2ETests
             if (!TestCommon.ExecutingAsAdministrator && TestCommon.IsCIEnvironment)
             {
                 Assert.Ignore("This test won't work on Window Server as non-admin");
+            }
+
+            if (!Environment.Is64BitProcess)
+            {
+                // My guess is that HAM terminates us faster after the CTRL-C on x86...
+                Assert.Ignore("This test is flaky when run as x86.");
             }
 
             if (string.IsNullOrEmpty(TestSetup.Parameters.AICLIPackagePath))
@@ -72,7 +79,7 @@ namespace AppInstallerCLIE2ETests
             // This just waits for the app termination event.
             var testCmdTask = new Task<TestCommon.RunCommandResult>(() =>
             {
-                return TestCommon.RunAICLICommand("test", "appshutdown", timeOut: 300000, throwOnTimeout: false);
+                return TestCommon.RunAICLICommand("test", "appshutdown --verbose", timeOut: 300000, throwOnTimeout: false);
             });
 
             // Register the app with the updated version.
@@ -94,6 +101,25 @@ namespace AppInstallerCLIE2ETests
             // The ctrl-c command terminates the batch file before the exit code file gets created.
             // Look for the output.
             Assert.True(testCmdTask.Result.StdOut.Contains("Succeeded waiting for app shutdown event"));
+        }
+
+        /// <summary>
+        /// Runs winget test can-unload-now expecting that it cannot be unloaded.
+        /// </summary>
+        [Test]
+        public void CanUnloadNowTest()
+        {
+            var result = TestCommon.RunAICLICommand("test", "can-unload-now --verbose");
+
+            var lines = result.StdOut.Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+            Assert.AreEqual(5, lines.Length);
+            Assert.True(lines[0].Contains("Internal objects:"));
+            Assert.False(lines[0].Contains("Internal objects: 0"));
+            Assert.True(lines[1].Contains("External objects: 0"));
+            Assert.True(lines[2].Contains("DllCanUnloadNow"));
+            Assert.True(lines[3].Contains("Internal objects: 0"));
+            Assert.True(lines[4].Contains("External objects: 0"));
         }
     }
 }

@@ -319,21 +319,6 @@
       <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(WingetDisableTestHooks)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>AICLI_DISABLE_TEST_HOOKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(WingetDisableExperimentalFeatures)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>WINGET_DISABLE_EXPERIMENTAL_FEATURES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(WingetEnableReleaseBuild)'=='true'">
-    <ClCompile>
-      <PreprocessorDefinitions>WINGET_ENABLE_RELEASE_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ICU\SQLiteICU.h" />
     <ClInclude Include="pch.h" />
@@ -349,7 +334,9 @@
     <ClInclude Include="Public\winget\AsyncTokens.h" />
     <ClInclude Include="Public\winget\Certificates.h" />
     <ClInclude Include="Public\winget\Compression.h" />
+    <ClInclude Include="Public\winget\COMStaticStorage.h" />
     <ClInclude Include="Public\winget\ConfigurationSetProcessorHandlers.h" />
+    <ClInclude Include="Public\winget\DetectMismatch.h" />
     <ClInclude Include="Public\winget\Filesystem.h" />
     <ClInclude Include="Public\winget\GroupPolicy.h" />
     <ClInclude Include="Public\winget\IConfigurationStaticsInternals.h" />
@@ -379,6 +366,7 @@
     <ClCompile Include="AppInstallerStrings.cpp" />
     <ClCompile Include="Certificates.cpp" />
     <ClCompile Include="Compression.cpp" />
+    <ClCompile Include="COMStaticStorage.cpp" />
     <ClCompile Include="DateTime.cpp" />
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="Filesystem.cpp" />

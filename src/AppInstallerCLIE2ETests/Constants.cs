@@ -27,6 +27,7 @@ namespace AppInstallerCLIE2ETests
         public const string MsiInstallerPathParameter = "MsiTestInstallerPath";
         public const string MsiInstallerV2PathParameter = "MsiTestInstallerV2Path";
         public const string MsixInstallerPathParameter = "MsixTestInstallerPath";
+        public const string FontPathParameter = "FontTestPath";
         public const string PackageCertificatePathParameter = "PackageCertificatePath";
         public const string PowerShellModulePathParameter = "PowerShellModulePath";
         public const string SkipTestSourceParameter = "SkipTestSource";
@@ -60,6 +61,7 @@ namespace AppInstallerCLIE2ETests
         public const string MsiInstallerV2FileName = "AppInstallerTestMsiInstallerV2.msi";
         public const string MsixInstallerFileName = "AppInstallerTestMsixInstaller.msix";
         public const string ZipInstallerFileName = "AppInstallerTestZipInstaller.zip";
+        public const string FontFileName = "AppInstallerTestFont.ttf";
         public const string ModifyRepairInstaller = "AppInstallerTest.TestModifyRepair";
         public const string IndexPackage = "source.msix";
         public const string MakeAppx = "makeappx.exe";
@@ -118,6 +120,7 @@ namespace AppInstallerCLIE2ETests
         public const string UninstallSubKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
         public const string PathSubKey_User = @"Environment";
         public const string PathSubKey_Machine = @"SYSTEM\CurrentControlSet\Control\Session Manager\Environment";
+        public const string FontsSubKey = @"Software\Microsoft\Windows NT\CurrentVersion\Fonts";
 
         // User settings
         public const string ArchiveExtractionMethod = "archiveExtractionMethod";
@@ -152,6 +155,7 @@ namespace AppInstallerCLIE2ETests
             public const int OPC_E_ZIP_MISSING_END_OF_CENTRAL_DIRECTORY = unchecked((int)0x8051100F);
             public const int ERROR_OLD_WIN_VERSION = unchecked((int)0x8007047E);
             public const int HTTP_E_STATUS_NOT_FOUND = unchecked((int)0x80190194);
+            public const int E_ABORT = unchecked((int)0x80004004);
 
             // AICLI custom HRESULTs
             public const int ERROR_INTERNAL_ERROR = unchecked((int)0x8A150001);
@@ -273,6 +277,8 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED = unchecked((int)0x8A15007D);
 
             public const int ERROR_INSTALLER_ZERO_BYTE_FILE = unchecked((int)0x8A150086);
+            public const int ERROR_FONT_INSTALL_FAILED = unchecked((int)0x8A150087);
+            public const int ERROR_FONT_FILE_NOT_SUPPORTED = unchecked((int)0x8A150088);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);

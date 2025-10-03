@@ -22,6 +22,8 @@ namespace AppInstaller::Repository::Microsoft::details::V2
         // Inherited via IPackage
         Utility::LocIndString GetProperty(PackageProperty property) const;
 
+        std::vector<Utility::LocIndString> GetMultiProperty(PackageMultiProperty property) const override;
+
         std::vector<PackageVersionKey> GetVersionKeys() const override;
 
         std::shared_ptr<IPackageVersion> GetLatestVersion() const override;
@@ -43,7 +45,7 @@ namespace AppInstaller::Repository::Microsoft::details::V2
         // Contains the information needed to map a version key to it's rows.
         struct MapKey
         {
-            Utility::NormalizedString Version;
+            Utility::Version Version;
             Utility::NormalizedString Channel;
 
             bool operator<(const MapKey& other) const;

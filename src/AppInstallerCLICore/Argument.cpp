@@ -203,6 +203,8 @@ namespace AppInstaller::CLI
         // Font command
         case Execution::Args::Type::Family:
             return { type, "family"_liv, ArgTypeCategory::None };
+        case Execution::Args::Type::Details:
+            return { type, "details"_liv, ArgTypeCategory::None };
 
         // Configuration commands
         case Execution::Args::Type::ConfigurationFile:
@@ -265,6 +267,8 @@ namespace AppInstaller::CLI
             return { type, "platform"_liv, ArgTypeCategory::None };
         case Execution::Args::Type::SkipMicrosoftStorePackageLicense:
             return { type, "skip-microsoft-store-package-license"_liv, "skip-license"_liv, ArgTypeCategory::None };
+        case Execution::Args::Type::OSVersion:
+            return { type, "os-version"_liv, ArgTypeCategory::None };
 
         // Common arguments
         case Execution::Args::Type::NoVT:
@@ -470,6 +474,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::NoProxyArgumentDescription, ArgumentType::Flag, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
         case Args::Type::Family:
             return Argument{ type, Resource::String::FontFamilyNameArgumentDescription, ArgumentType::Positional, false };
+        case Args::Type::Details:
+            return Argument{ type, Resource::String::FontDetailsArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::Correlation:
             return Argument{ type, Resource::String::CorrelationArgumentDescription, ArgumentType::Standard, Argument::Visibility::Hidden };
         default:

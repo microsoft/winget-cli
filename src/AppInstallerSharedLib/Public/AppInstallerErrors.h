@@ -4,6 +4,9 @@
 #include <winget/LocIndependent.h>
 #include <wil/result_macros.h>
 
+// Errors is the most ubiquitous header; including the mismatch detection in it should reach everywhere.
+#include <winget/DetectMismatch.h>
+
 #ifndef WINGET_DISABLE_FOR_FUZZING
 #include <winrt/base.h>
 #endif
@@ -152,6 +155,13 @@
 #define APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED      ((HRESULT)0x8A150084)
 #define APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN       ((HRESULT)0x8A150085)
 #define APPINSTALLER_CLI_ERROR_INSTALLER_ZERO_BYTE_FILE             ((HRESULT)0x8A150086)
+#define APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED                  ((HRESULT)0x8A150087)
+#define APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED              ((HRESULT)0x8A150088)
+#define APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED               ((HRESULT)0x8A150089)
+#define APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND                  ((HRESULT)0x8A15008A)
+#define APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED                ((HRESULT)0x8A15008B)
+#define APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED               ((HRESULT)0x8A15008C)
+#define APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED                 ((HRESULT)0x8A15008D)
 
 // Install errors.
 #define APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE                   ((HRESULT)0x8A150101)

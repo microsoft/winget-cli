@@ -162,6 +162,10 @@ namespace AppInstaller::Manifest
         {
             result = InstallerTypeEnum::Portable;
         }
+        else if (inStrLower == "font")
+        {
+            result = InstallerTypeEnum::Font;
+        }
 
         return result;
     }
@@ -583,6 +587,8 @@ namespace AppInstaller::Manifest
             return "msstore"sv;
         case InstallerTypeEnum::Portable:
             return "portable"sv;
+        case InstallerTypeEnum::Font:
+            return "font"sv;
         }
 
         return "unknown"sv;
@@ -920,6 +926,7 @@ namespace AppInstaller::Manifest
     bool DoesInstallerTypeIgnoreScopeFromManifest(InstallerTypeEnum installerType)
     {
         return
+            installerType == InstallerTypeEnum::Font ||
             installerType == InstallerTypeEnum::Portable ||
             installerType == InstallerTypeEnum::Msix ||
             installerType == InstallerTypeEnum::MSStore;
@@ -928,6 +935,7 @@ namespace AppInstaller::Manifest
     bool DoesInstallerTypeRequireAdminForMachineScopeInstall(InstallerTypeEnum installerType)
     {
         return
+            installerType == InstallerTypeEnum::Font ||
             installerType == InstallerTypeEnum::Portable ||
             installerType == InstallerTypeEnum::MSStore ||
             installerType == InstallerTypeEnum::Msix;
@@ -952,6 +960,14 @@ namespace AppInstaller::Manifest
         return (installerType == InstallerTypeEnum::Portable);
     }
 
+    bool DoesInstallerTypeSupportMultipleNestedInstallers(InstallerTypeEnum installerType)
+    {
+        return (
+            installerType == InstallerTypeEnum::Portable ||
+            installerType == InstallerTypeEnum::Font
+            );
+    }
+
     bool IsNestedInstallerTypeSupported(InstallerTypeEnum nestedInstallerType)
     {
         return (
@@ -962,7 +978,8 @@ namespace AppInstaller::Manifest
             nestedInstallerType == InstallerTypeEnum::Wix ||
             nestedInstallerType == InstallerTypeEnum::Burn ||
             nestedInstallerType == InstallerTypeEnum::Portable ||
-            nestedInstallerType == InstallerTypeEnum::Msix
+            nestedInstallerType == InstallerTypeEnum::Msix ||
+            nestedInstallerType == InstallerTypeEnum::Font
             );
     }
 

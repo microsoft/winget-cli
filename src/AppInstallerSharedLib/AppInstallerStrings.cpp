@@ -97,6 +97,30 @@ namespace AppInstaller::Utility
             wil::unique_any<UBreakIterator*, decltype(ubrk_close), &ubrk_close> m_brk;
             int32_t m_currentBrk = 0;
         };
+
+        template <typename StringType>
+        std::vector<StringType> SplitTemplate(const StringType& input, typename StringType::value_type separator, bool trim)
+        {
+            std::vector<StringType> result;
+            size_t startIndex = 0;
+            size_t endIndex = 0;
+
+            while ((endIndex = input.find(separator, startIndex)) != StringType::npos)
+            {
+                StringType substring = input.substr(startIndex, endIndex - startIndex);
+
+                if (trim)
+                {
+                    Utility::Trim(substring);
+                }
+
+                result.emplace_back(std::move(substring));
+                startIndex = endIndex + 1;
+            }
+
+            result.emplace_back(trim ? Utility::Trim(input.substr(startIndex)) : input.substr(startIndex));
+            return result;
+        }
     }
 
     bool CaseInsensitiveEquals(std::string_view a, std::string_view b)
@@ -113,6 +137,11 @@ namespace AppInstaller::Utility
     {
         auto B = ToLower(b);
         return std::any_of(a.begin(), a.end(), [&](const std::string_view& s) { return ToLower(s) == B; });
+    }
+
+    bool StartsWith(std::wstring_view a, std::wstring_view b)
+    {
+        return a.length() >= b.length() && a.substr(0, b.length()) == b;
     }
 
     bool CaseInsensitiveStartsWith(std::string_view a, std::string_view b)
@@ -566,6 +595,33 @@ namespace AppInstaller::Utility
         return str;
     }
 
+    std::wstring_view& Trim(std::wstring_view& str)
+    {
+        if (!str.empty())
+        {
+            size_t begin = str.find_first_not_of(s_WideSpaceChars);
+            size_t end = str.find_last_not_of(s_WideSpaceChars);
+
+            if (begin == std::string_view::npos || end == std::string_view::npos)
+            {
+                str = {};
+            }
+            else if (begin != 0 || end != str.length() - 1)
+            {
+                str = str.substr(begin, (end - begin) + 1);
+            }
+        }
+
+        return str;
+    }
+
+    std::wstring_view Trim(std::wstring_view&& str)
+    {
+        std::wstring_view result = std::move(str);
+        Utility::Trim(result);
+        return result;
+    }
+
     std::string Trim(std::string&& str)
     {
         std::string result = std::move(str);
@@ -870,25 +926,12 @@ namespace AppInstaller::Utility
 
     std::vector<std::string> Split(const std::string& input, char separator, bool trim)
     {
-        std::vector<std::string> result;
-        size_t startIndex = 0;
-        size_t endIndex = 0;
+        return SplitTemplate(input, separator, trim);
+    }
 
-        while ((endIndex = input.find(separator, startIndex)) != std::string::npos)
-        {
-            std::string substring = input.substr(startIndex, endIndex - startIndex);
-
-            if (trim)
-            {
-                Utility::Trim(substring);
-            }
-
-            result.push_back(substring);
-            startIndex = endIndex + 1;
-        }
-
-        result.push_back(trim ? Utility::Trim(input.substr(startIndex)) : input.substr(startIndex));
-        return result;
+    std::vector<std::wstring_view> Split(std::wstring_view input, wchar_t separator, bool trim)
+    {
+        return SplitTemplate(input, separator, trim);
     }
 
     std::string_view ConvertBoolToString(bool value)

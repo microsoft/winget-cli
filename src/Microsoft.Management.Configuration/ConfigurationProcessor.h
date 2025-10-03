@@ -9,6 +9,7 @@
 #include "ConfigurationStatus.h"
 #include "Database/ConfigurationDatabase.h"
 #include <winget/AsyncTokens.h>
+#include "ShutdownSynchronization.h"
 #include <winget/ILifetimeWatcher.h>
 
 #include <functional>
@@ -111,35 +112,35 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void ConfigurationChange(const Configuration::ConfigurationSet& set, const Configuration::ConfigurationChangeData& data);
 
     private:
-        Windows::Foundation::Collections::IVector<Configuration::ConfigurationSet> GetConfigurationHistoryImpl(AppInstaller::WinRT::AsyncCancellation cancellation = {});
+        Windows::Foundation::Collections::IVector<Configuration::ConfigurationSet> GetConfigurationHistoryImpl(ShutdownAwareAsyncCancellation cancellation = {});
 
         GetConfigurationSetDetailsResult GetSetDetailsImpl(
             const Configuration::ConfigurationSet& configurationSet,
             ConfigurationUnitDetailFlags detailFlags,
-            AppInstaller::WinRT::AsyncProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> progress = {});
+            ShutdownAwareAsyncProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> progress = {});
 
         GetConfigurationUnitDetailsResult GetUnitDetailsImpl(const ConfigurationUnit& unit, ConfigurationUnitDetailFlags detailFlags);
 
         ApplyConfigurationSetResult ApplySetImpl(
             const Configuration::ConfigurationSet& configurationSet,
             ApplyConfigurationSetFlags flags,
-            AppInstaller::WinRT::AsyncProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> progress = {});
+            ShutdownAwareAsyncProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> progress = {});
 
         TestConfigurationSetResult TestSetImpl(
             const Configuration::ConfigurationSet& configurationSet,
-            AppInstaller::WinRT::AsyncProgress<TestConfigurationSetResult, TestConfigurationUnitResult> progress = {});
+            ShutdownAwareAsyncProgress<TestConfigurationSetResult, TestConfigurationUnitResult> progress = {});
 
-        GetConfigurationUnitSettingsResult GetUnitSettingsImpl(const ConfigurationUnit& unit, AppInstaller::WinRT::AsyncCancellation cancellation = {});
+        GetConfigurationUnitSettingsResult GetUnitSettingsImpl(const ConfigurationUnit& unit, ShutdownAwareAsyncCancellation cancellation = {});
 
-        GetAllConfigurationUnitSettingsResult GetAllUnitSettingsImpl(const ConfigurationUnit& unit, AppInstaller::WinRT::AsyncCancellation cancellation = {});
+        GetAllConfigurationUnitSettingsResult GetAllUnitSettingsImpl(const ConfigurationUnit& unit, ShutdownAwareAsyncCancellation cancellation = {});
 
-        Configuration::GetAllConfigurationUnitsResult GetAllUnitsImpl(const ConfigurationUnit& unit, AppInstaller::WinRT::AsyncCancellation cancellation = {});
+        Configuration::GetAllConfigurationUnitsResult GetAllUnitsImpl(const ConfigurationUnit& unit, ShutdownAwareAsyncCancellation cancellation = {});
 
-        Windows::Foundation::Collections::IVector<Configuration::IConfigurationUnitProcessorDetails> FindUnitProcessorsImpl(const Configuration::FindUnitProcessorsOptions& findOptions, AppInstaller::WinRT::AsyncCancellation cancellation = {});
+        Windows::Foundation::Collections::IVector<Configuration::IConfigurationUnitProcessorDetails> FindUnitProcessorsImpl(const Configuration::FindUnitProcessorsOptions& findOptions, ShutdownAwareAsyncCancellation cancellation = {});
 
-        Configuration::ApplyConfigurationUnitResult ApplyUnitImpl(const ConfigurationUnit& unit, AppInstaller::WinRT::AsyncCancellation cancellation = {});
+        Configuration::ApplyConfigurationUnitResult ApplyUnitImpl(const ConfigurationUnit& unit, ShutdownAwareAsyncCancellation cancellation = {});
 
-        Configuration::TestConfigurationUnitResult TestUnitImpl(const ConfigurationUnit& unit, AppInstaller::WinRT::AsyncCancellation cancellation = {});
+        Configuration::TestConfigurationUnitResult TestUnitImpl(const ConfigurationUnit& unit, ShutdownAwareAsyncCancellation cancellation = {});
 
         IConfigurationGroupProcessor GetSetGroupProcessor(const Configuration::ConfigurationSet& configurationSet);
 

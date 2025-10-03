@@ -115,6 +115,12 @@
     <Filter Include="Rest\Schema\1_10\Json">
       <UniqueIdentifier>{1a1efb9f-7332-4094-bb98-a4c51ea68b24}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rest\Schema\1_12">
+      <UniqueIdentifier>{c29ae113-5eb6-41af-b64d-fac925dcf2c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rest\Schema\1_12\Json">
+      <UniqueIdentifier>{2075b51e-aa11-473a-bae0-e0d4366f926b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -196,6 +202,9 @@
       <Filter>Microsoft\Schema\1_1</Filter>
     </ClInclude>
     <ClInclude Include="Microsoft\ARPHelper.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\FontHelper.h">
       <Filter>Microsoft</Filter>
     </ClInclude>
     <ClInclude Include="Microsoft\Schema\1_2\Interface.h">
@@ -486,6 +495,15 @@
     <ClInclude Include="Rest\Schema\1_10\Json\ManifestDeserializer.h">
       <Filter>Rest\Schema\1_10\Json</Filter>
     </ClInclude>
+    <ClInclude Include="Rest\Schema\1_12\Interface.h">
+      <Filter>Rest\Schema\1_12</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_12\Json\ManifestDeserializer.h">
+      <Filter>Rest\Schema\1_12\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\RestInformationCache.h">
+      <Filter>Rest</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -537,6 +555,9 @@
       <Filter>Microsoft\Schema\1_1</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\ARPHelper.cpp">
+      <Filter>Microsoft</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\FontHelper.cpp">
       <Filter>Microsoft</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_2\Interface_1_2.cpp">
@@ -757,6 +778,15 @@
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_10\Json\ManifestDeserializer_1_10.cpp">
       <Filter>Rest\Schema\1_10\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_12\RestInterface_1_12.cpp">
+      <Filter>Rest\Schema\1_12</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_12\Json\ManifestDeserializer_1_12.cpp">
+      <Filter>Rest\Schema\1_12\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\RestInformationCache.cpp">
+      <Filter>Rest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -7,7 +7,7 @@
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
   xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
-  IgnorableNamespaces="uap uap3 uap5 rescap">
+  IgnorableNamespaces="uap uap3 uap5 rescap desktop6">
   <Identity Name="WinGetDevCLI" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" Version="0.0.2.0" />
   <Properties>
     <DisplayName>WinGet Dev CLI</DisplayName>
@@ -137,11 +137,14 @@
         <Interface Name="Microsoft.Management.Configuration.SetProcessorFactory.IPwshConfigurationSetProcessorFactoryProperties" InterfaceId="2C298A30-BD3B-5D00-BCD1-2EB633AB7E3B" />
       </ProxyStub>
     </Extension>
-    <!-- This entry forces the package registration to process the windows.activatableClass.proxyStub extension above. -->
     <Extension Category="windows.activatableClass.inProcessServer">
       <InProcessServer>
-        <Path>WindowsPackageManager.dll</Path>
-        <ActivatableClass ActivatableClassId="Placeholder.Activatable.Class.Do.Not.Use" ThreadingModel="STA" />
+        <Path>Microsoft.Management.Configuration.dll</Path>
+        <ActivatableClass ActivatableClassId="Microsoft.Management.Configuration.ConfigurationUnit" ThreadingModel="both" />
+        <ActivatableClass ActivatableClassId="Microsoft.Management.Configuration.ConfigurationSet" ThreadingModel="both" />
+        <ActivatableClass ActivatableClassId="Microsoft.Management.Configuration.ConfigurationProcessor" ThreadingModel="both" />
+        <ActivatableClass ActivatableClassId="Microsoft.Management.Configuration.ConfigurationParameter" ThreadingModel="both" />
+        <ActivatableClass ActivatableClassId="Microsoft.Management.Configuration.FindUnitProcessorsOptions" ThreadingModel="both" />
       </InProcessServer>
     </Extension>
   </Extensions>

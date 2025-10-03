@@ -37,6 +37,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             V1_7_0,
             V1_9_0,
             V1_10_0,
+            V1_12_0,
         }
 
         /// <summary>
@@ -75,6 +76,11 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V1_10_0ManifestMerged));
 
             this.ValidateManifestFields(v1_10_0manifest, TestManifestVersion.V1_10_0);
+
+            Manifest v1_12_0manifest = Manifest.CreateManifestFromPath(
+                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V1_12_0ManifestMerged));
+
+            this.ValidateManifestFields(v1_12_0manifest, TestManifestVersion.V1_12_0);
         }
 
         /// <summary>
@@ -293,7 +299,15 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             }
 
             // Individual installers
-            Assert.Equal(2, manifest.Installers.Count);
+            if (manifestVersion >= TestManifestVersion.V1_12_0)
+            {
+                Assert.Equal(4, manifest.Installers.Count);
+            }
+            else
+            {
+                Assert.Equal(2, manifest.Installers.Count);
+            }
+
             ManifestInstaller installer1 = manifest.Installers[0];
             Assert.Equal("x86", installer1.Arch);
             Assert.Equal("en-GB", installer1.InstallerLocale);
@@ -462,6 +476,30 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Assert.Equal("32x32", icon.IconResolution);
                 Assert.Equal("png", icon.IconFileType);
             }
+
+            if (manifestVersion >= TestManifestVersion.V1_12_0)
+            {
+                // Manifest v12 adds support for the Font installer type and NestedInstallerType,
+                // with two additional installers added to the merged manifest to verify these.
+                ManifestInstaller installer3 = manifest.Installers[2];
+                Assert.Equal("neutral", installer3.Arch);
+                Assert.Equal("zip", installer3.InstallerType);
+                Assert.Equal("https://www.microsoft.com/msixsdk/msixsdkx64.exe", installer3.Url);
+                Assert.Equal("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82", installer3.Sha256);
+                Assert.Equal("font", installer3.NestedInstallerType);
+                Assert.Equal(5, installer3.NestedInstallerFiles.Count);
+                Assert.Equal("relativeFilePath1.otf", installer3.NestedInstallerFiles[0].RelativeFilePath);
+                Assert.Equal("relativeFilePath2.ttf", installer3.NestedInstallerFiles[1].RelativeFilePath);
+                Assert.Equal("relativeFilePath3.fnt", installer3.NestedInstallerFiles[2].RelativeFilePath);
+                Assert.Equal("relativeFilePath4.ttc", installer3.NestedInstallerFiles[3].RelativeFilePath);
+                Assert.Equal("relativeFilePath5.otc", installer3.NestedInstallerFiles[4].RelativeFilePath);
+
+                ManifestInstaller installer4 = manifest.Installers[3];
+                Assert.Equal("neutral", installer4.Arch);
+                Assert.Equal("font", installer4.InstallerType);
+                Assert.Equal("https://www.microsoft.com/msixsdk/msixsdkx64.exe", installer4.Url);
+                Assert.Equal("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82", installer4.Sha256);
+            }
         }
 
         /// <summary>
@@ -499,6 +537,11 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             /// Merged v1.10 manifest.
             /// </summary>
             public const string V1_10_0ManifestMerged = "V1_10ManifestMerged.yaml";
+
+            /// <summary>
+            /// Merged v1.12 manifest.
+            /// </summary>
+            public const string V1_12_0ManifestMerged = "V1_12ManifestMerged.yaml";
 #pragma warning restore SA1310 // FieldNamesMustNotContainUnderscore
 
             /// <summary>
