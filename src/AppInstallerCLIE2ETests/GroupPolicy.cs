@@ -170,11 +170,10 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("source list", "font");
             Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
 
-            GroupPolicyHelper.EnableMicrosoftStoreSource.Enable();
+            GroupPolicyHelper.EnableFontSource.Enable();
 
-            // To be enabled when the Font Source exists
-            // result = TestCommon.RunAICLICommand("source list", "font");
-            // Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            result = TestCommon.RunAICLICommand("source list", "font");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
         }
 
         /// <summary>
