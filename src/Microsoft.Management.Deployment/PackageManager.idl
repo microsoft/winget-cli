@@ -969,7 +969,7 @@ namespace Microsoft.Management.Deployment
         DesktopFrameworks,
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 13)]
         {
-            Font,
+            OpenWindowsCatalogFont,
         },
     };
 

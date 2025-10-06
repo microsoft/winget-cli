@@ -167,12 +167,12 @@ namespace AppInstallerCLIE2ETests
         public void EnableFontSource()
         {
             // Default sources are disabled during setup so they are missing.
-            var result = TestCommon.RunAICLICommand("source list", "font");
+            var result = TestCommon.RunAICLICommand("source list", "winget-font");
             Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
 
             GroupPolicyHelper.EnableFontSource.Enable();
 
-            result = TestCommon.RunAICLICommand("source list", "font");
+            result = TestCommon.RunAICLICommand("source list", "winget-font");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
         }
 

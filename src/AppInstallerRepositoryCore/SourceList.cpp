@@ -48,10 +48,10 @@ namespace AppInstaller::Repository
         constexpr std::string_view s_Source_DesktopFrameworks_Data = "Microsoft.Winget.Platform.Source_8wekyb3d8bbwe"sv;
         constexpr std::string_view s_Source_DesktopFrameworks_Identifier = "Microsoft.Winget.Platform.Source_8wekyb3d8bbwe"sv;
 
-        constexpr std::string_view s_Source_Font_Name = "font"sv;
-        constexpr std::string_view s_Source_Font_Arg = "https://cdn.winget.microsoft.com/fonts"sv;
-        constexpr std::string_view s_Source_Font_Data = "Microsoft.Winget.Fonts.Source_8wekyb3d8bbwe"sv;
-        constexpr std::string_view s_Source_Font_Identifier = "Microsoft.Winget.Fonts.Source_8wekyb3d8bbwe"sv;
+        constexpr std::string_view s_Source_WingetCommunityFont_Name = "winget-font"sv;
+        constexpr std::string_view s_Source_WingetCommunityFont_Arg = "https://cdn.winget.microsoft.com/fonts"sv;
+        constexpr std::string_view s_Source_WingetCommunityFont_Data = "Microsoft.Winget.Fonts.Source_8wekyb3d8bbwe"sv;
+        constexpr std::string_view s_Source_WingetCommunityFont_Identifier = "Microsoft.Winget.Fonts.Source_8wekyb3d8bbwe"sv;
 
         // Attempts to read a single scalar value from the node.
         template<typename Value>
@@ -246,8 +246,8 @@ namespace AppInstaller::Repository
             return s_Source_MSStoreDefault_Name;
         case WellKnownSource::DesktopFrameworks:
             return s_Source_DesktopFrameworks_Name;
-        case WellKnownSource::Font:
-            return s_Source_Font_Name;
+        case WellKnownSource::WinGetFont:
+            return s_Source_WingetCommunityFont_Name;
         }
 
         return {};
@@ -263,8 +263,8 @@ namespace AppInstaller::Repository
             return s_Source_MSStoreDefault_Arg;
         case WellKnownSource::DesktopFrameworks:
             return s_Source_DesktopFrameworks_Arg;
-        case WellKnownSource::Font:
-            return s_Source_Font_Arg;
+        case WellKnownSource::WinGetFont:
+            return s_Source_WingetCommunityFont_Arg;
         }
 
         return {};
@@ -280,8 +280,8 @@ namespace AppInstaller::Repository
             return s_Source_MSStoreDefault_Identifier;
         case WellKnownSource::DesktopFrameworks:
             return s_Source_DesktopFrameworks_Identifier;
-        case WellKnownSource::Font:
-            return s_Source_Font_Identifier;
+        case WellKnownSource::WinGetFont:
+            return s_Source_WingetCommunityFont_Identifier;
         }
 
         return {};
@@ -304,9 +304,9 @@ namespace AppInstaller::Repository
             return WellKnownSource::DesktopFrameworks;
         }
 
-        if (name == s_Source_Font_Name && arg == s_Source_Font_Arg && type == Rest::RestSourceFactory::Type())
+        if (name == s_Source_WingetCommunityFont_Name && arg == s_Source_WingetCommunityFont_Arg && type == Rest::RestSourceFactory::Type())
         {
-            return WellKnownSource::Font;
+            return WellKnownSource::WinGetFont;
         }
 
         return {};
@@ -392,15 +392,15 @@ namespace AppInstaller::Repository
             details.IsVisible = false;
             return details;
         }
-        case WellKnownSource::Font:
+        case WellKnownSource::WinGetFont:
         {
             SourceDetailsInternal details;
             details.Origin = SourceOrigin::Default;
-            details.Name = s_Source_Font_Name;
+            details.Name = s_Source_WingetCommunityFont_Name;
             details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-            details.Arg = s_Source_Font_Arg;
-            details.Data = s_Source_Font_Data;
-            details.Identifier = s_Source_Font_Identifier;
+            details.Arg = s_Source_WingetCommunityFont_Arg;
+            details.Data = s_Source_WingetCommunityFont_Data;
+            details.Identifier = s_Source_WingetCommunityFont_Identifier;
             details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
             details.Explicit = true;
             return details;
@@ -664,9 +664,9 @@ namespace AppInstaller::Repository
                 result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::WinGet));
             }
 
-            if (IsWellKnownSourceEnabled(WellKnownSource::Font))
+            if (IsWellKnownSourceEnabled(WellKnownSource::WinGetFont))
             {
-                result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::Font));
+                result.emplace_back(GetWellKnownSourceDetailsInternal(WellKnownSource::WinGetFont));
             }
 
             // Since the source is not visible outside, this is added just to have the source in the internal

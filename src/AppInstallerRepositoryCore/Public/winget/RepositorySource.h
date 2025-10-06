@@ -96,7 +96,7 @@ namespace AppInstaller::Repository
         WinGet,
         MicrosoftStore,
         DesktopFrameworks,
-        Font,
+        WinGetFont,
     };
 
     // Search behavior for composite sources.

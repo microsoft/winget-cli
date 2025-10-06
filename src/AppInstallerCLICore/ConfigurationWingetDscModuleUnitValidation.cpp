@@ -19,7 +19,7 @@ namespace AppInstaller::CLI::Configuration
 
         constexpr static std::string_view WellKnownSourceName_WinGet = "winget"sv;
         constexpr static std::string_view WellKnownSourceName_MSStore = "msstore"sv;
-        constexpr static std::string_view WellKnownSourceName_Font = "font"sv;
+        constexpr static std::string_view WellKnownSourceName_WinGetFont = "winget-font"sv;
 
         constexpr static std::string_view ValueSetKey_TreatAsArray = "treatAsArray"sv;
 
@@ -103,7 +103,7 @@ namespace AppInstaller::CLI::Configuration
         {
             return Utility::CaseInsensitiveEquals(WellKnownSourceName_WinGet, sourceName) ||
                 Utility::CaseInsensitiveEquals(WellKnownSourceName_MSStore, sourceName) ||
-                Utility::CaseInsensitiveEquals(WellKnownSourceName_Font, sourceName);
+                Utility::CaseInsensitiveEquals(WellKnownSourceName_WinGetFont, sourceName);
         }
 
         bool ValidateWellKnownSource(const WinGetSource& source)
@@ -112,7 +112,7 @@ namespace AppInstaller::CLI::Configuration
             {
                 Repository::Source{ Repository::WellKnownSource::WinGet }.GetDetails(),
                 Repository::Source{ Repository::WellKnownSource::MicrosoftStore }.GetDetails(),
-                Repository::Source{ Repository::WellKnownSource::Font }.GetDetails(),
+                Repository::Source{ Repository::WellKnownSource::WinGetFont }.GetDetails(),
             };
 
             for (auto const& wellKnownSource : wellKnownSourceDetails)

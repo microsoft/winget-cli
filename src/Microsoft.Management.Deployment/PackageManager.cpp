@@ -186,8 +186,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog::DesktopFrameworks:
             source = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::WellKnownSource::DesktopFrameworks };
             break;
-        case winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog::Font:
-            source = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::WellKnownSource::Font };
+        case winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog::OpenWindowsCatalogFont:
+            source = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::WellKnownSource::WinGetFont };
             break;
         default:
             throw hresult_invalid_argument();
