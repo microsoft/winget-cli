@@ -146,19 +146,7 @@ namespace AppInstaller::Utility
 
     std::chrono::system_clock::time_point ConvertFiletimeToSystemClock(const FILETIME& fileTime)
     {
-        // Windows epoch (1601) to Unix epoch (1970) offset in 100-nanosecond intervals
-        constexpr int64_t EPOCH_DIFFERENCE = 116444736000000000LL;
-
-        // Combine FILETIME into a 64-bit value
-        uint64_t fileTimeValue = (static_cast<uint64_t>(fileTime.dwHighDateTime) << 32) | fileTime.dwLowDateTime;
-
-        // Convert to 100-nanosecond intervals since Unix epoch
-        int64_t unixTime100ns = static_cast<int64_t>(fileTimeValue) - EPOCH_DIFFERENCE;
-
-        // Convert to chrono duration (system_clock::duration is usually nanoseconds or microseconds)
-        return std::chrono::system_clock::time_point(
-            std::chrono::duration_cast<std::chrono::system_clock::duration>(
-                std::chrono::nanoseconds(unixTime100ns * 100)));
+        return winrt::clock::to_sys(winrt::clock::from_FILETIME(fileTime));
     }
 
     std::chrono::system_clock::time_point GetTimePointFromVersion(const UInt64Version& version)
