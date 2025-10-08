@@ -315,6 +315,12 @@ namespace AppInstaller::CLI::Workflow
                 fontContext.Scope = scope;
             }
 
+            if (fontContext.Scope == Manifest::ScopeEnum::Machine && !Runtime::IsRunningAsAdmin())
+            {
+                context.Reporter.Error() << Resource::String::CommandRequiresAdmin << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN);
+            }
+
             auto uninstallResult = Fonts::UninstallFontPackage(fontContext);
             if (uninstallResult.Result() != FontResult::Success)
             {
