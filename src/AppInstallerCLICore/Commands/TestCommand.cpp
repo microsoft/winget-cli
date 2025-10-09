@@ -11,6 +11,7 @@
 #include "Workflows/ConfigurationFlow.h"
 #include <winget/RepositorySource.h>
 #include <winrt/Microsoft.Management.Configuration.h>
+#include <winrt/Windows.ApplicationModel.Core.h>
 
 using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Utility::literals;
@@ -72,7 +73,7 @@ namespace AppInstaller::CLI
                     NULL,
                     ENDSESSION_CLOSEAPP,
                     (SMTO_ABORTIFHUNG | SMTO_ERRORONEXIT),
-                    5000,
+                    10000,
                     NULL));
             }
 
@@ -275,6 +276,39 @@ namespace AppInstaller::CLI
                 return module ? module->GetObjectCount() : 0;
             }
         };
+
+        struct TestTerminateTerminationSignalHandler final : public Command
+        {
+            TestTerminateTerminationSignalHandler(std::string_view parent) : Command("term-signal-handler", {}, parent, Visibility::Hidden) {}
+
+            Resource::LocString ShortDescription() const override
+            {
+                return "Test TerminationSignalHandler thread"_lis;
+            }
+
+            Resource::LocString LongDescription() const override
+            {
+                return "Forces the TerminationSignalHandler static object to be destroyed so that the thread behavior can be observed."_lis;
+            }
+
+        protected:
+            void ExecuteInternal(Execution::Context& context) const override
+            {
+                // Destroy the one created by standard execution
+                // We join on the window thread, so if this never exits we have failed the test.
+                winrt::Windows::ApplicationModel::Core::CoreApplication::Properties().TryRemove(L"WindowsPackageManager.SignalTerminationHandler");
+
+                // Create a new instance
+                if (Execution::GetWindowHandle() == nullptr)
+                {
+                    LogAndReport(context, "Didn't get a window handle");
+                }
+                else
+                {
+                    LogAndReport(context, "Got a window handle");
+                }
+            }
+        };
     }
 
     std::vector<std::unique_ptr<Command>> TestCommand::GetCommands() const
@@ -285,6 +319,7 @@ namespace AppInstaller::CLI
                 std::make_unique<TestConfigurationExportCommand>(FullName()),
                 std::make_unique<TestConfigurationFindUnitProcessorsCommand>(FullName()),
                 std::make_unique<TestCanUnloadNowCommand>(FullName()),
+                std::make_unique<TestTerminateTerminationSignalHandler>(FullName()),
             });
     }
 
