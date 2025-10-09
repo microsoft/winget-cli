@@ -128,7 +128,7 @@ namespace AppInstaller::Repository
         }
 
         if (Utility::CaseInsensitiveEquals(arg, GetWellKnownSourceArg(WellKnownSource::WinGetFont)) &&
-            Utility::CaseInsensitiveEquals(type, Rest::RestSourceFactory::Type()))
+            Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))
         {
             return IsWellKnownSourceEnabled(WellKnownSource::WinGetFont) ? TogglePolicy::Policy::None : TogglePolicy::Policy::FontSource;
         }
