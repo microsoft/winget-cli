@@ -118,12 +118,12 @@ namespace AppInstaller::CLI::Execution
 
             ~SignalTerminationHandler()
             {
-                // Inform the thread that it should stop.
-                m_windowThreadShouldRun = false;
-
                 // std::thread requires that any managed thread (joinable) be joined or detached before destructing
                 if (m_windowThread.joinable())
                 {
+                    // Inform the thread that it should stop.
+                    PostMessageW(m_windowHandle.get(), WM_DESTROY, 0, 0);
+
                     m_windowThread.join();
                 }
             }
@@ -261,16 +261,22 @@ namespace AppInstaller::CLI::Execution
                 PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
                 m_messageQueueReady.SetEvent();
 
-                // Message loop, exits when the window handle has been destroyed
-                while (m_windowThreadShouldRun.load())
+                // Message loop, we send WM_DESTROY to terminate it
+                BOOL getMessageResult;
+                while ((getMessageResult = GetMessage(&msg, windowHandle, 0, 0)) != 0)
                 {
-                    if (PeekMessage(&msg, windowHandle, 0, 0, PM_REMOVE))
+                    if (getMessageResult == -1)
                     {
-                        DispatchMessage(&msg);
+                        LOG_LAST_ERROR();
+                        break;
+                    }
+                    else if (msg.message == WM_DESTROY)
+                    {
+                        break;
                     }
                     else
                     {
-                        std::this_thread::sleep_for(33ms);
+                        DispatchMessage(&msg);
                     }
                 }
             }
@@ -283,7 +289,6 @@ namespace AppInstaller::CLI::Execution
             std::vector<Context*> m_contexts;
             wil::unique_event m_messageQueueReady;
             wil::unique_hwnd m_windowHandle;
-            std::atomic_bool m_windowThreadShouldRun = true;
             std::thread m_windowThread;
             winrt::Windows::ApplicationModel::PackageCatalog m_catalog = nullptr;
             decltype(winrt::Windows::ApplicationModel::PackageCatalog{ nullptr }.PackageUpdating(winrt::auto_revoke, nullptr)) m_updatingEvent;
