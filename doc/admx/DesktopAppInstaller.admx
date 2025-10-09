@@ -103,6 +103,16 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
+    <policy name="EnableFontSource" class="Machine" displayName="$(string.EnableFontSource)" explainText="$(string.EnableFontSourceExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableFontSource">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
     <policy name="SourceAutoUpdateInterval" class="Machine" displayName="$(string.SourceAutoUpdateInterval)" explainText="$(string.SourceAutoUpdateIntervalExplanation)" presentation="$(presentation.SourceAutoUpdateInterval)" key="Software\Policies\Microsoft\Windows\AppInstaller">
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />

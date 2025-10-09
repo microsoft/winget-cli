@@ -6,6 +6,7 @@
 ## Bug Fixes
 * Manifest validation no longer fails using `UTF-8 BOM` encoding when the schema header is on the first line
 * Upgrading a portable package with dev mode disabled will no longer remove the package from the PATH variable.
+* Fixed source open failure when there were multiple sources but less than two non-explicit sources.
 
 ## Experimental Features
 * Experimental support for Fonts

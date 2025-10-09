@@ -73,6 +73,11 @@ namespace Microsoft.WinGet.SharedLib.PolicySettings
         MSStoreSource,
 
         /// <summary>
+        /// Enable Font Source.
+        /// </summary>
+        FontSource,
+
+        /// <summary>
         /// Enable Additional Source.
         /// </summary>
         AdditionalSources,

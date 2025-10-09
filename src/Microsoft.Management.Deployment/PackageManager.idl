@@ -967,6 +967,10 @@ namespace Microsoft.Management.Deployment
         OpenWindowsCatalog,
         MicrosoftStore,
         DesktopFrameworks,
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 13)]
+        {
+            OpenWindowsCatalogFont,
+        },
     };
 
     /// Local Catalogs with PackageCatalogOrigin Predefined

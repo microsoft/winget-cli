@@ -564,7 +564,10 @@ namespace AppInstaller::Repository
                     }
                 }
 
-                m_isComposite = true;
+                if (m_sourceReferences.size() > 1)
+                {
+                    m_isComposite = true;
+                }
             }
         }
         else
