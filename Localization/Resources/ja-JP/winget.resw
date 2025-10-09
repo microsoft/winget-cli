@@ -1475,9 +1475,6 @@
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>このパッケージ用には入れ子状態インストーラーは指定されていません</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>アーカイブ インストーラー用に指定できる移植可能でない入れ子状態インストーラーは 1 つのみです</value>
-  </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>互換性のないコマンド ライン引数が指定されました</value>
   </data>
@@ -1974,31 +1971,6 @@
   </data>
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>AppInstaller のフル パッケージをインストールする</value>
-  </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>構成コンポーネントを有効にします。ストアへのアクセス権が必要です。</value>
-  </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
-    <value>オプション '--enable' と '--disable' は他の引数で使用することはできません。</value>
-    <comment>{Locked="--enable", "--disable"}</comment>
-  </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>構成コンポーネントを有効にしています。ストアへのアクセス権が必要です。</value>
-  </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>構成が有効になっていません。'winget configure --enable' を実行して有効にしてください。</value>
-  </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>構成が有効になっています。</value>
-  </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>構成コンポーネントを無効にします。ストアへのアクセス権が必要です。</value>
-  </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>構成コンポーネントを無効にしています。ストアへのアクセス権が必要です。</value>
-  </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>構成が無効になっています。</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>パッケージの依存関係と Windows 機能の処理をスキップする</value>
@@ -3183,9 +3155,6 @@
   </data>
   <data name="FontListCommandShortDescription" xml:space="preserve">
     <value>インストール済みフォントを一覧表示します</value>
-  </data>
-  <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>インストールされているすべてのフォント、または特定のフォントの完全な詳細を一覧表示します。</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>バージョン</value>

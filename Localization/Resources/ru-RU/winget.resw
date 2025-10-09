@@ -717,7 +717,7 @@
     <comment>{Locked="{0} {1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
-    <value>Проверяет манифест с помощью строгого набора правил. Это позволяет вам проверить манифест перед отправкой в репозиторий.</value>
+    <value>Проверяет манифест с помощью строгого набора рекомендаций. Это позволяет вам проверить манифест перед отправкой в репозиторий.</value>
   </data>
   <data name="ValidateCommandShortDescription" xml:space="preserve">
     <value>Утверждает файл манифеста</value>
@@ -1475,9 +1475,6 @@
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>Для этого пакета не указаны вложенные установщики</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>Для архивного установщика можно указать только один непереносимый вложенный установщик</value>
-  </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>Указаны несовместимые аргументы командной строки</value>
   </data>
@@ -1974,31 +1971,6 @@
   </data>
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>Установить полный пакет для AppInstaller</value>
-  </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>Включить компоненты конфигурации. Требуется доступ к хранилищу.</value>
-  </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
-    <value>Параметры "--enable" и "--disable" нельзя использовать с другими аргументами.</value>
-    <comment>{Locked="--enable", "--disable"}</comment>
-  </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>Включение компонентов конфигурации. Требуется доступ к хранилищу.</value>
-  </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>Конфигурация не включена. Запустите команду "winget configure --enable", чтобы включить ее.</value>
-  </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>Конфигурация включена.</value>
-  </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>Отключить компоненты конфигурации. Требуется доступ к хранилищу.</value>
-  </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>Отключение компонентов конфигурации. Требуется доступ к хранилищу.</value>
-  </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>Конфигурация отключена.</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>Пропускает обработку зависимостей пакетов и компонентов Windows</value>
@@ -3183,9 +3155,6 @@
   </data>
   <data name="FontListCommandShortDescription" xml:space="preserve">
     <value>Получить список установленных шрифтов</value>
-  </data>
-  <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>Перечислите все установленные шрифты или полные сведения о конкретном шрифте.</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>Версия</value>

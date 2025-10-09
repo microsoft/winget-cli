@@ -1475,9 +1475,6 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>Nessun programma di installazione annidato specificato per questo pacchetto</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>È possibile specificare un solo programma di installazione annidato non portabile per un programma di installazione del file compresso</value>
-  </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>Sono stati specificati argomenti della riga di comando incompatibili</value>
   </data>
@@ -1974,31 +1971,6 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   </data>
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>Installa il pacchetto completo per AppInstaller</value>
-  </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>Abilita i componenti di configurazione. Richiede l'accesso all'archivio.</value>
-  </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
-    <value>Impossibile utilizzare le opzioni '--enable' e '--disable' con altri argomenti.</value>
-    <comment>{Locked="--enable", "--disable"}</comment>
-  </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>Abilita i componenti di configurazione. Richiede l'accesso all'archivio.</value>
-  </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>Configurazione non abilitata. Esegui 'winget configure --enable' per abilitarla.</value>
-  </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>La configurazione è abilitata.</value>
-  </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>Disabilita i componenti di configurazione. Richiede l'accesso all'archivio.</value>
-  </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>Disabilita i componenti di configurazione. Richiede l'accesso all'archivio.</value>
-  </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>La configurazione è disabilitata.</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>Ignora l'elaborazione delle dipendenze dei pacchetti e delle funzionalità di Windows</value>
@@ -3183,9 +3155,6 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   </data>
   <data name="FontListCommandShortDescription" xml:space="preserve">
     <value>Elencare i tipi di carattere installati</value>
-  </data>
-  <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>Elenca tutti i tipi di carattere installati o i dettagli completi di un tipo di carattere specifico.</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>Versione</value>

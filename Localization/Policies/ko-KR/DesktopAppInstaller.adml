@@ -67,6 +67,16 @@
 이 설정을 사용하면 Windows 패키지 관리자용 Microsoft 스토어 원본을 사용할 수 있으며 제거할 수 없습니다.
 
 이 설정을 사용 중지하면 Windows 패키지 관리자용 Microsoft 스토어 원본을 사용할 수 없습니다.</string>
+      <string id="EnableFontSource">Enable Windows Package Manager Font Source</string>
+      <string id="EnableFontSourceExplanation">
+        This policy controls the Font source included with the Windows Package Manager.
+
+        If you do not configure this setting, the Font source for the Windows Package manager will be available and can be removed.
+
+        If you enable this setting, the Font source for the Windows Package Manager will be available and cannot be removed.
+
+        If you disable this setting the Font source for the Windows Package Manager will not be available.
+      </string>
       <string id="SourceAutoUpdateInterval">Windows 패키지 관리자 원본 자동 업데이트 간격(분) 설정</string>
       <string id="SourceAutoUpdateIntervalExplanation">이 정책은 패키지 기반 원본의 자동 업데이트 간격을 제어합니다. 패키지의 인덱스가 로컬 컴퓨터에 캐시되도록 Windows 패키지 관리자 기본 원본이 구성됩니다. 사용자가 명령을 호출하고 간격이 지나면 인덱스가 다운로드됩니다.
 
@@ -116,6 +126,13 @@
 이 설정을 사용하면 사용자가 명령줄을 통해 Windows 패키지 관리자 프록시 사용을 구성할 수 있습니다.
 
 이 설정을 사용하지 않거나 구성하지 않으면 사용자가 명령줄을 통해 Windows 패키지 관리자 프록시 사용을 구성할 수 없습니다.</string>
+      <string id="EnableWindowsPackageManagerMcpServer">Enable MCP Server for Windows Package Manager</string>
+      <string id="EnableWindowsPackageManagerMcpServerExplanation">
+        This policy controls whether the Windows Package Manager Model Context Protocol (MCP) server can be used.
+
+        If you enable or do not configure this setting, users will be able to use the Windows Package Manager's MCP server.
+
+        If you disable this setting, users will not be able to to use the Windows Package Manager's MCP server.</string>
       <string id="WindowsPackageManagerDefaultProxy">Windows 패키지 관리자 기본 프록시 설정</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">이 정책은 Windows 패키지 관리자 사용하는 기본 프록시를 제어합니다.
 

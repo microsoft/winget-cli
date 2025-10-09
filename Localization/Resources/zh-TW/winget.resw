@@ -1475,9 +1475,6 @@
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>沒有為此套件指定巢狀安裝程式</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>只能為封存安裝程式指定一個不可移植的巢狀安裝程式</value>
-  </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>提供的命令列引數不相容</value>
   </data>
@@ -1974,31 +1971,6 @@
   </data>
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>安裝適用於 AppInstaller 的完整封裝</value>
-  </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>啟用組態元件。需要存放區存取權。</value>
-  </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
-    <value>選項 '--enable' 和 '--disable' 不能與其他引數一起使用。</value>
-    <comment>{Locked="--enable", "--disable"}</comment>
-  </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>啟用組態元件。需要存放區存取權。</value>
-  </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>組態未啟用。請執行 `winget configure --enable` 來啟用。</value>
-  </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>設定已啟用。</value>
-  </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>停用組態元件。需要存放區存取權。</value>
-  </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>停用組態元件。需要存放區存取權。</value>
-  </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>已停用設定。</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>略過處理封裝相依性和 Windows 功能</value>
@@ -3183,9 +3155,6 @@
   </data>
   <data name="FontListCommandShortDescription" xml:space="preserve">
     <value>列出安裝的字型</value>
-  </data>
-  <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>列出所有已安裝的字型，或特定字型的完整詳細數據。</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>版本</value>

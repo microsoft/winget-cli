@@ -1475,9 +1475,6 @@ Especifique um deles usando a opção --source para continuar.</value>
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>Nenhum instalador aninhado especificado para esse pacote</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>Somente um instalador aninhado não portátil pode ser especificado para um instalador de arquivo morto</value>
-  </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>Argumentos de linha de comando incompatíveis fornecidos</value>
   </data>
@@ -1974,31 +1971,6 @@ Especifique um deles usando a opção --source para continuar.</value>
   </data>
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>Instalar o pacote completo do AppInstaller</value>
-  </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>Habilitar componentes de configuração. Requer acesso à loja.</value>
-  </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
-    <value>A '--enable' e '--disable' não podem ser usadas com outros argumentos.</value>
-    <comment>{Locked="--enable", "--disable"}</comment>
-  </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>Habilitando componentes de configuração. Requer acesso ao repositório.</value>
-  </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>A configuração não está habilitada. Execute 'winget configure --enable' para habilite-o.</value>
-  </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>A configuração está habilitada.</value>
-  </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>Desabilitar componentes de configuração. Requer acesso ao repositório.</value>
-  </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>Desabilitando componentes de configuração. Requer acesso ao repositório.</value>
-  </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>A configuração está desabilitada.</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>Ignora o processamento de dependências de pacote e recursos do Windows</value>
@@ -3183,9 +3155,6 @@ Especifique um deles usando a opção --source para continuar.</value>
   </data>
   <data name="FontListCommandShortDescription" xml:space="preserve">
     <value>Listar fontes instaladas</value>
-  </data>
-  <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>Listar todas as fontes instaladas ou detalhes completos de uma fonte específica.</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>Versão</value>

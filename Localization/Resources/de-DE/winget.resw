@@ -1475,9 +1475,6 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>Für dieses Paket wurden keine geschachtelten Installers angegeben.</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>Für einen Archiv-Installer kann nur ein nicht portabler geschachtelter Installer angegeben werden.</value>
-  </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>Inkompatible Befehlszeilenargumente bereitgestellt</value>
   </data>
@@ -1974,31 +1971,6 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
   </data>
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>Installieren Sie das vollständige Paket für AppInstaller</value>
-  </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>Konfigurationskomponenten aktivieren. Erfordert Speicherzugriff.</value>
-  </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
-    <value>Die Option '--enable' und '--disable' kann nicht mit anderen Argumenten verwendet werden.</value>
-    <comment>{Locked="--enable", "--disable"}</comment>
-  </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>Konfigurationskomponenten aktivieren. Erfordert Speicherzugriff.</value>
-  </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>Die Konfiguration ist nicht aktiviert. Führen Sie "winget configure --enable" aus, um sie zu aktivieren.</value>
-  </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>Die Konfiguration ist aktiviert.</value>
-  </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>Konfigurationskomponenten deaktivieren. Erfordert Speicherzugriff.</value>
-  </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>Konfigurationskomponenten deaktivieren. Erfordert Speicherzugriff.</value>
-  </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>Die Konfiguration ist deaktiviert.</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>Überspringt die Verarbeitung von Paketabhängigkeiten und Windows-Features.</value>
@@ -3183,9 +3155,6 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
   </data>
   <data name="FontListCommandShortDescription" xml:space="preserve">
     <value>Installierte Schriftarten auflisten</value>
-  </data>
-  <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>Alle installierten Schriftarten oder vollständige Details einer bestimmten Schriftart auflisten.</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>Version</value>
