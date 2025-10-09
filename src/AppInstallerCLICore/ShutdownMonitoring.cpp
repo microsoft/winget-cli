@@ -104,8 +104,11 @@ namespace AppInstaller::ShutdownMonitoring
         // std::thread requires that any managed thread (joinable) be joined or detached before destructing
         if (m_windowThread.joinable())
         {
-            // Inform the thread that it should stop.
-            PostMessageW(m_windowHandle.get(), WM_DESTROY, 0, 0);
+            if (m_windowHandle)
+            {
+                // Inform the thread that it should stop.
+                PostMessageW(m_windowHandle.get(), WM_DESTROY, 0, 0);
+            }
 
             m_windowThread.join();
         }
