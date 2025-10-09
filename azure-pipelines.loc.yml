@@ -7,10 +7,18 @@
 
 # Expects a variable called LocServiceKey to contain the OAuth client secret for Touchdown.
 
+name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
+
 trigger: none
 pr: none
 
-name: $(BuildDefinitionName)_$(date:yyMM).$(date:dd)$(rev:rrr)
+# Cron syntax: "mm HH DD MM DW" = minutes, hours, days, months, day of week (UTC time)
+schedules:
+- cron: "0 0 * * Sun"
+  displayName: Scheduled build
+  branches:
+    include:
+    - master
 
 jobs:
 - job: Localize
