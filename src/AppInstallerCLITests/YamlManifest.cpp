@@ -150,7 +150,7 @@ namespace
         REQUIRE(manifest.DefaultLocalization.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers");
         REQUIRE(manifest.Moniker == "msixsdk");
         auto tags = manifest.DefaultLocalization.Get<Localization::Tags>();
-		REQUIRE(std::equal(tags.begin(), tags.end(), s_ManifestV1Tags.begin())); // Check that the tags in the manifest match the first n tags in s_ManifestV1Tags
+        REQUIRE(std::equal(tags.begin(), tags.end(), s_ManifestV1Tags.begin())); // Check that the tags in the manifest match the first n tags in s_ManifestV1Tags
 
         if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
         {
@@ -537,7 +537,6 @@ namespace
             REQUIRE(localization1.Get<Localization::CopyrightUrl>() == "https://www.microsoft.com/msixsdk/copyright/UK");
             REQUIRE(localization1.Get<Localization::ShortDescription>() == "This is MSIX SDK UK");
             REQUIRE(localization1.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers UK");
-			tags = localization1.Get<Localization::Tags>();
             REQUIRE(localization1.Get<Localization::Tags>() == MultiValue{ "appxsdkUK", "msixsdkUK" });
 
             if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
