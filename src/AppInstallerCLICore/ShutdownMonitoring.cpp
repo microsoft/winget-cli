@@ -7,6 +7,8 @@
 #include <AppInstallerRuntime.h>
 #include <winget/COMStaticStorage.h>
 
+using namespace std::chrono_literals;
+
 namespace AppInstaller::ShutdownMonitoring
 {
     std::shared_ptr<TerminationSignalHandler> TerminationSignalHandler::Instance()
@@ -99,10 +101,13 @@ namespace AppInstaller::ShutdownMonitoring
 
     TerminationSignalHandler::~TerminationSignalHandler()
     {
+        // Inform the thread that it should stop.
+        m_windowThreadShouldRun = false;
+
         // std::thread requires that any managed thread (joinable) be joined or detached before destructing
         if (m_windowThread.joinable())
         {
-            m_windowThread.detach();
+            m_windowThread.join();
         }
     }
 
@@ -214,6 +219,12 @@ namespace AppInstaller::ShutdownMonitoring
             return;
         }
 
+        // Unregister the window class on exiting the thread
+        auto classUnregister = wil::scope_exit([&]()
+            {
+                UnregisterClassW(windowClass, hInstance);
+            });
+
         m_windowHandle = wil::unique_hwnd(CreateWindow(
             windowClass,
             L"WingetMessageOnlyWindow",
@@ -227,30 +238,36 @@ namespace AppInstaller::ShutdownMonitoring
             hInstance,
             NULL)); /* lpParam */
 
-        if (m_windowHandle == nullptr)
+        HWND windowHandle = m_windowHandle.get();
+        if (windowHandle == nullptr)
         {
             LOG_LAST_ERROR_MSG("Failed creating window");
             return;
         }
 
-        ShowWindow(m_windowHandle.get(), SW_HIDE);
+        // We must destroy the window first so that the class unregister can succeed
+        auto destroyWindow = wil::scope_exit([&]()
+            {
+                DestroyWindow(windowHandle);
+            });
+
+        ShowWindow(windowHandle, SW_HIDE);
 
         // Force message queue to be created.
         MSG msg;
         PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
         m_messageQueueReady.SetEvent();
 
-        // Message loop
-        BOOL getMessageResult;
-        while ((getMessageResult = GetMessage(&msg, m_windowHandle.get(), 0, 0)) != 0)
+        // Message loop, exits when the window handle has been destroyed
+        while (m_windowThreadShouldRun.load())
         {
-            if (getMessageResult == -1)
+            if (PeekMessage(&msg, windowHandle, 0, 0, PM_REMOVE))
             {
-                LOG_LAST_ERROR();
+                DispatchMessage(&msg);
             }
             else
             {
-                DispatchMessage(&msg);
+                std::this_thread::sleep_for(33ms);
             }
         }
     }

@@ -121,5 +121,15 @@ namespace AppInstallerCLIE2ETests
             Assert.True(lines[3].Contains("Internal objects: 0"));
             Assert.True(lines[4].Contains("External objects: 0"));
         }
+
+        /// <summary>
+        /// Runs winget test term-signal-handler to check for proper thread termination.
+        /// </summary>
+        [Test]
+        public void TermSignalHandler()
+        {
+            var result = TestCommon.RunAICLICommand("test", "term-signal-handler --verbose");
+            Assert.True(result.StdOut.Contains("Got a window handle"));
+        }
     }
 }

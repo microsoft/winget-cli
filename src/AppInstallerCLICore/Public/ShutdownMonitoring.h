@@ -60,6 +60,7 @@ namespace AppInstaller::ShutdownMonitoring
         std::vector<ICancellable*> m_listeners;
         wil::unique_event m_messageQueueReady;
         wil::unique_hwnd m_windowHandle;
+        std::atomic_bool m_windowThreadShouldRun = true;
         std::thread m_windowThread;
         winrt::Windows::ApplicationModel::PackageCatalog m_catalog = nullptr;
         decltype(winrt::Windows::ApplicationModel::PackageCatalog{ nullptr }.PackageUpdating(winrt::auto_revoke, nullptr)) m_updatingEvent;
