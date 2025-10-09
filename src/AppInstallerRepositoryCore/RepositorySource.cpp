@@ -551,12 +551,14 @@ namespace AppInstaller::Repository
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, adding all to source references.");
 
+                int nonExplicitSourceCount = 0;
                 for (auto& source : currentSources)
                 {
                     if (!source.get().Explicit)
                     {
                         AICLI_LOG(Repo, Info, << "Adding to source references " << source.get().Name);
                         m_sourceReferences.emplace_back(CreateSourceFromDetails(source));
+                        ++nonExplicitSourceCount;
                     }
                     else
                     {
@@ -564,7 +566,10 @@ namespace AppInstaller::Repository
                     }
                 }
 
-                m_isComposite = true;
+                if (nonExplicitSourceCount > 1)
+                {
+                    m_isComposite = true;
+                }
             }
         }
         else
