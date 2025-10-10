@@ -1977,7 +1977,7 @@ namespace AppInstaller::CLI::Workflow
         auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailFlags::ReadOnly);
         auto unification = anon::CreateProgressCancellationUnification(std::move(progressScope), getDetailsOperation);
 
-        bool suppressDetailsOutput = context.Args.Contains(Args::Type::ConfigurationAcceptWarning) && context.Args.Contains(Args::Type::ConfigurationSuppressPrologue);
+        bool suppressDetailsOutput = context.Args.Contains(Args::Type::ConfigurationSuppressPrologue);
         anon::OutputHelper outputHelper{ context };
         uint32_t unitsShown = 0;
 
