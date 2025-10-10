@@ -7,8 +7,10 @@
 namespace Microsoft.WinGet.Client.Engine.Common
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.IO;
+    using System.Linq;
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
@@ -39,29 +41,54 @@ namespace Microsoft.WinGet.Client.Engine.Common
                 return;
             }
 
-            try
+            pwshCmdlet.ExecuteInPowerShellThread(() =>
             {
-                // Start by calling winget without its WindowsApp PFN path.
-                // If it succeeds and the exit code is 0 then we are good.
-                var wingetCliWrapper = new WingetCLIWrapper(false);
-                var result = wingetCliWrapper.RunCommand(pwshCmdlet, "--version");
-                result.VerifyExitCode();
-            }
-            catch (Win32Exception e)
-            {
-                pwshCmdlet.Write(StreamType.Verbose, $"'winget.exe' Win32Exception {e.Message}");
-                throw new WinGetIntegrityException(GetReason(pwshCmdlet));
-            }
-            catch (Exception e) when (e is WinGetCLIException || e is WinGetCLITimeoutException)
-            {
-                pwshCmdlet.Write(StreamType.Verbose, $"'winget.exe' WinGetCLIException {e.Message}");
-                throw new WinGetIntegrityException(IntegrityCategory.Failure, e);
-            }
-            catch (Exception e)
-            {
-                pwshCmdlet.Write(StreamType.Verbose, $"'winget.exe' Exception {e.Message}");
-                throw new WinGetIntegrityException(IntegrityCategory.Unknown, e);
-            }
+                try
+                {
+                    // First check if winget is registered in the current session.
+                    // If Get-Command doesn't find it, then winget is not registered in the current session.
+                    var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
+                    {
+                        ps.AddCommand("Get-Command").AddParameter("Name", "winget").AddParameter("ErrorAction", "Ignore");
+                        Collection<PSObject> results = ps.Invoke();
+                        ps.Dispose();
+                        if (results == null ||
+                            results.Count != 1 ||
+                            results.ElementAt(0).BaseObject is not CommandInfo)
+                        {
+                            // It's expected that the command is found, is the only command, and is a CommandInfo object.
+                            pwshCmdlet.Write(StreamType.Verbose, $"'winget' was not found using Get-Command");
+                            throw new WinGetIntegrityException(GetReason(pwshCmdlet));
+                        }
+                    }
+
+                    // Then try calling winget without its WindowsApp PFN path.
+                    // If it succeeds and the exit code is 0 then we are good.
+                    var wingetCliWrapper = new WingetCLIWrapper(false);
+                    var result = wingetCliWrapper.RunCommand(pwshCmdlet, "--version");
+                    result.VerifyExitCode();
+                }
+                catch (WinGetIntegrityException)
+                {
+                    // We already know the reason why it failed. Just rethrow, but be sure to preserve the stack trace
+                    throw;
+                }
+                catch (Win32Exception e)
+                {
+                    pwshCmdlet.Write(StreamType.Verbose, $"'winget.exe' Win32Exception {e.Message}");
+                    throw new WinGetIntegrityException(GetReason(pwshCmdlet));
+                }
+                catch (Exception e) when (e is WinGetCLIException || e is WinGetCLITimeoutException)
+                {
+                    pwshCmdlet.Write(StreamType.Verbose, $"'winget.exe' WinGetCLIException {e.Message}");
+                    throw new WinGetIntegrityException(IntegrityCategory.Failure, e);
+                }
+                catch (Exception e)
+                {
+                    pwshCmdlet.Write(StreamType.Verbose, $"'winget.exe' Exception {e.Message}");
+                    throw new WinGetIntegrityException(IntegrityCategory.Unknown, e);
+                }
+            });
 
             // WinGet is installed. Verify version if needed.
             if (!string.IsNullOrEmpty(expectedVersion))
@@ -95,7 +122,20 @@ namespace Microsoft.WinGet.Client.Engine.Common
                 try
                 {
                     var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
-                    ps.AddCommand("winget").Invoke();
+                    ps.AddCommand("Get-Command").AddParameter("Name", "winget").AddParameter("ErrorAction", "Ignore");
+                    Collection<PSObject> results = ps.Invoke();
+                    if (results == null ||
+                        results.Count != 1 ||
+                        results.ElementAt(0).BaseObject is not CommandInfo)
+                    {
+                        // It's expected that the command is found, is the only command, and is a CommandInfo object.
+                        pwshCmdlet.Write(StreamType.Verbose, $"'winget' was not found using Get-Command");
+                    }
+                    else
+                    {
+                        ps.Commands.Clear();
+                        ps.AddCommand("winget").Invoke();
+                    }
                 }
                 catch (ApplicationFailedException e)
                 {
