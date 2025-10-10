@@ -359,8 +359,11 @@ namespace AppInstaller::CLI::Portable
         }
     }
 
-    void PortableInstaller::AddToPathVariable(const std::filesystem::path& value)
+    void PortableInstaller::AddToPathVariable(std::filesystem::path value)
     {
+        // Ensure the preferred separator format
+        value.make_preferred();
+
         if (PathVariable(GetScope()).Append(value))
         {
             AICLI_LOG(Core, Info, << "Appending portable target directory to PATH registry: " << value);
@@ -372,7 +375,7 @@ namespace AppInstaller::CLI::Portable
         }
     }
 
-    void PortableInstaller::RemoveFromPathVariable(const std::filesystem::path& value)
+    void PortableInstaller::RemoveFromPathVariable(std::filesystem::path value)
     {
         if (std::filesystem::exists(value) && !std::filesystem::is_empty(value))
         {
@@ -380,7 +383,9 @@ namespace AppInstaller::CLI::Portable
         }
         else
         {
-            if (PathVariable(GetScope()).Remove(value))
+			// Attempt to remove both the original and the preferred format to ensure removal
+            // Necessary for handling old path values associated with winget-cli#5033
+            if (PathVariable(GetScope()).Remove(value) || PathVariable(GetScope()).Remove(value.make_preferred()))
             {
                 InstallDirectoryAddedToPath = false;
                 AICLI_LOG(CLI, Info, << "Removed target directory from PATH registry: " << value);
