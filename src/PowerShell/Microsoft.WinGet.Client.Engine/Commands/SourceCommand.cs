@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="SourceCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -34,9 +34,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         {
             var results = this.Execute(
                 () => this.GetPackageCatalogReferences(name));
-            for (var i = 0; i < results.Count; i++)
+            foreach (var result in results)
             {
-                this.Write(StreamType.Object, new PSSourceResult(results[i]));
+                this.Write(StreamType.Object, new PSSourceResult(result));
             }
         }
     }

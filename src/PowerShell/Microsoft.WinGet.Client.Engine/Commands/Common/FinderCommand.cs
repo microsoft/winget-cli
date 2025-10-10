@@ -157,10 +157,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         private PackageCatalogReference GetPackageCatalogReference(CompositeSearchBehavior behavior)
         {
             CreateCompositePackageCatalogOptions options = ManagementDeploymentFactory.Instance.CreateCreateCompositePackageCatalogOptions();
-            IReadOnlyList<PackageCatalogReference> references = this.GetPackageCatalogReferences(this.Source);
-            for (var i = 0; i < references.Count; i++)
+            foreach (var reference in this.GetPackageCatalogReferences(this.Source))
             {
-                options.Catalogs.Add(references[i]);
+                options.Catalogs.Add(reference);
             }
 
             options.CompositeSearchBehavior = behavior;
