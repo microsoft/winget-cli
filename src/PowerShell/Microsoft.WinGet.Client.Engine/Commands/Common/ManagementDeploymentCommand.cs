@@ -8,7 +8,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Management.Automation;
     using System.Threading.Tasks;
     using Microsoft.Management.Deployment;
@@ -47,11 +46,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <returns>A list of <see cref="PackageCatalogReference" /> instances.</returns>
         /// <param name="source">The name of the source to retrieve. If null, then all sources are returned.</param>
         /// <exception cref="ArgumentException">The source does not exist.</exception>
-        internal IEnumerable<PackageCatalogReference> GetPackageCatalogReferences(string? source)
+        internal IReadOnlyList<PackageCatalogReference> GetPackageCatalogReferences(string? source)
         {
             if (string.IsNullOrEmpty(source))
             {
-                return PackageManagerWrapper.Instance.GetPackageCatalogs().Where(x => !x.Info.Explicit);
+                return PackageManagerWrapper.Instance.GetPackageCatalogs();
             }
             else
             {

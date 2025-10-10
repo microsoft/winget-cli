@@ -34,9 +34,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         {
             var results = this.Execute(
                 () => this.GetPackageCatalogReferences(name));
-            foreach (var result in results)
+            for (var i = 0; i < results.Count; i++)
             {
-                this.Write(StreamType.Object, new PSSourceResult(result));
+                this.Write(StreamType.Object, new PSSourceResult(results[i]));
             }
         }
     }
