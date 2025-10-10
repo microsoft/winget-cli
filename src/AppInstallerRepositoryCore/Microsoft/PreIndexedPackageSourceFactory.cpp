@@ -20,7 +20,7 @@ namespace AppInstaller::Repository::Microsoft
 {
     namespace
     {
-        // To use an unsigned source, set AICLI_ALLOW_UNSTIGNED_SOURCE and use a debug build.
+        // To use an unsigned source, set AICLI_ALLOW_UNSIGNED_SOURCE and use a debug build.
         // Ex: set CL=/DAICLI_ALLOW_UNSIGNED_SOURCE
 #if ! defined( AICLI_DISABLE_TEST_HOOKS ) && defined( AICLI_ALLOW_UNSIGNED_SOURCE )
         static bool s_AllowUnsignedSource = true;
