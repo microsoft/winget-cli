@@ -45,10 +45,10 @@ namespace Microsoft.WinGet.Client.Engine.Common
             {
                 try
                 {
-                    // First check if winget is registered in the current session.
-                    // If Get-Command doesn't find it, then winget is not registered in the current session.
+                    // First check if winget is registered in the current session using Get-Command.
                     var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
                     {
+                        // Ignore the error, we will check the results instead
                         ps.AddCommand("Get-Command").AddParameter("Name", "winget").AddParameter("ErrorAction", "Ignore");
                         Collection<PSObject> results = ps.Invoke();
                         ps.Dispose();
@@ -57,12 +57,13 @@ namespace Microsoft.WinGet.Client.Engine.Common
                             results.ElementAt(0).BaseObject is not CommandInfo)
                         {
                             // It's expected that the command is found, is the only command, and is a CommandInfo object.
+                            // If it is not, then winget is not properly registered in the current session and we need to figure out why.
                             pwshCmdlet.Write(StreamType.Verbose, $"'winget' was not found using Get-Command");
-                            throw new WinGetIntegrityException(GetReason(pwshCmdlet));
+                            throw new WinGetIntegrityException(GetReason(pwshCmdlet, false));
                         }
                     }
 
-                    // Then try calling winget without its WindowsApp PFN path.
+                    // If the command is registered, try calling winget without its WindowsApp PFN path.
                     // If it succeeds and the exit code is 0 then we are good.
                     var wingetCliWrapper = new WingetCLIWrapper(false);
                     var result = wingetCliWrapper.RunCommand(pwshCmdlet, "--version");
@@ -76,7 +77,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
                 catch (Win32Exception e)
                 {
                     pwshCmdlet.Write(StreamType.Verbose, $"'winget.exe' Win32Exception {e.Message}");
-                    throw new WinGetIntegrityException(GetReason(pwshCmdlet));
+                    throw new WinGetIntegrityException(GetReason(pwshCmdlet, true));
                 }
                 catch (Exception e) when (e is WinGetCLIException || e is WinGetCLITimeoutException)
                 {
@@ -108,44 +109,39 @@ namespace Microsoft.WinGet.Client.Engine.Common
             }
         }
 
-        private static IntegrityCategory GetReason(PowerShellCmdlet pwshCmdlet)
+        private static IntegrityCategory GetReason(PowerShellCmdlet pwshCmdlet, bool commandIsRegistered)
         {
             // Ok, so you are here because calling winget --version failed. Lets try to figure out why.
             var category = IntegrityCategory.Unknown;
-            pwshCmdlet.ExecuteInPowerShellThread(() =>
+
+            // If the command is registered, then we can try to call it
+            // Otherwise we will skip this step since it will always result in category remaining unknown
+            if (commandIsRegistered)
             {
+                pwshCmdlet.ExecuteInPowerShellThread(() =>
+                {
                 // When running winget.exe on PowerShell the message of the Win32Exception will distinguish between
                 // 'The system cannot find the file specified' and 'No applicable app licenses found' but of course
                 // the HRESULT is the same (E_FAIL).
                 // To not compare strings let Powershell handle it. If calling winget throws an
                 // ApplicationFailedException then is most likely that the license is not there.
-                try
-                {
-                    var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
-                    ps.AddCommand("Get-Command").AddParameter("Name", "winget").AddParameter("ErrorAction", "Ignore");
-                    Collection<PSObject> results = ps.Invoke();
-                    if (results == null ||
-                        results.Count != 1 ||
-                        results.ElementAt(0).BaseObject is not CommandInfo)
+                    try
                     {
-                        // It's expected that the command is found, is the only command, and is a CommandInfo object.
-                        pwshCmdlet.Write(StreamType.Verbose, $"'winget' was not found using Get-Command");
+                        using (var ps = PowerShell.Create(RunspaceMode.CurrentRunspace))
+                        {
+                            ps.AddCommand("winget").Invoke();
+                        }
                     }
-                    else
+                    catch (ApplicationFailedException e)
                     {
-                        ps.Commands.Clear();
-                        ps.AddCommand("winget").Invoke();
+                        pwshCmdlet.Write(StreamType.Verbose, e.Message);
+                        category = IntegrityCategory.AppInstallerNoLicense;
                     }
-                }
-                catch (ApplicationFailedException e)
-                {
-                    pwshCmdlet.Write(StreamType.Verbose, e.Message);
-                    category = IntegrityCategory.AppInstallerNoLicense;
-                }
-                catch (Exception)
-                {
-                }
-            });
+                    catch (Exception)
+                    {
+                    }
+                });
+            }
 
             if (category != IntegrityCategory.Unknown)
             {
