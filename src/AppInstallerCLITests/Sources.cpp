@@ -50,6 +50,11 @@ Sources:
     Arg: ""
     Data: ""
     IsTombstone: true
+  - Name: winget-font
+    Type: ""
+    Arg: ""
+    Data: ""
+    IsTombstone: true
 )"sv;
 
 constexpr std::string_view s_SingleSource = R"(
@@ -118,6 +123,11 @@ Sources:
     Data: ""
     IsTombstone: true
   - Name: msstore
+    Type: ""
+    Arg: ""
+    Data: ""
+    IsTombstone: true
+  - Name: winget-font
     Type: ""
     Arg: ""
     Data: ""
