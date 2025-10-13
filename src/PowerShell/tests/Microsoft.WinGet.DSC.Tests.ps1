@@ -171,7 +171,7 @@ Describe 'WinGetPackage' {
         $testPackageId = 'AppInstallerTest.TestExeInstaller'
         $testPackageVersion = '1.0.0.0'
 
-        InvokeWinGetDSC -Name WinGetSource -Method Set -Property @{ Name = $testSourceName; Argument = $testSourceArg; Type = $testSourceType; TrustLevel = 'Trusted' }
+        InvokeWinGetDSC -Name WinGetSource -Method Set -Property @{ Name = $testSourceName; Argument = $testSourceArg; Type = $testSourceType; TrustLevel = 'Trusted'; Explicit = $false }
     }
 
     It 'Get WinGetPackage' {

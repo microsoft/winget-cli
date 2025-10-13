@@ -160,7 +160,23 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             IReadOnlyList<PackageCatalogReference> references = this.GetPackageCatalogReferences(this.Source);
             for (var i = 0; i < references.Count; i++)
             {
-                options.Catalogs.Add(references[i]);
+                var reference = references[i];
+                bool isExplicit = false;
+                try
+                {
+                    // Execute in try block to catch interface not implemented on older servers.
+                    isExplicit = reference.Info.Explicit;
+                }
+                catch
+                {
+                    // Assume that any failure other than the interface not implemented to get Explicit
+                    // will result in other failures shortly after this (like the server being gone).
+                }
+
+                if (!isExplicit)
+                {
+                    options.Catalogs.Add(reference);
+                }
             }
 
             options.CompositeSearchBehavior = behavior;

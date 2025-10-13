@@ -309,13 +309,16 @@ namespace winrt::WinGetUWPCaller::implementation
 
                 if (selectedItems.Size() == 0)
                 {
-                    // If no items are selected, we use all available catalogs.
+                    // If no items are selected, we use all implicit catalogs.
                     CreateCompositePackageCatalogOptions createCompositePackageCatalogOptions;
                     createCompositePackageCatalogOptions.CompositeSearchBehavior(CompositeSearchBehavior::RemotePackagesFromRemoteCatalogs);
 
                     for (const auto& item : m_packageManager.GetPackageCatalogs())
                     {
-                        createCompositePackageCatalogOptions.Catalogs().Append(item);
+                        if (!item.Info().Explicit())
+                        {
+                            createCompositePackageCatalogOptions.Catalogs().Append(item);
+                        }
                     }
 
                     catalogReference = m_packageManager.CreateCompositePackageCatalog(createCompositePackageCatalogOptions);

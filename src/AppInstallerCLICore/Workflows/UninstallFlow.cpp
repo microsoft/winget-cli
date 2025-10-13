@@ -354,7 +354,6 @@ namespace AppInstaller::CLI::Workflow
             break;
         case InstallerTypeEnum::Font:
             context <<
-                EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::Font) <<
                 Workflow::FontUninstallImpl <<
                 ReportUninstallerResult("Font"sv, APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED, true);
             break;
