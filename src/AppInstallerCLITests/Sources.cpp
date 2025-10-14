@@ -23,7 +23,7 @@ using namespace AppInstaller::Utility;
 using namespace std::string_literals;
 using namespace std::string_view_literals;
 
-constexpr size_t c_DefaultSourceCount = 2;
+constexpr size_t c_DefaultSourceCount = 3;
 
 constexpr std::string_view s_SourcesYaml_Sources = "Sources"sv;
 constexpr std::string_view s_SourcesYaml_Source_Name = "Name"sv;
@@ -46,6 +46,11 @@ Sources:
     Data: ""
     IsTombstone: true
   - Name: msstore
+    Type: ""
+    Arg: ""
+    Data: ""
+    IsTombstone: true
+  - Name: winget-font
     Type: ""
     Arg: ""
     Data: ""
@@ -118,6 +123,11 @@ Sources:
     Data: ""
     IsTombstone: true
   - Name: msstore
+    Type: ""
+    Arg: ""
+    Data: ""
+    IsTombstone: true
+  - Name: winget-font
     Type: ""
     Arg: ""
     Data: ""
