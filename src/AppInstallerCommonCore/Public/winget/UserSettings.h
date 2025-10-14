@@ -101,6 +101,7 @@ namespace AppInstaller::Settings
         // Logging
         LoggingLevelPreference,
         LoggingChannelPreference,
+        LoggingFileNameStrategy,
         // Uninstall behavior
         UninstallPurgePortablePackage,
         // Download behavior
@@ -196,6 +197,7 @@ namespace AppInstaller::Settings
         // Logging
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingLevelPreference, std::string, Logging::Level, Logging::Level::Info, ".logging.level"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingChannelPreference, std::vector<std::string>, Logging::Channel, Logging::Channel::Defaults, ".logging.channels"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileNameStrategy, std::string, Logging::LogNameStrategy, Logging::LogNameStrategy::Manifest, ".logging.fileNameStrategy"sv);
         // Interactivity
         SETTINGMAPPING_SPECIALIZATION(Setting::InteractivityDisable, bool, bool, false, ".interactivity.disable"sv);
         
