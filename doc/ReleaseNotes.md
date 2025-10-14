@@ -1,3 +1,3 @@
-## New in v1.13
+## New in v1.28
 
 <!-- Nothing yet! -->
