@@ -1475,9 +1475,6 @@ Especifique uno de ellos con la opción --source para continuar.</value>
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>No se ha especificado ningún instalador anidado para este paquete</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>Solo se puede especificar un instalador anidado no portátil para un instalador de archivo</value>
-  </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>Argumentos de línea de comandos no compatibles proporcionados</value>
   </data>
@@ -1974,31 +1971,6 @@ Especifique uno de ellos con la opción --source para continuar.</value>
   </data>
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>Instalar el paquete completo para AppInstaller</value>
-  </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>Habilitar componentes de configuración. Requiere acceso al almacén.</value>
-  </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
-    <value>Las opciones '--enable' y '--disable' no se pueden usar con otros argumentos.</value>
-    <comment>{Locked="--enable", "--disable"}</comment>
-  </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>Habilitando componentes de configuración. Requiere acceso a la tienda.</value>
-  </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>La configuración no está habilitada. Ejecute "winget configure --enable" para habilitarlo.</value>
-  </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>La configuración está habilitada.</value>
-  </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>Deshabilite los componentes de configuración. Requiere acceso al almacén.</value>
-  </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>Deshabilitando componentes de configuración. Requiere acceso al almacén.</value>
-  </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>La configuración está deshabilitada.</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>Omite el procesamiento de las dependencias del paquete y las características de Windows</value>
@@ -3183,9 +3155,6 @@ Especifique uno de ellos con la opción --source para continuar.</value>
   </data>
   <data name="FontListCommandShortDescription" xml:space="preserve">
     <value>Lista de fuentes instaladas</value>
-  </data>
-  <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>Muestra todas las fuentes instaladas o todos los detalles de una fuente específica.</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>Versión</value>

@@ -67,6 +67,16 @@
 如果启用此设置，Windows 程序包管理器的 Microsoft Store 源将可用，无法删除。
 
 如果禁用此设置，Windows 程序包管理器的 Microsoft Store 源将不可用。</string>
+      <string id="EnableFontSource">Enable Windows Package Manager Font Source</string>
+      <string id="EnableFontSourceExplanation">
+        This policy controls the Font source included with the Windows Package Manager.
+
+        If you do not configure this setting, the Font source for the Windows Package manager will be available and can be removed.
+
+        If you enable this setting, the Font source for the Windows Package Manager will be available and cannot be removed.
+
+        If you disable this setting the Font source for the Windows Package Manager will not be available.
+      </string>
       <string id="SourceAutoUpdateInterval">设置 Windows 程序包管理器源自动更新间隔(分钟)</string>
       <string id="SourceAutoUpdateIntervalExplanation">此策略控制基于程序包的源的自动更新间隔。配置Windows 程序包管理器的默认源，以便在本地计算机上缓存包索引。当用户调用命令并且间隔已过时，将下载索引。
 
@@ -116,6 +126,13 @@
 如果启用此设置，则用户将能够通过命令行配置Windows 程序包管理器使用代理。
 
 如果禁用或未配置此设置，则用户将无法通过命令行配置Windows 程序包管理器使用代理。</string>
+      <string id="EnableWindowsPackageManagerMcpServer">Enable MCP Server for Windows Package Manager</string>
+      <string id="EnableWindowsPackageManagerMcpServerExplanation">
+        This policy controls whether the Windows Package Manager Model Context Protocol (MCP) server can be used.
+
+        If you enable or do not configure this setting, users will be able to use the Windows Package Manager's MCP server.
+
+        If you disable this setting, users will not be able to to use the Windows Package Manager's MCP server.</string>
       <string id="WindowsPackageManagerDefaultProxy">设置 Windows 程序包管理器默认代理</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">此策略控制Windows 程序包管理器使用的默认代理。
 

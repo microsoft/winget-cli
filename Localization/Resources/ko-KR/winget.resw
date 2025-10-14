@@ -1475,9 +1475,6 @@
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>이 패키지에 대해 중첩된 설치 관리자가 지정되지 않았습니다.</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>보관 설치 관리자에 대해 이식할 수 없는 중첩 설치 관리자를 하나만 지정할 수 있습니다.</value>
-  </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>제공된 호환되지 않는 명령줄 인수</value>
   </data>
@@ -1974,31 +1971,6 @@
   </data>
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>AppInstaller의 전체 패키지 설치</value>
-  </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>구성 구성 요소를 활성화합니다. 저장소 접근이 필요합니다.</value>
-  </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
-    <value>옵션 '--enable' 및 '--disable' 다른 인수와 함께 사용할 수 없습니다.</value>
-    <comment>{Locked="--enable", "--disable"}</comment>
-  </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>구성 구성 요소를 활성화합니다. 저장소 접근이 필요합니다.</value>
-  </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>구성이 활성화되지 않았습니다. 활성화하려면 `wingetconfigure --enable`을 실행하세요.</value>
-  </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>구성이 활성화되었습니다.</value>
-  </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>구성 구성 요소를 비활성화합니다. 저장소 접근이 필요합니다.</value>
-  </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>구성 구성 요소를 비활성화합니다.저장소 접근이 필요합니다.</value>
-  </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>구성이 비활성화되었습니다.</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>패키지 종속성 및 Windows 기능 처리를 건너뜁니다.</value>
@@ -3183,9 +3155,6 @@
   </data>
   <data name="FontListCommandShortDescription" xml:space="preserve">
     <value>설치된 글꼴 나열</value>
-  </data>
-  <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>설치된 모든 글꼴 또는 특정 글꼴의 전체 세부 정보를 나열합니다.</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>버전</value>
