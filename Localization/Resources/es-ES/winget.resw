@@ -900,6 +900,9 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
   <data name="PolicyEnableMSStoreSource" xml:space="preserve">
     <value>Habilitar el origen Microsoft Store del instalador de aplicaciones de Windows</value>
   </data>
+  <data name="PolicyEnableFontSource" xml:space="preserve">
+    <value>Habilitar origen de fuente de Windows App Instalador</value>
+  </data>
   <data name="PolicyEnableWinGetSettings" xml:space="preserve">
     <value>Habilitar la configuración del Administrador de paquetes de Windows</value>
   </data>
@@ -1475,8 +1478,8 @@ Especifique uno de ellos con la opción --source para continuar.</value>
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>No se ha especificado ningún instalador anidado para este paquete</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>Solo se puede especificar un instalador anidado no portátil para un instalador de archivo</value>
+  <data name="MultipleUnsupportedNestedInstallersSpecified" xml:space="preserve">
+    <value>Solo se puede especificar un instalador anidado para un instalador de archivo a menos que sea un instalador anidado de fuente o portátil</value>
   </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>Argumentos de línea de comandos no compatibles proporcionados</value>
@@ -1975,30 +1978,31 @@ Especifique uno de ellos con la opción --source para continuar.</value>
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>Instalar el paquete completo para AppInstaller</value>
   </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>Habilitar componentes de configuración. Requiere acceso al almacén.</value>
+  <data name="ExtendedFeaturesEnableMessage" xml:space="preserve">
+    <value>Habilite las características extendidas. Requiere acceso a la tienda.</value>
   </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
+  <data name="ExtendedFeaturesEnableArgumentError" xml:space="preserve">
     <value>Las opciones '--enable' y '--disable' no se pueden usar con otros argumentos.</value>
     <comment>{Locked="--enable", "--disable"}</comment>
   </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>Habilitando componentes de configuración. Requiere acceso a la tienda.</value>
+  <data name="ExtendedFeaturesEnablingMessage" xml:space="preserve">
+    <value>Habilitación de características extendidas. Requiere acceso a la tienda.</value>
   </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>La configuración no está habilitada. Ejecute "winget configure --enable" para habilitarlo.</value>
+  <data name="ExtendedFeaturesNotEnabledMessage" xml:space="preserve">
+    <value>Las características extendidas no están habilitadas. Ejecute "winget configure --enable" para habilitarlos.</value>
+    <comment>{Locked="winget configure --enable"}</comment>
   </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>La configuración está habilitada.</value>
+  <data name="ExtendedFeaturesEnabledMessage" xml:space="preserve">
+    <value>Las características extendidas están habilitadas.</value>
   </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>Deshabilite los componentes de configuración. Requiere acceso al almacén.</value>
+  <data name="ExtendedFeaturesDisableMessage" xml:space="preserve">
+    <value>Deshabilite las características extendidas. Requiere acceso a la tienda.</value>
   </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>Deshabilitando componentes de configuración. Requiere acceso al almacén.</value>
+  <data name="ExtendedFeaturesDisablingMessage" xml:space="preserve">
+    <value>Deshabilitando las características extendidas. Requiere acceso a la tienda.</value>
   </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>La configuración está deshabilitada.</value>
+  <data name="ExtendedFeaturesDisabledMessage" xml:space="preserve">
+    <value>Las características extendidas están deshabilitadas.</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>Omite el procesamiento de las dependencias del paquete y las características de Windows</value>
@@ -3185,7 +3189,7 @@ Especifique uno de ellos con la opción --source para continuar.</value>
     <value>Lista de fuentes instaladas</value>
   </data>
   <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>Muestra todas las fuentes instaladas o todos los detalles de una fuente específica.</value>
+    <value>Muestra todas las fuentes instaladas, todos los archivos de fuente o todos los detalles de una fuente específica.</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>Versión</value>
@@ -3369,5 +3373,89 @@ Especifique uno de ellos con la opción --source para continuar.</value>
   </data>
   <data name="ResetAllAdminSettingsSucceeded" xml:space="preserve">
     <value>Se han restablecido todas las configuraciones de administración.</value>
+  </data>
+  <data name="McpCommandShortDescription" xml:space="preserve">
+    <value>Información de MCP</value>
+    <comment>MCP stands for Model Context Protocol and should probably remain as-is</comment>
+  </data>
+  <data name="McpCommandLongDescription" xml:space="preserve">
+    <value>Información de MCP (Protocolo de contexto de modelo) para el Administrador de paquetes de Windows.</value>
+  </data>
+  <data name="McpConfigurationPreamble" xml:space="preserve">
+    <value>Para configurar manualmente el Administrador de paquetes de Windows servidor MCP con el cliente MCP, use el siguiente fragmento JSON en el objeto `servers`:</value>
+    <comment>{Locked="`servers`"}
+MCP stands for Model Context Protocol and should probably remain as-is.
+An unlocalized JSON fragment will follow on another line.</comment>
+  </data>
+  <data name="PolicyEnableMcpServer" xml:space="preserve">
+    <value>Habilitar Administrador de paquetes de Windows (servidor MCP)</value>
+  </data>
+  <data name="OSVersionDescription" xml:space="preserve">
+    <value>Versión del sistema operativo de destino</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED" xml:space="preserve">
+    <value>Error al instalar una o varias fuentes.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED" xml:space="preserve">
+    <value>El archivo de fuente no es compatible y no se puede instalar.</value>
+  </data>
+  <data name="FontFileNotSupported" xml:space="preserve">
+    <value>Una o varias fuentes del paquete de fuentes no se admiten y no se pueden instalar.</value>
+  </data>
+  <data name="FontInstallFailed" xml:space="preserve">
+    <value>Error al instalar la fuente; limpiando.</value>
+  </data>
+  <data name="FontAlreadyInstalled" xml:space="preserve">
+    <value>Fuente ya instalada.</value>
+  </data>
+  <data name="FontPackage" xml:space="preserve">
+    <value>Id. de paquete</value>
+  </data>
+  <data name="FontWinGetSupported" xml:space="preserve">
+    <value>WinGet admitido</value>
+  </data>
+  <data name="FontTitle" xml:space="preserve">
+    <value>Título</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND" xml:space="preserve">
+    <value>No se encontró el archivo de fuente.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED" xml:space="preserve">
+    <value>Error al desinstalar la fuente. Es posible que la fuente no esté en buen estado. Intente desinstalar después de reiniciar.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED" xml:space="preserve">
+    <value>Error de validación de fuente.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED" xml:space="preserve">
+    <value>Error al revertir la fuente. Es posible que la fuente no esté en buen estado. Intente desinstalar después de reiniciar.</value>
+  </data>
+  <data name="FontDetailsArgumentDescription" xml:space="preserve">
+    <value>Mostrar información detallada del archivo de fuente.</value>
+  </data>
+  <data name="FontValidationFailed" xml:space="preserve">
+    <value>Error en la validación del paquete de fuentes.</value>
+  </data>
+  <data name="FontRollbackFailed" xml:space="preserve">
+    <value>El intento de reversión de la instalación de fuentes con error no se realizó correctamente. Es posible que sea necesario reiniciar para desinstalar correctamente la fuente.</value>
+  </data>
+  <data name="FontUninstallFailed" xml:space="preserve">
+    <value>Error al desinstalar el paquete de fuentes. Esto suele deberse a que el sistema o una aplicación están usando fuentes. Es posible que la desinstalación se haya realizado correctamente después de reiniciar el equipo.</value>
+  </data>
+  <data name="FontStatusOK" xml:space="preserve">
+    <value>Aceptar</value>
+    <comment>"OK" means the font is in a good healthy state</comment>
+  </data>
+  <data name="FontStatusCorrupt" xml:space="preserve">
+    <value>Dañada</value>
+    <comment>"Corrupt" refers to an install that is in a corrupted or bad state, and needs repair.</comment>
+  </data>
+  <data name="FontStatus" xml:space="preserve">
+    <value>Estado</value>
+  </data>
+  <data name="FontStatusUnknown" xml:space="preserve">
+    <value>Desconocido</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED" xml:space="preserve">
+    <value>El paquete de fuentes ya está instalado.</value>
   </data>
 </root>

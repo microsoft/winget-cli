@@ -67,6 +67,16 @@ Si no configura esta opción, el origen de la Tienda Microsoft para el Administr
 Si habilita esta configuración, el origen de Microsoft Store para el Administrador de paquetes de Windows estará disponible y no se podrá eliminar.
 
 Si desactiva esta configuración, el origen de la Tienda Microsoft para el Administrador de paquetes de Windows no estará disponible.</string>
+      <string id="EnableFontSource">Habilitar el origen de la fuente de Administrador de paquetes de Windows</string>
+      <string id="EnableFontSourceExplanation">
+        Esta directiva controla la fuente de la fuente incluida en el Administrador de paquetes de Windows.
+
+        Si no configuras esta opción, el origen de la fuente para el Administrador de paquetes de Windows estará disponible y se podrá elimina.
+
+        Si habilitas esta configuración, el origen de la fuente para el Administrador de paquetes de Windows estará disponible y no se podrá eliminar.
+
+        Si desactivas esta configuración, el origen de la fuente para el Administrador de paquetes de Windows no estará disponible.
+      </string>
       <string id="SourceAutoUpdateInterval">Establecer el intervalo de actualización automática del origen del Administrador de paquetes de Windows en minutos</string>
       <string id="SourceAutoUpdateIntervalExplanation">Esta directiva controla el intervalo de actualización automática para orígenes basados en paquetes. El origen predeterminado para Administrador de paquetes de Windows está configurado de forma que un índice de los paquetes se almacena en caché en el equipo local. El índice se descarga cuando un usuario invoca un comando y el intervalo ha pasado.
 
@@ -116,6 +126,13 @@ Si deshabilita esta configuración, los usuarios no podrán usar la característ
 Si habilita esta configuración, los usuarios podrán configurar el uso del proxy del Administrador de paquetes de Windows a través de la línea de comandos.
 
 Si deshabilita o no establece esta configuración, los usuarios no podrán configurar el uso del proxy del Administrador de paquetes de Windows a través de la línea de comandos.</string>
+      <string id="EnableWindowsPackageManagerMcpServer">Habilitar el servidor MCP para el Administrador de paquetes de Windows</string>
+      <string id="EnableWindowsPackageManagerMcpServerExplanation">
+        Esta directiva controla si se puede usar el servidor del Protocolo de contexto de modelo de Administrador de paquetes de Windows (MCP).
+
+Si habilita o no establece esta configuración, los usuarios podrán usar el servidor MCP del Administrador de paquetes de Windows.
+
+Si deshabilita esta configuración, los usuarios no podrán usar el servidor MCP del Administrador de paquetes de Windows.</string>
       <string id="WindowsPackageManagerDefaultProxy">Establecer Administrador de paquetes de Windows proxy predeterminado</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">Esta directiva controla el proxy predeterminado que usa el Administrador de paquetes de Windows.
 
