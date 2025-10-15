@@ -646,6 +646,20 @@ jobs:
       Contents: '**'
       TargetFolder: '$(artifactsDir)'
 
+  - task: PowerShell@2
+    displayName: 'Copy Application Event Logs to Artifacts'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $source = "$env:SystemRoot\System32\winevt\Logs\Application.evtx"
+        $destination = "$(artifactsDir)\Application.evtx"
+        if (Test-Path $source) {
+          Copy-Item -Path $source -Destination $destination -Force
+        } else {
+          Write-Host "Application event log not found at $source"
+        }
+    condition: succeededOrFailed()
+
   - task: PublishPipelineArtifact@1
     displayName: Publish Fuzzing Artifacts
     inputs:
