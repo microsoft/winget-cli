@@ -169,9 +169,10 @@ namespace WinGetMCPServer
             for (int i = 0; i < catalogs.Count; ++i)
             {
                 var catalogRef = catalogs[i];
-                if (string.IsNullOrEmpty(catalog) || catalogRef?.Info.Name == catalog)
+                if ((string.IsNullOrEmpty(catalog) && !catalogRef.Info.Explicit)
+                    || catalogRef?.Info.Name == catalog)
                 {
-                    createCompositePackageCatalogOptions.Catalogs.Add(catalogs[i]);
+                    createCompositePackageCatalogOptions.Catalogs.Add(catalogRef);
                 }
             }
             createCompositePackageCatalogOptions.CompositeSearchBehavior = CompositeSearchBehavior.AllCatalogs;

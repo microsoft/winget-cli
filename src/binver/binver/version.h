@@ -2,7 +2,7 @@
 #define STRINGIZE(s) STRINGIZE2(s)
 
 #define VERSION_MAJOR               1
-#define VERSION_MINOR               12
+#define VERSION_MINOR               28
 #define VERSION_BUILD               0
 #define VERSION_REVISION            0
 
@@ -29,3 +29,4 @@
 #define VER_FILEOS                  VOS_NT_WINDOWS32
 #define VER_FILEFLAGS               VER_VER_DEBUG
 #define VER_FILETYPE                VFT_APP
+

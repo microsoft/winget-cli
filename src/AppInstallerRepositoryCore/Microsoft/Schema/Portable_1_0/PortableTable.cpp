@@ -108,7 +108,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         {
             auto [filePath, fileType, sha256, symlinkTarget] = select.GetRow<std::string, Portable::PortableFileType, std::string, std::string>();
             portableFile.FileType = fileType;
-            portableFile.SetFilePath(std::move(filePath));
+            portableFile.SetFilePath(Utility::ConvertToUTF16(filePath));
             portableFile.SHA256 = std::move(sha256);
             portableFile.SymlinkTarget = std::move(symlinkTarget);
             return portableFile;
@@ -167,7 +167,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
             Portable::PortableFileEntry portableFile;
             auto [filePath, fileType, sha256, symlinkTarget] = select.GetRow<std::string, Portable::PortableFileType, std::string, std::string>();
             portableFile.FileType = fileType;
-            portableFile.SetFilePath(std::move(filePath));
+            portableFile.SetFilePath(Utility::ConvertToUTF16(filePath));
             portableFile.SHA256 = std::move(sha256);
             portableFile.SymlinkTarget = std::move(symlinkTarget);
             result.emplace_back(std::move(portableFile));

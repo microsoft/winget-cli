@@ -67,6 +67,16 @@
 この設定を有効にした場合、Windows パッケージ マネージャーの Microsoft Store ソースが利用できるようになり、削除できなくなります。
 
 この設定を無効にした場合、Windows パッケージマ ネージャーの Microsoft Store ソースは利用できなくなります。</string>
+      <string id="EnableFontSource">Windows パッケージ マネージャーのフォントのソースを有効にする</string>
+      <string id="EnableFontSourceExplanation">
+        このポリシーでは、Windows パッケージ マネージャーに含まれているフォント ソースを制御します。
+
+        この設定を構成しなかった場合、Windows パッケージ マネージャーのフォント ソースが利用可能になり、削除できるようになります。
+
+        この設定を有効にした場合、Windows パッケージ マネージャーのフォント ソースが利用できるようになり、削除できなくなります。
+
+        この設定を無効にした場合、Windows パッケージ マネージャーのフォント ソースは利用できなくなります。
+      </string>
       <string id="SourceAutoUpdateInterval">Windows パッケージ マネージャーのソース自動更新間隔を分単位で設定する</string>
       <string id="SourceAutoUpdateIntervalExplanation">このポリシーは、パッケージ ベースのソースの自動更新間隔を制御します。Windows パッケージ マネージャーの既定のソースは、パッケージのインデックスがローカル コンピューターにキャッシュされるように構成されています。インデックスは、ユーザーがコマンドを呼び出し、間隔が過ぎたときにダウンロードされます。
 
@@ -116,6 +126,13 @@
 この設定を有効にした場合、ユーザーはコマンド ラインを使用してWindows パッケージ マネージャーのプロキシの使用を構成できます。
 
 この設定を無効にした場合、または構成しなかった場合、ユーザーはコマンド ラインでWindows パッケージ マネージャーのプロキシの使用を構成できなくなります。</string>
+      <string id="EnableWindowsPackageManagerMcpServer">Windows パッケージ マネージャーの MCP サーバーを有効にする</string>
+      <string id="EnableWindowsPackageManagerMcpServerExplanation">
+        このポリシーでは、Windows パッケージ マネージャー モデル コンテキスト プロトコル (MCP) サーバーを使用できるかどうかを制御します。
+
+この設定を有効にするか、未構成にした場合、ユーザーはWindows パッケージ マネージャーの MCP サーバーを使用できます。
+
+この設定を無効にすると、ユーザーはWindows パッケージ マネージャーの MCP サーバーを使用できなくなります。</string>
       <string id="WindowsPackageManagerDefaultProxy">Windows パッケージ マネージャーの既定のプロキシを設定する</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">このポリシーは、Windows パッケージ マネージャーで使用される既定のプロキシを制御します。
 

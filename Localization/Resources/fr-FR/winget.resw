@@ -900,6 +900,9 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="PolicyEnableMSStoreSource" xml:space="preserve">
     <value>Activer la source Microsoft Store du Programme d’installation d’application Windows</value>
   </data>
+  <data name="PolicyEnableFontSource" xml:space="preserve">
+    <value>Activer la source de polices Windows App Installer</value>
+  </data>
   <data name="PolicyEnableWinGetSettings" xml:space="preserve">
     <value>Activer les paramètres du Gestionnaire de package Windows</value>
   </data>
@@ -1475,8 +1478,8 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>Aucun programme d’installation imbriqué spécifié pour ce package</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>Un seul programme d’installation imbriqué non portable peut être spécifié pour un programme d’installation d’archive</value>
+  <data name="MultipleUnsupportedNestedInstallersSpecified" xml:space="preserve">
+    <value>Un seul programme d’installation imbriqué peut être spécifié pour un programme d’installation d’archive, sauf s’il s’agit d’un programme d’installation imbriqué portable ou de police</value>
   </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>Arguments de ligne de commande fournis incompatibles</value>
@@ -1975,30 +1978,31 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>Installer le package complet pour AppInstaller</value>
   </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>Activez les composants de configuration. Nécessite l’accès au magasin.</value>
+  <data name="ExtendedFeaturesEnableMessage" xml:space="preserve">
+    <value>Activer les fonctionnalités étendues. Nécessite l’accès au store.</value>
   </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
+  <data name="ExtendedFeaturesEnableArgumentError" xml:space="preserve">
     <value>L’option '--enable' et '--disable' ne peuvent pas être utilisées avec d’autres arguments.</value>
     <comment>{Locked="--enable", "--disable"}</comment>
   </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>Activation des composants de configuration. Nécessite l’accès au magasin.</value>
+  <data name="ExtendedFeaturesEnablingMessage" xml:space="preserve">
+    <value>Activation des fonctionnalités étendues. Nécessite l’accès au store.</value>
   </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>La configuration n’est pas activée. Exécutez 'winget configure --enable' pour l’activer.</value>
+  <data name="ExtendedFeaturesNotEnabledMessage" xml:space="preserve">
+    <value>Les fonctionnalités étendues ne sont pas activées. Exécutez 'winget configure --enable' pour les activer.</value>
+    <comment>{Locked="winget configure --enable"}</comment>
   </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>La configuration est activée.</value>
+  <data name="ExtendedFeaturesEnabledMessage" xml:space="preserve">
+    <value>Les fonctionnalités étendues sont activées.</value>
   </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>Désactivez les composants de configuration. Nécessite l’accès au magasin.</value>
+  <data name="ExtendedFeaturesDisableMessage" xml:space="preserve">
+    <value>Désactiver les fonctionnalités étendues. Nécessite l’accès au store.</value>
   </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>Désactivation des composants de configuration. Nécessite l’accès au magasin.</value>
+  <data name="ExtendedFeaturesDisablingMessage" xml:space="preserve">
+    <value>Désactivation des fonctionnalités étendues. Nécessite l’accès au store.</value>
   </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>La configuration est désactivée.</value>
+  <data name="ExtendedFeaturesDisabledMessage" xml:space="preserve">
+    <value>Les fonctionnalités étendues sont désactivées.</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>Ignore le traitement des dépendances de package et des fonctionnalités Windows</value>
@@ -3185,7 +3189,7 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
     <value>Répertorier les polices installées</value>
   </data>
   <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>Répertoriez toutes les polices installées ou les détails complets d’une police spécifique.</value>
+    <value>Répertoriez toutes les polices installées, tous les fichiers de police ou tous les détails d’une police spécifique.</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>Version</value>
@@ -3369,5 +3373,89 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   </data>
   <data name="ResetAllAdminSettingsSucceeded" xml:space="preserve">
     <value>Tous les paramètres d’administration ont été réinitialisés.</value>
+  </data>
+  <data name="McpCommandShortDescription" xml:space="preserve">
+    <value>Informations MCP</value>
+    <comment>MCP stands for Model Context Protocol and should probably remain as-is</comment>
+  </data>
+  <data name="McpCommandLongDescription" xml:space="preserve">
+    <value>Informations MCP (Model Context Protocol) pour le Gestionnaire de package Windows.</value>
+  </data>
+  <data name="McpConfigurationPreamble" xml:space="preserve">
+    <value>Pour configurer manuellement le serveur Gestionnaire de package Windows MCP avec votre client MCP, utilisez le fragment JSON suivant dans l’objet `servers` :</value>
+    <comment>{Locked="`servers`"}
+MCP stands for Model Context Protocol and should probably remain as-is.
+An unlocalized JSON fragment will follow on another line.</comment>
+  </data>
+  <data name="PolicyEnableMcpServer" xml:space="preserve">
+    <value>Activer le serveur MCP du Gestionnaire de package Windows</value>
+  </data>
+  <data name="OSVersionDescription" xml:space="preserve">
+    <value>Version du système d’exploitation cible</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED" xml:space="preserve">
+    <value>Désolé, échec de l’installation d’une ou plusieurs polices.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED" xml:space="preserve">
+    <value>Désolé, le fichier de police n’est pas pris en charge et ne peut pas être installé.</value>
+  </data>
+  <data name="FontFileNotSupported" xml:space="preserve">
+    <value>Une ou plusieurs polices du package de polices ne sont pas prises en charge et ne peuvent pas être installées.</value>
+  </data>
+  <data name="FontInstallFailed" xml:space="preserve">
+    <value>Désolé, nous n’avons pas pu effectuer l’installation; nettoyage en cours.</value>
+  </data>
+  <data name="FontAlreadyInstalled" xml:space="preserve">
+    <value>La police est déjà installée.</value>
+  </data>
+  <data name="FontPackage" xml:space="preserve">
+    <value>ID de package</value>
+  </data>
+  <data name="FontWinGetSupported" xml:space="preserve">
+    <value>WinGet pris en charge</value>
+  </data>
+  <data name="FontTitle" xml:space="preserve">
+    <value>Titre</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND" xml:space="preserve">
+    <value>Fichier de police introuvable.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED" xml:space="preserve">
+    <value>Échec de la désinstallation de la police. La police n’est peut-être pas en bon état. Essayez de désinstaller après un redémarrage.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED" xml:space="preserve">
+    <value>La validation de la police a échoué.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED" xml:space="preserve">
+    <value>Échec de la restauration de police. La police n’est peut-être pas en bon état. Essayez de désinstaller après un redémarrage.</value>
+  </data>
+  <data name="FontDetailsArgumentDescription" xml:space="preserve">
+    <value>Afficher les informations détaillées du fichier de police.</value>
+  </data>
+  <data name="FontValidationFailed" xml:space="preserve">
+    <value>Désolé, échec de la validation du package de polices.</value>
+  </data>
+  <data name="FontRollbackFailed" xml:space="preserve">
+    <value>La tentative de restauration de l’installation de police ayant échoué a échoué. Un redémarrage peut être nécessaire pour désinstaller la police.</value>
+  </data>
+  <data name="FontUninstallFailed" xml:space="preserve">
+    <value>Échec de la désinstallation du package de polices. Cela est souvent dû aux polices utilisées par le système ou une application. La désinstallation peut réussir après le redémarrage de votre ordinateur.</value>
+  </data>
+  <data name="FontStatusOK" xml:space="preserve">
+    <value>OK</value>
+    <comment>"OK" means the font is in a good healthy state</comment>
+  </data>
+  <data name="FontStatusCorrupt" xml:space="preserve">
+    <value>Endommagé</value>
+    <comment>"Corrupt" refers to an install that is in a corrupted or bad state, and needs repair.</comment>
+  </data>
+  <data name="FontStatus" xml:space="preserve">
+    <value>Statut</value>
+  </data>
+  <data name="FontStatusUnknown" xml:space="preserve">
+    <value>Inconnu</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED" xml:space="preserve">
+    <value>Le package de polices est déjà installé.</value>
   </data>
 </root>

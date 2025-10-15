@@ -900,6 +900,9 @@
   <data name="PolicyEnableMSStoreSource" xml:space="preserve">
     <value>Windows アプリインストーラー Microsoft Store ソースを有効にする</value>
   </data>
+  <data name="PolicyEnableFontSource" xml:space="preserve">
+    <value>Windows App インストーラー フォント ソースを有効にする</value>
+  </data>
   <data name="PolicyEnableWinGetSettings" xml:space="preserve">
     <value>Windows パッケージ マネージャーを有効にする</value>
   </data>
@@ -1475,8 +1478,8 @@
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>このパッケージ用には入れ子状態インストーラーは指定されていません</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>アーカイブ インストーラー用に指定できる移植可能でない入れ子状態インストーラーは 1 つのみです</value>
+  <data name="MultipleUnsupportedNestedInstallersSpecified" xml:space="preserve">
+    <value>移植可能なインストーラーまたはフォントで入れ子になったインストーラーでない限り、アーカイブ インストーラーに指定できる入れ子になったインストーラーは 1 つだけです</value>
   </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>互換性のないコマンド ライン引数が指定されました</value>
@@ -1975,30 +1978,31 @@
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>AppInstaller のフル パッケージをインストールする</value>
   </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>構成コンポーネントを有効にします。ストアへのアクセス権が必要です。</value>
+  <data name="ExtendedFeaturesEnableMessage" xml:space="preserve">
+    <value>拡張機能を有効にします。ストアへのアクセスが必要です。</value>
   </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
+  <data name="ExtendedFeaturesEnableArgumentError" xml:space="preserve">
     <value>オプション '--enable' と '--disable' は他の引数で使用することはできません。</value>
     <comment>{Locked="--enable", "--disable"}</comment>
   </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>構成コンポーネントを有効にしています。ストアへのアクセス権が必要です。</value>
+  <data name="ExtendedFeaturesEnablingMessage" xml:space="preserve">
+    <value>拡張機能を有効にしています。ストアへのアクセスが必要です。</value>
   </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>構成が有効になっていません。'winget configure --enable' を実行して有効にしてください。</value>
+  <data name="ExtendedFeaturesNotEnabledMessage" xml:space="preserve">
+    <value>拡張機能が有効になっていません。'winget configure --enable' を実行して有効にします。</value>
+    <comment>{Locked="winget configure --enable"}</comment>
   </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>構成が有効になっています。</value>
+  <data name="ExtendedFeaturesEnabledMessage" xml:space="preserve">
+    <value>拡張機能が有効になっています。</value>
   </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>構成コンポーネントを無効にします。ストアへのアクセス権が必要です。</value>
+  <data name="ExtendedFeaturesDisableMessage" xml:space="preserve">
+    <value>拡張機能を無効にします。ストアへのアクセスが必要です。</value>
   </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>構成コンポーネントを無効にしています。ストアへのアクセス権が必要です。</value>
+  <data name="ExtendedFeaturesDisablingMessage" xml:space="preserve">
+    <value>拡張機能を無効にしています。ストアへのアクセスが必要です。</value>
   </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>構成が無効になっています。</value>
+  <data name="ExtendedFeaturesDisabledMessage" xml:space="preserve">
+    <value>拡張機能は無効になっています。</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>パッケージの依存関係と Windows 機能の処理をスキップする</value>
@@ -3185,7 +3189,7 @@
     <value>インストール済みフォントを一覧表示します</value>
   </data>
   <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>インストールされているすべてのフォント、または特定のフォントの完全な詳細を一覧表示します。</value>
+    <value>インストールされているすべてのフォント、すべてのフォント ファイル、または特定のフォントの完全な詳細を一覧表示します。</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>バージョン</value>
@@ -3369,5 +3373,89 @@
   </data>
   <data name="ResetAllAdminSettingsSucceeded" xml:space="preserve">
     <value>すべての管理者設定がリセットされました。</value>
+  </data>
+  <data name="McpCommandShortDescription" xml:space="preserve">
+    <value>MCP 情報</value>
+    <comment>MCP stands for Model Context Protocol and should probably remain as-is</comment>
+  </data>
+  <data name="McpCommandLongDescription" xml:space="preserve">
+    <value>Windows パッケージ マネージャーの MCP (モデル コンテキスト プロトコル) 情報。</value>
+  </data>
+  <data name="McpConfigurationPreamble" xml:space="preserve">
+    <value>Windows パッケージ マネージャー MCP サーバーを MCP クライアントで手動で構成するには、`servers` オブジェクトで次の JSON フラグメントを使用します:</value>
+    <comment>{Locked="`servers`"}
+MCP stands for Model Context Protocol and should probably remain as-is.
+An unlocalized JSON fragment will follow on another line.</comment>
+  </data>
+  <data name="PolicyEnableMcpServer" xml:space="preserve">
+    <value>Windows パッケージ マネージャー MCP サーバーを有効にする</value>
+  </data>
+  <data name="OSVersionDescription" xml:space="preserve">
+    <value>ターゲット オペレーティング システムのバージョン</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED" xml:space="preserve">
+    <value>1 つ以上のフォントのインストールに失敗しました。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED" xml:space="preserve">
+    <value>フォント ファイルはサポートされていないため、インストールできません。</value>
+  </data>
+  <data name="FontFileNotSupported" xml:space="preserve">
+    <value>フォント パッケージ内の 1 つ以上のフォントがサポートされていないため、インストールできません。</value>
+  </data>
+  <data name="FontInstallFailed" xml:space="preserve">
+    <value>フォントのインストールに失敗しました。クリーンアップしています。</value>
+  </data>
+  <data name="FontAlreadyInstalled" xml:space="preserve">
+    <value>フォントは既にインストールされています。</value>
+  </data>
+  <data name="FontPackage" xml:space="preserve">
+    <value>パッケージ ID</value>
+  </data>
+  <data name="FontWinGetSupported" xml:space="preserve">
+    <value>WinGet がサポートされています</value>
+  </data>
+  <data name="FontTitle" xml:space="preserve">
+    <value>タイトル</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND" xml:space="preserve">
+    <value>フォント ファイルが見つかりません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED" xml:space="preserve">
+    <value>フォントのアンインストールに失敗しました。フォントが正常な状態でない可能性があります。再起動後にアンインストールしてみてください。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED" xml:space="preserve">
+    <value>フォントの検証に失敗しました。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED" xml:space="preserve">
+    <value>フォントのロールバックに失敗しました。フォントが正常な状態でない可能性があります。再起動後にアンインストールしてみてください。</value>
+  </data>
+  <data name="FontDetailsArgumentDescription" xml:space="preserve">
+    <value>フォント ファイルの詳細情報を表示します。</value>
+  </data>
+  <data name="FontValidationFailed" xml:space="preserve">
+    <value>フォント パッケージの検証に失敗しました。</value>
+  </data>
+  <data name="FontRollbackFailed" xml:space="preserve">
+    <value>失敗したフォントのインストールのロールバックに失敗しました。フォントを正常にアンインストールするには、再起動が必要な場合があります。</value>
+  </data>
+  <data name="FontUninstallFailed" xml:space="preserve">
+    <value>フォント パッケージのアンインストールに失敗しました。多くの場合、フォントがシステムまたはアプリケーションによって使用されていることが原因です。コンピューターの再起動後にアンインストールが正常に完了する可能性があります。</value>
+  </data>
+  <data name="FontStatusOK" xml:space="preserve">
+    <value>OK</value>
+    <comment>"OK" means the font is in a good healthy state</comment>
+  </data>
+  <data name="FontStatusCorrupt" xml:space="preserve">
+    <value>破損</value>
+    <comment>"Corrupt" refers to an install that is in a corrupted or bad state, and needs repair.</comment>
+  </data>
+  <data name="FontStatus" xml:space="preserve">
+    <value>状態</value>
+  </data>
+  <data name="FontStatusUnknown" xml:space="preserve">
+    <value>不明</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED" xml:space="preserve">
+    <value>フォント パッケージは既にインストールされています。</value>
   </data>
 </root>

@@ -67,6 +67,16 @@ Se você não definir essa configuração, a fonte da Microsoft Store para o Ger
 Se você habilitar essa configuração, a fonte da Microsoft Store para o Gerenciador de Pacotes do Windows estará disponível e não poderá ser removida.
 
 Se você desabilitar esta configuração, a fonte da Microsoft Store para o Gerenciador de Pacotes do Windows não estará disponível.</string>
+      <string id="EnableFontSource">Habilitar origem da fonte do Gerenciador de pacotes do Windows</string>
+      <string id="EnableFontSourceExplanation">
+        Essa política controla a origem da fonte incluída no Gerenciador de pacotes do Windows.
+
+        Se você não definir essa configuração, a origem da fonte do Gerenciador de pacotes do Windows ficará disponível e poderá ser removida.
+
+        Se você habilitar essa configuração, a origem da fonte do Gerenciador de pacotes do Windows ficará disponível e não poderá ser removida.
+
+        Se você desabilitar essa configuração, a origem da fonte do Gerenciador de pacotes do Windows não ficará disponível.
+      </string>
       <string id="SourceAutoUpdateInterval">Definir o Intervalo de Atualização Automática da Fonte do Gerenciador de Pacotes do Windows em Minutos</string>
       <string id="SourceAutoUpdateIntervalExplanation">Esta política controla o intervalo de atualização automática para origens baseadas em pacote. A fonte padrão para Gerenciador de Pacotes do Windows é configurada de modo que um índice dos pacotes seja armazenado em cache no computador local. O índice é baixado quando um usuário invoca um comando e o intervalo é passado.
 
@@ -116,6 +126,13 @@ Se você desabilitar essa configuração, os usuários não poderão usar o recu
 Se você habilitar essa configuração, os usuários poderão configurar o Gerenciador de Pacotes do Windows do proxy por meio da linha de comando.
 
 Se você desabilitar ou não definir essa configuração, os usuários não poderão configurar o uso Gerenciador de Pacotes do Windows do proxy por meio da linha de comando.</string>
+      <string id="EnableWindowsPackageManagerMcpServer">Habilitar o servidor MCP para o Gerenciador de pacotes do Windows</string>
+      <string id="EnableWindowsPackageManagerMcpServerExplanation">
+        Esta política controla se o servidor Gerenciador de Pacotes do Windows MCP (Protocolo de Contexto de Modelo) pode ser usado.
+
+Se você habilitar ou não definir essa configuração, os usuários poderão usar o Gerenciador de Pacotes do Windows MCP do servidor.
+
+Se você desabilitar essa configuração, os usuários não poderão usar o Gerenciador de Pacotes do Windows MCP do servidor.</string>
       <string id="WindowsPackageManagerDefaultProxy">Definir Proxy Padrão do Gerenciador de Pacotes do Windows</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">Esta política controla o proxy padrão usado pelo Gerenciador de Pacotes do Windows.
 

@@ -67,6 +67,16 @@ Wenn Sie diese Einstellung nicht konfigurieren, ist die Microsoft Store-Quelle f
 Wenn Sie diese Einstellung aktivieren, ist die Microsoft Store-Quelle für den Windows-Paket-Manager verfügbar und kann nicht entfernt werden.
 
 Wenn Sie diese Einstellung deaktivieren, ist die Microsoft Store-Quelle für den Windows-Paket-Manager nicht verfügbar.</string>
+      <string id="EnableFontSource">Windows-Paket-Manager-Schriftartquelle aktivieren</string>
+      <string id="EnableFontSourceExplanation">
+        Diese Richtlinie steuert die im Windows-Paket-Manager enthaltene Schriftartquelle.
+
+        Wenn Sie diese Einstellung nicht konfigurieren, ist die Schriftartquelle für den Windows-Paket-Manager verfügbar und kann entfernt werden.
+
+        Wenn Sie diese Einstellung aktivieren, ist die Schriftartquelle für den Windows-Paket-Manager verfügbar und kann nicht entfernt werden.
+
+        Wenn Sie diese Einstellung deaktivieren, ist die Schriftartquelle für den Windows-Paket-Manager nicht verfügbar.
+      </string>
       <string id="SourceAutoUpdateInterval">Intervall für das automatische Aktualisieren der Windows-Paket-Manager-Quelle in Minuten festlegen</string>
       <string id="SourceAutoUpdateIntervalExplanation">Diese Richtlinie steuert das Intervall für die automatische Aktualisierung paketbasierter Quellen. Die Standardquelle für Windows-Paket-Manager ist so konfiguriert, dass ein Index der Pakete auf dem lokalen Computer zwischengespeichert wird. Der Index wird heruntergeladen, wenn ein Benutzer einen Befehl aufruft und das Intervall abgelaufen ist.
 
@@ -116,6 +126,13 @@ Wenn Sie diese Einstellung deaktivieren, können Benutzer das Konfigurationsfeat
 Wenn Sie diese Einstellung aktivieren, können Benutzer die Verwendung des Proxys durch die Windows-Paket-Manager über die Befehlszeile konfigurieren.
 
 Wenn Sie diese Einstellung deaktivieren oder nicht konfigurieren, können Benutzer die Verwendung des Proxys durch die Windows-Paket-Manager über die Befehlszeile nicht konfigurieren.</string>
+      <string id="EnableWindowsPackageManagerMcpServer">MCP-Server für den Windows-Paket-Manager aktivieren</string>
+      <string id="EnableWindowsPackageManagerMcpServerExplanation">
+        Diese Richtlinie steuert, ob der Model Context Protocol (MCP)-Server des Windows-Paket-Managers verwendet werden kann.
+
+        Wenn Sie diese Einstellung aktivieren oder nicht konfigurieren, können Benutzer den Windows-Paket-Manager verwenden.
+
+        Wenn Sie diese Einstellung deaktivieren, können Benutzer den Windows-Paket-Manager nicht verwenden.</string>
       <string id="WindowsPackageManagerDefaultProxy">Standardproxy für den Windows-Paket-Manager festlegen</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">Diese Richtlinie steuert den Standardproxy, der vom Windows-Paket-Manager verwendet wird.
 

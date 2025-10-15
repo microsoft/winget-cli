@@ -900,6 +900,9 @@
   <data name="PolicyEnableMSStoreSource" xml:space="preserve">
     <value>啟用 Windows 應用程式安裝程式 Microsoft Store 來源</value>
   </data>
+  <data name="PolicyEnableFontSource" xml:space="preserve">
+    <value>啟用 Windows App 安裝程式字型來源</value>
+  </data>
   <data name="PolicyEnableWinGetSettings" xml:space="preserve">
     <value>啟用 Windows 封裝管理員設定</value>
   </data>
@@ -1475,8 +1478,8 @@
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>沒有為此套件指定巢狀安裝程式</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>只能為封存安裝程式指定一個不可移植的巢狀安裝程式</value>
+  <data name="MultipleUnsupportedNestedInstallersSpecified" xml:space="preserve">
+    <value>封存安裝程式只能指定一個巢狀安裝程式，除非它是可攜式或字型巢狀安裝程式</value>
   </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>提供的命令列引數不相容</value>
@@ -1975,30 +1978,31 @@
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>安裝適用於 AppInstaller 的完整封裝</value>
   </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>啟用組態元件。需要存放區存取權。</value>
+  <data name="ExtendedFeaturesEnableMessage" xml:space="preserve">
+    <value>啟用擴充功能。需要商店存取權。</value>
   </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
+  <data name="ExtendedFeaturesEnableArgumentError" xml:space="preserve">
     <value>選項 '--enable' 和 '--disable' 不能與其他引數一起使用。</value>
     <comment>{Locked="--enable", "--disable"}</comment>
   </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>啟用組態元件。需要存放區存取權。</value>
+  <data name="ExtendedFeaturesEnablingMessage" xml:space="preserve">
+    <value>正在啟用擴充功能。需要商店存取權。</value>
   </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>組態未啟用。請執行 `winget configure --enable` 來啟用。</value>
+  <data name="ExtendedFeaturesNotEnabledMessage" xml:space="preserve">
+    <value>未啟用擴充功能。執行「winget configure --enable」以啟用它們。</value>
+    <comment>{Locked="winget configure --enable"}</comment>
   </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>設定已啟用。</value>
+  <data name="ExtendedFeaturesEnabledMessage" xml:space="preserve">
+    <value>擴充功能已啟用。</value>
   </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>停用組態元件。需要存放區存取權。</value>
+  <data name="ExtendedFeaturesDisableMessage" xml:space="preserve">
+    <value>停用擴充功能。需要商店存取權。</value>
   </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>停用組態元件。需要存放區存取權。</value>
+  <data name="ExtendedFeaturesDisablingMessage" xml:space="preserve">
+    <value>正在停用擴充功能。需要商店存取權。</value>
   </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>已停用設定。</value>
+  <data name="ExtendedFeaturesDisabledMessage" xml:space="preserve">
+    <value>擴充功能已停用。</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>略過處理封裝相依性和 Windows 功能</value>
@@ -3185,7 +3189,7 @@
     <value>列出安裝的字型</value>
   </data>
   <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>列出所有已安裝的字型，或特定字型的完整詳細數據。</value>
+    <value>列出所有已安裝的字體、所有字體檔案或特定字體的完整詳細資訊。</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>版本</value>
@@ -3369,5 +3373,89 @@
   </data>
   <data name="ResetAllAdminSettingsSucceeded" xml:space="preserve">
     <value>已重設所有系統管理員設定。</value>
+  </data>
+  <data name="McpCommandShortDescription" xml:space="preserve">
+    <value>MCP 資訊</value>
+    <comment>MCP stands for Model Context Protocol and should probably remain as-is</comment>
+  </data>
+  <data name="McpCommandLongDescription" xml:space="preserve">
+    <value>MCP (模型內容通訊協定) Windows 封裝管理員的資訊。</value>
+  </data>
+  <data name="McpConfigurationPreamble" xml:space="preserve">
+    <value>若要使用 MCP 用戶端手動設定 Windows 封裝管理員 MCP 伺服器，請在 `servers` 物件中使用下列 JSON 片段：</value>
+    <comment>{Locked="`servers`"}
+MCP stands for Model Context Protocol and should probably remain as-is.
+An unlocalized JSON fragment will follow on another line.</comment>
+  </data>
+  <data name="PolicyEnableMcpServer" xml:space="preserve">
+    <value>啟用 Windows 封裝管理員 MCP 伺服器</value>
+  </data>
+  <data name="OSVersionDescription" xml:space="preserve">
+    <value>目標作業系統版本</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED" xml:space="preserve">
+    <value>無法安裝一或多種字型。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED" xml:space="preserve">
+    <value>不支援字型檔案，無法安裝。</value>
+  </data>
+  <data name="FontFileNotSupported" xml:space="preserve">
+    <value>字型套件中的一或多個字型不受支援，無法安裝。</value>
+  </data>
+  <data name="FontInstallFailed" xml:space="preserve">
+    <value>字型安裝失敗；正在清除。</value>
+  </data>
+  <data name="FontAlreadyInstalled" xml:space="preserve">
+    <value>已安裝字型。</value>
+  </data>
+  <data name="FontPackage" xml:space="preserve">
+    <value>套件識別碼</value>
+  </data>
+  <data name="FontWinGetSupported" xml:space="preserve">
+    <value>支援 WinGet</value>
+  </data>
+  <data name="FontTitle" xml:space="preserve">
+    <value>標題</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND" xml:space="preserve">
+    <value>找不到字型檔案。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED" xml:space="preserve">
+    <value>字體解除安裝失敗。字型可能狀態不佳。重新啟動後嘗試解除安裝。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED" xml:space="preserve">
+    <value>字型驗證失敗。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED" xml:space="preserve">
+    <value>字型復原失敗。字型可能狀態不佳。重新啟動後嘗試解除安裝。</value>
+  </data>
+  <data name="FontDetailsArgumentDescription" xml:space="preserve">
+    <value>顯示字型檔案詳細資訊。</value>
+  </data>
+  <data name="FontValidationFailed" xml:space="preserve">
+    <value>字型套件驗證失敗。</value>
+  </data>
+  <data name="FontRollbackFailed" xml:space="preserve">
+    <value>嘗試復原失敗的字型安裝失敗。可能需要重新啟動才能成功卸載字體。</value>
+  </data>
+  <data name="FontUninstallFailed" xml:space="preserve">
+    <value>字型套件解除安裝失敗。這通常是由於系統或應用程式正在使用字型。重新啟動電腦後卸載可能會成功。</value>
+  </data>
+  <data name="FontStatusOK" xml:space="preserve">
+    <value>確定</value>
+    <comment>"OK" means the font is in a good healthy state</comment>
+  </data>
+  <data name="FontStatusCorrupt" xml:space="preserve">
+    <value>損毀</value>
+    <comment>"Corrupt" refers to an install that is in a corrupted or bad state, and needs repair.</comment>
+  </data>
+  <data name="FontStatus" xml:space="preserve">
+    <value>狀態</value>
+  </data>
+  <data name="FontStatusUnknown" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED" xml:space="preserve">
+    <value>已安裝字型套件。</value>
   </data>
 </root>

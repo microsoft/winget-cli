@@ -717,7 +717,7 @@
     <comment>{Locked="{0} {1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
-    <value>Проверяет манифест с помощью строгого набора правил. Это позволяет вам проверить манифест перед отправкой в репозиторий.</value>
+    <value>Проверяет манифест с помощью строгого набора рекомендаций. Это позволяет вам проверить манифест перед отправкой в репозиторий.</value>
   </data>
   <data name="ValidateCommandShortDescription" xml:space="preserve">
     <value>Утверждает файл манифеста</value>
@@ -899,6 +899,9 @@
   </data>
   <data name="PolicyEnableMSStoreSource" xml:space="preserve">
     <value>Включить источник Microsoft Store Установщика приложений для Windows</value>
+  </data>
+  <data name="PolicyEnableFontSource" xml:space="preserve">
+    <value>Включить источник шрифтов Установщика Windows App</value>
   </data>
   <data name="PolicyEnableWinGetSettings" xml:space="preserve">
     <value>Включить параметры Диспетчера пакетов Windows</value>
@@ -1475,8 +1478,8 @@
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>Для этого пакета не указаны вложенные установщики</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>Для архивного установщика можно указать только один непереносимый вложенный установщик</value>
+  <data name="MultipleUnsupportedNestedInstallersSpecified" xml:space="preserve">
+    <value>Для установщика архива можно указать только один вложенный установщик, если только он не является переносимым или вложенным установщиком шрифтов</value>
   </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>Указаны несовместимые аргументы командной строки</value>
@@ -1975,30 +1978,31 @@
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>Установить полный пакет для AppInstaller</value>
   </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>Включить компоненты конфигурации. Требуется доступ к хранилищу.</value>
+  <data name="ExtendedFeaturesEnableMessage" xml:space="preserve">
+    <value>Включите расширенные функции. Требуется доступ к хранилищу.</value>
   </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
+  <data name="ExtendedFeaturesEnableArgumentError" xml:space="preserve">
     <value>Параметры "--enable" и "--disable" нельзя использовать с другими аргументами.</value>
     <comment>{Locked="--enable", "--disable"}</comment>
   </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>Включение компонентов конфигурации. Требуется доступ к хранилищу.</value>
+  <data name="ExtendedFeaturesEnablingMessage" xml:space="preserve">
+    <value>Включение расширенных функций. Требуется доступ к хранилищу.</value>
   </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>Конфигурация не включена. Запустите команду "winget configure --enable", чтобы включить ее.</value>
+  <data name="ExtendedFeaturesNotEnabledMessage" xml:space="preserve">
+    <value>Расширенные функции не включены. Выполните "winget configure --enable", чтобы включить их.</value>
+    <comment>{Locked="winget configure --enable"}</comment>
   </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>Конфигурация включена.</value>
+  <data name="ExtendedFeaturesEnabledMessage" xml:space="preserve">
+    <value>Расширенные функции включены.</value>
   </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>Отключить компоненты конфигурации. Требуется доступ к хранилищу.</value>
+  <data name="ExtendedFeaturesDisableMessage" xml:space="preserve">
+    <value>Отключить расширенные функции. Требуется доступ к хранилищу.</value>
   </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>Отключение компонентов конфигурации. Требуется доступ к хранилищу.</value>
+  <data name="ExtendedFeaturesDisablingMessage" xml:space="preserve">
+    <value>Отключение расширенных функций. Требуется доступ к хранилищу.</value>
   </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>Конфигурация отключена.</value>
+  <data name="ExtendedFeaturesDisabledMessage" xml:space="preserve">
+    <value>Расширенные функции отключены.</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>Пропускает обработку зависимостей пакетов и компонентов Windows</value>
@@ -3185,7 +3189,7 @@
     <value>Получить список установленных шрифтов</value>
   </data>
   <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>Перечислите все установленные шрифты или полные сведения о конкретном шрифте.</value>
+    <value>Список всех установленных шрифтов, всех файлов шрифтов или полных сведений о конкретном шрифте.</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>Версия</value>
@@ -3369,5 +3373,89 @@
   </data>
   <data name="ResetAllAdminSettingsSucceeded" xml:space="preserve">
     <value>Все настройки администратора сброшены.</value>
+  </data>
+  <data name="McpCommandShortDescription" xml:space="preserve">
+    <value>Сведения об MCP</value>
+    <comment>MCP stands for Model Context Protocol and should probably remain as-is</comment>
+  </data>
+  <data name="McpCommandLongDescription" xml:space="preserve">
+    <value>Сведения MCP (протокол контекста модели) для Диспетчер пакетов Windows.</value>
+  </data>
+  <data name="McpConfigurationPreamble" xml:space="preserve">
+    <value>Чтобы вручную настроить Диспетчер пакетов Windows MCP-сервера с клиентом MCP, используйте следующий фрагмент JSON в `servers` объекта:</value>
+    <comment>{Locked="`servers`"}
+MCP stands for Model Context Protocol and should probably remain as-is.
+An unlocalized JSON fragment will follow on another line.</comment>
+  </data>
+  <data name="PolicyEnableMcpServer" xml:space="preserve">
+    <value>Включить сервер MCP Диспетчера пакетов Windows</value>
+  </data>
+  <data name="OSVersionDescription" xml:space="preserve">
+    <value>Целевая версия ОС</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED" xml:space="preserve">
+    <value>Не удалось установить один или несколько шрифтов.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED" xml:space="preserve">
+    <value>Файл шрифта не поддерживается и не может быть установлен.</value>
+  </data>
+  <data name="FontFileNotSupported" xml:space="preserve">
+    <value>Один или несколько шрифтов в пакете шрифтов не поддерживаются и не могут быть установлены.</value>
+  </data>
+  <data name="FontInstallFailed" xml:space="preserve">
+    <value>Сбой установки шрифта; выполняется очистка.</value>
+  </data>
+  <data name="FontAlreadyInstalled" xml:space="preserve">
+    <value>Шрифт уже установлен.</value>
+  </data>
+  <data name="FontPackage" xml:space="preserve">
+    <value>Идентификатор пакета</value>
+  </data>
+  <data name="FontWinGetSupported" xml:space="preserve">
+    <value>Поддержка WinGet</value>
+  </data>
+  <data name="FontTitle" xml:space="preserve">
+    <value>Название</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND" xml:space="preserve">
+    <value>Файл шрифта не найден.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED" xml:space="preserve">
+    <value>Не удалось удалить шрифт. Возможно, шрифт находится в неудовлетворительном состоянии. Попробуйте удалить после перезапуска.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED" xml:space="preserve">
+    <value>Сбой проверки шрифта.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED" xml:space="preserve">
+    <value>Сбой отката шрифта. Возможно, шрифт поврежден. Попробуйте удалить после перезагрузки.</value>
+  </data>
+  <data name="FontDetailsArgumentDescription" xml:space="preserve">
+    <value>Показать подробную информацию о файле шрифта.</value>
+  </data>
+  <data name="FontValidationFailed" xml:space="preserve">
+    <value>Сбой проверки пакета шрифтов.</value>
+  </data>
+  <data name="FontRollbackFailed" xml:space="preserve">
+    <value>Не удалось выполнить откат для неудачной установки шрифта. Для успешного удаления шрифта может потребоваться перезагрузка.</value>
+  </data>
+  <data name="FontUninstallFailed" xml:space="preserve">
+    <value>Не удалось удалить пакет шрифтов. Часто это связано с тем, что шрифты используются системой или приложением. Удаление может быть успешным после перезагрузки компьютера.</value>
+  </data>
+  <data name="FontStatusOK" xml:space="preserve">
+    <value>ОК</value>
+    <comment>"OK" means the font is in a good healthy state</comment>
+  </data>
+  <data name="FontStatusCorrupt" xml:space="preserve">
+    <value>Повреждено</value>
+    <comment>"Corrupt" refers to an install that is in a corrupted or bad state, and needs repair.</comment>
+  </data>
+  <data name="FontStatus" xml:space="preserve">
+    <value>Состояние</value>
+  </data>
+  <data name="FontStatusUnknown" xml:space="preserve">
+    <value>Неизвестно</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED" xml:space="preserve">
+    <value>Пакет шрифтов уже установлен.</value>
   </data>
 </root>

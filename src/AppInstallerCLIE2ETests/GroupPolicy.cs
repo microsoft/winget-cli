@@ -166,9 +166,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void EnableFontSource()
         {
-            WinGetSettingsHelper.ConfigureFeature("fonts", true);
             GroupPolicyHelper.EnableFontSource.Disable();
-
             var result = TestCommon.RunAICLICommand("source list", "winget-font");
             Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
 

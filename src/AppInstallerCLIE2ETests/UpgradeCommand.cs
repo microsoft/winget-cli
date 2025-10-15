@@ -50,6 +50,28 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test upgrade portable package.
+        /// </summary>
+        [Test]
+        public void UpgradePortableNonAsciiPath()
+        {
+            string installDir = Path.Combine(TestCommon.GetRandomTestDir(), "Tést");
+            string packageId, commandAlias, fileName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestPortableExe -v 1.0.0.0 -l {installDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+
+            var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0 -l {installDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
+            Assert.True(result2.StdOut.Contains("Successfully installed"));
+            TestCommon.VerifyPortablePackage(installDir, commandAlias, fileName, productCode, true);
+        }
+
+        /// <summary>
         /// Test upgrade portable package with arp mismatch.
         /// </summary>
         [Test]

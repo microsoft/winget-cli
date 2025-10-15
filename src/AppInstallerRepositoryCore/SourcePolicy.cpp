@@ -191,7 +191,7 @@ namespace AppInstaller::Repository
         case AppInstaller::Repository::WellKnownSource::MicrosoftStore:
             return IsDefaultSourceEnabled(source, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
         case AppInstaller::Repository::WellKnownSource::WinGetFont:
-            return IsDefaultSourceEnabled(source, ExperimentalFeature::Feature::Font, onlyExplicit, TogglePolicy::Policy::FontSource);
+            return IsDefaultSourceEnabled(source, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::FontSource);
         case AppInstaller::Repository::WellKnownSource::DesktopFrameworks:
             // No corresponding policy available for this source.
             return true;
