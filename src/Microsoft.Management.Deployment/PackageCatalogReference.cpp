@@ -53,7 +53,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             m_packageCatalogBackgroundUpdateInterval = s_PackageCatalogUpdateIntervalDelay_Base + std::chrono::seconds(distribution(randomEngine));
 
             // Prevent any update / data processing by default for these background processes for now
-            m_installedPackageInformationOnly = m_sourceReference.IsWellKnownSource(AppInstaller::Repository::WellKnownSource::WinGet);
+            m_installedPackageInformationOnly = m_sourceReference.IsWellKnownSource(AppInstaller::Repository::WellKnownSource::WinGet) ||
+                                                m_sourceReference.IsWellKnownSource(AppInstaller::Repository::WellKnownSource::WinGetFont);
         }
     }
 

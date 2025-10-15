@@ -150,6 +150,9 @@
   <data name="PolicyEnableMSStoreSource" xml:space="preserve">
     <value>Enable Windows App Installer Microsoft Store Source</value>
   </data>
+  <data name="PolicyEnableFontSource" xml:space="preserve">
+    <value>Enable Windows App Installer Font Source</value>
+  </data>
   <data name="PolicyEnableProxyCommandLineOptions" xml:space="preserve">
     <value>Enable Windows Package Manager proxy command line options</value>
   </data>

@@ -161,6 +161,21 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test font source is enabled by policy.
+        /// </summary>
+        [Test]
+        public void EnableFontSource()
+        {
+            GroupPolicyHelper.EnableFontSource.Disable();
+            var result = TestCommon.RunAICLICommand("source list", "winget-font");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
+
+            GroupPolicyHelper.EnableFontSource.Enable();
+            result = TestCommon.RunAICLICommand("source list", "winget-font");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+        }
+
+        /// <summary>
         /// Test additional sources are enabled by policy.
         /// </summary>
         [Test]
