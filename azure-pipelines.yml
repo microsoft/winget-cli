@@ -481,6 +481,34 @@ jobs:
   - powershell: Get-Process LocalhostWebServer | Stop-Process
     displayName: Stop LocalhostWebServer
     condition: succeededOrFailed()
+    
+  - task: PowerShell@2
+    displayName: 'Copy GA WinGet Log to artifacts folder'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $source = "$env:LocalAppData\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\DiagOutputDir"
+        $destination = "$(artifactsDir)\GA_WinGet_Logs"
+        if (Test-Path $source) {
+          Copy-Item -Path $source -Destination $destination -Recurse -Force
+        } else {
+          Write-Host "WinGet logs not found at $source"
+        }
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: 'Copy Application Event Logs to Artifacts'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $source = "$env:SystemRoot\System32\winevt\Logs\Application.evtx"
+        $destination = "$(artifactsDir)\Application.evtx"
+        if (Test-Path $source) {
+          Copy-Item -Path $source -Destination $destination -Force
+        } else {
+          Write-Host "Application event log not found at $source"
+        }
+    condition: succeededOrFailed()
 
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
@@ -645,20 +673,6 @@ jobs:
       SourceFolder: '$(buildOutDir)\WinGetYamlFuzzing'
       Contents: '**'
       TargetFolder: '$(artifactsDir)'
-
-  - task: PowerShell@2
-    displayName: 'Copy Application Event Logs to Artifacts'
-    inputs:
-      targetType: 'inline'
-      script: |
-        $source = "$env:SystemRoot\System32\winevt\Logs\Application.evtx"
-        $destination = "$(artifactsDir)\Application.evtx"
-        if (Test-Path $source) {
-          Copy-Item -Path $source -Destination $destination -Force
-        } else {
-          Write-Host "Application event log not found at $source"
-        }
-    condition: succeededOrFailed()
 
   - task: PublishPipelineArtifact@1
     displayName: Publish Fuzzing Artifacts

@@ -158,6 +158,7 @@ ERRORONEXIT
 errstr
 ESRB
 etl
+evtx
 ewgp
 ewgs
 execustom
@@ -610,6 +611,7 @@ wincodec
 windir
 windowsdeveloper
 winerror
+winevt
 wingdi
 wingetconfigroot
 wingetcreate
