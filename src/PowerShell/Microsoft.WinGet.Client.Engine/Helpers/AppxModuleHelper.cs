@@ -155,7 +155,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 }
 
                 var packageVersion = new Version(versionFromLocalPackage);
-                if (packageVersion.Major == 1 && packageVersion.Minor > 15)
+                if (packageVersion.Major == 1 && packageVersion.Minor > 15 && packageVersion.Minor < 28)
                 {
                     releaseTag = $"1.{packageVersion.Minor - 15}.{packageVersion.Build}";
                 }

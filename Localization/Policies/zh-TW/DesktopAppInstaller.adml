@@ -67,6 +67,16 @@
 如果您啟用此設定，Windows 封裝管理員的 Microsoft Store 來源將可供使用，且無法移除。
 
 如果您停用此設定，Windows 封裝管理員的 Microsoft Store 來源將無法使用。</string>
+      <string id="EnableFontSource">設定 Windows 封裝管理員字型來源</string>
+      <string id="EnableFontSourceExplanation">
+        此原則控制 Windows 封裝管理員隨附的字型來源。
+
+        如果您未設定此設定，Windows 封裝管理員的字型來源將可供使用，而且可以移除。
+
+        如果您啟用此設定，Windows 封裝管理員的字型來源將可供使用，且無法移除。
+
+        如果您停用此設定，Windows 封裝管理員的字型來源將無法使用。
+      </string>
       <string id="SourceAutoUpdateInterval">設定 Windows 封裝管理員來源自動更新間隔 (分鐘)</string>
       <string id="SourceAutoUpdateIntervalExplanation">此原則控制封裝型來源的自動更新間隔時間。Windows 封裝管理員的預設來源設定為本機電腦上快取的套件索引。當使用者調用命令且間隔已過時，下載索引。
 
@@ -116,6 +126,13 @@
 如果您啟用這個設定，使用者將可以透過命令行設定Windows 封裝管理員使用 Proxy。
 
 如果您停用或未設定這個設定，用戶將無法透過命令行設定Windows 封裝管理員使用 Proxy。</string>
+      <string id="EnableWindowsPackageManagerMcpServer">啟用 Windows 封裝管理員的 MCP 伺服器</string>
+      <string id="EnableWindowsPackageManagerMcpServerExplanation">
+        此原則用來控制是否允許使用 Windows 封裝管理員的模型內容通訊協定 (MCP) 伺服器。
+
+        如果您啟用或未設定此原則，使用者將能使用 Windows 封裝管理員的 MCP 伺服器。
+
+        如果您停用此原則，使用者將無法使用 Windows 封裝管理員的 MCP 伺服器。</string>
       <string id="WindowsPackageManagerDefaultProxy">設定 Windows 封裝管理員預設 Proxy</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">此原則控制Windows 封裝管理員使用的預設 Proxy。
 
