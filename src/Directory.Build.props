@@ -15,6 +15,7 @@
   <ItemDefinitionGroup Condition="'$(WinGetMacros)' != ''">
     <ClCompile>
       <PreprocessorDefinitions>$(WinGetMacros)%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
   </ItemDefinitionGroup>
 
