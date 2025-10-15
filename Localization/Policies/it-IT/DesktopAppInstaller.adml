@@ -67,6 +67,16 @@ Se non si configura questa impostazione, l'origine Microsoft Store per il gestor
 Se si abilita questa impostazione, l'origine Microsoft Store per Windows Gestione pacchetti sarà disponibile e non potrà essere rimossa.
 
 Se si disabilita questa impostazione, l'origine Microsoft Store per Windows Gestione pacchetti non sarà disponibile.</string>
+      <string id="EnableFontSource">Abilita origine carattere Gestione pacchetti Windows</string>
+      <string id="EnableFontSourceExplanation">
+        Questo criterio controlla l'origine carattere inclusa nel Gestione pacchetti Windows.
+
+        Se non si configura questa impostazione, l'origine del tipo di carattere per Gestione pacchetti Windows sarà disponibile e può essere rimossa.
+
+        Se si abilita questa impostazione, l'origine carattere per il Gestione pacchetti Windows sarà disponibile e non potrà essere rimossa.
+
+        Se si disabilita questa impostazione, l'origine carattere per il Gestione pacchetti Windows non sarà disponibile.
+      </string>
       <string id="SourceAutoUpdateInterval">Imposta l’intervallo di aggiornamento automatico di origine Gestione pacchetti Windows in minuti</string>
       <string id="SourceAutoUpdateIntervalExplanation">Questo criterio controlla l'intervallo di aggiornamento automatico per le origini basate su pacchetto. L'origine predefinita per Gestione pacchetti Windows è configurata in modo che un indice dei pacchetti venga memorizzato nella cache nel computer locale. L'indice viene scaricato quando un utente richiama un comando e l'intervallo è passato.
 
@@ -116,6 +126,13 @@ Se si disabilita questa impostazione, gli utenti non potranno usare la funzional
 Se si abilita questa impostazione, gli utenti potranno configurare l'uso del proxy da parte del Gestione pacchetti Windows tramite la riga di comando.
 
 Se si disabilita o non si configura questa impostazione, gli utenti non potranno configurare l'utilizzo del proxy da parte del Gestione pacchetti Windows tramite la riga di comando.</string>
+      <string id="EnableWindowsPackageManagerMcpServer">Abilitare il server MCP per Gestione pacchetti Windows</string>
+      <string id="EnableWindowsPackageManagerMcpServerExplanation">
+        Questo criterio controlla se è possibile utilizzare il server MCP (Model Context Protocol) Gestione pacchetti Windows.
+
+Se si abilita o non si configura questa impostazione, gli utenti potranno utilizzare il server MCP del Gestione pacchetti Windows.
+
+Se si disabilita questa impostazione, gli utenti non potranno utilizzare il server MCP del Gestione pacchetti Windows.</string>
       <string id="WindowsPackageManagerDefaultProxy">Imposta proxy predefinito Gestione pacchetti Windows</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">Questo criterio controlla il proxy predefinito utilizzato dal Gestione pacchetti Windows.
 
