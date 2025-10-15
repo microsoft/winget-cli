@@ -900,6 +900,9 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   <data name="PolicyEnableMSStoreSource" xml:space="preserve">
     <value>Microsoft Store-Quelle für den Windows-App-Installer aktivieren</value>
   </data>
+  <data name="PolicyEnableFontSource" xml:space="preserve">
+    <value>Schriftartquelle für Windows App-Installer aktivieren</value>
+  </data>
   <data name="PolicyEnableWinGetSettings" xml:space="preserve">
     <value>Einstellungen des Windows-Paket-Manager aktivieren</value>
   </data>
@@ -1475,8 +1478,8 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>Für dieses Paket wurden keine geschachtelten Installers angegeben.</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>Für einen Archiv-Installer kann nur ein nicht portabler geschachtelter Installer angegeben werden.</value>
+  <data name="MultipleUnsupportedNestedInstallersSpecified" xml:space="preserve">
+    <value>Für ein Archivinstallationsprogramm kann nur ein verschachteltes Installationsprogramm angegeben werden, es sei denn, es handelt sich um ein portierbares oder ein geschachteltes Schriftarteninstallationsprogramm.</value>
   </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>Inkompatible Befehlszeilenargumente bereitgestellt</value>
@@ -1975,30 +1978,31 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>Installieren Sie das vollständige Paket für AppInstaller</value>
   </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>Konfigurationskomponenten aktivieren. Erfordert Speicherzugriff.</value>
+  <data name="ExtendedFeaturesEnableMessage" xml:space="preserve">
+    <value>Aktivieren Sie erweiterte Features. Erfordert Zugriff auf den Store.</value>
   </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
+  <data name="ExtendedFeaturesEnableArgumentError" xml:space="preserve">
     <value>Die Option '--enable' und '--disable' kann nicht mit anderen Argumenten verwendet werden.</value>
     <comment>{Locked="--enable", "--disable"}</comment>
   </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>Konfigurationskomponenten aktivieren. Erfordert Speicherzugriff.</value>
+  <data name="ExtendedFeaturesEnablingMessage" xml:space="preserve">
+    <value>Erweiterte Features werden aktiviert. Erfordert Zugriff auf den Store.</value>
   </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>Die Konfiguration ist nicht aktiviert. Führen Sie "winget configure --enable" aus, um sie zu aktivieren.</value>
+  <data name="ExtendedFeaturesNotEnabledMessage" xml:space="preserve">
+    <value>Erweiterte Features sind nicht aktiviert. Führen Sie "winget configure --enable" aus, um sie zu aktivieren.</value>
+    <comment>{Locked="winget configure --enable"}</comment>
   </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>Die Konfiguration ist aktiviert.</value>
+  <data name="ExtendedFeaturesEnabledMessage" xml:space="preserve">
+    <value>Erweiterte Features sind aktiviert.</value>
   </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>Konfigurationskomponenten deaktivieren. Erfordert Speicherzugriff.</value>
+  <data name="ExtendedFeaturesDisableMessage" xml:space="preserve">
+    <value>Deaktivieren Sie erweiterte Features. Erfordert Zugriff auf den Store.</value>
   </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>Konfigurationskomponenten deaktivieren. Erfordert Speicherzugriff.</value>
+  <data name="ExtendedFeaturesDisablingMessage" xml:space="preserve">
+    <value>Deaktivieren erweiterter Features. Erfordert Zugriff auf den Store.</value>
   </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>Die Konfiguration ist deaktiviert.</value>
+  <data name="ExtendedFeaturesDisabledMessage" xml:space="preserve">
+    <value>Erweiterte Features sind deaktiviert.</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>Überspringt die Verarbeitung von Paketabhängigkeiten und Windows-Features.</value>
@@ -3185,7 +3189,7 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
     <value>Installierte Schriftarten auflisten</value>
   </data>
   <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>Alle installierten Schriftarten oder vollständige Details einer bestimmten Schriftart auflisten.</value>
+    <value>Listet alle installierten Schriftarten, alle Schriftartdateien oder vollständige Details einer bestimmten Schriftart auf.</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>Version</value>
@@ -3369,5 +3373,89 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
   </data>
   <data name="ResetAllAdminSettingsSucceeded" xml:space="preserve">
     <value>Alle Administratoreinstellungen zurückgesetzt.</value>
+  </data>
+  <data name="McpCommandShortDescription" xml:space="preserve">
+    <value>MCP-Informationen</value>
+    <comment>MCP stands for Model Context Protocol and should probably remain as-is</comment>
+  </data>
+  <data name="McpCommandLongDescription" xml:space="preserve">
+    <value>MCP(Model Context Protocol)-Informationen für die Windows-Paket-Manager.</value>
+  </data>
+  <data name="McpConfigurationPreamble" xml:space="preserve">
+    <value>Verwenden Sie das folgende JSON-Fragment im `servers` Objekt, um den Windows-Paket-Manager-MCP-Server manuell mit Ihrem MCP-Client zu konfigurieren:</value>
+    <comment>{Locked="`servers`"}
+MCP stands for Model Context Protocol and should probably remain as-is.
+An unlocalized JSON fragment will follow on another line.</comment>
+  </data>
+  <data name="PolicyEnableMcpServer" xml:space="preserve">
+    <value>MCP-Server des Windows-Paket-Manager aktivieren</value>
+  </data>
+  <data name="OSVersionDescription" xml:space="preserve">
+    <value>Zielbetriebssystemversion</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED" xml:space="preserve">
+    <value>Fehler beim Installieren einer oder mehrerer Schriftarten.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED" xml:space="preserve">
+    <value>Die Schriftartdatei wird nicht unterstützt und kann nicht installiert werden.</value>
+  </data>
+  <data name="FontFileNotSupported" xml:space="preserve">
+    <value>Mindestens eine Schriftart im Schriftartenpaket wird nicht unterstützt und kann nicht installiert werden.</value>
+  </data>
+  <data name="FontInstallFailed" xml:space="preserve">
+    <value>Fehler bei der Installation der Schriftart; Bereinigung.</value>
+  </data>
+  <data name="FontAlreadyInstalled" xml:space="preserve">
+    <value>Schriftart bereits installiert.</value>
+  </data>
+  <data name="FontPackage" xml:space="preserve">
+    <value>Paket-ID</value>
+  </data>
+  <data name="FontWinGetSupported" xml:space="preserve">
+    <value>WinGet unterstützt</value>
+  </data>
+  <data name="FontTitle" xml:space="preserve">
+    <value>Titel</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND" xml:space="preserve">
+    <value>Die Schriftartdatei wurde nicht gefunden.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED" xml:space="preserve">
+    <value>Fehler beim Deinstallieren der Schriftart. Die Schriftart befindet sich möglicherweise nicht in einem guten Zustand. Versuchen Sie, die Deinstallation nach einem Neustart durchzuführen.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED" xml:space="preserve">
+    <value>Fehler bei der Schriftartüberprüfung.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED" xml:space="preserve">
+    <value>Fehler beim Zurücksetzen der Schriftart. Die Schriftart befindet sich möglicherweise nicht in einem guten Zustand. Versuchen Sie, die Deinstallation nach einem Neustart durchzuführen.</value>
+  </data>
+  <data name="FontDetailsArgumentDescription" xml:space="preserve">
+    <value>Detaillierte Informationen zur Schriftartdatei anzeigen.</value>
+  </data>
+  <data name="FontValidationFailed" xml:space="preserve">
+    <value>Fehler bei der Überprüfung des Schriftartenpakets.</value>
+  </data>
+  <data name="FontRollbackFailed" xml:space="preserve">
+    <value>Der Rollbackversuch für die fehlerhafte Schriftartinstallation war nicht erfolgreich. Möglicherweise ist ein Neustart erforderlich, um die Schriftart erfolgreich zu deinstallieren.</value>
+  </data>
+  <data name="FontUninstallFailed" xml:space="preserve">
+    <value>Fehler beim Deinstallieren des Schriftartenpakets. Dies liegt häufig an den Schriftarten, die vom System oder einer Anwendung verwendet werden. Die Deinstallation ist nach dem Neustart des Computers möglicherweise erfolgreich.</value>
+  </data>
+  <data name="FontStatusOK" xml:space="preserve">
+    <value>OK</value>
+    <comment>"OK" means the font is in a good healthy state</comment>
+  </data>
+  <data name="FontStatusCorrupt" xml:space="preserve">
+    <value>Beschädigt</value>
+    <comment>"Corrupt" refers to an install that is in a corrupted or bad state, and needs repair.</comment>
+  </data>
+  <data name="FontStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="FontStatusUnknown" xml:space="preserve">
+    <value>Unbekannt</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED" xml:space="preserve">
+    <value>Das Schriftartpaket ist bereits installiert.</value>
   </data>
 </root>

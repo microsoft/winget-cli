@@ -717,7 +717,7 @@
     <comment>{Locked="{0} {1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
-    <value>使用一组严格的指南验证清单。这是为了能够在提交到存储库之前检查清单。</value>
+    <value>使用一组严格的准则验证清单。这是为了能够在提交到存储库之前检查清单。</value>
   </data>
   <data name="ValidateCommandShortDescription" xml:space="preserve">
     <value>验证清单文件</value>
@@ -899,6 +899,9 @@
   </data>
   <data name="PolicyEnableMSStoreSource" xml:space="preserve">
     <value>启用 Windows 应用安装程序 Microsoft Store 源</value>
+  </data>
+  <data name="PolicyEnableFontSource" xml:space="preserve">
+    <value>启用 Windows App 安装程序字体源</value>
   </data>
   <data name="PolicyEnableWinGetSettings" xml:space="preserve">
     <value>启用 Windows 程序包管理器设置</value>
@@ -1475,8 +1478,8 @@
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>没有为此程序包指定嵌套安装程序</value>
   </data>
-  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
-    <value>只能为存档安装程序指定一个不可移植的嵌套安装程序</value>
+  <data name="MultipleUnsupportedNestedInstallersSpecified" xml:space="preserve">
+    <value>只能为存档安装程序指定一个嵌套安装程序，除非它是可移植的或字体嵌套安装程序</value>
   </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>提供的命令行参数不兼容</value>
@@ -1975,30 +1978,31 @@
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>安装 AppInstaller 的完整包</value>
   </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>启用配置组件。需要存储访问权限。</value>
+  <data name="ExtendedFeaturesEnableMessage" xml:space="preserve">
+    <value>请启用扩展功能。需要应用商店访问权限。</value>
   </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
+  <data name="ExtendedFeaturesEnableArgumentError" xml:space="preserve">
     <value>选项“--enable”和“--disable”不能与其他参数一起使用。</value>
     <comment>{Locked="--enable", "--disable"}</comment>
   </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>正在启用配置组件。需要存储访问权限。</value>
+  <data name="ExtendedFeaturesEnablingMessage" xml:space="preserve">
+    <value>正在启用扩展功能。需要应用商店访问权限。</value>
   </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>未启用配置。运行“winget configure --enable”以启用它。</value>
+  <data name="ExtendedFeaturesNotEnabledMessage" xml:space="preserve">
+    <value>未启用扩展功能。运行 `winget configure --enable` 来启用它们。</value>
+    <comment>{Locked="winget configure --enable"}</comment>
   </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>已启用配置。</value>
+  <data name="ExtendedFeaturesEnabledMessage" xml:space="preserve">
+    <value>扩展功能已启用。</value>
   </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>禁用配置组件。需要存储访问权限。</value>
+  <data name="ExtendedFeaturesDisableMessage" xml:space="preserve">
+    <value>禁用扩展功能。需要存储权限。</value>
   </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>正在禁用配置组件。需要存储访问权限。</value>
+  <data name="ExtendedFeaturesDisablingMessage" xml:space="preserve">
+    <value>正在禁用扩展功能。需要应用商店访问权限。</value>
   </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>已禁用配置。</value>
+  <data name="ExtendedFeaturesDisabledMessage" xml:space="preserve">
+    <value>扩展功能已禁用。</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>跳过处理包依赖项和 Windows 功能</value>
@@ -3185,7 +3189,7 @@
     <value>列出已安装的字体</value>
   </data>
   <data name="FontListCommandLongDescription" xml:space="preserve">
-    <value>列出所有已安装的字体或特定字体的完整详细信息。</value>
+    <value>列出所有已安装的字体、所有字体文件或特定字体的完整详细信息。</value>
   </data>
   <data name="FontVersion" xml:space="preserve">
     <value>版本</value>
@@ -3369,5 +3373,89 @@
   </data>
   <data name="ResetAllAdminSettingsSucceeded" xml:space="preserve">
     <value>已重置所有管理员设置。</value>
+  </data>
+  <data name="McpCommandShortDescription" xml:space="preserve">
+    <value>MCP 信息</value>
+    <comment>MCP stands for Model Context Protocol and should probably remain as-is</comment>
+  </data>
+  <data name="McpCommandLongDescription" xml:space="preserve">
+    <value>MCP (模型上下文协议) Windows 程序包管理器的信息。</value>
+  </data>
+  <data name="McpConfigurationPreamble" xml:space="preserve">
+    <value>若要使用 MCP 客户端手动配置Windows 程序包管理器 MCP 服务器，请使用 `servers` 对象中的以下 JSON 片段：</value>
+    <comment>{Locked="`servers`"}
+MCP stands for Model Context Protocol and should probably remain as-is.
+An unlocalized JSON fragment will follow on another line.</comment>
+  </data>
+  <data name="PolicyEnableMcpServer" xml:space="preserve">
+    <value>启用 Windows 程序包管理器 MCP 服务器</value>
+  </data>
+  <data name="OSVersionDescription" xml:space="preserve">
+    <value>目标 OS 版本</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED" xml:space="preserve">
+    <value>安装一个或多个字体失败。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED" xml:space="preserve">
+    <value>字体文件不受支持，无法安装。</value>
+  </data>
+  <data name="FontFileNotSupported" xml:space="preserve">
+    <value>字体包中的一个或多个字体不受支持，无法安装。</value>
+  </data>
+  <data name="FontInstallFailed" xml:space="preserve">
+    <value>字体安装失败; 正在清理。</value>
+  </data>
+  <data name="FontAlreadyInstalled" xml:space="preserve">
+    <value>已安装字体。</value>
+  </data>
+  <data name="FontPackage" xml:space="preserve">
+    <value>包 ID</value>
+  </data>
+  <data name="FontWinGetSupported" xml:space="preserve">
+    <value>支持 WinGet</value>
+  </data>
+  <data name="FontTitle" xml:space="preserve">
+    <value>标题</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND" xml:space="preserve">
+    <value>找不到字体文件。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED" xml:space="preserve">
+    <value>字体卸载失败。字体可能未处于正常状态。请尝试在重启后卸载。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED" xml:space="preserve">
+    <value>字体验证失败。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED" xml:space="preserve">
+    <value>字体回滚失败。字体可能未处于正常状态。请尝试在重启后卸载。</value>
+  </data>
+  <data name="FontDetailsArgumentDescription" xml:space="preserve">
+    <value>显示字体文件详细信息。</value>
+  </data>
+  <data name="FontValidationFailed" xml:space="preserve">
+    <value>字体包验证失败。</value>
+  </data>
+  <data name="FontRollbackFailed" xml:space="preserve">
+    <value>失败的字体安装回退尝试未成功。可能需要重新启动才能成功卸载字体。</value>
+  </data>
+  <data name="FontUninstallFailed" xml:space="preserve">
+    <value>字体包卸载失败。这通常是因为系统或应用程序正在使用字体。重新启动计算机后，卸载可能会成功。</value>
+  </data>
+  <data name="FontStatusOK" xml:space="preserve">
+    <value>确定</value>
+    <comment>"OK" means the font is in a good healthy state</comment>
+  </data>
+  <data name="FontStatusCorrupt" xml:space="preserve">
+    <value>损坏</value>
+    <comment>"Corrupt" refers to an install that is in a corrupted or bad state, and needs repair.</comment>
+  </data>
+  <data name="FontStatus" xml:space="preserve">
+    <value>状态</value>
+  </data>
+  <data name="FontStatusUnknown" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED" xml:space="preserve">
+    <value>已安装字体包。</value>
   </data>
 </root>
