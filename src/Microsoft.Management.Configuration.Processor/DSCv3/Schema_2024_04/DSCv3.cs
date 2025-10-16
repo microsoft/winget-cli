@@ -87,11 +87,14 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         /// <inheritdoc />
         public IResourceTestItem TestResource(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings)
         {
+            ValueSet expandedSettings = unitInternal.GetExpandedSettings();
             ProcessExecution processExecution = new ProcessExecution()
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
-                Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, TestCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
-                Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
+                Arguments = expandedSettings.Count != 0 
+                    ? new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, TestCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier }
+                    : new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, TestCommand, ResourceParameter, unitInternal.QualifiedName },
+                Input = expandedSettings.Count != 0 ? ConvertValueSetToJSON(expandedSettings) : null,
                 EnvironmentVariables = CreateEnvironmentVariablesFromProcessorRunSettings(runSettings),
             };
 
@@ -106,11 +109,14 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         /// <inheritdoc />
         public IResourceGetItem GetResourceSettings(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings)
         {
+            ValueSet expandedSettings = unitInternal.GetExpandedSettings();
             ProcessExecution processExecution = new ProcessExecution()
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
-                Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, GetCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
-                Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
+                Arguments = expandedSettings.Count != 0 
+                    ? new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, GetCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier }
+                    : new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, GetCommand, ResourceParameter, unitInternal.QualifiedName },
+                Input = expandedSettings.Count != 0 ? ConvertValueSetToJSON(expandedSettings) : null,
                 EnvironmentVariables = CreateEnvironmentVariablesFromProcessorRunSettings(runSettings),
             };
 
@@ -125,11 +131,14 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         /// <inheritdoc />
         public IResourceSetItem SetResourceSettings(ConfigurationUnitInternal unitInternal, ProcessorRunSettings? runSettings)
         {
+            ValueSet expandedSettings = unitInternal.GetExpandedSettings();
             ProcessExecution processExecution = new ProcessExecution()
             {
                 ExecutablePath = this.processorSettings.EffectiveDscExecutablePath,
-                Arguments = new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, SetCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier },
-                Input = ConvertValueSetToJSON(unitInternal.GetExpandedSettings()),
+                Arguments = expandedSettings.Count != 0 
+                    ? new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, SetCommand, ResourceParameter, unitInternal.QualifiedName, FileParameter, StdInputIdentifier }
+                    : new[] { PlainTextTraces, this.DiagnosticTraceLevel, ResourceCommand, SetCommand, ResourceParameter, unitInternal.QualifiedName },
+                Input = expandedSettings.Count != 0 ? ConvertValueSetToJSON(expandedSettings) : null,
                 EnvironmentVariables = CreateEnvironmentVariablesFromProcessorRunSettings(runSettings),
             };
 
