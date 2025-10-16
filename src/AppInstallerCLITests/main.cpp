@@ -5,6 +5,7 @@
 #include <AppInstallerFileLogger.h>
 #include <Public/AppInstallerTelemetry.h>
 #include <Telemetry/TraceLogging.h>
+#include <winget/Debugging.h>
 #include "TestCommon.h"
 #include "TestSettings.h"
 
@@ -106,6 +107,15 @@ int main(int argc, char** argv)
         else if ("-logsql"s == argv[i])
         {
             keepSQLLogging = true;
+        }
+        else if ("-mdmp"s == argv[i])
+        {
+            Debugging::EnableSelfInitiatedMinidump();
+        }
+        else if ("-mdmpto"s == argv[i])
+        {
+            ++i;
+            Debugging::EnableSelfInitiatedMinidump(std::filesystem::path{ argv[i] });
         }
         else
         {
