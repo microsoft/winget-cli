@@ -88,13 +88,14 @@ int main(int argc, char** argv)
         }
         else if ("-logto"s == argv[i])
         {
-            ++i;
-            Logging::FileLogger::Add(std::filesystem::path{ argv[i] });
+            if (++i < argc)
+            {
+                Logging::FileLogger::Add(std::filesystem::path{ argv[i] });
+            }
         }
         else if ("-tdd"s == argv[i])
         {
-            ++i;
-            if (i < argc)
+            if (++i < argc)
             {
                 TestCommon::TestDataFile::SetTestDataBasePath(argv[i]);
                 hasSetTestDataBasePath = true;
@@ -114,8 +115,10 @@ int main(int argc, char** argv)
         }
         else if ("-mdmpto"s == argv[i])
         {
-            ++i;
-            Debugging::EnableSelfInitiatedMinidump(std::filesystem::path{ argv[i] });
+            if (++i < argc)
+            {
+                Debugging::EnableSelfInitiatedMinidump(std::filesystem::path{ argv[i] });
+            }
         }
         else
         {
