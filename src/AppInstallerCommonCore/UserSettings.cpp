@@ -473,6 +473,33 @@ namespace AppInstaller::Settings
 
             return result;
         }
+
+        WINGET_VALIDATE_SIGNATURE(LoggingFileNameStrategy)
+        {
+            // logging name strategy possible values
+            static constexpr std::string_view s_strategy_manifest = "manifest";
+            static constexpr std::string_view s_strategy_timestamp = "timestamp";
+            static constexpr std::string_view s_strategy_guid = "guid";
+            static constexpr std::string_view s_strategy_shortguid = "shortguid";
+
+            if (Utility::CaseInsensitiveEquals(value, s_strategy_manifest))
+            {
+                return LogNameStrategy::Manifest;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_strategy_timestamp))
+            {
+                return LogNameStrategy::Timestamp;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_strategy_guid))
+            {
+                return LogNameStrategy::Guid;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_strategy_shortguid))
+            {
+                return LogNameStrategy::ShortGuid;
+            }
+            return {};
+        }
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
