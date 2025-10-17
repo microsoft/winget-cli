@@ -17,6 +17,11 @@
       <PreprocessorDefinitions>$(WinGetMacros)%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+  </ItemDefinitionGroup>
 
   <!-- For C# -->
   <PropertyGroup Condition="'$(WinGetMacros)' != ''">

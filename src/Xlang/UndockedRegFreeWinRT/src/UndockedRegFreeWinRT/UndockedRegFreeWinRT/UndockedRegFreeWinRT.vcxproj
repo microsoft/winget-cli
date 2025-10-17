@@ -317,7 +317,7 @@
     <ClCompile Include="catalog.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="typeresolution.cpp" />
-    <ClCompile Include="typeresolution.h" />
+    <ClInclude Include="typeresolution.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="catalog.h" />

@@ -28,9 +28,6 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="typeresolution.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="typeresolution.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -52,6 +49,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\WinGetServer\Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="typeresolution.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
