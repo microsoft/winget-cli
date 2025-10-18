@@ -56,8 +56,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// Asserts the version installed is the specified.
         /// </summary>
         /// <param name="expectedVersion">The expected version.</param>
-        public void Assert(string expectedVersion)
+        /// <param name="preRelease">Include prerelease versions when validating the specified version.</param>
+        public void Assert(string expectedVersion, bool preRelease = false)
         {
+            // The preRelease parameter is for consistency but not used in this method
+            // since we're checking for an exact version match
             WinGetIntegrity.AssertWinGet(this, expectedVersion);
         }
 
@@ -88,12 +91,21 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="expectedVersion">The expected version, if any.</param>
         /// <param name="allUsers">Install for all users. Requires admin.</param>
         /// <param name="force">Force application shutdown.</param>
-        public void Repair(string expectedVersion, bool allUsers, bool force)
+        /// <param name="preRelease">Include prerelease versions when searching for the specified version.</param>
+        public void Repair(string expectedVersion, bool allUsers, bool force, bool preRelease = false)
         {
             this.ValidateWhenAllUsers(allUsers);
             var runningTask = this.RunOnMTA(
                 async () =>
                 {
+                    // If no specific version is provided and IncludePrerelease is specified,
+                    // we need to get the latest prerelease version
+                    if (string.IsNullOrEmpty(expectedVersion) && preRelease)
+                    {
+                        var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                        expectedVersion = await gitHubClient.GetLatestReleaseTagNameAsync(true);
+                    }
+                    
                     await this.RepairStateMachineAsync(expectedVersion, allUsers, force);
                     return true;
                 });
