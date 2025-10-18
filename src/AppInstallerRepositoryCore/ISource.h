@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "Public/winget/RepositorySource.h"
+#include <winget/SharedThreadGlobals.h>
 #include <memory>
 
 namespace AppInstaller::Repository
@@ -96,6 +97,9 @@ namespace AppInstaller::Repository
 
         // Opens the source. This function should throw upon open failure rather than returning an empty pointer.
         virtual std::shared_ptr<ISource> Open(IProgressCallback& progress) = 0;
+
+        // Sets thread globals for the source. This allows the option for sources that operate on other threads to log properly.
+        virtual void SetThreadGlobals(const std::shared_ptr<ThreadLocalStorage::ThreadGlobals>&) {}
     };
 
     // Internal interface extension to ISource for databases that can be updated after creation, like InstallingPackages
