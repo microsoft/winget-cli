@@ -20,13 +20,14 @@ The client is distributed within the [App Installer](https://apps.microsoft.com/
 
 ### Development Releases
 
-There are two methods to get development releases:
+There are a few methods to get development releases:
 
 * Install a [Windows 10 or Windows 11 Insider](https://insider.windows.com/) build.
-* Join the Windows Package Manager Insider program by [signing up](http://aka.ms/winget-InsiderProgram).
+* Manually update using a development build from our [Releases](https://github.com/microsoft/winget-cli/releases) page.
+* Use the `Repair-WinGetPackageManager` cmdlet from the [Microsoft.WinGet.Client](https://www.powershellgallery.com/packages/Microsoft.WinGet.Client/) PowerShell module and use the `-IncludePrerelease` parameter.
 
 > [!NOTE]
-> It may take a few days to get the updated App Installer after you receive e-mail confirmation from joining the Windows Package Manager Insider program. If you decide to install the latest release from GitHub, and you have successfully joined the insider program, you will receive updates when the next development release has been published in the Microsoft Store.
+> If you decide to install the latest release from GitHub, and you have successfully joined the insider program, you will receive updates when the next development release has been published in the Microsoft Store.
 
 Once you have received the updated App Installer from the Microsoft Store you should be able to execute `winget features` to see experimental features. Some users have reported [issues](https://github.com/microsoft/winget-cli/issues/210) with the client not being on their PATH.
 
@@ -119,3 +120,4 @@ In short, to opt out, do one of the following:
 **Windows 10**: Go to `Start`, then select `Settings` > `Privacy` > `Diagnostics & feedback`, and select `Required diagnostic data`.
 
 See the [privacy statement](PRIVACY.md) for more details.
+
