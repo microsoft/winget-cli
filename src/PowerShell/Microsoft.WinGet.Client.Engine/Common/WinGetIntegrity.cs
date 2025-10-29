@@ -39,13 +39,14 @@ namespace Microsoft.WinGet.Client.Engine.Common
                 return;
             }
 
+            WinGetCLICommandResult? versionResult = null;
+
             try
             {
                 // Start by calling winget without its WindowsApp PFN path.
                 // If it succeeds and the exit code is 0 then we are good.
-                var wingetCliWrapper = new WingetCLIWrapper(false);
-                var result = wingetCliWrapper.RunCommand(pwshCmdlet, "--version");
-                result.VerifyExitCode();
+                versionResult = WinGetVersion.RunWinGetVersionFromCLI(pwshCmdlet, false);
+                versionResult.VerifyExitCode();
             }
             catch (Win32Exception e)
             {
@@ -68,7 +69,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
             {
                 // This assumes caller knows that the version exist.
                 WinGetVersion expectedWinGetVersion = new WinGetVersion(expectedVersion);
-                var installedVersion = WinGetVersion.InstalledWinGetVersion(pwshCmdlet);
+                var installedVersion = WinGetVersion.InstalledWinGetVersion(pwshCmdlet, versionResult);
                 if (expectedWinGetVersion.CompareTo(installedVersion) != 0)
                 {
                     throw new WinGetIntegrityException(
@@ -76,7 +77,8 @@ namespace Microsoft.WinGet.Client.Engine.Common
                         string.Format(
                             Resources.IntegrityUnexpectedVersionMessage,
                             installedVersion.TagVersion,
-                            expectedVersion));
+                            expectedVersion))
+                    { InstalledVersion = installedVersion };
                 }
             }
         }

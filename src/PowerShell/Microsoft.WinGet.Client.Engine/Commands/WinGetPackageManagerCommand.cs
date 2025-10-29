@@ -21,7 +21,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     /// <summary>
     /// Used by Repair-WinGetPackageManager and Assert-WinGetPackageManager.
     /// </summary>
-    public sealed class WinGetPackageManagerCommand : BaseCommand
+    public sealed class WinGetPackageManagerCommand : ManagementDeploymentCommand
     {
         private const string EnvPath = "env:PATH";
 
@@ -132,7 +132,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     switch (currentCategory)
                     {
                         case IntegrityCategory.UnexpectedVersion:
-                            await this.InstallDifferentVersionAsync(new WinGetVersion(expectedVersion), allUsers, force);
+                            await this.InstallDifferentVersionAsync(new WinGetVersion(expectedVersion), e.InstalledVersion, allUsers, force);
                             break;
                         case IntegrityCategory.NotInPath:
                             this.RepairEnvPath();
@@ -167,9 +167,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             }
         }
 
-        private async Task InstallDifferentVersionAsync(WinGetVersion toInstallVersion, bool allUsers, bool force)
+        private async Task InstallDifferentVersionAsync(WinGetVersion toInstallVersion, WinGetVersion? installedVersion, bool allUsers, bool force)
         {
-            var installedVersion = WinGetVersion.InstalledWinGetVersion(this);
+            if (installedVersion == null)
+            {
+                installedVersion = WinGetVersion.InstalledWinGetVersion(this);
+            }
+
             bool isDowngrade = installedVersion.CompareAsDeployment(toInstallVersion) > 0;
 
             string message = $"Installed WinGet version '{installedVersion.TagVersion}' " +
