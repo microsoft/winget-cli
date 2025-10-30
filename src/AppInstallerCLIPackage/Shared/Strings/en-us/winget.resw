@@ -351,7 +351,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Log location (if supported)</value>
   </data>
   <data name="MainCopyrightNotice" xml:space="preserve">
-    <value>Copyright (c) Microsoft Corporation. All rights reserved.</value>
+    <value>Copyright © Microsoft Corporation. All rights reserved.</value>
   </data>
   <data name="MainHomepage" xml:space="preserve">
     <value>Homepage</value>
@@ -3459,3 +3459,4 @@ An unlocalized JSON fragment will follow on another line.</comment>
     <value>Font package is already installed.</value>
   </data>
 </root>
+
