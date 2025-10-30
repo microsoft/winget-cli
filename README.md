@@ -4,7 +4,7 @@
 
 ![winget install wingetcreate](.github/images/WingetInstall.gif)
 
-If you are new to the Windows Package Manager, you might want to [Explore the Windows Package Manager tool](https://docs.microsoft.com/learn/modules/explore-windows-package-manager-tool/?WT.mc_id=AZ-MVP-5004737). The client has access to packages from two default sources. The first is "msstore" the Microsoft Store (free Apps rated "e" for everyone). The second is "winget" the [WinGet community repository](https://github.com/microsoft/winget-pkgs).
+If you are new to the Windows Package Manager, you might want to [Explore the Windows Package Manager tool](https://docs.microsoft.com/learn/modules/explore-windows-package-manager-tool/?WT.mc_id=AZ-MVP-5004737). The client has access to packages from two default sources. The first is "msstore" the Microsoft Store (free-of-charge Apps rated "E" for Everyone). The second is "winget" the [WinGet community repository](https://github.com/microsoft/winget-pkgs).
 
 > [!NOTE]
 > Group policy may be configured and modify configured sources. Run `winget --info` to see any configured policies.
@@ -12,11 +12,21 @@ If you are new to the Windows Package Manager, you might want to [Explore the Wi
 ## Installing The Client
 
 > [!NOTE]
-> The client requires Windows 10 1809 (build 17763) or later at this time. Windows Server 2019 is not supported as the Microsoft Store is not available nor are updated dependencies. It may be possible to install on Windows Server 2022, this should be considered experimental (not supported) and requires dependencies to be manually installed as well.
+> The client requires either Windows 10 1809 (build 17763), Windows 11 (any version), Windows Server 2025, or later at this time.
 
 ### Microsoft Store [Recommended]
 
-The client is distributed within the [App Installer](https://apps.microsoft.com/detail/9nblggh4nns1) package.
+* The client is distributed within the [App Installer](https://apps.microsoft.com/detail/9nblggh4nns1) package.
+
+### Other Official Methods
+
+* (GitHub) The same Microsoft Store package is or will be made available via our [Releases](https://github.com/microsoft/winget-cli/releases). Note that installing this package will give you the WinGet client, but it will not enable automatic updates from the Microsoft Store if you have not joined the Windows Package Manager Insider program.
+
+> [!NOTE]
+> You may need to install the [VC++ v14 Desktop Framework Package](https://docs.microsoft.com/troubleshoot/cpp/c-runtime-packages-desktop-bridge#how-to-install-and-update-desktop-framework-packages).
+> This should only be necessary on older builds of Windows 10 and only if you get an error about missing framework packages.
+
+* (PowerShellGet) Run `get-package Microsoft.WinGet.Client`
 
 ### Development Releases
 
@@ -30,14 +40,6 @@ There are a few methods to get development releases:
 > If you decide to install the latest release from GitHub, and you have successfully joined the insider program, you will receive updates when the next development release has been published in the Microsoft Store.
 
 Once you have received the updated App Installer from the Microsoft Store you should be able to execute `winget features` to see experimental features. Some users have reported [issues](https://github.com/microsoft/winget-cli/issues/210) with the client not being on their PATH.
-
-### Manually Update
-
-The same Microsoft Store package will be made available via our [Releases](https://github.com/microsoft/winget-cli/releases). Note that installing this package will give you the WinGet client, but it will not enable automatic updates from the Microsoft Store if you have not joined the Windows Package Manager Insider program.
-
-> [!NOTE]
-> You may need to install the [VC++ v14 Desktop Framework Package](https://docs.microsoft.com/troubleshoot/cpp/c-runtime-packages-desktop-bridge#how-to-install-and-update-desktop-framework-packages).
-> This should only be necessary on older builds of Windows 10 and only if you get an error about missing framework packages.
 
 ### Troubleshooting
 
@@ -120,4 +122,5 @@ In short, to opt out, do one of the following:
 **Windows 10**: Go to `Start`, then select `Settings` > `Privacy` > `Diagnostics & feedback`, and select `Required diagnostic data`.
 
 See the [privacy statement](PRIVACY.md) for more details.
+
 
