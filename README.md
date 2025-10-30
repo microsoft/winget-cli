@@ -122,5 +122,3 @@ In short, to opt out, do one of the following:
 **Windows 10**: Go to `Start`, then select `Settings` > `Privacy` > `Diagnostics & feedback`, and select `Required diagnostic data`.
 
 See the [privacy statement](PRIVACY.md) for more details.
-
-
