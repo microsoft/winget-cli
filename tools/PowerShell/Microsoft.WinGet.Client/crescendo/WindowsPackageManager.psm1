@@ -66,7 +66,7 @@ PROCESS {
 <#
 .SYNOPSIS
 Windows Package Manager v1.1.12702
-Copyright (c) Microsoft Corporation. All rights reserved.
+Copyright © Microsoft Corporation. All rights reserved.
 
 The winget command line utility enables installing applications and other packages from the command line.
 
