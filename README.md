@@ -16,7 +16,7 @@ If you are new to the Windows Package Manager, you might want to [Explore the Wi
 
 ### Microsoft Store [Recommended]
 
-* The client is distributed within the [App Installer](https://apps.microsoft.com/detail/9nblggh4nns1) package.
+The client is distributed within the [App Installer](https://apps.microsoft.com/detail/9nblggh4nns1) package.
 
 ### Other Official Methods
 
@@ -26,7 +26,7 @@ If you are new to the Windows Package Manager, you might want to [Explore the Wi
 > You may need to install the [VC++ v14 Desktop Framework Package](https://docs.microsoft.com/troubleshoot/cpp/c-runtime-packages-desktop-bridge#how-to-install-and-update-desktop-framework-packages).
 > This should only be necessary on older builds of Windows 10 and only if you get an error about missing framework packages.
 
-* (PowerShellGet) Run `get-package Microsoft.WinGet.Client`
+* (PowerShellGet) Run `Install-Module -Name Microsoft.WinGet.Client` in PowerShell.
 
 ### Development Releases
 
@@ -65,9 +65,9 @@ You can also [build the client yourself](#building-the-client). While the client
 
 The plan for delivering the next Windows Package Manager release is described and included in our [discussions](https://github.com/microsoft/winget-cli/discussions/2063), and will be updated as the project proceeds.
 
-## Overview of the  Windows Package Manager
+## Overview of the Windows Package Manager
 
-The **Windows Package Manager** is a tool designed to help you quickly and easily discover and install those packages that make your PC environment special.  By using the **Windows Package Manager**, from one command, you can install your favorite packages:
+The **Windows Package Manager** is a tool designed to help you quickly and easily discover and install those packages that make your PC environment special. By using the **Windows Package Manager**, from one command, you can install your favorite packages:
 
 `winget install <package>`
 
@@ -75,7 +75,7 @@ The **Windows Package Manager** is a tool designed to help you quickly and easil
 
 ### Client Repository
 
-This winget-cli repository includes the source code designed to build the client.  You are encouraged to participate in the development of this client. We have plenty of backlog features in our [Issues](https://github.com/microsoft/winget-cli/issues?q=is%3Aopen+is%3Aissue+milestone%3ABacklog-Client). You can upvote the ones you want, add more, or even [get started on one.](https://github.com/orgs/microsoft/projects/137)
+This winget-cli repository includes the source code designed to build the client. You are encouraged to participate in the development of this client. We have plenty of backlog features in our [Issues](https://github.com/microsoft/winget-cli/issues?q=is%3Aopen+is%3Aissue+milestone%3ABacklog-Client). You can upvote the ones you want, add more, or even [get started on one.](https://github.com/orgs/microsoft/projects/137)
 
 ### Sources
 
@@ -95,7 +95,7 @@ We would like to thank [Keivan Beigi (@kayone)](https://github.com/kayone) for h
 
 ## Contributing
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+This project welcomes contributions and suggestions. Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and do, actually grant us the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com. More
 information is available in our [CONTRIBUTING.md](/CONTRIBUTING.md) file.
 
