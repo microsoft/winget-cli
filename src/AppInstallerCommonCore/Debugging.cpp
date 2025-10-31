@@ -14,17 +14,7 @@ namespace AppInstaller::Debugging
 
         struct SelfInitiatedMinidumpHelper
         {
-            SelfInitiatedMinidumpHelper() : m_keepFile(false)
-            {
-                m_filePath = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
-                m_filePath /= c_minidumpPrefix.data() + ('-' + Utility::GetCurrentTimeForFilename() + c_minidumpExtension.data());
-
-                m_file.reset(CreateFile(m_filePath.wstring().c_str(), GENERIC_READ | GENERIC_WRITE,
-                    FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr));
-                THROW_LAST_ERROR_IF(!m_file);
-
-                SetUnhandledExceptionFilter(UnhandledExceptionCallback);
-            }
+            SelfInitiatedMinidumpHelper() = default;
 
             ~SelfInitiatedMinidumpHelper()
             {
@@ -57,6 +47,30 @@ namespace AppInstaller::Debugging
                 return EXCEPTION_CONTINUE_SEARCH;
             }
 
+            SelfInitiatedMinidumpHelper& Enable(const std::filesystem::path& filePath = {})
+            {
+                std::call_once(m_enableFlag, [&]()
+                    {
+                        if (filePath.empty())
+                        {
+                            m_filePath = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
+                            m_filePath /= c_minidumpPrefix.data() + ('-' + Utility::GetCurrentTimeForFilename() + c_minidumpExtension.data());
+                        }
+                        else
+                        {
+                            m_filePath = filePath;
+                        }
+
+                        m_file.reset(CreateFile(m_filePath.wstring().c_str(), GENERIC_READ | GENERIC_WRITE,
+                            FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr));
+                        THROW_LAST_ERROR_IF(!m_file);
+
+                        SetUnhandledExceptionFilter(UnhandledExceptionCallback);
+                    });
+
+                return *this;
+            }
+
             void WriteMinidump()
             {
                 std::thread([&]() {
@@ -66,20 +80,25 @@ namespace AppInstaller::Debugging
             }
 
         private:
+            std::once_flag m_enableFlag;
             std::filesystem::path m_filePath;
             wil::unique_handle m_file;
-            std::atomic_bool m_keepFile;
+            std::atomic_bool m_keepFile{ false };
         };
     }
 
     void EnableSelfInitiatedMinidump()
     {
-        // Force object creation and thus enabling of the crash detection.
-        SelfInitiatedMinidumpHelper::Instance();
+        SelfInitiatedMinidumpHelper::Instance().Enable();
+    }
+
+    void EnableSelfInitiatedMinidump(const std::filesystem::path& filePath)
+    {
+        SelfInitiatedMinidumpHelper::Instance().Enable(filePath);
     }
 
     void WriteMinidump()
     {
-        SelfInitiatedMinidumpHelper::Instance().WriteMinidump();
+        SelfInitiatedMinidumpHelper::Instance().Enable().WriteMinidump();
     }
 }
