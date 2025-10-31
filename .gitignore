@@ -17,6 +17,7 @@ settings.json
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
+[Rr]elease[Ss]tatic/
 [Rr]eleases/
 x64/
 x86/

@@ -118,7 +118,8 @@ jobs:
                     /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
-                    /p:UapAppxPackageBuildMode=SideloadOnly'
+                    /p:UapAppxPackageBuildMode=SideloadOnly
+                    /p:WingetCleanIntermediateFiles=true'
       maximumCpuCount: true
 
   - task: MSBuild@1
