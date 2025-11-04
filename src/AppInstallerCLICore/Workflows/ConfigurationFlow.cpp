@@ -1678,6 +1678,125 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        // Contains a tree of all unit processors by their path.
+        struct UnitProcessorTree
+        {
+        private:
+            struct SourceAndPackage
+            {
+                PackageCollection::Source Source;
+                PackageCollection::Package Package;
+            };
+
+            struct Node
+            {
+                // Packages whose installed location is at this node
+                std::vector<SourceAndPackage> Packages;
+
+                // Units whose location is at this node.
+                std::vector<IConfigurationUnitProcessorDetails> Units;
+
+                // The children of this node.
+                std::map<std::filesystem::path, Node> Children;
+            };
+
+            Node m_rootNode;
+
+            Node* FindNode(const std::filesystem::path& path, bool createIfNeeded)
+            {
+                const auto& nodePath = std::filesystem::weakly_canonical(path);
+                Node* currentNode = &m_rootNode;
+
+                for (const auto& pathPart : nodePath)
+                {
+                    auto& children = currentNode->Children;
+
+                    if (createIfNeeded)
+                    {
+                        currentNode = &children[pathPart];
+                    }
+                    else
+                    {
+                        auto itr = children.find(pathPart);
+
+                        if (itr != children.end())
+                        {
+                            currentNode = &itr->second;
+                        }
+                        else
+                        {
+                            // Not found and should not create
+                            return nullptr;
+                        }
+                    }
+                }
+
+                return currentNode;
+            }
+
+            Node& FindNodeForFilePath(const winrt::hstring& filePath)
+            {
+                std::filesystem::path path{ std::wstring{ filePath } };
+                return *FindNode(path.parent_path(), true);
+            }
+
+        public:
+            UnitProcessorTree(std::vector<IConfigurationUnitProcessorDetails>&& unitProcessors)
+            {
+                for (auto&& unit : unitProcessors)
+                {
+                    IConfigurationUnitProcessorDetails3 unitProcessor3;
+                    if (unit.try_as(unitProcessor3))
+                    {
+                        Node& node = FindNodeForFilePath(unitProcessor3.Path());
+                        node.Units.emplace_back(std::move(unit));
+                    }
+                }
+            }
+
+            void PlacePackage(const PackageCollection::Source& source, const PackageCollection::Package& package)
+            {
+                Node* node = FindNode(package.InstalledLocation, false);
+                if (node)
+                {
+                    node->Packages.emplace_back(SourceAndPackage{ source, package });
+                }
+            }
+
+            std::vector<IConfigurationUnitProcessorDetails> GetResourcesForPackage(const PackageCollection::Package& package)
+            {
+                std::vector<IConfigurationUnitProcessorDetails> result;
+
+                Node* node = FindNode(package.InstalledLocation, false);
+                if (node)
+                {
+                    std::queue<const Node*> nodes;
+                    nodes.push(node);
+
+                    while (!nodes.empty())
+                    {
+                        const Node* currentNode = nodes.front();
+                        nodes.pop();
+
+                        for (const auto& unit : currentNode->Units)
+                        {
+                            result.emplace_back(unit);
+                        }
+
+                        for (const auto& child : currentNode->Children)
+                        {
+                            if (child.second.Packages.empty())
+                            {
+                                nodes.push(&child.second);
+                            }
+                        }
+                    }
+                }
+
+                return result;
+            }
+        };
+
         void ProcessPackagesForConfigurationExportAll(Execution::Context& context)
         {
             ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
@@ -1718,6 +1837,17 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
+            // Build a tree of the unit processors and place packages onto it to indicate nearest ownership.
+            UnitProcessorTree unitProcessorTree{ std::move(unitProcessors) };
+
+            for (const auto& source : context.Get<Execution::Data::PackageCollection>().Sources)
+            {
+                for (const auto& package : source.Packages)
+                {
+                    unitProcessorTree.PlacePackage(source, package);
+                }
+            }
+
             for (const auto& source : context.Get<Execution::Data::PackageCollection>().Sources)
             {
                 // Create WinGetSource unit for non well known source.
@@ -1734,30 +1864,19 @@ namespace AppInstaller::CLI::Workflow
                     configContext.Set().Units().Append(packageUnit);
 
                     // Try package settings export.
-                    for (auto itr = unitProcessors.begin(); itr != unitProcessors.end(); /* itr incremented in the logic */)
+                    auto unitsForPackage = unitProcessorTree.GetResourcesForPackage(package);
+                    for (auto itr = unitsForPackage.begin(); itr != unitsForPackage.end(); ++itr)
                     {
-                        IConfigurationUnitProcessorDetails3 unitProcessor3;
-                        itr->try_as(unitProcessor3);
-                        if (Filesystem::IsParentPath(std::filesystem::path{ std::wstring{ unitProcessor3.Path() } }, package.InstalledLocation))
+                        ConfigurationUnit configUnit = anon::CreateConfigurationUnitFromUnitType(
+                            itr->UnitType(),
+                            Utility::ConvertToUTF8(packageUnit.Identifier()));
+
+                        auto exportedUnits = anon::ExportUnit(context, configUnit);
+                        anon::AddDependentUnit(exportedUnits, packageUnit);
+
+                        for (auto exportedUnit : exportedUnits)
                         {
-                            ConfigurationUnit configUnit = anon::CreateConfigurationUnitFromUnitType(
-                                unitProcessor3.UnitType(),
-                                Utility::ConvertToUTF8(packageUnit.Identifier()));
-
-                            auto exportedUnits = anon::ExportUnit(context, configUnit);
-                            anon::AddDependentUnit(exportedUnits, packageUnit);
-
-                            for (auto exportedUnit : exportedUnits)
-                            {
-                                configContext.Set().Units().Append(exportedUnit);
-                            }
-
-                            // Remove the unit processor from the list after export.
-                            itr = unitProcessors.erase(itr);
-                        }
-                        else
-                        {
-                            itr++;
+                            configContext.Set().Units().Append(exportedUnit);
                         }
                     }
                 }
