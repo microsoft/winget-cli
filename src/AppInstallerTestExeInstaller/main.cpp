@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <winreg.h>
 #include <winerror.h>
+#include <initializer_list>
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -15,6 +16,7 @@ std::wstring_view RegistrySubkey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersio
 std::wstring_view DefaultProductID = L"{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}";
 std::wstring_view DefaultDisplayName = L"AppInstallerTestExeInstaller";
 std::wstring_view DefaultDisplayVersion = L"1.0.0.0";
+std::wstring_view DscSubDirectoryName = L"SubDirectory";
 
 void WriteModifyRepairScript(std::wofstream& script, const path& repairCompletedTextFilePath, bool isModifyScript) {
     std::wstring scriptName = isModifyScript ? L"Modify" : L"Uninstaller";
@@ -48,17 +50,16 @@ void WriteUninstallerScript(
     std::wofstream& uninstallerScript,
     const path& uninstallerOutputTextFilePath,
     const std::wstring& registryKey,
-    const path& modifyScriptPath,
-    const path& repairCompletedTextFilePath,
-    const path& dscResourceExecutablePath,
-    const path& dscResourceManifestPath) {
+    std::initializer_list<path> paths) {
     uninstallerScript << "ECHO. >" << uninstallerOutputTextFilePath << "\n";
     uninstallerScript << "ECHO AppInstallerTestExeInstaller.exe uninstalled successfully.\n";
     uninstallerScript << "REG DELETE " << registryKey << " /f\n";
-    uninstallerScript << "if exist \"" << modifyScriptPath.wstring() << "\" del \"" << modifyScriptPath.wstring() << "\"\n";
-    uninstallerScript << "if exist \"" << repairCompletedTextFilePath.wstring() << "\" del \"" << repairCompletedTextFilePath.wstring() << "\"\n";
-    uninstallerScript << "if exist \"" << dscResourceExecutablePath.wstring() << "\" del \"" << dscResourceExecutablePath.wstring() << "\"\n";
-    uninstallerScript << "if exist \"" << dscResourceManifestPath.wstring() << "\" del \"" << dscResourceManifestPath.wstring() << "\"\n";
+
+    for (const auto& path : paths)
+    {
+        std::wstring pathString = path.wstring();
+        uninstallerScript << "if exist \"" << pathString << "\" del \"" << pathString << "\"\n";
+    }
 }
 
 path GenerateUninstaller(std::wostream& out, const path& installDirectory, const std::wstring& productID, bool useHKLM)
@@ -73,15 +74,6 @@ path GenerateUninstaller(std::wostream& out, const path& installDirectory, const
 
     path repairCompletedTextFilePath = installDirectory;
     repairCompletedTextFilePath /= "TestExeRepairCompleted.txt";
-
-    path modifyScriptPath = installDirectory;
-    modifyScriptPath /= "ModifyTestExe.bat";
-
-    path dscResourceExecutablePath = installDirectory;
-    dscResourceExecutablePath /= "AppInstallerTestResource.exe";
-
-    path dscResourceManifestPath = installDirectory;
-    dscResourceManifestPath /= "AppInstallerTest.dsc.resource.json";
 
     std::wstring registryKey{ useHKLM ? L"HKEY_LOCAL_MACHINE\\" : L"HKEY_CURRENT_USER\\" };
     registryKey += RegistrySubkey;
@@ -99,7 +91,15 @@ path GenerateUninstaller(std::wostream& out, const path& installDirectory, const
     uninstallerScript << L"for %%A in (%*) do (\n";
     WriteModifyRepairScript(uninstallerScript, repairCompletedTextFilePath, false /*isModifyScript*/);
     uninstallerScript << ")\n";
-    WriteUninstallerScript(uninstallerScript, uninstallerOutputTextFilePath, registryKey, modifyScriptPath, repairCompletedTextFilePath, dscResourceExecutablePath, dscResourceManifestPath);
+    WriteUninstallerScript(uninstallerScript, uninstallerOutputTextFilePath, registryKey,
+        {
+            installDirectory / "ModifyTestExe.bat",
+            repairCompletedTextFilePath,
+            installDirectory / "AppInstallerTestResource.exe",
+            installDirectory / "AppInstallerTest.dsc.resource.json",
+            installDirectory / DscSubDirectoryName / "AppInstallerTestResource.exe",
+            installDirectory / DscSubDirectoryName / "AppInstallerTest.dsc.resource.json",
+        });
 
     uninstallerScript.close();
 
@@ -134,6 +134,7 @@ void GenerateDSCv3ProviderFiles(const path& installDirectory, const std::wstring
     if (!subDirectory.empty())
     {
         dscResourceExecutablePath /= subDirectory;
+        std::filesystem::create_directories(dscResourceExecutablePath);
     }
     dscResourceExecutablePath /= "AppInstallerTestResource.exe";
 
@@ -221,7 +222,7 @@ void GenerateDSCv3ProviderFiles(const path& installDirectory, const std::wstring
         DscResourceJsonContent += subDirectory;
     }
 
-        DscResourceJsonContent += LR"(,
+        DscResourceJsonContent += LR"(",
         "version" : "1.0.0"
     }
         )";
@@ -434,7 +435,7 @@ void HandleInstallationOperation(
     if (generateDscResourceFiles)
     {
         GenerateDSCv3ProviderFiles(installDirectory, {});
-        GenerateDSCv3ProviderFiles(installDirectory, L"SubDirectory");
+        GenerateDSCv3ProviderFiles(installDirectory, DscSubDirectoryName);
     }
 
     path uninstallerPath = GenerateUninstaller(out, installDirectory, productCode, useHKLM);
