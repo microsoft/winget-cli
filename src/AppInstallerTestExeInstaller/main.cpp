@@ -128,9 +128,13 @@ path GenerateModifyPath(const path& installDirectory)
     return modifyScriptPath;
 }
 
-void GenerateDSCv3ProviderFiles(const path& installDirectory)
+void GenerateDSCv3ProviderFiles(const path& installDirectory, const std::wstring_view subDirectory)
 {
     path dscResourceExecutablePath = installDirectory;
+    if (!subDirectory.empty())
+    {
+        dscResourceExecutablePath /= subDirectory;
+    }
     dscResourceExecutablePath /= "AppInstallerTestResource.exe";
 
     WCHAR currentExecutable[MAX_PATH];
@@ -139,6 +143,10 @@ void GenerateDSCv3ProviderFiles(const path& installDirectory)
     copy_file(currentExecutablePath, dscResourceExecutablePath);
 
     path dscResourceManifestPath = installDirectory;
+    if (!subDirectory.empty())
+    {
+        dscResourceManifestPath /= subDirectory;
+    }
     dscResourceManifestPath /= "AppInstallerTest.dsc.resource.json";
 
     std::wstring DscResourceJsonContent =
@@ -205,7 +213,15 @@ void GenerateDSCv3ProviderFiles(const path& installDirectory)
                 }
             }
         },
-        "type" : "AppInstallerTest/TestResource",
+        "type" : "AppInstallerTest/TestResource)";
+
+    if (!subDirectory.empty())
+    {
+        DscResourceJsonContent += '.';
+        DscResourceJsonContent += subDirectory;
+    }
+
+        DscResourceJsonContent += LR"(,
         "version" : "1.0.0"
     }
         )";
@@ -417,7 +433,8 @@ void HandleInstallationOperation(
 
     if (generateDscResourceFiles)
     {
-        GenerateDSCv3ProviderFiles(installDirectory);
+        GenerateDSCv3ProviderFiles(installDirectory, {});
+        GenerateDSCv3ProviderFiles(installDirectory, L"SubDirectory");
     }
 
     path uninstallerPath = GenerateUninstaller(out, installDirectory, productCode, useHKLM);

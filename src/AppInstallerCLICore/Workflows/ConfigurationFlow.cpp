@@ -17,6 +17,7 @@
 #include <AppInstallerStrings.h>
 #include <winget/ExperimentalFeature.h>
 #include <winget/SelfManagement.h>
+#include <winget/PathTree.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 
 using namespace AppInstaller::CLI::Execution;
@@ -1695,49 +1696,14 @@ namespace AppInstaller::CLI::Workflow
 
                 // Units whose location is at this node.
                 std::vector<IConfigurationUnitProcessorDetails> Units;
-
-                // The children of this node.
-                std::map<std::filesystem::path, Node> Children;
             };
 
-            Node m_rootNode;
-
-            Node* FindNode(const std::filesystem::path& path, bool createIfNeeded)
-            {
-                const auto& nodePath = std::filesystem::weakly_canonical(path);
-                Node* currentNode = &m_rootNode;
-
-                for (const auto& pathPart : nodePath)
-                {
-                    auto& children = currentNode->Children;
-
-                    if (createIfNeeded)
-                    {
-                        currentNode = &children[pathPart];
-                    }
-                    else
-                    {
-                        auto itr = children.find(pathPart);
-
-                        if (itr != children.end())
-                        {
-                            currentNode = &itr->second;
-                        }
-                        else
-                        {
-                            // Not found and should not create
-                            return nullptr;
-                        }
-                    }
-                }
-
-                return currentNode;
-            }
+            Filesystem::PathTree<Node> m_pathTree;
 
             Node& FindNodeForFilePath(const winrt::hstring& filePath)
             {
                 std::filesystem::path path{ std::wstring{ filePath } };
-                return *FindNode(path.parent_path(), true);
+                return m_pathTree.FindOrInsert(path.parent_path());
             }
 
         public:
@@ -1756,42 +1722,30 @@ namespace AppInstaller::CLI::Workflow
 
             void PlacePackage(const PackageCollection::Source& source, const PackageCollection::Package& package)
             {
-                Node* node = FindNode(package.InstalledLocation, false);
+                Node* node = m_pathTree.Find(package.InstalledLocation);
                 if (node)
                 {
                     node->Packages.emplace_back(SourceAndPackage{ source, package });
                 }
             }
 
-            std::vector<IConfigurationUnitProcessorDetails> GetResourcesForPackage(const PackageCollection::Package& package)
+            std::vector<IConfigurationUnitProcessorDetails> GetResourcesForPackage(const PackageCollection::Package& package) const
             {
                 std::vector<IConfigurationUnitProcessorDetails> result;
 
-                Node* node = FindNode(package.InstalledLocation, false);
-                if (node)
-                {
-                    std::queue<const Node*> nodes;
-                    nodes.push(node);
-
-                    while (!nodes.empty())
+                m_pathTree.VisitIf(
+                    package.InstalledLocation,
+                    [&](const Node& node)
                     {
-                        const Node* currentNode = nodes.front();
-                        nodes.pop();
-
-                        for (const auto& unit : currentNode->Units)
+                        for (const auto& unit : node.Units)
                         {
                             result.emplace_back(unit);
                         }
-
-                        for (const auto& child : currentNode->Children)
-                        {
-                            if (child.second.Packages.empty())
-                            {
-                                nodes.push(&child.second);
-                            }
-                        }
-                    }
-                }
+                    },
+                    [](const Node& node)
+                    {
+                        return node.Packages.empty();
+                    });
 
                 return result;
             }
