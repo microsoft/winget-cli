@@ -1823,9 +1823,9 @@ namespace AppInstaller::CLI::Workflow
 
                     // Try package settings export.
                     auto unitsForPackage = unitProcessorTree.GetResourcesForPackage(package);
-                    for (auto itr = unitsForPackage.begin(); itr != unitsForPackage.end(); ++itr)
+                    for (const auto& unit : unitsForPackage)
                     {
-                        winrt::hstring unitType = itr->UnitType();
+                        winrt::hstring unitType = unit.UnitType();
                         AICLI_LOG(Config, Verbose, << "  exporting unit `" << Utility::ConvertToUTF8(unitType));
 
                         ConfigurationUnit configUnit = anon::CreateConfigurationUnitFromUnitType(
@@ -1835,7 +1835,7 @@ namespace AppInstaller::CLI::Workflow
                         auto exportedUnits = anon::ExportUnit(context, configUnit);
                         anon::AddDependentUnit(exportedUnits, packageUnit);
 
-                        for (auto exportedUnit : exportedUnits)
+                        for (const auto& exportedUnit : exportedUnits)
                         {
                             configContext.Set().Units().Append(exportedUnit);
                         }

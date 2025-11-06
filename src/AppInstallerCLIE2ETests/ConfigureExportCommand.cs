@@ -33,7 +33,7 @@ namespace AppInstallerCLIE2ETests
             this.previousPathValue = System.Environment.GetEnvironmentVariable("PATH");
 
             // The installer puts DSCv3 resources in both locations
-            System.Environment.SetEnvironmentVariable("PATH", this.previousPathValue + ";" + installDir + ";" + installDir + ".SubDirectory");
+            System.Environment.SetEnvironmentVariable("PATH", this.previousPathValue + ";" + installDir + ";" + installDir + "\\SubDirectory");
             DSCv3ResourceTestBase.EnsureTestResourcePresence();
         }
 
