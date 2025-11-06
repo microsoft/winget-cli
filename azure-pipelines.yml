@@ -329,7 +329,7 @@ jobs:
     inputs:
       packageFeedSelector: 'nugetOrg'
 
-  - powershell: |
+  - pwsh: |
       Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
       Install-Module Microsoft.WinGet.Client -Repository PSGallery -Force
       try { Repair-WingetPackageManager -AllUsers -Latest -Verbose } catch { $_.Exception }
@@ -345,7 +345,7 @@ jobs:
     workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
     condition: succeededOrFailed()
 
-  - powershell: |
+  - pwsh: |
       Uninstall-WinGetPackage -Id Microsoft.Sysinternals.PsTools -Source winget
     displayName: Clean up Sysinternals PsTools
     condition: succeededOrFailed()
