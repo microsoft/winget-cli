@@ -1714,7 +1714,9 @@ namespace AppInstaller::CLI::Workflow
                     IConfigurationUnitProcessorDetails3 unitProcessor3;
                     if (unit.try_as(unitProcessor3))
                     {
-                        Node& node = FindNodeForFilePath(unitProcessor3.Path());
+                        winrt::hstring unitPath = unitProcessor3.Path();
+                        AICLI_LOG(Config, Verbose, << "Found unit `" << Utility::ConvertToUTF8(unit.UnitType()) << "` at: " << Utility::ConvertToUTF8(unitPath));
+                        Node& node = FindNodeForFilePath(unitPath);
                         node.Units.emplace_back(std::move(unit));
                     }
                 }
@@ -1814,6 +1816,8 @@ namespace AppInstaller::CLI::Workflow
 
                 for (const auto& package : source.Packages)
                 {
+                    AICLI_LOG(Config, Verbose, << "Exporting package `" << package.Id << "` at: " << package.InstalledLocation);
+
                     auto packageUnit = anon::CreateWinGetPackageUnit(package, source, context.Args.Contains(Args::Type::IncludeVersions), sourceUnit, packageUnitType);
                     configContext.Set().Units().Append(packageUnit);
 
@@ -1821,8 +1825,11 @@ namespace AppInstaller::CLI::Workflow
                     auto unitsForPackage = unitProcessorTree.GetResourcesForPackage(package);
                     for (auto itr = unitsForPackage.begin(); itr != unitsForPackage.end(); ++itr)
                     {
+                        winrt::hstring unitType = itr->UnitType();
+                        AICLI_LOG(Config, Verbose, << "  exporting unit `" << Utility::ConvertToUTF8(unitType));
+
                         ConfigurationUnit configUnit = anon::CreateConfigurationUnitFromUnitType(
-                            itr->UnitType(),
+                            unitType,
                             Utility::ConvertToUTF8(packageUnit.Identifier()));
 
                         auto exportedUnits = anon::ExportUnit(context, configUnit);
