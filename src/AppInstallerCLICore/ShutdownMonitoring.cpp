@@ -101,6 +101,8 @@ namespace AppInstaller::ShutdownMonitoring
 
     TerminationSignalHandler::~TerminationSignalHandler()
     {
+        SetConsoleCtrlHandler(StaticCtrlHandlerFunction, FALSE);
+
         // std::thread requires that any managed thread (joinable) be joined or detached before destructing
         if (m_windowThread.joinable())
         {
