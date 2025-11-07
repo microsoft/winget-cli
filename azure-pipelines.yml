@@ -330,6 +330,7 @@ jobs:
       packageFeedSelector: 'nugetOrg'
 
   - pwsh: |
+      [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
       Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
       Install-Module Microsoft.WinGet.Client -Repository PSGallery -Force
       try { Repair-WingetPackageManager -AllUsers -Latest -Verbose } catch { $_.Exception }
