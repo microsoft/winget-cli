@@ -6,6 +6,8 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerDateTime.h"
+#include "Public/winget/UserSettings.h"
+#include <winget/Filesystem.h>
 #include <corecrt_io.h>
 
 
@@ -110,16 +112,19 @@ namespace AppInstaller::Logging
             {
                 try
                 {
-                    auto now = std::filesystem::file_time_type::clock::now();
+                    const auto& settings = Settings::User();
 
-                    // Remove all files that are older than 7 days from the standard log location.
-                    for (auto& file : std::filesystem::directory_iterator{ filePath })
+                    Filesystem::FileLimits fileLimits;
+                    fileLimits.Age = settings.Get<Settings::Setting::LoggingFileAgeLimitInDays>();
+                    fileLimits.TotalSizeInMB = settings.Get<Settings::Setting::LoggingFileTotalSizeLimitInMB>();
+                    fileLimits.Count = settings.Get<Settings::Setting::LoggingFileCountLimit>();
+
+                    auto filesInPath = Filesystem::GetFileInfoFor(filePath);
+                    Filesystem::FilterToFilesExceedingLimits(filesInPath, fileLimits);
+
+                    for (const auto& file : filesInPath)
                     {
-                        if (file.is_regular_file() &&
-                            now - file.last_write_time() > (7 * 24h))
-                        {
-                            std::filesystem::remove(file.path());
-                        }
+                        std::filesystem::remove(file.Path);
                     }
                 }
                 // Just throw out everything
