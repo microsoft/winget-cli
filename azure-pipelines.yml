@@ -333,7 +333,8 @@ jobs:
       Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
       Install-Module Microsoft.WinGet.Client -Repository PSGallery -Force
       try { Repair-WingetPackageManager -AllUsers -Latest -Verbose } catch { $_.Exception }
-      winget install --id Microsoft.Sysinternals.PsTools --source winget
+      '{ "settings": { "logging": { "level": "verbose" } } }' | winget dscv3 user-settings-file --set 2>&1
+      Install-WinGetPackage -Id Microsoft.Sysinternals.PsTools -Source winget
     displayName: Install Sysinternals PsTools Using Winget
     condition: succeededOrFailed()
 
@@ -345,7 +346,7 @@ jobs:
     condition: succeededOrFailed()
 
   - powershell: |
-      winget uninstall --id Microsoft.Sysinternals.PsTools --source winget
+      Uninstall-WinGetPackage -Id Microsoft.Sysinternals.PsTools -Source winget
     displayName: Clean up Sysinternals PsTools
     condition: succeededOrFailed()
 
