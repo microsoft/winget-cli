@@ -113,3 +113,41 @@ TEST_CASE("GetExecutablePathForProcess", "[filesystem]")
     REQUIRE(thisExecutable.has_extension());
     REQUIRE(thisExecutable.filename() == L"AppInstallerCLITests.exe");
 }
+
+TEST_CASE("GetFileInfoFor", "[filesystem]")
+{
+    TestCommon::TempDirectory tempDirectory{ "GetFileInfoFor" };
+
+    auto now = std::filesystem::file_time_type::clock::now();
+
+    std::this_thread::sleep_for(1s);
+    auto file1 = tempDirectory.CreateTempFile("c.txt");
+    std::string file1Content = "File 1 Content!";
+    std::ofstream{ file1 } << file1Content;
+    std::this_thread::sleep_for(1s);
+    auto file2 = tempDirectory.CreateTempFile("b.txt");
+    std::string file2Content = "More Content! Better Content!";
+    std::ofstream{ file2 } << file2Content;
+    std::this_thread::sleep_for(1s);
+    auto file3 = tempDirectory.CreateTempFile("a.txt");
+    std::string file3Content = "Maybe less is better?";
+    std::ofstream{ file3 } << file3Content;
+
+    auto fileInfo = GetFileInfoFor(tempDirectory);
+    REQUIRE(3 == fileInfo.size());
+
+    // Sort with oldest first
+    std::sort(fileInfo.begin(), fileInfo.end(), [](const FileInfo& a, const FileInfo& b) { return a.LastWriteTime < b.LastWriteTime; });
+
+    REQUIRE(fileInfo[0].Path == file1.GetPath());
+    REQUIRE(fileInfo[0].LastWriteTime > now);
+    REQUIRE(fileInfo[0].Size == file1Content.size());
+
+    REQUIRE(fileInfo[1].Path == file2.GetPath());
+    REQUIRE(fileInfo[1].LastWriteTime > fileInfo[0].LastWriteTime);
+    REQUIRE(fileInfo[1].Size == file2Content.size());
+
+    REQUIRE(fileInfo[2].Path == file3.GetPath());
+    REQUIRE(fileInfo[2].LastWriteTime > fileInfo[1].LastWriteTime);
+    REQUIRE(fileInfo[2].Size == file3Content.size());
+}
