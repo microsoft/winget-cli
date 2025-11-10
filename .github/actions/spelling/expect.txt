@@ -47,6 +47,7 @@ awgpm
 awgs
 azurewebsites
 Baz
+bbb
 bcp
 BEBOM
 BEFACEF
@@ -74,6 +75,7 @@ buildtrees
 cancelledbyuser
 casemap
 casemappings
+ccc
 cch
 centralus
 certmgr
@@ -395,6 +397,7 @@ packageinusebyapplication
 PACL
 PARAMETERMAP
 pathparts
+pathtree
 Patil
 pbstr
 pcb
