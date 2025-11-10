@@ -30,6 +30,7 @@
 #include <mutex>
 #include <numeric>
 #include <optional>
+#include <queue>
 #include <set>
 #include <sstream>
 #include <string>
