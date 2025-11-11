@@ -49,6 +49,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand(CommandAndAgreements, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
             Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
             Assert.True(result.StdOut.Contains("System is not in the described configuration state."));
+            Assert.True(result.StdOut.Contains("Module: xE2ETestResource")); // Details from the resource should appear if the initial details are shown
         }
 
         /// <summary>
@@ -66,6 +67,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand(CommandAndAgreements, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("System is in the described configuration state."));
+            Assert.True(result.StdOut.Contains("Module: xE2ETestResource")); // Details from the resource should appear if the initial details are shown
         }
 
         /// <summary>
@@ -124,6 +126,17 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand(CommandAndAgreements, $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_DSCv3.yml")} --verbose");
             Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
             Assert.True(result.StdOut.Contains("System is not in the described configuration state."));
+        }
+
+        /// <summary>
+        /// Tests that --suppress-initial-details will suppress the initial details output.
+        /// </summary>
+        [Test]
+        public void ConfigureTest_SuppressInitialDetails()
+        {
+            var result = TestCommon.RunAICLICommand("configure --accept-configuration-agreements --suppress-initial-details", TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
+            Assert.AreEqual(0, result.ExitCode);
+            Assert.False(result.StdOut.Contains("Module: xE2ETestResource")); // Details from the resource should not appear if the initial details are suppressed
         }
 
         private void DeleteResourceArtifacts()
