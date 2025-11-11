@@ -88,12 +88,40 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="expectedVersion">The expected version, if any.</param>
         /// <param name="allUsers">Install for all users. Requires admin.</param>
         /// <param name="force">Force application shutdown.</param>
-        public void Repair(string expectedVersion, bool allUsers, bool force)
+        /// <param name="includePrerelease">Include prerelease versions when matching version.</param>
+        public void Repair(string expectedVersion, bool allUsers, bool force, bool includePrerelease)
         {
             this.ValidateWhenAllUsers(allUsers);
             var runningTask = this.RunOnMTA(
                 async () =>
                 {
+                    if (!string.IsNullOrWhiteSpace(expectedVersion))
+                    {
+                        this.Write(StreamType.Verbose, $"Attempting to resolve version '{expectedVersion}'");
+                        var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                        try
+                        {
+                            var resolvedVersion = await gitHubClient.ResolveVersionAsync(expectedVersion, includePrerelease);
+                            if (!string.IsNullOrEmpty(resolvedVersion))
+                            {
+                                this.Write(StreamType.Verbose, $"Matching version found: {resolvedVersion}");
+                                expectedVersion = resolvedVersion!;
+                            }
+                            else
+                            {
+                                this.Write(StreamType.Warning, $"No matching version found for {expectedVersion}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            this.Write(StreamType.Warning, $"Could not resolve version '{expectedVersion}': {ex.Message}");
+                        }
+                    }
+                    else
+                    {
+                        this.Write(StreamType.Verbose, "No version specified.");
+                    }
+
                     await this.RepairStateMachineAsync(expectedVersion, allUsers, force);
                     return true;
                 });
@@ -138,7 +166,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                             this.RepairEnvPath();
                             break;
                         case IntegrityCategory.AppInstallerNotRegistered:
-                            this.Register(expectedVersion);
+                            await this.RegisterAsync(expectedVersion, allUsers);
                             break;
                         case IntegrityCategory.AppInstallerNotInstalled:
                         case IntegrityCategory.AppInstallerNotSupported:
@@ -156,6 +184,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                                 throw new WinGetRepairException(e);
                             }
 
+                            break;
+                        case IntegrityCategory.WinGetSourceNotInstalled:
+                            await this.InstallWinGetSourceAsync();
                             break;
                         case IntegrityCategory.AppExecutionAliasDisabled:
                         case IntegrityCategory.Unknown:
@@ -201,10 +232,17 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             await appxModule.InstallFromGitHubReleaseAsync(toInstallVersion, allUsers, false, force);
         }
 
-        private void Register(string toRegisterVersion)
+        private async Task InstallWinGetSourceAsync()
+        {
+            this.Write(StreamType.Verbose, "Installing winget source");
+            var appxModule = new AppxModuleHelper(this);
+            await appxModule.InstallWinGetSourceAsync();
+        }
+
+        private async Task RegisterAsync(string toRegisterVersion, bool allUsers)
         {
             var appxModule = new AppxModuleHelper(this);
-            appxModule.RegisterAppInstaller(toRegisterVersion);
+            await appxModule.RegisterAppInstallerAsync(toRegisterVersion, allUsers);
         }
 
         private void RepairEnvPath()
