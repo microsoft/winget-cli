@@ -286,6 +286,16 @@ In addition, there are special values that cover multiple channels.  `default` i
     },
 ```
 
+### fileNameStrategy
+
+Sets the default strategy for naming log files for installers that support it. `manifest` is the default and uses the manifest name. `timestamp` uses the date and time. `guid` uses a generated GUID. `shortguid` uses the first 8 characters of a generated GUID. Invalid values will revert to `manifest`.
+
+```json
+	"logging": {
+		"fileNameStrategy": "manifest" | "timestamp" | "guid" | "shortguid"
+	},
+```
+
 ## Network
 
 The `network` settings influence how winget uses the network to retrieve packages and metadata.
