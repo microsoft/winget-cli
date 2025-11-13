@@ -295,6 +295,16 @@ try {
                     $uniquePackages | Format-Table -Property Name, Count -AutoSize
                 }
 
+                # Output the URL of each package on nuget.org
+                Write-Host "`n=== PACKAGE URLS ===" -ForegroundColor Cyan
+
+                $uniquePackages = $allPackages | Where-Object { $_.PackagesConfigExists } | Group-Object PackageId
+                foreach ($packageGroup in $uniquePackages) {
+                    $packageId = $packageGroup.Name
+                    $url = "https://www.nuget.org/packages/$packageId#versions-body-tab"
+                    Write-Host "  $packageId : $url" -ForegroundColor Yellow
+                }
+
                 Write-Host "`n=== PROJECT DETAILS ===" -ForegroundColor Cyan
                 
                 # Show projects with packages
