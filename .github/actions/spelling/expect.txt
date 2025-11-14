@@ -160,6 +160,7 @@ ERRORONEXIT
 errstr
 ESRB
 etl
+evtx
 ewgp
 ewgs
 execustom
@@ -322,6 +323,7 @@ MBH
 MBs
 mday
 mdmp
+mdmpto
 MDs
 megamorf
 microsoftentraid
@@ -613,6 +615,7 @@ wincodec
 windir
 windowsdeveloper
 winerror
+winevt
 wingdi
 wingetconfigroot
 wingetcreate
