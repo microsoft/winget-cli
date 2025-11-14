@@ -34,6 +34,7 @@
 #include <wil/result_macros.h>
 #include <wil/token_helpers.h>
 
+#include <algorithm>
 #include <atomic>
 #include <filesystem>
 #include <fstream>
@@ -41,6 +42,7 @@
 #include <future>
 #include <iostream>
 #include <memory>
+#include <random>
 #include <set>
 #include <sstream>
 #include <string>
