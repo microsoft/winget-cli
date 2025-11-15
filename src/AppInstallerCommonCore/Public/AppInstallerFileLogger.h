@@ -25,6 +25,10 @@ namespace AppInstaller::Logging
         FileLogger(FileLogger&&) = default;
         FileLogger& operator=(FileLogger&&) = default;
 
+        // The default value for the maximum size comes from settings.
+        // Setting the maximum size to 0 will disable the maximum.
+        void SetMaximumSize(std::ofstream::off_type maximumSize);
+
         static std::string GetNameForPath(const std::filesystem::path& filePath);
 
         static std::string_view DefaultPrefix();
@@ -36,6 +40,8 @@ namespace AppInstaller::Logging
         void Write(Channel channel, Level level, std::string_view message) noexcept override;
 
         void WriteDirect(Channel channel, Level level, std::string_view message) noexcept override;
+
+        void SetTag(Tag tag) noexcept override;
 
         // Adds a FileLogger to the current Log
         static void Add();
@@ -50,7 +56,19 @@ namespace AppInstaller::Logging
         std::string m_name;
         std::filesystem::path m_filePath;
         std::ofstream m_stream;
+        std::ofstream::pos_type m_headersEnd = 0;
+        std::ofstream::off_type m_maximumSize = 0;
 
         void OpenFileLoggerStream();
+
+        // Initializes the default maximum file size.
+        void GetDefaultMaximumFileSize();
+
+        // Determines if the logger needs to wrap back to the beginning, doing so when needed.
+        // May also shrink the given view if it exceeds the overall maximum.
+        void HandleMaximumFileSize(std::string_view& currentLog);
+
+        // Resets the log file state so that it will overwrite the data portion.
+        void WrapLogFile();
     };
 }
