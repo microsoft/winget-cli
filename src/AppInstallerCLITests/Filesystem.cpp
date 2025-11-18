@@ -179,7 +179,7 @@ TEST_CASE("FilterToFilesExceedingLimits", "[filesystem]")
     };
 
     // Give the sort inside FilterToFilesExceedingLimits something to do
-    std::shuffle(files.begin(), files.end(), std::mt19937{ std::random_device{}() });
+    std::shuffle(files.begin(), files.end(), std::mt19937{});
     FileLimits limits{};
 
     SECTION("No limits")

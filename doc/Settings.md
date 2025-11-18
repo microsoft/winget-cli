@@ -302,7 +302,7 @@ These settings apply to the log files that winget writes, only as they are being
 
 |Setting|Description|Default|Note|
 |---|---|---|---|
-|`individualSizeLimitInMB`|The maximum size, in megabytes, of an individual log file. If a file would exceed this limit, the logs will wrap.|16 (MB)|Set to 0 to disable this limit.|
+|`individualSizeLimitInMB`|The maximum size, in megabytes, of an individual log file. If a file would exceed this limit, the logs will wrap. Note that this limit is approximate and the actual files may exceed it by a few bytes.|16 (MB)|Set to 0 to disable this limit.|
 
 ```json
     "logging": {
