@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <winget/Filesystem.h>
+#include <winget/PathTree.h>
 #include <AppInstallerStrings.h>
 
 using namespace AppInstaller::Utility;
@@ -112,6 +113,115 @@ TEST_CASE("GetExecutablePathForProcess", "[filesystem]")
     REQUIRE(thisExecutable.has_filename());
     REQUIRE(thisExecutable.has_extension());
     REQUIRE(thisExecutable.filename() == L"AppInstallerCLITests.exe");
+}
+
+TEST_CASE("PathTree_InsertAndFind", "[filesystem][pathtree]")
+{
+    PathTree<bool> pathTree;
+
+    std::filesystem::path path1 = L"C:\\test";
+    std::filesystem::path path1sub = L"C:\\test\\sub";
+    std::filesystem::path path2 = L"C:\\diff";
+    std::filesystem::path path3 = L"D:\\test";
+
+    REQUIRE(nullptr == pathTree.Find(path1));
+    pathTree.FindOrInsert(path1) = true;
+
+    REQUIRE(nullptr != pathTree.Find(path1));
+    REQUIRE(*pathTree.Find(path1));
+
+    REQUIRE(nullptr == pathTree.Find(path1sub));
+    REQUIRE(nullptr == pathTree.Find(path2));
+    REQUIRE(nullptr == pathTree.Find(path3));
+}
+
+TEST_CASE("PathTree_InsertAndFind_Negative", "[filesystem][pathtree]")
+{
+    PathTree<bool> pathTree;
+    pathTree.FindOrInsert(L"C:\\a\\aa\\aaa");
+
+    REQUIRE(nullptr == pathTree.Find({}));
+    REQUIRE_THROWS_HR(pathTree.FindOrInsert({}), E_INVALIDARG);
+}
+
+size_t CountVisited(const PathTree<bool>& pathTree, const std::filesystem::path& path, std::function<bool(const bool&)> predicate)
+{
+    size_t result = 0;
+    pathTree.VisitIf(path, [&](const bool&) { ++result; }, predicate);
+    return result;
+}
+
+TEST_CASE("PathTree_VisitIf_Count", "[filesystem][pathtree]")
+{
+    PathTree<bool> pathTree;
+
+    pathTree.FindOrInsert(L"C:\\a\\aa\\aaa") = true;
+    pathTree.FindOrInsert(L"C:\\a\\aa\\bbb") = true;
+    pathTree.FindOrInsert(L"C:\\a\\aa\\ccc") = false;
+    pathTree.FindOrInsert(L"C:\\a\\aa") = true;
+
+    pathTree.FindOrInsert(L"C:\\a\\bb\\aaa") = false;
+    pathTree.FindOrInsert(L"C:\\a\\bb\\bbb") = true;
+    pathTree.FindOrInsert(L"C:\\a\\bb\\ccc") = false;
+    pathTree.FindOrInsert(L"C:\\a\\bb") = true;
+
+    pathTree.FindOrInsert(L"C:\\a\\cc\\aaa") = true;
+    pathTree.FindOrInsert(L"C:\\a\\cc\\bbb") = false;
+    pathTree.FindOrInsert(L"C:\\a\\cc\\ccc") = false;
+    pathTree.FindOrInsert(L"C:\\a\\cc") = false;
+
+    pathTree.FindOrInsert(L"C:\\a") = true;
+    pathTree.FindOrInsert(L"C:\\b") = false;
+    pathTree.FindOrInsert(L"D:\\a") = false;
+
+    auto always = [](const bool&) { return true; };
+    auto never = [](const bool&) { return false; };
+    auto if_input = [](const bool& b) { return b; };
+
+    REQUIRE(0 == CountVisited(pathTree, {}, always));
+
+    REQUIRE(15 == CountVisited(pathTree, L"C:\\", always));
+    REQUIRE(2 == CountVisited(pathTree, L"D:\\", always));
+    REQUIRE(0 == CountVisited(pathTree, L"E:\\", always));
+
+    REQUIRE(1 == CountVisited(pathTree, L"C:\\", never));
+    REQUIRE(1 == CountVisited(pathTree, L"D:\\", never));
+    REQUIRE(0 == CountVisited(pathTree, L"E:\\", never));
+
+    REQUIRE(7 == CountVisited(pathTree, L"C:\\", if_input));
+    REQUIRE(6 == CountVisited(pathTree, L"C:\\a", if_input));
+    REQUIRE(2 == CountVisited(pathTree, L"C:\\a\\cc", if_input));
+    REQUIRE(1 == CountVisited(pathTree, L"D:\\", if_input));
+    REQUIRE(0 == CountVisited(pathTree, L"E:\\", if_input));
+}
+
+TEST_CASE("PathTree_VisitIf_Correct", "[filesystem][pathtree]")
+{
+    PathTree<std::pair<bool, bool>> pathTree;
+
+    pathTree.FindOrInsert(L"C:\\a\\aa\\aaa") = { true, true };
+    pathTree.FindOrInsert(L"C:\\a\\aa\\bbb") = { true, true };
+    pathTree.FindOrInsert(L"C:\\a\\aa\\ccc") = { false, false };
+    pathTree.FindOrInsert(L"C:\\a\\aa") = { true, true };
+
+    pathTree.FindOrInsert(L"C:\\a\\bb\\aaa") = { false, false };
+    pathTree.FindOrInsert(L"C:\\a\\bb\\bbb") = { true, true };
+    pathTree.FindOrInsert(L"C:\\a\\bb\\ccc") = { false, false };
+    pathTree.FindOrInsert(L"C:\\a\\bb") = { true, true };
+
+    pathTree.FindOrInsert(L"C:\\a\\cc\\aaa") = { true, true };
+    pathTree.FindOrInsert(L"C:\\a\\cc\\bbb") = { false, false };
+    pathTree.FindOrInsert(L"C:\\a\\cc\\ccc") = { false, false };
+    pathTree.FindOrInsert(L"C:\\a\\cc") = { false, false };
+
+    pathTree.FindOrInsert(L"C:\\a") = { true, true };
+    pathTree.FindOrInsert(L"C:\\b") = { false, false };
+    pathTree.FindOrInsert(L"C:") = { true, false };
+
+    auto check_input = [](const std::pair<bool, bool>& p) { REQUIRE(p.first); };
+    auto if_input = [](const std::pair<bool, bool>& p) { return p.second; };
+
+    pathTree.VisitIf(L"C:", check_input, if_input);
 }
 
 TEST_CASE("GetFileInfoFor", "[filesystem]")

@@ -46,7 +46,9 @@ auxdata
 awgpm
 awgs
 azurewebsites
+bak
 Baz
+bbb
 bcp
 BEBOM
 BEFACEF
@@ -74,6 +76,7 @@ buildtrees
 cancelledbyuser
 casemap
 casemappings
+ccc
 cch
 centralus
 certmgr
@@ -395,6 +398,7 @@ packageinusebyapplication
 PACL
 PARAMETERMAP
 pathparts
+pathtree
 Patil
 pbstr
 pcb
@@ -604,7 +608,7 @@ website
 wesome
 wfsopen
 wgetenv
-Whatif
+whatif
 WIC
 wildcards
 WINAPI

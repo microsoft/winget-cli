@@ -6,8 +6,15 @@ Param(
   [String] $OutputPath,
   [Switch] $UseDev,
   [Switch] $MetadataCollection,
-  [String] $System32Path
+  [String] $System32Path,
+  [Int32] $GeoID = 0
 )
+
+if ($GeoID -ne 0)
+{
+  Write-Host "--> Setting GeoID to $GeoID"
+  Set-WinHomeLocation -GeoId $GeoID
+}
 
 function Get-ARPTable {
   $registry_paths = @('HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*','HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*', 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*', 'HKCU:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*')

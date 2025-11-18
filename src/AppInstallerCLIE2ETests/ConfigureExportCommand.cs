@@ -31,7 +31,9 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestPackageExport -v 1.0.0.0 --silent -l {installDir}");
             this.previousPathValue = System.Environment.GetEnvironmentVariable("PATH");
-            System.Environment.SetEnvironmentVariable("PATH", this.previousPathValue + ";" + installDir);
+
+            // The installer puts DSCv3 resources in both locations
+            System.Environment.SetEnvironmentVariable("PATH", this.previousPathValue + ";" + installDir + ";" + installDir + "\\SubDirectory");
             DSCv3ResourceTestBase.EnsureTestResourcePresence();
         }
 
@@ -146,7 +148,7 @@ namespace AppInstallerCLIE2ETests
         {
             var exportDir = TestCommon.GetRandomTestDir();
             var exportFile = Path.Combine(exportDir, "exported.yml");
-            var result = TestCommon.RunAICLICommand(Command, $"--all -o {exportFile}", timeOut: 1200000);
+            var result = TestCommon.RunAICLICommand(Command, $"--all --verbose -o {exportFile}", timeOut: 1200000);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(File.Exists(exportFile));
 
@@ -173,6 +175,10 @@ namespace AppInstallerCLIE2ETests
             Assert.True(showResult.StdOut.Contains($"source: {Constants.TestSourceName}"));
 
             Assert.True(showResult.StdOut.Contains("AppInstallerTest/TestResource"));
+            Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_AppInstallerTest.TestPackageExport"));
+            Assert.True(showResult.StdOut.Contains("data: TestData"));
+
+            Assert.True(showResult.StdOut.Contains("AppInstallerTest/TestResource.SubDirectory"));
             Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_AppInstallerTest.TestPackageExport"));
             Assert.True(showResult.StdOut.Contains("data: TestData"));
         }
