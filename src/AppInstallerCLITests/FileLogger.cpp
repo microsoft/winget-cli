@@ -243,5 +243,3 @@ TEST_CASE("FileLogger_MaximumSize_ManyWraps", "[logging]")
 
     ValidateFileContents(tempFile, expectedFileContents, maximumSize);
 }
-
-// TODO: Test case where we make wrapping happen a very large number of times
