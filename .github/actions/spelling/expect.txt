@@ -46,6 +46,7 @@ auxdata
 awgpm
 awgs
 azurewebsites
+bak
 Baz
 bbb
 bcp
@@ -605,7 +606,7 @@ website
 wesome
 wfsopen
 wgetenv
-Whatif
+whatif
 WIC
 wildcards
 WINAPI
