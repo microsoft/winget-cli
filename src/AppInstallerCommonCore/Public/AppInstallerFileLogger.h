@@ -27,7 +27,7 @@ namespace AppInstaller::Logging
 
         // The default value for the maximum size comes from settings.
         // Setting the maximum size to 0 will disable the maximum.
-        void SetMaximumSize(std::ofstream::off_type maximumSize);
+        FileLogger& SetMaximumSize(std::ofstream::off_type maximumSize);
 
         static std::string GetNameForPath(const std::filesystem::path& filePath);
 

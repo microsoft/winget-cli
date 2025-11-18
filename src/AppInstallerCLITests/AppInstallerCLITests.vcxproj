@@ -248,6 +248,7 @@
     <ClCompile Include="ExperimentalFeature.cpp" />
     <ClCompile Include="ExportFlow.cpp" />
     <ClCompile Include="FileCache.cpp" />
+    <ClCompile Include="FileLogger.cpp" />
     <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="FolderFileWatcher.cpp" />
     <ClCompile Include="FontHelper.cpp" />

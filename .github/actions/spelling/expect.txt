@@ -493,6 +493,7 @@ Scm
 sddl
 secureobject
 securestring
+seekp
 seof
 servercert
 servercertificate
@@ -542,6 +543,7 @@ Tagit
 TARG
 taskhostw
 tcs
+tellp
 temppath
 testexampleinstaller
 thiscouldbeapc

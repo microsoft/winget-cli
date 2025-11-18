@@ -64,10 +64,11 @@ namespace AppInstaller::Logging
         m_stream.close();
     }
 
-    void FileLogger::SetMaximumSize(std::ofstream::off_type maximumSize)
+    FileLogger& FileLogger::SetMaximumSize(std::ofstream::off_type maximumSize)
     {
         THROW_HR_IF(E_INVALIDARG, maximumSize < 0);
         m_maximumSize = maximumSize;
+        return *this;
     }
 
     std::string FileLogger::GetNameForPath(const std::filesystem::path& filePath)
@@ -91,27 +92,19 @@ namespace AppInstaller::Logging
         return m_name;
     }
 
-    void FileLogger::Write(Channel channel, Level, std::string_view message) noexcept try
+    void FileLogger::Write(Channel channel, Level level, std::string_view message) noexcept try
     {
         std::string log = ToLogLine(channel, message);
-        std::string_view logView = log;
-        HandleMaximumFileSize(logView);
-        m_stream << logView << std::endl;
+        WriteDirect(channel, level, log);
     }
-    catch (...)
-    {
-        // Just eat any exceptions here; better than losing logs
-    }
+    catch (...) {}
 
     void FileLogger::WriteDirect(Channel, Level, std::string_view message) noexcept try
     {
         HandleMaximumFileSize(message);
         m_stream << message << std::endl;
     }
-    catch (...)
-    {
-        // Just eat any exceptions here; better than losing logs
-    }
+    catch (...) {}
 
     void FileLogger::SetTag(Tag tag) noexcept try
     {
