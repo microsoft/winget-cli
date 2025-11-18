@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.props')" />
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{E5BCFF58-7D0C-4770-ABB9-AECE1027CD94}</ProjectGuid>
@@ -133,7 +134,47 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.vcxproj">
+      <Project>{9ac3c6a4-1875-4d3e-bf9c-c31e81eff6b4}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <Private>true</Private>
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.vcxproj">
+      <Project>{1cc41a9a-ae66-459d-9210-1e572dd7be69}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\WindowsPackageManager\WindowsPackageManager.vcxproj">
+      <Project>{2046b5af-666d-4ce8-8d3e-c32c57908a56}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <Private>true</Private>
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll.manifest">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="ComInprocTestbed.manifest" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
+    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+  </Target>
 </Project>

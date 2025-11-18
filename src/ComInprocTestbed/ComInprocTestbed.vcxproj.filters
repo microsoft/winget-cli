@@ -19,4 +19,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="ComInprocTestbed.manifest" />
+  </ItemGroup>
 </Project>
