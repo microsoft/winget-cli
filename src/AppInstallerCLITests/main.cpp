@@ -84,13 +84,17 @@ int main(int argc, char** argv)
         }
         else if ("-log"s == argv[i])
         {
-            Logging::FileLogger::Add();
+            auto logger = std::make_unique<Logging::FileLogger>();
+            logger->SetMaximumSize(0);
+            Logging::Log().AddLogger(std::move(logger));
         }
         else if ("-logto"s == argv[i])
         {
             if (++i < argc)
             {
-                Logging::FileLogger::Add(std::filesystem::path{ argv[i] });
+                auto logger = std::make_unique<Logging::FileLogger>(std::filesystem::path{ argv[i] });
+                logger->SetMaximumSize(0);
+                Logging::Log().AddLogger(std::move(logger));
             }
         }
         else if ("-tdd"s == argv[i])

@@ -64,6 +64,9 @@ namespace TestCommon
     struct TempDirectory : public TempFile
     {
         TempDirectory(const std::string& baseName, bool create = true);
+
+        TempFile CreateTempFile(const std::string& baseName, const std::string& baseExt);
+        TempFile CreateTempFile(const std::string& name);
     };
 
     // Use this to find a test data file when testing.

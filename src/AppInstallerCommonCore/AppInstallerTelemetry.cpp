@@ -259,6 +259,8 @@ namespace AppInstaller::Logging
             AICLI_LOG(Core, Info, << "Package: " << packageVersion);
         }
         AICLI_LOG(Core, Info, << "IsCOMCall:" << isCOMCall << "; Caller: " << m_caller);
+
+        Log().SetTag(Tag::HeadersComplete);
     }
 
     void TelemetryTraceLogger::LogCommand(std::string_view commandName) const noexcept

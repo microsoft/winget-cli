@@ -275,6 +275,9 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortablePackage)
         WINGET_VALIDATE_PASS_THROUGH(NetworkWingetAlternateSourceURL)
         WINGET_VALIDATE_PASS_THROUGH(MaxResumes)
+        WINGET_VALIDATE_PASS_THROUGH(LoggingFileTotalSizeLimitInMB)
+        WINGET_VALIDATE_PASS_THROUGH(LoggingFileIndividualSizeLimitInMB)
+        WINGET_VALIDATE_PASS_THROUGH(LoggingFileCountLimit)
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
@@ -472,6 +475,11 @@ namespace AppInstaller::Settings
             }
 
             return result;
+        }
+
+        WINGET_VALIDATE_SIGNATURE(LoggingFileAgeLimitInDays)
+        {
+            return value * 24h;
         }
     }
 

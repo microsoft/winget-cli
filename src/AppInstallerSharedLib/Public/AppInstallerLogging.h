@@ -83,6 +83,13 @@ namespace AppInstaller::Logging
         Crit,
     };
 
+    // Indicates a location of significance in the logging stream.
+    enum class Tag
+    {
+        // The initial set of logging has been completed.
+        HeadersComplete,
+    };
+
     // The interface that a log target must implement.
     struct ILogger
     {
@@ -96,6 +103,9 @@ namespace AppInstaller::Logging
 
         // Informs the logger of the given log with the intention that no buffering occurs (in winget code).
         virtual void WriteDirect(Channel channel, Level level, std::string_view message) noexcept = 0;
+
+        // Indicates that the given tag location has occurred.
+        virtual void SetTag(Tag) noexcept {}
     };
 
     // This type contains the set of loggers that diagnostic logging will be sent to.
@@ -160,6 +170,9 @@ namespace AppInstaller::Logging
         // Writes a log line, if the given channel and level are enabled.
         // Use to make large logs more efficient by writing directly to the output streams.
         void WriteDirect(Channel channel, Level level, std::string_view message);
+
+        // Indicates that the given tag location has occurred.
+        void SetTag(Tag tag);
 
     private:
 

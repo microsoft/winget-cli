@@ -509,4 +509,60 @@ namespace AppInstaller::Filesystem
 
         return {};
     }
+
+    std::vector<FileInfo> GetFileInfoFor(const std::filesystem::path& directory)
+    {
+        std::vector<FileInfo> result;
+
+        for (const auto& file : std::filesystem::directory_iterator{ directory })
+        {
+            if (file.is_regular_file())
+            {
+                result.emplace_back(FileInfo{ file.path(), file.last_write_time(), file.file_size() });
+            }
+        }
+
+        return result;
+    }
+
+    void FilterToFilesExceedingLimits(std::vector<FileInfo>& files, const FileLimits& limits)
+    {
+        auto now = std::filesystem::file_time_type::clock::now();
+        std::chrono::hours ageLimit = limits.Age;
+        static_assert(sizeof(uintmax_t) >= 8);
+        uintmax_t totalSizeLimit = static_cast<uintmax_t>(limits.TotalSizeInMB) << 20;
+        size_t countLimit = limits.Count;
+
+        // Sort with oldest first so that we can work backward to find the cutoff
+        std::sort(files.begin(), files.end(), [](const FileInfo& a, const FileInfo& b) { return a.LastWriteTime < b.LastWriteTime; });
+
+        // Walk the list backward until we find the first entry that goes over one of the limits
+        size_t i = files.size();
+        uintmax_t totalSize = 0;
+        for (; i > 0; --i)
+        {
+            const FileInfo& current = files[i - 1];
+
+            if (totalSizeLimit != 0)
+            {
+                totalSize += current.Size;
+                if (totalSize > totalSizeLimit)
+                {
+                    break;
+                }
+            }
+
+            if (countLimit != 0 && (files.size() - i + 1) > countLimit)
+            {
+                break;
+            }
+
+            if (ageLimit != 0h && now - current.LastWriteTime > ageLimit)
+            {
+                break;
+            }
+        }
+
+        files.resize(i);
+    }
 }
