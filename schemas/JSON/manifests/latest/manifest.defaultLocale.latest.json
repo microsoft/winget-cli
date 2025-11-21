@@ -208,7 +208,7 @@
       "items": {
         "$ref": "#/definitions/Tag"
       },
-      "maxItems": 16,
+      "maxItems": 64,
       "uniqueItems": true,
       "description": "List of additional package search terms"
     },
