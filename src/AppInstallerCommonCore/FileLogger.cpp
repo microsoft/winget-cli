@@ -43,7 +43,7 @@ namespace AppInstaller::Logging
     {
         m_name = GetNameForPath(filePath);
         m_filePath = filePath;
-        GetDefaultMaximumFileSize();
+        InitializeDefaultMaximumFileSize();
         OpenFileLoggerStream();
     }
 
@@ -52,7 +52,7 @@ namespace AppInstaller::Logging
         m_name = "file";
         m_filePath = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
         m_filePath /= fileNamePrefix.data() + ('-' + Utility::GetCurrentTimeForFilename() + s_fileLoggerDefaultFileExt.data());
-        GetDefaultMaximumFileSize();
+        InitializeDefaultMaximumFileSize();
         OpenFileLoggerStream();
     }
 
@@ -187,7 +187,7 @@ namespace AppInstaller::Logging
         }
     }
 
-    void FileLogger::GetDefaultMaximumFileSize()
+    void FileLogger::InitializeDefaultMaximumFileSize()
     {
         m_maximumSize = static_cast<std::ofstream::off_type>(Settings::User().Get<Settings::Setting::LoggingFileIndividualSizeLimitInMB>()) << 20;
     }

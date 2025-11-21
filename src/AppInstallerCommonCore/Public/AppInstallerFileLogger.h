@@ -62,7 +62,7 @@ namespace AppInstaller::Logging
         void OpenFileLoggerStream();
 
         // Initializes the default maximum file size.
-        void GetDefaultMaximumFileSize();
+        void InitializeDefaultMaximumFileSize();
 
         // Determines if the logger needs to wrap back to the beginning, doing so when needed.
         // May also shrink the given view if it exceeds the overall maximum.
