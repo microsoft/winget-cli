@@ -510,6 +510,7 @@ sfsclient
 SHCONTF
 shellapi
 SHGDN
+shortguid
 SHOWNORMAL
 sid
 Sideload
