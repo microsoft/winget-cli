@@ -5,6 +5,7 @@
 #include <AppInstallerFileLogger.h>
 #include <Public/AppInstallerTelemetry.h>
 #include <Telemetry/TraceLogging.h>
+#include <winget/Debugging.h>
 #include "TestCommon.h"
 #include "TestSettings.h"
 
@@ -87,13 +88,14 @@ int main(int argc, char** argv)
         }
         else if ("-logto"s == argv[i])
         {
-            ++i;
-            Logging::FileLogger::Add(std::filesystem::path{ argv[i] });
+            if (++i < argc)
+            {
+                Logging::FileLogger::Add(std::filesystem::path{ argv[i] });
+            }
         }
         else if ("-tdd"s == argv[i])
         {
-            ++i;
-            if (i < argc)
+            if (++i < argc)
             {
                 TestCommon::TestDataFile::SetTestDataBasePath(argv[i]);
                 hasSetTestDataBasePath = true;
@@ -106,6 +108,17 @@ int main(int argc, char** argv)
         else if ("-logsql"s == argv[i])
         {
             keepSQLLogging = true;
+        }
+        else if ("-mdmp"s == argv[i])
+        {
+            Debugging::EnableSelfInitiatedMinidump();
+        }
+        else if ("-mdmpto"s == argv[i])
+        {
+            if (++i < argc)
+            {
+                Debugging::EnableSelfInitiatedMinidump(std::filesystem::path{ argv[i] });
+            }
         }
         else
         {
