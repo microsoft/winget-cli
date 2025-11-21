@@ -345,6 +345,7 @@ MSIXSTRM
 msstore
 MSZIP
 mszyml
+mta
 Mugiwara
 Multideclaration
 mysource
@@ -472,6 +473,7 @@ rgp
 rgpsz
 rhs
 riid
+roapi
 Roblox
 ronomon
 rowid
@@ -513,6 +515,7 @@ sid
 Sideload
 SIGNATUREHASH
 silentpreferred
+SINGLETHREADED
 Skipx
 sku
 SLAPI

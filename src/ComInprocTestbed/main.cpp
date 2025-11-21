@@ -23,7 +23,7 @@ int main(int argc, const char** argv) try
     bool leakCOM = false;
     int iterations = 1;
     std::string packageName = "Microsoft.Edit";
-    // bool preventUnload = false; TODO: Add ability to prevent unload and allow testing here
+    std::string unloadBehavior = "allow";
 
     for (int i = 0; i < argc; ++i)
     {
@@ -51,14 +51,20 @@ int main(int argc, const char** argv) try
             ADVANCE_ARG_PARAMETER
             packageName = argv[i];
         }
+        else if ("-unload"sv == argv[i])
+        {
+            ADVANCE_ARG_PARAMETER
+            unloadBehavior = ToLower(argv[i]);
+        }
     }
 
     std::cout << "Running inproc testbed with:\n"
-        "  COM Init: " << comInit << "\n"
-        "  Leak COM: " << (leakCOM ? "true" : "false") << "\n"
-        "  Test    : " << testToRun << "\n"
-        "  Package : " << packageName << "\n"
-        "  Passes  : " << iterations << std::endl;
+        "  COM Init : " << comInit << "\n"
+        "  Leak COM : " << (leakCOM ? "true" : "false") << "\n"
+        "  Unload   : " << unloadBehavior << "\n"
+        "  Test     : " << testToRun << "\n"
+        "  Package  : " << packageName << "\n"
+        "  Passes   : " << iterations << std::endl;
 
     HRESULT hr = S_OK;
 
@@ -75,19 +81,37 @@ int main(int argc, const char** argv) try
     if (FAILED(hr))
     {
         std::cout << "RoInitialize returned " << hr << std::endl;
-        return 1;
+        return 2;
     }
+
+    bool shouldUnload = true;
+    if ("never"sv == unloadBehavior || "at_exit"sv == unloadBehavior)
+    {
+        SetUnloadPreference(false);
+        shouldUnload = false;
+    }
+
+    std::optional<Snapshot> snapshot;
 
     for (int i = 0; i < iterations; ++i)
     {
         if (!UsePackageManager(packageName))
         {
-            return 2;
+            return 3;
         }
 
         if ("unload_check"sv == testToRun)
         {
-            UnloadAndCheckForLeaks();
+            auto [success, currentSnapshot] = UnloadAndCheckForLeaks(snapshot, shouldUnload);
+            if (!success)
+            {
+                return 4;
+            }
+
+            if (currentSnapshot)
+            {
+                snapshot = std::move(currentSnapshot);
+            }
         }
 
         std::cout << "Iteration " << (i + 1) << " completed" << std::endl;
@@ -98,21 +122,26 @@ int main(int argc, const char** argv) try
         RoUninitialize();
     }
 
+    if ("at_exit"sv == unloadBehavior)
+    {
+        SetUnloadPreference(true);
+    }
+
     std::cout << "Tests completed" << std::endl;
     return 0;
 }
 catch (const std::exception& e)
 {
     std::cout << "Caught std exception: " << e.what() << std::endl;
-    return 3;
+    return 1;
 }
 catch (const winrt::hresult_error& hre)
 {
     std::cout << "Caught winrt exception: " << winrt::to_string(hre.message()) << std::endl;
-    return 3;
+    return 1;
 }
 catch (...)
 {
     std::cout << "Caught unknown exception" << std::endl;
-    return 3;
+    return 1;
 }

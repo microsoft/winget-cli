@@ -77,3 +77,9 @@ bool UsePackageManager(std::string_view packageName)
 
     return true;
 }
+
+void SetUnloadPreference(bool value)
+{
+    PackageManagerSettings settings;
+    settings.CanUnloadPreference(value);
+}

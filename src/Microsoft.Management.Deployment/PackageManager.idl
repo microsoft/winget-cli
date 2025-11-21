@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(13)] // For version 1.12
+    [contractversion(28)] // For version 1.28
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -1640,6 +1640,16 @@ namespace Microsoft.Management.Deployment
         /// Returns true if successful, false if settingsContent cannot be parsed or UserSettings is already created.
         /// This is a one time setup, multiple calls will not override existing UserSettings.
         Boolean SetUserSettings(String settingsContent);
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 28)]
+        {
+            // Gets or sets a value indicating whether the caller would prefer the module to stay loaded or not.
+            // This affects how the DllCanUnloadNow function called by COM behaves. If set to false it will act as if
+            // there are active objects at all times. If set to true it will allow the unload when there are no
+            // active objects.
+            // Defaults to true.
+            Boolean CanUnloadPreference{ get; set; };
+        }
     }
 
     /// Force midl3 to generate vector marshalling info. 

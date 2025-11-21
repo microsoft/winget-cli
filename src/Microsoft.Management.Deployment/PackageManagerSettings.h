@@ -15,6 +15,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool SetCallerIdentifier(hstring const& callerIdentifier);
         bool SetStateIdentifier(hstring const& stateIdentifier);
         bool SetUserSettings(hstring const& settingsContent);
+
+        // Contract 28
+        bool CanUnloadPreference() const;
+        void CanUnloadPreference(bool value);
     };
 }
 
