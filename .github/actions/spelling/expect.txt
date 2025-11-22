@@ -434,6 +434,7 @@ PRODUCTICON
 propkey
 PROPVARIANT
 proxystub
+psapi
 pscustomobject
 pseudocode
 PSHOST
@@ -521,6 +522,8 @@ sku
 SLAPI
 SMTO
 SNAME
+SNAPMODULE
+SNAPTHREAD
 sortof
 sourceforge
 SOURCESDIRECTORY
@@ -555,8 +558,10 @@ thiscouldbeapc
 threehundred
 timespan
 Tlg
+tlhelp
 TLSCAs
 tombstoned
+Toolhelp
 transitioning
 trimstart
 ttl

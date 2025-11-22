@@ -61,43 +61,103 @@ bool SearchForWellKnownObjects(bool expectExist)
 
 Snapshot::Snapshot()
 {
-    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD | TH32CS_SNAPMODULE, GetCurrentProcessId());
+    const DWORD processId = GetCurrentProcessId();
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD | TH32CS_SNAPMODULE, processId);
 
     // Count threads in this process
-    // TODO
+    THREADENTRY32 threadEntry{};
+    threadEntry.dwSize = sizeof(threadEntry);
+
+    if (Thread32First(snapshot, &threadEntry))
+    {
+        do
+        {
+            if (processId == threadEntry.th32OwnerProcessID)
+            {
+                ++ThreadCount;
+            }
+        } while (Thread32Next(snapshot, &threadEntry));
+    }
 
     // Count modules
-    // TODO
+    MODULEENTRY32 moduleEntry{};
+    moduleEntry.dwSize = sizeof(moduleEntry);
+
+    if (Module32First(snapshot, &moduleEntry))
+    {
+        do
+        {
+            ++ModuleCount;
+        } while (Module32Next(snapshot, &moduleEntry));
+    }
 
     // Get memory stats
-    // TODO
+    GetProcessMemoryInfo(GetCurrentProcess(), reinterpret_cast<PPROCESS_MEMORY_COUNTERS>(&Memory), sizeof(Memory));
 
     CloseHandle(snapshot);
 }
 
-// TODO: Move this to be object based and have it just hold all of the snapshots
-std::pair<bool, std::optional<Snapshot>> UnloadAndCheckForLeaks(std::optional<Snapshot> previousSnapshot, bool expectUnload)
+UnloadAndCheckForLeaks::UnloadAndCheckForLeaks(bool shouldUnload) : m_shouldUnload(shouldUnload)
+{
+}
+
+bool UnloadAndCheckForLeaks::RunIteration()
 {
     if (!SearchForWellKnownObjects(true))
     {
-        return { false , std::nullopt };
+        return false;
     }
 
-    Snapshot loadedSnapshot;
+    Snapshot beforeUnload;
 
     CoFreeUnusedLibrariesEx(0, 0);
 
-    Snapshot afterFreeSnapshot;
+    m_iterationSnapshots.emplace_back(beforeUnload, Snapshot{});
 
-    if (!SearchForWellKnownObjects(!expectUnload))
+    if (!SearchForWellKnownObjects(!m_shouldUnload))
     {
-        return { false , afterFreeSnapshot };
+        return false;
     }
 
-    if (!CompareSnapshots(previousSnapshot, loadedSnapshot, afterFreeSnapshot))
-    {
-        return { false , afterFreeSnapshot };
-    }
+    return true;
+}
 
-    return { true, afterFreeSnapshot };
+bool UnloadAndCheckForLeaks::RunFinal()
+{
+    constexpr std::streamsize s_columnWidth = 4;
+
+    bool result = true;
+
+    std::cout << "--- UnloadAndCheckForLeaks results ---\n";
+    std::cout << std::setfill(' ');
+
+    // Threads
+    std::cout << "Thread Count [Initial: " << m_initialSnapshot.ThreadCount << "]\n";
+
+    std::cout << "Iteration  ";
+    for (size_t i = 0; i < m_iterationSnapshots.size(); ++i)
+    {
+        std::cout << std::setw(s_columnWidth) << (i + 1);
+    }
+    std::cout << '\n';
+
+    std::cout << "Pre Unload ";
+    for (const auto& snapshot : m_iterationSnapshots)
+    {
+        std::cout << std::setw(s_columnWidth) << snapshot.first.ThreadCount;
+    }
+    std::cout << '\n';
+
+    std::cout << "Post Unload";
+    for (const auto& snapshot : m_iterationSnapshots)
+    {
+        std::cout << std::setw(s_columnWidth) << snapshot.second.ThreadCount;
+    }
+    std::cout << '\n';
+
+    // Modules
+
+    // Memory
+
+    return result;
 }

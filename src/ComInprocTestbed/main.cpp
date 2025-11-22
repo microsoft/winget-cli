@@ -16,6 +16,16 @@ std::string ToLower(std::string_view in)
     return result;
 }
 
+std::unique_ptr<ITest> CreateTest(std::string_view test, bool shouldUnload)
+{
+    if ("unload_check"sv == test)
+    {
+        return std::make_unique<UnloadAndCheckForLeaks>(shouldUnload);
+    }
+
+    return {};
+}
+
 int main(int argc, const char** argv) try
 {
     std::string testToRun;
@@ -91,7 +101,7 @@ int main(int argc, const char** argv) try
         shouldUnload = false;
     }
 
-    std::optional<Snapshot> snapshot;
+    auto test = CreateTest(testToRun, shouldUnload);
 
     for (int i = 0; i < iterations; ++i)
     {
@@ -100,21 +110,17 @@ int main(int argc, const char** argv) try
             return 3;
         }
 
-        if ("unload_check"sv == testToRun)
+        if (test && !test->RunIteration())
         {
-            auto [success, currentSnapshot] = UnloadAndCheckForLeaks(snapshot, shouldUnload);
-            if (!success)
-            {
-                return 4;
-            }
-
-            if (currentSnapshot)
-            {
-                snapshot = std::move(currentSnapshot);
-            }
+            return 4;
         }
 
         std::cout << "Iteration " << (i + 1) << " completed" << std::endl;
+    }
+
+    if (test && !test->RunFinal())
+    {
+        return 5;
     }
 
     if (!leakCOM)

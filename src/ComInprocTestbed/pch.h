@@ -13,7 +13,9 @@
 #include <winrt/Microsoft.Management.Deployment.h>
 
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <string_view>
+#include <utility>
