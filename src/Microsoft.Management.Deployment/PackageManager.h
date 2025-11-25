@@ -3,6 +3,7 @@
 #pragma once
 #include "PackageManager.g.h"
 #include "Public/ComClsids.h"
+#include <winget/ModuleCountBase.h>
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
 // Forward declaration
@@ -62,7 +63,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
 {
-    struct PackageManager : PackageManagerT<PackageManager, implementation::PackageManager>
+    struct PackageManager : PackageManagerT<PackageManager, implementation::PackageManager>, AppInstaller::WinRT::ModuleCountBase
     {
     };
 }

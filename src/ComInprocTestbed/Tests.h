@@ -1,15 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-
-struct Snapshot
-{
-    Snapshot();
-
-    size_t ThreadCount = 0;
-    size_t ModuleCount = 0;
-    PROCESS_MEMORY_COUNTERS_EX2 Memory{};
-};
+#include <Windows.h>
+#include <memory>
+#include <vector>
 
 // Represents a test that will be performed.
 struct ITest
@@ -23,17 +17,73 @@ struct ITest
     virtual bool RunFinal() = 0;
 };
 
+enum class ComInitializationType
+{
+    STA,
+    MTA,
+};
+
+enum class UnloadBehavior
+{
+    Allow,
+    AtExit,
+    Never,
+};
+
+enum class ActivationType
+{
+    ClassName,
+    CLSID_WinRT,
+    CLSID_CoCreateInstance,
+};
+
+// Test parameters from command line
+struct TestParameters
+{
+    TestParameters(int argc, const char** argv);
+
+    void OutputDetails() const;
+
+    bool InitializeTestState() const;
+
+    std::unique_ptr<ITest> CreateTest() const;
+
+    void UninitializeTestState() const;
+
+    // Determines if we expect COM to unload the module based on inputs.
+    bool UnloadExpected() const;
+
+    std::string TestToRun;
+    ComInitializationType ComInit = ComInitializationType::MTA;
+    bool LeakCOM = false;
+    int Iterations = 1;
+    std::string PackageName = "Microsoft.Edit";
+    UnloadBehavior UnloadBehavior = UnloadBehavior::Allow;
+    ActivationType ActivationType = ActivationType::ClassName;
+    bool ClearFactories = true;
+};
+
+// Catpures a snapshot of current resource usage.
+struct Snapshot
+{
+    Snapshot();
+
+    size_t ThreadCount = 0;
+    size_t ModuleCount = 0;
+    PROCESS_MEMORY_COUNTERS_EX2 Memory{};
+};
+
 // A test that unloads the COM module and looks for resources that were not released.
 struct UnloadAndCheckForLeaks : public ITest
 {
-    UnloadAndCheckForLeaks(bool shouldUnload);
+    UnloadAndCheckForLeaks(const TestParameters& parameters);
 
     bool RunIteration() override;
 
     bool RunFinal() override;
 
 private:
-    bool m_shouldUnload;
+    const TestParameters& m_parameters;
     Snapshot m_initialSnapshot;
     std::vector<std::pair<Snapshot, Snapshot>> m_iterationSnapshots;
 };
