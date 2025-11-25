@@ -2891,7 +2891,7 @@
     <value>指定しない限り、ソースを検出から除外します</value>
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
-    <value>成人指定</value>
+    <value>明示的ソース</value>
   </data>
   <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
     <value>ソースの信頼レベル (なしまたは信頼済み)</value>
