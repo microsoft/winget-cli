@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 #pragma once
 #include <string_view>
+#include "Tests.h"
 
 // Attempts to instantiate all static objects
-bool UsePackageManager(std::string_view packageName);
+bool UsePackageManager(const TestParameters& testParameters);
 
 // Sets the module to prevent it from unloading.
 void SetUnloadPreference(bool value);

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <Windows.h>
+#include <winrt/Microsoft.Management.Deployment.h>
 #include <memory>
 #include <vector>
 
@@ -33,8 +34,7 @@ enum class UnloadBehavior
 enum class ActivationType
 {
     ClassName,
-    CLSID_WinRT,
-    CLSID_CoCreateInstance,
+    CoCreateInstance,
 };
 
 // Test parameters from command line
@@ -53,6 +53,12 @@ struct TestParameters
     // Determines if we expect COM to unload the module based on inputs.
     bool UnloadExpected() const;
 
+    winrt::Microsoft::Management::Deployment::PackageManager CreatePackageManager() const;
+    winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions CreateCreateCompositePackageCatalogOptions() const;
+    winrt::Microsoft::Management::Deployment::PackageMatchFilter CreatePackageMatchFilter() const;
+    winrt::Microsoft::Management::Deployment::FindPackagesOptions CreateFindPackagesOptions() const;
+    winrt::Microsoft::Management::Deployment::DownloadOptions CreateDownloadOptions() const;
+
     std::string TestToRun;
     ComInitializationType ComInit = ComInitializationType::MTA;
     bool LeakCOM = false;
@@ -60,7 +66,7 @@ struct TestParameters
     std::string PackageName = "Microsoft.Edit";
     UnloadBehavior UnloadBehavior = UnloadBehavior::Allow;
     ActivationType ActivationType = ActivationType::ClassName;
-    bool ClearFactories = true;
+    bool SkipClearFactories = false;
 };
 
 // Catpures a snapshot of current resource usage.

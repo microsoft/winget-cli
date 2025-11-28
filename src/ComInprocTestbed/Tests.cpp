@@ -5,6 +5,7 @@
 #include "PackageManager.h"
 
 using namespace std::string_view_literals;
+using namespace winrt::Microsoft::Management::Deployment;
 
 namespace
 {
@@ -73,14 +74,12 @@ namespace
 
     BEGIN_ENUM_PARSE_FUNC(ActivationType)
         ITEM_ENUM_PARSE_FUNC(ActivationType, ClassName)
-        ITEM_ENUM_PARSE_FUNC(ActivationType, CLSID_WinRT)
-        ITEM_ENUM_PARSE_FUNC(ActivationType, CLSID_CoCreateInstance)
+        ITEM_ENUM_PARSE_FUNC(ActivationType, CoCreateInstance)
     END_ENUM_PARSE_FUNC
 
     BEGIN_ENUM_NAME_FUNC(ActivationType)
         ITEM_ENUM_NAME_FUNC(ActivationType, ClassName)
-        ITEM_ENUM_NAME_FUNC(ActivationType, CLSID_WinRT)
-        ITEM_ENUM_NAME_FUNC(ActivationType, CLSID_CoCreateInstance)
+        ITEM_ENUM_NAME_FUNC(ActivationType, CoCreateInstance)
     END_ENUM_NAME_FUNC
 
     BOOL CALLBACK CheckForWinGetWindow(HWND hwnd, LPARAM param)
@@ -136,6 +135,49 @@ namespace
 
         return result;
     }
+
+    std::string GetBytesString(SIZE_T bytes)
+    {
+        constexpr SIZE_T s_kilo = 1024;
+        constexpr std::string_view s_sizes = "BKMG"sv;
+        size_t i = 0;
+
+        while ((i + 1) < s_sizes.size() && bytes > s_kilo)
+        {
+            bytes /= s_kilo;
+            ++i;
+        }
+
+        return std::to_string(bytes) + s_sizes[i];
+    }
+
+    const CLSID CLSID_PackageManager = { 0x2DDE4456, 0x64D9, 0x4673, 0x8F, 0x7E, 0xA4, 0xF1, 0x9A, 0x2E, 0x6C, 0xC3 }; // 2DDE4456-64D9-4673-8F7E-A4F19A2E6CC3
+    const CLSID CLSID_FindPackagesOptions = { 0x96B9A53A, 0x9228, 0x4DA0, 0xB0, 0x13, 0xBB, 0x1B, 0x20, 0x31, 0xAB, 0x3D }; // 96B9A53A-9228-4DA0-B013-BB1B2031AB3D
+    const CLSID CLSID_CreateCompositePackageCatalogOptions = { 0x768318A6, 0x2EB5, 0x400D, 0x84, 0xD0, 0xDF, 0x35, 0x34, 0xC3, 0x0F, 0x5D }; // 768318A6-2EB5-400D-84D0-DF3534C30F5D
+    const CLSID CLSID_InstallOptions = { 0xE2AF3BA8, 0x8A88, 0x4766, 0x9D, 0xDA, 0xAE, 0x40, 0x13, 0xAD, 0xE2, 0x86 }; // E2AF3BA8-8A88-4766-9DDA-AE4013ADE286
+    const CLSID CLSID_UninstallOptions = { 0x869CB959, 0xEB54, 0x425C, 0xA1, 0xE4, 0x1A, 0x1C, 0x29, 0x1C, 0x64, 0xE9 }; // 869CB959-EB54-425C-A1E4-1A1C291C64E9
+    const CLSID CLSID_PackageMatchFilter = { 0x57DC8962, 0x7343, 0x42CD, 0xB9, 0x1C, 0x04, 0xF6, 0xA2, 0x5D, 0xB1, 0xD0 }; // 57DC8962-7343-42CD-B91C-04F6A25DB1D0
+    const CLSID CLSID_PackageManagerSettings = { 0x80CF9D63, 0x5505, 0x4342, 0xB9, 0xB4, 0xBB, 0x87, 0x89, 0x5C, 0xA8, 0xBB }; // 80CF9D63-5505-4342-B9B4-BB87895CA8BB
+    const CLSID CLSID_DownloadOptions = { 0x4288DF96, 0xFDC9, 0x4B68, 0xB4, 0x03, 0x19, 0x3D, 0xBB, 0xF5, 0x6A, 0x24 }; // 4288DF96-FDC9-4B68-B403-193DBBF56A24
+    const CLSID CLSID_AuthenticationArguments = { 0x8D593114, 0x1CF1, 0x43B9, 0x87, 0x22, 0x4D, 0xBB, 0x30, 0x10, 0x32, 0x96 }; // 8D593114-1CF1-43B9-8722-4DBB30103296
+    const CLSID CLSID_RepairOptions = { 0x30c024c4, 0x852c, 0x4dd4, 0x98, 0x10, 0x13, 0x48, 0xc5, 0x1e, 0xf9, 0xbb }; // {30C024C4-852C-4DD4-9810-1348C51EF9BB}
+    const CLSID CLSID_AddPackageCatalogOptions = { 0x24e6f1fa, 0xe4c3, 0x4acd, 0x96, 0x5d, 0xdf, 0x21, 0x3f, 0xd5, 0x8f, 0x15 }; // {24E6F1FA-E4C3-4ACD-965D-DF213FD58F15}
+    const CLSID CLSID_RemovePackageCatalogOptions = { 0x1125d3a6, 0xe2ce, 0x479a, 0x91, 0xd5, 0x71, 0xa3, 0xf6, 0xf8, 0xb0, 0xb }; // {1125D3A6-E2CE-479A-91D5-71A3F6F8B00B}
+
+    template <typename T>
+    T CreatePackageManagerObject(ActivationType activationType, const CLSID& clsid)
+    {
+        if (ActivationType::ClassName == activationType)
+        {
+            return T{};
+        }
+        else if (ActivationType::CoCreateInstance == activationType)
+        {
+            return winrt::create_instance<T>(clsid);
+        }
+
+        winrt::throw_hresult(E_UNEXPECTED);
+    }
 }
 
 TestParameters::TestParameters(int argc, const char** argv)
@@ -176,9 +218,9 @@ TestParameters::TestParameters(int argc, const char** argv)
             ADVANCE_ARG_PARAMETER
             ActivationType = ParseActivationType(argv[i]);
         }
-        else if ("-clear-factories"sv == argv[i])
+        else if ("-keep-factories"sv == argv[i])
         {
-            ClearFactories = true;
+            SkipClearFactories = true;
         }
     }
 }
@@ -188,9 +230,10 @@ void TestParameters::OutputDetails() const
     std::cout << "Running inproc testbed with:\n"
         "  COM Init : " << ComInit << "\n"
         "  Activate : " << ActivationType << "\n"
-        "  Clear    : " << std::boolalpha << ClearFactories << "\n"
+        "  Clear    : " << std::boolalpha << !SkipClearFactories << "\n"
         "  Leak COM : " << std::boolalpha << LeakCOM << "\n"
         "  Unload   : " << UnloadBehavior << "\n"
+        "  Expect   : " << std::boolalpha << UnloadExpected() << "\n"
         "  Test     : " << TestToRun << "\n"
         "  Package  : " << PackageName << "\n"
         "  Passes   : " << Iterations << std::endl;
@@ -249,11 +292,37 @@ void TestParameters::UninitializeTestState() const
 bool TestParameters::UnloadExpected() const
 {
     bool shouldUnload = true;
-    if (UnloadBehavior::Never == UnloadBehavior || UnloadBehavior::AtExit == UnloadBehavior)
+    if (UnloadBehavior::Never == UnloadBehavior || UnloadBehavior::AtExit == UnloadBehavior ||
+        (ActivationType::ClassName == ActivationType && SkipClearFactories))
     {
         shouldUnload = false;
     }
     return shouldUnload;
+}
+
+PackageManager TestParameters::CreatePackageManager() const
+{
+    return CreatePackageManagerObject<PackageManager>(ActivationType, CLSID_PackageManager);
+}
+
+CreateCompositePackageCatalogOptions TestParameters::CreateCreateCompositePackageCatalogOptions() const
+{
+    return CreatePackageManagerObject<CreateCompositePackageCatalogOptions>(ActivationType, CLSID_CreateCompositePackageCatalogOptions);
+}
+
+PackageMatchFilter TestParameters::CreatePackageMatchFilter() const
+{
+    return CreatePackageManagerObject<PackageMatchFilter>(ActivationType, CLSID_PackageMatchFilter);
+}
+
+FindPackagesOptions TestParameters::CreateFindPackagesOptions() const
+{
+    return CreatePackageManagerObject<FindPackagesOptions>(ActivationType, CLSID_FindPackagesOptions);
+}
+
+DownloadOptions TestParameters::CreateDownloadOptions() const
+{
+    return CreatePackageManagerObject<DownloadOptions>(ActivationType, CLSID_DownloadOptions);
 }
 
 Snapshot::Snapshot()
@@ -321,7 +390,7 @@ bool UnloadAndCheckForLeaks::RunIteration()
 
 bool UnloadAndCheckForLeaks::RunFinal()
 {
-    constexpr std::streamsize s_columnWidth = 4;
+    constexpr std::streamsize s_columnWidth = 5;
 
     bool result = true;
 
@@ -353,8 +422,52 @@ bool UnloadAndCheckForLeaks::RunFinal()
     std::cout << '\n';
 
     // Modules
+    std::cout << "Module Count [Initial: " << m_initialSnapshot.ModuleCount << "]\n";
+
+    std::cout << "Iteration  ";
+    for (size_t i = 0; i < m_iterationSnapshots.size(); ++i)
+    {
+        std::cout << std::setw(s_columnWidth) << (i + 1);
+    }
+    std::cout << '\n';
+
+    std::cout << "Pre Unload ";
+    for (const auto& snapshot : m_iterationSnapshots)
+    {
+        std::cout << std::setw(s_columnWidth) << snapshot.first.ModuleCount;
+    }
+    std::cout << '\n';
+
+    std::cout << "Post Unload";
+    for (const auto& snapshot : m_iterationSnapshots)
+    {
+        std::cout << std::setw(s_columnWidth) << snapshot.second.ModuleCount;
+    }
+    std::cout << '\n';
 
     // Memory
+    std::cout << "Private Usage [Initial: " << GetBytesString(m_initialSnapshot.Memory.PrivateUsage) << "]\n";
+
+    std::cout << "Iteration  ";
+    for (size_t i = 0; i < m_iterationSnapshots.size(); ++i)
+    {
+        std::cout << std::setw(s_columnWidth) << (i + 1);
+    }
+    std::cout << '\n';
+
+    std::cout << "Pre Unload ";
+    for (const auto& snapshot : m_iterationSnapshots)
+    {
+        std::cout << std::setw(s_columnWidth) << GetBytesString(snapshot.first.Memory.PrivateUsage);
+    }
+    std::cout << '\n';
+
+    std::cout << "Post Unload";
+    for (const auto& snapshot : m_iterationSnapshots)
+    {
+        std::cout << std::setw(s_columnWidth) << GetBytesString(snapshot.second.Memory.PrivateUsage);
+    }
+    std::cout << '\n';
 
     return result;
 }

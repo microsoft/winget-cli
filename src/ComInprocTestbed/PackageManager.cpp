@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "PackageManager.h"
 
 using namespace winrt::Microsoft::Management::Deployment;
 
@@ -17,9 +18,9 @@ PackageCatalog Connect(const PackageCatalogReference& reference, std::string_vie
     return connectResult.PackageCatalog();
 }
 
-bool UsePackageManager(std::string_view packageName)
+bool UsePackageManager(const TestParameters& testParameters)
 {
-    PackageManager packageManager;
+    PackageManager packageManager = testParameters.CreatePackageManager();
 
     // Force installed cache to be created
     auto installedCatalogRef = packageManager.GetLocalPackageCatalog(LocalPackageCatalog::InstalledPackages);
@@ -30,7 +31,7 @@ bool UsePackageManager(std::string_view packageName)
     }
 
     // Force TerminationSignalHandler to be created
-    CreateCompositePackageCatalogOptions options;
+    CreateCompositePackageCatalogOptions options = testParameters.CreateCreateCompositePackageCatalogOptions();
     options.CompositeSearchBehavior(CompositeSearchBehavior::RemotePackagesFromRemoteCatalogs);
 
     for (PackageCatalogReference catalogRef : packageManager.GetPackageCatalogs())
@@ -44,34 +45,34 @@ bool UsePackageManager(std::string_view packageName)
         return false;
     }
 
-    PackageMatchFilter filter;
+    PackageMatchFilter filter = testParameters.CreatePackageMatchFilter();
     filter.Field(PackageMatchField::Id);
     filter.Option(PackageFieldMatchOption::EqualsCaseInsensitive);
-    filter.Value(winrt::to_hstring(packageName));
+    filter.Value(winrt::to_hstring(testParameters.PackageName));
 
-    FindPackagesOptions findOptions;
+    FindPackagesOptions findOptions = testParameters.CreateFindPackagesOptions();
     findOptions.Filters().Append(filter);
 
     auto findResult = compositeCatalog.FindPackages(findOptions);
     if (findResult.Status() != FindPackagesResultStatus::Ok)
     {
-        std::cout << "Finding package " << packageName << " got: " << static_cast<int32_t>(findResult.Status()) << " [" << findResult.ExtendedErrorCode() << "]\n";
+        std::cout << "Finding package " << testParameters.PackageName << " got: " << static_cast<int32_t>(findResult.Status()) << " [" << findResult.ExtendedErrorCode() << "]\n";
         return false;
     }
 
     if (findResult.Matches().Size() != 1)
     {
-        std::cout << "Finding package " << packageName << " got " << findResult.Matches().Size() << " results.\n";
+        std::cout << "Finding package " << testParameters.PackageName << " got " << findResult.Matches().Size() << " results.\n";
         return false;
     }
 
-    DownloadOptions downloadOptions;
+    DownloadOptions downloadOptions = testParameters.CreateDownloadOptions();
     auto downloadOperation = packageManager.DownloadPackageAsync(findResult.Matches().GetAt(0).CatalogPackage(), downloadOptions);
     auto downloadResult = downloadOperation.get();
 
     if (downloadResult.Status() != DownloadResultStatus::Ok)
     {
-        std::cout << "Downloading package " << packageName << " got: " << static_cast<int32_t>(downloadResult.Status()) << "\n";
+        std::cout << "Downloading package " << testParameters.PackageName << " got: " << static_cast<int32_t>(downloadResult.Status()) << "\n";
         return false;
     }
 

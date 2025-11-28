@@ -19,12 +19,12 @@ int main(int argc, const char** argv) try
 
     for (int i = 0; i < testParameters.Iterations; ++i)
     {
-        if (!UsePackageManager(testParameters.PackageName))
+        if (!UsePackageManager(testParameters))
         {
             return 3;
         }
 
-        if (testParameters.ClearFactories)
+        if (!testParameters.SkipClearFactories)
         {
             winrt::clear_factory_cache();
         }
