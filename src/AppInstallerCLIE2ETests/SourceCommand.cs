@@ -258,5 +258,83 @@ namespace AppInstallerCLIE2ETests
             Assert.False(result.StdOut.Contains(Constants.TestSourceName));
             Assert.False(result.StdOut.Contains(Constants.TestSourceUrl));
         }
+
+        /// <summary>
+        /// Test source add with explicit flag, edit the source to not be explicit.
+        /// </summary>
+        [Test]
+        public void SourceEdit()
+        {
+            // Remove the test source.
+            TestCommon.RunAICLICommand("source remove", Constants.TestSourceName);
+
+            // Add source as explicit and verify it is explicit.
+            var addResult = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl} --trust-level trusted --explicit");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, addResult.ExitCode);
+            Assert.True(addResult.StdOut.Contains("Done"));
+
+            var searchResult = TestCommon.RunAICLICommand("search", "TestExampleInstaller");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_SOURCES_DEFINED, searchResult.ExitCode);
+            Assert.True(searchResult.StdOut.Contains("No sources defined; add one with 'source add' or reset to defaults with 'source reset'"));
+
+            // Run the edit, this should be S_OK with "Done" as it changed the state to not-explicit.
+            var editResult = TestCommon.RunAICLICommand("source edit", $"SourceTest");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, editResult.ExitCode);
+            Assert.True(editResult.StdOut.Contains("Done"));
+
+            // Run it again, this should result in S_OK with no changes and a message that the source is already in that state.
+            var editResult2 = TestCommon.RunAICLICommand("source edit", $"SourceTest");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, editResult2.ExitCode);
+            Assert.True(editResult2.StdOut.Contains("The source named 'SourceTest' is already in that desired state."));
+
+            // Now verify it is no longer explicit by running the search again without adding the source parameter.
+            var searchResult2 = TestCommon.RunAICLICommand("search", "TestExampleInstaller");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, searchResult2.ExitCode);
+            Assert.True(searchResult2.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(searchResult2.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+            TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
+        }
+
+        /// <summary>
+        /// Test override of a default source via edit command.
+        /// </summary>
+        [Test]
+        public void SourceEditOverrideDefault()
+        {
+            // Force Reset Sources
+            var resetResult = TestCommon.RunAICLICommand("source reset", "--force");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, resetResult.ExitCode);
+
+            // Verify it is explicit true. Explicit is the only boolean value in the output.
+            var listResult = TestCommon.RunAICLICommand("source list", "winget-font");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
+            Assert.True(listResult.StdOut.Contains("true"));
+
+            var editResult = TestCommon.RunAICLICommand("source edit", "winget-font");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, editResult.ExitCode);
+            Assert.True(editResult.StdOut.Contains("Done"));
+
+            // Verify that after edit it is now explicit false.
+            var listResult2 = TestCommon.RunAICLICommand("source list", "winget-font");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult2.ExitCode);
+            Assert.True(listResult2.StdOut.Contains("false"));
+
+            // Remove the source. This should correctly tombstone it, even though it is overridden.
+            var removeResult = TestCommon.RunAICLICommand("source remove", "winget-font");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, removeResult.ExitCode);
+            Assert.True(removeResult.StdOut.Contains("Done"));
+
+            var listResult3 = TestCommon.RunAICLICommand("source list", "winget-font");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, listResult3.ExitCode);
+
+            // Force Reset Sources
+            var resetResult2 = TestCommon.RunAICLICommand("source reset", "--force");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, resetResult2.ExitCode);
+
+            // Verify it is back to being explicit true.
+            var listResult4 = TestCommon.RunAICLICommand("source list", "winget-font");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult4.ExitCode);
+            Assert.True(listResult4.StdOut.Contains("true"));
+        }
     }
 }
