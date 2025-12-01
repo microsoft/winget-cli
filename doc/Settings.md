@@ -364,3 +364,13 @@ This feature enables support for fonts via `winget settings`. The `winget font l
         "fonts": true
   },
 ```
+
+### sourceEdit
+
+This feature enables support for additional source command improvements via `winget settings`. The `winget source edit` command will become available with this feature.
+
+```json
+  "experimentalFeatures": {
+        "sourceEdit": true
+  },
+```
