@@ -15,6 +15,15 @@ namespace AppInstallerCLIE2ETests
     public class SourceCommand : BaseCommand
     {
         /// <summary>
+        /// One time set up.
+        /// </summary>
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            WinGetSettingsHelper.ConfigureFeature("sourceEdit", true);
+        }
+
+        /// <summary>
         /// Test set up.
         /// </summary>
         [SetUp]
