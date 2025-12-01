@@ -816,7 +816,7 @@ namespace AppInstaller::Repository
                     if (!TryFindSourceByOrigin(source.Name, SourceOrigin::Default, override))
                     {
                         // The default source may be disabled, in which case it may not be returned in the list of default sources.
-                        AICLI_LOG(Repo, Warning, << "User source " << source.Name << " is an override for a non-existent Default Source.");
+                        AICLI_LOG(Repo, Warning, << "User source " << source.Name << " is an override for a nonexistent Default Source.");
                         continue;
                     }
 
