@@ -324,7 +324,7 @@ TEST_CASE("RepoSources_DefaultSourceOverride", "[sources]")
     // The override will change the index value as the Default will be replaced by the override.
     // User sources have higher priority so the override will be at index 0.
     // We expect the same count, and the Name, Arg, Data, and Type properties to all be identical.
-    // Only the name is defined in the override setting so all others should be propertly populated.
+    // Only the name is defined in the override setting so all others should be properly populated.
     REQUIRE(afterOverride.size() == c_DefaultSourceCount);
     REQUIRE(afterOverride[0].Name == beforeOverride[2].Name);
     REQUIRE(afterOverride[0].Arg == beforeOverride[2].Arg);
