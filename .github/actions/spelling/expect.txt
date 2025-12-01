@@ -46,6 +46,7 @@ auxdata
 awgpm
 awgs
 azurewebsites
+bak
 Baz
 bbb
 bcp
@@ -160,6 +161,7 @@ ERRORONEXIT
 errstr
 ESRB
 etl
+evtx
 ewgp
 ewgs
 execustom
@@ -322,6 +324,7 @@ MBH
 MBs
 mday
 mdmp
+mdmpto
 MDs
 megamorf
 microsoftentraid
@@ -605,7 +608,7 @@ website
 wesome
 wfsopen
 wgetenv
-Whatif
+whatif
 WIC
 wildcards
 WINAPI
@@ -613,6 +616,7 @@ wincodec
 windir
 windowsdeveloper
 winerror
+winevt
 wingdi
 wingetconfigroot
 wingetcreate
