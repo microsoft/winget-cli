@@ -21,6 +21,7 @@ namespace AppInstaller::CLI
             std::make_unique<SourceListCommand>(FullName()),
             std::make_unique<SourceUpdateCommand>(FullName()),
             std::make_unique<SourceRemoveCommand>(FullName()),
+            std::make_unique<SourceEditCommand>(FullName()),
             std::make_unique<SourceResetCommand>(FullName()),
             std::make_unique<SourceExportCommand>(FullName()),
             });
@@ -311,5 +312,38 @@ namespace AppInstaller::CLI
         context <<
             Workflow::GetSourceListWithFilter <<
             Workflow::ExportSourceList;
+    }
+
+    // Source Edit Command
+
+    std::vector<Argument> SourceEditCommand::GetArguments() const
+    {
+        return {
+            Argument::ForType(Args::Type::SourceName).SetRequired(true),
+            Argument::ForType(Args::Type::SourceExplicit),
+        };
+    }
+
+    Resource::LocString SourceEditCommand::ShortDescription() const
+    {
+        return { Resource::String::SourceEditCommandShortDescription };
+    }
+
+    Resource::LocString SourceEditCommand::LongDescription() const
+    {
+        return { Resource::String::SourceEditCommandLongDescription };
+    }
+
+    Utility::LocIndView SourceEditCommand::HelpLink() const
+    {
+        return s_SourceCommand_HelpLink;
+    }
+
+    void SourceEditCommand::ExecuteInternal(Context& context) const
+    {
+        context <<
+            Workflow::EnsureRunningAsAdmin <<
+            Workflow::GetSourceListWithFilter <<
+            Workflow::EditSources;
     }
 }

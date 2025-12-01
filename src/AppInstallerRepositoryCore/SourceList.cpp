@@ -24,6 +24,7 @@ namespace AppInstaller::Repository
         constexpr std::string_view s_SourcesYaml_Source_Data = "Data"sv;
         constexpr std::string_view s_SourcesYaml_Source_Identifier = "Identifier"sv;
         constexpr std::string_view s_SourcesYaml_Source_IsTombstone = "IsTombstone"sv;
+        constexpr std::string_view s_SourcesYaml_Source_IsOverride = "IsOverride"sv;
         constexpr std::string_view s_SourcesYaml_Source_Explicit = "Explicit"sv;
         constexpr std::string_view s_SourcesYaml_Source_TrustLevel = "TrustLevel"sv;
 
@@ -188,6 +189,7 @@ namespace AppInstaller::Repository
                     out << YAML::Key << s_SourcesYaml_Source_Data << YAML::Value << details.Data;
                     out << YAML::Key << s_SourcesYaml_Source_Identifier << YAML::Value << details.Identifier;
                     out << YAML::Key << s_SourcesYaml_Source_IsTombstone << YAML::Value << details.IsTombstone;
+                    out << YAML::Key << s_SourcesYaml_Source_IsOverride << YAML::Value << details.IsOverride;
                     out << YAML::Key << s_SourcesYaml_Source_Explicit << YAML::Value << details.Explicit;
                     out << YAML::Key << s_SourcesYaml_Source_TrustLevel << YAML::Value << static_cast<int64_t>(details.TrustLevel);
                     out << YAML::EndMap;
@@ -234,6 +236,12 @@ namespace AppInstaller::Repository
     {
         LastUpdateTime = source.LastUpdateTime;
         DoNotUpdateBefore = source.DoNotUpdateBefore;
+    }
+
+    void SourceDetailsInternal::CopyOverrideFieldsFrom(const SourceDetails& overrideSource)
+    {
+        // These are the supported Override fields.
+        Explicit = overrideSource.Explicit;
     }
 
     std::string_view GetWellKnownSourceName(WellKnownSource source)
@@ -445,6 +453,25 @@ namespace AppInstaller::Repository
             });
     }
 
+    bool SourceList::TryFindSourceByOrigin(std::string_view name, SourceOrigin origin, SourceDetailsInternal& targetSourceOut, bool includeHidden)
+    {
+        auto defaultSources = GetSourcesByOrigin(origin);
+        auto iter = std::find_if(defaultSources.begin(), defaultSources.end(),
+            [name, includeHidden](const SourceDetailsInternal& sd)
+            {
+                return Utility::ICUCaseInsensitiveEquals(sd.Name, name) &&
+                    (includeHidden || !ShouldBeHidden(sd));
+            });
+
+        if (iter == defaultSources.end())
+        {
+            return false;
+        }
+
+        targetSourceOut = (*iter);
+        return true;
+    }
+
     SourceDetailsInternal* SourceList::GetCurrentSource(std::string_view name)
     {
         auto itr = FindSource(name);
@@ -527,12 +554,85 @@ namespace AppInstaller::Repository
                     return;
                 }
 
+                // If this is an override of a default source, turn this into a tombstone instead of removing it.
+                if (target->IsOverride)
+                {
+                    target->IsOverride = false;
+                    target->IsTombstone = true;
+                    break;
+                }
+
                 m_sourceList.erase(target);
             }
                 break;
             case SourceOrigin::GroupPolicy:
                 // This should have already been blocked higher up.
                 AICLI_LOG(Repo, Error, << "Attempting to remove Group Policy source: " << details.Name);
+                THROW_HR(E_UNEXPECTED);
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+
+            sourcesSet = SetSourcesByOrigin(SourceOrigin::User, m_sourceList);
+
+            if (!sourcesSet)
+            {
+                OverwriteSourceList();
+                OverwriteMetadata();
+            }
+        }
+
+        THROW_HR_IF_MSG(E_UNEXPECTED, !sourcesSet, "Too many attempts at SetSourcesByOrigin");
+
+        SaveMetadataInternal(details, true);
+    }
+
+    void SourceList::EditSource(const SourceDetailsInternal& detailsRef)
+    {
+        // Copy the incoming details because we might destroy the referenced structure
+        // when reloading the source details from settings.
+        SourceDetailsInternal details = detailsRef;
+        bool sourcesSet = false;
+
+        for (size_t i = 0; !sourcesSet && i < 10; ++i)
+        {
+            switch (details.Origin)
+            {
+            case SourceOrigin::Default:
+            {
+                auto target = FindSource(details.Name, true);
+                if (target == m_sourceList.end())
+                {
+                    THROW_HR_MSG(E_UNEXPECTED, "Default source not in SourceList");
+                }
+
+                if (!target->IsTombstone)
+                {
+                    // Copy the original and then apply the override fields.
+                    SourceDetailsInternal override = *target;
+                    override.Origin = SourceOrigin::User;
+                    override.IsOverride = true;
+                    override.CopyOverrideFieldsFrom(details);
+                    m_sourceList.emplace_back(std::move(override));
+                }
+            }
+            break;
+            case SourceOrigin::User:
+            {
+                auto target = FindSource(details.Name);
+                if (target == m_sourceList.end())
+                {
+                    // Assumed that an update to the sources removed it first
+                    return;
+                }
+
+                // Editing a User Source is just replacing the fields that can be edited.
+                target->CopyOverrideFieldsFrom(details);
+            }
+            break;
+            case SourceOrigin::GroupPolicy:
+                // This should have already been blocked higher up.
+                AICLI_LOG(Repo, Error, << "Attempting to edit a Group Policy source: " << details.Name);
                 THROW_HR(E_UNEXPECTED);
             default:
                 THROW_HR(E_UNEXPECTED);
@@ -689,6 +789,7 @@ namespace AppInstaller::Repository
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Explicit, details.Explicit, false);
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);
+                    TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsOverride, details.IsOverride, false);
 
                     int64_t trustLevelValue;
                     if (TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_TrustLevel, trustLevelValue, false))
@@ -705,6 +806,25 @@ namespace AppInstaller::Repository
                 if (!IsUserSourceAllowedByPolicy(source.Name, source.Type, source.Arg, source.IsTombstone))
                 {
                     AICLI_LOG(Repo, Warning, << "User source " << source.Name << " dropped because of group policy");
+                    continue;
+                }
+
+                // If this is an override source, we need to get the target of the override and apply the override data on top of it.
+                if (source.IsOverride)
+                {
+                    SourceDetailsInternal override;
+                    if (!TryFindSourceByOrigin(source.Name, SourceOrigin::Default, override))
+                    {
+                        // The default source may be disabled, in which case it may not be returned in the list of default sources.
+                        AICLI_LOG(Repo, Warning, << "User source " << source.Name << " is an override for a non-existent Default Source.");
+                        continue;
+                    }
+
+                    override.CopyOverrideFieldsFrom(source);
+                    override.Origin = SourceOrigin::User;
+                    override.IsOverride = true;
+                    result.emplace_back(std::move(override));
+                    AICLI_LOG(Repo, Info, << "User source " << source.Name << " is overriding the Default source of the same name.");
                     continue;
                 }
 

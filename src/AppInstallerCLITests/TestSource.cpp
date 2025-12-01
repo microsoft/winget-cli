@@ -454,6 +454,15 @@ namespace TestCommon
         return true;
     }
 
+    bool TestSourceFactory::Edit(const SourceDetails& details, IProgressCallback&)
+    {
+        if (OnEdit)
+        {
+            OnEdit(details);
+        }
+        return true;
+    }
+
     // Make copies of self when requested.
     TestSourceFactory::operator std::function<std::unique_ptr<ISourceFactory>()>()
     {
@@ -464,6 +473,12 @@ namespace TestCommon
     {
         Repository::Source source{ details.Name, details.Arg, details.Type, Repository::SourceTrustLevel::None, false };
         return source.Add(progress);
+    }
+
+    bool EditSource(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback& progress)
+    {
+        Repository::Source source{ details.Name, details.Explicit };
+        return source.Edit(progress);
     }
 
     bool UpdateSource(std::string_view name, AppInstaller::IProgressCallback& progress)

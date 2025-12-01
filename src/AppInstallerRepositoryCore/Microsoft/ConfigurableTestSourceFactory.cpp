@@ -154,6 +154,11 @@ namespace AppInstaller::Repository::Microsoft
             {
                 return true;
             }
+
+            bool Edit(const SourceDetails&, IProgressCallback&) override final
+            {
+                return true;
+            }
         };
     }
 

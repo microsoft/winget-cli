@@ -224,6 +224,9 @@ namespace AppInstaller::Repository
         // Constructor for a source to be added.
         Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel, bool isExplicit);
 
+        // Constructor for a source to be edited.
+        Source(std::string_view name, bool isExplicit);
+
         // Constructor for creating a composite source from a list of available sources.
         Source(const std::vector<Source>& availableSources);
 
@@ -329,6 +332,13 @@ namespace AppInstaller::Repository
 
         // Remove source. Source remove command.
         bool Remove(IProgressCallback& progress);
+
+        // Edit source. Source edit command.
+        bool Edit(IProgressCallback& progress);
+
+        // Determines if this source is a valid edit of otherSource.
+        // Returns true if this source qualifies as an edit of the other source.
+        bool IsEditOfSource(const Source& otherSource);
 
         // Gets the tracking catalog for the current source.
         PackageTrackingCatalog GetTrackingCatalog() const;

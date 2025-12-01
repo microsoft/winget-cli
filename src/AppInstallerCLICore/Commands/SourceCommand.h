@@ -121,4 +121,19 @@ namespace AppInstaller::CLI
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
     };
+
+    struct SourceEditCommand final : public Command
+    {
+        SourceEditCommand(std::string_view parent) : Command("edit", {}, parent, Settings::TogglePolicy::Policy::AllowedSources) {}
+
+        std::vector<Argument> GetArguments() const override;
+
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
+
+        Utility::LocIndView HelpLink() const override;
+
+    protected:
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
 }

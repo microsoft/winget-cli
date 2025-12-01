@@ -125,6 +125,11 @@ namespace AppInstaller::Repository
                 THROW_HR(E_NOTIMPL);
             }
 
+            bool Edit(const SourceDetails&, IProgressCallback&) override final
+            {
+                THROW_HR(E_NOTIMPL);
+            }
+
             bool Remove(const SourceDetails& details, IProgressCallback& progress) override final
             {
                 THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, PackageTrackingCatalogSourceFactory::Type()));

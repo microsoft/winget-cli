@@ -254,6 +254,15 @@ namespace AppInstaller::Repository::Microsoft
                 return UpdateBase(details, true, progress);
             }
 
+            bool Edit(const SourceDetails& details, IProgressCallback& progress) override final
+            {
+                UNREFERENCED_PARAMETER(details);
+                UNREFERENCED_PARAMETER(progress);
+
+                // Edit does not change or update the installed packages.
+                return true;
+            }
+
             // Retrieves the currently cached version of the package.
             virtual std::optional<Msix::PackageVersion> GetCurrentVersion(const SourceDetails& details) = 0;
 

@@ -272,6 +272,39 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void EditSources(Execution::Context& context)
+    {
+        // We are assuming there is only one match, as SourceName is a required parameter.
+        const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
+        bool isExplicit = context.Args.Contains(Args::Type::SourceExplicit);
+        for (const auto& sd : sources)
+        {
+            // Get the current source with this name.
+            Repository::Source currentSource{ sd.Name };
+
+            // Only permitting Explicit to be edited at this time.
+            Repository::Source source{ sd.Name, isExplicit };
+
+            // Is anything being changed??
+            if (!source.IsEditOfSource(currentSource))
+            {
+                context.Reporter.Info() << Resource::String::SourceEditNoChanges(Utility::LocIndView{ sd.Name }) << std::endl;
+                continue;
+            }
+
+            context.Reporter.Info() << Resource::String::SourceEditOne(Utility::LocIndView{ sd.Name }, Utility::LocIndView{ Utility::ConvertBoolToString(isExplicit) }) << std::endl;
+            auto editFunction = [&](IProgressCallback& progress)->bool { return source.Edit(progress); };
+            if (context.Reporter.ExecuteWithProgress(editFunction))
+            {
+                context.Reporter.Info() << Resource::String::Done << std::endl;
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+            }
+        }
+    }
+
     void QueryUserForSourceReset(Execution::Context& context)
     {
         if (!context.Args.Contains(Execution::Args::Type::ForceSourceReset))

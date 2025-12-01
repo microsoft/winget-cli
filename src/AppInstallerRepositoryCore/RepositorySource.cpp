@@ -135,6 +135,12 @@ namespace AppInstaller::Repository
             return AddOrUpdateFromDetails(details, &ISourceFactory::Update, progress);
         }
 
+        bool EditSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        {
+            auto factory = ISourceFactory::GetForType(details.Type);
+            return factory->Edit(details, progress);
+        }
+
         AddOrUpdateResult BackgroundUpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
             return AddOrUpdateFromDetails(details, &ISourceFactory::BackgroundUpdate, progress);
@@ -483,6 +489,25 @@ namespace AppInstaller::Repository
         }
 
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
+    }
+
+    Source::Source(std::string_view name, bool isExplicit)
+    {
+        SourceList sourceList;
+        auto source = sourceList.GetCurrentSource(name);
+        if (!source)
+        {
+            AICLI_LOG(Repo, Info, << "Named source requested, but not found: " << name);
+        }
+        else
+        {
+            AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
+
+            // This is intended to support Editing a source, and at present only the Explicit
+            // property of SourceDetails can be edited.
+            source->Explicit = isExplicit;
+            m_sourceReferences.emplace_back(CreateSourceFromDetails(*source));
+        }
     }
 
     Source::Source(const std::vector<Source>& availableSources)
@@ -987,6 +1012,54 @@ namespace AppInstaller::Repository
         }
 
         return result;
+    }
+
+    bool Source::Edit(IProgressCallback& progress)
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || m_sourceReferences.size() != 1 || m_source);
+
+        auto& details = m_sourceReferences[0]->GetDetails();
+        AICLI_LOG(Repo, Info, << "Named source to be edited, found: " << details.Name << " [" << ToString(details.Origin) << ']');
+
+        // This is intentionally the same policy checks as Remove. If the source cannot be removed then it cannot be edited.
+        EnsureSourceIsRemovable(details);
+
+        details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
+
+        bool result = EditSourceFromDetails(details, progress);
+        if (result)
+        {
+            SourceList sourceList;
+            sourceList.EditSource(details);
+        }
+
+        return result;
+    }
+
+    bool Source::IsEditOfSource(const Source& otherSource)
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_sourceReferences.size() != 1);
+
+        const auto& details = m_sourceReferences[0]->GetDetails();
+        const auto& otherDetails = otherSource.GetDetails();
+
+        // Verify name matches. At this time this is the unique identifier of a source and
+        // is used to compare to group policy and well-known sources. If the name matches
+        // we will assume this is intended to be an edit of an existing source.
+        if (details.Name != otherDetails.Name)
+        {
+            return false;
+        }
+
+        // For now the only supported editable difference is Explicit.
+        // If others are added, they would be checked below for changes.
+        bool isChanged = false;
+        if (details.Explicit != otherDetails.Explicit)
+        {
+            isChanged = true;
+        }
+
+        return isChanged;
     }
 
     PackageTrackingCatalog Source::GetTrackingCatalog() const

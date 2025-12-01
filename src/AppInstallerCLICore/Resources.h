@@ -687,6 +687,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceEditCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceEditCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceEditOne);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceEditNoChanges);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceExplicitArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceExportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceExportCommandShortDescription);
