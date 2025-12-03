@@ -57,6 +57,7 @@ BFirst
 bigcatalog
 BITMAPINFOHEADER
 bitmask
+BKMG
 bkup
 blargle
 blockedbypolicy
@@ -333,6 +334,7 @@ MINORVERSION
 missingdependency
 mkgmtime
 MMmmbbbb
+MODULEENTRY
 mof
 monicka
 MPNS
@@ -426,6 +428,7 @@ positionals
 posix
 postuninstall
 powershellgallery
+PPROCESS
 pri
 PRIMARYKEY
 processthreads
@@ -555,6 +558,7 @@ tcs
 temppath
 testexampleinstaller
 thiscouldbeapc
+THREADENTRY
 threehundred
 timespan
 Tlg

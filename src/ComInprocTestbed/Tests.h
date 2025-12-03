@@ -58,24 +58,29 @@ struct TestParameters
     winrt::Microsoft::Management::Deployment::PackageMatchFilter CreatePackageMatchFilter() const;
     winrt::Microsoft::Management::Deployment::FindPackagesOptions CreateFindPackagesOptions() const;
     winrt::Microsoft::Management::Deployment::DownloadOptions CreateDownloadOptions() const;
+    winrt::Microsoft::Management::Deployment::AddPackageCatalogOptions CreateAddPackageCatalogOptions() const;
 
     std::string TestToRun;
     ComInitializationType ComInit = ComInitializationType::MTA;
     bool LeakCOM = false;
     int Iterations = 1;
     std::string PackageName = "Microsoft.Edit";
+    std::string SourceName = "winget";
+    std::string SourceURL;
     UnloadBehavior UnloadBehavior = UnloadBehavior::Allow;
     ActivationType ActivationType = ActivationType::ClassName;
     bool SkipClearFactories = false;
 };
 
-// Catpures a snapshot of current resource usage.
+// Captures a snapshot of current resource usage.
 struct Snapshot
 {
     Snapshot();
 
     size_t ThreadCount = 0;
     size_t ModuleCount = 0;
+    bool MicrosoftManagementDeploymentInProcLoaded = false;
+    bool WindowsPackageManagerLoaded = false;
     PROCESS_MEMORY_COUNTERS_EX2 Memory{};
 };
 

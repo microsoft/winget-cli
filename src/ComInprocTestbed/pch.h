@@ -13,6 +13,7 @@
 #include <winrt/Microsoft.Management.Deployment.h>
 
 #include <algorithm>
+#include <future>
 #include <iomanip>
 #include <iostream>
 #include <memory>

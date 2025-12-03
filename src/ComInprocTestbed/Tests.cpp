@@ -102,16 +102,24 @@ namespace
 
     // Look for the set of well known objects that should be present after we have spun everything up.
     // Returns true if all well known objects are found in the expected state.
-    bool SearchForWellKnownObjects(bool expectExist)
+    bool SearchForWellKnownObjects(bool expectExist, const Snapshot& snapshot)
     {
         bool result = true;
+
+        // Known modules in snapshot
+        bool knownModulesLoaded = snapshot.MicrosoftManagementDeploymentInProcLoaded && snapshot.WindowsPackageManagerLoaded;
+        if (knownModulesLoaded != expectExist)
+        {
+            std::cout << "Known modules were not in expected state [" << (expectExist ? "loaded" : "unloaded") << "]\n";
+            result = false;
+        }
 
         auto coreApplicationProperties = winrt::Windows::ApplicationModel::Core::CoreApplication::Properties();
 
         // COM statics
         for (std::wstring_view item : {
             L"WindowsPackageManager.CachedInstalledIndex"sv,
-                L"WindowsPackageManager.TerminationSignalHandler"sv,
+            L"WindowsPackageManager.TerminationSignalHandler"sv,
         })
         {
             bool present = coreApplicationProperties.HasKey(item);
@@ -208,6 +216,16 @@ TestParameters::TestParameters(int argc, const char** argv)
             ADVANCE_ARG_PARAMETER
             PackageName = argv[i];
         }
+        else if ("-src"sv == argv[i])
+        {
+            ADVANCE_ARG_PARAMETER
+            SourceName = argv[i];
+        }
+        else if ("-url"sv == argv[i])
+        {
+            ADVANCE_ARG_PARAMETER
+            SourceURL = argv[i];
+        }
         else if ("-unload"sv == argv[i])
         {
             ADVANCE_ARG_PARAMETER
@@ -230,12 +248,14 @@ void TestParameters::OutputDetails() const
     std::cout << "Running inproc testbed with:\n"
         "  COM Init : " << ComInit << "\n"
         "  Activate : " << ActivationType << "\n"
-        "  Clear    : " << std::boolalpha << !SkipClearFactories << "\n"
+        "    Clear  : " << std::boolalpha << !SkipClearFactories << "\n"
         "  Leak COM : " << std::boolalpha << LeakCOM << "\n"
         "  Unload   : " << UnloadBehavior << "\n"
-        "  Expect   : " << std::boolalpha << UnloadExpected() << "\n"
+        "    Expect : " << std::boolalpha << UnloadExpected() << "\n"
         "  Test     : " << TestToRun << "\n"
         "  Package  : " << PackageName << "\n"
+        "  Source   : " << SourceName << "\n"
+        "    URL    : " << SourceURL << "\n"
         "  Passes   : " << Iterations << std::endl;
 }
 
@@ -257,6 +277,8 @@ bool TestParameters::InitializeTestState() const
         std::cout << "RoInitialize returned " << hr << std::endl;
         return false;
     }
+
+    InitializePackageManagerGlobals();
 
     if (UnloadBehavior::Never == UnloadBehavior || UnloadBehavior::AtExit == UnloadBehavior)
     {
@@ -325,6 +347,11 @@ DownloadOptions TestParameters::CreateDownloadOptions() const
     return CreatePackageManagerObject<DownloadOptions>(ActivationType, CLSID_DownloadOptions);
 }
 
+AddPackageCatalogOptions TestParameters::CreateAddPackageCatalogOptions() const
+{
+    return CreatePackageManagerObject<AddPackageCatalogOptions>(ActivationType, CLSID_AddPackageCatalogOptions);
+}
+
 Snapshot::Snapshot()
 {
     const DWORD processId = GetCurrentProcessId();
@@ -353,6 +380,15 @@ Snapshot::Snapshot()
     {
         do
         {
+            if (moduleEntry.szModule == L"Microsoft.Management.Deployment.InProc.dll"sv)
+            {
+                MicrosoftManagementDeploymentInProcLoaded = true;
+            }
+            else if (moduleEntry.szModule == L"WindowsPackageManager.dll"sv)
+            {
+                WindowsPackageManagerLoaded = true;
+            }
+
             ++ModuleCount;
         } while (Module32Next(snapshot, &moduleEntry));
     }
@@ -369,18 +405,18 @@ UnloadAndCheckForLeaks::UnloadAndCheckForLeaks(const TestParameters& parameters)
 
 bool UnloadAndCheckForLeaks::RunIteration()
 {
-    if (!SearchForWellKnownObjects(true))
+    Snapshot beforeUnload;
+    if (!SearchForWellKnownObjects(true, beforeUnload))
     {
         return false;
     }
 
-    Snapshot beforeUnload;
-
     CoFreeUnusedLibrariesEx(0, 0);
 
-    m_iterationSnapshots.emplace_back(beforeUnload, Snapshot{});
+    Snapshot afterUnload;
+    m_iterationSnapshots.emplace_back(beforeUnload, afterUnload);
 
-    if (!SearchForWellKnownObjects(!m_parameters.UnloadExpected()))
+    if (!SearchForWellKnownObjects(!m_parameters.UnloadExpected(), afterUnload))
     {
         return false;
     }
@@ -397,7 +433,7 @@ bool UnloadAndCheckForLeaks::RunFinal()
     std::cout << "--- UnloadAndCheckForLeaks results ---\n";
     std::cout << std::setfill(' ');
 
-    // Threads
+    // --- Threads ---
     std::cout << "Thread Count [Initial: " << m_initialSnapshot.ThreadCount << "]\n";
 
     std::cout << "Iteration  ";
@@ -421,7 +457,34 @@ bool UnloadAndCheckForLeaks::RunFinal()
     }
     std::cout << '\n';
 
-    // Modules
+    // Look for consistent increase in measured values
+    if (m_iterationSnapshots.size() > 1)
+    {
+        size_t previousValue = m_iterationSnapshots[0].second.ThreadCount;
+        bool consistentIncrease = true;
+
+        for (size_t i = 1; i < m_iterationSnapshots.size(); ++i)
+        {
+            size_t currentValue = m_iterationSnapshots[i].second.ThreadCount;
+            if (currentValue > previousValue)
+            {
+                previousValue = currentValue;
+            }
+            else
+            {
+                consistentIncrease = false;
+                break;
+            }
+        }
+
+        if (consistentIncrease)
+        {
+            std::cout << "Post unload thread count shows consistent increase; failing test.\n";
+            result = false;
+        }
+    }
+
+    // --- Modules ---
     std::cout << "Module Count [Initial: " << m_initialSnapshot.ModuleCount << "]\n";
 
     std::cout << "Iteration  ";
@@ -445,7 +508,27 @@ bool UnloadAndCheckForLeaks::RunFinal()
     }
     std::cout << '\n';
 
-    // Memory
+    // Look for modules not unloading
+    if (m_parameters.UnloadExpected() && m_iterationSnapshots.size() > 1)
+    {
+        bool noUnloadFound = false;
+
+        for (size_t i = 0; i < m_iterationSnapshots.size(); ++i)
+        {
+            if (m_iterationSnapshots[i].first.ModuleCount == m_iterationSnapshots[i].second.ModuleCount)
+            {
+                noUnloadFound = true;
+            }
+        }
+
+        if (noUnloadFound)
+        {
+            std::cout << "Module count did not decrease during at least one iteration; failing test.\n";
+            result = false;
+        }
+    }
+
+    // --- Memory ---
     std::cout << "Private Usage [Initial: " << GetBytesString(m_initialSnapshot.Memory.PrivateUsage) << "]\n";
 
     std::cout << "Iteration  ";
