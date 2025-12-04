@@ -12,3 +12,9 @@ void InitializePackageManagerGlobals();
 
 // Sets the module to prevent it from unloading.
 void SetUnloadPreference(bool value);
+
+// Attempts to detect the target package as installed for the system.
+bool DetectForSystem(const TestParameters& testParameters);
+
+// Installs the target package for the system.
+bool InstallForSystem(const TestParameters& testParameters);

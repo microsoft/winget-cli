@@ -126,15 +126,6 @@ namespace AppInstallerCLIE2ETests.Helpers
                 }
             }
 
-            string inputMsg =
-                    "AICLI path: " + TestSetup.Parameters.AICLIPath +
-                    " Command: " + command +
-                    " Parameters: " + parameters + correlationParameter +
-                    (string.IsNullOrEmpty(stdIn) ? string.Empty : " StdIn: " + stdIn) +
-                    " Timeout: " + timeOut;
-
-            TestContext.Out.WriteLine($"Starting command run. {inputMsg}");
-
             return RunAICLICommandViaDirectProcess(command, parameters + correlationParameter, stdIn, timeOut, throwOnTimeout);
         }
 
@@ -1171,14 +1162,23 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <returns>The result of the command.</returns>
         public static RunCommandResult RunProcess(string executablePath, string command, string parameters, string stdIn, int timeOut, bool throwOnTimeout)
         {
-            RunCommandResult result = new();
+            string inputMsg =
+                    "Exe path: " + executablePath +
+                    " Command: " + command +
+                    " Parameters: " + parameters +
+                    (string.IsNullOrEmpty(stdIn) ? string.Empty : " StdIn: " + stdIn) +
+                    " Timeout: " + timeOut;
+
+            TestContext.Out.WriteLine($"Starting command run. {inputMsg}");
+
+            RunCommandResult result = new ();
             Process p = new Process();
             p.StartInfo = new ProcessStartInfo(executablePath, command + ' ' + parameters);
             p.StartInfo.UseShellExecute = false;
 
             p.StartInfo.StandardOutputEncoding = Encoding.UTF8;
             p.StartInfo.RedirectStandardOutput = true;
-            StringBuilder outputData = new();
+            StringBuilder outputData = new ();
             p.OutputDataReceived += (sender, args) =>
             {
                 if (args.Data != null)
@@ -1189,7 +1189,7 @@ namespace AppInstallerCLIE2ETests.Helpers
 
             p.StartInfo.StandardErrorEncoding = Encoding.UTF8;
             p.StartInfo.RedirectStandardError = true;
-            StringBuilder errorData = new();
+            StringBuilder errorData = new ();
             p.ErrorDataReceived += (sender, args) =>
             {
                 if (args.Data != null)

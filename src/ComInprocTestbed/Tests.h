@@ -11,8 +11,11 @@ struct ITest
 {
     virtual ~ITest() = default;
 
-    // Runs an iteration of the test.
-    virtual bool RunIteration() = 0;
+    // Runs an iteration of the work. Performed at the beginning of the iteration.
+    virtual bool RunIterationWork() = 0;
+
+    // Runs an iteration of the test. Performed at the end of the iteration.
+    virtual bool RunIterationTest() = 0;
 
     // Performs the final test validation.
     virtual bool RunFinal() = 0;
@@ -59,6 +62,7 @@ struct TestParameters
     winrt::Microsoft::Management::Deployment::FindPackagesOptions CreateFindPackagesOptions() const;
     winrt::Microsoft::Management::Deployment::DownloadOptions CreateDownloadOptions() const;
     winrt::Microsoft::Management::Deployment::AddPackageCatalogOptions CreateAddPackageCatalogOptions() const;
+    winrt::Microsoft::Management::Deployment::InstallOptions CreateInstallOptions() const;
 
     std::string TestToRun;
     ComInitializationType ComInit = ComInitializationType::MTA;
@@ -89,7 +93,9 @@ struct UnloadAndCheckForLeaks : public ITest
 {
     UnloadAndCheckForLeaks(const TestParameters& parameters);
 
-    bool RunIteration() override;
+    bool RunIterationWork() override;
+
+    bool RunIterationTest() override;
 
     bool RunFinal() override;
 
@@ -97,4 +103,19 @@ private:
     const TestParameters& m_parameters;
     Snapshot m_initialSnapshot;
     std::vector<std::pair<Snapshot, Snapshot>> m_iterationSnapshots;
+};
+
+// A test that installs the package machine wide and then attempts to detect that it is installed.
+struct InstallForSystem_DetectPresence : public ITest
+{
+    InstallForSystem_DetectPresence(const TestParameters& parameters);
+
+    bool RunIterationWork() override;
+
+    bool RunIterationTest() override;
+
+    bool RunFinal() override;
+
+private:
+    const TestParameters& m_parameters;
 };

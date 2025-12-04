@@ -19,7 +19,9 @@ int main(int argc, const char** argv) try
 
     for (int i = 0; i < testParameters.Iterations; ++i)
     {
-        if (!UsePackageManager(testParameters))
+        std::cout << "Begin iteration " << (i + 1) << std::endl;
+
+        if (test && !test->RunIterationWork())
         {
             return 3;
         }
@@ -29,7 +31,7 @@ int main(int argc, const char** argv) try
             winrt::clear_factory_cache();
         }
 
-        if (test && !test->RunIteration())
+        if (test && !test->RunIterationTest())
         {
             return 4;
         }

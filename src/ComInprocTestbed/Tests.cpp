@@ -86,15 +86,21 @@ namespace
     {
         bool* result = reinterpret_cast<bool*>(param);
 
-        int textLength = GetWindowTextLengthW(hwnd) + 1;
-        std::wstring windowText(textLength, '\0');
-        textLength = GetWindowTextW(hwnd, &windowText[0], textLength);
-        windowText.resize(textLength);
+        DWORD windowProcessId = 0;
+        GetWindowThreadProcessId(hwnd, &windowProcessId);
 
-        if (L"WingetMessageOnlyWindow"sv == windowText)
+        if (GetCurrentProcessId() == windowProcessId)
         {
-            *result = true;
-            return FALSE;
+            int textLength = GetWindowTextLengthW(hwnd) + 1;
+            std::wstring windowText(textLength, '\0');
+            textLength = GetWindowTextW(hwnd, &windowText[0], textLength);
+            windowText.resize(textLength);
+
+            if (L"WingetMessageOnlyWindow"sv == windowText)
+            {
+                *result = true;
+                return FALSE;
+            }
         }
 
         return TRUE;
@@ -294,6 +300,10 @@ std::unique_ptr<ITest> TestParameters::CreateTest() const
     {
         return std::make_unique<UnloadAndCheckForLeaks>(*this);
     }
+    else if ("install_detect"sv == TestToRun)
+    {
+        return std::make_unique<InstallForSystem_DetectPresence>(*this);
+    }
 
     return {};
 }
@@ -352,6 +362,11 @@ AddPackageCatalogOptions TestParameters::CreateAddPackageCatalogOptions() const
     return CreatePackageManagerObject<AddPackageCatalogOptions>(ActivationType, CLSID_AddPackageCatalogOptions);
 }
 
+InstallOptions TestParameters::CreateInstallOptions() const
+{
+    return CreatePackageManagerObject<InstallOptions>(ActivationType, CLSID_InstallOptions);
+}
+
 Snapshot::Snapshot()
 {
     const DWORD processId = GetCurrentProcessId();
@@ -403,8 +418,16 @@ UnloadAndCheckForLeaks::UnloadAndCheckForLeaks(const TestParameters& parameters)
 {
 }
 
-bool UnloadAndCheckForLeaks::RunIteration()
+bool UnloadAndCheckForLeaks::RunIterationWork()
 {
+    std::cout << "UnloadAndCheckForLeaks::RunIterationWork\n";
+    return UsePackageManager(m_parameters);
+}
+
+bool UnloadAndCheckForLeaks::RunIterationTest()
+{
+    std::cout << "UnloadAndCheckForLeaks::RunIterationTest\n";
+
     Snapshot beforeUnload;
     if (!SearchForWellKnownObjects(true, beforeUnload))
     {
@@ -553,4 +576,27 @@ bool UnloadAndCheckForLeaks::RunFinal()
     std::cout << '\n';
 
     return result;
+}
+
+InstallForSystem_DetectPresence::InstallForSystem_DetectPresence(const TestParameters& parameters) : m_parameters(parameters)
+{
+}
+
+bool InstallForSystem_DetectPresence::RunIterationWork()
+{
+    std::cout << "Before installing, the detection state was: " << std::boolalpha << DetectForSystem(m_parameters) << '\n';
+
+    return InstallForSystem(m_parameters);
+}
+
+bool InstallForSystem_DetectPresence::RunIterationTest()
+{
+    bool result = DetectForSystem(m_parameters);
+    std::cout << "After installing, the detection state was: " << std::boolalpha << result << '\n';
+    return result;
+}
+
+bool InstallForSystem_DetectPresence::RunFinal()
+{
+    return true;
 }
