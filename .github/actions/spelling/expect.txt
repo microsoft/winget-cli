@@ -162,6 +162,7 @@ ERRORONEXIT
 errstr
 ESRB
 etl
+evtx
 ewgp
 ewgs
 execustom
@@ -324,6 +325,7 @@ MBH
 MBs
 mday
 mdmp
+mdmpto
 MDs
 megamorf
 microsoftentraid
@@ -503,6 +505,7 @@ Scm
 sddl
 secureobject
 securestring
+seekp
 seof
 servercert
 servercertificate
@@ -555,6 +558,7 @@ Tagit
 TARG
 taskhostw
 tcs
+tellp
 temppath
 testexampleinstaller
 thiscouldbeapc
@@ -626,6 +630,7 @@ wincodec
 windir
 windowsdeveloper
 winerror
+winevt
 wingdi
 wingetconfigroot
 wingetcreate
