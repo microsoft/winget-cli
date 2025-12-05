@@ -27,7 +27,7 @@ namespace AppInstallerCLIE2ETests
             ClassName,
 
             /// <summary>
-            /// Use the CLSID for activatino via C++/WinRT `create_instance`.
+            /// Use the CLSID for activation via C++/WinRT `create_instance`.
             /// </summary>
             CoCreateInstance,
         }
@@ -116,7 +116,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Tests using the C++/WinRT ideomatic activation through the type name.
+        /// Tests using C++/WinRT object activation through the type name.
         /// </summary>
         /// <param name="freeCachedFactories">Control whether the C++/WinRT factory cache will be cleared between iterations.</param>
         /// <param name="leakCOM">Control whether COM should be uninitialized at the end of the process.</param>
