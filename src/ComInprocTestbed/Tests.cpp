@@ -62,13 +62,13 @@ namespace
 
     BEGIN_ENUM_PARSE_FUNC(UnloadBehavior)
         ITEM_ENUM_PARSE_FUNC(UnloadBehavior, Allow)
-        ITEM_ENUM_PARSE_FUNC(UnloadBehavior, AtExit)
+        ITEM_ENUM_PARSE_FUNC(UnloadBehavior, AtUninitialize)
         ITEM_ENUM_PARSE_FUNC(UnloadBehavior, Never)
     END_ENUM_PARSE_FUNC
 
     BEGIN_ENUM_NAME_FUNC(UnloadBehavior)
         ITEM_ENUM_NAME_FUNC(UnloadBehavior, Allow)
-        ITEM_ENUM_NAME_FUNC(UnloadBehavior, AtExit)
+        ITEM_ENUM_NAME_FUNC(UnloadBehavior, AtUninitialize)
         ITEM_ENUM_NAME_FUNC(UnloadBehavior, Never)
     END_ENUM_NAME_FUNC
 
@@ -286,7 +286,7 @@ bool TestParameters::InitializeTestState() const
 
     InitializePackageManagerGlobals();
 
-    if (UnloadBehavior::Never == UnloadBehavior || UnloadBehavior::AtExit == UnloadBehavior)
+    if (UnloadBehavior::Never == UnloadBehavior || UnloadBehavior::AtUninitialize == UnloadBehavior)
     {
         SetUnloadPreference(false);
     }
@@ -310,21 +310,21 @@ std::unique_ptr<ITest> TestParameters::CreateTest() const
 
 void TestParameters::UninitializeTestState() const
 {
+    if (UnloadBehavior::AtUninitialize == UnloadBehavior)
+    {
+        SetUnloadPreference(true);
+    }
+
     if (!LeakCOM)
     {
         RoUninitialize();
-    }
-
-    if (UnloadBehavior::AtExit == UnloadBehavior)
-    {
-        SetUnloadPreference(true);
     }
 }
 
 bool TestParameters::UnloadExpected() const
 {
     bool shouldUnload = true;
-    if (UnloadBehavior::Never == UnloadBehavior || UnloadBehavior::AtExit == UnloadBehavior ||
+    if (UnloadBehavior::Never == UnloadBehavior || UnloadBehavior::AtUninitialize == UnloadBehavior ||
         (ActivationType::ClassName == ActivationType && SkipClearFactories))
     {
         shouldUnload = false;

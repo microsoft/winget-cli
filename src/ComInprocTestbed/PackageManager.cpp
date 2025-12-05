@@ -160,10 +160,7 @@ bool DetectForSystem(const TestParameters& testParameters)
         winrt::throw_hresult(HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
     }
 
-    auto installStatus = package.CheckInstalledStatus();
-    // ??? Determine detection mechanism
-
-    return true;
+    return package.DefaultInstallVersion() && package.InstalledVersion();
 }
 
 bool InstallForSystem(const TestParameters& testParameters)

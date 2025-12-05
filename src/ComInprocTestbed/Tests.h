@@ -30,7 +30,7 @@ enum class ComInitializationType
 enum class UnloadBehavior
 {
     Allow,
-    AtExit,
+    AtUninitialize,
     Never,
 };
 

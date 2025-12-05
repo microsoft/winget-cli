@@ -19,19 +19,38 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// The activation type to use when creating objects.
         /// </summary>
-        private enum ActivationType
+        public enum ActivationType
         {
+            /// <summary>
+            /// Use the WinRT type name for activation via C++/WinRT object construction.
+            /// </summary>
             ClassName,
+
+            /// <summary>
+            /// Use the CLSID for activatino via C++/WinRT `create_instance`.
+            /// </summary>
             CoCreateInstance,
         }
 
         /// <summary>
         /// Control when the module will allow signal that it can be unloaded if all objects are released.
+        /// This does not affect the loader by taking additional references to the module.
         /// </summary>
-        private enum UnloadBehavior
+        public enum UnloadBehavior
         {
+            /// <summary>
+            /// Allows the unload check function to proceed with object count checks and unload when possible.
+            /// </summary>
             Allow,
-            AtExit,
+
+            /// <summary>
+            /// Prevents the unload check until just before COM is uninitialized.
+            /// </summary>
+            AtUninitialize,
+
+            /// <summary>
+            /// Prevents the unload check at all times.
+            /// </summary>
             Never,
         }
 
@@ -75,6 +94,54 @@ namespace AppInstallerCLIE2ETests
             this.RunInprocTestbed(new TestbedParameters());
         }
 
+        /// <summary>
+        /// Tests using the CLSID with CoCreateInstance.
+        /// </summary>
+        /// <param name="leakCOM">Control whether COM should be uninitialized at the end of the process.</param>
+        /// <param name="unloadBehavior">Set the unload behavior for the test.</param>
+        [Test]
+        [TestCase(false, UnloadBehavior.AtUninitialize)]
+        [TestCase(false, UnloadBehavior.Never)]
+        [TestCase(true, UnloadBehavior.Allow)]
+        [TestCase(true, UnloadBehavior.Never)]
+        public void CLSID_Tests(bool leakCOM, UnloadBehavior unloadBehavior)
+        {
+            this.RunInprocTestbed(new TestbedParameters()
+            {
+                ActivationType = ActivationType.CoCreateInstance,
+                LeakCOM = leakCOM,
+                UnloadBehavior = unloadBehavior,
+                Iterations = 10,
+            });
+        }
+
+        /// <summary>
+        /// Tests using the C++/WinRT ideomatic activation through the type name.
+        /// </summary>
+        /// <param name="freeCachedFactories">Control whether the C++/WinRT factory cache will be cleared between iterations.</param>
+        /// <param name="leakCOM">Control whether COM should be uninitialized at the end of the process.</param>
+        /// <param name="unloadBehavior">Set the unload behavior for the test.</param>
+        [Test]
+        [TestCase(false, false, UnloadBehavior.AtUninitialize)]
+        [TestCase(false, false, UnloadBehavior.Never)]
+        [TestCase(false, true, UnloadBehavior.Allow)]
+        [TestCase(false, true, UnloadBehavior.Never)]
+        [TestCase(true, false, UnloadBehavior.AtUninitialize)]
+        [TestCase(true, false, UnloadBehavior.Never)]
+        [TestCase(true, true, UnloadBehavior.Allow)]
+        [TestCase(true, true, UnloadBehavior.Never)]
+        public void TypeName_Tests(bool freeCachedFactories, bool leakCOM, UnloadBehavior unloadBehavior)
+        {
+            this.RunInprocTestbed(new TestbedParameters()
+            {
+                ActivationType = ActivationType.ClassName,
+                ClearFactories = freeCachedFactories,
+                LeakCOM = leakCOM,
+                UnloadBehavior = unloadBehavior,
+                Iterations = 10,
+            });
+        }
+
         private void RunInprocTestbed(TestbedParameters parameters, int timeout = 300000)
         {
             string builtParameters = string.Empty;
@@ -96,7 +163,7 @@ namespace AppInstallerCLIE2ETests
 
             if (parameters.UnloadBehavior != null)
             {
-                builtParameters += $"-unload {parameters.ActivationType} ";
+                builtParameters += $"-unload {parameters.UnloadBehavior} ";
             }
 
             if (parameters.Test != null)
