@@ -124,7 +124,7 @@ namespace AppInstaller::CLI
 
     struct SourceEditCommand final : public Command
     {
-        SourceEditCommand(std::string_view parent) : Command("edit", {}, parent, Settings::ExperimentalFeature::Feature::SourceEdit) {}
+        SourceEditCommand(std::string_view parent) : Command("edit", { "config" }, parent, Settings::ExperimentalFeature::Feature::SourceEdit) {}
 
         std::vector<Argument> GetArguments() const override;
 
@@ -134,6 +134,7 @@ namespace AppInstaller::CLI
         Utility::LocIndView HelpLink() const override;
 
     protected:
+        void ValidateArgumentsInternal(Execution::Args& execArgs) const override;
         void ExecuteInternal(Execution::Context& context) const override;
     };
 }

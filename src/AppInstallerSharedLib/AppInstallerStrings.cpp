@@ -939,6 +939,13 @@ namespace AppInstaller::Utility
         return value ? "true"sv : "false"sv;
     }
 
+    bool ConvertStringToBool(const std::string_view& input)
+    {
+        bool value;
+        std::istringstream(std::string(input)) >> std::boolalpha >> value;
+        return value;
+    }
+
     std::string ConvertGuidToString(const GUID& value)
     {
         wchar_t buffer[40];

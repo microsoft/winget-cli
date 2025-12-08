@@ -454,11 +454,11 @@ namespace TestCommon
         return true;
     }
 
-    bool TestSourceFactory::Edit(const SourceDetails& details, IProgressCallback&)
+    bool TestSourceFactory::Edit(SourceDetails& details, const SourceEdit& edits)
     {
         if (OnEdit)
         {
-            OnEdit(details);
+            OnEdit(details, edits);
         }
         return true;
     }
@@ -475,10 +475,10 @@ namespace TestCommon
         return source.Add(progress);
     }
 
-    bool EditSource(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback& progress)
+    bool EditSource(const AppInstaller::Repository::SourceDetails& details, const AppInstaller::Repository::SourceEdit& edits)
     {
         Repository::Source source{ details.Name, details.Explicit };
-        return source.Edit(progress);
+        return source.Edit(edits);
     }
 
     bool UpdateSource(std::string_view name, AppInstaller::IProgressCallback& progress)

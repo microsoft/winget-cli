@@ -197,6 +197,15 @@ namespace AppInstaller::Repository
         Authentication::AuthenticationInfo Authentication;
     };
 
+    // Contains information about edits to a source.
+    struct SourceEdit
+    {
+        SourceEdit(std::optional<bool> isExplicit);
+
+        // The explicit property of a source.
+        std::optional<bool> Explicit;
+    };
+
     // Allows calling code to inquire about specific features of an ISource implementation.
     // The default state of any new flag is false.
     enum class SourceFeatureFlag
@@ -225,7 +234,7 @@ namespace AppInstaller::Repository
         Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel, bool isExplicit);
 
         // Constructor for a source to be edited.
-        Source(std::string_view name, bool isExplicit);
+        Source(std::string_view name, std::optional<bool> isExplicit);
 
         // Constructor for creating a composite source from a list of available sources.
         Source(const std::vector<Source>& availableSources);
@@ -334,11 +343,11 @@ namespace AppInstaller::Repository
         bool Remove(IProgressCallback& progress);
 
         // Edit source. Source edit command.
-        bool Edit(IProgressCallback& progress);
+        bool Edit(const SourceEdit& edits);
 
         // Determines if this source is a valid edit of otherSource.
         // Returns true if this source qualifies as an edit of the other source.
-        bool IsEditOfSource(const Source& otherSource);
+        bool RequiresChanges(const SourceEdit& edits);
 
         // Gets the tracking catalog for the current source.
         PackageTrackingCatalog GetTrackingCatalog() const;

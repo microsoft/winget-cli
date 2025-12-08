@@ -135,10 +135,10 @@ namespace AppInstaller::Repository
             return AddOrUpdateFromDetails(details, &ISourceFactory::Update, progress);
         }
 
-        bool EditSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        bool EditSource(SourceDetails& details, const SourceEdit& edits)
         {
             auto factory = ISourceFactory::GetForType(details.Type);
-            return factory->Edit(details, progress);
+            return factory->Edit(details, edits);
         }
 
         AddOrUpdateResult BackgroundUpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
@@ -438,6 +438,8 @@ namespace AppInstaller::Repository
         return CheckForWellKnownSourceMatch(sourceDetails.Name, sourceDetails.Arg, sourceDetails.Type);
     }
 
+    SourceEdit::SourceEdit(std::optional<bool> isExplicit) : Explicit(isExplicit) {}
+
     Source::Source() {}
 
     Source::Source(std::string_view name)
@@ -491,7 +493,7 @@ namespace AppInstaller::Repository
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
     }
 
-    Source::Source(std::string_view name, bool isExplicit)
+    Source::Source(std::string_view name, std::optional<bool> isExplicit)
     {
         SourceList sourceList;
         auto source = sourceList.GetCurrentSource(name);
@@ -505,7 +507,11 @@ namespace AppInstaller::Repository
 
             // This is intended to support Editing a source, and at present only the Explicit
             // property of SourceDetails can be edited.
-            source->Explicit = isExplicit;
+            if (isExplicit.has_value())
+            {
+                source->Explicit = isExplicit.value();
+            }
+
             m_sourceReferences.emplace_back(CreateSourceFromDetails(*source));
         }
     }
@@ -1014,7 +1020,7 @@ namespace AppInstaller::Repository
         return result;
     }
 
-    bool Source::Edit(IProgressCallback& progress)
+    bool Source::Edit(const SourceEdit& edits)
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || m_sourceReferences.size() != 1 || m_source);
 
@@ -1024,9 +1030,8 @@ namespace AppInstaller::Repository
         // This is intentionally the same policy checks as Remove. If the source cannot be removed then it cannot be edited.
         EnsureSourceIsRemovable(details);
 
-        details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
-
-        bool result = EditSourceFromDetails(details, progress);
+        // Apply the edits and update source list.
+        bool result = EditSource(details, edits);
         if (result)
         {
             SourceList sourceList;
@@ -1036,25 +1041,16 @@ namespace AppInstaller::Repository
         return result;
     }
 
-    bool Source::IsEditOfSource(const Source& otherSource)
+    bool Source::RequiresChanges(const SourceEdit& edits)
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_sourceReferences.size() != 1);
 
         const auto& details = m_sourceReferences[0]->GetDetails();
-        const auto& otherDetails = otherSource.GetDetails();
-
-        // Verify name matches. At this time this is the unique identifier of a source and
-        // is used to compare to group policy and well-known sources. If the name matches
-        // we will assume this is intended to be an edit of an existing source.
-        if (details.Name != otherDetails.Name)
-        {
-            return false;
-        }
 
         // For now the only supported editable difference is Explicit.
         // If others are added, they would be checked below for changes.
         bool isChanged = false;
-        if (details.Explicit != otherDetails.Explicit)
+        if (edits.Explicit.has_value() && edits.Explicit.value() != details.Explicit)
         {
             isChanged = true;
         }

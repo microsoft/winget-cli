@@ -446,7 +446,7 @@ namespace AppInstaller::Repository::Microsoft
                 THROW_HR(E_NOTIMPL);
             }
 
-            bool Edit(const SourceDetails&, IProgressCallback&) override final
+            bool Edit(SourceDetails&, const SourceEdit&) override final
             {
                 THROW_HR(E_NOTIMPL);
             }

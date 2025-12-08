@@ -135,7 +135,7 @@ namespace AppInstaller::Repository::Rest
                 return true;
             }
 
-            bool Edit(const SourceDetails& details, IProgressCallback&) override final
+            bool Edit(SourceDetails& details, const SourceEdit&) override final
             {
                 THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, RestSourceFactory::Type()));
                 return true;

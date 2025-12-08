@@ -320,7 +320,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Args::Type::SourceName).SetRequired(true),
-            Argument::ForType(Args::Type::SourceExplicit),
+            Argument::ForType(Args::Type::SourceEditExplicit),
         };
     }
 
@@ -337,6 +337,22 @@ namespace AppInstaller::CLI
     Utility::LocIndView SourceEditCommand::HelpLink() const
     {
         return s_SourceCommand_HelpLink;
+    }
+
+    void SourceEditCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        if (execArgs.Contains(Execution::Args::Type::SourceEditExplicit))
+        {
+            std::string_view explicitArg = execArgs.GetArg(Execution::Args::Type::SourceEditExplicit);
+            if (!Utility::CaseInsensitiveEquals(explicitArg, "true") && !Utility::CaseInsensitiveEquals(explicitArg, "false"))
+            {
+                auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{
+                    "true"_lis,
+                    "false"_lis,
+                });
+                throw CommandException(Resource::String::InvalidArgumentValueError(Argument::ForType(Execution::Args::Type::SourceEditExplicit).Name(), validOptions));
+            }
+        }
     }
 
     void SourceEditCommand::ExecuteInternal(Context& context) const

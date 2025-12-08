@@ -287,14 +287,14 @@ namespace AppInstallerCLIE2ETests
             Assert.True(searchResult.StdOut.Contains("No sources defined; add one with 'source add' or reset to defaults with 'source reset'"));
 
             // Run the edit, this should be S_OK with "Done" as it changed the state to not-explicit.
-            var editResult = TestCommon.RunAICLICommand("source edit", $"SourceTest");
+            var editResult = TestCommon.RunAICLICommand("source edit", $"SourceTest --explicit false");
             Assert.AreEqual(Constants.ErrorCode.S_OK, editResult.ExitCode);
             Assert.True(editResult.StdOut.Contains("Done"));
 
             // Run it again, this should result in S_OK with no changes and a message that the source is already in that state.
-            var editResult2 = TestCommon.RunAICLICommand("source edit", $"SourceTest");
+            var editResult2 = TestCommon.RunAICLICommand("source edit", $"SourceTest --explicit false");
             Assert.AreEqual(Constants.ErrorCode.S_OK, editResult2.ExitCode);
-            Assert.True(editResult2.StdOut.Contains("The source named 'SourceTest' is already in that desired state."));
+            Assert.True(editResult2.StdOut.Contains("The source named 'SourceTest' is already in the desired state."));
 
             // Now verify it is no longer explicit by running the search again without adding the source parameter.
             var searchResult2 = TestCommon.RunAICLICommand("search", "TestExampleInstaller");

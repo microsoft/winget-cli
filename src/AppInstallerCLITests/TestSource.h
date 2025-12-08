@@ -187,7 +187,7 @@ namespace TestCommon
         using AddFunctor = std::function<void(AppInstaller::Repository::SourceDetails&)>;
         using UpdateFunctor = std::function<void(const AppInstaller::Repository::SourceDetails&)>;
         using RemoveFunctor = std::function<void(const AppInstaller::Repository::SourceDetails&)>;
-        using EditFunctor = std::function<void(const AppInstaller::Repository::SourceDetails&)>;
+        using EditFunctor = std::function<void(AppInstaller::Repository::SourceDetails&, const AppInstaller::Repository::SourceEdit& edits)>;
 
         TestSourceFactory(OpenFunctor open) : OnOpen(std::move(open)) {}
         TestSourceFactory(OpenFunctorWithCustomHeader open) : OnOpenWithCustomHeader(std::move(open)) {}
@@ -198,7 +198,7 @@ namespace TestCommon
         bool Add(AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
         bool Update(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
         bool Remove(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
-        bool Edit(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
+        bool Edit(AppInstaller::Repository::SourceDetails& details, const AppInstaller::Repository::SourceEdit& edits) override;
 
         // Make copies of self when requested.
         operator std::function<std::unique_ptr<AppInstaller::Repository::ISourceFactory>()>();
@@ -213,7 +213,7 @@ namespace TestCommon
     };
 
     bool AddSource(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback& progress);
-    bool EditSource(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback& progress);
+    bool EditSource(AppInstaller::Repository::SourceDetails& details, const AppInstaller::Repository::SourceEdit& edits);
     bool UpdateSource(std::string_view name, AppInstaller::IProgressCallback& progress);
     bool RemoveSource(std::string_view name, AppInstaller::IProgressCallback& progress);
     AppInstaller::Repository::Source OpenSource(std::string_view name, AppInstaller::IProgressCallback& progress);

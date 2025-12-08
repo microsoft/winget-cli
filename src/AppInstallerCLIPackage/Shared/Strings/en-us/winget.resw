@@ -546,7 +546,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Manage sources of packages</value>
   </data>
   <data name="SourceEditCommandLongDescription" xml:space="preserve">
-    <value>Edit properties of an existing source. A source provides the data for you to discover and install packages. Only add a new source if you trust it as a secure location.</value>
+    <value>Edit properties of an existing source. A source provides the data for you to discover and install packages.</value>
   </data>
   <data name="SourceEditCommandShortDescription" xml:space="preserve">
     <value>Edit properties of a source</value>
@@ -556,7 +556,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="{0}","{1}"} Message displayed to inform the user about a registered repository source that is currently being edited. {0} is a placeholder replaced by the repository source name. {1} is a placeholder replaced by the changed value.</comment>
   </data>
     <data name="SourceEditNoChanges" xml:space="preserve">
-    <value>The source named '{0}' is already in that desired state.</value>
+    <value>The source named '{0}' is already in the desired state.</value>
     <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being edited. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceListArg" xml:space="preserve">
@@ -2903,6 +2903,9 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="SourceExplicitArgumentDescription" xml:space="preserve">
     <value>Excludes a source from discovery unless specified</value>
+  </data>
+  <data name="SourceEditExplicitArgumentDescription" xml:space="preserve">
+    <value>Excludes a source from discovery (true or false)</value>
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
     <value>Explicit</value>

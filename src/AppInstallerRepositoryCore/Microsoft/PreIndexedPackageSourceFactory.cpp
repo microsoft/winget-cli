@@ -254,12 +254,14 @@ namespace AppInstaller::Repository::Microsoft
                 return UpdateBase(details, true, progress);
             }
 
-            bool Edit(const SourceDetails& details, IProgressCallback& progress) override final
+            // Applies the edits to the source.
+            bool Edit(SourceDetails& details, const SourceEdit& edits) override final
             {
-                UNREFERENCED_PARAMETER(details);
-                UNREFERENCED_PARAMETER(progress);
+                if (edits.Explicit.has_value())
+                {
+                    details.Explicit = edits.Explicit.value();
+                }
 
-                // Edit does not change or update the installed packages.
                 return true;
             }
 
