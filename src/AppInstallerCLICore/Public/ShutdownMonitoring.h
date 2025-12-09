@@ -71,7 +71,7 @@ namespace AppInstaller::ShutdownMonitoring
         using ShutdownCompleteCallback = void (*)();
 
         // Initializes the monitoring system and sets up a callback to be invoked when shutdown is completed.
-        static void Initialize(ShutdownCompleteCallback callback);
+        static void Initialize(ShutdownCompleteCallback callback, bool createTerminationSignalHandler = true);
 
         // "Interface" for a single component to synchronize with.
         struct ComponentSystem

@@ -33,6 +33,7 @@ namespace AppInstallerCLIE2ETests
         public const string SkipTestSourceParameter = "SkipTestSource";
         public const string ForcedExperimentalFeaturesParameter = "ForcedExperimentalFeatures";
         public const string InprocTestbedPathParameter = "InprocTestbedPath";
+        public const string InprocTestbedUseTestPackageParameter = "InprocTestbedUseTestPackage";
 
         // Test Sources
         public const string DefaultWingetSourceName = @"winget";

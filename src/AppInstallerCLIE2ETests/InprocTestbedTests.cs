@@ -75,11 +75,10 @@ namespace AppInstallerCLIE2ETests
             if (string.IsNullOrWhiteSpace(this.InprocTestbedPath))
             {
                 string assemblyLocation = Assembly.GetExecutingAssembly().Location;
-                this.InprocTestbedPath = Path.Combine(Path.GetDirectoryName(assemblyLocation), "..\\ComInprocTestbed\\ComInprocTestbed.exe");
+                this.InprocTestbedPath = Path.Join(Path.GetDirectoryName(assemblyLocation), "..\\ComInprocTestbed\\ComInprocTestbed.exe");
             }
 
-            // If we are using the test source, target a package in it
-            if (!TestSetup.Parameters.SkipTestSource)
+            if (TestSetup.Parameters.InprocTestbedUseTestPackage)
             {
                 this.TargetPackageInformation = $"-pkg {Constants.ExeInstallerPackageId} -src {Constants.TestSourceName} -url {Constants.TestSourceUrl}";
             }

@@ -31,6 +31,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             this.VerboseLogging = this.InitializeBoolParam(Constants.VerboseLoggingParameter, true);
             this.LooseFileRegistration = this.InitializeBoolParam(Constants.LooseFileRegistrationParameter);
             this.SkipTestSource = this.InitializeBoolParam(Constants.SkipTestSourceParameter, this.IsDefault);
+            this.InprocTestbedUseTestPackage = this.InitializeBoolParam(Constants.InprocTestbedUseTestPackageParameter);
 
             // For packaged context, default to AppExecutionAlias
             this.AICLIPath = this.InitializeStringParam(Constants.AICLIPathParameter, this.PackagedContext ? "WinGetDev.exe" : TestCommon.GetTestFile("winget.exe"));
@@ -135,6 +136,11 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// Gets the inproc testbed executable path.
         /// </summary>
         public string InprocTestbedPath { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether to use the test package or not.
+        /// </summary>
+        public bool InprocTestbedUseTestPackage { get; }
 
         /// <summary>
         /// Gets a value indicating whether to skip creating test source.

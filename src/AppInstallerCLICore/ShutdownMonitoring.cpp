@@ -286,9 +286,16 @@ namespace AppInstaller::ShutdownMonitoring
         }
     }
 
-    void ServerShutdownSynchronization::Initialize(ShutdownCompleteCallback callback)
+    void ServerShutdownSynchronization::Initialize(ShutdownCompleteCallback callback, bool createTerminationSignalHandler)
     {
         Instance().m_callback = callback;
+
+        // Force the creation of the TerminationSignalHandler singleton so that the process can listen for termination signals even if
+        // it never attempts to run anything that explicitly registers for cancellation callbacks.
+        if (createTerminationSignalHandler)
+        {
+            TerminationSignalHandler::Instance();
+        }
     }
 
     void ServerShutdownSynchronization::AddComponent(const ComponentSystem& component)
