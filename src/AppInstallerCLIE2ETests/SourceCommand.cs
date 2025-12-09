@@ -319,7 +319,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
             Assert.True(listResult.StdOut.Contains("true"));
 
-            var editResult = TestCommon.RunAICLICommand("source edit", "winget-font");
+            var editResult = TestCommon.RunAICLICommand("source edit", "winget-font -e false");
             Assert.AreEqual(Constants.ErrorCode.S_OK, editResult.ExitCode);
             Assert.True(editResult.StdOut.Contains("Done"));
 
