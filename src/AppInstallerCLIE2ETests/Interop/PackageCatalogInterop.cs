@@ -255,6 +255,63 @@ namespace AppInstallerCLIE2ETests.Interop
         }
 
         /// <summary>
+        /// Edit package catalog with invalid options.
+        /// </summary>
+        [Test]
+        public void EditPackageCatalogWithInvalidOptions()
+        {
+            // Edit package catalog with null options.
+            Assert.Throws<NullReferenceException>(() => this.packageManager.EditPackageCatalog(null));
+
+            // Edit package catalog with empty options.
+            Assert.Throws<ArgumentException>(() => this.packageManager.EditPackageCatalog(this.TestFactory.CreateEditPackageCatalogOptions()));
+        }
+
+        /// <summary>
+        /// Edit a package catalog that is not present.
+        /// </summary>
+        [Test]
+        public void EditNonExistingPackageCatalog()
+        {
+            EditPackageCatalogOptions editPackageCatalogOptions = this.TestFactory.CreateEditPackageCatalogOptions();
+            editPackageCatalogOptions.Name = Constants.TestSourceName;
+
+            this.EditAndValidatePackageCatalog(editPackageCatalogOptions, EditPackageCatalogStatus.InvalidOptions, Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST);
+        }
+
+        /// <summary>
+        /// Edit a package catalog that is not present.
+        /// </summary>
+        /// <returns>representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task AddEditRemovePackageCatalog()
+        {
+            // Add
+            AddPackageCatalogOptions options = this.TestFactory.CreateAddPackageCatalogOptions();
+            options.SourceUri = Constants.TestSourceUrl;
+            options.Name = Constants.TestSourceName;
+            options.TrustLevel = PackageCatalogTrustLevel.Trusted;
+
+            await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.Ok);
+
+            // Edit
+            EditPackageCatalogOptions editOptions = this.TestFactory.CreateEditPackageCatalogOptions();
+            editOptions.Name = Constants.TestSourceName;
+            editOptions.Explicit = "false";
+            this.EditAndValidatePackageCatalog(editOptions, EditPackageCatalogStatus.Ok);
+
+            // Remove
+            RemovePackageCatalogOptions removePackageCatalogOptions = this.TestFactory.CreateRemovePackageCatalogOptions();
+            removePackageCatalogOptions.Name = Constants.TestSourceName;
+            var removeCatalogResult = await this.packageManager.RemovePackageCatalogAsync(removePackageCatalogOptions);
+            Assert.IsNotNull(removeCatalogResult);
+            Assert.AreEqual(RemovePackageCatalogStatus.Ok, removeCatalogResult.Status);
+
+            var testSource = this.packageManager.GetPackageCatalogByName(Constants.TestSourceName);
+            Assert.IsNull(testSource);
+        }
+
+        /// <summary>
         /// Test class Tear down.
         /// </summary>
         [OneTimeTearDown]
@@ -323,6 +380,23 @@ namespace AppInstallerCLIE2ETests.Interop
 
             var packageCatalog = this.packageManager.GetPackageCatalogByName(removePackageCatalogOptions.Name);
             Assert.IsNull(packageCatalog);
+        }
+
+        private void EditAndValidatePackageCatalog(EditPackageCatalogOptions editPackageCatalogOptions, EditPackageCatalogStatus expectedStatus, int expectedErrorCode = 0)
+        {
+            var editCatalogResult = this.packageManager.EditPackageCatalog(editPackageCatalogOptions);
+            Assert.IsNotNull(editCatalogResult);
+            Assert.AreEqual(expectedStatus, editCatalogResult.Status);
+
+            if (expectedStatus != EditPackageCatalogStatus.Ok && expectedErrorCode != 0)
+            {
+                Assert.AreEqual(expectedErrorCode, editCatalogResult.ExtendedErrorCode.HResult);
+                return;
+            }
+
+            // Verify edits are correct.
+            var packageCatalog = this.packageManager.GetPackageCatalogByName(editPackageCatalogOptions.Name);
+            Assert.AreEqual(packageCatalog.Info.Explicit, bool.Parse(editPackageCatalogOptions.Explicit));
         }
     }
 }

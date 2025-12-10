@@ -55,5 +55,9 @@
         clsid="{1125D3A6-E2CE-479A-91D5-71A3F6F8B00B}"
         threadingModel="Both"
         description="RemovePackageCatalogOptions"/>
+    <comClass
+       clsid="{E8E12FE1-AB77-40C4-A562-E91FB51B4E82}"
+       threadingModel="Both"
+       description="EditPackageCatalogOptions"/>
   </file>
 </assembly>

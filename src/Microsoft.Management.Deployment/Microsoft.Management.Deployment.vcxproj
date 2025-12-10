@@ -169,6 +169,8 @@
     <ClInclude Include="Documentation.h" />
     <ClInclude Include="DownloadOptions.h" />
     <ClInclude Include="DownloadResult.h" />
+    <ClInclude Include="EditPackageCatalogOptions.h" />
+    <ClInclude Include="EditPackageCatalogResult.h" />
     <ClInclude Include="FindPackagesOptions.h" />
     <ClInclude Include="FindPackagesResult.h" />
     <ClInclude Include="Helpers.h" />
@@ -217,6 +219,8 @@
     <ClCompile Include="Documentation.cpp" />
     <ClCompile Include="DownloadOptions.cpp" />
     <ClCompile Include="DownloadResult.cpp" />
+    <ClCompile Include="EditPackageCatalogOptions.cpp" />
+    <ClCompile Include="EditPackageCatalogResult.cpp" />
     <ClCompile Include="FindPackagesOptions.cpp" />
     <ClCompile Include="FindPackagesResult.cpp" />
     <ClCompile Include="Helpers.cpp" />
@@ -276,4 +280,3 @@
     <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
   </Target>
 </Project>
-

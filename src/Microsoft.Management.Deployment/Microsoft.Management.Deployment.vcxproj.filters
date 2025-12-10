@@ -46,6 +46,8 @@
     <ClCompile Include="RefreshPackageCatalogResult.cpp" />
     <ClCompile Include="RemovePackageCatalogOptions.cpp" />
     <ClCompile Include="PackageCatalogProgress.cpp" />
+    <ClCompile Include="EditPackageCatalogOptions.cpp" />
+    <ClCompile Include="EditPackageCatalogResult.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
@@ -97,6 +99,8 @@
     <ClInclude Include="RefreshPackageCatalogResult.h" />
     <ClInclude Include="RemovePackageCatalogOptions.h" />
     <ClInclude Include="PackageCatalogProgress.h" />
+    <ClInclude Include="EditPackageCatalogOptions.h" />
+    <ClInclude Include="EditPackageCatalogResult.h" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="PackageManager.idl" />
