@@ -124,6 +124,7 @@ DCPPREST
 debian
 decompressor
 dedupe
+defaultlib
 DEFT
 deigh
 deleteifnotneeded
@@ -228,6 +229,7 @@ Howto
 hre
 hresults
 hwnd
+hybridcrt
 Hyperlink
 IARP
 IAttachment
@@ -568,6 +570,7 @@ UCase
 ucasemap
 UChars
 ucnv
+ucrt
 udwgp
 uec
 ULONGLONG
