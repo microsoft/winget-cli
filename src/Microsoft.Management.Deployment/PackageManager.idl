@@ -1553,7 +1553,7 @@ namespace Microsoft.Management.Deployment
         String Name;
 
         /// Editing the Explicit property has three states: true, false, and not specified (no changes).
-        /// SAMPLE VALUES: "true" or "false" or emptystring.
+        /// SAMPLE VALUES: "true" or "false" or empty string.
         String Explicit;
     };
 
