@@ -277,8 +277,20 @@ namespace AppInstaller::CLI::Workflow
         // Data shown on a line of a table displaying installed packages
         struct InstalledPackagesTableLine
         {
-            InstalledPackagesTableLine(Utility::LocIndString name, Utility::LocIndString id, Utility::LocIndString installedVersion, Utility::LocIndString availableVersion, Utility::LocIndString source)
-                : Name(name), Id(id), InstalledVersion(installedVersion), AvailableVersion(availableVersion), Source(source) {}
+            InstalledPackagesTableLine(
+                std::shared_ptr<ICompositePackage> package,
+                std::shared_ptr<IPackageVersion> installedVersion,
+                const Utility::LocIndString& availableVersion,
+                const Utility::LocIndString& source)
+                : Package(std::move(package)), InstalledPackageVersion(std::move(installedVersion)), AvailableVersion(availableVersion), Source(source)
+            {
+                Name = InstalledPackageVersion->GetProperty(PackageVersionProperty::Name);
+                Id = Package->GetProperty(PackageProperty::Id);
+                InstalledVersion = InstalledPackageVersion->GetProperty(PackageVersionProperty::Version);
+            }
+
+            std::shared_ptr<ICompositePackage> Package;
+            std::shared_ptr<IPackageVersion> InstalledPackageVersion;
 
             Utility::LocIndString Name;
             Utility::LocIndString Id;
@@ -287,7 +299,7 @@ namespace AppInstaller::CLI::Workflow
             Utility::LocIndString Source;
         };
 
-        void OutputInstalledPackagesTable(Execution::Context& context, const std::vector<InstalledPackagesTableLine>& lines)
+        void OutputInstalledPackagesTable(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
         {
             Execution::TableOutput<5> table(context.Reporter,
                 {
@@ -298,7 +310,7 @@ namespace AppInstaller::CLI::Workflow
                     Resource::String::SearchSource
                 });
 
-            for (const auto& line : lines)
+            for (auto& line : lines)
             {
                 table.OutputLine({
                     line.Name,
@@ -310,6 +322,32 @@ namespace AppInstaller::CLI::Workflow
             }
 
             table.Complete();
+        }
+
+        void OutputInstalledPackagesDetails(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
+        {
+            auto info = context.Reporter.Info();
+            size_t packageIndex = 0;
+            for (auto& line : lines)
+            {
+                // TODO: Tons of data to go through in installed package version to see what to output
+                auto metadata = line.InstalledPackageVersion->GetMetadata();
+
+                info << '(' << ++packageIndex << '/' << lines.size() << ") "_liv << line.Name << '\n'
+                    << "  "_liv << "Install Location: "_liv << metadata[PackageVersionMetadata::InstalledLocation] << std::endl;
+            }
+        }
+
+        void OutputInstalledPackages(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
+        {
+            if (context.Args.Contains(Execution::Args::Type::ListDetails))
+            {
+                OutputInstalledPackagesDetails(context, lines);
+            }
+            else
+            {
+                OutputInstalledPackagesTable(context, lines);
+            }
         }
     }
 
@@ -1037,9 +1075,8 @@ namespace AppInstaller::CLI::Workflow
                     // Add/Remove Programs entries.
                     // TODO: De-duplicate this list, and only show (by default) one entry per matched package.
                     InstalledPackagesTableLine line(
-                         installedVersion->GetProperty(PackageVersionProperty::Name),
-                         match.Package->GetProperty(PackageProperty::Id),
-                         installedVersion->GetProperty(PackageVersionProperty::Version),
+                         match.Package,
+                         installedVersion,
                          availableVersion,
                          shouldShowSource ? sourceName : Utility::LocIndString()
                     );

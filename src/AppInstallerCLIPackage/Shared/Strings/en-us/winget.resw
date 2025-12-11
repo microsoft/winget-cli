@@ -3458,4 +3458,8 @@ An unlocalized JSON fragment will follow on another line.</comment>
   <data name="APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED" xml:space="preserve">
     <value>Font package is already installed.</value>
   </data>
+  <data name="ListDetailsArgumentDescription" xml:space="preserve">
+    <value>Show detailed information about packages</value>
+    <comment>Providing this argument causes the CLI to output additional details about installed application packages.</comment>
+  </data>
 </root>

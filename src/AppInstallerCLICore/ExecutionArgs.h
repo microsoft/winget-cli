@@ -110,6 +110,7 @@ namespace AppInstaller::CLI::Execution
 
             // List Command
             Upgrade, // Used in List command to only show versions with upgrades
+            ListDetails,
 
             // Pin command
             GatedVersion, // Differs from Version in that this supports wildcards
