@@ -398,7 +398,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var packageCatalog = this.packageManager.GetPackageCatalogByName(editPackageCatalogOptions.Name);
             if (editPackageCatalogOptions.Explicit != OptionalBoolean.Unspecified)
             {
-                Assert.AreEqual(packageCatalog.Info.Explicit, editPackageCatalogOptions.Explicit);
+                Assert.AreEqual(packageCatalog.Info.Explicit, editPackageCatalogOptions.Explicit == OptionalBoolean.True);
             }
         }
     }
