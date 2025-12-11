@@ -22,11 +22,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_name = value;
     }
-    hstring EditPackageCatalogOptions::Explicit()
+    OptionalBoolean EditPackageCatalogOptions::Explicit()
     {
-        return hstring(m_explicit);
+        return m_explicit;
     }
-    void EditPackageCatalogOptions::Explicit(hstring const& value)
+    void EditPackageCatalogOptions::Explicit(OptionalBoolean const& value)
     {
         m_explicit = value;
     }

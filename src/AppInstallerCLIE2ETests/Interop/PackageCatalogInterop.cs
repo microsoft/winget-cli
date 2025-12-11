@@ -297,7 +297,7 @@ namespace AppInstallerCLIE2ETests.Interop
             // Edit
             EditPackageCatalogOptions editOptions = this.TestFactory.CreateEditPackageCatalogOptions();
             editOptions.Name = Constants.TestSourceName;
-            editOptions.Explicit = "false";
+            editOptions.Explicit = OptionalBoolean.False;
             this.EditAndValidatePackageCatalog(editOptions, EditPackageCatalogStatus.Ok);
 
             // Remove
@@ -396,7 +396,10 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Verify edits are correct.
             var packageCatalog = this.packageManager.GetPackageCatalogByName(editPackageCatalogOptions.Name);
-            Assert.AreEqual(packageCatalog.Info.Explicit, bool.Parse(editPackageCatalogOptions.Explicit));
+            if (editPackageCatalogOptions.Explicit != OptionalBoolean.Unspecified)
+            {
+                Assert.AreEqual(packageCatalog.Info.Explicit, editPackageCatalogOptions.Explicit);
+            }
         }
     }
 }

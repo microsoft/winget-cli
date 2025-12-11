@@ -14,13 +14,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         hstring Name();
         void Name(hstring const& value);
 
-        hstring Explicit();
-        void Explicit(hstring const& value);
+        OptionalBoolean Explicit();
+        void Explicit(OptionalBoolean const& value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         hstring m_name = L"";
-        hstring m_explicit = L"";
+        OptionalBoolean m_explicit = OptionalBoolean::Unspecified;
 #endif
     };
 }

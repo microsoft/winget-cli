@@ -1468,9 +1468,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             ::AppInstaller::Repository::Source sourceToEdit = ::AppInstaller::Repository::Source{ matchingSource.value().Name };
 
             auto isExplicit = matchingSource.value().Explicit;
-            if (!options.Explicit().empty())
+            if (options.Explicit() != OptionalBoolean::Unspecified)
             {
-                isExplicit = AppInstaller::Utility::ConvertStringToBool(winrt::to_string(options.Explicit()));
+                isExplicit = options.Explicit() == OptionalBoolean::True;
             }
 
             ::AppInstaller::Repository::SourceEdit edits{ std::optional<bool>{ isExplicit } };

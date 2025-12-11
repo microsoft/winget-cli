@@ -1541,9 +1541,18 @@ namespace Microsoft.Management.Deployment
         HRESULT ExtendedErrorCode { get; };
     };
 
+    /// IMPLEMENTATION NOTE: OptionalBoolean
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 28)]
+    enum OptionalBoolean
+    {
+        Unspecified,
+        False,
+        True,
+    };
+
     /// IMPLEMENTATION NOTE: EditPackageCatalogOptions
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 28)]
-        runtimeclass EditPackageCatalogOptions
+    runtimeclass EditPackageCatalogOptions
     {
         EditPackageCatalogOptions();
 
@@ -1553,13 +1562,12 @@ namespace Microsoft.Management.Deployment
         String Name;
 
         /// Editing the Explicit property has three states: true, false, and not specified (no changes).
-        /// SAMPLE VALUES: "true" or "false" or empty string.
-        String Explicit;
+        OptionalBoolean Explicit;
     };
 
     /// IMPLEMENTATION NOTE: RemovePackageCatalogStatus
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 28)]
-        enum EditPackageCatalogStatus
+    enum EditPackageCatalogStatus
     {
         Ok,
         GroupPolicyError,
@@ -1572,7 +1580,7 @@ namespace Microsoft.Management.Deployment
     /// IMPLEMENTATION NOTE: RemovePackageCatalogResult
     /// Result of editing a package catalog.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 28)]
-        runtimeclass EditPackageCatalogResult
+    runtimeclass EditPackageCatalogResult
     {
         EditPackageCatalogStatus Status { get; };
 
