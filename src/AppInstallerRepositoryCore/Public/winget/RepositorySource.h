@@ -6,6 +6,7 @@
 #include <AppInstallerProgress.h>
 #include <winget/Certificates.h>
 #include <winget/Authentication.h>
+#include <winget/SharedThreadGlobals.h>
 
 #include <chrono>
 #include <filesystem>
@@ -274,6 +275,9 @@ namespace AppInstaller::Repository
 
         // Set authentication arguments. Must be set before Open to have effect.
         void SetAuthenticationArguments(Authentication::AuthenticationArguments args);
+
+        // Set thread globals. Must be set before Open to have effect.
+        void SetThreadGlobals(const std::shared_ptr<ThreadLocalStorage::ThreadGlobals>& threadGlobals);
 
         // Set background update check interval.
         void SetBackgroundUpdateInterval(TimeSpan interval);

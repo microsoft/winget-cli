@@ -680,6 +680,14 @@ namespace AppInstaller::Repository
         }
     }
 
+    void Source::SetThreadGlobals(const std::shared_ptr<ThreadLocalStorage::ThreadGlobals>& threadGlobals)
+    {
+        for (auto& sourceReference : m_sourceReferences)
+        {
+            sourceReference->SetThreadGlobals(threadGlobals);
+        }
+    }
+
     void Source::SetBackgroundUpdateInterval(TimeSpan interval)
     {
         m_backgroundUpdateInterval = interval;

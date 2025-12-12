@@ -650,6 +650,7 @@ namespace AppInstaller::Certificates
         {
             if (chain.Validate(chainContext.get()))
             {
+                AICLI_LOG(Core, Verbose, << "Certificate `" << GetSimpleDisplayName(certContext) << "` accepted by pinning configuration:\n" << chain.GetDescription());
                 result = true;
                 break;
             }
