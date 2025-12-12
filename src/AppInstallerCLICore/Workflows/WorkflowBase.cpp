@@ -324,17 +324,54 @@ namespace AppInstaller::CLI::Workflow
             table.Complete();
         }
 
+        // Outputs every package "line" with many details, with a format similar to the `show` command.
         void OutputInstalledPackagesDetails(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
         {
             auto info = context.Reporter.Info();
             size_t packageIndex = 0;
             for (auto& line : lines)
             {
-                // TODO: Tons of data to go through in installed package version to see what to output
+                // Identity header including package count indicator if multiple lines provided
+                if (lines.size() > 1)
+                {
+                    info << '(' << ++packageIndex << '/' << lines.size() << ") "_liv;
+                }
+
+                ReportIdentity(context, {}, std::nullopt, line.Name, line.Id);
+
+                // -- Package properties --
+                // Id from Installed source data, like ARP\ProductCode
+                // Version actually provided already
+                // Channel if present
+                // Publisher
+
+                // -- Package multi-properties [when present] --
+                // PackageFamilyName,
+                // ProductCode,
+                // UpgradeCode,
+
+                // -- Source --
+                // Origin source if present
+
+                // -- Metadata --
+                // InstalledType,
+                // InstalledScope,
+                // InstalledLocation,
+                // InstalledLocale,
+                // TrackingWriteTime, ?
+                // InstalledArchitecture, 
+                // PinnedState, ?
+                // UserIntentArchitecture,
+                // UserIntentLocale,
+                // NoModify, ?
+                // NoRepair, ?
+
+                // -- Available package information --
+                // Latest available version and ID per available source
+
                 auto metadata = line.InstalledPackageVersion->GetMetadata();
 
-                info << '(' << ++packageIndex << '/' << lines.size() << ") "_liv << line.Name << '\n'
-                    << "  "_liv << "Install Location: "_liv << metadata[PackageVersionMetadata::InstalledLocation] << std::endl;
+                info << "  "_liv << "Install Location: "_liv << metadata[PackageVersionMetadata::InstalledLocation] << std::endl;
             }
         }
 
@@ -1098,7 +1135,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        OutputInstalledPackagesTable(context, lines);
+        OutputInstalledPackages(context, lines);
 
         if (lines.empty())
         {
@@ -1120,13 +1157,13 @@ namespace AppInstaller::CLI::Workflow
         if (!linesForExplicitUpgrade.empty())
         {
             context.Reporter.Info() << std::endl << Resource::String::UpgradeAvailableForPinned << std::endl;
-            OutputInstalledPackagesTable(context, linesForExplicitUpgrade);
+            OutputInstalledPackages(context, linesForExplicitUpgrade);
         }
 
         if (!linesForPins.empty())
         {
             context.Reporter.Info() << std::endl << Resource::String::UpgradeBlockedByPinCount(linesForPins.size()) << std::endl;
-            OutputInstalledPackagesTable(context, linesForPins);
+            OutputInstalledPackages(context, linesForPins);
         }
 
         if (m_onlyShowUpgrades)

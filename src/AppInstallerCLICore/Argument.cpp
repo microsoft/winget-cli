@@ -108,7 +108,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::TargetVersion:
             return { type, "version"_liv, 'v', ArgTypeCategory::SinglePackageQuery, ArgTypeExclusiveSet::AllAndTargetVersion };
 
-        //Source Command
+        // Source Command
         case Execution::Args::Type::SourceName:
             return { type, "name"_liv, 'n' };
         case Execution::Args::Type::SourceType:
@@ -122,13 +122,13 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::SourceTrustLevel:
             return { type, "trust-level"_liv };
 
-        //Hash Command
+        // Hash Command
         case Execution::Args::Type::HashFile:
             return { type, "file"_liv, 'f' };
         case Execution::Args::Type::Msix:
             return { type, "msix"_liv, 'm' };
 
-        //Validate Command
+        // Validate Command
         case Execution::Args::Type::ValidateManifest:
             return { type, "manifest"_liv };
         case Execution::Args::Type::IgnoreWarnings:
@@ -181,6 +181,8 @@ namespace AppInstaller::CLI
         // List command
         case Execution::Args::Type::Upgrade:
             return { type, "upgrade-available"_liv};
+        case Execution::Args::Type::ListDetails:
+            return { type, "details"_liv };
 
         // Pin command
         case Execution::Args::Type::GatedVersion:
