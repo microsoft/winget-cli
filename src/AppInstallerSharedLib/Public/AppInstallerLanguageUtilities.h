@@ -1,8 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <functional>
 #include <initializer_list>
 #include <map>
+#include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -208,6 +211,109 @@ namespace AppInstaller
 
         return result;
     }
+
+    // Creates a type erased wrapper to enable enumeration of arbitrary containers based on value type.
+    template <typename T>
+    struct Enumerable
+    {
+        struct IEnumerableTypeErased
+        {
+            virtual ~IEnumerableTypeErased() = default;
+
+            virtual T& Current() = 0;
+            virtual bool Next() = 0;
+            virtual bool AtEnd() = 0;
+        };
+
+        template <typename U>
+        struct EnumerableTypeErased : public IEnumerableTypeErased
+        {
+            using ItrType = decltype(std::begin(std::declval<U>()));
+
+            ItrType m_begin;
+            ItrType m_end;
+
+            EnumerableTypeErased(U&& container) :
+                m_begin(std::begin(container)),
+                m_end(std::end(container))
+            {
+            }
+
+            T& Current() override
+            {
+                THROW_HR_IF(E_BOUNDS, AtEnd());
+                return *m_begin;
+            }
+
+            bool Next() override
+            {
+                THROW_HR_IF(E_BOUNDS, AtEnd());
+                ++m_begin;
+                return !AtEnd();
+            }
+
+            bool AtEnd() override
+            {
+                return m_begin == m_end;
+            }
+        };
+
+        template <typename U, typename F>
+        struct EnumerableTypeErasedWithConversion : public IEnumerableTypeErased
+        {
+            using ItrType = decltype(std::begin(std::declval<U>()));
+
+            ItrType m_begin;
+            ItrType m_end;
+            F m_function;
+            std::optional<T> m_currentConverted;
+
+            EnumerableTypeErasedWithConversion(U&& container, F&& function) :
+                m_begin(std::begin(container)),
+                m_end(std::end(container)),
+                m_function(std::forward<F>(function))
+            {
+            }
+
+            T& Current() override
+            {
+                THROW_HR_IF(E_BOUNDS, AtEnd());
+                m_currentConverted = m_function(*m_begin);
+                return m_currentConverted.value();
+            }
+
+            bool Next() override
+            {
+                THROW_HR_IF(E_BOUNDS, AtEnd());
+                ++m_begin;
+                return !AtEnd();
+            }
+
+            bool AtEnd() override
+            {
+                return m_begin == m_end;
+            }
+        };
+
+        std::unique_ptr<IEnumerableTypeErased> m_typeErased;
+
+        template <typename U>
+        Enumerable(U&& container)
+        {
+            m_typeErased = std::make_unique<EnumerableTypeErased<U>>(std::forward<U>(container));
+        }
+
+        template <typename U, typename F>
+        Enumerable(U&& container, F&& function)
+        {
+            static_assert(std::is_same_v<T, std::remove_cv_t<decltype(std::declval<F>()(*std::begin(std::declval<U>())))>>, "The function must convert the container's value type to the desired output type.");
+            m_typeErased = std::make_unique<EnumerableTypeErasedWithConversion<U, F>>(std::forward<U>(container), std::forward<F>(function));
+        }
+
+        T& Current() { return m_typeErased->Current(); }
+        bool Next() { return m_typeErased->Next(); }
+        bool AtEnd() { return m_typeErased->AtEnd(); }
+    };
 }
 
 // Enable enums to be output generically (as their integral value).

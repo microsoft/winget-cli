@@ -11,90 +11,57 @@ using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Utility::literals;
 
-namespace {
-
-    template <typename String>
-    void ShowSingleLineField(Execution::OutputStream outputStream, AppInstaller::StringResource::StringId label, const String& value, bool indent = false)
-    {
-        if (value.empty())
-        {
-            return;
-        }
-        if (indent)
-        {
-            outputStream << "  "_liv;
-        }
-        outputStream << Execution::ManifestInfoEmphasis << label << ' ' << value << std::endl;
-    }
-
-    template <typename String>
-    void ShowMultiLineField(Execution::OutputStream outputStream, AppInstaller::StringResource::StringId label, const String& value)
-    {
-        if (value.empty())
-        {
-            return;
-        }
-        /*
-            We need to be able to find and replace within the string.However, we don't want to own the original string
-            Therefore, a copy is created here so we can manipulate it. The memory should be freed again once this method
-            returns and the string is no longer in scope.
-        */
-        std::string shownValue = value;
-        bool isMultiLine = FindAndReplace(shownValue, "\n", "\n  ");
-        outputStream << Execution::ManifestInfoEmphasis << label;
-        if (isMultiLine)
-        {
-            outputStream << std::endl << "  "_liv << shownValue << std::endl;
-        }
-        else
-        {
-            outputStream << ' ' << shownValue << std::endl;
-        }
-    }
-
-    template <typename Enumerable>
-    void ShowMultiValueField(Execution::OutputStream outputStream, AppInstaller::StringResource::StringId label, const Enumerable& values)
-    {
-        if (values.empty())
-        {
-            return;
-        }
-        outputStream << Execution::ManifestInfoEmphasis << label << std::endl;
-        for (const auto& value : values)
-        {
-            outputStream << "  "_liv << value << std::endl;
-        }
-    }
-
-    void ShowAgreements(Execution::OutputStream outputStream, const std::vector<AppInstaller::Manifest::Agreement>& agreements) {
-
-        if (agreements.empty()) {
-            return;
-        }
-
-        outputStream << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAgreements << std::endl;
-        for (const auto& agreement : agreements) {
-
-            if (!agreement.Label.empty())
-            {
-                outputStream << "  "_liv << Execution::ManifestInfoEmphasis << agreement.Label << ": "_liv;
-            }
-
-            if (!agreement.AgreementText.empty())
-            {
-                outputStream << agreement.AgreementText << std::endl;
-            }
-
-            if (!agreement.AgreementUrl.empty())
-            {
-                outputStream << agreement.AgreementUrl << std::endl;
-            }
-        }
-    }
-}
-
 namespace AppInstaller::CLI::Workflow
 {
+    namespace {
+        LocIndView GetIndentFor(size_t indentLevel)
+        {
+            static constexpr std::array<LocIndView, 4> s_indents{ ""_liv, "  "_liv, "    "_liv, "      "_liv };
+            return s_indents.at(indentLevel);
+        }
+
+        void ShowSingleLineField(Execution::OutputStream& outputStream, StringResource::StringId label, const Manifest::Manifest::string_t& value, bool indent = false)
+        {
+            Workflow::ShowSingleLineField(outputStream, label, LocIndView{ value }, indent ? 1 : 0);
+        }
+
+        void ShowMultiLineField(Execution::OutputStream& outputStream, StringResource::StringId label, const Manifest::Manifest::string_t& value)
+        {
+            Workflow::ShowMultiLineField(outputStream, label, LocIndView{ value });
+        }
+
+        void ShowMultiValueField(Execution::OutputStream& outputStream, StringResource::StringId label, const std::vector<Manifest::Manifest::string_t>& values)
+        {
+            Workflow::ShowMultiValueField(outputStream, label, Enumerable<LocIndString>{ values, [](const Manifest::Manifest::string_t& s) { return LocIndString{ s }; } });
+        }
+
+        void ShowAgreements(Execution::OutputStream& outputStream, const std::vector<Manifest::Agreement>& agreements) {
+
+            if (agreements.empty()) {
+                return;
+            }
+
+            outputStream << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAgreements << std::endl;
+            for (const auto& agreement : agreements) {
+
+                if (!agreement.Label.empty())
+                {
+                    outputStream << "  "_liv << Execution::ManifestInfoEmphasis << agreement.Label << ": "_liv;
+                }
+
+                if (!agreement.AgreementText.empty())
+                {
+                    outputStream << agreement.AgreementText << std::endl;
+                }
+
+                if (!agreement.AgreementUrl.empty())
+                {
+                    outputStream << agreement.AgreementUrl << std::endl;
+                }
+            }
+        }
+    }
+
     void ShowAgreementsInfo(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
@@ -263,5 +230,54 @@ namespace AppInstaller::CLI::Workflow
                 EnsureOneMatchFromSearchResult(OperationType::Show) <<
                 GetManifestFromPackage(m_considerPins);
         }
+    }
+
+    void ShowSingleLineField(Execution::OutputStream& outputStream, StringResource::StringId label, LocIndView value, size_t indentLevel)
+    {
+        if (value.empty())
+        {
+            return;
+        }
+
+        outputStream << GetIndentFor(indentLevel) << Execution::ManifestInfoEmphasis << label << ' ' << value << '\n';
+    }
+
+    void ShowMultiLineField(Execution::OutputStream& outputStream, StringResource::StringId label, LocIndView value, size_t indentLevel)
+    {
+        if (value.empty())
+        {
+            return;
+        }
+
+        auto lines = Split(value, '\n');
+
+        outputStream << GetIndentFor(indentLevel) << Execution::ManifestInfoEmphasis << label;
+
+        if (lines.size() > 1)
+        {
+            for (const auto& line : lines)
+            {
+                outputStream << '\n' << GetIndentFor(indentLevel + 1) << line << '\n';
+            }
+        }
+        else
+        {
+            outputStream << ' ' << value << '\n';
+        }
+    }
+
+    void ShowMultiValueField(Execution::OutputStream& outputStream, StringResource::StringId label, Enumerable<Utility::LocIndString> values, size_t indentLevel)
+    {
+        if (values.AtEnd())
+        {
+            return;
+        }
+
+        outputStream << GetIndentFor(indentLevel) << Execution::ManifestInfoEmphasis << label << '\n';
+
+        do
+        {
+            outputStream << GetIndentFor(indentLevel + 1) << values.Current() << '\n';
+        } while (values.Next());
     }
 }

@@ -339,6 +339,8 @@ namespace AppInstaller::CLI::Workflow
 
                 ReportIdentity(context, {}, std::nullopt, line.Name, line.Id);
 
+
+
                 // -- Package properties --
                 // Id from Installed source data, like ARP\ProductCode
                 // Version actually provided already

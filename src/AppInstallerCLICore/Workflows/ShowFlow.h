@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionContext.h"
+#include <AppInstallerLanguageUtilities.h>
+#include <winget/LocIndependent.h>
+#include <winget/Resources.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -48,4 +51,12 @@ namespace AppInstaller::CLI::Workflow
     private:
         bool m_considerPins;
     };
+
+    // Reusable helpers for `show` style line output
+
+    void ShowSingleLineField(Execution::OutputStream& outputStream, StringResource::StringId label, Utility::LocIndView value, size_t indentLevel = 0);
+
+    void ShowMultiLineField(Execution::OutputStream& outputStream, StringResource::StringId label, Utility::LocIndView value, size_t indentLevel = 0);
+
+    void ShowMultiValueField(Execution::OutputStream& outputStream, StringResource::StringId label, Enumerable<Utility::LocIndString> values, size_t indentLevel = 0);
 }
