@@ -254,17 +254,6 @@ namespace AppInstaller::Repository::Microsoft
                 return UpdateBase(details, true, progress);
             }
 
-            // Applies the edits to the source.
-            bool Edit(SourceDetails& details, const SourceEdit& edits) override final
-            {
-                if (edits.Explicit.has_value())
-                {
-                    details.Explicit = edits.Explicit.value();
-                }
-
-                return true;
-            }
-
             // Retrieves the currently cached version of the package.
             virtual std::optional<Msix::PackageVersion> GetCurrentVersion(const SourceDetails& details) = 0;
 

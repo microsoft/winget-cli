@@ -943,11 +943,19 @@ namespace AppInstaller::Utility
     {
         try
         {
-            bool value;
-            std::istringstream(std::string(input)) >> std::boolalpha >> value;
-            return { value };
+            if (ICUCaseInsensitiveEquals(input, "false"sv))
+            {
+                return { false };
+            }
+
+            if (ICUCaseInsensitiveEquals(input, "true"sv))
+            {
+                return { true };
+            }
+
+            return {};
         }
-        catch
+        catch (...)
         {
             return {};
         }

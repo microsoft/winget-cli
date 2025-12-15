@@ -445,11 +445,6 @@ namespace AppInstaller::Repository::Microsoft
                 // Similar to add, remove should never be needed.
                 THROW_HR(E_NOTIMPL);
             }
-
-            bool Edit(SourceDetails&, const SourceEdit&) override final
-            {
-                THROW_HR(E_NOTIMPL);
-            }
         };
     }
 

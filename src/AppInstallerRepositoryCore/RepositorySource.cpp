@@ -135,12 +135,6 @@ namespace AppInstaller::Repository
             return AddOrUpdateFromDetails(details, &ISourceFactory::Update, progress);
         }
 
-        bool EditSource(SourceDetails& details, const SourceEdit& edits)
-        {
-            auto factory = ISourceFactory::GetForType(details.Type);
-            return factory->Edit(details, edits);
-        }
-
         AddOrUpdateResult BackgroundUpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
             return AddOrUpdateFromDetails(details, &ISourceFactory::BackgroundUpdate, progress);
@@ -491,29 +485,6 @@ namespace AppInstaller::Repository
         }
 
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
-    }
-
-    Source::Source(std::string_view name, std::optional<bool> isExplicit)
-    {
-        SourceList sourceList;
-        auto source = sourceList.GetCurrentSource(name);
-        if (!source)
-        {
-            AICLI_LOG(Repo, Info, << "Named source requested, but not found: " << name);
-        }
-        else
-        {
-            AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
-
-            // This is intended to support Editing a source, and at present only the Explicit
-            // property of SourceDetails can be edited.
-            if (isExplicit.has_value())
-            {
-                source->Explicit = isExplicit.value();
-            }
-
-            m_sourceReferences.emplace_back(CreateSourceFromDetails(*source));
-        }
     }
 
     Source::Source(const std::vector<Source>& availableSources)
@@ -1020,7 +991,7 @@ namespace AppInstaller::Repository
         return result;
     }
 
-    bool Source::Edit(const SourceEdit& edits)
+    void Source::Edit(const SourceEdit& edits)
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || m_sourceReferences.size() != 1 || m_source);
 
@@ -1030,15 +1001,17 @@ namespace AppInstaller::Repository
         // This is intentionally the same policy checks as Remove. If the source cannot be removed then it cannot be edited.
         EnsureSourceIsRemovable(details);
 
-        // Apply the edits and update source list.
-        bool result = EditSource(details, edits);
-        if (result)
+        if (RequiresChanges(edits))
         {
+            if (edits.Explicit.has_value())
+            {
+                details.Explicit = edits.Explicit.value();
+            }
+
+            // Apply the edits and update source list.
             SourceList sourceList;
             sourceList.EditSource(details);
         }
-
-        return result;
     }
 
     bool Source::RequiresChanges(const SourceEdit& edits)

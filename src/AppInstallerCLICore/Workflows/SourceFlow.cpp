@@ -289,7 +289,7 @@ namespace AppInstaller::CLI::Workflow
                 isExplicit = Utility::TryConvertStringToBool(context.Args.GetArg(Execution::Args::Type::SourceEditExplicit));
             }
 
-            Repository::SourceEdit edits{ std::optional<bool>{ isExplicit } };
+            Repository::SourceEdit edits{ isExplicit };
             if (!targetSource.RequiresChanges(edits))
             {
                 context.Reporter.Info() << Resource::String::SourceEditNoChanges(Utility::LocIndView{ sd.Name }) << std::endl;
@@ -301,7 +301,7 @@ namespace AppInstaller::CLI::Workflow
 
             // Output updated source information. Since only Explicit is editable, we will only list that field. The name of the source being edited is listed prior to the edits.
             Execution::TableOutput<3> table(context.Reporter, { Resource::String::SourceListField, Resource::String::SourceEditOldValue, Resource::String::SourceEditNewValue });
-            table.OutputLine({ Resource::LocString(Resource::String::SourceListExplicit), std::string{ Utility::ConvertBoolToString(oldExplicitValue) }, std::string{ Utility::ConvertBoolToString(isExplicit) } });
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListExplicit), std::string{ Utility::ConvertBoolToString(oldExplicitValue) }, std::string{ Utility::ConvertBoolToString(isExplicit.value()) } });
             table.Complete();
         }
     }

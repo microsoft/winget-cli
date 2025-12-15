@@ -41,9 +41,6 @@ namespace AppInstaller::Repository
         // Return value indicates whether the action completed.
         virtual bool Remove(const SourceDetails& details, IProgressCallback& progress) = 0;
 
-        // Edit the given source with the provided edits.
-        virtual bool Edit(SourceDetails& details, const SourceEdit& edits) = 0;
-
         // Gets the factory for the given type.
         static std::unique_ptr<ISourceFactory> GetForType(std::string_view type);
     };

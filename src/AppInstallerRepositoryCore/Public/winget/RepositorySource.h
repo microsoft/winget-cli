@@ -233,9 +233,6 @@ namespace AppInstaller::Repository
         // Constructor for a source to be added.
         Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel, bool isExplicit);
 
-        // Constructor for a source to be edited.
-        Source(std::string_view name, std::optional<bool> isExplicit);
-
         // Constructor for creating a composite source from a list of available sources.
         Source(const std::vector<Source>& availableSources);
 
@@ -343,7 +340,7 @@ namespace AppInstaller::Repository
         bool Remove(IProgressCallback& progress);
 
         // Edit source. Source edit command.
-        bool Edit(const SourceEdit& edits);
+        void Edit(const SourceEdit& edits);
 
         // Determines if this source is a valid edit of otherSource.
         // Returns true if this source qualifies as an edit of the other source.

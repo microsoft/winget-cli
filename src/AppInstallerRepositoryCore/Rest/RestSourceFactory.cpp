@@ -134,12 +134,6 @@ namespace AppInstaller::Repository::Rest
                 THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, RestSourceFactory::Type()));
                 return true;
             }
-
-            bool Edit(SourceDetails& details, const SourceEdit&) override final
-            {
-                THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, RestSourceFactory::Type()));
-                return true;
-            }
         };
     }
 

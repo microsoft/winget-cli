@@ -154,11 +154,6 @@ namespace AppInstaller::Repository::Microsoft
             {
                 return true;
             }
-
-            bool Edit(SourceDetails&, const SourceEdit&) override final
-            {
-                return true;
-            }
         };
     }
 
