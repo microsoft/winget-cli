@@ -213,6 +213,7 @@ jobs:
       Contents: |
         AppInstallerCLIE2ETests\**
         AppInstallerCLITests\**
+        ComInprocTestbed\**
         Microsoft.Management.Configuration\**
         Microsoft.Management.Configuration.UnitTests\**
         Microsoft.Management.Configuration.OutOfProc\**

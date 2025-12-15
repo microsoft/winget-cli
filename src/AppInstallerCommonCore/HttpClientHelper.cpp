@@ -22,8 +22,14 @@ namespace AppInstaller::Http
             }
         }
 
-        void NativeHandleServerCertificateValidation(web::http::client::native_handle handle, const Certificates::PinningConfiguration& pinningConfiguration)
+        void NativeHandleServerCertificateValidation(web::http::client::native_handle handle, const Certificates::PinningConfiguration& pinningConfiguration, ThreadLocalStorage::ThreadGlobals* threadGlobals)
         {
+            decltype(threadGlobals->SetForCurrentThread()) previousThreadGlobals;
+            if (threadGlobals)
+            {
+                previousThreadGlobals = threadGlobals->SetForCurrentThread();
+            }
+
             HINTERNET requestHandle = reinterpret_cast<HINTERNET>(handle);
 
             // Get certificate and pass along to pinning config
@@ -176,11 +182,11 @@ namespace AppInstaller::Http
         RethrowAsWilException(exception);
     }
 
-    void HttpClientHelper::SetPinningConfiguration(const Certificates::PinningConfiguration& configuration)
+    void HttpClientHelper::SetPinningConfiguration(const Certificates::PinningConfiguration& configuration, std::shared_ptr<ThreadLocalStorage::ThreadGlobals> threadGlobals)
     {
-        m_clientConfig.set_nativehandle_servercertificate_validation([pinConfig = configuration](web::http::client::native_handle handle)
+        m_clientConfig.set_nativehandle_servercertificate_validation([pinConfig = configuration, globals = std::move(threadGlobals)](web::http::client::native_handle handle)
             {
-                NativeHandleServerCertificateValidation(handle, pinConfig);
+                NativeHandleServerCertificateValidation(handle, pinConfig, globals.get());
             });
     }
 

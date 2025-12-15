@@ -48,6 +48,7 @@
     <ClCompile Include="PackageCatalogProgress.cpp" />
     <ClCompile Include="EditPackageCatalogOptions.cpp" />
     <ClCompile Include="EditPackageCatalogResult.cpp" />
+    <ClCompile Include="CanUnload.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
@@ -101,6 +102,9 @@
     <ClInclude Include="PackageCatalogProgress.h" />
     <ClInclude Include="EditPackageCatalogOptions.h" />
     <ClInclude Include="EditPackageCatalogResult.h" />
+    <ClInclude Include="Public\CanUnload.h">
+      <Filter>Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="PackageManager.idl" />
@@ -114,5 +118,9 @@
     <Filter Include="Public">
       <UniqueIdentifier>{9c3907ed-84d9-4485-9b15-04c50717f0ab}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natstepfilter" />
   </ItemGroup>
 </Project>

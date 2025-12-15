@@ -194,6 +194,7 @@
     <ClInclude Include="PackageVersionId.h" />
     <ClInclude Include="PackageVersionInfo.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Public\CanUnload.h" />
     <ClInclude Include="Public\CoCreatableMicrosoftManagementDeploymentClass.h" />
     <ClInclude Include="Public\ComClsids.h" />
     <ClInclude Include="RemovePackageCatalogOptions.h" />
@@ -210,6 +211,7 @@
     <ClCompile Include="AddPackageCatalogResult.cpp" />
     <ClCompile Include="AuthenticationArguments.cpp" />
     <ClCompile Include="AuthenticationInfo.cpp" />
+    <ClCompile Include="CanUnload.cpp" />
     <ClCompile Include="CatalogPackage.cpp" />
     <ClCompile Include="CheckInstalledStatusResult.cpp" />
     <ClCompile Include="ComClsids.cpp" />

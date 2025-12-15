@@ -183,19 +183,22 @@ namespace AppInstaller::ShutdownMonitoring
     // Returns FALSE if no contexts attached; TRUE otherwise.
     BOOL TerminationSignalHandler::InformListeners(CancelReason reason, bool force)
     {
-        std::lock_guard<std::mutex> lock{ m_listenersLock };
+        BOOL result = FALSE;
 
-        if (m_listeners.empty())
         {
-            return FALSE;
+            std::lock_guard<std::mutex> lock{ m_listenersLock };
+            result = m_listeners.empty() ? FALSE : TRUE;
+
+            for (auto& listener : m_listeners)
+            {
+                listener->Cancel(reason, force);
+            }
         }
 
-        for (auto& listener : m_listeners)
-        {
-            listener->Cancel(reason, force);
-        }
+        // Notify shutdown synchronization as well
+        ServerShutdownSynchronization::Instance().Signal(reason);
 
-        return TRUE;
+        return result;
     }
 
     void TerminationSignalHandler::CreateWindowAndStartMessageLoop()
@@ -283,9 +286,16 @@ namespace AppInstaller::ShutdownMonitoring
         }
     }
 
-    void ServerShutdownSynchronization::Initialize(ShutdownCompleteCallback callback)
+    void ServerShutdownSynchronization::Initialize(ShutdownCompleteCallback callback, bool createTerminationSignalHandler)
     {
         Instance().m_callback = callback;
+
+        // Force the creation of the TerminationSignalHandler singleton so that the process can listen for termination signals even if
+        // it never attempts to run anything that explicitly registers for cancellation callbacks.
+        if (createTerminationSignalHandler)
+        {
+            TerminationSignalHandler::Instance();
+        }
     }
 
     void ServerShutdownSynchronization::AddComponent(const ComponentSystem& component)
@@ -322,8 +332,17 @@ namespace AppInstaller::ShutdownMonitoring
         instance.m_shutdownComplete.wait();
     }
 
-    void ServerShutdownSynchronization::Cancel(CancelReason reason, bool)
+    void ServerShutdownSynchronization::Signal(CancelReason reason)
     {
+        {
+            // Check for registered components before creating a thread to do nothing
+            std::lock_guard<std::mutex> lock{ m_componentsLock };
+            if (m_components.empty())
+            {
+                return;
+            }
+        }
+
         std::lock_guard<std::mutex> lock{ m_threadLock };
 
         if (!m_shutdownThread.joinable())
@@ -332,14 +351,8 @@ namespace AppInstaller::ShutdownMonitoring
         }
     }
 
-    ServerShutdownSynchronization::ServerShutdownSynchronization()
-    {
-        TerminationSignalHandler::Instance()->AddListener(this);
-    }
-
     ServerShutdownSynchronization::~ServerShutdownSynchronization()
     {
-        TerminationSignalHandler::Instance()->RemoveListener(this);
         if (m_shutdownThread.joinable())
         {
             m_shutdownThread.detach();
