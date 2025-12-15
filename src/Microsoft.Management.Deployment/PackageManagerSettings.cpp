@@ -11,6 +11,7 @@
 #pragma warning( pop )
 #include "PackageManagerSettings.g.cpp"
 #include "Helpers.h"
+#include "Public/CanUnload.h"
 #include <winget/UserSettings.h>
 #include <AppInstallerRuntime.h>
 
@@ -55,6 +56,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 }
             });
         return success;
+    }
+
+    bool PackageManagerSettings::CanUnloadPreference() const
+    {
+        return GetCanUnload();
+    }
+
+    void PackageManagerSettings::CanUnloadPreference(bool value)
+    {
+        return SetCanUnload(value);
     }
 
     CoCreatableMicrosoftManagementDeploymentClass(PackageManagerSettings);

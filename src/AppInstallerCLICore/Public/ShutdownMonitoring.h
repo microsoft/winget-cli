@@ -66,12 +66,12 @@ namespace AppInstaller::ShutdownMonitoring
     };
 
     // Coordinates shutdown across server components
-    struct ServerShutdownSynchronization : public ICancellable
+    struct ServerShutdownSynchronization
     {
         using ShutdownCompleteCallback = void (*)();
 
         // Initializes the monitoring system and sets up a callback to be invoked when shutdown is completed.
-        static void Initialize(ShutdownCompleteCallback callback);
+        static void Initialize(ShutdownCompleteCallback callback, bool createTerminationSignalHandler = true);
 
         // "Interface" for a single component to synchronize with.
         struct ComponentSystem
@@ -93,17 +93,19 @@ namespace AppInstaller::ShutdownMonitoring
         // Waits for the shutdown to complete.
         static void WaitForShutdown();
 
-        // Listens for a termination signal.
-        void Cancel(CancelReason reason, bool force) override;
-
     private:
-        ServerShutdownSynchronization();
+        ServerShutdownSynchronization() = default;
         ~ServerShutdownSynchronization();
+
+        friend TerminationSignalHandler;
 
         static ServerShutdownSynchronization& Instance();
 
         // Runs the actual shutdown process and invokes the callback.
         void SynchronizeShutdown(CancelReason reason);
+
+        // Listens for a termination signal.
+        void Signal(CancelReason reason);
 
         ShutdownCompleteCallback m_callback = nullptr;
         std::mutex m_componentsLock;

@@ -192,6 +192,7 @@
     <ClInclude Include="PackageVersionId.h" />
     <ClInclude Include="PackageVersionInfo.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Public\CanUnload.h" />
     <ClInclude Include="Public\CoCreatableMicrosoftManagementDeploymentClass.h" />
     <ClInclude Include="Public\ComClsids.h" />
     <ClInclude Include="RemovePackageCatalogOptions.h" />
@@ -208,6 +209,7 @@
     <ClCompile Include="AddPackageCatalogResult.cpp" />
     <ClCompile Include="AuthenticationArguments.cpp" />
     <ClCompile Include="AuthenticationInfo.cpp" />
+    <ClCompile Include="CanUnload.cpp" />
     <ClCompile Include="CatalogPackage.cpp" />
     <ClCompile Include="CheckInstalledStatusResult.cpp" />
     <ClCompile Include="ComClsids.cpp" />
@@ -276,4 +278,3 @@
     <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
   </Target>
 </Project>
-

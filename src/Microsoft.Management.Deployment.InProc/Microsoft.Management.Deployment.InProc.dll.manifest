@@ -11,49 +11,97 @@
         clsid="{2DDE4456-64D9-4673-8F7E-A4F19A2E6CC3}"
         threadingModel="Both"
         description="PackageManager"/>
+    <activatableClass
+        name="Microsoft.Management.Deployment.PackageManager"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1"/>
     <comClass
         clsid="{96B9A53A-9228-4DA0-B013-BB1B2031AB3D}"
         threadingModel="Both"
         description="FindPackagesOptions"/>
+    <activatableClass
+        name="Microsoft.Management.Deployment.FindPackagesOptions"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1"/>
     <comClass
         clsid="{768318A6-2EB5-400D-84D0-DF3534C30F5D}"
         threadingModel="Both"
         description="CreateCompositePackageCatalogOptions"/>
+    <activatableClass
+        name="Microsoft.Management.Deployment.CreateCompositePackageCatalogOptions"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1"/>
     <comClass
         clsid="{E2AF3BA8-8A88-4766-9DDA-AE4013ADE286}"
         threadingModel="Both"
         description="InstallOptions"/>
+    <activatableClass
+        name="Microsoft.Management.Deployment.InstallOptions"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1"/>
     <comClass
         clsid="{869CB959-EB54-425C-A1E4-1A1C291C64E9}"
         threadingModel="Both"
         description="UninstallOptions"/>
+    <activatableClass
+        name="Microsoft.Management.Deployment.UninstallOptions"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1"/>
     <comClass
         clsid="{4288DF96-FDC9-4B68-B403-193DBBF56A24}"
         threadingModel="Both"
         description="DownloadOptions"/>
+    <activatableClass
+        name="Microsoft.Management.Deployment.DownloadOptions"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1"/>
     <comClass
         clsid="{57DC8962-7343-42CD-B91C-04F6A25DB1D0}"
         threadingModel="Both"
         description="PackageMatchFilter"/>
+    <activatableClass
+        name="Microsoft.Management.Deployment.PackageMatchFilter"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1"/>
     <comClass
         clsid="{8D593114-1CF1-43B9-8722-4DBB30103296}"
         threadingModel="Both"
         description="AuthenticationArguments"/>
+    <activatableClass
+        name="Microsoft.Management.Deployment.AuthenticationArguments"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1"/>
     <comClass
         clsid="{80CF9D63-5505-4342-B9B4-BB87895CA8BB}"
         threadingModel="Both"
         description="PackageManagerSettings"/>
+    <activatableClass
+        name="Microsoft.Management.Deployment.PackageManagerSettings"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1"/>
      <comClass
          clsid="{30C024C4-852C-4DD4-9810-1348C51EF9BB}"
         threadingModel="Both"
         description="RepairOptions"/>
+    <activatableClass
+        name="Microsoft.Management.Deployment.RepairOptions"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1"/>
     <comClass
         clsid="{24E6F1FA-E4C3-4ACD-965D-DF213FD58F15}"
         threadingModel="Both"
         description="AddPackageCatalogOptions"/>
+    <activatableClass
+        name="Microsoft.Management.Deployment.AddPackageCatalogOptions"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1"/>
      <comClass
         clsid="{1125D3A6-E2CE-479A-91D5-71A3F6F8B00B}"
         threadingModel="Both"
         description="RemovePackageCatalogOptions"/>
+    <activatableClass
+        name="Microsoft.Management.Deployment.RemovePackageCatalogOptions"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1"/>
   </file>
 </assembly>
