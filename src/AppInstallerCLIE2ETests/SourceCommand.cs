@@ -289,7 +289,7 @@ namespace AppInstallerCLIE2ETests
             // Run the edit, this should be S_OK with "Done" as it changed the state to not-explicit.
             var editResult = TestCommon.RunAICLICommand("source edit", $"SourceTest --explicit false");
             Assert.AreEqual(Constants.ErrorCode.S_OK, editResult.ExitCode);
-            Assert.True(editResult.StdOut.Contains("Done"));
+            Assert.True(editResult.StdOut.Contains("Explicit"));
 
             // Run it again, this should result in S_OK with no changes and a message that the source is already in that state.
             var editResult2 = TestCommon.RunAICLICommand("source edit", $"SourceTest --explicit false");
@@ -321,7 +321,7 @@ namespace AppInstallerCLIE2ETests
 
             var editResult = TestCommon.RunAICLICommand("source edit", "winget-font -e false");
             Assert.AreEqual(Constants.ErrorCode.S_OK, editResult.ExitCode);
-            Assert.True(editResult.StdOut.Contains("Done"));
+            Assert.True(editResult.StdOut.Contains("Explicit"));
 
             // Verify that after edit it is now explicit false.
             var listResult2 = TestCommon.RunAICLICommand("source list", "winget-font");

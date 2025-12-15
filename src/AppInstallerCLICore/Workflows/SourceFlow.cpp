@@ -281,13 +281,13 @@ namespace AppInstaller::CLI::Workflow
         {
             // Get the current source with this name.
             Repository::Source targetSource{ sd.Name };
+            auto oldExplicitValue = sd.Explicit;
 
             // Default to the current explicit value unless we are overriding it.
-            auto isExplicit = sd.Explicit;
+            auto isExplicit = oldExplicitValue;
             if (context.Args.Contains(Execution::Args::Type::SourceEditExplicit))
             {
-                auto explicitArg = context.Args.GetArg(Execution::Args::Type::SourceEditExplicit);
-                isExplicit = Utility::ConvertStringToBool(explicitArg);
+                isExplicit = Utility::ConvertStringToBool(context.Args.GetArg(Execution::Args::Type::SourceEditExplicit));
             }
 
             Repository::SourceEdit edits{ std::optional<bool>{ isExplicit } };
@@ -297,9 +297,13 @@ namespace AppInstaller::CLI::Workflow
                 continue;
             }
 
-            context.Reporter.Info() << Resource::String::SourceEditOne(Utility::LocIndView{ sd.Name }, Utility::LocIndView{ Utility::ConvertBoolToString(isExplicit) }) << std::endl;
+            context.Reporter.Info() << Resource::String::SourceEditOne(Utility::LocIndView{ sd.Name }) << std::endl;
             targetSource.Edit(edits);
-            context.Reporter.Info() << Resource::String::Done << std::endl;
+
+            // Output updated source information. Since only Explicit is editable, we will only list that field. The name of the source being edited is listed prior to the edits.
+            Execution::TableOutput<3> table(context.Reporter, { Resource::String::SourceListField, Resource::String::SourceEditOldValue, Resource::String::SourceEditNewValue });
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListExplicit), std::string{ Utility::ConvertBoolToString(oldExplicitValue) }, std::string{ Utility::ConvertBoolToString(isExplicit) } });
+            table.Complete();
         }
     }
 
