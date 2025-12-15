@@ -939,11 +939,18 @@ namespace AppInstaller::Utility
         return value ? "true"sv : "false"sv;
     }
 
-    bool ConvertStringToBool(const std::string_view& input)
+    std::optional<bool> TryConvertStringToBool(const std::string_view& input)
     {
-        bool value;
-        std::istringstream(std::string(input)) >> std::boolalpha >> value;
-        return value;
+        try
+        {
+            bool value;
+            std::istringstream(std::string(input)) >> std::boolalpha >> value;
+            return { value };
+        }
+        catch
+        {
+            return {};
+        }
     }
 
     std::string ConvertGuidToString(const GUID& value)

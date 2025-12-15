@@ -344,7 +344,8 @@ namespace AppInstaller::CLI
         if (execArgs.Contains(Execution::Args::Type::SourceEditExplicit))
         {
             std::string_view explicitArg = execArgs.GetArg(Execution::Args::Type::SourceEditExplicit);
-            if (!Utility::CaseInsensitiveEquals(explicitArg, "true") && !Utility::CaseInsensitiveEquals(explicitArg, "false"))
+            auto convertedArg = Utility::TryConvertStringToBool(explicitArg);
+            if (!convertedArg.has_value())
             {
                 auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{
                     "true"_lis,

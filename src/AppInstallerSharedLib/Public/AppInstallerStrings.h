@@ -3,6 +3,7 @@
 #pragma once
 #include <filesystem>
 #include <ostream>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -291,7 +292,7 @@ namespace AppInstaller::Utility
     std::string_view ConvertBoolToString(bool value);
 
     // Converts the given string view into a bool.
-    bool ConvertStringToBool(const std::string_view& value);
+    std::optional<bool> TryConvertStringToBool(const std::string_view& value);
 
     // Converts the given GUID value to a string.
     std::string ConvertGuidToString(const GUID& value);

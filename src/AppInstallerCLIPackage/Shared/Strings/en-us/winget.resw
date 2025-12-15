@@ -3476,11 +3476,11 @@ An unlocalized JSON fragment will follow on another line.</comment>
     <value>Font package is already installed.</value>
   </data>
   <data name="SourceEditOldValue" xml:space="preserve">
-    <value>Old value</value>
+    <value>Old Value</value>
     <comment>Column title for listing edit changes.</comment>
   </data>
   <data name="SourceEditNewValue" xml:space="preserve">
-    <value>New value</value>
+    <value>New Value</value>
     <comment>Column title for listing the new value.</comment>
   </data>
 </root>

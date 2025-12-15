@@ -283,11 +283,10 @@ namespace AppInstaller::CLI::Workflow
             Repository::Source targetSource{ sd.Name };
             auto oldExplicitValue = sd.Explicit;
 
-            // Default to the current explicit value unless we are overriding it.
-            auto isExplicit = oldExplicitValue;
+            std::optional<bool> isExplicit;
             if (context.Args.Contains(Execution::Args::Type::SourceEditExplicit))
             {
-                isExplicit = Utility::ConvertStringToBool(context.Args.GetArg(Execution::Args::Type::SourceEditExplicit));
+                isExplicit = Utility::TryConvertStringToBool(context.Args.GetArg(Execution::Args::Type::SourceEditExplicit));
             }
 
             Repository::SourceEdit edits{ std::optional<bool>{ isExplicit } };
