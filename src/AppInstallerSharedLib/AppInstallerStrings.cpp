@@ -943,12 +943,12 @@ namespace AppInstaller::Utility
     {
         try
         {
-            if (ICUCaseInsensitiveEquals(input, "false"sv))
+            if (CaseInsensitiveEquals(input, "false"sv))
             {
                 return { false };
             }
 
-            if (ICUCaseInsensitiveEquals(input, "true"sv))
+            if (CaseInsensitiveEquals(input, "true"sv))
             {
                 return { true };
             }
