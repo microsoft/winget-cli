@@ -5,6 +5,7 @@
 #include "ExecutionContext.h"
 #include <winget/ManifestComparator.h>
 #include "PromptFlow.h"
+#include "ShowFlow.h"
 #include "Sixel.h"
 #include "TableOutput.h"
 #include <winget/FileCache.h>
@@ -324,56 +325,91 @@ namespace AppInstaller::CLI::Workflow
             table.Complete();
         }
 
+        void ShowMetadataField(
+            Execution::OutputStream& outputStream,
+            StringResource::StringId label,
+            const IPackageVersion::Metadata& metadata,
+            PackageVersionMetadata field)
+        {
+            auto itr = metadata.find(field);
+            if (itr != metadata.end())
+            {
+                // TODO: Maybe not loc ind?
+                ShowSingleLineField(outputStream, label, Utility::LocIndView{ itr->second });
+            }
+        }
+
         // Outputs every package "line" with many details, with a format similar to the `show` command.
         void OutputInstalledPackagesDetails(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
         {
             auto info = context.Reporter.Info();
             size_t packageIndex = 0;
-            for (auto& line : lines)
+            size_t totalLines = lines.size();
+            for (const auto& line : lines)
             {
                 // Identity header including package count indicator if multiple lines provided
-                if (lines.size() > 1)
+                if (totalLines > 1)
                 {
-                    info << '(' << ++packageIndex << '/' << lines.size() << ") "_liv;
+                    info << '(' << ++packageIndex << '/' << totalLines << ") "_liv;
                 }
 
                 ReportIdentity(context, {}, std::nullopt, line.Name, line.Id);
 
+#define TEMP_STRING(_unused_) Resource::String::SourceListName
 
+                ShowSingleLineField(info, Resource::String::ShowLabelVersion, line.InstalledVersion);
+                ShowSingleLineField(info, Resource::String::ShowChannel, line.InstalledPackageVersion->GetProperty(PackageVersionProperty::Channel));
+                ShowSingleLineField(info, Resource::String::ShowLabelPublisher, line.InstalledPackageVersion->GetProperty(PackageVersionProperty::Publisher));
+                auto localIdentifier = line.InstalledPackageVersion->GetProperty(PackageVersionProperty::Id);
+                if (line.Id != localIdentifier)
+                {
+                    ShowSingleLineField(info, TEMP_STRING(Resource::String::ShowListLocalIdentifier), localIdentifier);
+                }
 
-                // -- Package properties --
-                // Id from Installed source data, like ARP\ProductCode
-                // Version actually provided already
-                // Channel if present
-                // Publisher
-
-                // -- Package multi-properties [when present] --
-                // PackageFamilyName,
-                // ProductCode,
-                // UpgradeCode,
-
-                // -- Source --
-                // Origin source if present
-
-                // -- Metadata --
-                // InstalledType,
-                // InstalledScope,
-                // InstalledLocation,
-                // InstalledLocale,
-                // TrackingWriteTime, ?
-                // InstalledArchitecture, 
-                // PinnedState, ?
-                // UserIntentArchitecture,
-                // UserIntentLocale,
-                // NoModify, ?
-                // NoRepair, ?
-
-                // -- Available package information --
-                // Latest available version and ID per available source
+                ShowMultiValueField(info, TEMP_STRING(Resource::String::ShowListPackageFamilyName), line.InstalledPackageVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName));
+                ShowMultiValueField(info, TEMP_STRING(Resource::String::ShowListProductCode), line.InstalledPackageVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode));
+                ShowMultiValueField(info, TEMP_STRING(Resource::String::ShowListUpgradeCode), line.InstalledPackageVersion->GetMultiProperty(PackageVersionMultiProperty::UpgradeCode));
 
                 auto metadata = line.InstalledPackageVersion->GetMetadata();
 
-                info << "  "_liv << "Install Location: "_liv << metadata[PackageVersionMetadata::InstalledLocation] << std::endl;
+                ShowMetadataField(info, Resource::String::ShowLabelInstallerType, metadata, PackageVersionMetadata::InstalledType);
+                ShowMetadataField(info, TEMP_STRING(Resource::String::ShowListInstalledScope), metadata, PackageVersionMetadata::InstalledScope);
+                ShowMetadataField(info, TEMP_STRING(Resource::String::ShowListInstalledArchitecture), metadata, PackageVersionMetadata::InstalledArchitecture);
+                ShowMetadataField(info, TEMP_STRING(Resource::String::ShowListUserIntentArchitecture), metadata, PackageVersionMetadata::UserIntentArchitecture);
+                ShowMetadataField(info, Resource::String::ShowLabelInstallerLocale, metadata, PackageVersionMetadata::InstalledLocale);
+                ShowMetadataField(info, TEMP_STRING(Resource::String::ShowListUserIntentLocale), metadata, PackageVersionMetadata::UserIntentLocale);
+                ShowMetadataField(info, TEMP_STRING(Resource::String::ShowListInstalledLocation), metadata, PackageVersionMetadata::InstalledLocation);
+
+                // TODO: Check on these
+                ShowMetadataField(info, Resource::String::ShowLabelInstallerType, metadata, PackageVersionMetadata::TrackingWriteTime);
+                ShowMetadataField(info, Resource::String::ShowLabelInstallerType, metadata, PackageVersionMetadata::PinnedState);
+                ShowMetadataField(info, Resource::String::ShowLabelInstallerType, metadata, PackageVersionMetadata::NoModify);
+                ShowMetadataField(info, Resource::String::ShowLabelInstallerType, metadata, PackageVersionMetadata::NoRepair);
+
+                auto source = line.InstalledPackageVersion->GetSource();
+                if (source.ContainsAvailablePackages())
+                {
+                    ShowSingleLineField(info, TEMP_STRING(Resource::String::ShowListInstalledSource), Utility::LocIndView{ source.GetDetails().Name });
+                }
+
+                Utility::Version currentVersion{ line.InstalledVersion };
+                bool hasUpgradeVersion = false;
+                for (const auto& available : line.Package->GetAvailable())
+                {
+                    auto latestAvailable = available->GetLatestVersion();
+                    auto availableVersion = latestAvailable->GetProperty(PackageVersionProperty::Version);
+                    if (Utility::Version{ availableVersion } > currentVersion)
+                    {
+                        if (!hasUpgradeVersion)
+                        {
+                            hasUpgradeVersion = true;
+                            info << details::GetIndentFor(0) << Execution::ManifestInfoEmphasis << TEMP_STRING(Resource::String::ShowListAvailableUpgrades) << '\n';
+                        }
+
+                        info << details::GetIndentFor(1) << Utility::LocIndView{ available->GetSource().GetDetails().Name } <<
+                            " ["_liv << availableVersion << "]\n"_liv;
+                    }
+                }
             }
         }
 

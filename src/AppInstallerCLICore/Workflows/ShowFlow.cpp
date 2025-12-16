@@ -13,13 +13,8 @@ using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI::Workflow
 {
-    namespace {
-        LocIndView GetIndentFor(size_t indentLevel)
-        {
-            static constexpr std::array<LocIndView, 4> s_indents{ ""_liv, "  "_liv, "    "_liv, "      "_liv };
-            return s_indents.at(indentLevel);
-        }
-
+    namespace
+    {
         void ShowSingleLineField(Execution::OutputStream& outputStream, StringResource::StringId label, const Manifest::Manifest::string_t& value, bool indent = false)
         {
             Workflow::ShowSingleLineField(outputStream, label, LocIndView{ value }, indent ? 1 : 0);
@@ -28,11 +23,6 @@ namespace AppInstaller::CLI::Workflow
         void ShowMultiLineField(Execution::OutputStream& outputStream, StringResource::StringId label, const Manifest::Manifest::string_t& value)
         {
             Workflow::ShowMultiLineField(outputStream, label, LocIndView{ value });
-        }
-
-        void ShowMultiValueField(Execution::OutputStream& outputStream, StringResource::StringId label, const std::vector<Manifest::Manifest::string_t>& values)
-        {
-            Workflow::ShowMultiValueField(outputStream, label, Enumerable<LocIndString>{ values, [](const Manifest::Manifest::string_t& s) { return LocIndString{ s }; } });
         }
 
         void ShowAgreements(Execution::OutputStream& outputStream, const std::vector<Manifest::Agreement>& agreements) {
@@ -59,6 +49,15 @@ namespace AppInstaller::CLI::Workflow
                     outputStream << agreement.AgreementUrl << std::endl;
                 }
             }
+        }
+    }
+
+    namespace details
+    {
+        LocIndView GetIndentFor(size_t indentLevel)
+        {
+            static constexpr std::array<LocIndView, 4> s_indents{ ""_liv, "  "_liv, "    "_liv, "      "_liv };
+            return s_indents.at(indentLevel);
         }
     }
 
@@ -239,7 +238,7 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        outputStream << GetIndentFor(indentLevel) << Execution::ManifestInfoEmphasis << label << ' ' << value << '\n';
+        outputStream << details::GetIndentFor(indentLevel) << Execution::ManifestInfoEmphasis << label << ' ' << value << '\n';
     }
 
     void ShowMultiLineField(Execution::OutputStream& outputStream, StringResource::StringId label, LocIndView value, size_t indentLevel)
@@ -251,33 +250,18 @@ namespace AppInstaller::CLI::Workflow
 
         auto lines = Split(value, '\n');
 
-        outputStream << GetIndentFor(indentLevel) << Execution::ManifestInfoEmphasis << label;
+        outputStream << details::GetIndentFor(indentLevel) << Execution::ManifestInfoEmphasis << label;
 
         if (lines.size() > 1)
         {
             for (const auto& line : lines)
             {
-                outputStream << '\n' << GetIndentFor(indentLevel + 1) << line << '\n';
+                outputStream << '\n' << details::GetIndentFor(indentLevel + 1) << line << '\n';
             }
         }
         else
         {
             outputStream << ' ' << value << '\n';
         }
-    }
-
-    void ShowMultiValueField(Execution::OutputStream& outputStream, StringResource::StringId label, Enumerable<Utility::LocIndString> values, size_t indentLevel)
-    {
-        if (values.AtEnd())
-        {
-            return;
-        }
-
-        outputStream << GetIndentFor(indentLevel) << Execution::ManifestInfoEmphasis << label << '\n';
-
-        do
-        {
-            outputStream << GetIndentFor(indentLevel + 1) << values.Current() << '\n';
-        } while (values.Next());
     }
 }

@@ -53,10 +53,28 @@ namespace AppInstaller::CLI::Workflow
     };
 
     // Reusable helpers for `show` style line output
+    namespace details
+    {
+        Utility::LocIndView GetIndentFor(size_t i);
+    }
 
     void ShowSingleLineField(Execution::OutputStream& outputStream, StringResource::StringId label, Utility::LocIndView value, size_t indentLevel = 0);
 
     void ShowMultiLineField(Execution::OutputStream& outputStream, StringResource::StringId label, Utility::LocIndView value, size_t indentLevel = 0);
 
-    void ShowMultiValueField(Execution::OutputStream& outputStream, StringResource::StringId label, Enumerable<Utility::LocIndString> values, size_t indentLevel = 0);
+    template <typename Container>
+    void ShowMultiValueField(Execution::OutputStream& outputStream, StringResource::StringId label, const Container& values, size_t indentLevel = 0)
+    {
+        if (values.empty())
+        {
+            return;
+        }
+
+        outputStream << details::GetIndentFor(indentLevel) << Execution::ManifestInfoEmphasis << label << '\n';
+
+        for (const auto& value : values)
+        {
+            outputStream << details::GetIndentFor(indentLevel + 1) << value << '\n';
+        }
+    }
 }
