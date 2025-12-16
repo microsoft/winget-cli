@@ -31,6 +31,11 @@ int main(int argc, const char** argv) try
             winrt::clear_factory_cache();
         }
 
+        if (testParameters.WorkTestSleepInterval)
+        {
+            Sleep(testParameters.WorkTestSleepInterval);
+        }
+
         if (test && !test->RunIterationTest())
         {
             return 4;
