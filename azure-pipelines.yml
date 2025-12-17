@@ -121,6 +121,8 @@ jobs:
                     /p:UapAppxPackageBuildMode=SideloadOnly
                     /p:WingetCleanIntermediateFiles=true'
       maximumCpuCount: true
+    env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File
