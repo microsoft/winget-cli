@@ -98,12 +98,13 @@ namespace AppInstallerCLIE2ETests
         /// </summary>
         /// <param name="leakCOM">Control whether COM should be uninitialized at the end of the process.</param>
         /// <param name="unloadBehavior">Set the unload behavior for the test.</param>
+        /// <param name="workTestSleep">Sets the number of milliseconds to sleep between each work/test iteration.</param>
         [Test]
         [TestCase(false, UnloadBehavior.AtUninitialize)]
         [TestCase(false, UnloadBehavior.Never)]
-        [TestCase(true, UnloadBehavior.Allow)]
+        [TestCase(true, UnloadBehavior.Allow, 1000)]
         [TestCase(true, UnloadBehavior.Never)]
-        public void CLSID_Tests(bool leakCOM, UnloadBehavior unloadBehavior)
+        public void CLSID_Tests(bool leakCOM, UnloadBehavior unloadBehavior, int? workTestSleep = null)
         {
             this.RunInprocTestbed(new TestbedParameters()
             {
@@ -111,6 +112,7 @@ namespace AppInstallerCLIE2ETests
                 LeakCOM = leakCOM,
                 UnloadBehavior = unloadBehavior,
                 Iterations = 10,
+                WorkTestSleepInterval = workTestSleep,
             });
         }
 
@@ -175,6 +177,11 @@ namespace AppInstallerCLIE2ETests
                 builtParameters += $"-itr {parameters.Iterations} ";
             }
 
+            if (parameters.WorkTestSleepInterval != null)
+            {
+                builtParameters += $"-work-test-sleep {parameters.WorkTestSleepInterval} ";
+            }
+
             var result = TestCommon.RunProcess(this.InprocTestbedPath, this.TargetPackageInformation, builtParameters, null, timeout, true);
             Assert.AreEqual(0, result.ExitCode);
         }
@@ -195,6 +202,8 @@ namespace AppInstallerCLIE2ETests
             internal string Test { get; init; } = "unload_check";
 
             internal int? Iterations { get; init; } = null;
+
+            internal int? WorkTestSleepInterval { get; init; } = null;
         }
     }
 }

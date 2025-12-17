@@ -74,6 +74,7 @@ struct TestParameters
     UnloadBehavior UnloadBehavior = UnloadBehavior::Allow;
     ActivationType ActivationType = ActivationType::ClassName;
     bool SkipClearFactories = false;
+    DWORD WorkTestSleepInterval = 0;
 };
 
 // Captures a snapshot of current resource usage.

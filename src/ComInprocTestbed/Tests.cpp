@@ -246,6 +246,11 @@ TestParameters::TestParameters(int argc, const char** argv)
         {
             SkipClearFactories = true;
         }
+        else if ("-work-test-sleep"sv == argv[i])
+        {
+            ADVANCE_ARG_PARAMETER
+            WorkTestSleepInterval = atoi(argv[i]);
+        }
     }
 }
 
@@ -259,6 +264,7 @@ void TestParameters::OutputDetails() const
         "  Unload   : " << UnloadBehavior << "\n"
         "    Expect : " << std::boolalpha << UnloadExpected() << "\n"
         "  Test     : " << TestToRun << "\n"
+        "    Sleep  : " << WorkTestSleepInterval << "\n"
         "  Package  : " << PackageName << "\n"
         "  Source   : " << SourceName << "\n"
         "    URL    : " << SourceURL << "\n"
