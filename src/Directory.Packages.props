@@ -12,6 +12,8 @@
     <PackageVersion Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
     <PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageVersion Include="Microsoft.MSBuildCache.AzurePipelines" Version="0.1.327-preview" />
+    <PackageVersion Include="Microsoft.MSBuildCache.SharedCompilation" Version="0.1.327-preview" />
     <PackageVersion Include="Microsoft.Msix.Utils" Version="2.1.1" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
     <PackageVersion Include="Microsoft.PowerShell.SDK" Version="7.4.12" />

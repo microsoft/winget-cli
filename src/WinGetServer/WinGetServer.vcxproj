@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.props" Condition="Exists('..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.props')" />
   <PropertyGroup Label="Globals">
     <CppWinRTOptimized>true</CppWinRTOptimized>
     <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
@@ -169,11 +170,14 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
+    <Import Project="..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.targets" Condition="Exists('..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.targets'))" />
   </Target>
 </Project>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.props" Condition="Exists('..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.props')" />
   <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.props')" />
   <PropertyGroup Label="Globals">
     <CppWinRTOptimized>true</CppWinRTOptimized>
@@ -479,6 +480,7 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
     <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
+    <Import Project="..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.targets" Condition="Exists('..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.targets')" />
   </ImportGroup>
   <Target Name="EnsureBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -488,5 +490,11 @@
     <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorTextNuget)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorTextNuget)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
   </Target>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.MSBuildCache.AzurePipelines.0.1.327-preview\build\Microsoft.MSBuildCache.AzurePipelines.targets'))" />
+  </Target>
 </Project>
-
