@@ -52,6 +52,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             RemovePackageCatalogAsync(winrt::Microsoft::Management::Deployment::RemovePackageCatalogOptions options);
         // Contract 13.0
         winrt::hstring Version() const;
+        // Contract 28.0
+        winrt::Microsoft::Management::Deployment::EditPackageCatalogResult EditPackageCatalog(winrt::Microsoft::Management::Deployment::EditPackageCatalogOptions options);
     };
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)

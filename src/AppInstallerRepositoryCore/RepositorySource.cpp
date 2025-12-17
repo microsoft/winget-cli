@@ -432,6 +432,8 @@ namespace AppInstaller::Repository
         return CheckForWellKnownSourceMatch(sourceDetails.Name, sourceDetails.Arg, sourceDetails.Type);
     }
 
+    SourceEdit::SourceEdit(std::optional<bool> isExplicit) : Explicit(isExplicit) {}
+
     Source::Source() {}
 
     Source::Source(std::string_view name)
@@ -995,6 +997,46 @@ namespace AppInstaller::Repository
         }
 
         return result;
+    }
+
+    void Source::Edit(const SourceEdit& edits)
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || m_sourceReferences.size() != 1 || m_source);
+
+        auto& details = m_sourceReferences[0]->GetDetails();
+        AICLI_LOG(Repo, Info, << "Named source to be edited, found: " << details.Name << " [" << ToString(details.Origin) << ']');
+
+        // This is intentionally the same policy checks as Remove. If the source cannot be removed then it cannot be edited.
+        EnsureSourceIsRemovable(details);
+
+        if (RequiresChanges(edits))
+        {
+            if (edits.Explicit.has_value())
+            {
+                details.Explicit = edits.Explicit.value();
+            }
+
+            // Apply the edits and update source list.
+            SourceList sourceList;
+            sourceList.EditSource(details);
+        }
+    }
+
+    bool Source::RequiresChanges(const SourceEdit& edits)
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_sourceReferences.size() != 1);
+
+        const auto& details = m_sourceReferences[0]->GetDetails();
+
+        // For now the only supported editable difference is Explicit.
+        // If others are added, they would be checked below for changes.
+        bool isChanged = false;
+        if (edits.Explicit.has_value() && edits.Explicit.value() != details.Explicit)
+        {
+            isChanged = true;
+        }
+
+        return isChanged;
     }
 
     PackageTrackingCatalog Source::GetTrackingCatalog() const

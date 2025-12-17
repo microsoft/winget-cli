@@ -939,6 +939,28 @@ namespace AppInstaller::Utility
         return value ? "true"sv : "false"sv;
     }
 
+    std::optional<bool> TryConvertStringToBool(const std::string_view& input)
+    {
+        try
+        {
+            if (CaseInsensitiveEquals(input, "false"sv))
+            {
+                return { false };
+            }
+
+            if (CaseInsensitiveEquals(input, "true"sv))
+            {
+                return { true };
+            }
+
+            return {};
+        }
+        catch (...)
+        {
+            return {};
+        }
+    }
+
     std::string ConvertGuidToString(const GUID& value)
     {
         wchar_t buffer[40];

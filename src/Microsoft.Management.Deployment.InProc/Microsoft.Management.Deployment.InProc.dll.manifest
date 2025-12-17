@@ -103,5 +103,13 @@
         name="Microsoft.Management.Deployment.RemovePackageCatalogOptions"
         threadingModel="both"
         xmlns="urn:schemas-microsoft-com:winrt.v1"/>
+    <comClass
+       clsid="{E8E12FE1-AB77-40C4-A562-E91FB51B4E82}"
+       threadingModel="Both"
+       description="EditPackageCatalogOptions"/>
+    <activatableClass
+        name="Microsoft.Management.Deployment.EditPackageCatalogOptions"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1"/>
   </file>
 </assembly>
