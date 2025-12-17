@@ -68,6 +68,9 @@ jobs:
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
 
+  - task: NuGetAuthenticate@1
+    displayName: 'Authenticate to NuGet Feed'
+
   # Restores all projects, including native (vcxproj) projects
   - task: NuGetCommand@2
     displayName: Restore Solution
@@ -640,6 +643,9 @@ jobs:
   steps:
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
+
+  - task: NuGetAuthenticate@1
+    displayName: 'Authenticate to NuGet Feed'
 
   - task: NuGetCommand@2
     displayName: Restore Solution
