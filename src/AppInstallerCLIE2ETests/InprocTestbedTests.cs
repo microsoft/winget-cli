@@ -122,6 +122,7 @@ namespace AppInstallerCLIE2ETests
         /// <param name="freeCachedFactories">Control whether the C++/WinRT factory cache will be cleared between iterations.</param>
         /// <param name="leakCOM">Control whether COM should be uninitialized at the end of the process.</param>
         /// <param name="unloadBehavior">Set the unload behavior for the test.</param>
+        /// <param name="workTestSleep">Sets the number of milliseconds to sleep between each work/test iteration.</param>
         [Test]
         [TestCase(false, false, UnloadBehavior.AtUninitialize)]
         [TestCase(false, false, UnloadBehavior.Never)]
@@ -129,9 +130,9 @@ namespace AppInstallerCLIE2ETests
         [TestCase(false, true, UnloadBehavior.Never)]
         [TestCase(true, false, UnloadBehavior.AtUninitialize)]
         [TestCase(true, false, UnloadBehavior.Never)]
-        [TestCase(true, true, UnloadBehavior.Allow)]
+        [TestCase(true, true, UnloadBehavior.Allow, 1000)]
         [TestCase(true, true, UnloadBehavior.Never)]
-        public void TypeName_Tests(bool freeCachedFactories, bool leakCOM, UnloadBehavior unloadBehavior)
+        public void TypeName_Tests(bool freeCachedFactories, bool leakCOM, UnloadBehavior unloadBehavior, int? workTestSleep = null)
         {
             this.RunInprocTestbed(new TestbedParameters()
             {
@@ -140,6 +141,7 @@ namespace AppInstallerCLIE2ETests
                 LeakCOM = leakCOM,
                 UnloadBehavior = unloadBehavior,
                 Iterations = 10,
+                WorkTestSleepInterval = workTestSleep,
             });
         }
 
