@@ -118,7 +118,8 @@ jobs:
                     /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
-                    /p:UapAppxPackageBuildMode=SideloadOnly'
+                    /p:UapAppxPackageBuildMode=SideloadOnly
+                    /p:WingetCleanIntermediateFiles=true'
       maximumCpuCount: true
 
   - task: MSBuild@1
@@ -212,6 +213,7 @@ jobs:
       Contents: |
         AppInstallerCLIE2ETests\**
         AppInstallerCLITests\**
+        ComInprocTestbed\**
         Microsoft.Management.Configuration\**
         Microsoft.Management.Configuration.UnitTests\**
         Microsoft.Management.Configuration.OutOfProc\**
@@ -339,7 +341,7 @@ jobs:
 
   - pwsh: |
       $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-      PsExec -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
+      PsExec -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -mdmpto $(artifactsDir)\AICLI-Unpackaged-System.mdmp -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
     displayName: Run Unit Tests Unpackaged Under System Context
     workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
     condition: succeededOrFailed()
@@ -353,7 +355,7 @@ jobs:
     displayName: Run Unit Tests Packaged
     inputs:
       filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
-      arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot $(packageLayoutDir) -LogTarget $(artifactsDir)\AICLI-Packaged.log -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
+      arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot $(packageLayoutDir) -LogTarget $(artifactsDir)\AICLI-Packaged.log -MdmpTarget $(artifactsDir)\AICLI-Packaged.mdmp -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
       workingDirectory: 'src'
     condition: succeededOrFailed()
 
@@ -480,6 +482,34 @@ jobs:
 
   - powershell: Get-Process LocalhostWebServer | Stop-Process
     displayName: Stop LocalhostWebServer
+    condition: succeededOrFailed()
+    
+  - task: PowerShell@2
+    displayName: 'Copy GA WinGet Log to artifacts folder'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $source = "$env:LocalAppData\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\DiagOutputDir"
+        $destination = "$(artifactsDir)\GA_WinGet_Logs"
+        if (Test-Path $source) {
+          Copy-Item -Path $source -Destination $destination -Recurse -Force
+        } else {
+          Write-Host "WinGet logs not found at $source"
+        }
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: 'Copy Application Event Logs to Artifacts'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $source = "$env:SystemRoot\System32\winevt\Logs\Application.evtx"
+        $destination = "$(artifactsDir)\Application.evtx"
+        if (Test-Path $source) {
+          Copy-Item -Path $source -Destination $destination -Force
+        } else {
+          Write-Host "Application event log not found at $source"
+        }
     condition: succeededOrFailed()
 
   - task: PublishPipelineArtifact@1

@@ -54,13 +54,18 @@ namespace AppInstaller::Repository::Rest
                 return std::make_shared<RestSource>(m_details, m_information, std::move(restClient));
             }
 
+            void SetThreadGlobals(const std::shared_ptr<ThreadLocalStorage::ThreadGlobals>& threadGlobals) override
+            {
+                m_threadGlobals = threadGlobals;
+            }
+
         private:
             void Initialize()
             {
                 std::call_once(m_initializeFlag,
                     [&]()
                     {
-                        m_httpClientHelper.SetPinningConfiguration(m_details.CertificatePinningConfiguration);
+                        m_httpClientHelper.SetPinningConfiguration(m_details.CertificatePinningConfiguration, m_threadGlobals);
                         m_restClientInformation = RestClient::GetInformation(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper);
 
                         m_details.Identifier = m_restClientInformation.SourceIdentifier;
@@ -88,6 +93,7 @@ namespace AppInstaller::Repository::Rest
             std::string m_caller;
             Authentication::AuthenticationArguments m_authArgs;
             std::once_flag m_initializeFlag;
+            std::shared_ptr<ThreadLocalStorage::ThreadGlobals> m_threadGlobals;
         };
 
         // The base class for data that comes from a rest based source.

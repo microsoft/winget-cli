@@ -66,6 +66,17 @@ Sources:
     IsTombstone: false
 )"sv;
 
+constexpr std::string_view s_SingleSourceOverride = R"(
+Sources:
+  - Name: winget-font
+    Type: ""
+    Arg: ""
+    Data: ""
+    IsTombstone: false
+    IsOverride: true
+    Explicit: false
+)"sv;
+
 constexpr std::string_view s_SingleSourceMetadata = R"(
 Sources:
   - Name: testName
@@ -289,6 +300,40 @@ TEST_CASE("RepoSources_DefaultSourcesTombstoned", "[sources]")
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.empty());
+}
+
+
+TEST_CASE("RepoSources_DefaultSourceOverride", "[sources]")
+{
+    SetSetting(Stream::UserSources, s_EmptySources);
+
+    // Default font has explicit to true.
+    // Font is at index 2 as it is the third one added.
+    auto beforeOverride = GetSources();
+    REQUIRE(beforeOverride.size() == c_DefaultSourceCount);
+    REQUIRE(beforeOverride[2].Name == "winget-font");
+    REQUIRE(beforeOverride[2].Arg == "https://cdn.winget.microsoft.com/fonts");
+    REQUIRE(beforeOverride[2].Data == "Microsoft.Winget.Fonts.Source_8wekyb3d8bbwe");
+    REQUIRE(beforeOverride[2].Type == "Microsoft.PreIndexed.Package");
+    REQUIRE(beforeOverride[2].Origin == SourceOrigin::Default);
+    REQUIRE(beforeOverride[2].Explicit == true);
+
+    SetSetting(Stream::UserSources, s_SingleSourceOverride);
+    auto afterOverride = GetSources();
+
+    // The override will change the index value as the Default will be replaced by the override.
+    // User sources have higher priority so the override will be at index 0.
+    // We expect the same count, and the Name, Arg, Data, and Type properties to all be identical.
+    // Only the name is defined in the override setting so all others should be properly populated.
+    REQUIRE(afterOverride.size() == c_DefaultSourceCount);
+    REQUIRE(afterOverride[0].Name == beforeOverride[2].Name);
+    REQUIRE(afterOverride[0].Arg == beforeOverride[2].Arg);
+    REQUIRE(afterOverride[0].Data == beforeOverride[2].Data);
+    REQUIRE(afterOverride[0].Type == beforeOverride[2].Type);
+
+    // The only properties we expect to be different are the Origin, which is now User, and Explicit.
+    REQUIRE(afterOverride[0].Origin == SourceOrigin::User);
+    REQUIRE(afterOverride[0].Explicit == false);
 }
 
 TEST_CASE("RepoSources_SingleSource", "[sources]")

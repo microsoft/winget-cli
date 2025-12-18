@@ -545,6 +545,20 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="SourceCommandShortDescription" xml:space="preserve">
     <value>Manage sources of packages</value>
   </data>
+  <data name="SourceEditCommandLongDescription" xml:space="preserve">
+    <value>Edit properties of an existing source. A source provides the data for you to discover and install packages.</value>
+  </data>
+  <data name="SourceEditCommandShortDescription" xml:space="preserve">
+    <value>Edit properties of a source</value>
+  </data>
+  <data name="SourceEditOne" xml:space="preserve">
+    <value>Editing source: {0}</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being edited. {0} is a placeholder replaced by the repository source name.</comment>
+  </data>
+  <data name="SourceEditNoChanges" xml:space="preserve">
+    <value>The source named '{0}' is already in the desired state.</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being edited. {0} is a placeholder replaced by the repository source name.</comment>
+  </data>
   <data name="SourceListArg" xml:space="preserve">
     <value>Argument</value>
     <comment>Value given to source.</comment>
@@ -2890,6 +2904,9 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="SourceExplicitArgumentDescription" xml:space="preserve">
     <value>Excludes a source from discovery unless specified</value>
   </data>
+  <data name="SourceEditExplicitArgumentDescription" xml:space="preserve">
+    <value>Excludes a source from discovery (true or false)</value>
+  </data>
   <data name="SourceListExplicit" xml:space="preserve">
     <value>Explicit</value>
   </data>
@@ -3457,5 +3474,13 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED" xml:space="preserve">
     <value>Font package is already installed.</value>
+  </data>
+  <data name="SourceEditOldValue" xml:space="preserve">
+    <value>Old Value</value>
+    <comment>Column title for listing edit changes.</comment>
+  </data>
+  <data name="SourceEditNewValue" xml:space="preserve">
+    <value>New Value</value>
+    <comment>Column title for listing the new value.</comment>
   </data>
 </root>

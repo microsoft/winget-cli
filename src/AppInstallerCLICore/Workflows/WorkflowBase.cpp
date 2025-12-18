@@ -185,6 +185,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     source.SetCaller("winget-cli");
                     source.SetAuthenticationArguments(GetAuthenticationArguments(context));
+                    source.SetThreadGlobals(context.GetSharedThreadGlobals());
                     return source.Open(progress);
                 };
                 auto updateFailures = context.Reporter.ExecuteWithProgress(openFunction, true);

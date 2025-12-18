@@ -46,7 +46,9 @@ auxdata
 awgpm
 awgs
 azurewebsites
+bak
 Baz
+bbb
 bcp
 BEBOM
 BEFACEF
@@ -55,6 +57,7 @@ BFirst
 bigcatalog
 BITMAPINFOHEADER
 bitmask
+BKMG
 bkup
 blargle
 blockedbypolicy
@@ -74,6 +77,7 @@ buildtrees
 cancelledbyuser
 casemap
 casemappings
+ccc
 cch
 centralus
 certmgr
@@ -121,6 +125,7 @@ DCPPREST
 debian
 decompressor
 dedupe
+defaultlib
 DEFT
 deigh
 deleteifnotneeded
@@ -158,6 +163,7 @@ ERRORONEXIT
 errstr
 ESRB
 etl
+evtx
 ewgp
 ewgs
 execustom
@@ -224,6 +230,7 @@ Howto
 hre
 hresults
 hwnd
+hybridcrt
 Hyperlink
 IARP
 IAttachment
@@ -320,6 +327,7 @@ MBH
 MBs
 mday
 mdmp
+mdmpto
 MDs
 megamorf
 microsoftentraid
@@ -330,6 +338,7 @@ MINORVERSION
 missingdependency
 mkgmtime
 MMmmbbbb
+MODULEENTRY
 mof
 monicka
 MPNS
@@ -342,6 +351,7 @@ MSIXSTRM
 msstore
 MSZIP
 mszyml
+mta
 Mugiwara
 Multideclaration
 mysource
@@ -395,6 +405,7 @@ packageinusebyapplication
 PACL
 PARAMETERMAP
 pathparts
+pathtree
 Patil
 pbstr
 pcb
@@ -421,6 +432,7 @@ positionals
 posix
 postuninstall
 powershellgallery
+PPROCESS
 pri
 PRIMARYKEY
 processthreads
@@ -429,6 +441,7 @@ PRODUCTICON
 propkey
 PROPVARIANT
 proxystub
+psapi
 pscustomobject
 pseudocode
 PSHOST
@@ -468,6 +481,7 @@ rgp
 rgpsz
 rhs
 riid
+roapi
 Roblox
 ronomon
 rowid
@@ -493,6 +507,7 @@ Scm
 sddl
 secureobject
 securestring
+seekp
 seof
 servercert
 servercertificate
@@ -509,11 +524,14 @@ sid
 Sideload
 SIGNATUREHASH
 silentpreferred
+SINGLETHREADED
 Skipx
 sku
 SLAPI
 SMTO
 SNAME
+SNAPMODULE
+SNAPTHREAD
 sortof
 sourceforge
 SOURCESDIRECTORY
@@ -542,14 +560,18 @@ Tagit
 TARG
 taskhostw
 tcs
+tellp
 temppath
 testexampleinstaller
 thiscouldbeapc
+THREADENTRY
 threehundred
 timespan
 Tlg
+tlhelp
 TLSCAs
 tombstoned
+Toolhelp
 transitioning
 trimstart
 ttl
@@ -560,6 +582,7 @@ UCase
 ucasemap
 UChars
 ucnv
+ucrt
 udwgp
 uec
 ULONGLONG
@@ -602,7 +625,7 @@ website
 wesome
 wfsopen
 wgetenv
-Whatif
+whatif
 WIC
 wildcards
 WINAPI
@@ -610,6 +633,7 @@ wincodec
 windir
 windowsdeveloper
 winerror
+winevt
 wingdi
 wingetconfigroot
 wingetcreate

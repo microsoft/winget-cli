@@ -153,6 +153,16 @@ namespace TestCommon
         }
     }
 
+    TempFile TempDirectory::CreateTempFile(const std::string& baseName, const std::string& baseExt)
+    {
+        return { _filepath, baseName, baseExt };
+    }
+
+    TempFile TempDirectory::CreateTempFile(const std::string& name)
+    {
+        return { _filepath / name };
+    }
+
     std::filesystem::path TestDataFile::GetPath() const
     {
         std::filesystem::path result = s_TestDataFileBasePath;

@@ -33,6 +33,7 @@
 #include "PackageVersionId.h"
 #include "AddPackageCatalogResult.h"
 #include "RemovePackageCatalogResult.h"
+#include "EditPackageCatalogResult.h"
 #include "Converters.h"
 #include "Helpers.h"
 #include "ContextOrchestrator.h"
@@ -1436,6 +1437,48 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     winrt::hstring PackageManager::Version() const
     {
         return winrt::hstring{ AppInstaller::Utility::ConvertToUTF16(AppInstaller::Runtime::GetClientVersion()) };
+    }
+
+    winrt::Microsoft::Management::Deployment::EditPackageCatalogResult GetEditPackageCatalogResult(winrt::hresult terminationStatus)
+    {
+        winrt::Microsoft::Management::Deployment::EditPackageCatalogStatus status = GetPackageCatalogOperationStatus<EditPackageCatalogStatus>(terminationStatus);
+        auto editResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::EditPackageCatalogResult>>();
+        editResult->Initialize(status, terminationStatus);
+        return *editResult;
+    }
+
+    winrt::Microsoft::Management::Deployment::EditPackageCatalogResult PackageManager::EditPackageCatalog(winrt::Microsoft::Management::Deployment::EditPackageCatalogOptions options)
+    {
+        LogStartupIfApplicable();
+
+        // options must be set.
+        THROW_HR_IF_NULL(E_POINTER, options);
+        THROW_HR_IF(E_INVALIDARG, options.Name().empty());
+
+        HRESULT terminationHR = S_OK;
+        try {
+
+            // Check if running as admin/system.
+            // [NOTE:] For OutOfProc calls, the Windows Package Manager Service executes in the context initiated by the caller process,
+            // so the same admin/system validation check is applicable for both InProc and OutOfProc calls.
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN, !AppInstaller::Runtime::IsRunningAsAdminOrSystem());
+
+            auto matchingSource = GetMatchingSource(winrt::to_string(options.Name()));
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, !matchingSource.has_value());
+            ::AppInstaller::Repository::Source sourceToEdit = ::AppInstaller::Repository::Source{ matchingSource.value().Name };
+
+            ::AppInstaller::Repository::SourceEdit edits{ GetOptionalBoolean(options.Explicit())};
+            if (sourceToEdit.RequiresChanges(edits))
+            {
+                sourceToEdit.Edit(edits);
+            }
+        }
+        catch (...)
+        {
+            terminationHR = AppInstaller::CLI::Workflow::HandleException(nullptr, std::current_exception());
+        }
+
+        return GetEditPackageCatalogResult(terminationHR);
     }
 
     CoCreatableMicrosoftManagementDeploymentClass(PackageManager);
