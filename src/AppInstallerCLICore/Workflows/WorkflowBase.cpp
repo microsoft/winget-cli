@@ -334,7 +334,6 @@ namespace AppInstaller::CLI::Workflow
             auto itr = metadata.find(field);
             if (itr != metadata.end())
             {
-                // TODO: Maybe not loc ind?
                 ShowSingleLineField(outputStream, label, Utility::LocIndView{ itr->second });
             }
         }
@@ -355,41 +354,31 @@ namespace AppInstaller::CLI::Workflow
 
                 ReportIdentity(context, {}, std::nullopt, line.Name, line.Id);
 
-#define TEMP_STRING(_unused_) Resource::String::SourceListName
-
                 ShowSingleLineField(info, Resource::String::ShowLabelVersion, line.InstalledVersion);
-                ShowSingleLineField(info, Resource::String::ShowChannel, line.InstalledPackageVersion->GetProperty(PackageVersionProperty::Channel));
+                ShowSingleLineField(info, Resource::String::ShowLabelChannel, line.InstalledPackageVersion->GetProperty(PackageVersionProperty::Channel));
                 ShowSingleLineField(info, Resource::String::ShowLabelPublisher, line.InstalledPackageVersion->GetProperty(PackageVersionProperty::Publisher));
                 auto localIdentifier = line.InstalledPackageVersion->GetProperty(PackageVersionProperty::Id);
                 if (line.Id != localIdentifier)
                 {
-                    ShowSingleLineField(info, TEMP_STRING(Resource::String::ShowListLocalIdentifier), localIdentifier);
+                    ShowSingleLineField(info, Resource::String::ShowListLocalIdentifier, localIdentifier);
                 }
 
-                ShowMultiValueField(info, TEMP_STRING(Resource::String::ShowListPackageFamilyName), line.InstalledPackageVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName));
-                ShowMultiValueField(info, TEMP_STRING(Resource::String::ShowListProductCode), line.InstalledPackageVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode));
-                ShowMultiValueField(info, TEMP_STRING(Resource::String::ShowListUpgradeCode), line.InstalledPackageVersion->GetMultiProperty(PackageVersionMultiProperty::UpgradeCode));
+                ShowMultiValueField(info, Resource::String::ShowListPackageFamilyName, line.InstalledPackageVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName));
+                ShowMultiValueField(info, Resource::String::ShowListProductCode, line.InstalledPackageVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode));
+                ShowMultiValueField(info, Resource::String::ShowListUpgradeCode, line.InstalledPackageVersion->GetMultiProperty(PackageVersionMultiProperty::UpgradeCode));
 
                 auto metadata = line.InstalledPackageVersion->GetMetadata();
 
                 ShowMetadataField(info, Resource::String::ShowLabelInstallerType, metadata, PackageVersionMetadata::InstalledType);
-                ShowMetadataField(info, TEMP_STRING(Resource::String::ShowListInstalledScope), metadata, PackageVersionMetadata::InstalledScope);
-                ShowMetadataField(info, TEMP_STRING(Resource::String::ShowListInstalledArchitecture), metadata, PackageVersionMetadata::InstalledArchitecture);
-                ShowMetadataField(info, TEMP_STRING(Resource::String::ShowListUserIntentArchitecture), metadata, PackageVersionMetadata::UserIntentArchitecture);
-                ShowMetadataField(info, Resource::String::ShowLabelInstallerLocale, metadata, PackageVersionMetadata::InstalledLocale);
-                ShowMetadataField(info, TEMP_STRING(Resource::String::ShowListUserIntentLocale), metadata, PackageVersionMetadata::UserIntentLocale);
-                ShowMetadataField(info, TEMP_STRING(Resource::String::ShowListInstalledLocation), metadata, PackageVersionMetadata::InstalledLocation);
-
-                // TODO: Check on these
-                ShowMetadataField(info, Resource::String::ShowLabelInstallerType, metadata, PackageVersionMetadata::TrackingWriteTime);
-                ShowMetadataField(info, Resource::String::ShowLabelInstallerType, metadata, PackageVersionMetadata::PinnedState);
-                ShowMetadataField(info, Resource::String::ShowLabelInstallerType, metadata, PackageVersionMetadata::NoModify);
-                ShowMetadataField(info, Resource::String::ShowLabelInstallerType, metadata, PackageVersionMetadata::NoRepair);
+                ShowMetadataField(info, Resource::String::ShowListInstalledScope, metadata, PackageVersionMetadata::InstalledScope);
+                ShowMetadataField(info, Resource::String::ShowListInstalledArchitecture, metadata, PackageVersionMetadata::InstalledArchitecture);
+                ShowMetadataField(info, Resource::String::ShowListInstalledLocale, metadata, PackageVersionMetadata::InstalledLocale);
+                ShowMetadataField(info, Resource::String::ShowListInstalledLocation, metadata, PackageVersionMetadata::InstalledLocation);
 
                 auto source = line.InstalledPackageVersion->GetSource();
                 if (source.ContainsAvailablePackages())
                 {
-                    ShowSingleLineField(info, TEMP_STRING(Resource::String::ShowListInstalledSource), Utility::LocIndView{ source.GetDetails().Name });
+                    ShowSingleLineField(info, Resource::String::ShowListInstalledSource, Utility::LocIndView{ source.GetDetails().Name });
                 }
 
                 Utility::Version currentVersion{ line.InstalledVersion };
@@ -403,13 +392,15 @@ namespace AppInstaller::CLI::Workflow
                         if (!hasUpgradeVersion)
                         {
                             hasUpgradeVersion = true;
-                            info << details::GetIndentFor(0) << Execution::ManifestInfoEmphasis << TEMP_STRING(Resource::String::ShowListAvailableUpgrades) << '\n';
+                            info << details::GetIndentFor(0) << Execution::ManifestInfoEmphasis << Resource::String::ShowListAvailableUpgrades << '\n';
                         }
 
                         info << details::GetIndentFor(1) << Utility::LocIndView{ available->GetSource().GetDetails().Name } <<
                             " ["_liv << availableVersion << "]\n"_liv;
                     }
                 }
+
+                // FUTURE: We could also pull data from the tracking database to show some things that we store there specifically.
             }
         }
 

@@ -70,11 +70,13 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        outputStream << details::GetIndentFor(indentLevel) << Execution::ManifestInfoEmphasis << label << '\n';
+        bool isMultiItem = values.size() > 1;
+        outputStream << details::GetIndentFor(indentLevel) << Execution::ManifestInfoEmphasis << label;
+        outputStream << (isMultiItem ? '\n' : ' ');
 
         for (const auto& value : values)
         {
-            outputStream << details::GetIndentFor(indentLevel + 1) << value << '\n';
+            outputStream << details::GetIndentFor(isMultiItem ? indentLevel + 1 : 0) << value << '\n';
         }
     }
 }
