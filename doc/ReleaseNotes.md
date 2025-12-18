@@ -14,5 +14,6 @@ To use the feature, try `winget source edit winget-font` to set the Explicit sta
 <!-- Nothing yet! -->
 
 ## Bug Fixes
+* Portable Packages now use the correct directory separators regardless of which convention is used in the manifest
 * `--suppress-initial-details` now works with `winget configure test`
 * `--suppress-initial-details` no longer requires `--accept-configuration-agreements`
