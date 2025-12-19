@@ -65,6 +65,7 @@ namespace AppInstaller::CLI::Execution
             ForceSourceReset,
             SourceExplicit,
             SourceTrustLevel,
+            SourceEditExplicit,
 
             //Hash Command
             HashFile,

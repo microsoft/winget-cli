@@ -57,6 +57,7 @@ BFirst
 bigcatalog
 BITMAPINFOHEADER
 bitmask
+BKMG
 bkup
 blargle
 blockedbypolicy
@@ -124,6 +125,7 @@ DCPPREST
 debian
 decompressor
 dedupe
+defaultlib
 DEFT
 deigh
 deleteifnotneeded
@@ -228,6 +230,7 @@ Howto
 hre
 hresults
 hwnd
+hybridcrt
 Hyperlink
 IARP
 IAttachment
@@ -335,6 +338,7 @@ MINORVERSION
 missingdependency
 mkgmtime
 MMmmbbbb
+MODULEENTRY
 mof
 monicka
 MPNS
@@ -347,6 +351,7 @@ MSIXSTRM
 msstore
 MSZIP
 mszyml
+mta
 Mugiwara
 Multideclaration
 mysource
@@ -427,6 +432,7 @@ positionals
 posix
 postuninstall
 powershellgallery
+PPROCESS
 pri
 PRIMARYKEY
 processthreads
@@ -435,6 +441,7 @@ PRODUCTICON
 propkey
 PROPVARIANT
 proxystub
+psapi
 pscustomobject
 pseudocode
 PSHOST
@@ -474,6 +481,7 @@ rgp
 rgpsz
 rhs
 riid
+roapi
 Roblox
 ronomon
 rowid
@@ -516,11 +524,14 @@ sid
 Sideload
 SIGNATUREHASH
 silentpreferred
+SINGLETHREADED
 Skipx
 sku
 SLAPI
 SMTO
 SNAME
+SNAPMODULE
+SNAPTHREAD
 sortof
 sourceforge
 SOURCESDIRECTORY
@@ -553,11 +564,14 @@ tellp
 temppath
 testexampleinstaller
 thiscouldbeapc
+THREADENTRY
 threehundred
 timespan
 Tlg
+tlhelp
 TLSCAs
 tombstoned
+Toolhelp
 transitioning
 trimstart
 ttl
@@ -568,6 +582,7 @@ UCase
 ucasemap
 UChars
 ucnv
+ucrt
 udwgp
 uec
 ULONGLONG

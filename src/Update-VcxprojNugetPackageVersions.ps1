@@ -86,6 +86,12 @@ function Update-PackagesConfig {
         
         $currentVersion = $packageNode.version
         
+        # Skip if version is already the target version
+        if ($currentVersion -eq $NewVersion) {
+            Write-Verbose "Skipping $PackagesConfigPath - version is already $NewVersion"
+            return $false
+        }
+        
         if ($WhatIfMode) {
             Write-Host "WHATIF: Would update $PackagesConfigPath" -ForegroundColor Yellow
             Write-Host "  Package: $PackageName" -ForegroundColor Cyan
@@ -123,6 +129,12 @@ function Update-VcxprojFile {
     
     if (-not (Test-Path $VcxprojPath)) {
         Write-Warning ".vcxproj file not found: $VcxprojPath"
+        return $false
+    }
+    
+    # Skip if version is already the target version
+    if ($OldVersion -eq $NewVersion) {
+        Write-Verbose "Skipping $VcxprojPath - version is already $NewVersion"
         return $false
     }
     
@@ -164,7 +176,7 @@ function Update-VcxprojFile {
         $replacementCount = $originalMatches - $remainingMatches
         
         # Save the updated content
-        Set-Content $VcxprojPath -Value $updatedContent -Encoding UTF8 -ErrorAction Stop
+        Set-Content $VcxprojPath -Value $updatedContent -NoNewline -Encoding UTF8 -ErrorAction Stop
         
         Write-Host "Updated .vcxproj file: $VcxprojPath" -ForegroundColor Green
         Write-Host "  Replaced $replacementCount reference(s): $oldPattern → $newPattern" -ForegroundColor Cyan
@@ -230,7 +242,7 @@ try {
     # Group by project to avoid duplicate processing
     $projectGroups = $targetPackages | Group-Object ProjectFile
     
-    Write-Host "`nProjects to update:" -ForegroundColor Cyan
+    Write-Host "`nProjects with package:" -ForegroundColor Cyan
     foreach ($group in $projectGroups) {
         $project = $group.Group[0]  # Get the first package info for project details
         Write-Host "  $($project.ProjectName) - Version(s): $($group.Group.Version -join ', ')" -ForegroundColor White
