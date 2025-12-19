@@ -674,6 +674,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowListInstalledLocation);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowListInstalledScope);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowListInstalledSource);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowListInstallerCategory);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowListLocalIdentifier);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowListPackageFamilyName);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowListProductCode);

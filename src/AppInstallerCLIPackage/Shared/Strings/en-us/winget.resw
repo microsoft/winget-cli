@@ -3506,4 +3506,8 @@ An unlocalized JSON fragment will follow on another line.</comment>
     <value>Available Upgrades:</value>
     <comment>Precedes a list of package upgrades available for the installed package.</comment>
   </data>
+  <data name="ShowListInstallerCategory" xml:space="preserve">
+    <value>Installer Category:</value>
+    <comment>Precedes a value that indicates the category of the installer for the installed package (ex. exe, msi, msix).</comment>
+  </data>
 </root>

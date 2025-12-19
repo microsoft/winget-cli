@@ -432,14 +432,17 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         m_sourceImage = anon::CacheToBitmap(m_factory.get(), decodedFrame.get());
     }
 
-    ImageSource::ImageSource(std::istream& imageStream, Manifest::IconFileTypeEnum imageEncoding)
+    ImageSource::ImageSource(std::istream& imageStream, Manifest::IconFileTypeEnum imageEncoding) :
+        ImageSource(Utility::ReadEntireStreamAsByteArray(imageStream), imageEncoding)
+    {
+    }
+
+    ImageSource::ImageSource(const std::vector<uint8_t>& imageBytes, Manifest::IconFileTypeEnum imageEncoding)
     {
         m_factory = anon::CreateFactory();
 
         wil::com_ptr<IStream> stream;
         THROW_IF_FAILED(CreateStreamOnHGlobal(nullptr, TRUE, &stream));
-
-        auto imageBytes = Utility::ReadEntireStreamAsByteArray(imageStream);
 
         ULONG written = 0;
         THROW_IF_FAILED(stream->Write(imageBytes.data(), static_cast<ULONG>(imageBytes.size()), &written));
@@ -635,6 +638,10 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
 
     Image::Image(std::istream& imageStream, Manifest::IconFileTypeEnum imageEncoding) :
         m_imageSource(imageStream, imageEncoding)
+    {}
+
+    Image::Image(const std::vector<uint8_t>& imageBytes, Manifest::IconFileTypeEnum imageEncoding) :
+        m_imageSource(imageBytes, imageEncoding)
     {}
 
     Image& Image::AspectRatio(Sixel::AspectRatio aspectRatio)
