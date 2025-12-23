@@ -34,7 +34,7 @@ namespace Microsoft.WinGet.Client.Commands
             }
             else
             {
-                command.Assert(this.Version);
+                command.Assert(this.Version, this.IncludePrerelease.ToBool());
             }
         }
     }
