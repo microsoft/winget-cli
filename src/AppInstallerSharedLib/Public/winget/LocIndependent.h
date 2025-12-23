@@ -40,6 +40,7 @@ namespace AppInstaller::Utility
 
         operator const std::string& () const { return m_value; }
         operator std::string_view() const { return m_value; }
+        operator LocIndView() const { return LocIndView{ static_cast<std::string_view>(m_value) }; }
 
         const std::string* operator->() const { return &m_value; }
 

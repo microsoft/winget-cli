@@ -5,6 +5,7 @@
 #include "ExecutionContext.h"
 #include <winget/ManifestComparator.h>
 #include "PromptFlow.h"
+#include "ShowFlow.h"
 #include "Sixel.h"
 #include "TableOutput.h"
 #include <winget/FileCache.h>
@@ -15,6 +16,7 @@
 #include <AppInstallerSHA256.h>
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
+#include <winget/IconExtraction.h>
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
@@ -69,10 +71,7 @@ namespace AppInstaller::CLI::Workflow
             out << std::endl;
         }
 
-        // Determines icon fit given two options.
-        // Targets an 80x80 icon as the best resolution for this use case.
-        // TODO: Consider theme based on current background color.
-        bool IsSecondIconBetter(const Manifest::Icon& current, const Manifest::Icon& alternative)
+        bool IsSecondIconResolutionBetter(Manifest::IconResolutionEnum current, Manifest::IconResolutionEnum alternative)
         {
             static constexpr std::array<uint8_t, ToIntegral(Manifest::IconResolutionEnum::Square256) + 1> s_iconResolutionOrder
             {
@@ -94,7 +93,33 @@ namespace AppInstaller::CLI::Workflow
                 7, // Square256
             };
 
-            return s_iconResolutionOrder.at(ToIntegral(alternative.Resolution)) < s_iconResolutionOrder.at(ToIntegral(current.Resolution));
+            return s_iconResolutionOrder.at(ToIntegral(alternative)) < s_iconResolutionOrder.at(ToIntegral(current));
+        }
+
+        // Determines icon fit given two options.
+        // Targets an 80x80 icon as the best resolution for this use case.
+        // TODO: Consider theme based on current background color.
+        bool IsSecondIconBetter(const Manifest::Icon& current, const Manifest::Icon& alternative)
+        {
+            return IsSecondIconResolutionBetter(current.Resolution, alternative.Resolution);
+        }
+
+        bool IsSecondIconBetter(const ExtractedIconInfo& current, const ExtractedIconInfo& alternative)
+        {
+            return IsSecondIconResolutionBetter(current.IconResolution, alternative.IconResolution);
+        }
+
+        void ShowIcon(Execution::OutputStream& outputStream, VirtualTerminal::Sixel::Image& icon)
+        {
+            // Using a height of 4 arbitrarily; allow width up to the entire console.
+            UINT imageHeightCells = 4;
+            UINT imageWidthCells = static_cast<UINT>(Execution::GetConsoleWidth());
+
+            icon.RenderSizeInCells(imageWidthCells, imageHeightCells);
+            icon.RenderTo(outputStream);
+
+            // Force the final sixel line to not be overwritten
+            outputStream << std::endl;
         }
 
         void ShowManifestIcon(Execution::Context& context, const Manifest::Manifest& manifest) try
@@ -126,17 +151,31 @@ namespace AppInstaller::CLI::Workflow
             auto iconStream = fileCache.GetFile(splitUri.second, bestFitIcon->Sha256);
 
             VirtualTerminal::Sixel::Image sixelIcon{ *iconStream, bestFitIcon->FileType };
-
-            // Using a height of 4 arbitrarily; allow width up to the entire console.
-            UINT imageHeightCells = 4;
-            UINT imageWidthCells = static_cast<UINT>(Execution::GetConsoleWidth());
-
-            sixelIcon.RenderSizeInCells(imageWidthCells, imageHeightCells);
             auto infoOut = context.Reporter.Info();
-            sixelIcon.RenderTo(infoOut);
 
-            // Force the final sixel line to not be overwritten
-            infoOut << std::endl;
+            ShowIcon(infoOut, sixelIcon);
+        }
+        CATCH_LOG();
+
+        void ShowExtractedIcon(Execution::OutputStream& outputStream, const std::vector<ExtractedIconInfo>& icons) try
+        {
+            const ExtractedIconInfo* bestFitIcon = nullptr;
+
+            for (const auto& icon : icons)
+            {
+                if (!bestFitIcon || IsSecondIconBetter(*bestFitIcon, icon))
+                {
+                    bestFitIcon = &icon;
+                }
+            }
+
+            if (!bestFitIcon)
+            {
+                return;
+            }
+
+            VirtualTerminal::Sixel::Image sixelIcon{ bestFitIcon->IconContent, bestFitIcon->IconFileType };
+            ShowIcon(outputStream, sixelIcon);
         }
         CATCH_LOG();
 
@@ -278,8 +317,20 @@ namespace AppInstaller::CLI::Workflow
         // Data shown on a line of a table displaying installed packages
         struct InstalledPackagesTableLine
         {
-            InstalledPackagesTableLine(Utility::LocIndString name, Utility::LocIndString id, Utility::LocIndString installedVersion, Utility::LocIndString availableVersion, Utility::LocIndString source)
-                : Name(name), Id(id), InstalledVersion(installedVersion), AvailableVersion(availableVersion), Source(source) {}
+            InstalledPackagesTableLine(
+                std::shared_ptr<ICompositePackage> package,
+                std::shared_ptr<IPackageVersion> installedVersion,
+                const Utility::LocIndString& availableVersion,
+                const Utility::LocIndString& source)
+                : Package(std::move(package)), InstalledPackageVersion(std::move(installedVersion)), AvailableVersion(availableVersion), Source(source)
+            {
+                Name = InstalledPackageVersion->GetProperty(PackageVersionProperty::Name);
+                Id = Package->GetProperty(PackageProperty::Id);
+                InstalledVersion = InstalledPackageVersion->GetProperty(PackageVersionProperty::Version);
+            }
+
+            std::shared_ptr<ICompositePackage> Package;
+            std::shared_ptr<IPackageVersion> InstalledPackageVersion;
 
             Utility::LocIndString Name;
             Utility::LocIndString Id;
@@ -288,7 +339,7 @@ namespace AppInstaller::CLI::Workflow
             Utility::LocIndString Source;
         };
 
-        void OutputInstalledPackagesTable(Execution::Context& context, const std::vector<InstalledPackagesTableLine>& lines)
+        void OutputInstalledPackagesTable(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
         {
             Execution::TableOutput<5> table(context.Reporter,
                 {
@@ -299,7 +350,7 @@ namespace AppInstaller::CLI::Workflow
                     Resource::String::SearchSource
                 });
 
-            for (const auto& line : lines)
+            for (auto& line : lines)
             {
                 table.OutputLine({
                     line.Name,
@@ -311,6 +362,113 @@ namespace AppInstaller::CLI::Workflow
             }
 
             table.Complete();
+        }
+
+        void ShowMetadataField(
+            Execution::OutputStream& outputStream,
+            StringResource::StringId label,
+            const IPackageVersion::Metadata& metadata,
+            PackageVersionMetadata field)
+        {
+            auto itr = metadata.find(field);
+            if (itr != metadata.end())
+            {
+                ShowSingleLineField(outputStream, label, Utility::LocIndView{ itr->second });
+            }
+        }
+
+        // Outputs every package "line" with many details, with a format similar to the `show` command.
+        void OutputInstalledPackagesDetails(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
+        {
+            auto info = context.Reporter.Info();
+            size_t packageIndex = 0;
+            size_t totalLines = lines.size();
+            bool shouldGetIcon = context.Reporter.SixelsEnabled();
+            for (const auto& line : lines)
+            {
+                // Identity header including package count indicator if multiple lines provided
+                if (totalLines > 1)
+                {
+                    info << '(' << ++packageIndex << '/' << totalLines << ") "_liv;
+                }
+
+                ReportIdentity(context, {}, std::nullopt, line.Name, line.Id);
+
+                auto metadata = line.InstalledPackageVersion->GetMetadata();
+                auto productCodes = line.InstalledPackageVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
+
+                if (shouldGetIcon && !productCodes.empty())
+                {
+                    Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown;
+
+                    auto itr = metadata.find(PackageVersionMetadata::InstalledScope);
+                    if (itr != metadata.end())
+                    {
+                        scope = Manifest::ConvertToScopeEnum(itr->second);
+                    }
+
+                    auto icons = ExtractIconFromArpEntry(productCodes[0], scope);
+                    ShowExtractedIcon(info, icons);
+                }
+
+                ShowSingleLineField(info, Resource::String::ShowLabelVersion, line.InstalledVersion);
+                ShowSingleLineField(info, Resource::String::ShowLabelChannel, line.InstalledPackageVersion->GetProperty(PackageVersionProperty::Channel));
+                ShowSingleLineField(info, Resource::String::ShowLabelPublisher, line.InstalledPackageVersion->GetProperty(PackageVersionProperty::Publisher));
+                auto localIdentifier = line.InstalledPackageVersion->GetProperty(PackageVersionProperty::Id);
+                if (line.Id != localIdentifier)
+                {
+                    ShowSingleLineField(info, Resource::String::ShowListLocalIdentifier, localIdentifier);
+                }
+
+                ShowMultiValueField(info, Resource::String::ShowListPackageFamilyName, line.InstalledPackageVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName));
+                ShowMultiValueField(info, Resource::String::ShowListProductCode, productCodes);
+                ShowMultiValueField(info, Resource::String::ShowListUpgradeCode, line.InstalledPackageVersion->GetMultiProperty(PackageVersionMultiProperty::UpgradeCode));
+
+                ShowMetadataField(info, Resource::String::ShowListInstallerCategory, metadata, PackageVersionMetadata::InstalledType);
+                ShowMetadataField(info, Resource::String::ShowListInstalledScope, metadata, PackageVersionMetadata::InstalledScope);
+                ShowMetadataField(info, Resource::String::ShowListInstalledArchitecture, metadata, PackageVersionMetadata::InstalledArchitecture);
+                ShowMetadataField(info, Resource::String::ShowListInstalledLocale, metadata, PackageVersionMetadata::InstalledLocale);
+                ShowMetadataField(info, Resource::String::ShowListInstalledLocation, metadata, PackageVersionMetadata::InstalledLocation);
+
+                auto source = line.InstalledPackageVersion->GetSource();
+                if (source.ContainsAvailablePackages())
+                {
+                    ShowSingleLineField(info, Resource::String::ShowListInstalledSource, Utility::LocIndView{ source.GetDetails().Name });
+                }
+
+                Utility::Version currentVersion{ line.InstalledVersion };
+                bool hasUpgradeVersion = false;
+                for (const auto& available : line.Package->GetAvailable())
+                {
+                    auto latestAvailable = available->GetLatestVersion();
+                    auto availableVersion = latestAvailable->GetProperty(PackageVersionProperty::Version);
+                    if (Utility::Version{ availableVersion } > currentVersion)
+                    {
+                        if (!hasUpgradeVersion)
+                        {
+                            hasUpgradeVersion = true;
+                            info << details::GetIndentFor(0) << Execution::ManifestInfoEmphasis << Resource::String::ShowListAvailableUpgrades << '\n';
+                        }
+
+                        info << details::GetIndentFor(1) << Utility::LocIndView{ available->GetSource().GetDetails().Name } <<
+                            " ["_liv << availableVersion << "]\n"_liv;
+                    }
+                }
+
+                // FUTURE: We could also pull data from the tracking database to show some things that we store there specifically.
+            }
+        }
+
+        void OutputInstalledPackages(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
+        {
+            if (context.Args.Contains(Execution::Args::Type::ListDetails))
+            {
+                OutputInstalledPackagesDetails(context, lines);
+            }
+            else
+            {
+                OutputInstalledPackagesTable(context, lines);
+            }
         }
     }
 
@@ -1038,9 +1196,8 @@ namespace AppInstaller::CLI::Workflow
                     // Add/Remove Programs entries.
                     // TODO: De-duplicate this list, and only show (by default) one entry per matched package.
                     InstalledPackagesTableLine line(
-                         installedVersion->GetProperty(PackageVersionProperty::Name),
-                         match.Package->GetProperty(PackageProperty::Id),
-                         installedVersion->GetProperty(PackageVersionProperty::Version),
+                         match.Package,
+                         installedVersion,
                          availableVersion,
                          shouldShowSource ? sourceName : Utility::LocIndString()
                     );
@@ -1062,7 +1219,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        OutputInstalledPackagesTable(context, lines);
+        OutputInstalledPackages(context, lines);
 
         if (lines.empty())
         {
@@ -1084,13 +1241,13 @@ namespace AppInstaller::CLI::Workflow
         if (!linesForExplicitUpgrade.empty())
         {
             context.Reporter.Info() << std::endl << Resource::String::UpgradeAvailableForPinned << std::endl;
-            OutputInstalledPackagesTable(context, linesForExplicitUpgrade);
+            OutputInstalledPackages(context, linesForExplicitUpgrade);
         }
 
         if (!linesForPins.empty())
         {
             context.Reporter.Info() << std::endl << Resource::String::UpgradeBlockedByPinCount(linesForPins.size()) << std::endl;
-            OutputInstalledPackagesTable(context, linesForPins);
+            OutputInstalledPackages(context, linesForPins);
         }
 
         if (m_onlyShowUpgrades)

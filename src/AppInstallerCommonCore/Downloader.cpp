@@ -649,7 +649,7 @@ namespace AppInstaller::Utility
             }
             else if (StartsWith(lowerDirective, s_MaxAge))
             {
-                std::vector<std::wstring_view> parts = Utility::Split(lowerDirective, L'=', true);
+                std::vector<std::wstring_view> parts = Utility::SplitView(lowerDirective, L'=', true);
                 if (parts.size() == 2)
                 {
                     try

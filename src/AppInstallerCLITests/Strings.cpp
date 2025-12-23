@@ -6,6 +6,7 @@
 #include <AppInstallerSHA256.h>
 #include <ExecutionReporter.h>
 
+using namespace std::string_literals;
 using namespace std::string_view_literals;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Utility::literals;
@@ -118,8 +119,8 @@ TEST_CASE("Trim", "[strings]")
     REQUIRE(Trim(str.assign("         Multiple words")) == "Multiple words");
     REQUIRE(Trim(str.assign("Much after is taken \f\n\r\t\v\v\t\r\n\f ")) == "Much after is taken");
 
-    REQUIRE(Trim(L" Test") == L"Test");
-    REQUIRE(Trim(L"   ") == L"");
+    REQUIRE(Trim(L" Test"sv) == L"Test");
+    REQUIRE(Trim(L"   "sv) == L"");
 }
 
 TEST_CASE("CaseInsensitiveStartsWith", "[strings]")
@@ -280,38 +281,38 @@ TEST_CASE("SplitIntoLines", "[strings]")
 
 TEST_CASE("SplitWithSeparator", "[strings]")
 {
-    std::vector<std::string> test1 = Split("first;second;third", ';');
+    std::vector<std::string> test1 = Split("first;second;third"s, ';');
     REQUIRE(test1.size() == 3);
     REQUIRE(test1[0] == "first");
     REQUIRE(test1[1] == "second");
     REQUIRE(test1[2] == "third");
 
-    std::vector<std::string> test2 = Split("two  spaces", ' ');
+    std::vector<std::string> test2 = Split("two  spaces"s, ' ');
     REQUIRE(test2.size() == 3);
     REQUIRE(test2[0] == "two");
     REQUIRE(test2[1] == "");
     REQUIRE(test2[2] == "spaces");
 
-    std::vector<std::string> test3 = Split("test", '.');
+    std::vector<std::string> test3 = Split("test"s, '.');
     REQUIRE(test3.size() == 1);
     REQUIRE(test3[0] == "test");
 
-    std::vector<std::string> test4 = Split(" trim |    spaces ", '|', true);
+    std::vector<std::string> test4 = Split(" trim |    spaces "s, '|', true);
     REQUIRE(test4.size() == 2);
     REQUIRE(test4[0] == "trim");
     REQUIRE(test4[1] == "spaces");
 
-    std::vector<std::wstring_view> test5 = Split(L" trim /spaces /  ", '/', true);
+    std::vector<std::wstring_view> test5 = Split(L" trim /spaces /  "sv, '/', true);
     REQUIRE(test5.size() == 3);
     REQUIRE(test5[0] == L"trim");
     REQUIRE(test5[1] == L"spaces");
     REQUIRE(test5[2] == L"");
 
-    std::vector<std::wstring_view> test6 = Split(L" ", '/', true);
+    std::vector<std::wstring_view> test6 = Split(L" "sv, '/', true);
     REQUIRE(test6.size() == 1);
     REQUIRE(test6[0] == L"");
 
-    std::vector<std::string> test7 = Split("", ';');
+    std::vector<std::string> test7 = Split(""s, ';');
     REQUIRE(test7.size() == 1);
     REQUIRE(test7[0] == "");
 }

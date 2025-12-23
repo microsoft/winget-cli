@@ -177,12 +177,15 @@ namespace AppInstaller::Utility
 
     // Removes whitespace from the beginning and end of the string.
     std::string& Trim(std::string& str);
+    std::string Trim(const std::string& str);
     std::string Trim(std::string&& str);
+    std::string_view& Trim(std::string_view& str);
+    std::string_view Trim(std::string_view&& str);
 
     // Removes whitespace from the beginning and end of the string.
     std::wstring& Trim(std::wstring& str);
-
-    // Removes whitespace from the beginning and end of the string.
+    std::wstring Trim(const std::wstring& str);
+    std::wstring Trim(std::wstring&& str);
     std::wstring_view& Trim(std::wstring_view& str);
     std::wstring_view Trim(std::wstring_view&& str);
 
@@ -274,8 +277,12 @@ namespace AppInstaller::Utility
 
     // Splits the string using the provided separator. Entries can also be trimmed.
     std::vector<std::string> Split(const std::string& input, char separator, bool trim = false);
+    std::vector<std::string_view> SplitView(const std::string& input, char separator, bool trim = false);
+    std::vector<std::string_view> Split(std::string_view input, char separator, bool trim = false);
 
     // Splits the string using the provided separator. Entries can also be trimmed.
+    std::vector<std::wstring> Split(const std::wstring& input, wchar_t separator, bool trim = false);
+    std::vector<std::wstring_view> SplitView(const std::wstring& input, wchar_t separator, bool trim = false);
     std::vector<std::wstring_view> Split(std::wstring_view input, wchar_t separator, bool trim = false);
 
     // Format an input string by replacing placeholders {index} with provided values at corresponding indices.

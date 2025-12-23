@@ -283,7 +283,7 @@ namespace AppInstaller::Utility
 
     Version::Part::Part(const std::string& part)
     {
-        std::string interimPart = Utility::Trim(part.c_str());
+        std::string interimPart = Utility::Trim(part);
         const char* begin = interimPart.c_str();
         char* end = nullptr;
         errno = 0;

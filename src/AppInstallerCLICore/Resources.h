@@ -432,6 +432,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(Links);
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ListDetailsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(LocaleArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(LocationArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(LogArgumentDescription);
@@ -635,6 +636,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelAgreements);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelAuthor);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelChannel);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelCopyright);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelCopyrightUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDependencies);
@@ -666,6 +668,17 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelWindowsFeaturesDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelWindowsLibrariesDependencies);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowListAvailableUpgrades);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowListInstalledArchitecture);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowListInstalledLocale);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowListInstalledLocation);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowListInstalledScope);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowListInstalledSource);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowListInstallerCategory);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowListLocalIdentifier);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowListPackageFamilyName);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowListProductCode);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowListUpgradeCode);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(SilentArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SingleCharAfterDashError);
