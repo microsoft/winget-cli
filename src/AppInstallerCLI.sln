@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.2.32630.192
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11205.157 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "AppInstallerCLIPackage", "AppInstallerCLIPackage\AppInstallerCLIPackage.wapproj", "{6AA3791A-0713-4548-A357-87A323E7AC3A}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -1043,11 +1043,8 @@ Global
 		{E5BCFF58-7D0C-4770-ABB9-AECE1027CD94}.Release|x86.ActiveCfg = Release|Win32
 		{E5BCFF58-7D0C-4770-ABB9-AECE1027CD94}.Release|x86.Build.0 = Release|Win32
 		{E5BCFF58-7D0C-4770-ABB9-AECE1027CD94}.ReleaseStatic|ARM64.ActiveCfg = Release|ARM64
-		{E5BCFF58-7D0C-4770-ABB9-AECE1027CD94}.ReleaseStatic|ARM64.Build.0 = Release|ARM64
 		{E5BCFF58-7D0C-4770-ABB9-AECE1027CD94}.ReleaseStatic|x64.ActiveCfg = Release|x64
-		{E5BCFF58-7D0C-4770-ABB9-AECE1027CD94}.ReleaseStatic|x64.Build.0 = Release|x64
 		{E5BCFF58-7D0C-4770-ABB9-AECE1027CD94}.ReleaseStatic|x86.ActiveCfg = Release|Win32
-		{E5BCFF58-7D0C-4770-ABB9-AECE1027CD94}.ReleaseStatic|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
