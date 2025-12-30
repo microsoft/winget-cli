@@ -58,7 +58,7 @@
            When building the .sln, we will write a file to indicate which triplet should be used in all projects.
            Each project will later read this file to verify that it is using the same triplet. -->
       <_IsBuildingSln>$(MSBuildProjectName.EndsWith('.sln'))</_IsBuildingSln>
-      <_TripletFile>$(VcpkgInstalledDir).solutiontriplet</_TripletFile>
+      <_TripletFile>$(VcpkgInstalledDir).solution-triplet</_TripletFile>
   </PropertyGroup>
 
   <Target Name="WriteSolutionTripletToFile"
