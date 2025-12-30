@@ -48,4 +48,24 @@
     <VcpkgTriplet>x86-fuzzing</VcpkgTriplet>
     <VcpkgConfiguration>Release</VcpkgConfiguration>
   </PropertyGroup>
+
+  <PropertyGroup>
+      <_TripletFile>$(VcpkgInstalledDir)\.selectedtriplet</_TripletFile>
+      <_IsBuildingSln>$(MSBuildProjectName.EndsWith('.sln'))</_IsBuildingSln>
+  </PropertyGroup>
+
+  <Target Name="WriteSolutionTripletToFile" BeforeTargets="Build" Condition="'$(_IsBuildingSln)' == 'true'">
+    <WriteLinesToFile File="$(_TripletFile)" Lines="$(VcpkgTriplet)" Overwrite="true" />
+  </Target>
+
+  <Target Name="EnsureNoTripletMismatch" BeforeTargets="PrepareForBuild" Condition="'$(_IsBuildingSln)' != 'true'">
+    <ReadLinesFromFile File="$(_TripletFile)">
+      <Output TaskParameter="Lines" ItemName="_TripletFileLines" />
+    </ReadLinesFromFile>
+
+    <PropertyGroup>
+      <_SolutionTriplet>@(_TripletFileLines)</_SolutionTriplet>
+    </PropertyGroup>
+    <Error Condition=" '$(_SolutionTriplet)' != '$(VcpkgTriplet)' " Text="The vcpkg triplet $(VcpkgTriplet) selected for this project does not match the solution triplet $(_SolutionTriplet)" />
+  </Target>
 </Project>
