@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
-    <VcpkgInstalledDir>$(MSBuildThisFileDirectory)\vcpkg_installed</VcpkgInstalledDir>
+    <VcpkgInstalledDir>$(MSBuildThisFileDirectory)vcpkg_installed\</VcpkgInstalledDir>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <VcpkgTriplet>x64</VcpkgTriplet>
@@ -58,7 +58,7 @@
            When building the .sln, we will write a file to indicate which triplet should be used in all projects.
            Each project will later read this file to verify that it is using the same triplet. -->
       <_IsBuildingSln>$(MSBuildProjectName.EndsWith('.sln'))</_IsBuildingSln>
-      <_TripletFile>$(VcpkgInstalledDir)\.solutiontriplet</_TripletFile>
+      <_TripletFile>$(VcpkgInstalledDir).solutiontriplet</_TripletFile>
   </PropertyGroup>
 
   <Target Name="WriteSolutionTripletToFile"
@@ -67,9 +67,19 @@
     <WriteLinesToFile File="$(_TripletFile)" Lines="$(VcpkgTriplet)" Overwrite="true" />
   </Target>
 
+  <!-- Note: Visual Studio does not build the .sln in the same way that MSBuild.exe does, so the above target is not executed.
+        In that case we try to write the file on the first project we build.
+        There is a race condition for parallel builds in doing this, but it won't happen on pipeline builds... -->
+  <Target Name="WriteProjectTripletToFile"
+          BeforeTargets="EnsureNoTripletMismatch"
+          Condition="!Exists('$(_TripletFile)')">
+    <WriteLinesToFile File="$(_TripletFile)" Lines="$(VcpkgTriplet)" Overwrite="true" />
+  </Target>
+
   <Target Name="EnsureNoTripletMismatch"
           BeforeTargets="PrepareForBuild"
           Condition="'$(_IsBuildingSln)' != 'true'" >
+
     <ReadLinesFromFile File="$(_TripletFile)">
       <Output TaskParameter="Lines" ItemName="_TripletFileLines" />
     </ReadLinesFromFile>
@@ -79,6 +89,6 @@
     </PropertyGroup>
 
     <Error Condition=" '$(_SolutionTriplet)' != '$(VcpkgTriplet)' "
-           Text="The vcpkg triplet $(VcpkgTriplet) selected for this project does not match the solution triplet $(_SolutionTriplet)" />
+           Text="The vcpkg triplet '$(VcpkgTriplet)' selected for project '$(MSBuildProjectName)' does not match with the solution triplet '$(_SolutionTriplet)'. If you are building from Visual Studio, try deleting the file '$(_TripletFile)'." />
   </Target>
 </Project>
