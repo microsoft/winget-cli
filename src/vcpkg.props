@@ -3,49 +3,24 @@
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
     <VcpkgInstalledDir>$(MSBuildThisFileDirectory)vcpkg_installed\</VcpkgInstalledDir>
+    <!-- Note: For x86, the platform is x86 when building the solution meta-project, and Win32 when building individual projects. -->
+    <_VcpkgTripletPlatform>$(Platform)</_VcpkgTripletPlatform>
+    <_VcpkgTripletPlatform Condition="'$(Platform)'=='Win32'">x86</_VcpkgTripletPlatform>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <VcpkgTriplet>x64</VcpkgTriplet>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)'=='Debug'">
+    <VcpkgTriplet>$(_VcpkgTripletPlatform)</VcpkgTriplet>
     <VcpkgConfiguration>Debug</VcpkgConfiguration>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <VcpkgTriplet>arm64</VcpkgTriplet>
-    <VcpkgConfiguration>Debug</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <VcpkgTriplet>x86</VcpkgTriplet>
-    <VcpkgConfiguration>Debug</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <VcpkgTriplet>x64-release</VcpkgTriplet>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)'=='Release'">
+    <VcpkgTriplet>$(_VcpkgTripletPlatform)-release</VcpkgTriplet>
     <VcpkgConfiguration>Release</VcpkgConfiguration>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <VcpkgTriplet>arm64-release</VcpkgTriplet>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)'=='ReleaseStatic'">
+    <VcpkgTriplet>$(_VcpkgTripletPlatform)-release-static</VcpkgTriplet>
     <VcpkgConfiguration>Release</VcpkgConfiguration>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <VcpkgTriplet>x86-release</VcpkgTriplet>
-    <VcpkgConfiguration>Release</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|x64'">
-    <VcpkgTriplet>x64-release-static</VcpkgTriplet>
-    <VcpkgConfiguration>Release</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM64'">
-    <VcpkgTriplet>arm64-release-static</VcpkgTriplet>
-    <VcpkgConfiguration>Release</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">
-    <VcpkgTriplet>x86-release-static</VcpkgTriplet>
-    <VcpkgConfiguration>Release</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">
-    <VcpkgTriplet>x64-fuzzing</VcpkgTriplet>
-    <VcpkgConfiguration>Release</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">
-    <VcpkgTriplet>x86-fuzzing</VcpkgTriplet>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)'=='Fuzzing'">
+    <VcpkgTriplet>$(_VcpkgTripletPlatform)-fuzzing</VcpkgTriplet>
     <VcpkgConfiguration>Release</VcpkgConfiguration>
   </PropertyGroup>
 
