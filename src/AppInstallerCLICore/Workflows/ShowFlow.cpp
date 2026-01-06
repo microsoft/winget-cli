@@ -248,20 +248,7 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        auto lines = Split(value, '\n');
-
-        outputStream << details::GetIndentFor(indentLevel) << Execution::ManifestInfoEmphasis << label;
-
-        if (lines.size() > 1)
-        {
-            for (const auto& line : lines)
-            {
-                outputStream << '\n' << details::GetIndentFor(indentLevel + 1) << line << '\n';
-            }
-        }
-        else
-        {
-            outputStream << ' ' << value << '\n';
-        }
+        // Treat the lines as separate values for the field
+        ShowMultiValueField(outputStream, label, Split(value, '\n'), indentLevel);
     }
 }
