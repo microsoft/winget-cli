@@ -42,9 +42,10 @@
     <WriteLinesToFile File="$(_TripletFile)" Lines="$(VcpkgTriplet)" Overwrite="true" />
   </Target>
 
-  <!-- Note: Visual Studio does not build the .sln in the same way that MSBuild.exe does, so the above target is not executed.
-        In that case we try to write the file on the first project we build.
-        There is a race condition for parallel builds in doing this, but it won't happen on pipeline builds... -->
+  <!-- Note: Visual Studio does not build the .sln in the same way that MSBuild.exe does.
+       VS builds each project directly, instead of calling MSBuild on the .sln.
+       This means that in VS the file is not written in the previous task, so we try to write it on the first project we build.
+       There is a race condition for parallel builds in doing this, but it is unlikely and it cannot happen in pipeline (official) builds. -->
   <Target Name="WriteProjectTripletToFile"
           BeforeTargets="EnsureNoTripletMismatch"
           Condition="!Exists('$(_TripletFile)')">
@@ -63,7 +64,10 @@
       <_SolutionTriplet>@(_TripletFileLines)</_SolutionTriplet>
     </PropertyGroup>
 
+    <!-- For the dev inner loop using VS, this target will fail any time we build with a different configuration.
+         We delete the file so that the next build works fine. -->
+    <Delete Condition=" '$(_SolutionTriplet)' != '$(VcpkgTriplet)' " Files="$(_TripletFile)" />
     <Error Condition=" '$(_SolutionTriplet)' != '$(VcpkgTriplet)' "
-           Text="The vcpkg triplet '$(VcpkgTriplet)' selected for project '$(MSBuildProjectName)' does not match with the solution triplet '$(_SolutionTriplet)'. If you are building from Visual Studio, try deleting the file '$(_TripletFile)'." />
+           Text="The vcpkg triplet '$(VcpkgTriplet)' selected for project '$(MSBuildProjectName)' does not match the recorded triplet '$(_SolutionTriplet)'. This may indicate a mismatch in the triplets used for current build configuration. If you have just changed the Configuration in Visual Studio, this error may be spurious and building again should properly check for mismatch." />
   </Target>
 </Project>
