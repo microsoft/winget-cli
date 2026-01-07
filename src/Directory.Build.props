@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Consume containing solution build props if present. -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <WinGetMacros Condition="'$(UseProdCLSIDs)' == 'true'">USE_PROD_CLSIDS;$(WinGetMacros)</WinGetMacros>
+    <WinGetMacros Condition="'$(WingetDisableTestHooks)' == 'true'">AICLI_DISABLE_TEST_HOOKS;$(WinGetMacros)</WinGetMacros>
+    <WinGetMacros Condition="'$(WingetDisableExperimentalFeatures)' == 'true'">WINGET_DISABLE_EXPERIMENTAL_FEATURES;$(WinGetMacros)</WinGetMacros>
+    <WinGetMacros Condition="'$(UseProdWingetServer)' == 'true'">USE_PROD_WINGET_SERVER;$(WinGetMacros)</WinGetMacros>
+    <WinGetMacros Condition="'$(WingetEnableReleaseBuild)' == 'true'">WINGET_ENABLE_RELEASE_BUILD;$(WinGetMacros)</WinGetMacros>
+  </PropertyGroup>
+
+  <!-- For C++ -->
+  <PropertyGroup Label="Configuration">
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '18.0'">v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(WinGetMacros)' != ''">
+    <ClCompile>
+      <PreprocessorDefinitions>$(WinGetMacros)%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='ReleaseStatic'">
+    <Link>
+      <!-- Link statically against the runtime and STL, but link dynamically against the CRT by ignoring the static CRT
+           lib and instead linking against the Universal CRT DLL import library. This "hybrid" linking mechanism is
+           supported according to the CRT maintainer. Dynamic linking against the CRT makes the binaries a bit smaller
+           than they would otherwise be if the CRT, runtime, and STL were all statically linked in. 
+           See https://aka.ms/hybridcrt for more details. -->
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries);libucrt.lib</IgnoreSpecificDefaultLibraries>
+      <AdditionalOptions>%(AdditionalOptions) /defaultlib:ucrt.lib</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <!-- For C# -->
+  <PropertyGroup Condition="'$(WinGetMacros)' != ''">
+    <DefineConstants>$(WinGetMacros)$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <!-- To prevent build agents from running out of disk space, clean as we go. -->
+  <Target Name="CleanIntermediateFiles" AfterTargets="Build" Condition="'$(WingetCleanIntermediateFiles)'=='true'">
+    <RemoveDir Directories="$(IntDir)" />
+  </Target>
+</Project>

@@ -126,15 +126,6 @@ namespace AppInstallerCLIE2ETests.Helpers
                 }
             }
 
-            string inputMsg =
-                    "AICLI path: " + TestSetup.Parameters.AICLIPath +
-                    " Command: " + command +
-                    " Parameters: " + parameters + correlationParameter +
-                    (string.IsNullOrEmpty(stdIn) ? string.Empty : " StdIn: " + stdIn) +
-                    " Timeout: " + timeOut;
-
-            TestContext.Out.WriteLine($"Starting command run. {inputMsg}");
-
             return RunAICLICommandViaDirectProcess(command, parameters + correlationParameter, stdIn, timeOut, throwOnTimeout);
         }
 
@@ -352,6 +343,90 @@ namespace AppInstallerCLIE2ETests.Helpers
             else
             {
                 return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), Constants.CheckpointDirectoryUnpackaged);
+            }
+        }
+
+        /// <summary>
+        /// Gets the fonts directory based on scope.
+        /// </summary>
+        /// <param name="scope">Scope.</param>
+        /// <returns>The path of the fonts directory.</returns>
+        public static string GetFontsDirectory(Scope scope)
+        {
+            if (scope == Scope.Machine)
+            {
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Fonts");
+            }
+            else
+            {
+                return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "Windows", "Fonts");
+            }
+        }
+
+        /// <summary>
+        /// Verify font package.
+        /// </summary>
+        /// <param name="packageName">Name of the package.</param>
+        /// <param name="packageVersion">Name of the package version.</param>
+        /// <param name="scope">Scope.</param>
+        /// <param name="shouldExist">If package should exist.</param>
+        public static void VerifyFontPackage(
+            string packageName,
+            string packageVersion,
+            Scope scope = Scope.User,
+            bool shouldExist = true)
+        {
+            RegistryKey baseKey = (scope == Scope.Machine) ? Registry.LocalMachine : Registry.CurrentUser;
+
+            var fileList = new List<string>();
+            using (RegistryKey fontsRegistryKey = baseKey.OpenSubKey(Constants.FontsSubKey, true))
+            {
+                using var winGetRootKey = fontsRegistryKey.OpenSubKey("Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
+                if (shouldExist)
+                {
+                    Assert.IsNotNull(winGetRootKey);
+                }
+                else
+                {
+                    return;
+                }
+
+                using var packageNameSubkey = winGetRootKey.OpenSubKey(packageName);
+                if (shouldExist)
+                {
+                    Assert.IsNotNull(packageNameSubkey);
+                }
+
+                if (packageNameSubkey is not null)
+                {
+                    using var versionSubkey = packageNameSubkey.OpenSubKey(packageVersion);
+
+                    if (shouldExist)
+                    {
+                        Assert.IsNotNull(versionSubkey);
+                    }
+                    else
+                    {
+                        Assert.IsNull(versionSubkey);
+                    }
+
+                    if (versionSubkey is not null)
+                    {
+                        var valueNames = versionSubkey.GetValueNames();
+                        foreach (var valueName in valueNames)
+                        {
+                            fileList.Add(versionSubkey.GetValue(valueName).ToString());
+                        }
+
+                        Assert.AreEqual(valueNames.Length, fileList.Count);
+                    }
+                }
+            }
+
+            // Verify each package file we expect to exist actually exists.
+            foreach (var file in fileList)
+            {
+                Assert.IsTrue(File.Exists(file));
             }
         }
 
@@ -1078,17 +1153,27 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <summary>
         /// Run winget command via direct process.
         /// </summary>
+        /// <param name="executablePath">The executable to run.</param>
         /// <param name="command">Command to run.</param>
         /// <param name="parameters">Parameters.</param>
         /// <param name="stdIn">Optional std in.</param>
         /// <param name="timeOut">Optional timeout.</param>
         /// <param name="throwOnTimeout">Throw on timeout.</param>
         /// <returns>The result of the command.</returns>
-        private static RunCommandResult RunAICLICommandViaDirectProcess(string command, string parameters, string stdIn, int timeOut, bool throwOnTimeout)
+        public static RunCommandResult RunProcess(string executablePath, string command, string parameters, string stdIn, int timeOut, bool throwOnTimeout)
         {
+            string inputMsg =
+                    "Exe path: " + executablePath +
+                    " Command: " + command +
+                    " Parameters: " + parameters +
+                    (string.IsNullOrEmpty(stdIn) ? string.Empty : " StdIn: " + stdIn) +
+                    " Timeout: " + timeOut;
+
+            TestContext.Out.WriteLine($"Starting command run. {inputMsg}");
+
             RunCommandResult result = new ();
             Process p = new Process();
-            p.StartInfo = new ProcessStartInfo(TestSetup.Parameters.AICLIPath, command + ' ' + parameters);
+            p.StartInfo = new ProcessStartInfo(executablePath, command + ' ' + parameters);
             p.StartInfo.UseShellExecute = false;
 
             p.StartInfo.StandardOutputEncoding = Encoding.UTF8;
@@ -1152,10 +1237,24 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
             else if (throwOnTimeout)
             {
-                throw new TimeoutException($"Direct winget command run timed out: {command} {parameters}");
+                throw new TimeoutException($"Direct command run timed out: {command} {parameters}");
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Run winget command via direct process.
+        /// </summary>
+        /// <param name="command">Command to run.</param>
+        /// <param name="parameters">Parameters.</param>
+        /// <param name="stdIn">Optional std in.</param>
+        /// <param name="timeOut">Optional timeout.</param>
+        /// <param name="throwOnTimeout">Throw on timeout.</param>
+        /// <returns>The result of the command.</returns>
+        private static RunCommandResult RunAICLICommandViaDirectProcess(string command, string parameters, string stdIn, int timeOut, bool throwOnTimeout)
+        {
+            return RunProcess(TestSetup.Parameters.AICLIPath, command, parameters, stdIn, timeOut, throwOnTimeout);
         }
 
         /// <summary>

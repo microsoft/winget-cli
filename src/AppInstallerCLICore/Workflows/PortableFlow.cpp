@@ -167,7 +167,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         portableInstaller.TargetInstallLocation = targetInstallDirectory;
-        portableInstaller.SetAppsAndFeaturesMetadata(context.Get<Execution::Data::Manifest>(), context.Get<Execution::Data::Installer>()->AppsAndFeaturesEntries);
+        portableInstaller.SetAppsAndFeaturesMetadata(context.Get<Execution::Data::Manifest>(), installer.AppsAndFeaturesEntries);
         context.Add<Execution::Data::PortableInstaller>(std::move(portableInstaller));
     }
 
@@ -274,6 +274,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             portableInstaller.Install(installType);
+            context.Add<Execution::Data::CorrelatedAppsAndFeaturesEntries>({ portableInstaller.GetAppsAndFeaturesEntry() });
             context.Add<Execution::Data::OperationReturnCode>(ERROR_SUCCESS);
             context.Reporter.Warn() << portableInstaller.GetOutputMessage();
         }

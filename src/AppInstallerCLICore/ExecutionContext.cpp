@@ -59,7 +59,7 @@ namespace AppInstaller::CLI::Execution
 
     std::unique_ptr<Context> Context::CreateSubContext()
     {
-        auto clone = std::make_unique<Context>(Reporter, m_threadGlobals);
+        auto clone = std::make_unique<Context>(Reporter, *m_threadGlobals);
         clone->m_flags = m_flags;
         clone->m_executingCommand = m_executingCommand;
         // If the parent is hooked up to the CTRL signal, have the clone be as well
@@ -211,12 +211,17 @@ namespace AppInstaller::CLI::Execution
 
     AppInstaller::ThreadLocalStorage::WingetThreadGlobals& Context::GetThreadGlobals()
     {
+        return *m_threadGlobals;
+    }
+
+    std::shared_ptr<ThreadLocalStorage::WingetThreadGlobals> Context::GetSharedThreadGlobals()
+    {
         return m_threadGlobals;
     }
 
     std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> Context::SetForCurrentThread()
     {
-        return m_threadGlobals.SetForCurrentThread();
+        return m_threadGlobals->SetForCurrentThread();
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

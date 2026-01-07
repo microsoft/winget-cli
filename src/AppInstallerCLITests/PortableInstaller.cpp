@@ -47,6 +47,9 @@ TEST_CASE("PortableInstaller_InstallToRegistry", "[PortableInstaller]")
 
     portableInstaller.Install(AppInstaller::CLI::Workflow::OperationType::Install);
 
+    auto entry = portableInstaller.GetAppsAndFeaturesEntry();
+    REQUIRE(entry.ProductCode == portableInstaller.GetProductCode());
+
     PortableInstaller portableInstaller2 = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
     REQUIRE(portableInstaller2.ARPEntryExists());
     REQUIRE(std::filesystem::exists(portableInstaller2.PortableTargetFullPath));

@@ -7,6 +7,8 @@
 #include <AppInstallerRuntime.h>
 #include <winget/COMStaticStorage.h>
 
+using namespace std::chrono_literals;
+
 namespace AppInstaller::ShutdownMonitoring
 {
     std::shared_ptr<TerminationSignalHandler> TerminationSignalHandler::Instance()
@@ -99,10 +101,18 @@ namespace AppInstaller::ShutdownMonitoring
 
     TerminationSignalHandler::~TerminationSignalHandler()
     {
+        SetConsoleCtrlHandler(StaticCtrlHandlerFunction, FALSE);
+
         // std::thread requires that any managed thread (joinable) be joined or detached before destructing
         if (m_windowThread.joinable())
         {
-            m_windowThread.detach();
+            if (m_windowHandle)
+            {
+                // Inform the thread that it should stop.
+                PostMessageW(m_windowHandle.get(), WM_DESTROY, 0, 0);
+            }
+
+            m_windowThread.join();
         }
     }
 
@@ -173,19 +183,22 @@ namespace AppInstaller::ShutdownMonitoring
     // Returns FALSE if no contexts attached; TRUE otherwise.
     BOOL TerminationSignalHandler::InformListeners(CancelReason reason, bool force)
     {
-        std::lock_guard<std::mutex> lock{ m_listenersLock };
+        BOOL result = FALSE;
 
-        if (m_listeners.empty())
         {
-            return FALSE;
+            std::lock_guard<std::mutex> lock{ m_listenersLock };
+            result = m_listeners.empty() ? FALSE : TRUE;
+
+            for (auto& listener : m_listeners)
+            {
+                listener->Cancel(reason, force);
+            }
         }
 
-        for (auto& listener : m_listeners)
-        {
-            listener->Cancel(reason, force);
-        }
+        // Notify shutdown synchronization as well
+        ServerShutdownSynchronization::Instance().Signal(reason);
 
-        return TRUE;
+        return result;
     }
 
     void TerminationSignalHandler::CreateWindowAndStartMessageLoop()
@@ -214,6 +227,12 @@ namespace AppInstaller::ShutdownMonitoring
             return;
         }
 
+        // Unregister the window class on exiting the thread
+        auto classUnregister = wil::scope_exit([&]()
+            {
+                UnregisterClassW(windowClass, hInstance);
+            });
+
         m_windowHandle = wil::unique_hwnd(CreateWindow(
             windowClass,
             L"WingetMessageOnlyWindow",
@@ -227,26 +246,38 @@ namespace AppInstaller::ShutdownMonitoring
             hInstance,
             NULL)); /* lpParam */
 
-        if (m_windowHandle == nullptr)
+        HWND windowHandle = m_windowHandle.get();
+        if (windowHandle == nullptr)
         {
             LOG_LAST_ERROR_MSG("Failed creating window");
             return;
         }
 
-        ShowWindow(m_windowHandle.get(), SW_HIDE);
+        // We must destroy the window first so that the class unregister can succeed
+        auto destroyWindow = wil::scope_exit([&]()
+            {
+                DestroyWindow(windowHandle);
+            });
+
+        ShowWindow(windowHandle, SW_HIDE);
 
         // Force message queue to be created.
         MSG msg;
         PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
         m_messageQueueReady.SetEvent();
 
-        // Message loop
+        // Message loop, we send WM_DESTROY to terminate it
         BOOL getMessageResult;
-        while ((getMessageResult = GetMessage(&msg, m_windowHandle.get(), 0, 0)) != 0)
+        while ((getMessageResult = GetMessage(&msg, windowHandle, 0, 0)) != 0)
         {
             if (getMessageResult == -1)
             {
                 LOG_LAST_ERROR();
+                break;
+            }
+            else if (msg.message == WM_DESTROY)
+            {
+                break;
             }
             else
             {
@@ -255,9 +286,16 @@ namespace AppInstaller::ShutdownMonitoring
         }
     }
 
-    void ServerShutdownSynchronization::Initialize(ShutdownCompleteCallback callback)
+    void ServerShutdownSynchronization::Initialize(ShutdownCompleteCallback callback, bool createTerminationSignalHandler)
     {
         Instance().m_callback = callback;
+
+        // Force the creation of the TerminationSignalHandler singleton so that the process can listen for termination signals even if
+        // it never attempts to run anything that explicitly registers for cancellation callbacks.
+        if (createTerminationSignalHandler)
+        {
+            TerminationSignalHandler::Instance();
+        }
     }
 
     void ServerShutdownSynchronization::AddComponent(const ComponentSystem& component)
@@ -294,8 +332,17 @@ namespace AppInstaller::ShutdownMonitoring
         instance.m_shutdownComplete.wait();
     }
 
-    void ServerShutdownSynchronization::Cancel(CancelReason reason, bool)
+    void ServerShutdownSynchronization::Signal(CancelReason reason)
     {
+        {
+            // Check for registered components before creating a thread to do nothing
+            std::lock_guard<std::mutex> lock{ m_componentsLock };
+            if (m_components.empty())
+            {
+                return;
+            }
+        }
+
         std::lock_guard<std::mutex> lock{ m_threadLock };
 
         if (!m_shutdownThread.joinable())
@@ -304,14 +351,8 @@ namespace AppInstaller::ShutdownMonitoring
         }
     }
 
-    ServerShutdownSynchronization::ServerShutdownSynchronization()
-    {
-        TerminationSignalHandler::Instance()->AddListener(this);
-    }
-
     ServerShutdownSynchronization::~ServerShutdownSynchronization()
     {
-        TerminationSignalHandler::Instance()->RemoveListener(this);
         if (m_shutdownThread.joinable())
         {
             m_shutdownThread.detach();

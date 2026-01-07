@@ -44,6 +44,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFResume>();
             case ExperimentalFeature::Feature::Font:
                 return userSettings.Get<Setting::EFFonts>();
+            case ExperimentalFeature::Feature::SourceEdit:
+                return userSettings.Get<Setting::EFSourceEdit>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -76,8 +78,10 @@ namespace AppInstaller::Settings
         case Feature::Resume:
             return ExperimentalFeature{ "Resume", "resume", "https://aka.ms/winget-settings", Feature::Resume };
         case Feature::Font:
-            return ExperimentalFeature{ "Font", "Font", "https://aka.ms/winget-settings", Feature::Font };
-            
+            return ExperimentalFeature{ "Font", "fonts", "https://aka.ms/winget-settings", Feature::Font };
+        case Feature::SourceEdit:
+            return ExperimentalFeature{ "Source Editing", "sourceEdit", "https://aka.ms/winget-settings", Feature::SourceEdit };
+
         default:
             THROW_HR(E_UNEXPECTED);
         }

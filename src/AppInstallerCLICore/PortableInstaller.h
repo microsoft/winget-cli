@@ -59,7 +59,7 @@ namespace AppInstaller::CLI::Portable
             m_desiredEntries = {};
         }
 
-        void Install( AppInstaller::CLI::Workflow::OperationType operation );
+        void Install(AppInstaller::CLI::Workflow::OperationType operation = Workflow::OperationType::Install);
 
         void Uninstall();
 
@@ -91,6 +91,8 @@ namespace AppInstaller::CLI::Portable
             const Manifest::Manifest& manifest,
             const std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry>& entries);
 
+        AppInstaller::Manifest::AppsAndFeaturesEntry GetAppsAndFeaturesEntry();
+
     private:
         PortableARPEntry m_portableARPEntry;
         std::vector<AppInstaller::Portable::PortableFileEntry> m_desiredEntries;
@@ -111,7 +113,7 @@ namespace AppInstaller::CLI::Portable
         void CreateTargetInstallDirectory();
         void RemoveInstallDirectory();
 
-        void AddToPathVariable(const std::filesystem::path& value);
-        void RemoveFromPathVariable(const std::filesystem::path& value);
+        void AddToPathVariable(std::filesystem::path value);
+        void RemoveFromPathVariable(std::filesystem::path value);
     };
 }

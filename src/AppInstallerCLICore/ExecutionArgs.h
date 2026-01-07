@@ -65,6 +65,7 @@ namespace AppInstaller::CLI::Execution
             ForceSourceReset,
             SourceExplicit,
             SourceTrustLevel,
+            SourceEditExplicit,
 
             //Hash Command
             HashFile,
@@ -125,6 +126,7 @@ namespace AppInstaller::CLI::Execution
 
             // Font Command
             Family,
+            Details,
 
             // Stub package (extended features)
             ExtendedFeaturesEnable,

@@ -177,6 +177,14 @@ namespace AppInstaller::Logging
         }
     }
 
+    void DiagnosticLogger::SetTag(Tag tag)
+    {
+        for (auto& logger : m_loggers)
+        {
+            logger->SetTag(tag);
+        }
+    }
+
     DiagnosticLogger& Log()
     {
         ThreadLocalStorage::ThreadGlobals* pThreadGlobals = ThreadLocalStorage::ThreadGlobals::GetForCurrentThread();

@@ -115,6 +115,8 @@ namespace Microsoft.WinGet.SharedLib.PolicySettings
                     return new TogglePolicy(policy, "EnableDefaultSource", GroupPolicyResource.PolicyEnableDefaultSource);
                 case Policy.MSStoreSource:
                     return new TogglePolicy(policy, "EnableMicrosoftStoreSource", GroupPolicyResource.PolicyEnableMSStoreSource);
+                case Policy.FontSource:
+                    return new TogglePolicy(policy, "EnableFontSource", GroupPolicyResource.PolicyEnableFontSource);
                 case Policy.AdditionalSources:
                     return new TogglePolicy(policy, "EnableAdditionalSources", GroupPolicyResource.PolicyAdditionalSources);
                 case Policy.AllowedSources:

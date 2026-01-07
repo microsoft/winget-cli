@@ -121,6 +121,8 @@ namespace AppInstaller::CLI
             return { type, "explicit"_liv };
         case Execution::Args::Type::SourceTrustLevel:
             return { type, "trust-level"_liv };
+        case Execution::Args::Type::SourceEditExplicit:
+            return { type, "explicit"_liv, 'e' };
 
         //Hash Command
         case Execution::Args::Type::HashFile:
@@ -203,6 +205,8 @@ namespace AppInstaller::CLI
         // Font command
         case Execution::Args::Type::Family:
             return { type, "family"_liv, ArgTypeCategory::None };
+        case Execution::Args::Type::Details:
+            return { type, "details"_liv, ArgTypeCategory::None };
 
         // Configuration commands
         case Execution::Args::Type::ConfigurationFile:
@@ -408,6 +412,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::SourceTypeArgumentDescription, ArgumentType::Positional };
         case Args::Type::SourceExplicit:
             return Argument{ type, Resource::String::SourceExplicitArgumentDescription, ArgumentType::Flag };
+        case Args::Type::SourceEditExplicit:
+            return Argument{ type, Resource::String::SourceEditExplicitArgumentDescription, ArgumentType::Positional };
         case Args::Type::SourceTrustLevel:
             return Argument{ type, Resource::String::SourceTrustLevelArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::ValidateManifest:
@@ -472,6 +478,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::NoProxyArgumentDescription, ArgumentType::Flag, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
         case Args::Type::Family:
             return Argument{ type, Resource::String::FontFamilyNameArgumentDescription, ArgumentType::Positional, false };
+        case Args::Type::Details:
+            return Argument{ type, Resource::String::FontDetailsArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::Correlation:
             return Argument{ type, Resource::String::CorrelationArgumentDescription, ArgumentType::Standard, Argument::Visibility::Hidden };
         default:

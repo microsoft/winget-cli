@@ -3935,3 +3935,31 @@ TEST_CASE("SQLiteIndex_AddOrUpdateManifest", "[sqliteindex]")
         REQUIRE(!index.AddOrUpdateManifest(manifest, manifestPath));
     }
 }
+
+TEST_CASE("SQLiteIndex_VersionStringPreserved", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest manifest;
+    SQLiteIndex index = CreateTestIndex(tempFile);
+
+    string_t publisher = "Test";
+    std::string version = GENERATE("1.0", "1.10");
+
+    CreateFakeManifest(manifest, publisher, version);
+    index.AddManifest(manifest, GetPathFromManifest(manifest));
+
+    TempDirectory intermediatesDirectory{ "v2_0_intermediates" };
+    INFO("Intermediates directory: " << intermediatesDirectory.GetPath());
+
+    index.SetProperty(SQLiteIndex::Property::IntermediateFileOutputPath, intermediatesDirectory);
+    index.PrepareForPackaging();
+
+    auto results = index.Search({});
+    REQUIRE(results.Matches.size() == 1);
+
+    std::string extractedVersion = GetPropertyStringById(index, results.Matches[0].first, PackageVersionProperty::Version);
+
+    REQUIRE(extractedVersion == version);
+}

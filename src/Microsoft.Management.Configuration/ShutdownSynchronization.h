@@ -55,6 +55,34 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         std::unique_ptr<AppInstaller::WinRT::AsyncCancellation> m_cancellation;
     };
 
+    struct ShutdownSynchronization
+    {
+        using CancellableWeakPtr = std::weak_ptr<AppInstaller::WinRT::details::AsyncCancellationTypeErasure>;
+
+        ShutdownSynchronization() = default;
+
+        static ShutdownSynchronization& Instance();
+
+        // Signals that new work should be blocked.
+        void BlockNewWork();
+
+        // Call to register the begin and end of work.
+        void RegisterWorkBegin(CancellableWeakPtr&& ptr);
+        void RegisterWorkEnd(CancellableWeakPtr&& ptr);
+
+        // Cancels all currently registered work.
+        void CancelAllWork();
+
+        // Waits for outstanding work to be completed.
+        void Wait();
+
+    private:
+        std::atomic_bool m_disabled{ false };
+        std::mutex m_workLock;
+        std::set<CancellableWeakPtr, std::owner_less<CancellableWeakPtr>> m_work;
+        wil::slim_event_manual_reset m_noActiveWork{ true };
+    };
+
     // An AsyncProgress that registers with ShutdownSynchronization.
     template <typename ResultT, typename ProgressT>
     struct ShutdownAwareAsyncProgress
@@ -141,33 +169,5 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         std::unique_ptr<ShutdownAwareAsyncCancellationPromise> m_defaultPromise;
         std::unique_ptr<AppInstaller::WinRT::AsyncProgress<ResultT, ProgressT>> m_progress;
-    };
-
-    struct ShutdownSynchronization
-    {
-        using CancellableWeakPtr = std::weak_ptr<AppInstaller::WinRT::details::AsyncCancellationTypeErasure>;
-
-        ShutdownSynchronization() = default;
-
-        static ShutdownSynchronization& Instance();
-
-        // Signals that new work should be blocked.
-        void BlockNewWork();
-
-        // Call to register the begin and end of work.
-        void RegisterWorkBegin(CancellableWeakPtr&& ptr);
-        void RegisterWorkEnd(CancellableWeakPtr&& ptr);
-
-        // Cancels all currently registered work.
-        void CancelAllWork();
-
-        // Waits for outstanding work to be completed.
-        void Wait();
-
-    private:
-        std::atomic_bool m_disabled{ false };
-        std::mutex m_workLock;
-        std::set<CancellableWeakPtr, std::owner_less<CancellableWeakPtr>> m_work;
-        wil::slim_event_manual_reset m_noActiveWork{ true };
     };
 }

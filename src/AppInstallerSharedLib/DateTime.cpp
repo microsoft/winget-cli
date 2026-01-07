@@ -144,6 +144,11 @@ namespace AppInstaller::Utility
         return std::chrono::system_clock::from_time_t(static_cast<time_t>(epoch));
     }
 
+    std::chrono::system_clock::time_point ConvertFiletimeToSystemClock(const FILETIME& fileTime)
+    {
+        return winrt::clock::to_sys(winrt::clock::from_FILETIME(fileTime));
+    }
+
     std::chrono::system_clock::time_point GetTimePointFromVersion(const UInt64Version& version)
     {
         // Our custom format for converting UTC into a version is:

@@ -1,23 +1,21 @@
-## New in v1.12
-* MCP server available; run `winget mcp` for assistance on configuring your client.
-* App Installer now uses WinUI 3. The package dependency on WinUI 2 has been replaced by a dependency on the Windows App Runtime 1.7.
-* Manifest schema and validation updated to v1.12. This version update adds "Font" as an InstallerType and NestedInstallerType.
+## New in v1.28
+
+* Bumped the winget version to 1.28 to match the package version.
+* Additional [options for limiting the size of log files](https://github.com/microsoft/winget-cli/blob/master/doc/Settings.md#file).
+
+# Experimental Feature: 'sourceEdit'
+New feature that adds an 'edit' subcommand to the 'source' command. This can be used to set an explicit source to be implicit and vice-versa. For example, with this feature you can make the 'winget-font' source an implicit source instead of explicit source.
+
+To enable this feature, add the 'sourceEdit' experimental feature to your settings.
+```
+"experimentalFeatures": {
+    "sourceEdit": true
+},
+```
+To use the feature, try `winget source edit winget-font` to set the Explicit state to the default.
 
 ## Bug Fixes
-* Manifest validation no longer fails using `UTF-8 BOM` encoding when the schema header is on the first line
-
-## Experimental Features
-* Experimental support for Fonts
-
----
-### Experimental support for Fonts
-The following snippet enables experimental support for fonts via `winget settings`. The `winget font list` command will list installed font families and the number of installed font faces.
-```JSON
-{
-  "$schema" "https://aka.ms/winget-settings.schema.json",
-  "experimentalFeatures": {
-    "fonts": true
-  }
-}
-
-```
+* Portable Packages now use the correct directory separators regardless of which convention is used in the manifest
+* `--suppress-initial-details` now works with `winget configure test`
+* `--suppress-initial-details` no longer requires `--accept-configuration-agreements`
+* Corrected property of `Font` experimental feature to accurately reflect `fonts` as the required setting value

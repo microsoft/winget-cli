@@ -101,6 +101,11 @@ namespace AppInstaller::Repository
                 return TogglePolicy::Policy::MSStoreSource;
             }
 
+            if (name == GetWellKnownSourceName(WellKnownSource::WinGetFont) && IsWellKnownSourceEnabled(WellKnownSource::WinGetFont, true))
+            {
+                return TogglePolicy::Policy::FontSource;
+            }
+
             // Any other tombstone is allowed
             return TogglePolicy::Policy::None;
         }
@@ -122,6 +127,12 @@ namespace AppInstaller::Repository
             return IsWellKnownSourceEnabled(WellKnownSource::MicrosoftStore) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
         }
 
+        if (Utility::CaseInsensitiveEquals(arg, GetWellKnownSourceArg(WellKnownSource::WinGetFont)) &&
+            Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))
+        {
+            return IsWellKnownSourceEnabled(WellKnownSource::WinGetFont) ? TogglePolicy::Policy::None : TogglePolicy::Policy::FontSource;
+        }
+
         // Case 3:
         // If the source has the same name as a default source, it is shadowing with a different argument
         // (as it didn't match above). We only care if Group Policy requires the default source.
@@ -135,6 +146,12 @@ namespace AppInstaller::Repository
         {
             AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
             return TogglePolicy::Policy::MSStoreSource;
+        }
+
+        if (name == GetWellKnownSourceName(WellKnownSource::WinGetFont) && IsWellKnownSourceEnabled(WellKnownSource::WinGetFont, true))
+        {
+            AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default font source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
+            return TogglePolicy::Policy::FontSource;
         }
 
         // Case 4:
@@ -173,6 +190,8 @@ namespace AppInstaller::Repository
             return IsDefaultSourceEnabled(source, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::DefaultSource);
         case AppInstaller::Repository::WellKnownSource::MicrosoftStore:
             return IsDefaultSourceEnabled(source, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
+        case AppInstaller::Repository::WellKnownSource::WinGetFont:
+            return IsDefaultSourceEnabled(source, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::FontSource);
         case AppInstaller::Repository::WellKnownSource::DesktopFrameworks:
             // No corresponding policy available for this source.
             return true;
@@ -203,6 +222,12 @@ namespace AppInstaller::Repository
                 source.Identifier == GetWellKnownSourceIdentifier(WellKnownSource::MicrosoftStore))
             {
                 throw GroupPolicyException(TogglePolicy::Policy::MSStoreSource);
+            }
+
+            if (GroupPolicies().GetState(TogglePolicy::Policy::FontSource) == PolicyState::Enabled &&
+                source.Identifier == GetWellKnownSourceIdentifier(WellKnownSource::WinGetFont))
+            {
+                throw GroupPolicyException(TogglePolicy::Policy::FontSource);
             }
         }
     }

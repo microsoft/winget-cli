@@ -281,7 +281,7 @@ namespace AppInstaller::CLI::Portable
         return true;
     }
 
-    void PortableInstaller::Install( Workflow::OperationType operation = Workflow::OperationType::Install)
+    void PortableInstaller::Install(Workflow::OperationType operation)
     {
         // If the operation is an install, the ARP entry should be created first so that a catastrophic failure
         // leaves the system in a state where an uninstall may be possible
@@ -359,8 +359,11 @@ namespace AppInstaller::CLI::Portable
         }
     }
 
-    void PortableInstaller::AddToPathVariable(const std::filesystem::path& value)
+    void PortableInstaller::AddToPathVariable(std::filesystem::path value)
     {
+        // Ensure the preferred separator format
+        value.make_preferred();
+
         if (PathVariable(GetScope()).Append(value))
         {
             AICLI_LOG(Core, Info, << "Appending portable target directory to PATH registry: " << value);
@@ -372,7 +375,7 @@ namespace AppInstaller::CLI::Portable
         }
     }
 
-    void PortableInstaller::RemoveFromPathVariable(const std::filesystem::path& value)
+    void PortableInstaller::RemoveFromPathVariable(std::filesystem::path value)
     {
         if (std::filesystem::exists(value) && !std::filesystem::is_empty(value))
         {
@@ -380,8 +383,11 @@ namespace AppInstaller::CLI::Portable
         }
         else
         {
-            if (PathVariable(GetScope()).Remove(value))
+			// Attempt to remove both the original and the preferred format to ensure removal
+            // Necessary for handling old path values associated with winget-cli#5033
+            if (PathVariable(GetScope()).Remove(value) || PathVariable(GetScope()).Remove(value.make_preferred()))
             {
+                InstallDirectoryAddedToPath = false;
                 AICLI_LOG(CLI, Info, << "Removed target directory from PATH registry: " << value);
             }
             else
@@ -418,6 +424,19 @@ namespace AppInstaller::CLI::Portable
         InstallDate = Utility::GetCurrentDateForARP();
         URLInfoAbout = manifest.CurrentLocalization.Get<Manifest::Localization::PackageUrl>();
         HelpLink = manifest.CurrentLocalization.Get<Manifest::Localization::PublisherSupportUrl>();
+    }
+
+    AppInstaller::Manifest::AppsAndFeaturesEntry PortableInstaller::GetAppsAndFeaturesEntry()
+    {
+        Manifest::AppsAndFeaturesEntry entry;
+
+        entry.DisplayName = DisplayName;
+        entry.Publisher = Publisher;
+        entry.DisplayVersion = DisplayVersion;
+        entry.InstallerType = Manifest::InstallerTypeEnum::Portable;
+        entry.ProductCode = GetProductCode();
+
+        return entry;
     }
 
     void PortableInstaller::SetExpectedState()

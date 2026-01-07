@@ -185,6 +185,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     source.SetCaller("winget-cli");
                     source.SetAuthenticationArguments(GetAuthenticationArguments(context));
+                    source.SetThreadGlobals(context.GetSharedThreadGlobals());
                     return source.Open(progress);
                 };
                 auto updateFailures = context.Reporter.ExecuteWithProgress(openFunction, true);
@@ -1501,6 +1502,11 @@ namespace AppInstaller::CLI::Workflow
             {
                 const auto& productCode = Utility::MakeSuitablePathPart(manifest.Id + '_' + source.GetIdentifier());
                 searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::CaseInsensitive, Utility::Normalize(productCode)));
+            }
+            else if (installer.EffectiveInstallerType() == Manifest::InstallerTypeEnum::Font)
+            {
+                // Font Packages match by Package Id first.
+                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id));
             }
 
             if (!searchRequest.Inclusions.empty())

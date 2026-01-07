@@ -64,6 +64,8 @@ namespace AppInstaller::Runtime
         FontsUserInstallLocation,
         // The location where fonts are installed with machine scope.
         FontsMachineInstallLocation,
+        // The location that standard type settings are stored in files.
+        StandardFileSettings,
         // Always one more than the last path; for being able to iterate paths in tests.
         Max
     };

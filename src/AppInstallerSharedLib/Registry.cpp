@@ -132,6 +132,20 @@ namespace AppInstaller::Registry
 
             return true;
         }
+
+        bool DeleteRegistryValueData(const wil::shared_hkey& key, const std::wstring& valueName)
+        {
+            LSTATUS status = RegDeleteValueW(key.get(), valueName.c_str());
+
+            if (status == ERROR_FILE_NOT_FOUND)
+            {
+                return false;
+            }
+
+            THROW_IF_WIN32_ERROR(status);
+
+            return true;
+        }
     }
 
     namespace details
@@ -415,6 +429,23 @@ namespace AppInstaller::Registry
         }
     }
 
+    void Key::DeleteValue(std::string_view name) const
+    {
+        DeleteValue(Utility::ConvertToUTF16(name));
+    }
+
+    void Key::DeleteValue(const std::wstring& name) const
+    {
+        if (DeleteRegistryValueData(m_key, name))
+        {
+            AICLI_LOG(Core, Verbose, << "Registry value '" << Utility::ConvertToUTF8(name) << "' deleted successfully.");
+        }
+        else
+        {
+            AICLI_LOG(Core, Verbose, << "Registry value '" << Utility::ConvertToUTF8(name) << "' does not exist.");
+        }
+    }
+
     std::optional<Key> Key::SubKey(std::string_view subKey, DWORD options) const
     {
         return SubKey(Utility::ConvertToUTF16(subKey), options);
@@ -495,6 +526,26 @@ namespace AppInstaller::Registry
     bool Key::Delete(HKEY key, const std::wstring& subKey, DWORD samDesired)
     {
         LSTATUS status = RegDeleteKeyExW(key, subKey.c_str(), samDesired, 0);
+        if (status == ERROR_SUCCESS)
+        {
+            AICLI_LOG(Core, Verbose, << "Subkey '" << Utility::ConvertToUTF8(subKey) << "' was deleted successfully.");
+            return true;
+        }
+        else if (status == ERROR_FILE_NOT_FOUND)
+        {
+            AICLI_LOG(Core, Verbose, << "Subkey '" << Utility::ConvertToUTF8(subKey) << "' was not found.");
+        }
+        else
+        {
+            THROW_IF_WIN32_ERROR(status);
+        }
+
+        return false;
+    }
+
+    bool Key::DeleteTree(HKEY key, const std::wstring& subKey)
+    {
+        LSTATUS status = RegDeleteTree(key, subKey.c_str());
         if (status == ERROR_SUCCESS)
         {
             AICLI_LOG(Core, Verbose, << "Subkey '" << Utility::ConvertToUTF8(subKey) << "' was deleted successfully.");

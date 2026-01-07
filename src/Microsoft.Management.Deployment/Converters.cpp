@@ -530,6 +530,19 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
     }
 
+    EditPackageCatalogStatus GetEditPackageCatalogOperationStatus(winrt::hresult hresult)
+    {
+        switch (hresult)
+        {
+        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST:
+            return EditPackageCatalogStatus::InvalidOptions;
+        case APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE:
+            return EditPackageCatalogStatus::CatalogError;
+        default:
+            return HandleCommonCatalogOperationStatus<EditPackageCatalogStatus>(hresult);
+        }
+    }
+
     ::AppInstaller::Manifest::PlatformEnum GetPlatformEnum(WindowsPlatform value)
     {
         switch (value)
@@ -543,4 +556,37 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         default: return AppInstaller::Manifest::PlatformEnum::Unknown;
         }
     }
+
+    std::optional<bool> GetOptionalBoolean(winrt::Microsoft::Management::Deployment::OptionalBoolean optionalBoolean)
+    {
+        switch (optionalBoolean)
+        {
+        case OptionalBoolean::True:
+            return std::optional<bool> { true };
+        case OptionalBoolean::False:
+            return std::optional<bool> { false };
+        default:
+            return std::nullopt;
+        }
+    }
+
+    winrt::Microsoft::Management::Deployment::OptionalBoolean GetOptionalBoolean(std::optional<bool> optionalBoolean)
+    {
+        if (optionalBoolean.has_value())
+        {
+            if (optionalBoolean.value())
+            {
+                return OptionalBoolean::True;
+            }
+            else
+            {
+                return OptionalBoolean::False;
+            }
+        }
+        else
+        {
+            return OptionalBoolean::Unspecified;
+        }
+    }
+
 }

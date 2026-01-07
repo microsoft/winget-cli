@@ -84,6 +84,8 @@
               </com:Class>
               <com:Class Id="87A96609-1A39-4955-BE72-7174E147B7DC" DisplayName="RemovePackageCatalogOptions Server">
               </com:Class>
+              <com:Class Id="29B19238-81AD-4A8E-A2FC-ADF17C38CAEB" DisplayName="EditPackageCatalogOptions Server">
+              </com:Class>
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>

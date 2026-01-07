@@ -23,7 +23,7 @@ using namespace AppInstaller::Utility;
 using namespace std::string_literals;
 using namespace std::string_view_literals;
 
-constexpr size_t c_DefaultSourceCount = 2;
+constexpr size_t c_DefaultSourceCount = 3;
 
 constexpr std::string_view s_SourcesYaml_Sources = "Sources"sv;
 constexpr std::string_view s_SourcesYaml_Source_Name = "Name"sv;
@@ -50,6 +50,11 @@ Sources:
     Arg: ""
     Data: ""
     IsTombstone: true
+  - Name: winget-font
+    Type: ""
+    Arg: ""
+    Data: ""
+    IsTombstone: true
 )"sv;
 
 constexpr std::string_view s_SingleSource = R"(
@@ -59,6 +64,17 @@ Sources:
     Arg: testArg
     Data: testData
     IsTombstone: false
+)"sv;
+
+constexpr std::string_view s_SingleSourceOverride = R"(
+Sources:
+  - Name: winget-font
+    Type: ""
+    Arg: ""
+    Data: ""
+    IsTombstone: false
+    IsOverride: true
+    Explicit: false
 )"sv;
 
 constexpr std::string_view s_SingleSourceMetadata = R"(
@@ -118,6 +134,11 @@ Sources:
     Data: ""
     IsTombstone: true
   - Name: msstore
+    Type: ""
+    Arg: ""
+    Data: ""
+    IsTombstone: true
+  - Name: winget-font
     Type: ""
     Arg: ""
     Data: ""
@@ -279,6 +300,40 @@ TEST_CASE("RepoSources_DefaultSourcesTombstoned", "[sources]")
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.empty());
+}
+
+
+TEST_CASE("RepoSources_DefaultSourceOverride", "[sources]")
+{
+    SetSetting(Stream::UserSources, s_EmptySources);
+
+    // Default font has explicit to true.
+    // Font is at index 2 as it is the third one added.
+    auto beforeOverride = GetSources();
+    REQUIRE(beforeOverride.size() == c_DefaultSourceCount);
+    REQUIRE(beforeOverride[2].Name == "winget-font");
+    REQUIRE(beforeOverride[2].Arg == "https://cdn.winget.microsoft.com/fonts");
+    REQUIRE(beforeOverride[2].Data == "Microsoft.Winget.Fonts.Source_8wekyb3d8bbwe");
+    REQUIRE(beforeOverride[2].Type == "Microsoft.PreIndexed.Package");
+    REQUIRE(beforeOverride[2].Origin == SourceOrigin::Default);
+    REQUIRE(beforeOverride[2].Explicit == true);
+
+    SetSetting(Stream::UserSources, s_SingleSourceOverride);
+    auto afterOverride = GetSources();
+
+    // The override will change the index value as the Default will be replaced by the override.
+    // User sources have higher priority so the override will be at index 0.
+    // We expect the same count, and the Name, Arg, Data, and Type properties to all be identical.
+    // Only the name is defined in the override setting so all others should be properly populated.
+    REQUIRE(afterOverride.size() == c_DefaultSourceCount);
+    REQUIRE(afterOverride[0].Name == beforeOverride[2].Name);
+    REQUIRE(afterOverride[0].Arg == beforeOverride[2].Arg);
+    REQUIRE(afterOverride[0].Data == beforeOverride[2].Data);
+    REQUIRE(afterOverride[0].Type == beforeOverride[2].Type);
+
+    // The only properties we expect to be different are the Origin, which is now User, and Explicit.
+    REQUIRE(afterOverride[0].Origin == SourceOrigin::User);
+    REQUIRE(afterOverride[0].Explicit == false);
 }
 
 TEST_CASE("RepoSources_SingleSource", "[sources]")
@@ -1338,4 +1393,25 @@ TEST_CASE("RepoSources_BuiltInDesktopFrameworkSourceAlwaysCreatable", "[sources]
 {
     Source source(WellKnownSource::DesktopFrameworks);
     REQUIRE(source);
+}
+
+TEST_CASE("RepoSources_MicrosoftStore_CertificatePinningLifetimeCheck", "[sources]")
+{
+    TestHook_ClearSourceFactoryOverrides();
+
+    GroupPolicyTestOverride policies;
+    policies.SetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore, PolicyState::Disabled);
+    Source source(WellKnownSource::MicrosoftStore);
+    REQUIRE_FALSE(source.GetDetails().CertificatePinningConfiguration.IsEmpty());
+
+    // The configuration's remaining lifetime is the *maximum* of the remaining lifetimes of the individual chains.
+    // A chain's remaining lifetime is the *minimum* of the remaining lifetimes of the individual certificates.
+    // A certificate's remaining lifetime is a value between 0.0 and 1.0 that is the ratio of remaining valid time to total valid time.
+
+    // The goal of this test is to warn when the pinning configuration may be in danger of expiration; either via certificate validity or
+    // more likely by renewals causing the pinning to reject the new, correct certificates. It operates in percentage lifetime to normalize
+    // the values across the chain.
+    INFO("If this test has failed, the pinning certificates may be nearing expiration and should be investigated.");
+    double lifetimePercentage = source.GetDetails().CertificatePinningConfiguration.GetRemainingLifetimePercentage();
+    REQUIRE(lifetimePercentage > 0.25);
 }

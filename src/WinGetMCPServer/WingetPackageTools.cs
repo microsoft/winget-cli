@@ -148,6 +148,8 @@ namespace WinGetMCPServer
 
                 if (installResult.Status == InstallResultStatus.Ok)
                 {
+                    // Send a completed progress entry in the event that async progress forwarding didn't
+                    progress.Report(CreateInstallProgressNotification(PackageInstallProgressState.Finished, 1.0, 1.0));
                     findResult = ReFindForPackage(catalogPackage.DefaultInstallVersion);
                 }
 
@@ -167,9 +169,10 @@ namespace WinGetMCPServer
             for (int i = 0; i < catalogs.Count; ++i)
             {
                 var catalogRef = catalogs[i];
-                if (string.IsNullOrEmpty(catalog) || catalogRef?.Info.Id == catalog)
+                if ((string.IsNullOrEmpty(catalog) && !catalogRef.Info.Explicit)
+                    || catalogRef?.Info.Name == catalog)
                 {
-                    createCompositePackageCatalogOptions.Catalogs.Add(catalogs[i]);
+                    createCompositePackageCatalogOptions.Catalogs.Add(catalogRef);
                 }
             }
             createCompositePackageCatalogOptions.CompositeSearchBehavior = CompositeSearchBehavior.AllCatalogs;
@@ -233,9 +236,14 @@ namespace WinGetMCPServer
 
         private static ProgressNotificationValue CreateInstallProgressNotification(ref InstallProgress installProgress)
         {
+            return CreateInstallProgressNotification(installProgress.State, installProgress.DownloadProgress, installProgress.InstallationProgress);
+        }
+
+        private static ProgressNotificationValue CreateInstallProgressNotification(PackageInstallProgressState state, double downloadProgress, double installProgress)
+        {
             string? message = null;
 
-            switch (installProgress.State)
+            switch (state)
             {
                 case PackageInstallProgressState.Queued:
                     message = "The install operation is queued";
@@ -261,7 +269,7 @@ namespace WinGetMCPServer
 
             ProgressNotificationValue result = new ProgressNotificationValue()
             {
-                Progress = (float)((installProgress.DownloadProgress * downloadPercentage) + (installProgress.InstallationProgress * (1.0f - downloadPercentage))),
+                Progress = (float)((downloadProgress * downloadPercentage) + (installProgress * (1.0f - downloadPercentage))),
                 Message = message,
             };
 

@@ -233,3 +233,49 @@ TEST_CASE("TrackingCatalog_Overlapping_ARP_Range", "[tracking_catalog]")
     REQUIRE(resultAfter.Matches[0].Package->GetAvailable()[0]->GetLatestVersion()->GetProperty(PackageVersionProperty::Version) ==
         manifest.Version);
 }
+
+TEST_CASE("TrackingCatalog_Corrupt", "[tracking_catalog]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SourceDetails details;
+    Manifest manifest;
+    std::string relativePath;
+    auto source = SimpleTestSetup(tempFile, details, manifest, relativePath);
+
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, manifest.Id);
+
+    std::filesystem::path catalogFile;
+
+    {
+        // Add data to initial database
+        PackageTrackingCatalog catalog = CreatePackageTrackingCatalogForSource(source);
+
+        SearchResult resultBefore = catalog.Search(request);
+        REQUIRE(resultBefore.Matches.size() == 0);
+
+        catalog.RecordInstall(manifest, manifest.Installers[0], false);
+
+        SearchResult resultAfter = catalog.Search(request);
+        REQUIRE(resultAfter.Matches.size() == 1);
+        REQUIRE(resultAfter.Matches[0].Package->GetAvailable().size() == 1);
+
+        catalogFile = catalog.GetFilePath();
+    }
+
+    {
+        std::ofstream file{ catalogFile, std::ios_base::trunc };
+        file << "Corrupted!";
+    }
+
+    {
+        // Open database again after "corruption"
+        PackageTrackingCatalog catalog = CreatePackageTrackingCatalogForSource(source);
+
+        // Should not find anything in new database
+        SearchResult resultBefore = catalog.Search(request);
+        REQUIRE(resultBefore.Matches.size() == 0);
+    }
+}
