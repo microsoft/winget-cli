@@ -145,6 +145,9 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
         // Create an image source from a stream.
         ImageSource(std::istream& imageStream, Manifest::IconFileTypeEnum imageEncoding);
 
+        // Create an image source from bytes.
+        ImageSource(const std::vector<uint8_t>& imageBytes, Manifest::IconFileTypeEnum imageEncoding);
+
         // Resize the image to the given width and height, factoring in the target aspect ratio for rendering.
         // If stretchToFill is true, the resulting image will be both the given width and height.
         // If false, the resulting image will be at most the given width or height while preserving the aspect ratio.
@@ -220,6 +223,9 @@ namespace AppInstaller::CLI::VirtualTerminal::Sixel
 
         // Create an image from a stream.
         Image(std::istream& imageStream, Manifest::IconFileTypeEnum imageEncoding);
+
+        // Create an image from bytes.
+        Image(const std::vector<uint8_t>& imageBytes, Manifest::IconFileTypeEnum imageEncoding);
 
         // Set the aspect ratio of the result.
         Image& AspectRatio(AspectRatio aspectRatio);

@@ -108,7 +108,7 @@ namespace AppInstaller::CLI::Workflow
             auto channel = installedPackageVersion->GetProperty(PackageVersionProperty::Channel);
 
             // Find an available version of this package to determine its source.
-            auto availablePackageVersion = GetAvailableVersionForInstalledPackage(context, packageMatch.Package, Utility::LocIndView{ version }, Utility::LocIndView{ channel }, includeVersions);
+            auto availablePackageVersion = GetAvailableVersionForInstalledPackage(context, packageMatch.Package, version, channel, includeVersions);
             if (!availablePackageVersion)
             {
                 // Report package not found and move to next package.
