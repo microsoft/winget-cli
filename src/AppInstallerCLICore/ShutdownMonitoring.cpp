@@ -11,7 +11,7 @@ using namespace std::chrono_literals;
 
 namespace AppInstaller::ShutdownMonitoring
 {
-    static bool s_TerminationSignalHandlerEnabled = true;
+    static std::atomic_bool s_TerminationSignalHandlerEnabled = true;
 
     std::shared_ptr<TerminationSignalHandler> TerminationSignalHandler::Instance()
     {

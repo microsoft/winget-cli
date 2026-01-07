@@ -49,6 +49,8 @@ struct TestParameters
 
     bool InitializeTestState() const;
 
+    bool InitializeIterationState() const;
+
     std::unique_ptr<ITest> CreateTest() const;
 
     void UninitializeTestState() const;
@@ -75,6 +77,7 @@ struct TestParameters
     ActivationType ActivationType = ActivationType::ClassName;
     bool SkipClearFactories = false;
     DWORD WorkTestSleepInterval = 0;
+    bool DisableTerminationSignals = false;
 };
 
 // Captures a snapshot of current resource usage.

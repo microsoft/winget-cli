@@ -21,6 +21,11 @@ int main(int argc, const char** argv) try
     {
         std::cout << "Begin iteration " << (i + 1) << std::endl;
 
+        if (!testParameters.InitializeIterationState())
+        {
+            return 2;
+        }
+
         if (test && !test->RunIterationWork())
         {
             return 3;
