@@ -11,6 +11,8 @@ using namespace std::chrono_literals;
 
 namespace AppInstaller::ShutdownMonitoring
 {
+    static bool s_TerminationSignalHandlerEnabled = true;
+
     std::shared_ptr<TerminationSignalHandler> TerminationSignalHandler::Instance()
     {
         struct Singleton : public WinRT::COMStaticStorageBase<TerminationSignalHandler>
@@ -58,6 +60,16 @@ namespace AppInstaller::ShutdownMonitoring
         }
     }
 
+    bool TerminationSignalHandler::Enabled()
+    {
+        return s_TerminationSignalHandlerEnabled;
+    }
+
+    void TerminationSignalHandler::Enabled(bool enabled)
+    {
+        s_TerminationSignalHandlerEnabled = enabled;
+    }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
     HWND TerminationSignalHandler::GetWindowHandle() const
     {
@@ -75,6 +87,12 @@ namespace AppInstaller::ShutdownMonitoring
 #ifndef AICLI_DISABLE_TEST_HOOKS
         m_appShutdownEvent.create();
 #endif
+
+        if (!s_TerminationSignalHandlerEnabled)
+        {
+            AICLI_LOG(CLI, Info, << "TerminationSignalHandler is disabled, skipping creation of signal listeners");
+            return;
+        }
 
         if (Runtime::IsRunningInPackagedContext())
         {
