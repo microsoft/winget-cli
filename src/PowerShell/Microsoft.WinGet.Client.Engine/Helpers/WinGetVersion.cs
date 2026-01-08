@@ -56,16 +56,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
-        /// Checks if the version string has a wildcard.
-        /// </summary>
-        /// <param name="version">The version string.</param>
-        /// <returns>True if it has a wildcard, false otherwise.</returns>
-        public static bool VersionHasWildcard(string version)
-        {
-            return version.Contains("*");
-        }
-
-        /// <summary>
         /// Gets the version as it appears as a tag.
         /// </summary>
         public string TagVersion { get; }
@@ -113,6 +103,16 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
 
             return new WinGetVersion(versionResult.StdOut.Replace(Environment.NewLine, string.Empty));
+        }
+
+        /// <summary>
+        /// Checks if the version string has a wildcard.
+        /// </summary>
+        /// <param name="version">The version string.</param>
+        /// <returns>True if it has a wildcard, false otherwise.</returns>
+        public static bool VersionHasWildcard(string version)
+        {
+            return version.Contains("*");
         }
 
         /// <summary>

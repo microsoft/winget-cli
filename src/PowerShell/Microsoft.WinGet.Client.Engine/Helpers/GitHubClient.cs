@@ -95,7 +95,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             var allWinGetReleases = allReleases.Select(r => new WinGetVersion(r.TagName));
             if (TryGetLatestMatchingVersion(allWinGetReleases, version, includePrerelease, out var latestVersion))
             {
-                return latestVersion.TagVersion;
+                return latestVersion!.TagVersion;
             }
 
             return null;
