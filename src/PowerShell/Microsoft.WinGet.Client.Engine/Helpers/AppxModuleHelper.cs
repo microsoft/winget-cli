@@ -97,7 +97,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         // WinGet Source
         private const string WinGetSourceName = "Microsoft.Winget.Source";
         private const string WinGetSourceMsixName = "source2.msix";
-        private const string WinGetSourceUrl = "https://cdn.winget.microsoft.com/cache/source2.msix";
+        private const string WinGetSourceUrl = $"https://cdn.winget.microsoft.com/cache/{WinGetSourceMsixName}";
 
         private readonly PowerShellCmdlet pwshCmdlet;
         private readonly HttpClientHelper httpClientHelper;

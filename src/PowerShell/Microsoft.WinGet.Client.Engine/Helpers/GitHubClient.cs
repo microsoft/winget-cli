@@ -62,20 +62,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>Latest version.</returns>
         public async Task<Release> GetLatestReleaseAsync(bool includePrerelease)
         {
-            Release release;
-
-            // GetLatest doesn't respect prerelease or gives an option to get it.
-            if (includePrerelease)
-            {
-                // GetAll orders by newest and includes pre releases.
-                release = (await this.GetAllReleasesAsync())[0];
-            }
-            else
-            {
-                release = await this.gitHubClient.Repository.Release.GetLatest(this.owner, this.repo);
-            }
-
-            return release;
+            var allReleases = await this.GetAllReleasesAsync();
+            allReleases = includePrerelease ? allReleases : allReleases.Where(r => !r.Prerelease).ToList();
+            return allReleases.Select(r => new { Release = r, WinGetVersion = new WinGetVersion(r.TagName) })
+                .OrderBy(rv => rv.WinGetVersion.Version)
+                .Last().Release;
         }
 
         /// <summary>
@@ -95,6 +86,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>Resolved version string or null if no match found.</returns>
         public async Task<string?> ResolveVersionAsync(string version, bool includePrerelease)
         {
+            if (!WinGetVersion.VersionHasWildcard(version))
+            {
+                return version;
+            }
+
             var allReleases = await this.GetAllReleasesAsync();
             var allWinGetReleases = allReleases.Select(r => new WinGetVersion(r.TagName));
             if (TryGetLatestMatchingVersion(allWinGetReleases, version, includePrerelease, out var latestVersion))
@@ -118,7 +114,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="includePrerelease">Include prerelease versions.</param>
         /// <param name="result">The resulting version.</param>
         /// <returns>True if a matching version was found.</returns>
-        private static bool TryGetLatestMatchingVersion(IEnumerable<WinGetVersion> versions, string pattern, bool includePrerelease, out WinGetVersion result)
+        private static bool TryGetLatestMatchingVersion(IEnumerable<WinGetVersion> versions, string pattern, bool includePrerelease, out WinGetVersion? result)
         {
             pattern = string.IsNullOrWhiteSpace(pattern) ? "*" : pattern;
 
