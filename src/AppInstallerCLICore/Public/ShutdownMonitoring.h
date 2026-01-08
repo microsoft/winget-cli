@@ -3,7 +3,6 @@
 #pragma once
 #include <Windows.h>
 #include <AppInstallerProgress.h>
-#include <winrt/Windows.ApplicationModel.h>
 #include <wil/resource.h>
 #include <memory>
 #include <mutex>
@@ -61,8 +60,6 @@ namespace AppInstaller::ShutdownMonitoring
         wil::unique_event m_messageQueueReady;
         wil::unique_hwnd m_windowHandle;
         std::thread m_windowThread;
-        winrt::Windows::ApplicationModel::PackageCatalog m_catalog = nullptr;
-        decltype(winrt::Windows::ApplicationModel::PackageCatalog{ nullptr }.PackageUpdating(winrt::auto_revoke, nullptr)) m_updatingEvent;
     };
 
     // Coordinates shutdown across server components

@@ -76,17 +76,6 @@ namespace AppInstaller::ShutdownMonitoring
         m_appShutdownEvent.create();
 #endif
 
-        if (Runtime::IsRunningInPackagedContext())
-        {
-            // Create package update listener
-            m_catalog = winrt::Windows::ApplicationModel::PackageCatalog::OpenForCurrentPackage();
-            m_updatingEvent = m_catalog.PackageUpdating(
-                winrt::auto_revoke, [this](winrt::Windows::ApplicationModel::PackageCatalog, winrt::Windows::ApplicationModel::PackageUpdatingEventArgs)
-                {
-                    this->StartAppShutdown();
-                });
-        }
-
         // Create message only window.
         m_messageQueueReady.create();
         m_windowThread = std::thread(&TerminationSignalHandler::CreateWindowAndStartMessageLoop, this);
