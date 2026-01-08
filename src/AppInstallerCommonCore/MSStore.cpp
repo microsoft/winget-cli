@@ -6,6 +6,7 @@
 #include <winget/Runtime.h>
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerErrors.h>
+#include <winrt/Windows.ApplicationModel.h>
 
 namespace AppInstaller::MSStore
 {
@@ -176,6 +177,133 @@ namespace AppInstaller::MSStore
 
             return S_FALSE;
         }
+
+        // Used to detect a signal that a package update is being requested so that we can early out
+        // on an attempt to update ourself. This is only needed for elevated processes because the
+        // standard shutdown signals are not sent to elevated processes in the same manner.
+        struct PackageUpdateMonitor
+        {
+            PackageUpdateMonitor()
+            {
+                if (Runtime::IsRunningAsAdmin() && Runtime::IsRunningInPackagedContext())
+                {
+                    m_catalog = winrt::Windows::ApplicationModel::PackageCatalog::OpenForCurrentPackage();
+                    m_updatingEvent = m_catalog.PackageUpdating(
+                        winrt::auto_revoke, [this](winrt::Windows::ApplicationModel::PackageCatalog, winrt::Windows::ApplicationModel::PackageUpdatingEventArgs args)
+                        {
+                            // Deployment always sends a value of 0 before doing any work and a value of 100 when completely done.
+                            constexpr double minProgress = 0;
+                            auto progress = args.Progress();
+                            if (progress > minProgress)
+                            {
+                                m_isUpdating = true;
+                            }
+                        });
+                }
+            }
+
+            bool IsUpdating() const
+            {
+                return m_isUpdating;
+            }
+
+        private:
+            winrt::Windows::ApplicationModel::PackageCatalog m_catalog = nullptr;
+            decltype(winrt::Windows::ApplicationModel::PackageCatalog{ nullptr }.PackageUpdating(winrt::auto_revoke, nullptr)) m_updatingEvent;
+            std::atomic_bool m_isUpdating = false;
+        };
+
+        HRESULT WaitForOperation(const std::wstring& productId, bool isSilentMode, IVectorView<AppInstallItem>& installItems, IProgressCallback& progress, const PackageUpdateMonitor& monitor)
+        {
+            auto cancelIfOperationFailed = wil::scope_exit(
+                [&]()
+                {
+                    try
+                    {
+                        AppInstallManager installManager;
+                        installManager.Cancel(productId);
+                    }
+                    CATCH_LOG();
+                });
+
+            for (auto const& installItem : installItems)
+            {
+                AICLI_LOG(Core, Info, <<
+                    "Started MSStore package execution. ProductId: " << Utility::ConvertToUTF8(installItem.ProductId()) <<
+                    " PackageFamilyName: " << Utility::ConvertToUTF8(installItem.PackageFamilyName()));
+
+                if (isSilentMode)
+                {
+                    installItem.InstallInProgressToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
+                    installItem.CompletedInstallToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
+                }
+            }
+
+            HRESULT errorCode = S_OK;
+
+            // We are aggregating all AppInstallItem progresses into one.
+            // Averaging every progress for now until we have a better way to find overall progress.
+            uint64_t overallProgressMax = 100 * static_cast<uint64_t>(installItems.Size());
+            uint64_t currentProgress = 0;
+
+            while (currentProgress < overallProgressMax)
+            {
+                currentProgress = 0;
+
+                for (auto const& installItem : installItems)
+                {
+                    const auto& status = installItem.GetCurrentStatus();
+                    currentProgress += static_cast<uint64_t>(status.PercentComplete());
+
+                    errorCode = status.ErrorCode();
+
+                    if (!SUCCEEDED(errorCode))
+                    {
+                        return errorCode;
+                    }
+                }
+
+                // It may take a while for Store client to pick up the install request.
+                // So we show indefinite progress here to avoid a progress bar stuck at 0.
+                if (currentProgress > 0)
+                {
+                    progress.OnProgress(currentProgress, overallProgressMax, ProgressType::Percent);
+                }
+
+                if (progress.IsCancelledBy(CancelReason::User))
+                {
+                    for (auto const& installItem : installItems)
+                    {
+                        installItem.Cancel();
+                    }
+                }
+
+                // If app shutdown then we have 30s to keep installing, keep going and hope for the best.
+                else if (progress.IsCancelledBy(CancelReason::AppShutdown) || monitor.IsUpdating())
+                {
+                    for (auto const& installItem : installItems)
+                    {
+                        // Insert spiderman meme.
+                        if (installItem.ProductId() == std::wstring{ s_AppInstallerProductId })
+                        {
+                            AICLI_LOG(Core, Info, << "Asked to shutdown while installing AppInstaller.");
+                            progress.OnProgress(overallProgressMax, overallProgressMax, ProgressType::Percent);
+                            cancelIfOperationFailed.release();
+                            return S_OK;
+                        }
+                    }
+                }
+
+                Sleep(100);
+            }
+
+            if (SUCCEEDED(errorCode))
+            {
+                cancelIfOperationFailed.release();
+            }
+
+            return errorCode;
+        }
     }
 
     HRESULT MSStoreOperation::StartAndWaitForOperation(IProgressCallback& progress)
@@ -195,6 +323,8 @@ namespace AppInstaller::MSStore
 
     HRESULT MSStoreOperation::InstallPackage(IProgressCallback& progress)
     {
+        PackageUpdateMonitor monitor;
+
         AppInstallManager installManager;
         AppInstallOptions installOptions;
 
@@ -248,11 +378,13 @@ namespace AppInstaller::MSStore
                 installOptions).get();
         }
 
-        return WaitForOperation(installItems, progress);
+        return WaitForOperation(m_productId, m_isSilentMode, installItems, progress, monitor);
     }
 
     HRESULT MSStoreOperation::UpdatePackage(IProgressCallback& progress)
     {
+        PackageUpdateMonitor monitor;
+
         AppInstallManager installManager;
         AppUpdateOptions updateOptions;
         updateOptions.AllowForcedAppRestart(m_force);
@@ -300,98 +432,6 @@ namespace AppInstaller::MSStore
             installItems = winrt::single_threaded_vector(std::move(installItemVector)).GetView();
         }
 
-        return WaitForOperation(installItems, progress);
-    }
-
-    HRESULT MSStoreOperation::WaitForOperation(IVectorView<AppInstallItem>& installItems, IProgressCallback& progress)
-    {
-        auto cancelIfOperationFailed = wil::scope_exit(
-            [&]()
-            {
-                try
-                {
-                    AppInstallManager installManager;
-                    installManager.Cancel(m_productId);
-                }
-                CATCH_LOG();
-            });
-
-        for (auto const& installItem : installItems)
-        {
-            AICLI_LOG(Core, Info, <<
-                "Started MSStore package execution. ProductId: " << Utility::ConvertToUTF8(installItem.ProductId()) <<
-                " PackageFamilyName: " << Utility::ConvertToUTF8(installItem.PackageFamilyName()));
-
-            if (m_isSilentMode)
-            {
-                installItem.InstallInProgressToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
-                installItem.CompletedInstallToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
-            }
-        }
-
-        HRESULT errorCode = S_OK;
-
-        // We are aggregating all AppInstallItem progresses into one.
-        // Averaging every progress for now until we have a better way to find overall progress.
-        uint64_t overallProgressMax = 100 * static_cast<uint64_t>(installItems.Size());
-        uint64_t currentProgress = 0;
-
-        while (currentProgress < overallProgressMax)
-        {
-            currentProgress = 0;
-
-            for (auto const& installItem : installItems)
-            {
-                const auto& status = installItem.GetCurrentStatus();
-                currentProgress += static_cast<uint64_t>(status.PercentComplete());
-
-                errorCode = status.ErrorCode();
-
-                if (!SUCCEEDED(errorCode))
-                {
-                    return errorCode;
-                }
-            }
-
-            // It may take a while for Store client to pick up the install request.
-            // So we show indefinite progress here to avoid a progress bar stuck at 0.
-            if (currentProgress > 0)
-            {
-                progress.OnProgress(currentProgress, overallProgressMax, ProgressType::Percent);
-            }
-
-            if (progress.IsCancelledBy(CancelReason::User))
-            {
-                for (auto const& installItem : installItems)
-                {
-                    installItem.Cancel();
-                }
-            }
-
-            // If app shutdown then we have 30s to keep installing, keep going and hope for the best.
-            else if (progress.IsCancelledBy(CancelReason::AppShutdown))
-            {
-                for (auto const& installItem : installItems)
-                {
-                    // Insert spiderman meme.
-                    if (installItem.ProductId() == std::wstring{ s_AppInstallerProductId })
-                    {
-                        AICLI_LOG(Core, Info, << "Asked to shutdown while installing AppInstaller.");
-                        progress.OnProgress(overallProgressMax, overallProgressMax, ProgressType::Percent);
-                        cancelIfOperationFailed.release();
-                        return S_OK;
-                    }
-                }
-            }
-
-            Sleep(100);
-        }
-
-        if (SUCCEEDED(errorCode))
-        {
-            cancelIfOperationFailed.release();
-        }
-
-        return errorCode;
+        return WaitForOperation(m_productId, m_isSilentMode, installItems, progress, monitor);
     }
 }
