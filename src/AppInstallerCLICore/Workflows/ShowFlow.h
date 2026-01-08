@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionContext.h"
+#include <AppInstallerLanguageUtilities.h>
+#include <winget/LocIndependent.h>
+#include <winget/Resources.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -48,4 +51,32 @@ namespace AppInstaller::CLI::Workflow
     private:
         bool m_considerPins;
     };
+
+    // Reusable helpers for `show` style line output
+    namespace details
+    {
+        Utility::LocIndView GetIndentFor(size_t i);
+    }
+
+    void ShowSingleLineField(Execution::OutputStream& outputStream, StringResource::StringId label, Utility::LocIndView value, size_t indentLevel = 0);
+
+    void ShowMultiLineField(Execution::OutputStream& outputStream, StringResource::StringId label, Utility::LocIndView value, size_t indentLevel = 0);
+
+    template <typename Container>
+    void ShowMultiValueField(Execution::OutputStream& outputStream, StringResource::StringId label, const Container& values, size_t indentLevel = 0)
+    {
+        if (values.empty())
+        {
+            return;
+        }
+
+        bool isMultiItem = values.size() > 1;
+        outputStream << details::GetIndentFor(indentLevel) << Execution::ManifestInfoEmphasis << label;
+        outputStream << (isMultiItem ? '\n' : ' ');
+
+        for (const auto& value : values)
+        {
+            outputStream << details::GetIndentFor(isMultiItem ? indentLevel + 1 : 0) << value << '\n';
+        }
+    }
 }

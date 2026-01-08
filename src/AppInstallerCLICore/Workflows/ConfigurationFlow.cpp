@@ -1417,7 +1417,7 @@ namespace AppInstaller::CLI::Workflow
             unit.Identifier(sourceNameWide + L'_' + packageIdWide);
             unit.Intent(ConfigurationUnitIntent::Apply);
 
-            auto description = Resource::String::ConfigureExportUnitInstallDescription(Utility::LocIndView{ package.Id });
+            auto description = Resource::String::ConfigureExportUnitInstallDescription(package.Id);
 
             ValueSet directives;
             directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));

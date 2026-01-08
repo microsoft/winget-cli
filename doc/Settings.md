@@ -403,3 +403,30 @@ This feature enables support for additional source command improvements via `win
         "sourceEdit": true
   },
 ```
+
+### listDetails
+
+This feature enables support for displaying detailed output from the `list` command. Rather than a table view of the results, when the `--details` option is provided
+to the `list` command, it will output information similar to how `show` would. Most of the data presented is directly from the local installation.
+
+Example output:
+```PowerShell
+> winget list Microsoft.VisualStudio.2022.Enterprise --details
+Visual Studio Enterprise 2022 [Microsoft.VisualStudio.2022.Enterprise]
+Version: 17.14.21 (November 2025)
+Publisher: Microsoft Corporation
+Local Identifier: ARP\Machine\X86\875fed29
+Product Code: 875fed29
+Installer Category: exe
+Installed Scope: Machine
+Installed Location: C:\Program Files\Microsoft Visual Studio\2022\Enterprise
+Available Upgrades:
+  winget [17.14.23]
+```
+
+To enable:
+```json
+  "experimentalFeatures": {
+        "listDetails": true
+  },
+```
