@@ -1140,6 +1140,20 @@ namespace AppInstaller::Manifest
             auto errors = ValidateAndProcessFields(entry, InstallerFieldInfos, VariantManifestPtr(&installer));
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
 
+            // Set installer type back before attempting to use it in any of the EffectiveInstallerType calls below
+            if (IsArchiveType(installer.BaseInstallerType))
+            {
+                if (installer.NestedInstallerFiles.empty())
+                {
+                    installer.NestedInstallerFiles = m_manifest.get().DefaultInstallerInfo.NestedInstallerFiles;
+                }
+
+                if (installer.NestedInstallerType == InstallerTypeEnum::Unknown)
+                {
+                    installer.NestedInstallerType = m_manifest.get().DefaultInstallerInfo.NestedInstallerType;
+                }
+            }
+
             // Copy in system reference strings from the root if not set in the installer and appropriate
             if (installer.PackageFamilyName.empty() && DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()))
             {
@@ -1154,19 +1168,6 @@ namespace AppInstaller::Manifest
             if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.EffectiveInstallerType()))
             {
                 installer.AppsAndFeaturesEntries = m_manifest.get().DefaultInstallerInfo.AppsAndFeaturesEntries;
-            }
-
-            if (IsArchiveType(installer.BaseInstallerType))
-            {
-                if (installer.NestedInstallerFiles.empty())
-                {
-                    installer.NestedInstallerFiles = m_manifest.get().DefaultInstallerInfo.NestedInstallerFiles;
-                }
-
-                if (installer.NestedInstallerType == InstallerTypeEnum::Unknown)
-                {
-                    installer.NestedInstallerType = m_manifest.get().DefaultInstallerInfo.NestedInstallerType;
-                }
             }
 
             // If there are no dependencies on installer use default ones
