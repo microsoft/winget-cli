@@ -550,6 +550,7 @@ namespace AppInstaller::Repository
                         if (Manifest::DoesInstallerTypeSupportArpVersionRange(key.InstalledType))
                         {
                             key.Version = GetMappedInstalledVersion(key.InstalledVersion->GetProperty(PackageVersionProperty::Version), availablePackage);
+                            key.VersionAndChannel = Utility::VersionAndChannel{ key.Version, key.Channel };
                         }
                     }
                 }
