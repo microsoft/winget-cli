@@ -1155,7 +1155,14 @@ namespace AppInstaller::Manifest
             }
 
             // Copy in system reference strings from the root if not set in the installer and appropriate
-            if (installer.PackageFamilyName.empty() && DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()))
+            if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.EffectiveInstallerType()))
+            {
+                installer.AppsAndFeaturesEntries = m_manifest.get().DefaultInstallerInfo.AppsAndFeaturesEntries;
+            }
+
+            if (installer.PackageFamilyName.empty() &&
+                (DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()) ||
+                 DoAnyAppsAndFeaturesEntriesUsePackageFamilyName(installer.AppsAndFeaturesEntries)))
             {
                 installer.PackageFamilyName = m_manifest.get().DefaultInstallerInfo.PackageFamilyName;
             }
@@ -1163,11 +1170,6 @@ namespace AppInstaller::Manifest
             if (installer.ProductCode.empty() && DoesInstallerTypeUseProductCode(installer.EffectiveInstallerType()))
             {
                 installer.ProductCode = m_manifest.get().DefaultInstallerInfo.ProductCode;
-            }
-
-            if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.EffectiveInstallerType()))
-            {
-                installer.AppsAndFeaturesEntries = m_manifest.get().DefaultInstallerInfo.AppsAndFeaturesEntries;
             }
 
             // If there are no dependencies on installer use default ones

@@ -434,6 +434,9 @@ namespace AppInstaller::Manifest
     // Gets a value indicating whether the given installer uses the PackageFamilyName system reference.
     bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType);
 
+    // Gets a value indicating whether any of the ARP entries uses the PackageFamilyName system reference.
+    bool DoAnyAppsAndFeaturesEntriesUsePackageFamilyName(const std::vector<AppsAndFeaturesEntry>& entries);
+
     // Gets a value indicating whether the given installer uses the ProductCode system reference.
     bool DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType);
 
