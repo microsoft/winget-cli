@@ -80,12 +80,6 @@ namespace AppInstaller::CLI::Execution
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
-    HWND GetWindowHandle();
-
-    bool WaitForAppShutdownEvent();
-#endif
-
     // Callback to log data actions.
     void ContextEnumBasedVariantMapActionCallback(const void* map, Data data, EnumBasedVariantMapAction action);
 

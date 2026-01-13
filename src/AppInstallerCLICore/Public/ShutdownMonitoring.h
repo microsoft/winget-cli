@@ -6,6 +6,7 @@
 #include <wil/resource.h>
 #include <memory>
 #include <mutex>
+#include <optional>
 
 namespace AppInstaller::ShutdownMonitoring
 {
@@ -38,9 +39,6 @@ namespace AppInstaller::ShutdownMonitoring
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Gets the window handle for the message window.
         HWND GetWindowHandle() const;
-
-        // Waits for the shutdown event.
-        bool WaitForAppShutdownEvent() const;
 #endif
 
     private:
@@ -57,10 +55,6 @@ namespace AppInstaller::ShutdownMonitoring
         BOOL InformListeners(CancelReason reason, bool force);
 
         void CreateWindowAndStartMessageLoop();
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        wil::unique_event m_appShutdownEvent;
-#endif
 
         std::mutex m_listenersLock;
         std::vector<ICancellable*> m_listeners;
@@ -95,7 +89,7 @@ namespace AppInstaller::ShutdownMonitoring
         static void AddComponent(const ComponentSystem& component);
 
         // Waits for the shutdown to complete.
-        static void WaitForShutdown();
+        static bool WaitForShutdown(std::optional<DWORD> timeout = std::nullopt);
 
     private:
         ServerShutdownSynchronization() = default;
