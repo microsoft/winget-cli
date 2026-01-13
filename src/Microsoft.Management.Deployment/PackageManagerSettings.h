@@ -20,6 +20,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // Contract 28
         bool CanUnloadPreference() const;
         void CanUnloadPreference(bool value);
+        bool TerminationSignalMonitoring() const;
+        void TerminationSignalMonitoring(bool value);
     };
 }
 

@@ -145,6 +145,29 @@ namespace AppInstallerCLIE2ETests
             });
         }
 
+        /// <summary>
+        /// Tests that disable the termination signal handling.
+        /// </summary>
+        /// <param name="disableTerminationSignals">Control whether the module should listen to termination signals.</param>
+        /// <param name="unloadBehavior">Set the unload behavior for the test.</param>
+        /// <param name="workTestSleep">Sets the number of milliseconds to sleep between each work/test iteration.</param>
+        [Test]
+        [TestCase(true, UnloadBehavior.Allow, 1000)]
+        [TestCase(true, UnloadBehavior.Never)]
+        [TestCase(false, UnloadBehavior.Allow, 1000)]
+        [TestCase(false, UnloadBehavior.Never)]
+        public void TerminationSignal_Tests(bool disableTerminationSignals, UnloadBehavior unloadBehavior, int? workTestSleep = null)
+        {
+            this.RunInprocTestbed(new TestbedParameters()
+            {
+                ActivationType = ActivationType.CoCreateInstance,
+                DisableTerminationSignals = disableTerminationSignals,
+                UnloadBehavior = unloadBehavior,
+                Iterations = 10,
+                WorkTestSleepInterval = workTestSleep,
+            });
+        }
+
         private void RunInprocTestbed(TestbedParameters parameters, int timeout = 300000)
         {
             string builtParameters = string.Empty;
@@ -184,6 +207,11 @@ namespace AppInstallerCLIE2ETests
                 builtParameters += $"-work-test-sleep {parameters.WorkTestSleepInterval} ";
             }
 
+            if (parameters.DisableTerminationSignals)
+            {
+                builtParameters += $"-no-term ";
+            }
+
             var result = TestCommon.RunProcess(this.InprocTestbedPath, this.TargetPackageInformation, builtParameters, null, timeout, true);
             Assert.AreEqual(0, result.ExitCode);
         }
@@ -206,6 +234,8 @@ namespace AppInstallerCLIE2ETests
             internal int? Iterations { get; init; } = null;
 
             internal int? WorkTestSleepInterval { get; init; } = null;
+
+            internal bool DisableTerminationSignals { get; init; } = false;
         }
     }
 }

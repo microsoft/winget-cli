@@ -143,6 +143,11 @@ void SetUnloadPreference(bool value)
     PackageManagerSettings settings;
     settings.CanUnloadPreference(value);
 }
+void SetDisableTerminationSignals(bool value)
+{
+    PackageManagerSettings settings;
+    settings.TerminationSignalMonitoring(!value);
+}
 
 bool DetectForSystem(const TestParameters& testParameters)
 {

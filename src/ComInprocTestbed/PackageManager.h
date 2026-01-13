@@ -13,6 +13,9 @@ void InitializePackageManagerGlobals();
 // Sets the module to prevent it from unloading.
 void SetUnloadPreference(bool value);
 
+// Sets the module to prevent it from listening to termination signals.
+void SetDisableTerminationSignals(bool value);
+
 // Attempts to detect the target package as installed for the system.
 bool DetectForSystem(const TestParameters& testParameters);
 

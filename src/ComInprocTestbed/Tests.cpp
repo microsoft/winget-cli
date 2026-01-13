@@ -137,6 +137,15 @@ namespace
             }
         }
 
+        return result;
+    }
+
+    // Look for the set of termination signal monitoring objects that should be present after we have spun everything up.
+    // Returns true if all objects are found in the expected state.
+    bool SearchForTerminationSignalObjects(bool expectExist)
+    {
+        bool result = true;
+
         // Shutdown monitoring window
         bool foundWindow = false;
         EnumWindows(CheckForWinGetWindow, reinterpret_cast<LPARAM>(&foundWindow));
@@ -251,6 +260,10 @@ TestParameters::TestParameters(int argc, const char** argv)
             ADVANCE_ARG_PARAMETER
             WorkTestSleepInterval = atoi(argv[i]);
         }
+        else if ("-no-term"sv == argv[i])
+        {
+            DisableTerminationSignals = true;
+        }
     }
 }
 
@@ -290,11 +303,21 @@ bool TestParameters::InitializeTestState() const
         return false;
     }
 
-    InitializePackageManagerGlobals();
-
     if (UnloadBehavior::Never == UnloadBehavior || UnloadBehavior::AtUninitialize == UnloadBehavior)
     {
         SetUnloadPreference(false);
+    }
+
+    return true;
+}
+
+bool TestParameters::InitializeIterationState() const
+{
+    InitializePackageManagerGlobals();
+
+    if (DisableTerminationSignals)
+    {
+        SetDisableTerminationSignals(true);
     }
 
     return true;
@@ -435,7 +458,8 @@ bool UnloadAndCheckForLeaks::RunIterationTest()
     std::cout << "UnloadAndCheckForLeaks::RunIterationTest\n";
 
     Snapshot beforeUnload;
-    if (!SearchForWellKnownObjects(true, beforeUnload))
+    if (!SearchForWellKnownObjects(true, beforeUnload) ||
+        !SearchForTerminationSignalObjects(!m_parameters.DisableTerminationSignals))
     {
         return false;
     }
@@ -445,7 +469,8 @@ bool UnloadAndCheckForLeaks::RunIterationTest()
     Snapshot afterUnload;
     m_iterationSnapshots.emplace_back(beforeUnload, afterUnload);
 
-    if (!SearchForWellKnownObjects(!m_parameters.UnloadExpected(), afterUnload))
+    if (!SearchForWellKnownObjects(!m_parameters.UnloadExpected(), afterUnload) ||
+        !SearchForTerminationSignalObjects(!m_parameters.UnloadExpected() && !m_parameters.DisableTerminationSignals))
     {
         return false;
     }

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="IntegrityCategory.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -65,5 +65,10 @@ namespace Microsoft.WinGet.Client.Engine.Common
         /// No applicable license found.
         /// </summary>
         AppInstallerNoLicense,
+
+        /// <summary>
+        /// WinGet source is not installed.
+        /// </summary>
+        WinGetSourceNotInstalled,
     }
 }

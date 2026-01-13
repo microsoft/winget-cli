@@ -28,6 +28,13 @@ namespace AppInstaller::ShutdownMonitoring
         // Add or remove the listener based on `enabled`.
         static void EnableListener(bool enabled, ICancellable* cancellable);
 
+        // Gets whether the signal handler is enabled.
+        static bool Enabled();
+
+        // Sets whether the signal handler is enabled; the default is true.
+        // When set to false, the signal handler instance will not create signal listeners when created.
+        static void Enabled(bool enabled);
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Gets the window handle for the message window.
         HWND GetWindowHandle() const;
