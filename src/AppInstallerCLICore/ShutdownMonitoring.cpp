@@ -63,19 +63,10 @@ namespace AppInstaller::ShutdownMonitoring
     {
         return m_windowHandle.get();
     }
-
-    bool TerminationSignalHandler::WaitForAppShutdownEvent() const
-    {
-        return m_appShutdownEvent.wait(60000);
-    }
 #endif
 
     TerminationSignalHandler::TerminationSignalHandler()
     {
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        m_appShutdownEvent.create();
-#endif
-
         // Create message only window.
         m_messageQueueReady.create();
         m_windowThread = std::thread(&TerminationSignalHandler::CreateWindowAndStartMessageLoop, this);
@@ -108,10 +99,6 @@ namespace AppInstaller::ShutdownMonitoring
     void TerminationSignalHandler::StartAppShutdown()
     {
         AICLI_LOG(CLI, Info, << "Initiating shutdown procedure");
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        m_appShutdownEvent.SetEvent();
-#endif
 
         // Lifetime manager sends CTRL-C after the WM_QUERYENDSESSION is processed.
         // If we disable the CTRL-C handler, the default handler will kill us.
@@ -295,20 +282,27 @@ namespace AppInstaller::ShutdownMonitoring
         instance.m_components.push_back(component);
     }
 
-    void ServerShutdownSynchronization::WaitForShutdown()
+    bool ServerShutdownSynchronization::WaitForShutdown(std::optional<DWORD> timeout)
     {
         ServerShutdownSynchronization& instance = Instance();
 
+        if (timeout)
         {
-            std::lock_guard<std::mutex> lock{ instance.m_threadLock };
-            if (!instance.m_shutdownThread.joinable())
-            {
-                AICLI_LOG(Core, Warning, << "Attempt to wait for shutdown when shutdown has not been initiated.");
-                return;
-            }
+            return instance.m_shutdownComplete.wait(timeout.value());
         }
+        else
+        {
+            {
+                std::lock_guard<std::mutex> lock{ instance.m_threadLock };
+                if (!instance.m_shutdownThread.joinable())
+                {
+                    AICLI_LOG(Core, Warning, << "Attempt to wait for shutdown when shutdown has not been initiated.");
+                    return false;
+                }
+            }
 
-        instance.m_shutdownComplete.wait();
+            return instance.m_shutdownComplete.wait();
+        }
     }
 
     void ServerShutdownSynchronization::Cancel(CancelReason reason, bool)
