@@ -2085,3 +2085,22 @@ TEST_CASE("ShadowManifest_NotVerifiedPublisher", "[ShadowManifest]")
     TempFile mergedManifestFile{ "merged.yaml" };
     REQUIRE_THROWS_MATCHES(YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile), ManifestException, ManifestExceptionMatcher("Field usage requires verified publishers. [Icons]"));
 }
+
+TEST_CASE("Manifest_PackageFamilyNameInheritance", "[ManifestValidation]")
+{
+    std::filesystem::path testManifest;
+
+    SECTION("MSIX inside Archive")
+    {
+        testManifest = "Manifest-MSIX-in-Archive.yaml";
+    }
+    SECTION("MSIX in AppsAndFeatures")
+    {
+        testManifest = "Manifest-MSIX-in-AppsAndFeatures.yaml";
+    }
+
+    auto manifest = YamlParser::CreateFromPath(TestDataFile(testManifest), GetTestManifestValidateOption());
+
+    REQUIRE(!manifest.Installers.empty());
+    REQUIRE(!manifest.Installers[0].PackageFamilyName.empty());
+}
