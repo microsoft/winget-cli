@@ -331,6 +331,13 @@ jobs:
     inputs:
       packageFeedSelector: 'nugetOrg'
 
+  # Temporarily enable this tracing collection until the issue with the following Install is fixed. Then move to debug only as the COM tracing in the e2e-test.template does.
+  - task: CmdLine@2
+    displayName: Start HAM trace
+    condition: succeededOrFailed()
+    inputs:
+      script: 'wpr -start $(Build.SourcesDirectory)\tools\HAMTrace\WER.HostActivityManager.wprp -filemode'
+
   - powershell: |
       Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
       Install-Module Microsoft.WinGet.Client -Repository PSGallery -Force
@@ -338,6 +345,12 @@ jobs:
       Install-WinGetPackage -Id Microsoft.Sysinternals.PsTools -Source winget
     displayName: Install Sysinternals PsTools Using Winget
     condition: succeededOrFailed()
+
+  - task: CmdLine@2
+    displayName: Complete HAM trace
+    condition: succeededOrFailed()
+    inputs:
+      script: 'wpr -stop "$(artifactsDir)\HamTrace.etl"'
 
   - pwsh: |
       $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")

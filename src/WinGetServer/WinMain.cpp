@@ -217,6 +217,7 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
         }
 
         _comServerExitEvent.wait();
+        WindowsPackageManagerServerLog("Server shutting down after exit event signaled.");
 
         if (manualResetEvent)
         {
@@ -228,7 +229,11 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
             RETURN_IF_FAILED(WindowsPackageManagerServerModuleUnregister());
         }
     }
-    CATCH_RETURN()
+    catch (...)
+    {
+        LOG_CAUGHT_EXCEPTION();
+        RETURN_CAUGHT_EXCEPTION();
+    }
 
     return 0;
 }

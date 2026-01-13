@@ -251,7 +251,7 @@ namespace AppInstaller::Logging
             }
         }
 
-        AICLI_LOG(Core, Info, << "WinGet, version [" << version << "], activity [" << *GetActivityId() << ']');
+        AICLI_LOG(Core, Info, << "WinGet, version [" << version << "], PID [" << GetCurrentProcessId() << "], activity [" << *GetActivityId() << ']');
         AICLI_LOG(Core, Info, << "OS: " << Runtime::GetOSVersion());
         AICLI_LOG(Core, Info, << "Command line Args: " << Utility::ConvertToUTF8(GetCommandLineW()));
         if (Runtime::IsRunningInPackagedContext())
