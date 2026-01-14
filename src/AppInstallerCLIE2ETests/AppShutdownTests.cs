@@ -95,9 +95,6 @@ namespace AppInstallerCLIE2ETests
 
             Task.WaitAll(new Task[] { testCmdTask, registerTask }, 360000);
 
-            // Assert.True(registerTask.Result);
-            TestContext.Out.Write(testCmdTask.Result.StdOut);
-
             // The ctrl-c command terminates the batch file before the exit code file gets created.
             // Look for the output.
             Assert.True(testCmdTask.Result.StdOut.Contains("Succeeded waiting for app shutdown event"));

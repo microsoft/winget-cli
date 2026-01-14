@@ -82,6 +82,21 @@ namespace AppInstaller::CLI
             return hr;
         }
 
+        void AppShutdownTestSystemBlockNewWork(CancelReason reason)
+        {
+            AICLI_LOG(CLI, Info, << "AppShutdownTestSystemBlockNewWork :: " << reason);
+        }
+
+        void AppShutdownTestSystemBeginShutdown(CancelReason reason)
+        {
+            AICLI_LOG(CLI, Info, << "AppShutdownTestSystemBeginShutdown :: " << reason);
+        }
+
+        void AppShutdownTestSystemWait()
+        {
+            AICLI_LOG(CLI, Info, << "AppShutdownTestSystemWait");
+        }
+
         void EnsureDSCv3Processor(Execution::Context& context)
         {
             auto& configurationSet = context.Get<Execution::Data::ConfigurationContext>().Set();
@@ -353,6 +368,13 @@ namespace AppInstaller::CLI
     void TestAppShutdownCommand::ExecuteInternal(Execution::Context& context) const
     {
         HRESULT hr = E_FAIL;
+
+        ShutdownMonitoring::ServerShutdownSynchronization::ComponentSystem appShutdownTestSystem{};
+        appShutdownTestSystem.BlockNewWork = AppShutdownTestSystemBlockNewWork;
+        appShutdownTestSystem.BeginShutdown = AppShutdownTestSystemBeginShutdown;
+        appShutdownTestSystem.Wait = AppShutdownTestSystemWait;
+
+        ShutdownMonitoring::ServerShutdownSynchronization::AddComponent(appShutdownTestSystem);
 
         // Only package context and admin won't create the window message.
         if (!Runtime::IsRunningInPackagedContext() || !Runtime::IsRunningAsAdmin())
