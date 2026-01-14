@@ -189,7 +189,11 @@
       </Keywords>
     </EventProvider>
     <EventProvider Id="Microsoft.Windows.HostIdStore" Name="A6A9CE06-035F-40CB-829B-EBB822697591" />
-    <EventProvider Id="Microsoft.Windows.AppXDeploymentServer" Name="FE762FB1-341A-4DD4-B399-BE1868B3D918" />
+    <EventProvider Id="Microsoft.Windows.AppXDeploymentServer" Name="FE762FB1-341A-4DD4-B399-BE1868B3D918">
+      <StackEventNameFilters FilterIn="true">
+        <EventName Value="Failure"/>
+      </StackEventNameFilters>
+    </EventProvider>
 
 
     <!-- Profiles -->
@@ -249,6 +253,8 @@
             <EventProviderId Value="Microsoft.Windows.Application.Service" />
             <EventProviderId Value="Microsoft.Windows.ResourceManager" />
             <EventProviderId Value="Microsoft.Windows.HostActivityManager" />
+
+            <EventProviderId Value="Microsoft.Windows.AppXDeploymentServer" />
           </EventProviders>
         </EventCollectorId>
       </Collectors>
