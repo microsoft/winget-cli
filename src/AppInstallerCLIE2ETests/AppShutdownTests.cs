@@ -24,6 +24,7 @@ namespace AppInstallerCLIE2ETests
         /// Runs winget test appshutdown and register the application to force a WM_QUERYENDSESSION message.
         /// </summary>
         [Test]
+        [Ignore("This test relied on a signal to terminate that was determined to be problematic. We may need OS fixes to test it when elevated.")]
         public void RegisterApplicationTest()
         {
             if (!TestSetup.Parameters.PackagedContext)
