@@ -376,6 +376,7 @@ namespace AppInstaller::ShutdownMonitoring
             components = m_components;
         }
 
+        AICLI_LOG(CLI, Verbose, << "ServerShutdownSynchronization :: BlockNewWork");
         for (const auto& component : components)
         {
             if (component.BlockNewWork)
@@ -384,6 +385,7 @@ namespace AppInstaller::ShutdownMonitoring
             }
         }
 
+        AICLI_LOG(CLI, Verbose, << "ServerShutdownSynchronization :: BeginShutdown");
         for (const auto& component : components)
         {
             if (component.BeginShutdown)
@@ -392,6 +394,7 @@ namespace AppInstaller::ShutdownMonitoring
             }
         }
 
+        AICLI_LOG(CLI, Verbose, << "ServerShutdownSynchronization :: Wait");
         for (const auto& component : components)
         {
             if (component.Wait)
@@ -400,6 +403,7 @@ namespace AppInstaller::ShutdownMonitoring
             }
         }
 
+        AICLI_LOG(CLI, Verbose, << "ServerShutdownSynchronization :: ShutdownCompleteCallback");
         ShutdownCompleteCallback callback = m_callback;
         if (callback)
         {
