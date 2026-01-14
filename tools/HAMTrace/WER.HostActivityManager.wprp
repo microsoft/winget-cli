@@ -189,6 +189,7 @@
       </Keywords>
     </EventProvider>
     <EventProvider Id="Microsoft.Windows.HostIdStore" Name="A6A9CE06-035F-40CB-829B-EBB822697591" />
+    <EventProvider Id="Microsoft.Windows.AppXDeploymentServer" Name="FE762FB1-341A-4DD4-B399-BE1868B3D918" />
 
 
     <!-- Profiles -->
