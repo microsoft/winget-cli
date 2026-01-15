@@ -141,4 +141,11 @@ extern "C"
         return WINRT_GetActivationFactory(classId, factory);
     }
     CATCH_RETURN();
+
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerLog(const char* message) try
+    {
+        AppInstaller::Logging::Log().Write(AppInstaller::Logging::Channel::Core, AppInstaller::Logging::Level::Info, message);
+        return S_OK;
+    }
+    CATCH_RETURN();
 }

@@ -335,15 +335,6 @@ namespace AppInstaller::ShutdownMonitoring
 
     void ServerShutdownSynchronization::Signal(CancelReason reason)
     {
-        {
-            // Check for registered components before creating a thread to do nothing
-            std::lock_guard<std::mutex> lock{ m_componentsLock };
-            if (m_components.empty())
-            {
-                return;
-            }
-        }
-
         std::lock_guard<std::mutex> lock{ m_threadLock };
 
         if (!m_shutdownThread.joinable())
