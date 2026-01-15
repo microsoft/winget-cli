@@ -63,30 +63,10 @@ namespace AppInstaller::ShutdownMonitoring
     {
         return m_windowHandle.get();
     }
-
-    bool TerminationSignalHandler::WaitForAppShutdownEvent() const
-    {
-        return m_appShutdownEvent.wait(60000);
-    }
 #endif
 
     TerminationSignalHandler::TerminationSignalHandler()
     {
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        m_appShutdownEvent.create();
-#endif
-
-        if (Runtime::IsRunningInPackagedContext())
-        {
-            // Create package update listener
-            m_catalog = winrt::Windows::ApplicationModel::PackageCatalog::OpenForCurrentPackage();
-            m_updatingEvent = m_catalog.PackageUpdating(
-                winrt::auto_revoke, [this](winrt::Windows::ApplicationModel::PackageCatalog, winrt::Windows::ApplicationModel::PackageUpdatingEventArgs)
-                {
-                    this->StartAppShutdown();
-                });
-        }
-
         // Create message only window.
         m_messageQueueReady.create();
         m_windowThread = std::thread(&TerminationSignalHandler::CreateWindowAndStartMessageLoop, this);
@@ -119,10 +99,6 @@ namespace AppInstaller::ShutdownMonitoring
     void TerminationSignalHandler::StartAppShutdown()
     {
         AICLI_LOG(CLI, Info, << "Initiating shutdown procedure");
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        m_appShutdownEvent.SetEvent();
-#endif
 
         // Lifetime manager sends CTRL-C after the WM_QUERYENDSESSION is processed.
         // If we disable the CTRL-C handler, the default handler will kill us.
@@ -306,20 +282,27 @@ namespace AppInstaller::ShutdownMonitoring
         instance.m_components.push_back(component);
     }
 
-    void ServerShutdownSynchronization::WaitForShutdown()
+    bool ServerShutdownSynchronization::WaitForShutdown(std::optional<DWORD> timeout)
     {
         ServerShutdownSynchronization& instance = Instance();
 
+        if (timeout)
         {
-            std::lock_guard<std::mutex> lock{ instance.m_threadLock };
-            if (!instance.m_shutdownThread.joinable())
-            {
-                AICLI_LOG(Core, Warning, << "Attempt to wait for shutdown when shutdown has not been initiated.");
-                return;
-            }
+            return instance.m_shutdownComplete.wait(timeout.value());
         }
+        else
+        {
+            {
+                std::lock_guard<std::mutex> lock{ instance.m_threadLock };
+                if (!instance.m_shutdownThread.joinable())
+                {
+                    AICLI_LOG(Core, Warning, << "Attempt to wait for shutdown when shutdown has not been initiated.");
+                    return false;
+                }
+            }
 
-        instance.m_shutdownComplete.wait();
+            return instance.m_shutdownComplete.wait();
+        }
     }
 
     void ServerShutdownSynchronization::Cancel(CancelReason reason, bool)
@@ -362,6 +345,7 @@ namespace AppInstaller::ShutdownMonitoring
             components = m_components;
         }
 
+        AICLI_LOG(CLI, Verbose, << "ServerShutdownSynchronization :: BlockNewWork");
         for (const auto& component : components)
         {
             if (component.BlockNewWork)
@@ -370,6 +354,7 @@ namespace AppInstaller::ShutdownMonitoring
             }
         }
 
+        AICLI_LOG(CLI, Verbose, << "ServerShutdownSynchronization :: BeginShutdown");
         for (const auto& component : components)
         {
             if (component.BeginShutdown)
@@ -378,6 +363,7 @@ namespace AppInstaller::ShutdownMonitoring
             }
         }
 
+        AICLI_LOG(CLI, Verbose, << "ServerShutdownSynchronization :: Wait");
         for (const auto& component : components)
         {
             if (component.Wait)
@@ -386,6 +372,7 @@ namespace AppInstaller::ShutdownMonitoring
             }
         }
 
+        AICLI_LOG(CLI, Verbose, << "ServerShutdownSynchronization :: ShutdownCompleteCallback");
         ShutdownCompleteCallback callback = m_callback;
         if (callback)
         {

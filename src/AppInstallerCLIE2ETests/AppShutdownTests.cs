@@ -24,6 +24,7 @@ namespace AppInstallerCLIE2ETests
         /// Runs winget test appshutdown and register the application to force a WM_QUERYENDSESSION message.
         /// </summary>
         [Test]
+        [Ignore("This test relied on a signal to terminate that was determined to be problematic. We may need OS fixes to test it when elevated.")]
         public void RegisterApplicationTest()
         {
             if (!TestSetup.Parameters.PackagedContext)
@@ -94,9 +95,6 @@ namespace AppInstallerCLIE2ETests
             registerTask.Start();
 
             Task.WaitAll(new Task[] { testCmdTask, registerTask }, 360000);
-
-            // Assert.True(registerTask.Result);
-            TestContext.Out.Write(testCmdTask.Result.StdOut);
 
             // The ctrl-c command terminates the batch file before the exit code file gets created.
             // Look for the output.
