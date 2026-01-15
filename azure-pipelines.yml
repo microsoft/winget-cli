@@ -331,10 +331,9 @@ jobs:
     inputs:
       packageFeedSelector: 'nugetOrg'
 
-  # Temporarily enable this tracing collection until the issue with the following Install is fixed. Then move to debug only as the COM tracing in the e2e-test.template does.
   - task: CmdLine@2
     displayName: Start HAM trace
-    condition: succeededOrFailed()
+    condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
     inputs:
       script: 'wpr -start $(Build.SourcesDirectory)\tools\HAMTrace\WER.HostActivityManager.wprp -filemode'
 
@@ -348,7 +347,7 @@ jobs:
 
   - task: CmdLine@2
     displayName: Complete HAM trace
-    condition: succeededOrFailed()
+    condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
     inputs:
       script: 'wpr -stop "$(artifactsDir)\HamTrace.etl"'
 
