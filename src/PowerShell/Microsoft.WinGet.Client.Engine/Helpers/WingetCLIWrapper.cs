@@ -71,14 +71,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="parameters">Parameters.</param>
         /// <param name="timeOut">Time out.</param>
         /// <returns>WinGetCommandResult.</returns>
-        public WinGetCLICommandResult RunCommand(PowerShellCmdlet pwshCmdlet, string command, string? parameters = null, int timeOut = 60000)
+        internal WinGetCLICommandResult RunCommand(PowerShellCmdlet pwshCmdlet, WinGetCLICommandBuilder builder, int timeOut = 60000)
         {
-            string args = command;
-            if (!string.IsNullOrEmpty(parameters))
-            {
-                args += ' ' + parameters;
-            }
-
+            var args = builder.ToString();
             pwshCmdlet.Write(StreamType.Verbose, $"Running {this.wingetPath} with {args}");
 
             Process p = new ()
@@ -96,14 +91,14 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             if (p.WaitForExit(timeOut))
             {
                 return new WinGetCLICommandResult(
-                    command,
-                    parameters,
+                    builder.Command,
+                    builder.Parameters,
                     p.ExitCode,
                     p.StandardOutput.ReadToEnd(),
                     p.StandardError.ReadToEnd());
             }
 
-            throw new WinGetCLITimeoutException(command, parameters);
+            throw new WinGetCLITimeoutException(builder.Command, builder.Parameters);
         }
     }
 }
