@@ -3166,17 +3166,19 @@
     <value>使用子命令管理字体。可以安装、升级或卸载与 package 类似的字体。 </value>
   </data>
   <data name="FontFamily" xml:space="preserve">
-    <value>家庭</value>
+    <value>字体族</value>
+    <comment>"Family" represents the font family such as 'Arial' or 'Times New Roman'</comment>
   </data>
   <data name="FontFaces" xml:space="preserve">
-    <value>脸</value>
+    <value>字体样式</value>
     <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
   </data>
   <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
-    <value>按家庭名称筛选结果</value>
+    <value>按字体族名称筛选结果</value>
+    <comment>"Family" represents the font family such as 'Arial' or 'Times New Roman'</comment>
   </data>
   <data name="FontFace" xml:space="preserve">
-    <value>脸</value>
+    <value>字体样式</value>
     <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
   </data>
   <data name="FontFilePaths" xml:space="preserve">
