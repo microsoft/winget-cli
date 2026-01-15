@@ -97,11 +97,14 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 return "\"\"";
             }
 
-            // Quote only if needed: whitespace, quotes, or trailing backslash
-            bool needsQuotes = arg.Any(char.IsWhiteSpace) || arg.Contains('"') || arg.EndsWith("\\", StringComparison.Ordinal);
+            // Determine if the argument needs quotes
+            // - Contains whitespace, or
+            // - Contains double quotes, or
+            // - Ends with a backslash
+            var needsQuotes = arg.Any(char.IsWhiteSpace) || arg.Contains('"') || arg.EndsWith("\\", StringComparison.Ordinal);
             if (!needsQuotes)
             {
-             return arg;
+                return arg;
             }
 
             var sb = new StringBuilder(arg.Length + 2);
