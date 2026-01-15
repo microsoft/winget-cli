@@ -90,7 +90,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void DefaultTest()
         {
-            this.RunInprocTestbed(new TestbedParameters());
+            this.RunInprocTestbed(new TestbedParameters() { WorkTestSleepInterval = 1000 });
         }
 
         /// <summary>
