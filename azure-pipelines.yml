@@ -341,7 +341,7 @@ jobs:
   - powershell: |
       Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
       Install-Module Microsoft.WinGet.Client -Repository PSGallery -Force
-      try { Repair-WingetPackageManager -AllUsers -Latest -Verbose } catch { $_.Exception }
+      try { Repair-WingetPackageManager -Latest -Verbose } catch { $_.Exception }
       Install-WinGetPackage -Id Microsoft.Sysinternals.PsTools -Source winget
     displayName: Install Sysinternals PsTools Using Winget
     condition: succeededOrFailed()
