@@ -42,7 +42,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             if (winGetSettingsFilePath == null)
             {
                 var wingetCliWrapper = new WingetCLIWrapper();
-                var settingsResult = wingetCliWrapper.RunCommand(this, "settings", "export");
+                var settingsResult = wingetCliWrapper.RunCommand(this, new WinGetCLICommandBuilder("settings").AppendSubCommand("export"));
 
                 // Read the user settings file property.
                 var userSettingsFile = Utilities.ConvertToHashtable(settingsResult.StdOut)["userSettingsFile"] ?? throw new ArgumentNullException("userSettingsFile");
