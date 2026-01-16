@@ -1029,6 +1029,13 @@ namespace AppInstaller::Manifest
         {
         case InstallerTypeEnum::Burn:
         case InstallerTypeEnum::Wix:
+            return
+            {
+                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/quiet /norestart")},
+                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/passive /norestart")},
+                {InstallerSwitchType::Log, ManifestInstaller::string_t("/log \"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
+                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("INSTALLDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
+            };
         case InstallerTypeEnum::Msi:
             return
             {
