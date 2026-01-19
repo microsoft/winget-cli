@@ -331,13 +331,25 @@ jobs:
     inputs:
       packageFeedSelector: 'nugetOrg'
 
+  - task: CmdLine@2
+    displayName: Start HAM trace
+    condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
+    inputs:
+      script: 'wpr -start $(Build.SourcesDirectory)\tools\HAMTrace\WER.HostActivityManager.wprp -filemode'
+
   - powershell: |
       Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
       Install-Module Microsoft.WinGet.Client -Repository PSGallery -Force
-      try { Repair-WingetPackageManager -AllUsers -Latest -Verbose } catch { $_.Exception }
+      try { Repair-WingetPackageManager -Latest -Verbose } catch { $_.Exception }
       Install-WinGetPackage -Id Microsoft.Sysinternals.PsTools -Source winget
     displayName: Install Sysinternals PsTools Using Winget
     condition: succeededOrFailed()
+
+  - task: CmdLine@2
+    displayName: Complete HAM trace
+    condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
+    inputs:
+      script: 'wpr -stop "$(artifactsDir)\HamTrace.etl"'
 
   - pwsh: |
       $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")

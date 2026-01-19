@@ -1147,22 +1147,7 @@ namespace AppInstaller::Manifest
             auto errors = ValidateAndProcessFields(entry, InstallerFieldInfos, VariantManifestPtr(&installer));
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
 
-            // Copy in system reference strings from the root if not set in the installer and appropriate
-            if (installer.PackageFamilyName.empty() && DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()))
-            {
-                installer.PackageFamilyName = m_manifest.get().DefaultInstallerInfo.PackageFamilyName;
-            }
-
-            if (installer.ProductCode.empty() && DoesInstallerTypeUseProductCode(installer.EffectiveInstallerType()))
-            {
-                installer.ProductCode = m_manifest.get().DefaultInstallerInfo.ProductCode;
-            }
-
-            if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.EffectiveInstallerType()))
-            {
-                installer.AppsAndFeaturesEntries = m_manifest.get().DefaultInstallerInfo.AppsAndFeaturesEntries;
-            }
-
+            // Set installer type back before attempting to use it in any of the EffectiveInstallerType calls below
             if (IsArchiveType(installer.BaseInstallerType))
             {
                 if (installer.NestedInstallerFiles.empty())
@@ -1174,6 +1159,24 @@ namespace AppInstaller::Manifest
                 {
                     installer.NestedInstallerType = m_manifest.get().DefaultInstallerInfo.NestedInstallerType;
                 }
+            }
+
+            // Copy in system reference strings from the root if not set in the installer and appropriate
+            if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.EffectiveInstallerType()))
+            {
+                installer.AppsAndFeaturesEntries = m_manifest.get().DefaultInstallerInfo.AppsAndFeaturesEntries;
+            }
+
+            if (installer.PackageFamilyName.empty() &&
+                (DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()) ||
+                 DoAnyAppsAndFeaturesEntriesUsePackageFamilyName(installer.AppsAndFeaturesEntries)))
+            {
+                installer.PackageFamilyName = m_manifest.get().DefaultInstallerInfo.PackageFamilyName;
+            }
+
+            if (installer.ProductCode.empty() && DoesInstallerTypeUseProductCode(installer.EffectiveInstallerType()))
+            {
+                installer.ProductCode = m_manifest.get().DefaultInstallerInfo.ProductCode;
             }
 
             // If there are no dependencies on installer use default ones
