@@ -1127,15 +1127,22 @@ namespace AppInstaller::Manifest
         {
             ManifestInstaller installer = m_manifest.get().DefaultInstallerInfo;
 
+#define WINGET_STASH_INSTALLER_PROPERTY(_property_,_clear_) \
+            auto stashed ## _property_ = std::move(installer. _property_); \
+            installer. _property_ . _clear_ ();
+
+#define WINGET_UNSTASH_INSTALLER_PROPERTY(_property_) \
+            installer. _property_ = std::move(stashed ## _property_);
+
             // Clear these defaults as PackageFamilyName, ProductCode, AppsAndFeaturesEntries need to be copied based on InstallerType
-            installer.PackageFamilyName.clear();
-            installer.ProductCode.clear();
-            installer.AppsAndFeaturesEntries.clear();
+            WINGET_STASH_INSTALLER_PROPERTY(PackageFamilyName, clear);
+            WINGET_STASH_INSTALLER_PROPERTY(ProductCode, clear);
+            WINGET_STASH_INSTALLER_PROPERTY(AppsAndFeaturesEntries, clear);
             // Clear dependencies as installer overrides root dependencies
-            installer.Dependencies.Clear();
+            WINGET_STASH_INSTALLER_PROPERTY(Dependencies, Clear);
             // Clear nested installers as it should only be copied for zip installerType.
             installer.NestedInstallerType = InstallerTypeEnum::Unknown;
-            installer.NestedInstallerFiles.clear();
+            WINGET_STASH_INSTALLER_PROPERTY(NestedInstallerFiles, clear);
 
             auto errors = ValidateAndProcessFields(entry, InstallerFieldInfos, VariantManifestPtr(&installer));
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));

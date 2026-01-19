@@ -7,6 +7,7 @@
 #include <map>
 #include <set>
 #include <string_view>
+#include <vector>
 
 namespace AppInstaller::Manifest
 {
@@ -370,6 +371,29 @@ namespace AppInstaller::Manifest
         bool HasData() const { return !DefaultInstallLocation.empty() || !Files.empty(); }
 
         void Clear() { DefaultInstallLocation.clear(); Files.clear(); }
+    };
+
+    // Information about a specific DSC resource.
+    struct DesiredStateConfigurationResourceInfo
+    {
+        string_t Name;
+    };
+
+    // The type of resource container.
+    enum class DesiredStateConfigurationContainerType
+    {
+        PowerShell,
+        DSCv3,
+    };
+
+    // Information about a DSC container.
+    // Contains the union of properties relevant to all container types.
+    struct DesiredStateConfigurationContainerInfo
+    {
+        DesiredStateConfigurationContainerType Type;
+        string_t RepositoryURL;
+        string_t ModuleName;
+        std::vector<DesiredStateConfigurationResourceInfo> Resources;
     };
 
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
