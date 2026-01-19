@@ -73,6 +73,14 @@ namespace AppInstaller::Manifest::YamlWriter
         constexpr std::string_view MicrosoftEntraIdAuthenticationInfo = "MicrosoftEntraIdAuthenticationInfo"sv;
         constexpr std::string_view MicrosoftEntraIdResource = "Resource"sv;
         constexpr std::string_view MicrosoftEntraIdScope = "Scope"sv;
+        constexpr std::string_view DesiredStateConfiguration = "DesiredStateConfiguration"sv;
+        constexpr std::string_view DesiredStateConfigurationResources = "Resources"sv;
+        constexpr std::string_view DesiredStateConfigurationPowerShell = "PowerShell"sv;
+        constexpr std::string_view DesiredStateConfigurationPowerShellRepositoryURL = "RepositoryURL"sv;
+        constexpr std::string_view DesiredStateConfigurationPowerShellModuleName = "ModuleName"sv;
+        constexpr std::string_view DesiredStateConfigurationPowerShellResourceName = "Name"sv;
+        constexpr std::string_view DesiredStateConfigurationDSCv3 = "DSCv3"sv;
+        constexpr std::string_view DesiredStateConfigurationDSCv3ResourceType = "Type"sv;
 
         // Installer switches
         constexpr std::string_view InstallerSwitches = "InstallerSwitches"sv;
@@ -587,6 +595,89 @@ namespace AppInstaller::Manifest::YamlWriter
             out << YAML::EndMap;
         }
 
+        void ProcessDesiredStateConfiguration(YAML::Emitter& out, const std::vector<DesiredStateConfigurationContainerInfo>& containers)
+        {
+            if (containers.empty())
+            {
+                return;
+            }
+
+            out << YAML::Key << DesiredStateConfiguration;
+            out << YAML::BeginMap;
+
+            // Process PowerShell containers
+            bool firstPowerShellContainer = true;
+            for (const auto& container : containers)
+            {
+                if (container.Type == DesiredStateConfigurationContainerType::PowerShell)
+                {
+                    if (firstPowerShellContainer)
+                    {
+                        out << YAML::Key << DesiredStateConfigurationPowerShell;
+                        out << YAML::BeginSeq;
+                        firstPowerShellContainer = false;
+                    }
+
+                    out << YAML::BeginMap;
+
+                    WRITE_PROPERTY(out, DesiredStateConfigurationPowerShellRepositoryURL, container.RepositoryURL);
+                    WRITE_PROPERTY(out, DesiredStateConfigurationPowerShellModuleName, container.ModuleName);
+
+                    out << YAML::Key << DesiredStateConfigurationResources;
+                    out << YAML::BeginSeq;
+
+                    for (const auto& resource : container.Resources)
+                    {
+                        out << YAML::BeginMap;
+                        WRITE_PROPERTY(out, DesiredStateConfigurationPowerShellResourceName, resource.Name);
+                        out << YAML::EndMap;
+                    }
+
+                    out << YAML::EndSeq;
+                    out << YAML::EndMap;
+                }
+            }
+
+            if (!firstPowerShellContainer)
+            {
+                out << YAML::EndSeq;
+            }
+
+            // Process DSCv3 container
+            bool firstDSCv3Container = true;
+            for (const auto& container : containers)
+            {
+                if (container.Type == DesiredStateConfigurationContainerType::DSCv3)
+                {
+                    if (firstDSCv3Container)
+                    {
+                        out << YAML::Key << DesiredStateConfigurationDSCv3;
+                        out << YAML::BeginMap;
+                        firstDSCv3Container = false;
+                    }
+                    else
+                    {
+                        THROW_HR_MSG(E_INVALIDARG, "Cannot have multiple DSCv3 containers.");
+                    }
+
+                    out << YAML::Key << DesiredStateConfigurationResources;
+                    out << YAML::BeginSeq;
+
+                    for (const auto& resource : container.Resources)
+                    {
+                        out << YAML::BeginMap;
+                        WRITE_PROPERTY(out, DesiredStateConfigurationDSCv3ResourceType, resource.Name);
+                        out << YAML::EndMap;
+                    }
+
+                    out << YAML::EndSeq;
+                    out << YAML::EndMap;
+                }
+            }
+
+            out << YAML::EndMap;
+        }
+
         void ProcessInstallerFields(YAML::Emitter& out, const ManifestInstaller& installer)
         {
             WRITE_PROPERTY(out, Architecture, Utility::ToLower(ToString(installer.Arch)));
@@ -632,6 +723,7 @@ namespace AppInstaller::Manifest::YamlWriter
             ProcessUnsupportedArguments(out, installer.UnsupportedArguments);
             ProcessUnsupportedOSArchitecture(out, installer.UnsupportedOSArchitectures);
             ProcessAuthentication(out, installer.AuthInfo);
+            ProcessDesiredStateConfiguration(out, installer.DesiredStateConfiguration);
         }
 
         void ProcessInstaller(YAML::Emitter& out, const ManifestInstaller& installer)

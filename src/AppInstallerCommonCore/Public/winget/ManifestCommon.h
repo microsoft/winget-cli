@@ -54,6 +54,9 @@ namespace AppInstaller::Manifest
     // V1.12 manifest version
     constexpr std::string_view s_ManifestVersionV1_12 = "1.12.0"sv;
 
+    // V1.28 manifest version
+    constexpr std::string_view s_ManifestVersionV1_28 = "1.28.0"sv;
+
     // Any new manifest version must also be added to src\WinGetUtilInterop\Manifest\ManifestVersion.cs.
 
     // The manifest extension for the MS Store
@@ -382,6 +385,7 @@ namespace AppInstaller::Manifest
     // The type of resource container.
     enum class DesiredStateConfigurationContainerType
     {
+        Unknown,
         PowerShell,
         DSCv3,
     };
@@ -390,7 +394,7 @@ namespace AppInstaller::Manifest
     // Contains the union of properties relevant to all container types.
     struct DesiredStateConfigurationContainerInfo
     {
-        DesiredStateConfigurationContainerType Type;
+        DesiredStateConfigurationContainerType Type = DesiredStateConfigurationContainerType::Unknown;
         string_t RepositoryURL;
         string_t ModuleName;
         std::vector<DesiredStateConfigurationResourceInfo> Resources;
