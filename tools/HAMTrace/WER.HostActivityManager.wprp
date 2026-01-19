@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8" standalone='yes'?>
+
+<WindowsPerformanceRecorder Version="1.0" Author="AnalogDevicesTeam" Comments="WerHam Collection" Company="Microsoft Corporation" Copyright="Microsoft Corporation">
+  <Profiles>
+
+    <SystemCollector Id="SystemCollector" Name="NT Kernel Logger">
+        <BufferSize Value="1024" /> 
+        <Buffers Value="100" /> 
+    </SystemCollector>
+
+    <EventCollector Id="EventCollector_WerHamEventSource" Name="WerHamEventSourceCollector">
+      <BufferSize Value="1024" />
+      <Buffers Value="64" />
+    </EventCollector>
+
+    <SystemProvider Id="SystemProvider">
+        <Keywords>
+            <Keyword Value="ProcessThread" />
+        </Keywords>
+    </SystemProvider>
+
+    <!-- Process -->
+    <EventProvider Id="KernelProcess.AppStateChange" Name="2839ff94-8f12-4e1b-82e3-af7af77a450f" NonPagedMemory="true" />
+
+    <!-- WER -->
+    <EventProvider Id="FaultReporting" Name="Microsoft-Windows-FaultReporting" />
+    <EventProvider Id="WindowsErrorReporting" Name="Microsoft-Windows-WindowsErrorReporting" />
+    <EventProvider Id="WerFaultSecureTracingGuid" Name="2E4201B6-4891-4912-A139-23268D5EB46E" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="WerConsoleTracingGuid" Name="3E19A300-75D9-4027-86BA-948B70416220" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="InfraTracingGuid" Name="75638A28-E9ED-42B2-9F8F-C2B1F89CF5EE" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="WerFaultTracingGuid" Name="7930F74B-E328-4350-89C6-11FD93771488" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="FaultRepTracingGuid" Name="5EF9EC44-FB87-4F51-AF4E-CED084013281" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="WerSvcTracingGuid" Name="6851ADEB-79DA-4250-A440-F1F52D28711D" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="DWTracingGuid" Name="9760D9C2-2FBF-4CDA-889F-8DAB2BDD98B0" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="HangRepTracingGuid" Name="DC02AB24-0AA6-4499-8D86-A8E5F83741F5" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="WerUITracingGuid" Name="FCD00FEF-04FA-41C0-889E-AE613D97602B" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="UnknownTracingGuid" Name="82FA1E66-C239-46DD-B496-B6B2FA8A9498" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="Microsoft-Windows-Diagnostics-PerfTrack" Name="Microsoft-Windows-Diagnostics-PerfTrack" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="ErcLuaSupportTracingGuid" Name="A0EF609D-0A14-424C-9270-3B2691A0A394" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="Microsoft.Windows.FaultReportingTracingGuid" Name="1377561D-9312-452C-AD13-C4A1C9C906E0" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="Microsoft.Windows.HangReportingTracingGuid" Name="3E0D88DE-AE5C-438A-BB1C-C2E627F8AECB" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="Microsoft.Windows.Phone.Telemetry.OnBootTracingGuid" Name="35afa94b-82bd-589e-f865-a9b1e24a7d4d" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="Microsoft.Windows.WERSecureVerticalTracingGuid" Name="97945555-b04c-47c0-b399-e453d509a5f0" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="Microsoft.Windows.WERVerticalTracingGuid" Name="2b87e57e-7bd0-43a3-a278-02e62d59b2b1" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="Microsoft.Windows.WindowsErrorReportingTracingGuid" Name="CC79CF77-70D9-4082-9B52-23F3A3E92FE4" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="Microsoft-WindowsPhone-Telemetry" Name="3a560832-fabf-41fd-9c00-598939c72f27" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="SqmClientTracingGuid" Name="E2821408-C59D-418F-AD3F-AA4E792AEB79" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="TpClientWppGuid" Name="31EC0DFD-E734-4181-9C80-C9974C40BCEB" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="WerMgrTracingGuid" Name="36082273-7635-44A5-8D35-D2A266538B00" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+    <EventProvider Id="WerTraceloggingProviderGuid" Name="3a29d8d2-8884-4e6a-89f3-272b7d0a3ffe" Level="255">
+        <Keywords>
+            <Keyword Value="0xFFFFFFFFFFFFFFFF" />
+        </Keywords>
+    </EventProvider>
+
+    <!-- Host Activity Manager -->
+    <EventProvider Id="Microsoft.Windows.ResourceManager" Name="4180c4f7-e238-5519-338f-ec214f0b49aa">
+      <CaptureStateOnSave>
+        <Keyword Value="0xFFFFFFFFFFFFFF"/>
+      </CaptureStateOnSave>
+    </EventProvider>
+    <EventProvider Id="Microsoft.Windows.HostActivityManager" Name="f6a774e5-2fc7-5151-6220-e514f1f387b6">
+      <CaptureStateOnSave>
+        <Keyword Value="0xFFFFFFFFFFFFFF"/>
+      </CaptureStateOnSave>
+    </EventProvider>
+    <EventProvider Id="Microsoft-WindowsPhone-ExecManLogPublisher" Name="82c8ad90-5f3c-11be-bd9a-85bb5f50dfa4" />
+    <EventProvider Id="Microsoft.Windows.BackgroundManager" Name="1941f2b9-0939-5d15-d529-cd333c8fed83" />
+    <EventProvider Id="Microsoft.Windows.BrokerInfrastructure" Name="63b6c2d2-0440-44de-a674-aa51a251b123" />
+    <EventProvider Id="Microsoft-Windows-ProcessStateManager" Name="D49918CF-9489-4BF1-9D7B-014D864CF71F" />
+    <EventProvider Id="Microsoft-Windows-AppModel-Exec" Name="EB65A492-86C0-406A-BACE-9912D595BD69" />
+    <EventProvider Id="Microsoft-Windows-Kernel-Memory" Name="D1D93EF7-E1F2-4F45-9943-03D245FE6C00" />
+    <EventProvider Id="Microsoft-WindowsPhone-CoreUIComponents" Name="a0b7550f-4e9a-4f03-ad41-b8042d06a2f7">
+      <!-- N.B. The high-order 4 bytes are explicitly omitted because they cause chatty and low value events. -->
+      <Keywords>
+        <Keyword Value="0xffffffff"/>
+      </Keywords>
+    </EventProvider>
+    <EventProvider Id="Microsoft.Windows.AppLifeCycle" Name="EF00584A-2655-462C-BC24-E7DE630E7FBF" />
+    <EventProvider Id="Microsoft.Windows.ResourcePolicy" Name="969e8d6b-df02-56e3-a058-ec3bef103534" />
+    <EventProvider Id="Microsoft.Windows.ProcessStateManager" Name="0001376b-930d-50cd-2b29-491ca938cd54" />
+    <EventProvider Id="Microsoft.Windows.ProcessLifetimeManager" Name="072665fb-8953-5a85-931d-d06aeab3d109" />
+    <EventProvider Id="Microsoft.Windows.ForegroundManager" Name="aa6f6a10-8a13-417d-8799-52361684bd76" />
+    <EventProvider Id="Microsoft.Windows.ActivationManager" Name="cf7f94b3-08dc-5257-422f-497d7dc86ab3" />
+    <EventProvider Id="Microsoft-Windows-BrokerCommonWPP" Name="e8109b99-3a2c-4961-aa83-d1a7a148ada8" Level="255">
+      <Keywords>
+        <Keyword Value="0xffffffff"/>
+      </Keywords>
+    </EventProvider>
+    <EventProvider Id="Microsoft-Windows-BrokerInfrastructureWPP" Name="D2440861-BF3E-4F20-9FDC-E94E88DBE1F6" Level="255">
+      <Keywords>
+        <Keyword Value="0xffffffff"/>
+      </Keywords>
+    </EventProvider>
+    <EventProvider Id="Microsoft.Windows.Application.Service" Name="ac01ece8-0b79-5cdb-9615-1b6a4c5fc871" />
+    <EventProvider Id="CombaseTraceLoggingProvider" Name="1aff6089-e863-4d36-bdfd-3581f07440be" />
+    <EventProvider Id="Microsoft-Windows-TwinAPI-Events" Name="5f0e257f-c224-43e5-9555-2adcb8540a58" />
+    <EventProvider Id="Microsoft-Windows-Immersive-Shell" Name="315a8872-923e-4ea2-9889-33cd4754bf64">
+      <Keywords>
+        <Keyword Value="0x2"/>
+      </Keywords>
+    </EventProvider>
+    <EventProvider Id="Microsoft.Windows.HostIdStore" Name="A6A9CE06-035F-40CB-829B-EBB822697591" />
+    <EventProvider Id="Microsoft.Windows.AppXDeploymentServer" Name="FE762FB1-341A-4DD4-B399-BE1868B3D918">
+      <StackEventNameFilters FilterIn="true">
+        <EventName Value="Failure"/>
+      </StackEventNameFilters>
+    </EventProvider>
+
+
+    <!-- Profiles -->
+    <Profile Id="WerHam.Verbose.File" Name="WerHam" Description="WerHam Collection" LoggingMode="File" DetailLevel="Verbose">
+      <Collectors>
+        <SystemCollectorId Value="SystemCollector">
+            <SystemProviderId Value="SystemProvider" />
+        </SystemCollectorId>
+        <EventCollectorId Value="EventCollector_WerHamEventSource">
+          <EventProviders>
+
+            <!-- Process -->
+            <EventProviderId Value="KernelProcess.AppStateChange" />
+
+            <!-- WER -->
+            <EventProviderId Value="FaultReporting" />
+            <EventProviderId Value="WindowsErrorReporting" />
+            <EventProviderId Value="WerFaultSecureTracingGuid" />
+            <EventProviderId Value="WerConsoleTracingGuid" />
+            <EventProviderId Value="InfraTracingGuid" />
+            <EventProviderId Value="WerFaultTracingGuid" />
+            <EventProviderId Value="FaultRepTracingGuid" />
+            <EventProviderId Value="WerSvcTracingGuid" />
+            <EventProviderId Value="DWTracingGuid" />
+            <EventProviderId Value="HangRepTracingGuid" />
+            <EventProviderId Value="WerUITracingGuid" />
+            <EventProviderId Value="UnknownTracingGuid" />
+            <EventProviderId Value="Microsoft-Windows-Diagnostics-PerfTrack" />
+            <EventProviderId Value="ErcLuaSupportTracingGuid" />
+            <EventProviderId Value="Microsoft.Windows.FaultReportingTracingGuid" />
+            <EventProviderId Value="Microsoft.Windows.HangReportingTracingGuid" />
+            <EventProviderId Value="Microsoft.Windows.Phone.Telemetry.OnBootTracingGuid" />
+            <EventProviderId Value="Microsoft.Windows.WERSecureVerticalTracingGuid" />
+            <EventProviderId Value="Microsoft.Windows.WERVerticalTracingGuid" />
+            <EventProviderId Value="Microsoft.Windows.WindowsErrorReportingTracingGuid" />
+            <EventProviderId Value="Microsoft-WindowsPhone-Telemetry" />
+            <EventProviderId Value="SqmClientTracingGuid" />
+            <EventProviderId Value="TpClientWppGuid" />
+            <EventProviderId Value="WerMgrTracingGuid" />
+            <EventProviderId Value="WerTraceloggingProviderGuid" />
+
+            <!-- Host Activity Manager -->
+            <EventProviderId Value="Microsoft-WindowsPhone-ExecManLogPublisher" />
+            <EventProviderId Value="Microsoft.Windows.BackgroundManager" />
+            <EventProviderId Value="Microsoft.Windows.BrokerInfrastructure" />
+            <EventProviderId Value="Microsoft-Windows-ProcessStateManager" />
+            <EventProviderId Value="Microsoft-Windows-AppModel-Exec" />
+            <EventProviderId Value="Microsoft-Windows-Kernel-Memory" />
+            <EventProviderId Value="Microsoft.Windows.AppLifeCycle" />
+            <EventProviderId Value="Microsoft.Windows.ResourcePolicy" />
+            <EventProviderId Value="Microsoft.Windows.ProcessStateManager" />
+            <EventProviderId Value="Microsoft.Windows.ProcessLifetimeManager" />
+            <EventProviderId Value="Microsoft.Windows.ForegroundManager" />
+            <EventProviderId Value="Microsoft.Windows.ActivationManager" />
+            <EventProviderId Value="Microsoft-Windows-BrokerCommonWPP" />
+            <EventProviderId Value="Microsoft-Windows-BrokerInfrastructureWPP" />
+            <EventProviderId Value="Microsoft.Windows.Application.Service" />
+            <EventProviderId Value="Microsoft.Windows.ResourceManager" />
+            <EventProviderId Value="Microsoft.Windows.HostActivityManager" />
+
+            <EventProviderId Value="Microsoft.Windows.AppXDeploymentServer" />
+          </EventProviders>
+        </EventCollectorId>
+      </Collectors>
+    </Profile>
+
+    <Profile Id="WerHam.Light.File" Name="WerHam" Description="WerHam Collection" LoggingMode="File" DetailLevel="Light" Base="WerHam.Verbose.File"/>
+    <Profile Id="WerHam.Verbose.Memory" Name="WerHam" Description="WerHam Collection" LoggingMode="Memory" DetailLevel="Verbose" Base="WerHam.Verbose.File"/>
+    <Profile Id="WerHam.Light.Memory" Name="WerHam" Description="WerHam Collection" LoggingMode="Memory" DetailLevel="Light" Base="WerHam.Verbose.File"/>
+
+  </Profiles>
+</WindowsPerformanceRecorder>

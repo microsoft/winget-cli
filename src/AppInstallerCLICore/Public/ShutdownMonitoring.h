@@ -3,10 +3,10 @@
 #pragma once
 #include <Windows.h>
 #include <AppInstallerProgress.h>
-#include <winrt/Windows.ApplicationModel.h>
 #include <wil/resource.h>
 #include <memory>
 #include <mutex>
+#include <optional>
 
 namespace AppInstaller::ShutdownMonitoring
 {
@@ -29,12 +29,16 @@ namespace AppInstaller::ShutdownMonitoring
         // Add or remove the listener based on `enabled`.
         static void EnableListener(bool enabled, ICancellable* cancellable);
 
+        // Gets whether the signal handler is enabled.
+        static bool Enabled();
+
+        // Sets whether the signal handler is enabled; the default is true.
+        // When set to false, the signal handler instance will not create signal listeners when created.
+        static void Enabled(bool enabled);
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Gets the window handle for the message window.
         HWND GetWindowHandle() const;
-
-        // Waits for the shutdown event.
-        bool WaitForAppShutdownEvent() const;
 #endif
 
     private:
@@ -52,17 +56,11 @@ namespace AppInstaller::ShutdownMonitoring
 
         void CreateWindowAndStartMessageLoop();
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        wil::unique_event m_appShutdownEvent;
-#endif
-
         std::mutex m_listenersLock;
         std::vector<ICancellable*> m_listeners;
         wil::unique_event m_messageQueueReady;
         wil::unique_hwnd m_windowHandle;
         std::thread m_windowThread;
-        winrt::Windows::ApplicationModel::PackageCatalog m_catalog = nullptr;
-        decltype(winrt::Windows::ApplicationModel::PackageCatalog{ nullptr }.PackageUpdating(winrt::auto_revoke, nullptr)) m_updatingEvent;
     };
 
     // Coordinates shutdown across server components
@@ -91,7 +89,7 @@ namespace AppInstaller::ShutdownMonitoring
         static void AddComponent(const ComponentSystem& component);
 
         // Waits for the shutdown to complete.
-        static void WaitForShutdown();
+        static bool WaitForShutdown(std::optional<DWORD> timeout = std::nullopt);
 
     private:
         ServerShutdownSynchronization() = default;

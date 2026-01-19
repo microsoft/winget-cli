@@ -53,6 +53,8 @@ namespace AppInstaller::Manifest
     // V1.12 manifest version
     constexpr std::string_view s_ManifestVersionV1_12 = "1.12.0"sv;
 
+    // Any new manifest version must also be added to src\WinGetUtilInterop\Manifest\ManifestVersion.cs.
+
     // The manifest extension for the MS Store
     constexpr std::string_view s_MSStoreExtension = "msstore"sv;
 
@@ -433,6 +435,9 @@ namespace AppInstaller::Manifest
 
     // Gets a value indicating whether the given installer uses the PackageFamilyName system reference.
     bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType);
+
+    // Gets a value indicating whether any of the ARP entries uses the PackageFamilyName system reference.
+    bool DoAnyAppsAndFeaturesEntriesUsePackageFamilyName(const std::vector<AppsAndFeaturesEntry>& entries);
 
     // Gets a value indicating whether the given installer uses the ProductCode system reference.
     bool DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType);

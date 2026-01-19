@@ -885,6 +885,19 @@ namespace AppInstaller::Manifest
         return (installerType == InstallerTypeEnum::Msix || installerType == InstallerTypeEnum::MSStore);
     }
 
+    bool DoAnyAppsAndFeaturesEntriesUsePackageFamilyName(const std::vector<AppsAndFeaturesEntry>& entries)
+    {
+        for (const AppsAndFeaturesEntry& entry : entries)
+        {
+            if (DoesInstallerTypeUsePackageFamilyName(entry.InstallerType))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     bool DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType)
     {
         return (
@@ -919,7 +932,8 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Msi ||
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Wix ||
-            installerType == InstallerTypeEnum::Burn
+            installerType == InstallerTypeEnum::Burn ||
+            installerType == InstallerTypeEnum::Msix
             );
     }
 

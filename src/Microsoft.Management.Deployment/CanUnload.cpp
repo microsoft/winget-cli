@@ -4,7 +4,7 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    static bool s_canUnload = true;
+    static std::atomic_bool s_canUnload = true;
 
     void SetCanUnload(bool value)
     {
