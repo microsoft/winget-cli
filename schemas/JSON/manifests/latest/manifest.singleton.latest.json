@@ -740,6 +740,75 @@
       ],
       "description": "The authentication requirement for downloading the installer."
     },
+    "DesiredStateConfiguration": {
+      "type": [ "object", "null" ],
+      "description": "References to desired state configuration (DSC) resources that are related to the package.",
+      "properties": {
+        "PowerShell": {
+          "type": [ "array", "null" ],
+          "description": "Contains data about DSC resources that are contained in PowerShell modules.",
+          "uniqueItems": true,
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "title": "PowerShell DSC Module Item",
+            "properties": {
+              "RepositoryURL": {
+                "$ref": "#/definitions/Url"
+              },
+              "ModuleName": {
+                "type": "string",
+                "description": "The name of the module containing resources.",
+                "pattern": "^[A-Za-z][-._A-Za-z0-9]*$",
+                "maxLength": 100
+              },
+              "Resources": {
+                "type": "array",
+                "description": "The resources contained within the module.",
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "title": "PowerShell DSC Resource Item",
+                  "properties": {
+                    "Name": {
+                      "type": "string",
+                      "description": "The name of the resource.",
+                      "pattern": "^[A-Za-z][-_A-Za-z0-9]*$",
+                      "maxLength": 100
+                    }
+                  }
+                }
+              }
+            },
+            "required": [ "RepositoryURL", "ModuleName", "Resources" ]
+          }
+        },
+        "DSCv3": {
+          "type": [ "object", "null" ],
+          "description": "Contains data about DSC resources that are contained in the package using the DSC v3 specification.",
+          "properties": {
+            "Resources": {
+              "type": "array",
+              "description": "The resources contained within the package.",
+              "maxItems": 128,
+              "items": {
+                "type": "object",
+                "title": "DSCv3 Resource Item",
+                "properties": {
+                  "Type": {
+                    "type": "string",
+                    "description": "The name of the resource.",
+                    "pattern": "^\\w+(\\.\\w+){0,2}\\/\\w+$",
+                    "maxLength": 256
+                  }
+                }
+              }
+            }
+          },
+          "required": [ "Resources" ]
+        }
+      }
+    },
     "Installer": {
       "type": "object",
       "properties": {
@@ -866,6 +935,9 @@
         },
         "Authentication": {
           "$ref": "#/definitions/Authentication"
+        },
+        "DesiredStateConfiguration": {
+          "$ref": "#/definitions/DesiredStateConfiguration"
         }
       },
       "required": [
@@ -1113,6 +1185,9 @@
     },
     "Authentication": {
       "$ref": "#/definitions/Authentication"
+    },
+    "DesiredStateConfiguration": {
+      "$ref": "#/definitions/DesiredStateConfiguration"
     },
     "Installers": {
       "type": "array",
