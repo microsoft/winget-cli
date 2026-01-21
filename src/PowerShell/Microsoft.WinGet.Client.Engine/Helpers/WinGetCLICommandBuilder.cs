@@ -65,9 +65,14 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="option">The name of the option to append.</param>
         /// <param name="value">The value of the option to append.</param>
         /// <returns>The current instance of <see cref="WinGetCLICommandBuilder"/>.</returns>
-        public WinGetCLICommandBuilder AppendOption(string option, string value)
+        public WinGetCLICommandBuilder AppendOption(string option, string? value)
         {
-            this.AppendToken($"--{option} \"{this.Escape(value)}\"");
+            if (value == null)
+            {
+                return this;
+            }
+
+            this.AppendToken($"--{option} {this.Escape(value)}");
             return this;
         }
 
@@ -80,6 +85,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             if (string.IsNullOrEmpty(this.Command))
             {
                 return this.Parameters;
+            }
+
+            if (string.IsNullOrEmpty(this.Parameters))
+            {
+                return this.Command!;
             }
 
             return $"{this.Command} {this.Parameters}";
