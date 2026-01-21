@@ -327,8 +327,8 @@ namespace AppInstaller::Manifest
         void ApplyToAll(std::function<void(const Dependency&)> func) const;
         bool Empty() const;
         void Clear();
-        bool HasExactDependency(DependencyType type, const string_t& id, const string_t& minVersion = "");
-        size_t Size();
+        bool HasExactDependency(DependencyType type, const string_t& id, const string_t& minVersion = "") const;
+        size_t Size() const;
 
     private:
         std::vector<Dependency> m_dependencies;
@@ -385,7 +385,6 @@ namespace AppInstaller::Manifest
     // The type of resource container.
     enum class DesiredStateConfigurationContainerType
     {
-        Unknown,
         PowerShell,
         DSCv3,
     };
@@ -394,7 +393,15 @@ namespace AppInstaller::Manifest
     // Contains the union of properties relevant to all container types.
     struct DesiredStateConfigurationContainerInfo
     {
-        DesiredStateConfigurationContainerType Type = DesiredStateConfigurationContainerType::Unknown;
+        DesiredStateConfigurationContainerInfo(DesiredStateConfigurationContainerType type) : Type(type) {}
+
+        DesiredStateConfigurationContainerInfo(const string_t& repositoryUrl, const string_t& moduleName, std::vector<DesiredStateConfigurationResourceInfo> resources) :
+            Type(DesiredStateConfigurationContainerType::PowerShell), RepositoryURL(repositoryUrl), ModuleName(moduleName), Resources(std::move(resources)) {}
+
+        DesiredStateConfigurationContainerInfo(std::vector<DesiredStateConfigurationResourceInfo> resources) :
+            Type(DesiredStateConfigurationContainerType::DSCv3), Resources(std::move(resources)) {}
+
+        DesiredStateConfigurationContainerType Type;
         string_t RepositoryURL;
         string_t ModuleName;
         std::vector<DesiredStateConfigurationResourceInfo> Resources;

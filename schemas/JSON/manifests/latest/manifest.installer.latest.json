@@ -652,7 +652,7 @@
             "type": "object",
             "title": "PowerShell DSC Module Item",
             "properties": {
-              "RepositoryURL": {
+              "RepositoryUrl": {
                 "$ref": "#/definitions/Url"
               },
               "ModuleName": {
@@ -679,7 +679,7 @@
                 }
               }
             },
-            "required": [ "RepositoryURL", "ModuleName", "Resources" ]
+            "required": [ "RepositoryUrl", "ModuleName", "Resources" ]
           }
         },
         "DSCv3": {

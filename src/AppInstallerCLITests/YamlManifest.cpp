@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <AppInstallerSHA256.h>
+#include <AppInstallerLanguageUtilities.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/ManifestYamlWriter.h>
 #include <winget/Yaml.h>
@@ -122,6 +123,29 @@ namespace
         }
     }
 
+    void RequireContainerInfoPresent(const std::vector<DesiredStateConfigurationContainerInfo>& containers, const DesiredStateConfigurationContainerInfo& info)
+    {
+        INFO("Looking for container info: " << AppInstaller::ToIntegral(info.Type) << " - " << info.RepositoryURL << " - " << info.ModuleName);
+
+        for (const auto& container : containers)
+        {
+            if (container.Type == info.Type && container.RepositoryURL == info.RepositoryURL && container.ModuleName == info.ModuleName)
+            {
+                REQUIRE(container.Resources.size() == info.Resources.size());
+                for (const auto& resource : info.Resources)
+                {
+                    INFO("Looking for resource: " << resource.Name);
+                    bool foundResource = std::any_of(container.Resources.begin(), container.Resources.end(), [&](const auto& a) { return a.Name == resource.Name; });
+                    REQUIRE(foundResource);
+                }
+
+                return;
+            }
+        }
+
+        FAIL("Did not find a matching container.");
+    }
+
     void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, ManifestVer manifestVer = { s_ManifestVersionV1 }, bool isExported = false)
     {
         REQUIRE(manifest.Id == "microsoft.msixsdk");
@@ -181,7 +205,7 @@ namespace
             REQUIRE(manifest.DefaultInstallerInfo.Scope == ScopeEnum::Machine);
             REQUIRE(manifest.DefaultInstallerInfo.InstallModes == std::vector<InstallModeEnum>{ InstallModeEnum::Interactive, InstallModeEnum::Silent, InstallModeEnum::SilentWithProgress });
 
-            auto defaultSwitches = manifest.DefaultInstallerInfo.Switches;
+            const auto& defaultSwitches = manifest.DefaultInstallerInfo.Switches;
             REQUIRE(defaultSwitches.at(InstallerSwitchType::Custom) == "/custom");
             REQUIRE(defaultSwitches.at(InstallerSwitchType::SilentWithProgress) == "/silentwithprogress");
             REQUIRE(defaultSwitches.at(InstallerSwitchType::Silent) == "/silence");
@@ -196,7 +220,7 @@ namespace
             REQUIRE(manifest.DefaultInstallerInfo.Protocols == MultiValue{ "protocol1", "protocol2" });
             REQUIRE(manifest.DefaultInstallerInfo.FileExtensions == MultiValue{ "appx", "msix", "appxbundle", "msixbundle" });
 
-            auto dependencies = manifest.DefaultInstallerInfo.Dependencies;
+            const auto& dependencies = manifest.DefaultInstallerInfo.Dependencies;
             REQUIRE(dependencies.HasExactDependency(DependencyType::WindowsFeature, "IIS"));
             REQUIRE(dependencies.HasExactDependency(DependencyType::WindowsLibrary, "VC Runtime"));
             REQUIRE(dependencies.HasExactDependency(DependencyType::Package, "Microsoft.MsixSdkDep", "1.0.0"));
@@ -296,7 +320,7 @@ namespace
             }
         }
 
-        ManifestInstaller installer1 = manifest.Installers.at(0);
+        const ManifestInstaller& installer1 = manifest.Installers.at(0);
         REQUIRE(installer1.Arch == Architecture::X86);
         REQUIRE(installer1.Locale == "en-GB");
         REQUIRE(installer1.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop });
@@ -308,7 +332,7 @@ namespace
         REQUIRE(installer1.Scope == ScopeEnum::User);
         REQUIRE(installer1.InstallModes == std::vector<InstallModeEnum>{ InstallModeEnum::Interactive });
 
-        auto installer1Switches = installer1.Switches;
+        const auto& installer1Switches = installer1.Switches;
         REQUIRE(installer1Switches.at(InstallerSwitchType::Custom) == "/c");
         REQUIRE(installer1Switches.at(InstallerSwitchType::SilentWithProgress) == "/sp");
         REQUIRE(installer1Switches.at(InstallerSwitchType::Silent) == "/s");
@@ -322,7 +346,7 @@ namespace
         REQUIRE(installer1.Protocols == MultiValue{ "protocol1preview", "protocol2preview" });
         REQUIRE(installer1.FileExtensions == MultiValue{ "appxbundle", "msixbundle", "appx", "msix" });
 
-        auto installer1Dependencies = installer1.Dependencies;
+        const auto& installer1Dependencies = installer1.Dependencies;
         REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::WindowsFeature, "PreviewIIS"));
         REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::WindowsLibrary, "Preview VC Runtime"));
         REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::Package, "Microsoft.MsixSdkDepPreview", "1.0.0"));
@@ -389,11 +413,16 @@ namespace
             REQUIRE_FALSE(installer1.ArchiveBinariesDependOnPath);
         }
 
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_28 })
+        {
+            RequireContainerInfoPresent(manifest.DefaultInstallerInfo.DesiredStateConfiguration, { { { "Microsoft.WinGet/AdminSettings" }, { "Microsoft.WinGet/Package" }, { "Microsoft.WinGet/Source" }, { "Microsoft.WinGet/UserSettingsFile" } } });
+        }
+
         if (!isSingleton)
         {
             if (!isExported)
             {
-                ManifestInstaller installer2 = manifest.Installers.at(1);
+                const ManifestInstaller& installer2 = manifest.Installers.at(1);
                 REQUIRE(installer2.BaseInstallerType == InstallerTypeEnum::Exe);
                 REQUIRE(installer2.Arch == Architecture::X64);
                 REQUIRE(installer2.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
@@ -424,7 +453,7 @@ namespace
 
                 if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
                 {
-                    ManifestInstaller installer3 = manifest.Installers.at(2);
+                    const ManifestInstaller& installer3 = manifest.Installers.at(2);
                     REQUIRE(installer3.BaseInstallerType == InstallerTypeEnum::Portable);
                     REQUIRE(installer3.Arch == Architecture::X86);
                     REQUIRE(installer3.Url == "https://www.microsoft.com/msixsdk/msixsdkx86.exe");
@@ -440,7 +469,7 @@ namespace
 
                 if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
                 {
-                    ManifestInstaller installer4 = manifest.Installers.at(3);
+                    const ManifestInstaller& installer4 = manifest.Installers.at(3);
                     REQUIRE(installer4.BaseInstallerType == InstallerTypeEnum::Zip);
                     REQUIRE(installer4.Arch == Architecture::X64);
                     REQUIRE(installer4.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
@@ -472,7 +501,7 @@ namespace
                     REQUIRE(installer2.RepairBehavior == RepairBehaviorEnum::Uninstaller);
                     REQUIRE(installer2.Switches.at(InstallerSwitchType::Repair) == "/r");
 
-                    ManifestInstaller installer5 = manifest.Installers.at(4);
+                    const ManifestInstaller& installer5 = manifest.Installers.at(4);
                     REQUIRE(installer5.BaseInstallerType == InstallerTypeEnum::Burn);
                     REQUIRE(installer5.Arch == Architecture::X64);
                     REQUIRE(installer5.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
@@ -484,13 +513,13 @@ namespace
 
                 if (manifestVer >= ManifestVer{ s_ManifestVersionV1_9 })
                 {
-                    ManifestInstaller installer4 = manifest.Installers.at(3);
+                    const ManifestInstaller& installer4 = manifest.Installers.at(3);
                     REQUIRE(installer4.ArchiveBinariesDependOnPath);
                 }
 
                 if (manifestVer >= ManifestVer{ s_ManifestVersionV1_12 })
                 {
-                    ManifestInstaller installer6 = manifest.Installers.at(5);
+                    const ManifestInstaller& installer6 = manifest.Installers.at(5);
                     REQUIRE(installer6.BaseInstallerType == InstallerTypeEnum::Zip);
                     REQUIRE(installer6.Arch == Architecture::Neutral);
                     REQUIRE(installer6.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
@@ -503,17 +532,23 @@ namespace
                     REQUIRE(installer6.NestedInstallerFiles.at(3).RelativeFilePath == "relativeFilePath4.ttc");
                     REQUIRE(installer6.NestedInstallerFiles.at(4).RelativeFilePath == "relativeFilePath5.otc");
 
-                    ManifestInstaller installer7 = manifest.Installers.at(6);
+                    const ManifestInstaller& installer7 = manifest.Installers.at(6);
                     REQUIRE(installer7.BaseInstallerType == InstallerTypeEnum::Font);
                     REQUIRE(installer7.Arch == Architecture::Neutral);
                     REQUIRE(installer7.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
                     REQUIRE(installer7.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
                 }
+
+                if (manifestVer >= ManifestVer{ s_ManifestVersionV1_28 })
+                {
+                    REQUIRE(manifest.Installers[0].DesiredStateConfiguration.size() == 0);
+                    RequireContainerInfoPresent(manifest.Installers[1].DesiredStateConfiguration, { {{"None/None"}} });
+                }
             }
 
             // Localization
             REQUIRE(manifest.Localizations.size() == 1);
-            ManifestLocalization localization1 = manifest.Localizations.at(0);
+            const ManifestLocalization& localization1 = manifest.Localizations.at(0);
             REQUIRE(localization1.Locale == "en-GB");
             REQUIRE(localization1.Get<Localization::Publisher>() == "Microsoft UK");
             REQUIRE(localization1.Get<Localization::PublisherUrl>() == "https://www.microsoft.com/UK");
@@ -1194,6 +1229,31 @@ TEST_CASE("ValidateV1_12GoodManifestAndVerifyContents", "[ManifestValidation]")
     VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_12 });
 }
 
+TEST_CASE("ValidateV1_28GoodManifestAndVerifyContents", "[ManifestValidation]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_28-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
+    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{ s_ManifestVersionV1_28 });
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_28-MultiFile-Version.yaml",
+        "ManifestV1_28-MultiFile-Installer.yaml",
+        "ManifestV1_28-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_28-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
+    VerifyV1ManifestContent(multiFileManifest, false, ManifestVer{ s_ManifestVersionV1_28 });
+
+    // Read from merged manifest should have the same content as multi file manifest
+    Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
+    VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_28 });
+}
+
 TEST_CASE("WriteV1SingletonManifestAndVerifyContents", "[ManifestCreation]")
 {
     TempDirectory singletonDirectory{ "SingletonManifest" };
@@ -1482,6 +1542,12 @@ TEST_CASE("ReadWriteValidateV1_10ManifestWithInstallerAuthentication", "[Manifes
     CopyTestDataFilesToFolder({ "ManifestV1_10-InstallerAuthentication.yaml" }, testDirectory);
     Manifest testManifest = YamlParser::CreateFromPath(testDirectory);
 
+    // Validate schema
+    ManifestValidateOption validateOption;
+    validateOption.SchemaValidationOnly = true;
+    validateOption.ThrowOnWarning = true;
+    YamlParser::CreateFromPath(testDirectory, validateOption);
+
     // Verify content
     REQUIRE(testManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_10 });
     REQUIRE(testManifest.DefaultInstallerInfo.AuthInfo.Type == AppInstaller::Authentication::AuthenticationType::MicrosoftEntraId);
@@ -1508,12 +1574,123 @@ TEST_CASE("ReadWriteValidateV1_10ManifestWithInstallerAuthentication", "[Manifes
     // Read back and validate content
     REQUIRE(std::filesystem::exists(exportedManifestPath));
     Manifest exportedManifest = YamlParser::CreateFromPath(exportedDirectory);
-    REQUIRE(testManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_10 });
+    REQUIRE(exportedManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_10 });
     REQUIRE(exportedManifest.Installers.size() == 1);
     REQUIRE(exportedManifest.Installers[0].AuthInfo.Type == AppInstaller::Authentication::AuthenticationType::MicrosoftEntraIdForAzureBlobStorage);
     REQUIRE(exportedManifest.Installers[0].AuthInfo.MicrosoftEntraIdInfo);
     REQUIRE(exportedManifest.Installers[0].AuthInfo.MicrosoftEntraIdInfo->Resource == "https://storage.azure.com/");
     REQUIRE(exportedManifest.Installers[0].AuthInfo.MicrosoftEntraIdInfo->Scope.empty());
+}
+
+TEST_CASE("WriteV1_12SingletonManifestAndVerifyContents", "[ManifestCreation]")
+{
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_12-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory);
+
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory);
+    VerifyV1ManifestContent(generatedSingletonManifest, true, ManifestVer{ s_ManifestVersionV1_12 }, true);
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_12-MultiFile-Version.yaml",
+        "ManifestV1_12-MultiFile-Installer.yaml",
+        "ManifestV1_12-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_12-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory);
+    TempDirectory exportedMultiFileDirectory{ "exportedMultiFile" };
+    std::filesystem::path generatedMultiFileManifestPath = exportedMultiFileDirectory.GetPath() / "testMultiFileManifest.yaml";
+    YamlWriter::OutputYamlFile(multiFileManifest, multiFileManifest.Installers[0], generatedMultiFileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultiFileManifestPath));
+    Manifest generatedMultiFileManifest = YamlParser::CreateFromPath(exportedMultiFileDirectory);
+    VerifyV1ManifestContent(generatedMultiFileManifest, false, ManifestVer{ s_ManifestVersionV1_12 }, true);
+}
+
+TEST_CASE("WriteV1_28SingletonManifestAndVerifyContents", "[ManifestCreation]")
+{
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_28-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory);
+
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory);
+    VerifyV1ManifestContent(generatedSingletonManifest, true, ManifestVer{ s_ManifestVersionV1_28 }, true);
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_28-MultiFile-Version.yaml",
+        "ManifestV1_28-MultiFile-Installer.yaml",
+        "ManifestV1_28-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_28-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory);
+    TempDirectory exportedMultiFileDirectory{ "exportedMultiFile" };
+    std::filesystem::path generatedMultiFileManifestPath = exportedMultiFileDirectory.GetPath() / "testMultiFileManifest.yaml";
+    YamlWriter::OutputYamlFile(multiFileManifest, multiFileManifest.Installers[0], generatedMultiFileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultiFileManifestPath));
+    Manifest generatedMultiFileManifest = YamlParser::CreateFromPath(exportedMultiFileDirectory);
+    VerifyV1ManifestContent(generatedMultiFileManifest, false, ManifestVer{ s_ManifestVersionV1_28 }, true);
+}
+
+// PowerShell DSC is not supported in the community repo and will cause manifest validation failure.
+TEST_CASE("ReadWriteValidateV1_28ManifestWithPowerShellDSC", "[ManifestValidation]")
+{
+    // Read manifest
+    TempDirectory testDirectory{ "TestManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_28-PowerShellDSC.yaml" }, testDirectory);
+    Manifest testManifest = YamlParser::CreateFromPath(testDirectory);
+
+    // Validate schema
+    ManifestValidateOption validateOption;
+    validateOption.SchemaValidationOnly = true;
+    validateOption.ThrowOnWarning = true;
+    YamlParser::CreateFromPath(testDirectory, validateOption);
+
+    // TODO: Update ValidateManifest
+    // TODO: Update this test with similar validations
+
+    // Verify content
+    REQUIRE(testManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_28 });
+    REQUIRE(testManifest.Installers.size() == 1);
+    REQUIRE(testManifest.Installers[0].DesiredStateConfiguration.size() == 3);
+
+    RequireContainerInfoPresent(testManifest.Installers[0].DesiredStateConfiguration, { "https://www.powershellgallery.com/api/v2", "Microsoft.WinGet.DSC", { { "WinGetUserSettings" }, { "WinGetAdminSettings" }, { "WinGetSource" }, { "WinGetPackageManager" }, { "WinGetPackage" } } });
+    RequireContainerInfoPresent(testManifest.Installers[0].DesiredStateConfiguration, { "https://mcr.microsoft.com/", "Microsoft.WinGet.DSC", { { "WinGetUserSettings" }, { "WinGetAdminSettings" }, { "WinGetSource" }, { "WinGetPackageManager" }, { "WinGetPackage" } } });
+    RequireContainerInfoPresent(testManifest.Installers[0].DesiredStateConfiguration, { { { "Microsoft.WinGet/AdminSettings" }, { "Microsoft.WinGet/Package" }, { "Microsoft.WinGet/Source" }, { "Microsoft.WinGet/UserSettingsFile" } } });
+
+    // Manifest Validation. Only error is "PowerShell not supported".
+    auto errors = ValidateManifest(testManifest, true);
+    REQUIRE(errors.size() == 1);
+    REQUIRE(errors[0].GetErrorMessage() == "Field is not supported.");
+    REQUIRE(errors[0].Context == "DesiredStateConfiguration.PowerShell");
+
+    // Write manifest
+    TempDirectory exportedDirectory{ "ExportedManifest" };
+    std::filesystem::path exportedManifestPath = exportedDirectory.GetPath() / "ExportedManifest.yaml";
+    YamlWriter::OutputYamlFile(testManifest, testManifest.Installers[0], exportedManifestPath);
+
+    // Read back and validate content
+    REQUIRE(std::filesystem::exists(exportedManifestPath));
+    Manifest exportedManifest = YamlParser::CreateFromPath(exportedDirectory);
+    REQUIRE(exportedManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_28 });
+    REQUIRE(exportedManifest.Installers.size() == 1);
+    REQUIRE(exportedManifest.Installers[0].DesiredStateConfiguration.size() == 3);
+
+    RequireContainerInfoPresent(exportedManifest.Installers[0].DesiredStateConfiguration, { "https://www.powershellgallery.com/api/v2", "Microsoft.WinGet.DSC", { { "WinGetUserSettings" }, { "WinGetAdminSettings" }, { "WinGetSource" }, { "WinGetPackageManager" }, { "WinGetPackage" } } });
+    RequireContainerInfoPresent(exportedManifest.Installers[0].DesiredStateConfiguration, { "https://mcr.microsoft.com/", "Microsoft.WinGet.DSC", { { "WinGetUserSettings" }, { "WinGetAdminSettings" }, { "WinGetSource" }, { "WinGetPackageManager" }, { "WinGetPackage" } } });
+    RequireContainerInfoPresent(exportedManifest.Installers[0].DesiredStateConfiguration, { { { "Microsoft.WinGet/AdminSettings" }, { "Microsoft.WinGet/Package" }, { "Microsoft.WinGet/Source" }, { "Microsoft.WinGet/UserSettingsFile" } } });
 }
 
 TEST_CASE("WriteManifestWithMultipleLocale", "[ManifestCreation]")

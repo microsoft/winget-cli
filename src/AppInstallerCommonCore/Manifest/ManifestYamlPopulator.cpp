@@ -836,8 +836,7 @@ namespace AppInstaller::Manifest
                 { "DSCv3", [this](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors
                     {
                         auto* variantValue = variant_ptr<std::vector<DesiredStateConfigurationContainerInfo>>(v);
-                        variantValue->emplace_back();
-                        variantValue->back().Type = DesiredStateConfigurationContainerType::DSCv3;
+                        variantValue->emplace_back(DesiredStateConfigurationContainerType::DSCv3);
                         return ValidateAndProcessFields(value, DesiredStateConfigurationDSCv3FieldInfos, VariantManifestPtr(&variantValue->back()));
                     }
                 },
@@ -855,7 +854,7 @@ namespace AppInstaller::Manifest
         {
             result =
             {
-                { "RepositoryURL", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<DesiredStateConfigurationContainerInfo>(v)->RepositoryURL = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "RepositoryUrl", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<DesiredStateConfigurationContainerInfo>(v)->RepositoryURL = Utility::Trim(value.as<std::string>()); return {}; } },
                 { "ModuleName", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<DesiredStateConfigurationContainerInfo>(v)->ModuleName = Utility::Trim(value.as<std::string>()); return {}; } },
                 { "Resources", [this](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { return ProcessDSC_PowerShellResourcesNode(value, variant_ptr<DesiredStateConfigurationContainerInfo>(v)); } },
             };
@@ -1193,7 +1192,7 @@ namespace AppInstaller::Manifest
 
         for (auto const& entry : node.Sequence())
         {
-            auto& containerInfo = containers->emplace_back();
+            auto& containerInfo = containers->emplace_back(DesiredStateConfigurationContainerType::PowerShell);
             auto errors = ValidateAndProcessFields(entry, DesiredStateConfigurationPowerShellModuleFieldInfos, VariantManifestPtr(&containerInfo));
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
         }

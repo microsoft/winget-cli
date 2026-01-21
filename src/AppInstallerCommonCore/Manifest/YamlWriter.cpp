@@ -76,7 +76,7 @@ namespace AppInstaller::Manifest::YamlWriter
         constexpr std::string_view DesiredStateConfiguration = "DesiredStateConfiguration"sv;
         constexpr std::string_view DesiredStateConfigurationResources = "Resources"sv;
         constexpr std::string_view DesiredStateConfigurationPowerShell = "PowerShell"sv;
-        constexpr std::string_view DesiredStateConfigurationPowerShellRepositoryURL = "RepositoryURL"sv;
+        constexpr std::string_view DesiredStateConfigurationPowerShellRepositoryURL = "RepositoryUrl"sv;
         constexpr std::string_view DesiredStateConfigurationPowerShellModuleName = "ModuleName"sv;
         constexpr std::string_view DesiredStateConfigurationPowerShellResourceName = "Name"sv;
         constexpr std::string_view DesiredStateConfigurationDSCv3 = "DSCv3"sv;
