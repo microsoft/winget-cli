@@ -170,7 +170,6 @@ Installers:
       - location
     DownloadCommandProhibited: false
     ArchiveBinariesDependOnPath: false
-    DesiredStateConfiguration:
   - Architecture: x64
     InstallerType: exe
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
@@ -195,6 +194,8 @@ Installers:
       - InstallerReturnCode: 11
         ReturnResponse: custom
         ReturnResponseUrl: https://defaultReturnResponseUrl.com
+    DesiredStateConfiguration:
+      DSCv3:
   - Architecture: x64
     InstallerType: zip
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe

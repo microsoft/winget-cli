@@ -415,7 +415,13 @@ namespace
 
         if (manifestVer >= ManifestVer{ s_ManifestVersionV1_28 })
         {
-            RequireContainerInfoPresent(manifest.DefaultInstallerInfo.DesiredStateConfiguration, { { { "Microsoft.WinGet/AdminSettings" }, { "Microsoft.WinGet/Package" }, { "Microsoft.WinGet/Source" }, { "Microsoft.WinGet/UserSettingsFile" } } });
+            auto containers = &manifest.DefaultInstallerInfo.DesiredStateConfiguration;
+            if (isExported)
+            {
+                containers = &manifest.Installers[0].DesiredStateConfiguration;
+            }
+
+            RequireContainerInfoPresent(*containers, { { { "Microsoft.WinGet/AdminSettings" }, { "Microsoft.WinGet/Package" }, { "Microsoft.WinGet/Source" }, { "Microsoft.WinGet/UserSettingsFile" } } });
         }
 
         if (!isSingleton)
@@ -541,8 +547,8 @@ namespace
 
                 if (manifestVer >= ManifestVer{ s_ManifestVersionV1_28 })
                 {
-                    REQUIRE(manifest.Installers[0].DesiredStateConfiguration.size() == 0);
-                    RequireContainerInfoPresent(manifest.Installers[1].DesiredStateConfiguration, { {{"None/None"}} });
+                    RequireContainerInfoPresent(manifest.Installers[1].DesiredStateConfiguration, { { { "None/None" } } });
+                    REQUIRE(manifest.Installers[2].DesiredStateConfiguration.size() == 0);
                 }
             }
 
