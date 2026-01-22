@@ -24,13 +24,13 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public WinGetCLICommandBuilder(string? command = null)
         {
             this.builder = new StringBuilder();
-            this.Command = command;
+            this.Command = command ?? string.Empty;
         }
 
         /// <summary>
-        /// Gets the main command (e.g., settings, source).
+        /// Gets the main command (e.g. [empty], settings, source).
         /// </summary>
-        public string? Command { get; }
+        public string Command { get; }
 
         /// <summary>
         /// Gets the constructed parameters string.

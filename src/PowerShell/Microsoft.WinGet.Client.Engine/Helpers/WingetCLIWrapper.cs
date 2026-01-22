@@ -67,8 +67,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Runs winget command with parameters.
         /// </summary>
         /// <param name="pwshCmdlet">PowerShell cmdlet.</param>
-        /// <param name="command">Command.</param>
-        /// <param name="parameters">Parameters.</param>
+        /// <param name="builder">The command builder.</param>
         /// <param name="timeOut">Time out.</param>
         /// <returns>WinGetCommandResult.</returns>
         internal WinGetCLICommandResult RunCommand(PowerShellCmdlet pwshCmdlet, WinGetCLICommandBuilder builder, int timeOut = 60000)
