@@ -357,6 +357,7 @@ Multideclaration
 mysource
 nativehandle
 NBLGGH
+ncreate
 NESTEDINSTALLER
 netlify
 NETSDK
@@ -559,6 +560,7 @@ systemnotsupported
 Tagit
 TARG
 taskhostw
+tcreate
 tcs
 tellp
 temppath
