@@ -6,8 +6,7 @@
 
 namespace Microsoft.WinGet.Client.Engine.Helpers
 {
-    using System;
-    using System.Linq;
+    using System.Collections.Generic;
     using System.Text;
 
     /// <summary>
@@ -15,27 +14,28 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     /// </summary>
     public class WinGetCLICommandBuilder
     {
-        private readonly StringBuilder builder;
+        private readonly List<string> commands;
+        private readonly List<string> parameters;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WinGetCLICommandBuilder"/> class.
         /// </summary>
-        /// <param name="command">Optional main command (e.g., settings, source).</param>
-        public WinGetCLICommandBuilder(string? command = null)
+        /// <param name="commands">The commands to initialize the builder with.</param>
+        public WinGetCLICommandBuilder(params string[] commands)
         {
-            this.builder = new StringBuilder();
-            this.Command = command ?? string.Empty;
+            this.commands = new (commands);
+            this.parameters = new ();
         }
 
         /// <summary>
         /// Gets the main command (e.g. [empty], settings, source).
         /// </summary>
-        public string Command { get; }
+        public string Command => string.Join(" ", this.commands);
 
         /// <summary>
         /// Gets the constructed parameters string.
         /// </summary>
-        public string Parameters => this.builder.ToString();
+        public string Parameters => string.Join(" ", this.parameters);
 
         /// <summary>
         /// Appends a switch to the command.
@@ -44,7 +44,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>The current instance of <see cref="WinGetCLICommandBuilder"/>.</returns>
         public WinGetCLICommandBuilder AppendSwitch(string switchName)
         {
-            this.AppendToken($"--{switchName}");
+            this.parameters.Add($"--{switchName}");
             return this;
         }
 
@@ -55,7 +55,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>The current instance of <see cref="WinGetCLICommandBuilder"/>.</returns>
         public WinGetCLICommandBuilder AppendSubCommand(string subCommand)
         {
-            this.AppendToken(subCommand);
+            this.commands.Add(subCommand);
             return this;
         }
 
@@ -72,7 +72,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 return this;
             }
 
-            this.AppendToken($"--{option} {this.Escape(value)}");
+            this.parameters.Add($"--{option} {this.Escape(value)}");
             return this;
         }
 
@@ -82,21 +82,26 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>The string representation of the command.</returns>
         public override string ToString()
         {
-            if (string.IsNullOrEmpty(this.Command))
+            var parametersString = this.Parameters;
+            var commandString = this.Command;
+            if (string.IsNullOrEmpty(commandString))
             {
-                return this.Parameters;
+                return parametersString;
             }
 
-            if (string.IsNullOrEmpty(this.Parameters))
+            if (string.IsNullOrEmpty(parametersString))
             {
-                return this.Command!;
+                return commandString;
             }
 
-            return $"{this.Command} {this.Parameters}";
+            return $"{commandString} {parametersString}";
         }
 
         /// <summary>
         /// Escapes a command-line argument according to Windows command-line parsing rules.
+        /// References:
+        /// - https://devblogs.microsoft.com/oldnewthing/20100917-00/?p=12833
+        /// - https://learn.microsoft.com/en-us/cpp/c-language/parsing-c-command-line-arguments.
         /// </summary>
         /// <param name="arg">The argument to escape.</param>
         /// <returns>The escaped argument.</returns>
@@ -105,16 +110,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             if (string.IsNullOrEmpty(arg))
             {
                 return "\"\"";
-            }
-
-            // Determine if the argument needs quotes
-            // - Contains whitespace, or
-            // - Contains double quotes, or
-            // - Ends with a backslash
-            var needsQuotes = arg.Any(char.IsWhiteSpace) || arg.Contains('"') || arg.EndsWith("\\", StringComparison.Ordinal);
-            if (!needsQuotes)
-            {
-                return arg;
             }
 
             var sb = new StringBuilder(arg.Length + 2);
@@ -148,20 +143,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
             sb.Append('"');
             return sb.ToString();
-        }
-
-        /// <summary>
-        /// Appends a token to the command.
-        /// </summary>
-        /// <param name="token">The token to append.</param>
-        private void AppendToken(string token)
-        {
-            if (this.builder.Length > 0)
-            {
-                this.builder.Append(' ');
-            }
-
-            this.builder.Append(token);
         }
     }
 }

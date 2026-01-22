@@ -23,14 +23,14 @@ namespace Microsoft.WinGet.UnitTests
         /// <param name="optionValue">The option value to test.</param>
         /// <param name="escapedOptionValue">The expected escaped option value.</param>
         [Theory]
-        [InlineData("winget", "winget")] // mock --test winget
+        [InlineData("winget", "\"winget\"")] // mock --test winget
         [InlineData("winget create", "\"winget create\"")] // mock --test "winget create"
         [InlineData("winget\tcreate", "\"winget\tcreate\"")] // mock --test "winget<tab>create"
         [InlineData("winget\ncreate", "\"winget\ncreate\"")] // mock --test "winget<newline>create"
         [InlineData("", "\"\"")] // mock --test ""
         [InlineData(@"\\", "\"\\\\\\\\\"")] // mock --test "\\\\"
         [InlineData("winget \"create\"", "\"winget \\\"create\\\"\"")] // mock --test "winget \"create\""
-        [InlineData(@"C:\PATH_A\PATH_B", @"C:\PATH_A\PATH_B")] // mock --test C:\PATH_A\PATH_B
+        [InlineData(@"C:\PATH_A\PATH_B", "\"C:\\PATH_A\\PATH_B\"")] // mock --test C:\PATH_A\PATH_B
         [InlineData(@"C:\PATH_A\PATH_B\", "\"C:\\PATH_A\\PATH_B\\\\\"")] // mock --test "C:\PATH_A\PATH_B\\"
         [InlineData("C:\\PATH_A\\\"PATH_B\"", "\"C:\\PATH_A\\\\\\\"PATH_B\\\"\"")] // mock --test "C:\PATH_A\\\"PATH_B\""
         public void GeneratesCorrectlyEscapedParameters(string optionValue, string escapedOptionValue)
@@ -57,7 +57,7 @@ namespace Microsoft.WinGet.UnitTests
             builder.AppendOption("option2", "value2");
             builder.AppendOption("option3", "value with spaces");
 
-            var expectedParameters = "--option1 value1 --option2 value2 --option3 \"value with spaces\"";
+            var expectedParameters = "--option1 \"value1\" --option2 \"value2\" --option3 \"value with spaces\"";
 
             Assert.Equal(MockCommand, builder.Command);
             Assert.Equal(expectedParameters, builder.Parameters);
@@ -74,7 +74,7 @@ namespace Microsoft.WinGet.UnitTests
             builder.AppendSwitch("verbose");
             builder.AppendOption("name", "test");
 
-            var expectedParameters = "--verbose --name test";
+            var expectedParameters = "--verbose --name \"test\"";
 
             Assert.Equal(expectedParameters, builder.Parameters);
         }
@@ -116,7 +116,7 @@ namespace Microsoft.WinGet.UnitTests
             builder.AppendSwitch("force");
             builder.AppendOption("id", "Microsoft.PowerShell");
 
-            var expectedParameters = "--silent --source winget --force --id Microsoft.PowerShell";
+            var expectedParameters = "--silent --source \"winget\" --force --id \"Microsoft.PowerShell\"";
 
             Assert.Equal(expectedParameters, builder.Parameters);
         }
@@ -150,11 +150,29 @@ namespace Microsoft.WinGet.UnitTests
             builder.AppendSwitch("interactive");
 
             var expectedCommand = "install";
-            var expectedParameters = "--id Microsoft.VisualStudioCode --silent --override \"/VERYSILENT /NORESTART\" --location \"C:\\Program Files\\VSCode\" --interactive";
+            var expectedParameters = "--id \"Microsoft.VisualStudioCode\" --silent --override \"/VERYSILENT /NORESTART\" --location \"C:\\Program Files\\VSCode\" --interactive";
 
             Assert.Equal(expectedCommand, builder.Command);
             Assert.Equal(expectedParameters, builder.Parameters);
             Assert.Equal($"{expectedCommand} {expectedParameters}", builder.ToString());
+        }
+
+        /// <summary>
+        /// Tests that subcommands are handled correctly.
+        /// </summary>
+        [Fact]
+        public void Subcommand_GeneratesCorrectCommandStructure()
+        {
+            WinGetCLICommandBuilder builder = new ("source");
+            builder.AppendSubCommand("add");
+            builder.AppendOption("name", "mysource");
+            builder.AppendOption("arg", "https://mock");
+
+            var expectedParameters = "--name \"mysource\" --arg \"https://mock\"";
+
+            Assert.Equal("source add", builder.Command);
+            Assert.Equal(expectedParameters, builder.Parameters);
+            Assert.Equal($"source add {expectedParameters}", builder.ToString());
         }
     }
 }
