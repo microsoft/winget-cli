@@ -74,3 +74,7 @@
 #define IDX_MANIFEST_SCHEMA_V1_28_INSTALLER           254
 #define IDX_MANIFEST_SCHEMA_V1_28_DEFAULTLOCALE       255
 #define IDX_MANIFEST_SCHEMA_V1_28_LOCALE              256
+
+// Packages schema starts at 300
+// Certificates start at 400
+// If we get to 300, either move the others or skip over them

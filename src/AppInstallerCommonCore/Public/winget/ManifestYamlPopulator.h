@@ -13,6 +13,8 @@ namespace AppInstaller::Manifest
         AppsAndFeaturesEntry*,
         Dependency*,
         DependencyList*,
+        DesiredStateConfigurationContainerInfo*,
+        DesiredStateConfigurationResourceInfo*,
         Documentation*,
         ExpectedReturnCode*,
         Icon*,
@@ -23,13 +25,10 @@ namespace AppInstaller::Manifest
         ManifestLocalization*,
         MarketsInfo*,
         NestedInstallerFile*,
-        std::map<InstallerSwitchType,
-        Utility::NormalizedString>*,
         AppInstaller::Authentication::AuthenticationInfo*,
         AppInstaller::Authentication::MicrosoftEntraIdAuthenticationInfo*,
-        std::vector<DesiredStateConfigurationContainerInfo>*,
-        DesiredStateConfigurationContainerInfo*,
-        DesiredStateConfigurationResourceInfo*
+        std::map<InstallerSwitchType, Utility::NormalizedString>*,
+        std::vector<DesiredStateConfigurationContainerInfo>*
     >;
 
     struct ManifestYamlPopulator

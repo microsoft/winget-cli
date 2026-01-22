@@ -658,7 +658,8 @@
               "ModuleName": {
                 "type": "string",
                 "description": "The name of the module containing resources.",
-                "pattern": "^[A-Za-z][-._A-Za-z0-9]*$",
+                "$comment": "From nuget package id, although PowerShell convetion is slightle more strict: https://learn.microsoft.com/en-us/nuget/reference/errors-and-warnings/nu1017",
+                "pattern": "^\\w+([.-]\\w+)*$",
                 "maxLength": 100
               },
               "Resources": {
@@ -672,6 +673,7 @@
                     "Name": {
                       "type": "string",
                       "description": "The name of the resource.",
+                      "$comment": "Needs to be an identifier in the various languages (MOF, PS class name), could not find any direct description.",
                       "pattern": "^[A-Za-z][-_A-Za-z0-9]*$",
                       "maxLength": 100
                     }
@@ -697,6 +699,7 @@
                   "Type": {
                     "type": "string",
                     "description": "The name of the resource.",
+                    "$comment": "Pulled from DSCv3 definition; matches `Publisher.Product.Component/ResourceName` where the Product and Component are optional.",
                     "pattern": "^\\w+(\\.\\w+){0,2}\\/\\w+$",
                     "maxLength": 256
                   }

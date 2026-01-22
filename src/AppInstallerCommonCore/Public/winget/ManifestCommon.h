@@ -402,8 +402,12 @@ namespace AppInstaller::Manifest
             Type(DesiredStateConfigurationContainerType::DSCv3), Resources(std::move(resources)) {}
 
         DesiredStateConfigurationContainerType Type;
+
+        // For Type == PowerShell
         string_t RepositoryURL;
         string_t ModuleName;
+
+        // For all types
         std::vector<DesiredStateConfigurationResourceInfo> Resources;
     };
 
