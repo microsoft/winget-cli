@@ -7,6 +7,7 @@
 #include <map>
 #include <set>
 #include <string_view>
+#include <vector>
 
 namespace AppInstaller::Manifest
 {
@@ -52,6 +53,9 @@ namespace AppInstaller::Manifest
 
     // V1.12 manifest version
     constexpr std::string_view s_ManifestVersionV1_12 = "1.12.0"sv;
+
+    // V1.28 manifest version
+    constexpr std::string_view s_ManifestVersionV1_28 = "1.28.0"sv;
 
     // Any new manifest version must also be added to src\WinGetUtilInterop\Manifest\ManifestVersion.cs.
 
@@ -323,8 +327,8 @@ namespace AppInstaller::Manifest
         void ApplyToAll(std::function<void(const Dependency&)> func) const;
         bool Empty() const;
         void Clear();
-        bool HasExactDependency(DependencyType type, const string_t& id, const string_t& minVersion = "");
-        size_t Size();
+        bool HasExactDependency(DependencyType type, const string_t& id, const string_t& minVersion = "") const;
+        size_t Size() const;
 
     private:
         std::vector<Dependency> m_dependencies;
@@ -370,6 +374,41 @@ namespace AppInstaller::Manifest
         bool HasData() const { return !DefaultInstallLocation.empty() || !Files.empty(); }
 
         void Clear() { DefaultInstallLocation.clear(); Files.clear(); }
+    };
+
+    // Information about a specific DSC resource.
+    struct DesiredStateConfigurationResourceInfo
+    {
+        string_t Name;
+    };
+
+    // The type of resource container.
+    enum class DesiredStateConfigurationContainerType
+    {
+        PowerShell,
+        DSCv3,
+    };
+
+    // Information about a DSC container.
+    // Contains the union of properties relevant to all container types.
+    struct DesiredStateConfigurationContainerInfo
+    {
+        DesiredStateConfigurationContainerInfo(DesiredStateConfigurationContainerType type) : Type(type) {}
+
+        DesiredStateConfigurationContainerInfo(const string_t& repositoryUrl, const string_t& moduleName, std::vector<DesiredStateConfigurationResourceInfo> resources) :
+            Type(DesiredStateConfigurationContainerType::PowerShell), RepositoryURL(repositoryUrl), ModuleName(moduleName), Resources(std::move(resources)) {}
+
+        DesiredStateConfigurationContainerInfo(std::vector<DesiredStateConfigurationResourceInfo> resources) :
+            Type(DesiredStateConfigurationContainerType::DSCv3), Resources(std::move(resources)) {}
+
+        DesiredStateConfigurationContainerType Type;
+
+        // For Type == PowerShell
+        string_t RepositoryURL;
+        string_t ModuleName;
+
+        // For all types
+        std::vector<DesiredStateConfigurationResourceInfo> Resources;
     };
 
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);

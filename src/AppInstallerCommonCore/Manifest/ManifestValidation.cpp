@@ -90,6 +90,7 @@ namespace AppInstaller::Manifest
             return ErrorIdToMessageMap;
         }
     }
+
     std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation)
     {
         std::vector<ValidationError> resultErrors;
@@ -433,6 +434,19 @@ namespace AppInstaller::Manifest
                 if (!installer.AuthInfo.ValidateIntegrity())
                 {
                     resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Authentication");
+                }
+            }
+
+            if (fullValidation)
+            {
+                for (const auto& container : installer.DesiredStateConfiguration)
+                {
+                    if (container.Type == DesiredStateConfigurationContainerType::PowerShell)
+                    {
+                        // PowerShell DSC is not supported in community repo.
+                        resultErrors.emplace_back(ManifestError::FieldNotSupported, "DesiredStateConfiguration.PowerShell");
+                        break;
+                    }
                 }
             }
         }
