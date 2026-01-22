@@ -759,7 +759,7 @@
               "ModuleName": {
                 "type": "string",
                 "description": "The name of the module containing resources.",
-                "$comment": "From nuget package id, although PowerShell convetion is slightle more strict: https://learn.microsoft.com/en-us/nuget/reference/errors-and-warnings/nu1017",
+                "$comment": "From nuget package id, although PowerShell convention is slightly more strict: https://learn.microsoft.com/en-us/nuget/reference/errors-and-warnings/nu1017",
                 "pattern": "^\\w+([.-]\\w+)*$",
                 "maxLength": 100
               },
