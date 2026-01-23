@@ -219,6 +219,14 @@ jobs:
         Microsoft.Management.Configuration.OutOfProc\**
 
   - task: CopyFiles@2
+    displayName: 'Copy Files: Microsoft.WinGet.UnitTests'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\src\PowerShell\Microsoft.WinGet.UnitTests\bin\$(buildPlatform)\$(BuildConfiguration)\net8.0-windows10.0.26100'
+      TargetFolder:  '$(artifactsDir)\Microsoft.WinGet.UnitTests\'
+      CleanTargetFolder: true
+      OverWrite: true
+
+  - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(buildPlatform)\$(BuildConfiguration)\net8.0'
@@ -425,6 +433,18 @@ jobs:
     inputs:
       SourceFolder: '$(temp)\E2ETestLogs'
       TargetFolder: '$(artifactsDir)\PackagedLog'
+    condition: succeededOrFailed()
+
+  - task: VSTest@2
+    displayName: 'Run tests: Microsoft.WinGet.UnitTests'
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: 'Microsoft.WinGet.UnitTests.dll'
+      searchFolder: '$(buildOutDir)\Microsoft.WinGet.UnitTests'
+      codeCoverageEnabled: true
+      platform: '$(buildPlatform)'
+      configuration: '$(BuildConfiguration)'
+      diagnosticsEnabled: true
     condition: succeededOrFailed()
 
   - task: VSTest@2
