@@ -27,6 +27,7 @@ namespace AppInstaller::Settings
             Font = 0x4,
             ListDetails = 0x8,
             SourceEdit = 0x10,
+            SourcePriority = 0x20,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command

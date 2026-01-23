@@ -8,8 +8,18 @@
 
 namespace AppInstaller::Settings
 {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    const std::map<ExperimentalFeature::Feature, bool>* s_ExperimentalFeature_Override = nullptr;
+
+    void SetExperimentalFeatureOverride(const std::map<ExperimentalFeature::Feature, bool>* override)
+    {
+        s_ExperimentalFeature_Override = override;
+    }
+#endif
+
     namespace
     {
+
         bool IsEnabledInternal(ExperimentalFeature::Feature feature, const UserSettings& userSettings)
         {
             if (feature == ExperimentalFeature::Feature::None)
@@ -21,6 +31,17 @@ namespace AppInstaller::Settings
             UNREFERENCED_PARAMETER(userSettings);
             return false;
 #else
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (s_ExperimentalFeature_Override)
+            {
+                auto itr = s_ExperimentalFeature_Override->find(feature);
+                if (itr != s_ExperimentalFeature_Override->end())
+                {
+                    return itr->second;
+                }
+            }
+#endif
 
             if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::ExperimentalFeatures))
             {
@@ -48,6 +69,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFListDetails>();
             case ExperimentalFeature::Feature::SourceEdit:
                 return userSettings.Get<Setting::EFSourceEdit>();
+            case ExperimentalFeature::Feature::SourcePriority:
+                return userSettings.Get<Setting::EFSourcePriority>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -85,6 +108,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "List Details", "listDetails", "https://aka.ms/winget-settings", Feature::ListDetails };
         case Feature::SourceEdit:
             return ExperimentalFeature{ "Source Editing", "sourceEdit", "https://aka.ms/winget-settings", Feature::SourceEdit };
+        case Feature::SourcePriority:
+            return ExperimentalFeature{ "Source Priority", "sourcePriority", "https://aka.ms/winget-settings", Feature::SourcePriority };
 
         default:
             THROW_HR(E_UNEXPECTED);

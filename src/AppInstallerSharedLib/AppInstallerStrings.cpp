@@ -994,6 +994,20 @@ namespace AppInstaller::Utility
         }
     }
 
+    std::optional<int32_t> TryConvertStringToInt32(const std::string_view& input)
+    {
+        int32_t result = 0;
+        auto parseResult = std::from_chars(input.data(), input.data() + input.length(), result);
+
+        std::optional<int32_t> optionalResult;
+        if (parseResult.ec == std::errc{})
+        {
+            optionalResult = result;
+        }
+
+        return optionalResult;
+    }
+
     std::string ConvertGuidToString(const GUID& value)
     {
         wchar_t buffer[40];

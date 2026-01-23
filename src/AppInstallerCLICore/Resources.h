@@ -722,6 +722,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListName);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoneFound);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoSources);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListPriority);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListTrustLevel);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListType);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListUpdated);
@@ -731,6 +732,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenFailedSuggestion);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenPredefinedFailedSuggestion);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenWithFailedUpdate);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourcePriorityArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveAll);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandShortDescription);

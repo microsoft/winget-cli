@@ -360,6 +360,11 @@ namespace AppInstaller::Settings
         json["Identifier"] = Identifier;
         json["Explicit"] = Explicit;
 
+        if (Priority)
+        {
+            json["Priority"] = Priority.value();
+        }
+
         // Trust level is represented as an array of trust level strings since there can be multiple flags set.
         int trustLevelLength = static_cast<int>(TrustLevel.size());
         for (int i = 0; i < trustLevelLength; ++i)

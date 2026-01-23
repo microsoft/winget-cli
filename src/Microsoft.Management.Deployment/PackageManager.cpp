@@ -108,7 +108,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
             CheckForDuplicateSource(name, type, sourceUri);
 
-            ::AppInstaller::Repository::Source source = ::AppInstaller::Repository::Source{ name, sourceUri, type, trustLevel, options.Explicit() };
+            ::AppInstaller::Repository::SourceEdit additionalProperties;
+            additionalProperties.Explicit = options.Explicit();
+
+            ::AppInstaller::Repository::Source source = ::AppInstaller::Repository::Source{ name, sourceUri, type, trustLevel, additionalProperties };
 
             std::string customHeader = winrt::to_string(options.CustomHeader());
             if (!customHeader.empty())

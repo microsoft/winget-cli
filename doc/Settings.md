@@ -430,3 +430,13 @@ To enable:
         "listDetails": true
   },
 ```
+
+### sourcePriority
+
+This feature enables sources to have a priority value assigned. Sources with a higher priority will appear first in search results and will be selected for installing new packages when multiple sources have a matching package.
+
+```json
+  "experimentalFeatures": {
+        "sourcePriority": true
+  },
+```

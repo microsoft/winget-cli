@@ -21,6 +21,7 @@ namespace AppInstallerCLIE2ETests
         public void OneTimeSetup()
         {
             WinGetSettingsHelper.ConfigureFeature("sourceEdit", true);
+            WinGetSettingsHelper.ConfigureFeature("sourcePriority", true);
         }
 
         /// <summary>
@@ -104,6 +105,28 @@ namespace AppInstallerCLIE2ETests
             Assert.True(searchResult2.StdOut.Contains("TestExampleInstaller"));
             Assert.True(searchResult2.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
             TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
+        }
+
+        /// <summary>
+        /// Test source add with a priority value.
+        /// </summary>
+        [Test]
+        public void SourceAddWithPriority()
+        {
+            // Remove the test source.
+            TestCommon.RunAICLICommand("source remove", Constants.TestSourceName);
+
+            var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl} --priority 42");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Done"));
+
+            var listResult = TestCommon.RunAICLICommand("source list", "SourceTest");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
+            Assert.True(listResult.StdOut.Contains("42"));
+
+            var exportResult = TestCommon.RunAICLICommand("source export", "");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
+            Assert.True(exportResult.StdOut.Contains("42"));
         }
 
         /// <summary>
@@ -269,7 +292,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Test source add with explicit flag, edit the source to not be explicit.
+        /// Test source edit with explicit flag, edit the source to not be explicit.
         /// </summary>
         [Test]
         public void SourceEdit()
@@ -302,6 +325,30 @@ namespace AppInstallerCLIE2ETests
             Assert.True(searchResult2.StdOut.Contains("TestExampleInstaller"));
             Assert.True(searchResult2.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
             TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
+        }
+
+        /// <summary>
+        /// Test source edit with priority.
+        /// </summary>
+        [Test]
+        public void SourceEdit_Priority()
+        {
+            // Remove the test source.
+            TestCommon.RunAICLICommand("source remove", Constants.TestSourceName);
+
+            var addResult = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, addResult.ExitCode);
+            Assert.True(addResult.StdOut.Contains("Done"));
+
+            // Run the edit, this should be S_OK with "Done" as it changed the state
+            var editResult = TestCommon.RunAICLICommand("source edit", $"SourceTest --priority 14");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, editResult.ExitCode);
+            Assert.True(editResult.StdOut.Contains("14"));
+
+            // Run it again, this should result in S_OK with no changes and a message that the source is already in that state.
+            var editResult2 = TestCommon.RunAICLICommand("source edit", $"SourceTest --priority 14");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, editResult2.ExitCode);
+            Assert.True(editResult2.StdOut.Contains("The source named 'SourceTest' is already in the desired state."));
         }
 
         /// <summary>
