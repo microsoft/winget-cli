@@ -378,6 +378,7 @@ UNICODESTRING
 uninstalling
 Unmarshal
 unskipped
+unstash
 untimes
 updatefile
 updatemanifest

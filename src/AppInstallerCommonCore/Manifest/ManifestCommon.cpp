@@ -1188,7 +1188,7 @@ namespace AppInstaller::Manifest
     }
 
     // for testing purposes
-    bool DependencyList::HasExactDependency(DependencyType type, const string_t& id, const string_t& minVersion)
+    bool DependencyList::HasExactDependency(DependencyType type, const string_t& id, const string_t& minVersion) const
     {
         for (const auto& dependency : m_dependencies)
         {
@@ -1207,7 +1207,7 @@ namespace AppInstaller::Manifest
         return false;
     }
 
-    size_t DependencyList::Size()
+    size_t DependencyList::Size() const
     {
         return m_dependencies.size();
     }
