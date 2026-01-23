@@ -200,6 +200,14 @@ jobs:
       flattenFolders: true
 
   - task: CopyFiles@2
+    displayName: 'Copy Microsoft.WinGet.UnitTests AnyCPU Files'
+    inputs:
+      SourceFolder: '$(buildOutDirAnyCpu)\Microsoft.WinGet.UnitTests\net8.0-windows10.0.26100.0'
+      TargetFolder: '$(artifactsDir)\Microsoft.WinGet.UnitTests\'
+      CleanTargetFolder: true
+      OverWrite: true
+
+  - task: CopyFiles@2
     displayName: 'Copy PowerShell AnyCPU Module Files'
     inputs:
       SourceFolder: '$(buildOutDirAnyCpu)\PowerShell'
@@ -217,14 +225,6 @@ jobs:
         Microsoft.Management.Configuration\**
         Microsoft.Management.Configuration.UnitTests\**
         Microsoft.Management.Configuration.OutOfProc\**
-
-  - task: CopyFiles@2
-    displayName: 'Copy Files: Microsoft.WinGet.UnitTests'
-    inputs:
-      SourceFolder: '$(Build.SourcesDirectory)\src\PowerShell\Microsoft.WinGet.UnitTests\bin\$(buildPlatform)\$(BuildConfiguration)\net8.0-windows10.0.26100'
-      TargetFolder:  '$(artifactsDir)\Microsoft.WinGet.UnitTests\'
-      CleanTargetFolder: true
-      OverWrite: true
 
   - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'

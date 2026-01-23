@@ -1,11 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0-windows10.0.26100</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <BuildOutputDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</BuildOutputDirectory>
+    <OutputPath>$(BuildOutputDirectory)$(MSBuildProjectName)</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
