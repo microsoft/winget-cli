@@ -200,6 +200,14 @@ jobs:
       flattenFolders: true
 
   - task: CopyFiles@2
+    displayName: 'Copy Microsoft.WinGet.UnitTests AnyCPU Files'
+    inputs:
+      SourceFolder: '$(buildOutDirAnyCpu)\Microsoft.WinGet.UnitTests\net8.0-windows10.0.26100.0'
+      TargetFolder: '$(artifactsDir)\Microsoft.WinGet.UnitTests\'
+      CleanTargetFolder: true
+      OverWrite: true
+
+  - task: CopyFiles@2
     displayName: 'Copy PowerShell AnyCPU Module Files'
     inputs:
       SourceFolder: '$(buildOutDirAnyCpu)\PowerShell'
@@ -437,6 +445,18 @@ jobs:
     inputs:
       SourceFolder: '$(temp)\E2ETestLogs'
       TargetFolder: '$(artifactsDir)\PackagedLog'
+    condition: succeededOrFailed()
+
+  - task: VSTest@2
+    displayName: 'Run tests: Microsoft.WinGet.UnitTests'
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: 'Microsoft.WinGet.UnitTests.dll'
+      searchFolder: '$(buildOutDir)\Microsoft.WinGet.UnitTests'
+      codeCoverageEnabled: true
+      platform: '$(buildPlatform)'
+      configuration: '$(BuildConfiguration)'
+      diagnosticsEnabled: true
     condition: succeededOrFailed()
 
   - task: VSTest@2
