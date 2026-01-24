@@ -6,6 +6,7 @@
 #include "Resources.h"
 #include "Workflows/SourceFlow.h"
 #include <winget/RepositorySource.h>
+#include <winget/ExperimentalFeature.h>
 
 using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Repository;
@@ -20,8 +21,9 @@ namespace AppInstaller::CLI
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(TrustLevelProperty, std::string, TrustLevel, "trustLevel", Resource::String::DscResourcePropertyDescriptionSourceTrustLevel, ({ "undefined", "none", "trusted" }), "undefined");
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(ExplicitProperty, bool, Explicit, "explicit", Resource::String::DscResourcePropertyDescriptionSourceExplicit);
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(AcceptAgreementsProperty, bool, AcceptAgreements, "acceptAgreements", Resource::String::DscResourcePropertyDescriptionAcceptAgreements);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY(PriorityProperty, int32_t, Priority, "priority", Resource::String::DscResourcePropertyDescriptionSourcePriority);
 
-        using SourceResourceObject = DscComposableObject<StandardExistProperty, StandardInDesiredStateProperty, NameProperty, ArgumentProperty, TypeProperty, TrustLevelProperty, ExplicitProperty, AcceptAgreementsProperty>;
+        using SourceResourceObject = DscComposableObject<StandardExistProperty, StandardInDesiredStateProperty, NameProperty, ArgumentProperty, TypeProperty, TrustLevelProperty, ExplicitProperty, AcceptAgreementsProperty, PriorityProperty>;
 
         std::string TrustLevelStringFromFlags(SourceTrustLevel trustLevel)
         {
@@ -109,6 +111,11 @@ namespace AppInstaller::CLI
                         Output.TrustLevel(TrustLevelStringFromFlags(source.TrustLevel));
                         Output.Explicit(source.Explicit);
 
+                        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SourcePriority))
+                        {
+                            Output.Priority(source.Priority);
+                        }
+
                         std::vector<Repository::SourceDetails> sources;
                         sources.emplace_back(source);
                         SubContext->Add<Execution::Data::SourceList>(std::move(sources));
@@ -148,6 +155,14 @@ namespace AppInstaller::CLI
                     SubContext->Args.AddArg(Execution::Args::Type::SourceExplicit);
                 }
 
+                std::string priorityString;
+                if (Input.Priority())
+                {
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED, !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SourcePriority));
+                    priorityString = std::to_string(Input.Priority().value());
+                    SubContext->Args.AddArg(Execution::Args::Type::SourcePriority, priorityString);
+                }
+
                 *SubContext <<
                     Workflow::EnsureRunningAsAdmin <<
                     Workflow::CreateSourceForSourceAdd <<
@@ -168,11 +183,51 @@ namespace AppInstaller::CLI
                     Workflow::RemoveSources;
             }
 
+            void Edit()
+            {
+                AICLI_LOG(CLI, Verbose, << "Source::Edit invoked");
+
+                if (!SubContext->Args.Contains(Execution::Args::Type::SourceName))
+                {
+                    SubContext->Args.AddArg(Execution::Args::Type::SourceName, Input.SourceName().value());
+                }
+
+                std::string explicitString;
+                if (Input.Explicit())
+                {
+                    explicitString = Utility::ConvertBoolToString(Input.Explicit().value());
+                    SubContext->Args.AddArg(Execution::Args::Type::SourceEditExplicit, explicitString);
+                }
+
+                std::string priorityString;
+                if (Input.Priority())
+                {
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED, !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SourcePriority));
+                    priorityString = std::to_string(Input.Priority().value());
+                    SubContext->Args.AddArg(Execution::Args::Type::SourcePriority, priorityString);
+                }
+
+                *SubContext <<
+                    Workflow::EnsureRunningAsAdmin <<
+                    Workflow::EditSources;
+            }
+
             void Replace()
             {
                 AICLI_LOG(CLI, Verbose, << "Source::Replace invoked");
-                Remove();
-                Add();
+
+                // Check to see if we can use an edit rather than a complete replacement
+                if (TestArgument() && TestType() && TestTrustLevel() &&
+                    Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SourceEdit))
+                {
+                    // Implies that the failing portion of Test was in the editable Explicit or Priority properties
+                    Edit();
+                }
+                else
+                {
+                    Remove();
+                    Add();
+                }
             }
 
             // Determines if the current Output values match the Input values state.
@@ -185,8 +240,9 @@ namespace AppInstaller::CLI
                 {
                     if (Output.Exist().value())
                     {
-                        AICLI_LOG(CLI, Verbose, << "Source::Test needed to inspect these properties: Argument(" << TestArgument() << "), Type(" << TestType() << "), TrustLevel(" << TestTrustLevel() << "), Explicit(" << TestExplicit() << ")");
-                        return TestArgument() && TestType() && TestTrustLevel() && TestExplicit();
+                        AICLI_LOG(CLI, Verbose, << "Source::Test needed to inspect these properties: Argument(" << TestArgument() <<
+                            "), Type(" << TestType() << "), TrustLevel(" << TestTrustLevel() << "), Explicit(" << TestExplicit() << "), Priority(" << TestPriority() << ")");
+                        return TestArgument() && TestType() && TestTrustLevel() && TestExplicit() && TestPriority();
                     }
                     else
                     {
@@ -232,6 +288,11 @@ namespace AppInstaller::CLI
                     if (!TestExplicit())
                     {
                         result.append(std::string{ ExplicitProperty::Name() });
+                    }
+
+                    if (!TestPriority())
+                    {
+                        result.append(std::string{ PriorityProperty::Name() });
                     }
                 }
 
@@ -297,6 +358,26 @@ namespace AppInstaller::CLI
                     if (Output.Explicit())
                     {
                         return Input.Explicit().value() == Output.Explicit().value();
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+            bool TestPriority()
+            {
+                if (Input.Priority())
+                {
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED, !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SourcePriority));
+                    if (Output.Priority())
+                    {
+                        return Input.Priority().value() == Output.Priority().value();
                     }
                     else
                     {
@@ -418,6 +499,12 @@ namespace AppInstaller::CLI
             output.Type(source.Type);
             output.TrustLevel(TrustLevelStringFromFlags(source.TrustLevel));
             output.Explicit(source.Explicit);
+
+            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SourcePriority))
+            {
+                output.Priority(source.Priority);
+            }
+
             WriteJsonOutputLine(context, output.ToJson());
         }
     }

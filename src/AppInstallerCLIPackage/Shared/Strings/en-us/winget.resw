@@ -3543,4 +3543,7 @@ An unlocalized JSON fragment will follow on another line.</comment>
     <value>Priority</value>
     <comment>Label for the priority of the source with respect to other sources. Higher values come first in the order.</comment>
   </data>
+  <data name="DscResourcePropertyDescriptionSourcePriority" xml:space="preserve">
+    <value>The priority of the source. Higher values are sorted first in the order.</value>
+  </data>
 </root>

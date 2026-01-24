@@ -250,6 +250,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceType);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceTrustLevel);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceExplicit);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourcePriority);
         WINGET_DEFINE_RESOURCE_STRINGID(DscSourceResourceShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(DscSourceResourceLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(EnableAdminSettingFailed);
