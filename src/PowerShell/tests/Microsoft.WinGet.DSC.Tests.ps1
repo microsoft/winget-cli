@@ -148,7 +148,7 @@ Describe 'WinGetSource' {
     }
 
     It 'Set WinGet source' {
-        InvokeWinGetDSC -Name WinGetSource -Method Set -Property @{ Name = $testSourceName; Argument = $testSourceArg; Type = $testSourceType; TrustLevel = 'Trusted'; Explicit = $true }
+        InvokeWinGetDSC -Name WinGetSource -Method Set -Property @{ Name = $testSourceName; Argument = $testSourceArg; Type = $testSourceType; TrustLevel = 'Trusted'; Explicit = $true; Priority = 42 }
 
         $result = InvokeWinGetDSC -Name WinGetSource -Method Test -Property @{ Name = $testSourceName; Argument = $testSourceArg; Type = $testSourceType }
         $result.InDesiredState | Should -Be $true
@@ -159,6 +159,7 @@ Describe 'WinGetSource' {
         $result.Argument | Should -Be $testSourceArg
         $result.TrustLevel | Should -Be 'Trusted'
         $result.Explicit | Should -Be $true
+        $result.Priority | Should -Be 42
     }
 }
 

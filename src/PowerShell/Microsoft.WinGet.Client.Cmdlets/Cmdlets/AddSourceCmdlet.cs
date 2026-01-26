@@ -61,12 +61,19 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
         public SwitchParameter Explicit { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating the priority of the source. Higher values are sorted first.
+        /// </summary>
+        ///
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public int Priority { get; set; }
+
+        /// <summary>
         /// Adds source.
         /// </summary>
         protected override void ProcessRecord()
         {
             var command = new CliCommand(this);
-            command.AddSource(this.Name, this.Argument, this.Type, this.ConvertPSSourceTrustLevelToString(this.TrustLevel), this.Explicit.ToBool());
+            command.AddSource(this.Name, this.Argument, this.Type, this.ConvertPSSourceTrustLevelToString(this.TrustLevel), this.Explicit.ToBool(), this.Priority);
         }
 
         private string ConvertPSSourceTrustLevelToString(PSSourceTrustLevel trustLevel) => trustLevel switch

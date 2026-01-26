@@ -188,7 +188,7 @@ Describe 'Reset-WinGetSource' {
 Describe 'Get|Add|Reset-WinGetSource' {
 
     BeforeAll {
-        Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/' -TrustLevel 'Trusted' -Explicit
+        Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/' -TrustLevel 'Trusted' -Explicit -Priority 42
     }
 
     It 'Get Test source' {
@@ -200,6 +200,7 @@ Describe 'Get|Add|Reset-WinGetSource' {
         $source.Type | Should -Be 'Microsoft.PreIndexed.Package'
         $source.TrustLevel | Should -Be 'Trusted'
         $source.Explicit | Should -Be $true
+        $source.Priority | Should -Be 42
     }
 
     It 'Get fake source' {

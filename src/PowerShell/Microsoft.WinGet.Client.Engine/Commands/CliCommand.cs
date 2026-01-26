@@ -72,7 +72,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="type">Type of source.</param>
         /// <param name="trustLevel">Trust level of source.</param>
         /// <param name="isExplicit">Make source explicit.</param>
-        public void AddSource(string name, string arg, string type, string trustLevel, bool isExplicit)
+        /// <param name="priority">Set the priority if the source.</param>
+        public void AddSource(string name, string arg, string type, string trustLevel, bool isExplicit, int priority)
         {
             Utilities.VerifyAdmin();
             string parameters = $"add --name \"{name}\" --arg \"{arg}\"";
@@ -90,6 +91,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             if (isExplicit)
             {
                 parameters += " --explicit";
+            }
+
+            if (priority != 0)
+            {
+                parameters += $" --priority \"{priority}\"";
             }
 
             _ = this.Run("source", parameters, 300000);

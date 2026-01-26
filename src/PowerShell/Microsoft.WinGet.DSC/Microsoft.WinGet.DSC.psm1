@@ -203,6 +203,9 @@ class WinGetSource
     
     [DscProperty()]
     [nullable[bool]]$Explicit = $null
+    
+    [DscProperty()]
+    [nullable[int]]$Priority = $null
 
     [DscProperty()]
     [WinGetEnsure]$Ensure = [WinGetEnsure]::Present
@@ -232,6 +235,7 @@ class WinGetSource
             $result.Type = $currentSource.Type
             $result.TrustLevel = $currentSource.TrustLevel
             $result.Explicit = $currentSource.Explicit
+            $result.Priority = $currentSource.Priority
         }
         else
         {
@@ -314,6 +318,11 @@ class WinGetSource
                 $hashArgs.Add("Explicit", $this.Explicit)
             }
 
+            if ($null -ne $this.Priority)
+            {
+                $hashArgs.Add("Priority", $this.Priority)
+            }
+
             Add-WinGetSource @hashArgs
         }
     }
@@ -348,6 +357,12 @@ class WinGetSource
 
         if ($null -ne $this.Explicit -and
             $this.Explicit -ne $currentSource.Explicit)
+        {
+            return $false
+        }
+
+        if ($null -ne $this.Priority -and
+            $this.Priority -ne $currentSource.Priority)
         {
             return $false
         }
