@@ -124,7 +124,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
             Assert.True(listResult.StdOut.Contains("42"));
 
-            var exportResult = TestCommon.RunAICLICommand("source export", "");
+            var exportResult = TestCommon.RunAICLICommand("source export", string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
             Assert.True(exportResult.StdOut.Contains("42"));
         }

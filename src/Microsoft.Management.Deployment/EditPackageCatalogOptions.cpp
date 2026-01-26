@@ -22,13 +22,25 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_name = value;
     }
-    OptionalBoolean EditPackageCatalogOptions::Explicit()
+
+    Windows::Foundation::IReference<bool> EditPackageCatalogOptions::Explicit()
     {
         return m_explicit;
     }
-    void EditPackageCatalogOptions::Explicit(OptionalBoolean const& value)
+
+    void EditPackageCatalogOptions::Explicit(Windows::Foundation::IReference<bool> value)
     {
         m_explicit = value;
+    }
+
+    Windows::Foundation::IReference<int32_t> EditPackageCatalogOptions::Priority()
+    {
+        return m_priority;
+    }
+
+    void EditPackageCatalogOptions::Priority(Windows::Foundation::IReference<int32_t> value)
+    {
+        m_priority = value;
     }
 
     CoCreatableMicrosoftManagementDeploymentClass(EditPackageCatalogOptions);

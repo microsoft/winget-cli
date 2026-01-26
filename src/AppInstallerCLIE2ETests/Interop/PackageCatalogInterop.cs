@@ -291,13 +291,16 @@ namespace AppInstallerCLIE2ETests.Interop
             options.SourceUri = Constants.TestSourceUrl;
             options.Name = Constants.TestSourceName;
             options.TrustLevel = PackageCatalogTrustLevel.Trusted;
+            options.Explicit = true;
+            options.Priority = 12;
 
             await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.Ok);
 
             // Edit
             EditPackageCatalogOptions editOptions = this.TestFactory.CreateEditPackageCatalogOptions();
             editOptions.Name = Constants.TestSourceName;
-            editOptions.Explicit = OptionalBoolean.False;
+            editOptions.Explicit = false;
+            editOptions.Priority = 42;
             this.EditAndValidatePackageCatalog(editOptions, EditPackageCatalogStatus.Ok);
 
             // Remove
@@ -340,6 +343,8 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.IsNotNull(packageCatalog);
             Assert.AreEqual(addPackageCatalogOptions.Name, packageCatalog.Info.Name);
             Assert.AreEqual(addPackageCatalogOptions.SourceUri, packageCatalog.Info.Argument);
+            Assert.AreEqual(addPackageCatalogOptions.Explicit, packageCatalog.Info.Explicit);
+            Assert.AreEqual(addPackageCatalogOptions.Priority, packageCatalog.Info.Priority);
 
             return packageCatalog;
         }
@@ -396,9 +401,14 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Verify edits are correct.
             var packageCatalog = this.packageManager.GetPackageCatalogByName(editPackageCatalogOptions.Name);
-            if (editPackageCatalogOptions.Explicit != OptionalBoolean.Unspecified)
+            if (editPackageCatalogOptions.Explicit != null)
             {
-                Assert.AreEqual(packageCatalog.Info.Explicit, editPackageCatalogOptions.Explicit == OptionalBoolean.True);
+                Assert.AreEqual(packageCatalog.Info.Explicit, editPackageCatalogOptions.Explicit);
+            }
+
+            if (editPackageCatalogOptions.Priority != null)
+            {
+                Assert.AreEqual(packageCatalog.Info.Priority, editPackageCatalogOptions.Priority);
             }
         }
     }
