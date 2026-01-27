@@ -1312,6 +1312,15 @@ namespace AppInstaller::CLI::Workflow
 
             if (searchResult.Matches.size() > 1)
             {
+                // Check if we got only one match from the highest priority source
+                // For each package, get Source Priority
+                //      This will come from DefaultInstallVersion, which should indicate the source of upgrade from an already installed package
+                // Collect all packages from the highest Source Priority
+                // If only one, that is the package and move forward
+                // If multiple
+                //      If all results, continue with current flow (maybe update warning string to reference priority?)
+                //      If reduced results, same flow with new warning string about multiple matches from highest priority source(s)
+
                 Logging::Telemetry().LogMultiAppMatch();
 
                 if (m_operationType == OperationType::Upgrade || m_operationType == OperationType::Uninstall || m_operationType == OperationType::Repair || m_operationType == OperationType::Export)
