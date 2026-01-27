@@ -333,11 +333,6 @@
           "description": "Enable detailed output option for list command",
           "type": "boolean",
           "default": false
-        },
-        "sourceEdit": {
-          "description": "Enable source edit command",
-          "type": "boolean",
-          "default": false
         }
       }
     }

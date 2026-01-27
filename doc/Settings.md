@@ -394,16 +394,6 @@ This feature enables support for fonts via `winget settings`. The `winget font l
   },
 ```
 
-### sourceEdit
-
-This feature enables support for additional source command improvements via `winget settings`. The `winget source edit` command will become available with this feature.
-
-```json
-  "experimentalFeatures": {
-        "sourceEdit": true
-  },
-```
-
 ### listDetails
 
 This feature enables support for displaying detailed output from the `list` command. Rather than a table view of the results, when the `--details` option is provided
