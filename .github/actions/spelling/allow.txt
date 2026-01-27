@@ -59,6 +59,7 @@ curated
 CURSORPOSITON
 CUSTOMHEADER
 cvd
+DAICLI
 datatelemetry
 datetime
 dbconn
