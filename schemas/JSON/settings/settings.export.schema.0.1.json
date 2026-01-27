@@ -36,6 +36,7 @@
           "description": "Default proxy.",
           "type": "string"
         }
+      }
     },
     "UserSettingsFile": {
       "description": "Path for the winget's user settings file.",

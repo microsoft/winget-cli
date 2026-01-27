@@ -79,7 +79,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public static WinGetCLICommandResult RunWinGetVersionFromCLI(PowerShellCmdlet pwshCmdlet, bool fullPath = true)
         {
             var wingetCliWrapper = new WingetCLIWrapper(fullPath);
-            return wingetCliWrapper.RunCommand(pwshCmdlet, "--version");
+            return wingetCliWrapper.RunCommand(pwshCmdlet, new WinGetCLICommandBuilder().AppendSwitch("--version"));
         }
 
         /// <summary>
