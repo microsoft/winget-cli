@@ -1730,7 +1730,7 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
     <comment>{Locked="winget pin","--include-pinned"} Error shown when we block an upgrade due to the package being pinned</comment>
   </data>
   <data name="UpgradePinnedByUserCount" xml:space="preserve">
-    <value>{0} Pakete verfügen über Pins, die ein Upgrade verhindern. Verwenden Sie den Befehl "winget pin", um Pins anzuzeigen und zu bearbeiten. Wenn Sie das --include-pinned-Argument verwenden, werden möglicherweise weitere Ergebnisse angezeigt.</value>
+    <value>{0} Pakete verfügen über Pins, die ein Upgrade verhindern. Verwenden Sie den Befehl "winget pin", um Pins anzuzeigen und zu bearbeiten. Wenn Sie das "--include-pinned"-Argument verwenden, werden möglicherweise weitere Ergebnisse angezeigt.</value>
     <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
   </data>
   <data name="ConfigureCommandLongDescription" xml:space="preserve">
