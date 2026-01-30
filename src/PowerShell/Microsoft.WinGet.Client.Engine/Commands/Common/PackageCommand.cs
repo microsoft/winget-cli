@@ -94,6 +94,32 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             }
         }
 
+        private static int? GetMatchSourcePriority(MatchResult match)
+        {
+            var installed = match.CatalogPackage.InstalledVersion;
+
+            if (installed != null)
+            {
+                var installedSource = installed.PackageCatalog;
+
+                if (installedSource != null)
+                {
+                    return installedSource.Info.Priority;
+                }
+            }
+            else
+            {
+                auto available = match.CatalogPackage.DefaultInstallVersion
+
+                if (!available.empty())
+                {
+                    return available.front()->GetSource().GetDetails().Priority;
+                }
+            }
+
+            return null;
+        }
+
         private CatalogPackage GetCatalogPackage(CompositeSearchBehavior behavior, PackageFieldMatchOption match)
         {
             if (this.CatalogPackage != null)
@@ -116,6 +142,45 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
                 }
                 else
                 {
+                    if (behavior != CompositeSearchBehavior.LocalCatalogs)
+                    {
+                        List<MatchResult> highestPriorityResults = new List<MatchResult>();
+                        int? highestPriority = null;
+
+                        for (int i = 0; i < results.Count; i++)
+                        {
+                            MatchResult result = results[i];
+                            int? priority = GetMatchSourcePriority(result);
+
+                            if ((highestPriority == null && priority != null) || highestPriority < priority)
+                            {
+                                // Current priority is higher; reset.
+                                highestPriority = priority;
+                                highestPriorityResults.Clear();
+                            }
+                            else if (highestPriority == priority)
+                            {
+                                // Priority is equal, add to the list.
+                            }
+                            else
+                            {
+                                // Current priority is lower, ignore the match.
+                                continue;
+                            }
+
+                            highestPriorityResults.Add(result);
+                        }
+
+                        if (highestPriorityResults.Count == 1)
+                        {
+                            return highestPriorityResults[0].CatalogPackage;
+                        }
+                        else
+                        {
+                            throw new VagueCriteriaException(highestPriorityResults);
+                        }
+                    }
+
                     // Too many packages matched! The user needs to refine their input.
                     throw new VagueCriteriaException(results);
                 }

@@ -3546,4 +3546,8 @@ An unlocalized JSON fragment will follow on another line.</comment>
   <data name="DscResourcePropertyDescriptionSourcePriority" xml:space="preserve">
     <value>The priority of the source. Higher values are sorted first in the order.</value>
   </data>
+  <data name="MultiplePackagesFoundFilteredBySourcePriority" xml:space="preserve">
+    <value>Results have been filtered to the highest matched source priority.</value>
+    <comment>A warning message to indicate to the user that the results of a search have been filtered by choosing only those matching the highest source priority amongst the results.</comment>
+  </data>
 </root>
