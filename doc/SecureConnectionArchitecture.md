@@ -92,7 +92,7 @@ Used for REST API interactions (repository metadata, etc.):
 
 **Key Security Functions:**
 
-1. **Certificate Validation Callback** (line 25-41):
+1. **Certificate Validation Callback** (lines 28-44):
    ```cpp
    void NativeHandleServerCertificateValidation(
        web::http::client::native_handle handle,
@@ -103,7 +103,7 @@ Used for REST API interactions (repository metadata, etc.):
    - Validates against pinning configuration
    - Throws `APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH` on failure
 
-2. **Setting Pinning Configuration** (line 185-191):
+2. **Setting Pinning Configuration** (lines 188-194):
    ```cpp
    void HttpClientHelper::SetPinningConfiguration(
        const Certificates::PinningConfiguration& configuration,
