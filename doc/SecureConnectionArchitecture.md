@@ -22,8 +22,8 @@ The main download functionality uses the WinINet API which provides:
 - Support for HTTP to HTTPS redirects
 
 **Key Functions:**
-- `InternetOpen()` - Initializes WinINet session (lines 146, 155)
-- `InternetOpenUrl()` - Opens URL connection with security flags (line 176)
+- `InternetOpen()` - Initializes WinINet session with HTTPS/TLS support (lines 146-151 for proxy, 155-160 for no proxy)
+- `InternetOpenUrl()` - Opens URL connection with security flags (lines 178-184)
   - Uses `INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTPS` to allow HTTP→HTTPS redirects
 - `InternetReadFile()` - Reads data from secure connection (line 247)
 

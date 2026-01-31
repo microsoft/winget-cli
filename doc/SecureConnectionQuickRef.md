@@ -7,8 +7,9 @@ This document provides a quick reference to answer: "Where is the code in WinGet
 **File:** `src/AppInstallerCommonCore/Downloader.cpp`
 
 **Key Lines:**
-- Lines 146-161: `InternetOpen()` - Initialize WinINet session with automatic HTTPS/TLS support
-- Lines 176-183: `InternetOpenUrl()` - Open secure HTTPS connection
+- Lines 146-151: `InternetOpen()` - Initialize WinINet session with proxy (includes automatic HTTPS/TLS support)
+- Lines 155-160: `InternetOpen()` - Initialize WinINet session without proxy (includes automatic HTTPS/TLS support)
+- Lines 178-184: `InternetOpenUrl()` - Open secure HTTPS connection with security flags
 - Line 247: `InternetReadFile()` - Read encrypted data over secure connection
 
 **How it works:** Uses Windows WinINet API which automatically:
@@ -21,7 +22,7 @@ This document provides a quick reference to answer: "Where is the code in WinGet
 **Files:**
 - **Header:** `src/AppInstallerSharedLib/Public/winget/Certificates.h`
 - **Implementation:** `src/AppInstallerSharedLib/Certificates.cpp`
-- **Usage:** `src/AppInstallerCommonCore/HttpClientHelper.cpp` (lines 25-44)
+- **Usage:** `src/AppInstallerCommonCore/HttpClientHelper.cpp` (lines 28-44: `NativeHandleServerCertificateValidation` function)
 
 **How it works:** 
 - Extracts server certificate using `WinHttpQueryOption()`
