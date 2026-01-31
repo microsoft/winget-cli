@@ -470,37 +470,6 @@ namespace AppInstaller::CLI::Workflow
                 OutputInstalledPackagesTable(context, lines);
             }
         }
-
-        std::optional<int32_t> GetMatchSourcePriority(const ResultMatch& match)
-        {
-            auto installed = match.Package->GetInstalled();
-
-            if (installed)
-            {
-                auto installedVersion = installed->GetLatestVersion();
-
-                if (installedVersion)
-                {
-                    auto installedSource = installedVersion->GetSource();
-
-                    if (installedSource.ContainsAvailablePackages())
-                    {
-                        return installedSource.GetDetails().Priority;
-                    }
-                }
-            }
-            else
-            {
-                auto available = match.Package->GetAvailable();
-
-                if (!available.empty())
-                {
-                    return available.front()->GetSource().GetDetails().Priority;
-                }
-            }
-
-            return std::nullopt;
-        }
     }
 
     bool WorkflowTask::operator==(const WorkflowTask& other) const
@@ -1354,7 +1323,7 @@ namespace AppInstaller::CLI::Workflow
 
                 for (const auto& match : searchResult.Matches)
                 {
-                    std::optional<int32_t> priority = GetMatchSourcePriority(match);
+                    std::optional<int32_t> priority = GetSourcePriority(match.Package);
 
                     // Optional provides overloads that make empty less than valued and empties equal.
                     if (highestPriority < priority)

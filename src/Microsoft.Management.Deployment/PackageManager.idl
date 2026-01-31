@@ -638,10 +638,13 @@ namespace Microsoft.Management.Deployment
             CheckInstalledStatusResult CheckInstalledStatus();
         }
 
-        /// DESIGN NOTE:
-        /// IsSame from IPackage in winget/RepositorySearch is not implemented in V1.
-        /// Determines if the given IPackage refers to the same package as this one.
-        /// virtual bool IsSame(const IPackage*) const = 0;
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 28)]
+        {
+            /// Determines the priority of the catalog for this package object.
+            /// This should match the priority of the DefaultInstallVersion, but it is much more efficient than using that route.
+            /// May be null if the package refers only to an installed item.
+            Windows.Foundation.IReference<Int32> CatalogPriority { get; };
+        }
     }
 
     /// IMPLEMENTATION NOTE: CompositeSearchBehavior from winget/RepositorySource.h

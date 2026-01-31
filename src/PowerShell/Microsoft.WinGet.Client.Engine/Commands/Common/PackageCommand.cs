@@ -94,32 +94,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             }
         }
 
-        private static int? GetMatchSourcePriority(MatchResult match)
-        {
-            var installed = match.CatalogPackage.InstalledVersion;
-
-            if (installed != null)
-            {
-                var installedSource = installed.PackageCatalog;
-
-                if (installedSource != null)
-                {
-                    return installedSource.Info.Priority;
-                }
-            }
-            else
-            {
-                auto available = match.CatalogPackage.DefaultInstallVersion
-
-                if (!available.empty())
-                {
-                    return available.front()->GetSource().GetDetails().Priority;
-                }
-            }
-
-            return null;
-        }
-
         private CatalogPackage GetCatalogPackage(CompositeSearchBehavior behavior, PackageFieldMatchOption match)
         {
             if (this.CatalogPackage != null)
@@ -150,7 +124,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
                         for (int i = 0; i < results.Count; i++)
                         {
                             MatchResult result = results[i];
-                            int? priority = GetMatchSourcePriority(result);
+                            int? priority = result.CatalogPackage.CatalogPriority;
 
                             if ((highestPriority == null && priority != null) || highestPriority < priority)
                             {

@@ -201,6 +201,15 @@ namespace AppInstaller::Utility
         return (it != a.end());
     }
 
+    bool ContainsSubstring(std::string_view a, std::string_view b)
+    {
+        auto it = std::search(
+            a.begin(), a.end(),
+            b.begin(), b.end()
+        );
+        return (it != a.end());
+    }
+
     bool ICUCaseInsensitiveEquals(std::string_view a, std::string_view b)
     {
         return FoldCase(a) == FoldCase(b);
