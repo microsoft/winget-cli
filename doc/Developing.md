@@ -40,6 +40,12 @@ To enable step-through debugging, right click on `AppInstallerCLIPackage` in the
 
 The best way to debug the client is to select `Do not launch, but debug my code when it starts` in the `Debug` tab and start the debugging session with <kbd>F5</kbd>. You can then use the `wingetdev` command in a terminal session, or any PowerShell code for COM API interaction, which will get picked up by the debugger.
 
+## Architecture Documentation
+
+For information on specific aspects of the codebase architecture:
+
+* [Secure Connection Architecture](SecureConnectionArchitecture.md) - Documentation on HTTPS/TLS implementation for secure downloads
+
 ## Running Unit Tests
 
 The unit tests are located inside the `AppInstallerCLITests` project. When the solution is built, all tests are compiled under `src/<ARCHITECTURE>/<Debug|Release>/AppInstallerCLITests`. An executable `AppInstallerCLITests.exe` is generated in this directory to run the tests. Run `AppInstallerCLITests.exe` from the command line to execute the tests. To see all available options, run `AppInstallerCLITests.exe --help`.

@@ -172,6 +172,8 @@ namespace AppInstaller::Utility
         }
         std::wstring customHeadersWide = Utility::ConvertToUTF16(customHeaders);
 
+        // Open URL connection - WinINet automatically handles HTTPS/TLS for secure downloads
+        // See doc/SecureConnectionArchitecture.md for details on security implementation
         auto urlWide = Utility::ConvertToUTF16(url);
         wil::unique_hinternet urlFile(InternetOpenUrl(
             session.get(),

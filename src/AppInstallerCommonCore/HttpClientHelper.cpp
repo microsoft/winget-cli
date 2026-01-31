@@ -22,6 +22,9 @@ namespace AppInstaller::Http
             }
         }
 
+        // Custom certificate validation for HTTPS connections using certificate pinning
+        // This validates server certificates against configured pinning rules for enhanced security
+        // See doc/SecureConnectionArchitecture.md for details on certificate pinning implementation
         void NativeHandleServerCertificateValidation(web::http::client::native_handle handle, const Certificates::PinningConfiguration& pinningConfiguration, ThreadLocalStorage::ThreadGlobals* threadGlobals)
         {
             decltype(threadGlobals->SetForCurrentThread()) previousThreadGlobals;
