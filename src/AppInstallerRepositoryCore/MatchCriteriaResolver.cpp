@@ -14,11 +14,6 @@ namespace AppInstaller::Repository
             return false;
         }
 
-        bool ValueMatchFunction_AlwaysTrue(const Utility::NormalizedString&, const Utility::NormalizedString&)
-        {
-            return true;
-        }
-
         bool ValueMatchFunction_Exact(const Utility::NormalizedString& a, const Utility::NormalizedString& b)
         {
             return a == b;
@@ -54,8 +49,6 @@ namespace AppInstaller::Repository
             case MatchType::Fuzzy:
             case MatchType::FuzzySubstring:
             case MatchType::Wildcard:
-                // Benefit of the doubt here...
-                return ValueMatchFunction_AlwaysTrue;
             default:
                 return ValueMatchFunction_AlwaysFalse;
             }
@@ -88,13 +81,6 @@ namespace AppInstaller::Repository
             {
                 return false;
             }
-        }
-
-        // Ensures the consistency of the criteria itself.
-        bool CheckCriteria(const PackageMatchFilter& criteria)
-        {
-            // Could also ensure that all enums are valid values
-            return !criteria.Value.empty();
         }
 
         // Ensures that the query matches the criteria.
@@ -147,10 +133,49 @@ namespace AppInstaller::Repository
 
             return true;
         }
+
+        // ----------------------- NEW
+
+        PackageVersionProperty GetPackageVersionPropertyFor(PackageMatchField field)
+        {
+            switch (field)
+            {
+            case PackageMatchField::Id:
+                return PackageVersionProperty::Id;
+            case PackageMatchField::Name:
+                return PackageVersionProperty::Name;
+            case PackageMatchField::Moniker:
+                return PackageVersionProperty::Moniker;
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
+
+        std::optional<MatchType> GetBestMatchType(const SearchRequest& request, PackageMatchField field, const Utility::NormalizedString& value)
+        {
+
+        }
     }
 
-    PackageMatchFilter FindBestMatchCriteria(const SearchRequest& request, const std::shared_ptr<ICompositePackage>& package)
+    PackageMatchFilter FindBestMatchCriteria(const SearchRequest& request, const IPackageVersion* packageVersion)
     {
+        PackageMatchFilter result{ PackageMatchField::Unknown, MatchType::Wildcard };
 
+        // Single value fields
+        for (auto field : { PackageMatchField::Id, PackageMatchField::Name, PackageMatchField::Moniker })
+        {
+            auto propertyValue = packageVersion->GetProperty(GetPackageVersionPropertyFor(field));
+            if (propertyValue.empty())
+            {
+                continue;
+            }
+        }
+
+        // Multi-value fields
+        for (auto field : { PackageMatchField::Command, PackageMatchField::Tag, PackageMatchField::PackageFamilyName,
+            PackageMatchField::ProductCode, PackageMatchField::UpgradeCode })
+        {
+
+        }
     }
 }

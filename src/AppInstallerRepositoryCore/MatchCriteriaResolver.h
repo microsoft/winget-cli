@@ -5,6 +5,6 @@
 
 namespace AppInstaller::Repository
 {
-    // Finds the highest rated match criteria for the package based on the search request
-    PackageMatchFilter FindBestMatchCriteria(const SearchRequest& request, const std::shared_ptr<ICompositePackage>& package);
+    // Finds the highest rated match criteria for the package based on the search request,
+    PackageMatchFilter FindBestMatchCriteria(const SearchRequest& request, const IPackageVersion* packageVersion);
 }
