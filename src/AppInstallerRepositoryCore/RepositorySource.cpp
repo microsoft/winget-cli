@@ -432,8 +432,6 @@ namespace AppInstaller::Repository
         return CheckForWellKnownSourceMatch(sourceDetails.Name, sourceDetails.Arg, sourceDetails.Type);
     }
 
-    SourceEdit::SourceEdit(std::optional<bool> isExplicit) : Explicit(isExplicit) {}
-
     Source::Source() {}
 
     Source::Source(std::string_view name)

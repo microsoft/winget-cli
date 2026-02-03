@@ -18,15 +18,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return hstring(m_name);
     }
+
     void EditPackageCatalogOptions::Name(hstring const& value)
     {
         m_name = value;
     }
-    OptionalBoolean EditPackageCatalogOptions::Explicit()
+
+    Windows::Foundation::IReference<bool> EditPackageCatalogOptions::Explicit()
     {
         return m_explicit;
     }
-    void EditPackageCatalogOptions::Explicit(OptionalBoolean const& value)
+
+    void EditPackageCatalogOptions::Explicit(Windows::Foundation::IReference<bool> value)
     {
         m_explicit = value;
     }
