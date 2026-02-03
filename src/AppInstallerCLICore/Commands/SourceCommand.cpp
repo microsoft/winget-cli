@@ -381,7 +381,6 @@ namespace AppInstaller::CLI
     void SourceEditCommand::ExecuteInternal(Context& context) const
     {
         context <<
-            Workflow::EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::SourceEdit) <<
             Workflow::EnsureRunningAsAdmin <<
             Workflow::GetSourceListWithFilter <<
             Workflow::EditSources;

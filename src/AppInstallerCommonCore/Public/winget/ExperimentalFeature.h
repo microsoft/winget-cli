@@ -25,9 +25,7 @@ namespace AppInstaller::Settings
             DirectMSI = 0x1,
             Resume = 0x2,
             Font = 0x4,
-            ListDetails = 0x8,
-            SourceEdit = 0x10,
-            SourcePriority = 0x20,
+            SourcePriority = 0x8,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command

@@ -124,7 +124,7 @@ namespace AppInstaller::CLI
 
     struct SourceEditCommand final : public Command
     {
-        SourceEditCommand(std::string_view parent) : Command("edit", { "config", "set" }, parent, Settings::ExperimentalFeature::Feature::SourceEdit) {}
+        SourceEditCommand(std::string_view parent) : Command("edit", { "config", "set" }, parent) {}
 
         std::vector<Argument> GetArguments() const override;
 

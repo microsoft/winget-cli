@@ -65,10 +65,6 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFResume>();
             case ExperimentalFeature::Feature::Font:
                 return userSettings.Get<Setting::EFFonts>();
-            case ExperimentalFeature::Feature::ListDetails:
-                return userSettings.Get<Setting::EFListDetails>();
-            case ExperimentalFeature::Feature::SourceEdit:
-                return userSettings.Get<Setting::EFSourceEdit>();
             case ExperimentalFeature::Feature::SourcePriority:
                 return userSettings.Get<Setting::EFSourcePriority>();
             default:
@@ -104,13 +100,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Resume", "resume", "https://aka.ms/winget-settings", Feature::Resume };
         case Feature::Font:
             return ExperimentalFeature{ "Font", "fonts", "https://aka.ms/winget-settings", Feature::Font };
-        case Feature::ListDetails:
-            return ExperimentalFeature{ "List Details", "listDetails", "https://aka.ms/winget-settings", Feature::ListDetails };
-        case Feature::SourceEdit:
-            return ExperimentalFeature{ "Source Editing", "sourceEdit", "https://aka.ms/winget-settings", Feature::SourceEdit };
         case Feature::SourcePriority:
             return ExperimentalFeature{ "Source Priority", "sourcePriority", "https://aka.ms/winget-settings", Feature::SourcePriority };
-
         default:
             THROW_HR(E_UNEXPECTED);
         }
