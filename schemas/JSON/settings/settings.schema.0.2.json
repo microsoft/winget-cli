@@ -328,11 +328,6 @@
           "description": "Enable support for managing fonts",
           "type": "boolean",
           "default": false
-        },
-        "listDetails": {
-          "description": "Enable detailed output option for list command",
-          "type": "boolean",
-          "default": false
         }
       }
     }
