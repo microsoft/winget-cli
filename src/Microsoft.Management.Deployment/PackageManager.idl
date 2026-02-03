@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(28)] // For version 1.28
+    [contractversion(29)] // For version 1.29
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -336,7 +336,7 @@ namespace Microsoft.Management.Deployment
             Boolean Explicit{ get; };
         }
 
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 28)]
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
         {
             /// The priority of this catalog. Higher values are sorted first.
             Int32 Priority{ get; };
@@ -638,7 +638,7 @@ namespace Microsoft.Management.Deployment
             CheckInstalledStatusResult CheckInstalledStatus();
         }
 
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 28)]
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
         {
             /// Determines the priority of the catalog for this package object.
             /// This should match the priority of the DefaultInstallVersion, but it is much more efficient than using that route.
@@ -1483,7 +1483,7 @@ namespace Microsoft.Management.Deployment
         /// Excludes a source from discovery unless specified.
         Boolean Explicit;
 
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 28)]
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
         {
             /// The priority of this catalog. Higher values are sorted first.
             Int32 Priority;
@@ -1570,8 +1570,11 @@ namespace Microsoft.Management.Deployment
         /// Editing the Explicit property has three states: true, false, and not specified (null).
         Windows.Foundation.IReference<Boolean> Explicit;
 
-        /// The priority of this catalog. Higher values are sorted first.
-        Windows.Foundation.IReference<Int32> Priority;
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
+        {
+            /// The priority of this catalog. Higher values are sorted first.
+            Windows.Foundation.IReference<Int32> Priority;
+        }
     };
 
     /// IMPLEMENTATION NOTE: RemovePackageCatalogStatus

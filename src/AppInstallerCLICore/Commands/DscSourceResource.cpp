@@ -217,8 +217,7 @@ namespace AppInstaller::CLI
                 AICLI_LOG(CLI, Verbose, << "Source::Replace invoked");
 
                 // Check to see if we can use an edit rather than a complete replacement
-                if (TestArgument() && TestType() && TestTrustLevel() &&
-                    Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SourceEdit))
+                if (TestArgument() && TestType() && TestTrustLevel())
                 {
                     // Implies that the failing portion of Test was in the editable Explicit or Priority properties
                     Edit();

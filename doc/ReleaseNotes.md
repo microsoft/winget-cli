@@ -1,43 +1,29 @@
-## New in v1.28
+## New in v1.29
 
-* Bumped the winget version to 1.28 to match the package version.
-* Additional [options for limiting the size of log files](https://github.com/microsoft/winget-cli/blob/master/doc/Settings.md#file).
+# New Feature: Source Priority
 
-# New Feature: 'source edit'
-New feature that adds an 'edit' subcommand to the 'source' command. This can be used to set an explicit source to be implicit and vice-versa. For example, with this feature you can make the 'winget-font' source an implicit source instead of explicit source.
+> [!NOTE]
+> Experimental under `sourcePriority`; defaulted to disabled.
 
-To use the feature, try `winget source edit winget-font` to set the Explicit state to the default.
+With this feature, one can assign a numerical priority to sources when added or later through the `source edit`
+command. Sources with higher priority are sorted first in the list of sources, which results in them getting put first
+in the results if other things are equal.
 
-# New Experimental Feature: 'listDetails'
+> [!TIP]
+> Search result ordering in winget is currently based on these values in this order:
+> 1. Match quality (how well a valid field matches the search request)
+> 2. Match field (which field was matched against the search request)
+> 3. Source order (was always relevant, but with priority you can more easily affect this)
 
-The new experimental feature `listDetails` enables a new option for the `list` command, `--details`.  When supplied, the output is no longer a table view of the results but is instead a series of `show` like outputs drawing data from the installed item.
+Beyond the ability to minorly affect the result ordering, commands that primarily target available packages
+(largely `install`) will now prefer to use a single result from a source with higher priority rather than prompting for
+disambiguation from the user. Said another way, if multiple sources return results but only one of those sources has
+the highest priority value (and it returned only one result) then that package will be used rather than giving a
+"multiple packages were found" error. This has been applied to both winget CLI and PowerShell module commands.
 
-An example output for a single installed package is:
-```PowerShell
-> wingetdev list Microsoft.VisualStudio.2022.Enterprise --details
-Visual Studio Enterprise 2022 [Microsoft.VisualStudio.2022.Enterprise]
-Version: 17.14.21 (November 2025)
-Publisher: Microsoft Corporation
-Local Identifier: ARP\Machine\X86\875fed29
-Product Code: 875fed29
-Installer Category: exe
-Installed Scope: Machine
-Installed Location: C:\Program Files\Microsoft Visual Studio\2022\Enterprise
-Available Upgrades:
-  winget [17.14.23]
-```
+### REST result match criteria update
 
-If sixels are enabled and supported by the terminal, an icon for the installed package will be shown.
-
-To enable this feature, add the 'listDetails' experimental feature to your settings.
-```
-"experimentalFeatures": {
-    "listDetails": true
-},
-```
+Along with the source priority change, the results from REST sources (like `msstore`) now attempt to correctly set the
+match criteria that factor into the result ordering. This will prevent them from being sorted to the top automatically.
 
 ## Bug Fixes
-* Portable Packages now use the correct directory separators regardless of which convention is used in the manifest
-* `--suppress-initial-details` now works with `winget configure test`
-* `--suppress-initial-details` no longer requires `--accept-configuration-agreements`
-* Corrected property of `Font` experimental feature to accurately reflect `fonts` as the required setting value
