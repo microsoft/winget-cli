@@ -54,88 +54,6 @@ namespace AppInstaller::Repository
             }
         }
 
-        // Checks that the match query provided is consistent with the values given.
-        bool CheckMatchValue(const RequestMatch& query, const Utility::NormalizedString& value, const std::optional<Utility::NormalizedString>& additional)
-        {
-            auto matchFunction = GetMatchTypeFunction(query.Type);
-
-            if (matchFunction(value, query.Value))
-            {
-                if (query.Additional)
-                {
-                    if (additional)
-                    {
-                        return matchFunction(additional.value(), query.Additional.value());
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        // Ensures that the query matches the criteria.
-        bool CheckQuery(const std::optional<RequestMatch>& query, const PackageMatchFilter& criteria)
-        {
-            if (query && !query->Value.empty())
-            {
-                return CheckMatchValue(query.value(), criteria.Value, criteria.Additional);
-            }
-
-            return true;
-        }
-
-        // Ensures that the criteria matches one of the inclusions if provided.
-        bool CheckInclusions(const std::vector<PackageMatchFilter>& inclusions, const PackageMatchFilter& criteria)
-        {
-            if (inclusions.empty())
-            {
-                return true;
-            }
-
-            for (const auto& inclusion : inclusions)
-            {
-                if (inclusion.Field == criteria.Field &&
-                    CheckMatchValue(inclusion, criteria.Value, criteria.Additional))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        // Ensures that the criteria doesn't match one of the filters if provided.
-        bool CheckFilters(const std::vector<PackageMatchFilter>& filters, const PackageMatchFilter& criteria)
-        {
-            if (filters.empty())
-            {
-                return true;
-            }
-
-            for (const auto& filter : filters)
-            {
-                if (filter.Field == criteria.Field &&
-                    CheckMatchValue(filter, criteria.Value, criteria.Additional))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        // ----------------------- NEW
-
         PackageVersionProperty GetPackageVersionPropertyFor(PackageMatchField field)
         {
             switch (field)
@@ -151,9 +69,103 @@ namespace AppInstaller::Repository
             }
         }
 
-        std::optional<MatchType> GetBestMatchType(const SearchRequest& request, PackageMatchField field, const Utility::NormalizedString& value)
+        PackageVersionMultiProperty GetPackageVersionMultiPropertyFor(PackageMatchField field)
         {
+            switch (field)
+            {
+            case PackageMatchField::Command:
+                return PackageVersionMultiProperty::Command;
+            case PackageMatchField::Tag:
+                return PackageVersionMultiProperty::Tag;
+            case PackageMatchField::PackageFamilyName:
+                return PackageVersionMultiProperty::PackageFamilyName;
+            case PackageMatchField::ProductCode:
+                return PackageVersionMultiProperty::ProductCode;
+            case PackageMatchField::UpgradeCode:
+                return PackageVersionMultiProperty::UpgradeCode;
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
 
+        // Gets the best match type for the given field value and required minimum match type.
+        std::optional<MatchType> GetBestMatchType(const RequestMatch& request, MatchType mustBeBetterThanMatchType, const Utility::NormalizedString& value)
+        {
+            if (request.Value.empty())
+            {
+                return std::nullopt;
+            }
+
+            for (auto matchType : { MatchType::Exact, MatchType::CaseInsensitive, MatchType::StartsWith, MatchType::Substring })
+            {
+                if (matchType >= mustBeBetterThanMatchType)
+                {
+                    break;
+                }
+
+                auto matchFunction = GetMatchTypeFunction(matchType);
+
+                if (matchFunction(value, request.Value))
+                {
+                    return matchType;
+                }
+            }
+
+            return std::nullopt;
+        }
+
+        // Gets the best match type for the given field value and required minimum match type.
+        std::optional<MatchType> GetBestMatchType(const SearchRequest& request, PackageMatchField field, MatchType mustBeBetterThanMatchType, const Utility::NormalizedString& value)
+        {
+            std::optional<MatchType> result;
+
+            if (request.Query)
+            {
+                result = GetBestMatchType(request.Query.value(), mustBeBetterThanMatchType, value);
+
+                if (result)
+                {
+                    mustBeBetterThanMatchType = result.value();
+                }
+            }
+
+            for (const auto& filter : request.Filters)
+            {
+                if (result.value_or(MatchType::Wildcard) == MatchType::Exact)
+                {
+                    break;
+                }
+
+                if (filter.Field == field)
+                {
+                    std::optional<MatchType> filterResult = GetBestMatchType(filter, mustBeBetterThanMatchType, value);
+
+                    if (filterResult)
+                    {
+                        result = std::move(filterResult);
+                        mustBeBetterThanMatchType = result.value();
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        // Gets the best match and updates the result if it should be updated.
+        // Returns true to indicate that an exact match has been found.
+        bool UpdatePackageMatchFilterCheck(const SearchRequest& request, PackageMatchField field, PackageMatchFilter& result, const Utility::LocIndString& propertyValue)
+        {
+            Utility::NormalizedString normalizedValue = propertyValue.get();
+            auto bestMatch = GetBestMatchType(request, field, result.Type, normalizedValue);
+
+            if (bestMatch && bestMatch.value() < result.Type)
+            {
+                result.Type = bestMatch.value();
+                result.Field = field;
+                result.Value = std::move(normalizedValue);
+            }
+
+            return MatchType::Exact == result.Type;
         }
     }
 
@@ -169,13 +181,37 @@ namespace AppInstaller::Repository
             {
                 continue;
             }
+
+            if (UpdatePackageMatchFilterCheck(request, field, result, propertyValue))
+            {
+                break;
+            }
         }
 
         // Multi-value fields
         for (auto field : { PackageMatchField::Command, PackageMatchField::Tag, PackageMatchField::PackageFamilyName,
             PackageMatchField::ProductCode, PackageMatchField::UpgradeCode })
         {
+            if (MatchType::Exact == result.Type)
+            {
+                break;
+            }
 
+            auto propertyValues = packageVersion->GetMultiProperty(GetPackageVersionMultiPropertyFor(field));
+            if (propertyValues.empty())
+            {
+                continue;
+            }
+
+            for (const auto& propertyValue : propertyValues)
+            {
+                if (UpdatePackageMatchFilterCheck(request, field, result, propertyValue))
+                {
+                    break;
+                }
+            }
         }
+
+        return result;
     }
 }
