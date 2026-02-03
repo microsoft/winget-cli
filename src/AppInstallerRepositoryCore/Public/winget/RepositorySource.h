@@ -201,9 +201,9 @@ namespace AppInstaller::Repository
     // Contains information about edits to a source.
     struct SourceEdit
     {
-        SourceEdit(std::optional<bool> isExplicit);
+        SourceEdit() = default;
 
-        // The explicit property of a source.
+        // The Explicit property of a source.
         std::optional<bool> Explicit;
     };
 
