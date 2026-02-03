@@ -1467,7 +1467,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, !matchingSource.has_value());
             ::AppInstaller::Repository::Source sourceToEdit = ::AppInstaller::Repository::Source{ matchingSource.value().Name };
 
-            ::AppInstaller::Repository::SourceEdit edits{ GetOptionalBoolean(options.Explicit())};
+            ::AppInstaller::Repository::SourceEdit edits;
+            edits.Explicit = options.Explicit();
             if (sourceToEdit.RequiresChanges(edits))
             {
                 sourceToEdit.Edit(edits);
