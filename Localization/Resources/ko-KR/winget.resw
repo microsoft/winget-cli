@@ -545,6 +545,20 @@
   <data name="SourceCommandShortDescription" xml:space="preserve">
     <value>패키지 원본 관리</value>
   </data>
+  <data name="SourceEditCommandLongDescription" xml:space="preserve">
+    <value>기존 원본의 속성을 편집합니다. 원본은 패키지를 검색하고 설치하는 데 사용할 데이터를 제공합니다.</value>
+  </data>
+  <data name="SourceEditCommandShortDescription" xml:space="preserve">
+    <value>소스 속성 편집</value>
+  </data>
+  <data name="SourceEditOne" xml:space="preserve">
+    <value>소스 편집 중: {0}</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being edited. {0} is a placeholder replaced by the repository source name.</comment>
+  </data>
+  <data name="SourceEditNoChanges" xml:space="preserve">
+    <value>이름이 '{0}' 원본이 이미 원하는 상태에 있습니다.</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being edited. {0} is a placeholder replaced by the repository source name.</comment>
+  </data>
   <data name="SourceListArg" xml:space="preserve">
     <value>인수</value>
     <comment>Value given to source.</comment>
@@ -2890,6 +2904,9 @@
   <data name="SourceExplicitArgumentDescription" xml:space="preserve">
     <value>지정하지 않는 한 검색에서 원본 제외</value>
   </data>
+  <data name="SourceEditExplicitArgumentDescription" xml:space="preserve">
+    <value>검색에서 원본 제외(true 또는 false)</value>
+  </data>
   <data name="SourceListExplicit" xml:space="preserve">
     <value>유해 콘텐츠</value>
   </data>
@@ -3457,5 +3474,65 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED" xml:space="preserve">
     <value>글꼴 패키지가 이미 설치되어 있습니다.</value>
+  </data>
+  <data name="ListDetailsArgumentDescription" xml:space="preserve">
+    <value>패키지에 대한 자세한 정보 표시</value>
+    <comment>Providing this argument causes the CLI to output additional details about installed application packages.</comment>
+  </data>
+  <data name="ShowLabelChannel" xml:space="preserve">
+    <value>채널:</value>
+    <comment>Precedes a string value that names the delivery channel for the software package (ex. stable, beta).</comment>
+  </data>
+  <data name="ShowListLocalIdentifier" xml:space="preserve">
+    <value>로컬 식별자</value>
+    <comment>Precedes a value that is the unique identifier for the installed package on the local system.</comment>
+  </data>
+  <data name="ShowListPackageFamilyName" xml:space="preserve">
+    <value>패키지 패밀리 이름:</value>
+    <comment>Precedes a value that is the APPX/MSIX package family name of the installed package.</comment>
+  </data>
+  <data name="ShowListProductCode" xml:space="preserve">
+    <value>제품 코드:</value>
+    <comment>Precedes a value that is the Add/Remove Programs identifier in the registry. This is also the Product Code value as defined in MSI installers.</comment>
+  </data>
+  <data name="ShowListUpgradeCode" xml:space="preserve">
+    <value>업그레이드 코드:</value>
+    <comment>Precedes a value that is the MSI Upgrade Code for the installed package.</comment>
+  </data>
+  <data name="ShowListInstalledScope" xml:space="preserve">
+    <value>설치된 범위:</value>
+    <comment>Precedes a value that is the scope of the installation of the package (ex. user, machine).</comment>
+  </data>
+  <data name="ShowListInstalledArchitecture" xml:space="preserve">
+    <value>설치된 아키텍처:</value>
+    <comment>Precedes a value that is the installed architecture of the package (ex. x86, x64, ARM64).</comment>
+  </data>
+  <data name="ShowListInstalledLocale" xml:space="preserve">
+    <value>설치된 지역:</value>
+    <comment>Precedes a value that is the locale of the installed package.</comment>
+  </data>
+  <data name="ShowListInstalledLocation" xml:space="preserve">
+    <value>설치된 위치:</value>
+    <comment>Precedes a value that is the directory path to the installed package.</comment>
+  </data>
+  <data name="ShowListInstalledSource" xml:space="preserve">
+    <value>원본 소스:</value>
+    <comment>Precedes a value that names the package source where the installed package originated from.</comment>
+  </data>
+  <data name="ShowListAvailableUpgrades" xml:space="preserve">
+    <value>사용 가능한 업그레이드:</value>
+    <comment>Precedes a list of package upgrades available for the installed package.</comment>
+  </data>
+  <data name="ShowListInstallerCategory" xml:space="preserve">
+    <value>설치 관리자 범주:</value>
+    <comment>Precedes a value that indicates the category of the installer for the installed package (ex. exe, msi, msix).</comment>
+  </data>
+  <data name="SourceEditOldValue" xml:space="preserve">
+    <value>이전 값</value>
+    <comment>Column title for listing edit changes.</comment>
+  </data>
+  <data name="SourceEditNewValue" xml:space="preserve">
+    <value>새 값</value>
+    <comment>Column title for listing the new value.</comment>
   </data>
 </root>
