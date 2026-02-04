@@ -485,7 +485,7 @@ namespace AppInstaller::CLI
         case Args::Type::Correlation:
             return Argument{ type, Resource::String::CorrelationArgumentDescription, ArgumentType::Standard, Argument::Visibility::Hidden };
         case Args::Type::ListDetails:
-            return Argument{ type, Resource::String::ListDetailsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help, ExperimentalFeature::Feature::ListDetails };
+            return Argument{ type, Resource::String::ListDetailsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
         default:
             THROW_HR(E_UNEXPECTED);
         }

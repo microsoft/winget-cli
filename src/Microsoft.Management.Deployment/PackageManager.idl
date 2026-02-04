@@ -1541,15 +1541,6 @@ namespace Microsoft.Management.Deployment
         HRESULT ExtendedErrorCode { get; };
     };
 
-    /// IMPLEMENTATION NOTE: OptionalBoolean
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 28)]
-    enum OptionalBoolean
-    {
-        Unspecified,
-        False,
-        True,
-    };
-
     /// IMPLEMENTATION NOTE: EditPackageCatalogOptions
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 28)]
     runtimeclass EditPackageCatalogOptions
@@ -1562,7 +1553,7 @@ namespace Microsoft.Management.Deployment
         String Name;
 
         /// Editing the Explicit property has three states: true, false, and not specified (no changes).
-        OptionalBoolean Explicit;
+        Windows.Foundation.IReference<Boolean> Explicit;
     };
 
     /// IMPLEMENTATION NOTE: RemovePackageCatalogStatus
@@ -1620,12 +1611,6 @@ namespace Microsoft.Management.Deployment
             Windows.Foundation.IAsyncOperationWithProgress<RemovePackageCatalogResult, Double> RemovePackageCatalogAsync(RemovePackageCatalogOptions options);
         }
 
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 28)]
-        {
-            /// Edit an existing Windows Package Catalog.
-            EditPackageCatalogResult EditPackageCatalog(EditPackageCatalogOptions options);
-        }
-
         /// Install the specified package
         Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackageAsync(CatalogPackage package, InstallOptions options);
 
@@ -1666,6 +1651,12 @@ namespace Microsoft.Management.Deployment
         {
             // The version of the Windows Package Manager that is running.
             String Version{ get; };
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 28)]
+        {
+            /// Edit an existing Windows Package Catalog.
+            EditPackageCatalogResult EditPackageCatalog(EditPackageCatalogOptions options);
         }
     }
 
