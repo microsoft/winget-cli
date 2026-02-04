@@ -27,3 +27,5 @@ Along with the source priority change, the results from REST sources (like `msst
 match criteria that factor into the result ordering. This will prevent them from being sorted to the top automatically.
 
 ## Bug Fixes
+
+<!-- Nothing yet! -->
