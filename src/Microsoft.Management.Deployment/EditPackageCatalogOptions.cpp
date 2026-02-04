@@ -18,6 +18,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return hstring(m_name);
     }
+
     void EditPackageCatalogOptions::Name(hstring const& value)
     {
         m_name = value;
