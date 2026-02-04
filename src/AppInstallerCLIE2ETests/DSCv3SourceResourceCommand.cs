@@ -78,7 +78,6 @@ namespace AppInstallerCLIE2ETests
         public void Setup()
         {
             RemoveTestSource();
-            WinGetSettingsHelper.ConfigureFeature("sourceEdit", true);
             WinGetSettingsHelper.ConfigureFeature("sourcePriority", true);
         }
 

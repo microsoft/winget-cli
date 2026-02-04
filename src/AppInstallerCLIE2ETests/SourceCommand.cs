@@ -20,7 +20,6 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            WinGetSettingsHelper.ConfigureFeature("sourceEdit", true);
             WinGetSettingsHelper.ConfigureFeature("sourcePriority", true);
         }
 

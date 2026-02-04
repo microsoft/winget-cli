@@ -227,7 +227,6 @@ namespace AppInstallerCLIE2ETests.Helpers
             ConfigureFeature(settingsJson, "resume", status);
             ConfigureFeature(settingsJson, "reboot", status);
             ConfigureFeature(settingsJson, "fonts", status);
-            ConfigureFeature(settingsJson, "sourceEdit", status);
             ConfigureFeature(settingsJson, "sourcePriority", status);
 
             SetWingetSettings(settingsJson);

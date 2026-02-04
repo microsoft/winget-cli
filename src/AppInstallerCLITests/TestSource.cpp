@@ -57,6 +57,8 @@ namespace TestCommon
             return LocIndString{ VersionManifest.GetArpVersionRange().IsEmpty() ? "" : VersionManifest.GetArpVersionRange().GetMinVersion().ToString() };
         case PackageVersionProperty::ArpMaxVersion:
             return LocIndString{ VersionManifest.GetArpVersionRange().IsEmpty() ? "" : VersionManifest.GetArpVersionRange().GetMaxVersion().ToString() };
+        case PackageVersionProperty::Moniker:
+            return LocIndString{ VersionManifest.Moniker };
         default:
             return {};
         }
@@ -104,6 +106,31 @@ namespace TestCommon
             for (const auto& loc : VersionManifest.Localizations)
             {
                 result.emplace_back(loc.Locale);
+            }
+            break;
+        case PackageVersionMultiProperty::Command:
+            for (auto value : VersionManifest.GetAggregatedCommands())
+            {
+                result.emplace_back(std::move(value));
+            }
+            break;
+        case PackageVersionMultiProperty::Tag:
+            for (auto value : VersionManifest.GetAggregatedTags())
+            {
+                result.emplace_back(std::move(value));
+            }
+            break;
+        case PackageVersionMultiProperty::UpgradeCode:
+            if (!HideSystemReferenceStrings)
+            {
+                for (const auto& installer : VersionManifest.Installers)
+                {
+                    bool shouldFoldCaseForNonPortable = installer.EffectiveInstallerType() != AppInstaller::Manifest::InstallerTypeEnum::Portable;
+                    for (const auto& entry : installer.AppsAndFeaturesEntries)
+                    {
+                        AddIfHasValueAndNotPresent(entry.UpgradeCode, result, shouldFoldCaseForNonPortable);
+                    }
+                }
             }
             break;
         }

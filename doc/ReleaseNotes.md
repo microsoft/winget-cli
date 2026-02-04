@@ -15,7 +15,7 @@ in the results if other things are equal.
 > 2. Match field (which field was matched against the search request)
 > 3. Source order (was always relevant, but with priority you can more easily affect this)
 
-Beyond the ability to minorly affect the result ordering, commands that primarily target available packages
+Beyond the ability to slightly affect the result ordering, commands that primarily target available packages
 (largely `install`) will now prefer to use a single result from a source with higher priority rather than prompting for
 disambiguation from the user. Said another way, if multiple sources return results but only one of those sources has
 the highest priority value (and it returned only one result) then that package will be used rather than giving a
