@@ -188,6 +188,9 @@ Describe 'Reset-WinGetSource' {
 Describe 'Get|Add|Reset-WinGetSource' {
 
     BeforeAll {
+        $ogSettings = @{ experimentalFeatures= @{sourcePriority=$true}}
+        SetWinGetSettingsHelper $ogSettings
+
         Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/' -TrustLevel 'Trusted' -Explicit -Priority 42
     }
 
@@ -210,6 +213,11 @@ Describe 'Get|Add|Reset-WinGetSource' {
     # This tests require admin
     It 'Reset Test source' {
         Reset-WinGetSource -Name TestSource
+    }
+
+    AfterAll {
+        RemoveTestSource
+        RestoreWinGetSettings
     }
 }
 
