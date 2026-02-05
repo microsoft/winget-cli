@@ -3536,7 +3536,7 @@ An unlocalized JSON fragment will follow on another line.</comment>
     <comment>Column title for listing the new value.</comment>
   </data>
   <data name="SourcePriorityArgumentDescription" xml:space="preserve">
-    <value>Priority with higher numbers first</value>
+    <value>Priority; higher numbers first</value>
     <comment>This argument sets the numerical priority of the source. Higher values will be first in priority.</comment>
   </data>
   <data name="SourceListPriority" xml:space="preserve">

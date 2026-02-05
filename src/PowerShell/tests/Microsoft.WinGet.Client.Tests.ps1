@@ -504,6 +504,9 @@ Describe 'Install-WinGetPackage Source Priority' {
     }
 
     It 'Install higher Priority' {
+        $ogSettings = @{ experimentalFeatures= @{sourcePriority=$true}}
+        SetWinGetSettingsHelper $ogSettings
+
         RemoveTestSource
         Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/' -Priority 1
         Add-WinGetSource -Name 'dummyPackageSource' -Type 'Microsoft.Test.Configurable' -Arg '{"ContainsPackage":true}'
@@ -523,14 +526,15 @@ Describe 'Install-WinGetPackage Source Priority' {
     }
 
     AfterEach {
-        Remove-WinGetSource  -Name 'dummyPackageSource'
-        RemoveTestSource
-        
         $testExe = Get-WinGetPackage -Id AppInstallerTest.TestExeInstaller -MatchOption Equals
         if ($testExe.Count -gt 0)
         {
             Uninstall-WinGetPackage -Id AppInstallerTest.TestExeInstaller 
         }
+
+        Remove-WinGetSource  -Name 'dummyPackageSource'
+        RemoveTestSource
+        RestoreWinGetSettings
     }
 }
 

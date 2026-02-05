@@ -388,12 +388,10 @@ TEST_CASE("RepoSources_ThreeSources", "[sources]")
     SetSetting(Stream::UserSources, s_ThreeSources);
     SetSetting(Stream::SourcesMetadata, s_ThreeSourcesMetadata);
 
-    std::vector<SourceDetails> sources = GetSources();
-    REQUIRE(sources.size() == 3);
-
-    const char* suffixUnsorted[3] = { "", "2", "3" };
-    const char* suffixPrioritySorted[3] = { "2", "3", "" };
-    const char** suffix = nullptr;
+    const char* suffixStrings[3] = { "", "2", "3" };
+    size_t suffixUnsorted[3] = { 0, 1, 2 };
+    size_t suffixPrioritySorted[3] = { 1, 2, 0 };
+    size_t* suffix = nullptr;
     std::unique_ptr<TestHook::SetSingleExperimentalFeature_Override> override;
 
     SECTION("Unsorted")
@@ -406,15 +404,20 @@ TEST_CASE("RepoSources_ThreeSources", "[sources]")
         suffix = suffixPrioritySorted;
     }
 
-    for (size_t i = 0; i < 3; ++i)
+    std::vector<SourceDetails> sources = GetSources();
+    REQUIRE(sources.size() == 3);
+
+    for (size_t index = 0; index < 3; ++index)
     {
-        INFO("Source #" << i);
-        REQUIRE(sources[i].Name == "testName"s + suffix[i]);
-        REQUIRE(sources[i].Type == "testType"s + suffix[i]);
-        REQUIRE(sources[i].Arg == "testArg"s + suffix[i]);
-        REQUIRE(sources[i].Data == "testData"s + suffix[i]);
-        REQUIRE(sources[i].LastUpdateTime == ConvertUnixEpochToSystemClock(i));
-        REQUIRE(sources[i].Origin == SourceOrigin::User);
+        size_t i = suffix[index];
+
+        INFO("Source #" << index << " [" << i << "]");
+        REQUIRE(sources[index].Name == "testName"s + suffixStrings[i]);
+        REQUIRE(sources[index].Type == "testType"s + suffixStrings[i]);
+        REQUIRE(sources[index].Arg == "testArg"s + suffixStrings[i]);
+        REQUIRE(sources[index].Data == "testData"s + suffixStrings[i]);
+        REQUIRE(sources[index].LastUpdateTime == ConvertUnixEpochToSystemClock(i));
+        REQUIRE(sources[index].Origin == SourceOrigin::User);
     }
 }
 

@@ -489,7 +489,12 @@ namespace AppInstallerCLIE2ETests
             Assert.IsNotNull(output);
             Assert.True(output.Exist);
             Assert.AreEqual(DefaultSourceName, output.Name);
-            Assert.AreEqual(argument, output.Argument);
+
+            if (argument != null)
+            {
+                Assert.AreEqual(argument, output.Argument);
+            }
+
             Assert.AreEqual(DefaultSourceType, output.Type);
 
             if (trustLevel != null)

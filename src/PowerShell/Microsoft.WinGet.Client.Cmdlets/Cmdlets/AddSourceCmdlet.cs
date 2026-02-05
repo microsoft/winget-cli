@@ -42,9 +42,16 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
         [Parameter(
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
+#if AICLI_DISABLE_TEST_HOOKS
         [ValidateSet(
             "Microsoft.Rest",
             "Microsoft.PreIndexed.Package")]
+#else
+        [ValidateSet(
+            "Microsoft.Rest",
+            "Microsoft.PreIndexed.Package",
+            "Microsoft.Test.Configurable")]
+#endif
         public string Type { get; set; }
 
         /// <summary>

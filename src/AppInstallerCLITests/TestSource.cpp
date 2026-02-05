@@ -489,7 +489,10 @@ namespace TestCommon
 
     bool AddSource(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback& progress)
     {
-        Repository::Source source{ details.Name, details.Arg, details.Type, Repository::SourceTrustLevel::None, {} };
+        Repository::SourceEdit additionalProperties;
+        additionalProperties.Explicit = details.Explicit;
+        additionalProperties.Priority = details.Priority;
+        Repository::Source source{ details.Name, details.Arg, details.Type, Repository::SourceTrustLevel::None, additionalProperties };
         return source.Add(progress);
     }
 
