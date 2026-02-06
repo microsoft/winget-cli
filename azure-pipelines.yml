@@ -20,6 +20,7 @@ pool:
 variables:
   solution: 'src\AppInstallerCLI.sln'
   EnableDetectorVcpkg: true
+  VCPKG_BINARY_SOURCES: "clear;nuget,https://pkgs.dev.azure.com/shine-oss/winget-cli/_packaging/WinGetDependencies/nuget/v3/index.json,readwrite"
 
 # Do not set the build version for a PR build.
 
@@ -66,6 +67,9 @@ jobs:
   steps:
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
+
+  - task: NuGetAuthenticate@1
+    displayName: 'Authenticate to NuGet Feed'
 
   # Restores all projects, including native (vcxproj) projects
   - task: NuGetCommand@2
@@ -671,6 +675,9 @@ jobs:
   steps:
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
+
+  - task: NuGetAuthenticate@1
+    displayName: 'Authenticate to NuGet Feed'
 
   - task: NuGetCommand@2
     displayName: Restore Solution
