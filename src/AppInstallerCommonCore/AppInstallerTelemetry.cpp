@@ -7,6 +7,7 @@
 #include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/winget/ThreadGlobals.h"
+#include "winget/Filesystem.h"
 #include "winget/UserSettings.h"
 
 #define AICLI_TraceLoggingStringView(_sv_,_name_) TraceLoggingCountedUtf8String(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
@@ -252,6 +253,7 @@ namespace AppInstaller::Logging
         }
 
         AICLI_LOG(Core, Info, << "WinGet, version [" << version << "], activity [" << *GetActivityId() << ']');
+        AICLI_LOG(Core, Info, << "Process: " << Filesystem::GetExecutablePathForProcess(GetCurrentProcess()).filename() << "[" << GetCurrentProcessId() << "], Offset: " << &__ImageBase);
         AICLI_LOG(Core, Info, << "OS: " << Runtime::GetOSVersion());
         AICLI_LOG(Core, Info, << "Command line Args: " << Utility::ConvertToUTF8(GetCommandLineW()));
         if (Runtime::IsRunningInPackagedContext())
@@ -259,6 +261,8 @@ namespace AppInstaller::Logging
             AICLI_LOG(Core, Info, << "Package: " << packageVersion);
         }
         AICLI_LOG(Core, Info, << "IsCOMCall:" << isCOMCall << "; Caller: " << m_caller);
+
+        Log().SetTag(Tag::HeadersComplete);
     }
 
     void TelemetryTraceLogger::LogCommand(std::string_view commandName) const noexcept

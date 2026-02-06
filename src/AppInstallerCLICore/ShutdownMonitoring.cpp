@@ -11,6 +11,8 @@ using namespace std::chrono_literals;
 
 namespace AppInstaller::ShutdownMonitoring
 {
+    static std::atomic_bool s_TerminationSignalHandlerEnabled = true;
+
     std::shared_ptr<TerminationSignalHandler> TerminationSignalHandler::Instance()
     {
         struct Singleton : public WinRT::COMStaticStorageBase<TerminationSignalHandler>
@@ -58,33 +60,29 @@ namespace AppInstaller::ShutdownMonitoring
         }
     }
 
+    bool TerminationSignalHandler::Enabled()
+    {
+        return s_TerminationSignalHandlerEnabled;
+    }
+
+    void TerminationSignalHandler::Enabled(bool enabled)
+    {
+        s_TerminationSignalHandlerEnabled = enabled;
+    }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
     HWND TerminationSignalHandler::GetWindowHandle() const
     {
         return m_windowHandle.get();
     }
-
-    bool TerminationSignalHandler::WaitForAppShutdownEvent() const
-    {
-        return m_appShutdownEvent.wait(60000);
-    }
 #endif
 
     TerminationSignalHandler::TerminationSignalHandler()
     {
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        m_appShutdownEvent.create();
-#endif
-
-        if (Runtime::IsRunningInPackagedContext())
+        if (!s_TerminationSignalHandlerEnabled)
         {
-            // Create package update listener
-            m_catalog = winrt::Windows::ApplicationModel::PackageCatalog::OpenForCurrentPackage();
-            m_updatingEvent = m_catalog.PackageUpdating(
-                winrt::auto_revoke, [this](winrt::Windows::ApplicationModel::PackageCatalog, winrt::Windows::ApplicationModel::PackageUpdatingEventArgs)
-                {
-                    this->StartAppShutdown();
-                });
+            AICLI_LOG(CLI, Info, << "TerminationSignalHandler is disabled, skipping creation of signal listeners");
+            return;
         }
 
         // Create message only window.
@@ -101,6 +99,8 @@ namespace AppInstaller::ShutdownMonitoring
 
     TerminationSignalHandler::~TerminationSignalHandler()
     {
+        SetConsoleCtrlHandler(StaticCtrlHandlerFunction, FALSE);
+
         // std::thread requires that any managed thread (joinable) be joined or detached before destructing
         if (m_windowThread.joinable())
         {
@@ -117,10 +117,6 @@ namespace AppInstaller::ShutdownMonitoring
     void TerminationSignalHandler::StartAppShutdown()
     {
         AICLI_LOG(CLI, Info, << "Initiating shutdown procedure");
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        m_appShutdownEvent.SetEvent();
-#endif
 
         // Lifetime manager sends CTRL-C after the WM_QUERYENDSESSION is processed.
         // If we disable the CTRL-C handler, the default handler will kill us.
@@ -181,19 +177,22 @@ namespace AppInstaller::ShutdownMonitoring
     // Returns FALSE if no contexts attached; TRUE otherwise.
     BOOL TerminationSignalHandler::InformListeners(CancelReason reason, bool force)
     {
-        std::lock_guard<std::mutex> lock{ m_listenersLock };
+        BOOL result = FALSE;
 
-        if (m_listeners.empty())
         {
-            return FALSE;
+            std::lock_guard<std::mutex> lock{ m_listenersLock };
+            result = m_listeners.empty() ? FALSE : TRUE;
+
+            for (auto& listener : m_listeners)
+            {
+                listener->Cancel(reason, force);
+            }
         }
 
-        for (auto& listener : m_listeners)
-        {
-            listener->Cancel(reason, force);
-        }
+        // Notify shutdown synchronization as well
+        ServerShutdownSynchronization::Instance().Signal(reason);
 
-        return TRUE;
+        return result;
     }
 
     void TerminationSignalHandler::CreateWindowAndStartMessageLoop()
@@ -281,9 +280,16 @@ namespace AppInstaller::ShutdownMonitoring
         }
     }
 
-    void ServerShutdownSynchronization::Initialize(ShutdownCompleteCallback callback)
+    void ServerShutdownSynchronization::Initialize(ShutdownCompleteCallback callback, bool createTerminationSignalHandler)
     {
         Instance().m_callback = callback;
+
+        // Force the creation of the TerminationSignalHandler singleton so that the process can listen for termination signals even if
+        // it never attempts to run anything that explicitly registers for cancellation callbacks.
+        if (createTerminationSignalHandler)
+        {
+            TerminationSignalHandler::Instance();
+        }
     }
 
     void ServerShutdownSynchronization::AddComponent(const ComponentSystem& component)
@@ -304,23 +310,30 @@ namespace AppInstaller::ShutdownMonitoring
         instance.m_components.push_back(component);
     }
 
-    void ServerShutdownSynchronization::WaitForShutdown()
+    bool ServerShutdownSynchronization::WaitForShutdown(std::optional<DWORD> timeout)
     {
         ServerShutdownSynchronization& instance = Instance();
 
+        if (timeout)
         {
-            std::lock_guard<std::mutex> lock{ instance.m_threadLock };
-            if (!instance.m_shutdownThread.joinable())
-            {
-                AICLI_LOG(Core, Warning, << "Attempt to wait for shutdown when shutdown has not been initiated.");
-                return;
-            }
+            return instance.m_shutdownComplete.wait(timeout.value());
         }
+        else
+        {
+            {
+                std::lock_guard<std::mutex> lock{ instance.m_threadLock };
+                if (!instance.m_shutdownThread.joinable())
+                {
+                    AICLI_LOG(Core, Warning, << "Attempt to wait for shutdown when shutdown has not been initiated.");
+                    return false;
+                }
+            }
 
-        instance.m_shutdownComplete.wait();
+            return instance.m_shutdownComplete.wait();
+        }
     }
 
-    void ServerShutdownSynchronization::Cancel(CancelReason reason, bool)
+    void ServerShutdownSynchronization::Signal(CancelReason reason)
     {
         std::lock_guard<std::mutex> lock{ m_threadLock };
 
@@ -330,14 +343,8 @@ namespace AppInstaller::ShutdownMonitoring
         }
     }
 
-    ServerShutdownSynchronization::ServerShutdownSynchronization()
-    {
-        TerminationSignalHandler::Instance()->AddListener(this);
-    }
-
     ServerShutdownSynchronization::~ServerShutdownSynchronization()
     {
-        TerminationSignalHandler::Instance()->RemoveListener(this);
         if (m_shutdownThread.joinable())
         {
             m_shutdownThread.detach();
@@ -360,6 +367,7 @@ namespace AppInstaller::ShutdownMonitoring
             components = m_components;
         }
 
+        AICLI_LOG(CLI, Verbose, << "ServerShutdownSynchronization :: BlockNewWork");
         for (const auto& component : components)
         {
             if (component.BlockNewWork)
@@ -368,6 +376,7 @@ namespace AppInstaller::ShutdownMonitoring
             }
         }
 
+        AICLI_LOG(CLI, Verbose, << "ServerShutdownSynchronization :: BeginShutdown");
         for (const auto& component : components)
         {
             if (component.BeginShutdown)
@@ -376,6 +385,7 @@ namespace AppInstaller::ShutdownMonitoring
             }
         }
 
+        AICLI_LOG(CLI, Verbose, << "ServerShutdownSynchronization :: Wait");
         for (const auto& component : components)
         {
             if (component.Wait)
@@ -384,6 +394,7 @@ namespace AppInstaller::ShutdownMonitoring
             }
         }
 
+        AICLI_LOG(CLI, Verbose, << "ServerShutdownSynchronization :: ShutdownCompleteCallback");
         ShutdownCompleteCallback callback = m_callback;
         if (callback)
         {

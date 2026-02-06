@@ -8,7 +8,28 @@
 namespace AppInstaller::Manifest
 {
     // Add here new manifest pointer types.
-    using VariantManifestPtr = std::variant<Agreement*, AppsAndFeaturesEntry*, Dependency*, DependencyList*, Documentation*, ExpectedReturnCode*, Icon*, InstallationMetadataInfo*, InstalledFile*, Manifest*, ManifestInstaller*, ManifestLocalization*, MarketsInfo*, NestedInstallerFile*, std::map<InstallerSwitchType, Utility::NormalizedString>*, AppInstaller::Authentication::AuthenticationInfo*, AppInstaller::Authentication::MicrosoftEntraIdAuthenticationInfo*>;
+    using VariantManifestPtr = std::variant<
+        Agreement*,
+        AppsAndFeaturesEntry*,
+        Dependency*,
+        DependencyList*,
+        DesiredStateConfigurationContainerInfo*,
+        DesiredStateConfigurationResourceInfo*,
+        Documentation*,
+        ExpectedReturnCode*,
+        Icon*,
+        InstallationMetadataInfo*,
+        InstalledFile*,
+        Manifest*,
+        ManifestInstaller*,
+        ManifestLocalization*,
+        MarketsInfo*,
+        NestedInstallerFile*,
+        AppInstaller::Authentication::AuthenticationInfo*,
+        AppInstaller::Authentication::MicrosoftEntraIdAuthenticationInfo*,
+        std::map<InstallerSwitchType, Utility::NormalizedString>*,
+        std::vector<DesiredStateConfigurationContainerInfo>*
+    >;
 
     struct ManifestYamlPopulator
     {
@@ -57,6 +78,11 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> InstallationMetadataFilesFieldInfos;
         std::vector<FieldProcessInfo> AuthenticationFieldInfos;
         std::vector<FieldProcessInfo> MicrosoftEntraIdAuthenticationInfoFieldInfos;
+        std::vector<FieldProcessInfo> DesiredStateConfigurationFieldInfos;
+        std::vector<FieldProcessInfo> DesiredStateConfigurationPowerShellModuleFieldInfos;
+        std::vector<FieldProcessInfo> DesiredStateConfigurationPowerShellResourceFieldInfos;
+        std::vector<FieldProcessInfo> DesiredStateConfigurationDSCv3FieldInfos;
+        std::vector<FieldProcessInfo> DesiredStateConfigurationDSCv3ResourceFieldInfos;
 
         // Cache of Installers node and Localization node
         YAML::Node const* m_p_installersNode = nullptr;
@@ -79,6 +105,11 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> GetInstallationMetadataFilesFieldProcessInfo();
         std::vector<FieldProcessInfo> GetAuthenticationFieldInfos();
         std::vector<FieldProcessInfo> GetMicrosoftEntraIdAuthenticationInfoFieldInfos();
+        std::vector<FieldProcessInfo> GetDesiredStateConfigurationFieldInfos();
+        std::vector<FieldProcessInfo> GetDesiredStateConfigurationPowerShellModuleFieldInfos();
+        std::vector<FieldProcessInfo> GetDesiredStateConfigurationPowerShellResourceFieldInfos();
+        std::vector<FieldProcessInfo> GetDesiredStateConfigurationDSCv3FieldInfos();
+        std::vector<FieldProcessInfo> GetDesiredStateConfigurationDSCv3ResourceFieldInfos();
 
         // Shadow
         std::vector<FieldProcessInfo> GetShadowRootFieldProcessInfo();
@@ -103,6 +134,9 @@ namespace AppInstaller::Manifest
         std::vector<ValidationError> ProcessNestedInstallerFilesNode(const YAML::Node& nestedInstallerFilesNode, AppInstaller::Manifest::ManifestInstaller* installer);
         std::vector<ValidationError> ProcessInstallationMetadataFilesNode(const YAML::Node& installedFilesNode, InstallationMetadataInfo* installationMetadata);
         std::vector<ValidationError> ProcessShadowLocalizationNode(const YAML::Node& localizationNode, Manifest* manifest);
+        std::vector<ValidationError> ProcessDSC_PowerShellModuleNode(const YAML::Node& node, std::vector<DesiredStateConfigurationContainerInfo>* containers);
+        std::vector<ValidationError> ProcessDSC_PowerShellResourcesNode(const YAML::Node& node, DesiredStateConfigurationContainerInfo* container);
+        std::vector<ValidationError> ProcessDSCv3ResourcesNode(const YAML::Node& node, DesiredStateConfigurationContainerInfo* container);
 
         std::vector<ValidationError> PopulateManifestInternal();
         std::vector<ValidationError> InsertShadow(const YAML::Node& shadowNode);

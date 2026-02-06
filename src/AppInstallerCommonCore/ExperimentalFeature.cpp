@@ -76,8 +76,7 @@ namespace AppInstaller::Settings
         case Feature::Resume:
             return ExperimentalFeature{ "Resume", "resume", "https://aka.ms/winget-settings", Feature::Resume };
         case Feature::Font:
-            return ExperimentalFeature{ "Font", "Font", "https://aka.ms/winget-settings", Feature::Font };
-            
+            return ExperimentalFeature{ "Font", "fonts", "https://aka.ms/winget-settings", Feature::Font };
         default:
             THROW_HR(E_UNEXPECTED);
         }

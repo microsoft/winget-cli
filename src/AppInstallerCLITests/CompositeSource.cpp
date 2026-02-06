@@ -73,45 +73,77 @@ Manifest::Manifest MakeDefaultManifest(std::string_view version = "1.0"sv)
     return result;
 }
 
-struct TestPackageHelper
+struct TestManifestHelper
 {
-    TestPackageHelper(bool isInstalled, std::shared_ptr<ISource> source = {}) :
-        m_isInstalled(isInstalled), m_manifest(MakeDefaultManifest()), m_source(source) {}
+    TestManifestHelper() : m_manifest(MakeDefaultManifest()) {}
 
-    TestPackageHelper& WithId(const std::string& id)
+    TestManifestHelper& WithId(const std::string& id)
     {
         m_manifest.Id = id;
         return *this;
     }
 
-    TestPackageHelper& WithVersion(std::string_view version)
+    TestManifestHelper& WithVersion(std::string_view version)
     {
         m_manifest.Version = version;
         return *this;
     }
 
-    TestPackageHelper& WithChannel(const std::string& channel)
+    TestManifestHelper& WithChannel(const std::string& channel)
     {
         m_manifest.Channel = channel;
         return *this;
     }
 
-    TestPackageHelper& WithDefaultName(std::string_view name)
+    TestManifestHelper& WithDefaultName(std::string_view name)
     {
         m_manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(std::string{ name });
         return *this;
     }
 
-    TestPackageHelper& WithPFN(const std::string& pfn)
+    TestManifestHelper& WithPFN(const std::string& pfn)
     {
         m_manifest.Installers[0].PackageFamilyName = pfn;
         return *this;
     }
 
-    TestPackageHelper& WithPC(const std::string& pc)
+    TestManifestHelper& WithPC(const std::string& pc)
     {
         m_manifest.Installers[0].ProductCode = pc;
         return *this;
+    }
+
+    TestManifestHelper& WithType(Manifest::InstallerTypeEnum type)
+    {
+        m_manifest.Installers[0].BaseInstallerType = type;
+        return *this;
+    }
+
+    TestManifestHelper& WithDisplayVersion(std::string_view version)
+    {
+        if (m_manifest.Installers[0].AppsAndFeaturesEntries.empty())
+        {
+            m_manifest.Installers[0].AppsAndFeaturesEntries.emplace_back();
+        }
+        m_manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = version;
+        return *this;
+    }
+
+    operator const Manifest::Manifest& () const
+    {
+        return m_manifest;
+    }
+
+private:
+    Manifest::Manifest m_manifest;
+};
+
+struct TestPackageHelper
+{
+    TestPackageHelper(bool isInstalled, std::shared_ptr<ISource> source = {}) :
+        m_isInstalled(isInstalled), m_source(source)
+    {
+        m_manifestHelpers.emplace_back();
     }
 
     TestPackageHelper& HideSRS(bool value = true)
@@ -126,11 +158,18 @@ struct TestPackageHelper
         {
             if (m_isInstalled)
             {
-                m_package = TestCompositePackage::Make(m_manifest, TestCompositePackage::MetadataMap{}, std::vector<Manifest::Manifest>(), m_source);
+                m_package = TestCompositePackage::Make(this->operator const Manifest::Manifest&(), m_metadata, std::vector<Manifest::Manifest>(), m_source);
             }
             else
             {
-                m_package = TestCompositePackage::Make(std::vector<Manifest::Manifest>{ m_manifest }, m_source, m_hideSystemReferenceStrings);
+                std::vector<Manifest::Manifest> manifests;
+
+                for (const auto& helper : m_manifestHelpers)
+                {
+                    manifests.emplace_back(helper.operator const AppInstaller::Manifest::Manifest &());
+                }
+
+                m_package = TestCompositePackage::Make(manifests, m_source, m_hideSystemReferenceStrings);
             }
         }
 
@@ -142,17 +181,89 @@ struct TestPackageHelper
         return ToPackage();
     }
 
+    TestPackageHelper& WithId(const std::string& id)
+    {
+        THROW_HR_IF(E_UNEXPECTED, m_manifestHelpers.size() != 1);
+        m_manifestHelpers[0].WithId(id);
+        return *this;
+    }
+
+    TestPackageHelper& WithVersion(std::string_view version)
+    {
+        THROW_HR_IF(E_UNEXPECTED, m_manifestHelpers.size() != 1);
+        m_manifestHelpers[0].WithVersion(version);
+        return *this;
+    }
+
+    TestPackageHelper& WithChannel(const std::string& channel)
+    {
+        THROW_HR_IF(E_UNEXPECTED, m_manifestHelpers.size() != 1);
+        m_manifestHelpers[0].WithChannel(channel);
+        return *this;
+    }
+
+    TestPackageHelper& WithDefaultName(std::string_view name)
+    {
+        THROW_HR_IF(E_UNEXPECTED, m_manifestHelpers.size() != 1);
+        m_manifestHelpers[0].WithDefaultName(name);
+        return *this;
+    }
+
+    TestPackageHelper& WithPFN(const std::string& pfn)
+    {
+        THROW_HR_IF(E_UNEXPECTED, m_manifestHelpers.size() != 1);
+        m_manifestHelpers[0].WithPFN(pfn);
+        return *this;
+    }
+
+    TestPackageHelper& WithPC(const std::string& pc)
+    {
+        THROW_HR_IF(E_UNEXPECTED, m_manifestHelpers.size() != 1);
+        m_manifestHelpers[0].WithPC(pc);
+        return *this;
+    }
+
+    TestPackageHelper& WithType(Manifest::InstallerTypeEnum type)
+    {
+        THROW_HR_IF(E_UNEXPECTED, m_manifestHelpers.size() != 1);
+        m_manifestHelpers[0].WithType(type);
+        return *this;
+    }
+
+    TestPackageHelper& WithDisplayVersion(std::string_view version)
+    {
+        THROW_HR_IF(E_UNEXPECTED, m_manifestHelpers.size() != 1);
+        m_manifestHelpers[0].WithDisplayVersion(version);
+        return *this;
+    }
+
+    TestPackageHelper& WithMetadata(PackageVersionMetadata metadata, const std::string& value)
+    {
+        THROW_HR_IF(E_UNEXPECTED, !m_isInstalled);
+        m_metadata[metadata] = value;
+        return *this;
+    }
+
     operator const Manifest::Manifest& () const
     {
-        return m_manifest;
+        THROW_HR_IF(E_UNEXPECTED, m_manifestHelpers.size() != 1);
+        return m_manifestHelpers[0];
+    }
+
+    TestManifestHelper& MakeManifest()
+    {
+        THROW_HR_IF(E_UNEXPECTED, m_isInstalled);
+        m_manifestHelpers.emplace_back();
+        return m_manifestHelpers.back();
     }
 
 private:
     bool m_isInstalled;
-    Manifest::Manifest m_manifest;
+    std::vector<TestManifestHelper> m_manifestHelpers;
     std::shared_ptr<ISource> m_source;
     std::shared_ptr<TestCompositePackage> m_package;
     bool m_hideSystemReferenceStrings = false;
+    TestCompositePackage::MetadataMap m_metadata;
 };
 
 // A helper to create the sources used by the majority of tests in this file.
@@ -1830,4 +1941,44 @@ TEST_CASE("CompositeSource_SxS_Available_TwoVersions_SameAvailable", "[Composite
     auto availablePackages = package->GetAvailable();
     REQUIRE(availablePackages.size() == 1);
     REQUIRE(availablePackages[0]->IsSame(availablePackage->Available[0].get()));
+}
+
+TEST_CASE("CompositeSource_MappedVersions_ProperSorting", "[CompositeSource]")
+{
+    std::string installedID = "Installed.Id";
+    std::string availableID = "Available.Id";
+    auto type = Manifest::InstallerTypeEnum::Exe;
+    std::string pfn = "MY_PFN";
+    std::string version1 = "1000.0";
+    std::string version2 = "2000.0";
+    std::string versionMapped1 = "1.0";
+    std::string versionMapped2 = "2.0";
+
+    CompositeTestSetup setup;
+
+    setup.Installed->Everything.Matches.emplace_back(setup.MakeInstalled().WithId(installedID).WithPFN(pfn).WithVersion(version1).WithMetadata(PackageVersionMetadata::InstalledType, "exe"), Criteria());
+    setup.Installed->Everything.Matches.emplace_back(setup.MakeInstalled().WithId(installedID).WithPFN(pfn).WithVersion(version2).WithMetadata(PackageVersionMetadata::InstalledType, "exe"), Criteria());
+
+    setup.Available->SearchFunction = [&](const SearchRequest&)
+        {
+            auto package = setup.MakeAvailable();
+            package.WithId(availableID).WithType(type).WithPFN(pfn).WithVersion(versionMapped1).WithDisplayVersion(version1);
+            package.MakeManifest().WithId(availableID).WithType(type).WithPFN(pfn).WithVersion(versionMapped2).WithDisplayVersion(version2);
+
+            SearchResult result;
+            result.Matches.emplace_back(package, Criteria());
+            return result;
+        };
+
+    SearchResult result = setup.Search(true);
+
+    REQUIRE(result.Matches.size() == 1);
+    auto package = result.Matches[0].Package;
+    REQUIRE(package);
+    auto installedPackage = package->GetInstalled();
+    REQUIRE(installedPackage);
+    auto installedVersions = installedPackage->GetVersionKeys();
+    REQUIRE(installedVersions.size() == 2);
+    REQUIRE(installedVersions[0].Version == versionMapped2);
+    REQUIRE(installedVersions[1].Version == versionMapped1);
 }

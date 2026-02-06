@@ -530,6 +530,19 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
     }
 
+    EditPackageCatalogStatus GetEditPackageCatalogOperationStatus(winrt::hresult hresult)
+    {
+        switch (hresult)
+        {
+        case APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST:
+            return EditPackageCatalogStatus::InvalidOptions;
+        case APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE:
+            return EditPackageCatalogStatus::CatalogError;
+        default:
+            return HandleCommonCatalogOperationStatus<EditPackageCatalogStatus>(hresult);
+        }
+    }
+
     ::AppInstaller::Manifest::PlatformEnum GetPlatformEnum(WindowsPlatform value)
     {
         switch (value)

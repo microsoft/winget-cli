@@ -21,6 +21,7 @@ namespace AppInstaller::CLI
             std::make_unique<SourceListCommand>(FullName()),
             std::make_unique<SourceUpdateCommand>(FullName()),
             std::make_unique<SourceRemoveCommand>(FullName()),
+            std::make_unique<SourceEditCommand>(FullName()),
             std::make_unique<SourceResetCommand>(FullName()),
             std::make_unique<SourceExportCommand>(FullName()),
             });
@@ -311,5 +312,55 @@ namespace AppInstaller::CLI
         context <<
             Workflow::GetSourceListWithFilter <<
             Workflow::ExportSourceList;
+    }
+
+    // Source Edit Command
+
+    std::vector<Argument> SourceEditCommand::GetArguments() const
+    {
+        return {
+            Argument::ForType(Args::Type::SourceName).SetRequired(true),
+            Argument::ForType(Args::Type::SourceEditExplicit),
+        };
+    }
+
+    Resource::LocString SourceEditCommand::ShortDescription() const
+    {
+        return { Resource::String::SourceEditCommandShortDescription };
+    }
+
+    Resource::LocString SourceEditCommand::LongDescription() const
+    {
+        return { Resource::String::SourceEditCommandLongDescription };
+    }
+
+    Utility::LocIndView SourceEditCommand::HelpLink() const
+    {
+        return s_SourceCommand_HelpLink;
+    }
+
+    void SourceEditCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        if (execArgs.Contains(Execution::Args::Type::SourceEditExplicit))
+        {
+            std::string_view explicitArg = execArgs.GetArg(Execution::Args::Type::SourceEditExplicit);
+            auto convertedArg = Utility::TryConvertStringToBool(explicitArg);
+            if (!convertedArg.has_value())
+            {
+                auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{
+                    "true"_lis,
+                    "false"_lis,
+                });
+                throw CommandException(Resource::String::InvalidArgumentValueError(Argument::ForType(Execution::Args::Type::SourceEditExplicit).Name(), validOptions));
+            }
+        }
+    }
+
+    void SourceEditCommand::ExecuteInternal(Context& context) const
+    {
+        context <<
+            Workflow::EnsureRunningAsAdmin <<
+            Workflow::GetSourceListWithFilter <<
+            Workflow::EditSources;
     }
 }

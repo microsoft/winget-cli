@@ -83,4 +83,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: None
     // Outputs: None
     void ForceInstalledCacheUpdate(Execution::Context& context);
+
+    // Edits a source in SourceList.
+    // Required Args: SourceName
+    // Inputs: SourceList
+    // Outputs: None
+    void EditSources(Execution::Context& context);
 }

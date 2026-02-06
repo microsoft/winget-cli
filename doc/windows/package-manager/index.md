@@ -6,7 +6,7 @@ ms.topic: overview
 ms.localizationpriority: medium
 ---
 
-# Windows Package Manager (preview)
+# Windows Package Manager
 
 Windows Package Manager is a comprehensive [package manager solution](#understanding-package-managers) that consists of a command line tool and set of services for installing applications on Windows 10 and Windows 11.
 

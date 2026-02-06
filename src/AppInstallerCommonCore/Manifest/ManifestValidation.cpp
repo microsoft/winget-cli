@@ -90,6 +90,7 @@ namespace AppInstaller::Manifest
             return ErrorIdToMessageMap;
         }
     }
+
     std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation)
     {
         std::vector<ValidationError> resultErrors;
@@ -197,7 +198,7 @@ namespace AppInstaller::Manifest
 
             // Validate system reference strings if they are set at the installer level
             // Allow PackageFamilyName to be declared with non msix installers to support nested installer scenarios. But still report as warning to notify user of this uncommon case.
-            if (!installer.PackageFamilyName.empty() && !DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()))
+            if (!installer.PackageFamilyName.empty() && !(DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()) || DoAnyAppsAndFeaturesEntriesUsePackageFamilyName(installer.AppsAndFeaturesEntries)))
             {
                 resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "InstallerType", std::string{ InstallerTypeToString(installer.EffectiveInstallerType()) }, ValidationError::Level::Warning);
             }
@@ -433,6 +434,19 @@ namespace AppInstaller::Manifest
                 if (!installer.AuthInfo.ValidateIntegrity())
                 {
                     resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Authentication");
+                }
+            }
+
+            if (fullValidation)
+            {
+                for (const auto& container : installer.DesiredStateConfiguration)
+                {
+                    if (container.Type == DesiredStateConfigurationContainerType::PowerShell)
+                    {
+                        // PowerShell DSC is not supported in community repo.
+                        resultErrors.emplace_back(ManifestError::FieldNotSupported, "DesiredStateConfiguration.PowerShell");
+                        break;
+                    }
                 }
             }
         }
