@@ -219,7 +219,7 @@ namespace AppInstaller::Settings
                 }
             }
 #endif
-            // TrustLevel and Explicit are optional policy fields with default values.
+            // TrustLevel, Explicit, and Priority are optional policy fields with default values.
             const std::string trustLevelName = "TrustLevel";
             if (sourceJson.isMember(trustLevelName) && sourceJson[trustLevelName].isArray())
             {
@@ -234,6 +234,12 @@ namespace AppInstaller::Settings
             if (sourceJson.isMember(explicitName) && sourceJson[explicitName].isBool())
             {
                 source.Explicit = sourceJson[explicitName].asBool();
+            }
+
+            const std::string priorityName = "Priority";
+            if (sourceJson.isMember(priorityName) && sourceJson[priorityName].isInt())
+            {
+                source.Priority = sourceJson[priorityName].asInt();
             }
 
             return source;
@@ -359,6 +365,11 @@ namespace AppInstaller::Settings
         json["Data"] = Data;
         json["Identifier"] = Identifier;
         json["Explicit"] = Explicit;
+
+        if (Priority)
+        {
+            json["Priority"] = Priority.value();
+        }
 
         // Trust level is represented as an array of trust level strings since there can be multiple flags set.
         int trustLevelLength = static_cast<int>(TrustLevel.size());

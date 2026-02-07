@@ -12,6 +12,22 @@ namespace AppInstaller::CLI
     using namespace AppInstaller::CLI::Execution;
     using namespace std::string_view_literals;
 
+    namespace
+    {
+        void ValidateSourcePriorityArgument(const Args& execArgs)
+        {
+            if (execArgs.Contains(Execution::Args::Type::SourcePriority))
+            {
+                std::string_view priorityArg = execArgs.GetArg(Execution::Args::Type::SourcePriority);
+                auto convertedArg = Utility::TryConvertStringToInt32(priorityArg);
+                if (!convertedArg.has_value())
+                {
+                    throw CommandException(Resource::String::InvalidArgumentValueErrorWithoutValidValues(Argument::ForType(Execution::Args::Type::SourcePriority).Name()));
+                }
+            }
+        }
+    }
+
     Utility::LocIndView s_SourceCommand_HelpLink = "https://aka.ms/winget-command-source"_liv;
 
     std::vector<std::unique_ptr<Command>> SourceCommand::GetCommands() const
@@ -57,6 +73,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::SourceExplicit),
+            Argument::ForType(Args::Type::SourcePriority),
         };
     }
 
@@ -96,6 +113,8 @@ namespace AppInstaller::CLI
                 throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::SourceTrustLevel).Name, Utility::Join(","_liv, validOptions)));
             }
         }
+
+        ValidateSourcePriorityArgument(execArgs);
     }
 
     void SourceAddCommand::ExecuteInternal(Context& context) const
@@ -321,6 +340,7 @@ namespace AppInstaller::CLI
         return {
             Argument::ForType(Args::Type::SourceName).SetRequired(true),
             Argument::ForType(Args::Type::SourceEditExplicit),
+            Argument::ForType(Args::Type::SourcePriority),
         };
     }
 
@@ -354,6 +374,8 @@ namespace AppInstaller::CLI
                 throw CommandException(Resource::String::InvalidArgumentValueError(Argument::ForType(Execution::Args::Type::SourceEditExplicit).Name(), validOptions));
             }
         }
+
+        ValidateSourcePriorityArgument(execArgs);
     }
 
     void SourceEditCommand::ExecuteInternal(Context& context) const

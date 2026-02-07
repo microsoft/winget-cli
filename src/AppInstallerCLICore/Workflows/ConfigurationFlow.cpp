@@ -64,6 +64,9 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_Setting_WinGetSource_Name = L"name";
         constexpr std::wstring_view s_Setting_WinGetSource_Arg = L"argument";
         constexpr std::wstring_view s_Setting_WinGetSource_Type = L"type";
+        constexpr std::wstring_view s_Setting_WinGetSource_TrustLevel = L"trustLevel";
+        constexpr std::wstring_view s_Setting_WinGetSource_Explicit = L"explicit";
+        constexpr std::wstring_view s_Setting_WinGetSource_Priority = L"priority";
 
         constexpr std::wstring_view s_Predefined_PowerShell_PackageId = L"Microsoft.PowerShell";
         constexpr std::wstring_view s_Predefined_PowerShell_PackageSource = L"winget";
@@ -1378,6 +1381,18 @@ namespace AppInstaller::CLI::Workflow
             settings.Insert(s_Setting_WinGetSource_Name, PropertyValue::CreateString(Utility::ConvertToUTF16(source.Details.Name)));
             settings.Insert(s_Setting_WinGetSource_Arg, PropertyValue::CreateString(Utility::ConvertToUTF16(source.Details.Arg)));
             settings.Insert(s_Setting_WinGetSource_Type, PropertyValue::CreateString(Utility::ConvertToUTF16(source.Details.Type)));
+            if (WI_IsFlagSet(source.Details.TrustLevel, Repository::SourceTrustLevel::Trusted))
+            {
+                settings.Insert(s_Setting_WinGetSource_TrustLevel, PropertyValue::CreateString(L"trusted"));
+            }
+            if (source.Details.Explicit)
+            {
+                settings.Insert(s_Setting_WinGetSource_Explicit, PropertyValue::CreateBoolean(true));
+            }
+            if (source.Details.Priority != 0)
+            {
+                settings.Insert(s_Setting_WinGetSource_Priority, PropertyValue::CreateInt32(source.Details.Priority));
+            }
             unit.Settings(settings);
 
             unit.Environment().Context(SecurityContext::Elevated);
@@ -1407,7 +1422,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        ConfigurationUnit CreateWinGetPackageUnit(const PackageCollection::Package& package, const PackageCollection::Source& source, bool includeVersion, const std::optional<ConfigurationUnit>& dependentUnit, std::wstring_view unitType)
+        ConfigurationUnit CreateWinGetPackageUnit(const PackageCollection::Package& package, const PackageCollection::Source& source, bool includeVersion, const ConfigurationUnit& dependentUnit, std::wstring_view unitType)
         {
             std::wstring packageIdWide = Utility::ConvertToUTF16(package.Id);
             std::wstring sourceNameWide = Utility::ConvertToUTF16(source.Details.Name);
@@ -1435,10 +1450,10 @@ namespace AppInstaller::CLI::Workflow
             // TODO: We may consider setting security environment based on installer elevation requirements?
 
             // Add dependency if needed.
-            if (dependentUnit.has_value())
+            if (dependentUnit)
             {
                 auto dependencies = winrt::single_threaded_vector<winrt::hstring>();
-                dependencies.Append(dependentUnit.value().Identifier());
+                dependencies.Append(dependentUnit.Identifier());
                 unit.Dependencies(std::move(dependencies));
             }
 
@@ -1806,13 +1821,9 @@ namespace AppInstaller::CLI::Workflow
 
             for (const auto& source : context.Get<Execution::Data::PackageCollection>().Sources)
             {
-                // Create WinGetSource unit for non well known source.
-                std::optional<ConfigurationUnit> sourceUnit;
-                if (!CheckForWellKnownSource(source.Details))
-                {
-                    sourceUnit = anon::CreateWinGetSourceUnit(source, sourceUnitType);
-                    configContext.Set().Units().Append(sourceUnit.value());
-                }
+                // Create WinGetSource unit
+                ConfigurationUnit sourceUnit = anon::CreateWinGetSourceUnit(source, sourceUnitType);
+                configContext.Set().Units().Append(sourceUnit);
 
                 for (const auto& package : source.Packages)
                 {
@@ -1857,12 +1868,8 @@ namespace AppInstaller::CLI::Workflow
                 // There should be 1 package under 1 source.
                 THROW_HR_IF(E_UNEXPECTED, exportSources.size() != 1 || exportSources[0].Packages.size() != 1);
 
-                std::optional<ConfigurationUnit> sourceUnit;
-                if (!CheckForWellKnownSource(exportSources[0].Details))
-                {
-                    sourceUnit = anon::CreateWinGetSourceUnit(exportSources[0], GetWinGetSourceUnitType(configContext));
-                    configContext.Set().Units().Append(sourceUnit.value());
-                }
+                ConfigurationUnit sourceUnit = anon::CreateWinGetSourceUnit(exportSources[0], GetWinGetSourceUnitType(configContext));
+                configContext.Set().Units().Append(sourceUnit);
 
                 singlePackageUnit = anon::CreateWinGetPackageUnit(exportSources[0].Packages[0], exportSources[0], context.Args.Contains(Args::Type::IncludeVersions), sourceUnit, GetWinGetPackageUnitType(configContext));
                 configContext.Set().Units().Append(singlePackageUnit.value());

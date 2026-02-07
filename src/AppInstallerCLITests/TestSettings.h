@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include "TestCommon.h"
 #include <winget/Settings.h>
 #include <winget/UserSettings.h>
 #include <wil/resource.h>

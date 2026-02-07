@@ -504,6 +504,9 @@
     <ClInclude Include="Rest\RestInformationCache.h">
       <Filter>Rest</Filter>
     </ClInclude>
+    <ClInclude Include="MatchCriteriaResolver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -787,6 +790,9 @@
     </ClCompile>
     <ClCompile Include="Rest\RestInformationCache.cpp">
       <Filter>Rest</Filter>
+    </ClCompile>
+    <ClCompile Include="MatchCriteriaResolver.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

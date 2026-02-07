@@ -34,5 +34,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         m_explicit = value;
     }
 
+    Windows::Foundation::IReference<int32_t> EditPackageCatalogOptions::Priority()
+    {
+        return m_priority;
+    }
+
+    void EditPackageCatalogOptions::Priority(Windows::Foundation::IReference<int32_t> value)
+    {
+        m_priority = value;
+    }
+
     CoCreatableMicrosoftManagementDeploymentClass(EditPackageCatalogOptions);
 }

@@ -7,6 +7,7 @@
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
+using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -29,6 +30,7 @@ namespace AppInstaller::Repository::Microsoft
                     // TODO: If this becomes more dynamic, refactor the UserSettings code to make it easier to leverage here
                     ParseHR(root, ".OpenHR", OpenHR);
                     ParseHR(root, ".SearchHR", SearchHR);
+                    ParseBool(root, ".ContainsPackage", ContainsPackage);
                 }
                 else
                 {
@@ -42,6 +44,9 @@ namespace AppInstaller::Repository::Microsoft
 
             // The HR to throw on Source::Search (if FAILED)
             HRESULT SearchHR = S_OK;
+
+            // If a result should be returned by search.
+            bool ContainsPackage = false;
 
         private:
             static void ParseHR(const Json::Value& root, const std::string& path, HRESULT& hr)
@@ -60,10 +65,148 @@ namespace AppInstaller::Repository::Microsoft
                     }
                 }
             }
+
+            static void ParseBool(const Json::Value& root, const std::string& path, bool& value)
+            {
+                const Json::Path jsonPath(path);
+                Json::Value node = jsonPath.resolve(root);
+                if (!node.isNull())
+                {
+                    if (node.isBool())
+                    {
+                        value = node.asBool();
+                    }
+                }
+            }
+        };
+
+        // A test package that contains test data.
+        struct TestPackage : public std::enable_shared_from_this<TestPackage>, public ICompositePackage, public IPackage, public IPackageVersion
+        {
+            TestPackage(std::shared_ptr<ISource> source) : m_source(std::move(source)) {}
+
+            Utility::LocIndString GetProperty(PackageProperty property) const override
+            {
+                switch (property)
+                {
+                case PackageProperty::Id:
+                    return "ConfigurableTestSource Package Identifier"_lis;
+                case PackageProperty::Name:
+                    return "ConfigurableTestSource Package Name"_lis;
+                }
+
+                return {};
+            }
+
+            std::shared_ptr<IPackage> GetInstalled() override
+            {
+                return nullptr;
+            }
+
+            std::vector<std::shared_ptr<IPackage>> GetAvailable() override
+            {
+                return { shared_from_this() };
+            }
+
+            std::vector<Utility::LocIndString> GetMultiProperty(PackageMultiProperty) const override
+            {
+                return {};
+            }
+
+            Source GetSource() const override
+            {
+                return { m_source };
+            }
+
+            bool IsSame(const IPackage*) const override
+            {
+                return false;
+            }
+
+            const void* CastTo(IPackageType) const override
+            {
+                return nullptr;
+            }
+
+            std::vector<PackageVersionKey> GetVersionKeys() const override
+            {
+                return { {} };
+            }
+
+            std::shared_ptr<IPackageVersion> GetVersion(const PackageVersionKey&) const override
+            {
+                return std::static_pointer_cast<IPackageVersion>(NonConstSharedFromThis());
+            }
+
+            std::shared_ptr<IPackageVersion> GetLatestVersion() const override
+            {
+                return std::static_pointer_cast<IPackageVersion>(NonConstSharedFromThis());
+            }
+
+            Utility::LocIndString GetProperty(PackageVersionProperty property) const override
+            {
+                switch (property)
+                {
+                case PackageVersionProperty::Id:
+                    return "ConfigurableTestSource Package Version Identifier"_lis;
+                case PackageVersionProperty::Name:
+                    return "ConfigurableTestSource Package Version Name"_lis;
+                case PackageVersionProperty::SourceIdentifier:
+                    return "ConfigurableTestSource Package Version Source Identifier"_lis;
+                case PackageVersionProperty::SourceName:
+                    return "ConfigurableTestSource Package Version Source Name"_lis;
+                case PackageVersionProperty::Version:
+                    return "ConfigurableTestSource Package Version Version"_lis;
+                case PackageVersionProperty::Channel:
+                    return "ConfigurableTestSource Package Version Channel"_lis;
+                case PackageVersionProperty::RelativePath:
+                    return "ConfigurableTestSource Package Version Relative Path"_lis;
+                case PackageVersionProperty::ManifestSHA256Hash:
+                    return "ConfigurableTestSource Package Version Manifest SHA 256 Hash"_lis;
+                case PackageVersionProperty::Publisher:
+                    return "ConfigurableTestSource Package Version Publisher"_lis;
+                case PackageVersionProperty::ArpMinVersion:
+                    return "ConfigurableTestSource Package Version Arp Min Version"_lis;
+                case PackageVersionProperty::ArpMaxVersion:
+                    return "ConfigurableTestSource Package Version Arp Max Version"_lis;
+                case PackageVersionProperty::Moniker:
+                    return "ConfigurableTestSource Package Version Moniker"_lis;
+                }
+
+                return {};
+            }
+
+            std::vector<Utility::LocIndString> GetMultiProperty(PackageVersionMultiProperty) const override
+            {
+                return {};
+            }
+
+            Manifest::Manifest GetManifest() override
+            {
+                Manifest::Manifest result;
+
+                result.Id = "ConfigurableTestSource Manifest Identifier";
+                result.CurrentLocalization.Add<Manifest::Localization::PackageName>("ConfigurableTestSource Manifest Name");
+
+                return result;
+            }
+
+            Metadata GetMetadata() const override
+            {
+                return {};
+            }
+
+        private:
+            std::shared_ptr<TestPackage> NonConstSharedFromThis() const
+            {
+                return const_cast<TestPackage*>(this)->shared_from_this();
+            }
+
+            std::shared_ptr<ISource> m_source;
         };
 
         // The configurable source itself.
-        struct ConfigurableTestSource : public ISource
+        struct ConfigurableTestSource : public std::enable_shared_from_this<ConfigurableTestSource>, public ISource
         {
             static constexpr ISourceType SourceType = ISourceType::ConfigurableTestSource;
 
@@ -77,7 +220,18 @@ namespace AppInstaller::Repository::Microsoft
             SearchResult Search(const SearchRequest&) const override
             {
                 THROW_IF_FAILED(m_config.SearchHR);
-                return {};
+
+                SearchResult result;
+
+                if (m_config.ContainsPackage)
+                {
+                    std::shared_ptr<TestPackage> package = std::make_shared<TestPackage>(NonConstSharedFromThis());
+                    PackageMatchFilter packageFilter{ {}, {} };
+
+                    result.Matches.emplace_back(std::move(package), std::move(packageFilter));
+                }
+
+                return result;
             }
 
             void* CastTo(ISourceType type) override
@@ -91,6 +245,11 @@ namespace AppInstaller::Repository::Microsoft
             }
 
         private:
+            std::shared_ptr<ConfigurableTestSource> NonConstSharedFromThis() const
+            {
+                return const_cast<ConfigurableTestSource*>(this)->shared_from_this();
+            }
+
             SourceDetails m_details;
             TestSourceConfiguration m_config;
         };

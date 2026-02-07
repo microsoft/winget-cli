@@ -28,6 +28,9 @@ namespace AppInstaller::Repository
         // Copies the overridden fields from the target source to this source. This is only the supported override fields.
         void CopyOverrideFieldsFrom(const SourceDetails& overrideSource);
 
+        // Sorts by Priority with higher values coming first in the order.
+        bool operator<(const SourceDetailsInternal& other) const;
+
         // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
         bool IsTombstone = false;
 

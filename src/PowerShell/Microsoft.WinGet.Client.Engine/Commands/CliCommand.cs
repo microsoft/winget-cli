@@ -72,7 +72,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="type">Type of source.</param>
         /// <param name="trustLevel">Trust level of source.</param>
         /// <param name="isExplicit">Make source explicit.</param>
-        public void AddSource(string name, string arg, string type, string trustLevel, bool isExplicit)
+        /// <param name="priority">Set the priority if the source.</param>
+        public void AddSource(string name, string arg, string type, string trustLevel, bool isExplicit, int priority)
         {
             Utilities.VerifyAdmin();
             var builder = new WinGetCLICommandBuilder("source")
@@ -93,6 +94,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             if (isExplicit)
             {
                 builder.AppendSwitch("explicit");
+            }
+
+            if (priority != 0)
+            {
+                builder.AppendOption("priority", priority.ToString());
             }
 
             _ = this.Run(builder, 300000);

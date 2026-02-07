@@ -188,7 +188,10 @@ Describe 'Reset-WinGetSource' {
 Describe 'Get|Add|Reset-WinGetSource' {
 
     BeforeAll {
-        Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/' -TrustLevel 'Trusted' -Explicit
+        $ogSettings = @{ experimentalFeatures= @{sourcePriority=$true}}
+        SetWinGetSettingsHelper $ogSettings
+
+        Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/' -TrustLevel 'Trusted' -Explicit -Priority 42
     }
 
     It 'Get Test source' {
@@ -200,6 +203,7 @@ Describe 'Get|Add|Reset-WinGetSource' {
         $source.Type | Should -Be 'Microsoft.PreIndexed.Package'
         $source.TrustLevel | Should -Be 'Trusted'
         $source.Explicit | Should -Be $true
+        $source.Priority | Should -Be 42
     }
 
     It 'Get fake source' {
@@ -209,6 +213,11 @@ Describe 'Get|Add|Reset-WinGetSource' {
     # This tests require admin
     It 'Reset Test source' {
         Reset-WinGetSource -Name TestSource
+    }
+
+    AfterAll {
+        RemoveTestSource
+        RestoreWinGetSettings
     }
 }
 
@@ -490,6 +499,50 @@ Describe 'Install|Repair|Uninstall-WinGetPackage' {
         {
             Uninstall-WinGetPackage -Id AppInstallerTest.TestInstallerRepair
         }
+    }
+}
+
+Describe 'Install-WinGetPackage Source Priority' {
+
+    It 'Install equal Priority' {
+        AddTestSource
+        Add-WinGetSource -Name 'dummyPackageSource' -Type 'Microsoft.Test.Configurable' -Arg '{"ContainsPackage":true}'
+
+        { Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0' } | Should -Throw
+    }
+
+    It 'Install higher Priority' {
+        $ogSettings = @{ experimentalFeatures= @{sourcePriority=$true}}
+        SetWinGetSettingsHelper $ogSettings
+
+        RemoveTestSource
+        Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/' -Priority 1
+        Add-WinGetSource -Name 'dummyPackageSource' -Type 'Microsoft.Test.Configurable' -Arg '{"ContainsPackage":true}'
+
+        $expectedExeInstallerResult = [PSCustomObject]@{
+            Id = "AppInstallerTest.TestExeInstaller"
+            Name = "TestExeInstaller"
+            Source = "TestSource"
+            Status = 'Ok'
+            RebootRequired = 'False'
+            InstallerErrorCode = 0
+            UninstallerErrorCode = 0
+        }
+
+        $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
+        Validate-WinGetPackageOperationResult $result $expectedExeInstallerResult 'install'
+    }
+
+    AfterEach {
+        $testExe = Get-WinGetPackage -Id AppInstallerTest.TestExeInstaller -MatchOption Equals
+        if ($testExe.Count -gt 0)
+        {
+            Uninstall-WinGetPackage -Id AppInstallerTest.TestExeInstaller 
+        }
+
+        Remove-WinGetSource  -Name 'dummyPackageSource'
+        RemoveTestSource
+        RestoreWinGetSettings
     }
 }
 

@@ -28,7 +28,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void CustomHeader(hstring const& value);
 
         bool Explicit();
-        void Explicit(bool const& value);
+        void Explicit(bool value);
+
+        int32_t Priority();
+        void Priority(int32_t value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -38,6 +41,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel m_trustLevel = winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel::None;
         hstring m_customHeader = L"";
         bool m_explicit = false;
+        int32_t m_priority = 0;
 #endif
     };
 }

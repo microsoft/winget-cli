@@ -83,6 +83,20 @@ namespace AppInstaller::CLI
     };
 
     template <>
+    struct GetJsonTypeValue<int32_t>
+    {
+        static int32_t Get(const Json::Value& value)
+        {
+            return value.asInt();
+        }
+
+        static Json::ValueType SchemaType()
+        {
+            return Json::ValueType::intValue;
+        }
+    };
+
+    template <>
     struct GetJsonTypeValue<Json::Value>
     {
         static Json::Value Get(const Json::Value& value)

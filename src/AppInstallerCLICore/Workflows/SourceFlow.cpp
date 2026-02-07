@@ -119,7 +119,6 @@ namespace AppInstaller::CLI::Workflow
             std::string_view name = context.Args.GetArg(Args::Type::SourceName);
             std::string_view arg = context.Args.GetArg(Args::Type::SourceArg);
             std::string_view type = context.Args.GetArg(Args::Type::SourceType);
-            bool isExplicit = context.Args.Contains(Args::Type::SourceExplicit);
 
             Repository::SourceTrustLevel trustLevel = Repository::SourceTrustLevel::None;
             if (context.Args.Contains(Execution::Args::Type::SourceTrustLevel))
@@ -128,7 +127,19 @@ namespace AppInstaller::CLI::Workflow
                 trustLevel = Repository::ConvertToSourceTrustLevelFlag(trustLevelArgs);
             }
 
-            Repository::Source sourceToAdd{ name, arg, type, trustLevel, isExplicit};
+            Repository::SourceEdit additionalProperties;
+
+            if (context.Args.Contains(Args::Type::SourceExplicit))
+            {
+                additionalProperties.Explicit = true;
+            }
+
+            if (context.Args.Contains(Args::Type::SourcePriority))
+            {
+                additionalProperties.Priority = Utility::TryConvertStringToInt32(context.Args.GetArg(Args::Type::SourcePriority));
+            }
+
+            Repository::Source sourceToAdd{ name, arg, type, trustLevel, additionalProperties};
 
             if (context.Args.Contains(Execution::Args::Type::CustomHeader))
             {
@@ -177,7 +188,11 @@ namespace AppInstaller::CLI::Workflow
             table.OutputLine({ Resource::LocString(Resource::String::SourceListData), source.Data });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListIdentifier), source.Identifier });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListTrustLevel), Repository::GetSourceTrustLevelForDisplay(source.TrustLevel)});
-            table.OutputLine({ Resource::LocString(Resource::String::SourceListExplicit), std::string{ Utility::ConvertBoolToString(source.Explicit) }});
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListExplicit), std::string{ Utility::ConvertBoolToString(source.Explicit) } });
+            if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SourcePriority))
+            {
+                table.OutputLine({ Resource::LocString(Resource::String::SourceListPriority), std::to_string(source.Priority) });
+            }
 
             if (source.LastUpdateTime == Utility::ConvertUnixEpochToSystemClock(0))
             {
@@ -282,14 +297,20 @@ namespace AppInstaller::CLI::Workflow
             // Get the current source with this name.
             Repository::Source targetSource{ sd.Name };
             auto oldExplicitValue = sd.Explicit;
+            auto oldPriorityValue = sd.Priority;
 
-            std::optional<bool> isExplicit;
+            Repository::SourceEdit edits;
+
             if (context.Args.Contains(Execution::Args::Type::SourceEditExplicit))
             {
-                isExplicit = Utility::TryConvertStringToBool(context.Args.GetArg(Execution::Args::Type::SourceEditExplicit));
+                edits.Explicit = Utility::TryConvertStringToBool(context.Args.GetArg(Execution::Args::Type::SourceEditExplicit));
             }
 
-            Repository::SourceEdit edits{ isExplicit };
+            if (context.Args.Contains(Execution::Args::Type::SourcePriority))
+            {
+                edits.Priority = Utility::TryConvertStringToInt32(context.Args.GetArg(Execution::Args::Type::SourcePriority));
+            }
+
             if (!targetSource.RequiresChanges(edits))
             {
                 context.Reporter.Info() << Resource::String::SourceEditNoChanges(Utility::LocIndView{ sd.Name }) << std::endl;
@@ -299,9 +320,19 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << Resource::String::SourceEditOne(Utility::LocIndView{ sd.Name }) << std::endl;
             targetSource.Edit(edits);
 
-            // Output updated source information. Since only Explicit is editable, we will only list that field. The name of the source being edited is listed prior to the edits.
+            // Output changed source information table. The name of the source being edited is listed prior to the edits.
             Execution::TableOutput<3> table(context.Reporter, { Resource::String::SourceListField, Resource::String::SourceEditOldValue, Resource::String::SourceEditNewValue });
-            table.OutputLine({ Resource::LocString(Resource::String::SourceListExplicit), std::string{ Utility::ConvertBoolToString(oldExplicitValue) }, std::string{ Utility::ConvertBoolToString(isExplicit.value()) } });
+
+            if (edits.Explicit)
+            {
+                table.OutputLine({ Resource::LocString(Resource::String::SourceListExplicit), std::string{ Utility::ConvertBoolToString(oldExplicitValue) }, std::string{ Utility::ConvertBoolToString(edits.Explicit.value()) } });
+            }
+
+            if (edits.Priority)
+            {
+                table.OutputLine({ Resource::LocString(Resource::String::SourceListPriority), std::to_string(oldPriorityValue), std::to_string(edits.Priority.value()) });
+            }
+
             table.Complete();
         }
     }
@@ -364,6 +395,12 @@ namespace AppInstaller::CLI::Workflow
                 std::vector<std::string_view> sourceTrustLevels = Repository::SourceTrustLevelFlagToList(source.TrustLevel);
                 s.TrustLevel = std::vector<std::string>(sourceTrustLevels.begin(), sourceTrustLevels.end());
                 s.Explicit = source.Explicit;
+
+                if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SourcePriority))
+                {
+                    s.Priority = source.Priority;
+                }
+
                 context.Reporter.Info() << s.ToJsonString() << std::endl;
             }
         }

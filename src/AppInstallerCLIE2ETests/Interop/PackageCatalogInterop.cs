@@ -292,6 +292,7 @@ namespace AppInstallerCLIE2ETests.Interop
             options.Name = Constants.TestSourceName;
             options.TrustLevel = PackageCatalogTrustLevel.Trusted;
             options.Explicit = true;
+            options.Priority = 12;
 
             await this.AddAndValidatePackageCatalogAsync(options, AddPackageCatalogStatus.Ok);
 
@@ -299,6 +300,7 @@ namespace AppInstallerCLIE2ETests.Interop
             EditPackageCatalogOptions editOptions = this.TestFactory.CreateEditPackageCatalogOptions();
             editOptions.Name = Constants.TestSourceName;
             editOptions.Explicit = false;
+            editOptions.Priority = 42;
             this.EditAndValidatePackageCatalog(editOptions, EditPackageCatalogStatus.Ok);
 
             // Remove
@@ -342,6 +344,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual(addPackageCatalogOptions.Name, packageCatalog.Info.Name);
             Assert.AreEqual(addPackageCatalogOptions.SourceUri, packageCatalog.Info.Argument);
             Assert.AreEqual(addPackageCatalogOptions.Explicit, packageCatalog.Info.Explicit);
+            Assert.AreEqual(addPackageCatalogOptions.Priority, packageCatalog.Info.Priority);
 
             return packageCatalog;
         }
@@ -401,6 +404,11 @@ namespace AppInstallerCLIE2ETests.Interop
             if (editPackageCatalogOptions.Explicit != null)
             {
                 Assert.AreEqual(packageCatalog.Info.Explicit, editPackageCatalogOptions.Explicit);
+            }
+
+            if (editPackageCatalogOptions.Priority != null)
+            {
+                Assert.AreEqual(packageCatalog.Info.Priority, editPackageCatalogOptions.Priority);
             }
         }
     }

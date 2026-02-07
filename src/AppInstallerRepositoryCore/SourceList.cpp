@@ -27,6 +27,7 @@ namespace AppInstaller::Repository
         constexpr std::string_view s_SourcesYaml_Source_IsOverride = "IsOverride"sv;
         constexpr std::string_view s_SourcesYaml_Source_Explicit = "Explicit"sv;
         constexpr std::string_view s_SourcesYaml_Source_TrustLevel = "TrustLevel"sv;
+        constexpr std::string_view s_SourcesYaml_Source_Priority = "Priority"sv;
 
         constexpr std::string_view s_MetadataYaml_Sources = "Sources"sv;
         constexpr std::string_view s_MetadataYaml_Source_Name = "Name"sv;
@@ -192,6 +193,7 @@ namespace AppInstaller::Repository
                     out << YAML::Key << s_SourcesYaml_Source_IsOverride << YAML::Value << details.IsOverride;
                     out << YAML::Key << s_SourcesYaml_Source_Explicit << YAML::Value << details.Explicit;
                     out << YAML::Key << s_SourcesYaml_Source_TrustLevel << YAML::Value << static_cast<int64_t>(details.TrustLevel);
+                    out << YAML::Key << s_SourcesYaml_Source_Priority << YAML::Value << details.Priority;
                     out << YAML::EndMap;
                 }
             }
@@ -242,6 +244,13 @@ namespace AppInstaller::Repository
     {
         // These are the supported Override fields.
         Explicit = overrideSource.Explicit;
+        Priority = overrideSource.Priority;
+    }
+
+    bool SourceDetailsInternal::operator<(const SourceDetailsInternal& other) const
+    {
+        // Higher values come first in ordering and must be "less than" for standard sorting
+        return Priority > other.Priority;
     }
 
     std::string_view GetWellKnownSourceName(WellKnownSource source)
@@ -726,6 +735,11 @@ namespace AppInstaller::Repository
                 }
             }
         }
+
+        if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SourcePriority))
+        {
+            std::stable_sort(m_sourceList.begin(), m_sourceList.end());
+        }
     }
 
     void SourceList::OverwriteMetadata()
@@ -790,6 +804,7 @@ namespace AppInstaller::Repository
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Explicit, details.Explicit, false);
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsOverride, details.IsOverride, false);
+                    TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Priority, details.Priority, false);
 
                     int64_t trustLevelValue;
                     if (TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_TrustLevel, trustLevelValue, false))

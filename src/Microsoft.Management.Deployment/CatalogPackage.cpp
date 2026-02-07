@@ -176,4 +176,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_package;
     }
+
+    Windows::Foundation::IReference<int32_t> CatalogPackage::CatalogPriority()
+    {
+        return AppInstaller::Repository::GetSourcePriority(m_package);
+    }
 }

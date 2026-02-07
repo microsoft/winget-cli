@@ -278,6 +278,7 @@
     <ClInclude Include="CompositeSource.h" />
     <ClInclude Include="IconDefs.h" />
     <ClInclude Include="ISource.h" />
+    <ClInclude Include="MatchCriteriaResolver.h" />
     <ClInclude Include="Microsoft\ARPHelper.h" />
     <ClInclude Include="Microsoft\FontHelper.h" />
     <ClInclude Include="Microsoft\PinningIndex.h" />
@@ -411,6 +412,7 @@
     <ClCompile Include="InstalledFilesCorrelation.cpp" />
     <ClCompile Include="InstallerMetadataCollectionContext.cpp" />
     <ClCompile Include="ManifestJSONParser.cpp" />
+    <ClCompile Include="MatchCriteriaResolver.cpp" />
     <ClCompile Include="Microsoft\ARPHelper.cpp" />
     <ClCompile Include="Microsoft\FontHelper.cpp" />
     <ClCompile Include="Microsoft\ConfigurableTestSourceFactory.cpp" />
@@ -519,4 +521,3 @@
     <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.250303.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
   </Target>
 </Project>
-

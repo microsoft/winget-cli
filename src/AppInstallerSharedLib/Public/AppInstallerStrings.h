@@ -131,6 +131,9 @@ namespace AppInstaller::Utility
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveContainsSubstring(std::string_view a, std::string_view b);
 
+    // Determines if string a contains string b.
+    bool ContainsSubstring(std::string_view a, std::string_view b);
+
     // Compares the two UTF8 strings in a case-insensitive manner, using ICU for case folding.
     bool ICUCaseInsensitiveEquals(std::string_view a, std::string_view b);
 
@@ -300,6 +303,9 @@ namespace AppInstaller::Utility
 
     // Converts the given string view into a bool.
     std::optional<bool> TryConvertStringToBool(const std::string_view& value);
+
+    // Converts the given string view into an int32.
+    std::optional<int32_t> TryConvertStringToInt32(const std::string_view& value);
 
     // Converts the given GUID value to a string.
     std::string ConvertGuidToString(const GUID& value);

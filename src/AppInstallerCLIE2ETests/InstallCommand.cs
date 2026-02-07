@@ -17,6 +17,15 @@ namespace AppInstallerCLIE2ETests
     public class InstallCommand : BaseCommand
     {
         /// <summary>
+        /// One time set up.
+        /// </summary>
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            WinGetSettingsHelper.ConfigureFeature("sourcePriority", true);
+        }
+
+        /// <summary>
         /// Set up.
         /// </summary>
         [SetUp]
@@ -796,6 +805,38 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
 
             TestCommon.RemoveARPEntry(fakeProductCode);
+        }
+
+        /// <summary>
+        /// Test install source priority.
+        /// </summary>
+        [Test]
+        public void InstallExeWithSourcePriority()
+        {
+            // This test source always returns a single package from search
+            TestCommon.RunAICLICommand("source add", "dummyPackage \"{ \"\"ContainsPackage\"\": true }\" Microsoft.Test.Configurable --header \"{}\"");
+
+            try
+            {
+                // Attempt install with equal (default) priorities
+                var installDir = TestCommon.GetRandomTestDir();
+                var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
+                Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
+                Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
+
+                // Change the priority of the primary test source to be higher
+                TestCommon.RunAICLICommand("source edit", $"{Constants.TestSourceName} --priority 1");
+
+                result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
+                Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+                Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
+                Assert.True(result.StdOut.Contains("Successfully installed"));
+                Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
+            }
+            finally
+            {
+                this.ResetTestSource();
+            }
         }
     }
 }

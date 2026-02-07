@@ -250,6 +250,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceType);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceTrustLevel);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceExplicit);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourcePriority);
         WINGET_DEFINE_RESOURCE_STRINGID(DscSourceResourceShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(DscSourceResourceLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(EnableAdminSettingFailed);
@@ -477,6 +478,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleExclusiveArgumentsProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleInstalledPackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiplePackagesFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultiplePackagesFoundFilteredBySourcePriority);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleUnsupportedNestedInstallersSpecified);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiQueryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiQueryPackageAlreadyInstalled);
@@ -722,6 +724,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListName);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoneFound);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoSources);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListPriority);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListTrustLevel);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListType);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListUpdated);
@@ -731,6 +734,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenFailedSuggestion);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenPredefinedFailedSuggestion);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenWithFailedUpdate);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourcePriorityArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveAll);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandShortDescription);

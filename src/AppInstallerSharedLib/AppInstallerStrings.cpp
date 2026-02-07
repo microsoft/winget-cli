@@ -201,6 +201,15 @@ namespace AppInstaller::Utility
         return (it != a.end());
     }
 
+    bool ContainsSubstring(std::string_view a, std::string_view b)
+    {
+        auto it = std::search(
+            a.begin(), a.end(),
+            b.begin(), b.end()
+        );
+        return (it != a.end());
+    }
+
     bool ICUCaseInsensitiveEquals(std::string_view a, std::string_view b)
     {
         return FoldCase(a) == FoldCase(b);
@@ -992,6 +1001,20 @@ namespace AppInstaller::Utility
         {
             return {};
         }
+    }
+
+    std::optional<int32_t> TryConvertStringToInt32(const std::string_view& input)
+    {
+        int32_t result = 0;
+        auto parseResult = std::from_chars(input.data(), input.data() + input.length(), result);
+
+        std::optional<int32_t> optionalResult;
+        if (parseResult.ec == std::errc{})
+        {
+            optionalResult = result;
+        }
+
+        return optionalResult;
     }
 
     std::string ConvertGuidToString(const GUID& value)
