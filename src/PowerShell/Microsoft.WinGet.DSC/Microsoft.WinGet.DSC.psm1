@@ -79,7 +79,7 @@ class WinGetUserSettings
     {
         $userSettings = Get-WinGetUserSetting
         $result = @{
-            SID = ''
+            SID      = ''
             Settings = $userSettings
         }
         return $result
@@ -135,7 +135,7 @@ class WinGetAdminSettings
         # Get admin setting values.
 
         $result = @{
-            SID = ''
+            SID      = ''
             Settings = $settingsJson.adminSettings
         }
         return $result
@@ -216,10 +216,12 @@ class WinGetSource
 
         $currentSource = $null
 
-        try {
+        try
+        {
             $currentSource = Get-WinGetSource -Name $this.Name
         }
-        catch {
+        catch
+        {
         }
 
         $result = [WinGetSource]::new()
@@ -295,7 +297,7 @@ class WinGetSource
         if ($addSource)
         {
             $hashArgs = @{
-                Name = $this.Name
+                Name     = $this.Name
                 Argument = $this.Argument
             }
 
@@ -396,11 +398,13 @@ class WinGetPackageManager
             if ($this.UseLatest)
             {
                 $hashArgs.Add("Latest", $true)
-            } elseif ($this.UseLatestPreRelease)
+            }
+            elseif ($this.UseLatestPreRelease)
             {
                 $hashArgs.Add("Latest", $true)
                 $hashArgs.Add("IncludePrerelease", $true)
-            } elseif (-not [string]::IsNullOrWhiteSpace($this.Version))
+            }
+            elseif (-not [string]::IsNullOrWhiteSpace($this.Version))
             {
                 $hashArgs.Add("Version", $this.Version)
             }
@@ -426,11 +430,13 @@ class WinGetPackageManager
             if ($this.UseLatest)
             {
                 $hashArgs.Add("Latest", $true)
-            } elseif ($this.UseLatestPreRelease)
+            }
+            elseif ($this.UseLatestPreRelease)
             {
                 $hashArgs.Add("Latest", $true)
                 $hashArgs.Add("IncludePrerelease", $true)
-            } elseif (-not [string]::IsNullOrWhiteSpace($this.Version))
+            }
+            elseif (-not [string]::IsNullOrWhiteSpace($this.Version))
             {
                 $hashArgs.Add("Version", $this.Version)
             }
@@ -482,7 +488,7 @@ class WinGetPackage
         $result = [WinGetPackage]::new()
 
         $hashArgs = @{
-            Id = $this.Id
+            Id          = $this.Id
             MatchOption = $this.MatchOption
         }
 
@@ -523,9 +529,9 @@ class WinGetPackage
         if (-not $this.TestAgainstCurrent($currentPackage))
         {
             $hashArgs = @{
-                Id = $this.Id
+                Id          = $this.Id
                 MatchOption = $this.MatchOption
-                Mode = $this.InstallMode
+                Mode        = $this.InstallMode
             }
             
             if ($this.Ensure -eq [WinGetEnsure]::Present)
@@ -553,7 +559,7 @@ class WinGetPackage
                                 $this.TryUpdate($hashArgs)
                                 break
                             }
-                            {'Greater' -or 'Unknown'}
+                            { 'Greater' -or 'Unknown' }
                             {
                                 # The installed package has a greater version or unknown. Uninstall and install.
                                 $this.Uninstall()
@@ -578,6 +584,26 @@ class WinGetPackage
                 $this.Uninstall()
             }
         }
+    }
+
+    static [WinGetPackage[]] Export()
+    {
+        $packages = Get-WingetPackage
+        $out = [List[WinGetPackage]]::new()
+        foreach ($package in $packages)
+        {
+            $in = [WinGetPackage]@{
+                Ensure    = [WinGetEnsure]::Present
+                Id        = $package.Id
+                Source    = $package.Source
+                Version   = $package.InstalledVersion
+                UseLatest = -not $package.IsUpdateAvailable
+            }
+
+            $out.Add($in)
+        }
+
+        return $out
     }
     
     [bool] hidden TestAgainstCurrent([WinGetPackage]$currentPackage)
