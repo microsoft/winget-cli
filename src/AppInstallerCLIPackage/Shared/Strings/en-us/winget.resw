@@ -2909,7 +2909,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
     <value>Explicit</value>
-    <comment>In this context, explicit means explicitly specified or directly designated, referring to sources that the user has explicitly specified.</comment>
+    <comment>Used as a header in a table that shows the properties of a "source". In this context, "explicit" means that the source needs to be explicitly specified or directly designated to be used, as opposed to being implicitly included.</comment>
   </data>
   <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
     <value>Trust level of the source (none or trusted)</value>
