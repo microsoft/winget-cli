@@ -31,6 +31,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult> CheckInstalledStatusAsync();
         winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult CheckInstalledStatus();
 
+        Windows::Foundation::IReference<int32_t> CatalogPriority();
+
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         ::AppInstaller::Repository::Source m_source;

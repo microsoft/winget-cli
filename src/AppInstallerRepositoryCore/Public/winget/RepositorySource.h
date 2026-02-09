@@ -155,6 +155,11 @@ namespace AppInstaller::Repository
 
         // Whether the source should be hidden by default unless explicitly declared.
         bool Explicit = false;
+
+        // Value used for sorting the sources and making decisions
+        // (like preferring one source over the other if both have a package to install).
+        // Higher values come first in priority order.
+        int32_t Priority = 0;
     };
 
     // Check if a source matches a well known source
@@ -205,6 +210,9 @@ namespace AppInstaller::Repository
 
         // The Explicit property of a source.
         std::optional<bool> Explicit;
+
+        // The Priority property of a source.
+        std::optional<int32_t> Priority;
     };
 
     // Allows calling code to inquire about specific features of an ISource implementation.
@@ -232,7 +240,7 @@ namespace AppInstaller::Repository
         Source(WellKnownSource source);
 
         // Constructor for a source to be added.
-        Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel, bool isExplicit);
+        Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel, const SourceEdit& additionalProperties);
 
         // Constructor for creating a composite source from a list of available sources.
         Source(const std::vector<Source>& availableSources);

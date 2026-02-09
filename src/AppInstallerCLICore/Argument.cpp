@@ -123,6 +123,8 @@ namespace AppInstaller::CLI
             return { type, "trust-level"_liv };
         case Execution::Args::Type::SourceEditExplicit:
             return { type, "explicit"_liv, 'e' };
+        case Execution::Args::Type::SourcePriority:
+            return { type, "priority"_liv, 'p' };
 
         // Hash Command
         case Execution::Args::Type::HashFile:
@@ -415,7 +417,9 @@ namespace AppInstaller::CLI
         case Args::Type::SourceExplicit:
             return Argument{ type, Resource::String::SourceExplicitArgumentDescription, ArgumentType::Flag };
         case Args::Type::SourceEditExplicit:
-            return Argument{ type, Resource::String::SourceEditExplicitArgumentDescription, ArgumentType::Positional };
+            return Argument{ type, Resource::String::SourceEditExplicitArgumentDescription, ArgumentType::Standard };
+        case Args::Type::SourcePriority:
+            return Argument{ type, Resource::String::SourcePriorityArgumentDescription, ArgumentType::Standard, ExperimentalFeature::Feature::SourcePriority };
         case Args::Type::SourceTrustLevel:
             return Argument{ type, Resource::String::SourceTrustLevelArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::ValidateManifest:

@@ -58,9 +58,20 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_explicit;
     }
-    void AddPackageCatalogOptions::Explicit(bool const& value)
+    void AddPackageCatalogOptions::Explicit(bool value)
     {
         m_explicit = value;
     }
+
+    int32_t AddPackageCatalogOptions::Priority()
+    {
+        return m_priority;
+    }
+
+    void AddPackageCatalogOptions::Priority(int32_t value)
+    {
+        m_priority = value;
+    }
+
     CoCreatableMicrosoftManagementDeploymentClass(AddPackageCatalogOptions);
 }

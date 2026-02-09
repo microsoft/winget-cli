@@ -4,6 +4,7 @@
 #include "EditPackageCatalogOptions.g.h"
 #include "public/ComClsids.h"
 #include <winget/ModuleCountBase.h>
+#include <winrt/Windows.Foundation.h>
 #include <optional>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -19,10 +20,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Windows::Foundation::IReference<bool> Explicit();
         void Explicit(Windows::Foundation::IReference<bool> value);
 
+        Windows::Foundation::IReference<int32_t> Priority();
+        void Priority(Windows::Foundation::IReference<int32_t> value);
+
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         hstring m_name = L"";
         std::optional<bool> m_explicit;
+        std::optional<int32_t> m_priority;
 #endif
     };
 }
