@@ -1744,7 +1744,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="winget pin","--include-pinned"} Error shown when we block an upgrade due to the package being pinned</comment>
   </data>
   <data name="UpgradePinnedByUserCount" xml:space="preserve">
-    <value>{0} package(s) have pins that prevent upgrade. Use the 'winget pin' command to view and edit pins. Using the --include-pinned argument may show more results.</value>
+    <value>{0} package(s) have pins that prevent upgrade. Use the 'winget pin' command to view and edit pins. Using the '--include-pinned' argument may show more results.</value>
     <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
   </data>
   <data name="ConfigureCommandLongDescription" xml:space="preserve">
@@ -2909,6 +2909,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
     <value>Explicit</value>
+    <comment>Used as a header in a table that shows the properties of a "source". In this context, "explicit" means that the source needs to be explicitly specified or directly designated to be used, as opposed to being implicitly included.</comment>
   </data>
   <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
     <value>Trust level of the source (none or trusted)</value>
@@ -3184,6 +3185,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="FontFamily" xml:space="preserve">
     <value>Family</value>
+    <comment>"Family" represents the font family such as 'Arial' or 'Times New Roman'.</comment>
   </data>
   <data name="FontFaces" xml:space="preserve">
     <value>Faces</value>
@@ -3191,6 +3193,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
     <value>Filter results by family name</value>
+    <comment>"Family" represents the font family such as 'Arial' or 'Times New Roman'.</comment>
   </data>
   <data name="FontFace" xml:space="preserve">
     <value>Face</value>
