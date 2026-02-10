@@ -23,11 +23,13 @@ namespace AppInstallerCLIE2ETests
         private const string DefaultTrustLevel = "none";
         private const string TrustedTrustLevel = "trusted";
         private const bool DefaultExplicitState = false;
+        private const int DefaultPriority = 0;
         private const string SourceResource = "source";
         private const string ArgumentPropertyName = "argument";
         private const string TypePropertyName = "type";
         private const string TrustLevelPropertyName = "trustLevel";
         private const string ExplicitPropertyName = "explicit";
+        private const string PriorityPropertyName = "priority";
 
         private static string DefaultSourceArgForCmdLine
         {
@@ -76,6 +78,7 @@ namespace AppInstallerCLIE2ETests
         public void Setup()
         {
             RemoveTestSource();
+            WinGetSettingsHelper.ConfigureFeature("sourcePriority", true);
         }
 
         /// <summary>
@@ -155,19 +158,21 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Calls `test` on the `source` resource with a argument that matches.
+        /// Calls `test` on the `source` resource with an argument that matches.
         /// </summary>
         /// <param name="useDefaultArgument">The argument to use when adding the existing source.</param>
         /// <param name="trustLevel">The trust level to use when adding the existing source.</param>
         /// <param name="isExplicit">The explicit state to use when adding the existing source.</param>
+        /// <param name="priority">The priority to use when adding the existing source.</param>
         /// <param name="targetProperty">The property to target for the test.</param>
-        [TestCase(false, DefaultTrustLevel, true, ArgumentPropertyName)]
-        [TestCase(true, DefaultTrustLevel, false, TypePropertyName)]
-        [TestCase(false, TrustedTrustLevel, false, TrustLevelPropertyName)]
-        [TestCase(true, DefaultTrustLevel, true, ExplicitPropertyName)]
-        public void Source_Test_PropertyMatch(bool useDefaultArgument, string trustLevel, bool isExplicit, string targetProperty)
+        [TestCase(false, DefaultTrustLevel, true, 42, ArgumentPropertyName)]
+        [TestCase(true, DefaultTrustLevel, false, 14, TypePropertyName)]
+        [TestCase(false, TrustedTrustLevel, false, 42, TrustLevelPropertyName)]
+        [TestCase(true, DefaultTrustLevel, true, 39, ExplicitPropertyName)]
+        [TestCase(true, DefaultTrustLevel, true, 1, PriorityPropertyName)]
+        public void Source_Test_PropertyMatch(bool useDefaultArgument, string trustLevel, bool isExplicit, int priority, string targetProperty)
         {
-            var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {(useDefaultArgument ? DefaultSourceArgForCmdLine : NonDefaultSourceArgForCmdLine)} --type {DefaultSourceType} --trust-level {trustLevel} {(isExplicit ? "--explicit" : string.Empty)}");
+            var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {(useDefaultArgument ? DefaultSourceArgForCmdLine : NonDefaultSourceArgForCmdLine)} --type {DefaultSourceType} --trust-level {trustLevel} {(isExplicit ? "--explicit" : string.Empty)} --priority {priority}");
             Assert.AreEqual(0, setup.ExitCode);
 
             SourceResourceData resourceData = new SourceResourceData() { Name = DefaultSourceName };
@@ -185,6 +190,9 @@ namespace AppInstallerCLIE2ETests
                     break;
                 case ExplicitPropertyName:
                     resourceData.Explicit = isExplicit;
+                    break;
+                case PriorityPropertyName:
+                    resourceData.Priority = priority;
                     break;
                 default:
                     Assert.Fail($"{targetProperty} is not a handled case.");
@@ -207,14 +215,16 @@ namespace AppInstallerCLIE2ETests
         /// <param name="useDefaultArgument">The argument to use when adding the existing source.</param>
         /// <param name="trustLevel">The trust level to use when adding the existing source.</param>
         /// <param name="isExplicit">The explicit state to use when adding the existing source.</param>
+        /// <param name="priority">The priority to use when adding the existing source.</param>
         /// <param name="targetProperty">The property to target for the test.</param>
         /// <param name="testValue">The value to test against.</param>
-        [TestCase(false, DefaultTrustLevel, true, ArgumentPropertyName, true)]
-        [TestCase(false, DefaultTrustLevel, false, TrustLevelPropertyName, TrustedTrustLevel)]
-        [TestCase(true, DefaultTrustLevel, true, ExplicitPropertyName, false)]
-        public void Source_Test_PropertyMismatch(bool useDefaultArgument, string trustLevel, bool isExplicit, string targetProperty, object testValue)
+        [TestCase(false, DefaultTrustLevel, true, 2, ArgumentPropertyName, true)]
+        [TestCase(false, DefaultTrustLevel, false, 13, TrustLevelPropertyName, TrustedTrustLevel)]
+        [TestCase(true, DefaultTrustLevel, true, 42, ExplicitPropertyName, false)]
+        [TestCase(true, DefaultTrustLevel, true, 8, PriorityPropertyName, 76)]
+        public void Source_Test_PropertyMismatch(bool useDefaultArgument, string trustLevel, bool isExplicit, int priority, string targetProperty, object testValue)
         {
-            var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {(useDefaultArgument ? DefaultSourceArgForCmdLine : NonDefaultSourceArgForCmdLine)} --type {DefaultSourceType} --trust-level {trustLevel} {(isExplicit ? "--explicit" : string.Empty)}");
+            var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {(useDefaultArgument ? DefaultSourceArgForCmdLine : NonDefaultSourceArgForCmdLine)} --type {DefaultSourceType} --trust-level {trustLevel} {(isExplicit ? "--explicit" : string.Empty)} --priority {priority}");
             Assert.AreEqual(0, setup.ExitCode);
 
             SourceResourceData resourceData = new SourceResourceData() { Name = DefaultSourceName };
@@ -229,6 +239,9 @@ namespace AppInstallerCLIE2ETests
                     break;
                 case ExplicitPropertyName:
                     resourceData.Explicit = (bool)testValue;
+                    break;
+                case PriorityPropertyName:
+                    resourceData.Priority = (int)testValue;
                     break;
                 default:
                     Assert.Fail($"{targetProperty} is not a handled case.");
@@ -251,7 +264,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void Source_Test_AllMatch()
         {
-            var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {NonDefaultSourceArgForCmdLine} --type {DefaultSourceType} --trust-level {TrustedTrustLevel} --explicit");
+            var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {NonDefaultSourceArgForCmdLine} --type {DefaultSourceType} --trust-level {TrustedTrustLevel} --explicit --priority 42");
             Assert.AreEqual(0, setup.ExitCode);
 
             SourceResourceData resourceData = new SourceResourceData()
@@ -261,6 +274,7 @@ namespace AppInstallerCLIE2ETests
                 Type = DefaultSourceType,
                 TrustLevel = TrustedTrustLevel,
                 Explicit = true,
+                Priority = 42,
             };
 
             var result = RunDSCv3Command(SourceResource, TestFunction, resourceData);
@@ -384,6 +398,43 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Calls `set` on the `source` resource with an existing item, editing it due to only changing editable properties.
+        /// </summary>
+        [Test]
+        public void Source_Set_Replace_Edit()
+        {
+            var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {DefaultSourceArgForCmdLine} --type {DefaultSourceType}");
+            Assert.AreEqual(0, setup.ExitCode);
+
+            SourceResourceData resourceData = new SourceResourceData()
+            {
+                Name = DefaultSourceName,
+                Explicit = true,
+                Priority = 42,
+            };
+
+            var result = RunDSCv3Command(SourceResource, SetFunction, resourceData);
+            AssertSuccessfulResourceRun(ref result);
+
+            (SourceResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<SourceResourceData>(result.StdOut);
+            AssertExistingSourceResourceData(output, resourceData);
+
+            AssertDiffState(diff, [ExplicitPropertyName, PriorityPropertyName]);
+
+            // Call `get` to ensure the result
+            SourceResourceData resourceDataForGet = new SourceResourceData()
+            {
+                Name = DefaultSourceName,
+            };
+
+            result = RunDSCv3Command(SourceResource, GetFunction, resourceDataForGet);
+            AssertSuccessfulResourceRun(ref result);
+
+            output = GetSingleOutputLineAs<SourceResourceData>(result.StdOut);
+            AssertExistingSourceResourceData(output, resourceData);
+        }
+
+        /// <summary>
         /// Calls `export` on the `source` resource without providing any input.
         /// </summary>
         [Test]
@@ -408,6 +459,7 @@ namespace AppInstallerCLIE2ETests
                     Assert.AreEqual(DefaultSourceType, item.Type);
                     Assert.AreEqual(DefaultTrustLevel, item.TrustLevel);
                     Assert.AreEqual(DefaultExplicitState, item.Explicit);
+                    Assert.AreEqual(DefaultPriority, item.Priority);
                     break;
                 }
             }
@@ -429,15 +481,20 @@ namespace AppInstallerCLIE2ETests
 
         private static void AssertExistingSourceResourceData(SourceResourceData output, SourceResourceData input)
         {
-            AssertExistingSourceResourceData(output, input.Argument, input.TrustLevel, input.Explicit);
+            AssertExistingSourceResourceData(output, input.Argument, input.TrustLevel, input.Explicit, input.Priority);
         }
 
-        private static void AssertExistingSourceResourceData(SourceResourceData output, string argument, string trustLevel = null, bool? isExplicit = null)
+        private static void AssertExistingSourceResourceData(SourceResourceData output, string argument, string trustLevel = null, bool? isExplicit = null, int? priority = null)
         {
             Assert.IsNotNull(output);
             Assert.True(output.Exist);
             Assert.AreEqual(DefaultSourceName, output.Name);
-            Assert.AreEqual(argument, output.Argument);
+
+            if (argument != null)
+            {
+                Assert.AreEqual(argument, output.Argument);
+            }
+
             Assert.AreEqual(DefaultSourceType, output.Type);
 
             if (trustLevel != null)
@@ -448,6 +505,11 @@ namespace AppInstallerCLIE2ETests
             if (isExplicit != null)
             {
                 Assert.AreEqual(isExplicit, output.Explicit);
+            }
+
+            if (priority != null)
+            {
+                Assert.AreEqual(priority, output.Priority);
             }
         }
 
@@ -477,6 +539,8 @@ namespace AppInstallerCLIE2ETests
             public bool? Explicit { get; set; }
 
             public bool? AcceptAgreements { get; set; }
+
+            public int? Priority { get; set; }
         }
     }
 }

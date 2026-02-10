@@ -328,6 +328,11 @@
           "description": "Enable support for managing fonts",
           "type": "boolean",
           "default": false
+        },
+        "sourcePriority": {
+          "description": "Enable source priority feature",
+          "type": "boolean",
+          "default": false
         }
       }
     }

@@ -88,6 +88,7 @@ namespace AppInstaller::Settings
         std::string Identifier;
         std::vector<std::string> TrustLevel;
         bool Explicit = false;
+        std::optional<int32_t> Priority;
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         Certificates::PinningConfiguration PinningConfiguration;

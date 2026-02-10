@@ -1310,11 +1310,54 @@ namespace AppInstaller::CLI::Workflow
         {
             auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
+            bool operationTargetsInstalled = m_operationType == OperationType::Upgrade || m_operationType == OperationType::Uninstall ||
+                m_operationType == OperationType::Repair || m_operationType == OperationType::Export;
+
+            // Try limiting results to highest priority sources
+            if (searchResult.Matches.size() > 1 && !operationTargetsInstalled &&
+                ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SourcePriority))
+            {
+                // Find the set of matches that have the highest priority
+                std::vector<ResultMatch> highestPriorityMatches;
+                std::optional<int32_t> highestPriority;
+
+                for (const auto& match : searchResult.Matches)
+                {
+                    std::optional<int32_t> priority = GetSourcePriority(match.Package);
+
+                    // Optional provides overloads that make empty less than valued and empties equal.
+                    if (highestPriority < priority)
+                    {
+                        // Current priority is higher; reset.
+                        highestPriority = priority;
+                        highestPriorityMatches.clear();
+                    }
+                    else if (highestPriority == priority)
+                    {
+                        // Priority is equal, add to the list.
+                    }
+                    else
+                    {
+                        // Current priority is lower, ignore the match.
+                        continue;
+                    }
+
+                    highestPriorityMatches.emplace_back(match);
+                }
+
+                if (highestPriorityMatches.size() < searchResult.Matches.size())
+                {
+                    AICLI_LOG(CLI, Info, << "Replacing search results with only those from the highest priority [" << (highestPriority ? std::to_string(highestPriority.value()) : "none"s) << "].");
+                    searchResult.Matches = std::move(highestPriorityMatches);
+                    context.Reporter.Warn() << Resource::String::MultiplePackagesFoundFilteredBySourcePriority << std::endl;
+                }
+            }
+
             if (searchResult.Matches.size() > 1)
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if (m_operationType == OperationType::Upgrade || m_operationType == OperationType::Uninstall || m_operationType == OperationType::Repair || m_operationType == OperationType::Export)
+                if (operationTargetsInstalled)
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
                     context << ReportMultiplePackageFoundResult;

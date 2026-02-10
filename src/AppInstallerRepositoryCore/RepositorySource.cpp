@@ -462,7 +462,7 @@ namespace AppInstaller::Repository
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
     }
 
-    Source::Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel, bool isExplicit)
+    Source::Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel, const SourceEdit& additionalProperties)
     {
         m_isSourceToBeAdded = true;
         SourceDetails details;
@@ -479,7 +479,14 @@ namespace AppInstaller::Repository
             details.Arg = arg;
             details.Type = type;
             details.TrustLevel = trustLevel;
-            details.Explicit = isExplicit;
+            if (additionalProperties.Explicit)
+            {
+                details.Explicit = additionalProperties.Explicit.value();
+            }
+            if (additionalProperties.Priority)
+            {
+                details.Priority = additionalProperties.Priority.value();
+            }
         }
 
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
@@ -1014,6 +1021,11 @@ namespace AppInstaller::Repository
                 details.Explicit = edits.Explicit.value();
             }
 
+            if (edits.Priority.has_value())
+            {
+                details.Priority = edits.Priority.value();
+            }
+
             // Apply the edits and update source list.
             SourceList sourceList;
             sourceList.EditSource(details);
@@ -1026,10 +1038,14 @@ namespace AppInstaller::Repository
 
         const auto& details = m_sourceReferences[0]->GetDetails();
 
-        // For now the only supported editable difference is Explicit.
-        // If others are added, they would be checked below for changes.
         bool isChanged = false;
+
         if (edits.Explicit.has_value() && edits.Explicit.value() != details.Explicit)
+        {
+            isChanged = true;
+        }
+
+        if (edits.Priority.has_value() && edits.Priority.value() != details.Priority)
         {
             isChanged = true;
         }

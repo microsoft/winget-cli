@@ -276,4 +276,33 @@ namespace AppInstaller::Repository
             }
         }
     }
+
+    std::optional<int32_t> GetSourcePriority(const std::shared_ptr<ICompositePackage>& composite)
+    {
+        auto installed = composite->GetInstalled();
+
+        if (installed)
+        {
+            auto installedVersion = installed->GetLatestVersion();
+
+            if (installedVersion)
+            {
+                auto installedSource = installedVersion->GetSource();
+
+                if (installedSource.ContainsAvailablePackages())
+                {
+                    return installedSource.GetDetails().Priority;
+                }
+            }
+        }
+
+        auto available = composite->GetAvailable();
+
+        if (!available.empty())
+        {
+            return available.front()->GetSource().GetDetails().Priority;
+        }
+
+        return std::nullopt;
+    }
 }

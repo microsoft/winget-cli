@@ -229,6 +229,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{F49C
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComInprocTestbed", "ComInprocTestbed\ComInprocTestbed.vcxproj", "{E5BCFF58-7D0C-4770-ABB9-AECE1027CD94}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DSC", "DSC", "{40D7CA7F-EB86-4345-9641-AD27180C559D}"
+	ProjectSection(SolutionItems) = preProject
+		PowerShell\Microsoft.WinGet.DSC\Microsoft.WinGet.DSC.psd1 = PowerShell\Microsoft.WinGet.DSC\Microsoft.WinGet.DSC.psd1
+		PowerShell\Microsoft.WinGet.DSC\Microsoft.WinGet.DSC.psm1 = PowerShell\Microsoft.WinGet.DSC\Microsoft.WinGet.DSC.psm1
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.WinGet.UnitTests", "PowerShell\Microsoft.WinGet.UnitTests\Microsoft.WinGet.UnitTests.csproj", "{5421394F-5619-4E4B-8923-F3FB30D5EFAD}"
 EndProject
 Global
@@ -1100,6 +1106,7 @@ Global
 		{7139ED6E-8FBC-0B61-3E3A-AA2A23CC4D6A} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{F49C4C89-447E-4D15-B38B-5A8DCFB134AF} = {7C218A3E-9BC8-48FF-B91B-BCACD828C0C9}
 		{E5BCFF58-7D0C-4770-ABB9-AECE1027CD94} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{40D7CA7F-EB86-4345-9641-AD27180C559D} = {7C218A3E-9BC8-48FF-B91B-BCACD828C0C9}
 		{5421394F-5619-4E4B-8923-F3FB30D5EFAD} = {7C218A3E-9BC8-48FF-B91B-BCACD828C0C9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

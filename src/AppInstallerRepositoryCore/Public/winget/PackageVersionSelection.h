@@ -38,4 +38,7 @@ namespace AppInstaller::Repository
 
     // Fills the options from the given metadata, optionally including the allowed architectures.
     void GetManifestComparatorOptionsFromMetadata(AppInstaller::Manifest::ManifestComparator::Options& options, const IPackageVersion::Metadata& metadata, bool includeAllowedArchitectures = true);
+
+    // Gets the source priority for a given composite package, taking into account installed relationships.
+    std::optional<int32_t> GetSourcePriority(const std::shared_ptr<ICompositePackage>& composite);
 }
