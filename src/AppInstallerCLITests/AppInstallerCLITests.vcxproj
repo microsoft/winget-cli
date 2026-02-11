@@ -473,6 +473,9 @@
     <CopyFileToFolders Include="TestData\TestZip.zip">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestTarGz.tar.gz">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <None Include="Run-TestsInPackage.ps1" />
     <CopyFileToFolders Include="TestData\Manifest-Bad-ArchInvalid.yaml">
       <DeploymentContent>true</DeploymentContent>
