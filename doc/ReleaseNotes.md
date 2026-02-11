@@ -29,3 +29,6 @@ match criteria that factor into the result ordering. This will prevent them from
 ## Bug Fixes
 
 <!-- Nothing yet! -->
+
+## Bug Fixes
+* `winget export` now works when the destination path is a hidden file
