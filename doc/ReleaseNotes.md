@@ -1,5 +1,14 @@
 ## New in v1.29
 
+# New Feature: Filter List and Search command by install scope
+
+This adds the ability to filter the list returned by the `winget list` and `winget search` commands by the install scope
+using the `--scope` parameter. Valid scope values are `user` and `machine`. If the parameter is not given, any install
+scopes are permitted.
+
+> [!TIP]
+> You can combine parameters for the `--source` and `--scope` parameters when filtering.
+
 # New Feature: Source Priority
 
 > [!NOTE]
@@ -28,4 +37,4 @@ match criteria that factor into the result ordering. This will prevent them from
 
 ## Bug Fixes
 
-<!-- Nothing yet! -->
+> 1. Prior to this version, it was permitted to provide a `--source` filter for the `winget list` command, however the parameter was ignored. Now if a filter is provided packages will be check before being returned from the `winget list` command.

@@ -22,6 +22,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Tag),
             Argument::ForType(Execution::Args::Type::Command),
             Argument::ForType(Execution::Args::Type::Source),
+            Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Execution::Args::Type::Count),
             Argument::ForType(Execution::Args::Type::Exact),
             Argument::ForType(Execution::Args::Type::CustomHeader),
@@ -59,6 +60,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Tag:
         case Execution::Args::Type::Command:
         case Execution::Args::Type::Source:
+        case Execution::Args::Type::InstallScope:
             context <<
                 Workflow::CompleteWithSingleSemanticsForValue(valueType);
             break;
@@ -93,10 +95,10 @@ namespace AppInstaller::CLI
             }
             else
             {
-                context << 
+                context <<
                     Workflow::EnsureMatchesFromSearchResult(OperationType::Search) <<
                     Workflow::ReportSearchResult;
             }
-        
+
     }
 }
