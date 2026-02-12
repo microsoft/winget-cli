@@ -63,6 +63,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Name:
         case Execution::Args::Type::Moniker:
         case Execution::Args::Type::Source:
+        case Execution::Args::Type::InstallScope:
         case Execution::Args::Type::Tag:
         case Execution::Args::Type::Command:
             context <<

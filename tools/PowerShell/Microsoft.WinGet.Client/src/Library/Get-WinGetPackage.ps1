@@ -1,15 +1,15 @@
 Function Get-WinGetPackage{
     <#
         .SYNOPSIS
-        Gets installed packages on the local system. displays the packages installed on the system, as well as whether an update is available. 
+        Gets installed packages on the local system. displays the packages installed on the system, as well as whether an update is available.
         Additional options can be provided to filter the output, much like the search command.
-        
+
         .DESCRIPTION
         By running this cmdlet with the required inputs, it will retrieve the packages installed on the local system.
 
         .PARAMETER Filter
         Used to search across multiple fields of the package.
-        
+
         .PARAMETER Id
         Used to specify the Id of the package
 
@@ -21,22 +21,25 @@ Function Get-WinGetPackage{
 
         .PARAMETER Tag
         Used to specify the Tag of the package
-        
+
         .PARAMETER Command
         Used to specify the Command of the package
 
         .PARAMETER Count
         Used to specify the maximum number of packages to return
-        
+
         .PARAMETER Exact
         Used to specify an exact match for any parameters provided. Many of the other parameters may be used for case-insensitive substring matches if Exact is not specified.
 
         .PARAMETER Source
         Name of the Windows Package Manager private source. Can be identified by running: "Get-WinGetSource" and using the source Name
 
+        .PARAMETER Scope
+        Used to specify the Scope of the Windows Package Manager packages to return. Can be either "User" or "Machine". If not specified, packages from both scopes will be returned.
+
         .PARAMETER Header
         Used to specify the value to pass as the "Windows-Package-Manager" HTTP header for a REST source.
-        
+
         .PARAMETER AcceptSourceAgreement
         Used to accept any source agreements required by a REST source.
 
@@ -63,6 +66,7 @@ Function Get-WinGetPackage{
         [Parameter()]           $Moniker,
         [Parameter()]           $Tag,
         [Parameter()]           $Source,
+        [Parameter()]           $Scope,
         [Parameter()]           $Command,
         [Parameter()]           [ValidateRange(1, [int]::maxvalue)][int]$Count,
         [Parameter()]           [switch]$Exact,
@@ -99,6 +103,10 @@ Function Get-WinGetPackage{
             ## Search for the Source
             $WinGetArgs += "--Source", $Source.Replace("…", "")
         }
+        if($PSBoundParameters.ContainsKey('Scope')){
+            ## Search for the Scope
+            $WinGetArgs += "--Scope", $Scope.Replace("…", "")
+        }
         if($PSBoundParameters.ContainsKey('Count')){
             ## Specify the number of results to return
             $WinGetArgs += "--Count", $Count
@@ -119,9 +127,9 @@ Function Get-WinGetPackage{
     PROCESS
     {
         $List = Invoke-WinGetCommand -WinGetArgs $WinGetArgs -IndexTitles $IndexTitles
-    
+
         foreach ($Obj in $List) {
-            $Result += [WinGetPackage]::New($Obj) 
+            $Result += [WinGetPackage]::New($Obj)
         }
     }
     END
