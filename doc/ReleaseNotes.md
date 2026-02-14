@@ -26,6 +26,12 @@ the highest priority value (and it returned only one result) then that package w
 Along with the source priority change, the results from REST sources (like `msstore`) now attempt to correctly set the
 match criteria that factor into the result ordering. This will prevent them from being sorted to the top automatically.
 
+## Minor Features
+
+### --no-progress flag
+
+Added a new `--no-progress` command-line flag that disables all progress reporting (progress bars and spinners). This flag is universally available on all commands and takes precedence over the `visual.progressBar` setting. Useful for automation scenarios or when running WinGet in environments where progress output is undesirable.
+
 ## Bug Fixes
 
 <!-- Nothing yet! -->

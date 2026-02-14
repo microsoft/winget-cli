@@ -35,6 +35,9 @@ The `visual` settings involve visual elements that are displayed by WinGet
 
 Style of the progress spinner and bar that WinGet displays when not specified by arguments. In addition, all options except `disabled` send [Virtual Terminal progress](https://conemu.github.io/en/AnsiEscapeCodes.html#ConEmu_specific_OSC) updates that any supporting terminal may display visually.
 
+> [!NOTE]
+> You can also disable progress output for a single command using the `--no-progress` flag, which takes precedence over this setting.
+
 |Value|Description|Release|
 |---|---|---|
 |`accent` (default)|Use the [Windows Accent color](https://support.microsoft.com/en-us/windows/change-colors-in-windows-d26ef4d6-819a-581c-1581-493cfcc005fe)|1.0|

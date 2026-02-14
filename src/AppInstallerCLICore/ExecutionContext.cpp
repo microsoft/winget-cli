@@ -130,7 +130,11 @@ namespace AppInstaller::CLI::Execution
         }
 
         // Set visual style
-        if (Args.Contains(Args::Type::NoVT))
+        if (Args.Contains(Args::Type::NoProgress))
+        {
+            Reporter.SetStyle(VisualStyle::Disabled);
+        }
+        else if (Args.Contains(Args::Type::NoVT))
         {
             Reporter.SetStyle(VisualStyle::NoVT);
         }

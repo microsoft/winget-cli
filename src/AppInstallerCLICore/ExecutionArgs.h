@@ -165,6 +165,7 @@ namespace AppInstaller::CLI::Execution
             NoVT, // Disable VirtualTerminal outputs
             RetroStyle, // Makes progress display as retro
             RainbowStyle, // Makes progress display as a rainbow
+            NoProgress, // Disables progress bar and spinner
             Help, // Show command usage
             Info, // Show general info about WinGet
             VerboseLogs, // Increases winget logging level to verbose
