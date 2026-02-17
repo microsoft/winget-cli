@@ -13,19 +13,23 @@ This is the Windows Package Manager (WinGet) CLI client - a native Windows appli
 
 ### Initial Setup
 
+Use a configuration file in `.config` as in `winget configure .config/configuration.winget` (alternatives provided for other VS SKUs).
+
+Manual steps:
+
 1. Install Visual Studio 2022 with required workloads (see `.vsconfig`)
 2. Install Windows SDK 10.0.26100: `winget install Microsoft.WindowsSDK.10.0.26100`
-3. Configure system: `winget configure .config/configuration.winget` (from project root)
+3. Enable developer mode in Windows
 4. Run `vcpkg integrate install` from Developer Command Prompt
 
 ### Building
 
-Open `src\AppInstallerCLI.sln` in Visual Studio and build the solution (Ctrl+Shift+B).
+Open `src\AppInstallerCLI.sln` in Visual Studio and build the solution (Ctrl+Shift+B) or use msbuild.exe to build from the command line.
 
 The solution uses:
-- MSBuild for native C++ projects
+- MSBuild
 - vcpkg for C++ dependencies
-- NuGet for .NET dependencies
+- NuGet for C++ and .NET dependencies
 
 ### Running/Debugging
 
@@ -163,7 +167,7 @@ void WorkflowTask(Execution::Context& context)
 # Get WinGet client info
 wingetdev --info
 
-# Run with experimental features
+# Show experimental features
 wingetdev features
 
 # Check sources
