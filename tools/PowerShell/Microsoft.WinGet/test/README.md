@@ -1,1 +1,0 @@
-Placeholder for test collateral
