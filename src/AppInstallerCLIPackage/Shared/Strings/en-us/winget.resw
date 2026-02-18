@@ -2867,6 +2867,9 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="NoProxyArgumentDescription" xml:space="preserve">
     <value>Disable the use of proxy for this execution</value>
   </data>
+  <data name="NoProgressArgumentDescription" xml:space="preserve">
+    <value>Disables the progress bar and spinner</value>
+  </data>
   <data name="ResetAdminSettingFailed" xml:space="preserve">
     <value>Cannot reset {0}. This setting is controlled by policy. For more information contact your system administrator.</value>
     <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>

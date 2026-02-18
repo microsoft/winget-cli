@@ -283,6 +283,8 @@ namespace AppInstaller::CLI
             return { type, "retro"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ProgressBarOption };
         case Execution::Args::Type::RainbowStyle:
             return { type, "rainbow"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ProgressBarOption };
+        case Execution::Args::Type::NoProgress:
+            return { type, "no-progress"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ProgressBarOption };
         case Execution::Args::Type::Help:
             return { type, "help"_liv, APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_CHAR };
         case Execution::Args::Type::Info:
@@ -432,6 +434,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::RainbowArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
         case Args::Type::RetroStyle:
             return Argument{ type, Resource::String::RetroArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
+        case Args::Type::NoProgress:
+            return Argument{ type, Resource::String::NoProgressArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
         case Args::Type::VerboseLogs:
             return Argument{ type, Resource::String::VerboseLogsArgumentDescription, ArgumentType::Flag };
         case Args::Type::CustomHeader:
@@ -503,6 +507,7 @@ namespace AppInstaller::CLI
         args.push_back(ForType(Args::Type::NoVT));
         args.push_back(ForType(Args::Type::RainbowStyle));
         args.push_back(ForType(Args::Type::RetroStyle));
+        args.push_back(ForType(Args::Type::NoProgress));
         args.push_back(ForType(Args::Type::VerboseLogs));
         args.push_back(ForType(Args::Type::IgnoreWarnings));
         args.emplace_back(Args::Type::DisableInteractivity, Resource::String::DisableInteractivityArgumentDescription, ArgumentType::Flag, false);
