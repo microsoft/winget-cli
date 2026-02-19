@@ -323,8 +323,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
   </data>
   <data name="KeyDirectoriesHeader" xml:space="preserve">
-    <value>Winget Directories</value>
-    <comment>Header for a table detailing the directories Winget uses for key operations like logging and portable installs</comment>
+    <value>WinGet Directories</value>
+    <comment>{Locked="WinGet"} Header for a table detailing the directories WinGet uses for key operations like logging and portable installs</comment>
   </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>Locale to use (BCP47 format)</value>
