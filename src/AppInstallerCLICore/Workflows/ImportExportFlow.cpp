@@ -157,8 +157,25 @@ namespace AppInstaller::CLI::Workflow
         auto packages = PackagesJson::CreateJson(context.Get<Execution::Data::PackageCollection>());
 
         std::filesystem::path outputFilePath{ context.Args.GetArg(Execution::Args::Type::OutputFile) };
+
+        // Check if the file exists and is hidden
+        DWORD attrs = std::filesystem::exists(outputFilePath) ? GetFileAttributesW(outputFilePath.c_str()) : INVALID_FILE_ATTRIBUTES;
+        bool isHidden = (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_HIDDEN));
+
+        if (isHidden)
+        {
+            // Remove hidden attribute so we can write to it
+            SetFileAttributesW(outputFilePath.c_str(), attrs & ~FILE_ATTRIBUTE_HIDDEN);
+        }   
+
         std::ofstream outputFileStream{ outputFilePath };
         outputFileStream << packages;
+
+        if (isHidden)
+        {
+            // Restore hidden attribute
+            SetFileAttributesW(outputFilePath.c_str(), attrs);
+        }
     }
 
     void ReadImportFile(Execution::Context& context)
