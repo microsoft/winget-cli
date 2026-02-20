@@ -498,6 +498,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageSelectionArgumentProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackagesFoundInImportFile);
         WINGET_DEFINE_RESOURCE_STRINGID(NoProxyArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoProgressArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NoRepairInfoFound);
         WINGET_DEFINE_RESOURCE_STRINGID(Notes);
         WINGET_DEFINE_RESOURCE_STRINGID(NoUninstallInfoFound);

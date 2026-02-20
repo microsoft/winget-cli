@@ -271,8 +271,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.</value>
   </data>
   <data name="InstallationDisclaimerMSStore" xml:space="preserve">
-    <value>This package is provided through Microsoft Store. winget may need to acquire the package from Microsoft Store on behalf of the current user.</value>
-    <comment>{Locked="winget"}</comment>
+    <value>This package is provided through Microsoft Store. WinGet may need to acquire the package from Microsoft Store on behalf of the current user.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>Installs the selected package, either found by searching a configured source or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option. By default, install command will check package installed status and try to perform an upgrade if applicable. Override with --force to perform a direct install.</value>
@@ -323,8 +323,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
   </data>
   <data name="KeyDirectoriesHeader" xml:space="preserve">
-    <value>Winget Directories</value>
-    <comment>Header for a table detailing the directories Winget uses for key operations like logging and portable installs</comment>
+    <value>WinGet Directories</value>
+    <comment>{Locked="WinGet"} Header for a table detailing the directories WinGet uses for key operations like logging and portable installs</comment>
   </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>Locale to use (BCP47 format)</value>
@@ -616,8 +616,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
-    <value>Failed to open the predefined source; please report to winget maintainers.</value>
-    <comment>{Locked="winget"}</comment>
+    <value>Failed to open the predefined source; please report to WinGet maintainers.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Removing all sources...</value>
@@ -672,7 +672,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Filter results by tag</value>
   </data>
   <data name="ThankYou" xml:space="preserve">
-    <value>Thank you for using winget</value>
+    <value>Thank you for using WinGet</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Third Party Notices</value>
@@ -814,8 +815,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Successfully uninstalled</value>
   </data>
   <data name="NoUninstallInfoFound" xml:space="preserve">
-    <value>winget cannot locate the uninstall command for this package. Please reach out to the package publisher for support.</value>
-    <comment>{Locked="winget"}</comment>
+    <value>WinGet cannot locate the uninstall command for this package. Please reach out to the package publisher for support.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="UninstallAbandoned" xml:space="preserve">
     <value>Uninstallation abandoned</value>
@@ -1461,7 +1462,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Purging install directory...</value>
   </data>
   <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
-    <value>Cannot purge install directory as it was not created by winget</value>
+    <value>Cannot purge install directory as it was not created by WinGet</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="RelatedLink" xml:space="preserve">
     <value>Related Link</value>
@@ -1724,7 +1726,8 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
   </data>
   <data name="UpgradeBlockedByManifest" xml:space="preserve">
-    <value>The package cannot be upgraded using winget. Please use the method provided by the publisher for upgrading this package.</value>
+    <value>The package cannot be upgraded using WinGet. Please use the method provided by the publisher for upgrading this package.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>Upgrade packages even if they have a non-blocking pin</value>
@@ -2111,7 +2114,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Enable Windows Package Manager Configuration</value>
   </data>
   <data name="ErrorCommandLongDescription" xml:space="preserve">
-    <value>Retrieve information about errors. Given a number, the output will contain details about the error, including the symbol name if it is a winget specific error. Given a string, the winget specific errors are searched for this value.</value>
+    <value>Retrieve information about errors. Given a number, the output will contain details about the error, including the symbol name if it is a WinGet specific error. Given a string, the WinGet specific errors are searched for this value.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="ErrorCommandShortDescription" xml:space="preserve">
     <value>Get information on errors</value>
@@ -2210,7 +2214,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The Microsoft Store app is blocked by policy</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED" xml:space="preserve">
-    <value>The feature is currently under development. It can be enabled using winget settings.</value>
+    <value>The feature is currently under development. It can be enabled using `winget settings`.</value>
+    <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED" xml:space="preserve">
     <value>Failed to install the Microsoft Store app</value>
@@ -2780,8 +2785,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Specify the account to be used for authentication</value>
   </data>
   <data name="SourceAddFailedAuthenticationNotSupported" xml:space="preserve">
-    <value>Failed to add source. This winget version does not support the source's authentication method. Try upgrading to latest winget version.</value>
-    <comment>{Locked="winget"}</comment>
+    <value>Failed to add source. This WinGet version does not support the source's authentication method. Try upgrading to latest WinGet version.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="SourceRequiresAuthentication" xml:space="preserve">
     <value>The {0} source requires authentication. Authentication prompt may appear when necessary. Authenticated information will be shared with the source for access authorization.</value>
@@ -2866,6 +2871,9 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="NoProxyArgumentDescription" xml:space="preserve">
     <value>Disable the use of proxy for this execution</value>
+  </data>
+  <data name="NoProgressArgumentDescription" xml:space="preserve">
+    <value>Disables the progress bar and spinner</value>
   </data>
   <data name="ResetAdminSettingFailed" xml:space="preserve">
     <value>Cannot reset {0}. This setting is controlled by policy. For more information contact your system administrator.</value>
@@ -3222,8 +3230,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The package installer requires authentication. Authentication prompt may appear when necessary. Authenticated information will be shared with the installer download url.</value>
   </data>
   <data name="InstallerDownloadAuthenticationNotSupported" xml:space="preserve">
-    <value>Failed to download installer. This winget version does not support the installer download authentication method. Try upgrading to latest winget version.</value>
-    <comment>{Locked="winget"}</comment>
+    <value>Failed to download installer. This WinGet version does not support the installer download authentication method. Try upgrading to latest WinGet version.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
     <value>Failed to download installer. Authentication failed.</value>
@@ -3236,7 +3244,8 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>DSC stands for "Desired State Configuration". It should already have a locked translation.</comment>
   </data>
   <data name="DscCommandLongDescription" xml:space="preserve">
-    <value>The sub-commands here implement Desired State Configuration (DSC) v3 resources for configuring winget and packages.</value>
+    <value>The sub-commands here implement Desired State Configuration (DSC) v3 resources for configuring WinGet and packages.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourceFunctionDescriptionGet" xml:space="preserve">
     <value>Get the resource state</value>
@@ -3275,7 +3284,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Manage package state</value>
   </data>
   <data name="DscPackageResourceLongDescription" xml:space="preserve">
-    <value>Manage packages through winget.</value>
+    <value>Manage packages through WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionExist" xml:space="preserve">
     <value>Indicates whether an instance should or does exist.</value>
@@ -3311,7 +3321,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Manage user settings file</value>
   </data>
   <data name="DscUserSettingsFileLongDescription" xml:space="preserve">
-    <value>Manage the user settings of winget.</value>
+    <value>Manage the user settings of WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionUserSettingsFileSettings" xml:space="preserve">
     <value>The settings json file content.</value>
@@ -3326,7 +3337,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Manage source configuration</value>
   </data>
   <data name="DscSourceResourceLongDescription" xml:space="preserve">
-    <value>Manage the sources of winget.</value>
+    <value>Manage the sources of WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionSourceName" xml:space="preserve">
     <value>The name to use for the source.</value>
@@ -3386,7 +3398,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Manage administrator settings</value>
   </data>
   <data name="DscAdminSettingsResourceLongDescription" xml:space="preserve">
-    <value>Manage the administrator settings of winget.</value>
+    <value>Manage the administrator settings of WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="ResetAllAdminSettingsArgumentDescription" xml:space="preserve">
     <value>Resets all admin settings</value>

@@ -628,7 +628,7 @@ website
 wesome
 wfsopen
 wgetenv
-whatif
+WHATIF
 WIC
 wildcards
 WINAPI
