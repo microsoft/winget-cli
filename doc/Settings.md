@@ -8,6 +8,8 @@ Settings file is located in %LOCALAPPDATA%\Packages\Microsoft.DesktopAppInstalle
 
 If you are using the non-packaged WinGet version by building it from source code, the file will be located under %LOCALAPPDATA%\Microsoft\WinGet\Settings\settings.json
 
+If you are creating a settings file from scratch, make sure that the line `"$schema": "https://aka.ms/winget-settings.schema.json",` is in it.
+
 ## Source
 
 The `source` settings involve configuration to the WinGet source.
@@ -180,7 +182,9 @@ The `architectures` behavior affects what architectures will be selected when in
 
 ### Installer Types
 
-The `installerTypes` behavior affects what installer types will be selected when installing a package. The matching parameter is `--installer-type`.
+The `installerTypes` behavior affects what installer types will be selected when installing a package. It can also determine which type to install by default if a manifest has multiple types: The first (leftmost) ones are looked for first, which can be convenient for users who for instance prefer portable packages or MSIX/AppX installations. The matching parameter is `--installer-type`.
+
+Allowed parameters as of version 1.12.470 include: `appx`, `burn`, `exe`, `font`, `inno`, `msi`, `msix`, `msstore`, `nullsoft`, `portable`, `wix`, `zip`
 
 ```json
     "installBehavior": {
@@ -189,6 +193,8 @@ The `installerTypes` behavior affects what installer types will be selected when
         }
     },
 ```
+
+If this setting is not set, Winget is known to default to the following value: `["inno", "wix", "msi", "nullsoft", "zip", "msix", "exe", "burn", "msstore", "portable"]`
 
 ### Default install root
 
