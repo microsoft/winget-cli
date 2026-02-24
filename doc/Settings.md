@@ -186,7 +186,7 @@ The `installerTypes` behavior affects what installer types will be selected when
 
 Allowed parameters as of version 1.12.470 include: `appx`, `burn`, `exe`, `font`, `inno`, `msi`, `msix`, `msstore`, `nullsoft`, `portable`, `wix`, `zip`
 
-If this setting is not set, Winget defaults to the installer type that is listed highest up in the manifest's installer YAML.
+If this setting is not set, Winget defaults to the installer type that is listed highest up in the manifest's installer YAML (if the app has not been installed yet), or to the installer type that the existing installation of the package uses.
 
 ```json
     "installBehavior": {
