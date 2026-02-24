@@ -182,7 +182,7 @@ The `architectures` behavior affects what architectures will be selected when in
 
 ### Installer Types
 
-The `installerTypes` behavior affects what installer types will be selected when installing a package. It can also determine which type to install by default if a manifest has multiple types: The first (leftmost) ones are looked for first, which can be convenient for users who for instance prefer portable packages or MSIX/AppX installations. The matching parameter is `--installer-type`.
+The `installerTypes` behavior affects what installer types will be selected when installing a package. It can also determine which type to install by default if a manifest has multiple types: The list is in priority order, with the first listed type being preferred over the others, and so on.  This is convenient for users who for instance prefer portable packages or MSIX/AppX installations. The matching parameter is `--installer-type`, which will override the settings.
 
 Allowed values as of version 1.12.470 include: `appx`, `burn`, `exe`, `font`, `inno`, `msi`, `msix`, `msstore`, `nullsoft`, `portable`, `wix`, `zip`
 
