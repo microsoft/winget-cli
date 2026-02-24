@@ -186,6 +186,8 @@ The `installerTypes` behavior affects what installer types will be selected when
 
 Allowed parameters as of version 1.12.470 include: `appx`, `burn`, `exe`, `font`, `inno`, `msi`, `msix`, `msstore`, `nullsoft`, `portable`, `wix`, `zip`
 
+If this setting is not set, Winget defaults to the installer type that is listed highest up in the manifest's installer YAML.
+
 ```json
     "installBehavior": {
         "preferences": {
@@ -193,8 +195,6 @@ Allowed parameters as of version 1.12.470 include: `appx`, `burn`, `exe`, `font`
         }
     },
 ```
-
-If this setting is not set, Winget is known to default to the following value: `["inno", "wix", "msi", "nullsoft", "zip", "msix", "exe", "burn", "msstore", "portable"]`
 
 ### Default install root
 
