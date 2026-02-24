@@ -37,7 +37,7 @@ namespace AppInstaller::Repository::Microsoft
         return { filePath, source };
     }
 
-    SQLiteIndex::SQLiteIndex(const std::string& target, const SQLite::Version& version) : SQLiteStorageBase(target, version)
+    SQLiteIndex::SQLiteIndex(const std::string& target, const SQLite::Version& version) : SQLiteStorageBase(target, version, 65536)
     {
         m_dbconn.EnableICU();
         m_interface = Schema::CreateISQLiteIndex(version);

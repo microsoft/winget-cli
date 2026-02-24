@@ -251,6 +251,15 @@ namespace AppInstaller::SQLite
         return ToLower(setJournalMode.GetColumn<std::string>(0)) == ToLower(mode);
     }
 
+    void Connection::SetPageSize(int pageSize)
+    {
+        std::ostringstream stream;
+        stream << "PRAGMA page_size=" << pageSize;
+
+        Statement setPageSize = Statement::Create(*this, stream.str());
+        setPageSize.Step();
+    }
+
     std::shared_ptr<details::SharedConnection> Connection::GetSharedConnection() const
     {
         return m_dbconn;

@@ -264,6 +264,10 @@ namespace AppInstaller::SQLite
         // Must be performed outside of a transaction.
         bool SetJournalMode(std::string_view mode);
 
+        // Sets the page size for a new, empty database.
+        // Must be called before the first write to take effect.
+        void SetPageSize(int pageSize);
+
         operator sqlite3* () const { return m_dbconn->Get(); }
 
     protected:
