@@ -463,7 +463,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
     <value>Suchen und Anzeigen grundlegender Informationen zu Paketen</value>
   </data>
   <data name="SearchId" xml:space="preserve">
-    <value>ID</value>
+    <value>Id</value>
     <comment>Abbreviation of Identifier.</comment>
   </data>
   <data name="SearchMatch" xml:space="preserve">
