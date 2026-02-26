@@ -266,7 +266,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
         private async Task AddProvisionPackageAsync(string releaseTag)
         {
-            var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+            var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli, this.pwshCmdlet);
             var release = await githubClient.GetReleaseAsync(releaseTag);
 
             var bundleAsset = release.GetAsset(MsixBundleName);
@@ -325,7 +325,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
             try
             {
-                var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli, this.pwshCmdlet);
                 var release = await githubClient.GetReleaseAsync(releaseTag);
 
                 var bundleAsset = release.GetAsset(MsixBundleName);
@@ -560,7 +560,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         // Returns a boolean value indicating whether dependencies were successfully installed from the GitHub release assets.
         private async Task<bool> InstallDependenciesFromGitHubArchive(string releaseTag)
         {
-            var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+            var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli, this.pwshCmdlet);
             var release = await githubClient.GetReleaseAsync(releaseTag);
 
             ReleaseAsset? dependenciesJsonAsset = release.TryGetAsset(DependenciesJsonName);
@@ -667,7 +667,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             var uiXamlObjs = this.GetAppxObject(xamlPackageName);
             if (uiXamlObjs is null)
             {
-                var githubRelease = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.UiXaml);
+                var githubRelease = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.UiXaml, this.pwshCmdlet);
 
                 var xamlRelease = await githubRelease.GetReleaseAsync(xamlReleaseTag);
 
