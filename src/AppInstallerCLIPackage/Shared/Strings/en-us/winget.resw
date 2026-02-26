@@ -2024,6 +2024,12 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>Skips processing package dependencies and Windows features</value>
   </data>
+  <data name="DependenciesOnlyArgumentDescription" xml:space="preserve">
+    <value>Installs only the dependencies of the package</value>
+  </data>
+  <data name="DependenciesOnlyMessage" xml:space="preserve">
+    <value>Installing dependencies only. The package itself will not be installed.</value>
+  </data>
   <data name="DependenciesSkippedMessage" xml:space="preserve">
     <value>Dependencies skipped.</value>
   </data>

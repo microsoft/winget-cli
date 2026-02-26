@@ -710,6 +710,30 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test install a package with a package dependency and specify dependencies only.
+        /// </summary>
+        [Test]
+        public void InstallWithPackageDependency_DependenciesOnly()
+        {
+            var testDir = TestCommon.GetRandomTestDir();
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            var installResult = TestCommon.RunAICLICommand("install", $"-q AppInstallerTest.PackageDependencyRequiresPathRefresh -q AppInstallerTest.TestExeInstaller -l {testDir} --dependencies-only");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
+            Assert.True(installResult.StdOut.Contains("Installing dependencies only. The package itself will not be installed."));
+            Assert.True(installResult.StdOut.Contains("Successfully installed"));
+
+            // Portable package is used as a dependency. Ensure that it is installed and cleaned up successfully.
+            string portablePackageId, commandAlias, fileName, packageDirName, productCode;
+            portablePackageId = "AppInstallerTest.TestPortableExeWithCommand";
+            packageDirName = productCode = portablePackageId + "_" + Constants.TestSourceIdentifier;
+            fileName = "AppInstallerTestExeInstaller.exe";
+            commandAlias = "testCommand.exe";
+
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
+            Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
+        }
+
+        /// <summary>
         /// Test install a package using a specific installer type.
         /// </summary>
         [Test]
