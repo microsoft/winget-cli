@@ -22,17 +22,62 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private readonly string owner;
         private readonly string repo;
         private readonly IGitHubClient gitHubClient;
+        private readonly PowerShellCmdlet? pwshCmdlet;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GitHubClient"/> class.
         /// </summary>
         /// <param name="owner">Owner.</param>
         /// <param name="repo">Repository.</param>
-        public GitHubClient(string owner, string repo)
+        /// <param name="pwshCmdlet">Optional PowerShell cmdlet for logging.</param>
+        public GitHubClient(string owner, string repo, PowerShellCmdlet? pwshCmdlet = null)
         {
-            this.gitHubClient = new Octokit.GitHubClient(new ProductHeaderValue(HttpClientHelper.UserAgent));
+            this.pwshCmdlet = pwshCmdlet;
+            var octokitClient = new Octokit.GitHubClient(new ProductHeaderValue(HttpClientHelper.UserAgent));
+
+            string? token = ResolveGitHubToken(pwshCmdlet);
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                octokitClient.Credentials = new Credentials(token);
+            }
+
+            this.gitHubClient = octokitClient;
             this.owner = owner;
             this.repo = repo;
+        }
+
+        /// <summary>
+        /// Reads all known GitHub token environment variables, logs their presence,
+        /// and selects the one to use based on precedence.
+        /// GH_TOKEN takes precedence over GITHUB_TOKEN, matching GitHub CLI behavior.
+        /// See: https://cli.github.com/manual/gh_help_environment.
+        /// </summary>
+        /// <param name="pwshCmdlet">Optional PowerShell cmdlet for logging.</param>
+        /// <returns>The selected token value, or null if none found.</returns>
+        internal static string? ResolveGitHubToken(PowerShellCmdlet? pwshCmdlet = null)
+        {
+            string? ghToken = Environment.GetEnvironmentVariable("GH_TOKEN");
+            string? githubToken = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
+
+            bool hasGhToken = !string.IsNullOrWhiteSpace(ghToken);
+            bool hasGithubToken = !string.IsNullOrWhiteSpace(githubToken);
+
+            pwshCmdlet?.Write(StreamType.Verbose, $"GH_TOKEN environment variable: {(hasGhToken ? "found" : "not found")}");
+            pwshCmdlet?.Write(StreamType.Verbose, $"GITHUB_TOKEN environment variable: {(hasGithubToken ? "found" : "not found")}");
+
+            if (hasGhToken)
+            {
+                pwshCmdlet?.Write(StreamType.Verbose, "Using authenticated GitHub API requests via GH_TOKEN environment variable.");
+                return ghToken;
+            }
+            else if (hasGithubToken)
+            {
+                pwshCmdlet?.Write(StreamType.Verbose, "Using authenticated GitHub API requests via GITHUB_TOKEN environment variable.");
+                return githubToken;
+            }
+
+            pwshCmdlet?.Write(StreamType.Verbose, "No GitHub token found. Using unauthenticated GitHub API requests.");
+            return null;
         }
 
         /// <summary>
