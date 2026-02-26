@@ -43,7 +43,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             var runningTask = this.RunOnMTA(
                 async () =>
                 {
-                    var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                    var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli, this);
                     string expectedVersion = await gitHubClient.GetLatestReleaseTagNameAsync(preRelease);
                     this.Assert(expectedVersion);
                     return true;
@@ -73,7 +73,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             var runningTask = this.RunOnMTA(
                 async () =>
                 {
-                    var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                    var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli, this);
                     string expectedVersion = await gitHubClient.GetLatestReleaseTagNameAsync(preRelease);
                     await this.RepairStateMachineAsync(expectedVersion, allUsers, force);
                     return true;
@@ -98,7 +98,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     if (!string.IsNullOrWhiteSpace(expectedVersion))
                     {
                         this.Write(StreamType.Verbose, $"Attempting to resolve version '{expectedVersion}'");
-                        var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                        var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli, this);
                         try
                         {
                             var resolvedVersion = await gitHubClient.ResolveVersionAsync(expectedVersion, includePrerelease);
@@ -224,7 +224,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             // this particular case we need to.
             if (string.IsNullOrEmpty(toInstallVersion))
             {
-                var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli, this);
                 toInstallVersion = await gitHubClient.GetLatestReleaseTagNameAsync(false);
             }
 

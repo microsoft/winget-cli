@@ -32,6 +32,10 @@ match criteria that factor into the result ordering. This will prevent them from
 
 Added a new `--no-progress` command-line flag that disables all progress reporting (progress bars and spinners). This flag is universally available on all commands and takes precedence over the `visual.progressBar` setting. Useful for automation scenarios or when running WinGet in environments where progress output is undesirable.
 
+### Authenticated GitHub API requests in PowerShell module
+
+The PowerShell module now automatically uses `GH_TOKEN` or `GITHUB_TOKEN` environment variables to authenticate GitHub API requests. This increases the rate limit from 60 to 5,000 requests per hour, preventing failures in CI/CD pipelines (e.g., GitHub Actions). Use `-Verbose` to see which token is being used.
+
 ## Bug Fixes
 
 <!-- Nothing yet! -->
