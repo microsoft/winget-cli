@@ -1,0 +1,9 @@
+properties:
+  configurationVersion: 0.2
+  resources:
+    - resource: Module/Resource
+      id: Identifier
+      directives:
+        module: DifferentModule
+      settings:
+        SettingInt: 1

@@ -1,0 +1,16 @@
+# Generates a macro to auto-configure everything
+@PACKAGE_INIT@
+
+set(SFS_BUILD_TESTS @SFS_BUILD_TESTS@)
+
+include(CMakeFindDependencyMacro)
+find_dependency(CURL)
+find_dependency(nlohmann_json)
+find_dependency(correlation_vector)
+
+if(SFS_BUILD_TESTS)
+    find_dependency(Catch2)
+    find_dependency(cpp-httplib)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/sfsclient-targets.cmake")

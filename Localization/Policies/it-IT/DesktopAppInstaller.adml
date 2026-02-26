@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Programma di installazione app</displayName>
+  <description>Programma di installazione app</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Programma di installazione app desktop</string>
+      <string id="EnableAppInstaller">Abilita Gestione pacchetti Windows</string>
+      <string id="EnableAppInstallerExplanation">Questo criterio Controlla se Windows Gestione pacchetti può essere utilizzato dagli utenti.
+
+Se si Abilita o non si configura questa impostazione, gli utenti potranno utilizzare Windows Gestione pacchetti.
+
+Se si disabilita questa impostazione, gli utenti non potranno utilizzare Windows Gestione pacchetti.</string>
+      <string id="EnableSettings">Abilita le impostazioni di Gestione pacchetti Windows</string>
+      <string id="EnableSettingsExplanation">Questo criterio Controlla se gli utenti possono modificare le impostazioni.
+
+Se si Abilita o non si configura questa impostazione, gli utenti potranno modificare le impostazioni di Windows Gestione pacchetti.
+
+Se si disabilita questa impostazione, gli utenti non saranno in grado di modificare le impostazioni per Windows Gestione pacchetti.</string>
+      <string id="EnableExperimentalFeatures">Abilita le funzionalità sperimentali di Gestione pacchetti Windows</string>
+      <string id="EnableExperimentalFeaturesExplanation">Questo criterio Controlla se gli utenti possono abilitare le funzionalità sperimentali in Windows Gestione pacchetti.
+
+Se si Abilita o non si configura questa impostazione, gli utenti potranno abilitare le funzionalità sperimentali per Windows Gestione pacchetti.
+
+Se si disabilita questa impostazione, gli utenti non saranno in grado di abilitare le funzionalità sperimentali per Windows Gestione pacchetti.</string>
+      <string id="EnableLocalManifestFiles">Abilita i file manifesto locali di Gestione pacchetti Windows</string>
+      <string id="EnableLocalManifestFilesExplanation">Questo criterio Controlla se gli utenti possono installare pacchetti con file di manifesto locali.
+
+Se si Abilita o non si configura questa impostazione, gli utenti potranno installare pacchetti con manifesti locali tramite Windows Gestione pacchetti.
+
+Se si disabilita questa impostazione, gli utenti non saranno in grado di installare pacchetti con manifesti locali tramite Windows Gestione pacchetti.</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Abilita il bypass di convalida del certificato di Microsoft Store di Gestione pacchetti Windows</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">Questo criterio consente di stabilire se Gestione pacchetti Windows convaliderà la corrispondenza dell'hash del certificato Microsoft Store con un certificato Microsoft Store noto quando si avvia una connessione all'origine Microsoft Store. 
+Se si abilita questo criterio, Gestione pacchetti Windows ignorerà la convalida del certificato Microsoft Store. 
+
+Se si disabilita questo criterio, Gestione pacchetti Windows convaliderà il certificato Microsoft Store usato affinché sia valido e appartenga a Microsoft Store prima di comunicare con l'origine Microsoft Store.
+
+Se non si configura questo criterio, verranno rispettate le impostazioni dell'amministratore di Gestione pacchetti Windows.</string>
+      <string id="EnableHashOverride">Abilita l’override dell’hash di Gestione pacchetti Windows</string>
+      <string id="EnableHashOverrideExplanation">Questa impostazione dei criteri consente di specificare se Windows Gestione pacchetti può essere configurato per abilitare la possibilità di ignorare la convalida di sicurezza SHA256 nelle impostazioni.
+
+Se si Abilita o non si configura questa impostazione dei criteri, gli utenti potranno abilitare la funzionalità di poter ignorare la convalida della sicurezza SHA256 nelle impostazioni di Windows Gestione pacchetti.
+
+Se si disabilita questa impostazione dei criteri, gli utenti non potranno abilitare la funzionalità di ignorare la convalida della sicurezza SHA256 nelle impostazioni di Windows Gestione pacchetti.</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">Abilita l'override dell'analisi malware dell'archivio locale di Gestione pacchetti Windows</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">Questo criterio consente di controllare la possibilità di eseguire l'override delle analisi di vulnerabilità malware durante l'installazione di un file di archivio usando un manifesto locale usando gli argomenti della riga di comando.
+Se si abilita questo criterio, gli utenti potranno eseguire l'override dell'analisi antimalware durante l'installazione di un manifesto locale di un file di archivio.
+
+Se si disabilita questo criterio, gli utenti non potranno eseguire l'override dell'analisi malware di un file di archivio durante l'installazione con un manifesto locale.
+
+Se non si configura questo criterio, le impostazioni dell'amministratore di Gestione pacchetti Windows saranno conformi.</string>
+      <string id="EnableDefaultSource">Abilita l’origine predefinita di Gestione pacchetti Windows</string>
+      <string id="EnableDefaultSourceExplanation">Questo criterio controlla l'origine predefinita inclusa in Gestione pacchetti Windows.
+
+Se non si configura questa impostazione, l'origine predefinita per il gestore dei pacchetti di Windows sarà disponibile e potrà essere rimossa.
+
+Se si abilita questa impostazione, l'origine predefinita per Windows Gestione pacchetti sarà disponibile e non potrà essere rimossa.
+
+Se si disabilita questa impostazione, l'origine predefinita per Windows Gestione pacchetti non sarà disponibile.</string>
+      <string id="EnableMicrosoftStoreSource">Abilita l’origine di Microsoft Store di Gestione pacchetti Windows</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Questo criterio controlla l'origine Microsoft Store inclusa in Windows Gestione pacchetti.
+
+Se non si configura questa impostazione, l'origine Microsoft Store per il gestore dei pacchetti di Windows sarà disponibile e potrà essere rimossa.
+
+Se si abilita questa impostazione, l'origine Microsoft Store per Windows Gestione pacchetti sarà disponibile e non potrà essere rimossa.
+
+Se si disabilita questa impostazione, l'origine Microsoft Store per Windows Gestione pacchetti non sarà disponibile.</string>
+      <string id="EnableFontSource">Abilita origine carattere Gestione pacchetti Windows</string>
+      <string id="EnableFontSourceExplanation">
+        Questo criterio controlla l'origine carattere inclusa nel Gestione pacchetti Windows.
+
+        Se non si configura questa impostazione, l'origine del tipo di carattere per Gestione pacchetti Windows sarà disponibile e può essere rimossa.
+
+        Se si abilita questa impostazione, l'origine carattere per il Gestione pacchetti Windows sarà disponibile e non potrà essere rimossa.
+
+        Se si disabilita questa impostazione, l'origine carattere per il Gestione pacchetti Windows non sarà disponibile.
+      </string>
+      <string id="SourceAutoUpdateInterval">Imposta l’intervallo di aggiornamento automatico di origine Gestione pacchetti Windows in minuti</string>
+      <string id="SourceAutoUpdateIntervalExplanation">Questo criterio controlla l'intervallo di aggiornamento automatico per le origini basate su pacchetto. L'origine predefinita per Gestione pacchetti Windows è configurata in modo che un indice dei pacchetti venga memorizzato nella cache nel computer locale. L'indice viene scaricato quando un utente richiama un comando e l'intervallo è passato.
+
+Se si disabilita o non si configura questa impostazione, verrà utilizzato l'intervallo predefinito o il valore specificato nelle impostazioni Gestione pacchetti Windows.
+
+Se si abilita questa impostazione, il numero di minuti specificato verrà utilizzato dal Gestione pacchetti Windows.</string>
+      <string id="EnableAdditionalSources">Abilita le origini aggiuntive di Gestione pacchetti Windows</string>
+      <string id="EnableAdditionalSourcesExplanation">Questo criterio controlla le origini aggiuntive fornite dall'amministratore IT dell'organizzazione.
+
+Se non si configura questa impostazione dei criteri, non verrà configurata alcuna origine aggiuntiva per Windows Gestione pacchetti.
+
+Se si Abilita questo criterio, le origini aggiuntive verranno aggiunte a Windows Gestione pacchetti e non potranno essere rimosse. È possibile ottenere la rappresentazione di ogni origine aggiuntiva dalle origini installate usando 'esportazione di origine winget'.
+
+Se si disabilita questo criterio, non sarà possibile configurare altre origini per Windows Gestione pacchetti.</string>
+      <string id="EnableAllowedSources">Abilita le origini consentite di Gestione pacchetti Windows</string>
+      <string id="EnableAllowedSourcesExplanation">Questo criterio controlla le origini aggiuntive fornite dall'amministratore IT dell'organizzazione.
+
+Se non si configura questa impostazione dei criteri, gli utenti potranno aggiungere o rimuovere ulteriori origini oltre quelle configurate dal criterio.
+
+Se si Abilita questo criterio, solo le origini specificate possono essere aggiunte o rimosse a Windows Gestione pacchetti. È possibile ottenere la rappresentazione di ogni origine aggiuntiva dalle origini installate usando 'esportazione di origine winget'.
+
+Se si disabilita questo criterio, non sarà possibile configurare altre origini per Windows Gestione pacchetti.</string>
+      <string id="EnableMSAppInstallerProtocol">Abilita protocollo del programma di installazione app ms-appinstaller</string>
+      <string id="EnableMSAppInstallerProtocolExplanation">Questo criterio controlla se gli utenti possono installare pacchetti da un sito Web che usa il protocollo ms-appinstaller.
+
+Se si abilita questa impostazione, gli utenti potranno installare pacchetti da siti Web che utilizzano questo protocollo.
+
+Se si disabilita o non si configura questa impostazione, gli utenti non potranno installare pacchetti da siti Web che utilizzano questo protocollo.</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfaces">Abilita Gestione interfacce della riga di comando dei pacchetti Windows</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">Questo criterio determina se un utente può eseguire un'azione usando Gestione pacchetti Windows tramite un'interfaccia della riga di comando (interfaccia della riga di comando di WinGet o WinGet PowerShell).
+
+        Se si disabilita questo criterio, gli utenti non saranno in grado di eseguire l'interfaccia della riga di comando Gestione pacchetti Windows e i cmdlet di PowerShell.
+
+        Se si abilita o non si configura questo criterio, gli utenti non saranno in grado di eseguire l'interfaccia della riga di comando Gestione pacchetti Windows e i cmdlet di PowerShell. (se il criterio "Abilita programma di installazione app" non è disabilitato).
+
+        Questo criterio non sostituisce il criterio "Abilita programma di installazione app".</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Abilita la configurazione di Gestione pacchetti</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">Questo criterio controlla se la funzionalità di configurazione Gestione pacchetti Windows può essere usata dagli utenti.
+
+Se si abilita o non si configura questa impostazione, gli utenti potranno usare la funzionalità di configurazione Gestione pacchetti Windows.
+
+Se si disabilita questa impostazione, gli utenti non potranno usare la funzionalità di configurazione Gestione pacchetti Windows.</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptions">Abilita le opzioni della riga di comando del proxy Gestione pacchetti Windows</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptionsExplanation">
+        Questo criterio controlla se l'utilizzo Gestione pacchetti Windows del proxy può essere configurato dagli utenti tramite la riga di comando.
+
+Se si abilita questa impostazione, gli utenti potranno configurare l'uso del proxy da parte del Gestione pacchetti Windows tramite la riga di comando.
+
+Se si disabilita o non si configura questa impostazione, gli utenti non potranno configurare l'utilizzo del proxy da parte del Gestione pacchetti Windows tramite la riga di comando.</string>
+      <string id="EnableWindowsPackageManagerMcpServer">Abilitare il server MCP per Gestione pacchetti Windows</string>
+      <string id="EnableWindowsPackageManagerMcpServerExplanation">
+        Questo criterio controlla se è possibile utilizzare il server MCP (Model Context Protocol) Gestione pacchetti Windows.
+
+Se si abilita o non si configura questa impostazione, gli utenti potranno utilizzare il server MCP del Gestione pacchetti Windows.
+
+Se si disabilita questa impostazione, gli utenti non potranno utilizzare il server MCP del Gestione pacchetti Windows.</string>
+      <string id="WindowsPackageManagerDefaultProxy">Imposta proxy predefinito Gestione pacchetti Windows</string>
+      <string id="WindowsPackageManagerDefaultProxyExplanation">Questo criterio controlla il proxy predefinito utilizzato dal Gestione pacchetti Windows.
+
+Se si disabilita o non si configura questa impostazione, per impostazione predefinita non verrà utilizzato alcun proxy.
+
+Se si abilita questa impostazione, per impostazione predefinita verrà utilizzato il proxy specificato.</string>
+      <string id="EnableMsixAllowedZones">Abilita le zone consentite del programma di installazione app per i pacchetti MSIX</string>
+      <string id="EnableMsixAllowedZonesExplanation">Questo criterio controlla se Programma di installazione app consente l'installazione di pacchetti provenienti da aree URL specifiche. L'origine di un pacchetto è determinata dal relativo URI e dalla presenza di un Mart-of-the-Web (MotW). Se sono coinvolti più URI, vengono considerati tutti; ad esempio, quando si utilizza un file con estensione appinstaller che implica il reindirizzamento.
+
+Se si abilita questo criterio, gli utenti potranno installare i pacchetti MSIX in base alla configurazione per ogni area.
+
+Se si disabilita o non si configura questo criterio, gli utenti potranno installare pacchetti MSIX da qualsiasi area, ad eccezione di Non attendibili.</string>
+      <string id="ZoneAllowed">Consenti</string>
+      <string id="ZoneBlocked">Blocca</string>
+      <string id="EnableMsixSmartScreenCheck">Abilita i controlli di Microsoft SmartScreen per i pacchetti MSIX</string>
+      <string id="EnableMsixSmartScreenCheckExplanation">Questo criterio controlla se Programma di installazione app esegue controlli Microsoft SmartScreen durante l'installazione dei pacchetti MSIX.
+
+Se si abilita o non si configura questo criterio, l'URI del pacchetto verrà valutato con Microsoft SmartScreen prima dell'installazione. Questo controllo viene eseguito solo per i pacchetti provenienti da Internet.
+
+Se si disabilita, Microsoft SmartScreen non verrà avvisato prima di installare un pacchetto.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateInterval">
+        <decimalTextBox refId="SourceAutoUpdateInterval" defaultValue="5">Intervallo di aggiornamento automatico di origine in minuti</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Origini aggiuntive: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Origini consentite: </listBox>
+      </presentation>
+      <presentation id="WindowsPackageManagerDefaultProxy">
+        <textBox refId="WindowsPackageManagerDefaultProxy">
+          <label>Proxy predefinito</label>
+        </textBox>
+      </presentation>
+      <presentation id="MsixAllowedZones">
+        <dropdownList refId="LocalMachine" noSort="true" defaultItem="1">Computer locale</dropdownList>
+        <dropdownList refId="Intranet" noSort="true" defaultItem="1">Intranet</dropdownList>
+        <dropdownList refId="TrustedSites" noSort="true" defaultItem="1">Siti attendibili</dropdownList>
+        <dropdownList refId="Internet" noSort="true" defaultItem="1">Internet</dropdownList>
+        <dropdownList refId="UntrustedSites" noSort="true" defaultItem="0">Siti non attendibili</dropdownList>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

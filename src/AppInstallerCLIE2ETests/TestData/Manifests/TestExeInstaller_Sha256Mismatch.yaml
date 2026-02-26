@@ -5,8 +5,8 @@ Publisher: AppInstallerTest
 License: Test
 Installers:
   - Arch: x86
-    Url: https://github.com/microsoft/appinstaller-cli/raw/master/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestExeInstaller.exe
-    Sha256: 7c616e2fe3853b555ddea4cb50bd307da1dc47898a5fbc3a8646a470107802aa
+    Url: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    Sha256: 0000000000000000000000000000000000000000000000000000000000000000
     InstallerType: exe
     Switches:
       Custom: /execustom

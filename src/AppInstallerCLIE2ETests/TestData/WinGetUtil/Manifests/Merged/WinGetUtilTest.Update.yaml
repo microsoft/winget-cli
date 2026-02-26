@@ -1,0 +1,16 @@
+Installers:
+- Architecture: x86
+  InstallerSha256: 0000000000000000000000000000000000000000000000000000000000000000
+  InstallerType: exe
+  InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+License: Test
+ManifestType: merged
+ManifestVersion: 1.1.0
+MinimumOSVersion: 10.0.0.0
+PackageIdentifier: AppInstallerTest.WinGetUtilTest
+PackageLocale: en-US
+PackageName: AppInstallerTest
+PackageVersion: 1.0.0.0
+Publisher: AppInstallerTest
+Tags:
+- update

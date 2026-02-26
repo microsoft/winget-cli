@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
 #include "pch.h"
 #include "winget/ExtensionCatalog.h"
 #include "AppInstallerErrors.h"
@@ -28,6 +27,13 @@ namespace AppInstaller::Deployment
     winrt::Windows::ApplicationModel::PackageVersion Extension::GetPackageVersion() const
     {
         return m_extension.Package().Id().Version();
+    }
+
+    bool Extension::VerifyContentIntegrity(IProgressCallback& progress)
+    {
+        auto operation = m_extension.Package().VerifyContentIntegrityAsync();
+        auto removeCancel = progress.SetCancellationFunction([&]() { operation.Cancel(); });
+        return operation.get();
     }
 
     ExtensionCatalog::ExtensionCatalog(std::wstring_view extensionName)

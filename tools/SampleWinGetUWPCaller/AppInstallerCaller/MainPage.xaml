@@ -1,0 +1,117 @@
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<Page
+    x:Class="AppInstallerCaller.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:AppInstallerCaller"
+    xmlns:deployment="using:Microsoft.Management.Deployment"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <ResourceDictionary>
+            <Style TargetType="StackPanel">
+                <Setter Property="Margin" Value="5" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+            </Style>
+            <Style TargetType="Button">
+                <Setter Property="Margin" Value="5" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+            </Style>
+        </ResourceDictionary>
+    </Page.Resources>
+
+    <Grid MinWidth="800" MinHeight="600">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <ToggleSwitch x:Name="toggleDevSwitch" Toggled="ToggleDevSwitchToggled">Use WinGetDev</ToggleSwitch>
+
+        <StackPanel Grid.Row="1">
+            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}">Select catalog</TextBlock>
+
+            <Button x:Name="findSourcesButton" Click="FindSourcesButtonClickHandler">Find Catalogs</Button>
+            <TextBlock>Select catalog to search</TextBlock>
+            <ListBox x:Name="catalogsListBox" ItemsSource="{x:Bind PackageCatalogs}" SelectionMode="Single" Height="200">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="deployment:PackageCatalogReference">
+                        <TextBlock Text="{x:Bind Info.Name, Mode=OneTime}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="1">
+            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}">Install app</TextBlock>
+
+            <StackPanel Orientation="Horizontal">
+                <TextBox x:Name="catalogIdTextBox" Header="Find an app to install:" PlaceholderText="App Id (e.g. Microsoft.Teams)"></TextBox>
+                <Button x:Name="searchButton" Click="SearchButtonClickHandler" VerticalAlignment="Bottom" Margin="0">🔍</Button>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="installButton" Click="InstallButtonClickHandler" IsEnabled="False">Install</Button>
+                <Button x:Name="cancelButton" Click="CancelButtonClickHandler" IsEnabled="False">Cancel</Button>
+            </StackPanel>
+
+            <ProgressBar x:Name="installProgressBar" Value="0" Maximum="100" Width="200px"/>
+            <TextBlock x:Name="installStatusText" Text="" HorizontalAlignment="Center"/>
+
+            <TextBox x:Name="downloadDirectoryTextBox" Header="Download Location:" PlaceholderText="Existing directory path to download to"></TextBox>
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="downloadButton" Click="DownloadButtonClickHandler" IsEnabled="False">Download</Button>
+                <Button x:Name="downloadCancelButton" Click="DownloadCancelButtonClickHandler" IsEnabled="False">Cancel</Button>
+            </StackPanel>
+
+            <ProgressBar x:Name="downloadProgressBar" Value="0" Maximum="100" Width="200px"/>
+            <TextBlock x:Name="downloadStatusText" Text="" HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Margin="3">
+            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}">Installed apps</TextBlock>
+            <TextBlock>List installed apps from selected catalog</TextBlock>
+            <StackPanel Orientation="Horizontal" >
+                <Button x:Name="refreshButton" Click="RefreshInstalledButtonClickHandler" IsEnabled="True">Refresh</Button>
+                <Button x:Name="clearInstalledButton" Click="ClearInstalledButtonClickHandler" IsEnabled="True">Clear</Button>
+            </StackPanel>
+            <TextBlock x:Name="installedStatusText" Text=""/>
+            <ListBox x:Name="installedListBox" ItemsSource="{x:Bind InstalledApps}" Height="300" ScrollViewer.VerticalScrollBarVisibility="Visible">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="deployment:CatalogPackage">
+                        <TextBlock Text="{x:Bind Name, Mode=OneWay}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.Column="1" Margin="3">
+            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}">Installing apps</TextBlock>
+            <TextBlock>List apps being installed from selected catalog</TextBlock>
+            <StackPanel Orientation="Horizontal" >
+                <Button x:Name="installingRefreshButton" Click="RefreshInstallingButtonClickHandler" IsEnabled="True">Refresh</Button>
+                <Button x:Name="installingClearInstalledButton" Click="ClearInstallingButtonClickHandler" IsEnabled="True">Clear</Button>
+            </StackPanel>
+            <TextBlock x:Name="installingStatusText" Text=""/>
+            <ListBox x:Name="installingListBox" ItemsSource="{x:Bind InstallingPackages}" Height="300" ScrollViewer.VerticalScrollBarVisibility="Visible">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="local:InstallingPackageView">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="{x:Bind Package.Id, Mode=OneWay}"/>
+                            <ProgressBar Value="{x:Bind Progress, Mode=OneWay}" Maximum="100" Width="200px"></ProgressBar>
+                            <TextBlock Text="{x:Bind StatusText, Mode=OneWay}" HorizontalAlignment="Center"></TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+    </Grid>
+</Page>

@@ -1,138 +1,100 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <AppInstallerLogging.h>
-#include <AppInstallerRepositorySearch.h>
-#include <AppInstallerRepositorySource.h>
-#include <Manifest/Manifest.h>
+#include "winget/ThreadGlobals.h"
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
+#include "ExecutionContextData.h"
+#include "CompletionData.h"
+#include "CheckpointManager.h"
+#include <AppInstallerProgress.h>
+#include <winget/Checkpoint.h>
 
-#include <filesystem>
-#include <map>
-#include <string>
-#include <utility>
-#include <variant>
-#include <vector>
+#include <string_view>
 
+#define WINGET_CATCH_RESULT_EXCEPTION_STORE(exceptionHR)   catch (const wil::ResultException& re) { exceptionHR = re.GetErrorCode(); }
+#define WINGET_CATCH_HRESULT_EXCEPTION_STORE(exceptionHR)   catch (const winrt::hresult_error& hre) { exceptionHR = hre.code(); }
+#define WINGET_CATCH_COMMAND_EXCEPTION_STORE(exceptionHR)   catch (const ::AppInstaller::CLI::CommandException&) { exceptionHR = APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS; }
+#define WINGET_CATCH_POLICY_EXCEPTION_STORE(exceptionHR)   catch (const ::AppInstaller::Settings::GroupPolicyException&) { exceptionHR = APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY; }
+#define WINGET_CATCH_STD_EXCEPTION_STORE(exceptionHR, genericHR)   catch (const std::exception&) { exceptionHR = genericHR; }
+#define WINGET_CATCH_ALL_EXCEPTION_STORE(exceptionHR, genericHR)   catch (...) { exceptionHR = genericHR; }
+#define WINGET_CATCH_STORE(exceptionHR, genericHR) \
+        WINGET_CATCH_RESULT_EXCEPTION_STORE(exceptionHR) \
+        WINGET_CATCH_HRESULT_EXCEPTION_STORE(exceptionHR) \
+        WINGET_CATCH_COMMAND_EXCEPTION_STORE(exceptionHR) \
+        WINGET_CATCH_POLICY_EXCEPTION_STORE(exceptionHR) \
+        WINGET_CATCH_STD_EXCEPTION_STORE(exceptionHR, genericHR) \
+        WINGET_CATCH_ALL_EXCEPTION_STORE(exceptionHR, genericHR)
 
 // Terminates the Context with some logging to indicate the location.
 // Also returns from the current function.
-#define AICLI_TERMINATE_CONTEXT_ARGS(_context_,_hr_) \
+#define AICLI_TERMINATE_CONTEXT_ARGS(_context_,_hr_,_ret_) \
     do { \
-        HRESULT AICLI_TERMINATE_CONTEXT_ARGS_hr = _hr_; \
-        ::AppInstaller::Logging::Telemetry().LogCommandTermination(AICLI_TERMINATE_CONTEXT_ARGS_hr, __FILE__, __LINE__); \
-        _context_.Terminate(AICLI_TERMINATE_CONTEXT_ARGS_hr); \
-        return; \
+        _context_.Terminate(_hr_, __FILE__, __LINE__); \
+        return _ret_; \
     } while(0,0)
 
-// Terminates the Context namd 'context' with some logging to indicate the location.
+// Terminates the Context named 'context' with some logging to indicate the location.
 // Also returns from the current function.
-#define AICLI_TERMINATE_CONTEXT(_hr_)   AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_)
+#define AICLI_TERMINATE_CONTEXT(_hr_)   AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_,)
+
+// Terminates the Context named 'context' with some logging to indicate the location.
+// Also returns the specified value from the current function.
+#define AICLI_TERMINATE_CONTEXT_RETURN(_hr_,_ret_) AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_,_ret_)
+
+// Returns if the context is terminated.
+#define AICLI_RETURN_IF_TERMINATED(_context_) if ((_context_).IsTerminated()) { return; }
+
+namespace AppInstaller::CLI
+{
+    struct Command;
+}
 
 namespace AppInstaller::CLI::Workflow
 {
     struct WorkflowTask;
+    enum class ExecutionStage : uint32_t;
 }
 
 namespace AppInstaller::CLI::Execution
 {
-    // Names a piece of data stored in the context by a workflow step.
-    // Must start at 0 to enable direct access to variant in Context.
-    // Max must be last and unused.
-    enum class Data : size_t
+    // bit masks used as Context flags
+    enum class ContextFlag : int
     {
-        Source,
-        SearchResult,
-        SourceList,
-        Manifest,
-        Installer,
-        HashPair,
-        InstallerPath,
-        LogPath,
-        InstallerArgs,
-        Max
+        None = 0x0,
+        InstallerExecutionUseUpdate = 0x1,
+        InstallerHashMatched = 0x2,
+        InstallerTrusted = 0x4,
+        // Allows a failure in a single source to generate a warning rather than an error.
+        // TODO: Remove when the source interface is refactored.
+        TreatSourceFailuresAsWarning = 0x8,
+        ShowSearchResultsOnPartialFailure = 0x10,
+        DisableInteractivity = 0x40,
+        BypassIsStoreClientBlockedPolicyCheck = 0x80,
+        InstallerDownloadOnly = 0x100,
+        Resume = 0x200,
+        RebootRequired = 0x400,
+        RegisterResume = 0x800,
+        InstallerExecutionUseRepair = 0x1000,
     };
 
-    namespace details
-    {
-        template <Data D>
-        struct DataMapping
-        {
-            // value_t type specifies the type of this data
-        };
+    DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
 
-        template <>
-        struct DataMapping<Data::Source>
-        {
-            using value_t = std::shared_ptr<Repository::ISource>;
-        };
-
-        template <>
-        struct DataMapping<Data::SearchResult>
-        {
-            using value_t = Repository::SearchResult;
-        };
-
-        template <>
-        struct DataMapping<Data::SourceList>
-        {
-            using value_t = std::vector<Repository::SourceDetails>;
-        };
-
-        template <>
-        struct DataMapping<Data::Manifest>
-        {
-            using value_t = Manifest::Manifest;
-        };
-
-        template <>
-        struct DataMapping<Data::Installer>
-        {
-            using value_t = std::optional<Manifest::ManifestInstaller>;
-        };
-
-        template <>
-        struct DataMapping<Data::HashPair>
-        {
-            using value_t = std::pair<std::vector<uint8_t>, std::vector<uint8_t>>;
-        };
-
-        template <>
-        struct DataMapping<Data::InstallerPath>
-        {
-            using value_t = std::filesystem::path;
-        };
-
-        template <>
-        struct DataMapping<Data::LogPath>
-        {
-            using value_t = std::filesystem::path;
-        };
-
-        template <>
-        struct DataMapping<Data::InstallerArgs>
-        {
-            using value_t = std::string;
-        };
-
-        // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.
-        template <size_t... I>
-        inline auto Deduce(std::index_sequence<I...>) { return std::variant<std::monostate, DataMapping<static_cast<Data>(I)>::value_t...>{}; }
-
-        // Holds data of any type listed in a DataMapping.
-        using DataVariant = decltype(Deduce(std::make_index_sequence<static_cast<size_t>(Data::Max)>()));
-
-        // Gets the index into the variant for the given Data.
-        constexpr inline size_t DataIndex(Data d) { return static_cast<size_t>(d) + 1; }
-    }
+    // Callback to log data actions.
+    void ContextEnumBasedVariantMapActionCallback(const void* map, Data data, EnumBasedVariantMapAction action);
 
     // The context within which all commands execute.
     // Contains input/output via Execution::Reporter and
     // arguments via Execution::Args.
-    struct Context
+    struct Context : EnumBasedVariantMap<Data, details::DataMapping, ContextEnumBasedVariantMapActionCallback>, ICancellable
     {
+        Context() = default;
         Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
+
+        // Constructor for creating a sub-context.
+        Context(Execution::Reporter& reporter, ThreadLocalStorage::WingetThreadGlobals& threadGlobals) :
+            Reporter(reporter, Execution::Reporter::clone_t{}),
+            m_threadGlobals(std::make_shared<ThreadLocalStorage::WingetThreadGlobals>(threadGlobals, ThreadLocalStorage::WingetThreadGlobals::create_sub_thread_globals_t{})) {}
 
         virtual ~Context();
 
@@ -142,9 +104,14 @@ namespace AppInstaller::CLI::Execution
         // The arguments given to execute with.
         Args Args;
 
-        // Enables reception of CTRL signals.
-        // Only one context can be enabled to handle CTRL signals at a time.
-        void EnableCtrlHandler(bool enabled = true);
+        // Creates a empty context, inheriting 
+        Context CreateEmptyContext();
+
+        // Creates a child of this context.
+        virtual std::unique_ptr<Context> CreateSubContext();
+
+        // Enables reception of CTRL signals and window messages.
+        void EnableSignalTerminationHandler(bool enabled = true);
 
         // Applies changes based on the parsed args.
         void UpdateForArgs();
@@ -152,42 +119,93 @@ namespace AppInstaller::CLI::Execution
         // Returns a value indicating whether the context is terminated.
         bool IsTerminated() const { return m_isTerminated; }
 
+        // Resets the context to a nonterminated state. 
+        void ResetTermination() { m_terminationHR = S_OK; m_isTerminated = false; }
+
         // Gets the HRESULT reason for the termination.
         HRESULT GetTerminationHR() const { return m_terminationHR; }
 
         // Set the context to the terminated state.
-        void Terminate(HRESULT hr);
+        void Terminate(HRESULT hr, std::string_view file = {}, size_t line = {});
 
-        // Adds a value to the context data, or overwrites an existing entry.
-        // This must be used to create the initial data entry, but Get can be used to modify.
-        template <Data D>
-        void Add(typename details::DataMapping<D>::value_t&& v)
+        // Set the termination hr of the context.
+        void SetTerminationHR(HRESULT hr);
+
+        // Cancel the context; this terminates it as well as informing any in progress task to stop cooperatively.
+        // Multiple attempts with CancelReason::CancelSignal may cause the process to simply exit.
+        // The bypassUser indicates whether the user should be asked for cancellation (does not currently have any effect).
+        void Cancel(CancelReason reason, bool bypassUser = false) override;
+
+        // Gets context flags
+        ContextFlag GetFlags() const
         {
-            m_data[D].emplace<details::DataIndex(D)>(std::forward<typename details::DataMapping<D>::value_t>(v));
+            return m_flags;
         }
 
-        // Return a value indicating whether the given data type is stored in the context.
-        bool Contains(Data d) { return (m_data.find(d) != m_data.end()); }
-
-        // Gets context data; which can be modified in place.
-        template <Data D>
-        typename details::DataMapping<D>::value_t& Get()
+        // Set context flags
+        void SetFlags(ContextFlag flags)
         {
-            auto itr = m_data.find(D);
-            THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), itr == m_data.end(), "Get(%d)", D);
-            return std::get<details::DataIndex(D)>(itr->second);
+            WI_SetAllFlags(m_flags, flags);
         }
+
+        // Clear context flags
+        void ClearFlags(ContextFlag flags)
+        {
+            WI_ClearAllFlags(m_flags, flags);
+        }
+
+        virtual void SetExecutionStage(Workflow::ExecutionStage stage);
+
+        // Get Globals for Current Context
+        ThreadLocalStorage::WingetThreadGlobals& GetThreadGlobals();
+        std::shared_ptr<ThreadLocalStorage::WingetThreadGlobals> GetSharedThreadGlobals();
+
+        std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> SetForCurrentThread();
+
+        // Gets the executing command
+        AppInstaller::CLI::Command* GetExecutingCommand() { return m_executingCommand; }
+
+        // Sets the executing command
+        void SetExecutingCommand(AppInstaller::CLI::Command* command) { m_executingCommand = command; }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
-        virtual bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask&) { return true; }
+        bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
 #endif
 
+        // Returns the resume id.
+        std::string GetResumeId();
+
+        // Called by the resume command. Loads the checkpoint manager with the resume id and returns the automatic checkpoint.
+        std::optional<AppInstaller::Checkpoints::Checkpoint<AppInstaller::Checkpoints::AutomaticCheckpointData>> LoadCheckpoint(const std::string& resumeId);
+
+        // Returns data checkpoints in the order of latest checkpoint to earliest.
+        std::vector<AppInstaller::Checkpoints::Checkpoint<Execution::Data>> GetCheckpoints();
+
+        // Creates a checkpoint for the provided context data.
+        void Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData);
+
+    protected:
+        // Copies the args that are also needed in a sub-context. E.g., silent
+        void CopyArgsToSubContext(Context* subContext);
+
+        // Copies the execution data that are also needed in a sub-context. E.g., shared installer download authenticator map
+        void CopyDataToSubContext(Context* subContext);
+
+        // Neither virtual functions nor member fields can be inside AICLI_DISABLE_TEST_HOOKS
+        // or we could have ODR violations that lead to nasty bugs. So we will simply never
+        // use this if AICLI_DISABLE_TEST_HOOKS is defined.
+        std::function<bool(const Workflow::WorkflowTask&)> m_shouldExecuteWorkflowTask;
+
     private:
-        DestructionToken m_disableCtrlHandlerOnExit = false;
+        DestructionToken m_disableSignalTerminationHandlerOnExit = false;
         bool m_isTerminated = false;
         HRESULT m_terminationHR = S_OK;
-        std::map<Data, details::DataVariant> m_data;
         size_t m_CtrlSignalCount = 0;
+        ContextFlag m_flags = ContextFlag::None;
+        Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
+        std::shared_ptr<ThreadLocalStorage::WingetThreadGlobals> m_threadGlobals = std::make_shared<ThreadLocalStorage::WingetThreadGlobals>();
+        AppInstaller::CLI::Command* m_executingCommand = nullptr;
+        std::unique_ptr<AppInstaller::Checkpoints::CheckpointManager> m_checkpointManager;
     };
 }

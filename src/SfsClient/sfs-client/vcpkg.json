@@ -1,0 +1,64 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "$in-case-of-update": "If updating this file, please also update the cgmanifest.json file. See DEVELOPMENT.md for more",
+  "features": {
+    "tests": {
+      "description": "Build tests",
+      "dependencies": [
+        "catch2",
+        "cpp-httplib"
+      ]
+    }
+  },
+  "dependencies": [
+    "correlation-vector-cpp",
+    {
+      "name": "curl",
+      "features": [
+        "c-ares",
+        {
+          "name": "openssl",
+          "platform": "!windows",
+          "$comment": "TODO #42: OpenSSL is not needed on Windows yet while we don't have cert pinning. Default is schannel, which uses Windows store"
+        }
+      ]
+    },
+    "nlohmann-json"
+  ],
+  "overrides": [
+    {
+      "name": "c-ares",
+      "version": "1.19.1"
+    },
+    {
+      "name": "catch2",
+      "version": "3.4.0"
+    },
+    {
+      "name": "cpp-httplib",
+      "version": "0.15.3"
+    },
+    {
+      "name": "correlation-vector-cpp",
+      "version": "1.0"
+    },
+    {
+      "name": "curl",
+      "version": "8.9.1"
+    },
+    {
+      "name": "nlohmann-json",
+      "version": "3.11.3"
+    },
+    {
+      "name": "openssl",
+      "version": "3.1.4#1"
+    }
+  ],
+  "vcpkg-configuration": {
+    "overlay-triplets": [
+      "./vcpkg-custom-triplets"
+    ]
+  },
+  "builtin-baseline": "f56238700757aa05975e41fa835739c632810f3f"
+}

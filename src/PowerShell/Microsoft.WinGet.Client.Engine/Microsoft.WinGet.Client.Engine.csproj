@@ -1,0 +1,143 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- If these target frameworks are updated, make sure to also update the .psd1 and .nuspec files.-->
+    <!-- Keep in sync with attributes in AssemblyInfo.cs -->
+    <TargetWindowsVersion>10.0.26100.0</TargetWindowsVersion>
+    <CoreFramework>net8.0-windows$(TargetWindowsVersion)</CoreFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DesktopFramework>net48</DesktopFramework>
+    <Configurations>Debug;Release;ReleaseStatic</Configurations>
+    <CsWinRTCcwLookupTableGeneratorEnabled>false</CsWinRTCcwLookupTableGeneratorEnabled>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <BuildOutputDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</BuildOutputDirectory>
+    <OutputPath>$(BuildOutputDirectory)$(MSBuildProjectName)</OutputPath>
+    <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
+    <DocumentationFile>$(OutputPath)\Microsoft.WinGet.Client.Engine.xml</DocumentationFile>
+    <SupportedOSPlatformVersion>10.0.18362.0</SupportedOSPlatformVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\CommonFiles\PowerShellCmdlet.cs" Link="PowerShellCmdlet.cs" />
+    <Compile Include="..\CommonFiles\StreamType.cs" Link="StreamType.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Octokit" />
+    <PackageReference Include="PowerShellStandard.Library" PrivateAssets="all" />
+    <PackageReference Include="Semver" />
+    <PackageReference Include="StyleCop.Analyzers">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Security.Principal.Windows" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="Microsoft.CSharp" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" PrivateAssets="all" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
+    <PackageReference Include="System.Net.Http" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Xlang\UndockedRegFreeWinRT\src\UndockedRegFreeWinRT\UndockedRegFreeWinRT\UndockedRegFreeWinRT.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="..\..\WindowsPackageManager\WindowsPackageManager.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.WinGet.SharedLib\Microsoft.WinGet.SharedLib.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Disable warning for CS1591 because auto generated Microsoft.Management.Deployment -->
+    <!-- For our code, we still have stylecops acting on it. -->
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='ReleaseStatic'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+    <RuntimeIdentifier>win</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
+    <LangVersion>10</LangVersion>
+    <DefineConstants>$(DefineConstants);POWERSHELL_WINDOWS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.WinGet.Resources</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <Import Project="..\..\targets\EmbeddedCsWinRT.targets" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+    <CsWinRTIncludes>
+      Microsoft.Management.Deployment;
+      Windows.Data.Text.TextSegmen;
+      Windows.Devices.Geolocation;
+      Windows.Foundation;
+      Windows.Globalization.DayOfWee;
+      Windows.Networking.Connectivity;
+      Windows.Networking.DomainNameTyp;
+      Windows.Networking.EndpointPai;
+      Windows.Networking.IEndpointPai;
+      Windows.Networking.HostNam;
+      Windows.Networking.IHostNam;
+      Windows.Security.Cryptography.Certificates;
+      Windows.Storage;
+      Windows.Storage.Provider.FileUpdateStatu;
+      Windows.System.ProcessorArchitectur;
+      Windows.System.Use;
+      Windows.System.IUse;
+    </CsWinRTIncludes>
+    <CsWinRTExcludes>
+      Windows.Foundation.PropertyType;
+      Windows.Storage.Provider;
+    </CsWinRTExcludes>
+    <CsWinRTWindowsMetadata>$(TargetWindowsVersion)</CsWinRTWindowsMetadata>
+    <!-- Ensure Support for Windows 10, Version 1809 -->
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+  </PropertyGroup>
+
+</Project>

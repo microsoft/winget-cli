@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Instalador de Aplicativo</displayName>
+  <description>Instalador de Aplicativo</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Instalador de Aplicativos de Área de Trabalho</string>
+      <string id="EnableAppInstaller">Habilitar o Gerenciador de Pacotes do Windows</string>
+      <string id="EnableAppInstallerExplanation">Esta política controla se o Gerenciador de pacotes do Windows pode ser usado por usuários.
+
+Se você habilitar ou não definir essa configuração, os usuários poderão usar o Gerenciador de pacotes do Windows.
+
+Se você desabilitar essa configuração, os usuários não poderão usar o Gerenciador de pacotes do Windows.</string>
+      <string id="EnableSettings">Habilitar as Configurações do Gerenciador de Pacotes do Windows</string>
+      <string id="EnableSettingsExplanation">Esta política controla se os usuários podem alterar suas configurações.
+
+Se você habilitar ou não definir essa configuração, os usuários poderão alterar as configurações do Gerenciador de pacotes do Windows.
+
+Se você desabilitar essa configuração, os usuários não poderão alterar configurações para o Gerenciador de pacotes do Windows.</string>
+      <string id="EnableExperimentalFeatures">Habilitar Recursos Experimentais do Gerenciador de Pacotes do Windows</string>
+      <string id="EnableExperimentalFeaturesExplanation">Essa política controla se os usuários podem habilitar recursos experimentais no Gerenciador de pacotes do Windows.
+
+Se você habilitar ou não definir essa configuração, os usuários poderão habilitar recursos experimentais para o Gerenciador de pacotes do Windows.
+
+Se você desabilitar essa configuração, os usuários não poderão habilitar os recursos experimentais do Gerenciador de pacotes do Windows.</string>
+      <string id="EnableLocalManifestFiles">Habilitar Arquivos de Manifesto Local do Gerenciador de Pacotes do Windows</string>
+      <string id="EnableLocalManifestFilesExplanation">Essa política controla se os usuários podem instalar pacotes com arquivos de manifesto locais.
+
+Se você habilitar ou não definir essa configuração, os usuários poderão instalar pacotes com manifestos locais usando o Gerenciador de pacotes do Windows.
+
+Se você desabilitar essa configuração, os usuários não poderão instalar pacotes com manifestos locais usando o Gerenciador de pacotes do Windows.</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Habilitar Bypass Gerenciador de Pacotes do Windows Microsoft Store Certificado de Origem</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">Essa política controla se o Gerenciador de Pacotes do Windows validará se o hash do certificado Microsoft Store corresponde a um certificado Microsoft Store conhecido ao iniciar uma conexão com a Origem da Microsoft Store. 
+Se você habilitar essa política, o Gerenciador de Pacotes do Windows ignorará a validação do certificado da Microsoft Store. 
+
+Se você desabilitar essa política, o Gerenciador de Pacotes do Windows validará se o certificado Microsoft Store usado é válido e pertence ao Microsoft Store antes de se comunicar com a origem da Microsoft Store.
+
+Se você não definir essa política, as configurações de administrador do Gerenciador de Pacotes do Windows serão aderidas.</string>
+      <string id="EnableHashOverride">Habilitar a Substituição de Hash do Gerenciador de Pacotes do Windows</string>
+      <string id="EnableHashOverrideExplanation">Esta política controla se o Gerenciador de Pacotes do Windows pode ou não ser configurado para permitir a capacidade de substituição da validação de segurança SHA256 nas configurações.
+
+Se você habilitar ou não configurar esta política, os usuários poderão habilitar a capacidade de substituição da validação de segurança SHA256 nas configurações do Gerenciador de Pacotes do Windows.
+
+Se você desabilitar esta política, os usuários não poderão habilitar a capacidade de substituição da validação de segurança SHA256 nas configurações do Gerenciador de Pacotes do Windows.</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">Habilitar Gerenciador de Pacotes do Windows Verificação de Malware de Arquivo Morto Local</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">Esta política controla a capacidade de substituir verificações de vulnerabilidade de malware ao instalar um arquivo morto usando um manifesto local usando os argumentos de linha de comando.
+Se você habilitar essa política, os usuários poderão substituir a verificação de malware ao executar uma instalação de manifesto local de um arquivo morto.
+
+Se você desabilitar essa política, os usuários não poderão substituir a verificação de malware de um arquivo morto durante a instalação usando um manifesto local.
+
+Se você não configurar essa política, as configurações Gerenciador de Pacotes do Windows administrador serão aderidas.</string>
+      <string id="EnableDefaultSource">Habilitar a Fonte Padrão do Gerenciador de Pacotes do Windows</string>
+      <string id="EnableDefaultSourceExplanation">Esta política controla a fonte padrão incluída no Gerenciador de Pacotes do Windows.
+
+Se você não definir essa configuração, a fonte padrão do Gerenciador de Pacotes do Windows estará disponível e poderá ser removida.
+
+Se você habilitar essa configuração, a fonte padrão para o Gerenciador de Pacotes do Windows estará disponível e não poderá ser removida.
+
+Se você desabilitar esta configuração, a fonte padrão para o Gerenciador de Pacotes do Windows não estará disponível.</string>
+      <string id="EnableMicrosoftStoreSource">Habilitar a Fonte da Microsoft Store do Gerenciador de Pacotes do Windows</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Esta política controla a fonte da Microsoft Store incluída com o Gerenciador de Pacotes do Windows.
+
+Se você não definir essa configuração, a fonte da Microsoft Store para o Gerenciador do Pacote Windows estará disponível e poderá ser removida.
+
+Se você habilitar essa configuração, a fonte da Microsoft Store para o Gerenciador de Pacotes do Windows estará disponível e não poderá ser removida.
+
+Se você desabilitar esta configuração, a fonte da Microsoft Store para o Gerenciador de Pacotes do Windows não estará disponível.</string>
+      <string id="EnableFontSource">Habilitar origem da fonte do Gerenciador de pacotes do Windows</string>
+      <string id="EnableFontSourceExplanation">
+        Essa política controla a origem da fonte incluída no Gerenciador de pacotes do Windows.
+
+        Se você não definir essa configuração, a origem da fonte do Gerenciador de pacotes do Windows ficará disponível e poderá ser removida.
+
+        Se você habilitar essa configuração, a origem da fonte do Gerenciador de pacotes do Windows ficará disponível e não poderá ser removida.
+
+        Se você desabilitar essa configuração, a origem da fonte do Gerenciador de pacotes do Windows não ficará disponível.
+      </string>
+      <string id="SourceAutoUpdateInterval">Definir o Intervalo de Atualização Automática da Fonte do Gerenciador de Pacotes do Windows em Minutos</string>
+      <string id="SourceAutoUpdateIntervalExplanation">Esta política controla o intervalo de atualização automática para origens baseadas em pacote. A fonte padrão para Gerenciador de Pacotes do Windows é configurada de modo que um índice dos pacotes seja armazenado em cache no computador local. O índice é baixado quando um usuário invoca um comando e o intervalo é passado.
+
+Se você desabilitar ou não definir essa configuração, o intervalo padrão ou o valor especificado na Gerenciador de Pacotes do Windows configurações serão usadas.
+
+Se você habilitar essa configuração, o número de minutos especificado será usado pelo Gerenciador de Pacotes do Windows.</string>
+      <string id="EnableAdditionalSources">Habilitar Fontes Adicionais do Gerenciador de Pacotes do Windows</string>
+      <string id="EnableAdditionalSourcesExplanation">Esta política controla as fontes adicionais fornecidas pelo administrador de TI da empresa.
+
+Se você não configurar esta política, nenhuma fonte adicional será configurada para o Gerenciador de Pacotes do Windows.
+
+Se você habilitar essa política, as fontes adicionais serão adicionadas ao Gerenciador de Pacotes do Windows e não poderão ser removidas. A representação de cada fonte adicional poderá ser obtida a partir das fontes instaladas usando a 'exportação de fonte de winget'.
+
+Se você desabilitar esta política, nenhuma fonte adicional poderá ser configurada para o Gerenciador de Pacotes do Windows.</string>
+      <string id="EnableAllowedSources">Habilitar Fontes Permitidas do Gerenciador de Pacotes do Windows</string>
+      <string id="EnableAllowedSourcesExplanation">Esta política controla as fontes adicionais permitidas pelo administrador de TI da empresa.
+
+Se você não configurar esta política, os usuários poderão adicionar ou remover fontes adicionais além daquelas configuradas pela política.
+
+Se você habilitar essa política, apenas as fontes especificadas poderão ser adicionadas ou removidas do Gerenciador de Pacotes do Windows. A representação de cada fonte permitida pode ser obtida a partir das fontes instaladas usando a 'exportação de fonte de winget'.
+
+Se você desabilitar esta política, nenhuma fonte adicional poderá ser configurada para o Gerenciador de Pacotes do Windows.</string>
+      <string id="EnableMSAppInstallerProtocol">Ativar o protocolo ms-appinstaller do Instalador de Aplicativo</string>
+      <string id="EnableMSAppInstallerProtocolExplanation">Esta política controla se os usuários podem instalar pacotes de um site que esteja usando o protocolo ms-appinstaller.
+
+Se você habilitar essa configuração, os usuários poderão instalar pacotes de sites que usam esse protocolo.
+
+Se você desabilitar ou não definir essa configuração, os usuários não poderão instalar pacotes de sites que usam esse protocolo.</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfaces">Habilitar interfaces de linha de comando do Gerenciador de Pacotes do Windows</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">Essa política determina se um usuário pode executar uma ação usando o Gerenciador de Pacotes do Windows por meio de uma interface de linha de comando (CLI do WinGet ou WinGet PowerShell).
+
+        Se você desabilitar essa política, os usuários não poderão executar a CLI do Gerenciador de Pacotes do Windows e os cmdlets do PowerShell.
+
+        Se você habilitar ou não configurar essa política, os usuários poderão executar os comandos CLI do Gerenciador de Pacotes do Windows e os cmdlets do PowerShell. (A política “Habilitar Instalador de Aplicativo” fornecida não está desabilitada).
+
+        Essa política não substitui a política "Habilitar Instalador de Aplicativo".</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Habilitar as Configurações do Gerenciador de Pacotes do Windows</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">Esta política controla se o Gerenciador de Pacotes do Windows de configuração pode ser usado pelos usuários.
+
+Se você habilitar ou não definir essa configuração, os usuários poderão usar o recurso Gerenciador de Pacotes do Windows configuração.
+
+Se você desabilitar essa configuração, os usuários não poderão usar o recurso Gerenciador de Pacotes do Windows configuração.</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptions">Habilitar Gerenciador de Pacotes do Windows de linha de comando proxy</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptionsExplanation">
+        Esta política controla se o uso Gerenciador de Pacotes do Windows proxy pode ser configurado pelos usuários por meio da linha de comando.
+
+Se você habilitar essa configuração, os usuários poderão configurar o Gerenciador de Pacotes do Windows do proxy por meio da linha de comando.
+
+Se você desabilitar ou não definir essa configuração, os usuários não poderão configurar o uso Gerenciador de Pacotes do Windows do proxy por meio da linha de comando.</string>
+      <string id="EnableWindowsPackageManagerMcpServer">Habilitar o servidor MCP para o Gerenciador de pacotes do Windows</string>
+      <string id="EnableWindowsPackageManagerMcpServerExplanation">
+        Esta política controla se o servidor Gerenciador de Pacotes do Windows MCP (Protocolo de Contexto de Modelo) pode ser usado.
+
+Se você habilitar ou não definir essa configuração, os usuários poderão usar o Gerenciador de Pacotes do Windows MCP do servidor.
+
+Se você desabilitar essa configuração, os usuários não poderão usar o Gerenciador de Pacotes do Windows MCP do servidor.</string>
+      <string id="WindowsPackageManagerDefaultProxy">Definir Proxy Padrão do Gerenciador de Pacotes do Windows</string>
+      <string id="WindowsPackageManagerDefaultProxyExplanation">Esta política controla o proxy padrão usado pelo Gerenciador de Pacotes do Windows.
+
+Se você desabilitar ou não definir essa configuração, nenhum proxy será usado por padrão.
+
+Se você habilitar essa configuração, o proxy especificado será usado por padrão.</string>
+      <string id="EnableMsixAllowedZones">Habilitar Zonas Permitidas do Instalador de Aplicativo para Pacotes MSIX</string>
+      <string id="EnableMsixAllowedZonesExplanation">Esta política controla se Instalador de Aplicativo permite a instalação de pacotes originados de Zonas de URL específicas. A origem de um pacote é determinada por seu URI e se um Mart-of-the-Web (MotW) está presente. Se vários URIs forem envolvidos, todos eles serão considerados; por exemplo, ao usar um arquivo .appinstaller que envolve redirecionamento.
+
+Se você habilitar essa política, os usuários poderão instalar pacotes MSIX de acordo com a configuração de cada zona.
+
+Se você desabilitar ou não configurar esta política, os usuários poderão instalar pacotes MSIX de qualquer zona, exceto por Não Confiável.</string>
+      <string id="ZoneAllowed">Permitir</string>
+      <string id="ZoneBlocked">Bloquear</string>
+      <string id="EnableMsixSmartScreenCheck">Habilitar verificações do Microsoft SmartScreen para Pacotes MSIX</string>
+      <string id="EnableMsixSmartScreenCheckExplanation">Esta política controla se Instalador de Aplicativo verificações do Microsoft SmartScreen ao instalar pacotes MSIX.
+
+Se você habilitar ou não configurar essa política, o URI do pacote será avaliado com o Microsoft SmartScreen antes da instalação. Este marcar é feito somente para pacotes provenientes da Internet.
+
+Se você desabilitar, o Microsoft SmartScreen não será consultado antes de instalar um pacote.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateInterval">
+        <decimalTextBox refId="SourceAutoUpdateInterval" defaultValue="5">Intervalo de atualização automática da fonte em minutos</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Fontes Adicionais: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Fontes Permitidas: </listBox>
+      </presentation>
+      <presentation id="WindowsPackageManagerDefaultProxy">
+        <textBox refId="WindowsPackageManagerDefaultProxy">
+          <label>Proxy Padrão</label>
+        </textBox>
+      </presentation>
+      <presentation id="MsixAllowedZones">
+        <dropdownList refId="LocalMachine" noSort="true" defaultItem="1">Computador Local</dropdownList>
+        <dropdownList refId="Intranet" noSort="true" defaultItem="1">Intranet</dropdownList>
+        <dropdownList refId="TrustedSites" noSort="true" defaultItem="1">Sites Confiáveis</dropdownList>
+        <dropdownList refId="Internet" noSort="true" defaultItem="1">Internet</dropdownList>
+        <dropdownList refId="UntrustedSites" noSort="true" defaultItem="0">Sites Não Confiáveis</dropdownList>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

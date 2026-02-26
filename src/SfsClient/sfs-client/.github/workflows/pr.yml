@@ -1,0 +1,87 @@
+name: PR Build
+
+env:
+  # Set up vcpkg to read from the GitHub cache (https://learn.microsoft.com/en-us/vcpkg/consume/binary-caching-github-actions-cache)
+  VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-windows:
+    runs-on: 'windows-latest'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up required environment variables for vcpkg cache
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - name: Initialize CodeQL
+        uses: ./.github/workflows/initialize-codeql
+
+      - name: Install Winget
+        uses: ./.github/workflows/install-winget
+
+      - name: Setup
+        shell: pwsh
+        run: .\scripts\Setup.ps1
+
+      - name: Check formatting
+        shell: pwsh
+        run: python .\scripts\check-format.py
+
+      - name: Build and Test (no test overrides)
+        shell: pwsh
+        run: |
+          .\scripts\Build.ps1
+          .\scripts\Test.ps1 -OutputOnFailure
+
+      - name: Build and Test (with test overrides)
+        shell: pwsh
+        run: |
+          .\scripts\Build.ps1 -EnableTestOverrides
+          .\scripts\Test.ps1 -OutputOnFailure
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  build-ubuntu:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up required environment variables for vcpkg cache
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - name: Initialize CodeQL
+        uses: ./.github/workflows/initialize-codeql
+
+      - name: Setup
+        run: source ./scripts/setup.sh
+
+      - name: Check formatting
+        run: python ./scripts/check-format.py
+
+      - name: Build and Test (no test overrides)
+        run: |
+          ./scripts/build.sh
+          ./scripts/test.sh --output-on-failure
+
+      - name: Build and Test (with test overrides)
+        run: |
+          ./scripts/build.sh --enable-test-overrides
+          ./scripts/test.sh --output-on-failure
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3

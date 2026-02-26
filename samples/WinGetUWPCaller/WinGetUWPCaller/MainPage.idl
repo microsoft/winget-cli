@@ -1,0 +1,32 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+namespace WinGetUWPCaller
+{
+    [default_interface]
+    runtimeclass ActivePackageView : Windows.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        ActivePackageView();
+
+        Microsoft.Management.Deployment.CatalogPackage Package;
+        Windows.Foundation.IAsyncOperationWithProgress<Microsoft.Management.Deployment.InstallResult, Microsoft.Management.Deployment.InstallProgress> AsyncOperation;
+        Double Progress;
+        String StatusText;
+        Windows.UI.Core.CoreDispatcher Dispatcher;
+    }
+
+    [default_interface]
+    runtimeclass MainPage : Windows.UI.Xaml.Controls.Page
+    {
+        MainPage();
+
+        Windows.Foundation.Collections.IObservableVector<Microsoft.Management.Deployment.PackageCatalogReference> PackageCatalogs{ get; };
+        Windows.Foundation.Collections.IObservableVector<Microsoft.Management.Deployment.CatalogPackage> InstalledPackages{ get; };
+        Windows.Foundation.Collections.IObservableVector<ActivePackageView> ActivePackages{ get; };
+    }
+
+    declare
+    {
+        interface Windows.Foundation.Collections.IVector<ActivePackageView>;
+        interface Windows.Foundation.Collections.IVectorView<ActivePackageView>;
+    }
+}

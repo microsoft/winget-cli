@@ -1,38 +1,62 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "AppInstallerRuntime.h"
+#include "CheckpointManager.h"
 #include "InstallCommand.h"
+#include "Workflows/CompletionFlow.h"
+#include "Workflows/DownloadFlow.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/UpdateFlow.h"
+#include "Workflows/MultiQueryFlow.h"
+#include "Workflows/ResumeFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
-using namespace AppInstaller::Manifest;
-using namespace AppInstaller::CLI::Workflow;
-
 namespace AppInstaller::CLI
 {
-    using namespace std::string_view_literals;
-
-    constexpr std::string_view s_InstallCommand_ArgName_SilentAndInteractive = "silent|interactive"sv;
+    using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::CLI::Workflow;
+    using namespace AppInstaller::Manifest;
+    using namespace AppInstaller::Utility::literals;
 
     std::vector<Argument> InstallCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Execution::Args::Type::Query),
-            Argument::ForType(Execution::Args::Type::Manifest),
-            Argument::ForType(Execution::Args::Type::Id),
-            Argument::ForType(Execution::Args::Type::Name),
-            Argument::ForType(Execution::Args::Type::Moniker),
-            Argument::ForType(Execution::Args::Type::Version),
-            Argument::ForType(Execution::Args::Type::Channel),
-            Argument::ForType(Execution::Args::Type::Source),
-            Argument::ForType(Execution::Args::Type::Exact),
-            Argument::ForType(Execution::Args::Type::Interactive),
-            Argument::ForType(Execution::Args::Type::Silent),
-            Argument::ForType(Execution::Args::Type::Language),
-            Argument::ForType(Execution::Args::Type::Log),
-            Argument::ForType(Execution::Args::Type::Override),
-            Argument::ForType(Execution::Args::Type::InstallLocation),
+            Argument::ForType(Args::Type::MultiQuery),
+            Argument::ForType(Args::Type::Manifest),
+            Argument::ForType(Args::Type::Id),
+            Argument::ForType(Args::Type::Name),
+            Argument::ForType(Args::Type::Moniker),
+            Argument::ForType(Args::Type::Version),
+            Argument::ForType(Args::Type::Channel),
+            Argument::ForType(Args::Type::Source),
+            Argument{ Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument::ForType(Args::Type::InstallArchitecture),
+            Argument::ForType(Args::Type::InstallerType),
+            Argument::ForType(Args::Type::Exact),
+            Argument::ForType(Args::Type::Interactive),
+            Argument::ForType(Args::Type::Silent),
+            Argument::ForType(Args::Type::Locale),
+            Argument::ForType(Args::Type::Log),
+            Argument::ForType(Args::Type::CustomSwitches),
+            Argument::ForType(Args::Type::Override),
+            Argument::ForType(Args::Type::InstallLocation),
+            Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::AllowReboot),
+            Argument::ForType(Args::Type::SkipDependencies),
+            Argument::ForType(Args::Type::IgnoreLocalArchiveMalwareScan),
+            Argument::ForType(Args::Type::DependencySource),
+            Argument::ForType(Args::Type::AcceptPackageAgreements),
+            Argument::ForType(Args::Type::NoUpgrade),
+            Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AuthenticationMode),
+            Argument::ForType(Args::Type::AuthenticationAccount),
+            Argument::ForType(Args::Type::AcceptSourceAgreements),
+            Argument::ForType(Args::Type::Rename),
+            Argument::ForType(Args::Type::UninstallPrevious),
+            Argument::ForType(Args::Type::Force),
+            Argument{ Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden},
         };
     }
 
@@ -46,30 +70,99 @@ namespace AppInstaller::CLI
         return { Resource::String::InstallCommandLongDescription };
     }
 
-    std::string InstallCommand::HelpLink() const
+    void InstallCommand::Complete(Context& context, Args::Type valueType) const
     {
-        return "https://aka.ms/winget-command-install";
-    }
-
-    void InstallCommand::ExecuteInternal(Execution::Context& context) const
-    {
-        context <<
-            Workflow::GetManifest <<
-            Workflow::EnsureMinOSVersion <<
-            Workflow::SelectInstaller <<
-            Workflow::EnsureApplicableInstaller <<
-            Workflow::ShowInstallationDisclaimer <<
-            Workflow::DownloadInstaller <<
-            Workflow::VerifyInstallerHash <<
-            Workflow::ExecuteInstaller <<
-            Workflow::RemoveInstaller;
-    }
-
-    void InstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
-    {
-        if (execArgs.Contains(Execution::Args::Type::Silent) && execArgs.Contains(Execution::Args::Type::Interactive))
+        switch (valueType)
         {
-            throw CommandException(Resource::String::TooManyBehaviorsError, s_InstallCommand_ArgName_SilentAndInteractive);
+        case Args::Type::MultiQuery:
+        case Args::Type::Manifest:
+        case Args::Type::Id:
+        case Args::Type::Name:
+        case Args::Type::Moniker:
+        case Args::Type::Version:
+        case Args::Type::Channel:
+        case Args::Type::Source:
+            context <<
+                Workflow::CompleteWithSingleSemanticsForValue(valueType);
+            break;
+        case Args::Type::InstallArchitecture:
+        case Args::Type::Locale:
+            // May well move to CompleteWithSingleSemanticsForValue,
+            // but for now output nothing.
+            context <<
+                Workflow::CompleteWithEmptySet;
+            break;
+        case Args::Type::Log:
+        case Args::Type::InstallLocation:
+            // Intentionally output nothing to allow pass through to filesystem.
+            break;
+        }
+    }
+
+    Utility::LocIndView InstallCommand::HelpLink() const
+    {
+        return "https://aka.ms/winget-command-install"_liv;
+    }
+
+    void InstallCommand::ValidateArgumentsInternal(Args& execArgs) const
+    {
+        Argument::ValidateCommonArguments(execArgs);
+    }
+
+    void InstallCommand::Resume(Context& context) const
+    {
+        // TODO: Load context data from checkpoint for install command.
+        ExecuteInternal(context);
+    }
+
+    void InstallCommand::ExecuteInternal(Context& context) const
+    {
+        context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
+
+        context << InitializeInstallerDownloadAuthenticatorsMap;
+
+        if (context.Args.Contains(Execution::Args::Type::Manifest))
+        {
+            context <<
+                ReportExecutionStage(ExecutionStage::Discovery) <<
+                GetManifestFromArg <<
+                SelectInstaller <<
+                EnsureApplicableInstaller <<
+                Checkpoint("PreInstallCheckpoint", {}) << // TODO: Capture context data
+                InstallSinglePackage;
+        }
+        else
+        {
+            context <<
+                ReportExecutionStage(ExecutionStage::Discovery) <<
+                OpenSource();
+
+            if (!context.Args.Contains(Execution::Args::Type::Force))
+            {
+                context <<
+                    OpenCompositeSource(DetermineInstalledSource(context), false, Repository::CompositeSearchBehavior::AvailablePackages);
+            }
+
+            if (context.Args.Contains(Execution::Args::Type::MultiQuery))
+            {
+                ProcessMultiplePackages::Flags flags = ProcessMultiplePackages::Flags::None;
+                if (Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
+                {
+                    flags = ProcessMultiplePackages::Flags::IgnoreDependencies;
+                }
+
+                context <<
+                    GetMultiSearchRequests <<
+                    SearchSubContextsForSingle() <<
+                    ReportExecutionStage(ExecutionStage::Execution) <<
+                    ProcessMultiplePackages(Resource::String::PackageRequiresDependencies, APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED, flags);
+            }
+            else
+            {
+                context <<
+                    Checkpoint("PreInstallCheckpoint", {}) << // TODO: Capture context data
+                    InstallOrUpgradeSinglePackage(OperationType::Install);
+            }
         }
     }
 }

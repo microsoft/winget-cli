@@ -1,0 +1,15 @@
+{
+    "version": "1.0",
+    "supportedMetadataVersion": "1.0",
+    "submissionData": {
+        "submissionIdentifier": "1"
+    },
+    "packageData": {
+        "installerHash": "ABCD",
+        "DefaultLocale": {
+            "PackageLocale": "en-us",
+            "PackageName": "Name",
+            "Publisher":  "Publisher"
+        }
+    }
+}

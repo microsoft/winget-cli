@@ -1,0 +1,30 @@
+{
+  "name": "sfs-client",
+  "version": "<VERSION>",
+  "description": "Simple File Solution (SFS) Client",
+  "homepage": "https://github.com/microsoft/sfs-client",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "curl",
+      "features": [
+        "c-ares",
+        {
+          "name": "openssl",
+          "platform": "!windows",
+          "$comment": "TODO #42: OpenSSL is not needed on Windows yet while we don't have cert pinning. Default is schannel, which uses Windows store"
+        }
+      ]
+    },
+    "nlohmann-json",
+    "correlation-vector-cpp",
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    }
+  ]
+}

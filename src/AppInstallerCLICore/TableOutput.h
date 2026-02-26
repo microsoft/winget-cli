@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionReporter.h"
+#include "Resources.h"
 
 #include <array>
 #include <ostream>
@@ -11,42 +12,29 @@
 
 namespace AppInstaller::CLI::Execution
 {
-    namespace details
-    {
-        // Gets the column width of the console.
-        inline size_t GetConsoleWidth()
-        {
-            CONSOLE_SCREEN_BUFFER_INFO consoleInfo{};
-            if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleInfo))
-            {
-                return static_cast<size_t>(consoleInfo.dwSize.X);
-            }
-            else
-            {
-                return 120;
-            }
-        }
-    }
-
     // Enables output data in a table format.
+    // TODO: Improve for use with sparse data.
     template <size_t FieldCount>
     struct TableOutput
     {
+        using header_t = std::array<Resource::LocString, FieldCount>;
         using line_t = std::array<std::string, FieldCount>;
 
-        TableOutput(Reporter& reporter, line_t&& header, size_t sizingBuffer = 50) :
+        TableOutput(Reporter& reporter, header_t&& header, size_t sizingBuffer = 50) :
             m_reporter(reporter), m_sizingBuffer(sizingBuffer)
         {
             for (size_t i = 0; i < FieldCount; ++i)
             {
                 m_columns[i].Name = std::move(header[i]);
-                m_columns[i].MinLength = Utility::UTF8Length(m_columns[i].Name);
+                m_columns[i].MinLength = Utility::UTF8ColumnWidth(m_columns[i].Name.get());
                 m_columns[i].MaxLength = 0;
             }
         }
 
         void OutputLine(line_t&& line)
         {
+            m_empty = false;
+
             if (m_buffer.size() < m_sizingBuffer)
             {
                 m_buffer.emplace_back(std::move(line));
@@ -60,14 +48,22 @@ namespace AppInstaller::CLI::Execution
 
         void Complete()
         {
-            EvaluateAndFlushBuffer();
+            if (!m_empty)
+            {
+                EvaluateAndFlushBuffer();
+            }
+        }
+
+        bool IsEmpty()
+        {
+            return m_empty;
         }
 
     private:
         // A column in the table.
         struct Column
         {
-            std::string Name;
+            Resource::LocString Name;
             size_t MinLength = 0;
             size_t MaxLength = 0;
             bool SpaceAfter = true;
@@ -78,6 +74,7 @@ namespace AppInstaller::CLI::Execution
         size_t m_sizingBuffer;
         std::vector<line_t> m_buffer;
         bool m_bufferEvaluated = false;
+        bool m_empty = true;
 
         void EvaluateAndFlushBuffer()
         {
@@ -91,7 +88,7 @@ namespace AppInstaller::CLI::Execution
             {
                 for (size_t i = 0; i < FieldCount; ++i)
                 {
-                    m_columns[i].MaxLength = std::max(m_columns[i].MaxLength, Utility::UTF8Length(line[i]));
+                    m_columns[i].MaxLength = std::max(m_columns[i].MaxLength, Utility::UTF8ColumnWidth(line[i]));
                 }
             }
 
@@ -130,7 +127,7 @@ namespace AppInstaller::CLI::Execution
                 totalRequired += m_columns[i].MaxLength + (m_columns[i].SpaceAfter ? 1 : 0);
             }
 
-            size_t consoleWidth = details::GetConsoleWidth();
+            size_t consoleWidth = GetConsoleWidth();
 
             // If the total space would be too big, shrink them.
             // We don't want to use the last column, lest we auto-wrap
@@ -162,7 +159,7 @@ namespace AppInstaller::CLI::Execution
 
             for (size_t i = 0; i < FieldCount; ++i)
             {
-                headerLine[i] = m_columns[i].Name;
+                headerLine[i] = m_columns[i].Name.get();
             }
 
             OutputLineToStream(headerLine);
@@ -187,12 +184,18 @@ namespace AppInstaller::CLI::Execution
 
                 if (col.MaxLength)
                 {
-                    size_t valueLength = Utility::UTF8Length(line[i]);
+                    size_t valueLength = Utility::UTF8ColumnWidth(line[i]);
 
                     if (valueLength > col.MaxLength)
                     {
-                        out << Utility::UTF8Substring(line[i], 0, col.MaxLength - 1);
-                        out << "\xE2\x80\xA6"; // UTF8 encoding of ellipsis (…) character
+                        size_t actualWidth;
+                        out << Utility::UTF8TrimRightToColumnWidth(line[i], col.MaxLength - 1, actualWidth) << "\xE2\x80\xA6"; // UTF8 encoding of ellipsis (…) character
+
+                        // Some characters take 2 unit space, the trimmed string length might be 1 less than the expected length.
+                        if (actualWidth != col.MaxLength - 1)
+                        {
+                            out << ' ';
+                        }
 
                         if (col.SpaceAfter)
                         {

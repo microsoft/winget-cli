@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InvalidSourceExceptionMessage" xml:space="preserve">
+    <value>No source matches the given value: {0}</value>
+    <comment>{Locked="{0}"} {0} - The name of the source that was not found.</comment>
+  </data>
+  <data name="FindPackagesExceptionMessage" xml:space="preserve">
+    <value>An error occurred while searching for packages: {0}</value>
+    <comment>{Locked="{0}"} {0} - A string representation of the error status returned by the catalog.</comment>
+  </data>
+  <data name="ProgressRecordActivityInstalling" xml:space="preserve">
+    <value>Installing '{0}'</value>
+    <comment>{Locked="{0}"} {0} - The name of the package being installed.</comment>
+  </data>
+  <data name="ProgressRecordActivityUninstalling" xml:space="preserve">
+    <value>Uninstalling '{0}'</value>
+    <comment>{Locked="{0}"} {0} - The name of the package being uninstalled.</comment>
+  </data>
+  <data name="ProgressRecordActivityUpdating" xml:space="preserve">
+    <value>Updating '{0}'</value>
+    <comment>{Locked="{0}"} {0} - The name of the package being updated.</comment>
+  </data>
+  <data name="CatalogConnectExceptionMessage" xml:space="preserve">
+    <value>An error occurred while connecting to the catalog.</value>
+  </data>
+  <data name="InvalidVersionExceptionMessage" xml:space="preserve">
+    <value>No versions matched the given value: {0}</value>
+    <comment>{Locked="{0}"} {0} - The version string provided by the user.</comment>
+  </data>
+  <data name="NoPackageFoundExceptionMessage" xml:space="preserve">
+    <value>No packages matched the given input criteria.</value>
+  </data>
+  <data name="VagueCriteriaExceptionMessage" xml:space="preserve">
+    <value>{0}, {1}, and {2} other packages matched the input criteria. Please refine the input.</value>
+    <comment>{Locked="{0}","{1}","{2}"} {0} - The first conflicting package as a string. {1} - The second conflicting package. {2} - The number of other packages that also matched the input criteria.</comment>
+  </data>
+  <data name="IntegrityUnknownMessage" xml:space="preserve">
+    <value>Unable to execute winget command.</value>
+  </data>
+  <data name="WinGetCLIExceptionMessage" xml:space="preserve">
+    <value>Winget command '{0}' with parameters '{1}' failed with exit code '{2}'.</value>
+    <comment>{Locked="{0}","{1}","{2}"} {0} - The winget command executed. {1} - The parameters of the command. {2} - The exit code.</comment>
+  </data>
+  <data name="UserSettingsReadException" xml:space="preserve">
+    <value>User settings file is invalid.</value>
+  </data>
+  <data name="IntegrityAppExecutionAliasDisabledMessage" xml:space="preserve">
+    <value>The App Execution Alias for the Windows Package Manager is disabled.</value>
+  </data>
+  <data name="IntegrityAppInstallerNotInstalledMessage" xml:space="preserve">
+    <value>The App Installer is not installed.</value>
+  </data>
+  <data name="IntegrityAppInstallerNotSupportedMessage" xml:space="preserve">
+    <value>The App Installer does not contain the Windows Package Manager.</value>
+  </data>
+  <data name="IntegrityFailureMessage" xml:space="preserve">
+    <value>Windows Package Manager returned an unexcepted result.</value>
+  </data>
+  <data name="IntegrityNotInPathMessage" xml:space="preserve">
+    <value>The App Installer did not automatically add the PATH environment variable.</value>
+  </data>
+  <data name="IntegrityOsNotSupportedMessage" xml:space="preserve">
+    <value>The Windows Package Manager requires Windows Version 1809 (October 2018 Update) or later.</value>
+  </data>
+  <data name="WinGetCLITimeoutExceptionMessage" xml:space="preserve">
+    <value>Winget command timed out: {0} {1}</value>
+    <comment>{Locked="{0}","{1}"} {0} - The winget command executed. {1} - The parameters of the command.</comment>
+  </data>
+  <data name="IntegrityAppInstallerNotRegisteredMessage" xml:space="preserve">
+    <value>The App Installer is not registered.</value>
+  </data>
+  <data name="RepairAppExecutionAliasMessage" xml:space="preserve">
+    <value>The App Execution Alias for the Windows Package Manager is disabled. You should enable the App Execution Alias for the Windows Package Manager. Go to App execution aliases option in Apps &amp; features Settings to enable it.</value>
+  </data>
+  <data name="IntegrityUnexpectedVersionMessage" xml:space="preserve">
+    <value>The installed winget version doesn't match the expectation. Installer version '{0}' Expected version '{1}'</value>
+    <comment>{Locked="{0}","{1}"} {0} - The winget current installed winget version. {1} - The expected winget version.</comment>
+  </data>
+  <data name="SingleThreadedApartmentNotSupportedMessage" xml:space="preserve">
+    <value>Single threaded apartment (STA) is not currently supported in this context; run PowerShell in Multi-threaded apartment mode (MTA).</value>
+    <comment>{Locked="STA","MTA"}</comment>
+  </data>
+  <data name="WindowsPowerShellNotSupported" xml:space="preserve">
+    <value>This cmdlet is not supported in Windows PowerShell.</value>
+  </data>
+  <data name="IntegrityAppInstallerLicense" xml:space="preserve">
+    <value>No applicable license found.</value>
+  </data>
+  <data name="RepairAllUsersHelpMessage" xml:space="preserve">
+    <value>Try running with -AllUsers in administrator mode.</value>
+    <comment>{Locked="-AllUsers"}</comment>
+  </data>
+  <data name="RepairAllUsersMessage" xml:space="preserve">
+    <value>-AllUsers requires administrator mode.</value>
+    <comment>{Locked="-AllUsers"}</comment>
+  </data>
+  <data name="RepairFailureMessage" xml:space="preserve">
+    <value>Failed to repair winget.</value>
+  </data>
+  <data name="RequiresAdminMessage" xml:space="preserve">
+    <value>This cmdlet requires administrator privileges to execute.</value>
+  </data>
+  <data name="DebugNotSupported" xml:space="preserve">
+    <value>Debug parameter not supported</value>
+  </data>
+  <data name="DownloadingMessage" xml:space="preserve">
+    <value>Downloading</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Uninstalling" xml:space="preserve">
+    <value>Uninstalling</value>
+  </data>
+  <data name="ReleaseAssetNotFound" xml:space="preserve">
+    <value>Cannot find asset {0}</value>
+    <comment>{Locked="{0}"} {0} - The asset name</comment>
+  </data>
+  <data name="ProgressRecordActivityExporting" xml:space="preserve">
+    <value>Exporting '{0}'</value>
+    <comment>{Locked="{0}"} {0} - The name of the package being exported.</comment>
+  </data>
+  <data name="ProgressRecordActivityRepairing" xml:space="preserve">
+    <value>Repairing '{0}'</value>
+    <comment>{Locked="{0}"} {0} - The name of the package being repaired.</comment>
+  </data>
+  <data name="Repairing" xml:space="preserve">
+    <value>Repairing</value>
+  </data>
+  <data name="NoRepairInfoFound" xml:space="preserve">
+    <value>The repair command for this package is not available in the Package Manifest. Please reach out to the package publisher for assistance.</value>
+  </data>
+  <data name="RepairDifferentInstallTechnology" xml:space="preserve">
+    <value>The installer technology in use does not match the version currently installed.</value>
+  </data>
+  <data name="RepairerFailure" xml:space="preserve">
+    <value>The repair operation was unsuccessful, exiting with Repairer error code: {0}.</value>
+     <comment>{Locked="{0}"} {0} - The error code of the repairer.</comment>
+  </data>
+  <data name="RepairOperationNotSupported" xml:space="preserve">
+    <value>The current installer technology does not support repair. Please reach out to the package vendor for assistance.</value>
+  </data>
+  <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
+    <value>Repair operations involving administrator privileges are not permitted on packages installed within the user scope.</value>
+  </data>
+  <data name="UnknownRepairFailure" xml:space="preserve">
+    <value>An unexpected error happened while trying to repair the package. Error code:{0}</value>
+    <comment>{Locked="{0}"} {0} - The error code from the repair operation.</comment>
+  </data>
+</root>

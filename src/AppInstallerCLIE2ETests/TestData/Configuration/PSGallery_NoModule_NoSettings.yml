@@ -1,0 +1,6 @@
+properties:
+    configurationVersion: 0.1
+    resources:
+      - resource: XmlFileContentResource
+        directives:
+          description: Set XML file contents

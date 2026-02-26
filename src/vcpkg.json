@@ -1,0 +1,55 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "vcpkg-configuration": {
+    "overlay-triplets": [
+      "./VcpkgCustomTriplets"
+    ],
+    "overlay-ports": [
+      "./VcpkgPortOverlay"
+    ]
+  },
+  "builtin-baseline": "ce613c41372b23b1f51333815feb3edd87ef8a8b",
+  "dependencies": [
+    "catch2",
+    "correlation-vector-cpp",
+    {
+      "name": "curl",
+      "features": [
+        "c-ares"
+      ]
+    },
+    "cpprestsdk",
+    "detours",
+    "jsoncpp",
+    "libyaml",
+    "nlohmann-json",
+    "valijson",
+    "zlib"
+  ],
+  "overrides": [
+    {
+      "name": "c-ares",
+      "version": "1.19.1"
+    },
+    {
+      "name": "correlation-vector-cpp",
+      "version": "1.0"
+    },
+    {
+      "name": "cpprestsdk",
+      "version": "2.10.18"
+    },
+    {
+      "name": "curl",
+      "version": "8.12.1"
+    },
+    {
+      "name": "nlohmann-json",
+      "version": "3.12.0"
+    },
+    {
+      "name": "zlib",
+      "version": "1.3.1"
+    }
+  ]
+}

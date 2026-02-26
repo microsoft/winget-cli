@@ -1,0 +1,117 @@
+docsmd.alert: true
+docsmd.codesnippet: true
+docsmd.column: true
+docsmd.image: true
+docsmd.moniker: true
+docsmd.no-loc: true
+docsmd.row: true
+docsmd.securelinks: true
+docsmd.syntax: true
+docsmd.video: true
+docsmd.xref: true
+docsmd.zone: true
+
+MD001: true  # header-increment
+# MD002      # first-header-h1 - Superceded by MD041
+MD003:       # header-style
+  style: atx
+MD004:       # ul-style
+  style: dash
+MD005: true  # list-indent
+# MD006      # ul-start-left - Superceded by MD007's start_indented option
+MD007:       # ul-indent
+  indent: 2
+  start_indented: false
+# MD008      # Removed from linter; used to specify indentation for ul
+MD009:       # no-trailing-spaces
+  br_spaces: 2
+  strict: true
+MD010: true  # no-hard-tabs
+MD011: true  # no-reversed-links
+MD012: true  # no-multiple-blanks
+MD013:       # line-length
+  code_block_line_length: 90
+  code_blocks: true
+  heading_line_length: 100
+  headings: true
+  line_length: 100
+  stern: true
+  tables: false
+MD014: true  # commands-show-output
+# MD015      # "Use of non-atx style headers" - Removed from linter, replaced by MD003
+# MD016      # "Use of non-closed-atx style headers" - Removed from linter, replaced by MD003
+# MD017      # "Use of non-setext style headers" - Removed from linter, replaced by MD003
+MD018: true  # no-missing-space-atx
+MD019: true  # no-multiple-space-atx
+MD020: true  # no-missing-space-closed-atx
+MD021: true  # no-multiple-space-closed-atx
+MD022: true  # blanks-around-headers
+MD023: true  # header-start-left
+MD024:       # no-duplicate-header
+  siblings_only: true
+MD025:       # single-h1
+  front_matter_title: ''
+  level: 1
+MD026:       # no-trailing-punctuation
+  punctuation: '.,;:!。，；：！？'
+MD027: true  # no-multiple-space-blockquote
+MD028: true  # no-blanks-blockquote
+MD029:       # ol-prefix
+  style: one
+MD030: true  # list-marker-space
+MD031: true  # blanks-around-fences
+MD032: true  # blanks-around-lists
+MD033:       # no-inline-html
+  allowed_elements:
+    - a
+    - br
+    - code
+    - kbd
+    - li
+    - properties
+    - sup
+    - tags
+    - ul
+MD034: true  # no-bare-urls
+MD035:       # hr-style
+  style: '---'
+MD036: true  # no-emphasis-as-header
+MD037: true  # no-space-in-emphasis
+MD038: true  # no-space-in-code
+MD039: true  # no-space-in-links
+MD040: false # fenced-code-language
+MD041:       # first-line-h1
+  front_matter_title: ''
+MD042: true  # no-empty-links
+MD043: false # required-headers
+MD044:       # proper-names
+  code_blocks: false
+  names:
+    - PowerShell
+    - IntelliSense
+    - Authenticode
+    - CentOS
+    - Contoso
+    - CoreOS
+    - Debian
+    - Ubuntu
+    - openSUSE
+    - RHEL
+    - JavaScript
+    - .NET
+    - NuGet
+    - VS Code
+    - Newtonsoft
+MD045: true  # no-alt-text
+MD046:       # code-block-style
+  style: fenced
+MD047: true  # single-trailing-newline
+MD048:       # code-fence-style
+  style: backtick
+MD049:       # emphasis-style
+  style: underscore
+MD050:       # strong-style
+  style: asterisk
+MD051: true  # link-fragments
+MD052: true  # reference-links-images
+MD053: true  # link-image-reference-definitions

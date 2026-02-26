@@ -1,0 +1,142 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <DotNetVersion>net8.0</DotNetVersion>
+    <!-- Keep in sync with attributes in AssemblyInfo.cs -->
+    <TargetFramework>$(DotNetVersion)-windows10.0.26100.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <!-- Keep in sync with attributes in AssemblyInfo.cs -->
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Platform>AnyCpu</Platform>
+    <RuntimeIdentifier>win</RuntimeIdentifier>
+    <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Workaround for MSB3271 error on processor architecture mismatch -->
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+    <!-- Disable warning CS1591 for cswinrt auto-generated files and CS8785 for SourceGenerator compilation errors -->
+    <NoWarn>1591,8785</NoWarn>
+    <Configurations>Debug;Release;ReleaseStatic</Configurations>
+    <CsWinRTEnableLogging>true</CsWinRTEnableLogging>
+    <WinGetCsWinRTEmbedded Condition="'$(WinGetCsWinRTEmbedded)'==''">true</WinGetCsWinRTEmbedded>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='ReleaseStatic'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CsWinRTComponent>true</CsWinRTComponent>
+    <CsWinRTWindowsMetadata>10.0.26100.0</CsWinRTWindowsMetadata>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CsWinRT" />
+    <PackageReference Include="Microsoft.PowerShell.SDK" GeneratePathProperty="true">
+      <ExcludeAssets>contentFiles</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="StyleCop.Analyzers">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="System.Data.SqlClient" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(WinGetCsWinRTEmbedded)'!='true'">
+    <ProjectReference Include="..\Microsoft.Management.Configuration.Projection\Microsoft.Management.Configuration.Projection.csproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ReferenceOutputAssembly>True</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(WinGetCsWinRTEmbedded)'=='true'">
+    <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(WinGetCsWinRTEmbedded)'=='true'">
+    <DefineConstants>$(DefineConstants);WinGetCsWinRTEmbedded</DefineConstants>
+    <CsWinRTComponent>false</CsWinRTComponent>
+    <CsWinRTIncludes>
+      Microsoft.Management.Configuration;
+      Windows.ApplicationModel.AppDisplayInf;
+      Windows.ApplicationModel.IAppDisplayInf;
+      Windows.ApplicationModel.AppExecutionContex;
+      Windows.ApplicationModel.IAppExecutionContex;
+      Windows.ApplicationModel.AppInf;
+      Windows.ApplicationModel.IAppInf;
+      Windows.ApplicationModel.AppInstallerInf;
+      Windows.ApplicationModel.IAppInstallerInf;
+      Windows.ApplicationModel.AppInstallerPolicySourc;
+      Windows.ApplicationModel.AddResourcePackageOption;
+      Windows.ApplicationModel.IAddResourcePackageOption;
+      Windows.ApplicationModel.FindRelatedPackagesOption;
+      Windows.ApplicationModel.IFindRelatedPackagesOption;
+      Windows.ApplicationModel.Packag;
+      Windows.ApplicationModel.IPackag;
+      Windows.ApplicationModel.Core.AppListEntr;
+      Windows.ApplicationModel.Core.IAppListEntr;
+      Windows.Data.Text.TextSegmen;
+      Windows.Management.Deployment;
+      Windows.Devices.Geolocation;
+      Windows.Foundation;
+      Windows.Globalization.DayOfWee;
+      Windows.Networking.Connectivity;
+      Windows.Networking.DomainNameTyp;
+      Windows.Networking.EndpointPai;
+      Windows.Networking.IEndpointPai;
+      Windows.Networking.HostNam;
+      Windows.Networking.IHostNam;
+      Windows.Security.Cryptography.Certificates;
+      Windows.Storage;
+      Windows.Storage.Provider.FileUpdateStatu;
+      Windows.System.ProcessorArchitectur;
+      Windows.System.Use;
+      Windows.System.IUse;
+    </CsWinRTIncludes>
+    <CsWinRTExcludes>
+      Windows.Foundation.PropertyType;
+      Windows.Storage.Provider;
+    </CsWinRTExcludes>
+    <!-- Ensure Support for Windows 10, Version 1809 -->
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+  </PropertyGroup>
+
+  <Import Project="..\targets\EmbeddedCsWinRT.targets" Condition="'$(WinGetCsWinRTEmbedded)'=='true'" />
+
+  <Target Name="MicrosoftManagementConfigurationPathTarget" BeforeTargets="CsWinRTSetAuthoringWinMDs">
+    <PropertyGroup>
+      <MicrosoftManagementConfigurationPath>$(OutputPath)..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+      <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(SolutionDir)x64\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+      <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(SolutionDir)x86\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+      <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(SolutionDir)arm64\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+    </PropertyGroup>
+
+    <Message Importance="normal" Text="Microsoft.Management.Configuration.winmd -&gt; $(MicrosoftManagementConfigurationPath)" />
+    <Error Condition="!Exists('$(MicrosoftManagementConfigurationPath)')" Text="Microsoft.Management.Configuration.winmd was not found" />
+    <ItemGroup Condition="Exists('$(MicrosoftManagementConfigurationPath)')">
+      <CsWinRTAuthoringWinMDs Include="$(MicrosoftManagementConfigurationPath)" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="PwshFiles" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <RefFiles Include="$(PkgMicrosoft_PowerShell_SDK)\contentFiles\any\any\ref\*.*" />
+      <WinModuleFiles Include="$(PkgMicrosoft_PowerShell_SDK)\contentFiles\any\any\runtimes\win\lib\$(DotNetVersion)\Modules\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(RefFiles)" DestinationFolder="$(OutputPath)\ref\" />
+    <Copy SourceFiles="@(WinModuleFiles)" DestinationFolder="$(OutputPath)\Modules\%(RecursiveDir)\" />
+  </Target>
+
+</Project>

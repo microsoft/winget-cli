@@ -1,0 +1,29 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+#
+# -- Usage --
+# Read README.md for initial context, and instructions for VSCode and command line.
+#
+# See here for the meaning of each item in this file: https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+# To get all the options that are part of a standard style such as Microsoft, do this:
+#   > clang-format --style=Microsoft -dump-config > clang-format-microsoft.txt
+#
+# -- Philosophy --
+# We will try to adhere to the standard Microsoft style as much as possible.
+# The overrides below are deviations from the standard. Keep it short.
+---
+Language: Cpp
+BasedOnStyle: Microsoft
+
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AlwaysBreakBeforeMultilineStrings: true
+AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: false
+BinPackParameters: false
+BraceWrapping:
+  AfterCaseLabel: true
+BreakConstructorInitializers: BeforeComma
+BreakStringLiterals: false
+InsertNewlineAtEOF: true
+PackConstructorInitializers: CurrentLine
+PointerAlignment: Left

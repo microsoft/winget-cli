@@ -9,89 +9,132 @@ namespace AppInstaller::CLI
     {
         SourceCommand(std::string_view parent) : Command("source", parent) {}
 
-        virtual std::vector<std::unique_ptr<Command>> GetCommands() const override;
+        std::vector<std::unique_ptr<Command>> GetCommands() const override;
 
-        virtual Resource::LocString ShortDescription() const override;
-        virtual Resource::LocString LongDescription() const override;
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
 
-        std::string HelpLink() const override;
+        Utility::LocIndView HelpLink() const override;
 
     protected:
-        virtual void ExecuteInternal(Execution::Context& context) const;
+        void ExecuteInternal(Execution::Context& context) const override;
     };
 
     struct SourceAddCommand final : public Command
     {
-        SourceAddCommand(std::string_view parent) : Command("add", parent) {}
+        SourceAddCommand(std::string_view parent) : Command("add", {}, parent, Settings::TogglePolicy::Policy::AllowedSources) {}
 
-        virtual std::vector<Argument> GetArguments() const override;
+        std::vector<Argument> GetArguments() const override;
 
-        virtual Resource::LocString ShortDescription() const override;
-        virtual Resource::LocString LongDescription() const override;
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
 
-        std::string HelpLink() const override;
+        Utility::LocIndView HelpLink() const override;
 
     protected:
-        virtual void ExecuteInternal(Execution::Context& context) const override;
+        void ValidateArgumentsInternal(Execution::Args& execArgs) const override;
+        void ExecuteInternal(Execution::Context& context) const override;
     };
 
     struct SourceListCommand final : public Command
     {
-        SourceListCommand(std::string_view parent) : Command("list", parent) {}
+        SourceListCommand(std::string_view parent) : Command("list", { "ls" }, parent) {}
 
-        virtual std::vector<Argument> GetArguments() const override;
+        std::vector<Argument> GetArguments() const override;
 
-        virtual Resource::LocString ShortDescription() const override;
-        virtual Resource::LocString LongDescription() const override;
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
 
-        std::string HelpLink() const override;
+        void Complete(Execution::Context& context, Execution::Args::Type valueType) const override;
+
+        Utility::LocIndView HelpLink() const override;
 
     protected:
-        virtual void ExecuteInternal(Execution::Context& context) const override;
+        void ExecuteInternal(Execution::Context& context) const override;
     };
 
     struct SourceUpdateCommand final : public Command
     {
-        SourceUpdateCommand(std::string_view parent) : Command("update", parent) {}
+        SourceUpdateCommand(std::string_view parent) : Command("update", { "refresh" }, parent) {}
 
-        virtual std::vector<Argument> GetArguments() const override;
+        std::vector<Argument> GetArguments() const override;
 
-        virtual Resource::LocString ShortDescription() const override;
-        virtual Resource::LocString LongDescription() const override;
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
 
-        std::string HelpLink() const override;
+        void Complete(Execution::Context& context, Execution::Args::Type valueType) const override;
+
+        Utility::LocIndView HelpLink() const override;
 
     protected:
-        virtual void ExecuteInternal(Execution::Context& context) const override;
+        void ExecuteInternal(Execution::Context& context) const override;
     };
 
     struct SourceRemoveCommand final : public Command
     {
-        SourceRemoveCommand(std::string_view parent) : Command("remove", parent) {}
+        // We can remove user or default sources, so this is not gated by any single policy.
+        SourceRemoveCommand(std::string_view parent) : Command("remove", { "rm" }, parent) {}
 
-        virtual std::vector<Argument> GetArguments() const override;
+        std::vector<Argument> GetArguments() const override;
 
-        virtual Resource::LocString ShortDescription() const override;
-        virtual Resource::LocString LongDescription() const override;
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
 
-        std::string HelpLink() const override;
+        void Complete(Execution::Context& context, Execution::Args::Type valueType) const override;
+
+        Utility::LocIndView HelpLink() const override;
 
     protected:
-        virtual void ExecuteInternal(Execution::Context& context) const override;
+        void ExecuteInternal(Execution::Context& context) const override;
     };
 
     struct SourceResetCommand final : public Command
     {
         SourceResetCommand(std::string_view parent) : Command("reset", parent) {}
 
-        virtual std::vector<Argument> GetArguments() const override;
+        std::vector<Argument> GetArguments() const override;
 
-        virtual Resource::LocString ShortDescription() const override;
-        virtual Resource::LocString LongDescription() const override;
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
 
-        std::string HelpLink() const override;
+        void Complete(Execution::Context& context, Execution::Args::Type valueType) const override;
+
+        Utility::LocIndView HelpLink() const override;
 
     protected:
-        virtual void ExecuteInternal(Execution::Context& context) const override;
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
+
+    struct SourceExportCommand final : public Command
+    {
+        SourceExportCommand(std::string_view parent) : Command("export", parent, CommandOutputFlags::IgnoreSettingsWarnings) {}
+
+        std::vector<Argument> GetArguments() const override;
+
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
+
+        void Complete(Execution::Context& context, Execution::Args::Type valueType) const override;
+
+        Utility::LocIndView HelpLink() const override;
+
+    protected:
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
+
+    struct SourceEditCommand final : public Command
+    {
+        SourceEditCommand(std::string_view parent) : Command("edit", { "config", "set" }, parent) {}
+
+        std::vector<Argument> GetArguments() const override;
+
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
+
+        Utility::LocIndView HelpLink() const override;
+
+    protected:
+        void ValidateArgumentsInternal(Execution::Args& execArgs) const override;
+        void ExecuteInternal(Execution::Context& context) const override;
     };
 }

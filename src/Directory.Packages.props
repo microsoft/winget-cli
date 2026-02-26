@@ -1,0 +1,39 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!--
+    !!! Remove or update this on the next Microsoft.Windows.CsWinRT package version update. !!!
+    -->
+    <WindowsSdkPackageVersion>10.0.26100.53</WindowsSdkPackageVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="coverlet.collector" Version="3.1.2" />
+    <PackageVersion Include="Microsoft.ApplicationInsights" Version="2.21.0" />
+    <PackageVersion Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageVersion Include="Microsoft.Msix.Utils" Version="2.1.1" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
+    <PackageVersion Include="Microsoft.PowerShell.SDK" Version="7.4.12" />
+    <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageVersion Include="Microsoft.Windows.CsWinRT" Version="2.1.6" />
+    <PackageVersion Include="Microsoft.Windows.SDK.Contracts" Version="10.0.26100.1742" />
+    <PackageVersion Include="ModelContextProtocol" Version="0.3.0-preview.3" />
+    <PackageVersion Include="Moq" Version="4.18.2" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="nunit" Version="3.12.0" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="3.15.1" />
+    <PackageVersion Include="Octokit" Version="4.0.3" />
+    <PackageVersion Include="PowerShellStandard.Library" Version="5.1.1" />
+    <PackageVersion Include="Semver" Version="2.3.0" />
+    <PackageVersion Include="StyleCop.Analyzers" Version="1.1.118" />
+    <PackageVersion Include="System.Data.SqlClient" Version="4.9.0" />
+    <PackageVersion Include="System.Net.Http" Version="4.3.4" />
+    <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
+    <PackageVersion Include="System.Security.Principal.Windows" Version="5.0.0" />
+    <PackageVersion Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <PackageVersion Include="xunit" Version="2.4.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.5" />
+    <PackageVersion Include="YamlDotNet" Version="16.3.0" />
+  </ItemGroup>
+</Project>

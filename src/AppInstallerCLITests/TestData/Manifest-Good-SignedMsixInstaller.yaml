@@ -1,0 +1,14 @@
+PackageIdentifier: AppInstallerCliTest.GoodSignedMsixInstaller
+PackageVersion: 43690.48059.52428.56797
+PackageLocale: es-MX
+PackageName: es-MX package name
+Publisher: es-MX publisher
+PackageFamilyName: FakeInstallerForTesting_125rzkzqaqjwj
+MinimumOSVersion: 10.0.0.0
+InstallerType: msix
+Installers: 
+    - Architecture: x64
+      InstallerUrl: Installer-Signed-Good.msix
+      SignatureSha256: 50562001202c8dad456474d3f20903138d0a15c44ee497c3d4f82e85edbf2f97
+ManifestType: merged
+ManifestVersion: 1.0.0

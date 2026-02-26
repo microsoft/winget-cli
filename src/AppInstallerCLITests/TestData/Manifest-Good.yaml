@@ -16,7 +16,10 @@ Protocols: "protocol1,protocol2"
 FileExtensions: "appx,appxbundle,msix,msixbundle"
 # InstallerType and Switches CAN have a "default" value
 # on the root. An installer can override them.
-InstallerType: Zip
+InstallerType: exe
+PackageFamilyName: Microsoft.DesktopAppInstaller_8wekyb3d8bbwe
+ProductCode: "{Foo}"
+UpdateBehavior: UninstallPrevious
 Switches:
   Custom: /custom
   SilentWithProgress: /silentwithprogress
@@ -25,13 +28,15 @@ Switches:
   Language: /en-us
   Log: /log=<LOGPATH>
   InstallLocation: /dir=<INSTALLPATH>
+  Update: /update
 Installers:
   - Arch: x86
     Url: https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx86.zip
     Sha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
     Language: en-US
-    InstallerType: Zip
+    InstallerType: exe
     Scope: user
+    UpdateBehavior: Install
     Switches:
       Custom: /c
       SilentWithProgress: /sp
@@ -40,11 +45,12 @@ Installers:
       Language: /en
       Log: /l=<LOGPATH>
       InstallLocation: /d=<INSTALLPATH>
+      Update: /u
   - Arch: x64
     Url: https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx64.zip
     Sha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF0000
     Language: en-US
-    InstallerType: Zip
+    InstallerType: exe
     Scope: user
 Localization:
   - Language: es-MX

@@ -1,97 +1,92 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+// -----------------------------------------------------------------------------
+// <copyright file="SetUpFixture.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
+    using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Win32;
     using NUnit.Framework;
-    using System;
-    using System.IO;
 
+    /// <summary>
+    /// Set up fixture.
+    /// </summary>
     [SetUpFixture]
     public class SetUpFixture
     {
-        private static bool ShouldDisableDevModeOnExit = true;
+        private static bool shouldDisableDevModeOnExit = true;
+        private static bool shouldRevertDefaultFileTypeRiskOnExit = true;
+        private static bool shouldDoAnyTeardown = true;
+        private static string defaultFileTypes = string.Empty;
 
+        /// <summary>
+        /// Set up.
+        /// </summary>
         [OneTimeSetUp]
         public void Setup()
         {
-            // Read TestParameters and set runtime variables
-            TestCommon.PackagedContext = TestContext.Parameters.Exists(Constants.PackagedContextParameter) &&
-                TestContext.Parameters.Get(Constants.PackagedContextParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
+            var testParams = TestSetup.Parameters;
 
-            TestCommon.VerboseLogging = TestContext.Parameters.Exists(Constants.VerboseLoggingParameter) &&
-                TestContext.Parameters.Get(Constants.VerboseLoggingParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
-
-            TestCommon.LooseFileRegistration = TestContext.Parameters.Exists(Constants.LooseFileRegistrationParameter) &&
-                    TestContext.Parameters.Get(Constants.LooseFileRegistrationParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
-
-            TestCommon.InvokeCommandInDesktopPackage = TestContext.Parameters.Exists(Constants.InvokeCommandInDesktopPackageParameter) &&
-                TestContext.Parameters.Get(Constants.InvokeCommandInDesktopPackageParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
-
-            if (TestContext.Parameters.Exists(Constants.AICLIPathParameter))
+            if (testParams.IsDefault)
             {
-                TestCommon.AICLIPath = TestContext.Parameters.Get(Constants.AICLIPathParameter);
+                // If no parameters are provided, use defaults that work locally.
+                // This allows the user to assume responsibility for setup.
+                shouldDoAnyTeardown = false;
             }
             else
             {
-                if (TestCommon.PackagedContext)
+                shouldDisableDevModeOnExit = this.EnableDevMode(true);
+
+                shouldRevertDefaultFileTypeRiskOnExit = this.DecreaseFileTypeRisk(".exe;.msi", false);
+
+                if (testParams.PackagedContext)
                 {
-                    // For packaged context, default to AppExecutionAlias
-                    TestCommon.AICLIPath = "WinGetDev.exe";
-                }
-                else
-                {
-                    TestCommon.AICLIPath = TestCommon.GetTestFile("AppInstallerCli.exe");
-                }
-            }
-
-            if (TestContext.Parameters.Exists(Constants.AICLIPackagePathParameter))
-            {
-                TestCommon.AICLIPackagePath = TestContext.Parameters.Get(Constants.AICLIPackagePathParameter);
-            }
-            else
-            {
-                TestCommon.AICLIPackagePath = TestCommon.GetTestFile("AppInstallerCLIPackage.appxbundle");
-            }
-
-            if (TestCommon.LooseFileRegistration && TestCommon.InvokeCommandInDesktopPackage)
-            {
-                TestCommon.AICLIPath = Path.Combine(TestCommon.AICLIPackagePath, TestCommon.AICLIPath);
-            }
-
-            ShouldDisableDevModeOnExit = EnableDevMode(true);
-
-            Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)));
-            Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"ROOT\" " + TestCommon.GetTestDataFile(Constants.IndexPackageRootCert)));
-
-            if (TestCommon.PackagedContext)
-            {
-                if (TestCommon.LooseFileRegistration)
-                {
-                    Assert.True(TestCommon.InstallMsixRegister(TestCommon.AICLIPackagePath));
-                }
-                else
-                {
-                    Assert.True(TestCommon.InstallMsix(TestCommon.AICLIPackagePath));
+                    if (testParams.LooseFileRegistration)
+                    {
+                        Assert.True(TestCommon.InstallMsixRegister(testParams.AICLIPackagePath), $"InstallMsixRegister : {testParams.AICLIPackagePath}");
+                    }
+                    else
+                    {
+                        Assert.True(TestCommon.InstallMsix(testParams.AICLIPackagePath), $"InstallMsix : {testParams.AICLIPackagePath}");
+                    }
                 }
             }
+
+            if (!testParams.SkipTestSource)
+            {
+                TestIndex.GenerateE2ESource();
+            }
+
+            WinGetSettingsHelper.ForcedExperimentalFeatures = testParams.ForcedExperimentalFeatures;
+            WinGetSettingsHelper.InitializeWingetSettings();
         }
 
+        /// <summary>
+        /// Tear down.
+        /// </summary>
         [OneTimeTearDown]
         public void TearDown()
         {
-            if (ShouldDisableDevModeOnExit)
+            if (shouldDoAnyTeardown)
             {
-                EnableDevMode(false);
-            }
+                if (shouldDisableDevModeOnExit)
+                {
+                    this.EnableDevMode(false);
+                }
 
-            TestCommon.RunCommand("certutil.exe", $"-delstore \"TRUSTEDPEOPLE\" {Constants.AppInstallerTestCertThumbprint}");
-            TestCommon.RunCommand("certutil.exe", $"-delstore \"ROOT\" {Constants.IndexPackageRootCertThumbprint}");
+                if (shouldRevertDefaultFileTypeRiskOnExit)
+                {
+                    this.DecreaseFileTypeRisk(defaultFileTypes, true);
+                }
 
-            if (TestCommon.PackagedContext)
-            {
-                TestCommon.RemoveMsix(Constants.AICLIPackageName);
+                TestCommon.PublishE2ETestLogs();
+
+                if (TestSetup.Parameters.PackagedContext)
+                {
+                    TestCommon.RemoveMsix(Constants.AICLIPackageName);
+                }
             }
         }
 
@@ -103,7 +98,7 @@ namespace AppInstallerCLIE2ETests
             if (enable)
             {
                 var value = appModelUnlockKey.GetValue("AllowDevelopmentWithoutDevLicense");
-                if (value == null || (Int32)value == 0)
+                if (value == null || (int)value == 0)
                 {
                     appModelUnlockKey.SetValue("AllowDevelopmentWithoutDevLicense", 1, RegistryValueKind.DWord);
                     return true;
@@ -112,7 +107,7 @@ namespace AppInstallerCLIE2ETests
             else
             {
                 var value = appModelUnlockKey.GetValue("AllowDevelopmentWithoutDevLicense");
-                if (value != null && ((UInt32)value) != 0)
+                if (value != null && ((int)value) != 0)
                 {
                     appModelUnlockKey.SetValue("AllowDevelopmentWithoutDevLicense", 0, RegistryValueKind.DWord);
                     return true;
@@ -120,6 +115,33 @@ namespace AppInstallerCLIE2ETests
             }
 
             return false;
+        }
+
+        private bool DecreaseFileTypeRisk(string fileTypes, bool revert)
+        {
+            var defaultFileTypeRiskKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Associations");
+            string value = (string)defaultFileTypeRiskKey.GetValue("DefaultFileTypeRisk");
+
+            if (revert)
+            {
+                defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", fileTypes);
+                return false;
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    defaultFileTypes = string.Empty;
+                    defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", fileTypes);
+                }
+                else
+                {
+                    defaultFileTypes = value;
+                    defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", string.Concat(value, fileTypes));
+                }
+
+                return true;
+            }
         }
     }
 }

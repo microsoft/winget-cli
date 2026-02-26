@@ -1,0 +1,14 @@
+properties:
+    configurationVersion: 0.2
+    resources:
+      - resource: xE2ETestResource/E2ETestResourceThrows
+        directives:
+          repository: AppInstallerCLIE2ETestsRepo
+        settings:
+          key: Foo
+      - resource: xE2ETestResource/E2EFileResource
+        directives:
+          repository: AppInstallerCLIE2ETestsRepo
+        settings:
+          Path: ${WinGetConfigRoot}\IndependentResources_OneFailure.txt
+          Content: Contents!

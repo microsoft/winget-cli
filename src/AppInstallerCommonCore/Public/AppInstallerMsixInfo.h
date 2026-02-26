@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <AppInstallerProgress.h>
+#include "AppInstallerProgress.h"
+#include "winget/ManagedFile.h"
+#include "winget/Manifest.h"
+#include "winget/MsixManifest.h"
+#include <AppInstallerVersions.h>
+
 #include <AppxPackaging.h>
 
 #include <wrl/client.h>
@@ -42,10 +47,22 @@ namespace AppInstaller::Msix
     // Gets the package location from the given full name.
     std::optional<std::filesystem::path> GetPackageLocationFromFullName(std::string_view fullName);
 
+    struct PackageIdInfo
+    {
+        std::string Name;
+        AppInstaller::Utility::UInt64Version Version;
+    };
+
+    // Gets the package id info from the given full name.
+    PackageIdInfo GetPackageIdInfoFromFullName(std::string_view fullName);
+
     // MsixInfo class handles all appx/msix related query.
     struct MsixInfo
     {
         MsixInfo(std::string_view uriStr);
+
+        template<typename T, std::enable_if_t<std::is_same_v<T, std::filesystem::path>, int> = 0>
+        MsixInfo(const T& path) : MsixInfo(path.u8string()) {}
 
         MsixInfo(const MsixInfo&) = default;
         MsixInfo& operator=(const MsixInfo&) = default;
@@ -59,13 +76,21 @@ namespace AppInstaller::Msix
         }
 
         // Full content of AppxSignature.p7x
-        std::vector<byte> GetSignature();
+        // If skipP7xFileId is true, returns content of converted .p7s
+        std::vector<byte> GetSignature(bool skipP7xFileId = false);
+
+        // Gets the signature sha256 hash.
+        Utility::SHA256::HashBuffer GetSignatureHash();
+
+        // Gets the digest of the package.
+        std::wstring GetDigest();
 
         // Gets the package full name.
+        std::wstring GetPackageFullNameWide();
         std::string GetPackageFullName();
 
-        // Gets a value indicating whether the referenced info is newer than the given manifest.
-        bool IsNewerThan(const std::filesystem::path& otherManifest);
+        // Gets a value indicating whether the referenced info is newer than the given package.
+        bool IsNewerThan(const std::filesystem::path& otherPackage);
 
         bool IsNewerThan(const winrt::Windows::ApplicationModel::PackageVersion& otherVersion);
 
@@ -75,10 +100,38 @@ namespace AppInstaller::Msix
         // Writes the package's manifest to the given path.
         void WriteManifestToFile(const std::filesystem::path& target, IProgressCallback& progress);
 
+        // Writes the package file to the given file handle.
+        void WriteToFileHandle(std::string_view packageFile, HANDLE target, IProgressCallback& progress);
+
+        // Get application package manifests from msix and msixbundle.
+        std::vector<MsixPackageManifest> GetAppPackageManifests(bool includeStub = false) const;
+
     private:
         bool m_isBundle;
         Microsoft::WRL::ComPtr<IStream> m_stream;
         Microsoft::WRL::ComPtr<IAppxBundleReader> m_bundleReader;
         Microsoft::WRL::ComPtr<IAppxPackageReader> m_packageReader;
+
+        // Get application packages. Ignore stub packages if any.
+        std::vector<Microsoft::WRL::ComPtr<IAppxPackageReader>> GetAppPackages(bool includeStub = false) const;
+    };
+
+    struct GetCertContextResult
+    {
+        wil::unique_cert_context CertContext;
+        wil::unique_hcertstore CertStore;
+    };
+
+    // Get cert context from a signed msix/msixbundle file.
+    GetCertContextResult GetCertContextFromMsix(const std::filesystem::path& msixPath);
+
+    struct WriteLockedMsixFile
+    {
+        WriteLockedMsixFile(const std::filesystem::path& path);
+
+        bool ValidateTrustInfo(bool checkMicrosoftOrigin) const;
+
+    private:
+        Utility::ManagedFile m_file;
     };
 }
