@@ -182,6 +182,7 @@ namespace AppInstaller::CLI::Workflow
             StopOnFailure =         0x04,
             RefreshPathVariable =   0x08,
             DownloadOnly =          0x10,
+            DependenciesOnly =      0x20,
         };
 
         ProcessMultiplePackages(
@@ -201,6 +202,7 @@ namespace AppInstaller::CLI::Workflow
         bool m_stopOnFailure;
         bool m_refreshPathVariable;
         bool m_downloadOnly;
+        bool m_dependenciesOnly;
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ProcessMultiplePackages::Flags);

@@ -92,7 +92,9 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::NoUpgrade:
             return { type, "no-upgrade"_liv, ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::SkipDependencies:
-            return { type, "skip-dependencies"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
+            return { type, "skip-dependencies"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext, ArgTypeExclusiveSet::DependenciesConflict };
+        case Execution::Args::Type::DependenciesOnly:
+            return { type, "dependencies-only"_liv, ArgTypeCategory::InstallerBehavior, ArgTypeExclusiveSet::DependenciesConflict };
         case Execution::Args::Type::AllowReboot:
             return { type, "allow-reboot"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
 
@@ -408,6 +410,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::HelpArgumentDescription, ArgumentType::Flag };
         case Args::Type::SkipDependencies:
             return Argument{ type, Resource::String::SkipDependenciesArgumentDescription, ArgumentType::Flag, false };
+        case Args::Type::DependenciesOnly:
+            return Argument{ type, Resource::String::DependenciesOnlyArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::IgnoreLocalArchiveMalwareScan:
             return Argument{ type, Resource::String::IgnoreLocalArchiveMalwareScanArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::LocalArchiveMalwareScanOverride, Settings::BoolAdminSetting::LocalArchiveMalwareScanOverride };
         case Args::Type::SourceName:

@@ -45,6 +45,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::HashOverride),
             Argument::ForType(Args::Type::AllowReboot),
             Argument::ForType(Args::Type::SkipDependencies),
+            Argument::ForType(Args::Type::DependenciesOnly),
             Argument::ForType(Args::Type::IgnoreLocalArchiveMalwareScan),
             Argument::ForType(Args::Type::DependencySource),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
@@ -149,6 +150,10 @@ namespace AppInstaller::CLI
                 if (Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
                 {
                     flags = ProcessMultiplePackages::Flags::IgnoreDependencies;
+                }
+                else if (context.Args.Contains(Execution::Args::Type::DependenciesOnly))
+                {
+                    flags = ProcessMultiplePackages::Flags::DependenciesOnly;
                 }
 
                 context <<
