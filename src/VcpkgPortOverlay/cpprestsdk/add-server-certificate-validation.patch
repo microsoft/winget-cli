@@ -1,0 +1,169 @@
+From 888b4ed8f4f7d25cb05a47210e083fe29348163b Mon Sep 17 00:00:00 2001
+From: JohnMcPMS <johnmcp@microsoft.com>
+Date: Wed, 27 Jul 2022 18:03:45 -0700
+Subject: [PATCH] Server certificate pinning for Store source (#2347)
+
+This change adds a generic certificate chain verification infrastructure for pinning certificate chains. It is specifically used to pin the Microsoft Store source by default. More sources may be pinned later, but currently the packaged index is less in need of it because it is already signed.
+
+The pinning configuration consists of 1 or more chains, only one of which needs to successfully validate the incoming certificate. This allows for rolling to a new certificate when needed. Each chain consists of a fixed set of certificates, which can each be configured to validate any or all of the following properties:
+
+- Public Key
+- Subject
+- Issuer
+
+If the certificate is configured to validate none of the values, it will allow any certificate through.
+
+An admin setting is added to disable pinning, both as an emergency measure in the event that there is a bug or rolled certificate that was not communicated, but also because there are test scenarios where the user actively wants to disable it (HTTPS redirection via something like Fiddler).
+
+The configuration can be loaded from JSON for future dynamic configuration, but it is currently only as a test hook to enable configuration via Group Policy.
+
+In order to better secure the source by default, reconfiguring (remove then add) the Store source manually will convert it back to the built-in values. This includes the pinning configuration.
+
+It was necessary to modify the cpprestsdk subtree to add a new callback. This enables the request handle to be passed back to our code when the server certificate is first available. We can then check the server certificate against the configured pinning chain, making a decision to terminate the request before it is sent.
+---
+ .github/actions/spelling/allow.txt            |   7 +-
+ .github/actions/spelling/expect.txt           |  10 +
+ src/AppInstallerCLI.sln                       |   8 +
+ src/AppInstallerCLIE2ETests/BaseCommand.cs    |   6 +-
+ src/AppInstallerCLIE2ETests/Constants.cs      |  11 +
+ .../GroupPolicyHelper.cs                      |  44 ++
+ src/AppInstallerCLIE2ETests/SearchCommand.cs  |  73 ++-
+ src/AppInstallerCLIE2ETests/SetUpFixture.cs   |   2 +-
+ src/AppInstallerCLIE2ETests/SourceCommand.cs  |   4 +-
+ src/AppInstallerCLIE2ETests/TestCommon.cs     |  56 +-
+ src/AppInstallerCLIE2ETests/TestIndexSetup.cs |   6 +-
+ .../AppInstallerCLITests.vcxproj              |   2 +
+ .../AppInstallerCLITests.vcxproj.filters      |   3 +
+ src/AppInstallerCLITests/Certificates.cpp     | 185 ++++++
+ src/AppInstallerCLITests/Command.cpp          |   2 +-
+ src/AppInstallerCLITests/Completion.cpp       |  48 +-
+ src/AppInstallerCLITests/GroupPolicy.cpp      |  60 +-
+ src/AppInstallerCLITests/HttpClientHelper.cpp |  23 +
+ src/AppInstallerCLITests/Sources.cpp          |  41 ++
+ src/AppInstallerCLITests/Strings.cpp          |   9 +
+ src/AppInstallerCommonCore/AdminSettings.cpp  | 146 +++--
+ .../AppInstallerCommonCore.vcxproj            |   4 +
+ .../AppInstallerCommonCore.vcxproj.filters    |   9 +
+ .../AppInstallerStrings.cpp                   |  39 ++
+ src/AppInstallerCommonCore/Certificates.cpp   | 549 ++++++++++++++++++
+ src/AppInstallerCommonCore/Errors.cpp         |   2 +
+ src/AppInstallerCommonCore/GroupPolicy.cpp    |  13 +
+ .../JsonSchemaValidation.cpp                  |  36 +-
+ .../Manifest/ManifestSchemaValidation.cpp     |   3 +-
+ .../Public/AppInstallerErrors.h               |   1 +
+ .../Public/AppInstallerStrings.h              |   6 +
+ .../Public/winget/AdminSettings.h             |   1 +
+ .../Public/winget/Certificates.h              | 153 +++++
+ .../Public/winget/GroupPolicy.h               |  11 +-
+ .../Public/winget/JsonSchemaValidation.h      |   5 +-
+ .../Public/winget/Resources.h                 |  68 ++-
+ src/AppInstallerCommonCore/Resources.cpp      |  58 ++
+ src/AppInstallerCommonCore/SHA256.cpp         |  33 +-
+ src/AppInstallerCommonCore/pch.h              |   1 +
+ .../AppInstallerRepositoryCore.vcxproj        |   4 +-
+ .../Public/winget/RepositorySource.h          |   8 +-
+ .../RepositorySource.cpp                      |  24 +-
+ .../Rest/RestSourceFactory.cpp                |   6 +-
+ .../Rest/Schema/HttpClientHelper.cpp          |  26 +-
+ .../Rest/Schema/HttpClientHelper.h            |  10 +-
+ src/AppInstallerRepositoryCore/SourceList.cpp |  54 ++
+ src/AppInstallerRepositoryCore/SourceList.h   |   1 +
+ src/AppInstallerRepositoryCore/pch.h          |   1 +
+ .../CertificateResources.h                    |   9 +
+ .../CertificateResources.rc                   |  69 +++
+ .../CertificateResources.vcxitems             |  28 +
+ .../CertificateResources.vcxitems.filters     |  26 +
+ .../StoreIntermediate1.cer                    | Bin 0 -> 1527 bytes
+ src/CertificateResources/StoreLeaf1.cer       | Bin 0 -> 2642 bytes
+ src/CertificateResources/StoreRoot1.cer       | Bin 0 -> 914 bytes
+ src/CertificateResources/resource.h           |  14 +
+ src/LocalhostWebServer/Program.cs             |  14 +-
+ .../Run-LocalhostWebServer.ps1                |   2 +-
+ src/LocalhostWebServer/Startup.cs             |   2 +
+ .../Properties/Resources.Designer.cs          |   2 +-
+ .../WindowsPackageManager.vcxproj             |   1 +
+ .../Release/include/cpprest/http_client.h     |  27 +
+ .../src/http/client/http_client_winhttp.cpp   |  12 +
+ 63 files changed, 1852 insertions(+), 226 deletions(-)
+ create mode 100644 src/AppInstallerCLITests/Certificates.cpp
+ create mode 100644 src/AppInstallerCommonCore/Certificates.cpp
+ create mode 100644 src/AppInstallerCommonCore/Public/winget/Certificates.h
+ create mode 100644 src/AppInstallerCommonCore/Resources.cpp
+ create mode 100644 src/CertificateResources/CertificateResources.h
+ create mode 100644 src/CertificateResources/CertificateResources.rc
+ create mode 100644 src/CertificateResources/CertificateResources.vcxitems
+ create mode 100644 src/CertificateResources/CertificateResources.vcxitems.filters
+ create mode 100644 src/CertificateResources/StoreIntermediate1.cer
+ create mode 100644 src/CertificateResources/StoreLeaf1.cer
+ create mode 100644 src/CertificateResources/StoreRoot1.cer
+ create mode 100644 src/CertificateResources/resource.h
+
+diff --git a/Release/include/cpprest/http_client.h b/Release/include/cpprest/http_client.h
+index fb7c6067ab..b862a5778f 100644
+--- a/Release/include/cpprest/http_client.h
++++ b/Release/include/cpprest/http_client.h
+@@ -362,6 +362,32 @@ class http_client_config
+         if (m_set_user_nativehandle_options) m_set_user_nativehandle_options(handle);
+     }
+ 
++    /// <summary>
++    /// Sets a callback to enable custom handling when the server certificate is available.
++    /// </summary>
++    /// <remarks>
++    /// The native_handle is the following type depending on the underlying platform:
++    ///     Windows Desktop, WinHTTP - HINTERNET !!! Is only implemented to call in here !!!
++    ///     Windows Runtime, WinRT - IXMLHTTPRequest2 *
++    ///     All other platforms, Boost.Asio:
++    ///         https - boost::asio::ssl::stream<boost::asio::ip::tcp::socket &> *
++    ///         http - boost::asio::ip::tcp::socket *
++    /// </remarks>
++    /// <param name="callback">A user callback allowing for validation of the server certificate.</param>
++    void set_nativehandle_servercertificate_validation(const std::function<void(native_handle)>& callback)
++    {
++        m_nativehandle_servercertificate_validation = callback;
++    }
++
++    /// <summary>
++    /// Invokes a user's callback to validate the server certificate.
++    /// </summary>
++    /// <param name="handle">A internal implementation handle.</param>
++    void invoke_nativehandle_servercertificate_validation(native_handle handle) const
++    {
++        if (m_nativehandle_servercertificate_validation) m_nativehandle_servercertificate_validation(handle);
++    }
++
+ #if !defined(_WIN32) && !defined(__cplusplus_winrt) || defined(CPPREST_FORCE_HTTP_CLIENT_ASIO)
+     /// <summary>
+     /// Sets a callback to enable custom setting of the ssl context, at construction time.
+@@ -418,6 +444,7 @@ class http_client_config
+ 
+     std::function<void(native_handle)> m_set_user_nativehandle_options;
+     std::function<void(native_handle)> m_set_user_nativesessionhandle_options;
++    std::function<void(native_handle)> m_nativehandle_servercertificate_validation;
+ 
+ #if !defined(_WIN32) && !defined(__cplusplus_winrt) || defined(CPPREST_FORCE_HTTP_CLIENT_ASIO)
+     std::function<void(boost::asio::ssl::context&)> m_ssl_context_callback;
+diff --git a/Release/src/http/client/http_client_winhttp.cpp b/Release/src/http/client/http_client_winhttp.cpp
+index d6cdb5384a..5a517ec334 100644
+--- a/Release/src/http/client/http_client_winhttp.cpp
++++ b/Release/src/http/client/http_client_winhttp.cpp
+@@ -2039,6 +2039,18 @@ class winhttp_client final : public _http_client_communicator
+             case WINHTTP_CALLBACK_STATUS_SENDING_REQUEST:
+             {
+                 p_request_context->on_send_request_validate_cn();
++
++                try
++                {
++                    p_request_context->m_http_client->client_config().invoke_nativehandle_servercertificate_validation(hRequestHandle);
++                }
++                catch (...)
++                {
++                    p_request_context->report_exception(std::current_exception());
++                    p_request_context->cleanup();
++                    return;
++                }
++
+                 return;
+             }
+             case WINHTTP_CALLBACK_STATUS_SECURE_FAILURE:
+

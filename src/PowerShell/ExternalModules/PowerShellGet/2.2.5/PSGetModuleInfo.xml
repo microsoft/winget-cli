@@ -1,0 +1,212 @@
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <Obj RefId="0">
+    <TN RefId="0">
+      <T>Microsoft.PowerShell.Commands.PSRepositoryItemInfo</T>
+      <T>System.Management.Automation.PSCustomObject</T>
+      <T>System.Object</T>
+    </TN>
+    <MS>
+      <S N="Name">PowerShellGet</S>
+      <S N="Version">2.2.5</S>
+      <S N="Type">Module</S>
+      <S N="Description">PowerShell module with commands for discovering, installing, updating and publishing the PowerShell artifacts like Modules, DSC Resources, Role Capabilities and Scripts.</S>
+      <S N="Author">Microsoft Corporation</S>
+      <Obj N="CompanyName" RefId="1">
+        <TN RefId="1">
+          <T>System.Object[]</T>
+          <T>System.Array</T>
+          <T>System.Object</T>
+        </TN>
+        <LST>
+          <S>PowerShellTeam</S>
+          <S>alerickson</S>
+          <S>anamnavi</S>
+        </LST>
+      </Obj>
+      <S N="Copyright">(c) Microsoft Corporation. All rights reserved.</S>
+      <DT N="PublishedDate">2020-09-22T22:42:00-07:00</DT>
+      <Nil N="InstalledDate" />
+      <Nil N="UpdatedDate" />
+      <URI N="LicenseUri">https://go.microsoft.com/fwlink/?LinkId=829061</URI>
+      <URI N="ProjectUri">https://go.microsoft.com/fwlink/?LinkId=828955</URI>
+      <Nil N="IconUri" />
+      <Obj N="Tags" RefId="2">
+        <TNRef RefId="1" />
+        <LST>
+          <S>Packagemanagement</S>
+          <S>Provider</S>
+          <S>PSEdition_Desktop</S>
+          <S>PSEdition_Core</S>
+          <S>Linux</S>
+          <S>Mac</S>
+          <S>PSModule</S>
+        </LST>
+      </Obj>
+      <Obj N="Includes" RefId="3">
+        <TN RefId="2">
+          <T>System.Collections.Hashtable</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT>
+          <En>
+            <S N="Key">Command</S>
+            <Obj N="Value" RefId="4">
+              <TNRef RefId="1" />
+              <LST>
+                <S>Find-Command</S>
+                <S>Find-DSCResource</S>
+                <S>Find-Module</S>
+                <S>Find-RoleCapability</S>
+                <S>Find-Script</S>
+                <S>Get-CredsFromCredentialProvider</S>
+                <S>Get-InstalledModule</S>
+                <S>Get-InstalledScript</S>
+                <S>Get-PSRepository</S>
+                <S>Install-Module</S>
+                <S>Install-Script</S>
+                <S>New-ScriptFileInfo</S>
+                <S>Publish-Module</S>
+                <S>Publish-Script</S>
+                <S>Register-PSRepository</S>
+                <S>Save-Module</S>
+                <S>Save-Script</S>
+                <S>Set-PSRepository</S>
+                <S>Test-ScriptFileInfo</S>
+                <S>Uninstall-Module</S>
+                <S>Uninstall-Script</S>
+                <S>Unregister-PSRepository</S>
+                <S>Update-Module</S>
+                <S>Update-ModuleManifest</S>
+                <S>Update-Script</S>
+                <S>Update-ScriptFileInfo</S>
+              </LST>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Function</S>
+            <Obj N="Value" RefId="5">
+              <TNRef RefId="1" />
+              <LST>
+                <S>Find-Command</S>
+                <S>Find-DSCResource</S>
+                <S>Find-Module</S>
+                <S>Find-RoleCapability</S>
+                <S>Find-Script</S>
+                <S>Get-CredsFromCredentialProvider</S>
+                <S>Get-InstalledModule</S>
+                <S>Get-InstalledScript</S>
+                <S>Get-PSRepository</S>
+                <S>Install-Module</S>
+                <S>Install-Script</S>
+                <S>New-ScriptFileInfo</S>
+                <S>Publish-Module</S>
+                <S>Publish-Script</S>
+                <S>Register-PSRepository</S>
+                <S>Save-Module</S>
+                <S>Save-Script</S>
+                <S>Set-PSRepository</S>
+                <S>Test-ScriptFileInfo</S>
+                <S>Uninstall-Module</S>
+                <S>Uninstall-Script</S>
+                <S>Unregister-PSRepository</S>
+                <S>Update-Module</S>
+                <S>Update-ModuleManifest</S>
+                <S>Update-Script</S>
+                <S>Update-ScriptFileInfo</S>
+              </LST>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Cmdlet</S>
+            <Obj N="Value" RefId="6">
+              <TNRef RefId="1" />
+              <LST />
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">DscResource</S>
+            <Obj N="Value" RefId="7">
+              <TNRef RefId="1" />
+              <LST>
+                <S>PSModule</S>
+                <S>PSRepository</S>
+              </LST>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Workflow</S>
+            <Ref N="Value" RefId="6" />
+          </En>
+          <En>
+            <S N="Key">RoleCapability</S>
+            <Ref N="Value" RefId="6" />
+          </En>
+        </DCT>
+      </Obj>
+      <Nil N="PowerShellGetFormatVersion" />
+      <S N="ReleaseNotes">### 2.2.5_x000D__x000A_- Security patch for code injection bug_x000D__x000A__x000D__x000A_### 2.2.4.1_x000D__x000A_- Remove catalog file_x000D__x000A__x000D__x000A_### 2.2.3_x000D__x000A_- Update `HelpInfoUri` to point to the latest content (#560)_x000D__x000A_- Improve discovery of usable nuget.exe binary (Thanks bwright86!) (#558)_x000D__x000A__x000D__x000A_### 2.2.2_x000D__x000A_Bug Fix_x000D__x000A__x000D__x000A_- Update casing of DscResources output_x000D__x000A__x000D__x000A_### 2.2.1_x000D__x000A_Bug Fix_x000D__x000A__x000D__x000A_- Allow DscResources to work on case sensitive platforms (#521)_x000D__x000A_- Fix for failure to return credential provider when using private feeds (#521)_x000D__x000A__x000D__x000A_## 2.2_x000D__x000A_Bug Fix_x000D__x000A__x000D__x000A_- Fix for prompting for credentials when passing in -Credential parameter when using Register-PSRepository_x000D__x000A__x000D__x000A_## 2.1.5_x000D__x000A_New Features_x000D__x000A__x000D__x000A_- Add and remove nuget based repositories as a nuget source when nuget client tool is installed (#498)_x000D__x000A__x000D__x000A_Bug Fix_x000D__x000A__x000D__x000A_- Fix for 'Failed to publish module' error thrown when publishing modules (#497)_x000D__x000A__x000D__x000A_## 2.1.4_x000D__x000A_- Fixed hang while publishing some packages (#478)_x000D__x000A__x000D__x000A_## 2.1.3_x000D__x000A_New Features_x000D__x000A__x000D__x000A_- Added -Scope parameter to Update-Module (Thanks @lwajswaj!) (#471)_x000D__x000A_- Added -Exclude parameter to Publish-Module (Thanks @Benny1007!) (#191)_x000D__x000A_- Added -SkipAutomaticTags parameter to Publish-Module (Thanks @awickham10!) (#452)_x000D__x000A__x000D__x000A_Bug Fix_x000D__x000A__x000D__x000A_- Fixed issue with finding modules using macOS and .NET Core 3.0_x000D__x000A__x000D__x000A_## 2.1.2_x000D__x000A__x000D__x000A_New Feature_x000D__x000A__x000D__x000A_- Added support for registering repositories with special characters_x000D__x000A__x000D__x000A_## 2.1.1_x000D__x000A__x000D__x000A_- Fix DSC resource folder structure_x000D__x000A__x000D__x000A_## 2.1.0_x000D__x000A__x000D__x000A_Breaking Change_x000D__x000A__x000D__x000A_- Default installation scope for Update-Module and Update-Script has changed to match Install-Module and Install-Script. For Windows PowerShell (version 5.1 or below), the default scope is AllUsers when running in an elevated session, and CurrentUser at all other times._x000D__x000A_  For PowerShell version 6.0.0 and above, the default installation scope is always CurrentUser. (#421)_x000D__x000A__x000D__x000A_Bug Fixes_x000D__x000A__x000D__x000A_- Update-ModuleManifest no longer clears FunctionsToExport, AliasesToExport, nor NestModules (#415 &amp; #425) (Thanks @pougetat and @tnieto88!)_x000D__x000A_- Update-Module no longer changes repository URL (#407)_x000D__x000A_- Update-ModuleManifest no longer preprends 'PSGet_' to module name (#403) (Thanks @ThePoShWolf)_x000D__x000A_- Update-ModuleManifest now throws error and fails to update when provided invalid entries (#398) (Thanks @pougetat!)_x000D__x000A_- Ignore files no longer being included when uploading modules (#396)_x000D__x000A__x000D__x000A_New Features_x000D__x000A__x000D__x000A_- New DSC resource, PSRepository (#426) (Thanks @johlju!)_x000D__x000A_- Piping of PS respositories (#420)_x000D__x000A_- utf8 support for .nuspec (#419)_x000D__x000A__x000D__x000A_## 2.0.4_x000D__x000A__x000D__x000A_Bug Fix_x000D__x000A_* Remove PSGallery availability checks (#374)_x000D__x000A__x000D__x000A_## 2.0.3_x000D__x000A__x000D__x000A_Bug fixes and Improvements_x000D__x000A_* Fix CommandAlreadyAvailable error for PackageManagement module (#333)_x000D__x000A_* Remove trailing whitespace when value is not provided for Get-PSScriptInfoString (#337) (Thanks @thomasrayner)_x000D__x000A_* Expanded aliases for improved readability (#338) (Thanks @lazywinadmin)_x000D__x000A_* Improvements for Catalog tests (#343)_x000D__x000A_* Fix Update-ScriptInfoFile to preserve PrivateData (#346) (Thanks @tnieto88)_x000D__x000A_* Import modules with many commands faster (#351)_x000D__x000A__x000D__x000A_New Features_x000D__x000A_* Tab completion for -Repository parameter (#339) and for Publish-Module -Name (#359) (Thanks @matt9ucci)_x000D__x000A__x000D__x000A_## 2.0.1_x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A_- Resolved Publish-Module doesn't report error but fails to publish module (#316)_x000D__x000A_- Resolved CommandAlreadyAvailable error while installing the latest version of PackageManagement module (#333)_x000D__x000A__x000D__x000A_## 2.0.0_x000D__x000A__x000D__x000A_Breaking Change_x000D__x000A_- Default installation scope for Install-Module, Install-Script, and Install-Package has changed. For Windows PowerShell (version 5.1 or below), the default scope is AllUsers when running in an elevated session, and CurrentUser at all other times._x000D__x000A_  For PowerShell version 6.0.0 and above, the default installation scope is always CurrentUser._x000D__x000A__x000D__x000A_## 1.6.7_x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A_- Resolved Install/Save-Module error in PSCore 6.1.0-preview.4 on Ubuntu 18.04 OS (WSL/Azure) (#313)_x000D__x000A_- Updated error message in Save-Module cmdlet when the specified path is not accessible (#313)_x000D__x000A_- Added few additional verbose messages (#313)_x000D__x000A__x000D__x000A_## 1.6.6_x000D__x000A__x000D__x000A_Dependency Updates_x000D__x000A_* Add dependency on version 4.1.0 or newer of NuGet.exe_x000D__x000A_* Update NuGet.exe bootstrap URL to https://aka.ms/psget-nugetexe_x000D__x000A__x000D__x000A_Build and Code Cleanup Improvements_x000D__x000A_* Improved error handling in network connectivity tests._x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A_- Change Update-ModuleManifest so that prefix is not added to CmdletsToExport._x000D__x000A_- Change Update-ModuleManifest so that parameters will not reset to default values._x000D__x000A_- Specify AllowPrereleseVersions provider option only when AllowPrerelease is specified on the PowerShellGet cmdlets._x000D__x000A__x000D__x000A_## 1.6.5_x000D__x000A__x000D__x000A_New features_x000D__x000A_* Allow Pester/PSReadline installation when signed by non-Microsoft certificate (#258)_x000D__x000A_  - Whitelist installation of non-Microsoft signed Pester and PSReadline over Microsoft signed Pester and PSReadline._x000D__x000A__x000D__x000A_Build and Code Cleanup Improvements_x000D__x000A_* Splitting of functions (#229) (Thanks @Benny1007)_x000D__x000A_  - Moves private functions into respective private folder._x000D__x000A_  - Moves public functions as defined in PSModule.psd1 into respective public folder._x000D__x000A_  - Removes all functions from PSModule.psm1 file._x000D__x000A_  - Dot sources the functions from PSModule.psm1 file._x000D__x000A_  - Uses Export-ModuleMember to export the public functions from PSModule.psm1 file._x000D__x000A__x000D__x000A_* Add build step to construct a single .psm1 file (#242) (Thanks @Benny1007)_x000D__x000A_  - Merged public and private functions into one .psm1 file to increase load time performance._x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A_- Fix null parameter error caused by MinimumVersion in Publish-PackageUtility (#201)_x000D__x000A_- Change .ExternalHelp link from PSGet.psm1-help.xml to PSModule-help.xml in PSModule.psm1 file (#215)_x000D__x000A_- Change Publish-* to allow version comparison instead of string comparison (#219)_x000D__x000A_- Ensure Get-InstalledScript -RequiredVersion works when versions have a leading 0 (#260)_x000D__x000A_- Add positional path to Save-Module and Save-Script (#264, #266)_x000D__x000A_- Ensure that Get-AuthenticodePublisher verifies publisher and that installing or updating a module checks for approprite catalog signature (#272)_x000D__x000A_- Update HelpInfoURI to 'http://go.microsoft.com/fwlink/?linkid=855963' (#274)_x000D__x000A__x000D__x000A__x000D__x000A_## 1.6.0_x000D__x000A__x000D__x000A_New features_x000D__x000A_* Prerelease Version Support (#185)_x000D__x000A_  - Implemented prerelease versions functionality in PowerShellGet cmdlets._x000D__x000A_  - Enables publishing, discovering, and installing the prerelease versions of modules and scripts from the PowerShell Gallery._x000D__x000A_  - [Documentation](https://docs.microsoft.com/en-us/powershell/gallery/psget/module/PrereleaseModule)_x000D__x000A__x000D__x000A_* Enabled publish cmdlets on PWSH and Nano Server (#196)_x000D__x000A_  - Dotnet command version 2.0.0 or newer should be installed by the user prior to using the publish cmdlets on PWSH and Windows Nano Server._x000D__x000A_  - Users can install the dotnet command by following the instructions specified at https://aka.ms/dotnet-install-script._x000D__x000A_  - On Windows, users can install the dotnet command by running *Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.ps1' -OutFile '.\dotnet-install.ps1'; &amp; '.\dotnet-install.ps1' -Channel Current -Version '2.0.0'*_x000D__x000A_  - Publish cmdlets on Windows PowerShell supports using the dotnet command for publishing operations._x000D__x000A__x000D__x000A_Breaking Change_x000D__x000A_- PWSH: Changed the installation location of AllUsers scope to the parent of $PSHOME instead of $PSHOME. It is the SHARED_MODULES folder on PWSH._x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A_- Update HelpInfoURI to 'https://go.microsoft.com/fwlink/?linkid=855963' (#195)_x000D__x000A_- Ensure MyDocumentsPSPath path is correct (#179) (Thanks @lwsrbrts)_x000D__x000A__x000D__x000A__x000D__x000A_## 1.5.0.0_x000D__x000A__x000D__x000A_New features_x000D__x000A_* Added support for modules requiring license acceptance (#150)_x000D__x000A_  - [Documentation](https://docs.microsoft.com/en-us/powershell/gallery/psget/module/RequireLicenseAcceptance)_x000D__x000A__x000D__x000A_* Added version for REQUIREDSCRIPTS (#162)_x000D__x000A_  - Enabled following scenarios for REQUIREDSCRIPTS_x000D__x000A_    - [1.0] - RequiredVersion_x000D__x000A_    - [1.0,2.0] - Min and Max Version_x000D__x000A_    - (,1.0] - Max Version_x000D__x000A_    - 1.0 - Min Version_x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A_* Fixed empty version value in nuspec (#157)_x000D__x000A__x000D__x000A__x000D__x000A_## 1.1.3.2_x000D__x000A_* Disabled PowerShellGet Telemetry on PS Core as PowerShell Telemetry APIs got removed in PowerShell Core beta builds. (#153)_x000D__x000A_* Fixed for DateTime format serialization issue. (#141)_x000D__x000A_* Update-ModuleManifest should add ExternalModuleDependencies value as a collection. (#129)_x000D__x000A__x000D__x000A_## 1.1.3.1_x000D__x000A__x000D__x000A_New features_x000D__x000A_* Added `PrivateData` field to ScriptFileInfo. (#119)_x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A__x000D__x000A_## 1.1.2.0_x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A__x000D__x000A_## 1.1.1.0_x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A__x000D__x000A_## 1.1.0.0_x000D__x000A__x000D__x000A_* Initial release from GitHub._x000D__x000A_* PowerShellCore support._x000D__x000A__x000D__x000A_## For full history of release notes see changelog:_x000D__x000A_https://github.com/PowerShell/PowerShellGet/blob/master/CHANGELOG.md</S>
+      <Obj N="Dependencies" RefId="8">
+        <TNRef RefId="1" />
+        <LST>
+          <Obj RefId="9">
+            <TN RefId="3">
+              <T>System.Collections.Specialized.OrderedDictionary</T>
+              <T>System.Object</T>
+            </TN>
+            <DCT>
+              <En>
+                <S N="Key">Name</S>
+                <S N="Value">PackageManagement</S>
+              </En>
+              <En>
+                <S N="Key">MinimumVersion</S>
+                <S N="Value">1.4.4</S>
+              </En>
+              <En>
+                <S N="Key">CanonicalId</S>
+                <S N="Value">nuget:PackageManagement/1.4.4</S>
+              </En>
+            </DCT>
+          </Obj>
+        </LST>
+      </Obj>
+      <S N="RepositorySourceLocation">https://www.powershellgallery.com/api/v2</S>
+      <S N="Repository">PSGallery</S>
+      <S N="PackageManagementProvider">NuGet</S>
+      <Obj N="AdditionalMetadata" RefId="10">
+        <TN RefId="4">
+          <T>System.Management.Automation.PSCustomObject</T>
+          <T>System.Object</T>
+        </TN>
+        <MS>
+          <S N="copyright">(c) Microsoft Corporation. All rights reserved.</S>
+          <S N="description">PowerShell module with commands for discovering, installing, updating and publishing the PowerShell artifacts like Modules, DSC Resources, Role Capabilities and Scripts.</S>
+          <S N="requireLicenseAcceptance">False</S>
+          <S N="releaseNotes">### 2.2.5_x000D__x000A_- Security patch for code injection bug_x000D__x000A__x000D__x000A_### 2.2.4.1_x000D__x000A_- Remove catalog file_x000D__x000A__x000D__x000A_### 2.2.3_x000D__x000A_- Update `HelpInfoUri` to point to the latest content (#560)_x000D__x000A_- Improve discovery of usable nuget.exe binary (Thanks bwright86!) (#558)_x000D__x000A__x000D__x000A_### 2.2.2_x000D__x000A_Bug Fix_x000D__x000A__x000D__x000A_- Update casing of DscResources output_x000D__x000A__x000D__x000A_### 2.2.1_x000D__x000A_Bug Fix_x000D__x000A__x000D__x000A_- Allow DscResources to work on case sensitive platforms (#521)_x000D__x000A_- Fix for failure to return credential provider when using private feeds (#521)_x000D__x000A__x000D__x000A_## 2.2_x000D__x000A_Bug Fix_x000D__x000A__x000D__x000A_- Fix for prompting for credentials when passing in -Credential parameter when using Register-PSRepository_x000D__x000A__x000D__x000A_## 2.1.5_x000D__x000A_New Features_x000D__x000A__x000D__x000A_- Add and remove nuget based repositories as a nuget source when nuget client tool is installed (#498)_x000D__x000A__x000D__x000A_Bug Fix_x000D__x000A__x000D__x000A_- Fix for 'Failed to publish module' error thrown when publishing modules (#497)_x000D__x000A__x000D__x000A_## 2.1.4_x000D__x000A_- Fixed hang while publishing some packages (#478)_x000D__x000A__x000D__x000A_## 2.1.3_x000D__x000A_New Features_x000D__x000A__x000D__x000A_- Added -Scope parameter to Update-Module (Thanks @lwajswaj!) (#471)_x000D__x000A_- Added -Exclude parameter to Publish-Module (Thanks @Benny1007!) (#191)_x000D__x000A_- Added -SkipAutomaticTags parameter to Publish-Module (Thanks @awickham10!) (#452)_x000D__x000A__x000D__x000A_Bug Fix_x000D__x000A__x000D__x000A_- Fixed issue with finding modules using macOS and .NET Core 3.0_x000D__x000A__x000D__x000A_## 2.1.2_x000D__x000A__x000D__x000A_New Feature_x000D__x000A__x000D__x000A_- Added support for registering repositories with special characters_x000D__x000A__x000D__x000A_## 2.1.1_x000D__x000A__x000D__x000A_- Fix DSC resource folder structure_x000D__x000A__x000D__x000A_## 2.1.0_x000D__x000A__x000D__x000A_Breaking Change_x000D__x000A__x000D__x000A_- Default installation scope for Update-Module and Update-Script has changed to match Install-Module and Install-Script. For Windows PowerShell (version 5.1 or below), the default scope is AllUsers when running in an elevated session, and CurrentUser at all other times._x000D__x000A_  For PowerShell version 6.0.0 and above, the default installation scope is always CurrentUser. (#421)_x000D__x000A__x000D__x000A_Bug Fixes_x000D__x000A__x000D__x000A_- Update-ModuleManifest no longer clears FunctionsToExport, AliasesToExport, nor NestModules (#415 &amp; #425) (Thanks @pougetat and @tnieto88!)_x000D__x000A_- Update-Module no longer changes repository URL (#407)_x000D__x000A_- Update-ModuleManifest no longer preprends 'PSGet_' to module name (#403) (Thanks @ThePoShWolf)_x000D__x000A_- Update-ModuleManifest now throws error and fails to update when provided invalid entries (#398) (Thanks @pougetat!)_x000D__x000A_- Ignore files no longer being included when uploading modules (#396)_x000D__x000A__x000D__x000A_New Features_x000D__x000A__x000D__x000A_- New DSC resource, PSRepository (#426) (Thanks @johlju!)_x000D__x000A_- Piping of PS respositories (#420)_x000D__x000A_- utf8 support for .nuspec (#419)_x000D__x000A__x000D__x000A_## 2.0.4_x000D__x000A__x000D__x000A_Bug Fix_x000D__x000A_* Remove PSGallery availability checks (#374)_x000D__x000A__x000D__x000A_## 2.0.3_x000D__x000A__x000D__x000A_Bug fixes and Improvements_x000D__x000A_* Fix CommandAlreadyAvailable error for PackageManagement module (#333)_x000D__x000A_* Remove trailing whitespace when value is not provided for Get-PSScriptInfoString (#337) (Thanks @thomasrayner)_x000D__x000A_* Expanded aliases for improved readability (#338) (Thanks @lazywinadmin)_x000D__x000A_* Improvements for Catalog tests (#343)_x000D__x000A_* Fix Update-ScriptInfoFile to preserve PrivateData (#346) (Thanks @tnieto88)_x000D__x000A_* Import modules with many commands faster (#351)_x000D__x000A__x000D__x000A_New Features_x000D__x000A_* Tab completion for -Repository parameter (#339) and for Publish-Module -Name (#359) (Thanks @matt9ucci)_x000D__x000A__x000D__x000A_## 2.0.1_x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A_- Resolved Publish-Module doesn't report error but fails to publish module (#316)_x000D__x000A_- Resolved CommandAlreadyAvailable error while installing the latest version of PackageManagement module (#333)_x000D__x000A__x000D__x000A_## 2.0.0_x000D__x000A__x000D__x000A_Breaking Change_x000D__x000A_- Default installation scope for Install-Module, Install-Script, and Install-Package has changed. For Windows PowerShell (version 5.1 or below), the default scope is AllUsers when running in an elevated session, and CurrentUser at all other times._x000D__x000A_  For PowerShell version 6.0.0 and above, the default installation scope is always CurrentUser._x000D__x000A__x000D__x000A_## 1.6.7_x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A_- Resolved Install/Save-Module error in PSCore 6.1.0-preview.4 on Ubuntu 18.04 OS (WSL/Azure) (#313)_x000D__x000A_- Updated error message in Save-Module cmdlet when the specified path is not accessible (#313)_x000D__x000A_- Added few additional verbose messages (#313)_x000D__x000A__x000D__x000A_## 1.6.6_x000D__x000A__x000D__x000A_Dependency Updates_x000D__x000A_* Add dependency on version 4.1.0 or newer of NuGet.exe_x000D__x000A_* Update NuGet.exe bootstrap URL to https://aka.ms/psget-nugetexe_x000D__x000A__x000D__x000A_Build and Code Cleanup Improvements_x000D__x000A_* Improved error handling in network connectivity tests._x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A_- Change Update-ModuleManifest so that prefix is not added to CmdletsToExport._x000D__x000A_- Change Update-ModuleManifest so that parameters will not reset to default values._x000D__x000A_- Specify AllowPrereleseVersions provider option only when AllowPrerelease is specified on the PowerShellGet cmdlets._x000D__x000A__x000D__x000A_## 1.6.5_x000D__x000A__x000D__x000A_New features_x000D__x000A_* Allow Pester/PSReadline installation when signed by non-Microsoft certificate (#258)_x000D__x000A_  - Whitelist installation of non-Microsoft signed Pester and PSReadline over Microsoft signed Pester and PSReadline._x000D__x000A__x000D__x000A_Build and Code Cleanup Improvements_x000D__x000A_* Splitting of functions (#229) (Thanks @Benny1007)_x000D__x000A_  - Moves private functions into respective private folder._x000D__x000A_  - Moves public functions as defined in PSModule.psd1 into respective public folder._x000D__x000A_  - Removes all functions from PSModule.psm1 file._x000D__x000A_  - Dot sources the functions from PSModule.psm1 file._x000D__x000A_  - Uses Export-ModuleMember to export the public functions from PSModule.psm1 file._x000D__x000A__x000D__x000A_* Add build step to construct a single .psm1 file (#242) (Thanks @Benny1007)_x000D__x000A_  - Merged public and private functions into one .psm1 file to increase load time performance._x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A_- Fix null parameter error caused by MinimumVersion in Publish-PackageUtility (#201)_x000D__x000A_- Change .ExternalHelp link from PSGet.psm1-help.xml to PSModule-help.xml in PSModule.psm1 file (#215)_x000D__x000A_- Change Publish-* to allow version comparison instead of string comparison (#219)_x000D__x000A_- Ensure Get-InstalledScript -RequiredVersion works when versions have a leading 0 (#260)_x000D__x000A_- Add positional path to Save-Module and Save-Script (#264, #266)_x000D__x000A_- Ensure that Get-AuthenticodePublisher verifies publisher and that installing or updating a module checks for approprite catalog signature (#272)_x000D__x000A_- Update HelpInfoURI to 'http://go.microsoft.com/fwlink/?linkid=855963' (#274)_x000D__x000A__x000D__x000A__x000D__x000A_## 1.6.0_x000D__x000A__x000D__x000A_New features_x000D__x000A_* Prerelease Version Support (#185)_x000D__x000A_  - Implemented prerelease versions functionality in PowerShellGet cmdlets._x000D__x000A_  - Enables publishing, discovering, and installing the prerelease versions of modules and scripts from the PowerShell Gallery._x000D__x000A_  - [Documentation](https://docs.microsoft.com/en-us/powershell/gallery/psget/module/PrereleaseModule)_x000D__x000A__x000D__x000A_* Enabled publish cmdlets on PWSH and Nano Server (#196)_x000D__x000A_  - Dotnet command version 2.0.0 or newer should be installed by the user prior to using the publish cmdlets on PWSH and Windows Nano Server._x000D__x000A_  - Users can install the dotnet command by following the instructions specified at https://aka.ms/dotnet-install-script._x000D__x000A_  - On Windows, users can install the dotnet command by running *Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.ps1' -OutFile '.\dotnet-install.ps1'; &amp; '.\dotnet-install.ps1' -Channel Current -Version '2.0.0'*_x000D__x000A_  - Publish cmdlets on Windows PowerShell supports using the dotnet command for publishing operations._x000D__x000A__x000D__x000A_Breaking Change_x000D__x000A_- PWSH: Changed the installation location of AllUsers scope to the parent of $PSHOME instead of $PSHOME. It is the SHARED_MODULES folder on PWSH._x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A_- Update HelpInfoURI to 'https://go.microsoft.com/fwlink/?linkid=855963' (#195)_x000D__x000A_- Ensure MyDocumentsPSPath path is correct (#179) (Thanks @lwsrbrts)_x000D__x000A__x000D__x000A__x000D__x000A_## 1.5.0.0_x000D__x000A__x000D__x000A_New features_x000D__x000A_* Added support for modules requiring license acceptance (#150)_x000D__x000A_  - [Documentation](https://docs.microsoft.com/en-us/powershell/gallery/psget/module/RequireLicenseAcceptance)_x000D__x000A__x000D__x000A_* Added version for REQUIREDSCRIPTS (#162)_x000D__x000A_  - Enabled following scenarios for REQUIREDSCRIPTS_x000D__x000A_    - [1.0] - RequiredVersion_x000D__x000A_    - [1.0,2.0] - Min and Max Version_x000D__x000A_    - (,1.0] - Max Version_x000D__x000A_    - 1.0 - Min Version_x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A_* Fixed empty version value in nuspec (#157)_x000D__x000A__x000D__x000A__x000D__x000A_## 1.1.3.2_x000D__x000A_* Disabled PowerShellGet Telemetry on PS Core as PowerShell Telemetry APIs got removed in PowerShell Core beta builds. (#153)_x000D__x000A_* Fixed for DateTime format serialization issue. (#141)_x000D__x000A_* Update-ModuleManifest should add ExternalModuleDependencies value as a collection. (#129)_x000D__x000A__x000D__x000A_## 1.1.3.1_x000D__x000A__x000D__x000A_New features_x000D__x000A_* Added `PrivateData` field to ScriptFileInfo. (#119)_x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A__x000D__x000A_## 1.1.2.0_x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A__x000D__x000A_## 1.1.1.0_x000D__x000A__x000D__x000A_Bug fixes_x000D__x000A__x000D__x000A_## 1.1.0.0_x000D__x000A__x000D__x000A_* Initial release from GitHub._x000D__x000A_* PowerShellCore support._x000D__x000A__x000D__x000A_## For full history of release notes see changelog:_x000D__x000A_https://github.com/PowerShell/PowerShellGet/blob/master/CHANGELOG.md</S>
+          <S N="isLatestVersion">True</S>
+          <S N="isAbsoluteLatestVersion">False</S>
+          <S N="versionDownloadCount">65804037</S>
+          <S N="downloadCount">114539696</S>
+          <S N="packageSize">270249</S>
+          <S N="published">9/22/2020 10:42:00 PM -07:00</S>
+          <S N="created">9/22/2020 10:42:00 PM -07:00</S>
+          <S N="lastUpdated">3/21/2023 6:34:18 PM -07:00</S>
+          <S N="tags">Packagemanagement Provider PSEdition_Desktop PSEdition_Core Linux Mac PSModule</S>
+          <S N="developmentDependency">False</S>
+          <S N="updated">2023-03-21T18:34:18Z</S>
+          <S N="NormalizedVersion">2.2.5</S>
+          <S N="Authors">Microsoft Corporation</S>
+          <S N="IsPrerelease">false</S>
+          <S N="ItemType">Module</S>
+          <S N="FileList">PowerShellGet.nuspec|PowerShellGet.psd1|PSGet.Format.ps1xml|PSGet.Resource.psd1|PSModule.psm1|DscResources\MSFT_PSModule\MSFT_PSModule.psm1|DscResources\MSFT_PSModule\MSFT_PSModule.schema.mfl|DscResources\MSFT_PSModule\MSFT_PSModule.schema.mof|DscResources\MSFT_PSModule\en-US\MSFT_PSModule.strings.psd1|DscResources\MSFT_PSRepository\MSFT_PSRepository.psm1|DscResources\MSFT_PSRepository\MSFT_PSRepository.schema.mfl|DscResources\MSFT_PSRepository\MSFT_PSRepository.schema.mof|DscResources\MSFT_PSRepository\en-US\MSFT_PSRepository.strings.psd1|en-US\PSGet.Resource.psd1|Modules\PowerShellGet.LocalizationHelper\PowerShellGet.LocalizationHelper.psm1|Modules\PowerShellGet.ResourceHelper\PowerShellGet.ResourceHelper.psm1|Modules\PowerShellGet.ResourceHelper\en-US\PowerShellGet.ResourceHelper.strings.psd1</S>
+          <S N="Functions">Find-Command Find-DSCResource Find-Module Find-RoleCapability Find-Script Get-CredsFromCredentialProvider Get-InstalledModule Get-InstalledScript Get-PSRepository Install-Module Install-Script New-ScriptFileInfo Publish-Module Publish-Script Register-PSRepository Save-Module Save-Script Set-PSRepository Test-ScriptFileInfo Uninstall-Module Uninstall-Script Unregister-PSRepository Update-Module Update-ModuleManifest Update-Script Update-ScriptFileInfo</S>
+          <S N="DscResources">PSModule PSRepository</S>
+          <S N="GUID">1d73a601-4a6c-43c5-ba3f-619b18bbb404</S>
+          <S N="PowerShellVersion">3.0</S>
+          <S N="CompanyName">Microsoft Corporation</S>
+        </MS>
+      </Obj>
+      <S N="InstalledLocation">D:\mspkg\src\PowerShell\ExternalModules\PowerShellGet\2.2.5</S>
+    </MS>
+  </Obj>
+</Objs>

@@ -13,9 +13,9 @@ namespace AppInstaller::CLI
     std::vector<Argument> CompleteCommand::GetArguments() const
     {
         return {
-            Argument{ "word", Argument::NoAlias, Args::Type::Word, Resource::String::WordArgumentDescription, ArgumentType::Standard, Argument::Visibility::Example, true },
-            Argument{ "commandline", Argument::NoAlias, Args::Type::CommandLine, Resource::String::CommandLineArgumentDescription, ArgumentType::Standard, Argument::Visibility::Example, true },
-            Argument{ "position", Argument::NoAlias, Args::Type::Position, Resource::String::PositionArgumentDescription, ArgumentType::Standard, Argument::Visibility::Example, true },
+            Argument{ Args::Type::Word, Resource::String::WordArgumentDescription, ArgumentType::Standard, Argument::Visibility::Example, true },
+            Argument{ Args::Type::CommandLine, Resource::String::CommandLineArgumentDescription, ArgumentType::Standard, Argument::Visibility::Example, true },
+            Argument{ Args::Type::Position, Resource::String::PositionArgumentDescription, ArgumentType::Standard, Argument::Visibility::Example, true },
         };
     }
 
@@ -29,10 +29,9 @@ namespace AppInstaller::CLI
         return { Resource::String::CompleteCommandLongDescription };
     }
 
-    std::string CompleteCommand::HelpLink() const
+    Utility::LocIndView CompleteCommand::HelpLink() const
     {
-        // TODO: Define me and point to the right location
-        return "https://aka.ms/winget-command-complete";
+        return "https://aka.ms/winget-command-complete"_liv;
     }
 
     void CompleteCommand::ExecuteInternal(Execution::Context& context) const
@@ -54,8 +53,10 @@ namespace AppInstaller::CLI
             }
 
             // Create a new Context to execute the Complete from
-            auto subContextPtr = context.Clone();
+            auto subContextPtr = context.CreateSubContext();
             Context& subContext = *subContextPtr;
+            auto previousThreadGlobals = subContext.SetForCurrentThread();
+
             subContext.Reporter.SetChannel(Execution::Reporter::Channel::Completion);
             subContext.Add<Data::CompletionData>(std::move(data));
 
@@ -68,6 +69,10 @@ namespace AppInstaller::CLI
         catch (const CommandException& ce)
         {
             AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring: " << ce.Message());
+        }
+        catch (const Settings::GroupPolicyException& e)
+        {
+            AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring: Blocked by Group Policy " << Settings::TogglePolicy::GetPolicy(e.Policy()).RegValueName());
         }
         catch (...)
         {

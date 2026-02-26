@@ -6,25 +6,21 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
+#include "Public/winget/ThreadGlobals.h"
+#include "winget/Filesystem.h"
+#include "winget/UserSettings.h"
 
 #define AICLI_TraceLoggingStringView(_sv_,_name_) TraceLoggingCountedUtf8String(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
+#define AICLI_TraceLoggingWStringView(_sv_,_name_) TraceLoggingCountedWideString(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
 
-// Helper to print a GUID
-std::ostream& operator<<(std::ostream& out, const GUID& guid)
-{
-    wchar_t buffer[256];
-
-    if (StringFromGUID2(guid, buffer, ARRAYSIZE(buffer)))
-    {
-        out << AppInstaller::Utility::ConvertToUTF8(buffer);
-    }
-    else
-    {
-        out << "error";
-    }
-
-    return out;
-}
+#define AICLI_TraceLoggingWriteActivity(_eventName_,...) TraceLoggingWriteActivity(\
+g_hTraceProvider,\
+_eventName_,\
+s_useGlobalTelemetryActivityId ? &s_globalTelemetryLoggerActivityId : GetActivityId(),\
+s_useGlobalTelemetryActivityId ? nullptr : GetParentActivityId(),\
+TraceLoggingCountedUtf8String(m_caller.c_str(),  static_cast<ULONG>(m_caller.size()), "Caller"),\
+TraceLoggingPackedFieldEx(m_telemetryCorrelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorrelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),\
+__VA_ARGS__)
 
 namespace AppInstaller::Logging
 {
@@ -32,85 +28,206 @@ namespace AppInstaller::Logging
 
     namespace
     {
+        // TODO: This and all usages should be removed after transition to summary event in back end.
         static const uint32_t s_RootExecutionId = 0;
+        static std::atomic_uint32_t s_subExecutionId{ s_RootExecutionId };
 
-        // Used to disable telemetry on the fly.
-        std::atomic_bool s_isTelemetryEnabled{ true };
+        // Data that is needed by AnonymizeString
+        constexpr std::wstring_view s_UserProfileReplacement = L"%USERPROFILE%"sv;
 
-        std::atomic_uint32_t s_executionStage{ 0 };
-
-        std::atomic_uint32_t s_subExecutionId{ s_RootExecutionId };
-
-        bool IsTelemetryEnabled()
-        {
-            return g_IsTelemetryProviderEnabled && s_isTelemetryEnabled;
-        }
+        // TODO: Temporary code to keep existing telemetry behavior
+        static bool s_useGlobalTelemetryActivityId = false;
+        static GUID s_globalTelemetryLoggerActivityId = GUID_NULL;
 
         void __stdcall wilResultLoggingCallback(const wil::FailureInfo& info) noexcept
         {
             Telemetry().LogFailure(info);
         }
 
-        GUID CreateGuid()
+        FailureTypeEnum ConvertWilFailureTypeToFailureType(wil::FailureType failureType)
         {
-            GUID result{};
-            (void)CoCreateGuid(&result);
-            return result;
+            switch (failureType)
+            {
+            case wil::FailureType::Exception:
+                return FailureTypeEnum::ResultException;
+            case wil::FailureType::Return:
+                return FailureTypeEnum::ResultReturn;
+            case wil::FailureType::Log:
+                return FailureTypeEnum::ResultLog;
+            case wil::FailureType::FailFast:
+                return FailureTypeEnum::ResultFailFast;
+            default:
+                return FailureTypeEnum::Unknown;
+            }
         }
 
-        const GUID* GetActivityId()
+        std::string_view LogExceptionTypeToString(FailureTypeEnum exceptionType)
         {
-            static GUID activityId = CreateGuid();
-            return &activityId;
+            switch (exceptionType)
+            {
+            case FailureTypeEnum::ResultException:
+                return "wil::ResultException"sv;
+            case FailureTypeEnum::WinrtHResultError:
+                return "winrt::hresult_error"sv;
+            case FailureTypeEnum::ResourceOpen:
+                return "ResourceOpenException"sv;
+            case FailureTypeEnum::StdException:
+                return "std::exception"sv;
+            case FailureTypeEnum::Unknown:
+            default:
+                return "unknown"sv;
+            }
         }
     }
 
-    TelemetryTraceLogger::TelemetryTraceLogger()
+    TelemetrySummary::TelemetrySummary(const TelemetrySummary& other)
     {
-        RegisterTraceLogging();
+        this->IsCOMCall = other.IsCOMCall;
     }
 
-    TelemetryTraceLogger::~TelemetryTraceLogger()
+    TelemetryTraceLogger::TelemetryTraceLogger(bool useSummary) : m_useSummary(useSummary)
     {
-        UnRegisterTraceLogging();
+        std::ignore = CoCreateGuid(&m_activityId);
+        m_subExecutionId = s_RootExecutionId;
     }
 
-    TelemetryTraceLogger& TelemetryTraceLogger::GetInstance()
+    const GUID* TelemetryTraceLogger::GetActivityId() const
     {
-        static TelemetryTraceLogger instance;
-        return instance;
+        return &m_activityId;
     }
 
-    void TelemetryTraceLogger::LogFailure(const wil::FailureInfo& failure) noexcept
+    const GUID* TelemetryTraceLogger::GetParentActivityId() const
+    {
+        return &m_parentActivityId;
+    }
+
+    bool TelemetryTraceLogger::DisableRuntime()
+    {
+        return m_isRuntimeEnabled.exchange(false);
+    }
+
+    void TelemetryTraceLogger::EnableRuntime()
+    {
+        m_isRuntimeEnabled = true;
+    }
+
+    void TelemetryTraceLogger::Initialize()
+    {
+        if (!m_isInitialized)
+        {
+            InitializeInternal(Settings::User());
+        }
+    }
+
+    bool TelemetryTraceLogger::TryInitialize()
+    {
+        if (!m_isInitialized)
+        {
+            // Only initialize if we already have the user settings, so that we can respect the telemetry setting.
+            // We may not yet have the user settings if we are trying to report an error while reading them.
+            auto userSettings = Settings::TryGetUser();
+            if (userSettings)
+            {
+                InitializeInternal(*userSettings);
+            }
+        }
+
+        return m_isInitialized;
+    }
+
+    void TelemetryTraceLogger::SetTelemetryCorrelationJson(const std::wstring_view jsonStr_view) noexcept
+    {
+        // Check if passed in string is a valid Json formatted before returning the value
+        // If invalid, return empty Json
+        Json::CharReaderBuilder jsonBuilder;
+        std::unique_ptr<Json::CharReader> jsonReader(jsonBuilder.newCharReader());
+        std::unique_ptr<Json::Value> pJsonValue = std::make_unique<Json::Value>();
+        std::string errors;
+        std::wstring jsonStrW{ jsonStr_view };
+        std::string jsonStr = ConvertToUTF8(jsonStrW.c_str());
+
+        bool result = jsonReader->parse(jsonStr.c_str(),
+            jsonStr.c_str() + jsonStr.size(),
+            pJsonValue.get(),
+            &errors);
+
+        if (result)
+        {
+            m_telemetryCorrelationJsonW = jsonStrW;
+            AICLI_LOG(Core, Info, << "Passed in Correlation Vector Json is valid: " << jsonStr);
+        }
+        else
+        {
+            AICLI_LOG(Core, Error, << "Passed in Correlation Vector Json is invalid: " << jsonStr << "; Error: " << errors);
+        }
+    }
+
+    void TelemetryTraceLogger::SetCaller(const std::string& caller)
+    {
+        auto callerUTF16 = Utility::ConvertToUTF16(caller);
+        auto anonCaller = AnonymizeString(callerUTF16);
+        m_caller = Utility::ConvertToUTF8(anonCaller);
+    }
+
+    void TelemetryTraceLogger::SetExecutionStage(uint32_t stage) noexcept
+    {
+        m_executionStage = stage;
+    }
+
+    std::unique_ptr<TelemetryTraceLogger> TelemetryTraceLogger::CreateSubTraceLogger() const
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !this->m_isInitialized);
+
+        auto subTraceLogger = std::make_unique<TelemetryTraceLogger>(*this);
+
+        std::ignore = CoCreateGuid(&subTraceLogger->m_activityId);
+        subTraceLogger->m_parentActivityId = this->m_activityId;
+        subTraceLogger->m_subExecutionId = s_subExecutionId++;
+
+        return subTraceLogger;
+    }
+
+    void TelemetryTraceLogger::LogFailure(const wil::FailureInfo& failure) const noexcept
     {
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            auto anonMessage = AnonymizeString(failure.pszMessage);
+
+            AICLI_TraceLoggingWriteActivity(
                 "FailureInfo",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 TraceLoggingHResult(failure.hr, "HResult"),
-                TraceLoggingWideString(failure.pszMessage, "Message"),
+                AICLI_TraceLoggingWStringView(anonMessage, "Message"),
                 TraceLoggingString(failure.pszModule, "Module"),
                 TraceLoggingUInt32(failure.threadId, "ThreadId"),
                 TraceLoggingUInt32(static_cast<uint32_t>(failure.type), "Type"),
                 TraceLoggingString(failure.pszFile, "File"),
                 TraceLoggingUInt32(failure.uLineNumber, "Line"),
-                TraceLoggingUInt32(s_executionStage, "ExecutionStage"),
+                TraceLoggingUInt32(m_executionStage, "ExecutionStage"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.FailureHResult = failure.hr;
+                m_summary.FailureMessage = anonMessage;
+                m_summary.FailureModule = StringOrEmptyIfNull(failure.pszModule);
+                m_summary.FailureThreadId = failure.threadId;
+                m_summary.FailureType = ConvertWilFailureTypeToFailureType(failure.type);
+                m_summary.FailureFile = StringOrEmptyIfNull(failure.pszFile);
+                m_summary.FailureLine = failure.uLineNumber;
+            }
         }
 
         // Also send failure to the log
         AICLI_LOG(Fail, Error, << [&]() {
-                wchar_t message[2048];
-                GetFailureLogString(message, ARRAYSIZE(message), failure);
-                return Utility::ConvertToUTF8(message);
+            wchar_t message[2048];
+            GetFailureLogString(message, ARRAYSIZE(message), failure);
+            return Utility::ConvertToUTF8(message);
             }());
     }
 
-    void TelemetryTraceLogger::LogStartup() noexcept
+    void TelemetryTraceLogger::LogStartup(bool isCOMCall) const noexcept
     {
         LocIndString version = Runtime::GetClientVersion();
         LocIndString packageVersion;
@@ -121,205 +238,247 @@ namespace AppInstaller::Logging
 
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            AICLI_TraceLoggingWriteActivity(
                 "ClientVersion",
-                GetActivityId(),
-                nullptr,
+                TraceLoggingBool(isCOMCall, "IsCOMCall"),
                 TraceLoggingCountedString(version->c_str(), static_cast<ULONG>(version->size()), "Version"),
                 TraceLoggingCountedString(packageVersion->c_str(), static_cast<ULONG>(packageVersion->size()), "PackageVersion"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance|PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.IsCOMCall = isCOMCall;
+            }
         }
 
         AICLI_LOG(Core, Info, << "WinGet, version [" << version << "], activity [" << *GetActivityId() << ']');
+        AICLI_LOG(Core, Info, << "Process: " << Filesystem::GetExecutablePathForProcess(GetCurrentProcess()).filename() << "[" << GetCurrentProcessId() << "], Offset: " << &__ImageBase);
         AICLI_LOG(Core, Info, << "OS: " << Runtime::GetOSVersion());
         AICLI_LOG(Core, Info, << "Command line Args: " << Utility::ConvertToUTF8(GetCommandLineW()));
         if (Runtime::IsRunningInPackagedContext())
         {
             AICLI_LOG(Core, Info, << "Package: " << packageVersion);
         }
+        AICLI_LOG(Core, Info, << "IsCOMCall:" << isCOMCall << "; Caller: " << m_caller);
+
+        Log().SetTag(Tag::HeadersComplete);
     }
- 
-    void TelemetryTraceLogger::LogCommand(std::string_view commandName) noexcept
+
+    void TelemetryTraceLogger::LogCommand(std::string_view commandName) const noexcept
     {
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            AICLI_TraceLoggingWriteActivity(
                 "CommandFound",
-                GetActivityId(),
-                nullptr,
                 AICLI_TraceLoggingStringView(commandName, "Command"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.Command = commandName;
+            }
         }
 
         AICLI_LOG(CLI, Info, << "Leaf command to execute: " << commandName);
     }
 
-    void TelemetryTraceLogger::LogCommandSuccess(std::string_view commandName) noexcept
+    void TelemetryTraceLogger::LogCommandSuccess(std::string_view commandName) const noexcept
     {
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            AICLI_TraceLoggingWriteActivity(
                 "CommandSuccess",
-                GetActivityId(),
-                nullptr,
                 AICLI_TraceLoggingStringView(commandName, "Command"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.CommandSuccess = true;
+            }
         }
 
         AICLI_LOG(CLI, Info, << "Leaf command succeeded: " << commandName);
     }
 
-    void TelemetryTraceLogger::LogCommandTermination(HRESULT hr, std::string_view file, size_t line) noexcept
+    void TelemetryTraceLogger::LogCommandTermination(HRESULT hr, std::string_view file, size_t line) const noexcept
     {
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            AICLI_TraceLoggingWriteActivity(
                 "CommandTermination",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 TraceLoggingHResult(hr, "HResult"),
                 AICLI_TraceLoggingStringView(file, "File"),
                 TraceLoggingUInt64(static_cast<UINT64>(line), "Line"),
-                TraceLoggingUInt32(s_executionStage, "ExecutionStage"),
+                TraceLoggingUInt32(m_executionStage, "ExecutionStage"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.FailureHResult = hr;
+                m_summary.FailureType = FailureTypeEnum::CommandTermination;
+                m_summary.FailureFile = file;
+                m_summary.FailureLine = static_cast<UINT32>(line);
+            }
         }
 
         AICLI_LOG(CLI, Error, << "Terminating context: 0x" << SetHRFormat << hr << " at " << file << ":" << line);
     }
 
-    void TelemetryTraceLogger::LogException(std::string_view commandName, std::string_view type, std::string_view message) noexcept
+    void TelemetryTraceLogger::LogException(FailureTypeEnum type, std::string_view message) const noexcept
     {
+        auto exceptionTypeString = LogExceptionTypeToString(type);
+
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            auto anonMessage = AnonymizeString(Utility::ConvertToUTF16(message));
+
+            AICLI_TraceLoggingWriteActivity(
                 "Exception",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
-                AICLI_TraceLoggingStringView(commandName, "Command"),
-                AICLI_TraceLoggingStringView(type, "Type"),
-                AICLI_TraceLoggingStringView(message, "Message"),
-                TraceLoggingUInt32(s_executionStage, "ExecutionStage"),
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
+                AICLI_TraceLoggingStringView(exceptionTypeString, "Type"),
+                AICLI_TraceLoggingWStringView(anonMessage, "Message"),
+                TraceLoggingUInt32(m_executionStage, "ExecutionStage"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.FailureType = type;
+                m_summary.FailureMessage = anonMessage;
+            }
         }
 
-        AICLI_LOG(CLI, Error, << "Caught " << type << ": " << message);
+        AICLI_LOG(CLI, Error, << "Caught " << exceptionTypeString << ": " << message);
     }
 
-    void TelemetryTraceLogger::LogIsManifestLocal(bool isLocalManifest) noexcept
+    void TelemetryTraceLogger::LogIsManifestLocal(bool isLocalManifest) const noexcept
     {
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            AICLI_TraceLoggingWriteActivity(
                 "GetManifest",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 TraceLoggingBool(isLocalManifest, "IsManifestLocal"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.IsManifestLocal = isLocalManifest;
+            }
         }
     }
 
-    void TelemetryTraceLogger::LogManifestFields(std::string_view id, std::string_view name, std::string_view version) noexcept
+    void TelemetryTraceLogger::LogManifestFields(std::string_view id, std::string_view name, std::string_view version) const noexcept
     {
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            AICLI_TraceLoggingWriteActivity(
                 "ManifestFields",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(id, "Id"),
-                AICLI_TraceLoggingStringView(name,"Name"),
+                AICLI_TraceLoggingStringView(name, "Name"),
                 AICLI_TraceLoggingStringView(version, "Version"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance|PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.PackageIdentifier = id;
+                m_summary.PackageName = name;
+                m_summary.PackageVersion = version;
+            }
         }
 
         AICLI_LOG(CLI, Info, << "Manifest fields: Name [" << name << "], Version [" << version << ']');
     }
 
-    void TelemetryTraceLogger::LogNoAppMatch() noexcept
+    void TelemetryTraceLogger::LogNoAppMatch() const noexcept
     {
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            AICLI_TraceLoggingWriteActivity(
                 "NoAppMatch",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
         AICLI_LOG(CLI, Info, << "No app found matching input criteria");
     }
 
-    void TelemetryTraceLogger::LogMultiAppMatch() noexcept
+    void TelemetryTraceLogger::LogMultiAppMatch() const noexcept
     {
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            AICLI_TraceLoggingWriteActivity(
                 "MultiAppMatch",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
         AICLI_LOG(CLI, Info, << "Multiple apps found matching input criteria");
     }
 
-    void TelemetryTraceLogger::LogAppFound(std::string_view name, std::string_view id) noexcept
+    void TelemetryTraceLogger::LogAppFound(std::string_view name, std::string_view id) const noexcept
     {
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            AICLI_TraceLoggingWriteActivity(
                 "AppFound",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(name, "Name"),
                 AICLI_TraceLoggingStringView(id, "Id"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.PackageIdentifier = id;
+                m_summary.PackageName = name;
+            }
         }
 
         AICLI_LOG(CLI, Info, << "Found one app. App id: " << id << " App name: " << name);
     }
 
-    void TelemetryTraceLogger::LogSelectedInstaller(int arch, std::string_view url, std::string_view installerType, std::string_view scope, std::string_view language) noexcept
+    void TelemetryTraceLogger::LogSelectedInstaller(int arch, std::string_view url, std::string_view installerType, std::string_view scope, std::string_view language) const noexcept
     {
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            AICLI_TraceLoggingWriteActivity(
                 "SelectedInstaller",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 TraceLoggingInt32(arch, "Arch"),
                 AICLI_TraceLoggingStringView(url, "Url"),
                 AICLI_TraceLoggingStringView(installerType, "InstallerType"),
                 AICLI_TraceLoggingStringView(scope, "Scope"),
                 AICLI_TraceLoggingStringView(language, "Language"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.InstallerArchitecture = arch;
+                m_summary.InstallerUrl = url;
+                m_summary.InstallerType = installerType;
+                m_summary.InstallerScope = scope;
+                m_summary.InstallerLocale = language;
+            }
         }
 
-        AICLI_LOG(CLI, Info, << "Completed installer selection.");
-        AICLI_LOG(CLI, Verbose, << "Selected installer arch: " << arch);
-        AICLI_LOG(CLI, Verbose, << "Selected installer url: " << url);
+        AICLI_LOG(CLI, Verbose, << "Completed installer selection.");
+        AICLI_LOG(CLI, Verbose, << "Selected installer Architecture: " << arch);
+        AICLI_LOG(CLI, Verbose, << "Selected installer URL: " << url);
         AICLI_LOG(CLI, Verbose, << "Selected installer InstallerType: " << installerType);
-        AICLI_LOG(CLI, Verbose, << "Selected installer scope: " << scope);
-        AICLI_LOG(CLI, Verbose, << "Selected installer language: " << language);
+        AICLI_LOG(CLI, Verbose, << "Selected installer Scope: " << scope);
+        AICLI_LOG(CLI, Verbose, << "Selected installer Language: " << language);
     }
 
     void TelemetryTraceLogger::LogSearchRequest(
@@ -331,15 +490,13 @@ namespace AppInstaller::Logging
         std::string_view tag,
         std::string_view command,
         size_t maximum,
-        std::string_view request)
+        std::string_view request) const noexcept
     {
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            AICLI_TraceLoggingWriteActivity(
                 "SearchRequest",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(type, "Type"),
                 AICLI_TraceLoggingStringView(query, "Query"),
                 AICLI_TraceLoggingStringView(id, "Id"),
@@ -349,24 +506,42 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(command, "Command"),
                 TraceLoggingUInt64(static_cast<UINT64>(maximum), "Maximum"),
                 AICLI_TraceLoggingStringView(request, "Request"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.SearchType = type;
+                m_summary.SearchQuery = query;
+                m_summary.SearchId = id;
+                m_summary.SearchName = name;
+                m_summary.SearchMoniker = moniker;
+                m_summary.SearchTag = tag;
+                m_summary.SearchCommand = command;
+                m_summary.SearchMaximum = static_cast<UINT64>(maximum);
+                m_summary.SearchRequest = request;
+            }
         }
     }
 
-    void TelemetryTraceLogger::LogSearchResultCount(uint64_t resultCount) noexcept
+    void TelemetryTraceLogger::LogSearchResultCount(uint64_t resultCount) const noexcept
     {
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            AICLI_TraceLoggingWriteActivity(
                 "SearchResultCount",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 TraceLoggingUInt64(resultCount, "ResultCount"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.SearchResultCount = resultCount;
+            }
         }
+
+        AICLI_LOG(CLI, Verbose, << "Search result size: " << resultCount);
     }
 
     void TelemetryTraceLogger::LogInstallerHashMismatch(
@@ -375,23 +550,39 @@ namespace AppInstaller::Logging
         std::string_view channel,
         const std::vector<uint8_t>& expected,
         const std::vector<uint8_t>& actual,
-        bool overrideHashMismatch)
+        bool overrideHashMismatch,
+        uint64_t downloadSizeInBytes,
+        const std::optional<std::string>& contentType) const noexcept
     {
+        std::string actualContentType = contentType.value_or(std::string{});
+
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            AICLI_TraceLoggingWriteActivity(
                 "HashMismatch",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(id, "Id"),
                 AICLI_TraceLoggingStringView(version, "Version"),
                 AICLI_TraceLoggingStringView(channel, "Channel"),
                 TraceLoggingBinary(expected.data(), static_cast<ULONG>(expected.size()), "Expected"),
                 TraceLoggingBinary(actual.data(), static_cast<ULONG>(actual.size()), "Actual"),
-                TraceLoggingValue(overrideHashMismatch, "Override"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingBool(overrideHashMismatch, "Override"),
+                TraceLoggingUInt64(downloadSizeInBytes, "ActualSize"),
+                AICLI_TraceLoggingStringView(actualContentType, "ContentType"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.PackageIdentifier = id;
+                m_summary.PackageVersion = version;
+                m_summary.Channel = channel;
+                m_summary.HashMismatchExpected = expected;
+                m_summary.HashMismatchActual = actual;
+                m_summary.HashMismatchOverride = overrideHashMismatch;
+                m_summary.HashMismatchActualSize = downloadSizeInBytes;
+                m_summary.HashMismatchContentType = actualContentType;
+            }
         }
 
         AICLI_LOG(CLI, Error,
@@ -399,69 +590,315 @@ namespace AppInstaller::Logging
             << Utility::SHA256::ConvertToString(expected)
             << "] does not match download ["
             << Utility::SHA256::ConvertToString(actual)
-            << ']');
+            << "] with file size [" << downloadSizeInBytes << "] and content type [" << actualContentType << "]");
     }
 
-    void TelemetryTraceLogger::LogInstallerFailure(std::string_view id, std::string_view version, std::string_view channel, std::string_view type, uint32_t errorCode)
+    void TelemetryTraceLogger::LogInstallerFailure(std::string_view id, std::string_view version, std::string_view channel, std::string_view type, uint32_t errorCode) const noexcept
     {
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            AICLI_TraceLoggingWriteActivity(
                 "InstallerFailure",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(id, "Id"),
                 AICLI_TraceLoggingStringView(version, "Version"),
                 AICLI_TraceLoggingStringView(channel, "Channel"),
                 AICLI_TraceLoggingStringView(type, "Type"),
                 TraceLoggingUInt32(errorCode, "ErrorCode"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.PackageIdentifier = id;
+                m_summary.PackageVersion = version;
+                m_summary.Channel = channel;
+                m_summary.InstallerExecutionType = type;
+                m_summary.InstallerErrorCode = errorCode;
+            }
         }
 
         AICLI_LOG(CLI, Error, << type << " installer failed: " << errorCode);
     }
 
-    void TelemetryTraceLogger::LogUninstallerFailure(std::string_view id, std::string_view version, std::string_view type, uint32_t errorCode)
+    void TelemetryTraceLogger::LogUninstallerFailure(std::string_view id, std::string_view version, std::string_view type, uint32_t errorCode) const noexcept
     {
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
+            AICLI_TraceLoggingWriteActivity(
                 "UninstallerFailure",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(id, "Id"),
                 AICLI_TraceLoggingStringView(version, "Version"),
                 AICLI_TraceLoggingStringView(type, "Type"),
                 TraceLoggingUInt32(errorCode, "ErrorCode"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.PackageIdentifier = id;
+                m_summary.PackageVersion = version;
+                m_summary.UninstallerExecutionType = type;
+                m_summary.UninstallerErrorCode = errorCode;
+            }
         }
 
         AICLI_LOG(CLI, Error, << type << " uninstaller failed: " << errorCode);
     }
 
-    void TelemetryTraceLogger::LogDuplicateARPEntry(HRESULT hr, std::string_view scope, std::string_view architecture, std::string_view productCode, std::string_view name)
+    void TelemetryTraceLogger::LogSuccessfulInstallARPChange(
+        std::string_view sourceIdentifier,
+        std::string_view packageIdentifier,
+        std::string_view packageVersion,
+        std::string_view packageChannel,
+        size_t changesToARP,
+        size_t matchesInARP,
+        size_t countOfIntersectionOfChangesAndMatches,
+        std::string_view arpName,
+        std::string_view arpVersion,
+        std::string_view arpPublisher,
+        std::string_view arpLanguage) const noexcept
     {
         if (IsTelemetryEnabled())
         {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
-                "DuplicateARPEntry",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
-                TraceLoggingHResult(hr, "HResult"),
-                AICLI_TraceLoggingStringView(scope, "Scope"),
-                AICLI_TraceLoggingStringView(architecture, "Architecture"),
-                AICLI_TraceLoggingStringView(productCode, "ProductCode"),
-                AICLI_TraceLoggingStringView(name, "Name"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+            size_t languageNumber = 0xFFFF;
+
+            try
+            {
+                std::istringstream languageConversion{ std::string{ arpLanguage } };
+                languageConversion >> languageNumber;
+            }
+            catch (...) {}
+
+            AICLI_TraceLoggingWriteActivity(
+                "InstallARPChange",
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
+                AICLI_TraceLoggingStringView(sourceIdentifier, "SourceIdentifier"),
+                AICLI_TraceLoggingStringView(packageIdentifier, "PackageIdentifier"),
+                AICLI_TraceLoggingStringView(packageVersion, "PackageVersion"),
+                AICLI_TraceLoggingStringView(packageChannel, "PackageChannel"),
+                TraceLoggingUInt64(static_cast<UINT64>(changesToARP), "ChangesToARP"),
+                TraceLoggingUInt64(static_cast<UINT64>(matchesInARP), "MatchesInARP"),
+                TraceLoggingUInt64(static_cast<UINT64>(countOfIntersectionOfChangesAndMatches), "ChangesThatMatch"),
+                AICLI_TraceLoggingStringView(arpName, "ARPName"),
+                AICLI_TraceLoggingStringView(arpVersion, "ARPVersion"),
+                AICLI_TraceLoggingStringView(arpPublisher, "ARPPublisher"),
+                TraceLoggingUInt64(static_cast<UINT64>(languageNumber), "ARPLanguage"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage | PDT_SoftwareSetupAndInventory),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.SourceIdentifier = sourceIdentifier;
+                m_summary.PackageIdentifier = packageIdentifier;
+                m_summary.PackageVersion = packageVersion;
+                m_summary.Channel = packageChannel;
+                m_summary.ChangesToARP = static_cast<UINT64>(changesToARP);
+                m_summary.MatchesInARP = static_cast<UINT64>(matchesInARP);
+                m_summary.ChangesThatMatch = static_cast<UINT64>(countOfIntersectionOfChangesAndMatches);
+                m_summary.ARPName = arpName;
+                m_summary.ARPVersion = arpVersion;
+                m_summary.ARPPublisher = arpPublisher;
+                m_summary.ARPLanguage = static_cast<UINT64>(languageNumber);
+            }
         }
 
-        AICLI_LOG(CLI, Error, << "Ignoring duplicate ARP entry " << scope << '|' << architecture << '|' << productCode << " [" << name << "]");
+        AICLI_LOG(CLI, Info, << "During package install, " << changesToARP << " changes to ARP were observed, "
+            << matchesInARP << " matches were found for the package, and " << countOfIntersectionOfChangesAndMatches << " packages were in both");
+
+        if (arpName.empty())
+        {
+            AICLI_LOG(CLI, Info, << "No single entry was determined to be associated with the package");
+        }
+        else
+        {
+            AICLI_LOG(CLI, Info, << "The entry determined to be associated with the package is '" << arpName << "', with publisher '" << arpPublisher << "'");
+        }
+    }
+
+    void TelemetryTraceLogger::LogNonFatalDOError(std::string_view url, HRESULT hr) const noexcept
+    {
+        if (IsTelemetryEnabled())
+        {
+            AICLI_TraceLoggingWriteActivity(
+                "NonFatalDOError",
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
+                AICLI_TraceLoggingStringView(url, "Url"),
+                TraceLoggingHResult(hr, "HResult"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+
+            if (m_useSummary)
+            {
+                m_summary.DOUrl = url;
+                m_summary.DOHResult = hr;
+            }
+        }
+    }
+
+    void TelemetryTraceLogger::LogRepairFailure(std::string_view id, std::string_view version, std::string_view type, uint32_t errorCode) const noexcept
+    {
+        if (IsTelemetryEnabled())
+        {
+            AICLI_TraceLoggingWriteActivity(
+                "RepairFailure",
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
+                AICLI_TraceLoggingStringView(id, "Id"),
+                AICLI_TraceLoggingStringView(version, "Version"),
+                AICLI_TraceLoggingStringView(type, "Type"),
+                TraceLoggingUInt32(errorCode, "ErrorCode"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+
+            if (m_useSummary)
+            {
+                m_summary.PackageIdentifier = id;
+                m_summary.PackageVersion = version;
+                m_summary.RepairExecutionType = type;
+                m_summary.RepairErrorCode = errorCode;
+            
+            }
+        }
+
+        AICLI_LOG(CLI, Error, << type << " repair failed: " << errorCode);
+    }
+
+    TelemetryTraceLogger::~TelemetryTraceLogger()
+    {
+        if (IsTelemetryEnabled())
+        {
+            LocIndString version = Runtime::GetClientVersion();
+            LocIndString packageVersion;
+            if (Runtime::IsRunningInPackagedContext())
+            {
+                packageVersion = Runtime::GetPackageVersion();
+            }
+
+            if (m_useSummary)
+            {
+                TraceLoggingWriteActivity(
+                    g_hTraceProvider,
+                    "SummaryV2",
+                    GetActivityId(),
+                    GetParentActivityId(),
+                    // From member fields or program info.
+                    AICLI_TraceLoggingStringView(m_caller, "Caller"),
+                    TraceLoggingPackedFieldEx(m_telemetryCorrelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorrelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),
+                    TraceLoggingCountedString(version->c_str(), static_cast<ULONG>(version->size()), "ClientVersion"),
+                    TraceLoggingCountedString(packageVersion->c_str(), static_cast<ULONG>(packageVersion->size()), "ClientPackageVersion"),
+                    TraceLoggingBool(Runtime::IsReleaseBuild(), "IsReleaseBuild"),
+                    TraceLoggingUInt32(m_executionStage, "ExecutionStage"),
+                    // From TelemetrySummary
+                    TraceLoggingHResult(m_summary.FailureHResult, "FailureHResult"),
+                    AICLI_TraceLoggingWStringView(m_summary.FailureMessage, "FailureMessage"),
+                    AICLI_TraceLoggingStringView(m_summary.FailureModule, "FailureModule"),
+                    TraceLoggingUInt32(m_summary.FailureThreadId, "FailureThreadId"),
+                    TraceLoggingUInt32(static_cast<UINT32>(m_summary.FailureType), "FailureType"),
+                    AICLI_TraceLoggingStringView(m_summary.FailureFile, "FailureFile"),
+                    TraceLoggingUInt32(m_summary.FailureLine, "FailureLine"),
+                    TraceLoggingBool(m_summary.IsCOMCall, "IsCOMCall"),
+                    AICLI_TraceLoggingStringView(m_summary.Command, "Command"),
+                    TraceLoggingBool(m_summary.CommandSuccess, "CommandSuccess"),
+                    TraceLoggingBool(m_summary.IsManifestLocal, "IsManifestLocal"),
+                    AICLI_TraceLoggingStringView(m_summary.PackageIdentifier, "PackageIdentifier"),
+                    AICLI_TraceLoggingStringView(m_summary.PackageName, "PackageName"),
+                    AICLI_TraceLoggingStringView(m_summary.PackageVersion, "PackageVersion"),
+                    AICLI_TraceLoggingStringView(m_summary.Channel, "Channel"),
+                    AICLI_TraceLoggingStringView(m_summary.SourceIdentifier, "SourceIdentifier"),
+                    TraceLoggingInt32(m_summary.InstallerArchitecture, "InstallerArchitecture"),
+                    AICLI_TraceLoggingStringView(m_summary.InstallerUrl, "InstallerUrl"),
+                    AICLI_TraceLoggingStringView(m_summary.InstallerType, "InstallerType"),
+                    AICLI_TraceLoggingStringView(m_summary.InstallerScope, "InstallerScope"),
+                    AICLI_TraceLoggingStringView(m_summary.InstallerLocale, "InstallerLocale"),
+                    AICLI_TraceLoggingStringView(m_summary.SearchType, "SearchType"),
+                    AICLI_TraceLoggingStringView(m_summary.SearchQuery, "SearchQuery"),
+                    AICLI_TraceLoggingStringView(m_summary.SearchId, "SearchId"),
+                    AICLI_TraceLoggingStringView(m_summary.SearchName, "SearchName"),
+                    AICLI_TraceLoggingStringView(m_summary.SearchMoniker, "SearchMoniker"),
+                    AICLI_TraceLoggingStringView(m_summary.SearchTag, "SearchTag"),
+                    AICLI_TraceLoggingStringView(m_summary.SearchCommand, "SearchCommand"),
+                    TraceLoggingUInt64(m_summary.SearchMaximum, "SearchMaximum"),
+                    AICLI_TraceLoggingStringView(m_summary.SearchRequest, "SearchRequest"),
+                    TraceLoggingUInt64(m_summary.SearchResultCount, "SearchResultCount"),
+                    TraceLoggingBinary(m_summary.HashMismatchExpected.data(), static_cast<ULONG>(m_summary.HashMismatchExpected.size()), "HashMismatchExpected"),
+                    TraceLoggingBinary(m_summary.HashMismatchActual.data(), static_cast<ULONG>(m_summary.HashMismatchActual.size()), "HashMismatchActual"),
+                    TraceLoggingBool(m_summary.HashMismatchOverride, "HashMismatchOverride"),
+                    TraceLoggingUInt64(m_summary.HashMismatchActualSize, "HashMismatchActualSize"),
+                    AICLI_TraceLoggingStringView(m_summary.HashMismatchContentType, "HashMismatchContentType"),
+                    AICLI_TraceLoggingStringView(m_summary.InstallerExecutionType, "InstallerExecutionType"),
+                    TraceLoggingUInt32(m_summary.InstallerErrorCode, "InstallerErrorCode"),
+                    AICLI_TraceLoggingStringView(m_summary.UninstallerExecutionType, "UninstallerExecutionType"),
+                    TraceLoggingUInt32(m_summary.UninstallerErrorCode, "UninstallerErrorCode"),
+                    TraceLoggingUInt64(m_summary.ChangesToARP, "ChangesToARP"),
+                    TraceLoggingUInt64(m_summary.MatchesInARP, "MatchesInARP"),
+                    TraceLoggingUInt64(m_summary.ChangesThatMatch, "ChangesThatMatch"),
+                    TraceLoggingUInt64(m_summary.ARPLanguage, "ARPLanguage"),
+                    AICLI_TraceLoggingStringView(m_summary.ARPName, "ARPName"),
+                    AICLI_TraceLoggingStringView(m_summary.ARPVersion, "ARPVersion"),
+                    AICLI_TraceLoggingStringView(m_summary.ARPPublisher, "ARPPublisher"),
+                    AICLI_TraceLoggingStringView(m_summary.DOUrl, "DOUrl"),
+                    TraceLoggingHResult(m_summary.DOHResult, "DOHResult"),
+                    AICLI_TraceLoggingStringView(m_summary.RepairExecutionType, "RepairExecutionType"),
+                    TraceLoggingUInt32(m_summary.RepairErrorCode, "RepairErrorCode"),
+                    TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage | PDT_SoftwareSetupAndInventory),
+                    TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+            }
+        }
+    }
+
+    bool TelemetryTraceLogger::IsTelemetryEnabled() const noexcept
+    {
+        return g_IsTelemetryProviderEnabled && m_isInitialized && m_isSettingEnabled && m_isRuntimeEnabled;
+    }
+
+    void TelemetryTraceLogger::InitializeInternal(const AppInstaller::Settings::UserSettings& userSettings)
+    {
+        m_isSettingEnabled = !userSettings.Get<Settings::Setting::TelemetryDisable>();
+        m_isInitialized = true;
+    }
+
+    std::wstring TelemetryTraceLogger::AnonymizeString(const wchar_t* input) const noexcept
+    {
+        return input ? AnonymizeString(std::wstring_view{ input }) : std::wstring{};
+    }
+
+    std::wstring TelemetryTraceLogger::AnonymizeString(std::wstring_view input) const noexcept try
+    {
+        // GetPathTo() may need to read the settings, so this function should only be called after settings are initialized.
+        // To ensure that, this function is only called when emitting an event, and we disable the telemetry until settings are ready.
+        static const std::wstring s_UserProfile = Runtime::GetPathTo(Runtime::PathName::UserProfile).wstring();
+
+        return Utility::ReplaceWhileCopying(input, s_UserProfile, s_UserProfileReplacement);
+    }
+    catch (...) { return std::wstring{ input }; }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static std::shared_ptr<TelemetryTraceLogger> s_TelemetryTraceLogger_TestOverride;
+#endif
+
+    TelemetryTraceLogger& Telemetry()
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_TelemetryTraceLogger_TestOverride)
+        {
+            return *s_TelemetryTraceLogger_TestOverride.get();
+        }
+#endif
+        ThreadLocalStorage::ThreadGlobals* pThreadGlobals = ThreadLocalStorage::ThreadGlobals::GetForCurrentThread();
+        if (pThreadGlobals)
+        {
+            return *reinterpret_cast<TelemetryTraceLogger*>(pThreadGlobals->GetTelemetryObject());
+        }
+        else
+        {
+            // For the global telemetry object, we may not have yet read the settings file.
+            // In that case, we will not be able to initialize it, so we need to try it
+            // each time we get the object.
+            static TelemetryTraceLogger processGlobalTelemetry(/* useSummary */ false);
+            processGlobalTelemetry.TryInitialize();
+            return processGlobalTelemetry;
+        }
     }
 
     void EnableWilFailureTelemetry()
@@ -469,35 +906,30 @@ namespace AppInstaller::Logging
         wil::SetResultLoggingCallback(wilResultLoggingCallback);
     }
 
+    void UseGlobalTelemetryLoggerActivityIdOnly()
+    {
+        s_useGlobalTelemetryActivityId = true;
+        std::ignore = CoCreateGuid(&s_globalTelemetryLoggerActivityId);
+    }
+
     DisableTelemetryScope::DisableTelemetryScope()
     {
-        m_token = s_isTelemetryEnabled.exchange(false);
+        m_token = Telemetry().DisableRuntime();
     }
 
     DisableTelemetryScope::~DisableTelemetryScope()
     {
         if (m_token)
         {
-            s_isTelemetryEnabled = true;
+            Telemetry().EnableRuntime();
         }
     }
 
-    void SetExecutionStage(uint32_t stage)
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    // Replace this test hook with context telemetry when it gets moved over
+    void TestHook_SetTelemetryOverride(std::shared_ptr<TelemetryTraceLogger> ttl)
     {
-        s_executionStage = stage;
+        s_TelemetryTraceLogger_TestOverride = std::move(ttl);
     }
-
-    std::atomic_uint32_t SubExecutionTelemetryScope::m_sessionId{ s_RootExecutionId };
-
-    SubExecutionTelemetryScope::SubExecutionTelemetryScope()
-    {
-        auto expected = s_RootExecutionId;
-        THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !s_subExecutionId.compare_exchange_strong(expected, ++m_sessionId),
-            "Cannot create a sub execution telemetry session when a previous session exists.");
-    }
-
-    SubExecutionTelemetryScope::~SubExecutionTelemetryScope()
-    {
-        s_subExecutionId = s_RootExecutionId;
-    }
+#endif
 }

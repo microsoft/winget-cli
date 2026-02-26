@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
+#include <winget/SQLiteWrapper.h>
 #include "Microsoft/Schema/ISQLiteIndex.h"
-#include "AppInstallerRepositorySearch.h"
+#include "Public/winget/RepositorySearch.h"
 
 #include <string>
 #include <string_view>
@@ -22,9 +22,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         // Creates the table in the database.
         static void Create(SQLite::Connection& connection);
 
+        // Drops the table.
+        static void Drop(SQLite::Connection& connection);
+
         // Gets all metadata associated with the given manifest.
         // The table must exist.
         static ISQLiteIndex::MetadataResult GetMetadataByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId);
+
+        // Gets the specific metadata value for the manifest, if it exists.
+        // The table must exist.
+        static std::optional<std::string> GetMetadataByManifestIdAndMetadata(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMetadata metadata);
 
         // Sets the metadata value for the given manifest.
         // The table must exist.

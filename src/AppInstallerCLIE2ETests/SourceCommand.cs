@@ -1,21 +1,136 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+// -----------------------------------------------------------------------------
+// <copyright file="SourceCommand.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
+    /// <summary>
+    /// Test source command.
+    /// </summary>
     public class SourceCommand : BaseCommand
     {
+        /// <summary>
+        /// One time set up.
+        /// </summary>
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            WinGetSettingsHelper.ConfigureFeature("sourcePriority", true);
+        }
+
+        /// <summary>
+        /// Test set up.
+        /// </summary>
+        [SetUp]
+        public void Setup()
+        {
+            this.ResetTestSource(false);
+        }
+
+        /// <summary>
+        /// Test source add.
+        /// </summary>
         [Test]
         public void SourceAdd()
         {
+            // TODO: Our test source package is being rejected by SmartScreen on the build server.
+            //       Reenable when SmartScreen issue is solved or removed.
+            Assert.Ignore();
+
             var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
             TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
         }
 
+        /// <summary>
+        /// Test source add with trust level.
+        /// </summary>
+        [Test]
+        public void SourceAddWithTrustLevel()
+        {
+            // Remove the test source.
+            TestCommon.RunAICLICommand("source remove", Constants.TestSourceName);
+
+            var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl} --trust-level trusted");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Done"));
+
+            var listResult = TestCommon.RunAICLICommand("source list", $"-n SourceTest");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
+            Assert.True(listResult.StdOut.Contains("Trust Level"));
+            Assert.True(listResult.StdOut.Contains("Trusted"));
+            TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
+        }
+
+        /// <summary>
+        /// Test source add with store origin trust level.
+        /// </summary>
+        [Test]
+        public void SourceAddWithStoreOriginTrustLevel()
+        {
+            // Remove the test source.
+            TestCommon.RunAICLICommand("source remove", Constants.TestSourceName);
+
+            var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl} --trust-level storeOrigin");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_DATA_INTEGRITY_FAILURE, result.ExitCode);
+            Assert.True(result.StdOut.Contains("The source data is corrupted or tampered"));
+        }
+
+        /// <summary>
+        /// Test source add with explicit flag. Packages should only appear if the source is explicitly declared.
+        /// </summary>
+        [Test]
+        public void SourceAddWithExplicit()
+        {
+            // Remove the test source.
+            TestCommon.RunAICLICommand("source remove", Constants.TestSourceName);
+
+            var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl} --trust-level trusted --explicit");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Done"));
+
+            var searchResult = TestCommon.RunAICLICommand("search", "TestExampleInstaller");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_SOURCES_DEFINED, searchResult.ExitCode);
+            Assert.True(searchResult.StdOut.Contains("No sources defined; add one with 'source add' or reset to defaults with 'source reset'"));
+
+            var searchResult2 = TestCommon.RunAICLICommand("search", "TestExampleInstaller --source SourceTest");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, searchResult2.ExitCode);
+            Assert.True(searchResult2.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(searchResult2.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+            TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
+        }
+
+        /// <summary>
+        /// Test source add with a priority value.
+        /// </summary>
+        [Test]
+        public void SourceAddWithPriority()
+        {
+            // Remove the test source.
+            TestCommon.RunAICLICommand("source remove", Constants.TestSourceName);
+
+            var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl} --priority 42");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Done"));
+
+            var listResult = TestCommon.RunAICLICommand("source list", "SourceTest");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
+            Assert.True(listResult.StdOut.Contains("42"));
+
+            var exportResult = TestCommon.RunAICLICommand("source export", string.Empty);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
+            Assert.True(exportResult.StdOut.Contains("42"));
+        }
+
+        /// <summary>
+        /// Test source add with duplicate name.
+        /// </summary>
         [Test]
         public void SourceAddWithDuplicateName()
         {
@@ -25,6 +140,21 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("A source with the given name already exists and refers to a different location"));
         }
 
+        /// <summary>
+        /// Test source add with duplicate source url.
+        /// </summary>
+        [Test]
+        public void SourceAddWithDuplicateSourceUrl()
+        {
+            // Add source with duplicate url should fail
+            var result = TestCommon.RunAICLICommand("source add", $"TestSource2 {Constants.TestSourceUrl}");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_ARG_ALREADY_EXISTS, result.ExitCode);
+            Assert.True(result.StdOut.Contains("A source with a different name already refers to this location"));
+        }
+
+        /// <summary>
+        /// Test source add with invalid url.
+        /// </summary>
         [Test]
         public void SourceAddWithInvalidURL()
         {
@@ -34,7 +164,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("An unexpected error occurred while executing the command"));
         }
 
-
+        /// <summary>
+        /// Test source add with http url.
+        /// </summary>
         [Test]
         public void SourceAddWithHttpURL()
         {
@@ -44,15 +176,21 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("error occurred while executing the command"));
         }
 
+        /// <summary>
+        /// Test source list with no args.
+        /// </summary>
         [Test]
         public void SourceListWithNoArgs()
         {
             // List with no args should list all available sources
-            var result = TestCommon.RunAICLICommand("source list", "");
+            var result = TestCommon.RunAICLICommand("source list", string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains(Constants.TestSourceUrl));
         }
 
+        /// <summary>
+        /// Test source list with name.
+        /// </summary>
         [Test]
         public void SourceListWithName()
         {
@@ -61,9 +199,13 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains(Constants.TestSourceName));
             Assert.True(result.StdOut.Contains(Constants.TestSourceUrl));
             Assert.True(result.StdOut.Contains("Microsoft.PreIndexed.Package"));
+            Assert.True(result.StdOut.Contains("Trust Level"));
             Assert.True(result.StdOut.Contains("Updated"));
         }
 
+        /// <summary>
+        /// Test source list name mismatch.
+        /// </summary>
         [Test]
         public void SourceListNameMismatch()
         {
@@ -72,6 +214,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Did not find a source named"));
         }
 
+        /// <summary>
+        /// Test source update.
+        /// </summary>
         [Test]
         public void SourceUpdate()
         {
@@ -80,6 +225,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Done"));
         }
 
+        /// <summary>
+        /// Test source update with invalid name.
+        /// </summary>
         [Test]
         public void SourceUpdateWithInvalidName()
         {
@@ -88,15 +236,21 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Did not find a source named: UnknownName"));
         }
 
+        /// <summary>
+        /// Test source remove by name.
+        /// </summary>
         [Test]
         public void SourceRemoveValidName()
         {
             var result = TestCommon.RunAICLICommand("source remove", $"-n {Constants.TestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
-            ResetTestSource();
+            this.ResetTestSource(false);
         }
 
+        /// <summary>
+        /// Test source remove with invalid name.
+        /// </summary>
         [Test]
         public void SourceRemoveInvalidName()
         {
@@ -105,15 +259,21 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Did not find a source named: UnknownName"));
         }
 
+        /// <summary>
+        /// Test source reset.
+        /// </summary>
         [Test]
         public void SourceReset()
         {
-            var result = TestCommon.RunAICLICommand("source reset", "");
+            var result = TestCommon.RunAICLICommand("source reset", string.Empty);
             Assert.True(result.StdOut.Contains("The following sources will be reset if the --force option is given:"));
             Assert.True(result.StdOut.Contains(Constants.TestSourceName));
             Assert.True(result.StdOut.Contains(Constants.TestSourceUrl));
         }
 
+        /// <summary>
+        /// Test source reset force.
+        /// </summary>
         [Test]
         public void SourceForceReset()
         {
@@ -122,13 +282,114 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Resetting all sources...Done"));
 
-            //Verify sources have been reset
-            result = TestCommon.RunAICLICommand("source list", "");
+            // Verify sources have been reset
+            result = TestCommon.RunAICLICommand("source list", string.Empty);
             Assert.True(result.StdOut.Contains("winget"));
-            Assert.True(result.StdOut.Contains("https://winget.azureedge.net/cache"));
+            Assert.True(result.StdOut.Contains("https://cdn.winget.microsoft.com/cache"));
             Assert.False(result.StdOut.Contains(Constants.TestSourceName));
             Assert.False(result.StdOut.Contains(Constants.TestSourceUrl));
-            ResetTestSource();
+        }
+
+        /// <summary>
+        /// Test source edit with explicit flag, edit the source to not be explicit.
+        /// </summary>
+        [Test]
+        public void SourceEdit()
+        {
+            // Remove the test source.
+            TestCommon.RunAICLICommand("source remove", Constants.TestSourceName);
+
+            // Add source as explicit and verify it is explicit.
+            var addResult = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl} --trust-level trusted --explicit");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, addResult.ExitCode);
+            Assert.True(addResult.StdOut.Contains("Done"));
+
+            var searchResult = TestCommon.RunAICLICommand("search", "TestExampleInstaller");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_SOURCES_DEFINED, searchResult.ExitCode);
+            Assert.True(searchResult.StdOut.Contains("No sources defined; add one with 'source add' or reset to defaults with 'source reset'"));
+
+            // Run the edit, this should be S_OK with "Done" as it changed the state to not-explicit.
+            var editResult = TestCommon.RunAICLICommand("source edit", $"SourceTest --explicit false");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, editResult.ExitCode);
+            Assert.True(editResult.StdOut.Contains("Explicit"));
+
+            // Run it again, this should result in S_OK with no changes and a message that the source is already in that state.
+            var editResult2 = TestCommon.RunAICLICommand("source edit", $"SourceTest --explicit false");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, editResult2.ExitCode);
+            Assert.True(editResult2.StdOut.Contains("The source named 'SourceTest' is already in the desired state."));
+
+            // Now verify it is no longer explicit by running the search again without adding the source parameter.
+            var searchResult2 = TestCommon.RunAICLICommand("search", "TestExampleInstaller");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, searchResult2.ExitCode);
+            Assert.True(searchResult2.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(searchResult2.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+            TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
+        }
+
+        /// <summary>
+        /// Test source edit with priority.
+        /// </summary>
+        [Test]
+        public void SourceEdit_Priority()
+        {
+            // Remove the test source.
+            TestCommon.RunAICLICommand("source remove", Constants.TestSourceName);
+
+            var addResult = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, addResult.ExitCode);
+            Assert.True(addResult.StdOut.Contains("Done"));
+
+            // Run the edit, this should be S_OK with "Done" as it changed the state
+            var editResult = TestCommon.RunAICLICommand("source edit", $"SourceTest --priority 14");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, editResult.ExitCode);
+            Assert.True(editResult.StdOut.Contains("14"));
+
+            // Run it again, this should result in S_OK with no changes and a message that the source is already in that state.
+            var editResult2 = TestCommon.RunAICLICommand("source edit", $"SourceTest --priority 14");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, editResult2.ExitCode);
+            Assert.True(editResult2.StdOut.Contains("The source named 'SourceTest' is already in the desired state."));
+        }
+
+        /// <summary>
+        /// Test override of a default source via edit command.
+        /// </summary>
+        [Test]
+        public void SourceEditOverrideDefault()
+        {
+            // Force Reset Sources
+            var resetResult = TestCommon.RunAICLICommand("source reset", "--force");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, resetResult.ExitCode);
+
+            // Verify it is explicit true. Explicit is the only boolean value in the output.
+            var listResult = TestCommon.RunAICLICommand("source list", "winget-font");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
+            Assert.True(listResult.StdOut.Contains("true"));
+
+            var editResult = TestCommon.RunAICLICommand("source edit", "winget-font -e false");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, editResult.ExitCode);
+            Assert.True(editResult.StdOut.Contains("Explicit"));
+
+            // Verify that after edit it is now explicit false.
+            var listResult2 = TestCommon.RunAICLICommand("source list", "winget-font");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult2.ExitCode);
+            Assert.True(listResult2.StdOut.Contains("false"));
+
+            // Remove the source. This should correctly tombstone it, even though it is overridden.
+            var removeResult = TestCommon.RunAICLICommand("source remove", "winget-font");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, removeResult.ExitCode);
+            Assert.True(removeResult.StdOut.Contains("Done"));
+
+            var listResult3 = TestCommon.RunAICLICommand("source list", "winget-font");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, listResult3.ExitCode);
+
+            // Force Reset Sources
+            var resetResult2 = TestCommon.RunAICLICommand("source reset", "--force");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, resetResult2.ExitCode);
+
+            // Verify it is back to being explicit true.
+            var listResult4 = TestCommon.RunAICLICommand("source list", "winget-font");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult4.ExitCode);
+            Assert.True(listResult4.StdOut.Contains("true"));
         }
     }
 }

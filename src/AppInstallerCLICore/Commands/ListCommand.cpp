@@ -8,6 +8,7 @@
 
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Workflow;
     using namespace std::string_view_literals;
 
     std::vector<Argument> ListCommand::GetArguments() const
@@ -22,6 +23,15 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Command),
             Argument::ForType(Execution::Args::Type::Count),
             Argument::ForType(Execution::Args::Type::Exact),
+            Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument::ForType(Execution::Args::Type::CustomHeader),
+            Argument::ForType(Execution::Args::Type::AuthenticationMode),
+            Argument::ForType(Execution::Args::Type::AuthenticationAccount),
+            Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
+            Argument{ Execution::Args::Type::Upgrade, Resource::String::UpgradeArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::IncludeUnknown, Resource::String::IncludeUnknownInListArgumentDescription, ArgumentType::Flag },
+            Argument{ Execution::Args::Type::IncludePinned, Resource::String::IncludePinnedInListArgumentDescription, ArgumentType::Flag},
+            Argument::ForType(Execution::Args::Type::ListDetails),
         };
     }
 
@@ -38,7 +48,7 @@ namespace AppInstaller::CLI
     void ListCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
     {
         context <<
-            Workflow::OpenSource <<
+            Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
 
         switch (valueType)
@@ -61,18 +71,27 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string ListCommand::HelpLink() const
+    Utility::LocIndView ListCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-list";
+        return "https://aka.ms/winget-command-list"_liv;
+    }
+
+    void ListCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::IncludeUnknown, Execution::Args::Type::Upgrade);
+        Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::IncludePinned, Execution::Args::Type::Upgrade);
     }
 
     void ListCommand::ExecuteInternal(Execution::Context& context) const
     {
+        context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
+
         context <<
-            Workflow::OpenSource <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+            Workflow::OpenSource() <<
+            Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context)) <<
             Workflow::SearchSourceForMany <<
-            Workflow::EnsureMatchesFromSearchResult(true) <<
-            Workflow::ReportListResult();
+            Workflow::HandleSearchResultFailures <<
+            Workflow::EnsureMatchesFromSearchResult(OperationType::List) <<
+            Workflow::ReportListResult(context.Args.Contains(Execution::Args::Type::Upgrade));
     }
 }

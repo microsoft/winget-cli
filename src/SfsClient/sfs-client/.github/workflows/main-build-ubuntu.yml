@@ -1,0 +1,46 @@
+name: Main Build (Ubuntu)
+
+on:
+  push:
+    branches: [ "main" ]
+
+# Permissions and environment values to be able to update the dependency graph with vcpkg information
+# and to enable the writing/uploading of CodeQL scan results
+permissions:
+  contents: write
+  security-events: write
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  VCPKG_FEATURE_FLAGS: dependencygraph
+
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: ./.github/workflows/initialize-codeql
+
+      - name: Setup
+        run: source ./scripts/setup.sh
+
+      - name: Build and Test (no test overrides)
+        run: |
+          ./scripts/build.sh
+          ./scripts/test.sh --output-on-failure
+
+      - name: Build and Test (with test overrides)
+        run: |
+          ./scripts/build.sh --enable-test-overrides
+          ./scripts/test.sh --output-on-failure
+
+      - name: Build and Test (Release)
+        run: |
+          ./scripts/build.sh --build-type Release
+          ./scripts/test.sh --output-on-failure
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3

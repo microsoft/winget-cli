@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerCLICore.h"
@@ -6,6 +6,15 @@
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
+#include "Commands/InstallCommand.h"
+#include "COMContext.h"
+#include <AppInstallerFileLogger.h>
+#include <winget/OutputDebugStringLogger.h>
+#include "Public/ShutdownMonitoring.h"
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+#include <winget/Debugging.h>
+#endif
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -39,28 +48,93 @@ namespace AppInstaller::CLI
         private:
             UINT m_previousCP = 0;
         };
+
+        void __CRTDECL abort_signal_handler(int)
+        {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
+            {
+                Debugging::WriteMinidump();
+            }
+#endif
+
+            std::_Exit(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
+        }
+
+        wil::slim_event_manual_reset& GetMainWaitEvent()
+        {
+            static wil::slim_event_manual_reset s_mainWait;
+            return s_mainWait;
+        }
+
+        void WaitOnMainWaitEvent()
+        {
+            GetMainWaitEvent().wait(5000);
+        }
+
+        void RegisterShutdownBlocker()
+        {
+            ShutdownMonitoring::ServerShutdownSynchronization::ComponentSystem main{};
+            main.Wait = WaitOnMainWaitEvent;
+            ShutdownMonitoring::ServerShutdownSynchronization::AddComponent(main);
+        }
     }
 
     int CoreMain(int argc, wchar_t const** argv) try
     {
+        // This prevents the OS package management from terminating the CLI process before it has had a chance to gracefully exit.
+        RegisterShutdownBlocker();
+        auto signalMainExit = wil::scope_exit([]() { GetMainWaitEvent().SetEvent(); });
+
+        std::signal(SIGABRT, abort_signal_handler);
+
         init_apartment();
 
-        // Enable all logging for this phase; we will update once we have the arguments
-        Logging::Log().EnableChannel(Logging::Channel::All);
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        // We have to do this here so the auto minidump config initialization gets caught
+        Logging::OutputDebugStringLogger::Add();
+        Logging::Log().SetEnabledChannels(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
-        Logging::AddFileLogger();
+
+        if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
+        {
+            Debugging::EnableSelfInitiatedMinidump();
+        }
+
+        Logging::OutputDebugStringLogger::Remove();
+#endif
+
+        Logging::UseGlobalTelemetryLoggerActivityIdOnly();
+
+        Execution::Context context;
+        auto previousThreadGlobals = context.SetForCurrentThread();
+
+        // Set up debug string logging during initialization
+        Logging::OutputDebugStringLogger::Add();
+        Logging::Log().SetEnabledChannels(Logging::Channel::All);
+        Logging::Log().SetLevel(Logging::Level::Verbose);
+
+        Logging::Log().SetEnabledChannels(Settings::User().Get<Settings::Setting::LoggingChannelPreference>());
+        Logging::Log().SetLevel(Settings::User().Get<Settings::Setting::LoggingLevelPreference>());
+        Logging::FileLogger::Add();
+        Logging::OutputDebugStringLogger::Remove();
         Logging::EnableWilFailureTelemetry();
 
         // Set output to UTF8
         ConsoleOutputCPRestore utf8CP(CP_UTF8);
 
+        Logging::Telemetry().SetCaller("winget-cli");
         Logging::Telemetry().LogStartup();
 
-        // Initiate the background cleanup of the log file location.
-        Logging::BeginLogFileCleanup();
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (!Settings::User().Get<Settings::Setting::KeepAllLogFiles>())
+#endif
+        {
+            // Initiate the background cleanup of the log file location.
+            Logging::FileLogger::BeginCleanup();
+        }
 
-        Execution::Context context{ std::cout, std::cin };
-        context.EnableCtrlHandler();
+        context.EnableSignalTerminationHandler();
 
         context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);
 
@@ -87,6 +161,13 @@ namespace AppInstaller::CLI
 
         try
         {
+            // Block CLI execution if WinGetCommandLineInterfaces is disabled by Policy
+            if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGetCommandLineInterfaces))
+            {
+                AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
+                throw Settings::GroupPolicyException(Settings::TogglePolicy::Policy::WinGetCommandLineInterfaces);
+            }
+
             std::unique_ptr<Command> subCommand = command->FindSubCommand(invocation);
             while (subCommand)
             {
@@ -96,15 +177,8 @@ namespace AppInstaller::CLI
             Logging::Telemetry().LogCommand(command->FullName());
 
             command->ParseArguments(invocation, context.Args);
-
-            // Change logging level to Info if Verbose not requested
-            if (!context.Args.Contains(Execution::Args::Type::VerboseLogs))
-            {
-                Logging::Log().SetLevel(Logging::Level::Info);
-            }
-
             context.UpdateForArgs();
-
+            context.SetExecutingCommand(command.get());
             command->ValidateArguments(context.Args);
         }
         // Exceptions specific to parsing the arguments of a command
@@ -114,58 +188,20 @@ namespace AppInstaller::CLI
             AICLI_LOG(CLI, Error, << "Error encountered parsing command line: " << ce.Message());
             return APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS;
         }
-
-        try
+        catch (const Settings::GroupPolicyException& e)
         {
-            if (!Settings::User().GetWarnings().empty())
-            {
-                context.Reporter.Warn() << Resource::String::SettingsWarnings << std::endl;
-            }
-
-            command->Execute(context);
-        }
-        // Exceptions that may occur in the process of executing an arbitrary command
-        catch (const wil::ResultException& re)
-        {
-            // Even though they are logged at their source, log again here for completeness.
-            Logging::Telemetry().LogException(command->FullName(), "wil::ResultException", re.what());
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                GetUserPresentableMessage(re) << std::endl;
-            return re.GetErrorCode();
-        }
-        catch (const winrt::hresult_error& hre)
-        {
-            std::string message = GetUserPresentableMessage(hre);
-            Logging::Telemetry().LogException(command->FullName(), "winrt::hresult_error", message);
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                message << std::endl;
-            return hre.code();
-        }
-        catch (const std::exception& e)
-        {
-            Logging::Telemetry().LogException(command->FullName(), "std::exception", e.what());
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                GetUserPresentableMessage(e) << std::endl;
-            return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
+            // Report any action blocked by Group Policy.
+            auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
+            AICLI_LOG(CLI, Error, << "Operation blocked by Group Policy: " << policy.RegValueName());
+            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy(policy.PolicyName()) << std::endl;
+            return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
         catch (...)
         {
-            LOG_CAUGHT_EXCEPTION();
-            Logging::Telemetry().LogException(command->FullName(), "unknown", {});
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
-            return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
+            return Workflow::HandleException(context, std::current_exception());
         }
 
-        if (SUCCEEDED(context.GetTerminationHR()))
-        {
-            Logging::Telemetry().LogCommandSuccess(command->FullName());
-        }
-
-        return context.GetTerminationHR();
+        return Execute(context, command);
     }
     // End of the line exceptions that are not ever expected.
     // Telemetry cannot be reliable beyond this point, so don't let these happen.
@@ -174,4 +210,42 @@ namespace AppInstaller::CLI
         return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
     }
 
+    void ServerInitialize()
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        // We have to do this here so the auto minidump config initialization gets caught
+        Logging::OutputDebugStringLogger::Add();
+        Logging::Log().SetEnabledChannels(Logging::Channel::All);
+        Logging::Log().SetLevel(Logging::Level::Verbose);
+
+        if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
+        {
+            Debugging::EnableSelfInitiatedMinidump();
+        }
+
+        Logging::OutputDebugStringLogger::Remove();
+#endif
+
+        AppInstaller::CLI::Execution::COMContext::SetLoggers();
+    }
+
+    void InProcInitialize()
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        // We have to do this here so the auto minidump config initialization gets caught
+        Logging::OutputDebugStringLogger::Add();
+        Logging::Log().SetEnabledChannels(Logging::Channel::All);
+        Logging::Log().SetLevel(Logging::Level::Verbose);
+
+        if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
+        {
+            Debugging::EnableSelfInitiatedMinidump();
+        }
+
+        Logging::OutputDebugStringLogger::Remove();
+#endif
+
+        // Explicitly set default channel and level before user settings from PackageManagerSettings
+        AppInstaller::CLI::Execution::COMContext::SetLoggers(AppInstaller::Logging::Channel::Defaults, AppInstaller::Logging::Level::Info);
+    }
 }

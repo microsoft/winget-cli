@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>앱 설치 관리자</displayName>
+  <description>앱 설치 관리자</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">데스크톱 앱 설치 관리자</string>
+      <string id="EnableAppInstaller">Windows 패키지 관리자 사용</string>
+      <string id="EnableAppInstallerExplanation">이 정책은 사용자가 Windows 패키지 관리자를 사용할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하거나 구성하지 않으면 사용자가 Windows 패키지 관리자를 사용할 수 있습니다.
+
+이 설정을 사용하지 않으면 사용자가 Windows 패키지 관리자를 사용할 수 없습니다.</string>
+      <string id="EnableSettings">Windows 패키지 관리자 설정 사용</string>
+      <string id="EnableSettingsExplanation">이 정책은 사용자가 설정을 변경할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하도록 설정하거나 구성하지 않으면 사용자가 Windows 패키지 관리자의 설정을 변경할 수 있습니다.
+
+이 설정을 사용하지 않으면 사용자가 Windows 패키지 관리자의 설정을 변경할 수 없습니다.</string>
+      <string id="EnableExperimentalFeatures">Windows 패키지 관리자 실험적 기능 사용</string>
+      <string id="EnableExperimentalFeaturesExplanation">이 정책은 사용자가 Windows 패키지 관리자에서 실험적인 기능을 사용하도록 설정할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하거나 구성하지 않으면 사용자가 Windows 패키지 관리자를 위해 실험적 기능을 사용할 수 있습니다.
+
+이 설정을 사용하지 않도록 설정하면 사용자가 Windows 패키지 관리자를 위해 실험적 기능을 사용할 수 없습니다.</string>
+      <string id="EnableLocalManifestFiles">Windows 패키지 관리자 로컬 매니페스트 파일 사용</string>
+      <string id="EnableLocalManifestFilesExplanation">이 정책은 사용자가 로컬 매니페스트 파일을 사용하여 패키지를 설치할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하거나 구성하지 않으면 사용자는 Windows 패키지 관리자를 사용하여 로컬 매니페스트와 함께 패키지를 설치할 수 있습니다.
+
+이 설정을 사용하지 않으면 사용자는 Windows 패키지 관리자를 사용하여 로컬 매니페스트를 통해 패키지를 설치할 수 없습니다.</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Windows 패키지 관리자 Microsoft Store 원본 인증서 유효성 검사 바이패스 사용</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">이 정책은 Windows 패키지 관리자가 Microsoft 저장소 원본에 대한 연결을 시작할 때 알려진 Microsoft Store 인증서와 일치하는 Microsoft 저장소 인증서 해시의 유효성을 검사할지 여부를 제어합니다. 
+이 정책을 사용하면 Windows 패키지 관리자는 Microsoft 저장소 인증서 유효성 검사를 무시합니다. 
+
+이 정책을 사용하지 않으면 Windows 패키지 관리자는 Microsoft Store 원본과 통신하기 전에 사용된 Microsoft 저장소 인증서가 유효하고 Microsoft 저장소에 속하는지 확인합니다.
+
+이 정책을 구성하지 않으면 Windows 패키지 관리자의 관리자 설정이 적용됩니다.</string>
+      <string id="EnableHashOverride">Windows 패키지 관리자 해시 재정의 사용</string>
+      <string id="EnableHashOverrideExplanation">이 정책은 설정에서 SHA256 보안 유효성 검사를 재정의하도록 Windows 패키지 관리자를 구성할 수 있는지 여부를 제어합니다.
+
+이 정책을 실행하거나 구성하지 않으면 Windows 패키지 관리자 설정에서 SHA256 보안 유효성 검사를 재정의하는 기능을 사용할 수 있습니다.
+
+이 정책을 실행 중지하면 Windows 패키지 관리자 설정에서 SHA256 보안 유효성 검사를 재정의하는 기능을 사용자가 사용하도록 설정할 수 없습니다.</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">Windows 패키지 관리자 로컬 보관 맬웨어 검사 재정의 사용</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">이 정책은 명령줄 인수를 사용하여 로컬 매니페스트를 사용하여 보관 파일을 설치할 때 맬웨어 취약성 검사를 재정의하는 기능을 제어합니다.
+이 정책을 사용하면 사용자가 보관 파일의 로컬 매니페스트 설치를 수행할 때 맬웨어 검사를 재정의할 수 있습니다.
+
+이 정책을 사용하지 않으면 로컬 매니페스트를 사용하여 설치할 때 사용자가 보관 파일의 맬웨어 검사를 재정의할 수 없습니다.
+
+이 정책을 구성하지 않으면 Windows 패키지 관리자 관리자 설정이 적용됩니다.</string>
+      <string id="EnableDefaultSource">Windows 패키지 관리자 기본 원본 사용</string>
+      <string id="EnableDefaultSourceExplanation">이 정책은 Windows 패키지 관리자에 포함된 기본 원본을 제어합니다.
+
+이 설정을 구성하지 않는 경우 Windows 패키지 관리자의 기본 원본을 사용할 수 있으며 제거할 수 있습니다.
+
+이 설정을 사용하면 Windows 패키지 관리자의 기본 원본을 사용할 수 있으며 제거할 수 없습니다.
+
+이 설정을 사용하지 않도록 설정하면 Windows 패키지 관리자의 기본 원본을 사용할 수 없습니다.</string>
+      <string id="EnableMicrosoftStoreSource">Windows 패키지 관리자 Microsoft Store 원본 사용</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">이 정책은 Windows 패키지 관리자에 포함된 Microsoft 스토어 원본을 제어합니다.
+
+이 설정을 구성하지 않는 경우 Windows 패키지 관리자의 Microsoft 스토어 원본을 사용할 수 있으며 제거할 수 있습니다.
+
+이 설정을 사용하면 Windows 패키지 관리자용 Microsoft 스토어 원본을 사용할 수 있으며 제거할 수 없습니다.
+
+이 설정을 사용 중지하면 Windows 패키지 관리자용 Microsoft 스토어 원본을 사용할 수 없습니다.</string>
+      <string id="EnableFontSource">Windows 패키지 관리자 글꼴 원본 활성화</string>
+      <string id="EnableFontSourceExplanation">
+        이 정책은 Windows 패키지 관리자에 포함된 글꼴 원본을 제어합니다.
+
+        이 설정을 구성하지 않는 경우 Windows 패키지 관리자의 글꼴 원본을 사용할 수 있으며 제거할 수 있습니다.
+
+        이 설정을 사용하면 Windows 패키지 관리자용 글꼴 원본을 사용할 수 있으며 제거할 수 없습니다.
+
+        이 설정을 사용 중지하면 Windows 패키지 관리자용 글꼴 원본을 사용할 수 없습니다.
+      </string>
+      <string id="SourceAutoUpdateInterval">Windows 패키지 관리자 원본 자동 업데이트 간격(분) 설정</string>
+      <string id="SourceAutoUpdateIntervalExplanation">이 정책은 패키지 기반 원본의 자동 업데이트 간격을 제어합니다. 패키지의 인덱스가 로컬 컴퓨터에 캐시되도록 Windows 패키지 관리자 기본 원본이 구성됩니다. 사용자가 명령을 호출하고 간격이 지나면 인덱스가 다운로드됩니다.
+
+이 설정을 사용하지 않거나 구성하지 않으면 Windows 패키지 관리자 설정에 지정된 기본 간격 또는 값이 사용됩니다.
+
+이 설정을 사용하면 지정한 시간(분)이 Windows 패키지 관리자 사용됩니다.</string>
+      <string id="EnableAdditionalSources">Windows 패키지 관리자 추가 원본 사용</string>
+      <string id="EnableAdditionalSourcesExplanation">이 정책은 엔터프라이즈 IT 관리자가 제공하는 추가 원본을 제어합니다.
+
+정책을 구성하지 않는 경우 Windows 패키지 관리자에 대해 추가 원본이 구성되지 않습니다.
+
+정책을 사용하도록 설정하면 추가 원본이 Windows 패키지 관리자에 추가되고 제거할 수 없습니다. 'winget 원본 내보내기'를 사용하여 설치된 원본에서 각 추가 원본에 대한 표현을 얻을 수 있습니다.
+
+이 정책을 사용하지 않도록 설정하는 경우 Windows 패키지 관리자에 대해 추가 원본을 구성할 수 없습니다.</string>
+      <string id="EnableAllowedSources">Windows 패키지 관리자 허용된 원본 사용</string>
+      <string id="EnableAllowedSourcesExplanation">이 정책은 엔터프라이즈 IT 관리자가 허용하는 추가 원본을 제어합니다.
+
+이 정책을 구성하지 않는 경우 사용자는 정책에 의해 구성된 원본 외의 다른 원본을 추가하거나 제거할 수 있습니다.
+
+정책을 사용하도록 설정하는 경우 지정된 원본만 Windows 패키지 관리자에서 추가하거나 제거할 수 있습니다. 허용된 각 원본에 대한 표현은 'winget 원본 내보내기'를 사용하여 설치된 원본에서 구할 수 있습니다.
+
+이 정책을 사용하지 않도록 설정하는 경우 Windows 패키지 관리자에 대해 추가 원본을 구성할 수 없습니다.</string>
+      <string id="EnableMSAppInstallerProtocol">앱 설치 관리자 ms-appinstaller 프로토콜 사용</string>
+      <string id="EnableMSAppInstallerProtocolExplanation">이 정책은 사용자가 ms-appinstaller 프로토콜을 사용하는 웹 사이트에서 패키지를 설치할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하면 사용자가 이 프로토콜을 사용하는 웹 사이트의 패키지를 설치할 수 있습니다.
+
+이 설정을 사용하지 않거나 구성하지 않으면 사용자가 이 프로토콜을 사용하는 웹 사이트의 패키지를 설치할 수 없습니다.</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfaces">Windows 패키지 관리자 명령줄 인터페이스 활성화</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">이 정책은 사용자가 명령줄 인터페이스(WinGet CLI 또는 WinGet PowerShell)를 통해 Windows 패키지 관리자를 사용하여 작업을 수행할 수 있는지 여부를 결정합니다.
+
+        이 정책을 사용하지 않도록 설정하면 사용자는 Windows 패키지 관리자 CLI 및 PowerShell cmdlet을 실행할 수 없습니다.
+
+        이 정책을 사용하도록 설정하거나 구성하지 않을 경우 사용자는 Windows 패키지 관리자 CLI 명령 및 PowerShell cmdlet을 실행할 수 없습니다. (제공된 “앱 설치 관리자 사용” 정책을 사용하지 않도록 설정할 수 없습니다.)
+
+        이 정책은 “앱 설치 관리자 사용” 정책을 재정의하지 않습니다.</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Windows 패키지 관리자 구성 사용</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">이 정책은 사용자가 Windows 패키지 관리자 구성 기능을 사용할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하거나 구성하지 않으면 사용자가 Windows 패키지 관리자 구성 기능을 사용할 수 있습니다.
+
+이 설정을 사용하지 않으면 사용자가 Windows 패키지 관리자 구성 기능을 사용할 수 없습니다.</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptions">프록시 Windows 패키지 관리자 명령줄 옵션 사용</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptionsExplanation">
+        이 정책은 명령줄을 통해 사용자가 프록시의 Windows 패키지 관리자 사용을 구성할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하면 사용자가 명령줄을 통해 Windows 패키지 관리자 프록시 사용을 구성할 수 있습니다.
+
+이 설정을 사용하지 않거나 구성하지 않으면 사용자가 명령줄을 통해 Windows 패키지 관리자 프록시 사용을 구성할 수 없습니다.</string>
+      <string id="EnableWindowsPackageManagerMcpServer">Windows 패키지 관리자용 MCP 서버 활성화</string>
+      <string id="EnableWindowsPackageManagerMcpServerExplanation">
+        이 정책은 MCP(Windows 패키지 관리자 모델 컨텍스트 프로토콜) 서버를 사용할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하거나 구성하지 않으면 사용자가 Windows 패키지 관리자 MCP 서버를 사용할 수 있습니다.
+
+이 설정을 사용하지 않으면 사용자가 Windows 패키지 관리자 MCP 서버를 사용할 수 없습니다.</string>
+      <string id="WindowsPackageManagerDefaultProxy">Windows 패키지 관리자 기본 프록시 설정</string>
+      <string id="WindowsPackageManagerDefaultProxyExplanation">이 정책은 Windows 패키지 관리자 사용하는 기본 프록시를 제어합니다.
+
+이 설정을 사용하지 않거나 구성하지 않으면 기본적으로 프록시가 사용되지 않습니다.
+
+이 설정을 사용하면 지정된 프록시가 기본적으로 사용됩니다.</string>
+      <string id="EnableMsixAllowedZones">MSIX 패키지에 대해 앱 설치 관리자 허용된 영역 사용</string>
+      <string id="EnableMsixAllowedZonesExplanation">이 정책은 앱 설치 관리자 특정 URL 영역에서 시작되는 패키지를 설치할 수 있는지 여부를 제어합니다. 패키지의 원본은 해당 URI에 따라 결정되며 MotW(Mart-of-the-Web)가 있는지 여부를 결정합니다. 여러 URI가 관련된 경우 모두 고려됩니다. 예를 들어 리디렉션과 관련된 .appinstaller 파일을 사용하는 경우
+
+이 정책을 사용하면 사용자가 각 영역의 구성에 따라 MSIX 패키지를 설치할 수 있습니다.
+
+이 정책을 사용하지 않거나 구성하지 않으면 신뢰할 수 없음을 제외한 모든 영역에서 MSIX 패키지를 설치할 수 있습니다.</string>
+      <string id="ZoneAllowed">허용</string>
+      <string id="ZoneBlocked">차단</string>
+      <string id="EnableMsixSmartScreenCheck">MSIX 패키지에 Microsoft SmartScreen 검사 사용</string>
+      <string id="EnableMsixSmartScreenCheckExplanation">이 정책은 MSIX 패키지를 설치할 때 앱 설치 관리자 Microsoft SmartScreen 검사를 수행할지 여부를 제어합니다.
+
+이 정책을 사용하거나 구성하지 않으면 설치 전에 Microsoft SmartScreen을 사용하여 패키지 URI가 평가됩니다. 이 검사 인터넷에서 가져온 패키지에 대해서만 수행됩니다.
+
+사용하지 않도록 설정하면 패키지를 설치하기 전에 Microsoft SmartScreen을 참조하지 않습니다.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateInterval">
+        <decimalTextBox refId="SourceAutoUpdateInterval" defaultValue="5">원본 자동 업데이트 간격(분)</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">추가 원본: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">허용된 원본: </listBox>
+      </presentation>
+      <presentation id="WindowsPackageManagerDefaultProxy">
+        <textBox refId="WindowsPackageManagerDefaultProxy">
+          <label>기본 프록시</label>
+        </textBox>
+      </presentation>
+      <presentation id="MsixAllowedZones">
+        <dropdownList refId="LocalMachine" noSort="true" defaultItem="1">로컬 컴퓨터</dropdownList>
+        <dropdownList refId="Intranet" noSort="true" defaultItem="1">인트라넷</dropdownList>
+        <dropdownList refId="TrustedSites" noSort="true" defaultItem="1">신뢰할 수 있는 사이트</dropdownList>
+        <dropdownList refId="Internet" noSort="true" defaultItem="1">인터넷</dropdownList>
+        <dropdownList refId="UntrustedSites" noSort="true" defaultItem="0">신뢰할 수 없는 사이트</dropdownList>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

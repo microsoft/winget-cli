@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "Public/AppInstallerRepositorySource.h"
+#include "ISource.h"
 #include "SourceFactory.h"
 
 #include <string_view>
@@ -24,10 +24,18 @@ namespace AppInstaller::Repository::Microsoft
         // The filtering level for the source.
         enum class Filter
         {
+            // Contains user ARP, machine ARP, user MSIX, user Fonts and machine Fonts
             None,
-            ARP_System,
-            ARP_User,
+            // Contains user ARP and machine ARP
+            ARP,
+            // Contains user MSIX
             MSIX,
+            // Contains user ARP and user MSIX and user Fonts
+            User,
+            // Contains machine ARP and machine MSIX and machine Fonts
+            Machine,
+            // Same as None but creating the source reference causes the next Open to always update the cache
+            NoneWithForcedCacheUpdate,
         };
 
         // Converts a filter to its string.

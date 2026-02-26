@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <Platforms>x64;x86;arm64</Platforms>
+    <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifiers>win-x64;win-x86;win-arm64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'x64' ">
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'arm64' ">
+    <RuntimeIdentifier>win-arm64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <Import Project="..\targets\ReferenceEmbeddedCsWinRTProject.targets" />
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj" />
+    <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj" />
+    <!-- Pull in any other .NET projects that need to ship with the package so that they can resolve the nuget graph together and land in the same output location. -->
+    <ProjectReference Include="..\WinGetMCPServer\WinGetMCPServer.csproj" />
+  </ItemGroup>
+
+  <Target Name="PwshFiles" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <RefFiles Include="$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\$(TargetFramework)\win\ref\**\*.*" />
+      <WinModuleFiles Include="$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\$(TargetFramework)\win\Modules\**\*.*" />
+      <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
+      <RefFiles Condition="!Exists(@(RefFiles))" Include="$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\ref\**\*.*" />
+      <WinModuleFiles Condition="!Exists(@(WinModuleFiles))" Include="$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\Modules\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(RefFiles)" DestinationFolder="$(OutputPath)\ref\" />
+    <Copy SourceFiles="@(WinModuleFiles)" DestinationFolder="$(OutputPath)\Modules\%(RecursiveDir)\" />
+  </Target>
+
+</Project>

@@ -1,0 +1,52 @@
+parameters:
+- name: title
+  type: string
+- name: isPackaged
+  type: boolean
+- name: filter
+  type: string
+- name: experimentalFeatures
+  type: string
+  default: 'none'
+
+steps:
+  - task: CmdLine@2
+    displayName: Start COM trace for ${{ parameters.title }}
+    condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
+    inputs:
+      script: 'wpr -start $(Build.SourcesDirectory)\tools\COMTrace\ComTrace.wprp -filemode'
+
+  - task: VSTest@2
+    displayName: Run ${{ parameters.title }}
+    condition: succeededOrFailed()
+    inputs:
+      testRunTitle: ${{ parameters.title }}
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: '$(buildOutDir)\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
+      testFiltercriteria: ${{ parameters.filter }}
+      ${{ if eq(parameters.isPackaged, true) }}:
+          overrideTestrunParameters: '-PackagedContext true
+                                      -AICLIPackagePath $(packageLayoutDir)
+                                      -AICLIPath wingetdev.exe
+                                      -LooseFileRegistration true
+                                      -StaticFileRootPath $(buildOutDir)\E2ETests\TestLocalIndex
+                                      -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1
+                                      -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer
+                                      -SkipTestSource true
+                                      -InprocTestbedUseTestPackage true
+                                      -ForcedExperimentalFeatures ${{ parameters.experimentalFeatures }}'
+      ${{ else }}:
+          overrideTestrunParameters: '-PackagedContext false
+                                      -AICLIPath $(packageLayoutDir)\AppInstallerCLI\winget.exe
+                                      -StaticFileRootPath $(buildOutDir)\E2ETests\TestLocalIndex
+                                      -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1
+                                      -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer
+                                      -SkipTestSource true
+                                      -InprocTestbedUseTestPackage true
+                                      -ForcedExperimentalFeatures ${{ parameters.experimentalFeatures }}'
+
+  - task: CmdLine@2
+    displayName: Complete COM trace for ${{ parameters.title }}
+    condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
+    inputs:
+      script: 'wpr -stop "$(artifactsDir)\ComTrace - ${{ parameters.title }}.etl"'

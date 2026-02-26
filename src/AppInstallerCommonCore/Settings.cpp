@@ -25,35 +25,20 @@ namespace AppInstaller::Settings
 
         void LogSettingAction(std::string_view action, const StreamDefinition& def)
         {
-            AICLI_LOG(Core, Info, << "Setting action: " << action << ", Type: " << ToString(def.Type) << ", Name: " << def.Path);
+            AICLI_LOG(Core, Verbose, << "Setting action: " << action << ", Type: " << ToString(def.Type) << ", Name: " << def.Name);
         }
-
-        // A settings container.
-        struct ISettingsContainer
-        {
-            virtual ~ISettingsContainer() = default;
-
-            // Gets a stream containing the named setting's value, if present.
-            // If the setting does not exist, returns an empty value.
-            virtual std::unique_ptr<std::istream> Get(const std::filesystem::path& name) = 0;
-
-            // Sets the named setting to the given value.
-            virtual void Set(const std::filesystem::path& name, std::string_view value) = 0;
-
-            // Deletes the given setting.
-            virtual void Remove(const std::filesystem::path& name) = 0;
-
-            // Gets the path to the named setting, if reasonable.
-            virtual std::filesystem::path PathTo(const std::filesystem::path& name) = 0;
-        };
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
         // A settings container backed by the ApplicationDataContainer functionality.
-        struct ApplicationDataSettingsContainer : public ISettingsContainer
+        struct ApplicationDataSettingsContainer : public details::ISettingsContainer
         {
             using Container = winrt::Windows::Storage::ApplicationDataContainer;
 
-            ApplicationDataSettingsContainer(Container&& container) : m_root(std::move(container)) {}
+            ApplicationDataSettingsContainer(const Container& container, const std::filesystem::path& name)
+            {
+                m_parentContainer = GetRelativeContainer(container, name.parent_path());
+                m_settingName = winrt::to_hstring(name.filename().c_str());
+            }
 
             static Container GetRelativeContainer(const Container& container, const std::filesystem::path& offset)
             {
@@ -68,15 +53,12 @@ namespace AppInstaller::Settings
                 return result;
             }
 
-            std::unique_ptr<std::istream> Get(const std::filesystem::path& name) override
+            std::unique_ptr<std::istream> Get() override
             {
-                Container parent = GetRelativeContainer(m_root, name.parent_path());
-
-                auto filenameHstring = winrt::to_hstring(name.filename().c_str());
-                auto settingsValues = parent.Values();
-                if (settingsValues.HasKey(filenameHstring))
+                auto settingsValues = m_parentContainer.Values();
+                if (settingsValues.HasKey(m_settingName))
                 {
-                    auto value = winrt::unbox_value<winrt::hstring>(settingsValues.Lookup(filenameHstring));
+                    auto value = winrt::unbox_value<winrt::hstring>(settingsValues.Lookup(m_settingName));
                     return std::make_unique<std::istringstream>(Utility::ConvertToUTF8(value.c_str()));
                 }
                 else
@@ -85,40 +67,41 @@ namespace AppInstaller::Settings
                 }
             }
 
-            void Set(const std::filesystem::path& name, std::string_view value) override
+            bool Set(std::string_view value) override
             {
-                Container parent = GetRelativeContainer(m_root, name.parent_path());
-                parent.Values().Insert(winrt::to_hstring(name.filename().c_str()), winrt::box_value(winrt::to_hstring(value)));
+                m_parentContainer.Values().Insert(m_settingName, winrt::box_value(winrt::to_hstring(value)));
+                return true;
             }
 
-            void Remove(const std::filesystem::path& name) override
+            void Remove() override
             {
-                Container parent = GetRelativeContainer(m_root, name.parent_path());
-                parent.Values().Remove(winrt::to_hstring(name.filename().c_str()));
+                m_parentContainer.Values().Remove(m_settingName);
             }
 
-            std::filesystem::path PathTo(const std::filesystem::path&) override
+            std::filesystem::path PathTo() override
             {
                 THROW_HR(E_UNEXPECTED);
             }
 
         private:
-            Container m_root;
+            Container m_parentContainer = nullptr;
+            winrt::hstring m_settingName;
         };
 #endif
 
         // A settings container backed by the filesystem.
-        struct FileSettingsContainer : public ISettingsContainer
+        struct FileSettingsContainer : public details::ISettingsContainer
         {
-            FileSettingsContainer(std::filesystem::path root) : m_root(std::move(root)) {}
-
-            std::unique_ptr<std::istream> Get(const std::filesystem::path& name) override
+            FileSettingsContainer(std::filesystem::path root, const std::filesystem::path& name) : m_settingFile(std::move(root))
             {
-                std::filesystem::path settingFileName = GetPath(name);
+                m_settingFile /= name;
+            }
 
-                if (std::filesystem::exists(settingFileName))
+            std::unique_ptr<std::istream> Get() override
+            {
+                if (std::filesystem::exists(m_settingFile))
                 {
-                    auto result = std::make_unique<std::ifstream>(settingFileName);
+                    auto result = std::make_unique<std::ifstream>(m_settingFile, std::ios_base::in | std::ios_base::binary);
                     THROW_LAST_ERROR_IF(result->fail());
                     return result;
                 }
@@ -128,66 +111,150 @@ namespace AppInstaller::Settings
                 }
             }
 
-            void Set(const std::filesystem::path& name, std::string_view value) override
+            bool Set(std::string_view value) override
             {
-                std::filesystem::path settingFileName = GetPath(name, true);
+                EnsureParentPath();
 
-                std::ofstream stream(settingFileName, std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
+                std::ofstream stream(m_settingFile, std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
                 THROW_LAST_ERROR_IF(stream.fail());
                 stream << value << std::flush;
                 THROW_LAST_ERROR_IF(stream.fail());
+
+                return true;
             }
 
-            void Remove(const std::filesystem::path& name) override
+            void Remove() override
             {
-                std::filesystem::path settingFileName = GetPath(name);
-
-                std::filesystem::remove(settingFileName);
+                std::filesystem::remove(m_settingFile);
             }
 
-            std::filesystem::path PathTo(const std::filesystem::path& name) override
+            std::filesystem::path PathTo() override
             {
-                return GetPath(name);
+                return m_settingFile;
             }
 
         private:
-            std::filesystem::path GetPath(const std::filesystem::path& name, bool createParent = false)
+            void EnsureParentPath()
             {
-                std::filesystem::path result = m_root;
-
-                if (name.has_parent_path())
-                {
-                    result /= name.parent_path();
-                }
-
-                if (createParent)
-                {
-                    std::filesystem::create_directories(result);
-                }
-
-                result /= name.filename();
-                return result;
+                std::filesystem::create_directories(m_settingFile.parent_path());
             }
 
-            std::filesystem::path m_root;
+            std::filesystem::path m_settingFile;
+        };
+
+        // A settings container that manages safely writing to its value with exchange semantics.
+        // Only allows Set to succeed if the hash value of the setting is the same as the last time it was read.
+        struct ExchangeSettingsContainer : public details::ISettingsContainer
+        {
+            ExchangeSettingsContainer(std::unique_ptr<ISettingsContainer>&& container, const std::string_view& name) :
+                m_container(std::move(container)), m_name(name) {}
+
+            std::unique_ptr<std::istream> Get() override
+            {
+                return GetInternal(m_hash);
+            }
+
+            bool Set(std::string_view value) override
+            {
+                THROW_HR_IF(E_UNEXPECTED, value.size() > std::numeric_limits<uint32_t>::max());
+
+                // If Set is called without ever reading the value, then we can assume that caller wants
+                // to overwrite it regardless. Also, we don't have any previous value to compare against
+                // anyway so the only other option would be to always reject it.
+                if (m_hash)
+                {
+                    std::optional<SHA256::HashBuffer> currentHash;
+                    std::ignore = GetInternal(currentHash);
+
+                    if (currentHash && !SHA256::AreEqual(m_hash.value(), currentHash.value()))
+                    {
+                        AICLI_LOG(Core, Verbose, << "Setting value for '" << m_name << "' has changed since last read; rejecting Set");
+                        return false;
+                    }
+                }
+
+                SHA256::HashBuffer newHash = SHA256::ComputeHash(reinterpret_cast<const uint8_t*>(value.data()), static_cast<uint32_t>(value.size()));
+                if (m_container->Set(value))
+                {
+                    m_hash = std::move(newHash);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            void Remove() override
+            {
+                m_container->Remove();
+                m_hash.reset();
+            }
+
+            std::filesystem::path PathTo() override
+            {
+                return m_container->PathTo();
+            }
+
+        protected:
+            std::optional<std::string> GetAsString()
+            {
+                return GetAsStringInternal(m_hash);
+            }
+
+            std::string_view m_name;
+            std::optional<SHA256::HashBuffer> m_hash;
+
+        private:
+            std::optional<std::string> GetAsStringInternal(std::optional<SHA256::HashBuffer>& hashStorage)
+            {
+                std::unique_ptr<std::istream> stream = m_container->Get();
+
+                if (!stream)
+                {
+                    // If no stream exists, then no hashing needs to be done.
+                    // Return an empty hash vector to indicate the attempted read but no result.
+                    hashStorage.emplace();
+                    return std::nullopt;
+                }
+
+                std::string streamContents = Utility::ReadEntireStream(*stream);
+                THROW_HR_IF(E_UNEXPECTED, streamContents.size() > std::numeric_limits<uint32_t>::max());
+
+                hashStorage = SHA256::ComputeHash(reinterpret_cast<const uint8_t*>(streamContents.c_str()), static_cast<uint32_t>(streamContents.size()));
+
+                return streamContents;
+            }
+
+            std::unique_ptr<std::istream> GetInternal(std::optional<SHA256::HashBuffer>& hashStorage)
+            {
+                auto string = GetAsStringInternal(hashStorage);
+
+                // Return a stream over the contents that we read in and hashed, to prevent a race.
+                return string ? std::make_unique<std::istringstream>(string.value()) : nullptr;
+            }
+
+            std::unique_ptr<ISettingsContainer> m_container;
         };
 
         // A settings container wrapper that enforces security.
-        struct SecureSettingsContainer : public ISettingsContainer
+        struct SecureSettingsContainer : public ExchangeSettingsContainer
         {
             constexpr static std::string_view NodeName_Sha256 = "SHA256"sv;
 
-            SecureSettingsContainer(std::unique_ptr<ISettingsContainer>&& container) : m_container(std::move(container)), m_secure(GetPathTo(PathName::SecureSettings)) {}
+            SecureSettingsContainer(std::unique_ptr<ISettingsContainer>&& container, const std::string_view& name) :
+                ExchangeSettingsContainer(std::move(container), name), m_secure(GetPathTo(PathName::SecureSettingsForRead), name) {}
 
+        private:
             struct VerificationData
             {
                 bool Found = false;
                 SHA256::HashBuffer Hash;
             };
 
-            VerificationData GetVerificationData(const std::filesystem::path& name)
+            VerificationData GetVerificationData()
             {
-                std::unique_ptr<std::istream> stream = m_secure.Get(name);
+                std::unique_ptr<std::istream> stream = m_secure.Get();
 
                 if (!stream)
                 {
@@ -203,7 +270,7 @@ namespace AppInstaller::Settings
                 }
                 catch (const std::runtime_error& e)
                 {
-                    AICLI_LOG(YAML, Error, << "Secure setting metadata for '" << name << "' contained invalid YAML (" << e.what() << "):\n" << streamContents);
+                    AICLI_LOG(Core, Error, << "Secure setting metadata for '" << m_name << "' contained invalid YAML (" << e.what() << "):\n" << streamContents);
                     return {};
                 }
 
@@ -215,7 +282,7 @@ namespace AppInstaller::Settings
                 }
                 catch (const std::runtime_error& e)
                 {
-                    AICLI_LOG(YAML, Error, << "Secure setting metadata for '" << name << "' contained invalid YAML (" << e.what() << "):\n" << streamContents);
+                    AICLI_LOG(Core, Error, << "Secure setting metadata for '" << m_name << "' contained invalid YAML (" << e.what() << "):\n" << streamContents);
                     return {};
                 }
 
@@ -226,19 +293,20 @@ namespace AppInstaller::Settings
                 return result;
             }
 
-            void SetVerificationData(const std::filesystem::path& name, VerificationData data)
+            void SetVerificationData(VerificationData data)
             {
                 YAML::Emitter out;
                 out << YAML::BeginMap;
                 out << YAML::Key << NodeName_Sha256 << YAML::Value << SHA256::ConvertToString(data.Hash);
                 out << YAML::EndMap;
 
-                m_secure.Set(name, out.str());
+                m_secure.Set(out.str());
             }
 
-            std::unique_ptr<std::istream> Get(const std::filesystem::path& name) override
+        public:
+            std::unique_ptr<std::istream> Get() override
             {
-                std::unique_ptr<std::istream> stream = m_container->Get(name);
+                std::unique_ptr<std::istream> stream = ExchangeSettingsContainer::Get();
 
                 if (!stream)
                 {
@@ -246,58 +314,102 @@ namespace AppInstaller::Settings
                     return stream;
                 }
 
-                VerificationData verData = GetVerificationData(name);
+                VerificationData verData = GetVerificationData();
 
                 // This case should be very rare, so a very identifiable error is helpful.
                 // Plus the text for this one is fairly on point for what has happened.
                 THROW_HR_IF(SPAPI_E_FILE_HASH_NOT_IN_CATALOG, !verData.Found);
 
-                std::string streamContents = Utility::ReadEntireStream(*stream);
-                THROW_HR_IF(E_UNEXPECTED, streamContents.size() > std::numeric_limits<uint32_t>::max());
+                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_DATA_CHECKSUM_ERROR), !SHA256::AreEqual(m_hash.value(), verData.Hash));
 
-                auto streamHash = SHA256::ComputeHash(reinterpret_cast<const uint8_t*>(streamContents.c_str()), static_cast<uint32_t>(streamContents.size()));
-
-                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_DATA_CHECKSUM_ERROR), !std::equal(streamHash.begin(), streamHash.end(), verData.Hash.begin()));
-
-                // Return a stream over the contents that we read in and verified, to prevent a race attack.
-                return std::make_unique<std::istringstream>(streamContents);
+                // ExchangeSettingsContainer already produces an in memory stream that we can use.
+                return stream;
             }
 
-            void Set(const std::filesystem::path& name, std::string_view value) override
+            bool Set(std::string_view value) override
             {
-                THROW_HR_IF(E_UNEXPECTED, value.size() > std::numeric_limits<uint32_t>::max());
+                // Force the creation of the secure settings location with appropriate ACLs
+                GetPathTo(PathName::SecureSettingsForWrite);
 
-                VerificationData verData;
-                verData.Hash = SHA256::ComputeHash(reinterpret_cast<const uint8_t*>(value.data()), static_cast<uint32_t>(value.size()));
+                bool exchangeResult = ExchangeSettingsContainer::Set(value);
 
-                SetVerificationData(name, verData);
+                if (exchangeResult)
+                {
+                    VerificationData verData;
+                    verData.Hash = m_hash.value();
 
-                m_container->Set(name, value);
+                    SetVerificationData(verData);
+                }
+
+                return exchangeResult;
             }
 
-            void Remove(const std::filesystem::path& name) override
+            void Remove() override
             {
-                m_secure.Remove(name);
-                m_container->Remove(name);
+                ExchangeSettingsContainer::Remove();
+                m_secure.Remove();
             }
 
-            std::filesystem::path PathTo(const std::filesystem::path&) override
+            std::filesystem::path PathTo() override
             {
                 THROW_HR(E_UNEXPECTED);
             }
 
         private:
-            std::unique_ptr<ISettingsContainer> m_container;
             FileSettingsContainer m_secure;
         };
 
-        std::unique_ptr<ISettingsContainer> GetSettingsContainer(Type type)
+        // A settings container wrapper that enforces privacy.
+        struct EncryptedSettingsContainer : public ExchangeSettingsContainer
         {
-            if (type == Type::Secure)
-            {
-                return std::make_unique<SecureSettingsContainer>(GetSettingsContainer(Type::Standard));
+            EncryptedSettingsContainer(std::unique_ptr<ISettingsContainer>&& container, const std::string_view& name) :
+                ExchangeSettingsContainer(std::move(container), name) {
             }
 
+            std::unique_ptr<std::istream> Get() override
+            {
+                std::optional<std::string> stream = ExchangeSettingsContainer::GetAsString();
+
+                if (!stream)
+                {
+                    // If no stream exists, then nothing needs to be done.
+                    return nullptr;
+                }
+
+                DATA_BLOB data{};
+                data.pbData = reinterpret_cast<BYTE*>(stream->data());
+                data.cbData = static_cast<DWORD>(stream->size());
+
+                DATA_BLOB out{};
+                auto freeOut = wil::scope_exit([&]() { LocalFree(out.pbData); });
+
+                THROW_IF_WIN32_BOOL_FALSE(CryptUnprotectData(&data, NULL, NULL, NULL, NULL, CRYPTPROTECT_UI_FORBIDDEN, &out));
+
+                return std::make_unique<std::istringstream>(std::string{ reinterpret_cast<char*>(out.pbData), out.cbData });
+            }
+
+            bool Set(std::string_view value) override
+            {
+                DATA_BLOB data{};
+                data.pbData = reinterpret_cast<BYTE*>(const_cast<char*>(value.data()));
+                data.cbData = static_cast<DWORD>(value.size());
+
+                DATA_BLOB out{};
+                auto freeOut = wil::scope_exit([&]() { LocalFree(out.pbData); });
+
+                THROW_IF_WIN32_BOOL_FALSE(CryptProtectData(&data, NULL, NULL, NULL, NULL, CRYPTPROTECT_UI_FORBIDDEN, &out));
+
+                return ExchangeSettingsContainer::Set(std::string_view{ reinterpret_cast<char*>(out.pbData), out.cbData });
+            }
+
+            std::filesystem::path PathTo() override
+            {
+                THROW_HR(E_UNEXPECTED);
+            }
+        };
+
+        std::unique_ptr<details::ISettingsContainer> GetRawSettingsContainer(Type type, const std::string_view& name)
+        {
 #ifndef WINGET_DISABLE_FOR_FUZZING
             if (IsRunningInPackagedContext())
             {
@@ -306,9 +418,10 @@ namespace AppInstaller::Settings
                 case Type::Standard:
                     return std::make_unique<ApplicationDataSettingsContainer>(
                         ApplicationDataSettingsContainer::GetRelativeContainer(
-                            winrt::Windows::Storage::ApplicationData::Current().LocalSettings(), GetPathTo(PathName::StandardSettings)));
-                case Type::UserFile:
-                    return std::make_unique<FileSettingsContainer>(GetPathTo(PathName::UserFileSettings));
+                            winrt::Windows::Storage::ApplicationData::Current().LocalSettings(), GetPathTo(PathName::StandardSettings)),
+                        name);
+                case Type::StandardFile:
+                    return std::make_unique<FileSettingsContainer>(GetPathTo(PathName::StandardFileSettings), name);
                 default:
                     THROW_HR(E_UNEXPECTED);
                 }
@@ -319,13 +432,47 @@ namespace AppInstaller::Settings
                 switch (type)
                 {
                 case Type::Standard:
-                    return std::make_unique<FileSettingsContainer>(GetPathTo(PathName::StandardSettings));
-                case Type::UserFile:
-                    return std::make_unique<FileSettingsContainer>(GetPathTo(PathName::UserFileSettings));
+                case Type::StandardFile:
+                    return std::make_unique<FileSettingsContainer>(GetPathTo(PathName::StandardSettings), name);
                 default:
                     THROW_HR(E_UNEXPECTED);
                 }
             }
+        }
+
+        // The default is not a raw container, so we wrap some of the underlying containers to enable higher order behaviors.
+        std::unique_ptr<details::ISettingsContainer> GetSettingsContainer(Type type, const std::string_view& name)
+        {
+            switch (type)
+            {
+            case Type::Standard:
+                // Standard settings should use exchange semantics to prevent overwrites
+                return std::make_unique<ExchangeSettingsContainer>(GetRawSettingsContainer(type, name), name);
+
+            case Type::UserFile:
+                // User file settings are not typically modified by us, so there is no need for exchange
+                return std::make_unique<FileSettingsContainer>(GetPathTo(PathName::UserFileSettings), name);
+
+            case Type::Secure:
+                // Secure settings add hash verification on reads on top of exchange semantics
+                return std::make_unique<SecureSettingsContainer>(GetRawSettingsContainer(Type::Standard, name), name);
+
+            case Type::Encrypted:
+                // Encrypted settings add encryption on top of exchange semantics
+                return std::make_unique<EncryptedSettingsContainer>(GetRawSettingsContainer(Type::StandardFile, name), name);
+
+            case Type::StandardFile:
+                // Standard settings should use exchange semantics to prevent overwrites
+                return std::make_unique<ExchangeSettingsContainer>(GetRawSettingsContainer(type, name), name);
+
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
+
+        std::unique_ptr<details::ISettingsContainer> GetSettingsContainer(const StreamDefinition& streamDefinition)
+        {
+            return GetSettingsContainer(streamDefinition.Type, streamDefinition.Name);
         }
     }
 
@@ -339,34 +486,46 @@ namespace AppInstaller::Settings
             return "UserFile"sv;
         case Type::Secure:
             return "Secure"sv;
+        case Type::Encrypted:
+            return "Encrypted"sv;
+        case Type::StandardFile:
+            return "StandardFile"sv;
         default:
             THROW_HR(E_UNEXPECTED);
         }
     }
 
-    std::unique_ptr<std::istream> GetSettingStream(const StreamDefinition& def)
+    Stream::Stream(const StreamDefinition& streamDefinition) :
+        m_streamDefinition(streamDefinition), m_container(GetSettingsContainer(streamDefinition))
     {
-        LogSettingAction("Get", def);
-        ValidateSettingNamePath(def.Path);
-        return GetSettingsContainer(def.Type)->Get(def.Path);
+        ValidateSettingNamePath(m_streamDefinition.Name);
     }
 
-    void SetSetting(const StreamDefinition& def, std::string_view value)
+    std::unique_ptr<std::istream> Stream::Get()
     {
-        LogSettingAction("Set", def);
-        ValidateSettingNamePath(def.Path);
-        GetSettingsContainer(def.Type)->Set(def.Path, value);
+        LogSettingAction("Get", m_streamDefinition);
+        return m_container->Get();
     }
 
-    void RemoveSetting(const StreamDefinition& def)
+    [[nodiscard]] bool Stream::Set(std::string_view value)
     {
-        LogSettingAction("Remove", def);
-        ValidateSettingNamePath(def.Path);
-        GetSettingsContainer(def.Type)->Remove(def.Path);
+        LogSettingAction("Set", m_streamDefinition);
+        return m_container->Set(value);
     }
 
-    std::filesystem::path GetPathTo(const StreamDefinition& def)
+    void Stream::Remove()
     {
-        return GetSettingsContainer(def.Type)->PathTo(def.Path);
+        LogSettingAction("Remove", m_streamDefinition);
+        m_container->Remove();
+    }
+
+    std::string_view Stream::GetName() const
+    {
+        return m_streamDefinition.Name;
+    }
+
+    std::filesystem::path Stream::GetPath() const
+    {
+        return m_container->PathTo();
     }
 }

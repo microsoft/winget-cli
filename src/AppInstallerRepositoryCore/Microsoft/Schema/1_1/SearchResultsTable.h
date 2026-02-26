@@ -18,7 +18,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         SearchResultsTable& operator=(SearchResultsTable&&) = default;
 
     protected:
-        std::optional<int> BuildSearchStatement(
+        std::vector<int> BuildSearchStatement(
             SQLite::Builder::StatementBuilder& builder,
             PackageMatchField field,
             std::string_view manifestAlias,

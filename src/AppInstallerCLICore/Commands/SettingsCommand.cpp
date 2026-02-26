@@ -3,15 +3,35 @@
 #include "pch.h"
 #include "SettingsCommand.h"
 #include "Workflows/WorkflowBase.h"
-#include "Resources.h"
-#include <winget/UserSettings.h>
+#include "Workflows/SettingsFlow.h"
 
 namespace AppInstaller::CLI
 {
     using namespace Utility::literals;
     using namespace AppInstaller::Settings;
-
     using namespace std::string_view_literals;
+
+    namespace
+    {
+        Utility::LocIndView s_SettingsCommand_HelpLink = "https://aka.ms/winget-settings"_liv;
+    }
+
+    std::vector<std::unique_ptr<Command>> SettingsCommand::GetCommands() const
+    {
+        return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
+            std::make_unique<SettingsExportCommand>(FullName()),
+            std::make_unique<SettingsSetCommand>(FullName()),
+            std::make_unique<SettingsResetCommand>(FullName()),
+            });
+    }
+
+    std::vector<Argument> SettingsCommand::GetArguments() const
+    {
+        return {
+            Argument{ Execution::Args::Type::AdminSettingEnable, Resource::String::AdminSettingEnableDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::AdminSettingDisable, Resource::String::AdminSettingDisableDescription, ArgumentType::Standard, Argument::Visibility::Help },
+        };
+    }
 
     Resource::LocString SettingsCommand::ShortDescription() const
     {
@@ -23,36 +43,187 @@ namespace AppInstaller::CLI
         return { Resource::String::SettingsCommandLongDescription };
     }
 
-    std::string SettingsCommand::HelpLink() const
+    Utility::LocIndView SettingsCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-settings";
+        return s_SettingsCommand_HelpLink;
+    }
+
+    void SettingsCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        // Get admin setting string for all available options except Unknown
+        std::vector<Utility::LocIndString> adminSettingList;
+        for (auto setting : GetAllSequentialEnumValues(BoolAdminSetting::Unknown))
+        {
+            adminSettingList.emplace_back(AdminSettingToString(setting));
+        }
+
+        Utility::LocIndString validOptions = Join(", "_liv, adminSettingList);
+
+        if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && BoolAdminSetting::Unknown == StringToBoolAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingEnable)))
+        {
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::AdminSettingEnable).Name, validOptions));
+        }
+
+        if (execArgs.Contains(Execution::Args::Type::AdminSettingDisable) && BoolAdminSetting::Unknown == StringToBoolAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingDisable)))
+        {
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::AdminSettingDisable).Name, validOptions));
+        }
     }
 
     void SettingsCommand::ExecuteInternal(Execution::Context& context) const
     {
-        // Show warnings only when the setting command is executed.
-        if (!User().GetWarnings().empty())
+        if (context.Args.Contains(Execution::Args::Type::AdminSettingEnable))
         {
-            context.Reporter.Warn() << Resource::String::SettingLoadFailure << std::endl;
-            for (const auto& warning : User().GetWarnings())
+            context <<
+                Workflow::EnsureRunningAsAdmin <<
+                Workflow::EnableAdminSetting;
+
+        }
+        else if (context.Args.Contains(Execution::Args::Type::AdminSettingDisable))
+        {
+            context <<
+                Workflow::EnsureRunningAsAdmin <<
+                Workflow::DisableAdminSetting;
+        }
+        else
+        {
+            context << Workflow::OpenUserSetting;
+        }
+    }
+
+    Resource::LocString SettingsExportCommand::ShortDescription() const
+    {
+        return { Resource::String::SettingsExportCommandShortDescription };
+    }
+
+    Resource::LocString SettingsExportCommand::LongDescription() const
+    {
+        return { Resource::String::SettingsExportCommandLongDescription };
+    }
+
+    Utility::LocIndView SettingsExportCommand::HelpLink() const
+    {
+        return s_SettingsCommand_HelpLink;
+    }
+
+    void SettingsExportCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        context <<
+            Workflow::ExportSettings;
+    }
+
+    std::vector<Argument> SettingsSetCommand::GetArguments() const
+    {
+        return {
+            Argument { Execution::Args::Type::SettingName, Resource::String::SettingNameArgumentDescription, ArgumentType::Positional, true },
+            Argument { Execution::Args::Type::SettingValue, Resource::String::SettingValueArgumentDescription, ArgumentType::Positional, true },
+        };
+    }
+
+    Resource::LocString SettingsSetCommand::ShortDescription() const
+    {
+        return { Resource::String::SettingsSetCommandShortDescription };
+    }
+
+    Resource::LocString SettingsSetCommand::LongDescription() const
+    {
+        return { Resource::String::SettingsSetCommandLongDescription };
+    }
+
+    Utility::LocIndView SettingsSetCommand::HelpLink() const
+    {
+        return s_SettingsCommand_HelpLink;
+    }
+
+    void SettingsSetCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        // Get admin setting string for all available options except Unknown
+        std::vector<Utility::LocIndString> adminSettingList;
+        for (auto setting : GetAllSequentialEnumValues(StringAdminSetting::Unknown))
+        {
+            adminSettingList.emplace_back(AdminSettingToString(setting));
+        }
+
+        Utility::LocIndString validOptions = Join(", "_liv, adminSettingList);
+
+        if (StringAdminSetting::Unknown == StringToStringAdminSetting(execArgs.GetArg(Execution::Args::Type::SettingName)))
+        {
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::SettingName).Name, validOptions));
+        }
+    }
+
+    void SettingsSetCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        context <<
+            Workflow::EnsureRunningAsAdmin <<
+            Workflow::SetAdminSetting;
+    }
+
+    std::vector<Argument> SettingsResetCommand::GetArguments() const
+    {
+        return {
+            Argument { Execution::Args::Type::SettingName, Resource::String::SettingNameArgumentDescription, ArgumentType::Positional },
+            Argument { Execution::Args::Type::All, Resource::String::ResetAllAdminSettingsArgumentDescription, ArgumentType::Flag },
+        };
+    }
+
+    Resource::LocString SettingsResetCommand::ShortDescription() const
+    {
+        return { Resource::String::SettingsResetCommandShortDescription };
+    }
+
+    Resource::LocString SettingsResetCommand::LongDescription() const
+    {
+        return { Resource::String::SettingsResetCommandLongDescription };
+    }
+
+    Utility::LocIndView SettingsResetCommand::HelpLink() const
+    {
+        return s_SettingsCommand_HelpLink;
+    }
+
+    void SettingsResetCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        if (execArgs.Contains(Execution::Args::Type::All))
+        {
+            if (execArgs.Contains(Execution::Args::Type::SettingName))
             {
-                context.Reporter.Warn() << warning << std::endl;
+                throw CommandException(Resource::String::MultipleExclusiveArgumentsProvided("all|setting"_liv));
             }
+
+            return;
         }
 
-        User().PrepareToShellExecuteFile();
-
-        auto filePathUTF16 = UserSettings::SettingsFilePath().wstring();
-
-        // Some versions of windows will fail if no file extension association exists, other will pop up the dialog
-        // to make the user pick their default.
-        // Kudos to the terminal team for this work around.
-        HINSTANCE res = ShellExecuteW(nullptr, nullptr, filePathUTF16.c_str(), nullptr, nullptr, SW_SHOW);
-        if (static_cast<int>(reinterpret_cast<uintptr_t>(res)) <= 32)
+        if (!execArgs.Contains(Execution::Args::Type::SettingName))
         {
-            // User doesn't have file type association. Default to notepad
-            AICLI_LOG(CLI, Info, << "Json file type association not found, using notepad.exe");
-            ShellExecuteW(nullptr, nullptr, L"notepad", filePathUTF16.c_str(), nullptr, SW_SHOW);
+            throw CommandException(Resource::String::RequiredArgError(ArgumentCommon::ForType(Execution::Args::Type::SettingName).Name));
         }
+
+        // Get admin setting string for all available options except Unknown.
+        // We accept both bool and string settings
+        std::vector<Utility::LocIndString> adminSettingList;
+        for (auto setting : GetAllSequentialEnumValues(BoolAdminSetting::Unknown))
+        {
+            adminSettingList.emplace_back(AdminSettingToString(setting));
+        }
+        for (auto setting : GetAllSequentialEnumValues(StringAdminSetting::Unknown))
+        {
+            adminSettingList.emplace_back(AdminSettingToString(setting));
+        }
+
+        Utility::LocIndString validOptions = Join(", "_liv, adminSettingList);
+
+        if (StringAdminSetting::Unknown == StringToStringAdminSetting(execArgs.GetArg(Execution::Args::Type::SettingName))
+            && BoolAdminSetting::Unknown == StringToBoolAdminSetting(execArgs.GetArg(Execution::Args::Type::SettingName)))
+        {
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::SettingName).Name, validOptions));
+        }
+    }
+
+    void SettingsResetCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        context <<
+            Workflow::EnsureRunningAsAdmin <<
+            (context.Args.Contains(Execution::Args::Type::All) ? Workflow::ResetAllAdminSettings : Workflow::ResetAdminSetting);
     }
 }

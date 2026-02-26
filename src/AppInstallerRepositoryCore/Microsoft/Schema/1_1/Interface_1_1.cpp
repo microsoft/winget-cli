@@ -25,49 +25,12 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 {
-    namespace
-    {
-        std::vector<Utility::NormalizedString> GetSystemReferenceStrings(
-            const Manifest::Manifest& manifest,
-            std::function<const Utility::NormalizedString&(const Manifest::ManifestInstaller&)> func)
-        {
-            std::set<Utility::NormalizedString> set;
-
-            for (const auto& installer : manifest.Installers)
-            {
-                const Utility::NormalizedString& string = func(installer);
-                if (!string.empty())
-                {
-                    set.emplace(Utility::FoldCase(string));
-                }
-            }
-
-            std::vector<Utility::NormalizedString> result;
-            for (auto&& string : set)
-            {
-                result.emplace_back(string);
-            }
-
-            return result;
-        }
-
-        std::vector<Utility::NormalizedString> GetPackageFamilyNames(const Manifest::Manifest& manifest)
-        {
-            return GetSystemReferenceStrings(manifest, [](const Manifest::ManifestInstaller& i) -> const Utility::NormalizedString& { return i.PackageFamilyName; });
-        }
-
-        std::vector<Utility::NormalizedString> GetProductCodes(const Manifest::Manifest& manifest)
-        {
-            return GetSystemReferenceStrings(manifest, [](const Manifest::ManifestInstaller& i) -> const Utility::NormalizedString& { return i.ProductCode; });
-        }
-    }
-
-    Schema::Version Interface::GetVersion() const
+    SQLite::Version Interface::GetVersion() const
     {
         return { 1, 1 };
     }
 
-    void Interface::CreateTables(SQLite::Connection& connection)
+    void Interface::CreateTables(SQLite::Connection& connection, CreateOptions options)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createtables_v1_1");
 
@@ -85,18 +48,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
             { V1_0::MonikerTable::ValueName(), false, false },
             { V1_0::VersionTable::ValueName(), true, false },
             { V1_0::ChannelTable::ValueName(), true, false },
-            { V1_0::PathPartTable::ValueName(), false, true }
+            { V1_0::PathPartTable::ValueName(), false, WI_IsFlagClear(options, CreateOptions::SupportPathless) }
             });
 
-        V1_0::TagsTable::Create(connection);
-        V1_0::CommandsTable::Create(connection);
-        PackageFamilyNameTable::Create(connection);
-        ProductCodeTable::Create(connection);
+        V1_0::TagsTable::Create(connection, GetOneToManyTableSchema());
+        V1_0::CommandsTable::Create(connection, GetOneToManyTableSchema());
+        PackageFamilyNameTable::Create(connection, GetOneToManyTableSchema());
+        ProductCodeTable::Create(connection, GetOneToManyTableSchema());
 
         savepoint.Commit();
     }
 
-    SQLite::rowid_t Interface::AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    SQLite::rowid_t Interface::AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addmanifest_v1_1");
 
@@ -105,34 +68,34 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         // Add the new 1.1 data
         // These system reference strings are all stored with their cases folded so that they can be
         // looked up ordinally; enabling the index to provide efficient searches.
-        PackageFamilyNameTable::EnsureExistsAndInsert(connection, GetPackageFamilyNames(manifest), manifestId);
-        ProductCodeTable::EnsureExistsAndInsert(connection, GetProductCodes(manifest), manifestId);
+        PackageFamilyNameTable::EnsureExistsAndInsert(connection, manifest.GetPackageFamilyNames(), manifestId);
+        ProductCodeTable::EnsureExistsAndInsert(connection, manifest.GetProductCodes(), manifestId);
 
         savepoint.Commit();
 
         return manifestId;
     }
 
-    std::pair<bool, SQLite::rowid_t> Interface::UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    std::pair<bool, SQLite::rowid_t> Interface::UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "updatemanifest_v1_1");
 
         auto [indexModified, manifestId] = V1_0::Interface::UpdateManifest(connection, manifest, relativePath);
 
         // Update new 1:N tables as necessary
-        indexModified = PackageFamilyNameTable::UpdateIfNeededByManifestId(connection, GetPackageFamilyNames(manifest), manifestId) || indexModified;
-        indexModified = ProductCodeTable::UpdateIfNeededByManifestId(connection, GetProductCodes(manifest), manifestId) || indexModified;
+        indexModified = PackageFamilyNameTable::UpdateIfNeededByManifestId(connection, manifest.GetPackageFamilyNames(), manifestId) || indexModified;
+        indexModified = ProductCodeTable::UpdateIfNeededByManifestId(connection, manifest.GetProductCodes(), manifestId) || indexModified;
 
         savepoint.Commit();
 
         return { indexModified, manifestId };
     }
 
-    SQLite::rowid_t Interface::RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    void Interface::RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifest_v1_1");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "RemoveManifestById_v1_1");
 
-        SQLite::rowid_t manifestId = V1_0::Interface::RemoveManifest(connection, manifest, relativePath);
+        V1_0::Interface::RemoveManifestById(connection, manifestId);
 
         // Remove all of the new 1:N data that is no longer referenced.
         PackageFamilyNameTable::DeleteIfNotNeededByManifestId(connection, manifestId);
@@ -144,40 +107,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         }
 
         savepoint.Commit();
-
-        return manifestId;
     }
 
     void Interface::PrepareForPackaging(SQLite::Connection& connection)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_1");
-
-        V1_0::IdTable::PrepareForPackaging(connection);
-        V1_0::NameTable::PrepareForPackaging(connection);
-        V1_0::MonikerTable::PrepareForPackaging(connection);
-        V1_0::VersionTable::PrepareForPackaging(connection);
-        V1_0::ChannelTable::PrepareForPackaging(connection);
-
-        V1_0::PathPartTable::PrepareForPackaging(connection);
-
-        V1_0::ManifestTable::PrepareForPackaging(connection, {
-            V1_0::VersionTable::ValueName(),
-            V1_0::ChannelTable::ValueName(),
-            V1_0::PathPartTable::ValueName(),
-            });
-
-        V1_0::TagsTable::PrepareForPackaging(connection, false);
-        V1_0::CommandsTable::PrepareForPackaging(connection, false);
-        PackageFamilyNameTable::PrepareForPackaging(connection, true, true);
-        ProductCodeTable::PrepareForPackaging(connection, true, true);
-
-        savepoint.Commit();
-
-        // Force the database to actually shrink the file size.
-        // This *must* be done outside of an active transaction.
-        SQLite::Builder::StatementBuilder builder;
-        builder.Vacuum();
-        builder.Execute(connection);
+        PrepareForPackaging(connection, true);
     }
 
     bool Interface::CheckConsistency(const SQLite::Connection& connection, bool log) const
@@ -200,41 +134,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 
     ISQLiteIndex::SearchResult Interface::Search(const SQLite::Connection& connection, const SearchRequest& request) const
     {
-        // Update any system reference strings to be folded
-        SearchRequest foldedRequest = request;
-
-        auto foldIfNeeded = [](PackageMatchFilter& filter)
-        {
-            if ((filter.Field == PackageMatchField::PackageFamilyName || filter.Field == PackageMatchField::ProductCode) &&
-                filter.Type == MatchType::Exact)
-            {
-                filter.Value = Utility::FoldCase(filter.Value);
-            }
-        };
-
-        for (auto& inclusion : foldedRequest.Inclusions)
-        {
-            foldIfNeeded(inclusion);
-        }
-
-        for (auto& filter : foldedRequest.Filters)
-        {
-            foldIfNeeded(filter);
-        }
-
-        return V1_0::Interface::Search(connection, foldedRequest);
+        SearchRequest updatedRequest = request;
+        return SearchInternal(connection, updatedRequest);
     }
 
-    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const
+    std::vector<std::string> Interface::GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionMultiProperty property) const
     {
         switch (property)
         {
         case PackageVersionMultiProperty::PackageFamilyName:
-            return PackageFamilyNameTable::GetValuesByManifestId(connection, manifestId);
+            return PackageFamilyNameTable::GetValuesByManifestId(connection, primaryId);
         case PackageVersionMultiProperty::ProductCode:
-            return ProductCodeTable::GetValuesByManifestId(connection, manifestId);
+            return ProductCodeTable::GetValuesByManifestId(connection, primaryId);
         default:
-            return V1_0::Interface::GetMultiPropertyByManifestId(connection, manifestId, property);
+            return V1_0::Interface::GetMultiPropertyByPrimaryId(connection, primaryId, property);
         }
     }
 
@@ -264,20 +177,117 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         savepoint.Commit();
     }
 
+    void Interface::DropTables(SQLite::Connection& connection)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "drop_tables_v1_1");
+
+        V1_0::Interface::DropTables(connection);
+
+        PackageFamilyNameTable::Drop(connection);
+        ProductCodeTable::Drop(connection);
+
+        ManifestMetadataTable::Drop(connection);
+
+        savepoint.Commit();
+    }
+
     std::unique_ptr<V1_0::SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
     {
-        return std::make_unique<SearchResultsTable>(connection);
+        return std::make_unique<V1_1::SearchResultsTable>(connection);
     }
 
     void Interface::PerformQuerySearch(V1_0::SearchResultsTable& resultsTable, const RequestMatch& query) const
     {
         // First, do an exact match search for the folded system reference strings
         // We do this first because it is exact, and likely won't match anything else if it matches this.
-        std::string foldedQuery = Utility::FoldCase(query.Value);
-        resultsTable.SearchOnField(PackageMatchField::PackageFamilyName, MatchType::Exact, foldedQuery);
-        resultsTable.SearchOnField(PackageMatchField::ProductCode, MatchType::Exact, foldedQuery);
+        PackageMatchFilter filter(PackageMatchField::PackageFamilyName, MatchType::Exact, Utility::FoldCase(query.Value));
+        resultsTable.SearchOnField(filter);
+
+        filter.Field = PackageMatchField::ProductCode;
+        resultsTable.SearchOnField(filter);
 
         // Then do the 1.0 search
         V1_0::Interface::PerformQuerySearch(resultsTable, query);
+    }
+
+    V1_0::OneToManyTableSchema Interface::GetOneToManyTableSchema() const
+    {
+        return V1_0::OneToManyTableSchema::Version_1_1;
+    }
+
+    ISQLiteIndex::SearchResult Interface::SearchInternal(const SQLite::Connection& connection, SearchRequest& request) const
+    {
+        // Update any system reference strings to be folded
+        auto foldIfNeeded = [](PackageMatchFilter& filter)
+        {
+            if ((filter.Field == PackageMatchField::PackageFamilyName || filter.Field == PackageMatchField::ProductCode) &&
+                filter.Type == MatchType::Exact)
+            {
+                filter.Value = Utility::FoldCase(filter.Value);
+            }
+        };
+
+        for (auto& inclusion : request.Inclusions)
+        {
+            foldIfNeeded(inclusion);
+        }
+
+        for (auto& filter : request.Filters)
+        {
+            foldIfNeeded(filter);
+        }
+
+        return V1_0::Interface::Search(connection, request);
+    }
+
+    void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_1");
+
+        V1_0::IdTable::PrepareForPackaging(connection);
+        V1_0::NameTable::PrepareForPackaging(connection);
+        V1_0::MonikerTable::PrepareForPackaging(connection);
+        V1_0::VersionTable::PrepareForPackaging(connection);
+        V1_0::ChannelTable::PrepareForPackaging(connection);
+
+        V1_0::PathPartTable::PrepareForPackaging(connection);
+
+        V1_0::ManifestTable::PrepareForPackaging(connection, {
+            V1_0::VersionTable::ValueName(),
+            V1_0::ChannelTable::ValueName(),
+            V1_0::PathPartTable::ValueName(),
+            });
+
+        V1_0::TagsTable::PrepareForPackaging(connection, GetOneToManyTableSchema(), false, false);
+        V1_0::CommandsTable::PrepareForPackaging(connection, GetOneToManyTableSchema(), false, false);
+        PackageFamilyNameTable::PrepareForPackaging(connection, GetOneToManyTableSchema(), true, true);
+        ProductCodeTable::PrepareForPackaging(connection, GetOneToManyTableSchema(), true, true);
+
+        savepoint.Commit();
+
+        if (vacuum)
+        {
+            Vacuum(connection);
+        }
+    }
+
+    std::optional<std::string> Interface::GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const
+    {
+        switch (property)
+        {
+        case AppInstaller::Repository::PackageVersionProperty::Publisher:
+        {
+            // Publisher is not a primary data member in this version, but it may be stored in the metadata
+            if (ManifestMetadataTable::Exists(connection))
+            {
+                return ManifestMetadataTable::GetMetadataByManifestIdAndMetadata(connection, manifestId, PackageVersionMetadata::Publisher);
+            }
+
+            // No metadata, so no publisher
+            return {};
+        }
+        default:
+            return V1_0::Interface::GetPropertyByManifestIdInternal(connection, manifestId, property);
+        }
     }
 }

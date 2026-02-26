@@ -4,6 +4,7 @@
 #include "TestCommon.h"
 #include "AppInstallerDownloader.h"
 #include "AppInstallerSHA256.h"
+#include "HttpStream/HttpLocalCache.h"
 
 using namespace AppInstaller;
 using namespace AppInstaller::Utility;
@@ -16,10 +17,10 @@ TEST_CASE("DownloadValidFileAndVerifyHash", "[Downloader]")
 
     // Todo: point to files from our repo when the repo goes public
     ProgressCallback callback;
-    auto result = Download("https://raw.githubusercontent.com/microsoft/msix-packaging/master/LICENSE", tempFile.GetPath(), callback, true);
+    auto result = Download("https://raw.githubusercontent.com/microsoft/msix-packaging/master/LICENSE", tempFile.GetPath(), DownloadType::Manifest, callback);
 
-    REQUIRE(result.has_value());
-    auto resultHash = result.value();
+    REQUIRE(!result.Sha256Hash.empty());
+    auto resultHash = result.Sha256Hash;
 
     auto expectedHash = SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b759");
     REQUIRE(std::equal(
@@ -27,7 +28,12 @@ TEST_CASE("DownloadValidFileAndVerifyHash", "[Downloader]")
         expectedHash.end(),
         resultHash.begin()));
 
-    REQUIRE(std::filesystem::file_size(tempFile.GetPath()) > 0);
+    uint64_t expectedFileSize = 1119;
+    REQUIRE(result.SizeInBytes == expectedFileSize);
+    REQUIRE(std::filesystem::file_size(tempFile.GetPath()) == expectedFileSize);
+
+    REQUIRE(result.ContentType);
+    REQUIRE(!result.ContentType.value().empty());
 
     // Verify motw content
     std::filesystem::path motwFile(tempFile);
@@ -46,17 +52,17 @@ TEST_CASE("DownloadValidFileAndCancel", "[Downloader]")
 
     ProgressCallback callback;
 
-    std::optional<std::vector<BYTE>> waitResult;
+    DownloadResult waitResult;
     std::thread waitThread([&]
         {
-            waitResult = Download("https://aka.ms/win32-x64-user-stable", tempFile.GetPath(), callback, true);
+            waitResult = Download("https://aka.ms/win32-x64-user-stable", tempFile.GetPath(), DownloadType::Installer, callback);
         });
 
     callback.Cancel();
 
     waitThread.join();
 
-    REQUIRE(!waitResult.has_value());
+    REQUIRE(waitResult.Sha256Hash.empty());
 }
 
 TEST_CASE("DownloadInvalidUrl", "[Downloader]")
@@ -66,5 +72,100 @@ TEST_CASE("DownloadInvalidUrl", "[Downloader]")
 
     ProgressCallback callback;
 
-    REQUIRE_THROWS_HR(Download("blargle-flargle-fluff", tempFile.GetPath(), callback, true), WININET_E_UNRECOGNIZED_SCHEME);
+    REQUIRE_THROWS(Download("blargle-flargle-fluff", tempFile.GetPath(), DownloadType::Installer, callback));
+}
+
+TEST_CASE("HttpStream_ReadLastFullPage", "[HttpStream]")
+{
+    Microsoft::WRL::ComPtr<IStream> stream;
+    STATSTG stat = { 0 };
+
+    for (size_t i = 0; i < 10; ++i)
+    {
+        stream = GetReadOnlyStreamFromURI("https://aka.ms/win32-x64-user-stable");
+
+        stat = { 0 };
+        REQUIRE(stream->Stat(&stat, STATFLAG_NONAME) == S_OK);
+
+        if (stat.cbSize.QuadPart > 0)
+        {
+            break;
+        }
+
+        Sleep(500);
+    }
+
+    {
+        INFO("https://aka.ms/win32-x64-user-stable gave back a 0 byte file");
+        REQUIRE(stream);
+    }
+
+    LARGE_INTEGER seek;
+    seek.QuadPart = (stat.cbSize.QuadPart / HttpStream::HttpLocalCache::PAGE_SIZE) * HttpStream::HttpLocalCache::PAGE_SIZE;
+    REQUIRE(stream->Seek(seek, STREAM_SEEK_SET, nullptr) == S_OK);
+
+    std::unique_ptr<BYTE[]> buffer = std::make_unique<BYTE[]>(HttpStream::HttpLocalCache::PAGE_SIZE);
+    ULONG read = 0;
+    REQUIRE(stream->Read(buffer.get(), static_cast<ULONG>(HttpStream::HttpLocalCache::PAGE_SIZE), &read) >= S_OK);
+    REQUIRE(read == (stat.cbSize.QuadPart % HttpStream::HttpLocalCache::PAGE_SIZE));
+}
+
+TEST_CASE("CacheControl", "[Downloader]")
+{
+    SECTION("Empty")
+    {
+        CacheControlPolicy test{ L"" };
+        REQUIRE(!test.Present);
+    }
+    SECTION("Space")
+    {
+        CacheControlPolicy test{ L" " };
+        REQUIRE(!test.Present);
+    }
+    SECTION("Standard")
+    {
+        CacheControlPolicy test{ L"public, max-age=77287" };
+        REQUIRE(test.Present);
+        REQUIRE(test.Public);
+        REQUIRE(!test.NoCache);
+        REQUIRE(!test.NoStore);
+        REQUIRE(test.MaxAge == 77287);
+    }
+    SECTION("All")
+    {
+        CacheControlPolicy test{ L"public, no-cache, no-store, max-age = 77" };
+        REQUIRE(test.Present);
+        REQUIRE(test.Public);
+        REQUIRE(test.NoCache);
+        REQUIRE(test.NoStore);
+        REQUIRE(test.MaxAge == 77);
+    }
+    SECTION("Casing")
+    {
+        CacheControlPolicy test{ L"Public, Max-Age=42" };
+        REQUIRE(test.Present);
+        REQUIRE(test.Public);
+        REQUIRE(!test.NoCache);
+        REQUIRE(!test.NoStore);
+        REQUIRE(test.MaxAge == 42);
+    }
+    SECTION("Unknown")
+    {
+        CacheControlPolicy test{ L"public, max-age=77287, not-real" };
+        REQUIRE(test.Present);
+        REQUIRE(test.Public);
+        REQUIRE(!test.NoCache);
+        REQUIRE(!test.NoStore);
+        REQUIRE(test.MaxAge == 77287);
+    }
+    SECTION("MaxAge Negative")
+    {
+        CacheControlPolicy test{ L"max-age=-1" };
+        REQUIRE(test.MaxAge == CacheControlPolicy::MaximumMaxAge);
+    }
+    SECTION("MaxAge not a number")
+    {
+        CacheControlPolicy test{ L"max-age=FOO" };
+        REQUIRE(test.MaxAge == 0);
+    }
 }

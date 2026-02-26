@@ -1,24 +1,16 @@
-name: Spell checking
+# spelling.yml is disabled per https://github.com/check-spelling/check-spelling/security/advisories/GHSA-g86g-chm8-7r2p
+name: Workflow should not run!
 on:
   push:
-    branches:
-      - "**"
-    tags-ignore:
-      - "**"
-  schedule:
-    # * is a special character in YAML so you have to quote this string
-    - cron: '15 * * * *'
+    branches: ''
 
 jobs:
-  build:
-    name: Spell checking
+  placeholder:
+    name: Should be disabled
     runs-on: ubuntu-latest
+    if: false
     steps:
-    - uses: actions/checkout@v2.0.0
-      with:
-        fetch-depth: 5
-    - uses: check-spelling/check-spelling@0.0.16-alpha
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        bucket: .github/actions
-        project: spelling
+      - name: Task
+        run: |
+          echo 'Running this task would be bad'
+          exit 1

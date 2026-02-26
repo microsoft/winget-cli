@@ -11,7 +11,7 @@ For [#364](https://github.com/microsoft/winget-cli/issues/364)
 
 ## Abstract
 
-As features are implemented within winget, they may cause disruption to users oblivious to the fact that they are in progress. In order to allow work to be done in master, and distributed to early adopters for their feedback, this spec suggests that settings should be used to control "experimental" features. We use this term [as others have](https://github.com/PowerShell/PowerShell-RFC/blob/master/5-Final/RFC0029-Support-Experimental-Features.md) to mean work in progress that is not yet ready for release to the general audience.
+As features are implemented within winget, they may cause disruption to users oblivious to the fact that they are in progress. In order to allow work to be done in master, and distributed to early adopters for their feedback, this spec suggests that settings should be used to control "experimental" features. We use this term [as others have](https://github.com/PowerShell/PowerShell-RFC/blob/master/Final/RFC0029-Support-Experimental-Features.md) to mean work in progress that is not yet ready for release to the general audience.
 
 ## Inspiration
 
@@ -71,7 +71,7 @@ This should have no direct impact on accessibility.
 
 ### Security
 
-There should be no security impact directly, although we must remember that any medium IL process will be able to enable any feature by writing to the settings file. But any experimental feature should be created with the intention of becoming released, and so should have it's own security consideration.
+There should be no security impact directly, although we must remember that any medium IL process will be able to enable any feature by writing to the settings file. But any experimental feature should be created with the intention of becoming released, and so should have its own security consideration.
 
 ### Reliability
 
@@ -93,4 +93,4 @@ This feature enables all larger features in the future to have a phased rollout.
 
 ## Resources
 
-[PowerShell Experimental Features RFC](https://github.com/PowerShell/PowerShell-RFC/blob/master/5-Final/RFC0029-Support-Experimental-Features.md)
+[PowerShell Experimental Features RFC](https://github.com/PowerShell/PowerShell-RFC/blob/master/Final/RFC0029-Support-Experimental-Features.md)

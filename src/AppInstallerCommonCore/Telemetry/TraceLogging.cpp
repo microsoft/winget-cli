@@ -6,7 +6,7 @@
 
 // GUID for Microsoft.PackageManager.Client : {c0cf606f-569b-5c20-27d9-88a745fa2175}
 TRACELOGGING_DEFINE_PROVIDER(
-    g_hTelemetryProvider,
+    g_hTraceProvider,
     "Microsoft.PackageManager.Client",
     (0xc0cf606f, 0x569b, 0x5c20, 0x27, 0xd9, 0x88, 0xa7, 0x45, 0xfa, 0x21, 0x75),
     TraceLoggingOptionMicrosoftTelemetry());
@@ -14,7 +14,15 @@ TRACELOGGING_DEFINE_PROVIDER(
 bool g_IsTelemetryProviderEnabled{};
 UCHAR g_TelemetryProviderLevel{};
 ULONGLONG g_TelemetryProviderMatchAnyKeyword{};
-GUID g_TelemetryProviderActivityId{};
+
+struct TraceProvider
+{
+    TraceProvider();
+
+    ~TraceProvider();
+};
+
+TraceProvider g_TraceProvider{};
 
 void WINAPI TelemetryProviderEnabledCallback(
     _In_      LPCGUID /*sourceId*/,
@@ -30,29 +38,12 @@ void WINAPI TelemetryProviderEnabledCallback(
     g_TelemetryProviderMatchAnyKeyword = matchAnyKeyword;
 }
 
-void RegisterTraceLogging()
+TraceProvider::TraceProvider()
 {
-    HRESULT hr = S_OK;
-
-    TraceLoggingRegisterEx(g_hTelemetryProvider, TelemetryProviderEnabledCallback, nullptr);
-    //Generate the ActivityId used to track the session
-    hr = CoCreateGuid(&g_TelemetryProviderActivityId);
-    if (FAILED(hr))
-    {
-        TraceLoggingWriteActivity(
-            g_hTelemetryProvider,
-            "CreateGuidError",
-            nullptr,
-            nullptr,
-            TraceLoggingHResult(hr),
-            TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-            TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
-
-        g_TelemetryProviderActivityId = GUID_NULL;
-    };
+    TraceLoggingRegisterEx(g_hTraceProvider, TelemetryProviderEnabledCallback, nullptr);
 }
 
-void UnRegisterTraceLogging()
+TraceProvider::~TraceProvider()
 {
-    TraceLoggingUnregister(g_hTelemetryProvider);
+    TraceLoggingUnregister(g_hTraceProvider);
 }

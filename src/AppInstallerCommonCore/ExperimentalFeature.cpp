@@ -1,36 +1,90 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
 #include "pch.h"
+#include "AppInstallerLogging.h"
 #include "winget/ExperimentalFeature.h"
+#include "winget/GroupPolicy.h"
 #include "winget/UserSettings.h"
 
 namespace AppInstaller::Settings
 {
-    bool ExperimentalFeature::IsEnabled(Feature feature)
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    const std::map<ExperimentalFeature::Feature, bool>* s_ExperimentalFeature_Override = nullptr;
+
+    void SetExperimentalFeatureOverride(const std::map<ExperimentalFeature::Feature, bool>* override)
     {
-        switch (feature)
+        s_ExperimentalFeature_Override = override;
+    }
+#endif
+
+    namespace
+    {
+
+        bool IsEnabledInternal(ExperimentalFeature::Feature feature, const UserSettings& userSettings)
         {
-        case Feature::None:
-            return true;
-        case Feature::ExperimentalCmd:
-            // ExperimentalArg depends on ExperimentalCmd, so instead of failing we could
-            // assume that if ExperimentalArg is enabled then ExperimentalCmd is as well.
-            return User().Get<Setting::EFExperimentalCmd>() || User().Get<Setting::EFExperimentalArg>();
-        case Feature::ExperimentalArg:
-            return User().Get<Setting::EFExperimentalArg>();
-        case Feature::ExperimentalMSStore:
-            return User().Get<Setting::EFExperimentalMSStore>();
-        case Feature::ExperimentalList:
-            return User().Get<Setting::EFList>();
-        case Feature::ExperimentalUpgrade:
-            return User().Get<Setting::EFExperimentalUpgrade>();
-        case Feature::ExperimentalUninstall:
-            return User().Get<Setting::EFUninstall>();
-        default:
-            THROW_HR(E_UNEXPECTED);
+            if (feature == ExperimentalFeature::Feature::None)
+            {
+                return true;
+            }
+
+#ifdef WINGET_DISABLE_EXPERIMENTAL_FEATURES
+            UNREFERENCED_PARAMETER(userSettings);
+            return false;
+#else
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (s_ExperimentalFeature_Override)
+            {
+                auto itr = s_ExperimentalFeature_Override->find(feature);
+                if (itr != s_ExperimentalFeature_Override->end())
+                {
+                    return itr->second;
+                }
+            }
+#endif
+
+            if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::ExperimentalFeatures))
+            {
+                AICLI_LOG(Core, Info, <<
+                    "Experimental feature '" << ExperimentalFeature::GetFeature(feature).Name() <<
+                    "' is disabled due to group policy: " << TogglePolicy::GetPolicy(TogglePolicy::Policy::ExperimentalFeatures).RegValueName());
+                return false;
+            }
+
+            switch (feature)
+            {
+            case ExperimentalFeature::Feature::ExperimentalCmd:
+                // ExperimentalArg depends on ExperimentalCmd, so instead of failing we could
+                // assume that if ExperimentalArg is enabled then ExperimentalCmd is as well.
+                return userSettings.Get<Setting::EFExperimentalCmd>() || userSettings.Get<Setting::EFExperimentalArg>();
+            case ExperimentalFeature::Feature::ExperimentalArg:
+                return userSettings.Get<Setting::EFExperimentalArg>();
+            case ExperimentalFeature::Feature::DirectMSI:
+                return userSettings.Get<Setting::EFDirectMSI>();
+            case ExperimentalFeature::Feature::Resume:
+                return userSettings.Get<Setting::EFResume>();
+            case ExperimentalFeature::Feature::Font:
+                return userSettings.Get<Setting::EFFonts>();
+            case ExperimentalFeature::Feature::SourcePriority:
+                return userSettings.Get<Setting::EFSourcePriority>();
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+#endif
         }
     }
+
+    bool ExperimentalFeature::IsEnabled(Feature feature)
+    {
+        return IsEnabledInternal(feature, User());
+    }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    bool ExperimentalFeature::IsEnabled(Feature feature, const UserSettings& userSettings)
+    {
+        return IsEnabledInternal(feature, userSettings);
+    }
+#endif
 
     ExperimentalFeature ExperimentalFeature::GetFeature(ExperimentalFeature::Feature feature)
     {
@@ -40,14 +94,14 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Command Sample", "experimentalCmd", "https://aka.ms/winget-settings", Feature::ExperimentalCmd };
         case Feature::ExperimentalArg:
             return ExperimentalFeature{ "Argument Sample", "experimentalArg", "https://aka.ms/winget-settings", Feature::ExperimentalArg };
-        case Feature::ExperimentalMSStore:
-            return ExperimentalFeature{ "Microsoft Store Support", "experimentalMSStore", "https://aka.ms/winget-settings", Feature::ExperimentalMSStore };
-        case Feature::ExperimentalList:
-            return ExperimentalFeature{ "List Command", "list", "https://aka.ms/winget-settings", Feature::ExperimentalList };
-        case Feature::ExperimentalUpgrade:
-            return ExperimentalFeature{ "Upgrade Command", "upgrade", "https://aka.ms/winget-settings", Feature::ExperimentalUpgrade };
-        case Feature::ExperimentalUninstall:
-            return ExperimentalFeature{ "Uninstall Command", "uninstall", "https://aka.ms/winget-settings", Feature::ExperimentalUninstall };
+        case Feature::DirectMSI:
+            return ExperimentalFeature{ "Direct MSI Installation", "directMSI", "https://aka.ms/winget-settings", Feature::DirectMSI };
+        case Feature::Resume:
+            return ExperimentalFeature{ "Resume", "resume", "https://aka.ms/winget-settings", Feature::Resume };
+        case Feature::Font:
+            return ExperimentalFeature{ "Font", "fonts", "https://aka.ms/winget-settings", Feature::Font };
+        case Feature::SourcePriority:
+            return ExperimentalFeature{ "Source Priority", "sourcePriority", "https://aka.ms/winget-settings", Feature::SourcePriority };
         default:
             THROW_HR(E_UNEXPECTED);
         }

@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 #pragma once
 #include "Microsoft/SQLiteIndex.h"
-#include "Public/AppInstallerRepositorySource.h"
-#include <AppInstallerSynchronization.h>
-
+#include "ISource.h"
+#include <winget/FileCache.h>
 #include <memory>
 
 
@@ -13,7 +12,13 @@ namespace AppInstaller::Repository::Microsoft
     // A source that holds a SQLiteIndex and lock.
     struct SQLiteIndexSource : public std::enable_shared_from_this<SQLiteIndexSource>, public ISource
     {
-        SQLiteIndexSource(const SourceDetails& details, std::string identifier, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock = {}, bool isInstalledSource = false);
+        static constexpr ISourceType SourceType = ISourceType::SQLiteIndexSource;
+
+        SQLiteIndexSource(
+            const SourceDetails& details,
+            SQLiteIndex&& index,
+            bool isInstalledSource = false, 
+            bool requireManifestHash = false);
 
         SQLiteIndexSource(const SQLiteIndexSource&) = delete;
         SQLiteIndexSource& operator=(const SQLiteIndexSource&) = delete;
@@ -34,14 +39,61 @@ namespace AppInstaller::Repository::Microsoft
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
 
+        // Casts to the requested type.
+        void* CastTo(ISourceType type) override;
+
         // Gets the index.
+        SQLiteIndex& GetIndex() { return m_index; }
         const SQLiteIndex& GetIndex() const { return m_index; }
 
+        // Determines if the other source refers to the same as this.
+        bool IsSame(const SQLiteIndexSource* other) const;
+
+        bool RequireManifestHash() const { return m_requireManifestHash; }
+
     private:
+        std::shared_ptr<SQLiteIndexSource> NonConstSharedFromThis() const;
+
         SourceDetails m_details;
-        std::string m_identifier;
-        Synchronization::CrossProcessReaderWriteLock m_lock;
+        bool m_requireManifestHash;
         bool m_isInstalled;
+        std::shared_ptr<Caching::FileCache> m_manifestCache;
+        std::shared_ptr<Caching::FileCache> m_packageVersionDataCache;
+
+    protected:
         SQLiteIndex m_index;
     };
+
+    // A source that holds a SQLiteIndex and lock.
+    struct SQLiteIndexWriteableSource : public SQLiteIndexSource, public IMutablePackageSource
+    {
+        SQLiteIndexWriteableSource(
+            const SourceDetails& details,
+            SQLiteIndex&& index,
+            bool isInstalledSource = false);
+
+        // Casts to the requested type.
+        void* CastTo(ISourceType type) override;
+
+        // Adds a package version to the source.
+        void AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
+
+        // Removes a package version from the source.
+        void RemovePackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
+    };
+
+    namespace details
+    {
+        // For the IPackage(Version) implementations that need to hold a weak reference to a SQLiteIndexSource.
+        struct SourceReference
+        {
+            SourceReference(const std::shared_ptr<SQLiteIndexSource>& source);
+
+        protected:
+            std::shared_ptr<SQLiteIndexSource> GetReferenceSource() const;
+
+        private:
+            std::weak_ptr<SQLiteIndexSource> m_source;
+        };
+    }
 }

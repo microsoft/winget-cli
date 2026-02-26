@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "TestSource.h"
 #include "TestCommon.h"
-#include <AppInstallerRepositorySource.h>
+#include "TestSettings.h"
+#include <winget/RepositorySource.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
 #include <Microsoft/PreIndexedPackageSourceFactory.h>
@@ -21,12 +23,10 @@ namespace fs = std::filesystem;
 
 constexpr std::string_view s_RepositorySettings_UserSources = "usersources"sv;
 
-constexpr std::string_view s_MsixFile_1 = "index.1.0.0.0.msix";
-constexpr std::string_view s_MsixFile_2 = "index.2.0.0.0.msix";
-constexpr std::string_view s_Msix_FamilyName = "AppInstallerCLITestsFakeIndex_125rzkzqaqjwj";
-constexpr std::string_view s_AppxManifestFileName = "AppxManifest.xml"sv;
+constexpr std::string_view s_MsixFile_1 = "index.1.0.0.0.signed.msix";
+constexpr std::string_view s_MsixFile_2 = "index.2.0.0.0.signed.msix";
+constexpr std::string_view s_Msix_FamilyName = "AppInstallerCLITestsFakeIndex_8wekyb3d8bbwe";
 constexpr std::string_view s_IndexMsixName = "source.msix"sv;
-constexpr std::string_view s_IndexFileName = "index.db"sv;
 
 void CopyIndexFileToDirectory(const fs::path& from, const fs::path& to)
 {
@@ -56,54 +56,72 @@ std::string GetContents(const fs::path& file)
 
 void CleanSources()
 {
-    RemoveSetting(Streams::UserSources);
-    RemoveSetting(Streams::SourcesMetadata);
+    RemoveSetting(Stream::UserSources);
+    RemoveSetting(Stream::SourcesMetadata);
     fs::remove_all(GetPathToFileDir());
 }
 
 TEST_CASE("PIPS_Add", "[pips]")
 {
+    if (!Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
     CleanSources();
 
     TempDirectory dir("pipssource");
     TestDataFile index(s_MsixFile_1);
     CopyIndexFileToDirectory(index, dir);
 
-    std::string name = "TestName";
-    std::string type(AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type());
-    std::string arg = dir;
+    bool shouldCleanCert = InstallCertFromSignedPackage(index);
+
+    SourceDetails details;
+    details.Name = "TestName";
+    details.Type = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type();
+    details.Arg = dir;
     ProgressCallback callback;
 
-    AddSource(name, type, arg, callback);
+    AddSource(details, callback);
 
     fs::path state = GetPathToFileDir();
     REQUIRE(fs::exists(state));
 
-    fs::path manifest = state;
-    manifest /= s_AppxManifestFileName;
-    REQUIRE(fs::exists(manifest));
-    REQUIRE(fs::file_size(manifest) > 0);
+    fs::path indexMsix = state;
+    indexMsix /= s_IndexMsixName;
+    REQUIRE(fs::exists(indexMsix));
+    REQUIRE(fs::file_size(indexMsix) > 0);
 
-    fs::path indexFile = state;
-    indexFile /= s_IndexFileName;
-    REQUIRE(fs::exists(indexFile));
-    REQUIRE(fs::file_size(indexFile) > 0);
+    if (shouldCleanCert)
+    {
+        UninstallCertFromSignedPackage(index);
+    }
 }
 
 TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
 {
+    if (!Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
     CleanSources();
 
     TempDirectory dir("pipssource");
     TestDataFile index(s_MsixFile_1);
     CopyIndexFileToDirectory(index, dir);
 
-    std::string name = "TestName";
-    std::string type(AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type());
-    std::string arg = dir;
+    bool shouldCleanCert = InstallCertFromSignedPackage(index);
+
+    SourceDetails details;
+    details.Name = "TestName";
+    details.Type = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type();
+    details.Arg = dir;
     TestProgress callback;
 
-    AddSource(name, type, arg, callback);
+    AddSource(details, callback);
 
     fs::path state = GetPathToFileDir();
     REQUIRE(fs::exists(state));
@@ -111,35 +129,45 @@ TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
     bool progressCalled = false;
     callback.m_OnProgress = [&](uint64_t, uint64_t, ProgressType) { progressCalled = true; };
 
-    UpdateSource(name, callback);
+    UpdateSource(details.Name, callback);
     REQUIRE(!progressCalled);
+
+    if (shouldCleanCert)
+    {
+        UninstallCertFromSignedPackage(index);
+    }
 }
 
 TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
 {
+    if (!Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
     CleanSources();
 
     TempDirectory dir("pipssource");
     TestDataFile indexMsix1(s_MsixFile_1);
     CopyIndexFileToDirectory(indexMsix1, dir);
 
-    std::string name = "TestName";
-    std::string type(AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type());
-    std::string arg = dir;
+    bool shouldCleanCert = InstallCertFromSignedPackage(indexMsix1);
+
+    SourceDetails details;
+    details.Name = "TestName";
+    details.Type = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type();
+    details.Arg = dir;
     TestProgress callback;
 
-    AddSource(name, type, arg, callback);
+    AddSource(details, callback);
 
     fs::path state = GetPathToFileDir();
     REQUIRE(fs::exists(state));
 
-    fs::path manifestPath = state;
-    manifestPath /= s_AppxManifestFileName;
-    std::string manifestContents1 = GetContents(manifestPath);
-
-    fs::path indexPath = state;
-    indexPath /= s_IndexFileName;
-    std::string indexContents1 = GetContents(indexPath);
+    fs::path indexMsix = state;
+    indexMsix /= s_IndexMsixName;
+    std::string indexContents1 = GetContents(indexMsix);
 
     TestDataFile indexMsix2(s_MsixFile_2);
     CopyIndexFileToDirectory(indexMsix2, dir);
@@ -147,42 +175,54 @@ TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
     bool progressCalled = false;
     callback.m_OnProgress = [&](uint64_t, uint64_t, ProgressType) { progressCalled = true; };
 
-    UpdateSource(name, callback);
+    UpdateSource(details.Name, callback);
     REQUIRE(progressCalled);
 
-    std::string manifestContents2 = GetContents(manifestPath);
-    REQUIRE(manifestContents1 != manifestContents2);
-
-    std::string indexContents2 = GetContents(indexPath);
+    std::string indexContents2 = GetContents(indexMsix);
     REQUIRE(indexContents1 != indexContents2);
+
+    if (shouldCleanCert)
+    {
+        UninstallCertFromSignedPackage(indexMsix1);
+    }
 }
 
 TEST_CASE("PIPS_Remove", "[pips]")
 {
+    if (!Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
     CleanSources();
 
     TempDirectory dir("pipssource");
     TestDataFile index(s_MsixFile_1);
     CopyIndexFileToDirectory(index, dir);
 
-    std::string name = "TestName";
-    std::string type(AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type());
-    std::string arg = dir;
+    bool shouldCleanCert = InstallCertFromSignedPackage(index);
+
+    SourceDetails details;
+    details.Name = "TestName";
+    details.Type = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type();
+    details.Arg = dir;
     ProgressCallback callback;
 
-    AddSource(name, type, arg, callback);
+    AddSource(details, callback);
 
     fs::path state = GetPathToFileDir();
     REQUIRE(fs::exists(state));
 
-    fs::path manifest = state;
-    manifest /= s_AppxManifestFileName;
-    REQUIRE(fs::exists(manifest));
+    fs::path indexMsix = state;
+    indexMsix /= s_IndexMsixName;
+    REQUIRE(fs::exists(indexMsix));
 
-    fs::path indexFile = state;
-    indexFile /= s_IndexFileName;
-    REQUIRE(fs::exists(indexFile));
-
-    RemoveSource(name, callback);
+    RemoveSource(details.Name, callback);
     REQUIRE(!fs::exists(state));
+
+    if (shouldCleanCert)
+    {
+        UninstallCertFromSignedPackage(index);
+    }
 }

@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\WinGetTestCommon\</OutDir>
+    <Platforms>x64;x86;arm64</Platforms>
+    <OutputType>Library</OutputType>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,117 @@
+Author: Microsoft
+Capabilities:
+- internetClient
+Commands:
+- makemsix
+- makeappx
+Copyright: Copyright Microsoft Corporation
+CopyrightUrl: https://github.com/Microsoft/msix-packaging/copyright
+Dependencies:
+  ExternalDependencies:
+  - Outside dependencies
+  PackageDependencies:
+  - MinimumVersion: 1.0.0
+    PackageIdentifier: Microsoft.MsixSdkDep
+  WindowsFeatures:
+  - IIS
+  WindowsLibraries:
+  - VC Runtime
+Description: The MSIX SDK project is an effort to enable developers
+FileExtensions:
+- appx
+- msix
+- appxbundle
+- msixbundle
+InstallModes:
+- user
+- machine
+InstallerLocale: en-US
+InstallerSuccessCodes:
+- 1
+- 0x80070005
+InstallerSwitches:
+  Custom: /custom
+  InstallLocation: /dir=<INSTALLPATH>
+  Interactive: /interactive
+  Log: /log=<LOGPATH>
+  Silent: /silence
+  SilentWithProgress: /silentwithprogress
+  Upgrade: /upgrade
+InstallerType: zip
+Installers:
+- Architecture: x64
+  Commands:
+  - makemsixPreview
+  - makeappxPreview
+  Dependencies:
+    ExternalDependencies:
+    - Preview Outside dependencies
+    PackageDependencies:
+    - PackageIdentifier: Microsoft.MsixSdkDepPreview
+    WindowsFeatures:
+    - PreviewIIS
+    WindowsLibraries:
+    - Preview VC Runtime
+  FileExtensions:
+  - appxbundle
+  - msixbundle
+  - appx
+  - msix
+  InstallModes:
+  - user
+  InstallerLocale: en-GB
+  InstallerSha256: a4d23b49269a7cb1e09fbfb1d532c7b1eacb9acba5e2c6172b6206e885296052
+  InstallerSwitches:
+    Custom: /c
+    InstallLocation: /d=<INSTALLPATH>
+    Interactive: /i
+    Log: /l=<LOGPATH>
+    Silent: /s
+    SilentWithProgress: /sp
+    Upgrade: /u
+  InstallerType: msi
+  InstallerUrl: https://github.com/microsoft/msix-packaging/releases/download/MSIX-Core-1.1-release/msixmgrSetup-1.1.0.0-x64.msi
+  MinimumOSVersion: 10.0.1.0
+  Platform:
+  - Windows.Desktop
+  Protocols:
+  - protocol1preview
+  - protocol2preview
+  Scope: user
+  UpgradeBehavior: install
+- Architecture: x86
+  InstallerLocale: en-GB
+  InstallerSha256: a4d23b49269a7cb1e09fbfb1d532c7b1eacb9acba5e2c6172b6206e885296052
+  InstallerType: msi
+  InstallerUrl: https://github.com/microsoft/msix-packaging/releases/download/MSIX-Core-1.1-release/msixmgrSetup-1.1.0.0-x86.msi
+License: MIT License
+LicenseUrl: https://github.com/Microsoft/msix-packaging/license
+ManifestType: merged
+ManifestVersion: 1.0.0
+MinimumOSVersion: 10.0.0.0
+Moniker: msixsdk
+PackageFamilyName: Microsoft.DesktopAppInstaller_8wekyb3d8bbwe
+PackageIdentifier: microsoft.msixsdk
+PackageLocale: en-US
+PackageName: MSIX SDK
+PackageUrl: https://github.com/Microsoft/msix-packaging
+PackageVersion: 1.7.32
+Platform:
+- Windows.Desktop
+- Windows.Universal
+PrivacyUrl: https://www.microsoft.com/privacy
+ProductCode: '{Foo}'
+Protocols:
+- protocol1
+- protocol2
+Publisher: Microsoft
+PublisherSupportUrl: https://www.microsoft.com/support
+PublisherUrl: https://www.microsoft.com
+RestrictedCapabilities:
+- runFullTrust
+Scope: machine
+ShortDescription: This is MSIX SDK
+Tags:
+- appxsdk
+- msixsdk
+UpgradeBehavior: uninstallPrevious

@@ -1,0 +1,14 @@
+PackageIdentifier: IntegrationTests.ManifestUpdate.OneInstallerCreate
+PackageVersion: 1.0
+PackageName: ManifestUpdate Test
+Publisher: Contoso
+ShortDescription: Manifest update test for Create manifest create.
+License: Text
+Installers:
+- Architecture: x64
+  InstallerUrl: https://stpkgmanvalwestustest.blob.core.windows.net/test-installers/VSCodeUserSetup-x64-1.46.1.exe
+  InstallerType: inno
+  InstallerSha256: e29f73f5b6bad9ea5a484d9a934141a03d3fa39c55efd6e65e6e02dea6be9aa5
+PackageLocale: en-US
+ManifestType: singleton
+ManifestVersion: 1.0.0

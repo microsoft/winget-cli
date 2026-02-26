@@ -7,14 +7,19 @@ namespace AppInstaller::CLI
 {
     struct RootCommand final : public Command
     {
-        RootCommand() : Command("root", {}) {}
+        constexpr static std::string_view CommandName = "root"sv;
+
+        RootCommand() : Command(CommandName, {}) {}
 
         std::vector<std::unique_ptr<Command>> GetCommands() const override;
         std::vector<Argument> GetArguments() const override;
 
+        Resource::LocString ShortDescription() const override;
         Resource::LocString LongDescription() const override;
 
-        std::string HelpLink() const override;
+        Utility::LocIndView HelpLink() const override;
+
+        void Execute(Execution::Context& context) const override;
 
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const;

@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{7d05f64d-ce5a-42aa-a2c1-e91458f061cf}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ManifestSchema.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="$(MSBuildThisFileDirectory)ManifestSchema.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\latest\manifest.defaultLocale.latest.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\latest\manifest.installer.latest.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\latest\manifest.locale.latest.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\latest\manifest.singleton.latest.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\latest\manifest.version.latest.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\preview\manifest.0.1.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.defaultLocale.1.0.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.installer.1.0.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.locale.1.0.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.singleton.1.0.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.version.1.0.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.1.0\manifest.defaultLocale.1.1.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.1.0\manifest.installer.1.1.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.1.0\manifest.locale.1.1.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.1.0\manifest.singleton.1.1.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.1.0\manifest.version.1.1.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.12.0\manifest.defaultLocale.1.12.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.12.0\manifest.installer.1.12.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.12.0\manifest.locale.1.12.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.12.0\manifest.singleton.1.12.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.12.0\manifest.version.1.12.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.2.0\manifest.defaultLocale.1.2.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.2.0\manifest.installer.1.2.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.2.0\manifest.locale.1.2.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.2.0\manifest.singleton.1.2.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.2.0\manifest.version.1.2.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.4.0\manifest.defaultLocale.1.4.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.4.0\manifest.installer.1.4.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.4.0\manifest.locale.1.4.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.4.0\manifest.singleton.1.4.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.4.0\manifest.version.1.4.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.5.0\manifest.defaultLocale.1.5.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.5.0\manifest.installer.1.5.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.5.0\manifest.locale.1.5.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.5.0\manifest.singleton.1.5.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.5.0\manifest.version.1.5.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.6.0\manifest.defaultLocale.1.6.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.6.0\manifest.installer.1.6.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.6.0\manifest.locale.1.6.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.6.0\manifest.singleton.1.6.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.6.0\manifest.version.1.6.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.7.0\manifest.defaultLocale.1.7.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.7.0\manifest.installer.1.7.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.7.0\manifest.locale.1.7.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.7.0\manifest.singleton.1.7.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.7.0\manifest.version.1.7.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.9.0\manifest.defaultLocale.1.9.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.9.0\manifest.installer.1.9.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.9.0\manifest.locale.1.9.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.9.0\manifest.singleton.1.9.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.9.0\manifest.version.1.9.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.10.0\manifest.defaultLocale.1.10.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.10.0\manifest.installer.1.10.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.10.0\manifest.locale.1.10.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.10.0\manifest.singleton.1.10.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.10.0\manifest.version.1.10.0.json" />
+  </ItemGroup>
+</Project>

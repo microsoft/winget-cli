@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <AppInstallerStrings.h>
+#include <AppInstallerSHA256.h>
 #include <AppInstallerVersions.h>
 #include <winget/ManifestInstaller.h>
 #include <winget/ManifestLocalization.h>
@@ -10,90 +11,65 @@
 
 namespace AppInstaller::Manifest
 {
-    // ManifestVer is inherited from Utility::Version and is a more restricted version.
-    // ManifestVer is used to specify the version of app manifest itself.
-    // ManifestVer is a 3 part version in the format of [0-65535].[0-65535].[0-65535]
-    // and optionally a following tag in the format of -[SomeString] for experimental purpose.
-    struct ManifestVer : public Utility::Version
-    {
-        ManifestVer() = default;
-
-        ManifestVer(std::string_view version);
-
-        uint64_t Major() const { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
-        uint64_t Minor() const { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }
-        uint64_t Patch() const { return m_parts.size() > 2 ? m_parts[2].Integer : 0; }
-
-        bool HasExtension() const;
-
-        bool HasExtension(std::string_view extension) const;
-
-    private:
-        std::vector<Version> m_extensions;
-    };
-
     // Representation of the parsed manifest file.
     struct Manifest
     {
         using string_t = Utility::NormalizedString;
 
-        // Required
         string_t Id;
 
-        // Required
-        string_t Name;
-
-        // Required
         string_t Version;
-
-        // Required
-        string_t Publisher;
-
-        string_t AppMoniker;
 
         string_t Channel;
 
-        string_t Author;
-
-        string_t License;
-
-        string_t MinOSVersion;
-
-        // Comma separated values
-        std::vector<string_t> Tags;
-
-        // Comma separated values
-        std::vector<string_t> Commands;
-
-        // Comma separated values
-        std::vector<string_t> Protocols;
-
-        // Comma separated values
-        std::vector<string_t> FileExtensions;
-
-        ManifestInstaller::InstallerTypeEnum InstallerType = ManifestInstaller::InstallerTypeEnum::Unknown;
-
-        // Default is Install if not specified
-        ManifestInstaller::UpdateBehaviorEnum UpdateBehavior = ManifestInstaller::UpdateBehaviorEnum::Install;
-
-        // Package family name for MSIX packaged installers.
-        string_t PackageFamilyName;
-
-        // Product code for ARP (Add/Remove Programs) installers.
-        string_t ProductCode;
-
-        string_t Description;
-
-        string_t Homepage;
-
-        string_t LicenseUrl;
+        string_t Moniker;
 
         ManifestVer ManifestVersion;
 
-        std::map<ManifestInstaller::InstallerSwitchType, string_t> Switches;
+        ManifestInstaller DefaultInstallerInfo;
 
         std::vector<ManifestInstaller> Installers;
 
-        std::vector<ManifestLocalization> Localization;
+        ManifestLocalization DefaultLocalization;
+
+        std::vector<ManifestLocalization> Localizations;
+
+        ManifestLocalization CurrentLocalization;
+
+        // ApplyLocale will update the CurrentLocalization according to the specified locale
+        // If locale is empty, user setting locale will be used
+        void ApplyLocale(const std::string& locale = {});
+
+        // Get all tags across localizations
+        std::vector<string_t> GetAggregatedTags() const;
+
+        // Get all commands across installers
+        std::vector<string_t> GetAggregatedCommands() const;
+
+        // Gets ARP version range if declared, otherwise an empty range is returned
+        Utility::VersionRange GetArpVersionRange() const;
+
+        // Get package family names across installers, Case folded.
+        std::vector<string_t> GetPackageFamilyNames() const;
+
+        // Get product codes across installers, Case folded.
+        std::vector<string_t> GetProductCodes() const;
+
+        // Get upgrade codes across installers, Case folded.
+        std::vector<string_t> GetUpgradeCodes() const;
+
+        // Get package names across localizations and installers, Case folded.
+        std::vector<string_t> GetPackageNames() const;
+
+        // Get publishers across localizations and installers, Case folded.
+        std::vector<string_t> GetPublishers() const;
+
+        // If not empty, the SHA256 hash of the manifest stream itself.
+        Utility::SHA256::HashBuffer StreamSha256;
+
+    private:
+        std::vector<string_t> GetSystemReferenceStrings(
+            std::function<const string_t& (const ManifestInstaller&)> extractStringFromInstaller = {},
+            std::function<const string_t& (const AppsAndFeaturesEntry&)> extractStringFromAppsAndFeaturesEntry = {}) const;
     };
 }

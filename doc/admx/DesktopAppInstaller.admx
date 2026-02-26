@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <policyNamespaces>
+    <target prefix="appinstaller" namespace="Microsoft.Policies.AppInstaller" />
+    <using prefix="windows" namespace="Microsoft.Policies.Windows" />
+  </policyNamespaces>
+  <resources minRequiredRevision="1.0" />
+  <categories>
+    <category name="AppInstaller" displayName="$(string.AppInstaller)">
+      <parentCategory ref="windows:WindowsComponents" />
+    </category>
+  </categories>
+  <policies>
+    <policy name="EnableAppInstaller" class="Machine" displayName="$(string.EnableAppInstaller)" explainText="$(string.EnableAppInstallerExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableAppInstaller">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableSettings" class="Machine" displayName="$(string.EnableSettings)" explainText="$(string.EnableSettingsExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableSettings">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableExperimentalFeatures" class="Machine" displayName="$(string.EnableExperimentalFeatures)" explainText="$(string.EnableExperimentalFeaturesExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableExperimentalFeatures">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableLocalManifestFiles" class="Machine" displayName="$(string.EnableLocalManifestFiles)" explainText="$(string.EnableLocalManifestFilesExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableLocalManifestFiles">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableBypassCertificatePinningForMicrosoftStore" class="Machine" displayName="$(string.EnableBypassCertificatePinningForMicrosoftStore)" explainText="$(string.EnableBypassCertificatePinningForMicrosoftStoreExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableBypassCertificatePinningForMicrosoftStore">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableHashOverride" class="Machine" displayName="$(string.EnableHashOverride)" explainText="$(string.EnableHashOverrideExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableHashOverride">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableLocalArchiveMalwareScanOverride" class="Machine" displayName="$(string.EnableLocalArchiveMalwareScanOverride)" explainText="$(string.EnableLocalArchiveMalwareScanOverrideExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableLocalArchiveMalwareScanOverride">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableDefaultSource" class="Machine" displayName="$(string.EnableDefaultSource)" explainText="$(string.EnableDefaultSourceExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableDefaultSource">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableMicrosoftStoreSource" class="Machine" displayName="$(string.EnableMicrosoftStoreSource)" explainText="$(string.EnableMicrosoftStoreSourceExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableMicrosoftStoreSource">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableFontSource" class="Machine" displayName="$(string.EnableFontSource)" explainText="$(string.EnableFontSourceExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableFontSource">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="SourceAutoUpdateInterval" class="Machine" displayName="$(string.SourceAutoUpdateInterval)" explainText="$(string.SourceAutoUpdateIntervalExplanation)" presentation="$(presentation.SourceAutoUpdateInterval)" key="Software\Policies\Microsoft\Windows\AppInstaller">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <elements>
+        <decimal id="SourceAutoUpdateInterval" valueName="SourceAutoUpdateInterval" maxValue="43200" />
+      </elements>
+    </policy>
+    <policy name="EnableAdditionalSources" class="Machine" displayName="$(string.EnableAdditionalSources)" explainText="$(string.EnableAdditionalSourcesExplanation)" presentation="$(presentation.AdditionalSources)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableAdditionalSources">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+      <elements>
+        <list id="AdditionalSources" key="Software\Policies\Microsoft\Windows\AppInstaller\AdditionalSources" valuePrefix="" />
+      </elements>
+    </policy>
+    <policy name="EnableAllowedSources" class="Machine" displayName="$(string.EnableAllowedSources)" explainText="$(string.EnableAllowedSourcesExplanation)" presentation="$(presentation.AllowedSources)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableAllowedSources">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+      <elements>
+        <list id="AllowedSources" key="Software\Policies\Microsoft\Windows\AppInstaller\AllowedSources" valuePrefix="" />
+      </elements>
+    </policy>
+    <policy name="EnableMSAppInstallerProtocol" class="Machine" displayName="$(string.EnableMSAppInstallerProtocol)" explainText="$(string.EnableMSAppInstallerProtocolExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableMSAppInstallerProtocol">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableWindowsPackageManagerCommandLineInterfaces" class="Machine" displayName="$(string.EnableWindowsPackageManagerCommandLineInterfaces)" explainText="$(string.EnableWindowsPackageManagerCommandLineInterfacesExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerCommandLineInterfaces">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableWindowsPackageManagerConfiguration" class="Machine" displayName="$(string.EnableWindowsPackageManagerConfiguration)" explainText="$(string.EnableWindowsPackageManagerConfigurationExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerConfiguration">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableWindowsPackageManagerProxyCommandLineOptions" class="Machine" displayName="$(string.EnableWindowsPackageManagerProxyCommandLineOptions)" explainText="$(string.EnableWindowsPackageManagerProxyCommandLineOptionsExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerProxyCommandLineOptions">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableWindowsPackageManagerMcpServer" class="Machine" displayName="$(string.EnableWindowsPackageManagerMcpServer)" explainText="$(string.EnableWindowsPackageManagerMcpServerExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerMcpServer">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="WindowsPackageManagerDefaultProxy" class="Machine" displayName="$(string.WindowsPackageManagerDefaultProxy)" explainText="$(string.WindowsPackageManagerDefaultProxyExplanation)" presentation="$(presentation.WindowsPackageManagerDefaultProxy)" key="Software\Policies\Microsoft\Windows\AppInstaller">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <elements>
+        <text id="WindowsPackageManagerDefaultProxy" valueName="DefaultProxy"  />
+      </elements>
+    </policy>
+    <policy name="EnableMsixAllowedZones" class="Machine" displayName="$(string.EnableMsixAllowedZones)" explainText="$(string.EnableMsixAllowedZonesExplanation)" presentation="$(presentation.MsixAllowedZones)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableMsixAllowedZones">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+      <elements>
+        <enum id="LocalMachine" key="Software\Policies\Microsoft\Windows\AppInstaller\MsixAllowedZones" valueName="LocalMachine" required="false">
+          <item displayName="$(string.ZoneBlocked)">
+            <value>
+              <decimal value="0" />
+            </value>
+          </item>
+          <item displayName="$(string.ZoneAllowed)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+        </enum>
+        <enum id="Intranet" key="Software\Policies\Microsoft\Windows\AppInstaller\MsixAllowedZones" valueName="Intranet">
+          <item displayName="$(string.ZoneBlocked)">
+            <value>
+              <decimal value="0" />
+            </value>
+          </item>
+          <item displayName="$(string.ZoneAllowed)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+        </enum>
+        <enum id="TrustedSites" key="Software\Policies\Microsoft\Windows\AppInstaller\MsixAllowedZones" valueName="TrustedSites">
+          <item displayName="$(string.ZoneBlocked)">
+            <value>
+              <decimal value="0" />
+            </value>
+          </item>
+          <item displayName="$(string.ZoneAllowed)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+        </enum>
+        <enum id="Internet" key="Software\Policies\Microsoft\Windows\AppInstaller\MsixAllowedZones" valueName="Internet">
+          <item displayName="$(string.ZoneBlocked)">
+            <value>
+              <decimal value="0" />
+            </value>
+          </item>
+          <item displayName="$(string.ZoneAllowed)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+        </enum>
+        <enum id="UntrustedSites" key="Software\Policies\Microsoft\Windows\AppInstaller\MsixAllowedZones" valueName="UntrustedSites">
+          <item displayName="$(string.ZoneBlocked)">
+            <value>
+              <decimal value="0" />
+            </value>
+          </item>
+          <item displayName="$(string.ZoneAllowed)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+        </enum>
+      </elements>
+    </policy>
+    <policy name="EnableMsixSmartScreenCheck" class="Machine" displayName="$(string.EnableMsixSmartScreenCheck)" explainText="$(string.EnableMsixSmartScreenCheckExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableMsixSmartScreenCheck">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+  </policies>
+</policyDefinitions>

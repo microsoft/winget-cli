@@ -3,6 +3,8 @@
 #pragma once
 #include <AppInstallerVersions.h>
 #include <winget/LocIndependent.h>
+#include <winget/Filesystem.h>
+#include <winget/Runtime.h>
 
 #include <filesystem>
 #include <memory>
@@ -11,17 +13,8 @@
 
 namespace AppInstaller::Runtime
 {
-    // Determines whether the process is running in a packaged context or not.
-    bool IsRunningInPackagedContext();
-
-    // Determines the current version of the client and returns it.
-    Utility::LocIndString GetClientVersion();
-
-    // Determines the current version of the package if running in a packaged context.
-    Utility::LocIndString GetPackageVersion();
-
-    // Gets a string representation of the OS version for debugging purposes.
-    Utility::LocIndString GetOSVersion();
+    // Sets the runtime path state name globally.
+    void SetRuntimePathStateName(std::string name);
 
     // A path to be retrieved based on the runtime.
     enum class PathName
@@ -32,27 +25,73 @@ namespace AppInstaller::Runtime
         LocalState,
         // The default location where log files are located.
         DefaultLogLocation,
-        // The default location, anonymized using environment variables.
-        DefaultLogLocationForDisplay,
         // The location that standard type settings are stored.
         // In a packaged context, this returns a prepend value for the container name.
         StandardSettings,
         // The location that user file type settings are stored.
         UserFileSettings,
-        // The location where secure settings data is stored.
-        SecureSettings,
+        // The location where secure settings data is stored (for reading).
+        SecureSettingsForRead,
+        // The location where secure settings data is stored (for writing).
+        SecureSettingsForWrite,
+        // The value of %USERPROFILE%.
+        UserProfile,
+        // The location where portable packages are installed to with user scope.
+        PortablePackageUserRoot,
+        // The location where portable packages are installed to with machine scope.
+        PortablePackageMachineRoot,
+        // The location where portable packages are installed to with machine scope (x86).
+        PortablePackageMachineRootX86,
+        // The location where symlinks to portable packages are stored under user scope.
+        PortableLinksUserLocation,
+        // The location where symlinks to portable packages are stored under machine scope.
+        PortableLinksMachineLocation,
+        // The root location for the package containing the winget application.
+        SelfPackageRoot,
+        // The location where user downloads are stored.
+        UserProfileDownloads,
+        // The location where configuration modules are stored.
+        ConfigurationModules,
+        // The location where checkpoints are stored.
+        CheckpointsLocation,
+        // The location of the CLI executable file.
+        CLIExecutable,
+        // The directory containing the CLI executable file.
+        MCPExecutable,
+        // The location of the image assets, if it exists.
+        ImageAssets,
+        // The location where fonts are installed with user scope.
+        FontsUserInstallLocation,
+        // The location where fonts are installed with machine scope.
+        FontsMachineInstallLocation,
+        // The location that standard type settings are stored in files.
+        StandardFileSettings,
+        // Always one more than the last path; for being able to iterate paths in tests.
+        Max
     };
 
+    // Gets the PathDetails used for the given path.
+    // This is exposed primarily to allow for testing, GetPathTo should be preferred.
+    Filesystem::PathDetails GetPathDetailsFor(PathName path, bool forDisplay = false);
+
     // Gets the path to the requested location.
-    std::filesystem::path GetPathTo(PathName path);
+    inline std::filesystem::path GetPathTo(PathName path, bool forDisplay = false)
+    {
+        return Filesystem::GetPathTo(path, forDisplay);
+    }
 
-    // Determines whether the current OS version is >= the given one.
-    // We treat the given Version struct as a standard 4 part Windows OS version.
-    bool IsCurrentOSVersionGreaterThanOrEqual(const Utility::Version& version);
+    // Replaces the substring in the path with the user profile environment variable.
+    void ReplaceProfilePathsWithEnvironmentVariable(std::filesystem::path& path);
 
-    // Determines whether the process is running with administrator privileges.
-    bool IsRunningAsAdmin();
+    // Gets a new temp file path.
+    std::filesystem::path GetNewTempFilePath();
 
-    // Checks if the file system is NTFS
-    bool IsNTFS(const std::filesystem::path& filePath);
+    // Determines whether developer mode is enabled.
+    bool IsDevModeEnabled();
+
+    // Gets the default user agent string for the Windows Package Manager.
+    Utility::LocIndString GetDefaultUserAgent();
+
+    // Gets the user agent string from passed in caller for the Windows Package Manager.
+    Utility::LocIndString GetUserAgent(std::string_view caller);
 }

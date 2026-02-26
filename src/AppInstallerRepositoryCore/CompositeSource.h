@@ -1,13 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #pragma once
-#include "AppInstallerRepositorySource.h"
+#include "ISource.h"
 
 namespace AppInstaller::Repository
 {
     struct CompositeSource : public ISource
     {
+        static constexpr ISourceType SourceType = ISourceType::CompositeSource;
+
         explicit CompositeSource(std::string identifier);
 
         CompositeSource(const CompositeSource&) = delete;
@@ -28,37 +29,36 @@ namespace AppInstaller::Repository
         // Must be suitable for filesystem names.
         const std::string& GetIdentifier() const override;
 
-        // Gets a value indicating whether this source is a composite of other sources,
-        // and thus the packages may come from disparate sources as well.
-        bool IsComposite() const override { return true; }
-
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
+
+        // Casts to the requested type.
+        void* CastTo(ISourceType type) override;
 
         // ~ISource
 
         // Adds an available source to be aggregated.
-        void AddAvailableSource(std::shared_ptr<ISource> source);
+        void AddAvailableSource(const Source& source);
+
+        // Gets the available sources if the source is composite.
+        std::vector<Source> GetAvailableSources() const { return m_availableSources; }
+
+        // Checks if any available sources are present
+        bool HasAvailableSource() const { return !m_availableSources.empty(); }
 
         // Sets the installed source to be composited.
-        void SetInstalledSource(std::shared_ptr<ISource> source);
+        void SetInstalledSource(Source source, CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
 
     private:
         // Performs a search when an installed source is present.
-        // Will only return packages that are installed.
         SearchResult SearchInstalled(const SearchRequest& request) const;
 
         // Performs a search when no installed source is present.
         SearchResult SearchAvailable(const SearchRequest& request) const;
 
-        // Sorts a vector of results.
-        static void SortResultMatches(std::vector<ResultMatch>& matches);
-
-        std::shared_ptr<ISource> m_installedSource;
-        std::vector<std::shared_ptr<ISource>> m_availableSources;
+        Source m_installedSource;
+        std::vector<Source> m_availableSources;
         SourceDetails m_details;
-        std::string m_identifier;
+        CompositeSearchBehavior m_searchBehavior = CompositeSearchBehavior::Installed;
     };
 }
-
-

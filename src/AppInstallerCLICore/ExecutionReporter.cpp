@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ExecutionReporter.h"
+#include <AppInstallerErrors.h>
 
 
 namespace AppInstaller::CLI::Execution
@@ -9,33 +10,98 @@ namespace AppInstaller::CLI::Execution
     using namespace Settings;
     using namespace VirtualTerminal;
 
-    const Sequence& HelpCommandEmphasis = TextFormat::Foreground::BrightWhite;
-    const Sequence& HelpArgumentEmphasis = TextFormat::Foreground::BrightWhite;
+    const Sequence& HelpCommandEmphasis = TextFormat::Foreground::Bright;
+    const Sequence& HelpArgumentEmphasis = TextFormat::Foreground::Bright;
+    const Sequence& ManifestInfoEmphasis = TextFormat::Foreground::Bright;
+    const Sequence& SourceInfoEmphasis = TextFormat::Foreground::Bright;
     const Sequence& NameEmphasis = TextFormat::Foreground::BrightCyan;
     const Sequence& IdEmphasis = TextFormat::Foreground::BrightCyan;
     const Sequence& UrlEmphasis = TextFormat::Foreground::BrightBlue;
+    const Sequence& PromptEmphasis = TextFormat::Foreground::Bright;
+    const Sequence& ConvertToUpgradeFlowEmphasis = TextFormat::Foreground::BrightYellow;
+    const Sequence& ConfigurationIntentEmphasis = TextFormat::Foreground::Bright;
+    const Sequence& ConfigurationUnitEmphasis = TextFormat::Foreground::BrightCyan;
+    const Sequence& AuthenticationEmphasis = TextFormat::Foreground::BrightYellow;
+
+    namespace
+    {
+        DWORD GetStdHandleType(DWORD stdHandle)
+        {
+            DWORD result = FILE_TYPE_UNKNOWN;
+
+            HANDLE handle = GetStdHandle(stdHandle);
+            if (handle != INVALID_HANDLE_VALUE && handle != NULL)
+            {
+                result = GetFileType(handle);
+            }
+
+            return result;
+        }
+    }
+
+    Reporter::Reporter() :
+        Reporter(std::cout, std::cin)
+    {
+        m_outStreamFileType = GetStdHandleType(STD_OUTPUT_HANDLE);
+        m_inStreamFileType = GetStdHandleType(STD_INPUT_HANDLE);
+    }
 
     Reporter::Reporter(std::ostream& outStream, std::istream& inStream) :
+        Reporter(std::make_shared<BaseStream>(outStream, true, ConsoleModeRestore::Instance().IsVTEnabled()), inStream)
+    {
+        SetProgressSink(this);
+    }
+
+    Reporter::Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream) :
         m_out(outStream),
-        m_in(inStream),
-        m_progressBar(std::in_place, outStream, IsVTEnabled()),
-        m_spinner(std::in_place, outStream, IsVTEnabled())
-    {}
+        m_in(inStream)
+    {
+        auto sixelSupported = [&]() { return SixelsSupported(); };
+        m_spinner = IIndefiniteSpinner::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), VisualStyle::Accent, sixelSupported);
+        m_progressBar = IProgressBar::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), VisualStyle::Accent, sixelSupported);
+
+        SetProgressSink(this);
+    }
 
     Reporter::~Reporter()
     {
-        // The goal of this is to return output to its previous state.
-        // For now, we assume this means "default".
-        GetBasicOutputStream() << TextFormat::Default;
+        this->CloseOutputStream();
     }
 
     Reporter::Reporter(const Reporter& other, clone_t) :
         Reporter(other.m_out, other.m_in)
     {
+        m_outStreamFileType = other.m_outStreamFileType;
+        m_inStreamFileType = other.m_inStreamFileType;
+
+        SetChannel(other.m_channel);
+
+        if (other.m_style.has_value())
+        {
+            SetStyle(*other.m_style);
+        }
+    }
+
+    std::optional<PrimaryDeviceAttributes> Reporter::GetPrimaryDeviceAttributes()
+    {
+        if (ConsoleModeRestore::Instance().IsVTEnabled())
+        {
+            return PrimaryDeviceAttributes{ m_out->Get(), m_in };
+        }
+        else
+        {
+            return std::nullopt;
+        }
     }
 
     OutputStream Reporter::GetOutputStream(Level level)
     {
+        // If the level is not enabled, return a default stream which is disabled
+        if (WI_AreAllFlagsClear(m_enabledLevels, level))
+        {
+            return OutputStream(*m_out, false, false);
+        }
+
         OutputStream result = GetBasicOutputStream();
 
         switch (level)
@@ -61,7 +127,7 @@ namespace AppInstaller::CLI::Execution
 
     OutputStream Reporter::GetBasicOutputStream()
     {
-        return { m_out, m_channel == Channel::Output, IsVTEnabled() };
+        return { *m_out, m_channel == Channel::Output };
     }
 
     void Reporter::SetChannel(Channel channel)
@@ -78,18 +144,128 @@ namespace AppInstaller::CLI::Execution
 
     void Reporter::SetStyle(VisualStyle style)
     {
-        if (m_spinner)
+        m_style = style;
+
+        if (m_channel == Channel::Output)
         {
-            m_spinner->SetStyle(style);
+            auto sixelSupported = [&]() { return SixelsSupported(); };
+            m_spinner = IIndefiniteSpinner::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), style, sixelSupported);
+            m_progressBar = IProgressBar::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), style, sixelSupported);
         }
-        if (m_progressBar)
-        {
-            m_progressBar->SetStyle(style);
-        }
+
         if (style == VisualStyle::NoVT)
         {
-            m_isVTEnabled = false;
+            m_out->SetVTEnabled(false);
         }
+    }
+
+    std::istream& Reporter::RawInputStream()
+    {
+        return m_in;
+    }
+
+    bool Reporter::InputStreamIsInteractive() const
+    {
+        AICLI_LOG(CLI, Verbose, << "Reporter::m_inStreamFileType is " << m_inStreamFileType);
+        return m_inStreamFileType == FILE_TYPE_CHAR;
+    }
+
+    bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level, bool resultIfDisabled)
+    {
+        auto out = GetOutputStream(level);
+
+        if (!out.IsEnabled())
+        {
+            return resultIfDisabled;
+        }
+
+        const std::vector<BoolPromptOption> options
+        {
+            BoolPromptOption{ Resource::String::PromptOptionYes, 'Y', true },
+            BoolPromptOption{ Resource::String::PromptOptionNo, 'N', false },
+        };
+
+        out << message << std::endl;
+
+        // Try prompting until we get a recognized option
+        for (;;)
+        {
+            // Output all options
+            for (size_t i = 0; i < options.size(); ++i)
+            {
+                out << PromptEmphasis << "[" + options[i].Hotkey.get() + "] " + options[i].Label.get();
+
+                if (i + 1 == options.size())
+                {
+                    out << PromptEmphasis << ": ";
+                }
+                else
+                {
+                    out << "  ";
+                }
+            }
+
+            // Read the response
+            std::string response;
+            if (!std::getline(m_in, response))
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR);
+            }
+
+            // Find the matching option ignoring whitespace
+            Utility::Trim(response);
+            for (const auto& option : options)
+            {
+                if (Utility::CaseInsensitiveEquals(response, option.Label) ||
+                    Utility::CaseInsensitiveEquals(response, option.Hotkey))
+                {
+                    return option.Value;
+                }
+            }
+        }
+    }
+
+    void Reporter::PromptForEnter(Level level)
+    {
+        auto out = GetOutputStream(level);
+        if (!out.IsEnabled())
+        {
+            return;
+        }
+
+        out << std::endl << Resource::String::PressEnterToContinue << std::endl;
+        m_in.get();
+    }
+
+    std::filesystem::path Reporter::PromptForPath(Resource::LocString message, Level level, std::filesystem::path resultIfDisabled)
+    {
+        auto out = GetOutputStream(level);
+
+        if (!out.IsEnabled())
+        {
+            return resultIfDisabled;
+        }
+
+        // Try prompting until we get a valid answer
+        for (;;)
+        {
+            out << message << ' ';
+
+            // Read the response
+            std::string response;
+            if (!std::getline(m_in, response))
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR);
+            }
+
+            // Validate the path
+            std::filesystem::path path{ response };
+            if (path.is_absolute())
+            {
+                return path;
+            }
+        }
+
     }
 
     void Reporter::ShowIndefiniteProgress(bool running)
@@ -116,13 +292,79 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    void Reporter::SetProgressMessage(std::string_view message)
+    {
+        if (m_spinner)
+        {
+            m_spinner->SetMessage(message);
+        }
+    }
+
+    void Reporter::BeginProgress()
+    {
+        GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::DisableShow;
+        ShowIndefiniteProgress(true);
+    };
+
+    void Reporter::EndProgress(bool hideProgressWhenDone)
+    {
+        ShowIndefiniteProgress(false);
+        if (m_progressBar)
+        {
+            m_progressBar->EndProgress(hideProgressWhenDone);
+        }
+        SetProgressMessage({});
+        GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::EnableShow;
+    };
+
+    Reporter::AsyncProgressScope::AsyncProgressScope(Reporter& reporter, IProgressSink* sink, bool hideProgressWhenDone) :
+        m_reporter(reporter), m_callback(sink)
+    {
+        reporter.SetProgressCallback(&m_callback);
+        sink->BeginProgress();
+        m_hideProgressWhenDone = hideProgressWhenDone;
+    }
+
+    Reporter::AsyncProgressScope::~AsyncProgressScope()
+    {
+        m_reporter.get().SetProgressCallback(nullptr);
+        m_callback.GetSink()->EndProgress(m_hideProgressWhenDone);
+    }
+
+    ProgressCallback& Reporter::AsyncProgressScope::Callback()
+    {
+        return m_callback;
+    }
+
+    IProgressCallback* Reporter::AsyncProgressScope::operator->()
+    {
+        return &m_callback;
+    }
+
+    bool Reporter::AsyncProgressScope::HideProgressWhenDone() const
+    {
+        return m_hideProgressWhenDone;
+    }
+
+    void Reporter::AsyncProgressScope::HideProgressWhenDone(bool value)
+    {
+        m_hideProgressWhenDone.store(value);
+    }
+
+    std::unique_ptr<Reporter::AsyncProgressScope> Reporter::BeginAsyncProgress(bool hideProgressWhenDone)
+    {
+        return std::make_unique<AsyncProgressScope>(*this, m_progressSink.load(), hideProgressWhenDone);
+    }
+
     void Reporter::SetProgressCallback(ProgressCallback* callback)
     {
         auto lock = m_progressCallbackLock.lock_exclusive();
+        // Attempting two progress operations at the same time; not supported.
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_progressCallback != nullptr && callback != nullptr);
         m_progressCallback = callback;
     }
 
-    void Reporter::CancelInProgressTask(bool force)
+    void Reporter::CancelInProgressTask(bool force, CancelReason reason)
     {
         // TODO: Maybe ask the user if they really want to cancel?
         UNREFERENCED_PARAMETER(force);
@@ -130,12 +372,43 @@ namespace AppInstaller::CLI::Execution
         ProgressCallback* callback = m_progressCallback.load();
         if (callback)
         {
-            callback->Cancel();
+            if (!callback->IsCancelledBy(CancelReason::Any))
+            {
+                callback->SetProgressMessage(Resource::String::CancellingOperation());
+                callback->Cancel(reason);
+            }
         }
     }
 
-    bool Reporter::IsVTEnabled() const
+    void Reporter::CloseOutputStream(bool forceDisable)
     {
-        return m_isVTEnabled && ConsoleModeRestore::Instance().IsVTEnabled();
+        if (forceDisable)
+        {
+            m_out->Disable();
+        }
+        m_out->RestoreDefault();
+    }
+
+    void Reporter::SetLevelMask(Level reporterLevel, bool setEnabled) {
+
+        if (setEnabled)
+        {
+            WI_SetAllFlags(m_enabledLevels, reporterLevel);
+        }
+        else
+        {
+            WI_ClearAllFlags(m_enabledLevels, reporterLevel);
+        }
+    }
+
+    bool Reporter::SixelsSupported()
+    {
+        auto attributes = GetPrimaryDeviceAttributes();
+        return (attributes ? attributes->Supports(PrimaryDeviceAttributes::Extension::Sixel) : false);
+    }
+
+    bool Reporter::SixelsEnabled()
+    {
+        return Settings::User().Get<Settings::Setting::EnableSixelDisplay>() && SixelsSupported();
     }
 }

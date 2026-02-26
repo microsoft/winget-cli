@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "PathPartTable.h"
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteStatementBuilder.h>
 
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_0
@@ -43,6 +43,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             SQLite::Builder::StatementBuilder builder;
             builder.InsertInto(s_PathPartTable_Table_Name).Columns({ s_PathPartTable_ParentValue_Name, s_PathPartTable_PartValue_Name }).Values(parent, part);
+
+            builder.Execute(connection);
+
+            return connection.GetLastInsertRowID();
+        }
+
+        // Inserts the no path part into the table.
+        SQLite::rowid_t InsertNoPathPart(SQLite::Connection& connection)
+        {
+            SQLite::Builder::StatementBuilder builder;
+            builder.
+                InsertInto(s_PathPartTable_Table_Name).
+                Columns({ SQLite::RowIDName, s_PathPartTable_ParentValue_Name, s_PathPartTable_PartValue_Name }).
+                Values(PathPartTable::NoPathId, std::optional<SQLite::rowid_t>{}, std::string_view{});
 
             builder.Execute(connection);
 
@@ -145,6 +159,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         savepoint.Commit();
     }
 
+    void PathPartTable::Drop(SQLite::Connection& connection)
+    {
+        SQLite::Builder::StatementBuilder dropTableBuilder;
+        dropTableBuilder.DropTable(s_PathPartTable_Table_Name);
+
+        dropTableBuilder.Execute(connection);
+    }
+
     std::string_view PathPartTable::TableName()
     {
         return s_PathPartTable_Table_Name;
@@ -155,7 +177,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return s_PathPartTable_PartValue_Name;
     }
 
-    std::tuple<bool, SQLite::rowid_t> PathPartTable::EnsurePathExists(SQLite::Connection& connection, const std::filesystem::path& relativePath, bool createIfNotFound)
+    std::tuple<bool, SQLite::rowid_t> EnsurePathExistsInternal(SQLite::Connection& connection, const std::filesystem::path& relativePath, bool createIfNotFound)
     {
         THROW_HR_IF(E_INVALIDARG, !relativePath.has_relative_path());
         THROW_HR_IF(E_INVALIDARG, relativePath.has_root_path());
@@ -202,6 +224,49 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // If we were asked to create it, return whether we needed to or it was already present.
         // If not, then true indicates that it exists.
         return { (createIfNotFound ? partsAdded : true), parent.value() };
+    }
+
+    std::tuple<bool, SQLite::rowid_t> PathPartTable::EnsurePathExists(SQLite::Connection& connection, const std::optional<std::filesystem::path>& relativePath, bool createIfNotFound)
+    {
+        if (relativePath)
+        {
+            return EnsurePathExistsInternal(connection, relativePath.value(), createIfNotFound);
+        }
+
+        std::unique_ptr<SQLite::Savepoint> savepoint;
+        if (createIfNotFound)
+        {
+            savepoint = std::make_unique<SQLite::Savepoint>(SQLite::Savepoint::Create(connection, "ensurepathexists_v1_0"));
+        }
+
+        bool partsAdded = false;
+
+        std::optional<SQLite::rowid_t> noPathPart = SelectPathPart(connection, {}, {});
+
+        if (!noPathPart)
+        {
+            if (createIfNotFound)
+            {
+                partsAdded = true;
+                noPathPart = InsertNoPathPart(connection);
+            }
+            else
+            {
+                // Not found, and we were told not to create.
+                // Return false to indicate that the path does not exist.
+                return {};
+            }
+        }
+
+        if (savepoint)
+        {
+            savepoint->Commit();
+        }
+
+        // If we get this far, the path exists.
+        // If we were asked to create it, return whether we needed to or it was already present.
+        // If not, then true indicates that it exists.
+        return { (createIfNotFound ? partsAdded : true), noPathPart.value() };
     }
 
     std::optional<std::string> PathPartTable::GetPathById(const SQLite::Connection& connection, SQLite::rowid_t id)
@@ -263,6 +328,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     void PathPartTable::RemovePathById(SQLite::Connection& connection, SQLite::rowid_t id)
     {
+        // Don't bother removing the pathless id
+        if (id == NoPathId)
+        {
+            return;
+        }
+
         SQLite::rowid_t currentPartToRemove = id;
         while (IsLeafPart(connection, currentPartToRemove))
         {
@@ -305,32 +376,64 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
         using QCol = SQLite::Builder::QualifiedColumn;
 
-        // Build a select statement to find pathpart rows containing references to parents with non-existent rowids
+        // Build a select statement to find pathpart rows containing references to parents with nonexistent rowids
         // Such as:
         // Select l.rowid, l.parent from pathparts as l left outer join pathparts as r on l.parent = r.rowid where l.parent is not null and r.pathpart is null
         constexpr std::string_view s_left = "left"sv;
         constexpr std::string_view s_right = "right"sv;
-
-        SQLite::Builder::StatementBuilder builder;
-        builder.
-            Select({ QCol(s_left, SQLite::RowIDName), QCol(s_left, s_PathPartTable_ParentValue_Name) }).
-            From(s_PathPartTable_Table_Name).As(s_left).
-            LeftOuterJoin(s_PathPartTable_Table_Name).As(s_right).On(QCol(s_left, s_PathPartTable_ParentValue_Name), QCol(s_right, SQLite::RowIDName)).
-            Where(QCol(s_left, s_PathPartTable_ParentValue_Name)).IsNotNull().And(QCol(s_right, s_PathPartTable_PartValue_Name)).IsNull();
-
-        SQLite::Statement select = builder.Prepare(connection);
         bool result = true;
 
-        while (select.Step())
         {
-            result = false;
+            SQLite::Builder::StatementBuilder builder;
+            builder.
+                Select({ QCol(s_left, SQLite::RowIDName), QCol(s_left, s_PathPartTable_ParentValue_Name) }).
+                From(s_PathPartTable_Table_Name).As(s_left).
+                LeftOuterJoin(s_PathPartTable_Table_Name).As(s_right).On(QCol(s_left, s_PathPartTable_ParentValue_Name), QCol(s_right, SQLite::RowIDName)).
+                Where(QCol(s_left, s_PathPartTable_ParentValue_Name)).IsNotNull().And(QCol(s_right, s_PathPartTable_PartValue_Name)).IsNull();
 
-            if (!log)
+            SQLite::Statement select = builder.Prepare(connection);
+
+            while (select.Step())
             {
-                break;
-            }
+                result = false;
 
-            AICLI_LOG(Repo, Info, << "  [INVALID] pathparts [" << select.GetColumn<SQLite::rowid_t>(0) << "] refers to " << s_PathPartTable_ParentValue_Name << " [" << select.GetColumn<SQLite::rowid_t>(1) << "]");
+                if (!log)
+                {
+                    break;
+                }
+
+                AICLI_LOG(Repo, Info, << "  [INVALID] pathparts [" << select.GetColumn<SQLite::rowid_t>(0) << "] refers to " << s_PathPartTable_ParentValue_Name << " [" << select.GetColumn<SQLite::rowid_t>(1) << "]");
+            }
+        }
+
+        if (!result && !log)
+        {
+            return result;
+        }
+
+        {
+            // Build a select statement to find values that contain an embedded null character
+            // Such as:
+            // Select count(*) from table where instr(value,char(0))>0
+            SQLite::Builder::StatementBuilder builder;
+            builder.
+                Select({ SQLite::RowIDName, s_PathPartTable_PartValue_Name }).
+                From(s_PathPartTable_Table_Name).
+                WhereValueContainsEmbeddedNullCharacter(s_PathPartTable_PartValue_Name);
+
+            SQLite::Statement select = builder.Prepare(connection);
+
+            while (select.Step())
+            {
+                result = false;
+
+                if (!log)
+                {
+                    break;
+                }
+
+                AICLI_LOG(Repo, Info, << "  [INVALID] value in table [" << s_PathPartTable_Table_Name << "] at row [" << select.GetColumn<SQLite::rowid_t>(0) << "] contains an embedded null character and starts with [" << select.GetColumn<std::string>(1) << "]");
+            }
         }
 
         return result;

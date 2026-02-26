@@ -1,0 +1,22 @@
+properties:
+  configurationVersion: 0.2.0
+  resources:
+    - resource: Microsoft.WinGet.DSC/WinGetSource
+      id: configureSource
+      directives:
+        description: Add test source
+        allowPrerelease: true
+      settings:
+        Name: TestSource
+        Argument: "https://localhost:5001/TestKit"
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: testPackage
+      dependsOn:
+        - configureSource
+      directives:
+        description: Install Test Package
+        allowPrerelease: true
+      settings:
+        id: AppInstallerTest.DoesNotExist
+        source: TestSource
+        version: "1.0.1.0"

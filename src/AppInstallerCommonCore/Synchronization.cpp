@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
 #include "pch.h"
 #include <AppInstallerSynchronization.h>
 #include <AppInstallerStrings.h>
@@ -8,69 +7,67 @@
 
 namespace AppInstaller::Synchronization
 {
-    using namespace std::string_view_literals;
+    // The amount of time that we wait in between checking for cancellation
+    constexpr std::chrono::milliseconds s_CrossProcessInstallLock_WaitLoopTime = 250ms;
 
-    constexpr std::wstring_view s_CrossProcessReaderWriteLock_MutexSuffix = L".mutex"sv;
-    constexpr std::wstring_view s_CrossProcessReaderWriteLock_SemaphoreSuffix = L".sem"sv;
-
-    // Arbitrary limit that should not ever cause a problem (theoretically 1 per process)
-    constexpr LONG s_CrossProcessReaderWriteLock_MaxReaders = 16;
-
-    CrossProcessReaderWriteLock::~CrossProcessReaderWriteLock()
+    CrossProcessLock::CrossProcessLock(std::string_view name) : CrossProcessLock(Utility::ConvertToUTF16(name))
     {
-        for (LONG i = 0; i < m_semaphoreReleases; ++i)
+    }
+
+    CrossProcessLock::CrossProcessLock(const std::wstring& name)
+    {
+        m_mutex.create(name.c_str(), 0, SYNCHRONIZE);
+    }
+
+    CrossProcessLock::~CrossProcessLock()
+    {
+        Release();
+    }
+
+    bool CrossProcessLock::Acquire(IProgressCallback& progress)
+    {
+        while (!progress.IsCancelledBy(CancelReason::Any))
         {
-            m_semaphore.ReleaseSemaphore();
+            auto lock = m_mutex.acquire(nullptr, static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(s_CrossProcessInstallLock_WaitLoopTime).count()));
+
+            if (lock)
+            {
+                m_lockThreadId = GetCurrentThreadId();
+                m_lock = std::move(lock);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void CrossProcessLock::Release()
+    {
+        if (m_lock)
+        {
+            // Ensure that we are in fact always releasing on the same thread that acquired the lock.
+            // This is to force crashes rather than deadlocks in the event that we make a design error that leads to that.
+            FAIL_FAST_IF(m_lockThreadId != GetCurrentThreadId());
+            m_lock.reset();
         }
     }
 
-    CrossProcessReaderWriteLock CrossProcessReaderWriteLock::LockForRead(std::string_view name)
+    bool CrossProcessLock::TryAcquireNoWait()
     {
-        CrossProcessReaderWriteLock result(name);
+        auto lock = m_mutex.acquire(nullptr, 0);
 
-        DWORD status = 0;
-        auto lock = result.m_mutex.acquire(&status);
-        THROW_HR_IF(E_UNEXPECTED, status != WAIT_OBJECT_0);
-
-        // We are taking ownership of releasing this in the destructor
-        status = ::WaitForSingleObjectEx(result.m_semaphore.get(), INFINITE, FALSE);
-        THROW_HR_IF(E_UNEXPECTED, status != WAIT_OBJECT_0);
-
-        result.m_semaphoreReleases = 1;
-        return result;
-    }
-
-    CrossProcessReaderWriteLock CrossProcessReaderWriteLock::LockForWrite(std::string_view name)
-    {
-        CrossProcessReaderWriteLock result(name);
-
-        DWORD status = 0;
-        auto lock = result.m_mutex.acquire(&status);
-        THROW_HR_IF_NULL(E_UNEXPECTED, lock);
-        result.m_wasAbandoned = (status == WAIT_ABANDONED);
-
-        for (LONG i = 0; i < s_CrossProcessReaderWriteLock_MaxReaders; ++i)
+        if (lock)
         {
-            // We are taking ownership of releasing these in the destructor
-            status = ::WaitForSingleObjectEx(result.m_semaphore.get(), INFINITE, FALSE);
-            THROW_HR_IF(E_UNEXPECTED, status != WAIT_OBJECT_0);
-            result.m_semaphoreReleases = i + 1;
+            m_lockThreadId = GetCurrentThreadId();
+            m_lock = std::move(lock);
+            return true;
         }
 
-        return result;
+        return false;
     }
 
-    CrossProcessReaderWriteLock::CrossProcessReaderWriteLock(std::string_view name)
+    CrossProcessLock::operator bool() const
     {
-        THROW_HR_IF(E_INVALIDARG, name.find('\\') != std::string::npos);
-
-        std::wstring mutexName = Utility::ConvertToUTF16(name);
-        std::wstring semName = mutexName;
-
-        mutexName += s_CrossProcessReaderWriteLock_MutexSuffix;
-        semName += s_CrossProcessReaderWriteLock_SemaphoreSuffix;
-
-        m_mutex.create(mutexName.c_str(), 0, SYNCHRONIZE);
-        m_semaphore.create(s_CrossProcessReaderWriteLock_MaxReaders, s_CrossProcessReaderWriteLock_MaxReaders, semName.c_str(), SYNCHRONIZE | SEMAPHORE_MODIFY_STATE);
+        return static_cast<bool>(m_lock);
     }
 }

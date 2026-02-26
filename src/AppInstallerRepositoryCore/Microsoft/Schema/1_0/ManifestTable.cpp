@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ManifestTable.h"
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteStatementBuilder.h>
 #include "OneToManyTable.h"
 
 
@@ -63,14 +63,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Statement ManifestTableGetIdsById_Statement(
             const SQLite::Connection& connection,
             SQLite::rowid_t id,
-            std::initializer_list<std::string_view> values)
+            std::initializer_list<std::string_view> values,
+            bool stepAndVerify)
         {
             SQLite::Builder::StatementBuilder builder;
             builder.Select(values).From(s_ManifestTable_Table_Name).Where(SQLite::RowIDName).Equals(id);
 
             SQLite::Statement result = builder.Prepare(connection);
 
-            THROW_HR_IF(E_NOT_SET, !result.Step());
+            if (stepAndVerify)
+            {
+                THROW_HR_IF(E_NOT_SET, !result.Step());
+            }
 
             return result;
         }
@@ -83,24 +87,36 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Statement ManifestTableGetValuesById_Statement(
             const SQLite::Connection& connection,
             SQLite::rowid_t id,
-            std::initializer_list<SQLite::Builder::QualifiedColumn> columns)
+            std::initializer_list<SQLite::Builder::QualifiedColumn> columns,
+            std::initializer_list<std::string_view> manifestColumnNames,
+            bool stepAndVerify)
         {
+            THROW_HR_IF(E_UNEXPECTED, manifestColumnNames.size() != columns.size());
+
             using QCol = SQLite::Builder::QualifiedColumn;
 
             SQLite::Builder::StatementBuilder builder;
             builder.Select(columns).From(s_ManifestTable_Table_Name);
 
             // join tables
-            for (const QCol& column : columns)
+            auto columnItr = columns.begin();
+            auto manifestColumnNameItr = manifestColumnNames.begin();
+            while (columnItr != columns.end())
             {
-                builder.Join(column.Table).On(QCol{ s_ManifestTable_Table_Name, column.Column }, QCol{ column.Table, SQLite::RowIDName });
+                builder.Join(columnItr->Table).On(QCol{ s_ManifestTable_Table_Name, *manifestColumnNameItr }, QCol{ columnItr->Table, SQLite::RowIDName });
+
+                columnItr++;
+                manifestColumnNameItr++;
             }
 
             builder.Where(QCol{ s_ManifestTable_Table_Name, SQLite::RowIDName }).Equals(id);
 
             SQLite::Statement result = builder.Prepare(connection);
 
-            THROW_HR_IF(E_NOT_SET, !result.Step());
+            if (stepAndVerify)
+            {
+                THROW_HR_IF(E_NOT_SET, !result.Step());
+            }
 
             return result;
         }
@@ -108,6 +124,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Statement ManifestTableGetAllValuesByIds_Statement(
             const SQLite::Connection& connection,
             std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
+            std::initializer_list<SQLite::Builder::QualifiedColumn> joinColumns,
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids)
         {
@@ -118,9 +135,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             SQLite::Builder::StatementBuilder builder;
             builder.Select(valueColumns).From(s_ManifestTable_Table_Name);
 
-            for (const auto& valueColumn : valueColumns)
+            for (const auto& joinColumn : joinColumns)
             {
-                builder.Join(valueColumn.Table).On(QCol{ s_ManifestTable_Table_Name, valueColumn.Column }, QCol{ valueColumn.Table, SQLite::RowIDName });
+                builder.Join(joinColumn.Table).On(QCol{ s_ManifestTable_Table_Name, joinColumn.Column }, QCol{ joinColumn.Table, SQLite::RowIDName });
             }
 
             bool isFirst = true;
@@ -149,26 +166,27 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return select;
         }
 
-        std::vector<std::string> ManifestTableGetAllValuesByIds(
+        std::vector<std::pair<SQLite::rowid_t, std::string>> ManifestTableGetAllValuesByIds(
             const SQLite::Connection& connection,
             std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
+            std::initializer_list<SQLite::Builder::QualifiedColumn> joinColumns,
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids)
         {
-            auto select = ManifestTableGetAllValuesByIds_Statement(connection, valueColumns, idColumns, ids);
+            auto select = ManifestTableGetAllValuesByIds_Statement(connection, valueColumns, joinColumns, idColumns, ids);
 
-            std::vector<std::string> result;
+            std::vector<std::pair<SQLite::rowid_t, std::string>> result;
             while (select.Step())
             {
-                result.emplace_back(select.GetColumn<std::string>(0));
+                result.emplace_back(select.GetColumn<SQLite::rowid_t>(0), select.GetColumn<std::string>(1));
             }
             return result;
         }
 
-        int ManifestTableBuildSearchStatement(
+        std::vector<int> ManifestTableBuildSearchStatement(
             SQLite::Builder::StatementBuilder& builder,
-            const SQLite::Builder::QualifiedColumn& column,
-            bool isOneToOne,
+            std::initializer_list<SQLite::Builder::QualifiedColumn> columns,
+            std::initializer_list<bool> isOneToOnes,
             std::string_view manifestAlias,
             std::string_view valueAlias,
             bool useLike)
@@ -176,65 +194,103 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             using QCol = SQLite::Builder::QualifiedColumn;
 
             // Build a statement like:
-            //      SELECT manifest.rowid as m, ids.id as v from manifest join ids on manifest.id = ids.rowid where ids.id = <value>
+            //      SELECT manifest.rowid as m, ids.id as v from manifest
+            //      join ids on manifest.id = ids.rowid
+            //      where ids.id = <value>
             // OR
-            //      SELECT manifest.rowid as m, tags.tag as v from manifest join tags_map on manifest.rowid = tags_map.manifest
-            //      join tags on tags_map.tag = tags.rowid where tags.tag = <value>
+            //      SELECT manifest.rowid as m, tags.tag as v from manifest
+            //      join tags_map on manifest.rowid = tags_map.manifest
+            //      join tags on tags_map.tag = tags.rowid
+            //      where tags.tag = <value>
+            // Where the joins and where portions are repeated for each table in question.
             builder.Select().
-                Column(QCol(s_ManifestTable_Table_Name, SQLite::RowIDName)).As(manifestAlias).
-                Column(column).As(valueAlias);
+                Column(QCol(s_ManifestTable_Table_Name, SQLite::RowIDName)).As(manifestAlias);
 
-            if (isOneToOne)
+            // Value will be captured for single tables references, and left empty for multi-tables
+            if (columns.size() == 1)
             {
-                builder.From(s_ManifestTable_Table_Name).
-                    Join(column.Table).On(QCol(s_ManifestTable_Table_Name, column.Column), QCol(column.Table, SQLite::RowIDName)).
-                    Where(column);
+                builder.Column(*columns.begin());
             }
             else
             {
-                std::string mapTableName = details::OneToManyTableGetMapTableName(column.Table);
-                builder.From(s_ManifestTable_Table_Name).
-                    Join(mapTableName).On(QCol(s_ManifestTable_Table_Name, SQLite::RowIDName), QCol(mapTableName, details::OneToManyTableGetManifestColumnName())).
-                    Join(column.Table).On(QCol(mapTableName, column.Column), QCol(column.Table, SQLite::RowIDName)).
-                    Where(column);
+                builder.Value(std::string_view{});
             }
 
-            int result = 0;
-            if (useLike)
+            builder.As(valueAlias).From(s_ManifestTable_Table_Name);
+
+            // Create join clauses
+            THROW_HR_IF(E_INVALIDARG, columns.size() != isOneToOnes.size());
+            auto columnItr = columns.begin();
+            auto isOneToOneItr = isOneToOnes.begin();
+
+            for (; columnItr != columns.end(); ++columnItr, ++isOneToOneItr)
             {
-                builder.Like(SQLite::Builder::Unbound);
-                result = builder.GetLastBindIndex();
-                builder.Escape(SQLite::EscapeCharForLike);
+                const SQLite::Builder::QualifiedColumn& column = *columnItr;
+
+                if (*isOneToOneItr)
+                {
+                    builder.
+                        Join(column.Table).On(QCol(s_ManifestTable_Table_Name, column.Column), QCol(column.Table, SQLite::RowIDName));
+                }
+                else
+                {
+                    std::string mapTableName = details::OneToManyTableGetMapTableName(column.Table);
+                    builder.
+                        Join(mapTableName).On(QCol(s_ManifestTable_Table_Name, SQLite::RowIDName), QCol(mapTableName, details::OneToManyTableGetManifestColumnName())).
+                        Join(column.Table).On(QCol(mapTableName, column.Column), QCol(column.Table, SQLite::RowIDName));
+                }
             }
-            else
+
+            std::vector<int> result;
+
+            // Create where clause
+            for (const SQLite::Builder::QualifiedColumn& column : columns)
             {
-                builder.Equals(SQLite::Builder::Unbound);
-                result = builder.GetLastBindIndex();
+                if (result.empty())
+                {
+                    builder.Where(column);
+                }
+                else
+                {
+                    builder.And(column);
+                }
+
+                if (useLike)
+                {
+                    builder.Like(SQLite::Builder::Unbound);
+                    result.push_back(builder.GetLastBindIndex());
+                    builder.Escape(SQLite::EscapeCharForLike);
+                }
+                else
+                {
+                    builder.Equals(SQLite::Builder::Unbound);
+                    result.push_back(builder.GetLastBindIndex());
+                }
             }
 
             return result;
         }
 
-        void ManifestTableUpdateValueIdById(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t value, SQLite::rowid_t id)
+        SQLite::Statement ManifestTableUpdateValueIdById_Statement(SQLite::Connection& connection, std::string_view valueName)
         {
             SQLite::Builder::StatementBuilder builder;
-            builder.Update(s_ManifestTable_Table_Name).Set().Column(valueName).Equals(value).Where(SQLite::RowIDName).Equals(id);
+            builder.Update(s_ManifestTable_Table_Name).Set().Column(valueName).Equals(SQLite::Builder::Unbound).Where(SQLite::RowIDName).Equals(SQLite::Builder::Unbound);
 
-            builder.Execute(connection);
+            return builder.Prepare(connection);
         }
 
-        bool ManifestTableCheckConsistency(const SQLite::Connection& connection, const SQLite::Builder::QualifiedColumn& target, bool log)
+        bool ManifestTableCheckConsistency(const SQLite::Connection& connection, const SQLite::Builder::QualifiedColumn& target, std::string_view manifestColumnName, bool log)
         {
             using QCol = SQLite::Builder::QualifiedColumn;
 
-            // Build a select statement to find manifest rows containing references to 1:1 tables with non-existent rowids
+            // Build a select statement to find manifest rows containing references to 1:1 tables with nonexistent rowids
             // Such as:
             // Select manifest.rowid, manifest.id, ids.id from manifest left outer join ids on manifest.id = ids.rowid where ids.id is NULL
             SQLite::Builder::StatementBuilder builder;
             builder.
-                Select({ QCol(s_ManifestTable_Table_Name, SQLite::RowIDName), QCol(s_ManifestTable_Table_Name, target.Column) }).
+                Select({ QCol(s_ManifestTable_Table_Name, SQLite::RowIDName), QCol(s_ManifestTable_Table_Name, manifestColumnName) }).
                 From(s_ManifestTable_Table_Name).
-                LeftOuterJoin(target.Table).On(QCol(s_ManifestTable_Table_Name, target.Column), QCol(target.Table, SQLite::RowIDName)).
+                LeftOuterJoin(target.Table).On(QCol(s_ManifestTable_Table_Name, manifestColumnName), QCol(target.Table, SQLite::RowIDName)).
                 Where(target).IsNull();
 
             SQLite::Statement select = builder.Prepare(connection);
@@ -323,6 +379,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         savepoint.Commit();
     }
 
+    void ManifestTable::AddColumn(SQLite::Connection& connection, AddedColumnInfo value)
+    {
+        using namespace SQLite::Builder;
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addColumnManifestTable_v1_3");
+
+        StatementBuilder alterTableBuilder;
+        alterTableBuilder.AlterTable(s_ManifestTable_Table_Name).Add(value.Name, value.Type);
+
+        alterTableBuilder.Execute(connection);
+
+        savepoint.Commit();
+    }
+
     void ManifestTable::Create_deprecated(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values)
     {
         using namespace SQLite::Builder;
@@ -361,6 +431,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         savepoint.Commit();
+    }
+
+    void ManifestTable::Drop(SQLite::Connection& connection)
+    {
+        SQLite::Builder::StatementBuilder dropTableBuilder;
+        dropTableBuilder.DropTable(s_ManifestTable_Table_Name);
+
+        dropTableBuilder.Execute(connection);
     }
 
     SQLite::rowid_t ManifestTable::Insert(SQLite::Connection& connection, std::initializer_list<ManifestOneToOneValue> values)
@@ -434,6 +512,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         savepoint.Commit();
+    }
+
+    bool ManifestTable::IsValueReferenced(const SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t valueRowId)
+    {
+        return details::ManifestTableSelectByValueIds(connection, { valueName }, { valueRowId }).has_value();
     }
 
     bool ManifestTable::IsEmpty(SQLite::Connection& connection)

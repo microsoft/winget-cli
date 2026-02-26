@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "ExecutionProgress.h"
 #include "Resources.h"
 #include "VTSupport.h"
 #include <winget/LocIndependent.h>
@@ -12,35 +11,8 @@
 
 namespace AppInstaller::CLI::Execution
 {
-    namespace details
-    {
-        // List of approved types for output, others are potentially not localized.
-        template <typename T>
-        struct IsApprovedForOutput
-        {
-            static constexpr bool value = false;
-        };
-
-#define WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(_t_) \
-        template <> \
-        struct IsApprovedForOutput<_t_> \
-        { \
-            static constexpr bool value = true; \
-        }
-
-        // It is assumed that single char values need not be localized, as they are matched
-        // ordinally or they are punctuation / other.
-        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(char);
-        // Localized strings (and from an Id for one for convenience).
-        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Resource::StringId);
-        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Resource::LocString);
-        // Strings explicitly declared as localization independent.
-        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Utility::LocIndView);
-        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Utility::LocIndString);
-        // Normalized strings come from user data and should therefore already by localized
-        // by how they are chosen (or there is no localized version).
-        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Utility::NormalizedString);
-    }
+    // Gets the current console width.
+    size_t GetConsoleWidth();
 
     // The base stream for all channels.
     struct BaseStream
@@ -50,10 +22,7 @@ namespace AppInstaller::CLI::Execution
         template <typename T>
         BaseStream& operator<<(const T& t)
         {
-            if (m_enabled)
-            {
-                m_out << t;
-            }
+            Write<T>(t, false);
             return *this;
         }
 
@@ -61,19 +30,40 @@ namespace AppInstaller::CLI::Execution
         BaseStream& operator<<(const VirtualTerminal::Sequence& sequence);
         BaseStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence);
 
+        void SetVTEnabled(bool enabled);
+
+        void RestoreDefault();
+
+        void Disable();
+
+        std::ostream& Get();
+
     private:
+        template <typename T>
+        void Write(const T& t, bool bypass)
+        {
+            if (bypass || m_enabled)
+            {
+                m_out << t;
+            }
+        };
+
         std::ostream& m_out;
-        bool m_enabled;
+        std::atomic_bool m_enabled;
+        std::atomic_bool m_VTUpdated;
         bool m_VTEnabled;
     };
 
     // Holds output formatting information.
     struct OutputStream
     {
-        OutputStream(std::ostream& out, bool enabled, bool VTEnabled);
+        OutputStream(BaseStream& out, bool enabled, bool VTEnabled = true);
 
         // Adds a format to the current value.
         void AddFormat(const VirtualTerminal::Sequence& sequence);
+
+        // Clears the current format value.
+        void ClearFormat();
 
         template <typename T>
         OutputStream& operator<<(const T& t)
@@ -90,10 +80,17 @@ namespace AppInstaller::CLI::Execution
             // * If your string came from outside of the source code, it is best to store it in a
             //      Utility::NormalizedString so that it has a normalized representation. This also
             //      informs the output that there is no localized version to use.
-            // TODO: Convert the rest of the code base and uncomment to enforce localization.
+            // TODO: This assertion is currently only applied to placeholders in localized strings.
+            //       Convert the rest of the code base and uncomment to enforce localization.
             //static_assert(details::IsApprovedForOutput<std::decay_t<T>>::value, "This type may not be localized, see comment for more information");
-            ApplyFormat();
-            m_out << t;
+            if (m_enabled)
+            {
+                if (m_VTEnabled)
+                {
+                    ApplyFormat();
+                }
+                m_out << t;
+            }
             return *this;
         }
 
@@ -102,32 +99,18 @@ namespace AppInstaller::CLI::Execution
         OutputStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence);
         OutputStream& operator<<(const std::filesystem::path& path);
 
+        inline bool IsEnabled() {
+            return m_enabled;
+        }
+
     private:
         // Applies the format for the stream.
         void ApplyFormat();
 
-        BaseStream m_out;
+        BaseStream& m_out;
+        bool m_enabled;
+        bool m_VTEnabled;
         size_t m_applyFormatAtOne = 1;
         VirtualTerminal::ConstructedSequence m_format;
-    };
-
-    // Does not allow VT at all.
-    struct NoVTStream
-    {
-        NoVTStream(std::ostream& out, bool enabled);
-
-        template <typename T>
-        NoVTStream& operator<<(const T& t)
-        {
-            m_out << t;
-            return *this;
-        }
-
-        NoVTStream& operator<<(std::ostream& (__cdecl* f)(std::ostream&));
-        NoVTStream& operator<<(const VirtualTerminal::Sequence& sequence) = delete;
-        NoVTStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence) = delete;
-
-    private:
-        BaseStream m_out;
     };
 }

@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "Microsoft/Schema/1_0/OneToOneTable.h"
 #include "Microsoft/Schema/1_0/ManifestTable.h"
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteStatementBuilder.h>
 
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_0
@@ -48,6 +48,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
                 createTableBuilder.Execute(connection);
             }
+        }
+
+        void DropOneToOneTable(SQLite::Connection& connection, std::string_view tableName)
+        {
+            SQLite::Builder::StatementBuilder dropTableBuilder;
+            dropTableBuilder.DropTable(tableName);
+
+            dropTableBuilder.Execute(connection);
         }
 
         std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike)
@@ -142,20 +150,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return connection.GetLastInsertRowID();
         }
 
-        void OneToOneTableDeleteIfNotNeededById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id)
-        {
-            // If a manifest is found that references this id, then we are done.
-            if (ManifestTableSelectByValueIds(connection, { valueName }, { id }))
-            {
-                return;
-            }
-
-            SQLite::Builder::StatementBuilder builder;
-            builder.DeleteFrom(tableName).Where(SQLite::RowIDName).Equals(id);
-
-            builder.Execute(connection);
-        }
-
         void OneToOneTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndices, bool preserveValuesIndex)
         {
             if (useNamedIndices && !preserveValuesIndex)
@@ -181,6 +175,43 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         bool OneToOneTableIsEmpty(SQLite::Connection& connection, std::string_view tableName)
         {
             return (OneToOneTableGetCount(connection, tableName) == 0);
+        }
+
+        void OneToOneTableDeleteById(SQLite::Connection& connection, std::string_view tableName, SQLite::rowid_t id)
+        {
+            SQLite::Builder::StatementBuilder builder;
+            builder.DeleteFrom(tableName).Where(SQLite::RowIDName).Equals(id);
+
+            builder.Execute(connection);
+        }
+
+        bool OneToOneTableCheckConsistency(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool log)
+        {
+            // Build a select statement to find values that contain an embedded null character
+            // Such as:
+            // Select count(*) from table where instr(value,char(0))>0
+            SQLite::Builder::StatementBuilder builder;
+            builder.
+                Select({ SQLite::RowIDName, valueName }).
+                From(tableName).
+                WhereValueContainsEmbeddedNullCharacter(valueName);
+
+            SQLite::Statement select = builder.Prepare(connection);
+            bool result = true;
+
+            while (select.Step())
+            {
+                result = false;
+
+                if (!log)
+                {
+                    break;
+                }
+
+                AICLI_LOG(Repo, Info, << "  [INVALID] value in table [" << tableName << "] at row [" << select.GetColumn<SQLite::rowid_t>(0) << "] contains an embedded null character and starts with [" << select.GetColumn<std::string>(1) << "]");
+            }
+
+            return result;
         }
     }
 }

@@ -1,0 +1,12 @@
+$schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
+metadata:
+  winget:
+    processor: dscv3
+resources:
+  - name: Test File
+    type: Microsoft.WinGet.Dev/TestFile
+    metadata:
+      description: Description 1.
+    properties:
+      path: ${WinGetConfigRoot}\ShowDetails_DSCv3.txt
+      content: DSCv3 Contents!

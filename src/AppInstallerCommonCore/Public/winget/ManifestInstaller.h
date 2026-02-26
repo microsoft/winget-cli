@@ -3,6 +3,8 @@
 #pragma once
 #include <AppInstallerArchitecture.h>
 #include <AppInstallerStrings.h>
+#include <winget/Authentication.h>
+#include <winget/ManifestCommon.h>
 
 #include <map>
 #include <string>
@@ -19,67 +21,63 @@ namespace AppInstaller::Manifest
     {
         using string_t = Utility::NormalizedString;
 
-        enum class InstallerTypeEnum
-        {
-            Unknown,
-            Inno,
-            Wix,
-            Msi,
-            Nullsoft,
-            Zip,
-            Msix,
-            Exe,
-            Burn,
-            MSStore,
-        };
+        AppInstaller::Utility::Architecture Arch = AppInstaller::Utility::Architecture::Unknown;
 
-        enum class UpdateBehaviorEnum
-        {
-            Unknown,
-            Install,
-            UninstallPrevious,
-        };
-
-        enum class InstallerSwitchType
-        {
-            Custom,
-            Silent,
-            SilentWithProgress,
-            Interactive,
-            Language,
-            Log,
-            InstallLocation,
-            Update
-        };
-
-        enum class ScopeEnum
-        {
-            Unknown,
-            User,
-            Machine,
-        };
-
-        // Required. Values: x86, x64, arm, arm64, all.
-        AppInstaller::Utility::Architecture Arch;
-
-        // Required
         string_t Url;
 
-        // Required
         std::vector<BYTE> Sha256;
 
         // Optional. Only used by appx/msix type. If provided, Appinstaller will
         // validate appx/msix signature and perform streaming install.
         std::vector<BYTE> SignatureSha256;
 
-        // Empty means default
-        string_t Language;
-
-        // Name TBD
-        ScopeEnum Scope;
-
         // Store Product Id
         string_t ProductId;
+
+        string_t Locale;
+
+        std::vector<PlatformEnum> Platform;
+
+        string_t MinOSVersion;
+
+        // If present, has more precedence than root
+        InstallerTypeEnum BaseInstallerType = InstallerTypeEnum::Unknown;
+
+        InstallerTypeEnum NestedInstallerType = InstallerTypeEnum::Unknown;
+
+        InstallerTypeEnum EffectiveInstallerType() const
+        {
+            return IsArchiveType(BaseInstallerType) ? NestedInstallerType : BaseInstallerType;
+        }
+
+        std::vector<NestedInstallerFile> NestedInstallerFiles;
+
+        ScopeEnum Scope = ScopeEnum::Unknown;
+
+        std::vector<InstallModeEnum> InstallModes;
+
+        // If present, has more precedence than root
+        std::map<InstallerSwitchType, string_t> Switches;
+
+        std::vector<DWORD> InstallerSuccessCodes;
+
+        struct ExpectedReturnCodeInfo
+        {
+            ExpectedReturnCodeEnum ReturnResponseEnum = ExpectedReturnCodeEnum::Unknown;
+            string_t ReturnResponseUrl;
+        };
+
+        std::map<DWORD, ExpectedReturnCodeInfo> ExpectedReturnCodes;
+
+        UpdateBehaviorEnum UpdateBehavior = UpdateBehaviorEnum::Install;
+
+        RepairBehaviorEnum RepairBehavior = RepairBehaviorEnum::Unknown;
+
+        std::vector<string_t> Commands;
+
+        std::vector<string_t> Protocols;
+
+        std::vector<string_t> FileExtensions;
 
         // Package family name for MSIX packaged installers.
         string_t PackageFamilyName;
@@ -87,32 +85,42 @@ namespace AppInstaller::Manifest
         // Product code for ARP (Add/Remove Programs) installers.
         string_t ProductCode;
 
-        // If present, has more precedence than root
-        InstallerTypeEnum InstallerType;
+        // For msix only
+        std::vector<string_t> Capabilities;
 
-        // Default is Install if not specified
-        UpdateBehaviorEnum UpdateBehavior;
+        // For msix only
+        std::vector<string_t> RestrictedCapabilities;
 
-        // If present, has more precedence than root
-        std::map<InstallerSwitchType, string_t> Switches;
+        DependencyList Dependencies;
 
-        static InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
+        bool InstallerAbortsTerminal = false;
 
-        static UpdateBehaviorEnum ConvertToUpdateBehaviorEnum(const std::string& in);
+        string_t ReleaseDate;
 
-        static ScopeEnum ConvertToScopeEnum(const std::string& in);
+        bool InstallLocationRequired = false;
 
-        static std::string_view InstallerTypeToString(InstallerTypeEnum installerType);
+        bool RequireExplicitUpgrade = false;
 
-        static std::string_view ScopeToString(ScopeEnum scope);
+        bool DisplayInstallWarnings = false;
 
-        // Gets a value indicating whether the given installer type uses the PackageFamilyName system reference.
-        static bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType);
+        std::vector<UnsupportedArgumentEnum> UnsupportedArguments;
 
-        // Gets a value indicating whether the given installer type uses the ProductCode system reference.
-        static bool DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType);
+        std::vector<AppInstaller::Utility::Architecture> UnsupportedOSArchitectures;
 
-        // Checks whether 2 installer types are compatible. E.g. inno and exe are update compatible
-        static bool IsInstallerTypeCompatible(InstallerTypeEnum type1, InstallerTypeEnum type2);
+        std::vector<AppsAndFeaturesEntry> AppsAndFeaturesEntries;
+
+        ElevationRequirementEnum ElevationRequirement = ElevationRequirementEnum::Unknown;
+
+        MarketsInfo Markets;
+
+        InstallationMetadataInfo InstallationMetadata;
+
+        bool DownloadCommandProhibited = false;
+
+        bool ArchiveBinariesDependOnPath = false;
+
+        Authentication::AuthenticationInfo AuthInfo;
+
+        std::vector<DesiredStateConfigurationContainerInfo> DesiredStateConfiguration;
     };
 }

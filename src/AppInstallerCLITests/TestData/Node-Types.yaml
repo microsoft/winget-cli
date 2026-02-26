@@ -1,0 +1,11 @@
+IntegerUnquoted: 12345
+IntegerSingleQuoted: '12345'
+IntegerDoubleQuoted: "12345"
+
+BooleanTrue: true
+StringTrue: 'true'
+
+BooleanFalse: false
+StringFalse: 'false'
+
+LocalTag: !myTag value

@@ -12,6 +12,8 @@
     location relative to this script.
 .PARAMETER LogTarget
     The file path to log to.
+.PARAMETER MdmpTarget
+    The path to write a minidump to if the tests crash.
 .PARAMETER TestResultsTarget
     The file path to place the test result file in.
 .PARAMETER Args
@@ -32,6 +34,9 @@ param(
     [string]$LogTarget,
     
     [Parameter(Mandatory=$false)]
+    [string]$MdmpTarget,
+    
+    [Parameter(Mandatory=$false)]
     [string]$TestResultsTarget,
 
     [Parameter(Mandatory=$false)]
@@ -46,8 +51,9 @@ function Wait-ForFileClose([string]$Path)
 {
     $Local:FileInfo = [System.IO.FileInfo]::new($Path)
     $Local:SleepCount = 0
+    $Local:SleepCountMax = 600
 
-    while ($Local:SleepCount -lt 300)
+    while ($Local:SleepCount -lt $Local:SleepCountMax)
     {
         try
         {
@@ -60,6 +66,11 @@ function Wait-ForFileClose([string]$Path)
             Start-Sleep 1
             $Local:SleepCount = $Local:SleepCount + 1
         }
+    }
+
+    if ($Local:SleepCount -ge $Local:SleepCountMax)
+    {
+        throw "Timed out waiting for file close: $Path"
     }
 }
 
@@ -85,6 +96,14 @@ if (![String]::IsNullOrEmpty($LogTarget))
     $Local:temp = Resolve-Path $Local:temp
     $LogTarget = Join-Path $Local:temp (Split-Path -Leaf $LogTarget)
     Write-Host "Using LogTarget = $LogTarget"
+}
+
+if (![String]::IsNullOrEmpty($MdmpTarget))
+{
+    $Local:temp = Split-Path -Parent $MdmpTarget
+    $Local:temp = Resolve-Path $Local:temp
+    $MdmpTarget = Join-Path $Local:temp (Split-Path -Leaf $MdmpTarget)
+    Write-Host "Using MdmpTarget = $MdmpTarget"
 }
 
 if (![String]::IsNullOrEmpty($TestResultsTarget))
@@ -117,6 +136,15 @@ else
     $Local:TestArgs = $Local:TestArgs + " -logto ""$LogTarget"""
 }
 
+if ([String]::IsNullOrEmpty($MdmpTarget))
+{
+    $Local:TestArgs = $Local:TestArgs + " -mdmp"
+}
+else
+{
+    $Local:TestArgs = $Local:TestArgs + " -mdmpto ""$MdmpTarget"""
+}
+
 if (![String]::IsNullOrEmpty($TestResultsTarget))
 {
     $Local:TestArgs = $Local:TestArgs + " -s -r junit -o ""$TestResultsTarget"""
@@ -133,19 +161,24 @@ Invoke-CommandInDesktopPackage -PackageFamilyName WinGetDevCLI_8wekyb3d8bbwe -Ap
 
 if ($ScriptWait)
 {
-    Write-Host "Waiting for output files to be closed..."
-    Start-Sleep 5
-    if (![String]::IsNullOrEmpty($LogTarget))
+    try
     {
-        Wait-ForFileClose $LogTarget
-    }
+        Write-Host "Waiting for output files to be closed..."
+        Start-Sleep 5
+        if (![String]::IsNullOrEmpty($LogTarget))
+        {
+            Wait-ForFileClose $LogTarget
+        }
 
-    if (![String]::IsNullOrEmpty($TestResultsTarget))
+        if (![String]::IsNullOrEmpty($TestResultsTarget))
+        {
+            Wait-ForFileClose $TestResultsTarget
+        }
+        Write-Host "Done"
+    }
+    finally
     {
-        Wait-ForFileClose $TestResultsTarget
+        Write-Host "Remove registered package"
+        Get-AppxPackage WinGetDevCLI | Remove-AppxPackage
     }
-    Write-Host "Done"
-
-    Write-Host "Remove registered package"
-    Get-AppxPackage WinGetDevCLI | Remove-AppxPackage
 }

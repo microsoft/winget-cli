@@ -20,7 +20,7 @@ Input | Result | Reason
 ## PowerShell
 
 You can add the argument completer to your `$PROFILE`, which will enable it in all subsequent PowerShell sessions.
-For more information, see [How to create your profile](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles#how-to-create-a-profile) and [Profiles and execution policy](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles#profiles-and-execution-policy).
+For more information, see [How to create your profile](https://docs.microsoft.com/powershell/module/microsoft.powershell.core/about/about_profiles#how-to-create-a-profile) and [Profiles and execution policy](https://docs.microsoft.com/powershell/module/microsoft.powershell.core/about/about_profiles#profiles-and-execution-policy).
 
 Here is the PowerShell command to add to your `$PROFILE`:
 

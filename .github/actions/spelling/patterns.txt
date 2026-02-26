@@ -1,19 +1,167 @@
-WinGetDevCLI_8wekyb3d8bbwe
+# See https://github.com/check-spelling/check-spelling/wiki/Configuration-Examples:-patterns
+
+REQUIRE(?:[_A-Z]*)\(.*\)
+
+\bR(?:"\(.*\)"|".*?")
+
+"ContinuationToken"\s*:\s*"[^"]+"
+
+8wekyb3d8bbwe
 _tisf_sqliteReturnValue
-microsoft\.com/[^])">]*
-Sha256: [0-9A-Fa-f]{64}
-SHA256::ConvertToBytes\("[0-9A-Fa-f]{64}"
-# data urls
-data:[a-zA-Z=;,/0-9+-]+
+
+El proyecto .* diferentes
+
+# Package family names and package full names
+\b[-_~.A-Za-z0-9]+_[a-z0-9]{13}\b
+
+# Locales for name normalization
+\b\p{Lu}{2,3}(?:-(?:CANS|CYRL|LATN|MONG))?-\p{Lu}{2}(?![A-Z])(?:-VALENCIA)?\b
+
+# Azure pipeline tasks
+- task: .*
+
+# schema regex
+"pattern": .*$
+
+# doc/.../manifest.md
+^ShortDescription: Le nouveau.*$
+
+# Ignore test patterns
+GetRestAPIBaseUri\(".*"\) == L".*"
+
+# some forms of `any more` are correct
+\battempt any more\b
+
+# Sample store product id for App Installer
+9nblggh4nns1
+9NVTPZWRC6KQ
+9PCX3HX4HZ0Z
+
+# Automatically suggested patterns
+
+# hit-count: 3076 file-count: 503
+# IServiceProvider / isAThing
+(?:\b|_)(?:(?:ns|)I|isA|T)(?=(?:[A-Z][a-z]{2,})+(?:[A-Z\d]|\b))
+
+# hit-count: 1396 file-count: 96
 # uuid:
 \b[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}\b
+
+# hit-count: 366 file-count: 148
+# hex runs
+\b[0-9a-fA-F]{16,}\b
+
+# hit-count: 337 file-count: 135
+# microsoft
+\b(?:https?://|)(?:(?:(?:apps|blogs|download\.visualstudio|docs|msdn2?|research)\.|)microsoft|blogs\.msdn)\.co(?:m|\.\w\w)/[-_a-zA-Z0-9()=./%?&:#]*
+
+# hit-count: 296 file-count: 23
+# version suffix <word>v#
+(?:(?<=[A-Z]{2})V|(?<=[a-z]{2}|[A-Z]{2})v)\d+(?:\b|(?=[a-zA-Z_]))
+
+# hit-count: 171 file-count: 25
 # hex digits including css/html color classes:
-(?:[\\0][xX]|\\u|[uU]\+|#|\%23)[0-9a-fA-FgGrR]{2,}[uU]?[lL]{0,2}\b
-"[0-9a-f]{32}"
-"[0-9a-f]{64}"
-# sha-1
-\b[0-9a-f]{40}\b
-\b([A-Za-z])\1{3,}\b
-El proyecto .* diferentes
-# Package family names
-\b[-.A-Za-z0-9]+_[a-z0-9]{13}\b
+(?:[\\0][xX]|\\u|[uU]\+|#x?|%23)[0-9_a-fA-FgGrR]*?[a-fA-FgGrR]{2,}[0-9_a-fA-FgGrR]*(?:[uUlL]{0,3}|[iu]\d+)\b
+
+# hit-count: 157 file-count: 75
+# GitHub SHAs (markdown)
+(?:\[`?[0-9a-f]+`?\]\(https:/|)/(?:www\.|)github\.com(?:/[^/\s"]+){2,}(?:/[^/\s")]+)(?:[0-9a-f]+(?:[-0-9a-zA-Z/#.]*|)\b|)
+
+# hit-count: 46 file-count: 17
+# base64 encoded pkcs
+\bMII[-a-zA-Z=;:/0-9+]+
+
+# hit-count: 35 file-count: 7
+# libraries
+(?:\b|_)lib(?:re(?=office)|)(?!elous|era[lt]|ero|erty|rar(?:i(?:an|es)|y))(?=[a-z])
+
+# hit-count: 14 file-count: 7
+# w3
+\bw3\.org/[-0-9a-zA-Z/#.]+
+
+# hit-count: 13 file-count: 6
+# Alternatively, if you're using check-spelling v0.0.25+, and you would like to _check_ the Non-English content for spelling errors, you can. For information on how to do so, see:
+# https://docs.check-spelling.dev/Feature:-Configurable-word-characters.html#unicode
+[a-zA-Z]*[ÀÁÂÃÄÅÆČÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæčçèéêëìíîïðñòóôõöøùúûüýÿĀāŁłŃńŅņŒœŚśŠšŜŝŸŽžź][a-zA-Z]{3}[a-zA-ZÀÁÂÃÄÅÆČÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæčçèéêëìíîïðñòóôõöøùúûüýÿĀāŁłŃńŅņŒœŚśŠšŜŝŸŽžź]*|[a-zA-Z]{3,}[ÀÁÂÃÄÅÆČÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæčçèéêëìíîïðñòóôõöøùúûüýÿĀāŁłŃńŅņŒœŚśŠšŜŝŸŽžź]|[ÀÁÂÃÄÅÆČÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæčçèéêëìíîïðñòóôõöøùúûüýÿĀāŁłŃńŅņŒœŚśŠšŜŝŸŽžź][a-zA-Z]{3,}
+
+# hit-count: 10 file-count: 3
+# URL escaped characters
+%[0-9A-F][A-F](?=[A-Za-z])
+
+# hit-count: 7 file-count: 3
+# Contributor
+\[[^\]]+\]\(https://github\.com/[^/\s"]+/?\)
+
+# hit-count: 6 file-count: 4
+# Markdown anchor links
+\(#\S*?[a-zA-Z]\S*?\)
+
+# hit-count: 4 file-count: 4
+# python
+\b(?i)py(?!gments|gmy|lon|ramid|ro|th)(?=[a-z]{2,})
+
+# hit-count: 3 file-count: 3
+# mailto urls
+mailto:[-a-zA-Z=;:/?%&0-9+@._]{3,}
+
+# hit-count: 3 file-count: 3
+# githubusercontent
+/[-a-z0-9]+\.githubusercontent\.com/[-a-zA-Z0-9?&=_\/.]*
+
+# hit-count: 1 file-count: 1
+# hex in url queries
+=[0-9a-fA-F]*?(?:[A-F]{3,}|[a-f]{3,})[0-9a-fA-F]*?&
+
+E2E
+
+# first-letter-bracketed-remainder
+\b\w\[[A-Za-z]{3,}\]
+
+# Questionably acceptable forms of `in to`
+# Personally, I prefer `log into`, but people object
+# https://www.tprteaching.com/log-into-log-in-to-login/
+\b(?:(?:[Ll]og(?:g(?=[a-z])|)|[Ss]ign)(?:ed|ing)?) in to\b
+
+# to opt in
+\bto opt in\b
+
+# acceptable duplicates
+# ls directory listings
+[-bcdlpsw](?:[-r][-w][-SsTtx]){3}[\.+*]?\s+\d+\s+\S+\s+\S+\s+[.\d]+(?:[KMGT]|)\s+
+# mount
+\bmount\s+-t\s+(\w+)\s+\g{-1}\b
+# C types and repeated CSS values
+\s(Architecture|auto|buffalo|center|div|inherit|long|LONG|none|normal|solid|thin|transparent|very)(?: \g{-1})+\s
+# C enum and struct
+\b(?:enum|struct)\s+(\w+)\s+\g{-1}\b
+# go templates
+\s(\w+)\s+\g{-1}\s+\`(?:graphql|inject|json|yaml):
+# doxygen / javadoc / .net
+(?:[\\@](?:brief|defgroup|groupname|link|t?param|return|retval)|(?:public|private|\[Parameter(?:\(.+\)|)\])(?:\s+(?:static|override|readonly|required|virtual))*)(?:\s+\{\w+\}|)\s+(\w+)\s+\g{-1}\s
+
+# macOS file path
+(?:Contents\W+|(?!iOS)/)MacOS\b
+
+# Python package registry has incorrect spelling for macOS / Mac OS X
+"Operating System :: MacOS :: MacOS X"
+
+# "company" in Germany
+\bGmbH\b
+
+# IntelliJ
+\bIntelliJ\b
+
+# Commit message -- Signed-off-by and friends
+^\s*(?:(?:Based-on-patch|Co-authored|Helped|Mentored|Reported|Reviewed|Signed-off)-by|Thanks-to): (?:[^<]*<[^>]*>|[^<]*)\s*$
+
+# Autogenerated revert commit message
+^This reverts commit [0-9a-f]{40}\.$
+
+# ignore long runs of a single character:
+\b([A-Za-z])\g{-1}{3,}\b
+
+# devil fruits
+\s([A-Z]{3,}|[A-Z][a-z]{2,}|[a-z]{3,})\s\g{-1}\sno Mi
+
+# PowerShell Aliases defined in .cs files (not those in AliasesToExport in psd1 files)
+\[Alias\("[a-z]+"\)\]
