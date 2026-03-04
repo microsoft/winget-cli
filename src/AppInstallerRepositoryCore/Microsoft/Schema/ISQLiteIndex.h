@@ -52,6 +52,11 @@ namespace AppInstaller::Repository::Microsoft::Schema
             SupportPathless = 0x1,
             // Disable support for dependencies
             DisableDependenciesSupport = 0x2,
+            // Use maximum page size in SQLite.
+            // This was part of an exploration of ways to reduce file size but ultimately led to a larger
+            // compressed file with a worse ratio (limited testing but was significant enough to warrant abandonment).
+            // Leaving this here as a valid null result to prevent future maintainers from needing to investigate.
+            LargePageSize = 0x4,
         };
 
         // Contains both the object representation of the version key and the rows.

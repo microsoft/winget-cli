@@ -9,6 +9,7 @@
 #include <winsqlite/winsqlite3.h>
 
 #include <algorithm>
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <functional>

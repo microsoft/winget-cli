@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WinGetUtil.h"
@@ -106,6 +106,7 @@ namespace
         std::filesystem::path wingetUtilPath; // optional: explicit path to WinGetUtil.dll
         std::optional<std::filesystem::path> outputFile;
         std::optional<std::filesystem::path> baselineFile;
+        bool prebuilt = false;
         bool verbose = false;
         bool showHelp = false;
     };
@@ -119,6 +120,7 @@ namespace
             << L"measures its raw and compressed size (XPRESS Huffman, approximating MSIX).\n"
             << L"\n"
             << L"Options:\n"
+            << L"  --prebuilt           The provided path is a prebuilt index to check\n"
             << L"  --wingetutil <path>  Path to WinGetUtil.dll\n"
             << L"                       (default: searches application directory and PATH)\n"
             << L"  --output <file>      Write results as JSON to <file>\n"
@@ -136,6 +138,10 @@ namespace
             if (arg == L"--help" || arg == L"-h" || arg == L"-?")
             {
                 args.showHelp = true;
+            }
+            else if (arg == L"--prebuilt" || arg == L"-v")
+            {
+                args.prebuilt = true;
             }
             else if (arg == L"--verbose" || arg == L"-v")
             {
@@ -219,7 +225,9 @@ namespace
         ManifestStats stats;
         std::vector<std::filesystem::path> retryList;
 
+    retry:
         uint64_t processed = 0;
+        auto start = std::chrono::steady_clock::now();
         for (const auto& dir : manifestDirs)
         {
             std::filesystem::path relPath = std::filesystem::relative(dir, manifestsDir);
@@ -234,25 +242,27 @@ namespace
 
             if (++processed % 1000 == 0)
             {
-                std::wcout << L"  " << processed << L" / " << manifestDirs.size() << L" processed...\r";
+                auto now = std::chrono::steady_clock::now();
+                auto duration = now - start;
+                start = now;
+                std::wcout << L"  " << processed << L" / " << manifestDirs.size() << L" processed (~" << std::chrono::duration_cast<std::chrono::milliseconds>(duration / 1000).count() << L"ms per)...\r";
             }
         }
 
-        // Retry failures once (handles dependency ordering issues)
+        // Retry failures until no progress is made
         if (!retryList.empty())
         {
-            std::wcout << L"\nRetrying " << retryList.size() << L" failed manifests...\n";
-            for (const auto& dir : retryList)
+            if (retryList.size() < manifestDirs.size())
             {
-                std::filesystem::path relPath = std::filesystem::relative(dir, manifestsDir);
-                if (SUCCEEDED(AddManifest(api, index, dir, relPath)))
-                {
-                    ++stats.added;
-                }
-                else
-                {
-                    ++stats.failed;
-                }
+                std::wcout << L"\nRetrying " << retryList.size() << L" failed manifests...\n";
+                manifestDirs = std::move(retryList);
+                retryList.clear();
+                goto retry;
+            }
+            else
+            {
+                std::wcout << L"\nDropping " << retryList.size() << L" failed manifests...\n";
+                stats.failed = retryList.size();
             }
         }
 
@@ -267,7 +277,7 @@ namespace
     uint64_t MeasureCompressed(const std::filesystem::path& file)
     {
         std::ifstream ifs(file, std::ios::binary | std::ios::ate);
-        if (!ifs) return 0;
+        if (!ifs) throw std::exception{ "Couldn't open file." };
 
         auto fileSize = static_cast<size_t>(ifs.tellg());
         ifs.seekg(0);
@@ -278,7 +288,7 @@ namespace
         COMPRESSOR_HANDLE compressor = nullptr;
         if (!CreateCompressor(COMPRESS_ALGORITHM_XPRESS_HUFF, nullptr, &compressor))
         {
-            return fileSize;
+            throw std::exception{ "Couldn't create compressor." };
         }
 
         SIZE_T compressedSize = 0;
@@ -289,7 +299,7 @@ namespace
         if (!Compress(compressor, data.data(), data.size(), compressed.data(), compressedSize, &compressedSize))
         {
             CloseCompressor(compressor);
-            return fileSize;
+            throw std::exception{ "Couldn't compress." };
         }
 
         CloseCompressor(compressor);
@@ -423,7 +433,7 @@ namespace
         double savings = 1.0 - ratio;
 
         std::wcout << L"\n";
-        std::wcout << L"Index built from:  " << r.manifestsDir << L"\n";
+        std::wcout << L"Index built from:  " << r.manifestsDir.c_str() << L"\n";
         std::wcout << L"Manifests added:   " << r.manifestCount;
         if (r.failedCount > 0) { std::wcout << L"  (" << r.failedCount << L" failed)"; }
         std::wcout << L"\n";
@@ -600,70 +610,79 @@ int wmain(int argc, wchar_t* argv[])
         return args.showHelp ? 0 : 1;
     }
 
-    if (!std::filesystem::is_directory(args.manifestsDir))
+    if (!std::filesystem::is_directory(args.manifestsDir) && !args.prebuilt)
     {
         std::wcerr << L"Error: not a directory: " << args.manifestsDir << L"\n";
         return 1;
     }
 
-    // Load WinGetUtil.dll at runtime
-    WinGetApi api = LoadWinGetUtil(args.wingetUtilPath);
-    if (!api) { return 1; }
-
-    // Create a temp file for the index
-    wchar_t tempDir[MAX_PATH + 1]{};
-    wchar_t tempFile[MAX_PATH + 1]{};
-    GetTempPathW(MAX_PATH, tempDir);
-    GetTempFileNameW(tempDir, L"idx", 0, tempFile);
-    std::filesystem::path indexPath{ tempFile };
-
-    struct TempFileGuard
+    if (std::filesystem::is_directory(args.manifestsDir) && args.prebuilt)
     {
-        std::filesystem::path path;
-        ~TempFileGuard() { std::error_code ec; std::filesystem::remove(path, ec); }
-    } tempGuard{ indexPath };
-
-    // Create the index
-    std::wcout << L"Creating index...\n";
-    WINGET_SQLITE_INDEX_HANDLE index = nullptr;
-    HRESULT hr = api.Create(
-        indexPath.c_str(),
-        WINGET_SQLITE_INDEX_VERSION_LATEST,
-        WINGET_SQLITE_INDEX_VERSION_LATEST,
-        &index);
-
-    if (FAILED(hr))
-    {
-        std::wcerr << L"Error: WinGetSQLiteIndexCreate failed: 0x"
-                   << std::hex << std::uppercase << hr << L"\n";
+        std::wcerr << L"Error: not a prebuilt file: " << args.manifestsDir << L"\n";
         return 1;
     }
 
-    // RAII guard: close index on early return
-    bool indexClosed = false;
-    struct IndexGuard
+    std::filesystem::path indexPath;
+    ManifestStats mstats{};
+    if (!args.prebuilt)
     {
-        PFN_WinGetSQLiteIndexClose close;
-        WINGET_SQLITE_INDEX_HANDLE handle;
-        bool& closed;
-        ~IndexGuard() { if (!closed && handle) close(handle); }
-    } indexGuard{ api.Close, index, indexClosed };
+        // Load WinGetUtil.dll at runtime
+        WinGetApi api = LoadWinGetUtil(args.wingetUtilPath);
+        if (!api) { return 1; }
 
-    // Populate the index
-    ManifestStats mstats = BuildIndex(api, index, args.manifestsDir);
+        // Create a temp file for the index
+        wchar_t tempDir[MAX_PATH + 1]{};
+        wchar_t tempFile[MAX_PATH + 1]{};
+        GetTempPathW(MAX_PATH, tempDir);
+        GetTempFileNameW(tempDir, L"idx", 0, tempFile);
+        indexPath = tempFile;
 
-    // Finalize: VACUUM and drop build-time indices
-    std::wcout << L"Preparing for packaging (VACUUM + drop indices)...\n";
-    hr = api.PrepareForPackaging(index);
-    if (FAILED(hr))
-    {
-        std::wcerr << L"Error: WinGetSQLiteIndexPrepareForPackaging failed: 0x"
-                   << std::hex << std::uppercase << hr << L"\n";
-        return 1;
+        // Create the index
+        std::wcout << L"Creating index at " << indexPath.c_str() << L"...\n";
+        WINGET_SQLITE_INDEX_HANDLE index = nullptr;
+        HRESULT hr = api.Create(
+            indexPath.c_str(),
+            2,
+            0,
+            &index);
+
+        if (FAILED(hr))
+        {
+            std::wcerr << L"Error: WinGetSQLiteIndexCreate failed: 0x"
+                << std::hex << std::uppercase << hr << L"\n";
+            return 1;
+        }
+
+        // RAII guard: close index on early return
+        bool indexClosed = false;
+        struct IndexGuard
+        {
+            PFN_WinGetSQLiteIndexClose close;
+            WINGET_SQLITE_INDEX_HANDLE handle;
+            bool& closed;
+            ~IndexGuard() { if (!closed && handle) close(handle); }
+        } indexGuard{ api.Close, index, indexClosed };
+
+        // Populate the index
+        mstats = BuildIndex(api, index, args.manifestsDir);
+
+        // Finalize: VACUUM and drop build-time indices
+        std::wcout << L"Preparing for packaging (VACUUM + drop indices)...\n";
+        hr = api.PrepareForPackaging(index);
+        if (FAILED(hr))
+        {
+            std::wcerr << L"Error: WinGetSQLiteIndexPrepareForPackaging failed: 0x"
+                << std::hex << std::uppercase << hr << L"\n";
+            return 1;
+        }
+
+        indexClosed = true;
+        api.Close(index);
     }
-
-    indexClosed = true;
-    api.Close(index);
+    else
+    {
+        indexPath = args.manifestsDir;
+    }
 
     // Optionally query table stats from the now-closed database
     std::vector<TableInfo> tables;

@@ -39,7 +39,7 @@ namespace AppInstaller::SQLite
         static void RenameSQLiteDatabase(const std::filesystem::path& source, const std::filesystem::path& destination, bool overwrite = false);
 
     protected:
-        SQLiteStorageBase(const std::string& target, const Version& version, int pageSize = 0);
+        SQLiteStorageBase(const std::string& target, const Version& version, size_t pageSize = 0);
 
         SQLiteStorageBase(const std::string& filePath, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
 
