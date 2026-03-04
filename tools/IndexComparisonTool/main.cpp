@@ -483,37 +483,37 @@ namespace
 
     void WriteJson(const Results& r, bool verbose, const std::filesystem::path& outFile)
     {
-        std::ofstream ofs(outFile);
-        if (!ofs) { throw std::runtime_error("Cannot open output file: " + ToUTF8(outFile.wstring())); }
+        std::ofstream stream(outFile);
+        if (!stream) { throw std::runtime_error("Cannot open output file: " + ToUTF8(outFile.wstring())); }
 
-        ofs << "{\n";
-        ofs << "  \"manifestsDir\": "   << JsonEscapeString(ToUTF8(r.manifestsDir.wstring())) << ",\n";
-        ofs << "  \"manifestCount\": "  << r.manifestCount  << ",\n";
-        ofs << "  \"failedCount\": "    << r.failedCount    << ",\n";
-        ofs << "  \"rawBytes\": "       << r.rawBytes       << ",\n";
-        ofs << "  \"compressedBytes\": " << r.compressedBytes << ",\n";
-        ofs << std::fixed << std::setprecision(4);
-        ofs << "  \"compressionRatio\": " << r.CompressionRatio();
+        stream << "{\n";
+        stream << "  \"manifestsDir\": "   << JsonEscapeString(ToUTF8(r.manifestsDir.wstring())) << ",\n";
+        stream << "  \"manifestCount\": "  << r.manifestCount  << ",\n";
+        stream << "  \"failedCount\": "    << r.failedCount    << ",\n";
+        stream << "  \"rawBytes\": "       << r.rawBytes       << ",\n";
+        stream << "  \"compressedBytes\": " << r.compressedBytes << ",\n";
+        stream << std::fixed << std::setprecision(4);
+        stream << "  \"compressionRatio\": " << r.CompressionRatio();
 
         if (verbose && !r.tables.empty())
         {
-            ofs << ",\n  \"tables\": [\n";
+            stream << ",\n  \"tables\": [\n";
             for (size_t i = 0; i < r.tables.size(); ++i)
             {
                 const auto& t = r.tables[i];
-                ofs << "    { \"name\": " << JsonEscapeString(t.name)
+                stream << "    { \"name\": " << JsonEscapeString(t.name)
                     << ", \"rowCount\": "  << t.rowCount
                     << ", \"pageCount\": " << t.pageCount << " }";
-                if (i + 1 < r.tables.size()) ofs << ",";
-                ofs << "\n";
+                if (i + 1 < r.tables.size()) stream << ",";
+                stream << "\n";
             }
-            ofs << "  ]\n";
+            stream << "  ]\n";
         }
         else
         {
-            ofs << "\n";
+            stream << "\n";
         }
-        ofs << "}\n";
+        stream << "}\n";
     }
 
     // -------------------------------------------------------------------------
@@ -586,7 +586,8 @@ namespace
         ratioSS << std::fixed << std::setprecision(2) << (ratioDelta * 100) << L"pp"
                 << L"  (was " << std::setprecision(1) << (baseRatio * 100) << L"%)";
 
-        std::wcout << L"\nvs baseline (" << baselineFile.filename().wstring() << L"):\n";
+        std::wcout << L'\n';
+        std::wcout << L"  vs baseline (" << baselineFile.filename().wstring() << L"):\n";
         std::wcout << L"  Raw size:          " << signedBytes(rawDelta)
                    << L"  (" << pctChange(current.rawBytes, baseRaw) << L")\n";
         std::wcout << L"  Compressed size:   " << signedBytes(compDelta)
@@ -623,7 +624,7 @@ int wmain(int argc, wchar_t* argv[])
     }
 
     std::filesystem::path indexPath;
-    ManifestStats mstats{};
+    ManifestStats stats{};
     if (!args.prebuilt)
     {
         // Load WinGetUtil.dll at runtime
@@ -664,7 +665,7 @@ int wmain(int argc, wchar_t* argv[])
         } indexGuard{ api.Close, index, indexClosed };
 
         // Populate the index
-        mstats = BuildIndex(api, index, args.manifestsDir);
+        stats = BuildIndex(api, index, args.manifestsDir);
 
         // Finalize: VACUUM and drop build-time indices
         std::wcout << L"Preparing for packaging (VACUUM + drop indices)...\n";
@@ -698,8 +699,8 @@ int wmain(int argc, wchar_t* argv[])
 
     Results results;
     results.manifestsDir    = std::filesystem::weakly_canonical(args.manifestsDir);
-    results.manifestCount   = mstats.added;
-    results.failedCount     = mstats.failed;
+    results.manifestCount   = stats.added;
+    results.failedCount     = stats.failed;
     results.rawBytes        = rawBytes;
     results.compressedBytes = compressedBytes;
     results.tables          = std::move(tables);
