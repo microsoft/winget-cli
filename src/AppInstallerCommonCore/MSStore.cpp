@@ -366,6 +366,18 @@ namespace AppInstaller::MSStore
         }
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    namespace TestHooks
+    {
+        static bool* s_ProvisionAfterInstall = nullptr;
+
+        void TestHook_SetProvisionAfterInstall(bool* value)
+        {
+            s_ProvisionAfterInstall = value;
+        }
+    }
+#endif
+
     HRESULT MSStoreOperation::InstallPackage(IProgressCallback& progress)
     {
         PackageUpdateMonitor monitor;
@@ -425,7 +437,15 @@ namespace AppInstaller::MSStore
 
         HRESULT hr = WaitForOperation(m_productId, m_isSilentMode, installItems, progress, monitor);
 
-        if (SUCCEEDED(hr) && m_scope == Manifest::ScopeEnum::Machine)
+        bool shouldProvision = m_scope == Manifest::ScopeEnum::Machine;
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (TestHooks::s_ProvisionAfterInstall)
+        {
+            shouldProvision = *TestHooks::s_ProvisionAfterInstall;
+        }
+#endif
+
+        if (SUCCEEDED(hr) && shouldProvision)
         {
             // Mitigation: on older OS versions the Store install service may not provision the package
             // even when InstallForAllUsers was set. Explicitly provision if not already provisioned.

@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 #include "TestHooks.h"
+#include "AppInstallerRuntime.h"
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerSynchronization.h>
@@ -588,6 +589,42 @@ TEST_CASE("MSStoreInstallFlowWithTestManifest", "[InstallFlow][workflow]")
     std::string installResultStr;
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("9WZDNCRFJ364") != std::string::npos);
+}
+
+TEST_CASE("MSStoreInstallFlow_MachineScopeProvision", "[InstallFlow][MSStore]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin() || AppInstaller::Runtime::IsRunningAsSystem())
+    {
+        WARN("Test requires running as admin but not SYSTEM. Skipped.");
+        return;
+    }
+
+    TestHook::SetForceProvisionAfterInstall_Override forceProvisionOverride(true);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForMSStore(context, false);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_MSStore_MachineScopeProvision.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(!context.IsTerminated());
+
+    // Verify the package is now provisioned.
+    winrt::Windows::Management::Deployment::PackageManager packageManager;
+    bool isProvisioned = false;
+    for (auto const& pkg : packageManager.FindProvisionedPackages())
+    {
+        if (pkg.Id().FamilyName() == L"Microsoft.DesiredStateConfiguration-Preview_8wekyb3d8bbwe")
+        {
+            isProvisioned = true;
+            break;
+        }
+    }
+    REQUIRE(isProvisioned);
 }
 
 TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow][workflow]")

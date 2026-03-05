@@ -360,6 +360,9 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_MSStore.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_MSStore_MachineScopeProvision.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_MultipleDependencies.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

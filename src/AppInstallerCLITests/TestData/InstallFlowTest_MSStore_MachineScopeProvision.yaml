@@ -1,0 +1,12 @@
+Id: AppInstallerCliTest.TestMSStoreMachineScopeProvision
+Version: Latest
+Name: AppInstaller Test Installer
+Publisher: Microsoft Corporation
+License: Test
+Installers: 
+    - Arch: neutral
+      Url: https://ThisIsNotUsed
+      InstallerType: msstore
+      ProductId: 9PCX3HX4HZ0Z
+      PackageFamilyName: Microsoft.DesiredStateConfiguration_8wekyb3d8bbwe
+ManifestVersion: 0.2.0-msstore
