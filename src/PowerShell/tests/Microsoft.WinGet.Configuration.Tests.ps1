@@ -27,7 +27,8 @@ BeforeAll {
     #       [CLI ] MSStore install failed. ProductId: 9PCX3HX4HZ0Z HResult: 0x80010002
     #       So install the DSCv3 package here.
     Import-Module Microsoft.WinGet.Client
-    $installResult = Install-WingetPackage -Id 9PCX3HX4HZ0Z -Source msstore
+    # We prefer to use preview (9PCX3HX4HZ0Z) to catch issues early, but if it causes blocking use stable (9NVTPZWRC6KQ) until it is resolved.
+    $installResult = Install-WingetPackage -Id 9NVTPZWRC6KQ -Source msstore
     if ($installResult.Status -ne 'Ok')
     {
         Write-Error "Failed to install DSCv3 package. Status: $($installResult.Status). ExtendedErrorCode: $($installResult.ExtendedErrorCode)." -ErrorAction Stop
