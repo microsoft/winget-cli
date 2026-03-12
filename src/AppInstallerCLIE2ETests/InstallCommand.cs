@@ -717,7 +717,7 @@ namespace AppInstallerCLIE2ETests
         {
             var testDir = TestCommon.GetRandomTestDir();
             string installDir = TestCommon.GetPortablePackagesDirectory();
-            var installResult = TestCommon.RunAICLICommand("install", $"-q AppInstallerTest.PackageDependencyRequiresPathRefresh -q AppInstallerTest.TestExeInstaller -l {testDir} --dependencies-only");
+            var installResult = TestCommon.RunAICLICommand("install", $"-q AppInstallerTest.PackageDependencyRequiresPathRefresh -l {testDir} --dependencies-only");
             Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
             Assert.True(installResult.StdOut.Contains("Installing dependencies only. The package itself will not be installed."));
             Assert.True(installResult.StdOut.Contains("Successfully installed"));
