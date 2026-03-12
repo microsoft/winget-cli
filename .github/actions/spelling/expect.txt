@@ -388,6 +388,7 @@ nsis
 NTFS
 objbase
 objidl
+octokitnet
 ofile
 oid
 omus
@@ -646,6 +647,7 @@ winreg
 winrtact
 winstring
 WMI
+wmmc
 wnd
 WNDCLASS
 WNDCLASSEX
