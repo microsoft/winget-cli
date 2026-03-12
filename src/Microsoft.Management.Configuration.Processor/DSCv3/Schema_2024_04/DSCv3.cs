@@ -273,7 +273,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         /// <returns>True if the exit code was not 0.</returns>
         private bool RunSynchronously(ProcessExecution processExecution)
         {
-            this.processorSettings.DiagnosticsSink?.OnDiagnostics(DiagnosticLevel.Verbose, $"Starting process: {processExecution.CommandLine}");
+            this.processorSettings.DiagnosticsSink?.OnDiagnostics(DiagnosticLevel.Verbose, $"Starting process: {processExecution.CommandLine}{(processExecution.Input == null ? string.Empty : $"\n--- Input Stream ---\n{processExecution.Input}")}");
 
             processExecution.Start().WaitForExit();
 
