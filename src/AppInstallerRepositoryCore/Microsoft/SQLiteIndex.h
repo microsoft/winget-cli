@@ -175,7 +175,7 @@ namespace AppInstaller::Repository::Microsoft
 
     private:
         // Constructor used to create a new index.
-        SQLiteIndex(const std::string& target, const SQLite::Version& version);
+        SQLiteIndex(const std::string& target, const SQLite::Version& version, CreateOptions options);
 
         // Constructor used to open an existing index.
         SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);

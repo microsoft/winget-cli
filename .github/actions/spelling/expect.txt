@@ -169,6 +169,7 @@ ewgs
 execustom
 EXEHASH
 experimentalfeatures
+XPRESS
 fdw
 fdwgp
 FECAFEB
