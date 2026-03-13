@@ -45,6 +45,7 @@ namespace AppInstaller::CLI::Execution
             InstallerType,
             HashOverride, // Ignore hash mismatches
             SkipDependencies, // Skip dependencies
+            DependenciesOnly, // Install only dependencies, not the target package
             IgnoreLocalArchiveMalwareScan, // Ignore the local malware scan on archive files
             AcceptPackageAgreements, // Accept all license agreements for packages
             Rename, // Renames the file of the executable. Only applies to the portable installerType

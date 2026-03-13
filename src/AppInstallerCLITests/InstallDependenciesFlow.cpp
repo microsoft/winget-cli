@@ -232,6 +232,28 @@ TEST_CASE("InstallerWithDependencies_IgnoreDependenciesSetting", "[dependencies]
     REQUIRE_FALSE(installOutput.str().find("PreviewIIS") != std::string::npos);
 }
 
+TEST_CASE("InstallerWithDependencies_DependenciesOnly", "[dependencies]")
+{
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideOpenDependencySource(context);
+    OverrideEnableWindowsFeaturesDependencies(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::DependenciesOnly);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Dependencies should be reported and installed
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::PackageRequiresDependencies).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
+    // DependenciesOnly message should be shown
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesOnlyMessage).get()) != std::string::npos);
+}
+
 TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[dependencies]")
 {
     std::ostringstream installOutput;
