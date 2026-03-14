@@ -157,6 +157,16 @@ namespace AppInstaller::CLI::Workflow
             HRESULT HResult;
             Resource::StringId Message;
         };
+
+        void CheckForOnlyDependencies(Execution::Context& context)
+        {
+            if (context.Args.Contains(Execution::Args::Type::DependenciesOnly))
+            {
+                context.Reporter.Info() << Resource::String::DependenciesOnlyMessage << std::endl;
+                // We want the context to terminate, but successfully.
+                context.SetTerminationHR(S_OK);
+            }
+        }
     }
 
     namespace details
@@ -640,6 +650,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::CreateDependencySubContexts(Resource::String::PackageRequiresDependencies) <<
             Workflow::InstallDependencies <<
+            CheckForOnlyDependencies <<
             Workflow::DownloadInstaller <<
             Workflow::InstallPackageInstaller <<
             Workflow::RegisterStartupAfterReboot();
@@ -712,6 +723,7 @@ namespace AppInstaller::CLI::Workflow
         m_stopOnFailure = WI_IsFlagSet(flags, Flags::StopOnFailure);
         m_refreshPathVariable = WI_IsFlagSet(flags, Flags::RefreshPathVariable);
         m_downloadOnly = WI_IsFlagSet(flags, Flags::DownloadOnly);
+        m_dependenciesOnly = WI_IsFlagSet(flags, Flags::DependenciesOnly);
     }
 
     void ProcessMultiplePackages::operator()(Execution::Context& context) const
@@ -763,6 +775,11 @@ namespace AppInstaller::CLI::Workflow
         size_t packagesCount = packageSubContexts.size();
         size_t packagesProgress = 0;
 
+        if (m_dependenciesOnly)
+        {
+            context.Reporter.Info() << Resource::String::DependenciesOnlyMessage << std::endl;
+        }
+
         for (auto& packageContext : packageSubContexts)
         {
             packagesProgress++;
@@ -786,11 +803,14 @@ namespace AppInstaller::CLI::Workflow
                         Workflow::ProcessMultiplePackages(m_dependenciesReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, Flags::IgnoreDependencies | Flags::StopOnFailure | Flags::RefreshPathVariable);
                 }
 
-                currentContext << Workflow::DownloadInstaller;
-
-                if (!downloadInstallerOnly)
+                if (!m_dependenciesOnly)
                 {
-                    currentContext << Workflow::InstallPackageInstaller;
+                    currentContext << Workflow::DownloadInstaller;
+
+                    if (!downloadInstallerOnly)
+                    {
+                        currentContext << Workflow::InstallPackageInstaller;
+                    }
                 }
             }
             catch (...)

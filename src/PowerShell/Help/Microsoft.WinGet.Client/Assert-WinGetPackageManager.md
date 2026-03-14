@@ -142,6 +142,20 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## NOTES
 
+When using the `-Latest` or `-Version` parameters, this cmdlet makes GitHub API requests to query
+release information. Unauthenticated requests are subject to
+[GitHub API rate limits](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api),
+which can cause failures in CI/CD pipelines. If the `GH_TOKEN` or `GITHUB_TOKEN` environment
+variable is set, the cmdlet automatically uses it to authenticate requests, which significantly
+increases the rate limit.
+
+`GH_TOKEN` takes precedence over `GITHUB_TOKEN`, matching
+[GitHub CLI behavior](https://cli.github.com/manual/gh_help_environment). In GitHub Actions,
+you can make `GITHUB_TOKEN` available to the cmdlet by mapping it as an environment variable in
+your workflow step (e.g., `env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}`).
+
+Use `-Verbose` to see which token source is being used.
+
 ## RELATED LINKS
 
 [Get-WinGetVersion](Get-WinGetVersion.md)
