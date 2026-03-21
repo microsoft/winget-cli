@@ -76,6 +76,12 @@ namespace AppInstaller::CLI::Execution
         RebootRequired = 0x400,
         RegisterResume = 0x800,
         InstallerExecutionUseRepair = 0x1000,
+        // InstallPackageInstaller: suppress immediate success until post-install checks complete.
+        DeferInstallSuccessMessage = 0x2000,
+        // MSIX registration deferred: do not emit generic success after checks (warning already shown).
+        SuppressDeferredInstallSuccess = 0x4000,
+        // Set when an install would have reported success but output was deferred.
+        PendingDeferredInstallSuccess = 0x8000,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);

@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "MSStoreInstallerHandler.h"
 #include "WorkflowBase.h"
+#include "ExecutionContext.h"
 #include <AppInstallerSHA256.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerRuntime.h>
@@ -159,7 +160,14 @@ namespace AppInstaller::CLI::Workflow
 
         if (SUCCEEDED(hr))
         {
-            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DeferInstallSuccessMessage))
+            {
+                context.SetFlags(Execution::ContextFlag::PendingDeferredInstallSuccess);
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+            }
         }
         else
         {
@@ -200,7 +208,14 @@ namespace AppInstaller::CLI::Workflow
 
         if (SUCCEEDED(hr))
         {
-            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DeferInstallSuccessMessage))
+            {
+                context.SetFlags(Execution::ContextFlag::PendingDeferredInstallSuccess);
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+            }
         }
         else
         {
@@ -241,7 +256,14 @@ namespace AppInstaller::CLI::Workflow
 
         if (SUCCEEDED(hr))
         {
-            context.Reporter.Info() << Resource::String::RepairFlowRepairSuccess << std::endl;
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DeferInstallSuccessMessage))
+            {
+                context.SetFlags(Execution::ContextFlag::PendingDeferredInstallSuccess);
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::RepairFlowRepairSuccess << std::endl;
+            }
         }
         else
         {

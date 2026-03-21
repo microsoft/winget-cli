@@ -255,6 +255,14 @@ namespace AppInstaller::CLI::Workflow
             if (registrationDeferred)
             {
                 context.Reporter.Warn() << Resource::String::InstallFlowRegistrationDeferred << std::endl;
+                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DeferInstallSuccessMessage))
+                {
+                    context.SetFlags(Execution::ContextFlag::SuppressDeferredInstallSuccess);
+                }
+            }
+            else if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DeferInstallSuccessMessage))
+            {
+                context.SetFlags(Execution::ContextFlag::PendingDeferredInstallSuccess);
             }
             else
             {
@@ -575,7 +583,11 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            if (isRepair)
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DeferInstallSuccessMessage))
+            {
+                context.SetFlags(Execution::ContextFlag::PendingDeferredInstallSuccess);
+            }
+            else if (isRepair)
             {
                 context.Reporter.Info() << Resource::String::RepairFlowRepairSuccess << std::endl;
             }
@@ -583,6 +595,40 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
             }
+        }
+    }
+
+    void ReportDeferredInstallSuccess(Execution::Context& context)
+    {
+        if (!WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DeferInstallSuccessMessage))
+        {
+            return;
+        }
+        context.ClearFlags(Execution::ContextFlag::DeferInstallSuccessMessage);
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::SuppressDeferredInstallSuccess))
+        {
+            context.ClearFlags(Execution::ContextFlag::SuppressDeferredInstallSuccess);
+            context.ClearFlags(Execution::ContextFlag::PendingDeferredInstallSuccess);
+            return;
+        }
+        if (context.IsTerminated())
+        {
+            context.ClearFlags(Execution::ContextFlag::PendingDeferredInstallSuccess);
+            return;
+        }
+        if (!WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::PendingDeferredInstallSuccess))
+        {
+            return;
+        }
+        context.ClearFlags(Execution::ContextFlag::PendingDeferredInstallSuccess);
+        const bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
+        if (isRepair)
+        {
+            context.Reporter.Info() << Resource::String::RepairFlowRepairSuccess << std::endl;
+        }
+        else
+        {
+            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
         }
     }
 
@@ -595,6 +641,9 @@ namespace AppInstaller::CLI::Workflow
 
     void InstallPackageInstaller(Execution::Context& context)
     {
+        context.ClearFlags(
+            Execution::ContextFlag::PendingDeferredInstallSuccess | Execution::ContextFlag::SuppressDeferredInstallSuccess);
+        context.SetFlags(Execution::ContextFlag::DeferInstallSuccessMessage);
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
             Workflow::SnapshotARPEntries <<
@@ -606,6 +655,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ForceInstalledCacheUpdate <<
             Workflow::RemoveInstaller <<
             Workflow::DisplayInstallationNotes;
+        ReportDeferredInstallSuccess(context);
     }
 
     void InstallDependencies(Execution::Context& context)
