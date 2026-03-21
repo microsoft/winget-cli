@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include <AppInstallerErrors.h>
 #include "InstallFlow.h"
 #include "DownloadFlow.h"
 #include "FontFlow.h"
@@ -20,6 +21,7 @@
 #include "SourceFlow.h"
 #include <AppInstallerMsixInfo.h>
 #include <AppInstallerDeployment.h>
+#include <AppInstallerVersions.h>
 #include <AppInstallerSynchronization.h>
 #include <Argument.h>
 #include <Command.h>
@@ -56,6 +58,36 @@ namespace AppInstaller::CLI::Workflow
                 return true;
             default:
                 return false;
+            }
+        }
+
+        // After a successful installer exit code, confirms ARP/MSIX reports at least the manifest version (upgrade only).
+        void VerifyUpgradeInstalledVersion(
+            Execution::Context& context,
+            std::string_view installedVersionString,
+            const Manifest::Manifest& manifest)
+        {
+            if (!WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate))
+            {
+                return;
+            }
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RebootRequired))
+            {
+                return;
+            }
+
+            Version expectedVersion{ manifest.Version };
+            Version installedVersion{ std::string{ installedVersionString } };
+            if (expectedVersion.IsUnknown() || installedVersion.IsUnknown())
+            {
+                return;
+            }
+            if (installedVersion < expectedVersion)
+            {
+                context.Reporter.Error() << Resource::String::UpgradeInstalledVersionMismatch(
+                    Utility::LocIndString{ std::string{ manifest.Version } },
+                    Utility::LocIndString{ std::string{ installedVersionString } }) << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPGRADE_INSTALLED_VERSION_MISMATCH);
             }
         }
 
@@ -886,6 +918,11 @@ namespace AppInstaller::CLI::Workflow
 
         if (installer && !installer->PackageFamilyName.empty() && Deployment::IsRegistered(installer->PackageFamilyName))
         {
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            if (auto installedVersion = Deployment::GetInstalledVersionStringForFamilyName(installer->PackageFamilyName))
+            {
+                VerifyUpgradeInstalledVersion(context, *installedVersion, manifest);
+            }
             return;
         }
 
@@ -898,6 +935,11 @@ namespace AppInstaller::CLI::Workflow
         // Store the ARP entry found to match the package to record it in the tracking catalog later
         if (correlationResult.Package)
         {
+            VerifyUpgradeInstalledVersion(
+                context,
+                correlationResult.Package->GetProperty(PackageVersionProperty::Version).get(),
+                manifest);
+
             std::vector<AppsAndFeaturesEntry> entries;
 
             auto metadata = correlationResult.Package->GetMetadata();

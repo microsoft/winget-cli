@@ -385,6 +385,30 @@ namespace AppInstaller::Deployment
         return packages.begin() != packages.end();
     }
 
+    std::optional<std::string> GetInstalledVersionStringForFamilyName(std::string_view packageFamilyName)
+    {
+        try
+        {
+            std::wstring wideFamilyName = Utility::ConvertToUTF16(packageFamilyName);
+
+            PackageManager packageManager;
+            auto packages = packageManager.FindPackagesForUser({}, wideFamilyName);
+            auto it = packages.begin();
+            if (it == packages.end())
+            {
+                return std::nullopt;
+            }
+
+            const auto& v = it->Id().Version();
+            std::ostringstream stream;
+            stream << v.Major << '.' << v.Minor << '.' << v.Build << '.' << v.Revision;
+            return stream.str();
+        }
+        CATCH_LOG();
+
+        return std::nullopt;
+    }
+
     void RegisterPackage(
         std::string_view packageFamilyName,
         IProgressCallback& callback)

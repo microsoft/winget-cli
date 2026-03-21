@@ -1345,6 +1345,14 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
     <value>A newer version was found, but the install technology is different from the current version installed. Please uninstall the package and install the newer version.</value>
   </data>
+  <data name="UpgradeInstallTechnologyMismatchCount" xml:space="preserve">
+    <value>{0} package(s) have upgrades blocked because newer versions use a different install technology than the current installation. Uninstall each package, then install the newer version.</value>
+    <comment>{Locked="{0}"} {0} is the number of packages skipped for this reason during winget upgrade --all.</comment>
+  </data>
+  <data name="UpgradeInstalledVersionMismatch" xml:space="preserve">
+    <value>The installer reported success, but the installed version is still {1}. The upgrade target was {0}.</value>
+    <comment>{Locked="{0}","{1}"} {0} is the expected package version from the manifest; {1} is the version reported by Windows after install.</comment>
+  </data>
   <data name="UpgradeDifferentInstallTechnology" xml:space="preserve">
     <value>The install technology of the newer version specified is different from the current version installed. Please uninstall the package and install the newer version.</value>
   </data>
@@ -2264,6 +2272,12 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE" xml:space="preserve">
     <value>No applicable update found</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH" xml:space="preserve">
+    <value>An upgrade is available but uses a different install technology than the current installation</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UPGRADE_INSTALLED_VERSION_MISMATCH" xml:space="preserve">
+    <value>Installer reported success but the installed version is still older than the upgrade target</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE" xml:space="preserve">
     <value>winget upgrade --all completed with failures</value>
