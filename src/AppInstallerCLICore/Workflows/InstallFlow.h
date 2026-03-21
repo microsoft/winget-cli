@@ -147,6 +147,9 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: InstallerPath, Manifest, Installer, PackageVersion, InstalledPackageVersion?
     // Outputs: None
     void InstallPackageInstaller(Execution::Context& context);
+
+    // Emits deferred install/repair success after post-install steps (ARP verification, etc.).
+    void ReportDeferredInstallSuccess(Execution::Context& context);
     
     // Installs the dependencies for a specific package. CreateDependencySubContexts should have been called before this task.
     // Required Args: None
