@@ -186,6 +186,10 @@ namespace AppInstaller::CLI::Workflow
                     context.Reporter.Error() << Resource::String::NoApplicableInstallers << std::endl;
                 }
             }
+            if (isUpgrade && installedTypeInapplicable)
+            {
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH);
+            }
 
             AICLI_TERMINATE_CONTEXT(isUpgrade ? APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE : APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
@@ -212,6 +216,7 @@ namespace AppInstaller::CLI::Workflow
         bool updateAllFoundUpdate = false;
         int packagesWithUnknownVersionSkipped = 0;
         int packagesThatRequireExplicitSkipped = 0;
+        int packagesSkippedInstallTechnologyMismatch = 0;
 
         for (const auto& match : matches)
         {
@@ -237,6 +242,14 @@ namespace AppInstaller::CLI::Workflow
                 Workflow::GetInstalledPackageVersion <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
                 SelectLatestApplicableVersion(false);
+
+            if (updateContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH)
+            {
+                AICLI_LOG(CLI, Info, << "Skipping " << match.Package->GetProperty(PackageProperty::Id)
+                    << " as available upgrades use a different install technology");
+                ++packagesSkippedInstallTechnologyMismatch;
+                continue;
+            }
 
             if (updateContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
             {
@@ -294,6 +307,12 @@ namespace AppInstaller::CLI::Workflow
         {
             AICLI_LOG(CLI, Info, << packagesThatRequireExplicitSkipped << " package(s) skipped due to requiring explicit upgrade");
             context.Reporter.Info() << Resource::String::UpgradeRequireExplicitCount(packagesThatRequireExplicitSkipped) << std::endl;
+        }
+
+        if (packagesSkippedInstallTechnologyMismatch > 0)
+        {
+            AICLI_LOG(CLI, Info, << packagesSkippedInstallTechnologyMismatch << " package(s) skipped due to install technology mismatch");
+            context.Reporter.Info() << Resource::String::UpgradeInstallTechnologyMismatchCount(packagesSkippedInstallTechnologyMismatch) << std::endl;
         }
     }
 
