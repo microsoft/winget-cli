@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 #pragma once
 #include <AppInstallerProgress.h>
+#include <optional>
+#include <string>
+#include <string_view>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Management.Deployment.h>
 
@@ -60,6 +63,9 @@ namespace AppInstaller::Deployment
 
     // Calls winrt::Windows::Management::Deployment::PackageManager::FindPackagesForUser
     bool IsRegistered(std::string_view packageFamilyName);
+
+    // Returns the version string (major.minor.build.revision) for the first package found for the family name, if any.
+    std::optional<std::string> GetInstalledVersionStringForFamilyName(std::string_view packageFamilyName);
 
     // Calls winrt::Windows::Management::Deployment::PackageManager::RegisterPackageByFamilyNameAsync
     void RegisterPackage(

@@ -131,6 +131,8 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_FAILURE, "Manifest validation failed"),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, "Manifest is invalid"),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE, "No applicable update found"),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH, "An upgrade is available but uses a different install technology than the current installation"),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_UPGRADE_INSTALLED_VERSION_MISMATCH, "Installer reported success but the installed version is still older than the upgrade target"),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE, "winget upgrade --all completed with failures"),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALLER_SECURITY_CHECK_FAILED, "Installer failed security check"),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH, "Download size does not match expected content length"),

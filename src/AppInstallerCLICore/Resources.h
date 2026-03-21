@@ -796,6 +796,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeDifferentInstallTechnology);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeDifferentInstallTechnologyInNewerVersions);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeInstallTechnologyMismatchCount);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeInstalledVersionMismatch);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeIsPinned);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradePinnedByUserCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeRequireExplicitCount);
