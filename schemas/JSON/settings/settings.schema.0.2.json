@@ -329,6 +329,11 @@
           "type": "boolean",
           "default": false
         },
+        "resume": {
+          "description": "Enable support for some commands to resume",
+          "type": "boolean",
+          "default": false
+        },
         "sourcePriority": {
           "description": "Enable source priority feature",
           "type": "boolean",

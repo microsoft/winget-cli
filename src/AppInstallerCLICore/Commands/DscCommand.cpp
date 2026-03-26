@@ -64,7 +64,7 @@ namespace AppInstaller::CLI
 
     Utility::LocIndView DscCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-dsc-resources"_liv;
+        return "https://learn.microsoft.com/windows/package-manager/configuration/"_liv;
     }
 
     void DscCommand::ExecuteInternal(Execution::Context& context) const
