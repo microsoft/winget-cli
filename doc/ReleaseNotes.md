@@ -38,4 +38,4 @@ The PowerShell module now automatically uses `GH_TOKEN` or `GITHUB_TOKEN` enviro
 
 ## Bug Fixes
 
-<!-- Nothing yet! -->
+* DSC export now correctly exports WinGet Admin Settings
