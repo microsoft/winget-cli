@@ -193,7 +193,7 @@ namespace AppInstaller::Settings
             }
             catch (...)
             {
-                AICLI_LOG(Core, Error, << "Failed to read admin settings: unknown exception");
+                AICLI_LOG(Core, Error, << "Failed to read admin settings due to unknown exception");
                 AICLI_LOG(Core, Info, << "Admin settings will use default values");
                 return;
             }
@@ -241,7 +241,7 @@ namespace AppInstaller::Settings
                 m_settingValues.DefaultProxy.emplace(std::move(defaultProxy));
             }
 
-            AICLI_LOG(Core, Verbose, << "Admin settings loaded successfully. LocalManifestFiles=" << m_settingValues.LocalManifestFiles);
+            AICLI_LOG(Core, Verbose, << "Admin settings loaded successfully");
         }
 
         bool AdminSettingsInternal::SaveAdminSettings()

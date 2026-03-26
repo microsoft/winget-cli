@@ -345,7 +345,7 @@ namespace AppInstaller::Settings
 
                     if (!SetVerificationData(verData))
                     {
-                        AICLI_LOG(Core, Error, << "Failed to set verification data for '" << m_name << "'; reverting write");
+                        AICLI_LOG(Core, Error, << "Failed to write verification data for '" << m_name << "'. This may be due to insufficient permissions or disk space. The setting write will be reverted to maintain consistency.");
                         // Verification data write failed, so we need to revert the main write
                         // to maintain consistency
                         Remove();
