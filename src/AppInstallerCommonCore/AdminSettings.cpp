@@ -187,14 +187,12 @@ namespace AppInstaller::Settings
             }
             catch (const std::exception& e)
             {
-                AICLI_LOG(Core, Error, << "Failed to read admin settings: " << e.what());
-                AICLI_LOG(Core, Info, << "Admin settings will use default values");
+                AICLI_LOG(Core, Error, << "Failed to read admin settings: " << e.what() << ". Falling back to default values.");
                 return;
             }
             catch (...)
             {
-                AICLI_LOG(Core, Error, << "Failed to read admin settings due to unknown exception");
-                AICLI_LOG(Core, Info, << "Admin settings will use default values");
+                AICLI_LOG(Core, Error, << "Failed to read admin settings due to unknown exception. Falling back to default values.");
                 return;
             }
 

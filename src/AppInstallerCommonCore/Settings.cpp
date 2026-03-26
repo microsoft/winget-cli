@@ -345,7 +345,8 @@ namespace AppInstaller::Settings
 
                     if (!SetVerificationData(verData))
                     {
-                        AICLI_LOG(Core, Error, << "Failed to write verification data for '" << m_name << "'. This may be due to insufficient permissions or disk space. The setting write will be reverted to maintain consistency.");
+                        AICLI_LOG(Core, Error, << "Failed to write verification data for '" << m_name << "'. Reverting setting write to maintain consistency.");
+                        AICLI_LOG(Core, Warning, << "This failure may be caused by insufficient permissions or disk space issues");
                         // Verification data write failed, so we need to revert the main write
                         // to maintain consistency
                         Remove();
