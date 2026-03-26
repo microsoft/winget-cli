@@ -180,7 +180,17 @@ namespace AppInstaller::Settings
 
         void AdminSettingsInternal::LoadAdminSettings()
         {
-            auto stream = m_settingStream.Get();
+            std::unique_ptr<std::istream> stream;
+            try
+            {
+                stream = m_settingStream.Get();
+            }
+            catch (const std::exception& e)
+            {
+                AICLI_LOG(Core, Error, << "Failed to read admin settings: " << e.what());
+                return;
+            }
+
             if (!stream)
             {
                 AICLI_LOG(Core, Verbose, << "Admin settings was not found");
