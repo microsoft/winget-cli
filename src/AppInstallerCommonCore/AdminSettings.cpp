@@ -188,6 +188,13 @@ namespace AppInstaller::Settings
             catch (const std::exception& e)
             {
                 AICLI_LOG(Core, Error, << "Failed to read admin settings: " << e.what());
+                AICLI_LOG(Core, Info, << "Admin settings will use default values");
+                return;
+            }
+            catch (...)
+            {
+                AICLI_LOG(Core, Error, << "Failed to read admin settings: unknown exception");
+                AICLI_LOG(Core, Info, << "Admin settings will use default values");
                 return;
             }
 
@@ -233,6 +240,8 @@ namespace AppInstaller::Settings
             {
                 m_settingValues.DefaultProxy.emplace(std::move(defaultProxy));
             }
+
+            AICLI_LOG(Core, Verbose, << "Admin settings loaded successfully. LocalManifestFiles=" << m_settingValues.LocalManifestFiles);
         }
 
         bool AdminSettingsInternal::SaveAdminSettings()
