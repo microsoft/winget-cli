@@ -36,12 +36,16 @@ namespace Microsoft.WinGetSourceCreator
 
             string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
             string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
-            string command = $"sign /a /fd sha256 /f {signature.CertFile} ";
+            string command = $"sign /a /fd sha256 /f \"{signature.CertFile}\" ";
             if (!string.IsNullOrEmpty(signature.Password))
             {
                 command += $"/p {signature.Password} ";
             }
-            command += fileToSign;
+            if (!string.IsNullOrEmpty(signature.TimestampServer))
+            {
+                command += $"/tr {signature.TimestampServer} /td sha256 ";
+            }
+            command += $"\"{fileToSign}\"";
             RunCommand(signtoolExecutable, command);
         }
 
@@ -81,7 +85,7 @@ namespace Microsoft.WinGetSourceCreator
 
             string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
             string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
-            string args = $"unpack /nv /p {package} /d {outDir}";
+            string args = $"unpack /nv /p \"{package}\" /d \"{outDir}\"";
             Process p = new Process
             {
                 StartInfo = new ProcessStartInfo(makeappxExecutable, args)
@@ -99,7 +103,7 @@ namespace Microsoft.WinGetSourceCreator
 
             string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
             string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
-            string args = $"pack /o /nv /f {mappingFile} /p {outputPackage}";
+            string args = $"pack /o /nv /f \"{mappingFile}\" /p \"{outputPackage}\"";
             RunCommand(makeappxExecutable, args);
         }
 
@@ -117,7 +121,7 @@ namespace Microsoft.WinGetSourceCreator
 
             string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
             string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
-            string args = $"pack /o /d {directoryToPack} /p {outputPackage}";
+            string args = $"pack /o /d \"{directoryToPack}\" /p \"{outputPackage}\"";
             RunCommand(makeappxExecutable, args);
         }
 
