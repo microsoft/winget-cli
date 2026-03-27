@@ -4,6 +4,8 @@
 #include "TestCommon.h"
 #include "TestSettings.h"
 #include <winget/AdminSettings.h>
+#include <AppInstallerRuntime.h>
+#include <fstream>
 
 using namespace AppInstaller::Settings;
 using namespace TestCommon;
@@ -81,4 +83,39 @@ TEST_CASE("AdminSetting_AllSettingsAreImplemented", "[adminSettings]")
         REQUIRE(DisableAdminSetting(adminSetting));
         REQUIRE_FALSE(IsAdminSettingEnabled(adminSetting));
     }
+}
+
+TEST_CASE("AdminSetting_CorruptedVerificationFile", "[adminSettings]")
+{
+    GroupPolicyTestOverride policies;
+    policies.SetState(TogglePolicy::Policy::LocalManifestFiles, PolicyState::NotConfigured);
+
+    // Clean up any existing admin settings
+    ResetAllAdminSettings();
+
+    // Enable the setting to create both the data and verification files
+    REQUIRE(EnableAdminSetting(BoolAdminSetting::LocalManifestFiles));
+    REQUIRE(IsAdminSettingEnabled(BoolAdminSetting::LocalManifestFiles));
+
+    // Get the paths to the settings files
+    std::filesystem::path settingsPath = GetPathTo(Stream::AdminSettings);
+    std::filesystem::path secureSettingsDir = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::SecureSettingsForRead);
+    std::filesystem::path verificationFilePath = secureSettingsDir / "admin_settings";
+
+    // Verify both files exist
+    REQUIRE(std::filesystem::exists(settingsPath));
+    REQUIRE(std::filesystem::exists(verificationFilePath));
+
+    // Corrupt the verification file by writing invalid content to it
+    {
+        std::ofstream corruptFile(verificationFilePath);
+        corruptFile << "corrupted data that is not valid YAML or a valid hash";
+    }
+
+    // Now when we try to read the setting, it should fall back to the default value (false)
+    // instead of throwing an exception
+    REQUIRE_FALSE(IsAdminSettingEnabled(BoolAdminSetting::LocalManifestFiles));
+
+    // Clean up
+    ResetAllAdminSettings();
 }
