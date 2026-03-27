@@ -29,7 +29,7 @@
   "overrides": [
     {
       "name": "c-ares",
-      "version": "1.19.1"
+      "version": "1.34.6"
     },
     {
       "name": "correlation-vector-cpp",
@@ -41,7 +41,7 @@
     },
     {
       "name": "curl",
-      "version": "8.12.1"
+      "version": "8.19.0"
     },
     {
       "name": "nlohmann-json",
