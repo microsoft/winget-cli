@@ -38,4 +38,4 @@ The PowerShell module now automatically uses `GH_TOKEN` or `GITHUB_TOKEN` enviro
 
 ## Bug Fixes
 
-<!-- Nothing yet! -->
+* Fixed the `useLatest` property in the DSC v3 `Microsoft.WinGet/Package` resource schema to emit a boolean default (`false`) instead of the incorrect string `"false"`.
