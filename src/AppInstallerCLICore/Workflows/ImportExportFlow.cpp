@@ -158,24 +158,21 @@ namespace AppInstaller::CLI::Workflow
 
         std::filesystem::path outputFilePath{ context.Args.GetArg(Execution::Args::Type::OutputFile) };
 
-        // Check if the file exists and is hidden
-        DWORD attrs = std::filesystem::exists(outputFilePath) ? GetFileAttributesW(outputFilePath.c_str()) : INVALID_FILE_ATTRIBUTES;
+        // GetFileAttributesW returns INVALID_FILE_ATTRIBUTES for non-existent files, so no separate exists() check is needed.
+        DWORD attrs = GetFileAttributesW(outputFilePath.c_str());
         bool isHidden = (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_HIDDEN));
 
-        if (isHidden)
-        {
-            // Remove hidden attribute so we can write to it
-            SetFileAttributesW(outputFilePath.c_str(), attrs & ~FILE_ATTRIBUTE_HIDDEN);
-        }   
+        // Open the file directly without changing its attributes:
+        // - For an existing hidden file, use TRUNCATE_EXISTING to clear its content while preserving its attributes.
+        // - Otherwise, use CREATE_ALWAYS to create a new file or overwrite an existing one.
+        DWORD creationDisposition = isHidden ? TRUNCATE_EXISTING : CREATE_ALWAYS;
+        wil::unique_hfile fileHandle{ CreateFileW(outputFilePath.c_str(), GENERIC_WRITE, 0, nullptr, creationDisposition, FILE_ATTRIBUTE_NORMAL, nullptr) };
+        THROW_LAST_ERROR_IF(!fileHandle);
 
-        std::ofstream outputFileStream{ outputFilePath };
-        outputFileStream << packages;
-
-        if (isHidden)
-        {
-            // Restore hidden attribute
-            SetFileAttributesW(outputFilePath.c_str(), attrs);
-        }
+        Json::StreamWriterBuilder writerBuilder;
+        std::string jsonContent = Json::writeString(writerBuilder, packages);
+        DWORD bytesWritten = 0;
+        THROW_LAST_ERROR_IF(!WriteFile(fileHandle.get(), jsonContent.c_str(), static_cast<DWORD>(jsonContent.size()), &bytesWritten, nullptr));
     }
 
     void ReadImportFile(Execution::Context& context)

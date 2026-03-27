@@ -38,7 +38,4 @@ The PowerShell module now automatically uses `GH_TOKEN` or `GITHUB_TOKEN` enviro
 
 ## Bug Fixes
 
-<!-- Nothing yet! -->
-
-## Bug Fixes
 * `winget export` now works when the destination path is a hidden file
