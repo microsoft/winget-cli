@@ -158,7 +158,7 @@ namespace AppInstaller::CLI::Workflow
 
         std::filesystem::path outputFilePath{ context.Args.GetArg(Execution::Args::Type::OutputFile) };
 
-        // GetFileAttributesW returns INVALID_FILE_ATTRIBUTES for non-existent files, so no separate exists() check is needed.
+        // GetFileAttributesW returns INVALID_FILE_ATTRIBUTES for nonexistent files, so no separate exists() check is needed.
         DWORD attrs = GetFileAttributesW(outputFilePath.c_str());
         bool isHidden = (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_HIDDEN));
 
