@@ -161,6 +161,144 @@ namespace WinGetMCPServer
             }
         }
 
+        [McpServerTool(
+            Name = "get-upgradeable-winget-packages",
+            Title = "Get Upgradeable WinGet Packages",
+            ReadOnly = true,
+            OpenWorld = false)]
+        [Description("Get installed packages that have available upgrades using WinGet")]
+        public CallToolResult GetUpgradeablePackages(
+            [Description("Optionally filter by a package identifier, name, or moniker")] string? query = null)
+        {
+            try
+            {
+                ToolResponse.CheckGroupPolicy();
+
+                var catalog = ConnectCatalog();
+
+                FindPackagesResult findResult;
+                if (string.IsNullOrEmpty(query))
+                {
+                    findResult = FindAllPackages(catalog);
+                }
+                else
+                {
+                    // First attempt a more exact match
+                    findResult = FindForQuery(catalog, query, fullStringMatch: true);
+
+                    // If nothing is found, expand to a looser search
+                    if ((findResult.Matches?.Count ?? 0) == 0)
+                    {
+                        findResult = FindForQuery(catalog, query, fullStringMatch: false);
+                    }
+                }
+
+                if (findResult.Status != FindPackagesResultStatus.Ok)
+                {
+                    return PackageResponse.ForFindError(findResult);
+                }
+
+                List<FindPackageResult> contents = new List<FindPackageResult>();
+                for (int i = 0; i < findResult.Matches?.Count; ++i)
+                {
+                    var package = findResult.Matches[i].CatalogPackage;
+                    if (package.IsUpdateAvailable)
+                    {
+                        contents.Add(PackageListExtensions.FindPackageResultFromCatalogPackage(package));
+                    }
+                }
+
+                return ToolResponse.FromObject(contents);
+            }
+            catch (ToolResponseException e)
+            {
+                return e.Response;
+            }
+        }
+
+        [McpServerTool(
+            Name = "upgrade-winget-package",
+            Title = "Upgrade WinGet Package",
+            ReadOnly = false,
+            Destructive = true,
+            Idempotent = false,
+            OpenWorld = false)]
+        [Description("Upgrade an installed package to the latest available version using WinGet")]
+        public async Task<CallToolResult> UpgradePackage(
+            [Description("The identifier of the WinGet package to upgrade")] string identifier,
+            IProgress<ProgressNotificationValue> progress,
+            CancellationToken cancellationToken,
+            [Description("The source containing the package")] string? source = null)
+        {
+            try
+            {
+                ToolResponse.CheckGroupPolicy();
+
+                var packageCatalog = ConnectCatalog(source);
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return PackageResponse.ForCancelBeforeSystemChange();
+                }
+
+                // First attempt a more exact match
+                var findResult = FindForIdentifier(packageCatalog, identifier, expandedFields: false);
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return PackageResponse.ForCancelBeforeSystemChange();
+                }
+
+                // If nothing is found, expand to a looser search
+                if ((findResult.Matches?.Count ?? 0) == 0)
+                {
+                    findResult = FindForIdentifier(packageCatalog, identifier, expandedFields: true);
+                }
+
+                if (findResult.Status != FindPackagesResultStatus.Ok)
+                {
+                    return PackageResponse.ForFindError(findResult);
+                }
+
+                if (findResult.Matches?.Count == 0)
+                {
+                    return PackageResponse.ForEmptyFind(identifier, source);
+                }
+                else if (findResult.Matches?.Count > 1)
+                {
+                    return PackageResponse.ForMultiFind(identifier, source, findResult);
+                }
+
+                CatalogPackage catalogPackage = findResult.Matches![0].CatalogPackage;
+
+                if (catalogPackage.InstalledVersion == null)
+                {
+                    return PackageResponse.ForNotInstalled(identifier, source);
+                }
+
+                InstallOptions options = new InstallOptions();
+                var operation = packageManager.UpgradePackageAsync(catalogPackage, options);
+
+                operation.Progress = (asyncInfo, progressInfo) => progress.Report(CreateInstallProgressNotification(ref progressInfo));
+                using CancellationTokenRegistration registration = cancellationToken.Register(() => operation.Cancel());
+
+                var installResult = await operation;
+                findResult = null;
+
+                if (installResult.Status == InstallResultStatus.Ok)
+                {
+                    progress.Report(CreateInstallProgressNotification(PackageInstallProgressState.Finished, 1.0, 1.0));
+                    findResult = ReFindForPackage(catalogPackage.DefaultInstallVersion);
+                }
+
+                return PackageResponse.ForUpgradeOperation(installResult, findResult);
+            }
+            catch (ToolResponseException e)
+            {
+                return e.Response;
+            }
+        }
+
         private ConnectResult ConnectCatalogWithResult(string? catalog = null)
         {
             CreateCompositePackageCatalogOptions createCompositePackageCatalogOptions = new CreateCompositePackageCatalogOptions();
@@ -214,6 +352,12 @@ namespace WinGetMCPServer
                 findPackageOptions.Selectors.Add(new PackageMatchFilter() { Field = PackageMatchField.Moniker, Option = PackageFieldMatchOption.EqualsCaseInsensitive, Value = query });
             }
 
+            return catalog!.FindPackages(findPackageOptions);
+        }
+
+        private FindPackagesResult FindAllPackages(PackageCatalog catalog)
+        {
+            FindPackagesOptions findPackageOptions = new();
             return catalog!.FindPackages(findPackageOptions);
         }
 
