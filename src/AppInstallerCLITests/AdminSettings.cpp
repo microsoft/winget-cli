@@ -97,15 +97,13 @@ TEST_CASE("AdminSetting_CorruptedVerificationFile", "[adminSettings]")
     REQUIRE(EnableAdminSetting(BoolAdminSetting::LocalManifestFiles));
     REQUIRE(IsAdminSettingEnabled(BoolAdminSetting::LocalManifestFiles));
 
-    // Get the paths to the settings files
-    // Note: Stream::AdminSettings is Type::Secure, which stores its data in the StandardSettings path,
-    // so we construct the path directly rather than using GetPathTo (which would throw for secure streams).
-    std::filesystem::path settingsPath = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::StandardSettings) / Stream::AdminSettings.Name;
+    // Get the path to the verification file.
+    // Note: The data file may be stored in ApplicationData (packaged context) rather than the filesystem,
+    // so we only verify the verification file, which is always on the filesystem.
     std::filesystem::path secureSettingsDir = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::SecureSettingsForRead);
-    std::filesystem::path verificationFilePath = secureSettingsDir / "admin_settings";
+    std::filesystem::path verificationFilePath = secureSettingsDir / Stream::AdminSettings.Name;
 
-    // Verify both files exist
-    REQUIRE(std::filesystem::exists(settingsPath));
+    // Verify the verification file exists
     REQUIRE(std::filesystem::exists(verificationFilePath));
 
     // Corrupt the verification file by writing invalid content to it
