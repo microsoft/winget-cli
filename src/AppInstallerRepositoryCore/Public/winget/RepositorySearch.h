@@ -213,6 +213,10 @@ namespace AppInstaller::Repository
         NoModify,
         // No Repair flag
         NoRepair,
+        // The --override arguments provided by the user when installing the package
+        UserOverrideArguments,
+        // The --custom switches provided by the user when installing the package
+        UserCustomSwitches,
     };
 
     // Convert a PackageVersionMetadata to a string.

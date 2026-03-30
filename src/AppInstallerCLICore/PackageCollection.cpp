@@ -41,6 +41,8 @@ namespace AppInstaller::CLI
             const std::string PackagesJson_Package_Version = "Version";
             const std::string PackagesJson_Package_Channel = "Channel";
             const std::string PackagesJson_Package_Scope = "Scope";
+            const std::string PackagesJson_Package_OverrideArguments = "OverrideArguments";
+            const std::string PackagesJson_Package_CustomSwitches = "CustomSwitches";
 
             static const StaticStrings& Instance()
             {
@@ -154,6 +156,16 @@ namespace AppInstaller::CLI
                 PackageCollection::Package package{ Utility::LocIndString{ id }, Utility::Version{ version }, Utility::Channel{ channel } };
                 package.Scope = Manifest::ConvertToScopeEnum(scope);
 
+                if (packageNode.isMember(ss.PackagesJson_Package_OverrideArguments))
+                {
+                    package.OverrideArgs = packageNode[ss.PackagesJson_Package_OverrideArguments].asString();
+                }
+
+                if (packageNode.isMember(ss.PackagesJson_Package_CustomSwitches))
+                {
+                    package.CustomSwitches = packageNode[ss.PackagesJson_Package_CustomSwitches].asString();
+                }
+
                 return package;
             }
         };
@@ -200,6 +212,16 @@ namespace AppInstaller::CLI
             if (package.Scope != Manifest::ScopeEnum::Unknown)
             {
                 packageNode[ss.PackagesJson_Package_Scope] = std::string{ Manifest::ScopeToString(package.Scope) };
+            }
+
+            if (!package.OverrideArgs.empty())
+            {
+                packageNode[ss.PackagesJson_Package_OverrideArguments] = package.OverrideArgs;
+            }
+
+            if (!package.CustomSwitches.empty())
+            {
+                packageNode[ss.PackagesJson_Package_CustomSwitches] = package.CustomSwitches;
             }
 
             return sourceNode[ss.PackagesJson_Packages].append(std::move(packageNode));

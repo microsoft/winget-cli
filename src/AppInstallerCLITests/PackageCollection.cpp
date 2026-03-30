@@ -30,6 +30,8 @@ const std::string s_PackagesJson_Packages = "Packages";
 const std::string s_PackagesJson_Package_PackageIdentifier = "PackageIdentifier";
 const std::string s_PackagesJson_Package_Version = "Version";
 const std::string s_PackagesJson_Package_Channel = "Channel";
+const std::string s_PackagesJson_Package_OverrideArguments = "OverrideArguments";
+const std::string s_PackagesJson_Package_CustomSwitches = "CustomSwitches";
 
 namespace
 {
@@ -96,6 +98,8 @@ namespace
                 ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_PackageIdentifier, packageItr->Id);
                 ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_Version, packageItr->VersionAndChannel.GetVersion().ToString(), true);
                 ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_Channel, packageItr->VersionAndChannel.GetChannel().ToString(), true);
+                ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_OverrideArguments, packageItr->OverrideArgs, true);
+                ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_CustomSwitches, packageItr->CustomSwitches, true);
             }
         }
     }
@@ -121,6 +125,8 @@ namespace
             {
                 REQUIRE(firstPackageItr->Id == secondPackageItr->Id);
                 REQUIRE(firstPackageItr->VersionAndChannel.ToString() == secondPackageItr->VersionAndChannel.ToString());
+                REQUIRE(firstPackageItr->OverrideArgs == secondPackageItr->OverrideArgs);
+                REQUIRE(firstPackageItr->CustomSwitches == secondPackageItr->CustomSwitches);
             }
         }
     }
@@ -166,6 +172,39 @@ TEST_CASE("PackageCollection_Write_MultipleSources", "[PackageCollection]")
     {
         "1.0.0.0",
         std::vector<PackageCollection::Source>{ source1, source2 }
+    };
+
+    ValidateJsonWithCollection(PackagesJson::CreateJson(pc), pc);
+}
+
+TEST_CASE("PackageCollection_Write_OverrideAndCustomSwitches", "[PackageCollection]")
+{
+    PackageCollection::Source source;
+    source.Details.Name = "TestSource";
+    source.Details.Arg = "https://aka.ms/winget";
+    source.Details.Type = "Microsoft.PreIndexed.Package";
+    source.Details.Identifier = "TestSourceId";
+
+    PackageCollection::Package packageWithOverride{ LocIndString{ "test.withOverride"sv }, Version{ "1.0" }, Channel{ "" } };
+    packageWithOverride.OverrideArgs = "/silent /norestart";
+    source.Packages.emplace_back(std::move(packageWithOverride));
+
+    PackageCollection::Package packageWithCustom{ LocIndString{ "test.withCustom"sv }, Version{ "2.0" }, Channel{ "" } };
+    packageWithCustom.CustomSwitches = "--no-telemetry";
+    source.Packages.emplace_back(std::move(packageWithCustom));
+
+    PackageCollection::Package packageWithBoth{ LocIndString{ "test.withBoth"sv }, Version{ "3.0" }, Channel{ "" } };
+    packageWithBoth.OverrideArgs = "/override";
+    packageWithBoth.CustomSwitches = "--extra";
+    source.Packages.emplace_back(std::move(packageWithBoth));
+
+    PackageCollection::Package packageWithNeither{ LocIndString{ "test.withNeither"sv }, Version{ "4.0" }, Channel{ "" } };
+    source.Packages.emplace_back(std::move(packageWithNeither));
+
+    PackageCollection pc
+    {
+        "1.0.0.0",
+        std::vector<PackageCollection::Source>{ source }
     };
 
     ValidateJsonWithCollection(PackagesJson::CreateJson(pc), pc);
@@ -270,6 +309,95 @@ TEST_CASE("PackageCollection_Read_SingleSource_2_0", "[PackageCollection]")
     };
 
     ValidateEqualCollections(parseResult.Packages, expected);
+}
+
+TEST_CASE("PackageCollection_Read_OverrideAndCustomSwitches_2_0", "[PackageCollection]")
+{
+    auto json = ParseJsonString(R"(
+    {
+      "$schema": "https://aka.ms/winget-packages.schema.2.0.json",
+      "CreationDate": "2021-01-01T12:00:00.000-00:00",
+      "WinGetVersion": "1.0.0",
+      "Sources": [
+        {
+          "Packages": [
+            {
+              "PackageIdentifier": "test.withOverride",
+              "OverrideArguments": "/silent /norestart"
+            },
+            {
+              "PackageIdentifier": "test.withCustom",
+              "CustomSwitches": "--no-telemetry"
+            },
+            {
+              "PackageIdentifier": "test.withBoth",
+              "OverrideArguments": "/override",
+              "CustomSwitches": "--extra"
+            },
+            {
+              "PackageIdentifier": "test.withNeither"
+            }
+          ],
+          "SourceDetails": {
+            "Argument": "https://aka.ms/winget",
+            "Identifier": "TestSourceId",
+            "Name": "TestSource",
+            "Type": "Microsoft.PreIndexed.Package"
+          }
+        }
+      ]
+    })");
+
+    auto parseResult = PackagesJson::TryParseJson(json);
+    REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::Success);
+    REQUIRE(parseResult.Errors.empty());
+
+    REQUIRE(parseResult.Packages.Sources.size() == 1);
+    const auto& packages = parseResult.Packages.Sources[0].Packages;
+    REQUIRE(packages.size() == 4);
+
+    REQUIRE(packages[0].Id == "test.withOverride");
+    REQUIRE(packages[1].Id == "test.withCustom");
+    REQUIRE(packages[2].Id == "test.withBoth");
+    REQUIRE(packages[3].Id == "test.withNeither");
+}
+
+TEST_CASE("PackageCollection_WriteRead_OverrideAndCustomSwitches", "[PackageCollection]")
+{
+    PackageCollection::Source source;
+    source.Details.Name = "TestSource";
+    source.Details.Arg = "https://aka.ms/winget";
+    source.Details.Type = "Microsoft.PreIndexed.Package";
+    source.Details.Identifier = "TestSourceId";
+
+    PackageCollection::Package packageWithOverride{ LocIndString{ "test.withOverride"sv }, Version{ "1.0" }, Channel{ "" } };
+    packageWithOverride.OverrideArgs = "/silent /norestart";
+    source.Packages.emplace_back(std::move(packageWithOverride));
+
+    PackageCollection::Package packageWithCustom{ LocIndString{ "test.withCustom"sv }, Version{ "2.0" }, Channel{ "" } };
+    packageWithCustom.CustomSwitches = "--no-telemetry";
+    source.Packages.emplace_back(std::move(packageWithCustom));
+
+    PackageCollection::Package packageWithBoth{ LocIndString{ "test.withBoth"sv }, Version{ "3.0" }, Channel{ "" } };
+    packageWithBoth.OverrideArgs = "/override";
+    packageWithBoth.CustomSwitches = "--extra";
+    source.Packages.emplace_back(std::move(packageWithBoth));
+
+    PackageCollection::Package packageWithNeither{ LocIndString{ "test.withNeither"sv }, Version{ "4.0" }, Channel{ "" } };
+    source.Packages.emplace_back(std::move(packageWithNeither));
+
+    PackageCollection original
+    {
+        "1.0.0.0",
+        std::vector<PackageCollection::Source>{ source }
+    };
+
+    auto json = PackagesJson::CreateJson(original);
+    ValidateJsonWithCollection(json, original);
+
+    auto parseResult = PackagesJson::TryParseJson(json);
+    REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::Success);
+    ValidateEqualCollections(parseResult.Packages, original);
 }
 
 TEST_CASE("PackageCollection_Read_MultipleSources_1_0", "[PackageCollection]")

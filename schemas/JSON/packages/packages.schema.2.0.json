@@ -96,6 +96,16 @@
                     "machine"
                   ],
                   "default": "user"
+                },
+
+                "OverrideArguments": {
+                  "description": "Override arguments to pass directly to the installer, replacing all other installer arguments",
+                  "type": "string"
+                },
+
+                "CustomSwitches": {
+                  "description": "Additional arguments to append to the installer arguments",
+                  "type": "string"
                 }
               }
             }

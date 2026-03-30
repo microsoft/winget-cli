@@ -1021,5 +1021,31 @@ namespace AppInstaller::CLI::Workflow
                 version.SetMetadata(Repository::PackageVersionMetadata::UserIntentLocale, itr->second);
             }
         }
+
+        if (context.Args.Contains(Execution::Args::Type::Override))
+        {
+            version.SetMetadata(Repository::PackageVersionMetadata::UserOverrideArguments, context.Args.GetArg(Execution::Args::Type::Override));
+        }
+        else
+        {
+            auto itr = installedMetadata.find(Repository::PackageVersionMetadata::UserOverrideArguments);
+            if (itr != installedMetadata.end())
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::UserOverrideArguments, itr->second);
+            }
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::CustomSwitches))
+        {
+            version.SetMetadata(Repository::PackageVersionMetadata::UserCustomSwitches, context.Args.GetArg(Execution::Args::Type::CustomSwitches));
+        }
+        else
+        {
+            auto itr = installedMetadata.find(Repository::PackageVersionMetadata::UserCustomSwitches);
+            if (itr != installedMetadata.end())
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::UserCustomSwitches, itr->second);
+            }
+        }
     }
 }

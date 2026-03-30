@@ -330,7 +330,8 @@ namespace AppInstaller::Repository
                 {
                     auto trackingMetadata = m_trackingPackageVersion->GetMetadata();
                     for (auto metadataItem : { PackageVersionMetadata::InstalledArchitecture, PackageVersionMetadata::InstalledLocale,
-                        PackageVersionMetadata::UserIntentArchitecture, PackageVersionMetadata::UserIntentLocale, PackageVersionMetadata::PinnedState })
+                        PackageVersionMetadata::UserIntentArchitecture, PackageVersionMetadata::UserIntentLocale, PackageVersionMetadata::PinnedState,
+                        PackageVersionMetadata::UserOverrideArguments, PackageVersionMetadata::UserCustomSwitches })
                     {
                         auto itr = trackingMetadata.find(metadataItem);
                         auto existingItr = result.find(metadataItem);

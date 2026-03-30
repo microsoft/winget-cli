@@ -140,7 +140,27 @@ namespace AppInstaller::CLI::Workflow
             // but take the exported version from the installed package if needed.
             PackageCollection::Package exportPackage;
             exportPackage.Id = availablePackageVersion->GetProperty(PackageVersionProperty::Id);
-            exportPackage.InstalledLocation = Utility::ConvertToUTF16(installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledLocation]);
+
+            const auto& installedMetadata = installedPackageVersion->GetMetadata();
+
+            auto locationItr = installedMetadata.find(PackageVersionMetadata::InstalledLocation);
+            if (locationItr != installedMetadata.end())
+            {
+                exportPackage.InstalledLocation = Utility::ConvertToUTF16(locationItr->second);
+            }
+
+            auto overrideItr = installedMetadata.find(PackageVersionMetadata::UserOverrideArguments);
+            if (overrideItr != installedMetadata.end())
+            {
+                exportPackage.OverrideArgs = overrideItr->second;
+            }
+
+            auto customItr = installedMetadata.find(PackageVersionMetadata::UserCustomSwitches);
+            if (customItr != installedMetadata.end())
+            {
+                exportPackage.CustomSwitches = customItr->second;
+            }
+
             if (includeVersions)
             {
                 exportPackage.VersionAndChannel = { version.get(), channel.get() };
