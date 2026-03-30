@@ -138,6 +138,7 @@ devhome
 DFX
 DHAVE
 dic
+digicert
 diskfull
 DISPLAYCATALOG
 DMC
