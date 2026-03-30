@@ -318,6 +318,16 @@ namespace AppInstaller::CLI::Workflow
                     searchContext.Args.AddArg(Execution::Args::Type::Channel, channelString);
                 }
 
+                if (!packageRequest.OverrideArgs.empty())
+                {
+                    searchContext.Args.AddArg(Execution::Args::Type::Override, packageRequest.OverrideArgs);
+                }
+
+                if (!packageRequest.CustomSwitches.empty())
+                {
+                    searchContext.Args.AddArg(Execution::Args::Type::CustomSwitches, packageRequest.CustomSwitches);
+                }
+
                 packageSubContexts.emplace_back(std::move(searchContextPtr));
             }
         }
