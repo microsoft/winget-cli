@@ -36,8 +36,8 @@ Added a new `--no-progress` command-line flag that disables all progress reporti
 
 The WinGet MCP server now exposes two new tools for upgrading packages:
 
-- **`get-upgradeable-winget-packages`** — Lists all installed packages that have available upgrades. Accepts an optional `query` parameter to filter by a specific package identifier, name, or moniker. AI agents can use this to answer requests like "What apps can I update with WinGet?"
-- **`upgrade-winget-package`** — Upgrades a specific installed package to its latest available version. Returns a clear error if the package is not already installed (pointing to `install-winget-package` instead). Marked destructive, so MCP clients will prompt for confirmation before proceeding. AI agents can use this to answer requests like "Update WinGetCreate" or, in combination with `get-upgradeable-winget-packages`, "Update all my apps."
+- **`get-upgradable-winget-packages`** — Lists all installed packages that have available upgrades. Accepts an optional `query` parameter to filter by a specific package identifier, name, or moniker. AI agents can use this to answer requests like "What apps can I update with WinGet?"
+- **`upgrade-winget-package`** — Upgrades a specific installed package to its latest available version. Returns a clear error if the package is not already installed (pointing to `install-winget-package` instead). Marked destructive, so MCP clients will prompt for confirmation before proceeding. AI agents can use this to answer requests like "Update WinGetCreate" or, in combination with `get-upgradable-winget-packages`, "Update all my apps."
 
 ### Authenticated GitHub API requests in PowerShell module
 

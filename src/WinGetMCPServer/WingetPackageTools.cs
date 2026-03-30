@@ -162,12 +162,12 @@ namespace WinGetMCPServer
         }
 
         [McpServerTool(
-            Name = "get-upgradeable-winget-packages",
-            Title = "Get Upgradeable WinGet Packages",
+            Name = "get-upgradable-winget-packages",
+            Title = "Get Upgradable WinGet Packages",
             ReadOnly = true,
             OpenWorld = false)]
         [Description("Get installed packages that have available upgrades using WinGet")]
-        public CallToolResult GetUpgradeablePackages(
+        public CallToolResult GetUpgradablePackages(
             [Description("Optionally filter by a package identifier, name, or moniker")] string? query = null)
         {
             try
