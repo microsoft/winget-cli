@@ -34,7 +34,7 @@ namespace WinGetMCPServer
             Title = "Find WinGet Packages",
             ReadOnly = true,
             OpenWorld = false)]
-        [Description("Find installed and available packages using WinGet. When upgradeable is true, returns only installed packages that have available upgrades (query is optional). When upgradeable is false, a query is required to search for packages.")]
+        [Description("Find installed and available packages using WinGet. To list all installed packages that have available upgrades (equivalent to 'winget upgrade'), call with upgradeable=true and no query. To filter upgradeable packages by name, call with upgradeable=true and a query. To search for packages to install, call with upgradeable=false and a required query.")]
         public CallToolResult FindPackages(
             [Description("Find packages identified by this value. Required when upgradeable is false; optionally filters results when upgradeable is true.")] string? query = null,
             [Description("When true, only return installed packages that have available upgrades")] bool upgradeable = false)
