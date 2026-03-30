@@ -115,12 +115,13 @@ namespace WinGetMCPServer
             Destructive = true,
             Idempotent = false,
             OpenWorld = false)]
-        [Description("Install or update a package using WinGet")]
+        [Description("Install or upgrade a package using WinGet. When upgradeOnly is true, only upgrades an already-installed package and returns an error if it is not installed. When upgradeOnly is false (default), installs the package if not present or upgrades it if already installed.")]
         public async Task<CallToolResult> InstallPackage(
             [Description("The identifier of the WinGet package")] string identifier,
             IProgress<ProgressNotificationValue> progress,
             CancellationToken cancellationToken,
-            [Description("The source containing the package")] string? source = null)
+            [Description("The source containing the package")] string? source = null,
+            [Description("When true, only upgrade an already-installed package; returns an error if the package is not installed")] bool upgradeOnly = false)
         {
             try
             {
@@ -162,6 +163,12 @@ namespace WinGetMCPServer
                 }
 
                 CatalogPackage catalogPackage = findResult.Matches![0].CatalogPackage;
+
+                if (upgradeOnly && catalogPackage.InstalledVersion == null)
+                {
+                    return PackageResponse.ForNotInstalled(identifier, source);
+                }
+
                 InstallOptions options = new InstallOptions();
                 IAsyncOperationWithProgress<InstallResult, InstallProgress>? operation = null;
 
@@ -192,90 +199,9 @@ namespace WinGetMCPServer
                     findResult = ReFindForPackage(catalogPackage.DefaultInstallVersion);
                 }
 
-                return PackageResponse.ForInstallOperation(installResult, findResult);
-            }
-            catch (ToolResponseException e)
-            {
-                return e.Response;
-            }
-        }
-
-        [McpServerTool(
-            Name = "upgrade-winget-package",
-            Title = "Upgrade WinGet Package",
-            ReadOnly = false,
-            Destructive = true,
-            Idempotent = false,
-            OpenWorld = false)]
-        [Description("Upgrade an installed package to the latest available version using WinGet")]
-        public async Task<CallToolResult> UpgradePackage(
-            [Description("The identifier of the WinGet package to upgrade")] string identifier,
-            IProgress<ProgressNotificationValue> progress,
-            CancellationToken cancellationToken,
-            [Description("The source containing the package")] string? source = null)
-        {
-            try
-            {
-                ToolResponse.CheckGroupPolicy();
-
-                var packageCatalog = ConnectCatalog(source);
-
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    return PackageResponse.ForCancelBeforeSystemChange();
-                }
-
-                // First attempt a more exact match
-                var findResult = FindForIdentifier(packageCatalog, identifier, expandedFields: false);
-
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    return PackageResponse.ForCancelBeforeSystemChange();
-                }
-
-                // If nothing is found, expand to a looser search
-                if ((findResult.Matches?.Count ?? 0) == 0)
-                {
-                    findResult = FindForIdentifier(packageCatalog, identifier, expandedFields: true);
-                }
-
-                if (findResult.Status != FindPackagesResultStatus.Ok)
-                {
-                    return PackageResponse.ForFindError(findResult);
-                }
-
-                if (findResult.Matches?.Count == 0)
-                {
-                    return PackageResponse.ForEmptyFind(identifier, source);
-                }
-                else if (findResult.Matches?.Count > 1)
-                {
-                    return PackageResponse.ForMultiFind(identifier, source, findResult);
-                }
-
-                CatalogPackage catalogPackage = findResult.Matches![0].CatalogPackage;
-
-                if (catalogPackage.InstalledVersion == null)
-                {
-                    return PackageResponse.ForNotInstalled(identifier, source);
-                }
-
-                InstallOptions options = new InstallOptions();
-                var operation = packageManager.UpgradePackageAsync(catalogPackage, options);
-
-                operation.Progress = (asyncInfo, progressInfo) => progress.Report(CreateInstallProgressNotification(ref progressInfo));
-                using CancellationTokenRegistration registration = cancellationToken.Register(() => operation.Cancel());
-
-                var installResult = await operation;
-                findResult = null;
-
-                if (installResult.Status == InstallResultStatus.Ok)
-                {
-                    progress.Report(CreateInstallProgressNotification(PackageInstallProgressState.Finished, 1.0, 1.0));
-                    findResult = ReFindForPackage(catalogPackage.DefaultInstallVersion);
-                }
-
-                return PackageResponse.ForUpgradeOperation(installResult, findResult);
+                return upgradeOnly
+                    ? PackageResponse.ForUpgradeOperation(installResult, findResult)
+                    : PackageResponse.ForInstallOperation(installResult, findResult);
             }
             catch (ToolResponseException e)
             {
