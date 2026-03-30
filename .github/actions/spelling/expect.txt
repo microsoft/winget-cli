@@ -607,6 +607,7 @@ Unregisters
 unvirtualized
 UParse
 upgradable
+upgradeable
 upgradecode
 URLZONE
 USEDEFAULT
