@@ -203,7 +203,7 @@ TEST_CASE("PackageCollection_Write_OverrideAndCustomSwitches", "[PackageCollecti
 
     PackageCollection pc
     {
-        "1.0.0.0",
+        "1.0.0",
         std::vector<PackageCollection::Source>{ source }
     };
 
@@ -388,7 +388,7 @@ TEST_CASE("PackageCollection_WriteRead_OverrideAndCustomSwitches", "[PackageColl
 
     PackageCollection original
     {
-        "1.0.0.0",
+        "1.0.0",
         std::vector<PackageCollection::Source>{ source }
     };
 
