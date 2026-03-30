@@ -174,7 +174,10 @@ namespace WinGetMCPServer
             {
                 ToolResponse.CheckGroupPolicy();
 
-                var catalog = ConnectCatalog();
+                // Use LocalCatalogs behavior to only enumerate installed packages, consistent
+                // with `winget upgrade`. Remote catalogs are still included in the composite
+                // so IsUpdateAvailable remains accurate.
+                var catalog = ConnectCatalog(searchBehavior: CompositeSearchBehavior.LocalCatalogs);
 
                 FindPackagesResult findResult;
                 if (string.IsNullOrEmpty(query))
@@ -299,7 +302,7 @@ namespace WinGetMCPServer
             }
         }
 
-        private ConnectResult ConnectCatalogWithResult(string? catalog = null)
+        private ConnectResult ConnectCatalogWithResult(string? catalog = null, CompositeSearchBehavior searchBehavior = CompositeSearchBehavior.AllCatalogs)
         {
             CreateCompositePackageCatalogOptions createCompositePackageCatalogOptions = new CreateCompositePackageCatalogOptions();
 
@@ -313,15 +316,15 @@ namespace WinGetMCPServer
                     createCompositePackageCatalogOptions.Catalogs.Add(catalogRef);
                 }
             }
-            createCompositePackageCatalogOptions.CompositeSearchBehavior = CompositeSearchBehavior.AllCatalogs;
+            createCompositePackageCatalogOptions.CompositeSearchBehavior = searchBehavior;
 
             var compositeRef = packageManager.CreateCompositePackageCatalog(createCompositePackageCatalogOptions);
             return compositeRef.Connect();
         }
 
-        private PackageCatalog ConnectCatalog(string? catalog = null)
+        private PackageCatalog ConnectCatalog(string? catalog = null, CompositeSearchBehavior searchBehavior = CompositeSearchBehavior.AllCatalogs)
         {
-            var result = ConnectCatalogWithResult(catalog);
+            var result = ConnectCatalogWithResult(catalog, searchBehavior);
             if (result.Status != ConnectResultStatus.Ok)
             {
                 throw new ToolResponseException(PackageResponse.ForConnectError(result));
