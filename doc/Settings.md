@@ -248,6 +248,22 @@ The `defaultModuleRoot` behavior affects the default root directory where module
     },
 ```
 
+## Download Behavior
+
+The `downloadBehavior` settings affect the default behavior of downloading packages.
+
+### Default Download Directory
+
+The `defaultDownloadDirectory` setting affects the default directory where installers are downloaded to. Defaults to `%USERPROFILE%/Downloads/` if value is not set or is invalid.
+
+> Note: This setting value must be an absolute path.
+
+```json
+    "downloadBehavior": {
+        "defaultDownloadDirectory": "C:/Users/FooBar/Downloads"
+    },
+```
+
 ## Telemetry
 
 The `telemetry` settings control whether winget writes ETW events that may be sent to Microsoft on a default installation of Windows.

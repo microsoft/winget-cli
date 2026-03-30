@@ -113,6 +113,9 @@ These errors most commonly occur for one of following reasons. Please try out th
    1. Get the `PackageFullName` of your installed `App Installer` package (PowerShell): `Get-AppxPackage Microsoft.DesktopAppInstaller | Select Name, PackageFullName`.
    2. `Add-AppxPackage -register "C:\Program Files\WindowsApps\{PackageFullName}\appxmanifest.xml" -DisableDevelopmentMode` (where `{PackageFullName}` is the info from the previous point).
    3. Toggle the App Execution Alias for winget, again (see above).
+5. The App Installer package may be in a broken state. You can try resetting it using PowerShell:
+   * On **Windows 11**: `Get-AppxPackage Microsoft.DesktopAppInstaller | Reset-AppxPackage`
+   * On **Windows 10**: `$Manifest = (Get-AppxPackage Microsoft.DesktopAppInstaller).InstallLocation + '\appxmanifest.xml'; Add-AppxPackage -DisableDevelopmentMode -Register $Manifest`
 
 If the above guidelines do not resolve the problem, please open an issue with details of the Windows version and App Installer version you are using.
 

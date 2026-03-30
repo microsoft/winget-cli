@@ -43,6 +43,35 @@ The same Microsoft Store package will be made available via our [Releases](https
 
 Please read our [troubleshooting guide](/doc/troubleshooting/README.md).
 
+## PowerShell Module
+
+The [Microsoft.WinGet.Client](https://www.powershellgallery.com/packages/Microsoft.WinGet.Client/) PowerShell module provides native cmdlets for interacting with the Windows Package Manager. You can install it from the PowerShell Gallery:
+
+```powershell
+Install-Module -Name Microsoft.WinGet.Client
+```
+
+Example usage:
+
+```powershell
+# Search for a package
+Find-WinGetPackage -Query "Visual Studio Code"
+
+# Install a package
+Install-WinGetPackage -Id Microsoft.VisualStudioCode
+
+# List installed packages
+Get-WinGetPackage
+
+# Update a package
+Update-WinGetPackage -Id Microsoft.VisualStudioCode
+
+# Repair the WinGet package manager installation
+Repair-WinGetPackageManager
+```
+
+For more information, see the [Microsoft.WinGet.Client](https://www.powershellgallery.com/packages/Microsoft.WinGet.Client/) page on the PowerShell Gallery.
+
 ## Administrator Considerations
 
 Installer behavior can be different depending on whether you are running **WinGet** with administrator privileges.
