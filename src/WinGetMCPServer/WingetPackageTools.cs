@@ -34,23 +34,48 @@ namespace WinGetMCPServer
             Title = "Find WinGet Packages",
             ReadOnly = true,
             OpenWorld = false)]
-        [Description("Find installed and available packages using WinGet")]
+        [Description("Find installed and available packages using WinGet. When upgradeable is true, returns only installed packages that have available upgrades (query is optional). When upgradeable is false, a query is required to search for packages.")]
         public CallToolResult FindPackages(
-            [Description("Find packages identified by this value")] string query)
+            [Description("Find packages identified by this value. Required when upgradeable is false; optionally filters results when upgradeable is true.")] string? query = null,
+            [Description("When true, only return installed packages that have available upgrades")] bool upgradeable = false)
         {
             try
             {
                 ToolResponse.CheckGroupPolicy();
 
-                var catalog = ConnectCatalog();
-
-                // First attempt a more exact match
-                var findResult = FindForQuery(catalog, query, fullStringMatch: true);
-
-                // If nothing is found, expand to a looser search
-                if ((findResult.Matches?.Count ?? 0) == 0)
+                if (!upgradeable && string.IsNullOrEmpty(query))
                 {
-                    findResult = FindForQuery(catalog, query, fullStringMatch: false);
+                    return new CallToolResult()
+                    {
+                        IsError = true,
+                        Content = [new TextContentBlock() { Text = "A query is required when upgradeable is false" }],
+                    };
+                }
+
+                // Use LocalCatalogs when listing upgrades to enumerate only installed packages,
+                // consistent with `winget upgrade`. Remote catalogs are still included in the
+                // composite so IsUpdateAvailable remains accurate.
+                var catalog = ConnectCatalog(searchBehavior: upgradeable
+                    ? CompositeSearchBehavior.LocalCatalogs
+                    : CompositeSearchBehavior.AllCatalogs);
+
+                FindPackagesResult findResult;
+                if (string.IsNullOrEmpty(query))
+                {
+                    // This can only happen in the case that upgradeable is true, in which case this
+                    // won't accidentally list all packages from all catalogs
+                    findResult = FindAllPackages(catalog);
+                }
+                else
+                {
+                    // First attempt a more exact match
+                    findResult = FindForQuery(catalog, query, fullStringMatch: true);
+
+                    // If nothing is found, expand to a looser search
+                    if ((findResult.Matches?.Count ?? 0) == 0)
+                    {
+                        findResult = FindForQuery(catalog, query, fullStringMatch: false);
+                    }
                 }
 
                 if (findResult.Status != FindPackagesResultStatus.Ok)
@@ -59,7 +84,21 @@ namespace WinGetMCPServer
                 }
 
                 List<FindPackageResult> contents = new List<FindPackageResult>();
-                contents.AddPackages(findResult);
+                if (upgradeable)
+                {
+                    for (int i = 0; i < findResult.Matches?.Count; ++i)
+                    {
+                        var package = findResult.Matches[i].CatalogPackage;
+                        if (package.IsUpdateAvailable)
+                        {
+                            contents.Add(PackageListExtensions.FindPackageResultFromCatalogPackage(package));
+                        }
+                    }
+                }
+                else
+                {
+                    contents.AddPackages(findResult);
+                }
 
                 return ToolResponse.FromObject(contents);
             }
@@ -154,64 +193,6 @@ namespace WinGetMCPServer
                 }
 
                 return PackageResponse.ForInstallOperation(installResult, findResult);
-            }
-            catch (ToolResponseException e)
-            {
-                return e.Response;
-            }
-        }
-
-        [McpServerTool(
-            Name = "get-upgradable-winget-packages",
-            Title = "Get Upgradable WinGet Packages",
-            ReadOnly = true,
-            OpenWorld = false)]
-        [Description("Get installed packages that have available upgrades using WinGet")]
-        public CallToolResult GetUpgradablePackages(
-            [Description("Optionally filter by a package identifier, name, or moniker")] string? query = null)
-        {
-            try
-            {
-                ToolResponse.CheckGroupPolicy();
-
-                // Use LocalCatalogs behavior to only enumerate installed packages, consistent
-                // with `winget upgrade`. Remote catalogs are still included in the composite
-                // so IsUpdateAvailable remains accurate.
-                var catalog = ConnectCatalog(searchBehavior: CompositeSearchBehavior.LocalCatalogs);
-
-                FindPackagesResult findResult;
-                if (string.IsNullOrEmpty(query))
-                {
-                    findResult = FindAllPackages(catalog);
-                }
-                else
-                {
-                    // First attempt a more exact match
-                    findResult = FindForQuery(catalog, query, fullStringMatch: true);
-
-                    // If nothing is found, expand to a looser search
-                    if ((findResult.Matches?.Count ?? 0) == 0)
-                    {
-                        findResult = FindForQuery(catalog, query, fullStringMatch: false);
-                    }
-                }
-
-                if (findResult.Status != FindPackagesResultStatus.Ok)
-                {
-                    return PackageResponse.ForFindError(findResult);
-                }
-
-                List<FindPackageResult> contents = new List<FindPackageResult>();
-                for (int i = 0; i < findResult.Matches?.Count; ++i)
-                {
-                    var package = findResult.Matches[i].CatalogPackage;
-                    if (package.IsUpdateAvailable)
-                    {
-                        contents.Add(PackageListExtensions.FindPackageResultFromCatalogPackage(package));
-                    }
-                }
-
-                return ToolResponse.FromObject(contents);
             }
             catch (ToolResponseException e)
             {
