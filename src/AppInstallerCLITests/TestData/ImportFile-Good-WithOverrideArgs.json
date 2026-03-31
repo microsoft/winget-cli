@@ -6,7 +6,7 @@
       "Packages": [
         {
           "PackageIdentifier": "TestExeInstallerWithNothingInstalled",
-          "OverrideArguments": "/overrideArgs"
+          "InitialOverrideArguments": "/overrideArgs"
         }
       ],
       "SourceDetails": {

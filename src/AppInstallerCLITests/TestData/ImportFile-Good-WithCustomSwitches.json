@@ -6,7 +6,7 @@
       "Packages": [
         {
           "PackageIdentifier": "TestExeInstallerWithNothingInstalled",
-          "CustomSwitches": "/customSwitches"
+          "InitialCustomSwitches": "/customSwitches"
         }
       ],
       "SourceDetails": {
