@@ -32,6 +32,13 @@ match criteria that factor into the result ordering. This will prevent them from
 
 Added a new `--no-progress` command-line flag that disables all progress reporting (progress bars and spinners). This flag is universally available on all commands and takes precedence over the `visual.progressBar` setting. Useful for automation scenarios or when running WinGet in environments where progress output is undesirable.
 
+### MCP `upgrade` support
+
+The WinGet MCP server's existing tools have been extended with new parameters to support upgrade scenarios:
+
+- **`find-winget-packages`** now accepts an `upgradeable` parameter (default: `false`). When set to `true`, it lists only installed packages that have available upgrades — equivalent to `winget upgrade`. The `query` parameter becomes optional in this mode, allowing it to filter results or be omitted to list all upgradeable packages. AI agents can use this to answer requests like "What apps can I update with WinGet?"
+- **`install-winget-package`** now accepts an `upgradeOnly` parameter (default: `false`). When set to `true`, it only upgrades an already-installed package and returns a clear error if the package is not installed (pointing to `install-winget-package` without `upgradeOnly` instead). AI agents can use this to answer requests like "Update WinGetCreate" or, in combination with `find-winget-packages` with `upgradeable=true`, "Update all my apps."
+
 ### Authenticated GitHub API requests in PowerShell module
 
 The PowerShell module now automatically uses `GH_TOKEN` or `GITHUB_TOKEN` environment variables to authenticate GitHub API requests. This significantly increases the GitHub API rate limit, preventing failures in CI/CD pipelines. Use `-Verbose` to see which token is being used.
