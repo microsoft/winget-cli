@@ -129,6 +129,8 @@ namespace Microsoft.WinGet.SharedLib.PolicySettings
                     return new TogglePolicy(policy, "EnableWindowsPackageManagerConfiguration", GroupPolicyResource.PolicyEnableWinGetConfiguration);
                 case Policy.McpServer:
                     return new TogglePolicy(policy, "EnableWindowsPackageManagerMcpServer", GroupPolicyResource.PolicyEnableMcpServer);
+                case Policy.ConfigurationProcessorPath:
+                    return new TogglePolicy(policy, "EnableWindowsPackageManagerConfigurationProcessorPath", GroupPolicyResource.PolicyEnableConfigurationProcessorPath);
                 default:
                     throw new ArgumentException(null, nameof(policy));
             }

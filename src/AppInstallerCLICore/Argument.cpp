@@ -490,6 +490,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::ProxyArgumentDescription, ArgumentType::Standard, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
         case Args::Type::NoProxy:
             return Argument{ type, Resource::String::NoProxyArgumentDescription, ArgumentType::Flag, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
+        case Args::Type::ConfigurationProcessorPath:
+            return Argument{ type, Resource::String::ConfigurationProcessorPath, ArgumentType::Standard, Argument::Visibility::Help, TogglePolicy::Policy::ConfigurationProcessorPath, BoolAdminSetting::ConfigurationProcessorPath };
         case Args::Type::Family:
             return Argument{ type, Resource::String::FontFamilyNameArgumentDescription, ArgumentType::Positional, false };
         case Args::Type::Details:
