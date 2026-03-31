@@ -1154,10 +1154,10 @@ TEST_CASE("CompositeSource_TrackingPackageFound_UserInstallerArgsPopulatedFromTr
 
     auto manifestId = setup.Tracking->GetIndex().AddManifest(availablePackage);
 
-    // UserOverrideArguments and UserCustomSwitches are only stored in the tracking catalog,
+    // InitialOverrideArguments and InitialCustomSwitches are only stored in the tracking catalog,
     // so they must be merged from there into the composite installed version's metadata.
-    setup.Tracking->GetIndex().SetMetadataByManifestId(manifestId, Repository::PackageVersionMetadata::UserOverrideArguments, "/silent /norestart");
-    setup.Tracking->GetIndex().SetMetadataByManifestId(manifestId, Repository::PackageVersionMetadata::UserCustomSwitches, "--no-telemetry");
+    setup.Tracking->GetIndex().SetMetadataByManifestId(manifestId, Repository::PackageVersionMetadata::InitialOverrideArguments, "/silent /norestart");
+    setup.Tracking->GetIndex().SetMetadataByManifestId(manifestId, Repository::PackageVersionMetadata::InitialCustomSwitches, "--no-telemetry");
 
     SearchResult result = setup.Search();
 
@@ -1166,8 +1166,8 @@ TEST_CASE("CompositeSource_TrackingPackageFound_UserInstallerArgsPopulatedFromTr
     REQUIRE(GetInstalledVersion(result.Matches[0].Package));
 
     auto metadata = GetInstalledVersion(result.Matches[0].Package)->GetMetadata();
-    REQUIRE(metadata[Repository::PackageVersionMetadata::UserOverrideArguments] == "/silent /norestart");
-    REQUIRE(metadata[Repository::PackageVersionMetadata::UserCustomSwitches] == "--no-telemetry");
+    REQUIRE(metadata[Repository::PackageVersionMetadata::InitialOverrideArguments] == "/silent /norestart");
+    REQUIRE(metadata[Repository::PackageVersionMetadata::InitialCustomSwitches] == "--no-telemetry");
 }
 
 TEST_CASE("CompositeSource_TrackingFound_AvailableNot", "[CompositeSource]")

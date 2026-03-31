@@ -996,6 +996,8 @@ namespace AppInstaller::CLI::Workflow
             installedMetadata = context.Get<Data::InstalledPackageVersion>()->GetMetadata();
         }
 
+        bool isUpdate = WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerExecutionUseUpdate);
+
         if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
         {
             version.SetMetadata(Repository::PackageVersionMetadata::UserIntentArchitecture, context.Args.GetArg(Execution::Args::Type::InstallArchitecture));
@@ -1022,29 +1024,32 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        if (context.Args.Contains(Execution::Args::Type::Override))
+        // InitialOverrideArguments and InitialCustomSwitches capture the args from the original install.
+        // They are set only on fresh install and preserved (not updated) on upgrade.
+        if (!isUpdate)
         {
-            version.SetMetadata(Repository::PackageVersionMetadata::UserOverrideArguments, context.Args.GetArg(Execution::Args::Type::Override));
-        }
-        else
-        {
-            auto itr = installedMetadata.find(Repository::PackageVersionMetadata::UserOverrideArguments);
-            if (itr != installedMetadata.end())
+            if (context.Args.Contains(Execution::Args::Type::Override))
             {
-                version.SetMetadata(Repository::PackageVersionMetadata::UserOverrideArguments, itr->second);
+                version.SetMetadata(Repository::PackageVersionMetadata::InitialOverrideArguments, context.Args.GetArg(Execution::Args::Type::Override));
+            }
+
+            if (context.Args.Contains(Execution::Args::Type::CustomSwitches))
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::InitialCustomSwitches, context.Args.GetArg(Execution::Args::Type::CustomSwitches));
             }
         }
-
-        if (context.Args.Contains(Execution::Args::Type::CustomSwitches))
-        {
-            version.SetMetadata(Repository::PackageVersionMetadata::UserCustomSwitches, context.Args.GetArg(Execution::Args::Type::CustomSwitches));
-        }
         else
         {
-            auto itr = installedMetadata.find(Repository::PackageVersionMetadata::UserCustomSwitches);
-            if (itr != installedMetadata.end())
+            auto overrideItr = installedMetadata.find(Repository::PackageVersionMetadata::InitialOverrideArguments);
+            if (overrideItr != installedMetadata.end())
             {
-                version.SetMetadata(Repository::PackageVersionMetadata::UserCustomSwitches, itr->second);
+                version.SetMetadata(Repository::PackageVersionMetadata::InitialOverrideArguments, overrideItr->second);
+            }
+
+            auto customItr = installedMetadata.find(Repository::PackageVersionMetadata::InitialCustomSwitches);
+            if (customItr != installedMetadata.end())
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::InitialCustomSwitches, customItr->second);
             }
         }
     }

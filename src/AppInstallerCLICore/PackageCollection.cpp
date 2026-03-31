@@ -41,8 +41,8 @@ namespace AppInstaller::CLI
             const std::string PackagesJson_Package_Version = "Version";
             const std::string PackagesJson_Package_Channel = "Channel";
             const std::string PackagesJson_Package_Scope = "Scope";
-            const std::string PackagesJson_Package_OverrideArguments = "OverrideArguments";
-            const std::string PackagesJson_Package_CustomSwitches = "CustomSwitches";
+            const std::string PackagesJson_Package_InitialOverrideArguments = "InitialOverrideArguments";
+            const std::string PackagesJson_Package_InitialCustomSwitches = "InitialCustomSwitches";
 
             static const StaticStrings& Instance()
             {
@@ -156,14 +156,14 @@ namespace AppInstaller::CLI
                 PackageCollection::Package package{ Utility::LocIndString{ id }, Utility::Version{ version }, Utility::Channel{ channel } };
                 package.Scope = Manifest::ConvertToScopeEnum(scope);
 
-                if (packageNode.isMember(ss.PackagesJson_Package_OverrideArguments))
+                if (packageNode.isMember(ss.PackagesJson_Package_InitialOverrideArguments))
                 {
-                    package.OverrideArgs = packageNode[ss.PackagesJson_Package_OverrideArguments].asString();
+                    package.InitialOverrideArgs = packageNode[ss.PackagesJson_Package_InitialOverrideArguments].asString();
                 }
 
-                if (packageNode.isMember(ss.PackagesJson_Package_CustomSwitches))
+                if (packageNode.isMember(ss.PackagesJson_Package_InitialCustomSwitches))
                 {
-                    package.CustomSwitches = packageNode[ss.PackagesJson_Package_CustomSwitches].asString();
+                    package.InitialCustomSwitches = packageNode[ss.PackagesJson_Package_InitialCustomSwitches].asString();
                 }
 
                 return package;
@@ -214,14 +214,14 @@ namespace AppInstaller::CLI
                 packageNode[ss.PackagesJson_Package_Scope] = std::string{ Manifest::ScopeToString(package.Scope) };
             }
 
-            if (!package.OverrideArgs.empty())
+            if (!package.InitialOverrideArgs.empty())
             {
-                packageNode[ss.PackagesJson_Package_OverrideArguments] = package.OverrideArgs;
+                packageNode[ss.PackagesJson_Package_InitialOverrideArguments] = package.InitialOverrideArgs;
             }
 
-            if (!package.CustomSwitches.empty())
+            if (!package.InitialCustomSwitches.empty())
             {
-                packageNode[ss.PackagesJson_Package_CustomSwitches] = package.CustomSwitches;
+                packageNode[ss.PackagesJson_Package_InitialCustomSwitches] = package.InitialCustomSwitches;
             }
 
             return sourceNode[ss.PackagesJson_Packages].append(std::move(packageNode));

@@ -129,7 +129,7 @@ TEST_CASE("ExportFlow_ExportAll_WithUserInstallerArgs", "[ExportFlow][workflow]"
     TestContext context{ exportOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
 
-    // Create a test source with packages that have UserOverrideArguments and UserCustomSwitches set
+    // Create a test source with packages that have InitialOverrideArguments and InitialCustomSwitches set
     auto testSource = CreateTestSource({});
 
     TestSourceResult exeWithOverride(
@@ -145,8 +145,8 @@ TEST_CASE("ExportFlow_ExportAll_WithUserInstallerArgs", "[ExportFlow][workflow]"
                 TestCompositePackage::MetadataMap
                 {
                     { PackageVersionMetadata::InstalledType, "Exe" },
-                    { PackageVersionMetadata::UserOverrideArguments, "/silent /override" },
-                    { PackageVersionMetadata::UserCustomSwitches, "--custom-flag" },
+                    { PackageVersionMetadata::InitialOverrideArguments, "/silent /override" },
+                    { PackageVersionMetadata::InitialCustomSwitches, "--custom-flag" },
                 },
                 std::vector<Manifest>{ manifest3, manifest2, manifest },
                 source);
@@ -177,8 +177,8 @@ TEST_CASE("ExportFlow_ExportAll_WithUserInstallerArgs", "[ExportFlow][workflow]"
 
     const auto& pkg = exportedPackages[0];
     REQUIRE(pkg.Id == "AppInstallerCliTest.TestExeInstaller");
-    REQUIRE(pkg.OverrideArgs == "/silent /override");
-    REQUIRE(pkg.CustomSwitches == "--custom-flag");
+    REQUIRE(pkg.InitialOverrideArgs == "/silent /override");
+    REQUIRE(pkg.InitialCustomSwitches == "--custom-flag");
 
     // Verify the values are in the exported JSON file
     std::ifstream exportFile(exportResultPath.GetPath());
@@ -186,6 +186,6 @@ TEST_CASE("ExportFlow_ExportAll_WithUserInstallerArgs", "[ExportFlow][workflow]"
     exportFile >> exportedJson;
 
     const auto& jsonPackage = exportedJson["Sources"][0]["Packages"][0];
-    REQUIRE(jsonPackage["OverrideArguments"].asString() == "/silent /override");
-    REQUIRE(jsonPackage["CustomSwitches"].asString() == "--custom-flag");
+    REQUIRE(jsonPackage["InitialOverrideArguments"].asString() == "/silent /override");
+    REQUIRE(jsonPackage["InitialCustomSwitches"].asString() == "--custom-flag");
 }

@@ -30,8 +30,8 @@ const std::string s_PackagesJson_Packages = "Packages";
 const std::string s_PackagesJson_Package_PackageIdentifier = "PackageIdentifier";
 const std::string s_PackagesJson_Package_Version = "Version";
 const std::string s_PackagesJson_Package_Channel = "Channel";
-const std::string s_PackagesJson_Package_OverrideArguments = "OverrideArguments";
-const std::string s_PackagesJson_Package_CustomSwitches = "CustomSwitches";
+const std::string s_PackagesJson_Package_InitialOverrideArguments = "InitialOverrideArguments";
+const std::string s_PackagesJson_Package_InitialCustomSwitches = "InitialCustomSwitches";
 
 namespace
 {
@@ -98,8 +98,8 @@ namespace
                 ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_PackageIdentifier, packageItr->Id);
                 ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_Version, packageItr->VersionAndChannel.GetVersion().ToString(), true);
                 ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_Channel, packageItr->VersionAndChannel.GetChannel().ToString(), true);
-                ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_OverrideArguments, packageItr->OverrideArgs, true);
-                ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_CustomSwitches, packageItr->CustomSwitches, true);
+                ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_InitialOverrideArguments, packageItr->InitialOverrideArgs, true);
+                ValidateJsonStringProperty(*jsonPackageItr, s_PackagesJson_Package_InitialCustomSwitches, packageItr->InitialCustomSwitches, true);
             }
         }
     }
@@ -125,8 +125,8 @@ namespace
             {
                 REQUIRE(firstPackageItr->Id == secondPackageItr->Id);
                 REQUIRE(firstPackageItr->VersionAndChannel.ToString() == secondPackageItr->VersionAndChannel.ToString());
-                REQUIRE(firstPackageItr->OverrideArgs == secondPackageItr->OverrideArgs);
-                REQUIRE(firstPackageItr->CustomSwitches == secondPackageItr->CustomSwitches);
+                REQUIRE(firstPackageItr->InitialOverrideArgs == secondPackageItr->InitialOverrideArgs);
+                REQUIRE(firstPackageItr->InitialCustomSwitches == secondPackageItr->InitialCustomSwitches);
             }
         }
     }
@@ -186,16 +186,16 @@ TEST_CASE("PackageCollection_Write_OverrideAndCustomSwitches", "[PackageCollecti
     source.Details.Identifier = "TestSourceId";
 
     PackageCollection::Package packageWithOverride{ LocIndString{ "test.withOverride"sv }, Version{ "1.0" }, Channel{ "" } };
-    packageWithOverride.OverrideArgs = "/silent /norestart";
+    packageWithOverride.InitialOverrideArgs = "/silent /norestart";
     source.Packages.emplace_back(std::move(packageWithOverride));
 
     PackageCollection::Package packageWithCustom{ LocIndString{ "test.withCustom"sv }, Version{ "2.0" }, Channel{ "" } };
-    packageWithCustom.CustomSwitches = "--no-telemetry";
+    packageWithCustom.InitialCustomSwitches = "--no-telemetry";
     source.Packages.emplace_back(std::move(packageWithCustom));
 
     PackageCollection::Package packageWithBoth{ LocIndString{ "test.withBoth"sv }, Version{ "3.0" }, Channel{ "" } };
-    packageWithBoth.OverrideArgs = "/override";
-    packageWithBoth.CustomSwitches = "--extra";
+    packageWithBoth.InitialOverrideArgs = "/override";
+    packageWithBoth.InitialCustomSwitches = "--extra";
     source.Packages.emplace_back(std::move(packageWithBoth));
 
     PackageCollection::Package packageWithNeither{ LocIndString{ "test.withNeither"sv }, Version{ "4.0" }, Channel{ "" } };
@@ -323,16 +323,16 @@ TEST_CASE("PackageCollection_Read_OverrideAndCustomSwitches_2_0", "[PackageColle
           "Packages": [
             {
               "PackageIdentifier": "test.withOverride",
-              "OverrideArguments": "/silent /norestart"
+              "InitialOverrideArguments": "/silent /norestart"
             },
             {
               "PackageIdentifier": "test.withCustom",
-              "CustomSwitches": "--no-telemetry"
+              "InitialCustomSwitches": "--no-telemetry"
             },
             {
               "PackageIdentifier": "test.withBoth",
-              "OverrideArguments": "/override",
-              "CustomSwitches": "--extra"
+              "InitialOverrideArguments": "/override",
+              "InitialCustomSwitches": "--extra"
             },
             {
               "PackageIdentifier": "test.withNeither"
@@ -357,9 +357,20 @@ TEST_CASE("PackageCollection_Read_OverrideAndCustomSwitches_2_0", "[PackageColle
     REQUIRE(packages.size() == 4);
 
     REQUIRE(packages[0].Id == "test.withOverride");
+    REQUIRE(packages[0].InitialOverrideArgs == "/silent /norestart");
+    REQUIRE(packages[0].InitialCustomSwitches.empty());
+
     REQUIRE(packages[1].Id == "test.withCustom");
+    REQUIRE(packages[1].InitialOverrideArgs.empty());
+    REQUIRE(packages[1].InitialCustomSwitches == "--no-telemetry");
+
     REQUIRE(packages[2].Id == "test.withBoth");
+    REQUIRE(packages[2].InitialOverrideArgs == "/override");
+    REQUIRE(packages[2].InitialCustomSwitches == "--extra");
+
     REQUIRE(packages[3].Id == "test.withNeither");
+    REQUIRE(packages[3].InitialOverrideArgs.empty());
+    REQUIRE(packages[3].InitialCustomSwitches.empty());
 }
 
 TEST_CASE("PackageCollection_WriteRead_OverrideAndCustomSwitches", "[PackageCollection]")
@@ -371,16 +382,16 @@ TEST_CASE("PackageCollection_WriteRead_OverrideAndCustomSwitches", "[PackageColl
     source.Details.Identifier = "TestSourceId";
 
     PackageCollection::Package packageWithOverride{ LocIndString{ "test.withOverride"sv }, Version{ "1.0" }, Channel{ "" } };
-    packageWithOverride.OverrideArgs = "/silent /norestart";
+    packageWithOverride.InitialOverrideArgs = "/silent /norestart";
     source.Packages.emplace_back(std::move(packageWithOverride));
 
     PackageCollection::Package packageWithCustom{ LocIndString{ "test.withCustom"sv }, Version{ "2.0" }, Channel{ "" } };
-    packageWithCustom.CustomSwitches = "--no-telemetry";
+    packageWithCustom.InitialCustomSwitches = "--no-telemetry";
     source.Packages.emplace_back(std::move(packageWithCustom));
 
     PackageCollection::Package packageWithBoth{ LocIndString{ "test.withBoth"sv }, Version{ "3.0" }, Channel{ "" } };
-    packageWithBoth.OverrideArgs = "/override";
-    packageWithBoth.CustomSwitches = "--extra";
+    packageWithBoth.InitialOverrideArgs = "/override";
+    packageWithBoth.InitialCustomSwitches = "--extra";
     source.Packages.emplace_back(std::move(packageWithBoth));
 
     PackageCollection::Package packageWithNeither{ LocIndString{ "test.withNeither"sv }, Version{ "4.0" }, Channel{ "" } };

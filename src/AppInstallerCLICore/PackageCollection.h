@@ -30,8 +30,8 @@ namespace AppInstaller::CLI
             Utility::VersionAndChannel VersionAndChannel;
             Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
             std::filesystem::path InstalledLocation;
-            std::string OverrideArgs;
-            std::string CustomSwitches;
+            std::string InitialOverrideArgs;
+            std::string InitialCustomSwitches;
         };
 
         // A source along with a set of packages available from it.

@@ -98,13 +98,13 @@
                   "default": "user"
                 },
 
-                "OverrideArguments": {
-                  "description": "Override arguments to pass directly to the installer, replacing all other installer arguments",
+                "InitialOverrideArguments": {
+                  "description": "Override arguments used when the package was initially installed; preserved on upgrade",
                   "type": "string"
                 },
 
-                "CustomSwitches": {
-                  "description": "Additional arguments to append to the installer arguments",
+                "InitialCustomSwitches": {
+                  "description": "Additional custom switches used when the package was initially installed; preserved on upgrade",
                   "type": "string"
                 }
               }
