@@ -38,6 +38,7 @@ The PowerShell module now automatically uses `GH_TOKEN` or `GITHUB_TOKEN` enviro
 
 ## Bug Fixes
 
+* Fixed the `useLatest` property in the DSC v3 `Microsoft.WinGet/Package` resource schema to emit a boolean default (`false`) instead of the incorrect string `"false"`.
 * `SignFile` in `WinGetSourceCreator` now supports an optional RFC 3161 timestamp server via the new `TimestampServer` property on the `Signature` model. When set, `signtool.exe` is called with `/tr <url> /td sha256`, embedding a countersignature timestamp so that signed packages remain valid after the signing certificate expires.
 * File and directory paths passed to `signtool.exe` and `makeappx.exe` are now quoted, fixing failures when paths contain spaces.
 * DSC export now correctly exports WinGet Admin Settings
