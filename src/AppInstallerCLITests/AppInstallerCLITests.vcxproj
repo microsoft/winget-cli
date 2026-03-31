@@ -441,6 +441,12 @@
     <CopyFileToFolders Include="TestData\ImportFile-Good-WithLicenseAgreement.json">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Good-WithOverrideArgs.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Good-WithCustomSwitches.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
     <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_NoSwitches.yaml">

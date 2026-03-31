@@ -28,6 +28,10 @@ match criteria that factor into the result ordering. This will prevent them from
 
 ## Minor Features
 
+### Preserve installer arguments across export and import
+
+`winget export` now captures the `--override` and `--custom` arguments that were used when a package was originally installed and saves them into the export file. When subsequently running `winget import`, those values are automatically re-applied during installation — `--override` replaces all installer arguments and `--custom` appends extra switches — so packages can be reinstalled with the same customizations without any manual intervention. Both fields are optional and independent of each other; packages without stored installer arguments are unaffected.
+
 ### --no-progress flag
 
 Added a new `--no-progress` command-line flag that disables all progress reporting (progress bars and spinners). This flag is universally available on all commands and takes precedence over the `visual.progressBar` setting. Useful for automation scenarios or when running WinGet in environments where progress output is undesirable.

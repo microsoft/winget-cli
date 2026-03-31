@@ -140,7 +140,27 @@ namespace AppInstaller::CLI::Workflow
             // but take the exported version from the installed package if needed.
             PackageCollection::Package exportPackage;
             exportPackage.Id = availablePackageVersion->GetProperty(PackageVersionProperty::Id);
-            exportPackage.InstalledLocation = Utility::ConvertToUTF16(installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledLocation]);
+
+            const auto& installedMetadata = installedPackageVersion->GetMetadata();
+
+            auto locationItr = installedMetadata.find(PackageVersionMetadata::InstalledLocation);
+            if (locationItr != installedMetadata.end())
+            {
+                exportPackage.InstalledLocation = Utility::ConvertToUTF16(locationItr->second);
+            }
+
+            auto overrideItr = installedMetadata.find(PackageVersionMetadata::InitialOverrideArguments);
+            if (overrideItr != installedMetadata.end())
+            {
+                exportPackage.InitialOverrideArgs = overrideItr->second;
+            }
+
+            auto customItr = installedMetadata.find(PackageVersionMetadata::InitialCustomSwitches);
+            if (customItr != installedMetadata.end())
+            {
+                exportPackage.InitialCustomSwitches = customItr->second;
+            }
+
             if (includeVersions)
             {
                 exportPackage.VersionAndChannel = { version.get(), channel.get() };
@@ -296,6 +316,16 @@ namespace AppInstaller::CLI::Workflow
                 if (!channelString.empty())
                 {
                     searchContext.Args.AddArg(Execution::Args::Type::Channel, channelString);
+                }
+
+                if (!packageRequest.InitialOverrideArgs.empty())
+                {
+                    searchContext.Args.AddArg(Execution::Args::Type::Override, packageRequest.InitialOverrideArgs);
+                }
+
+                if (!packageRequest.InitialCustomSwitches.empty())
+                {
+                    searchContext.Args.AddArg(Execution::Args::Type::CustomSwitches, packageRequest.InitialCustomSwitches);
                 }
 
                 packageSubContexts.emplace_back(std::move(searchContextPtr));
