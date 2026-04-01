@@ -24,6 +24,10 @@ namespace Microsoft.Management.Configuration.Processor
         private const string FoundDscExecutablePathPropertyName = "FoundDscExecutablePath";
         private const string DiagnosticTraceEnabledPropertyName = "DiagnosticTraceEnabled";
         private const string FindDscStateMachinePropertyName = "FindDscStateMachine";
+        private const string DscExecutablePathHashPropertyName = "DscExecutablePathHash";
+        private const string DscExecutablePathIsAliasPropertyName = "DscExecutablePathIsAlias";
+        private const string FoundDscExecutablePathHashPropertyName = "FoundDscExecutablePathHash";
+        private const string FoundDscExecutablePathIsAliasPropertyName = "FoundDscExecutablePathIsAlias";
 
         private ProcessorSettings processorSettings = new ();
 
@@ -53,6 +57,49 @@ namespace Microsoft.Management.Configuration.Processor
                 }
 
                 this.processorSettings.DscExecutablePath = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the expected SHA256 hash of <see cref="DscExecutablePath"/> (hex string).
+        /// Required when a custom processor path is provided.
+        /// </summary>
+        public string? DscExecutablePathHash
+        {
+            get
+            {
+                return this.processorSettings.DscExecutablePathHash;
+            }
+
+            set
+            {
+                if (this.IsLimitMode())
+                {
+                    throw new InvalidOperationException("Setting DscExecutablePathHash in limit mode is invalid.");
+                }
+
+                this.processorSettings.DscExecutablePathHash = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether <see cref="DscExecutablePath"/> is an app execution alias.
+        /// </summary>
+        public bool? DscExecutablePathIsAlias
+        {
+            get
+            {
+                return this.processorSettings.DscExecutablePathIsAlias;
+            }
+
+            set
+            {
+                if (this.IsLimitMode())
+                {
+                    throw new InvalidOperationException("Setting DscExecutablePathIsAlias in limit mode is invalid.");
+                }
+
+                this.processorSettings.DscExecutablePathIsAlias = value;
             }
         }
 
@@ -115,6 +162,14 @@ namespace Microsoft.Management.Configuration.Processor
             {
                 case DscExecutablePathPropertyName:
                     return this.DscExecutablePath != null;
+                case DscExecutablePathHashPropertyName:
+                    return this.DscExecutablePathHash != null;
+                case DscExecutablePathIsAliasPropertyName:
+                    return this.DscExecutablePathIsAlias != null;
+                case FoundDscExecutablePathHashPropertyName:
+                    return this.processorSettings.GetFoundDscExecutablePathHash() != null;
+                case FoundDscExecutablePathIsAliasPropertyName:
+                    return this.processorSettings.GetFoundDscExecutablePathIsAlias() != null;
             }
 
             return false;
@@ -163,6 +218,40 @@ namespace Microsoft.Management.Configuration.Processor
                 case FindDscStateMachinePropertyName:
                     value = this.processorSettings.PumpFindDscStateMachine().ToString();
                     return true;
+                case DscExecutablePathHashPropertyName:
+                    if (this.DscExecutablePathHash != null)
+                    {
+                        value = this.DscExecutablePathHash;
+                        return true;
+                    }
+
+                    return false;
+                case DscExecutablePathIsAliasPropertyName:
+                    if (this.DscExecutablePathIsAlias != null)
+                    {
+                        value = this.DscExecutablePathIsAlias.Value.ToString();
+                        return true;
+                    }
+
+                    return false;
+                case FoundDscExecutablePathHashPropertyName:
+                    string? foundHash = this.processorSettings.GetFoundDscExecutablePathHash();
+                    if (foundHash != null)
+                    {
+                        value = foundHash;
+                        return true;
+                    }
+
+                    return false;
+                case FoundDscExecutablePathIsAliasPropertyName:
+                    bool? foundIsAlias = this.processorSettings.GetFoundDscExecutablePathIsAlias();
+                    if (foundIsAlias != null)
+                    {
+                        value = foundIsAlias.Value.ToString();
+                        return true;
+                    }
+
+                    return false;
             }
 
             return false;
@@ -201,6 +290,12 @@ namespace Microsoft.Management.Configuration.Processor
                     break;
                 case DiagnosticTraceEnabledPropertyName:
                     this.processorSettings.DiagnosticTraceEnabled = bool.Parse(value);
+                    break;
+                case DscExecutablePathHashPropertyName:
+                    this.DscExecutablePathHash = value;
+                    break;
+                case DscExecutablePathIsAliasPropertyName:
+                    this.DscExecutablePathIsAlias = bool.Parse(value);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid property name: {name}");

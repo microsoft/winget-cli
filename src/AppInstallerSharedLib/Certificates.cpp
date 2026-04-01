@@ -7,6 +7,8 @@
 #include "AppInstallerStrings.h"
 #include "winget/JsonUtil.h"
 #include "winget/Resources.h"
+#include <SoftPub.h>
+#include <WinTrust.h>
 
 namespace AppInstaller::Certificates
 {
@@ -735,5 +737,59 @@ namespace AppInstaller::Certificates
         }
 
         return result;
+    }
+
+    std::string GetAuthenticodeSubject(const std::filesystem::path& filePath)
+    {
+        const std::wstring& pathStr = filePath.wstring();
+
+        WINTRUST_FILE_INFO fileInfo = {};
+        fileInfo.cbStruct = sizeof(fileInfo);
+        fileInfo.pcwszFilePath = pathStr.c_str();
+
+        WINTRUST_DATA trustData = {};
+        trustData.cbStruct = sizeof(trustData);
+        trustData.dwUIChoice = WTD_UI_NONE;
+        trustData.fdwRevocationChecks = WTD_REVOKE_NONE;
+        trustData.dwUnionChoice = WTD_CHOICE_FILE;
+        trustData.dwStateAction = WTD_STATEACTION_VERIFY;
+        trustData.dwProvFlags = WTD_CACHE_ONLY_URL_RETRIEVAL;
+        trustData.pFile = &fileInfo;
+
+        GUID actionId = WINTRUST_ACTION_GENERIC_VERIFY_V2;
+        LONG trustResult = WinVerifyTrust(reinterpret_cast<HWND>(INVALID_HANDLE_VALUE), &actionId, &trustData);
+
+        auto cleanup = wil::scope_exit([&]()
+        {
+            trustData.dwStateAction = WTD_STATEACTION_CLOSE;
+            WinVerifyTrust(reinterpret_cast<HWND>(INVALID_HANDLE_VALUE), &actionId, &trustData);
+        });
+
+        if (trustResult != 0)
+        {
+            return {};
+        }
+
+        // WTHelperProvDataFromStateData works for both embedded Authenticode and catalog
+        // signatures, making it suitable for MSIX-packaged executables (catalog-signed).
+        CRYPT_PROVIDER_DATA* provData = WTHelperProvDataFromStateData(trustData.hWVTStateData);
+        if (!provData)
+        {
+            return {};
+        }
+
+        CRYPT_PROVIDER_SGNR* signer = WTHelperGetProvSignerFromChain(provData, 0, FALSE, 0);
+        if (!signer || signer->csCertChain == 0 || !signer->pasCertChain)
+        {
+            return {};
+        }
+
+        PCCERT_CONTEXT certContext = signer->pasCertChain[0].pCert;
+        if (!certContext)
+        {
+            return {};
+        }
+
+        return GetNameString(certContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, false);
     }
 }

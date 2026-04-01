@@ -178,6 +178,12 @@ namespace ConfigurationRemotingServer
 
             [JsonPropertyName("processorPath")]
             public string? ProcessorPath { get; set; } = null;
+
+            [JsonPropertyName("processorPathHash")]
+            public string? ProcessorPathHash { get; set; } = null;
+
+            [JsonPropertyName("processorPathIsAlias")]
+            public bool? ProcessorPathIsAlias { get; set; } = null;
         }
 
         private static IConfigurationSetProcessorFactory CreateFactory(string processorEngine, ConfigurationSet? limitationSet, LimitationSetMetadata? limitationSetMetadata)
@@ -242,6 +248,14 @@ namespace ConfigurationRemotingServer
             {
                 if (limitationSetMetadata.ProcessorPath != null)
                 {
+                    if (limitationSetMetadata.ProcessorPathHash == null)
+                    {
+                        throw new InvalidOperationException("A custom processor path was provided without a hash for integrity verification.");
+                    }
+
+                    // Set hash and alias before path so they are available when the path is verified on first use.
+                    factory.DscExecutablePathHash = limitationSetMetadata.ProcessorPathHash;
+                    factory.DscExecutablePathIsAlias = limitationSetMetadata.ProcessorPathIsAlias ?? false;
                     factory.DscExecutablePath = limitationSetMetadata.ProcessorPath;
                 }
                 else
