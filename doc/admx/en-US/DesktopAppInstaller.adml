@@ -133,7 +133,7 @@ If you disable this setting, users will not be able to use the Windows Package M
         If you enable or do not configure this setting, users will be able to use the Windows Package Manager's MCP server.
 
         If you disable this setting, users will not be able to to use the Windows Package Manager's MCP server.</string>
-      <string id="EnableWindowsPackageManagerConfigurationProcessorPath">Enable Windows Package Manager Configuration processor path</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPath">Enable Windows Package Manager Configuration Processor Path</string>
       <string id="EnableWindowsPackageManagerConfigurationProcessorPathExplanation">
         This policy controls whether users can specify a custom DSC processor path via the --processor-path argument in Windows Package Manager configuration commands.
 
