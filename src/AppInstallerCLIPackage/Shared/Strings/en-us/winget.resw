@@ -3269,11 +3269,11 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} {0} is the file system path to the custom DSC processor executable.</comment>
   </data>
   <data name="ConfigurationProcessorPathAuditSignature" xml:space="preserve">
-    <value>  Signature: {0}</value>
+    <value>  Signed By: {0}</value>
     <comment>{Locked="{0}"} {0} is the Authenticode signing subject name of the executable.</comment>
   </data>
   <data name="ConfigurationProcessorPathAuditUnsigned" xml:space="preserve">
-    <value>  Signature: (unsigned)</value>
+    <value>  Signed By: (unsigned)</value>
     <comment>Indicates the custom processor executable does not have an Authenticode signature.</comment>
   </data>
   <data name="ConfigurationProcessorPathHashVerificationFailed" xml:space="preserve">
@@ -3606,5 +3606,8 @@ An unlocalized JSON fragment will follow on another line.</comment>
   <data name="MultiplePackagesFoundFilteredBySourcePriority" xml:space="preserve">
     <value>Results have been filtered to the highest matched source priority.</value>
     <comment>A warning message to indicate to the user that the results of a search have been filtered by choosing only those matching the highest source priority amongst the results.</comment>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
+    <value>The DSC processor hash provided does not match hash of the target file.</value>
   </data>
 </root>

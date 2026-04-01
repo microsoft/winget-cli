@@ -7,13 +7,64 @@
 #include "AppInstallerStrings.h"
 #include "winget/JsonUtil.h"
 #include "winget/Resources.h"
-#include <SoftPub.h>
-#include <WinTrust.h>
 
 namespace AppInstaller::Certificates
 {
     namespace
     {
+        // WTHelperProvDataFromStateData and WTHelperGetProvSignerFromChain are not in the wintrust import lib;
+        // resolve them at runtime via GetProcAddress.
+        using WTHelperProvDataFromStateDataPtr = decltype(&WTHelperProvDataFromStateData);
+        using WTHelperGetProvSignerFromChainPtr = decltype(&WTHelperGetProvSignerFromChain);
+
+        struct WinTrustHelpers
+        {
+            WinTrustHelpers()
+            {
+                m_module.reset(LoadLibraryExW(L"wintrust.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32));
+                if (!m_module)
+                {
+                    AICLI_LOG(Core, Warning, << "Could not load wintrust.dll");
+                    return;
+                }
+
+                m_provDataFromStateData = reinterpret_cast<WTHelperProvDataFromStateDataPtr>(
+                    GetProcAddress(m_module.get(), "WTHelperProvDataFromStateData"));
+                if (!m_provDataFromStateData)
+                {
+                    AICLI_LOG(Core, Warning, << "Could not get proc address of WTHelperProvDataFromStateData");
+                }
+
+                m_provSignerFromChain = reinterpret_cast<WTHelperGetProvSignerFromChainPtr>(
+                    GetProcAddress(m_module.get(), "WTHelperGetProvSignerFromChain"));
+                if (!m_provSignerFromChain)
+                {
+                    AICLI_LOG(Core, Warning, << "Could not get proc address of WTHelperGetProvSignerFromChain");
+                }
+            }
+
+            CRYPT_PROVIDER_DATA* ProvDataFromStateData(HANDLE stateData) const
+            {
+                return m_provDataFromStateData ? m_provDataFromStateData(stateData) : nullptr;
+            }
+
+            CRYPT_PROVIDER_SGNR* ProvSignerFromChain(CRYPT_PROVIDER_DATA* provData, DWORD signerIdx, BOOL counterSigner, DWORD counterSignerIdx) const
+            {
+                return m_provSignerFromChain ? m_provSignerFromChain(provData, signerIdx, counterSigner, counterSignerIdx) : nullptr;
+            }
+
+        private:
+            wil::unique_hmodule m_module;
+            WTHelperProvDataFromStateDataPtr m_provDataFromStateData = nullptr;
+            WTHelperGetProvSignerFromChainPtr m_provSignerFromChain = nullptr;
+        };
+
+        const WinTrustHelpers& GetWinTrustHelpers()
+        {
+            static WinTrustHelpers s_helpers;
+            return s_helpers;
+        }
+
         std::string GetNameString(PCCERT_CONTEXT certContext, DWORD nameType, bool forIssuer, void* typeParam = nullptr)
         {
             if (!certContext)
@@ -770,15 +821,13 @@ namespace AppInstaller::Certificates
             return {};
         }
 
-        // WTHelperProvDataFromStateData works for both embedded Authenticode and catalog
-        // signatures, making it suitable for MSIX-packaged executables (catalog-signed).
-        CRYPT_PROVIDER_DATA* provData = WTHelperProvDataFromStateData(trustData.hWVTStateData);
+        CRYPT_PROVIDER_DATA* provData = GetWinTrustHelpers().ProvDataFromStateData(trustData.hWVTStateData);
         if (!provData)
         {
             return {};
         }
 
-        CRYPT_PROVIDER_SGNR* signer = WTHelperGetProvSignerFromChain(provData, 0, FALSE, 0);
+        CRYPT_PROVIDER_SGNR* signer = GetWinTrustHelpers().ProvSignerFromChain(provData, 0, FALSE, 0);
         if (!signer || signer->csCertChain == 0 || !signer->pasCertChain)
         {
             return {};

@@ -21,7 +21,6 @@
 #include <winget/PathTree.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <winget/Certificates.h>
-#include <winioctl.h>
 
 using namespace AppInstaller::CLI::Execution;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -315,6 +314,8 @@ namespace AppInstaller::CLI::Workflow
 
                 if (context.Args.Contains(Args::Type::ConfigurationProcessorPath))
                 {
+                    progressScope.reset();
+
                     const auto& processorPathArg = context.Args.GetArg(Args::Type::ConfigurationProcessorPath);
                     std::filesystem::path processorPath{ Utility::ConvertToUTF16(processorPathArg) };
 
@@ -343,6 +344,9 @@ namespace AppInstaller::CLI::Workflow
                     factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePath), processorPath.wstring());
                     factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePathHash), Utility::ConvertToUTF16(pathInfo.HashString));
                     factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePathIsAlias), pathInfo.IsAlias ? L"true" : L"false");
+
+                    progressScope = context.Reporter.BeginAsyncProgress(true);
+                    progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
                 }
                 else
                 {

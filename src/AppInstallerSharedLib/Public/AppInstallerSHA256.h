@@ -7,7 +7,6 @@
 #include <vector>
 #include <stdexcept>
 #include <string_view>
-#include <windows.h>
 
 namespace AppInstaller::Utility {
 

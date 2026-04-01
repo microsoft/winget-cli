@@ -6,10 +6,11 @@
 
 namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 {
+    using Microsoft.Management.Configuration.Processor.Exceptions;
+    using Microsoft.Win32.SafeHandles;
     using System;
     using System.Runtime.InteropServices;
     using System.Security.Cryptography;
-    using Microsoft.Win32.SafeHandles;
 
     /// <summary>
     /// Provides integrity verification for the DSC processor executable path.
@@ -87,8 +88,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             if (!string.Equals(computedHash, expectedHash, StringComparison.OrdinalIgnoreCase))
             {
                 handle.Dispose();
-                throw new InvalidOperationException(
-                    $"Processor path integrity check failed. Expected hash: {expectedHash}, computed hash: {computedHash}");
+                throw new DscProcessorHashMismatchException();
             }
 
             return handle;

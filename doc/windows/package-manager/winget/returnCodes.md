@@ -233,3 +233,4 @@ ms.localizationpriority: medium
 | 0x8A15C110 | -1978285814 | WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT | A unit contains a setting that requires the config root. |
 | 0x8A15C111 | -1978285813 | WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN | Loading the module for the configuration unit failed because it requires administrator privileges to run. |
 | 0x8A15C112 | -1978285812 | WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR | Operation is not supported by the configuration processor. |
+| 0x8A15C113 | -1978285811 | WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH | The DSC processor hash provided does not match hash of the target file. |

@@ -75,5 +75,10 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// The property type of a unit is not supported.
         /// </summary>
         internal const int WinGetConfigUnitUnsupportedType = unchecked((int)0x8A15C112);
+
+        /// <summary>
+        /// The DSC processor hash provided does not match hash of the target file.
+        /// </summary>
+        internal const int WinGetConfigProcessorHashMismatch = unchecked((int)0x8A15C113);
     }
 }

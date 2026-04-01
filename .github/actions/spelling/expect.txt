@@ -25,6 +25,7 @@ apfn
 apicontract
 apiset
 appdata
+APPEXECLINK
 appinstallertest
 applic
 appname
@@ -190,6 +191,7 @@ FONTHASH
 FORPARSING
 foundfr
 fsanitize
+Fsctl
 FULLMUTEX
 FULLWIDTH
 fundraiser
@@ -521,6 +523,7 @@ SETTINGCHANGE
 SETTINGMAPPING
 sfs
 sfsclient
+SGNR
 SHCONTF
 shellapi
 SHGDN
@@ -663,6 +666,7 @@ wsb
 wsl
 wsv
 wto
+WVT
 wwinmain
 WZDNCRFJ
 xcopy
