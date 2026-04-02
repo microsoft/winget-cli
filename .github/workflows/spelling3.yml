@@ -65,7 +65,7 @@ on:
       - "**"
     tags-ignore:
       - "**"
-  pull_request_target:
+  pull_request:
     branches:
       - "**"
     types:
