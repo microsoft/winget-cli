@@ -47,6 +47,14 @@ The WinGet MCP server's existing tools have been extended with new parameters to
 
 The PowerShell module now automatically uses `GH_TOKEN` or `GITHUB_TOKEN` environment variables to authenticate GitHub API requests. This significantly increases the GitHub API rate limit, preventing failures in CI/CD pipelines. Use `-Verbose` to see which token is being used.
 
+### Default priority of installer types
+
+Installer type selection no longer depends on the order defined on the manifest. Instead, preference is given in this order:
+- MSIX
+- MSI / Wix / Burn
+- Nullsoft / Inno / EXE
+- Portable
+
 ## Bug Fixes
 
 * Fixed the `useLatest` property in the DSC v3 `Microsoft.WinGet/Package` resource schema to emit a boolean default (`false`) instead of the incorrect string `"false"`.
