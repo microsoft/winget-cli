@@ -153,6 +153,7 @@ ms.localizationpriority: medium
 | 0x8A15008B | -1979335093 | APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED | Font uninstall failed. The font may not be in a good state. Try uninstalling after a restart. |
 | 0x8A15008C | -1979335092 | APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED | Font validation failed. |
 | 0x8A15008D | -1979335091 | APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED | Font rollback failed. The font may not be in a good state. Try uninstalling after a restart. |
+| 0x8A15008E | -1979335090 | APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH | An upgrade is available but uses a different install technology than the current installation |
 
 ## Install errors.
 

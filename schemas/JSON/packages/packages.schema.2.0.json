@@ -96,6 +96,16 @@
                     "machine"
                   ],
                   "default": "user"
+                },
+
+                "InitialOverrideArguments": {
+                  "description": "Override arguments used when the package was initially installed; preserved on upgrade",
+                  "type": "string"
+                },
+
+                "InitialCustomSwitches": {
+                  "description": "Additional custom switches used when the package was initially installed; preserved on upgrade",
+                  "type": "string"
                 }
               }
             }

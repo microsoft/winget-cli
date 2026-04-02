@@ -798,6 +798,12 @@
     <CopyFileToFolders Include="TestData\ImportFile-Good-WithLicenseAgreement.json">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Good-WithOverrideArgs.json">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Good-WithCustomSwitches.json">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Good-Dependencies.json">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
