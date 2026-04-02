@@ -228,6 +228,22 @@ namespace AppInstaller::Manifest
                 {
                     preference = Settings::User().Get<Settings::Setting::InstallerTypePreference>();
                     requirement = Settings::User().Get<Settings::Setting::InstallerTypeRequirement>();
+
+                    // Apply default precedence order when the user has not configured any installer type preferences or requirements.
+                    if (preference.empty() && requirement.empty())
+                    {
+                        preference = {
+                            InstallerTypeEnum::MSStore,
+                            InstallerTypeEnum::Msix,
+                            InstallerTypeEnum::Msi,
+                            InstallerTypeEnum::Wix,
+                            InstallerTypeEnum::Burn,
+                            InstallerTypeEnum::Nullsoft,
+                            InstallerTypeEnum::Inno,
+                            InstallerTypeEnum::Exe,
+                            InstallerTypeEnum::Portable,
+                        };
+                    }
                 }
 
                 if (!preference.empty() || !requirement.empty())
