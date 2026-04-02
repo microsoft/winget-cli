@@ -3,17 +3,6 @@
 
 name: Check Spelling
 
-# Comment management is handled through a secondary job, for details see:
-# https://github.com/check-spelling/check-spelling/wiki/Feature%3A-Restricted-Permissions
-#
-# `jobs.comment-push` runs when a push is made to a repository and the `jobs.spelling` job needs to make a comment
-#   (in odd cases, it might actually run just to collapse a comment, but that's fairly rare)
-#   it needs `contents: write` in order to add a comment.
-#
-# `jobs.comment-pr` runs when a pull_request is made to a repository and the `jobs.spelling` job needs to make a comment
-#   or collapse a comment (in the case where it had previously made a comment and now no longer needs to show a comment)
-#   it needs `pull-requests: write` in order to manipulate those comments.
-
 # Updating pull request branches is managed via comment handling.
 # For details, see: https://github.com/check-spelling/check-spelling/wiki/Feature:-Update-expect-list
 #
@@ -78,10 +67,8 @@ jobs:
     name: Check Spelling
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write
       actions: read
-    outputs:
-      followup: ${{ steps.spelling.outputs.followup }}
     runs-on: ubuntu-latest
     if: ${{ contains(github.event_name, 'pull_request') || github.event_name == 'push' }}
     concurrency:
@@ -96,7 +83,6 @@ jobs:
           suppress_push_for_open_pull_request: ${{ github.actor != 'dependabot[bot]' && 1 }}
           checkout: true
           check_file_names: 1
-          post_comment: 0
           use_magic_file: 1
           warnings: bad-regex,binary-file,deprecated-feature,ignored-expect-variant,large-file,limited-references,no-newline-at-eof,noisy-file,non-alpha-in-dictionary,token-is-substring,unexpected-line-ending,whitespace-in-dictionary,minified-file,unsupported-configuration,no-files-to-check,unclosed-block-ignore-begin,unclosed-block-ignore-end
           check_extra_dictionaries: ""
@@ -127,20 +113,3 @@ jobs:
             cspell:cpp/ecosystem.txt
             cspell:typescript/typescript.txt
             cspell:cpp/lang-keywords.txt
-
-  comment-pr:
-    name: Report (PR)
-    # If you workflow isn't running on pull_request*, you can remove this job
-    runs-on: ubuntu-latest
-    needs: spelling
-    permissions:
-      actions: read
-      contents: read
-      pull-requests: write
-    if: (success() || failure()) && needs.spelling.outputs.followup && contains(github.event_name, 'pull_request')
-    steps:
-      - name: comment
-        uses: check-spelling/check-spelling@v0.0.24
-        with:
-          checkout: true
-          task: ${{ needs.spelling.outputs.followup }}
