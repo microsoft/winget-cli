@@ -67,9 +67,9 @@ TEST_CASE("VerifyIsSameVolume", "[filesystem]")
     std::filesystem::path path3 = L"localPath\\test\\folder";
     std::filesystem::path path4 = L"test\\folder";
     std::filesystem::path path5 = L"D:\\test\\folder";
-	// path 6 dynamically generated below to be a non-existent drive letter
+	// path 6 dynamically generated below to be a nonexistent drive letter
     std::filesystem::path path7 = L"d:\\randomFolder";
-	// path 8 dynamically generated below to be a non-existent drive letter with different case than path 6
+	// path 8 dynamically generated below to be a nonexistent drive letter with different case than path 6
     std::filesystem::path path9 = L"a";
     std::filesystem::path path10 = L"b";
 
