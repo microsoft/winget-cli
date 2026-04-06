@@ -88,7 +88,7 @@ struct ServerProcessLauncher
     {
         RETURN_IF_FAILED(m_hr);
 
-        std::wstring commandLineInput = std::wstring{ m_serverExePath } + L" --manualActivation";
+        std::wstring commandLineInput = L"\"" + std::wstring{ m_serverExePath } + L"\" --manualActivation";
 
         STARTUPINFO info = { sizeof(info) };
         wil::unique_process_information process;
