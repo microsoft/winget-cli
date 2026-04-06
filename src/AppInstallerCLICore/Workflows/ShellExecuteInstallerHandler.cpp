@@ -511,7 +511,7 @@ namespace AppInstaller::CLI::Workflow
     {
         if (!Utility::IsValidWindowsFeaturePattern(m_featureName))
         {
-            context.Add<Execution::Data::OperationReturnCode>(E_INVALIDARG);
+            context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(E_INVALIDARG));
             return;
         }
 

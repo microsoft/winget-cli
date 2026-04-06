@@ -376,6 +376,6 @@ TEST_CASE("IsValidWindowsFeaturePattern_Bad_False", "[strings][111981]")
         })
     {
         INFO(name);
-        REQUIRE(IsValidWindowsFeaturePattern(name));
+        REQUIRE(!IsValidWindowsFeaturePattern(name));
     }
 }

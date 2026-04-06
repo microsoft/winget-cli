@@ -309,11 +309,6 @@ TEST_CASE("InstallFlow_Dependencies_COM", "[InstallFlow][workflow][dependencies]
 
 void InstallFlow_Dependencies_WindowsFeaturesArgument_Generic(std::string_view featureName)
 {
-    if (!AppInstaller::Runtime::IsRunningAsAdminOrSystem())
-    {
-        SKIP("Must be running as admin to test dism calls.");
-    }
-
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
 

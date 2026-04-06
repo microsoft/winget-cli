@@ -1360,6 +1360,20 @@ TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")
     REQUIRE(errors.size() == 0);
 }
 
+TEST_CASE("WindowsFeatureNameValidation", "[ManifestValidation][111981]")
+{
+    // An invalid Windows Feature name should produce an error regardless of the fullValidation flag
+    Manifest invalidManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InvalidWindowsFeatureName.yaml"));
+
+    auto errors = ValidateManifest(invalidManifest, true);
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidWindowsFeatureName, "Invalid@Feature", "");
+
+    errors = ValidateManifest(invalidManifest, false);
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidWindowsFeatureName, "Invalid@Feature", "");
+}
+
 TEST_CASE("ReadManifestAndValidateMsixInstallers_Success", "[ManifestValidation]")
 {
     TestDataFile testFile("Manifest-Good-MsixInstaller.yaml");
