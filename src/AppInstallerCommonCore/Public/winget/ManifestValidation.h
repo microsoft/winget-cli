@@ -55,6 +55,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidBcp47Value);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidFieldValue);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidRootNode);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidWindowsFeatureName);
         WINGET_DEFINE_RESOURCE_STRINGID(MissingManifestDependenciesNode);
         WINGET_DEFINE_RESOURCE_STRINGID(MsixSignatureHashFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiManifestPackageHasDependencies);

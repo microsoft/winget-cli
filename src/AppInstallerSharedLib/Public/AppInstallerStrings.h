@@ -320,4 +320,7 @@ namespace AppInstaller::Utility
 
     // Generates a random alpha numeric string.
     std::string GetRandomString(size_t size = 8);
+
+    // Checks whether a given string is a valid potential Windows feature name.
+    bool IsValidWindowsFeaturePattern(std::string_view value);
 }

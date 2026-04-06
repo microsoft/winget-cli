@@ -85,6 +85,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::SchemaHeaderUrlPatternMismatch, "The schema header URL does not match the expected pattern."sv },
                 { AppInstaller::Manifest::ManifestError::InvalidPortableFiletype, "The file type of the referenced file is not allowed."sv },
                 { AppInstaller::Manifest::ManifestError::InvalidFontFiletype, "The file type of the referenced file is not a supported font file type."sv },
+                { AppInstaller::Manifest::ManifestError::InvalidWindowsFeatureName, "The provided value is not a valid Windows feature name."sv },
             };
 
             return ErrorIdToMessageMap;
@@ -436,6 +437,14 @@ namespace AppInstaller::Manifest
                     resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Authentication");
                 }
             }
+
+            installer.Dependencies.ApplyToType(DependencyType::WindowsFeature, [&](const Dependency& dependency)
+                {
+                    if (!IsValidWindowsFeaturePattern(dependency.Id()))
+                    {
+                        resultErrors.emplace_back(ManifestError::InvalidWindowsFeatureName, dependency.Id());
+                    }
+                });
 
             if (fullValidation)
             {
