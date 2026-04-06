@@ -131,8 +131,8 @@ namespace AppInstaller::Utility
         std::optional<DownloadInfo> info)
     {
         // For AICLI_LOG usages with string literals.
-#pragma warning(push)
-#pragma warning(disable:26449)
+        #pragma warning(push)
+        #pragma warning(disable:26449)
 
         AICLI_LOG(Core, Info, << "WinINet downloading from url: " << url);
 
@@ -277,7 +277,7 @@ namespace AppInstaller::Utility
 
         AICLI_LOG(Core, Info, << "Download completed.");
 
-#pragma warning(pop)
+        #pragma warning(pop)
 
         return result;
     }
@@ -437,7 +437,7 @@ namespace AppInstaller::Utility
 
         return false;
     }
-
+    
     static inline bool FileSupportsMotw(const std::filesystem::path& path)
     {
         return SupportsNamedStreams(path);
@@ -481,9 +481,11 @@ namespace AppInstaller::Utility
         THROW_IF_FAILED(zoneIdentifier.As(&persistFile));
 
         auto hr = persistFile->Load(filePath.c_str(), STGM_READ);
-        if (hr == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
+        if (hr == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND) ||
+            hr == HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND))
         {
-            // IPersistFile::Load returns same error for "file not found" and "motw not found".
+            // IPersistFile::Load can return ERROR_FILE_NOT_FOUND or ERROR_PATH_NOT_FOUND for
+            // both "file not found" and "motw not found" depending on the Windows build.
             // Check if the file exists to be sure we are on the "motw not found" case.
             THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND), !std::filesystem::exists(filePath));
 
@@ -491,8 +493,21 @@ namespace AppInstaller::Utility
             return;
         }
 
-        THROW_IF_FAILED(zoneIdentifier->Remove());
-        THROW_IF_FAILED(persistFile->Save(NULL, TRUE));
+        THROW_IF_FAILED(hr);
+
+        auto hrRemove = zoneIdentifier->Remove();
+        if (FAILED(hrRemove))
+        {
+            AICLI_LOG(Core, Error, << "IZoneIdentifier::Remove failed. Result: " << hrRemove);
+            THROW_IF_FAILED(hrRemove);
+        }
+
+        auto hrSave = persistFile->Save(NULL, TRUE);
+        if (FAILED(hrSave))
+        {
+            AICLI_LOG(Core, Error, << "IPersistFile::Save failed after removing motw. Result: " << hrSave);
+            THROW_IF_FAILED(hrSave);
+        }
 
         AICLI_LOG(Core, Info, << "Finished removing motw");
     }
@@ -510,27 +525,53 @@ namespace AppInstaller::Utility
         // Attachment execution service needs STA to succeed, so we'll create a new thread and CoInitialize with STA.
         HRESULT aesSaveResult = S_OK;
         auto updateMotw = [&]() -> HRESULT
+        {
+            Microsoft::WRL::ComPtr<IAttachmentExecute> attachmentExecute;
+            auto hrCreate = CoCreateInstance(CLSID_AttachmentServices, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&attachmentExecute));
+            if (FAILED(hrCreate))
             {
-                Microsoft::WRL::ComPtr<IAttachmentExecute> attachmentExecute;
-                RETURN_IF_FAILED(CoCreateInstance(CLSID_AttachmentServices, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&attachmentExecute)));
-                RETURN_IF_FAILED(attachmentExecute->SetLocalPath(filePath.c_str()));
-                RETURN_IF_FAILED(attachmentExecute->SetSource(Utility::ConvertToUTF16(source).c_str()));
+                AICLI_LOG(Core, Error, << "CoCreateInstance(CLSID_AttachmentServices) failed. Result: " << hrCreate);
+                return hrCreate;
+            }
 
-                // IAttachmentExecute::Save() expects the local file to be clean(i.e. it won't clear existing motw if it thinks the source url is trusted)
+            auto hrSetLocalPath = attachmentExecute->SetLocalPath(filePath.c_str());
+            if (FAILED(hrSetLocalPath))
+            {
+                AICLI_LOG(Core, Error, << "IAttachmentExecute::SetLocalPath failed for path: " << filePath << " Result: " << hrSetLocalPath);
+                return hrSetLocalPath;
+            }
+
+            auto hrSetSource = attachmentExecute->SetSource(Utility::ConvertToUTF16(source).c_str());
+            if (FAILED(hrSetSource))
+            {
+                AICLI_LOG(Core, Error, << "IAttachmentExecute::SetSource failed for source: " << source << " Result: " << hrSetSource);
+                return hrSetSource;
+            }
+
+            // IAttachmentExecute::Save() expects the local file to be clean (i.e. it won't clear existing motw if it thinks the source url is trusted).
+            // If removal fails for any reason, log a warning and proceed — a removal failure should not abort the security check.
+            try
+            {
                 RemoveMotwIfApplicable(filePath);
+            }
+            catch (...)
+            {
+                HRESULT hrRemoveMotw = wil::ResultFromCaughtException();
+                AICLI_LOG(Core, Warning, << "RemoveMotwIfApplicable failed before IAttachmentExecute::Save(). Result: " << hrRemoveMotw << ". Proceeding with Save()");
+            }
 
-                aesSaveResult = attachmentExecute->Save();
+            aesSaveResult = attachmentExecute->Save();
 
-                // Reapply desired zone upon scan failure.
-                // Not using SUCCEEDED(hr) to check since there are cases file is missing after a successful scan
-                if (aesSaveResult != S_OK && std::filesystem::exists(filePath))
-                {
-                    ApplyMotwIfApplicable(filePath, zoneIfScanFailure);
-                }
+            // Reapply desired zone upon scan failure.
+            // Not using SUCCEEDED(hr) to check since there are cases file is missing after a successful scan
+            if (aesSaveResult != S_OK && std::filesystem::exists(filePath))
+            {
+                ApplyMotwIfApplicable(filePath, zoneIfScanFailure);
+            }
 
-                RETURN_IF_FAILED(aesSaveResult);
-                return S_OK;
-            };
+            RETURN_IF_FAILED(aesSaveResult);
+            return S_OK;
+        };
 
         HRESULT hr = S_OK;
 
