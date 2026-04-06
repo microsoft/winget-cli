@@ -67,11 +67,32 @@ TEST_CASE("VerifyIsSameVolume", "[filesystem]")
     std::filesystem::path path3 = L"localPath\\test\\folder";
     std::filesystem::path path4 = L"test\\folder";
     std::filesystem::path path5 = L"D:\\test\\folder";
-    std::filesystem::path path6 = L"F:\\test\\folder";
+	// path 6 dynamically generated below to be a non-existent drive letter
     std::filesystem::path path7 = L"d:\\randomFolder";
-    std::filesystem::path path8 = L"f:\\randomFolder";
+	// path 8 dynamically generated below to be a non-existent drive letter with different case than path 6
     std::filesystem::path path9 = L"a";
     std::filesystem::path path10 = L"b";
+
+    // Dynamically find a drive letter that is not mounted on this machine so that
+    // GetVolumePathNameW will fail for it, making IsSameVolume return false.
+    // This avoids environment-dependent failures when drive letters like F:\ are mounted.
+    wchar_t nonExistentDriveLetter = L'\0';
+    const DWORD driveMask = GetLogicalDrives();
+    for (wchar_t c = L'Z'; c >= L'A'; c--)
+    {
+        if (!(driveMask & (1 << (c - L'A'))))
+        {
+            nonExistentDriveLetter = c;
+            break;
+        }
+    }
+
+    std::filesystem::path path6, path8;
+    if (nonExistentDriveLetter != L'\0')
+    {
+        path6 = std::wstring(1, nonExistentDriveLetter) + L":\\test\\folder";
+        path8 = std::wstring(1, towlower(nonExistentDriveLetter)) + L":\\randomFolder";
+    }
 
     REQUIRE(IsSameVolume(path1, path2));
     if (IsSameVolume(path5, path5))
@@ -82,13 +103,16 @@ TEST_CASE("VerifyIsSameVolume", "[filesystem]")
     REQUIRE(IsSameVolume(path9, path10));
 
     REQUIRE_FALSE(IsSameVolume(path1, path5));
-    REQUIRE_FALSE(IsSameVolume(path1, path6));
     REQUIRE_FALSE(IsSameVolume(path2, path5));
-    REQUIRE_FALSE(IsSameVolume(path2, path6));
-    REQUIRE_FALSE(IsSameVolume(path3, path6));
-    REQUIRE_FALSE(IsSameVolume(path5, path6));
-    REQUIRE_FALSE(IsSameVolume(path4, path6));
-    REQUIRE_FALSE(IsSameVolume(path6, path8));
+    if (nonExistentDriveLetter != L'\0')
+    {
+        REQUIRE_FALSE(IsSameVolume(path1, path6));
+        REQUIRE_FALSE(IsSameVolume(path2, path6));
+        REQUIRE_FALSE(IsSameVolume(path3, path6));
+        REQUIRE_FALSE(IsSameVolume(path5, path6));
+        REQUIRE_FALSE(IsSameVolume(path4, path6));
+        REQUIRE_FALSE(IsSameVolume(path6, path8));
+    }
 }
 
 TEST_CASE("ReplaceCommonPathPrefix", "[filesystem]")
