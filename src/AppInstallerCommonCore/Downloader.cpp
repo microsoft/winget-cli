@@ -495,19 +495,8 @@ namespace AppInstaller::Utility
 
         THROW_IF_FAILED(hr);
 
-        auto hrRemove = zoneIdentifier->Remove();
-        if (FAILED(hrRemove))
-        {
-            AICLI_LOG(Core, Error, << "IZoneIdentifier::Remove failed. Result: " << hrRemove);
-            THROW_IF_FAILED(hrRemove);
-        }
-
-        auto hrSave = persistFile->Save(NULL, TRUE);
-        if (FAILED(hrSave))
-        {
-            AICLI_LOG(Core, Error, << "IPersistFile::Save failed after removing motw. Result: " << hrSave);
-            THROW_IF_FAILED(hrSave);
-        }
+        THROW_IF_FAILED(zoneIdentifier->Remove());
+        THROW_IF_FAILED(persistFile->Save(NULL, TRUE));
 
         AICLI_LOG(Core, Info, << "Finished removing motw");
     }
@@ -527,26 +516,9 @@ namespace AppInstaller::Utility
         auto updateMotw = [&]() -> HRESULT
         {
             Microsoft::WRL::ComPtr<IAttachmentExecute> attachmentExecute;
-            auto hrCreate = CoCreateInstance(CLSID_AttachmentServices, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&attachmentExecute));
-            if (FAILED(hrCreate))
-            {
-                AICLI_LOG(Core, Error, << "CoCreateInstance(CLSID_AttachmentServices) failed. Result: " << hrCreate);
-                return hrCreate;
-            }
-
-            auto hrSetLocalPath = attachmentExecute->SetLocalPath(filePath.c_str());
-            if (FAILED(hrSetLocalPath))
-            {
-                AICLI_LOG(Core, Error, << "IAttachmentExecute::SetLocalPath failed for path: " << filePath << " Result: " << hrSetLocalPath);
-                return hrSetLocalPath;
-            }
-
-            auto hrSetSource = attachmentExecute->SetSource(Utility::ConvertToUTF16(source).c_str());
-            if (FAILED(hrSetSource))
-            {
-                AICLI_LOG(Core, Error, << "IAttachmentExecute::SetSource failed for source: " << source << " Result: " << hrSetSource);
-                return hrSetSource;
-            }
+            RETURN_IF_FAILED(CoCreateInstance(CLSID_AttachmentServices, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&attachmentExecute)));
+            RETURN_IF_FAILED(attachmentExecute->SetLocalPath(filePath.c_str()));
+            RETURN_IF_FAILED(attachmentExecute->SetSource(Utility::ConvertToUTF16(source).c_str()));
 
             // IAttachmentExecute::Save() expects the local file to be clean (i.e. it won't clear existing motw if it thinks the source url is trusted).
             // If removal fails for any reason, log a warning and proceed — a removal failure should not abort the security check.
@@ -579,10 +551,9 @@ namespace AppInstaller::Utility
             {
                 try
                 {
-                    hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+                    hr = LOG_IF_FAILED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED));
                     if (FAILED(hr))
                     {
-                        AICLI_LOG(Core, Error, << "CoInitializeEx failed in IAttachmentExecute thread. Result: " << hr);
                         return;
                     }
 
