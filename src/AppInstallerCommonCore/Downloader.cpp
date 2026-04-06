@@ -131,8 +131,8 @@ namespace AppInstaller::Utility
         std::optional<DownloadInfo> info)
     {
         // For AICLI_LOG usages with string literals.
-        #pragma warning(push)
-        #pragma warning(disable:26449)
+#pragma warning(push)
+#pragma warning(disable:26449)
 
         AICLI_LOG(Core, Info, << "WinINet downloading from url: " << url);
 
@@ -277,7 +277,7 @@ namespace AppInstaller::Utility
 
         AICLI_LOG(Core, Info, << "Download completed.");
 
-        #pragma warning(pop)
+#pragma warning(pop)
 
         return result;
     }
@@ -437,7 +437,7 @@ namespace AppInstaller::Utility
 
         return false;
     }
-    
+
     static inline bool FileSupportsMotw(const std::filesystem::path& path)
     {
         return SupportsNamedStreams(path);
@@ -510,47 +510,58 @@ namespace AppInstaller::Utility
         // Attachment execution service needs STA to succeed, so we'll create a new thread and CoInitialize with STA.
         HRESULT aesSaveResult = S_OK;
         auto updateMotw = [&]() -> HRESULT
-        {
-            Microsoft::WRL::ComPtr<IAttachmentExecute> attachmentExecute;
-            RETURN_IF_FAILED(CoCreateInstance(CLSID_AttachmentServices, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&attachmentExecute)));
-            RETURN_IF_FAILED(attachmentExecute->SetLocalPath(filePath.c_str()));
-            RETURN_IF_FAILED(attachmentExecute->SetSource(Utility::ConvertToUTF16(source).c_str()));
-
-            // IAttachmentExecute::Save() expects the local file to be clean(i.e. it won't clear existing motw if it thinks the source url is trusted)
-            RemoveMotwIfApplicable(filePath);
-
-            aesSaveResult = attachmentExecute->Save();
-
-            // Reapply desired zone upon scan failure.
-            // Not using SUCCEEDED(hr) to check since there are cases file is missing after a successful scan
-            if (aesSaveResult != S_OK && std::filesystem::exists(filePath))
             {
-                ApplyMotwIfApplicable(filePath, zoneIfScanFailure);
-            }
+                Microsoft::WRL::ComPtr<IAttachmentExecute> attachmentExecute;
+                RETURN_IF_FAILED(CoCreateInstance(CLSID_AttachmentServices, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&attachmentExecute)));
+                RETURN_IF_FAILED(attachmentExecute->SetLocalPath(filePath.c_str()));
+                RETURN_IF_FAILED(attachmentExecute->SetSource(Utility::ConvertToUTF16(source).c_str()));
 
-            RETURN_IF_FAILED(aesSaveResult);
-            return S_OK;
-        };
+                // IAttachmentExecute::Save() expects the local file to be clean(i.e. it won't clear existing motw if it thinks the source url is trusted)
+                RemoveMotwIfApplicable(filePath);
+
+                aesSaveResult = attachmentExecute->Save();
+
+                // Reapply desired zone upon scan failure.
+                // Not using SUCCEEDED(hr) to check since there are cases file is missing after a successful scan
+                if (aesSaveResult != S_OK && std::filesystem::exists(filePath))
+                {
+                    ApplyMotwIfApplicable(filePath, zoneIfScanFailure);
+                }
+
+                RETURN_IF_FAILED(aesSaveResult);
+                return S_OK;
+            };
 
         HRESULT hr = S_OK;
 
         std::thread aesThread([&]()
             {
-                hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-                if (FAILED(hr))
+                try
                 {
-                    return;
-                }
+                    hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+                    if (FAILED(hr))
+                    {
+                        AICLI_LOG(Core, Error, << "CoInitializeEx failed in IAttachmentExecute thread. Result: " << hr);
+                        return;
+                    }
 
-                hr = updateMotw();
-                CoUninitialize();
+                    hr = updateMotw();
+                    CoUninitialize();
+                }
+                catch (...)
+                {
+                    hr = wil::ResultFromCaughtException();
+                    AICLI_LOG(Core, Error, << "Exception in IAttachmentExecute thread. Result: " << hr);
+                }
             });
 
         aesThread.join();
 
         AICLI_LOG(Core, Info, << "Finished applying motw using IAttachmentExecute. Result: " << hr << " IAttachmentExecute::Save() result: " << aesSaveResult);
 
-        return aesSaveResult;
+        // Return the thread's hr when aesSaveResult was never updated (e.g. CoInitializeEx failure or exception
+        // before IAttachmentExecute::Save() was called), so the caller sees the real failure instead of S_OK.
+        return (FAILED(hr) && aesSaveResult == S_OK) ? hr : aesSaveResult;
     }
 
     Microsoft::WRL::ComPtr<IStream> GetReadOnlyStreamFromURI(std::string_view uriStr)
