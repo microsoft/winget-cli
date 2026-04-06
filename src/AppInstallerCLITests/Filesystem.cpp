@@ -109,8 +109,8 @@ TEST_CASE("VerifyIsSameVolume", "[filesystem]")
         REQUIRE_FALSE(IsSameVolume(path1, path6));
         REQUIRE_FALSE(IsSameVolume(path2, path6));
         REQUIRE_FALSE(IsSameVolume(path3, path6));
-        REQUIRE_FALSE(IsSameVolume(path5, path6));
         REQUIRE_FALSE(IsSameVolume(path4, path6));
+        REQUIRE_FALSE(IsSameVolume(path5, path6));
         REQUIRE_FALSE(IsSameVolume(path6, path8));
     }
 }
