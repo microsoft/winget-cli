@@ -224,6 +224,56 @@ TEST_CASE("PathTree_VisitIf_Correct", "[filesystem][pathtree]")
     pathTree.VisitIf(L"C:", check_input, if_input);
 }
 
+TEST_CASE("WriteStringToFile", "[filesystem]")
+{
+    SECTION("Basic content")
+    {
+        TestCommon::TempDirectory tempDirectory{ "WriteStringToFile" };
+        auto tempFile = tempDirectory.CreateTempFile("output", ".txt");
+        wil::unique_hfile fileHandle{ CreateFileW(tempFile.GetPath().c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr) };
+        REQUIRE(fileHandle);
+
+        std::string content = "Hello, WinGet!";
+        REQUIRE_NOTHROW(WriteStringToFile(fileHandle.get(), content));
+        fileHandle.reset();
+
+        std::ifstream readBack{ tempFile.GetPath() };
+        std::string result{ std::istreambuf_iterator<char>(readBack), std::istreambuf_iterator<char>() };
+        REQUIRE(result == content);
+    }
+
+    SECTION("Empty content")
+    {
+        TestCommon::TempDirectory tempDirectory{ "WriteStringToFile" };
+        auto tempFile = tempDirectory.CreateTempFile("empty", ".txt");
+        wil::unique_hfile fileHandle{ CreateFileW(tempFile.GetPath().c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr) };
+        REQUIRE(fileHandle);
+
+        REQUIRE_NOTHROW(WriteStringToFile(fileHandle.get(), ""));
+        fileHandle.reset();
+
+        std::ifstream readBack{ tempFile.GetPath() };
+        std::string result{ std::istreambuf_iterator<char>(readBack), std::istreambuf_iterator<char>() };
+        REQUIRE(result.empty());
+    }
+
+    SECTION("Large content")
+    {
+        TestCommon::TempDirectory tempDirectory{ "WriteStringToFile" };
+        auto tempFile = tempDirectory.CreateTempFile("large", ".txt");
+        wil::unique_hfile fileHandle{ CreateFileW(tempFile.GetPath().c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr) };
+        REQUIRE(fileHandle);
+
+        std::string content(1 << 20, 'x'); // 1 MiB of 'x'
+        REQUIRE_NOTHROW(WriteStringToFile(fileHandle.get(), content));
+        fileHandle.reset();
+
+        std::ifstream readBack{ tempFile.GetPath() };
+        std::string result{ std::istreambuf_iterator<char>(readBack), std::istreambuf_iterator<char>() };
+        REQUIRE(result == content);
+    }
+}
+
 TEST_CASE("GetFileInfoFor", "[filesystem]")
 {
     TestCommon::TempDirectory tempDirectory{ "GetFileInfoFor" };
