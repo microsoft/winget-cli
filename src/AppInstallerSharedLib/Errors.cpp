@@ -229,6 +229,7 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED, "Font uninstall failed. The font may not be in a good state. Try uninstalling after a restart."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED, "Font validation failed."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED, "Font rollback failed. The font may not be in a good state. Try uninstalling after a restart."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH, "An upgrade is available but uses a different install technology than the current installation"),
 
             // Install errors.
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, "Application is currently running. Exit the application then try again."),

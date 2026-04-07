@@ -180,7 +180,22 @@ namespace AppInstaller::Settings
 
         void AdminSettingsInternal::LoadAdminSettings()
         {
-            auto stream = m_settingStream.Get();
+            std::unique_ptr<std::istream> stream;
+            try
+            {
+                stream = m_settingStream.Get();
+            }
+            catch (const std::exception& e)
+            {
+                AICLI_LOG(Core, Error, << "Failed to read admin settings: " << e.what() << ". Falling back to default values.");
+                return;
+            }
+            catch (...)
+            {
+                AICLI_LOG(Core, Error, << "Failed to read admin settings due to unknown exception. Falling back to default values.");
+                return;
+            }
+
             if (!stream)
             {
                 AICLI_LOG(Core, Verbose, << "Admin settings was not found");
@@ -223,6 +238,8 @@ namespace AppInstaller::Settings
             {
                 m_settingValues.DefaultProxy.emplace(std::move(defaultProxy));
             }
+
+            AICLI_LOG(Core, Verbose, << "Admin settings loaded successfully");
         }
 
         bool AdminSettingsInternal::SaveAdminSettings()

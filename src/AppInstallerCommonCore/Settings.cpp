@@ -293,14 +293,19 @@ namespace AppInstaller::Settings
                 return result;
             }
 
-            void SetVerificationData(VerificationData data)
+            bool SetVerificationData(VerificationData data)
             {
                 YAML::Emitter out;
                 out << YAML::BeginMap;
                 out << YAML::Key << NodeName_Sha256 << YAML::Value << SHA256::ConvertToString(data.Hash);
                 out << YAML::EndMap;
 
-                m_secure.Set(out.str());
+                bool result = m_secure.Set(out.str());
+                if (!result)
+                {
+                    AICLI_LOG(Core, Warning, << "Failed to write verification data for '" << m_name << "'");
+                }
+                return result;
             }
 
         public:
@@ -338,7 +343,15 @@ namespace AppInstaller::Settings
                     VerificationData verData;
                     verData.Hash = m_hash.value();
 
-                    SetVerificationData(verData);
+                    if (!SetVerificationData(verData))
+                    {
+                        AICLI_LOG(Core, Error, << "Failed to write verification data for '" << m_name << "'. Reverting setting write to maintain consistency.");
+                        AICLI_LOG(Core, Warning, << "This failure may be caused by insufficient permissions or disk space issues");
+                        // Verification data write failed, so we need to revert the main write
+                        // to maintain consistency
+                        Remove();
+                        return false;
+                    }
                 }
 
                 return exchangeResult;

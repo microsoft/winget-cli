@@ -1115,6 +1115,61 @@ TEST_CASE("CompositeSource_TrackingPackageFound_MetadataPopulatedFromTracking", 
     REQUIRE(metadata[Repository::PackageVersionMetadata::PinnedState] == "PinnedByManifest");
 }
 
+TEST_CASE("CompositeSource_TrackingPackageFound_UserInstallerArgsPopulatedFromTracking", "[CompositeSource]")
+{
+    std::string availableID = "Available.ID";
+    std::string pfn = "sortof_apfn";
+
+    CompositeWithTrackingTestSetup setup;
+    auto installedPackage = setup.MakeInstalled().WithPFN(pfn);
+    auto availablePackage = setup.MakeAvailable().WithPFN(pfn).WithId(availableID).WithDefaultName(s_Everything_Query);
+
+    setup.Installed->Everything.Matches.emplace_back(installedPackage, Criteria());
+    setup.Installed->SearchFunction = [&](const SearchRequest& request)
+    {
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+
+        SearchResult result;
+        result.Matches.emplace_back(installedPackage, Criteria());
+        return result;
+    };
+
+    setup.Available->Everything.Matches.emplace_back(availablePackage, Criteria());
+    setup.Available->SearchFunction = [&](const SearchRequest& request)
+    {
+        if (request.Filters.empty())
+        {
+            RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        }
+        else
+        {
+            REQUIRE(request.Filters.size() == 1);
+            RequireSearchRequestIncludes(request.Filters, PackageMatchField::Id, MatchType::CaseInsensitive, availableID);
+        }
+
+        SearchResult result;
+        result.Matches.emplace_back(availablePackage, Criteria());
+        return result;
+    };
+
+    auto manifestId = setup.Tracking->GetIndex().AddManifest(availablePackage);
+
+    // InitialOverrideArguments and InitialCustomSwitches are only stored in the tracking catalog,
+    // so they must be merged from there into the composite installed version's metadata.
+    setup.Tracking->GetIndex().SetMetadataByManifestId(manifestId, Repository::PackageVersionMetadata::InitialOverrideArguments, "/silent /norestart");
+    setup.Tracking->GetIndex().SetMetadataByManifestId(manifestId, Repository::PackageVersionMetadata::InitialCustomSwitches, "--no-telemetry");
+
+    SearchResult result = setup.Search();
+
+    REQUIRE(result.Matches.size() == 1);
+    REQUIRE(result.Matches[0].Package);
+    REQUIRE(GetInstalledVersion(result.Matches[0].Package));
+
+    auto metadata = GetInstalledVersion(result.Matches[0].Package)->GetMetadata();
+    REQUIRE(metadata[Repository::PackageVersionMetadata::InitialOverrideArguments] == "/silent /norestart");
+    REQUIRE(metadata[Repository::PackageVersionMetadata::InitialCustomSwitches] == "--no-telemetry");
+}
+
 TEST_CASE("CompositeSource_TrackingFound_AvailableNot", "[CompositeSource]")
 {
     std::string availableID = "Available.ID";

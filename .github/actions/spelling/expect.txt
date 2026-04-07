@@ -5,7 +5,7 @@ ABORTIFHUNG
 accepteula
 ACCESSDENIED
 ACCESSTOKEN
-acl
+ACL'd
 adjacents
 adml
 admx
@@ -138,6 +138,7 @@ devhome
 DFX
 DHAVE
 dic
+digicert
 diskfull
 DISPLAYCATALOG
 DMC
@@ -606,6 +607,7 @@ Unregisters
 unvirtualized
 UParse
 upgradable
+upgradeable
 upgradecode
 URLZONE
 USEDEFAULT

@@ -996,6 +996,8 @@ namespace AppInstaller::CLI::Workflow
             installedMetadata = context.Get<Data::InstalledPackageVersion>()->GetMetadata();
         }
 
+        bool isUpdate = WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerExecutionUseUpdate);
+
         if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
         {
             version.SetMetadata(Repository::PackageVersionMetadata::UserIntentArchitecture, context.Args.GetArg(Execution::Args::Type::InstallArchitecture));
@@ -1019,6 +1021,35 @@ namespace AppInstaller::CLI::Workflow
             if (itr != installedMetadata.end())
             {
                 version.SetMetadata(Repository::PackageVersionMetadata::UserIntentLocale, itr->second);
+            }
+        }
+
+        // InitialOverrideArguments and InitialCustomSwitches capture the args from the original install.
+        // They are set only on fresh install and preserved (not updated) on upgrade.
+        if (!isUpdate)
+        {
+            if (context.Args.Contains(Execution::Args::Type::Override))
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::InitialOverrideArguments, context.Args.GetArg(Execution::Args::Type::Override));
+            }
+
+            if (context.Args.Contains(Execution::Args::Type::CustomSwitches))
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::InitialCustomSwitches, context.Args.GetArg(Execution::Args::Type::CustomSwitches));
+            }
+        }
+        else
+        {
+            auto overrideItr = installedMetadata.find(Repository::PackageVersionMetadata::InitialOverrideArguments);
+            if (overrideItr != installedMetadata.end())
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::InitialOverrideArguments, overrideItr->second);
+            }
+
+            auto customItr = installedMetadata.find(Repository::PackageVersionMetadata::InitialCustomSwitches);
+            if (customItr != installedMetadata.end())
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::InitialCustomSwitches, customItr->second);
             }
         }
     }
