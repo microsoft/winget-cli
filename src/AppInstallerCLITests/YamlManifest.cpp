@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestSettings.h"
 #include <AppInstallerSHA256.h>
 #include <AppInstallerLanguageUtilities.h>
 #include <winget/ManifestYamlParser.h>
@@ -1372,6 +1373,65 @@ TEST_CASE("WindowsFeatureNameValidation", "[ManifestValidation][111981]")
     errors = ValidateManifest(invalidManifest, false);
     REQUIRE(errors.size() == 1);
     ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidWindowsFeatureName, "Invalid@Feature", "");
+}
+
+TEST_CASE("NetworkAddressInSwitchesValidation", "[ManifestValidation]")
+{
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-NetworkAddressInSwitches.yaml"));
+
+    // Network address in switch is an error regardless of fullValidation
+    auto errors = ValidateManifest(manifest, true);
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::ContainsNetworkAddress, "http://evil.example.com", "");
+
+    errors = ValidateManifest(manifest, false);
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::ContainsNetworkAddress, "http://evil.example.com", "");
+
+    // Group policy override should suppress the error
+    {
+        GroupPolicyTestOverride groupPolicy;
+        groupPolicy.SetState(AppInstaller::Settings::TogglePolicy::Policy::NetworkAddressesInSwitchesOverride, AppInstaller::Settings::PolicyState::Enabled);
+
+        errors = ValidateManifest(manifest, true);
+        REQUIRE(errors.size() == 0);
+
+        errors = ValidateManifest(manifest, false);
+        REQUIRE(errors.size() == 0);
+    }
+
+    // Policy restored; error should be present again
+    errors = ValidateManifest(manifest, true);
+    REQUIRE(errors.size() == 1);
+}
+
+TEST_CASE("BlockedMsiPropertyValidation", "[ManifestValidation]")
+{
+    SECTION("Blocked property is detected under full validation")
+    {
+        Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-BlockedMsiProperty.yaml"));
+
+        auto errors = ValidateManifest(manifest, true);
+        REQUIRE(errors.size() == 1);
+        ValidateError(errors[0], ValidationError::Level::Error, ManifestError::BlockedMsiProperty, "TRANSFORMS", "");
+
+        // Not checked when fullValidation is false
+        errors = ValidateManifest(manifest, false);
+        REQUIRE(errors.size() == 0);
+    }
+
+    SECTION("Invalid MSI switches are detected under full validation")
+    {
+        Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InvalidMsiSwitches.yaml"));
+
+        auto errors = ValidateManifest(manifest, true);
+        REQUIRE(errors.size() == 1);
+        ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidMsiSwitches);
+
+        // Not checked when fullValidation is false
+        errors = ValidateManifest(manifest, false);
+        REQUIRE(errors.size() == 0);
+    }
 }
 
 TEST_CASE("ReadManifestAndValidateMsixInstallers_Success", "[ManifestValidation]")

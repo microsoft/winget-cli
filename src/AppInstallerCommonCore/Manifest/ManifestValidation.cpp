@@ -90,7 +90,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::InvalidWindowsFeatureName, "The provided value is not a valid Windows feature name."sv },
                 { AppInstaller::Manifest::ManifestError::BlockedMsiProperty, "Contains a blocked MSI property."sv },
                 { AppInstaller::Manifest::ManifestError::InvalidMsiSwitches, "Contains invalid MSI switches."sv },
-                { AppInstaller::Manifest::ManifestError::ContainsNetworkAddress, "Contains network address."sv },
+                { AppInstaller::Manifest::ManifestError::ContainsNetworkAddress, "Installer switch contains network address."sv },
             };
 
             return ErrorIdToMessageMap;
