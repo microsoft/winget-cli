@@ -285,15 +285,5 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
-    <policy name="EnableNetworkAddressesInSwitchesOverride" class="Machine" displayName="$(string.EnableNetworkAddressesInSwitchesOverride)" explainText="$(string.EnableNetworkAddressesInSwitchesOverrideExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableNetworkAddressesInSwitchesOverride">
-      <parentCategory ref="AppInstaller" />
-      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
-      <enabledValue>
-        <decimal value="1" />
-      </enabledValue>
-      <disabledValue>
-        <decimal value="0" />
-      </disabledValue>
-    </policy>
   </policies>
 </policyDefinitions>

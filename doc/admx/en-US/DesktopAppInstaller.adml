@@ -153,12 +153,6 @@ If you disable or do not configure this policy, users will be able to install MS
 If you enable or do not configure this policy, the package URI will be evaluated with Microsoft SmartScreen before installation. This check is only done for packages that come from the internet.
 
 If you disable, Microsoft SmartScreen will not be consulted before installing a package.</string>
-      <string id="EnableNetworkAddressesInSwitchesOverride">Enable Network Addresses in Installer Switches for Windows Package Manager</string>
-      <string id="EnableNetworkAddressesInSwitchesOverrideExplanation">This policy controls whether Windows Package Manager allows network addresses in installer switches. Network addresses in installer switches may pose a security risk as they are not validated by the Windows Package Manager.
-
-        If you enable this setting, Windows Package Manager will allow network addresses in installer switches.
-
-        If you disable or do not configure this setting, Windows Package Manager will not allow network addresses in installer switches.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

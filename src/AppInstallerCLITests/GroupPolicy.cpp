@@ -404,39 +404,10 @@ TEST_CASE("GroupPolicy_AllEnabled", "[groupPolicy]")
     SetRegistryValue(policiesKey.get(), ConfigurationPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), ProxyCommandLineOptionsPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), McpServerValueName, 1);
-    SetRegistryValue(policiesKey.get(), NetworkAddressesInSwitchesOverrideValueName, 1);
 
     GroupPolicy groupPolicy{ policiesKey.get() };
     for (const auto& policy : TogglePolicy::GetAllPolicies())
     {
         REQUIRE(groupPolicy.GetState(policy.GetPolicy()) == PolicyState::Enabled);
-    }
-}
-
-TEST_CASE("GroupPolicy_NetworkAddressesInSwitchesOverride", "[groupPolicy]")
-{
-    auto policiesKey = RegCreateVolatileTestRoot();
-
-    SECTION("Not configured defaults to disabled")
-    {
-        GroupPolicy groupPolicy{ policiesKey.get() };
-        REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::NetworkAddressesInSwitchesOverride) == PolicyState::NotConfigured);
-        REQUIRE_FALSE(groupPolicy.IsEnabled(TogglePolicy::Policy::NetworkAddressesInSwitchesOverride));
-    }
-
-    SECTION("Explicitly enabled")
-    {
-        SetRegistryValue(policiesKey.get(), NetworkAddressesInSwitchesOverrideValueName, 1);
-        GroupPolicy groupPolicy{ policiesKey.get() };
-        REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::NetworkAddressesInSwitchesOverride) == PolicyState::Enabled);
-        REQUIRE(groupPolicy.IsEnabled(TogglePolicy::Policy::NetworkAddressesInSwitchesOverride));
-    }
-
-    SECTION("Explicitly disabled")
-    {
-        SetRegistryValue(policiesKey.get(), NetworkAddressesInSwitchesOverrideValueName, 0);
-        GroupPolicy groupPolicy{ policiesKey.get() };
-        REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::NetworkAddressesInSwitchesOverride) == PolicyState::Disabled);
-        REQUIRE_FALSE(groupPolicy.IsEnabled(TogglePolicy::Policy::NetworkAddressesInSwitchesOverride));
     }
 }
