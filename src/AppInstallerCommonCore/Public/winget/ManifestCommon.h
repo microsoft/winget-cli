@@ -496,6 +496,9 @@ namespace AppInstaller::Manifest
     // Gets a value indicating whether the given installer requires RepairBehavior for repair.
     bool DoesInstallerTypeRequireRepairBehaviorForRepair(InstallerTypeEnum installerType);
 
+    // Gets a value indicating whether the given installer type uses MSI properties in its command line.
+    bool DoesInstallerTypeUseMsiProperties(InstallerTypeEnum installerType);
+
     // Gets a value indicating whether the given installer type is an archive.
     bool IsArchiveType(InstallerTypeEnum installerType);
 

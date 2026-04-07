@@ -8,6 +8,7 @@
 #include "winget/MsixManifestValidation.h"
 #include "winget/Locale.h"
 #include "winget/Filesystem.h"
+#include "winget/MsiExecArguments.h"
 
 namespace AppInstaller::Manifest
 {
@@ -86,9 +87,20 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::InvalidPortableFiletype, "The file type of the referenced file is not allowed."sv },
                 { AppInstaller::Manifest::ManifestError::InvalidFontFiletype, "The file type of the referenced file is not a supported font file type."sv },
                 { AppInstaller::Manifest::ManifestError::InvalidWindowsFeatureName, "The provided value is not a valid Windows feature name."sv },
+                { AppInstaller::Manifest::ManifestError::BlockedMsiProperty, "Contains a blocked MSI property."sv },
+                { AppInstaller::Manifest::ManifestError::InvalidMsiSwitches, "Contains invalid MSI switches."sv },
+                { AppInstaller::Manifest::ManifestError::ContainsNetworkAddress, "Contains network address."sv },
             };
 
             return ErrorIdToMessageMap;
+        }
+
+        bool ContainsNetworkAddressSignifier(std::string_view input)
+        {
+            return Utility::CaseInsensitiveContainsSubstring(input, "http://") ||
+                Utility::CaseInsensitiveContainsSubstring(input, "https://") ||
+                Utility::CaseInsensitiveContainsSubstring(input, "ftp://") ||
+                Utility::CaseInsensitiveContainsSubstring(input, "\\\\");
         }
     }
 
@@ -446,6 +458,17 @@ namespace AppInstaller::Manifest
                     }
                 });
 
+            for (const auto& item : installer.Switches)
+            {
+                if (!item.second.empty())
+                {
+                    if (ContainsNetworkAddressSignifier(item.second))
+                    {
+                        resultErrors.emplace_back(ManifestError::ContainsNetworkAddress, item.second);
+                    }
+                }
+            }
+
             if (fullValidation)
             {
                 for (const auto& container : installer.DesiredStateConfiguration)
@@ -455,6 +478,28 @@ namespace AppInstaller::Manifest
                         // PowerShell DSC is not supported in community repo.
                         resultErrors.emplace_back(ManifestError::FieldNotSupported, "DesiredStateConfiguration.PowerShell");
                         break;
+                    }
+                }
+
+                if (DoesInstallerTypeUseMsiProperties(installer.EffectiveInstallerType()))
+                {
+                    try
+                    {
+                        for (const auto& item : installer.Switches)
+                        {
+                            if (!item.second.empty())
+                            {
+                                auto blocked = Msi::ParseMSIArguments(item.second).GetFirstBlockedProperty();
+                                if (blocked)
+                                {
+                                    resultErrors.emplace_back(ManifestError::BlockedMsiProperty, blocked.value());
+                                }
+                            }
+                        }
+                    }
+                    catch (...)
+                    {
+                        resultErrors.emplace_back(ManifestError::InvalidMsiSwitches);
                     }
                 }
             }

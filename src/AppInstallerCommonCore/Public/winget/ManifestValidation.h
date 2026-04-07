@@ -23,7 +23,9 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(ArpValidationError);
         WINGET_DEFINE_RESOURCE_STRINGID(ArpVersionOverlapWithIndex);
         WINGET_DEFINE_RESOURCE_STRINGID(ArpVersionValidationInternalError);
+        WINGET_DEFINE_RESOURCE_STRINGID(BlockedMsiProperty);
         WINGET_DEFINE_RESOURCE_STRINGID(BothAllowedAndExcludedMarketsDefined);
+        WINGET_DEFINE_RESOURCE_STRINGID(ContainsNetworkAddress);
         WINGET_DEFINE_RESOURCE_STRINGID(DuplicatePortableCommandAlias);
         WINGET_DEFINE_RESOURCE_STRINGID(DuplicateRelativeFilePath);
         WINGET_DEFINE_RESOURCE_STRINGID(DuplicateMultiFileManifestLocale);
@@ -54,6 +56,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerTypeDoesNotWriteAppsAndFeaturesEntry);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidBcp47Value);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidFieldValue);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidMsiSwitches);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidRootNode);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidWindowsFeatureName);
         WINGET_DEFINE_RESOURCE_STRINGID(MissingManifestDependenciesNode);
