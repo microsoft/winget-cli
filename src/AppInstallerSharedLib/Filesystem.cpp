@@ -565,4 +565,20 @@ namespace AppInstaller::Filesystem
 
         files.resize(i);
     }
+
+    void WriteStringToFile(HANDLE fileHandle, std::string_view content)
+    {
+        size_t totalBytesWritten = 0;
+        while (totalBytesWritten < content.size())
+        {
+            DWORD bytesWritten = 0;
+            THROW_LAST_ERROR_IF(!WriteFile(
+                fileHandle,
+                content.data() + totalBytesWritten,
+                static_cast<DWORD>(content.size() - totalBytesWritten),
+                &bytesWritten,
+                nullptr));
+            totalBytesWritten += bytesWritten;
+        }
+    }
 }

@@ -7,6 +7,7 @@
 #include "PackageCollection.h"
 #include "DependenciesFlow.h"
 #include "WorkflowBase.h"
+#include <winget/Filesystem.h>
 #include <winget/RepositorySearch.h>
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
@@ -171,8 +172,7 @@ namespace AppInstaller::CLI::Workflow
 
         Json::StreamWriterBuilder writerBuilder;
         std::string jsonContent = Json::writeString(writerBuilder, packages);
-        DWORD bytesWritten = 0;
-        THROW_LAST_ERROR_IF(!WriteFile(fileHandle.get(), jsonContent.c_str(), static_cast<DWORD>(jsonContent.size()), &bytesWritten, nullptr));
+        Filesystem::WriteStringToFile(fileHandle.get(), jsonContent);
     }
 
     void ReadImportFile(Execution::Context& context)
