@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "AppInstallerLogging.h"
 #include "AppInstallerMsixInfo.h"
+#include "winget/GroupPolicy.h"
 #include "winget/MsixManifest.h"
 #include "winget/ManifestValidation.h"
 #include "winget/MsixManifestValidation.h"
@@ -458,13 +459,16 @@ namespace AppInstaller::Manifest
                     }
                 });
 
-            for (const auto& item : installer.Switches)
+            if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::NetworkAddressesInSwitchesOverride))
             {
-                if (!item.second.empty())
+                for (const auto& item : installer.Switches)
                 {
-                    if (ContainsNetworkAddressSignifier(item.second))
+                    if (!item.second.empty())
                     {
-                        resultErrors.emplace_back(ManifestError::ContainsNetworkAddress, item.second);
+                        if (ContainsNetworkAddressSignifier(item.second))
+                        {
+                            resultErrors.emplace_back(ManifestError::ContainsNetworkAddress, item.second);
+                        }
                     }
                 }
             }

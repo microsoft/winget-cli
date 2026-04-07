@@ -49,6 +49,7 @@ namespace AppInstaller::Settings
             Configuration,
             ProxyCommandLineOptions,
             McpServer,
+            NetworkAddressesInSwitchesOverride,
             Max,
         };
 
