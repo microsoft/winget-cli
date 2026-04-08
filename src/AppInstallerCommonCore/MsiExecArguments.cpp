@@ -563,7 +563,8 @@ namespace AppInstaller::Msi
             for (const auto& blockedName : {
                     "transforms",
                     "patch",
-                    // TODO: There are more
+                    "msinewinstance",
+                    "adminproperties",
                 })
             {
                 if (blockedName == lowerName)

@@ -64,9 +64,13 @@ namespace AppInstaller::Manifest
 
     struct ManifestValidateOption
     {
+        ManifestValidateOption() = default;
+        explicit ManifestValidateOption(bool fullValidation) : FullValidation(fullValidation) {}
+
         bool SchemaValidationOnly = false;
         bool ErrorOnVerifiedPublisherFields = false;
         bool InstallerValidation = false;
+        bool ErrorOnNetworkAddressInSwitches = false;
 
         // Options not exposed in winget util
         bool FullValidation = false;

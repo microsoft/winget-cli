@@ -55,6 +55,11 @@ namespace
         ValidateError(error, level, message, std::string(), std::string());
     }
 
+    std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation)
+    {
+        return ValidateManifest(manifest, ManifestValidateOption{ fullValidation });
+    }
+
     struct ManifestExceptionMatcher : public Catch::Matchers::MatcherBase<ManifestException>
     {
         ManifestExceptionMatcher(std::string expectedMessage, bool expectedWarningOnly = false) :
@@ -1375,37 +1380,25 @@ TEST_CASE("WindowsFeatureNameValidation", "[ManifestValidation][111981]")
     ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidWindowsFeatureName, "Invalid@Feature", "");
 }
 
-TEST_CASE("NetworkAddressInSwitchesValidation", "[ManifestValidation]")
+TEST_CASE("NetworkAddressInSwitchesValidation", "[ManifestValidation][111981]")
 {
     Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-NetworkAddressInSwitches.yaml"));
 
-    // Network address in switch is an error regardless of fullValidation
     auto errors = ValidateManifest(manifest, true);
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Warning, ManifestError::ContainsNetworkAddress, "http://evil.example.com", "");
+
+    ManifestValidateOption options{ true };
+    options.ErrorOnNetworkAddressInSwitches = true;
+    errors = ValidateManifest(manifest, options);
     REQUIRE(errors.size() == 1);
     ValidateError(errors[0], ValidationError::Level::Error, ManifestError::ContainsNetworkAddress, "http://evil.example.com", "");
 
     errors = ValidateManifest(manifest, false);
-    REQUIRE(errors.size() == 1);
-    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::ContainsNetworkAddress, "http://evil.example.com", "");
-
-    // Group policy override should suppress the error
-    {
-        GroupPolicyTestOverride groupPolicy;
-        groupPolicy.SetState(AppInstaller::Settings::TogglePolicy::Policy::NetworkAddressesInSwitchesOverride, AppInstaller::Settings::PolicyState::Enabled);
-
-        errors = ValidateManifest(manifest, true);
-        REQUIRE(errors.size() == 0);
-
-        errors = ValidateManifest(manifest, false);
-        REQUIRE(errors.size() == 0);
-    }
-
-    // Policy restored; error should be present again
-    errors = ValidateManifest(manifest, true);
-    REQUIRE(errors.size() == 1);
+    REQUIRE(errors.size() == 0);
 }
 
-TEST_CASE("BlockedMsiPropertyValidation", "[ManifestValidation]")
+TEST_CASE("BlockedMsiPropertyValidation", "[ManifestValidation][111981]")
 {
     SECTION("Blocked property is detected under full validation")
     {
