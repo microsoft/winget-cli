@@ -1,5 +1,6 @@
 name: '📚 Documentation Issue'
 description: Report issues in our documentation.
+type: Task
 labels:
 - Issue-Docs
 - Needs-Triage
