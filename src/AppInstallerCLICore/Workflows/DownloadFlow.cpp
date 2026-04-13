@@ -338,8 +338,8 @@ namespace AppInstaller::CLI::Workflow
 
         context <<
             VerifyInstallerHash <<
-            UpdateInstallerFileMotwIfApplicable <<
-            RenameDownloadedInstaller;
+            RenameDownloadedInstaller <<
+            UpdateInstallerFileMotwIfApplicable;
 
         if (installerDownloadOnly)
         {
