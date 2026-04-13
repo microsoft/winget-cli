@@ -14,6 +14,7 @@
 #include "Public/winget/Filesystem.h"
 #include "DODownloader.h"
 #include "HttpStream/HttpRandomAccessStream.h"
+#include "Public/winget/ThreadGlobals.h"
 
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Settings;
@@ -547,8 +548,10 @@ namespace AppInstaller::Utility
 
         HRESULT hr = S_OK;
 
-        std::thread aesThread([&]()
+        ThreadLocalStorage::ThreadGlobals* globals = ThreadLocalStorage::ThreadGlobals::GetForCurrentThread();
+        std::thread aesThread([&, globals]()
             {
+                auto globalsCleanup = globals ? globals->SetForCurrentThread() : nullptr;
                 try
                 {
                     hr = LOG_IF_FAILED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED));
