@@ -75,6 +75,11 @@ namespace AppInstaller
         void TestHook_SetScanArchiveResult_Override(bool* status);
     }
 
+    namespace CLI::Execution
+    {
+        void TestHook_SetConsoleWidth_Override(std::optional<size_t>* value);
+    }
+
     namespace CLI::Workflow
     {
         void TestHook_SetEnableWindowsFeatureResult_Override(std::optional<DWORD>&& result);
@@ -344,6 +349,24 @@ namespace TestHook
             AppInstaller::Utility::DownloadType type,
             AppInstaller::IProgressCallback& progress,
             std::optional<AppInstaller::Utility::DownloadInfo> info)> m_downloadFunction;
+    };
+
+    struct SetConsoleWidth_Override
+    {
+        // Pass std::nullopt to simulate no console (redirected output);
+        // pass a size_t value to simulate a console of that width.
+        SetConsoleWidth_Override(std::optional<size_t> width) : m_width(width)
+        {
+            AppInstaller::CLI::Execution::TestHook_SetConsoleWidth_Override(&m_width);
+        }
+
+        ~SetConsoleWidth_Override()
+        {
+            AppInstaller::CLI::Execution::TestHook_SetConsoleWidth_Override(nullptr);
+        }
+
+    private:
+        std::optional<size_t> m_width;
     };
 
     struct SetGetFontRegistryRoot_Override

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestHooks.h"
 #include <ChannelStreams.h>
 #include <ExecutionReporter.h>
 #include <TableOutput.h>
@@ -101,16 +102,66 @@ TEST_CASE("TableOutput_Empty_ProducesNoOutput", "[tableoutput]")
     REQUIRE(output.str().empty());
 }
 
-// Test that GetConsoleWidth does not throw and returns a sensible result.
-// In test runner contexts (CI, test explorer) stdout is typically redirected,
-// so nullopt is the expected value; when run interactively nullopt or a positive
-// width are both valid.
-TEST_CASE("GetConsoleWidth_DoesNotCrash", "[channelstreams]")
+// Test that the console width override works and that TableOutput truncates the widest column
+// (with ellipsis) when the console is too narrow to fit all columns.
+TEST_CASE("TableOutput_ConsoleWidth_TruncatesWhenNarrow", "[tableoutput]")
 {
-    auto width = GetConsoleWidth();
-    if (width.has_value())
-    {
-        REQUIRE(*width > 0);
-    }
-    // nullopt is also valid when stdout is not attached to a console
+    std::ostringstream output;
+    std::istringstream input;
+
+    // Simulate a console that is too narrow for the content.
+    // Column 0 max = 20 ("VeryLongPackageName0"), column 1 max = 6 ("pkg.id").
+    // SpaceAfter on col 0 = true -> totalRequired = 20 + 1 + 6 = 27.
+    // With width = 20, extra = (27 - 20) + 1 = 8, so col 0 shrinks to 12.
+    // "VeryLongPackageName0" (20 chars) > 12 -> ellipsis in output.
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{20} };
+
+    Reporter reporter(output, input);
+
+    TableOutput<2> table(reporter, { MakeHeader("Name"), MakeHeader("Id") });
+    table.OutputLine({ "VeryLongPackageName0", "pkg.id" });
+    table.Complete();
+
+    std::string result = output.str();
+    REQUIRE(result.find("\xE2\x80\xA6") != std::string::npos); // ellipsis present = truncation occurred
+}
+
+// Test that with a wide enough console, values are output in full (no ellipsis).
+TEST_CASE("TableOutput_ConsoleWidth_NoTruncationWhenWide", "[tableoutput]")
+{
+    std::ostringstream output;
+    std::istringstream input;
+
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{200} };
+
+    Reporter reporter(output, input);
+
+    TableOutput<2> table(reporter, { MakeHeader("Name"), MakeHeader("Id") });
+    std::string longValue(50, 'A');
+    table.OutputLine({ longValue, "pkg.id" });
+    table.Complete();
+
+    std::string result = output.str();
+    REQUIRE(result.find(longValue) != std::string::npos);
+    REQUIRE(result.find("\xE2\x80\xA6") == std::string::npos);
+}
+
+// Test that with no-console override (nullopt), content is never truncated regardless of length.
+TEST_CASE("TableOutput_NoConsoleOverride_NeverTruncates", "[tableoutput]")
+{
+    std::ostringstream output;
+    std::istringstream input;
+
+    TestHook::SetConsoleWidth_Override widthOverride{ std::nullopt }; // simulate redirected output
+
+    Reporter reporter(output, input);
+
+    TableOutput<2> table(reporter, { MakeHeader("Name"), MakeHeader("Id") });
+    std::string longValue(200, 'B');
+    table.OutputLine({ longValue, "pkg.id" });
+    table.Complete();
+
+    std::string result = output.str();
+    REQUIRE(result.find(longValue) != std::string::npos);
+    REQUIRE(result.find("\xE2\x80\xA6") == std::string::npos);
 }
