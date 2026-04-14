@@ -87,12 +87,10 @@ TEST_CASE("VerifyIsSameVolume", "[filesystem]")
         }
     }
 
-    std::filesystem::path path6, path8;
-    if (nonExistentDriveLetter != L'\0')
-    {
-        path6 = std::wstring(1, nonExistentDriveLetter) + L":\\test\\folder";
-        path8 = std::wstring(1, towlower(nonExistentDriveLetter)) + L":\\randomFolder";
-    }
+    REQUIRE(nonExistentDriveLetter != L'\0');
+
+    std::filesystem::path path6 = std::wstring(1, nonExistentDriveLetter) + L":\\test\\folder";
+    std::filesystem::path path8 = std::wstring(1, towlower(nonExistentDriveLetter)) + L":\\randomFolder";
 
     REQUIRE(IsSameVolume(path1, path2));
     if (IsSameVolume(path5, path5))
@@ -104,15 +102,12 @@ TEST_CASE("VerifyIsSameVolume", "[filesystem]")
 
     REQUIRE_FALSE(IsSameVolume(path1, path5));
     REQUIRE_FALSE(IsSameVolume(path2, path5));
-    if (nonExistentDriveLetter != L'\0')
-    {
-        REQUIRE_FALSE(IsSameVolume(path1, path6));
-        REQUIRE_FALSE(IsSameVolume(path2, path6));
-        REQUIRE_FALSE(IsSameVolume(path3, path6));
-        REQUIRE_FALSE(IsSameVolume(path4, path6));
-        REQUIRE_FALSE(IsSameVolume(path5, path6));
-        REQUIRE_FALSE(IsSameVolume(path6, path8));
-    }
+    REQUIRE_FALSE(IsSameVolume(path1, path6));
+    REQUIRE_FALSE(IsSameVolume(path2, path6));
+    REQUIRE_FALSE(IsSameVolume(path3, path6));
+    REQUIRE_FALSE(IsSameVolume(path4, path6));
+    REQUIRE_FALSE(IsSameVolume(path5, path6));
+    REQUIRE_FALSE(IsSameVolume(path6, path8));
 }
 
 TEST_CASE("ReplaceCommonPathPrefix", "[filesystem]")
