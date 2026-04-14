@@ -7,6 +7,7 @@
 #include "PackageCollection.h"
 #include "DependenciesFlow.h"
 #include "WorkflowBase.h"
+#include <winget/Filesystem.h>
 #include <winget/RepositorySearch.h>
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
@@ -177,8 +178,21 @@ namespace AppInstaller::CLI::Workflow
         auto packages = PackagesJson::CreateJson(context.Get<Execution::Data::PackageCollection>());
 
         std::filesystem::path outputFilePath{ context.Args.GetArg(Execution::Args::Type::OutputFile) };
-        std::ofstream outputFileStream{ outputFilePath };
-        outputFileStream << packages;
+
+        // GetFileAttributesW returns INVALID_FILE_ATTRIBUTES for nonexistent files, so no separate exists() check is needed.
+        DWORD attrs = GetFileAttributesW(outputFilePath.c_str());
+        bool isHidden = (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_HIDDEN));
+
+        // Open the file directly without changing its attributes:
+        // - For an existing hidden file, use TRUNCATE_EXISTING to clear its content while preserving its attributes.
+        // - Otherwise, use CREATE_ALWAYS to create a new file or overwrite an existing one.
+        DWORD creationDisposition = isHidden ? TRUNCATE_EXISTING : CREATE_ALWAYS;
+        wil::unique_hfile fileHandle{ CreateFileW(outputFilePath.c_str(), GENERIC_WRITE, 0, nullptr, creationDisposition, FILE_ATTRIBUTE_NORMAL, nullptr) };
+        THROW_LAST_ERROR_IF(!fileHandle);
+
+        Json::StreamWriterBuilder writerBuilder;
+        std::string jsonContent = Json::writeString(writerBuilder, packages);
+        Filesystem::WriteStringToFile(fileHandle.get(), jsonContent);
     }
 
     void ReadImportFile(Execution::Context& context)

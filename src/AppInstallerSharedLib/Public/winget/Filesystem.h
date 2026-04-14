@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <map>
 #include <optional>
+#include <string_view>
 #include <vector>
 #include <shtypes.h>
 
@@ -148,4 +149,7 @@ namespace AppInstaller::Filesystem
 
     // Modifies the given files to only include those that exceed the limits that are provided.
     void FilterToFilesExceedingLimits(std::vector<FileInfo>& files, const FileLimits& limits);
+
+    // Writes the given string to the file handle, handling partial writes.
+    void WriteStringToFile(HANDLE fileHandle, std::string_view content);
 }
