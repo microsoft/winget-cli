@@ -165,3 +165,47 @@ TEST_CASE("TableOutput_NoConsoleOverride_NeverTruncates", "[tableoutput]")
     REQUIRE(result.find(longValue) != std::string::npos);
     REQUIRE(result.find("\xE2\x80\xA6") == std::string::npos);
 }
+
+// Test that a large number of rows can be buffered and output in a single table without
+// any truncation or missing rows.
+TEST_CASE("TableOutput_ManyRowsBuffered", "[tableoutput]")
+{
+    // At the time of creating this test, there were ~12k unique package IDs in the community repository
+    constexpr size_t RowCount = 25000;
+    std::ostringstream output;
+    std::istringstream input;
+
+    TestHook::SetConsoleWidth_Override widthOverride{ std::nullopt }; // no console: no truncation
+
+    Reporter reporter(output, input);
+
+    TableOutput<3> table(reporter, { MakeHeader("Name"), MakeHeader("Id"), MakeHeader("Version") });
+
+    for (size_t i = 0; i < RowCount; ++i)
+    {
+        table.OutputLine({
+            "Package.Name." + std::to_string(i),
+            "pkg.id." + std::to_string(i),
+            "1.0." + std::to_string(i)
+        });
+    }
+
+    table.Complete();
+
+    REQUIRE_FALSE(table.IsEmpty());
+
+    std::string result = output.str();
+
+    // Spot-check first, middle, and last rows
+    REQUIRE_FALSE(result.empty());
+    REQUIRE(result.find("pkg.id.0") != std::string::npos);
+    REQUIRE(result.find("pkg.id." + std::to_string(RowCount / 2)) != std::string::npos);
+    REQUIRE(result.find("pkg.id." + std::to_string(RowCount - 1)) != std::string::npos);
+
+    // Count newlines to verify all rows were written (header + separator + RowCount data rows)
+    size_t lineCount = std::count(result.begin(), result.end(), '\n');
+    REQUIRE(lineCount == RowCount + 2); // +2 for header and separator lines
+
+    // No truncation ellipsis anywhere
+    REQUIRE(result.find("\xE2\x80\xA6") == std::string::npos);
+}
