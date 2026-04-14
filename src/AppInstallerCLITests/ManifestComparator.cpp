@@ -199,8 +199,8 @@ TEST_CASE("ManifestComparator_InstalledTypeFilter", "[manifest_comparator]")
         ManifestComparator mc(GetManifestComparatorOptions(ManifestComparatorTestContext{}, {}));
         auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
-        // Only because it is first
-        RequireInstaller(result, msi);
+        // Msix is preferred over Msi by the default installer type precedence order
+        RequireInstaller(result, msix);
         REQUIRE(inapplicabilities.size() == 0);
     }
     SECTION("MSI Installed")
@@ -238,7 +238,7 @@ TEST_CASE("ManifestComparator_InstalledTypeCompare", "[manifest_comparator]")
         ManifestComparator mc(GetManifestComparatorOptions(ManifestComparatorTestContext{}, {}));
         auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
-        // Only because it is first
+        // Burn is preferred over Exe by the default installer type precedence order
         RequireInstaller(result, burn);
         REQUIRE(inapplicabilities.size() == 0);
     }
@@ -854,6 +854,31 @@ TEST_CASE("ManifestComparator_InstallerType", "[manifest_comparator]")
 
         REQUIRE(!result);
         RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstallerType, InapplicabilityFlags::InstallerType, InapplicabilityFlags::InstallerType });
+    }
+    SECTION("No user preference - default order applies")
+    {
+        // No TestUserSettings means no user-configured preferences; the default order should be used.
+        // Default order: MSStore > Msix > Msi > Wix > Burn > Nullsoft > Inno > Exe > Portable
+        // Manifest has Msi, Exe, Msix — Msix should win.
+        ManifestComparator mc(GetManifestComparatorOptions(ManifestComparatorTestContext{}, {}));
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, msix);
+        REQUIRE(inapplicabilities.size() == 0);
+    }
+    SECTION("No user preference - type not in default list does not win over default-ordered types")
+    {
+        // Zip is not in the default preference list; it should not be preferred over Msix/Msi/Exe.
+        Manifest localManifest;
+        ManifestInstaller zip = AddInstaller(localManifest, Architecture::Neutral, InstallerTypeEnum::Zip, ScopeEnum::User);
+        ManifestInstaller localExe = AddInstaller(localManifest, Architecture::Neutral, InstallerTypeEnum::Exe, ScopeEnum::User);
+
+        ManifestComparator mc(GetManifestComparatorOptions(ManifestComparatorTestContext{}, {}));
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(localManifest);
+
+        // Exe is in the default list; Zip is not — Exe should be preferred.
+        RequireInstaller(result, localExe);
+        REQUIRE(inapplicabilities.size() == 0);
     }
 }
 
