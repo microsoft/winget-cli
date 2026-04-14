@@ -20,8 +20,8 @@ namespace AppInstaller::CLI::Execution
         using header_t = std::array<Resource::LocString, FieldCount>;
         using line_t = std::array<std::string, FieldCount>;
 
-        TableOutput(Reporter& reporter, header_t&& header, size_t sizingBuffer = 50) :
-            m_reporter(reporter), m_sizingBuffer(sizingBuffer),
+        TableOutput(Reporter& reporter, header_t&& header) :
+            m_reporter(reporter),
             m_hasConsole(GetConsoleWidth().has_value())
         {
             for (size_t i = 0; i < FieldCount; ++i)
@@ -36,19 +36,11 @@ namespace AppInstaller::CLI::Execution
         {
             m_empty = false;
 
-            // When a console is present, stream rows beyond the sizing buffer directly to avoid
-            // holding all data in memory. When there is no console (redirected output), buffer
-            // every row so that column widths are computed from the full dataset before any
-            // output is written, guaranteeing perfect alignment with no truncation.
-            if (m_hasConsole && m_buffer.size() >= m_sizingBuffer)
-            {
-                EvaluateAndFlushBuffer();
-                OutputLineToStream(line);
-            }
-            else
-            {
-                m_buffer.emplace_back(std::move(line));
-            }
+            // Always buffer every row so that column widths are computed from the full dataset
+            // before any output is written. This guarantees that the widest value in any column
+            // is always fully visible and columns are perfectly aligned, whether output goes to
+            // a console or is redirected. Complete() triggers the actual output.
+            m_buffer.emplace_back(std::move(line));
         }
 
         void Complete()
@@ -76,7 +68,6 @@ namespace AppInstaller::CLI::Execution
 
         Reporter& m_reporter;
         std::array<Column, FieldCount> m_columns;
-        size_t m_sizingBuffer;
         std::vector<line_t> m_buffer;
         bool m_bufferEvaluated = false;
         bool m_empty = true;
