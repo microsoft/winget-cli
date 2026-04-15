@@ -1,0 +1,387 @@
+/* ── Reset & base ──────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --font-mono: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+  --font-ui:   var(--vscode-font-family, system-ui, sans-serif);
+  --font-size: var(--vscode-editor-font-size, 13px);
+
+  --bg:          var(--vscode-editor-background, #1e1e1e);
+  --fg:          var(--vscode-editor-foreground, #d4d4d4);
+  --sidebar-bg:  var(--vscode-sideBar-background, #252526);
+  --sidebar-fg:  var(--vscode-sideBar-foreground, #cccccc);
+  --border:      var(--vscode-panel-border, #444);
+  --input-bg:    var(--vscode-input-background, #3c3c3c);
+  --input-fg:    var(--vscode-input-foreground, #cccccc);
+  --input-border:var(--vscode-input-border, #555);
+  --btn-bg:      var(--vscode-button-background, #0e639c);
+  --btn-fg:      var(--vscode-button-foreground, #ffffff);
+  --hover-bg:    var(--vscode-list-hoverBackground, #2a2d2e);
+  --select-bg:   var(--vscode-list-activeSelectionBackground, #094771);
+  --stats-bg:    var(--vscode-statusBar-background, #007acc);
+  --stats-fg:    var(--vscode-statusBar-foreground, #ffffff);
+
+  /* Channel colors */
+  --ch-fail: #f14c4c;
+  --ch-cli:  #4fc1ff;
+  --ch-sql:  #c792ea;
+  --ch-repo: #89ddff;
+  --ch-yaml: #ffcb6b;
+  --ch-core: #858585;
+  --ch-test: #c3e88d;
+  --ch-conf: #7fdbca;
+  --ch-work: #f78c6c;
+  --ch-unknown: #aaaaaa;
+
+  --row-height: 20px;
+  --sidebar-width: 210px;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: var(--font-size);
+}
+
+/* ── Layout ────────────────────────────────────────────── */
+body { display: flex; height: 100vh; }
+
+#sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  color: var(--sidebar-fg);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+#main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Stats bar ─────────────────────────────────────────── */
+#stats-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 10px;
+  background: var(--stats-bg);
+  color: var(--stats-fg);
+  font-size: 11px;
+  flex-shrink: 0;
+  user-select: none;
+}
+#status-indicator {
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+/* ── Log container ─────────────────────────────────────── */
+#log-container {
+  flex: 1;
+  overflow: auto;
+  overflow-anchor: none; /* prevent scroll anchoring from cascading when top spacer grows */
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: var(--font-size);
+}
+
+#log-rows {
+  position: relative;
+}
+
+/* ── Log row ───────────────────────────────────────────── */
+.log-row {
+  display: flex;
+  align-items: baseline;
+  min-height: var(--row-height);
+  padding: 1px 8px;
+  border-left: 3px solid transparent;
+  white-space: nowrap;
+  cursor: default;
+  transition: background 0.05s;
+}
+.log-row:hover { background: var(--hover-bg); }
+.log-row.selected { background: var(--select-bg); }
+.log-row.wrap-lines { white-space: pre-wrap; word-break: break-all; }
+
+/* Severity left-border */
+.log-row.sev-error   { border-left-color: var(--ch-fail); }
+.log-row.sev-warning { border-left-color: var(--ch-yaml); }
+
+.log-row.sev-error   .log-message { color: #f88; }
+.log-row.sev-warning .log-message { color: var(--ch-yaml); }
+.log-row.sev-verbose .log-message { opacity: 0.55; }
+
+/* ── Row parts ─────────────────────────────────────────── */
+.log-timestamp {
+  color: #6a9955;
+  margin-right: 6px;
+  flex-shrink: 0;
+  font-size: 0.9em;
+  user-select: none;
+}
+
+.log-delta {
+  font-size: 0.82em;
+  margin-right: 6px;
+  flex-shrink: 0;
+  min-width: 60px;
+  text-align: right;
+  user-select: none;
+  color: #888; /* default: under 1 second */
+}
+/* 1 s – 1 min */
+.log-delta.delta-slow   { color: var(--ch-yaml);  font-weight: 600; }
+/* over 1 min */
+.log-delta.delta-very-slow { color: var(--ch-fail); font-weight: 700; }
+
+.log-channel {
+  display: inline-block;
+  min-width: 52px;
+  padding: 0 4px;
+  margin-right: 6px;
+  border-radius: 3px;
+  font-size: 0.82em;
+  font-weight: 700;
+  text-align: center;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.log-subchannel {
+  display: inline-block;
+  padding: 0 3px;
+  margin-right: 6px;
+  border-radius: 3px;
+  font-size: 0.78em;
+  font-weight: 600;
+  text-align: center;
+  flex-shrink: 0;
+  opacity: 0.85;
+  user-select: none;
+  border: 1px solid currentColor;
+}
+
+.log-message {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+.wrap-lines .log-message {
+  overflow: visible;
+  text-overflow: unset;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* ── Continuation rows (timestamp-less lines promoted to full rows) ── */
+.log-row.is-continuation {
+  border-left-color: var(--border);
+  padding-left: 20px;
+}
+.log-row.is-continuation .log-message {
+  opacity: 0.75;
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.log-row.wrap-lines.is-continuation .log-message {
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow: visible;
+  text-overflow: unset;
+}
+/* ── Level badge(shown when explicit <L> marker is present) ── */
+.log-level {
+  display: inline-block;
+  min-width: 22px;
+  padding: 0 3px;
+  margin-right: 6px;
+  border-radius: 3px;
+  font-size: 0.8em;
+  font-weight: 700;
+  text-align: center;
+  flex-shrink: 0;
+  user-select: none;
+}
+.lv-V { background: #4a4a4a; color: #aaa; }
+.lv-I { background: #1a5276; color: #aed6f1; }
+.lv-W { background: #7d6608; color: var(--ch-yaml); }
+.lv-E { background: #7b241c; color: #f1948a; }
+.lv-C { background: var(--ch-fail); color: #000; font-weight: 900; }
+
+/* ── Channel color assignments ─────────────────────────── */
+.ch-FAIL { background: var(--ch-fail); color: #000; }
+.ch-CLI  { background: var(--ch-cli);  color: #000; }
+.ch-SQL  { background: var(--ch-sql);  color: #000; }
+.ch-REPO { background: var(--ch-repo); color: #000; }
+.ch-YAML { background: var(--ch-yaml); color: #000; }
+.ch-CORE { background: var(--ch-core); color: #fff; }
+.ch-TEST { background: var(--ch-test); color: #000; }
+.ch-CONF { background: var(--ch-conf); color: #000; }
+.ch-WORK { background: var(--ch-work); color: #000; }
+
+/* Subchannel uses text color (no background fill) */
+.sub-FAIL { color: var(--ch-fail); }
+.sub-CLI  { color: var(--ch-cli);  }
+.sub-SQL  { color: var(--ch-sql);  }
+.sub-REPO { color: var(--ch-repo); }
+.sub-YAML { color: var(--ch-yaml); }
+.sub-CORE { color: var(--ch-core); }
+.sub-TEST { color: var(--ch-test); }
+.sub-CONF { color: var(--ch-conf); }
+.sub-WORK { color: var(--ch-work); }
+
+/* ── Sidebar sections ──────────────────────────────────── */
+.sidebar-section {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+  margin-bottom: 6px;
+  user-select: none;
+}
+
+.header-actions { display: flex; gap: 6px; }
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--vscode-textLink-foreground, #4fc1ff);
+  cursor: pointer;
+  font-size: 0.9em;
+  padding: 0;
+  text-decoration: underline;
+}
+.link-btn:hover { opacity: 0.8; }
+
+.full-btn {
+  width: 100%;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  border: none;
+  border-radius: 3px;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-size: 0.88em;
+}
+.full-btn:hover { opacity: 0.9; }
+
+/* ── Search input ──────────────────────────────────────── */
+#search-input {
+  width: 100%;
+  background: var(--input-bg);
+  color: var(--input-fg);
+  border: 1px solid var(--input-border);
+  border-radius: 3px;
+  padding: 4px 6px;
+  font-size: 0.9em;
+  outline: none;
+}
+#search-input:focus { border-color: var(--vscode-focusBorder, #007acc); }
+
+/* ── Filter lists ──────────────────────────────────────── */
+.filter-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88em;
+  cursor: pointer;
+  padding: 2px 2px;
+  border-radius: 3px;
+}
+.filter-item:hover { background: var(--hover-bg); }
+
+.filter-item input[type="checkbox"] {
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: var(--vscode-checkbox-background, #007acc);
+}
+
+.filter-badge {
+  display: inline-block;
+  min-width: 44px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 0.8em;
+  font-weight: 700;
+  text-align: center;
+}
+
+.filter-item .filter-count {
+  margin-left: auto;
+  font-size: 0.78em;
+  opacity: 0.55;
+}
+
+/* ── Options ───────────────────────────────────────────── */
+.option-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88em;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+/* ── Navigation buttons ────────────────────────────────── */
+.nav-buttons {
+  display: flex;
+  gap: 6px;
+}
+.nav-buttons button {
+  flex: 1;
+  background: var(--hover-bg);
+  color: var(--sidebar-fg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 4px 4px;
+  cursor: pointer;
+  font-size: 0.82em;
+}
+.nav-buttons button:hover { background: var(--select-bg); color: #fff; }
+
+/* ── Keyword highlights inside message ─────────────────── */
+.kw-error   { color: #f88; font-weight: 600; }
+.kw-warning { color: var(--ch-yaml); }
+.kw-hex     { color: var(--ch-conf); font-family: var(--font-mono); }
+
+/* ── Search match highlight ────────────────────────────── */
+mark.search-match {
+  background: var(--vscode-editor-findMatchHighlightBackground, rgba(255, 200, 0, 0.55));
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+  outline: 1px solid var(--vscode-editor-findMatchHighlightBorder, rgba(255, 200, 0, 0.9));
+}
+
+/* ── Scrollbar ─────────────────────────────────────────── */
+#log-container::-webkit-scrollbar       { width: 8px; height: 8px; }
+#log-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+#log-container::-webkit-scrollbar-track { background: transparent; }

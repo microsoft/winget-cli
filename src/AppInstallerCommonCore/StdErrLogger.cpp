@@ -19,7 +19,7 @@ namespace AppInstaller::Logging
     {
         if (level >= m_level)
         {
-            std::cerr << "[" << std::setw(GetMaxChannelNameLength()) << std::left << std::setfill(' ') << GetChannelName(channel) << "] " << message << std::endl;
+            std::cerr << "<" << GetLevelChar(level) << "> [" << std::setw(GetMaxChannelNameLength()) << std::left << std::setfill(' ') << GetChannelName(channel) << "] " << message << std::endl;
         }
     }
     catch (...)

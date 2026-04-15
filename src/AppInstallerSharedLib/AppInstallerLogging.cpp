@@ -79,6 +79,19 @@ namespace AppInstaller::Logging
 
     size_t GetMaxChannelNameLength() { return 4; }
 
+    char GetLevelChar(Level level)
+    {
+        switch (level)
+        {
+        case Level::Verbose: return 'V';
+        case Level::Info:    return 'I';
+        case Level::Warning: return 'W';
+        case Level::Error:   return 'E';
+        case Level::Crit:    return 'C';
+        default:             return '?';
+        }
+    }
+
     void DiagnosticLogger::AddLogger(std::unique_ptr<ILogger>&& logger)
     {
         m_loggers.emplace_back(std::move(logger));
