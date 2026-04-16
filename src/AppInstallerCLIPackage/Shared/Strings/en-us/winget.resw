@@ -214,15 +214,19 @@
   </data>
   <data name="FeaturesDisabled" xml:space="preserve">
     <value>Disabled</value>
+    <comment>Status value in the 'winget features' table. Indicates an experimental feature is turned off. Paired with 'Enabled'.</comment>
   </data>
   <data name="FeaturesEnabled" xml:space="preserve">
     <value>Enabled</value>
+    <comment>Status value in the 'winget features' table. Indicates an experimental feature is active/turned on. Paired with 'Disabled'.</comment>
   </data>
   <data name="FeaturesFeature" xml:space="preserve">
     <value>Feature</value>
+    <comment>Column header in the 'winget features' output table. A 'feature' here is an experimental software capability. This is a noun, not a verb.</comment>
   </data>
   <data name="FeaturesLink" xml:space="preserve">
     <value>Link</value>
+    <comment>Column header in the 'winget features' output table. 'Link' is a noun — a URL pointing to documentation for the feature. Do NOT translate as a verb.</comment>
   </data>
   <data name="FeaturesMessage" xml:space="preserve">
     <value>The following experimental features are in progress.
@@ -231,9 +235,11 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="FeaturesProperty" xml:space="preserve">
     <value>Property</value>
+    <comment>Column header in the 'winget features' output table. 'Property' refers to a named attribute/setting of the feature.</comment>
   </data>
   <data name="FeaturesStatus" xml:space="preserve">
     <value>Status</value>
+    <comment>Column header in the 'winget features' output table. Shows whether an experimental feature is Enabled or Disabled.</comment>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>File to be hashed</value>
@@ -468,12 +474,14 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SearchMatch" xml:space="preserve">
     <value>Match</value>
+    <comment>Column header in the 'winget search' output table. 'Match' is a noun describing how the result matched the search query (e.g., Exact, Substring). Do NOT translate as a verb.</comment>
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>Name</value>
   </data>
   <data name="SearchSource" xml:space="preserve">
     <value>Source</value>
+    <comment>Column header in the 'winget search' output table. 'Source' refers to the WinGet package repository the result came from (e.g., 'winget', 'msstore'). Not 'source code'.</comment>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>additional entries truncated due to result limit</value>
@@ -497,6 +505,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Channel</value>
+    <comment>Label in the 'winget show' output. 'Channel' refers to a software release channel (e.g., stable, preview, beta). Not a TV or media channel.</comment>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Shows information on a specific package. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
@@ -772,6 +781,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="ReportIdentityFound" xml:space="preserve">
     <value>Found</value>
+    <comment>Header label printed before showing details about a located package, e.g. "Found [package name]". This is the past tense of "to find" — the package was successfully found/located.</comment>
   </data>
   <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
     <value>Path is a directory: {0}</value>
@@ -999,6 +1009,7 @@ Configuration is disabled due to Group Policy.</value>
   </data>
   <data name="ExternalDependencies" xml:space="preserve">
     <value>External</value>
+    <comment>Category label for external package dependencies — packages that this package depends on but are distributed separately. Contrasts with built-in/internal dependencies. This is an adjective modifying the implied noun "dependencies".</comment>
   </data>
   <data name="ImportCommandReportDependencies" xml:space="preserve">
     <value>The packages found in this import have the following dependencies:</value>
@@ -2930,7 +2941,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
     <value>Explicit</value>
-    <comment>Used as a header in a table that shows the properties of a "source". In this context, "explicit" means that the source needs to be explicitly specified or directly designated to be used, as opposed to being implicitly included.</comment>
+    <comment>Column header in 'winget source list' output. 'Explicit' here is a technical term meaning the source must be directly named/specified to be used—it is NOT automatically included in package discovery. Translate as the equivalent of "requires explicit specification" or "must be directly specified". Do NOT translate as "explicit content", "adult content", "mature content", or any phrase suggesting inappropriate material.</comment>
   </data>
   <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
     <value>Trust level of the source (none or trusted)</value>
@@ -3206,19 +3217,19 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="FontFamily" xml:space="preserve">
     <value>Family</value>
-    <comment>"Family" represents the font family such as 'Arial' or 'Times New Roman'.</comment>
+    <comment>Column header for the font family name, e.g. 'Arial' or 'Times New Roman'. Do NOT translate as a family of people or a surname.</comment>
   </data>
   <data name="FontFaces" xml:space="preserve">
     <value>Faces</value>
-    <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
+    <comment>Column header listing the typefaces within a font family, e.g. 'Bold', 'Italic', 'Bold Italic'. Do NOT translate as human/anatomical faces.</comment>
   </data>
   <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
     <value>Filter results by family name</value>
-    <comment>"Family" represents the font family such as 'Arial' or 'Times New Roman'.</comment>
+    <comment>'Family name' refers to the font family name, e.g. 'Arial' or 'Times New Roman'. Do NOT translate 'family' as a family of people or 'family name' as a surname.</comment>
   </data>
   <data name="FontFace" xml:space="preserve">
     <value>Face</value>
-    <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
+    <comment>A single typeface within a font family, e.g. 'Bold' or 'Italic'. Do NOT translate as a human/anatomical face.</comment>
   </data>
   <data name="FontFilePaths" xml:space="preserve">
     <value>Paths</value>
