@@ -26,6 +26,9 @@ TEST_CASE("TableOutput_AllRowsBuffered_NoTruncation", "[tableoutput]")
 {
     std::ostringstream output;
     std::istringstream input;
+
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
+
     Reporter reporter(output, input);
 
     TableOutput<2> table(reporter, { MakeHeader("Name"), MakeHeader("Id") });
@@ -56,6 +59,9 @@ TEST_CASE("TableOutput_ColumnsAligned", "[tableoutput]")
 {
     std::ostringstream output;
     std::istringstream input;
+
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
+
     Reporter reporter(output, input);
 
     TableOutput<2> table(reporter, { MakeHeader("Name"), MakeHeader("Id") });
@@ -93,6 +99,9 @@ TEST_CASE("TableOutput_Empty_ProducesNoOutput", "[tableoutput]")
 {
     std::ostringstream output;
     std::istringstream input;
+
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
+
     Reporter reporter(output, input);
 
     TableOutput<2> table(reporter, { MakeHeader("Name"), MakeHeader("Id") });
