@@ -222,7 +222,7 @@
   </data>
   <data name="FeaturesFeature" xml:space="preserve">
     <value>Feature</value>
-    <comment>Column header in the 'winget features' output table. A 'feature' here is an experimental software capability. This is a noun, not a verb.</comment>
+    <comment>Column header in the 'winget features' output table. 'Feature' is noun - an experimental software capability. Do NOT translate as a verb.</comment>
   </data>
   <data name="FeaturesLink" xml:space="preserve">
     <value>Link</value>
