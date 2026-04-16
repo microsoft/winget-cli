@@ -218,3 +218,35 @@ TEST_CASE("TableOutput_ManyRowsBuffered", "[tableoutput]")
     // No truncation ellipsis anywhere
     REQUIRE(result.find("\xE2\x80\xA6") == std::string::npos);
 }
+
+// Test that when output is redirected (no console), triggering progress/spinner produces no
+// spinner characters in the output stream — only the table content is present.
+TEST_CASE("TableOutput_Redirected_NoSpinnerOutput", "[tableoutput]")
+{
+    std::ostringstream output;
+    std::istringstream input;
+
+    TestHook::SetConsoleWidth_Override widthOverride{ std::nullopt }; // simulate redirected output
+
+    Reporter reporter(output, input);
+
+    // Simulate a spinner lifecycle that would emit characters if a spinner were active.
+    reporter.BeginProgress();
+    reporter.SetProgressMessage("Searching...");
+    reporter.EndProgress(true);
+
+    // Now output a table with known content.
+    TableOutput<2> table(reporter, { MakeHeader("Name"), MakeHeader("Id") });
+    table.OutputLine({ "TestPackage", "test.pkg" });
+    table.Complete();
+
+    std::string result = output.str();
+
+    // The table data must be present.
+    REQUIRE(result.find("TestPackage") != std::string::npos);
+    REQUIRE(result.find("test.pkg") != std::string::npos);
+
+    // Spinner frames written with \r must not appear.
+    // The character spinner uses '-', '\', '|', '/' preceded by '\r'.
+    REQUIRE(result.find('\r') == std::string::npos);
+}
