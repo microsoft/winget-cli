@@ -161,7 +161,15 @@ namespace AppInstaller::CLI::Execution
             }
             else
             {
-                m_out << '\r' << std::string(GetConsoleWidth().value_or(0), ' ') << '\r';
+                auto consoleWidth = GetConsoleWidth();
+                if (consoleWidth.has_value())
+                {
+                    m_out << '\r' << std::string(*consoleWidth, ' ') << '\r';
+                }
+                else
+                {
+                    m_out << '\n';
+                }
             }
         }
 
