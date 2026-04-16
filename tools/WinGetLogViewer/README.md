@@ -9,17 +9,17 @@ Opens automatically for `WinGet-*.log` and `WinGetCOM-*.log` files. Use the **"O
 
 **Channel color badges** — each of the nine WinGet channels gets a distinct color:
 
-| Badge | Channel | Description |
-|-------|---------|-------------|
-| ![FAIL](#) | `FAIL` | Failures / exceptions |
-| ![CLI](#)  | `CLI`  | CLI command handling |
-| ![SQL](#)  | `SQL`  | SQLite / index operations |
-| ![REPO](#) | `REPO` | Repository / source operations |
-| ![YAML](#) | `YAML` | YAML manifest parsing |
-| ![CORE](#) | `CORE` | Core runtime |
-| ![TEST](#) | `TEST` | Test infrastructure |
-| ![CONF](#) | `CONF` | Configuration / DSC |
-| ![WORK](#) | `WORK` | Workflow execution |
+| Channel | Description |
+|---------|-------------|
+| 🔴 `FAIL` | Failures / exceptions |
+| 🔵 `CLI`  | CLI command handling |
+| 🟣 `SQL`  | SQLite / index operations |
+| 🩵 `REPO` | Repository / source operations |
+| 🟡 `YAML` | YAML manifest parsing |
+| ⬜ `CORE` | Core runtime |
+| 🟢 `TEST` | Test infrastructure |
+| 🩶 `CONF` | Configuration / DSC |
+| 🟠 `WORK` | Workflow execution |
 
 **Subchannel detection** — when a sub-component routes its log lines through a parent channel, the original `[CHAN]` tag appears at the start of the message. The viewer detects this and renders it as a secondary subchannel badge.
 
@@ -45,9 +45,11 @@ When a WinGet log file is opened in VS Code's standard text editor, the TextMate
 ## Log format
 
 ```
-YY-MM-DD HH:MM:SS.mmm [CHAN] message
-YY-MM-DD HH:MM:SS.mmm [CHAN] [SUBCHAN] message    ← subchannel variant
+YYYY-MM-DD HH:MM:SS.mmm <L> [CHAN] message
+YYYY-MM-DD HH:MM:SS.mmm <L> [CHAN] [SUBCHAN] message    ← subchannel variant
 ```
+
+Where `<L>` is an optional single-letter severity marker: `V`=Verbose, `I`=Info, `W`=Warning, `E`=Error, `C`=Critical. Older log files without the marker are also supported.
 
 ## Development
 
@@ -72,11 +74,14 @@ npm run compile
 ### Package
 
 ```bash
-npm install -g @vscode/vsce
-vsce package
+npm run package
 ```
 
-This produces a `.vsix` file you can install via **Extensions: Install from VSIX…**
+This produces `winget-log-viewer-<version>.vsix`. Install it via **Extensions: Install from VSIX…** or:
+
+```bash
+code --install-extension winget-log-viewer-0.1.0.vsix
+```
 
 ## Keyboard shortcuts
 

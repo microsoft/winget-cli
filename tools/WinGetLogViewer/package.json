@@ -4,6 +4,11 @@
   "description": "Rich viewer for WinGet diagnostic log files with channel filtering, highlighting, and live follow mode.",
   "version": "0.1.0",
   "publisher": "microsoft",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/winget-cli"
+  },
+  "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -74,14 +79,16 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./ && cp src/viewer.html media/viewer.html 2>/dev/null || true",
+    "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
-    "lint": "eslint src --ext ts"
+    "lint": "eslint src --ext ts",
+    "package": "vsce package"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",
     "@types/node": "20.x",
+    "@vscode/vsce": "^3.0.0",
     "typescript": "^5.3.0"
   }
 }
