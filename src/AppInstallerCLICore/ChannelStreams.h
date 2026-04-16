@@ -16,13 +16,6 @@ namespace AppInstaller::CLI::Execution
     // (e.g. redirected to a file or pipe). Callers that receive nullopt should not truncate output.
     std::optional<size_t> GetConsoleWidth();
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
-    // Overrides the value returned by GetConsoleWidth(). Pass nullptr to remove the override.
-    // Pass a pointer to std::nullopt to simulate no console; pass a pointer to a value to
-    // simulate a console of that width.
-    void TestHook_SetConsoleWidth_Override(std::optional<size_t>* value);
-#endif
-
     // The base stream for all channels.
     struct BaseStream
     {
