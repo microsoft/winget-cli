@@ -205,6 +205,7 @@ GHS
 github
 gitlab
 gity
+Gotchas
 goku
 GRPICONDIR
 GRPICONDIRENTRY
@@ -627,6 +628,7 @@ versioned
 VERSIONINFO
 VIWEC
 vns
+vscodeignore
 vsconfig
 vstest
 waitable
