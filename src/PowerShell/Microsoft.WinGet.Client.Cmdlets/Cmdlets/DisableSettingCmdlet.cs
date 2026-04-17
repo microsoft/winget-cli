@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="DisableSettingCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -30,7 +30,8 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
             "BypassCertificatePinningForMicrosoftStore",
             "InstallerHashOverride",
             "LocalArchiveMalwareScanOverride",
-            "ProxyCommandLineOptions")]
+            "ProxyCommandLineOptions",
+            "ConfigurationProcessorPath")]
         public string Name { get; set; }
 
         /// <summary>
