@@ -113,7 +113,7 @@ namespace AppInstaller::CLI::Workflow
         {
             // Using a height of 4 arbitrarily; allow width up to the entire console.
             UINT imageHeightCells = 4;
-            UINT imageWidthCells = static_cast<UINT>(Execution::GetConsoleWidth());
+            UINT imageWidthCells = static_cast<UINT>(Execution::GetConsoleWidth().value_or(120));
 
             icon.RenderSizeInCells(imageWidthCells, imageHeightCells);
             icon.RenderTo(outputStream);

@@ -47,6 +47,11 @@ The WinGet MCP server's existing tools have been extended with new parameters to
 
 The PowerShell module now automatically uses `GH_TOKEN` or `GITHUB_TOKEN` environment variables to authenticate GitHub API requests. This significantly increases the GitHub API rate limit, preventing failures in CI/CD pipelines. Use `-Verbose` to see which token is being used.
 
+### Improved `list` output when redirected
+
+- `winget list` (and similar table commands) no longer truncates output when stdout is redirected to a file or variable — column widths are now computed from the full result set.
+- Spinner and progress bar output are suppressed when no console is attached, keeping redirected output clean.
+
 ## Bug Fixes
 
 * `winget export` now works when the destination path is a hidden file
