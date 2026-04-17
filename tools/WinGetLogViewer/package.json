@@ -1,0 +1,94 @@
+{
+  "name": "winget-log-viewer",
+  "displayName": "WinGet Log Viewer",
+  "description": "Rich viewer for WinGet diagnostic log files with channel filtering, highlighting, and live follow mode.",
+  "version": "0.1.0",
+  "publisher": "microsoft",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/winget-cli"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "wingetLogViewer.logViewer",
+        "displayName": "WinGet Log Viewer",
+        "selector": [
+          {
+            "filenamePattern": "WinGet-*.log"
+          },
+          {
+            "filenamePattern": "WinGetCOM-*.log"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "commands": [
+      {
+        "command": "wingetLogViewer.open",
+        "title": "Open in WinGet Log Viewer",
+        "category": "WinGet Log Viewer"
+      }
+    ],
+    "languages": [
+      {
+        "id": "winget-log",
+        "aliases": [
+          "WinGet Log"
+        ],
+        "filenamePatterns": [
+          "WinGet-*.log",
+          "WinGetCOM-*.log"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "winget-log",
+        "scopeName": "text.winget-log",
+        "path": "./syntaxes/winget-log.tmLanguage.json"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "wingetLogViewer.open",
+          "when": "resourceExtname == .log",
+          "group": "navigation"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "wingetLogViewer.open",
+          "when": "resourceExtname == .log && activeCustomEditorId != 'wingetLogViewer.logViewer'",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "20.x",
+    "@vscode/vsce": "^3.0.0",
+    "typescript": "^5.3.0"
+  }
+}

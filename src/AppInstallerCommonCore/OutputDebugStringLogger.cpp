@@ -15,10 +15,10 @@ namespace AppInstaller::Logging
         return std::string{ s_OutputDebugStringLoggerName };
     }
 
-    void OutputDebugStringLogger::Write(Channel channel, Level, std::string_view message) noexcept try
+    void OutputDebugStringLogger::Write(Channel channel, Level level, std::string_view message) noexcept try
     {
         std::stringstream strstr;
-        strstr << "[" << std::setw(GetMaxChannelNameLength()) << std::left << std::setfill(' ') << GetChannelName(channel) << "] " << message << std::endl;
+        strstr << "<" << GetLevelChar(level) << "> [" << std::setw(GetMaxChannelNameLength()) << std::left << std::setfill(' ') << GetChannelName(channel) << "] " << message << std::endl;
         std::string formattedMessage = std::move(strstr).str();
 
         OutputDebugStringA(formattedMessage.c_str());

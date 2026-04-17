@@ -83,6 +83,9 @@ namespace AppInstaller::Logging
         Crit,
     };
 
+    // Gets the single-character level marker written to log files: V/I/W/E/C.
+    char GetLevelChar(Level level);
+
     // Indicates a location of significance in the logging stream.
     enum class Tag
     {
