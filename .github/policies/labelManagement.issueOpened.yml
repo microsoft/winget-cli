@@ -15,6 +15,36 @@ configuration:
               action: Opened
         then:
           - addCodeFlowLink
+      - description: Check for modifications of Localization files in new PRs
+        if:
+          - payloadType: Pull_Request
+          - isAction:
+              action: Opened
+          - filesMatchPattern:
+              pattern: Localization/Resources/*
+          - not:
+              activitySenderHasPermission: # Only trigger if the sender doesn't have write permissions,
+                permission: write          # to avoid adding the label for PRs from MSFT intentionally updating these files
+        then:
+          - addLabel:
+              label: Needs-Author-Feedback
+          - addLabel:
+              label: Blocking-Issue
+          - addReply:
+              reply: >-
+                Hello ${issueAuthor},
+
+
+                Thank you for your contribution! It looks like your PR includes changes to localization files.
+
+
+                The English resource file [**/en-us/winget.resw](https://github.com/microsoft/winget-cli/blob/master/src/AppInstallerCLIPackage/Shared/Strings/en-us/winget.resw) is the only file contributors should edit for string changes. It feeds the Microsoft localization pipeline. The files under [Localization\Resources\<locale>\](https://github.com/microsoft/winget-cli/tree/master/Localization/Resources) are **automatically synced from Microsoft's internal localization system and must not be edited**. Any manual edits will be overwritten on the next sync.
+
+
+                Instead of this PR, it would be helpful if you could [open an issue](https://github.com/microsoft/winget-cli/issues/new?template=Documentation_Issue.yml) so the internal localization team can review it. For more information, please see the [Development Guide](https://github.com/microsoft/winget-cli/blob/master/doc/Developing.md#localization).
+
+
+                Template: msftbot/PullRequests/LocalizationFileChange
       - description: Add Needs-Triage to new issues
         if:
           - payloadType: Issues
