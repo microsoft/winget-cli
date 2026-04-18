@@ -1,4 +1,4 @@
-# Good manifest. InstallerType: noinstaller and UnavailableMessage are at the root level
+# Good manifest. InstallerType: noinstaller and InstallerAvailabilityMessage are at the root level
 # and inherited by all installer entries.
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.29.0.schema.json
 
@@ -10,7 +10,7 @@ PackageName: MSIX SDK
 License: MIT License
 ShortDescription: This is MSIX SDK
 InstallerType: noinstaller
-UnavailableMessage: This software has been discontinued by the publisher.
+InstallerAvailabilityMessage: This software has been discontinued by the publisher.
 
 Installers:
   - Architecture: x64

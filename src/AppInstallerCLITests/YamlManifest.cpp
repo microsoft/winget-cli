@@ -843,6 +843,7 @@ TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
         { "Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml" },
         { "Manifest-Good-InstallerTypeZip-PortableExe.yaml" },
         { "Manifest-Good-NoInstaller.yaml" },
+        { "Manifest-Good-NoInstaller-RootInstallerAvailabilityMessage.yaml" },
         { "Manifest-Good-NoInstaller-RootUnavailableMessage.yaml" },
         { "Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml" },
     };
@@ -920,8 +921,8 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml", "The file type of the referenced file is not allowed. [RelativeFilePath] Value: ScriptedApplication.bat" },
         { "Manifest-Bad-InstallerTypeZip-PortableNotExe_Root.yaml", "The file type of the referenced file is not allowed. [RelativeFilePath] Value: ScriptedApplication.bat" },
         { "Manifest-Bad-NoInstaller-WithUrl.yaml", "Field is not supported. [InstallerUrl]" },
-        { "Manifest-Bad-UnavailableMessage-NotNoInstaller.yaml", "Field is not supported. [UnavailableMessage]" },
-        { "Manifest-Bad-RootUnavailableMessage-NotNoInstaller.yaml", "Field is not supported. [UnavailableMessage]" },
+        { "Manifest-Bad-InstallerAvailabilityMessage-NotNoInstaller.yaml", "Field is not supported. [InstallerAvailabilityMessage]" },
+        { "Manifest-Bad-RootInstallerAvailabilityMessage-NotNoInstaller.yaml", "Field is not supported. [InstallerAvailabilityMessage]" },
     };
 
     for (auto const& testCase : TestCases)
@@ -1214,7 +1215,7 @@ TEST_CASE("ReadWriteValidateV1_29ManifestWithNoInstaller", "[ManifestCreation][M
     REQUIRE(testManifest.Installers.size() == 1);
     REQUIRE(testManifest.Installers[0].BaseInstallerType == InstallerTypeEnum::NoInstaller);
     REQUIRE(testManifest.Installers[0].EffectiveInstallerType() == InstallerTypeEnum::NoInstaller);
-    REQUIRE(testManifest.Installers[0].UnavailableMessage == "This software has been discontinued by the publisher.");
+    REQUIRE(testManifest.Installers[0].InstallerAvailabilityMessage == "This software has been discontinued by the publisher.");
     REQUIRE(!testManifest.Installers[0].Sha256.empty());
     REQUIRE(testManifest.Installers[0].ProductCode == "{ABCDEF12-1234-1234-1234-ABCDEF123456}");
     REQUIRE(testManifest.Installers[0].AppsAndFeaturesEntries.size() == 1);
@@ -1235,17 +1236,17 @@ TEST_CASE("ReadWriteValidateV1_29ManifestWithNoInstaller", "[ManifestCreation][M
     REQUIRE(exportedManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_29 });
     REQUIRE(exportedManifest.Installers.size() == 1);
     REQUIRE(exportedManifest.Installers[0].BaseInstallerType == InstallerTypeEnum::NoInstaller);
-    REQUIRE(exportedManifest.Installers[0].UnavailableMessage == "This software has been discontinued by the publisher.");
+    REQUIRE(exportedManifest.Installers[0].InstallerAvailabilityMessage == "This software has been discontinued by the publisher.");
     REQUIRE(exportedManifest.Installers[0].ProductCode == "{ABCDEF12-1234-1234-1234-ABCDEF123456}");
     REQUIRE(exportedManifest.Installers[0].AppsAndFeaturesEntries.size() == 1);
     REQUIRE(exportedManifest.Installers[0].AppsAndFeaturesEntries[0].ProductCode == "{ABCDEF12-1234-1234-1234-ABCDEF123456}");
 }
 
-TEST_CASE("ReadValidateV1_29ManifestWithRootUnavailableMessage", "[ManifestCreation][ManifestVersionCreation]")
+TEST_CASE("ReadValidateV1_29ManifestWithRootInstallerAvailabilityMessage", "[ManifestCreation][ManifestVersionCreation]")
 {
-    // Read singleton manifest with InstallerType and UnavailableMessage at root level
+    // Read singleton manifest with InstallerType and InstallerAvailabilityMessage at root level
     TempDirectory testDirectory{ "TestManifest" };
-    CopyTestDataFilesToFolder({ "Manifest-Good-NoInstaller-RootUnavailableMessage.yaml" }, testDirectory);
+    CopyTestDataFilesToFolder({ "Manifest-Good-NoInstaller-RootInstallerAvailabilityMessage.yaml" }, testDirectory);
     Manifest testManifest = YamlParser::CreateFromPath(testDirectory);
 
     // Validate schema
@@ -1254,12 +1255,12 @@ TEST_CASE("ReadValidateV1_29ManifestWithRootUnavailableMessage", "[ManifestCreat
     validateOption.ThrowOnWarning = true;
     YamlParser::CreateFromPath(testDirectory, validateOption);
 
-    // Verify root-level InstallerType and UnavailableMessage were inherited by the installer entry
+    // Verify root-level InstallerType and InstallerAvailabilityMessage were inherited by the installer entry
     REQUIRE(testManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_29 });
     REQUIRE(testManifest.Installers.size() == 1);
     REQUIRE(testManifest.Installers[0].BaseInstallerType == InstallerTypeEnum::NoInstaller);
     REQUIRE(testManifest.Installers[0].EffectiveInstallerType() == InstallerTypeEnum::NoInstaller);
-    REQUIRE(testManifest.Installers[0].UnavailableMessage == "This software has been discontinued by the publisher.");
+    REQUIRE(testManifest.Installers[0].InstallerAvailabilityMessage == "This software has been discontinued by the publisher.");
 
     // Manifest validation should succeed
     auto errors = ValidateManifest(testManifest, true);
