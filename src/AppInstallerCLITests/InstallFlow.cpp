@@ -1308,3 +1308,52 @@ TEST_CASE("InstallFlow_InstallWithReboot", "[InstallFlow][workflow][reboot]")
         REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
     }
 }
+
+TEST_CASE("InstallFlow_NoInstaller_WithInstallerAvailabilityMessage", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_NoInstaller.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify termination with the NoInstaller error code
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INSTALLER_NOT_AVAILABLE);
+
+    // Verify the custom InstallerAvailabilityMessage is shown
+    REQUIRE(installOutput.str().find("Contact vendor for installer") != std::string::npos);
+
+    // Verify the generic fallback message is NOT shown when a custom message is provided
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallerNotAvailable).get()) == std::string::npos);
+
+    // Verify installer was not executed
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+}
+
+TEST_CASE("InstallFlow_NoInstaller_DefaultMessage", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_NoInstaller_NoMessage.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify termination with the NoInstaller error code
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INSTALLER_NOT_AVAILABLE);
+
+    // Verify the default unavailable message is shown
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallerNotAvailable).get()) != std::string::npos);
+
+    // Verify installer was not executed
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+}

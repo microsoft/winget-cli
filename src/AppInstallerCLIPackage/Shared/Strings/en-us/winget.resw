@@ -1125,6 +1125,9 @@ Do you agree to the terms?</value>
   <data name="ShowLabelInstallerUrl" xml:space="preserve">
     <value>Installer Url:</value>
   </data>
+  <data name="ShowLabelInstallerAvailabilityMessage" xml:space="preserve">
+    <value>Installer Availability Message:</value>
+  </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>License:</value>
   </data>
@@ -1326,6 +1329,10 @@ Do you agree to the terms?</value>
   <data name="InstallerLogAvailable" xml:space="preserve">
     <value>Installer log is available at: {0}</value>
     <comment>{Locked="{0}"} Message displayed to inform the user about the system path of a diagnostic files containing information about the installer. {0} is a placeholder replaced by the diagnostic file system path.</comment>
+  </data>
+  <data name="InstallerNotAvailable" xml:space="preserve">
+    <value>The installer for this package is no longer available.</value>
+    <comment>Error message displayed when a package's installer has been intentionally withdrawn and no download URL is present.</comment>
   </data>
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>The following packages were found among the working sources.
