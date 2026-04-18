@@ -24,7 +24,7 @@ configuration:
               pattern: Localization/Resources/*
           - not:
               activitySenderHasPermission: # Only trigger if the sender doesn't have write permissions,
-                permission: write          # to avoid adding the label for PRs from MSFT intentionally updating these files
+                permission: Write          # to avoid adding the label for PRs from MSFT intentionally updating these files
         then:
           - addLabel:
               label: Needs-Author-Feedback
