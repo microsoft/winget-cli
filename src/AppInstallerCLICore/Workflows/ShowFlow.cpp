@@ -161,7 +161,8 @@ namespace AppInstaller::CLI::Workflow
             ShowSingleLineField(info, Resource::String::ShowLabelInstallerSha256, (installer->Sha256.empty()) ? "" : Utility::SHA256::ConvertToString(installer->Sha256), true);
             ShowSingleLineField(info, Resource::String::ShowLabelInstallerProductId, installer->ProductId, true);
             ShowSingleLineField(info, Resource::String::ShowLabelInstallerReleaseDate, installer->ReleaseDate, true);
-            ShowSingleLineField(info, Resource::String::ShowLabelInstallerOfflineDistributionSupported, Utility::ConvertBoolToString(!installer->DownloadCommandProhibited), true);
+            const bool offlineDistributionSupported = (installer->EffectiveInstallerType() != Manifest::InstallerTypeEnum::NoInstaller) && !installer->DownloadCommandProhibited;
+            ShowSingleLineField(info, Resource::String::ShowLabelInstallerOfflineDistributionSupported, Utility::ConvertBoolToString(offlineDistributionSupported), true);
             ShowSingleLineField(info, Resource::String::ShowLabelUnavailableMessage, installer->UnavailableMessage, true);
 
             const auto& dependencies = installer->Dependencies;

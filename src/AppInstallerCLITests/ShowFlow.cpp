@@ -117,6 +117,10 @@ TEST_CASE("ShowFlow_NoInstaller_UnavailableMessage", "[ShowFlow][workflow]")
     // Verify InstallerUrl label is NOT shown for NoInstaller type
     REQUIRE(showOutput.str().find(Resource::LocString(Resource::String::ShowLabelInstallerUrl)) == std::string::npos);
 
+    // Verify offline distribution is shown as false for NoInstaller type
+    REQUIRE(showOutput.str().find(Resource::LocString(Resource::String::ShowLabelInstallerOfflineDistributionSupported)) != std::string::npos);
+    REQUIRE(showOutput.str().find("false") != std::string::npos);
+
     // Verify UnavailableMessage label and value are shown
     REQUIRE(showOutput.str().find(Resource::LocString(Resource::String::ShowLabelUnavailableMessage)) != std::string::npos);
     REQUIRE(showOutput.str().find("Contact vendor for installer") != std::string::npos);
