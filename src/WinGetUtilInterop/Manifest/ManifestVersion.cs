@@ -68,6 +68,11 @@ namespace Microsoft.WinGetUtil.Manifest
         /// </summary>
         public const string ManifestVersionV1_28 = "1.28.0";
 
+        /// <summary>
+        /// V1.29 manifest version.
+        /// </summary>
+        public const string ManifestVersionV1_29 = "1.29.0";
+
 #pragma warning restore SA1310 // Field names should not contain underscore
     }
 }

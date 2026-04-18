@@ -414,6 +414,16 @@ namespace AppInstaller::Manifest
 
                 std::move(fields_v1_28.begin(), fields_v1_28.end(), std::inserter(result, result.end()));
             }
+
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_29 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_29 =
+                {
+                    { "UnavailableMessage", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestInstallerPtr(v)->UnavailableMessage = value.as<std::string>(); return {}; } },
+                };
+
+                std::move(fields_v1_29.begin(), fields_v1_29.end(), std::inserter(result, result.end()));
+            }
         }
 
         return result;

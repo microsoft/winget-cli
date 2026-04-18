@@ -386,6 +386,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashMismatchOverrideRequired);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashVerified);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerLogAvailable);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerNotAvailable);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerNotAvailableDefaultMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerProhibitsElevation);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerRequiresInstallLocation);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallersAbortTerminal);
@@ -655,6 +657,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerSha256);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerType);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerUrl);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelUnavailableMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelLicense);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelLicenseUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelMoniker);

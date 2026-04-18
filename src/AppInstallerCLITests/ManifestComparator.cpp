@@ -225,6 +225,21 @@ TEST_CASE("ManifestComparator_InstalledTypeFilter", "[manifest_comparator]")
         RequireInstaller(result, msix);
         RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstalledType });
     }
+    SECTION("NoInstaller With MSI Installed")
+    {
+        Manifest noInstallerManifest;
+        ManifestInstaller noInstaller = AddInstaller(noInstallerManifest, Architecture::Neutral, InstallerTypeEnum::NoInstaller);
+
+        IPackageVersion::Metadata metadata;
+        metadata[PackageVersionMetadata::InstalledType] = InstallerTypeToString(InstallerTypeEnum::Msi);
+
+        ManifestComparator mc(GetManifestComparatorOptions(ManifestComparatorTestContext{}, metadata));
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(noInstallerManifest);
+
+        // NoInstaller should always pass the InstalledType filter regardless of what is installed
+        RequireInstaller(result, noInstaller);
+        REQUIRE(inapplicabilities.size() == 0);
+    }
 }
 
 TEST_CASE("ManifestComparator_InstalledTypeCompare", "[manifest_comparator]")
@@ -886,4 +901,47 @@ TEST_CASE("ManifestComparator_InstallerCompatibilitySet_Weaker_Than_Architecture
     auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
     RequireInstaller(result, target);
+}
+
+TEST_CASE("ManifestComparator_NoInstallerLast", "[manifest_comparator]")
+{
+    SECTION("NoInstaller ranked below real installer")
+    {
+        Manifest manifest;
+        ManifestInstaller exe = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Exe);
+        ManifestInstaller noInstaller = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::NoInstaller);
+
+        ManifestComparator mc(GetManifestComparatorOptions(ManifestComparatorTestContext{}, {}));
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        // Exe should be preferred over NoInstaller
+        RequireInstaller(result, exe);
+    }
+    SECTION("NoInstaller selected when only option")
+    {
+        Manifest manifest;
+        ManifestInstaller noInstaller = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::NoInstaller);
+
+        ManifestComparator mc(GetManifestComparatorOptions(ManifestComparatorTestContext{}, {}));
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        // NoInstaller should still be selected as the only available option
+        RequireInstaller(result, noInstaller);
+        REQUIRE(inapplicabilities.size() == 0);
+    }
+    SECTION("NoInstaller ranked below real installer with installed type metadata")
+    {
+        Manifest manifest;
+        ManifestInstaller msi = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi);
+        ManifestInstaller noInstaller = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::NoInstaller);
+
+        IPackageVersion::Metadata metadata;
+        metadata[PackageVersionMetadata::InstalledType] = InstallerTypeToString(InstallerTypeEnum::Msi);
+
+        ManifestComparator mc(GetManifestComparatorOptions(ManifestComparatorTestContext{}, metadata));
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        // Msi should be preferred over NoInstaller even when MSI is the installed type
+        RequireInstaller(result, msi);
+    }
 }

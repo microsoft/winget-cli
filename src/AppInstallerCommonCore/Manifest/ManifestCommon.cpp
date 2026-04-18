@@ -166,6 +166,10 @@ namespace AppInstaller::Manifest
         {
             result = InstallerTypeEnum::Font;
         }
+        else if (inStrLower == "noinstaller")
+        {
+            result = InstallerTypeEnum::NoInstaller;
+        }
 
         return result;
     }
@@ -589,6 +593,8 @@ namespace AppInstaller::Manifest
             return "portable"sv;
         case InstallerTypeEnum::Font:
             return "font"sv;
+        case InstallerTypeEnum::NoInstaller:
+            return "noinstaller"sv;
         }
 
         return "unknown"sv;
@@ -907,7 +913,8 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn ||
-            installerType == InstallerTypeEnum::Portable
+            installerType == InstallerTypeEnum::Portable ||
+            installerType == InstallerTypeEnum::NoInstaller
             );
     }
 
@@ -920,7 +927,8 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn ||
-            installerType == InstallerTypeEnum::Portable
+            installerType == InstallerTypeEnum::Portable ||
+            installerType == InstallerTypeEnum::NoInstaller
             );
     }
 

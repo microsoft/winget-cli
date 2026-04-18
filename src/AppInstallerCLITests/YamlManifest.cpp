@@ -836,6 +836,8 @@ TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
         { "Manifest-Good-Switches.yaml" },
         { "Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml" },
         { "Manifest-Good-InstallerTypeZip-PortableExe.yaml" },
+        { "Manifest-Good-NoInstaller.yaml" },
+        { "Manifest-Good-NoInstaller-RootUnavailableMessage.yaml" },
     };
 
     for (auto const& testCase : TestCases)
@@ -909,6 +911,9 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-ApproximateVersionInArpVersion.yaml", "Approximate version not allowed. [DisplayVersion]" },
         { "Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml", "The file type of the referenced file is not allowed. [RelativeFilePath] Value: ScriptedApplication.bat" },
         { "Manifest-Bad-InstallerTypeZip-PortableNotExe_Root.yaml", "The file type of the referenced file is not allowed. [RelativeFilePath] Value: ScriptedApplication.bat" },
+        { "Manifest-Bad-NoInstaller-WithUrl.yaml", "Field is not supported. [InstallerUrl]" },
+        { "Manifest-Bad-UnavailableMessage-NotNoInstaller.yaml", "Field is not supported. [UnavailableMessage]" },
+        { "Manifest-Bad-RootUnavailableMessage-NotNoInstaller.yaml", "Field is not supported. [UnavailableMessage]" },
     };
 
     for (auto const& testCase : TestCases)
@@ -1030,6 +1035,7 @@ WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_9)
 WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_10)
 WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_12)
 WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_28)
+WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_29)
 
 void WriteSingletonManifestAndVerifyContents(const std::vector<std::string>& singleton, const std::vector<std::string>& multiFiles, std::string_view version)
 {
@@ -1082,6 +1088,7 @@ WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_9)
 WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_10)
 WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_12)
 WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_28)
+WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_29)
 
 // Since Authentication is not supported in community repo and will cause manifest validation failure,
 // we are not adding Authentication in v1_10 manifests. Instead a separate test is created for Authentication.
@@ -1179,6 +1186,76 @@ TEST_CASE("ReadWriteValidateV1_28ManifestWithPowerShellDSC", "[ManifestCreation]
     RequireContainerInfoPresent(exportedManifest.Installers[0].DesiredStateConfiguration, { "https://www.powershellgallery.com/api/v2", "Microsoft.WinGet.DSC", { { "WinGetUserSettings" }, { "WinGetAdminSettings" }, { "WinGetSource" }, { "WinGetPackageManager" }, { "WinGetPackage" } } });
     RequireContainerInfoPresent(exportedManifest.Installers[0].DesiredStateConfiguration, { "https://mcr.microsoft.com/", "Microsoft.WinGet.DSC", { { "WinGetUserSettings" }, { "WinGetAdminSettings" }, { "WinGetSource" }, { "WinGetPackageManager" }, { "WinGetPackage" } } });
     RequireContainerInfoPresent(exportedManifest.Installers[0].DesiredStateConfiguration, { { { "Microsoft.WinGet/AdminSettings" }, { "Microsoft.WinGet/Package" }, { "Microsoft.WinGet/Source" }, { "Microsoft.WinGet/UserSettingsFile" } } });
+}
+
+TEST_CASE("ReadWriteValidateV1_29ManifestWithNoInstaller", "[ManifestCreation][ManifestVersionCreation]")
+{
+    // Read manifest
+    TempDirectory testDirectory{ "TestManifest" };
+    CopyTestDataFilesToFolder({ "Manifest-Good-NoInstaller.yaml" }, testDirectory);
+    Manifest testManifest = YamlParser::CreateFromPath(testDirectory);
+
+    // Validate schema
+    ManifestValidateOption validateOption;
+    validateOption.SchemaValidationOnly = true;
+    validateOption.ThrowOnWarning = true;
+    YamlParser::CreateFromPath(testDirectory, validateOption);
+
+    // Verify content
+    REQUIRE(testManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_29 });
+    REQUIRE(testManifest.Installers.size() == 1);
+    REQUIRE(testManifest.Installers[0].BaseInstallerType == InstallerTypeEnum::NoInstaller);
+    REQUIRE(testManifest.Installers[0].EffectiveInstallerType() == InstallerTypeEnum::NoInstaller);
+    REQUIRE(testManifest.Installers[0].UnavailableMessage == "This software has been discontinued by the publisher.");
+    REQUIRE(!testManifest.Installers[0].Sha256.empty());
+    REQUIRE(testManifest.Installers[0].ProductCode == "{ABCDEF12-1234-1234-1234-ABCDEF123456}");
+    REQUIRE(testManifest.Installers[0].AppsAndFeaturesEntries.size() == 1);
+    REQUIRE(testManifest.Installers[0].AppsAndFeaturesEntries[0].ProductCode == "{ABCDEF12-1234-1234-1234-ABCDEF123456}");
+
+    // Manifest validation should succeed
+    auto errors = ValidateManifest(testManifest, true);
+    REQUIRE(errors.empty());
+
+    // Write manifest
+    TempDirectory exportedDirectory{ "ExportedManifest" };
+    std::filesystem::path exportedManifestPath = exportedDirectory.GetPath() / "ExportedManifest.yaml";
+    YamlWriter::OutputYamlFile(testManifest, testManifest.Installers[0], exportedManifestPath);
+
+    // Read back and validate content round-trips correctly
+    REQUIRE(std::filesystem::exists(exportedManifestPath));
+    Manifest exportedManifest = YamlParser::CreateFromPath(exportedDirectory);
+    REQUIRE(exportedManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_29 });
+    REQUIRE(exportedManifest.Installers.size() == 1);
+    REQUIRE(exportedManifest.Installers[0].BaseInstallerType == InstallerTypeEnum::NoInstaller);
+    REQUIRE(exportedManifest.Installers[0].UnavailableMessage == "This software has been discontinued by the publisher.");
+    REQUIRE(exportedManifest.Installers[0].ProductCode == "{ABCDEF12-1234-1234-1234-ABCDEF123456}");
+    REQUIRE(exportedManifest.Installers[0].AppsAndFeaturesEntries.size() == 1);
+    REQUIRE(exportedManifest.Installers[0].AppsAndFeaturesEntries[0].ProductCode == "{ABCDEF12-1234-1234-1234-ABCDEF123456}");
+}
+
+TEST_CASE("ReadValidateV1_29ManifestWithRootUnavailableMessage", "[ManifestCreation][ManifestVersionCreation]")
+{
+    // Read singleton manifest with InstallerType and UnavailableMessage at root level
+    TempDirectory testDirectory{ "TestManifest" };
+    CopyTestDataFilesToFolder({ "Manifest-Good-NoInstaller-RootUnavailableMessage.yaml" }, testDirectory);
+    Manifest testManifest = YamlParser::CreateFromPath(testDirectory);
+
+    // Validate schema
+    ManifestValidateOption validateOption;
+    validateOption.SchemaValidationOnly = true;
+    validateOption.ThrowOnWarning = true;
+    YamlParser::CreateFromPath(testDirectory, validateOption);
+
+    // Verify root-level InstallerType and UnavailableMessage were inherited by the installer entry
+    REQUIRE(testManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_29 });
+    REQUIRE(testManifest.Installers.size() == 1);
+    REQUIRE(testManifest.Installers[0].BaseInstallerType == InstallerTypeEnum::NoInstaller);
+    REQUIRE(testManifest.Installers[0].EffectiveInstallerType() == InstallerTypeEnum::NoInstaller);
+    REQUIRE(testManifest.Installers[0].UnavailableMessage == "This software has been discontinued by the publisher.");
+
+    // Manifest validation should succeed
+    auto errors = ValidateManifest(testManifest, true);
+    REQUIRE(errors.empty());
 }
 
 TEST_CASE("WriteManifestWithMultipleLocale", "[ManifestCreation]")

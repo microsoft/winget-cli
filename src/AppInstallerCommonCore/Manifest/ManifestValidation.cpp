@@ -228,6 +228,20 @@ namespace AppInstaller::Manifest
                     resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "ProductId");
                 }
             }
+            else if (installer.EffectiveInstallerType() == InstallerTypeEnum::NoInstaller)
+            {
+                // For NoInstaller type, InstallerUrl must not be present and InstallerSha256 is optional.
+                // The installer is retained for package correlation; installation is intentionally blocked.
+                if (!installer.Url.empty())
+                {
+                    resultErrors.emplace_back(ManifestError::FieldNotSupported, "InstallerUrl");
+                }
+                // ProductId should not be used
+                if (!installer.ProductId.empty())
+                {
+                    resultErrors.emplace_back(ManifestError::FieldNotSupported, "ProductId");
+                }
+            }
             else
             {
                 // For other types, Url and Sha256 are required
@@ -243,6 +257,11 @@ namespace AppInstaller::Manifest
                 if (!installer.ProductId.empty())
                 {
                     resultErrors.emplace_back(ManifestError::FieldNotSupported, "ProductId");
+                }
+                // UnavailableMessage is only valid for NoInstaller type
+                if (!installer.UnavailableMessage.empty())
+                {
+                    resultErrors.emplace_back(ManifestError::FieldNotSupported, "UnavailableMessage");
                 }
 
                 // Ensure that each URL has a one to one mapping with a Sha256 and

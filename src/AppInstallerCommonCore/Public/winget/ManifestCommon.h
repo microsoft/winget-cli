@@ -57,6 +57,9 @@ namespace AppInstaller::Manifest
     // V1.28 manifest version
     constexpr std::string_view s_ManifestVersionV1_28 = "1.28.0"sv;
 
+    // V1.29 manifest version
+    constexpr std::string_view s_ManifestVersionV1_29 = "1.29.0"sv;
+
     // Any new manifest version must also be added to src\WinGetUtilInterop\Manifest\ManifestVersion.cs.
 
     // The manifest extension for the MS Store
@@ -111,6 +114,7 @@ namespace AppInstaller::Manifest
         MSStore,
         Portable,
         Font,
+        NoInstaller,
     };
 
     enum class UpdateBehaviorEnum

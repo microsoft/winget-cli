@@ -324,6 +324,20 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
 
+        if (installer->EffectiveInstallerType() == InstallerTypeEnum::NoInstaller)
+        {
+            if (!installer->UnavailableMessage.empty())
+            {
+                context.Reporter.Error() << installer->UnavailableMessage << std::endl;
+            }
+            else
+            {
+                context.Reporter.Error() << Resource::String::InstallerNotAvailableDefaultMessage << std::endl;
+            }
+            context.Reporter.Error() << Resource::String::InstallerNotAvailable << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_NOT_AVAILABLE);
+        }
+
         context <<
             EnsureSupportForDownload <<
             EnsureSupportForInstall;
