@@ -1334,10 +1334,6 @@ Do you agree to the terms?</value>
     <value>The installer for this package is no longer available.</value>
     <comment>Error message displayed when a package's installer has been intentionally withdrawn and no download URL is present.</comment>
   </data>
-  <data name="InstallerNotAvailableDefaultMessage" xml:space="preserve">
-    <value>The installer for this version is no longer available.</value>
-    <comment>Default message shown to the user when an installer is unavailable and no custom message was provided in the manifest.</comment>
-  </data>
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>The following packages were found among the working sources.
 Please specify one of them using the --source option to proceed.</value>

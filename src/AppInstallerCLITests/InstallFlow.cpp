@@ -1328,6 +1328,9 @@ TEST_CASE("InstallFlow_NoInstaller_WithUnavailableMessage", "[InstallFlow][workf
     // Verify the custom UnavailableMessage is shown
     REQUIRE(installOutput.str().find("Contact vendor for installer") != std::string::npos);
 
+    // Verify the generic fallback message is NOT shown when a custom message is provided
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallerNotAvailable).get()) == std::string::npos);
+
     // Verify installer was not executed
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
 }
@@ -1349,7 +1352,7 @@ TEST_CASE("InstallFlow_NoInstaller_DefaultMessage", "[InstallFlow][workflow]")
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INSTALLER_NOT_AVAILABLE);
 
     // Verify the default unavailable message is shown
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallerNotAvailableDefaultMessage).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallerNotAvailable).get()) != std::string::npos);
 
     // Verify installer was not executed
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));

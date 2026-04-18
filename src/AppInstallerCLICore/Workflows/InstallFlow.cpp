@@ -332,9 +332,8 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                context.Reporter.Error() << Resource::String::InstallerNotAvailableDefaultMessage << std::endl;
+                context.Reporter.Error() << Resource::String::InstallerNotAvailable << std::endl;
             }
-            context.Reporter.Error() << Resource::String::InstallerNotAvailable << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_NOT_AVAILABLE);
         }
 
