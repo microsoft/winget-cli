@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.29.0.schema.json
+
+PackageIdentifier: AppInstallerCliTest.TestNoInstaller
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+Publisher: Microsoft Corporation
+PackageName: AppInstaller Test NoInstaller
+License: Test
+ShortDescription: AppInstaller Test NoInstaller
+
+Installers:
+  - Architecture: x64
+    InstallerType: noinstaller
+    UnavailableMessage: Contact vendor for installer
+ManifestType: singleton
+ManifestVersion: 1.29.0
