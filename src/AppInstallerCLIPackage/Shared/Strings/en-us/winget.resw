@@ -1125,8 +1125,8 @@ Do you agree to the terms?</value>
   <data name="ShowLabelInstallerUrl" xml:space="preserve">
     <value>Installer Url:</value>
   </data>
-  <data name="ShowLabelUnavailableMessage" xml:space="preserve">
-    <value>Unavailable Message:</value>
+  <data name="ShowLabelInstallerAvailabilityMessage" xml:space="preserve">
+    <value>Installer Availability Message:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>License:</value>

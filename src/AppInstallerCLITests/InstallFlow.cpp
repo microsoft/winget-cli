@@ -1309,7 +1309,7 @@ TEST_CASE("InstallFlow_InstallWithReboot", "[InstallFlow][workflow][reboot]")
     }
 }
 
-TEST_CASE("InstallFlow_NoInstaller_WithUnavailableMessage", "[InstallFlow][workflow]")
+TEST_CASE("InstallFlow_NoInstaller_WithInstallerAvailabilityMessage", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
@@ -1325,7 +1325,7 @@ TEST_CASE("InstallFlow_NoInstaller_WithUnavailableMessage", "[InstallFlow][workf
     // Verify termination with the NoInstaller error code
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INSTALLER_NOT_AVAILABLE);
 
-    // Verify the custom UnavailableMessage is shown
+    // Verify the custom InstallerAvailabilityMessage is shown
     REQUIRE(installOutput.str().find("Contact vendor for installer") != std::string::npos);
 
     // Verify the generic fallback message is NOT shown when a custom message is provided

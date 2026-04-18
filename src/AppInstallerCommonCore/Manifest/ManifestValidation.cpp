@@ -258,10 +258,10 @@ namespace AppInstaller::Manifest
                 {
                     resultErrors.emplace_back(ManifestError::FieldNotSupported, "ProductId");
                 }
-                // UnavailableMessage is only valid for NoInstaller type
-                if (!installer.UnavailableMessage.empty())
+                // InstallerAvailabilityMessage is only valid for NoInstaller type
+                if (!installer.InstallerAvailabilityMessage.empty())
                 {
-                    resultErrors.emplace_back(ManifestError::FieldNotSupported, "UnavailableMessage");
+                    resultErrors.emplace_back(ManifestError::FieldNotSupported, "InstallerAvailabilityMessage");
                 }
 
                 // Ensure that each URL has a one to one mapping with a Sha256 and

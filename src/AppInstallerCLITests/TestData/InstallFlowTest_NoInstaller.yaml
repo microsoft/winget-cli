@@ -11,6 +11,6 @@ ShortDescription: AppInstaller Test NoInstaller
 Installers:
   - Architecture: x64
     InstallerType: noinstaller
-    UnavailableMessage: Contact vendor for installer
+    InstallerAvailabilityMessage: Contact vendor for installer
 ManifestType: singleton
 ManifestVersion: 1.29.0

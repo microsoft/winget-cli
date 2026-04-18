@@ -326,9 +326,9 @@ namespace AppInstaller::CLI::Workflow
 
         if (installer->EffectiveInstallerType() == InstallerTypeEnum::NoInstaller)
         {
-            if (!installer->UnavailableMessage.empty())
+            if (!installer->InstallerAvailabilityMessage.empty())
             {
-                context.Reporter.Error() << installer->UnavailableMessage << std::endl;
+                context.Reporter.Error() << installer->InstallerAvailabilityMessage << std::endl;
             }
             else
             {

@@ -1,5 +1,5 @@
-# Bad manifest. UnavailableMessage is only valid for noinstaller type.
-# This manifest has InstallerType: exe at root with UnavailableMessage at root — invalid.
+# Bad manifest. InstallerAvailabilityMessage is only valid for noinstaller type.
+# This manifest has InstallerType: exe at root with InstallerAvailabilityMessage at root — invalid.
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.29.0.schema.json
 
 PackageIdentifier: microsoft.msixsdk
@@ -10,7 +10,7 @@ PackageName: MSIX SDK
 License: MIT License
 ShortDescription: This is MSIX SDK
 InstallerType: exe
-UnavailableMessage: This should not be allowed for exe type.
+InstallerAvailabilityMessage: This should not be allowed for exe type.
 
 Installers:
   - Architecture: x64

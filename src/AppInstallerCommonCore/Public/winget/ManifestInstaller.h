@@ -123,6 +123,6 @@ namespace AppInstaller::Manifest
 
         std::vector<DesiredStateConfigurationContainerInfo> DesiredStateConfiguration;
 
-        string_t UnavailableMessage;
+        string_t InstallerAvailabilityMessage;
     };
 }

@@ -103,7 +103,7 @@ TEST_CASE("ShowFlow_NestedInstallerType", "[ShowFlow][workflow]")
     REQUIRE(showOutput.str().find("exe (zip)") != std::string::npos);
 }
 
-TEST_CASE("ShowFlow_NoInstaller_UnavailableMessage", "[ShowFlow][workflow]")
+TEST_CASE("ShowFlow_NoInstaller_InstallerAvailabilityMessage", "[ShowFlow][workflow]")
 {
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
@@ -121,7 +121,7 @@ TEST_CASE("ShowFlow_NoInstaller_UnavailableMessage", "[ShowFlow][workflow]")
     REQUIRE(showOutput.str().find(Resource::LocString(Resource::String::ShowLabelInstallerOfflineDistributionSupported)) != std::string::npos);
     REQUIRE(showOutput.str().find("false") != std::string::npos);
 
-    // Verify UnavailableMessage label and value are shown
-    REQUIRE(showOutput.str().find(Resource::LocString(Resource::String::ShowLabelUnavailableMessage)) != std::string::npos);
+    // Verify InstallerAvailabilityMessage label and value are shown
+    REQUIRE(showOutput.str().find(Resource::LocString(Resource::String::ShowLabelInstallerAvailabilityMessage)) != std::string::npos);
     REQUIRE(showOutput.str().find("Contact vendor for installer") != std::string::npos);
 }

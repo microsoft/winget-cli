@@ -163,7 +163,7 @@ namespace AppInstaller::CLI::Workflow
             ShowSingleLineField(info, Resource::String::ShowLabelInstallerReleaseDate, installer->ReleaseDate, true);
             const bool offlineDistributionSupported = (installer->EffectiveInstallerType() != Manifest::InstallerTypeEnum::NoInstaller) && !installer->DownloadCommandProhibited;
             ShowSingleLineField(info, Resource::String::ShowLabelInstallerOfflineDistributionSupported, Utility::ConvertBoolToString(offlineDistributionSupported), true);
-            ShowSingleLineField(info, Resource::String::ShowLabelUnavailableMessage, installer->UnavailableMessage, true);
+            ShowSingleLineField(info, Resource::String::ShowLabelInstallerAvailabilityMessage, installer->InstallerAvailabilityMessage, true);
 
             const auto& dependencies = installer->Dependencies;
 

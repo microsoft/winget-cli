@@ -81,7 +81,7 @@ namespace AppInstaller::Manifest::YamlWriter
         constexpr std::string_view DesiredStateConfigurationPowerShellResourceName = "Name"sv;
         constexpr std::string_view DesiredStateConfigurationDSCv3 = "DSCv3"sv;
         constexpr std::string_view DesiredStateConfigurationDSCv3ResourceType = "Type"sv;
-        constexpr std::string_view UnavailableMessage = "UnavailableMessage"sv;
+        constexpr std::string_view InstallerAvailabilityMessage = "InstallerAvailabilityMessage"sv;
 
         // Installer switches
         constexpr std::string_view InstallerSwitches = "InstallerSwitches"sv;
@@ -725,7 +725,7 @@ namespace AppInstaller::Manifest::YamlWriter
             ProcessUnsupportedOSArchitecture(out, installer.UnsupportedOSArchitectures);
             ProcessAuthentication(out, installer.AuthInfo);
             ProcessDesiredStateConfiguration(out, installer.DesiredStateConfiguration);
-            WRITE_PROPERTY_IF_EXISTS(out, UnavailableMessage, installer.UnavailableMessage);
+            WRITE_PROPERTY_IF_EXISTS(out, InstallerAvailabilityMessage, installer.InstallerAvailabilityMessage);
         }
 
         void ProcessInstaller(YAML::Emitter& out, const ManifestInstaller& installer)

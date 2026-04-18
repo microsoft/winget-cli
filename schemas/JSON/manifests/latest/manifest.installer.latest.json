@@ -3,6 +3,12 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "description": "A representation of a single-file manifest representing an app installers in the OWC. v1.29.0",
   "definitions": {
+    "InstallerAvailabilityMessage": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "A message to display when the installer is not available (only valid for noinstaller type)"
+    },
     "PackageIdentifier": {
       "type": "string",
       "pattern": "^[^\\.\\s\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]{1,32}(\\.[^\\.\\s\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]{1,32}){1,7}$",
@@ -842,11 +848,8 @@
         "DesiredStateConfiguration": {
           "$ref": "#/definitions/DesiredStateConfiguration"
         },
-        "UnavailableMessage": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 512,
-          "description": "A message to display when the installer is not available (only valid for noinstaller type)"
+        "InstallerAvailabilityMessage": {
+          "$ref": "#/definitions/InstallerAvailabilityMessage"
         }
       },
       "required": [
@@ -985,11 +988,8 @@
     "DesiredStateConfiguration": {
       "$ref": "#/definitions/DesiredStateConfiguration"
     },
-    "UnavailableMessage": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 512,
-      "description": "A message to display when the installer is not available (only valid for noinstaller type)"
+    "InstallerAvailabilityMessage": {
+      "$ref": "#/definitions/InstallerAvailabilityMessage"
     },
     "Installers": {
       "type": "array",

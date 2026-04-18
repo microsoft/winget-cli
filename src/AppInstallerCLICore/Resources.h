@@ -656,7 +656,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerSha256);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerType);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerUrl);
-        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelUnavailableMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerAvailabilityMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelLicense);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelLicenseUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelMoniker);
