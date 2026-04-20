@@ -41,7 +41,7 @@ configuration:
                 The English resource file [**/en-us/winget.resw](https://github.com/microsoft/winget-cli/blob/master/src/AppInstallerCLIPackage/Shared/Strings/en-us/winget.resw) is the only file contributors should edit for string changes. It feeds the Microsoft localization pipeline. The files under [Localization\Resources\<locale>\](https://github.com/microsoft/winget-cli/tree/master/Localization/Resources) are **automatically synced from Microsoft's internal localization system and must not be edited**. Any manual edits will be overwritten on the next sync.
 
 
-                Instead of this PR, it would be helpful if you could [open an issue](https://github.com/microsoft/winget-cli/issues/new?template=Documentation_Issue.yml) so the internal localization team can review it. For more information, please see the [Development Guide](https://github.com/microsoft/winget-cli/blob/master/doc/Developing.md#localization).
+                Instead of this PR, it would be helpful if you could [open an issue](https://github.com/microsoft/winget-cli/issues/new?template=Localization_Issue.yml) and it will be forwarded to the internal localization team for review. For more information, please see the [Development Guide](https://github.com/microsoft/winget-cli/blob/master/doc/Developing.md#localization).
 
 
                 Template: msftbot/PullRequests/LocalizationFileChange
