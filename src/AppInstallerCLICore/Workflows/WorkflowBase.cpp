@@ -973,7 +973,13 @@ namespace AppInstaller::CLI::Workflow
 
         if (!searchResult.Failures.empty())
         {
-            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::TreatSourceFailuresAsWarning))
+            // When the install command finds exactly one result from working sources, auto-proceed
+            // instead of requiring the user to specify --source.
+            bool singleResultOnPartialFailure =
+                WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::ShowSearchResultsOnPartialFailure) &&
+                searchResult.Matches.size() == 1;
+
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::TreatSourceFailuresAsWarning) || singleResultOnPartialFailure)
             {
                 auto warn = context.Reporter.Warn();
                 for (const auto& failure : searchResult.Failures)
