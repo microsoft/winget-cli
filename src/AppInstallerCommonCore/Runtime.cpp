@@ -280,6 +280,7 @@ namespace AppInstaller::Runtime
         {
         case PathName::Temp:
             result.Path = GetPathToUserTemp(forDisplay) / s_DefaultTempDirectory;
+            result.Path /= GetRuntimePathStateName();
             result.SetOwner(ACEPrincipal::CurrentUser);
             result.ACL[ACEPrincipal::System] = ACEPermissions::All;
             result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
