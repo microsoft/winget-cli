@@ -5,6 +5,10 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    // Returns true if interactivity is currently allowed in the given context.
+    bool IsInteractivityAllowed(Execution::Context& context);
+
+
     // Handles all opened source(s) agreements if needed.
     // Required Args: The source to be checked for agreements
     // Inputs: None

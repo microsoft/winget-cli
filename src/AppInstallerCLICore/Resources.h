@@ -610,6 +610,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SearchFailureError);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchFailureErrorListMatches);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchFailureErrorNoMatches);
+        WINGET_DEFINE_RESOURCE_STRINGID(SearchFailureSingleResultPrompt);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchFailureWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchId);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchMatch);
