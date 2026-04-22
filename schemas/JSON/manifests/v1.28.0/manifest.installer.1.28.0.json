@@ -1,14 +1,8 @@
 {
-  "$id": "https://aka.ms/winget-manifest.installer.1.29.0.schema.json",
+  "$id": "https://aka.ms/winget-manifest.installer.1.28.0.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "description": "A representation of a single-file manifest representing an app installers in the OWC. v1.29.0",
+  "description": "A representation of a single-file manifest representing an app installers in the OWC. v1.28.0",
   "definitions": {
-    "InstallerAvailabilityMessage": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 512,
-      "description": "A message to display when the installer is not available (only valid for noinstaller type)"
-    },
     "PackageIdentifier": {
       "type": "string",
       "pattern": "^[^\\.\\s\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]{1,32}(\\.[^\\.\\s\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]{1,32}){1,7}$",
@@ -72,8 +66,7 @@
         "burn",
         "pwa",
         "portable",
-        "font",
-        "noinstaller"
+        "font"
       ],
       "description": "Enumeration of supported installer types. InstallerType is required in either root level or individual Installer level"
     },
@@ -847,26 +840,13 @@
         },
         "DesiredStateConfiguration": {
           "$ref": "#/definitions/DesiredStateConfiguration"
-        },
-        "InstallerAvailabilityMessage": {
-          "$ref": "#/definitions/InstallerAvailabilityMessage"
         }
       },
       "required": [
-        "Architecture"
-      ],
-      "if": {
-        "properties": {
-          "InstallerType": { "not": { "const": "noinstaller" } }
-        },
-        "required": ["InstallerType"]
-      },
-      "then": {
-        "required": [
-          "InstallerUrl",
-          "InstallerSha256"
-        ]
-      }
+        "Architecture",
+        "InstallerUrl",
+        "InstallerSha256"
+      ]
     }
   },
   "type": "object",
@@ -988,9 +968,6 @@
     "DesiredStateConfiguration": {
       "$ref": "#/definitions/DesiredStateConfiguration"
     },
-    "InstallerAvailabilityMessage": {
-      "$ref": "#/definitions/InstallerAvailabilityMessage"
-    },
     "Installers": {
       "type": "array",
       "items": {
@@ -1007,7 +984,7 @@
     },
     "ManifestVersion": {
       "type": "string",
-      "default": "1.29.0",
+      "default": "1.28.0",
       "pattern": "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){2}$",
       "description": "The manifest syntax version"
     }
@@ -1018,23 +995,5 @@
     "Installers",
     "ManifestType",
     "ManifestVersion"
-  ],
-  "if": {
-    "not": {
-      "properties": {
-        "InstallerType": { "const": "noinstaller" }
-      },
-      "required": ["InstallerType"]
-    }
-  },
-  "then": {
-    "properties": {
-      "Installers": {
-        "items": {
-          "if": { "not": { "required": ["InstallerType"] } },
-          "then": { "required": ["InstallerUrl", "InstallerSha256"] }
-        }
-      }
-    }
-  }
+  ]
 }

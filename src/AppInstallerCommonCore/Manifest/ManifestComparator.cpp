@@ -332,6 +332,11 @@ namespace AppInstaller::Manifest
 
             InapplicabilityFlags IsApplicable(const ManifestInstaller& installer) override
             {
+                // NoInstaller is always applicable for type compatibility; it never blocks on installed type.
+                if (installer.EffectiveInstallerType() == InstallerTypeEnum::NoInstaller)
+                {
+                    return InapplicabilityFlags::None;
+                }
                 return IsInstallerCompatibleWith(installer, m_installedType) ? InapplicabilityFlags::None : InapplicabilityFlags::InstalledType;
             }
 
@@ -712,6 +717,32 @@ namespace AppInstaller::Manifest
 
             Manifest::string_t m_market;
         };
+
+        // Ranks NoInstaller below any real installer type so that a real installer is always preferred.
+        struct NoInstallerLastComparator : public details::ComparisonField
+        {
+            NoInstallerLastComparator() : details::ComparisonField("NoInstaller Last") {}
+
+            InapplicabilityFlags IsApplicable(const ManifestInstaller&) override
+            {
+                return InapplicabilityFlags::None;
+            }
+
+            std::string ExplainInapplicable(const ManifestInstaller&) override { return {}; }
+
+            details::ComparisonResult IsFirstBetter(const ManifestInstaller& first, const ManifestInstaller& second) override
+            {
+                bool firstIsNoInstaller = (first.EffectiveInstallerType() == InstallerTypeEnum::NoInstaller);
+                bool secondIsNoInstaller = (second.EffectiveInstallerType() == InstallerTypeEnum::NoInstaller);
+
+                if (!firstIsNoInstaller && secondIsNoInstaller)
+                {
+                    return details::ComparisonResult::StrongPositive;
+                }
+
+                return details::ComparisonResult::Negative;
+            }
+        };
     }
 
     ManifestComparator::ManifestComparator(const Options& options)
@@ -758,6 +789,8 @@ namespace AppInstaller::Manifest
         // Only applies when preference exists:
         // Weak if first is in preference list and second is not
         AddComparator(InstallerTypeComparator::Create(options));
+        // Strong if first is a real installer and second is NoInstaller; ensures NoInstaller is only selected as a last resort.
+        AddComparator(std::make_unique<NoInstallerLastComparator>());
     }
 
     InstallerAndInapplicabilities ManifestComparator::GetPreferredInstaller(const Manifest& manifest)

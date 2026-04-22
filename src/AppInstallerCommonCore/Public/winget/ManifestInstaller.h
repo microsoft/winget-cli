@@ -122,5 +122,7 @@ namespace AppInstaller::Manifest
         Authentication::AuthenticationInfo AuthInfo;
 
         std::vector<DesiredStateConfigurationContainerInfo> DesiredStateConfiguration;
+
+        string_t InstallerAvailabilityMessage;
     };
 }
