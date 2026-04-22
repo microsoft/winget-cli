@@ -964,6 +964,13 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Exe;
     }
 
+    bool DoesInstallerTypeUseMsiProperties(InstallerTypeEnum installerType)
+    {
+        return
+            installerType == InstallerTypeEnum::Msi ||
+            installerType == InstallerTypeEnum::Wix;
+    }
+
     bool IsArchiveType(InstallerTypeEnum installerType)
     {
         return (installerType == InstallerTypeEnum::Zip);

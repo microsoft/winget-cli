@@ -1141,4 +1141,22 @@ namespace AppInstaller::Utility
 
         return result;
     }
+
+    bool IsValidWindowsFeaturePattern(std::string_view value)
+    {
+        if (value.empty())
+        {
+            return false;
+        }
+
+        for (char c : value)
+        {
+            if (!std::isalnum(static_cast<unsigned char>(c)) && c != '-' && c != '_')
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
