@@ -412,6 +412,35 @@ namespace AppInstaller::Repository::Microsoft
             return IsAfterUpdateCheckTime(details.Name, timeToCheck, requestedUpdateInterval);
         }
 
+        SQLiteIndex OpenPackagedContextIndex(const SourceDetails& details, IProgressCallback& progress, long long& extensionLookupMs, long long& verifyContentIntegrityMs, long long& sqliteOpenMs)
+        {
+            const auto extensionLookupStart = std::chrono::steady_clock::now();
+            auto extension = GetExtensionFromDetails(details);
+            extensionLookupMs += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - extensionLookupStart).count();
+            if (!extension)
+            {
+                AICLI_LOG(Repo, Info, << "Package not found " << details.Data);
+                THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
+            }
+
+            const auto verifyStart = std::chrono::steady_clock::now();
+            THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NEEDS_REMEDIATION), !extension->VerifyContentIntegrity(progress));
+            verifyContentIntegrityMs += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - verifyStart).count();
+
+            // To work around an issue with accessing the public folder, we are temporarily
+            // constructing the location ourself.  This was already the case for the non-packaged
+            // runtime, and we can fix both in the future.  The only problem with this is that
+            // the directory in the extension *must* be Public, rather than one set by the creator.
+            std::filesystem::path indexLocation = extension->GetPackagePath();
+            indexLocation /= s_PreIndexedPackageSourceFactory_IndexFilePath;
+
+            const auto sqliteOpenStart = std::chrono::steady_clock::now();
+            auto index = SQLiteIndex::Open(indexLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
+            sqliteOpenMs += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - sqliteOpenStart).count();
+
+            return index;
+        }
+
         struct PackagedContextSourceReference : public ISourceReference
         {
             PackagedContextSourceReference(const SourceDetails& details) : m_details(details)
@@ -433,34 +462,55 @@ namespace AppInstaller::Repository::Microsoft
 
             std::shared_ptr<ISource> Open(IProgressCallback& progress) override
             {
-                Synchronization::CrossProcessLock lock(CreateNameForCPL(m_details));
-                if (!lock.Acquire(progress))
+                const auto openStart = std::chrono::steady_clock::now();
+                bool succeeded = false;
+                bool usedLockFallback = false;
+                long long extensionLookupMs = 0;
+                long long verifyContentIntegrityMs = 0;
+                long long sqliteOpenMs = 0;
+                auto logOpenTiming = wil::scope_exit([&]()
+                    {
+                        const auto totalMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - openStart).count();
+                        AICLI_LOG(Repo, Info, << "Packaged source open for '" << m_details.Name << "' " << (succeeded ? "succeeded" : "failed") <<
+                            " in " << totalMs << " ms [extensionLookup=" << extensionLookupMs <<
+                            " ms, verifyContentIntegrity=" << verifyContentIntegrityMs <<
+                            " ms, sqliteOpen=" << sqliteOpenMs << " ms, mode=" << (usedLockFallback ? "fallbackLocked" : "optimistic") << "]");
+                    });
+
+                try
                 {
-                    return {};
-                }
+                    auto index = OpenPackagedContextIndex(m_details, progress, extensionLookupMs, verifyContentIntegrityMs, sqliteOpenMs);
 
-                auto extension = GetExtensionFromDetails(m_details);
-                if (!extension)
+                    // We didn't use to store the source identifier, so we compute it here in case it's
+                    // missing from the details.
+                    m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
+                    succeeded = true;
+                    return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), false, true);
+                }
+                catch (...)
                 {
-                    AICLI_LOG(Repo, Info, << "Package not found " << m_details.Data);
-                    THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
+                    if (progress.IsCancelledBy(CancelReason::Any))
+                    {
+                        throw;
+                    }
+
+                    LOG_CAUGHT_EXCEPTION_MSG("Optimistic packaged source open failed, retrying under lock for source: %hs", m_details.Name.c_str());
+
+                    Synchronization::CrossProcessLock lock(CreateNameForCPL(m_details));
+                    usedLockFallback = true;
+                    if (!lock.Acquire(progress))
+                    {
+                        return {};
+                    }
+
+                    auto index = OpenPackagedContextIndex(m_details, progress, extensionLookupMs, verifyContentIntegrityMs, sqliteOpenMs);
+
+                    // We didn't use to store the source identifier, so we compute it here in case it's
+                    // missing from the details.
+                    m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
+                    succeeded = true;
+                    return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), false, true);
                 }
-
-                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NEEDS_REMEDIATION), !extension->VerifyContentIntegrity(progress));
-
-                // To work around an issue with accessing the public folder, we are temporarily
-                // constructing the location ourself.  This was already the case for the non-packaged
-                // runtime, and we can fix both in the future.  The only problem with this is that
-                // the directory in the extension *must* be Public, rather than one set by the creator.
-                std::filesystem::path indexLocation = extension->GetPackagePath();
-                indexLocation /= s_PreIndexedPackageSourceFactory_IndexFilePath;
-
-                SQLiteIndex index = SQLiteIndex::Open(indexLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
-
-                // We didn't use to store the source identifier, so we compute it here in case it's
-                // missing from the details.
-                m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
-                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), false, true);
             }
 
         private:
