@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 #include "DependenciesTestSource.h"
+#include <AppInstallerRuntime.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/COMCommand.h>
 #include <Workflows/DependenciesFlow.h>
@@ -304,6 +305,42 @@ TEST_CASE("InstallFlow_Dependencies_COM", "[InstallFlow][workflow][dependencies]
     REQUIRE(installationOrder.at(0) == "Dependency1");
     REQUIRE(installationOrder.at(1) == "Dependency2");
     REQUIRE(installationOrder.at(2) == "AppInstallerCliTest.TestExeInstaller.MultipleDependencies");
+}
+
+void InstallFlow_Dependencies_WindowsFeaturesArgument_Generic(std::string_view featureName)
+{
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+
+    context << ShellExecuteEnableWindowsFeature(featureName);
+
+    INFO(installOutput.str());
+
+    REQUIRE(context.Contains(Execution::Data::OperationReturnCode));
+    REQUIRE(context.Get<Execution::Data::OperationReturnCode>() == E_INVALIDARG);
+}
+
+TEST_CASE("InstallFlow_Dependencies_WindowsFeaturesArgument_Extras", "[InstallFlow][workflow][dependencies][111981]")
+{
+    TempFile potentialLogFile("dism-log", ".log");
+    std::string featureName = "MediaPlayback /LogPath:";
+    featureName.append(potentialLogFile.GetPath().u8string());
+
+    InstallFlow_Dependencies_WindowsFeaturesArgument_Generic(featureName);
+
+    REQUIRE(!std::filesystem::exists(potentialLogFile));
+}
+
+TEST_CASE("InstallFlow_Dependencies_WindowsFeaturesArgument_Quoted", "[InstallFlow][workflow][dependencies][111981]")
+{
+    TempFile potentialLogFile("dism-log", ".log");
+    std::string featureName = "\"MediaPlayback /LogPath:";
+    featureName.append(potentialLogFile.GetPath().u8string());
+    featureName.append("\"");
+
+    InstallFlow_Dependencies_WindowsFeaturesArgument_Generic(featureName);
+
+    REQUIRE(!std::filesystem::exists(potentialLogFile));
 }
 
 // TODO:

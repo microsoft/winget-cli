@@ -7,6 +7,7 @@ ACCESSDENIED
 ACCESSTOKEN
 acl
 adjacents
+adminproperties
 adml
 admx
 AFAIK
@@ -98,6 +99,7 @@ COMGLB
 commandline
 compressapi
 concurrencysal
+Consolas
 constexpr
 contactsupport
 contentfiles
@@ -279,6 +281,7 @@ Kaido
 KNOWNFOLDERID
 kool
 ktf
+LASTEXITCODE
 LCID
 learnxinyminutes
 LEBOM
@@ -347,6 +350,7 @@ msdownload
 msft
 msftrubengu
 MSIHASH
+msinewinstance
 MSIXHASH
 MSIXSTRM
 msstore
@@ -510,6 +514,7 @@ sddl
 secureobject
 securestring
 seekp
+Segoe
 seof
 servercert
 servercertificate

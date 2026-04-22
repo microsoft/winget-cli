@@ -355,14 +355,14 @@ namespace AppInstaller::Msi
         // Validates that a token represents a property.
         // This checks that the property has the form PropertyName=Value,
         // with the value optionally quoted.
-        bool IsValidPropertyToken(std::string_view token)
+        std::optional<MsiParsedArguments::ParsedProperty> ParsePropertyToken(std::string_view token)
         {
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR, token.empty());
 
             if (token[0] != '%' && !IsCharAlphaNumericA(token[0]))
             {
                 AICLI_LOG(Core, Error, << "Bad property for msiexec: " << token);
-                return false;
+                return std::nullopt;
             }
 
             // Find the = separator at the end of the property name
@@ -375,8 +375,10 @@ namespace AppInstaller::Msi
             if (pos == token.size() || token[pos] != '=')
             {
                 AICLI_LOG(Core, Error, << "Expected property for call to msiexec, but couldn't find separator: " << token);
-                return false;
+                return std::nullopt;
             }
+
+            size_t nameLength = pos;
 
             // Validate the property value.
             // It should be completely enclosed in quotes, or not contain white space.
@@ -386,7 +388,7 @@ namespace AppInstaller::Msi
             if (pos == token.size())
             {
                 // Empty value
-                return true;
+                return MsiParsedArguments::ParsedProperty{ std::string{ token.substr(0, nameLength) }, {} };
             }
 
             // If quoted, we will only inspect the values between the quotes.
@@ -438,7 +440,7 @@ namespace AppInstaller::Msi
                 ++pos;
             }
 
-            return true;
+            return MsiParsedArguments::ParsedProperty{ std::string{ token.substr(0, nameLength) }, std::string{ token.substr(nameLength + 1) } };
         }
 
         // Replaces long options in the arguments (e.g. /quiet), by their short equivalents
@@ -502,9 +504,11 @@ namespace AppInstaller::Msi
             tokens.pop_front();
             if (!IsSwitch(token))
             {
+                auto propertyToken = ParsePropertyToken(token);
                 // Token is a property, i.e. NAME=value. Add it to the parsed args.
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT, !IsValidPropertyToken(token));
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT, !propertyToken);
                 parsedArgs.Properties += L" " + Utility::ConvertToUTF16(token);
+                parsedArgs.ParsedProperties.emplace_back(std::move(propertyToken).value());
                 return;
             }
 
@@ -548,6 +552,30 @@ namespace AppInstaller::Msi
             }
             }
         }
+    }
+
+    std::optional<std::string> MsiParsedArguments::GetFirstBlockedProperty() const
+    {
+        for (const auto& property : ParsedProperties)
+        {
+            auto lowerName = Utility::ToLower(property.first);
+
+            for (const auto& blockedName : {
+                    "transforms",
+                    "patch",
+                    "msinewinstance",
+                    "adminproperties",
+                })
+            {
+                if (blockedName == lowerName)
+                {
+                    AICLI_LOG(Core, Warning, << "MSI arguments contain blocked property: " << lowerName);
+                    return property.first;
+                }
+            }
+        }
+
+        return std::nullopt;
     }
 
     MsiParsedArguments ParseMSIArguments(std::string_view arguments)
