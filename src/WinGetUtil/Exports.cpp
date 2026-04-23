@@ -303,6 +303,7 @@ extern "C"
             validateOption.SchemaValidationOnly = WI_IsFlagSet(option, WinGetValidateManifestOption::SchemaValidationOnly);
             validateOption.ErrorOnVerifiedPublisherFields = WI_IsFlagSet(option, WinGetValidateManifestOption::ErrorOnVerifiedPublisherFields);
             validateOption.InstallerValidation = WI_IsFlagSet(option, WinGetValidateManifestOption::InstallerValidations);
+            validateOption.ErrorOnNetworkAddressInSwitches = WI_IsFlagSet(option, WinGetValidateManifestOption::ErrorOnNetworkAddressInSwitches);
 
             (void)YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L"");
 
@@ -348,6 +349,7 @@ extern "C"
                 validateOption.ThrowOnWarning = true;
                 validateOption.SchemaValidationOnly = WI_IsFlagClear(option, WinGetCreateManifestOption::SchemaAndSemanticValidation);
                 validateOption.ErrorOnVerifiedPublisherFields = WI_IsFlagSet(option, WinGetCreateManifestOption::ReturnErrorOnVerifiedPublisherFields);
+                validateOption.ErrorOnNetworkAddressInSwitches = WI_IsFlagSet(option, WinGetCreateManifestOption::ReturnErrorOnNetworkAddressInSwitches);
             }
 
             if (WI_IsFlagSet(option, WinGetCreateManifestOption::AllowShadowManifest))

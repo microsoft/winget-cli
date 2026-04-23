@@ -8,6 +8,7 @@
 #include "winget/MsixManifestValidation.h"
 #include "winget/Locale.h"
 #include "winget/Filesystem.h"
+#include "winget/MsiExecArguments.h"
 
 namespace AppInstaller::Manifest
 {
@@ -85,13 +86,29 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::SchemaHeaderUrlPatternMismatch, "The schema header URL does not match the expected pattern."sv },
                 { AppInstaller::Manifest::ManifestError::InvalidPortableFiletype, "The file type of the referenced file is not allowed."sv },
                 { AppInstaller::Manifest::ManifestError::InvalidFontFiletype, "The file type of the referenced file is not a supported font file type."sv },
+                { AppInstaller::Manifest::ManifestError::InvalidWindowsFeatureName, "The provided value is not a valid Windows feature name."sv },
+                { AppInstaller::Manifest::ManifestError::BlockedMsiProperty, "Contains a blocked MSI property."sv },
+                { AppInstaller::Manifest::ManifestError::InvalidMsiSwitches, "Contains invalid MSI switches."sv },
+                { AppInstaller::Manifest::ManifestError::ContainsNetworkAddress, "Installer switch contains network address."sv },
             };
 
             return ErrorIdToMessageMap;
         }
+
+        bool ContainsSharePathSignifier(std::string_view input)
+        {
+            return Utility::CaseInsensitiveContainsSubstring(input, "\\\\");
+        }
+
+        bool ContainsNetworkAddressSignifier(std::string_view input)
+        {
+            return Utility::CaseInsensitiveContainsSubstring(input, "http://") ||
+                Utility::CaseInsensitiveContainsSubstring(input, "https://") ||
+                Utility::CaseInsensitiveContainsSubstring(input, "ftp://");
+        }
     }
 
-    std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation)
+    std::vector<ValidationError> ValidateManifest(const Manifest& manifest, const ManifestValidateOption& options)
     {
         std::vector<ValidationError> resultErrors;
 
@@ -115,7 +132,7 @@ namespace AppInstaller::Manifest
             resultErrors.emplace_back(ManifestError::InvalidFieldValue, "PackageVersion", manifest.Version);
         }
 
-        auto defaultLocErrors = ValidateManifestLocalization(manifest.DefaultLocalization, !fullValidation);
+        auto defaultLocErrors = ValidateManifestLocalization(manifest.DefaultLocalization, !options.FullValidation);
         std::move(defaultLocErrors.begin(), defaultLocErrors.end(), std::inserter(resultErrors, resultErrors.end()));
 
         // Comparison function to check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
@@ -166,7 +183,7 @@ namespace AppInstaller::Manifest
         for (auto const& installer : manifest.Installers)
         {
             // If not full validation, for future compatibility, skip validating unknown installers.
-            if (installer.EffectiveInstallerType() == InstallerTypeEnum::Unknown && !fullValidation)
+            if (installer.EffectiveInstallerType() == InstallerTypeEnum::Unknown && !options.FullValidation)
             {
                 continue;
             }
@@ -215,7 +232,7 @@ namespace AppInstaller::Manifest
 
             if (installer.EffectiveInstallerType() == InstallerTypeEnum::MSStore)
             {
-                if (fullValidation)
+                if (options.FullValidation)
                 {
                     // MSStore type is not supported in community repo
                     resultErrors.emplace_back(
@@ -247,7 +264,7 @@ namespace AppInstaller::Manifest
 
                 // Ensure that each URL has a one to one mapping with a Sha256 and
                 // warn if a Sha256 has a one to many mapping with a URL
-                if (fullValidation && !installer.Url.empty() && !installer.Sha256.empty())
+                if (options.FullValidation && !installer.Url.empty() && !installer.Sha256.empty())
                 {
                     std::string checksum = Utility::SHA256::ConvertToString(installer.Sha256);
                     std::string url = installer.Url;
@@ -351,7 +368,7 @@ namespace AppInstaller::Manifest
                     }
 
                     // If running full validation, check filetype
-                    if (fullValidation)
+                    if (options.FullValidation)
                     {
                         if (isPortable)
                         {
@@ -425,7 +442,7 @@ namespace AppInstaller::Manifest
             // Check AuthInfo validity. For full validation (community repo), authentication type must be none.
             if (installer.AuthInfo.Type != Authentication::AuthenticationType::None)
             {
-                if (fullValidation)
+                if (options.FullValidation)
                 {
                     // Authentication is not supported (must be none) in community repo.
                     resultErrors.emplace_back(ManifestError::FieldNotSupported, "Authentication");
@@ -437,7 +454,15 @@ namespace AppInstaller::Manifest
                 }
             }
 
-            if (fullValidation)
+            installer.Dependencies.ApplyToType(DependencyType::WindowsFeature, [&](const Dependency& dependency)
+                {
+                    if (!IsValidWindowsFeaturePattern(dependency.Id()))
+                    {
+                        resultErrors.emplace_back(ManifestError::InvalidWindowsFeatureName, dependency.Id());
+                    }
+                });
+
+            if (options.FullValidation)
             {
                 for (const auto& container : installer.DesiredStateConfiguration)
                 {
@@ -448,13 +473,50 @@ namespace AppInstaller::Manifest
                         break;
                     }
                 }
+
+                if (DoesInstallerTypeUseMsiProperties(installer.EffectiveInstallerType()))
+                {
+                    try
+                    {
+                        for (const auto& item : installer.Switches)
+                        {
+                            if (!item.second.empty())
+                            {
+                                auto blocked = Msi::ParseMSIArguments(item.second).GetFirstBlockedProperty();
+                                if (blocked)
+                                {
+                                    resultErrors.emplace_back(ManifestError::BlockedMsiProperty, blocked.value());
+                                }
+                            }
+                        }
+                    }
+                    catch (...)
+                    {
+                        resultErrors.emplace_back(ManifestError::InvalidMsiSwitches);
+                    }
+                }
+
+                for (const auto& item : installer.Switches)
+                {
+                    if (!item.second.empty())
+                    {
+                        if (ContainsSharePathSignifier(item.second))
+                        {
+                            resultErrors.emplace_back(ManifestError::ContainsNetworkAddress, item.second);
+                        }
+                        else if (ContainsNetworkAddressSignifier(item.second))
+                        {
+                            resultErrors.emplace_back(ManifestError::ContainsNetworkAddress, item.second, options.ErrorOnNetworkAddressInSwitches ? ValidationError::Level::Error : ValidationError::Level::Warning);
+                        }
+                    }
+                }
             }
         }
 
         // Validate localizations
         for (auto const& localization : manifest.Localizations)
         {
-            auto locErrors = ValidateManifestLocalization(localization, !fullValidation);
+            auto locErrors = ValidateManifestLocalization(localization, !options.FullValidation);
             std::move(locErrors.begin(), locErrors.end(), std::inserter(resultErrors, resultErrors.end()));
         }
 
