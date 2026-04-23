@@ -329,7 +329,7 @@ namespace AppInstaller::Repository::Microsoft
             }
         };
 
-        // *Should only be called when under a CrossProcessReaderWriteLock*
+        // Optimistic packaged source open may call this without the cross process lock and retry under the lock on failure.
         std::optional<Deployment::Extension> GetExtensionFromDetails(const SourceDetails& details)
         {
             Deployment::ExtensionCatalog catalog(Deployment::SourceExtensionName);
@@ -412,20 +412,75 @@ namespace AppInstaller::Repository::Microsoft
             return IsAfterUpdateCheckTime(details.Name, timeToCheck, requestedUpdateInterval);
         }
 
-        SQLiteIndex OpenPackagedContextIndex(const SourceDetails& details, IProgressCallback& progress, long long& extensionLookupMs, long long& verifyContentIntegrityMs, long long& sqliteOpenMs)
+        struct PackagedSourceOpenTimer
         {
-            const auto extensionLookupStart = std::chrono::steady_clock::now();
+            using clock = std::chrono::steady_clock;
+
+            struct SingleTimer
+            {
+                SingleTimer(long long& durationMs) : m_durationMs(durationMs), m_start(clock::now()) {}
+
+                ~SingleTimer()
+                {
+                    Stop();
+                }
+
+                void Stop()
+                {
+                    if (!m_stopped)
+                    {
+                        m_durationMs += std::chrono::duration_cast<std::chrono::milliseconds>(clock::now() - m_start).count();
+                        m_stopped = true;
+                    }
+                }
+
+            private:
+                long long& m_durationMs;
+                clock::time_point m_start;
+                bool m_stopped = false;
+            };
+
+            PackagedSourceOpenTimer(const std::string& sourceName) : m_sourceName(sourceName), m_start(clock::now()) {}
+
+            ~PackagedSourceOpenTimer()
+            {
+                const auto totalMs = std::chrono::duration_cast<std::chrono::milliseconds>(clock::now() - m_start).count();
+                AICLI_LOG(Repo, Info, << "Packaged source open for '" << m_sourceName << "' " << (m_succeeded ? "succeeded" : "failed") <<
+                    " in " << totalMs << " ms [extensionLookup=" << m_extensionLookupMs <<
+                    " ms, verifyContentIntegrity=" << m_verifyContentIntegrityMs <<
+                    " ms, sqliteOpen=" << m_sqliteOpenMs << " ms, mode=" << (m_usedLockFallback ? "fallbackLocked" : "optimistic") << "]");
+            }
+
+            SingleTimer MeasureExtensionLookup() { return SingleTimer{ m_extensionLookupMs }; }
+            SingleTimer MeasureVerifyContentIntegrity() { return SingleTimer{ m_verifyContentIntegrityMs }; }
+            SingleTimer MeasureSQLiteOpen() { return SingleTimer{ m_sqliteOpenMs }; }
+            void MarkFallbackLocked() { m_usedLockFallback = true; }
+            void MarkSucceeded() { m_succeeded = true; }
+
+        private:
+            const std::string& m_sourceName;
+            clock::time_point m_start;
+            bool m_succeeded = false;
+            bool m_usedLockFallback = false;
+            long long m_extensionLookupMs = 0;
+            long long m_verifyContentIntegrityMs = 0;
+            long long m_sqliteOpenMs = 0;
+        };
+
+        SQLiteIndex OpenPackagedContextIndex(const SourceDetails& details, IProgressCallback& progress, PackagedSourceOpenTimer& openTimer)
+        {
+            auto extensionLookupTimer = openTimer.MeasureExtensionLookup();
             auto extension = GetExtensionFromDetails(details);
-            extensionLookupMs += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - extensionLookupStart).count();
+            extensionLookupTimer.Stop();
             if (!extension)
             {
                 AICLI_LOG(Repo, Info, << "Package not found " << details.Data);
                 THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
             }
 
-            const auto verifyStart = std::chrono::steady_clock::now();
+            auto verifyTimer = openTimer.MeasureVerifyContentIntegrity();
             THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NEEDS_REMEDIATION), !extension->VerifyContentIntegrity(progress));
-            verifyContentIntegrityMs += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - verifyStart).count();
+            verifyTimer.Stop();
 
             // To work around an issue with accessing the public folder, we are temporarily
             // constructing the location ourself.  This was already the case for the non-packaged
@@ -434,9 +489,9 @@ namespace AppInstaller::Repository::Microsoft
             std::filesystem::path indexLocation = extension->GetPackagePath();
             indexLocation /= s_PreIndexedPackageSourceFactory_IndexFilePath;
 
-            const auto sqliteOpenStart = std::chrono::steady_clock::now();
+            auto sqliteOpenTimer = openTimer.MeasureSQLiteOpen();
             auto index = SQLiteIndex::Open(indexLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
-            sqliteOpenMs += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - sqliteOpenStart).count();
+            sqliteOpenTimer.Stop();
 
             return index;
         }
@@ -462,30 +517,22 @@ namespace AppInstaller::Repository::Microsoft
 
             std::shared_ptr<ISource> Open(IProgressCallback& progress) override
             {
-                const auto openStart = std::chrono::steady_clock::now();
-                bool succeeded = false;
-                bool usedLockFallback = false;
-                long long extensionLookupMs = 0;
-                long long verifyContentIntegrityMs = 0;
-                long long sqliteOpenMs = 0;
-                auto logOpenTiming = wil::scope_exit([&]()
+                PackagedSourceOpenTimer openTimer{ m_details.Name };
+                auto completeOpen = [&](SQLiteIndex index)
                     {
-                        const auto totalMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - openStart).count();
-                        AICLI_LOG(Repo, Info, << "Packaged source open for '" << m_details.Name << "' " << (succeeded ? "succeeded" : "failed") <<
-                            " in " << totalMs << " ms [extensionLookup=" << extensionLookupMs <<
-                            " ms, verifyContentIntegrity=" << verifyContentIntegrityMs <<
-                            " ms, sqliteOpen=" << sqliteOpenMs << " ms, mode=" << (usedLockFallback ? "fallbackLocked" : "optimistic") << "]");
-                    });
+                        // We didn't use to store the source identifier, so we compute it here in case it's
+                        // missing from the details.
+                        m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
+                        openTimer.MarkSucceeded();
+                        return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), false, true);
+                    };
+
+                std::optional<SQLiteIndex> index;
+                bool retryUnderLock = false;
 
                 try
                 {
-                    auto index = OpenPackagedContextIndex(m_details, progress, extensionLookupMs, verifyContentIntegrityMs, sqliteOpenMs);
-
-                    // We didn't use to store the source identifier, so we compute it here in case it's
-                    // missing from the details.
-                    m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
-                    succeeded = true;
-                    return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), false, true);
+                    index.emplace(OpenPackagedContextIndex(m_details, progress, openTimer));
                 }
                 catch (...)
                 {
@@ -495,22 +542,22 @@ namespace AppInstaller::Repository::Microsoft
                     }
 
                     LOG_CAUGHT_EXCEPTION_MSG("Optimistic packaged source open failed, retrying under lock for source: %hs", m_details.Name.c_str());
+                    retryUnderLock = true;
+                }
 
+                if (retryUnderLock)
+                {
+                    openTimer.MarkFallbackLocked();
                     Synchronization::CrossProcessLock lock(CreateNameForCPL(m_details));
-                    usedLockFallback = true;
                     if (!lock.Acquire(progress))
                     {
                         return {};
                     }
 
-                    auto index = OpenPackagedContextIndex(m_details, progress, extensionLookupMs, verifyContentIntegrityMs, sqliteOpenMs);
-
-                    // We didn't use to store the source identifier, so we compute it here in case it's
-                    // missing from the details.
-                    m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
-                    succeeded = true;
-                    return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), false, true);
+                    index.emplace(OpenPackagedContextIndex(m_details, progress, openTimer));
                 }
+
+                return completeOpen(std::move(index.value()));
             }
 
         private:
