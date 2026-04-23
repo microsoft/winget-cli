@@ -43,6 +43,12 @@ namespace AppInstaller::Filesystem
             }
         };
 
+        struct ExpectedACE
+        {
+            ACEPrincipal Principal;
+            PSID SID;
+        };
+
         DWORD AccessPermissionsFrom(ACEPermissions permissions)
         {
             DWORD result = 0;
@@ -70,13 +76,6 @@ namespace AppInstaller::Filesystem
             }
 
             return result;
-        }
-
-        std::wstring GetSidString(PSID sid)
-        {
-            wil::unique_hlocal_string sidString;
-            THROW_IF_WIN32_BOOL_FALSE(ConvertSidToStringSidW(sid, &sidString));
-            return sidString.get();
         }
 
         DWORD NormalizeAccessMask(DWORD accessMask)
@@ -131,7 +130,7 @@ namespace AppInstaller::Filesystem
 
         std::optional<std::map<ACEPrincipal, PrincipalPermissions>> GetActualPermissions(
             PACL acl,
-            const std::map<std::wstring, ACEPrincipal>& sidToPrincipal)
+            const std::vector<ExpectedACE>& expectedAces)
         {
             constexpr BYTE s_AllowedAceFlags = OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE | INHERIT_ONLY_ACE;
 
@@ -152,9 +151,13 @@ namespace AppInstaller::Filesystem
                 }
 
                 const ACCESS_ALLOWED_ACE* accessAllowedAce = static_cast<ACCESS_ALLOWED_ACE*>(ace);
-                std::wstring sid = GetSidString(reinterpret_cast<PSID>(const_cast<DWORD*>(&accessAllowedAce->SidStart)));
-                auto principalItr = sidToPrincipal.find(sid);
-                if (principalItr == sidToPrincipal.end())
+                PSID sid = reinterpret_cast<PSID>(const_cast<DWORD*>(&accessAllowedAce->SidStart));
+                auto expectedAceItr = std::find_if(expectedAces.begin(), expectedAces.end(),
+                    [&](const auto& expectedAce)
+                    {
+                        return EqualSid(expectedAce.SID, sid);
+                    });
+                if (expectedAceItr == expectedAces.end())
                 {
                     return std::nullopt;
                 }
@@ -165,7 +168,7 @@ namespace AppInstaller::Filesystem
                     return std::nullopt;
                 }
 
-                PrincipalPermissions& principalPermissions = result[principalItr->second];
+                PrincipalPermissions& principalPermissions = result[expectedAceItr->Principal];
                 DWORD normalizedAccessMask = NormalizeAccessMask(accessAllowedAce->Mask);
 
                 if (!WI_IsFlagSet(aceHeader->AceFlags, INHERIT_ONLY_ACE))
@@ -207,7 +210,7 @@ namespace AppInstaller::Filesystem
             return std::nullopt;
         }
 
-        bool PathHasExpectedOwnerAndAcls(const PathDetails& details)
+        bool PathHasExpectedOwnerAndACLs(const PathDetails& details)
         {
             auto userToken = wil::get_token_information<TOKEN_USER>();
             auto adminSID = wil::make_static_sid(SECURITY_NT_AUTHORITY, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
@@ -271,7 +274,7 @@ namespace AppInstaller::Filesystem
                 return false;
             }
 
-            std::map<std::wstring, ACEPrincipal> sidToPrincipal;
+            std::vector<ExpectedACE> expectedAces;
             for (const auto& ace : aceDetails)
             {
                 if (principalToIgnore && principalToIgnore.value() == ace.Principal)
@@ -281,11 +284,11 @@ namespace AppInstaller::Filesystem
 
                 if (details.ACL.count(ace.Principal) != 0)
                 {
-                    sidToPrincipal.emplace(GetSidString(ace.SID), ace.Principal);
+                    expectedAces.push_back({ ace.Principal, ace.SID });
                 }
             }
 
-            auto actualPermissions = GetActualPermissions(currentDacl, sidToPrincipal);
+            auto actualPermissions = GetActualPermissions(currentDacl, expectedAces);
             return actualPermissions && actualPermissions.value() == expectedPermissions;
         }
 
@@ -580,7 +583,7 @@ namespace AppInstaller::Filesystem
 
         try
         {
-            return !anon::PathHasExpectedOwnerAndAcls(*this);
+            return !anon::PathHasExpectedOwnerAndACLs(*this);
         }
         catch (...)
         {
