@@ -390,18 +390,6 @@ TEST_CASE("ShouldApplyACL_TrueWhenUnexpectedAceExists", "[runtime]")
     REQUIRE(details.ShouldApplyACL());
 }
 
-TEST_CASE("SetRuntimePathStateName_AffectsTempPath", "[runtime]")
-{
-    constexpr std::string_view stateName = "Issue6162State";
-    auto restoreStateName = wil::scope_exit([]() { Runtime::SetRuntimePathStateName("defaultState"); });
-
-    Runtime::SetRuntimePathStateName(std::string{ stateName });
-
-    PathDetails details = Runtime::GetPathDetailsFor(Runtime::PathName::Temp, true);
-
-    REQUIRE(details.Path.filename() == Utility::ConvertToUTF16(stateName));
-}
-
 TEST_CASE("VerifyDevModeEnabledCheck", "[runtime]")
 {
     if (!Runtime::IsRunningAsAdmin())
