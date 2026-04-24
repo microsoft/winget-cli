@@ -482,6 +482,53 @@ namespace AppInstaller::Settings
         {
             return value * 24h;
         }
+
+        WINGET_VALIDATE_SIGNATURE(OutputSortOrder)
+        {
+            std::vector<SortField> fields;
+            for (auto const& entry : value)
+            {
+                if (Utility::CaseInsensitiveEquals(entry, "name"))
+                {
+                    fields.emplace_back(SortField::Name);
+                }
+                else if (Utility::CaseInsensitiveEquals(entry, "id"))
+                {
+                    fields.emplace_back(SortField::Id);
+                }
+                else if (Utility::CaseInsensitiveEquals(entry, "version"))
+                {
+                    fields.emplace_back(SortField::Version);
+                }
+                else if (Utility::CaseInsensitiveEquals(entry, "source"))
+                {
+                    fields.emplace_back(SortField::Source);
+                }
+                else if (Utility::CaseInsensitiveEquals(entry, "available"))
+                {
+                    fields.emplace_back(SortField::Available);
+                }
+                else
+                {
+                    return {};
+                }
+            }
+            return fields;
+        }
+
+        WINGET_VALIDATE_SIGNATURE(OutputSortDirection)
+        {
+            if (Utility::CaseInsensitiveEquals(value, "ascending"))
+            {
+                return SortDirection::Ascending;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, "descending"))
+            {
+                return SortDirection::Descending;
+            }
+
+            return {};
+        }
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

@@ -340,6 +340,35 @@
           "default": false
         }
       }
+    },
+    "Output": {
+      "description": "Output display settings",
+      "type": "object",
+      "properties": {
+        "sortOrder": {
+          "description": "Fields to sort output by, in priority order. Use an empty array to disable sorting.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "name",
+              "id",
+              "version",
+              "source",
+              "available"
+            ]
+          }
+        },
+        "sortDirection": {
+          "description": "Sort direction for output ordering",
+          "type": "string",
+          "enum": [
+            "ascending",
+            "descending"
+          ],
+          "default": "ascending"
+        }
+      }
     }
   },
   "allOf": [
@@ -406,6 +435,12 @@
     {
       "properties": {
         "interactivity": { "$ref": "#/definitions/Interactivity" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "output": { "$ref": "#/definitions/Output" }
       },
       "additionalItems": true
     },
