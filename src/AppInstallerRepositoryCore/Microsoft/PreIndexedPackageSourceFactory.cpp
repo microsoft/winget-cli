@@ -241,7 +241,32 @@ namespace AppInstaller::Repository::Microsoft
                     return false;
                 }
 
-                return UpdateInternal(packageInfo.PackageLocation(), details, progress);
+                std::optional<uint64_t> downloadedBytes;
+                bool result = UpdateInternal(packageInfo.PackageLocation(), details, progress, downloadedBytes);
+
+                if (downloadedBytes)
+                {
+                    try
+                    {
+                        auto manifests = packageInfo.MsixInfo().GetAppPackageManifests();
+                        if (!manifests.empty())
+                        {
+                            Logging::Telemetry().LogPreindexedPackageUpdate(
+                                details.Identifier,
+                                std::nullopt,
+                                Utility::GetTimePointFromVersion(manifests[0].GetIdentity().GetVersion()),
+                                false,
+                                std::nullopt,
+                                std::nullopt,
+                                false,
+                                downloadedBytes.value(),
+                                true);
+                        }
+                    }
+                    CATCH_LOG();
+                }
+
+                return result;
             }
 
             bool Update(const SourceDetails& details, IProgressCallback& progress) override final
@@ -257,7 +282,7 @@ namespace AppInstaller::Repository::Microsoft
             // Retrieves the currently cached version of the package.
             virtual std::optional<Msix::PackageVersion> GetCurrentVersion(const SourceDetails& details) = 0;
 
-            virtual bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress) = 0;
+            virtual bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress, std::optional<uint64_t>& downloadedBytes) = 0;
 
             bool Remove(const SourceDetails& details, IProgressCallback& progress) override final
             {
@@ -325,7 +350,30 @@ namespace AppInstaller::Repository::Microsoft
                     return false;
                 }
 
-                return UpdateInternal(updateCheck.PackageLocation(), details, progress);
+                std::optional<uint64_t> downloadedBytes = 0;
+                bool result = UpdateInternal(updateCheck.PackageLocation(), details, progress, downloadedBytes);
+
+                if (downloadedBytes)
+                {
+                    std::optional<std::chrono::system_clock::time_point> previousIndexPublishedAt;
+                    if (currentVersion)
+                    {
+                        previousIndexPublishedAt = Utility::GetTimePointFromVersion(currentVersion.value());
+                    }
+
+                    Logging::Telemetry().LogPreindexedPackageUpdate(
+                        details.Identifier,
+                        previousIndexPublishedAt,
+                        Utility::GetTimePointFromVersion(updateCheck.AvailableVersion()),
+                        false,
+                        std::nullopt,
+                        std::nullopt,
+                        false,
+                        downloadedBytes.value(),
+                        !isBackground);
+                }
+
+                return result;
             }
         };
 
@@ -577,7 +625,7 @@ namespace AppInstaller::Repository::Microsoft
                 return PackagedContextGetCurrentVersion(details);
             }
 
-            bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress) override
+            bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress, std::optional<uint64_t>& downloadedBytes) override
             {
                 // Due to complications with deployment, download the file and deploy from
                 // a local source while we investigate further.
@@ -589,7 +637,8 @@ namespace AppInstaller::Repository::Microsoft
                     localFile = Runtime::GetPathTo(Runtime::PathName::Temp);
                     localFile /= GetPackageFamilyNameFromDetails(details) + ".msix";
 
-                    Utility::Download(packageLocation, localFile, Utility::DownloadType::Index, progress);
+                    auto downloadResult = Utility::Download(packageLocation, localFile, Utility::DownloadType::Index, progress);
+                    downloadedBytes = downloadResult.SizeInBytes;
                 }
                 else
                 {
@@ -731,7 +780,7 @@ namespace AppInstaller::Repository::Microsoft
                 return DesktopContextGetCurrentVersion(details);
             }
 
-            bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress) override
+            bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress, std::optional<uint64_t>& downloadedBytes) override
             {
                 // We will extract the manifest and index files directly to this location
                 std::filesystem::path packageState = GetStatePathFromDetails(details);
@@ -754,7 +803,8 @@ namespace AppInstaller::Repository::Microsoft
 
                 if (Utility::IsUrlRemote(packageLocation))
                 {
-                    AppInstaller::Utility::Download(packageLocation, tempPackagePath, AppInstaller::Utility::DownloadType::Index, progress);
+                    auto downloadResult = AppInstaller::Utility::Download(packageLocation, tempPackagePath, AppInstaller::Utility::DownloadType::Index, progress);
+                    downloadedBytes = downloadResult.SizeInBytes;
                 }
                 else
                 {
