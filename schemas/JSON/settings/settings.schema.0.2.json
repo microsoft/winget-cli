@@ -215,6 +215,13 @@
           "default": 3,
           "minimum": 1
         },
+        "upgradeDelayInDays": {
+          "description": "Minimum number of days since the manifest ReleaseDate before winget upgrade --all applies the upgrade. Set to 0 to disable.",
+          "type": "integer",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 3650
+        },
         "archiveExtractionMethod": {
           "description": "Controls the behavior how the installer extracts archives. The current two supported values are 'shellApi' and 'tar'. 'shellApi' uses the Windows Shell API to extract archives. 'tar' uses the tar command to extract archives.",
           "type": "string",

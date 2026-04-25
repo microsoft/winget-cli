@@ -276,6 +276,10 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortablePackage)
         WINGET_VALIDATE_PASS_THROUGH(NetworkWingetAlternateSourceURL)
         WINGET_VALIDATE_PASS_THROUGH(MaxResumes)
+        WINGET_VALIDATE_SIGNATURE(UpgradeDelayInDays)
+        {
+            return std::chrono::hours{ static_cast<int64_t>(value) * 24 };
+        }
         WINGET_VALIDATE_PASS_THROUGH(LoggingFileTotalSizeLimitInMB)
         WINGET_VALIDATE_PASS_THROUGH(LoggingFileIndividualSizeLimitInMB)
         WINGET_VALIDATE_PASS_THROUGH(LoggingFileCountLimit)
