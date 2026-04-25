@@ -485,26 +485,32 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_SIGNATURE(OutputSortOrder)
         {
+            static constexpr std::string_view s_sortField_name = "name";
+            static constexpr std::string_view s_sortField_id = "id";
+            static constexpr std::string_view s_sortField_version = "version";
+            static constexpr std::string_view s_sortField_source = "source";
+            static constexpr std::string_view s_sortField_available = "available";
+
             std::vector<SortField> fields;
             for (auto const& entry : value)
             {
-                if (Utility::CaseInsensitiveEquals(entry, "name"))
+                if (Utility::CaseInsensitiveEquals(entry, s_sortField_name))
                 {
                     fields.emplace_back(SortField::Name);
                 }
-                else if (Utility::CaseInsensitiveEquals(entry, "id"))
+                else if (Utility::CaseInsensitiveEquals(entry, s_sortField_id))
                 {
                     fields.emplace_back(SortField::Id);
                 }
-                else if (Utility::CaseInsensitiveEquals(entry, "version"))
+                else if (Utility::CaseInsensitiveEquals(entry, s_sortField_version))
                 {
                     fields.emplace_back(SortField::Version);
                 }
-                else if (Utility::CaseInsensitiveEquals(entry, "source"))
+                else if (Utility::CaseInsensitiveEquals(entry, s_sortField_source))
                 {
                     fields.emplace_back(SortField::Source);
                 }
-                else if (Utility::CaseInsensitiveEquals(entry, "available"))
+                else if (Utility::CaseInsensitiveEquals(entry, s_sortField_available))
                 {
                     fields.emplace_back(SortField::Available);
                 }
@@ -518,11 +524,14 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_SIGNATURE(OutputSortDirection)
         {
-            if (Utility::CaseInsensitiveEquals(value, "ascending"))
+            static constexpr std::string_view s_sortDirection_ascending = "ascending";
+            static constexpr std::string_view s_sortDirection_descending = "descending";
+
+            if (Utility::CaseInsensitiveEquals(value, s_sortDirection_ascending))
             {
                 return SortDirection::Ascending;
             }
-            else if (Utility::CaseInsensitiveEquals(value, "descending"))
+            else if (Utility::CaseInsensitiveEquals(value, s_sortDirection_descending))
             {
                 return SortDirection::Descending;
             }
