@@ -370,9 +370,11 @@ namespace AppInstaller::Manifest
                     // If running full validation, check filetype
                     if (options.FullValidation)
                     {
+                        const std::wstring lowerExtension = Utility::ToLower(fullPath.extension().wstring());
+
                         if (isPortable)
                         {
-                            if (fullPath.has_extension() && std::find(s_AllowedPortableFiletypes.begin(), s_AllowedPortableFiletypes.end(), fullPath.extension()) == s_AllowedPortableFiletypes.end())
+                            if (fullPath.has_extension() && std::find(s_AllowedPortableFiletypes.begin(), s_AllowedPortableFiletypes.end(), lowerExtension) == s_AllowedPortableFiletypes.end())
                             {
                                 resultErrors.emplace_back(ManifestError::InvalidPortableFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
                             }
@@ -380,7 +382,7 @@ namespace AppInstaller::Manifest
 
                         if (isFont)
                         {
-                            if (fullPath.has_extension() && std::find(s_AllowedFontFiletypes.begin(), s_AllowedFontFiletypes.end(), fullPath.extension()) == s_AllowedFontFiletypes.end())
+                            if (fullPath.has_extension() && std::find(s_AllowedFontFiletypes.begin(), s_AllowedFontFiletypes.end(), lowerExtension) == s_AllowedFontFiletypes.end())
                             {
                                 resultErrors.emplace_back(ManifestError::InvalidFontFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
                             }
