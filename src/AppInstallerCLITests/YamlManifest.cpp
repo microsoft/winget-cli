@@ -842,6 +842,7 @@ TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
         { "Manifest-Good-Switches.yaml" },
         { "Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml" },
         { "Manifest-Good-InstallerTypeZip-PortableExe.yaml" },
+        { "Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml" },
     };
 
     for (auto const& testCase : TestCases)
@@ -1348,6 +1349,7 @@ TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")
 {
     Manifest installerManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml"));
     Manifest rootManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InstallerTypeZip-PortableNotExe_Root.yaml"));
+    Manifest uppercaseManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml"));
 
     // Regular validation should detect as error
     auto errors = ValidateManifest(installerManifest, true);
@@ -1363,6 +1365,10 @@ TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")
     REQUIRE(errors.size() == 0);
 
     errors = ValidateManifest(rootManifest, false);
+    REQUIRE(errors.size() == 0);
+
+    // Uppercase file extension should be accepted (case-insensitive comparison)
+    errors = ValidateManifest(uppercaseManifest, true);
     REQUIRE(errors.size() == 0);
 }
 

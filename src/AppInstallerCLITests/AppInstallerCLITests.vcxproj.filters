@@ -1119,6 +1119,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-InstallerTypeZip-PortableExe.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

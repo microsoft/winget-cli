@@ -1048,6 +1048,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-InstallerTypeZip-PortableExe.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
