@@ -485,6 +485,7 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_SIGNATURE(OutputSortOrder)
         {
+            static constexpr std::string_view s_sortField_relevance = "relevance";
             static constexpr std::string_view s_sortField_name = "name";
             static constexpr std::string_view s_sortField_id = "id";
             static constexpr std::string_view s_sortField_version = "version";
@@ -494,23 +495,29 @@ namespace AppInstaller::Settings
             std::vector<SortField> fields;
             for (auto const& entry : value)
             {
-                if (Utility::CaseInsensitiveEquals(entry, s_sortField_name))
+                std::string lowered = Utility::ToLower(entry);
+
+                if (lowered == s_sortField_relevance)
+                {
+                    fields.emplace_back(SortField::Relevance);
+                }
+                else if (lowered == s_sortField_name)
                 {
                     fields.emplace_back(SortField::Name);
                 }
-                else if (Utility::CaseInsensitiveEquals(entry, s_sortField_id))
+                else if (lowered == s_sortField_id)
                 {
                     fields.emplace_back(SortField::Id);
                 }
-                else if (Utility::CaseInsensitiveEquals(entry, s_sortField_version))
+                else if (lowered == s_sortField_version)
                 {
                     fields.emplace_back(SortField::Version);
                 }
-                else if (Utility::CaseInsensitiveEquals(entry, s_sortField_source))
+                else if (lowered == s_sortField_source)
                 {
                     fields.emplace_back(SortField::Source);
                 }
-                else if (Utility::CaseInsensitiveEquals(entry, s_sortField_available))
+                else if (lowered == s_sortField_available)
                 {
                     fields.emplace_back(SortField::Available);
                 }

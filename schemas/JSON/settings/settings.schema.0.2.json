@@ -351,6 +351,7 @@
           "items": {
             "type": "string",
             "enum": [
+              "relevance",
               "name",
               "id",
               "version",

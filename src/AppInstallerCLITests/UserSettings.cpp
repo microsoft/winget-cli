@@ -665,13 +665,12 @@ TEST_CASE("SettingOutputSortOrder", "[settings]")
 {
     auto again = DeleteUserSettingsFiles();
 
-    SECTION("Default value")
+    SECTION("Default value - empty vector sentinel for context-aware defaults")
     {
         UserSettingsTest userSettingTest;
 
         auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
-        REQUIRE(sortOrder.size() == 1);
-        REQUIRE(sortOrder[0] == SortField::Name);
+        REQUIRE(sortOrder.empty());
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
     SECTION("Single field")
@@ -683,6 +682,17 @@ TEST_CASE("SettingOutputSortOrder", "[settings]")
         auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
         REQUIRE(sortOrder.size() == 1);
         REQUIRE(sortOrder[0] == SortField::Id);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Relevance field")
+    {
+        std::string_view json = R"({ "output": { "sortOrder": ["relevance"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(sortOrder.size() == 1);
+        REQUIRE(sortOrder[0] == SortField::Relevance);
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
     SECTION("Multiple fields")
@@ -699,17 +709,18 @@ TEST_CASE("SettingOutputSortOrder", "[settings]")
     }
     SECTION("All valid fields")
     {
-        std::string_view json = R"({ "output": { "sortOrder": ["name", "id", "version", "source", "available"] } })";
+        std::string_view json = R"({ "output": { "sortOrder": ["relevance", "name", "id", "version", "source", "available"] } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
-        REQUIRE(sortOrder.size() == 5);
-        REQUIRE(sortOrder[0] == SortField::Name);
-        REQUIRE(sortOrder[1] == SortField::Id);
-        REQUIRE(sortOrder[2] == SortField::Version);
-        REQUIRE(sortOrder[3] == SortField::Source);
-        REQUIRE(sortOrder[4] == SortField::Available);
+        REQUIRE(sortOrder.size() == 6);
+        REQUIRE(sortOrder[0] == SortField::Relevance);
+        REQUIRE(sortOrder[1] == SortField::Name);
+        REQUIRE(sortOrder[2] == SortField::Id);
+        REQUIRE(sortOrder[3] == SortField::Version);
+        REQUIRE(sortOrder[4] == SortField::Source);
+        REQUIRE(sortOrder[5] == SortField::Available);
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
     SECTION("Case insensitive")
@@ -742,8 +753,7 @@ TEST_CASE("SettingOutputSortOrder", "[settings]")
         UserSettingsTest userSettingTest;
 
         auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
-        REQUIRE(sortOrder.size() == 1);
-        REQUIRE(sortOrder[0] == SortField::Name);
+        REQUIRE(sortOrder.empty());
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
     SECTION("Mixed valid and invalid field")
@@ -753,8 +763,7 @@ TEST_CASE("SettingOutputSortOrder", "[settings]")
         UserSettingsTest userSettingTest;
 
         auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
-        REQUIRE(sortOrder.size() == 1);
-        REQUIRE(sortOrder[0] == SortField::Name);
+        REQUIRE(sortOrder.empty());
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
     SECTION("Duplicate values - case-insensitive")
@@ -777,8 +786,7 @@ TEST_CASE("SettingOutputSortOrder", "[settings]")
         UserSettingsTest userSettingTest;
 
         auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
-        REQUIRE(sortOrder.size() == 1);
-        REQUIRE(sortOrder[0] == SortField::Name);
+        REQUIRE(sortOrder.empty());
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
     SECTION("Wrong type - number in array")
@@ -788,8 +796,7 @@ TEST_CASE("SettingOutputSortOrder", "[settings]")
         UserSettingsTest userSettingTest;
 
         auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
-        REQUIRE(sortOrder.size() == 1);
-        REQUIRE(sortOrder[0] == SortField::Name);
+        REQUIRE(sortOrder.empty());
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
 }
