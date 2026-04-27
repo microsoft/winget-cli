@@ -757,6 +757,19 @@ TEST_CASE("SettingOutputSortOrder", "[settings]")
         REQUIRE(sortOrder[0] == SortField::Name);
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
+    SECTION("Duplicate values - case-insensitive")
+    {
+        std::string_view json = R"({ "output": { "sortOrder": ["name", "id", "Name"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(sortOrder.size() == 3);
+        REQUIRE(sortOrder[0] == SortField::Name);
+        REQUIRE(sortOrder[1] == SortField::Id);
+        REQUIRE(sortOrder[2] == SortField::Name);
+        REQUIRE(userSettingTest.GetWarnings().empty());
+    }
     SECTION("Wrong type - string instead of array")
     {
         std::string_view json = R"({ "output": { "sortOrder": "name" } })";
