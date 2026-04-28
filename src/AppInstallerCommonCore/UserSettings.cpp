@@ -215,6 +215,26 @@ namespace AppInstaller::Settings
         }
     }
 
+    std::optional<SortField> ConvertToSortField(std::string_view value)
+    {
+        static constexpr std::string_view s_sortField_relevance = "relevance";
+        static constexpr std::string_view s_sortField_name = "name";
+        static constexpr std::string_view s_sortField_id = "id";
+        static constexpr std::string_view s_sortField_version = "version";
+        static constexpr std::string_view s_sortField_source = "source";
+        static constexpr std::string_view s_sortField_available = "available";
+
+        std::string lowered = Utility::ToLower(value);
+
+        if (lowered == s_sortField_relevance) return SortField::Relevance;
+        if (lowered == s_sortField_name) return SortField::Name;
+        if (lowered == s_sortField_id) return SortField::Id;
+        if (lowered == s_sortField_version) return SortField::Version;
+        if (lowered == s_sortField_source) return SortField::Source;
+        if (lowered == s_sortField_available) return SortField::Available;
+        return std::nullopt;
+    }
+
     namespace details
     {
 #define WINGET_VALIDATE_SIGNATURE(_setting_) \
@@ -481,6 +501,38 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_SIGNATURE(LoggingFileAgeLimitInDays)
         {
             return value * 24h;
+        }
+
+        WINGET_VALIDATE_SIGNATURE(OutputSortOrder)
+        {
+            std::vector<SortField> fields;
+            for (auto const& entry : value)
+            {
+                auto field = ConvertToSortField(entry);
+                if (!field)
+                {
+                    return {};
+                }
+                fields.emplace_back(field.value());
+            }
+            return fields;
+        }
+
+        WINGET_VALIDATE_SIGNATURE(OutputSortDirection)
+        {
+            static constexpr std::string_view s_sortDirection_ascending = "ascending";
+            static constexpr std::string_view s_sortDirection_descending = "descending";
+
+            if (Utility::CaseInsensitiveEquals(value, s_sortDirection_ascending))
+            {
+                return SortDirection::Ascending;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_sortDirection_descending))
+            {
+                return SortDirection::Descending;
+            }
+
+            return {};
         }
     }
 

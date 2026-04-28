@@ -47,6 +47,27 @@ namespace AppInstaller::Settings
         Disabled,
     };
 
+    // Sort field for output ordering.
+    enum class SortField
+    {
+        Relevance,  // Preserves current natural order (source-defined relevance ranking)
+        Name,
+        Id,
+        Version,
+        Source,
+        Available,
+    };
+
+    // Sort direction for output ordering.
+    enum class SortDirection
+    {
+        Ascending,
+        Descending,
+    };
+
+    // Converts a string to SortField. Returns std::nullopt for unrecognized values.
+    std::optional<SortField> ConvertToSortField(std::string_view value);
+
     // The download code to use for *installers*.
     enum class InstallerDownloader
     {
@@ -114,6 +135,9 @@ namespace AppInstaller::Settings
         ConfigureDefaultModuleRoot,
         // Interactivity
         InteractivityDisable,
+        // Output behavior
+        OutputSortOrder,
+        OutputSortDirection,
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Debug
         EnableSelfInitiatedMinidump,
@@ -208,6 +232,9 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileCountLimit, uint32_t, uint32_t, 0, ".logging.file.countLimit"sv);
         // Interactivity
         SETTINGMAPPING_SPECIALIZATION(Setting::InteractivityDisable, bool, bool, false, ".interactivity.disable"sv);
+        // Output behavior
+        SETTINGMAPPING_SPECIALIZATION(Setting::OutputSortOrder, std::vector<std::string>, std::vector<SortField>, std::vector<SortField>{}, ".output.sortOrder"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::OutputSortDirection, std::string, SortDirection, SortDirection::Ascending, ".output.sortDirection"sv);
         
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>

@@ -660,3 +660,243 @@ TEST_CASE("LoggingChannels", "[settings]")
         REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == (Channel::CLI | Channel::SQL));
     }
 }
+
+TEST_CASE("SettingOutputSortOrder", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Default value - empty vector sentinel for context-aware defaults")
+    {
+        UserSettingsTest userSettingTest;
+
+        auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(sortOrder.empty());
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Single field")
+    {
+        std::string_view json = R"({ "output": { "sortOrder": ["id"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(sortOrder.size() == 1);
+        REQUIRE(sortOrder[0] == SortField::Id);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Relevance field")
+    {
+        std::string_view json = R"({ "output": { "sortOrder": ["relevance"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(sortOrder.size() == 1);
+        REQUIRE(sortOrder[0] == SortField::Relevance);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Multiple fields")
+    {
+        std::string_view json = R"({ "output": { "sortOrder": ["available", "name"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(sortOrder.size() == 2);
+        REQUIRE(sortOrder[0] == SortField::Available);
+        REQUIRE(sortOrder[1] == SortField::Name);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("All valid fields")
+    {
+        std::string_view json = R"({ "output": { "sortOrder": ["relevance", "name", "id", "version", "source", "available"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(sortOrder.size() == 6);
+        REQUIRE(sortOrder[0] == SortField::Relevance);
+        REQUIRE(sortOrder[1] == SortField::Name);
+        REQUIRE(sortOrder[2] == SortField::Id);
+        REQUIRE(sortOrder[3] == SortField::Version);
+        REQUIRE(sortOrder[4] == SortField::Source);
+        REQUIRE(sortOrder[5] == SortField::Available);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Case insensitive")
+    {
+        std::string_view json = R"({ "output": { "sortOrder": ["Name", "ID", "VERSION"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(sortOrder.size() == 3);
+        REQUIRE(sortOrder[0] == SortField::Name);
+        REQUIRE(sortOrder[1] == SortField::Id);
+        REQUIRE(sortOrder[2] == SortField::Version);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Empty array disables sorting")
+    {
+        std::string_view json = R"({ "output": { "sortOrder": [] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(sortOrder.size() == 0);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Invalid field name")
+    {
+        std::string_view json = R"({ "output": { "sortOrder": ["invalid"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(sortOrder.empty());
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+    SECTION("Mixed valid and invalid field")
+    {
+        std::string_view json = R"({ "output": { "sortOrder": ["name", "bogus"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(sortOrder.empty());
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+    SECTION("Duplicate values - case-insensitive")
+    {
+        std::string_view json = R"({ "output": { "sortOrder": ["name", "id", "Name"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(sortOrder.size() == 3);
+        REQUIRE(sortOrder[0] == SortField::Name);
+        REQUIRE(sortOrder[1] == SortField::Id);
+        REQUIRE(sortOrder[2] == SortField::Name);
+        REQUIRE(userSettingTest.GetWarnings().empty());
+    }
+    SECTION("Wrong type - string instead of array")
+    {
+        std::string_view json = R"({ "output": { "sortOrder": "name" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(sortOrder.empty());
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+    SECTION("Wrong type - number in array")
+    {
+        std::string_view json = R"({ "output": { "sortOrder": [1] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        auto sortOrder = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(sortOrder.empty());
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+}
+
+TEST_CASE("SettingOutputSortDirection", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Default value")
+    {
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputSortDirection>() == SortDirection::Ascending);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Ascending")
+    {
+        std::string_view json = R"({ "output": { "sortDirection": "ascending" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputSortDirection>() == SortDirection::Ascending);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Descending")
+    {
+        std::string_view json = R"({ "output": { "sortDirection": "descending" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputSortDirection>() == SortDirection::Descending);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Case insensitive")
+    {
+        std::string_view json = R"({ "output": { "sortDirection": "DESCENDING" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputSortDirection>() == SortDirection::Descending);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Invalid value")
+    {
+        std::string_view json = R"({ "output": { "sortDirection": "sideways" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputSortDirection>() == SortDirection::Ascending);
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+    SECTION("Wrong type - array instead of string")
+    {
+        std::string_view json = R"({ "output": { "sortDirection": ["ascending"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputSortDirection>() == SortDirection::Ascending);
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+}
+
+TEST_CASE("ConvertToSortField", "[settings]")
+{
+    SECTION("Valid values - lowercase")
+    {
+        REQUIRE(ConvertToSortField("relevance") == SortField::Relevance);
+        REQUIRE(ConvertToSortField("name") == SortField::Name);
+        REQUIRE(ConvertToSortField("id") == SortField::Id);
+        REQUIRE(ConvertToSortField("version") == SortField::Version);
+        REQUIRE(ConvertToSortField("source") == SortField::Source);
+        REQUIRE(ConvertToSortField("available") == SortField::Available);
+    }
+    SECTION("Case-insensitive")
+    {
+        REQUIRE(ConvertToSortField("RELEVANCE") == SortField::Relevance);
+        REQUIRE(ConvertToSortField("NAME") == SortField::Name);
+        REQUIRE(ConvertToSortField("Id") == SortField::Id);
+        REQUIRE(ConvertToSortField("VERSION") == SortField::Version);
+        REQUIRE(ConvertToSortField("Source") == SortField::Source);
+        REQUIRE(ConvertToSortField("AVAILABLE") == SortField::Available);
+    }
+    SECTION("Invalid values return nullopt")
+    {
+        REQUIRE_FALSE(ConvertToSortField("").has_value());
+        REQUIRE_FALSE(ConvertToSortField("foo").has_value());
+        REQUIRE_FALSE(ConvertToSortField("names").has_value());
+        REQUIRE_FALSE(ConvertToSortField("nam").has_value());
+    }
+    SECTION("Settings round-trip with ConvertToSortField")
+    {
+        auto again = DeleteUserSettingsFiles();
+
+        std::string_view json = R"({ "output": { "sortOrder": ["name", "id"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        auto fields = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(fields.size() == 2);
+        REQUIRE(fields[0] == SortField::Name);
+        REQUIRE(fields[1] == SortField::Id);
+    }
+}

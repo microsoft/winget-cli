@@ -524,6 +524,18 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Only the single character alias can occur after a single -: '{0}'</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides more than a single character command line alias argument after an alias argument specifier '-'. {0} is a placeholder replaced by the user's argument input.</comment>
   </data>
+  <data name="SortArgumentDescription" xml:space="preserve">
+    <value>Sort results by a property (can be repeated)</value>
+    <comment>Description for the --sort argument used to sort output by field name.</comment>
+  </data>
+  <data name="SortAscendingArgumentDescription" xml:space="preserve">
+    <value>Sort results in ascending order</value>
+    <comment>Description for the --ascending (--asc) flag that sets ascending sort direction for output.</comment>
+  </data>
+  <data name="SortDescendingArgumentDescription" xml:space="preserve">
+    <value>Sort results in descending order</value>
+    <comment>Description for the --descending (--desc) flag that sets descending sort direction for output.</comment>
+  </data>
   <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
     <value>A source with the given name already exists and refers to a different location:</value>
   </data>

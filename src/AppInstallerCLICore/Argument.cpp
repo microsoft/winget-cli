@@ -189,6 +189,12 @@ namespace AppInstaller::CLI
             return { type, "upgrade-available"_liv};
         case Execution::Args::Type::ListDetails:
             return { type, "details"_liv };
+        case Execution::Args::Type::Sort:
+            return { type, "sort"_liv };
+        case Execution::Args::Type::SortAscending:
+            return { type, "ascending"_liv, "asc"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::SortDirection };
+        case Execution::Args::Type::SortDescending:
+            return { type, "descending"_liv, "desc"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::SortDirection };
 
         // Pin command
         case Execution::Args::Type::GatedVersion:
