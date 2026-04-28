@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ManifestUnitTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -6,6 +6,7 @@
 
 namespace WinGetUtilInterop.UnitTests.APIUnitTests
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -155,6 +156,85 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
             var serialized = shadowManifest.Serialize();
             Assert.Equal(File.ReadAllText(Path.Combine(testCollateralDir, "ExpectedShadowManifest.yaml")), serialized);
             this.log.WriteLine(serialized);
+        }
+
+        /// <summary>
+        /// Accessing Diagnostics without ReturnResponseAsJSON throws InvalidOperationException.
+        /// </summary>
+        [Fact]
+        public void CreateManifestResult_DiagnosticsThrowsWithoutJsonFlag()
+        {
+            using var result = new CreateManifestResult(isValid: true, message: null, manifestHandle: null);
+            Assert.Throws<InvalidOperationException>(() => result.Diagnostics);
+        }
+
+        /// <summary>
+        /// CreateManifest with ReturnResponseAsJSON and a valid manifest returns empty Diagnostics.
+        /// </summary>
+        [Fact]
+        public void CreateManifest_WithJsonFlag_ValidManifest_ReturnsDiagnosticsEmpty()
+        {
+            var input = Path.Combine(testCollateralDir, "Shadow");
+            var mergedManifestPath = Path.GetTempFileName();
+            var logFile = Path.GetTempFileName();
+
+            var factory = new WinGetFactory();
+            using var log = factory.LoggingInit(logFile);
+            using var result = factory.CreateManifest(
+                input,
+                mergedManifestPath,
+                WinGetCreateManifestOption.SchemaAndSemanticValidation
+                    | WinGetCreateManifestOption.AllowShadowManifest
+                    | WinGetCreateManifestOption.ReturnResponseAsJSON);
+
+            Assert.True(result.IsValid);
+            Assert.Null(result.Message);
+            Assert.NotNull(result.Diagnostics);
+            Assert.Empty(result.Diagnostics);
+        }
+
+        /// <summary>
+        /// CreateManifest with ReturnResponseAsJSON and an invalid manifest returns structured Diagnostics.
+        /// </summary>
+        [Fact]
+        public void CreateManifest_WithJsonFlag_InvalidManifest_ReturnsDiagnosticsPopulated()
+        {
+            // V1ManifestInfoMissingRequiredPackageLocale.yaml is a locale-type manifest without PackageLocale.
+            var input = Path.Combine(testCollateralDir, "V1ManifestInfoMissingRequiredPackageLocale.yaml");
+            var logFile = Path.GetTempFileName();
+
+            var factory = new WinGetFactory();
+            using var log = factory.LoggingInit(logFile);
+            using var result = factory.CreateManifest(
+                input,
+                mergedManifestPath: null,
+                WinGetCreateManifestOption.SchemaAndSemanticValidation | WinGetCreateManifestOption.ReturnResponseAsJSON);
+
+            Assert.False(result.IsValid);
+            Assert.NotNull(result.Message);
+            Assert.NotEmpty(result.Message);
+
+            var diagnostics = result.Diagnostics;
+            Assert.NotNull(diagnostics);
+            Assert.NotEmpty(diagnostics);
+
+            // At least one diagnostic should be an error.
+            Assert.Contains(diagnostics, d => d.Level == ManifestDiagnosticLevel.Error);
+
+            // Every diagnostic must have a non-empty message and a known (non-Unknown) error ID.
+            Assert.All(diagnostics, d =>
+            {
+                Assert.NotEqual(ManifestErrorId.Unknown, d.ErrorId);
+                Assert.False(string.IsNullOrEmpty(d.Message));
+            });
+
+            // The Message property must equal the fullMessage from the JSON (same content as without the flag).
+            using var resultWithoutJson = factory.CreateManifest(
+                input,
+                mergedManifestPath: null,
+                WinGetCreateManifestOption.SchemaAndSemanticValidation);
+
+            Assert.Equal(resultWithoutJson.Message, result.Message);
         }
     }
 }

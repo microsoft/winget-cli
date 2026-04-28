@@ -19,6 +19,9 @@ namespace AppInstaller::Manifest
         const char* const ErrorMessagePrefix = "Manifest Error: ";
         const char* const WarningMessagePrefix = "Manifest Warning: ";
 
+        // Each StringId below must have a corresponding entry in:
+        //   - ErrorIdToMessageMap in ManifestValidation.cpp  (the human-readable message)
+        //   - ManifestErrorId enum in src/WinGetUtilInterop/Common/ManifestErrorId.cs  (the C# interop enum)
         WINGET_DEFINE_RESOURCE_STRINGID(ApproximateVersionNotAllowed);
         WINGET_DEFINE_RESOURCE_STRINGID(ArpValidationError);
         WINGET_DEFINE_RESOURCE_STRINGID(ArpVersionOverlapWithIndex);
@@ -179,54 +182,7 @@ namespace AppInstaller::Manifest
         ManifestException(HRESULT hr) : ManifestException({}, hr) {}
 
         // Error message without wil diagnostic info
-        const std::string& GetManifestErrorMessage() const noexcept
-        {
-            if (m_manifestErrorMessage.empty())
-            {
-                if (m_errors.empty())
-                {
-                    // Syntax error, yaml parser error is stored in FailureInfo
-                    if (GetFailureInfo().pszMessage)
-                    {
-                        m_manifestErrorMessage = Utility::ConvertToUTF8(GetFailureInfo().pszMessage);
-                    }
-                }
-                else
-                {
-                    for (auto const& error : m_errors)
-                    {
-                        if (error.ErrorLevel == ValidationError::Level::Error)
-                        {
-                            m_manifestErrorMessage += ManifestError::ErrorMessagePrefix;
-                        }
-                        else if (error.ErrorLevel == ValidationError::Level::Warning)
-                        {
-                            m_manifestErrorMessage += ManifestError::WarningMessagePrefix;
-                        }
-                        m_manifestErrorMessage += error.GetErrorMessage();
-
-                        if (!error.Context.empty())
-                        {
-                            m_manifestErrorMessage += " [" + error.Context + "]";
-                        }
-                        if (!error.Value.empty())
-                        {
-                            m_manifestErrorMessage += " Value: " + error.Value;
-                        }
-                        if (error.Line > 0 && error.Column > 0)
-                        {
-                            m_manifestErrorMessage += " Line: " + std::to_string(error.Line) + ", Column: " + std::to_string(error.Column);
-                        }
-                        if (!error.FileName.empty())
-                        {
-                            m_manifestErrorMessage += " File: " + error.FileName;
-                        }
-                        m_manifestErrorMessage += '\n';
-                    }
-                }
-            }
-            return m_manifestErrorMessage;
-        }
+        const std::string& GetManifestErrorMessage() const noexcept;
 
         bool IsWarningOnly() const noexcept
         {
@@ -248,6 +204,12 @@ namespace AppInstaller::Manifest
         }
 
         const std::vector<ValidationError>& Errors() const { return m_errors; }
+
+        // Error information as a JSON string. The JSON object contains:
+        //   "fullMessage": the same string as GetManifestErrorMessage()
+        //   "isSyntaxError": true if this is a YAML syntax error (no structured ValidationErrors)
+        //   "errors": array of objects with fields: errorId, message, context, value, line, column, level, file
+        std::string GetManifestErrorJSON() const noexcept;
 
     private:
         std::vector<ValidationError> m_errors;

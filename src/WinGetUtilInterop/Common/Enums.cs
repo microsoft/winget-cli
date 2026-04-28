@@ -47,6 +47,13 @@ namespace Microsoft.WinGetUtil.Common
         /// Return error if a network address is present in installer switches.
         /// </summary>
         ReturnErrorOnNetworkAddressInSwitches = 0x2000,
+
+        /// <summary>
+        /// Return the failure or warning message as a JSON string containing both the full message
+        /// and a structured list of individual errors/warnings. When set, <see cref="Common.CreateManifestResult.Diagnostics"/>
+        /// will be populated with the structured data.
+        /// </summary>
+        ReturnResponseAsJSON = 0x4000,
     }
 
     /// <summary>
