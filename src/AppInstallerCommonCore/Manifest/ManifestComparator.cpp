@@ -286,12 +286,17 @@ namespace AppInstaller::Manifest
 
             details::ComparisonResult IsFirstBetter(const ManifestInstaller& first, const ManifestInstaller& second) override
             {
-                if (m_preference.empty())
+                // Requirements take precedence over preferences for ordering; fall back to preferences when no requirements are set.
+                const auto& effectiveOrder = !m_requirement.empty() ? m_requirement : m_preference;
+
+                // There is a default order so this branch should never be hit
+				// However, if by some miracle it is, we won't consider either installer as better than the other based on installer type.
+                if (effectiveOrder.empty())
                 {
                     return details::ComparisonResult::Negative;
                 }
 
-                for (InstallerTypeEnum installerTypePreference : m_preference)
+                for (InstallerTypeEnum installerTypePreference : effectiveOrder)
                 {
                     bool isFirstInstallerTypePreferred =
                         first.EffectiveInstallerType() == installerTypePreference ||

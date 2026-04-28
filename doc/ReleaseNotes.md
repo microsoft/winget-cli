@@ -55,6 +55,8 @@ Installer type selection no longer depends on the order defined on the manifest.
 - Nullsoft / Inno / EXE
 - Portable
 
+When a user configures installer type requirements or preferences, the order in which they are listed is now respected during installer selection. Requirements take precedence over preferences when both are configured.
+
 ### Improved `list` output when redirected
 
 - `winget list` (and similar table commands) no longer truncates output when stdout is redirected to a file or variable — column widths are now computed from the full result set.

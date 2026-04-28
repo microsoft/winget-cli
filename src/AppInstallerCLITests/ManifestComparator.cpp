@@ -844,6 +844,44 @@ TEST_CASE("ManifestComparator_InstallerType", "[manifest_comparator]")
         RequireInstaller(result, exe);
         RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstallerType, InapplicabilityFlags::InstallerType });
     }
+    SECTION("Multiple requirements - first requirement wins")
+    {
+        // Requirements act as both a filter and an ordering guide; Exe is listed first so it wins.
+        TestUserSettings settings;
+        settings.Set<Setting::InstallerTypeRequirement>({ InstallerTypeEnum::Exe, InstallerTypeEnum::Msix });
+
+        ManifestComparator mc(GetManifestComparatorOptions(ManifestComparatorTestContext{}, {}));
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, exe);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstallerType });
+    }
+    SECTION("Multiple requirements alternate order")
+    {
+        // Same requirements as above but Msix is listed first — Msix should win.
+        TestUserSettings settings;
+        settings.Set<Setting::InstallerTypeRequirement>({ InstallerTypeEnum::Msix, InstallerTypeEnum::Exe });
+
+        ManifestComparator mc(GetManifestComparatorOptions(ManifestComparatorTestContext{}, {}));
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, msix);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstallerType });
+    }
+    SECTION("Requirements and preferences coexist - requirement ordering wins")
+    {
+        // When both are set, requirement ordering takes precedence over preference ordering.
+        // Requirements say Exe first; preferences say Msix first — Exe should win.
+        TestUserSettings settings;
+        settings.Set<Setting::InstallerTypeRequirement>({ InstallerTypeEnum::Exe, InstallerTypeEnum::Msix });
+        settings.Set<Setting::InstallerTypePreference>({ InstallerTypeEnum::Msix, InstallerTypeEnum::Exe });
+
+        ManifestComparator mc(GetManifestComparatorOptions(ManifestComparatorTestContext{}, {}));
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, exe);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstallerType });
+    }
     SECTION("Inno requirement")
     {
         TestUserSettings settings;
