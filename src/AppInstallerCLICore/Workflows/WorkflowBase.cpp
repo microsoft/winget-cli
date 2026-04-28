@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "WorkflowBase.h"
 #include "ExecutionContext.h"
+#include <winget/UserSettings.h>
+#include "Workflows/ListSortHelper.h"
 #include <winget/ManifestComparator.h>
 #include "PromptFlow.h"
 #include "ShowFlow.h"
@@ -457,6 +459,111 @@ namespace AppInstaller::CLI::Workflow
 
                 // FUTURE: We could also pull data from the tracking database to show some things that we store there specifically.
             }
+        }
+
+        // Compares two InstalledPackagesTableLine values by the given field.
+        int CompareByField(const InstalledPackagesTableLine& a, const InstalledPackagesTableLine& b, SortField field)
+        {
+            // Create SortablePackageEntry copies for comparison — fields are layout-compatible
+            // (both have Name, Id, InstalledVersion, AvailableVersion, Source as LocIndString in same order).
+            SortablePackageEntry entryA{ a.Name, a.Id, a.InstalledVersion, a.AvailableVersion, a.Source };
+            SortablePackageEntry entryB{ b.Name, b.Id, b.InstalledVersion, b.AvailableVersion, b.Source };
+            return Workflow::CompareByField(entryA, entryB, field);
+        }
+
+        // Returns true if the execution context contains filter arguments that
+        // produce relevance-ordered results (query, name, id, moniker, tag, command).
+        bool HasRelevanceAffectingArgs(const Execution::Context& context)
+        {
+            return context.Args.Contains(Execution::Args::Type::Query) ||
+                   context.Args.Contains(Execution::Args::Type::Id) ||
+                   context.Args.Contains(Execution::Args::Type::Name) ||
+                   context.Args.Contains(Execution::Args::Type::Moniker) ||
+                   context.Args.Contains(Execution::Args::Type::Tag) ||
+                   context.Args.Contains(Execution::Args::Type::Command);
+        }
+
+        // Sorts a vector of InstalledPackagesTableLine according to the user's sort preferences.
+        // Resolution order: CLI args (--sort) > settings (output.sortOrder) > query-aware default.
+        void SortInstalledPackagesTableLines(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
+        {
+            if (lines.size() <= 1)
+            {
+                return;
+            }
+
+            // 1. Determine sort fields: CLI --sort overrides everything
+            std::vector<SortField> sortFields;
+            bool hasExplicitSort = context.Args.Contains(Execution::Args::Type::Sort);
+
+            if (hasExplicitSort)
+            {
+                const auto* sortArgs = context.Args.GetArgs(Execution::Args::Type::Sort);
+                if (sortArgs)
+                {
+                    for (const auto& arg : *sortArgs)
+                    {
+                        auto field = ConvertToSortField(arg);
+                        if (field)
+                        {
+                            sortFields.emplace_back(field.value());
+                        }
+                        // Invalid values are silently skipped; argument validation
+                        // should catch these before we get here in a future PR.
+                    }
+                }
+            }
+            else if (HasRelevanceAffectingArgs(context))
+            {
+                // Design: when query/filter arguments are present, relevance ordering is
+                // always preserved unless the user explicitly passes --sort on the CLI.
+                // Settings sortOrder intentionally does NOT override relevance for queries,
+                // because query results are ranked by match quality and reordering them
+                // would hide the best matches. Only --sort (explicit user intent per-command)
+                // can override this.
+                return;
+            }
+            else
+            {
+                sortFields = User().Get<Setting::OutputSortOrder>();
+            }
+
+            // Empty sort fields or relevance-only means no sorting
+            if (sortFields.empty() ||
+                (sortFields.size() == 1 && sortFields[0] == SortField::Relevance))
+            {
+                return;
+            }
+
+            // 2. Determine direction: CLI flags override settings
+            SortDirection direction = SortDirection::Ascending;
+            if (context.Args.Contains(Execution::Args::Type::SortDescending))
+            {
+                direction = SortDirection::Descending;
+            }
+            else if (context.Args.Contains(Execution::Args::Type::SortAscending))
+            {
+                direction = SortDirection::Ascending;
+            }
+            else
+            {
+                direction = User().Get<Setting::OutputSortDirection>();
+            }
+
+            // 3. Multi-field cascading sort with stable_sort
+            std::stable_sort(lines.begin(), lines.end(),
+                [&sortFields, direction](const InstalledPackagesTableLine& a, const InstalledPackagesTableLine& b)
+                {
+                    for (const auto& field : sortFields)
+                    {
+                        int cmp = CompareByField(a, b, field);
+                        if (cmp != 0)
+                        {
+                            return direction == SortDirection::Ascending ? (cmp < 0) : (cmp > 0);
+                        }
+                    }
+                    return false;
+                });
         }
 
         void OutputInstalledPackages(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
@@ -1226,6 +1333,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        SortInstalledPackagesTableLines(context, lines);
         OutputInstalledPackages(context, lines);
 
         if (lines.empty())
@@ -1248,12 +1356,14 @@ namespace AppInstaller::CLI::Workflow
         if (!linesForExplicitUpgrade.empty())
         {
             context.Reporter.Info() << std::endl << Resource::String::UpgradeAvailableForPinned << std::endl;
+            SortInstalledPackagesTableLines(context, linesForExplicitUpgrade);
             OutputInstalledPackages(context, linesForExplicitUpgrade);
         }
 
         if (!linesForPins.empty())
         {
             context.Reporter.Info() << std::endl << Resource::String::UpgradeBlockedByPinCount(linesForPins.size()) << std::endl;
+            SortInstalledPackagesTableLines(context, linesForPins);
             OutputInstalledPackages(context, linesForPins);
         }
 
