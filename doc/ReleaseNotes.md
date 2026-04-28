@@ -55,9 +55,16 @@ Installer type selection no longer depends on the order defined on the manifest.
 - Nullsoft / Inno / EXE
 - Portable
 
+### Improved `list` output when redirected
+
+- `winget list` (and similar table commands) no longer truncates output when stdout is redirected to a file or variable — column widths are now computed from the full result set.
+- Spinner and progress bar output are suppressed when no console is attached, keeping redirected output clean.
+
 ## Bug Fixes
 
+* `winget export` now works when the destination path is a hidden file
 * Fixed the `useLatest` property in the DSC v3 `Microsoft.WinGet/Package` resource schema to emit a boolean default (`false`) instead of the incorrect string `"false"`.
 * `SignFile` in `WinGetSourceCreator` now supports an optional RFC 3161 timestamp server via the new `TimestampServer` property on the `Signature` model. When set, `signtool.exe` is called with `/tr <url> /td sha256`, embedding a countersignature timestamp so that signed packages remain valid after the signing certificate expires.
 * File and directory paths passed to `signtool.exe` and `makeappx.exe` are now quoted, fixing failures when paths contain spaces.
 * DSC export now correctly exports WinGet Admin Settings
+* `winget validate` now performs case-insensitive comparison for file extensions where applicable

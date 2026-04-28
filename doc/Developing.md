@@ -46,3 +46,31 @@ The unit tests are located inside the `AppInstallerCLITests` project. When the s
 
 > [!TIP]
 > If you just want to run a particular test, you can specify the test name as an argument to the executable. For example, `AppInstallerCLITests.exe EnsureSortedErrorList`.
+
+## Localization
+
+The English resource strings are the source of truth and live in:
+
+- `src/AppInstallerCLIPackage/Shared/Strings/en-us/winget.resw`
+- `src/AppInstallerCLIPackage/Shared/Strings/en-us/Resources.resw`
+
+The localized strings under `Localization/Resources/<locale>/` are owned by Microsoft's internal localization team and are fetched automatically. **Do not edit files in `Localization/Resources/`**—any changes will be overwritten.
+
+### Adding or modifying resource strings
+
+When adding a new string or modifying an existing one in the English `.resw` files, always include a `<comment>` element that gives translators enough context to produce a correct translation. This is especially important for:
+
+- **Short or single-word values** (e.g., column headers, labels, status words) where the word has multiple meanings in English. Always clarify which meaning applies and, where relevant, explicitly call out meanings that do **not** apply.
+- **Technical jargon** that may have a different colloquial meaning in other languages.
+- **Strings with placeholders** — document what each `{0}`, `{1}`, etc. represents.
+
+Example of a well-formed comment for a potentially ambiguous word:
+
+```xml
+<data name="SourceListExplicit" xml:space="preserve">
+  <value>Explicit</value>
+  <comment>Column header meaning the source must be directly named to be used. Do NOT translate as "explicit content" or "adult content".</comment>
+</data>
+```
+
+Without such comments, translators may rely on the most common meaning of a word, which can produce incorrect results in UI-visible strings.

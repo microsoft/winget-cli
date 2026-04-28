@@ -26,6 +26,7 @@ namespace TestCommon
     const std::wstring ConfigurationPolicyValueName = L"EnableWindowsPackageManagerConfiguration";
     const std::wstring ProxyCommandLineOptionsPolicyValueName = L"EnableWindowsPackageManagerProxyCommandLineOptions";
     const std::wstring McpServerValueName = L"EnableWindowsPackageManagerMcpServer";
+    const std::wstring ConfigurationProcessorPathValueName = L"EnableWindowsPackageManagerConfigurationProcessorPath";
 
     const std::wstring SourceUpdateIntervalPolicyValueName = L"SourceAutoUpdateInterval";
     const std::wstring SourceUpdateIntervalPolicyOldValueName = L"SourceAutoUpdateIntervalInMinutes";
