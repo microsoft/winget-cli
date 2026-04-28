@@ -981,6 +981,38 @@ namespace AppInstaller::CLI::Workflow
                     warn << Resource::String::SearchFailureWarning(Utility::LocIndView{ failure.SourceName }) << std::endl;
                 }
             }
+            // When ShowSearchResultsOnPartialFailure is set (e.g. install) and exactly one match
+            // was found, prompt the user interactively rather than failing outright.
+            // Falls back to the hard error path if interactivity is disabled.
+            else if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::ShowSearchResultsOnPartialFailure) &&
+                     searchResult.Matches.size() == 1 &&
+                     IsInteractivityAllowed(context))
+            {
+                {
+                    auto warn = context.Reporter.Warn();
+                    for (const auto& failure : searchResult.Failures)
+                    {
+                        warn << Resource::String::SearchFailureWarning(Utility::LocIndView{ failure.SourceName }) << std::endl;
+                    }
+                }
+
+                if (context.Reporter.PromptForBoolResponse(Resource::String::SearchFailureSingleResultPrompt, Reporter::Level::Warning, false))
+                {
+                    return;
+                }
+
+                // User declined; terminate with the source failure HRESULT without re-showing errors
+                HRESULT overallHR = S_OK;
+                for (const auto& failure : searchResult.Failures)
+                {
+                    HRESULT failureHR = HandleException(nullptr, failure.Exception);
+                    if (overallHR == S_OK)
+                    {
+                        overallHR = failureHR;
+                    }
+                }
+                context.SetTerminationHR(overallHR);
+            }
             else
             {
                 HRESULT overallHR = S_OK;
