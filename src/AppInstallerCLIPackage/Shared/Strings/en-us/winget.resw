@@ -525,8 +525,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides more than a single character command line alias argument after an alias argument specifier '-'. {0} is a placeholder replaced by the user's argument input.</comment>
   </data>
   <data name="SortArgumentDescription" xml:space="preserve">
-    <value>Sort results by a specified field (can be repeated for multi-field sort)</value>
-    <comment>Description for the --sort argument used to sort output by field name. Valid values are: name, id, version, source, available.</comment>
+    <value>Sort results by a property (can be repeated)</value>
+    <comment>Description for the --sort argument used to sort output by field name.</comment>
   </data>
   <data name="SortAscendingArgumentDescription" xml:space="preserve">
     <value>Sort results in ascending order</value>

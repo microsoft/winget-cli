@@ -346,7 +346,7 @@
       "type": "object",
       "properties": {
         "sortOrder": {
-          "description": "Fields to sort output by, in priority order. Use an empty array to disable sorting.",
+          "description": "Fields to sort output by, in priority order. An empty array results in default sorting.",
           "type": "array",
           "items": {
             "type": "string",
