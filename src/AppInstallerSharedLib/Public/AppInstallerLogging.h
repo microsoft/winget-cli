@@ -83,6 +83,18 @@ namespace AppInstaller::Logging
         Crit,
     };
 
+    enum class LogNameStrategy
+    {
+        // The log name is the name of the manifest with a timestamp
+        Manifest,
+        // The log name is just a timestamp
+        Timestamp,
+        // The log name is a GUID
+        Guid,
+        // The log name is the first 8 characters of a GUID
+        ShortGuid,
+    };
+
     // Indicates a location of significance in the logging stream.
     enum class Tag
     {

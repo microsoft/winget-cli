@@ -320,6 +320,72 @@ TEST_CASE("SettingLoggingLevelPreference", "[settings]")
     }
 }
 
+TEST_CASE("SettingLoggingFileNameStrategy", "[settings]") {
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Default value")
+    {
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingFileNameStrategy>() == LogNameStrategy::Manifest);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Manifest")
+    {
+        std::string_view json = R"({ "logging": { "fileNameStrategy": "manifest" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingFileNameStrategy>() == LogNameStrategy::Manifest);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Timestamp")
+    {
+        std::string_view json = R"({ "logging": { "fileNameStrategy": "timestamp" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingFileNameStrategy>() == LogNameStrategy::Timestamp);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Guid")
+    {
+        std::string_view json = R"({ "logging": { "fileNameStrategy": "guid" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingFileNameStrategy>() == LogNameStrategy::Guid);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Short Guid")
+    {
+        std::string_view json = R"({ "logging": { "fileNameStrategy": "shortguid" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingFileNameStrategy>() == LogNameStrategy::ShortGuid);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Bad value")
+    {
+        std::string_view json = R"({ "logging": { "fileNameStrategy": "fake" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingFileNameStrategy>() == LogNameStrategy::Manifest);
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+    SECTION("Bad value type")
+    {
+        std::string_view json = R"({ "logging": { "fileNameStrategy": 5 } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingFileNameStrategy>() == LogNameStrategy::Manifest);
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+}
+
 TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
 {
     auto again = DeleteUserSettingsFiles();
