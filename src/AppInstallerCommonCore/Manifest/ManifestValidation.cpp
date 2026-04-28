@@ -28,6 +28,9 @@ namespace AppInstaller::Manifest
 
         const auto& GetErrorIdToMessageMap()
         {
+            // Each entry here must have a corresponding WINGET_DEFINE_RESOURCE_STRINGID in
+            // ManifestValidation.h (ManifestError namespace) and a value in the
+            // ManifestErrorId enum in src/WinGetUtilInterop/Common/ManifestErrorId.cs.
             static std::map<AppInstaller::StringResource::StringId, std::string_view> ErrorIdToMessageMap = {
                 { AppInstaller::Manifest::ManifestError::InvalidRootNode, "Encountered unexpected root node."sv },
                 { AppInstaller::Manifest::ManifestError::FieldUnknown, "Unknown field."sv },
@@ -579,5 +582,88 @@ namespace AppInstaller::Manifest
         }
         
         return Utility::ConvertToUTF8(Message);
+    }
+
+    const std::string& ManifestException::GetManifestErrorMessage() const noexcept
+    {
+        if (m_manifestErrorMessage.empty())
+        {
+            if (m_errors.empty())
+            {
+                // Syntax error, yaml parser error is stored in FailureInfo
+                if (GetFailureInfo().pszMessage)
+                {
+                    m_manifestErrorMessage = Utility::ConvertToUTF8(GetFailureInfo().pszMessage);
+                }
+            }
+            else
+            {
+                for (auto const& error : m_errors)
+                {
+                    if (error.ErrorLevel == ValidationError::Level::Error)
+                    {
+                        m_manifestErrorMessage += ManifestError::ErrorMessagePrefix;
+                    }
+                    else if (error.ErrorLevel == ValidationError::Level::Warning)
+                    {
+                        m_manifestErrorMessage += ManifestError::WarningMessagePrefix;
+                    }
+                    m_manifestErrorMessage += error.GetErrorMessage();
+
+                    if (!error.Context.empty())
+                    {
+                        m_manifestErrorMessage += " [" + error.Context + "]";
+                    }
+                    if (!error.Value.empty())
+                    {
+                        m_manifestErrorMessage += " Value: " + error.Value;
+                    }
+                    if (error.Line > 0 && error.Column > 0)
+                    {
+                        m_manifestErrorMessage += " Line: " + std::to_string(error.Line) + ", Column: " + std::to_string(error.Column);
+                    }
+                    if (!error.FileName.empty())
+                    {
+                        m_manifestErrorMessage += " File: " + error.FileName;
+                    }
+                    m_manifestErrorMessage += '\n';
+                }
+            }
+        }
+        return m_manifestErrorMessage;
+    }
+
+    std::string ManifestException::GetManifestErrorJson() const noexcept
+    {
+        try
+        {
+            Json::Value root;
+            root["fullMessage"] = GetManifestErrorMessage();
+            root["isSyntaxError"] = m_errors.empty();
+
+            Json::Value errorsArray(Json::arrayValue);
+            for (auto const& error : m_errors)
+            {
+                Json::Value entry;
+                entry["errorId"] = Utility::ConvertToUTF8(error.Message);
+                entry["message"] = error.GetErrorMessage();
+                entry["context"] = error.Context;
+                entry["value"] = error.Value;
+                entry["line"] = static_cast<Json::UInt64>(error.Line);
+                entry["column"] = static_cast<Json::UInt64>(error.Column);
+                entry["level"] = (error.ErrorLevel == ValidationError::Level::Error) ? "Error" : "Warning";
+                entry["file"] = error.FileName;
+                errorsArray.append(std::move(entry));
+            }
+            root["errors"] = std::move(errorsArray);
+
+            Json::StreamWriterBuilder writer;
+            writer["indentation"] = "";
+            return Json::writeString(writer, root);
+        }
+        catch (...)
+        {
+            return {};
+        }
     }
 }

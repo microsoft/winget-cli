@@ -49,6 +49,10 @@ extern "C"
 
         // Return error if a network address is present in installer switches.
         ReturnErrorOnNetworkAddressInSwitches = 0x2000,
+
+        // Return the failure or warning message as a JSON string containing both the full message
+        // and a structured list of individual errors/warnings.
+        ReturnResponseAsJson = 0x4000,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(WinGetCreateManifestOption);
