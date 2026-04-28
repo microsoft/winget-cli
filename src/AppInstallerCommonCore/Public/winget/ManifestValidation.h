@@ -209,7 +209,7 @@ namespace AppInstaller::Manifest
         //   "fullMessage": the same string as GetManifestErrorMessage()
         //   "isSyntaxError": true if this is a YAML syntax error (no structured ValidationErrors)
         //   "errors": array of objects with fields: errorId, message, context, value, line, column, level, file
-        std::string GetManifestErrorJSON() const noexcept;
+        std::string GetManifestErrorJson() const noexcept;
 
     private:
         std::vector<ValidationError> m_errors;

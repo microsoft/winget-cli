@@ -378,9 +378,9 @@ extern "C"
             }
             if (message)
             {
-                if (WI_IsFlagSet(option, WinGetCreateManifestOption::ReturnResponseAsJSON))
+                if (WI_IsFlagSet(option, WinGetCreateManifestOption::ReturnResponseAsJson))
                 {
-                    *message = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorJSON()).c_str());
+                    *message = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorJson()).c_str());
                 }
                 else
                 {

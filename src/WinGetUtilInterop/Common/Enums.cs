@@ -53,7 +53,7 @@ namespace Microsoft.WinGetUtil.Common
         /// and a structured list of individual errors/warnings. When set, <see cref="Common.CreateManifestResult.Diagnostics"/>
         /// will be populated with the structured data.
         /// </summary>
-        ReturnResponseAsJSON = 0x4000,
+        ReturnResponseAsJson = 0x4000,
     }
 
     /// <summary>

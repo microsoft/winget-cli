@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="WinGetFactory.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -103,7 +103,7 @@ namespace Microsoft.WinGetUtil.Api
                         WinGetCreateManifestOption.NoValidation);
                 }
 
-                bool returnAsJson = option.HasFlag(WinGetCreateManifestOption.ReturnResponseAsJSON);
+                bool returnAsJson = option.HasFlag(WinGetCreateManifestOption.ReturnResponseAsJson);
                 if (returnAsJson && failureOrWarningMessage != null)
                 {
                     return ParseJsonManifestResult(succeeded, failureOrWarningMessage, succeeded ? new WinGetManifest(manifestHandle) : null);

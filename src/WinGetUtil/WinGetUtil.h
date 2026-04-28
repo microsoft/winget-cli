@@ -52,7 +52,7 @@ extern "C"
 
         // Return the failure or warning message as a JSON string containing both the full message
         // and a structured list of individual errors/warnings.
-        ReturnResponseAsJSON = 0x4000,
+        ReturnResponseAsJson = 0x4000,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(WinGetCreateManifestOption);

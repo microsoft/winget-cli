@@ -185,7 +185,7 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
                 mergedManifestPath,
                 WinGetCreateManifestOption.SchemaAndSemanticValidation
                     | WinGetCreateManifestOption.AllowShadowManifest
-                    | WinGetCreateManifestOption.ReturnResponseAsJSON);
+                    | WinGetCreateManifestOption.ReturnResponseAsJson);
 
             Assert.True(result.IsValid);
             Assert.Null(result.Message);
@@ -208,7 +208,7 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
             using var result = factory.CreateManifest(
                 input,
                 mergedManifestPath: null,
-                WinGetCreateManifestOption.SchemaAndSemanticValidation | WinGetCreateManifestOption.ReturnResponseAsJSON);
+                WinGetCreateManifestOption.SchemaAndSemanticValidation | WinGetCreateManifestOption.ReturnResponseAsJson);
 
             Assert.False(result.IsValid);
             Assert.NotNull(result.Message);

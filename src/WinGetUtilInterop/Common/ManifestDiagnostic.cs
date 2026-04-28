@@ -23,7 +23,7 @@ namespace Microsoft.WinGetUtil.Common
     }
 
     /// <summary>
-    /// Represents a single manifest error or warning returned by <see cref="WinGetCreateManifestOption.ReturnResponseAsJSON"/>.
+    /// Represents a single manifest error or warning returned by <see cref="WinGetCreateManifestOption.ReturnResponseAsJson"/>.
     /// </summary>
     public class ManifestDiagnostic
     {

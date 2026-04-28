@@ -66,12 +66,12 @@ namespace Microsoft.WinGetUtil.Common
 
         /// <summary>
         /// Gets the structured list of individual manifest errors and warnings.
-        /// Only available when <see cref="WinGetCreateManifestOption.ReturnResponseAsJSON"/> was passed
+        /// Only available when <see cref="WinGetCreateManifestOption.ReturnResponseAsJson"/> was passed
         /// to <see cref="Microsoft.WinGetUtil.Api.WinGetFactory.CreateManifest"/>. Accessing this
         /// property without that flag throws <see cref="InvalidOperationException"/>.
         /// </summary>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when <see cref="WinGetCreateManifestOption.ReturnResponseAsJSON"/> was not set.
+        /// Thrown when <see cref="WinGetCreateManifestOption.ReturnResponseAsJson"/> was not set.
         /// </exception>
         public IReadOnlyList<ManifestDiagnostic> Diagnostics
         {
@@ -80,7 +80,7 @@ namespace Microsoft.WinGetUtil.Common
                 if (!this.hasDiagnostics)
                 {
                     throw new InvalidOperationException(
-                        $"Structured diagnostics are not available. Pass {nameof(WinGetCreateManifestOption)}.{nameof(WinGetCreateManifestOption.ReturnResponseAsJSON)} to CreateManifest to enable them.");
+                        $"Structured diagnostics are not available. Pass {nameof(WinGetCreateManifestOption)}.{nameof(WinGetCreateManifestOption.ReturnResponseAsJson)} to CreateManifest to enable them.");
                 }
 
                 return this.diagnostics;

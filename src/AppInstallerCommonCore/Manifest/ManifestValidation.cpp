@@ -633,7 +633,7 @@ namespace AppInstaller::Manifest
         return m_manifestErrorMessage;
     }
 
-    std::string ManifestException::GetManifestErrorJSON() const noexcept
+    std::string ManifestException::GetManifestErrorJson() const noexcept
     {
         try
         {
