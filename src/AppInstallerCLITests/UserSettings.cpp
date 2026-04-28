@@ -858,3 +858,45 @@ TEST_CASE("SettingOutputSortDirection", "[settings]")
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
 }
+
+TEST_CASE("ConvertToSortField", "[settings]")
+{
+    SECTION("Valid values - lowercase")
+    {
+        REQUIRE(ConvertToSortField("relevance") == SortField::Relevance);
+        REQUIRE(ConvertToSortField("name") == SortField::Name);
+        REQUIRE(ConvertToSortField("id") == SortField::Id);
+        REQUIRE(ConvertToSortField("version") == SortField::Version);
+        REQUIRE(ConvertToSortField("source") == SortField::Source);
+        REQUIRE(ConvertToSortField("available") == SortField::Available);
+    }
+    SECTION("Case-insensitive")
+    {
+        REQUIRE(ConvertToSortField("RELEVANCE") == SortField::Relevance);
+        REQUIRE(ConvertToSortField("NAME") == SortField::Name);
+        REQUIRE(ConvertToSortField("Id") == SortField::Id);
+        REQUIRE(ConvertToSortField("VERSION") == SortField::Version);
+        REQUIRE(ConvertToSortField("Source") == SortField::Source);
+        REQUIRE(ConvertToSortField("AVAILABLE") == SortField::Available);
+    }
+    SECTION("Invalid values return nullopt")
+    {
+        REQUIRE_FALSE(ConvertToSortField("").has_value());
+        REQUIRE_FALSE(ConvertToSortField("foo").has_value());
+        REQUIRE_FALSE(ConvertToSortField("names").has_value());
+        REQUIRE_FALSE(ConvertToSortField("nam").has_value());
+    }
+    SECTION("Settings round-trip with ConvertToSortField")
+    {
+        auto again = DeleteUserSettingsFiles();
+
+        std::string_view json = R"({ "output": { "sortOrder": ["name", "id"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        auto fields = userSettingTest.Get<Setting::OutputSortOrder>();
+        REQUIRE(fields.size() == 2);
+        REQUIRE(fields[0] == SortField::Name);
+        REQUIRE(fields[1] == SortField::Id);
+    }
+}
