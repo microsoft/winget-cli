@@ -8,6 +8,7 @@
 #include <winget/ManifestComparator.h>
 #include <winget/PinningData.h>
 #include <winget/PackageVersionSelection.h>
+#include <ctime>
 
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Microsoft;
@@ -17,6 +18,75 @@ namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
+        std::optional<std::chrono::system_clock::time_point> TryParseISO8601Date(std::string_view value)
+        {
+            // YYYY-MM-DD is the expected format
+            if (value.size() < 10)
+            {
+                return {};
+            }
+
+            auto toInt = [](std::string_view sv) -> std::optional<int>
+            {
+                int result = 0;
+                for (char c : sv)
+                {
+                    if (c < '0' || c > '9')
+                    {
+                        return {};
+                    }
+                    result = (result * 10) + (c - '0');
+                }
+                return result;
+            };
+
+            auto year = toInt(value.substr(0, 4));
+            auto month = toInt(value.substr(5, 2));
+            auto day = toInt(value.substr(8, 2));
+
+            if (!year || !month || !day || value[4] != '-' || value[7] != '-')
+            {
+                return {};
+            }
+
+            if (*month < 1 || *month > 12 || *day < 1 || *day > 31)
+            {
+                return {};
+            }
+
+            std::tm tm{};
+            tm.tm_year = *year - 1900;
+            tm.tm_mon = *month - 1;
+            tm.tm_mday = *day;
+            tm.tm_hour = 0;
+            tm.tm_min = 0;
+            tm.tm_sec = 0;
+
+            time_t utcTime = _mkgmtime(&tm);
+            if (utcTime == static_cast<time_t>(-1))
+            {
+                return {};
+            }
+
+            return std::chrono::system_clock::from_time_t(utcTime);
+        }
+
+        bool IsUpgradeEligibleByDelay(std::string_view releaseDate, std::chrono::hours upgradeDelay)
+        {
+            if (upgradeDelay <= std::chrono::hours{ 0 })
+            {
+                return true;
+            }
+
+            auto parsed = TryParseISO8601Date(releaseDate);
+            if (!parsed)
+            {
+                return false;
+            }
+
+            return (std::chrono::system_clock::now() - *parsed) >= upgradeDelay;
+        }
+
         bool IsUpdateVersionAvailable(const Utility::Version& installedVersion, const Utility::Version& updateVersion)
         {
             return installedVersion < updateVersion;
@@ -217,6 +287,9 @@ namespace AppInstaller::CLI::Workflow
         int packagesWithUnknownVersionSkipped = 0;
         int packagesThatRequireExplicitSkipped = 0;
         int packagesSkippedInstallTechnologyMismatch = 0;
+        int packagesSkippedByUpgradeDelay = 0;
+        const auto upgradeDelay = Settings::User().Get<Settings::Setting::UpgradeDelayInDays>();
+        const bool ignoreUpgradeDelay = context.Args.Contains(Execution::Args::Type::Force);
 
         for (const auto& match : matches)
         {
@@ -254,6 +327,36 @@ namespace AppInstaller::CLI::Workflow
             if (updateContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
             {
                 continue;
+            }
+
+            if (!ignoreUpgradeDelay && upgradeDelay > std::chrono::hours{ 0 })
+            {
+                std::string_view releaseDate;
+                if (updateContext.Contains(Execution::Data::Installer))
+                {
+                    const auto& installer = updateContext.Get<Execution::Data::Installer>();
+                    if (installer.has_value() && !installer->ReleaseDate.empty())
+                    {
+                        releaseDate = installer->ReleaseDate;
+                    }
+                }
+
+                if (releaseDate.empty() && updateContext.Contains(Execution::Data::Manifest))
+                {
+                    const auto& manifest = updateContext.Get<Execution::Data::Manifest>();
+                    if (!manifest.DefaultInstallerInfo.ReleaseDate.empty())
+                    {
+                        releaseDate = manifest.DefaultInstallerInfo.ReleaseDate;
+                    }
+                }
+
+                if (!IsUpgradeEligibleByDelay(releaseDate, upgradeDelay))
+                {
+                    AICLI_LOG(CLI, Info, << "Skipping " << match.Package->GetProperty(PackageProperty::Id)
+                        << " as its selected upgrade does not meet the upgrade delay requirement");
+                    ++packagesSkippedByUpgradeDelay;
+                    continue;
+                }
             }
 
             // Filter out packages that require explicit upgrade.
@@ -313,6 +416,12 @@ namespace AppInstaller::CLI::Workflow
         {
             AICLI_LOG(CLI, Info, << packagesSkippedInstallTechnologyMismatch << " package(s) skipped due to install technology mismatch");
             context.Reporter.Info() << Resource::String::UpgradeInstallTechnologyMismatchCount(packagesSkippedInstallTechnologyMismatch) << std::endl;
+        }
+
+        if (packagesSkippedByUpgradeDelay > 0)
+        {
+            AICLI_LOG(CLI, Info, << packagesSkippedByUpgradeDelay << " package(s) skipped due to upgrade delay setting");
+            context.Reporter.Info() << Resource::String::UpgradeDelaySkippedCount(packagesSkippedByUpgradeDelay) << std::endl;
         }
     }
 

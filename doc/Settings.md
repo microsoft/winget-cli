@@ -218,6 +218,18 @@ The `maxResumes` setting determines the maximum number of times that a command m
 
 > Note: [The resume behavior is an experimental feature.](#resume)
 
+### Upgrade delay
+
+The `upgradeDelayInDays` setting delays upgrades when using `winget upgrade --all` by skipping upgrades whose manifest `ReleaseDate` is more recent than the configured age. The default value is 0 (disabled).
+
+```json
+    "installBehavior": {
+        "upgradeDelayInDays": 14
+    },
+```
+
+> Note: If the package manifest does not include a valid `ReleaseDate`, the upgrade will be skipped when this setting is enabled. To upgrade anyway, use `winget upgrade <package>` which does not consider this setting, or use `winget upgrade --all --force` which will ignore the age of the upgrade.
+
 ## Uninstall Behavior
 
 The `uninstallBehavior` settings affect the default behavior of uninstalling (where applicable) packages.

@@ -116,6 +116,7 @@ namespace AppInstaller::Settings
         PortablePackageUserRoot,
         PortablePackageMachineRoot,
         MaxResumes,
+        UpgradeDelayInDays,
         // Network
         NetworkDownloader,
         NetworkDOProgressTimeoutInSeconds,
@@ -207,6 +208,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageMachineRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageMachineRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallDefaultRoot, std::string, std::filesystem::path, {}, ".installBehavior.defaultInstallRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::MaxResumes, uint32_t, int, 3, ".installBehavior.maxResumes"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::UpgradeDelayInDays, uint32_t, std::chrono::hours, 0h, ".installBehavior.upgradeDelayInDays"sv);
         // Uninstall behavior
         SETTINGMAPPING_SPECIALIZATION(Setting::UninstallPurgePortablePackage, bool, bool, false, ".uninstallBehavior.purgePortablePackage"sv);
         // Download behavior

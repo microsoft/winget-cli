@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 #include "TestHooks.h"
+#include "TestSettings.h"
 #include <Commands/InstallCommand.h>
 #include <Commands/UninstallCommand.h>
 #include <Commands/UpgradeCommand.h>
@@ -554,6 +555,75 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updatePortableResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_UpdateAllApplicable_UpgradeDelay", "[UpdateFlow][workflow]")
+{
+    auto settingsGuard = DeleteUserSettingsFiles();
+    SetSetting(Stream::PrimaryUserSettings, R"({ "installBehavior": { "upgradeDelayInDays": 14 } })");
+
+    std::vector<AppInstaller::Manifest::Dependency> installationLog;
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({
+        TSR::TestInstaller_Exe_UpgradeDelayEligible,
+        TSR::TestInstaller_Exe_UpgradeDelayTooRecent,
+        }));
+    OverrideForShellExecute(context, installationLog);
+    context.Args.AddArg(Execution::Args::Type::All);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    REQUIRE(installationLog.size() == 1);
+    REQUIRE(installationLog[0].Id() == "AppInstallerCliTest.TestExeDelayEligible");
+    REQUIRE(updateOutput.str().find(Resource::String::UpgradeDelaySkippedCount(1)) != std::string::npos);
+}
+
+TEST_CASE("UpdateFlow_UpdateAllApplicable_UpgradeDelay_Force", "[UpdateFlow][workflow]")
+{
+    auto settingsGuard = DeleteUserSettingsFiles();
+    SetSetting(Stream::PrimaryUserSettings, R"({ "installBehavior": { "upgradeDelayInDays": 14 } })");
+
+    std::vector<AppInstaller::Manifest::Dependency> installationLog;
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({
+        TSR::TestInstaller_Exe_UpgradeDelayEligible,
+        TSR::TestInstaller_Exe_UpgradeDelayTooRecent,
+        }));
+    OverrideForShellExecute(context, installationLog);
+    context.Args.AddArg(Execution::Args::Type::All);
+    context.Args.AddArg(Execution::Args::Type::Force);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    REQUIRE(installationLog.size() == 2);
+
+    bool foundEligible = false;
+    bool foundTooRecent = false;
+    for (const auto& entry : installationLog)
+    {
+        if (entry.Id() == "AppInstallerCliTest.TestExeDelayEligible")
+        {
+            foundEligible = true;
+        }
+        else if (entry.Id() == "AppInstallerCliTest.TestExeDelayTooRecent")
+        {
+            foundTooRecent = true;
+        }
+    }
+
+    REQUIRE(foundEligible);
+    REQUIRE(foundTooRecent);
+    REQUIRE(updateOutput.str().find(Resource::String::UpgradeDelaySkippedCount(1)) == std::string::npos);
 }
 
 TEST_CASE("UpdateFlow_UpdateAll_IncludeUnknown", "[UpdateFlow][workflow]")

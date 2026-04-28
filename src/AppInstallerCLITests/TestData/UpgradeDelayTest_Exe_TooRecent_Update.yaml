@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.1.0.schema.json
+
+PackageIdentifier: AppInstallerCliTest.TestExeDelayTooRecent
+PackageVersion: 2.0.0.0
+PackageLocale: en-US
+Publisher: Microsoft Corporation
+PackageName: AppInstaller Test Exe Installer (Delay Too Recent)
+License: Test
+ReleaseDate: 2999-01-01
+InstallerType: exe
+InstallerSwitches:
+  Upgrade: /update
+  SilentWithProgress: /silentwithprogress
+  Silent: /silence
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://ThisIsNotUsed
+    InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+
+ManifestType: singleton
+ManifestVersion: 1.1.0
