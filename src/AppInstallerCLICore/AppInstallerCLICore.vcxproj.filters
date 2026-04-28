@@ -50,6 +50,9 @@
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="Workflows\ListSortHelper.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
     <ClInclude Include="Workflows\WorkflowBase.h">
       <Filter>Workflows</Filter>
     </ClInclude>

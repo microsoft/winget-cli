@@ -366,6 +366,7 @@
     <ClInclude Include="Workflows\SourceFlow.h" />
     <ClInclude Include="Workflows\UninstallFlow.h" />
     <ClInclude Include="Workflows\UpdateFlow.h" />
+    <ClInclude Include="Workflows\ListSortHelper.h" />
     <ClInclude Include="Workflows\WorkflowBase.h" />
   </ItemGroup>
   <ItemGroup>

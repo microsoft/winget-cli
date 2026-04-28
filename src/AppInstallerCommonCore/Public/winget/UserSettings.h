@@ -58,15 +58,15 @@ namespace AppInstaller::Settings
         Available,
     };
 
+    // Converts a string to SortField. Returns std::nullopt for unrecognized values.
+    std::optional<SortField> ConvertToSortField(std::string_view value);
+
     // Sort direction for output ordering.
     enum class SortDirection
     {
         Ascending,
         Descending,
     };
-
-    // Converts a string to SortField. Returns std::nullopt for unrecognized values.
-    std::optional<SortField> ConvertToSortField(std::string_view value);
 
     // The download code to use for *installers*.
     enum class InstallerDownloader
