@@ -76,6 +76,7 @@ namespace AppInstaller::Settings
         EFDirectMSI,
         EFResume,
         EFFonts,
+        EFSourcePriority,
         // Telemetry
         TelemetryDisable,
         // Install behavior
@@ -102,6 +103,10 @@ namespace AppInstaller::Settings
         LoggingLevelPreference,
         LoggingChannelPreference,
         LoggingFileNameStrategy,
+        LoggingFileAgeLimitInDays,
+        LoggingFileTotalSizeLimitInMB,
+        LoggingFileIndividualSizeLimitInMB,
+        LoggingFileCountLimit,
         // Uninstall behavior
         UninstallPurgePortablePackage,
         // Download behavior
@@ -160,6 +165,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFResume, bool, bool, false, ".experimentalFeatures.resume"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFFonts, bool, bool, false, ".experimentalFeatures.fonts"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFSourcePriority, bool, bool, false, ".experimentalFeatures.sourcePriority"sv);
         // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         // Install behavior
@@ -197,7 +203,11 @@ namespace AppInstaller::Settings
         // Logging
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingLevelPreference, std::string, Logging::Level, Logging::Level::Info, ".logging.level"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingChannelPreference, std::vector<std::string>, Logging::Channel, Logging::Channel::Defaults, ".logging.channels"sv);
-		SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileNameStrategy, std::string, Logging::LogNameStrategy, Logging::LogNameStrategy::Manifest, ".logging.fileNameStrategy"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileNameStrategy, std::string, Logging::LogNameStrategy, Logging::LogNameStrategy::Manifest, ".logging.fileNameStrategy"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileAgeLimitInDays, uint32_t, std::chrono::hours, (7 * 24h), ".logging.file.ageLimitInDays"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileTotalSizeLimitInMB, uint32_t, uint32_t, 128, ".logging.file.totalSizeLimitInMB"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileIndividualSizeLimitInMB, uint32_t, uint32_t, 16, ".logging.file.individualSizeLimitInMB"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileCountLimit, uint32_t, uint32_t, 0, ".logging.file.countLimit"sv);
         // Interactivity
         SETTINGMAPPING_SPECIALIZATION(Setting::InteractivityDisable, bool, bool, false, ".interactivity.disable"sv);
         

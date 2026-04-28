@@ -462,7 +462,7 @@ namespace AppInstaller::Repository
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
     }
 
-    Source::Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel, bool isExplicit)
+    Source::Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel, const SourceEdit& additionalProperties)
     {
         m_isSourceToBeAdded = true;
         SourceDetails details;
@@ -479,7 +479,14 @@ namespace AppInstaller::Repository
             details.Arg = arg;
             details.Type = type;
             details.TrustLevel = trustLevel;
-            details.Explicit = isExplicit;
+            if (additionalProperties.Explicit)
+            {
+                details.Explicit = additionalProperties.Explicit.value();
+            }
+            if (additionalProperties.Priority)
+            {
+                details.Priority = additionalProperties.Priority.value();
+            }
         }
 
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
@@ -677,6 +684,14 @@ namespace AppInstaller::Repository
         for (auto& sourceReference : m_sourceReferences)
         {
             sourceReference->SetAuthenticationArguments(args);
+        }
+    }
+
+    void Source::SetThreadGlobals(const std::shared_ptr<ThreadLocalStorage::ThreadGlobals>& threadGlobals)
+    {
+        for (auto& sourceReference : m_sourceReferences)
+        {
+            sourceReference->SetThreadGlobals(threadGlobals);
         }
     }
 
@@ -987,6 +1002,55 @@ namespace AppInstaller::Repository
         }
 
         return result;
+    }
+
+    void Source::Edit(const SourceEdit& edits)
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_isSourceToBeAdded || m_sourceReferences.size() != 1 || m_source);
+
+        auto& details = m_sourceReferences[0]->GetDetails();
+        AICLI_LOG(Repo, Info, << "Named source to be edited, found: " << details.Name << " [" << ToString(details.Origin) << ']');
+
+        // This is intentionally the same policy checks as Remove. If the source cannot be removed then it cannot be edited.
+        EnsureSourceIsRemovable(details);
+
+        if (RequiresChanges(edits))
+        {
+            if (edits.Explicit.has_value())
+            {
+                details.Explicit = edits.Explicit.value();
+            }
+
+            if (edits.Priority.has_value())
+            {
+                details.Priority = edits.Priority.value();
+            }
+
+            // Apply the edits and update source list.
+            SourceList sourceList;
+            sourceList.EditSource(details);
+        }
+    }
+
+    bool Source::RequiresChanges(const SourceEdit& edits)
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_sourceReferences.size() != 1);
+
+        const auto& details = m_sourceReferences[0]->GetDetails();
+
+        bool isChanged = false;
+
+        if (edits.Explicit.has_value() && edits.Explicit.value() != details.Explicit)
+        {
+            isChanged = true;
+        }
+
+        if (edits.Priority.has_value() && edits.Priority.value() != details.Priority)
+        {
+            isChanged = true;
+        }
+
+        return isChanged;
     }
 
     PackageTrackingCatalog Source::GetTrackingCatalog() const

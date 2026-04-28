@@ -3,6 +3,7 @@
 #pragma once
 #include "AddPackageCatalogOptions.g.h"
 #include "public/ComClsids.h"
+#include <winget/ModuleCountBase.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -27,7 +28,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void CustomHeader(hstring const& value);
 
         bool Explicit();
-        void Explicit(bool const& value);
+        void Explicit(bool value);
+
+        int32_t Priority();
+        void Priority(int32_t value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -37,6 +41,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel m_trustLevel = winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel::None;
         hstring m_customHeader = L"";
         bool m_explicit = false;
+        int32_t m_priority = 0;
 #endif
     };
 }
@@ -44,7 +49,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
 {
-    struct AddPackageCatalogOptions : AddPackageCatalogOptionsT<AddPackageCatalogOptions, implementation::AddPackageCatalogOptions>
+    struct AddPackageCatalogOptions : AddPackageCatalogOptionsT<AddPackageCatalogOptions, implementation::AddPackageCatalogOptions>, AppInstaller::WinRT::ModuleCountBase
     {
     };
 }

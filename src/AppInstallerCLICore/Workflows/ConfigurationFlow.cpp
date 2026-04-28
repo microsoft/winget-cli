@@ -17,6 +17,7 @@
 #include <AppInstallerStrings.h>
 #include <winget/ExperimentalFeature.h>
 #include <winget/SelfManagement.h>
+#include <winget/PathTree.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 
 using namespace AppInstaller::CLI::Execution;
@@ -63,6 +64,9 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_Setting_WinGetSource_Name = L"name";
         constexpr std::wstring_view s_Setting_WinGetSource_Arg = L"argument";
         constexpr std::wstring_view s_Setting_WinGetSource_Type = L"type";
+        constexpr std::wstring_view s_Setting_WinGetSource_TrustLevel = L"trustLevel";
+        constexpr std::wstring_view s_Setting_WinGetSource_Explicit = L"explicit";
+        constexpr std::wstring_view s_Setting_WinGetSource_Priority = L"priority";
 
         constexpr std::wstring_view s_Predefined_PowerShell_PackageId = L"Microsoft.PowerShell";
         constexpr std::wstring_view s_Predefined_PowerShell_PackageSource = L"winget";
@@ -352,7 +356,7 @@ namespace AppInstaller::CLI::Workflow
                     truncated = true;
                 }
 
-                if (Utility::LimitOutputLines(lines, GetConsoleWidth(), maxLines))
+                if (Utility::LimitOutputLines(lines, GetConsoleWidth().value_or(120), maxLines))
                 {
                     truncated = true;
                 }
@@ -763,7 +767,7 @@ namespace AppInstaller::CLI::Workflow
             if (messageData.ShowDescription && !description.empty())
             {
                 constexpr size_t maximumDescriptionLines = 3;
-                size_t consoleWidth = GetConsoleWidth();
+                size_t consoleWidth = GetConsoleWidth().value_or(120);
                 std::vector<std::string> lines = Utility::SplitIntoLines(description, maximumDescriptionLines + 1);
                 bool wasLimited = Utility::LimitOutputLines(lines, consoleWidth, maximumDescriptionLines);
 
@@ -1377,6 +1381,18 @@ namespace AppInstaller::CLI::Workflow
             settings.Insert(s_Setting_WinGetSource_Name, PropertyValue::CreateString(Utility::ConvertToUTF16(source.Details.Name)));
             settings.Insert(s_Setting_WinGetSource_Arg, PropertyValue::CreateString(Utility::ConvertToUTF16(source.Details.Arg)));
             settings.Insert(s_Setting_WinGetSource_Type, PropertyValue::CreateString(Utility::ConvertToUTF16(source.Details.Type)));
+            if (WI_IsFlagSet(source.Details.TrustLevel, Repository::SourceTrustLevel::Trusted))
+            {
+                settings.Insert(s_Setting_WinGetSource_TrustLevel, PropertyValue::CreateString(L"trusted"));
+            }
+            if (source.Details.Explicit)
+            {
+                settings.Insert(s_Setting_WinGetSource_Explicit, PropertyValue::CreateBoolean(true));
+            }
+            if (source.Details.Priority != 0)
+            {
+                settings.Insert(s_Setting_WinGetSource_Priority, PropertyValue::CreateInt32(source.Details.Priority));
+            }
             unit.Settings(settings);
 
             unit.Environment().Context(SecurityContext::Elevated);
@@ -1406,7 +1422,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        ConfigurationUnit CreateWinGetPackageUnit(const PackageCollection::Package& package, const PackageCollection::Source& source, bool includeVersion, const std::optional<ConfigurationUnit>& dependentUnit, std::wstring_view unitType)
+        ConfigurationUnit CreateWinGetPackageUnit(const PackageCollection::Package& package, const PackageCollection::Source& source, bool includeVersion, const ConfigurationUnit& dependentUnit, std::wstring_view unitType)
         {
             std::wstring packageIdWide = Utility::ConvertToUTF16(package.Id);
             std::wstring sourceNameWide = Utility::ConvertToUTF16(source.Details.Name);
@@ -1416,7 +1432,7 @@ namespace AppInstaller::CLI::Workflow
             unit.Identifier(sourceNameWide + L'_' + packageIdWide);
             unit.Intent(ConfigurationUnitIntent::Apply);
 
-            auto description = Resource::String::ConfigureExportUnitInstallDescription(Utility::LocIndView{ package.Id });
+            auto description = Resource::String::ConfigureExportUnitInstallDescription(package.Id);
 
             ValueSet directives;
             directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
@@ -1434,10 +1450,10 @@ namespace AppInstaller::CLI::Workflow
             // TODO: We may consider setting security environment based on installer elevation requirements?
 
             // Add dependency if needed.
-            if (dependentUnit.has_value())
+            if (dependentUnit)
             {
                 auto dependencies = winrt::single_threaded_vector<winrt::hstring>();
-                dependencies.Append(dependentUnit.value().Identifier());
+                dependencies.Append(dependentUnit.Identifier());
                 unit.Dependencies(std::move(dependencies));
             }
 
@@ -1678,6 +1694,80 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        // Contains a tree of all unit processors by their path.
+        struct UnitProcessorTree
+        {
+        private:
+            struct SourceAndPackage
+            {
+                PackageCollection::Source Source;
+                PackageCollection::Package Package;
+            };
+
+            struct Node
+            {
+                // Packages whose installed location is at this node
+                std::vector<SourceAndPackage> Packages;
+
+                // Units whose location is at this node.
+                std::vector<IConfigurationUnitProcessorDetails> Units;
+            };
+
+            Filesystem::PathTree<Node> m_pathTree;
+
+            Node& FindNodeForFilePath(const winrt::hstring& filePath)
+            {
+                std::filesystem::path path{ std::wstring{ filePath } };
+                return m_pathTree.FindOrInsert(path.parent_path());
+            }
+
+        public:
+            UnitProcessorTree(std::vector<IConfigurationUnitProcessorDetails>&& unitProcessors)
+            {
+                for (auto&& unit : unitProcessors)
+                {
+                    IConfigurationUnitProcessorDetails3 unitProcessor3;
+                    if (unit.try_as(unitProcessor3))
+                    {
+                        winrt::hstring unitPath = unitProcessor3.Path();
+                        AICLI_LOG(Config, Verbose, << "Found unit `" << Utility::ConvertToUTF8(unit.UnitType()) << "` at: " << Utility::ConvertToUTF8(unitPath));
+                        Node& node = FindNodeForFilePath(unitPath);
+                        node.Units.emplace_back(std::move(unit));
+                    }
+                }
+            }
+
+            void PlacePackage(const PackageCollection::Source& source, const PackageCollection::Package& package)
+            {
+                Node* node = m_pathTree.Find(package.InstalledLocation);
+                if (node)
+                {
+                    node->Packages.emplace_back(SourceAndPackage{ source, package });
+                }
+            }
+
+            std::vector<IConfigurationUnitProcessorDetails> GetResourcesForPackage(const PackageCollection::Package& package) const
+            {
+                std::vector<IConfigurationUnitProcessorDetails> result;
+
+                m_pathTree.VisitIf(
+                    package.InstalledLocation,
+                    [&](const Node& node)
+                    {
+                        for (const auto& unit : node.Units)
+                        {
+                            result.emplace_back(unit);
+                        }
+                    },
+                    [](const Node& node)
+                    {
+                        return node.Packages.empty();
+                    });
+
+                return result;
+            }
+        };
+
         void ProcessPackagesForConfigurationExportAll(Execution::Context& context)
         {
             ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
@@ -1718,46 +1808,47 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
+            // Build a tree of the unit processors and place packages onto it to indicate nearest ownership.
+            UnitProcessorTree unitProcessorTree{ std::move(unitProcessors) };
+
             for (const auto& source : context.Get<Execution::Data::PackageCollection>().Sources)
             {
-                // Create WinGetSource unit for non well known source.
-                std::optional<ConfigurationUnit> sourceUnit;
-                if (!CheckForWellKnownSource(source.Details))
+                for (const auto& package : source.Packages)
                 {
-                    sourceUnit = anon::CreateWinGetSourceUnit(source, sourceUnitType);
-                    configContext.Set().Units().Append(sourceUnit.value());
+                    unitProcessorTree.PlacePackage(source, package);
                 }
+            }
+
+            for (const auto& source : context.Get<Execution::Data::PackageCollection>().Sources)
+            {
+                // Create WinGetSource unit
+                ConfigurationUnit sourceUnit = anon::CreateWinGetSourceUnit(source, sourceUnitType);
+                configContext.Set().Units().Append(sourceUnit);
 
                 for (const auto& package : source.Packages)
                 {
+                    AICLI_LOG(Config, Verbose, << "Exporting package `" << package.Id << "` at: " << package.InstalledLocation);
+
                     auto packageUnit = anon::CreateWinGetPackageUnit(package, source, context.Args.Contains(Args::Type::IncludeVersions), sourceUnit, packageUnitType);
                     configContext.Set().Units().Append(packageUnit);
 
                     // Try package settings export.
-                    for (auto itr = unitProcessors.begin(); itr != unitProcessors.end(); /* itr incremented in the logic */)
+                    auto unitsForPackage = unitProcessorTree.GetResourcesForPackage(package);
+                    for (const auto& unit : unitsForPackage)
                     {
-                        IConfigurationUnitProcessorDetails3 unitProcessor3;
-                        itr->try_as(unitProcessor3);
-                        if (Filesystem::IsParentPath(std::filesystem::path{ std::wstring{ unitProcessor3.Path() } }, package.InstalledLocation))
+                        winrt::hstring unitType = unit.UnitType();
+                        AICLI_LOG(Config, Verbose, << "  exporting unit `" << Utility::ConvertToUTF8(unitType));
+
+                        ConfigurationUnit configUnit = anon::CreateConfigurationUnitFromUnitType(
+                            unitType,
+                            Utility::ConvertToUTF8(packageUnit.Identifier()));
+
+                        auto exportedUnits = anon::ExportUnit(context, configUnit);
+                        anon::AddDependentUnit(exportedUnits, packageUnit);
+
+                        for (const auto& exportedUnit : exportedUnits)
                         {
-                            ConfigurationUnit configUnit = anon::CreateConfigurationUnitFromUnitType(
-                                unitProcessor3.UnitType(),
-                                Utility::ConvertToUTF8(packageUnit.Identifier()));
-
-                            auto exportedUnits = anon::ExportUnit(context, configUnit);
-                            anon::AddDependentUnit(exportedUnits, packageUnit);
-
-                            for (auto exportedUnit : exportedUnits)
-                            {
-                                configContext.Set().Units().Append(exportedUnit);
-                            }
-
-                            // Remove the unit processor from the list after export.
-                            itr = unitProcessors.erase(itr);
-                        }
-                        else
-                        {
-                            itr++;
+                            configContext.Set().Units().Append(exportedUnit);
                         }
                     }
                 }
@@ -1777,12 +1868,8 @@ namespace AppInstaller::CLI::Workflow
                 // There should be 1 package under 1 source.
                 THROW_HR_IF(E_UNEXPECTED, exportSources.size() != 1 || exportSources[0].Packages.size() != 1);
 
-                std::optional<ConfigurationUnit> sourceUnit;
-                if (!CheckForWellKnownSource(exportSources[0].Details))
-                {
-                    sourceUnit = anon::CreateWinGetSourceUnit(exportSources[0], GetWinGetSourceUnitType(configContext));
-                    configContext.Set().Units().Append(sourceUnit.value());
-                }
+                ConfigurationUnit sourceUnit = anon::CreateWinGetSourceUnit(exportSources[0], GetWinGetSourceUnitType(configContext));
+                configContext.Set().Units().Append(sourceUnit);
 
                 singlePackageUnit = anon::CreateWinGetPackageUnit(exportSources[0].Packages[0], exportSources[0], context.Args.Contains(Args::Type::IncludeVersions), sourceUnit, GetWinGetPackageUnitType(configContext));
                 configContext.Set().Units().Append(singlePackageUnit.value());
@@ -1977,7 +2064,7 @@ namespace AppInstaller::CLI::Workflow
         auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailFlags::ReadOnly);
         auto unification = anon::CreateProgressCancellationUnification(std::move(progressScope), getDetailsOperation);
 
-        bool suppressDetailsOutput = context.Args.Contains(Args::Type::ConfigurationAcceptWarning) && context.Args.Contains(Args::Type::ConfigurationSuppressPrologue);
+        bool suppressDetailsOutput = context.Args.Contains(Args::Type::ConfigurationSuppressPrologue);
         anon::OutputHelper outputHelper{ context };
         uint32_t unitsShown = 0;
 

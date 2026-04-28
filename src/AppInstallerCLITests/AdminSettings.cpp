@@ -4,6 +4,8 @@
 #include "TestCommon.h"
 #include "TestSettings.h"
 #include <winget/AdminSettings.h>
+#include <AppInstallerRuntime.h>
+#include <fstream>
 
 using namespace AppInstaller::Settings;
 using namespace TestCommon;
@@ -81,4 +83,80 @@ TEST_CASE("AdminSetting_AllSettingsAreImplemented", "[adminSettings]")
         REQUIRE(DisableAdminSetting(adminSetting));
         REQUIRE_FALSE(IsAdminSettingEnabled(adminSetting));
     }
+}
+
+TEST_CASE("AdminSetting_ConfigurationProcessorPath", "[adminSettings]")
+{
+    WHEN("Default state")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::ConfigurationProcessorPath, PolicyState::NotConfigured);
+
+        REQUIRE_FALSE(IsAdminSettingEnabled(BoolAdminSetting::ConfigurationProcessorPath));
+    }
+
+    WHEN("Group policy not configured - can enable and disable")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::ConfigurationProcessorPath, PolicyState::NotConfigured);
+
+        REQUIRE(EnableAdminSetting(BoolAdminSetting::ConfigurationProcessorPath));
+        REQUIRE(IsAdminSettingEnabled(BoolAdminSetting::ConfigurationProcessorPath));
+        REQUIRE(DisableAdminSetting(BoolAdminSetting::ConfigurationProcessorPath));
+        REQUIRE_FALSE(IsAdminSettingEnabled(BoolAdminSetting::ConfigurationProcessorPath));
+    }
+
+    WHEN("Group policy enabled - cannot disable")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::ConfigurationProcessorPath, PolicyState::Enabled);
+
+        REQUIRE(IsAdminSettingEnabled(BoolAdminSetting::ConfigurationProcessorPath));
+        REQUIRE_FALSE(DisableAdminSetting(BoolAdminSetting::ConfigurationProcessorPath));
+        REQUIRE(IsAdminSettingEnabled(BoolAdminSetting::ConfigurationProcessorPath));
+    }
+
+    WHEN("Group policy disabled - cannot enable")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::ConfigurationProcessorPath, PolicyState::Disabled);
+
+        REQUIRE_FALSE(IsAdminSettingEnabled(BoolAdminSetting::ConfigurationProcessorPath));
+        REQUIRE_FALSE(EnableAdminSetting(BoolAdminSetting::ConfigurationProcessorPath));
+        REQUIRE_FALSE(IsAdminSettingEnabled(BoolAdminSetting::ConfigurationProcessorPath));
+    }
+}
+
+TEST_CASE("AdminSetting_CorruptedVerificationFile", "[adminSettings]"){
+    GroupPolicyTestOverride policies;
+    policies.SetState(TogglePolicy::Policy::LocalManifestFiles, PolicyState::NotConfigured);
+
+    // Clean up any existing admin settings
+    ResetAllAdminSettings();
+
+    // Enable the setting to create both the data and verification files
+    REQUIRE(EnableAdminSetting(BoolAdminSetting::LocalManifestFiles));
+    REQUIRE(IsAdminSettingEnabled(BoolAdminSetting::LocalManifestFiles));
+
+    // Get the path to the verification file.
+    // Note: The data file may be stored in ApplicationData (packaged context) rather than the filesystem,
+    // so we only verify the verification file, which is always on the filesystem.
+    std::filesystem::path secureSettingsDir = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::SecureSettingsForRead);
+    std::filesystem::path verificationFilePath = secureSettingsDir / Stream::AdminSettings.Name;
+
+    // Verify the verification file exists
+    REQUIRE(std::filesystem::exists(verificationFilePath));
+
+    // Corrupt the verification file by writing invalid content to it
+    {
+        std::ofstream corruptFile(verificationFilePath);
+        corruptFile << "corrupted data that is not valid YAML or a valid hash";
+    }
+
+    // Now when we try to read the setting, it should fall back to the default value (false)
+    // instead of throwing an exception
+    REQUIRE_FALSE(IsAdminSettingEnabled(BoolAdminSetting::LocalManifestFiles));
+
+    // Clean up
+    ResetAllAdminSettings();
 }

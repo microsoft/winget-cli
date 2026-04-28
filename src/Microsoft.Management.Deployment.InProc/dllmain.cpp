@@ -19,15 +19,6 @@ EXTERN_C BOOL WINAPI DllMain(
         }
     }
     break;
-
-    case DLL_PROCESS_DETACH:
-    {
-        WindowsPackageManagerInProcModuleTerminate();
-    }
-    break;
-
-    default:
-        return TRUE;
     }
     return TRUE;
 }

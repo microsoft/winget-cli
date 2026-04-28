@@ -91,6 +91,7 @@ namespace AppInstaller::CLI
         AllAndTargetVersion = 0x40,
         ConfigurationSetChoice = 0x80,
         DscResourceFunction = 0x100,
+        DependenciesConflict = 0x200,
 
         // This must always be at the end
         Max

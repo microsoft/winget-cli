@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 #include "DependenciesTestSource.h"
+#include <AppInstallerRuntime.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/COMCommand.h>
 #include <Workflows/DependenciesFlow.h>
@@ -232,6 +233,28 @@ TEST_CASE("InstallerWithDependencies_IgnoreDependenciesSetting", "[dependencies]
     REQUIRE_FALSE(installOutput.str().find("PreviewIIS") != std::string::npos);
 }
 
+TEST_CASE("InstallerWithDependencies_DependenciesOnly", "[dependencies]")
+{
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideOpenDependencySource(context);
+    OverrideEnableWindowsFeaturesDependencies(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::DependenciesOnly);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Dependencies should be reported and installed
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::PackageRequiresDependencies).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
+    // DependenciesOnly message should be shown
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesOnlyMessage).get()) != std::string::npos);
+}
+
 TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[dependencies]")
 {
     std::ostringstream installOutput;
@@ -304,6 +327,42 @@ TEST_CASE("InstallFlow_Dependencies_COM", "[InstallFlow][workflow][dependencies]
     REQUIRE(installationOrder.at(0) == "Dependency1");
     REQUIRE(installationOrder.at(1) == "Dependency2");
     REQUIRE(installationOrder.at(2) == "AppInstallerCliTest.TestExeInstaller.MultipleDependencies");
+}
+
+void InstallFlow_Dependencies_WindowsFeaturesArgument_Generic(std::string_view featureName)
+{
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+
+    context << ShellExecuteEnableWindowsFeature(featureName);
+
+    INFO(installOutput.str());
+
+    REQUIRE(context.Contains(Execution::Data::OperationReturnCode));
+    REQUIRE(context.Get<Execution::Data::OperationReturnCode>() == E_INVALIDARG);
+}
+
+TEST_CASE("InstallFlow_Dependencies_WindowsFeaturesArgument_Extras", "[InstallFlow][workflow][dependencies][111981]")
+{
+    TempFile potentialLogFile("dism-log", ".log");
+    std::string featureName = "MediaPlayback /LogPath:";
+    featureName.append(potentialLogFile.GetPath().u8string());
+
+    InstallFlow_Dependencies_WindowsFeaturesArgument_Generic(featureName);
+
+    REQUIRE(!std::filesystem::exists(potentialLogFile));
+}
+
+TEST_CASE("InstallFlow_Dependencies_WindowsFeaturesArgument_Quoted", "[InstallFlow][workflow][dependencies][111981]")
+{
+    TempFile potentialLogFile("dism-log", ".log");
+    std::string featureName = "\"MediaPlayback /LogPath:";
+    featureName.append(potentialLogFile.GetPath().u8string());
+    featureName.append("\"");
+
+    InstallFlow_Dependencies_WindowsFeaturesArgument_Generic(featureName);
+
+    REQUIRE(!std::filesystem::exists(potentialLogFile));
 }
 
 // TODO:

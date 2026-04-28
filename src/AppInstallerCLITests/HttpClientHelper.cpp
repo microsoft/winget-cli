@@ -9,6 +9,7 @@
 #include <winget/Certificates.h>
 #include <winget/HttpClientHelper.h>
 #include <CertificateResources.h>
+#include <winget/JsonUtil.h>
 
 using namespace AppInstaller::Http;
 using namespace AppInstaller::Runtime;
@@ -78,4 +79,13 @@ TEST_CASE("HttpClientHelper_PinningConfiguration", "[RestSource]")
     helper.SetPinningConfiguration(config);
 
     REQUIRE_THROWS_HR(helper.HandleGet(L"https://github.com"), APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH);
+}
+
+TEST_CASE("HttpClientHelper_CallerCharacters", "[RestSource]")
+{
+    HttpClientHelper::HttpRequestHeaders headers;
+    headers.emplace(web::http::header_names::user_agent, AppInstaller::JSON::GetUtilityString(AppInstaller::Runtime::GetUserAgent("\xe6\xb5\x8b\xe8\xaf\x95")));
+
+    HttpClientHelper helper;
+    REQUIRE_THROWS_HR(helper.HandleGet(L"https://github.com", headers), APPINSTALLER_CLI_ERROR_RESTAPI_UNSUPPORTED_MIME_TYPE);
 }

@@ -65,7 +65,7 @@ namespace AppInstaller::CLI
             Json::ValueType type,
             std::string_view description,
             const std::vector<std::string>& enumValues,
-            const std::optional<std::string>& defaultValue)
+            const std::optional<Json::Value>& defaultValue)
         {
             Json::Value& propertiesObject = object["properties"];
 

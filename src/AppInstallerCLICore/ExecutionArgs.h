@@ -45,6 +45,7 @@ namespace AppInstaller::CLI::Execution
             InstallerType,
             HashOverride, // Ignore hash mismatches
             SkipDependencies, // Skip dependencies
+            DependenciesOnly, // Install only dependencies, not the target package
             IgnoreLocalArchiveMalwareScan, // Ignore the local malware scan on archive files
             AcceptPackageAgreements, // Accept all license agreements for packages
             Rename, // Renames the file of the executable. Only applies to the portable installerType
@@ -65,6 +66,8 @@ namespace AppInstaller::CLI::Execution
             ForceSourceReset,
             SourceExplicit,
             SourceTrustLevel,
+            SourcePriority,
+            SourceEditExplicit,
 
             //Hash Command
             HashFile,
@@ -110,6 +113,7 @@ namespace AppInstaller::CLI::Execution
 
             // List Command
             Upgrade, // Used in List command to only show versions with upgrades
+            ListDetails,
 
             // Pin command
             GatedVersion, // Differs from Version in that this supports wildcards
@@ -162,6 +166,7 @@ namespace AppInstaller::CLI::Execution
             NoVT, // Disable VirtualTerminal outputs
             RetroStyle, // Makes progress display as retro
             RainbowStyle, // Makes progress display as a rainbow
+            NoProgress, // Disables progress bar and spinner
             Help, // Show command usage
             Info, // Show general info about WinGet
             VerboseLogs, // Increases winget logging level to verbose

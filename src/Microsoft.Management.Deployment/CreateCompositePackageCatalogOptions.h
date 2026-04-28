@@ -3,6 +3,7 @@
 #pragma once
 #include "CreateCompositePackageCatalogOptions.g.h"
 #include "Public/ComClsids.h"
+#include <winget/ModuleCountBase.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -29,7 +30,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
 {
-    struct CreateCompositePackageCatalogOptions : CreateCompositePackageCatalogOptionsT<CreateCompositePackageCatalogOptions, implementation::CreateCompositePackageCatalogOptions>
+    struct CreateCompositePackageCatalogOptions :
+        CreateCompositePackageCatalogOptionsT<CreateCompositePackageCatalogOptions, implementation::CreateCompositePackageCatalogOptions>,
+        AppInstaller::WinRT::ModuleCountBase
     {
     };
 }

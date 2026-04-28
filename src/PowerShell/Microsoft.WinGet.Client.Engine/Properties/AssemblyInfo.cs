@@ -4,9 +4,14 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
+using System.Runtime.CompilerServices;
 #if NET
-
 using System.Runtime.Versioning;
+#endif
+
+[assembly: InternalsVisibleTo("Microsoft.WinGet.UnitTests")]
+
+#if NET
 
 // Forcibly set the target and supported platforms due to the internal build setup.
 // Keep in sync with project versions.

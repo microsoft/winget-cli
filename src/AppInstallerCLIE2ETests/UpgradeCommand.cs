@@ -159,7 +159,7 @@ namespace AppInstallerCLIE2ETests
 
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
             Assert.AreEqual(Constants.ErrorCode.APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED, result2.ExitCode);
-            Assert.True(result2.StdOut.Contains("package cannot be upgraded using winget"));
+            Assert.True(result2.StdOut.Contains("package cannot be upgraded using WinGet"));
         }
 
         /// <summary>

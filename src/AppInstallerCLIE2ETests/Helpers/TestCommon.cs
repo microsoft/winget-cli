@@ -126,15 +126,6 @@ namespace AppInstallerCLIE2ETests.Helpers
                 }
             }
 
-            string inputMsg =
-                    "AICLI path: " + TestSetup.Parameters.AICLIPath +
-                    " Command: " + command +
-                    " Parameters: " + parameters + correlationParameter +
-                    (string.IsNullOrEmpty(stdIn) ? string.Empty : " StdIn: " + stdIn) +
-                    " Timeout: " + timeOut;
-
-            TestContext.Out.WriteLine($"Starting command run. {inputMsg}");
-
             return RunAICLICommandViaDirectProcess(command, parameters + correlationParameter, stdIn, timeOut, throwOnTimeout);
         }
 
@@ -1162,17 +1153,27 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <summary>
         /// Run winget command via direct process.
         /// </summary>
+        /// <param name="executablePath">The executable to run.</param>
         /// <param name="command">Command to run.</param>
         /// <param name="parameters">Parameters.</param>
         /// <param name="stdIn">Optional std in.</param>
         /// <param name="timeOut">Optional timeout.</param>
         /// <param name="throwOnTimeout">Throw on timeout.</param>
         /// <returns>The result of the command.</returns>
-        private static RunCommandResult RunAICLICommandViaDirectProcess(string command, string parameters, string stdIn, int timeOut, bool throwOnTimeout)
+        public static RunCommandResult RunProcess(string executablePath, string command, string parameters, string stdIn, int timeOut, bool throwOnTimeout)
         {
+            string inputMsg =
+                    "Exe path: " + executablePath +
+                    " Command: " + command +
+                    " Parameters: " + parameters +
+                    (string.IsNullOrEmpty(stdIn) ? string.Empty : " StdIn: " + stdIn) +
+                    " Timeout: " + timeOut;
+
+            TestContext.Out.WriteLine($"Starting command run. {inputMsg}");
+
             RunCommandResult result = new ();
             Process p = new Process();
-            p.StartInfo = new ProcessStartInfo(TestSetup.Parameters.AICLIPath, command + ' ' + parameters);
+            p.StartInfo = new ProcessStartInfo(executablePath, command + ' ' + parameters);
             p.StartInfo.UseShellExecute = false;
 
             p.StartInfo.StandardOutputEncoding = Encoding.UTF8;
@@ -1236,10 +1237,24 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
             else if (throwOnTimeout)
             {
-                throw new TimeoutException($"Direct winget command run timed out: {command} {parameters}");
+                throw new TimeoutException($"Direct command run timed out: {command} {parameters}");
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Run winget command via direct process.
+        /// </summary>
+        /// <param name="command">Command to run.</param>
+        /// <param name="parameters">Parameters.</param>
+        /// <param name="stdIn">Optional std in.</param>
+        /// <param name="timeOut">Optional timeout.</param>
+        /// <param name="throwOnTimeout">Throw on timeout.</param>
+        /// <returns>The result of the command.</returns>
+        private static RunCommandResult RunAICLICommandViaDirectProcess(string command, string parameters, string stdIn, int timeOut, bool throwOnTimeout)
+        {
+            return RunProcess(TestSetup.Parameters.AICLIPath, command, parameters, stdIn, timeOut, throwOnTimeout);
         }
 
         /// <summary>

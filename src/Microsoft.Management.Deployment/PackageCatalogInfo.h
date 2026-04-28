@@ -23,6 +23,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageCatalogOrigin Origin();
         winrt::Microsoft::Management::Deployment::PackageCatalogTrustLevel TrustLevel();
         bool Explicit();
+        int32_t Priority();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

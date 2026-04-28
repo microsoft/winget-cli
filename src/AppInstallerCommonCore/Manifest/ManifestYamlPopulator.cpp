@@ -398,6 +398,22 @@ namespace AppInstaller::Manifest
 
                 std::move(fields_v1_10.begin(), fields_v1_10.end(), std::inserter(result, result.end()));
             }
+
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_28 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_28 =
+                {
+                    { "DesiredStateConfiguration", [this](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors
+                        {
+                            auto* installer = GetManifestInstallerPtr(v);
+                            installer->DesiredStateConfiguration.clear();
+                            return ValidateAndProcessFields(value, DesiredStateConfigurationFieldInfos, VariantManifestPtr(&(installer->DesiredStateConfiguration)));
+                        }
+                    },
+                };
+
+                std::move(fields_v1_28.begin(), fields_v1_28.end(), std::inserter(result, result.end()));
+            }
         }
 
         return result;
@@ -808,6 +824,90 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetDesiredStateConfigurationFieldInfos()
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_28 })
+        {
+            result =
+            {
+                { "PowerShell", [this](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { return ProcessDSC_PowerShellModuleNode(value, variant_ptr<std::vector<DesiredStateConfigurationContainerInfo>>(v)); } },
+                { "DSCv3", [this](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors
+                    {
+                        auto* variantValue = variant_ptr<std::vector<DesiredStateConfigurationContainerInfo>>(v);
+                        variantValue->emplace_back(DesiredStateConfigurationContainerType::DSCv3);
+                        return ValidateAndProcessFields(value, DesiredStateConfigurationDSCv3FieldInfos, VariantManifestPtr(&variantValue->back()));
+                    }
+                },
+            };
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetDesiredStateConfigurationPowerShellModuleFieldInfos()
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_28 })
+        {
+            result =
+            {
+                { "RepositoryUrl", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<DesiredStateConfigurationContainerInfo>(v)->RepositoryURL = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "ModuleName", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<DesiredStateConfigurationContainerInfo>(v)->ModuleName = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "Resources", [this](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { return ProcessDSC_PowerShellResourcesNode(value, variant_ptr<DesiredStateConfigurationContainerInfo>(v)); } },
+            };
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetDesiredStateConfigurationPowerShellResourceFieldInfos()
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_28 })
+        {
+            result =
+            {
+                { "Name", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<DesiredStateConfigurationResourceInfo>(v)->Name = Utility::Trim(value.as<std::string>()); return {}; } },
+            };
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetDesiredStateConfigurationDSCv3FieldInfos()
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_28 })
+        {
+            result =
+            {
+                { "Resources", [this](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { return ProcessDSCv3ResourcesNode(value, variant_ptr<DesiredStateConfigurationContainerInfo>(v)); } },
+            };
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetDesiredStateConfigurationDSCv3ResourceFieldInfos()
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_28 })
+        {
+            result =
+            {
+                { "Type", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<DesiredStateConfigurationResourceInfo>(v)->Name = Utility::Trim(value.as<std::string>()); return {}; } },
+            };
+        }
+
+        return result;
+    }
+
     ValidationErrors ManifestYamlPopulator::ValidateAndProcessFields(
         const YAML::Node& rootNode,
         const std::vector<FieldProcessInfo>& fieldInfos,
@@ -1084,6 +1184,55 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
+    std::vector<ValidationError> ManifestYamlPopulator::ProcessDSC_PowerShellModuleNode(const YAML::Node& node, std::vector<DesiredStateConfigurationContainerInfo>* containers)
+    {
+        THROW_HR_IF(E_INVALIDARG, !node.IsSequence());
+
+        ValidationErrors resultErrors;
+
+        for (auto const& entry : node.Sequence())
+        {
+            auto& containerInfo = containers->emplace_back(DesiredStateConfigurationContainerType::PowerShell);
+            auto errors = ValidateAndProcessFields(entry, DesiredStateConfigurationPowerShellModuleFieldInfos, VariantManifestPtr(&containerInfo));
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+        }
+
+        return resultErrors;
+    }
+
+    std::vector<ValidationError> ManifestYamlPopulator::ProcessDSC_PowerShellResourcesNode(const YAML::Node& node, DesiredStateConfigurationContainerInfo* container)
+    {
+        THROW_HR_IF(E_INVALIDARG, !node.IsSequence());
+
+        ValidationErrors resultErrors;
+
+        for (auto const& entry : node.Sequence())
+        {
+            auto& resourceInfo = container->Resources.emplace_back();
+            auto errors = ValidateAndProcessFields(entry, DesiredStateConfigurationPowerShellResourceFieldInfos, VariantManifestPtr(&resourceInfo));
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+        }
+
+        return resultErrors;
+    }
+
+    std::vector<ValidationError> ManifestYamlPopulator::ProcessDSCv3ResourcesNode(const YAML::Node& node, DesiredStateConfigurationContainerInfo* container)
+    {
+        THROW_HR_IF(E_INVALIDARG, !node.IsSequence());
+
+        ValidationErrors resultErrors;
+
+        for (auto const& entry : node.Sequence())
+        {
+            auto& resourceInfo = container->Resources.emplace_back();
+            auto errors = ValidateAndProcessFields(entry, DesiredStateConfigurationDSCv3ResourceFieldInfos, VariantManifestPtr(&resourceInfo));
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+        }
+
+        return resultErrors;
+    }
+
+
     ManifestYamlPopulator::ManifestYamlPopulator(YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, ManifestValidateOption validateOption) :
         m_rootNode(rootNode), m_manifest(manifest), m_manifestVersion(manifestVersion), m_validateOption(validateOption)
     {
@@ -1114,6 +1263,11 @@ namespace AppInstaller::Manifest
         InstallationMetadataFilesFieldInfos = GetInstallationMetadataFilesFieldProcessInfo();
         AuthenticationFieldInfos = GetAuthenticationFieldInfos();
         MicrosoftEntraIdAuthenticationInfoFieldInfos = GetMicrosoftEntraIdAuthenticationInfoFieldInfos();
+        DesiredStateConfigurationFieldInfos = GetDesiredStateConfigurationFieldInfos();
+        DesiredStateConfigurationPowerShellModuleFieldInfos = GetDesiredStateConfigurationPowerShellModuleFieldInfos();
+        DesiredStateConfigurationPowerShellResourceFieldInfos = GetDesiredStateConfigurationPowerShellResourceFieldInfos();
+        DesiredStateConfigurationDSCv3FieldInfos = GetDesiredStateConfigurationDSCv3FieldInfos();
+        DesiredStateConfigurationDSCv3ResourceFieldInfos = GetDesiredStateConfigurationDSCv3ResourceFieldInfos();
 
         resultErrors = ValidateAndProcessFields(rootNode, RootFieldInfos, VariantManifestPtr(&(m_manifest.get())));
 
@@ -1127,40 +1281,32 @@ namespace AppInstaller::Manifest
         {
             ManifestInstaller installer = m_manifest.get().DefaultInstallerInfo;
 
+#define WINGET_STASH_INSTALLER_PROPERTY(_property_,_clear_) \
+            auto stashed ## _property_ = std::move(installer. _property_); \
+            installer. _property_ . _clear_ ();
+
+#define WINGET_UNSTASH_INSTALLER_PROPERTY(_property_) \
+            installer. _property_ = std::move(stashed ## _property_);
+
             // Clear these defaults as PackageFamilyName, ProductCode, AppsAndFeaturesEntries need to be copied based on InstallerType
-            installer.PackageFamilyName.clear();
-            installer.ProductCode.clear();
-            installer.AppsAndFeaturesEntries.clear();
-            // Clear dependencies as installer overrides root dependencies
-            installer.Dependencies.Clear();
+            WINGET_STASH_INSTALLER_PROPERTY(PackageFamilyName, clear);
+            WINGET_STASH_INSTALLER_PROPERTY(ProductCode, clear);
+            WINGET_STASH_INSTALLER_PROPERTY(AppsAndFeaturesEntries, clear);
+            // Clear dependencies as installer specific overrides root
+            WINGET_STASH_INSTALLER_PROPERTY(Dependencies, Clear);
             // Clear nested installers as it should only be copied for zip installerType.
             installer.NestedInstallerType = InstallerTypeEnum::Unknown;
-            installer.NestedInstallerFiles.clear();
+            WINGET_STASH_INSTALLER_PROPERTY(NestedInstallerFiles, clear);
 
             auto errors = ValidateAndProcessFields(entry, InstallerFieldInfos, VariantManifestPtr(&installer));
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
 
-            // Copy in system reference strings from the root if not set in the installer and appropriate
-            if (installer.PackageFamilyName.empty() && DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()))
-            {
-                installer.PackageFamilyName = m_manifest.get().DefaultInstallerInfo.PackageFamilyName;
-            }
-
-            if (installer.ProductCode.empty() && DoesInstallerTypeUseProductCode(installer.EffectiveInstallerType()))
-            {
-                installer.ProductCode = m_manifest.get().DefaultInstallerInfo.ProductCode;
-            }
-
-            if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.EffectiveInstallerType()))
-            {
-                installer.AppsAndFeaturesEntries = m_manifest.get().DefaultInstallerInfo.AppsAndFeaturesEntries;
-            }
-
+            // Set installer type back before attempting to use it in any of the EffectiveInstallerType calls below
             if (IsArchiveType(installer.BaseInstallerType))
             {
                 if (installer.NestedInstallerFiles.empty())
                 {
-                    installer.NestedInstallerFiles = m_manifest.get().DefaultInstallerInfo.NestedInstallerFiles;
+                    WINGET_UNSTASH_INSTALLER_PROPERTY(NestedInstallerFiles);
                 }
 
                 if (installer.NestedInstallerType == InstallerTypeEnum::Unknown)
@@ -1169,10 +1315,28 @@ namespace AppInstaller::Manifest
                 }
             }
 
+            // Copy in system reference strings from the root if not set in the installer and appropriate
+            if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.EffectiveInstallerType()))
+            {
+                WINGET_UNSTASH_INSTALLER_PROPERTY(AppsAndFeaturesEntries);
+            }
+
+            if (installer.PackageFamilyName.empty() &&
+                (DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()) ||
+                 DoAnyAppsAndFeaturesEntriesUsePackageFamilyName(installer.AppsAndFeaturesEntries)))
+            {
+                WINGET_UNSTASH_INSTALLER_PROPERTY(PackageFamilyName);
+            }
+
+            if (installer.ProductCode.empty() && DoesInstallerTypeUseProductCode(installer.EffectiveInstallerType()))
+            {
+                WINGET_UNSTASH_INSTALLER_PROPERTY(ProductCode);
+            }
+
             // If there are no dependencies on installer use default ones
             if (!installer.Dependencies.HasAny())
             {
-                installer.Dependencies = m_manifest.get().DefaultInstallerInfo.Dependencies;
+                WINGET_UNSTASH_INSTALLER_PROPERTY(Dependencies);
             }
 
             // Populate installer default switches if not exists

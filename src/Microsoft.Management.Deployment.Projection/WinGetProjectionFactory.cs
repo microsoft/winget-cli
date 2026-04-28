@@ -40,5 +40,7 @@ namespace Microsoft.Management.Deployment.Projection
         public AddPackageCatalogOptions CreateAddPackageCatalogOptions() => InstanceInitializer.CreateInstance<AddPackageCatalogOptions>();
 
         public RemovePackageCatalogOptions CreateRemovePackageCatalogOptions() => InstanceInitializer.CreateInstance<RemovePackageCatalogOptions>();
+
+        public EditPackageCatalogOptions CreateEditPackageCatalogOptions() => InstanceInitializer.CreateInstance<EditPackageCatalogOptions>();
     }
 }

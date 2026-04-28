@@ -129,6 +129,11 @@ namespace AppInstallerCLIE2ETests
         public static GroupPolicyHelper EnableProxyCommandLineOptions { get; private set; } = new GroupPolicyHelper("EnableWindowsPackageManagerProxyCommandLineOptions");
 
         /// <summary>
+        /// Gets the Enable Windows Package Manager Configuration processor path policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableConfigurationProcessorPath { get; private set; } = new GroupPolicyHelper("EnableWindowsPackageManagerConfigurationProcessorPath");
+
+        /// <summary>
         /// Gets the Enable auto update interval policy.
         /// </summary>
         public static GroupPolicyHelper SourceAutoUpdateInterval { get; private set; } = new GroupPolicyHelper("SourceAutoUpdateInterval", "SourceAutoUpdateInterval");
@@ -150,6 +155,7 @@ namespace AppInstallerCLIE2ETests
             EnableWinGetCommandLineInterfaces,
             EnableConfiguration,
             EnableProxyCommandLineOptions,
+            EnableConfigurationProcessorPath,
         };
 
         /// <summary>

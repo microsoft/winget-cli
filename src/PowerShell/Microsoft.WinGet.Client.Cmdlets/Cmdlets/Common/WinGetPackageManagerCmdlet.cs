@@ -36,6 +36,9 @@ namespace Microsoft.WinGet.Client.Commands.Common
         [Parameter(
             ParameterSetName = Constants.IntegrityLatestSet,
             ValueFromPipelineByPropertyName = true)]
+        [Parameter(
+            ParameterSetName = Constants.IntegrityVersionSet,
+            ValueFromPipelineByPropertyName = true)]
         public SwitchParameter IncludePrerelease { get; set; }
     }
 }

@@ -8,10 +8,18 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
+    namespace
+    {
+        size_t GetPageSizeFromOptions(SQLiteIndex::CreateOptions options)
+        {
+            return WI_IsFlagSet(options, SQLiteIndex::CreateOptions::LargePageSize) ? 65536 : 0;
+        }
+    }
+
     SQLiteIndex SQLiteIndex::CreateNew(const std::string& filePath, SQLite::Version version, CreateOptions options)
     {
         AICLI_LOG(Repo, Info, << "Creating new SQLite Index with version [" << version << "] at '" << filePath << "'");
-        SQLiteIndex result{ filePath, version };
+        SQLiteIndex result{ filePath, version, options };
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "sqliteindex_createnew");
 
@@ -37,7 +45,7 @@ namespace AppInstaller::Repository::Microsoft
         return { filePath, source };
     }
 
-    SQLiteIndex::SQLiteIndex(const std::string& target, const SQLite::Version& version) : SQLiteStorageBase(target, version)
+    SQLiteIndex::SQLiteIndex(const std::string& target, const SQLite::Version& version, CreateOptions options) : SQLiteStorageBase(target, version, GetPageSizeFromOptions(options))
     {
         m_dbconn.EnableICU();
         m_interface = Schema::CreateISQLiteIndex(version);

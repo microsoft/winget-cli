@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="WinGetIntegrityException.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Engine.Exceptions
     using System;
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Common;
+    using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Resources;
 
     /// <summary>
@@ -52,6 +53,11 @@ namespace Microsoft.WinGet.Client.Engine.Exceptions
         /// Gets the category of the integrity failure.
         /// </summary>
         public IntegrityCategory Category { get; }
+
+        /// <summary>
+        /// Gets or sets the installed version.
+        /// </summary>
+        internal WinGetVersion? InstalledVersion { get; set; }
 
         private static string GetMessage(IntegrityCategory category) => category switch
         {

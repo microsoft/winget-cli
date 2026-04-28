@@ -539,6 +539,12 @@ namespace AppInstaller::CLI::Workflow
 
     void ShellExecuteEnableWindowsFeature::operator()(Execution::Context& context) const
     {
+        if (!Utility::IsValidWindowsFeaturePattern(m_featureName))
+        {
+            context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(E_INVALIDARG));
+            return;
+        }
+
         Utility::LocIndView locIndFeatureName{ m_featureName };
 
         std::optional<DWORD> doesFeatureExistResult = DoesWindowsFeatureExist(context, m_featureName);

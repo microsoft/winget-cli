@@ -6,6 +6,7 @@
 #include <AppInstallerProgress.h>
 #include <winget/Certificates.h>
 #include <winget/Authentication.h>
+#include <winget/SharedThreadGlobals.h>
 
 #include <chrono>
 #include <filesystem>
@@ -154,6 +155,11 @@ namespace AppInstaller::Repository
 
         // Whether the source should be hidden by default unless explicitly declared.
         bool Explicit = false;
+
+        // Value used for sorting the sources and making decisions
+        // (like preferring one source over the other if both have a package to install).
+        // Higher values come first in priority order.
+        int32_t Priority = 0;
     };
 
     // Check if a source matches a well known source
@@ -197,6 +203,18 @@ namespace AppInstaller::Repository
         Authentication::AuthenticationInfo Authentication;
     };
 
+    // Contains information about edits to a source.
+    struct SourceEdit
+    {
+        SourceEdit() = default;
+
+        // The Explicit property of a source.
+        std::optional<bool> Explicit;
+
+        // The Priority property of a source.
+        std::optional<int32_t> Priority;
+    };
+
     // Allows calling code to inquire about specific features of an ISource implementation.
     // The default state of any new flag is false.
     enum class SourceFeatureFlag
@@ -222,7 +240,7 @@ namespace AppInstaller::Repository
         Source(WellKnownSource source);
 
         // Constructor for a source to be added.
-        Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel, bool isExplicit);
+        Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel, const SourceEdit& additionalProperties);
 
         // Constructor for creating a composite source from a list of available sources.
         Source(const std::vector<Source>& availableSources);
@@ -274,6 +292,9 @@ namespace AppInstaller::Repository
 
         // Set authentication arguments. Must be set before Open to have effect.
         void SetAuthenticationArguments(Authentication::AuthenticationArguments args);
+
+        // Set thread globals. Must be set before Open to have effect.
+        void SetThreadGlobals(const std::shared_ptr<ThreadLocalStorage::ThreadGlobals>& threadGlobals);
 
         // Set background update check interval.
         void SetBackgroundUpdateInterval(TimeSpan interval);
@@ -329,6 +350,13 @@ namespace AppInstaller::Repository
 
         // Remove source. Source remove command.
         bool Remove(IProgressCallback& progress);
+
+        // Edit source. Source edit command.
+        void Edit(const SourceEdit& edits);
+
+        // Determines if this source is a valid edit of otherSource.
+        // Returns true if this source qualifies as an edit of the other source.
+        bool RequiresChanges(const SourceEdit& edits);
 
         // Gets the tracking catalog for the current source.
         PackageTrackingCatalog GetTrackingCatalog() const;

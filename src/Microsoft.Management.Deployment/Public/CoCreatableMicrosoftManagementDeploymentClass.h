@@ -3,6 +3,7 @@
 #pragma once
 #include <AppInstallerErrors.h>
 #include <winget/GroupPolicy.h>
+#include <winget/ModuleCountBase.h>
 #include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -24,5 +25,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     };
 
 #define CoCreatableMicrosoftManagementDeploymentClass(className) \
-    CoCreatableClassWithFactory(className, ::winrt::Microsoft::Management::Deployment::implementation::wrl_factory_for_winrt_com_class<className>)
+    CoCreatableClassWithFactory(className, ::winrt::Microsoft::Management::Deployment::implementation::wrl_factory_for_winrt_com_class<className>) \
+    void CoCreatableMicrosoftManagementDeploymentClass_WRL_ModuleCountCheckFor_ ## className() { \
+        static_assert(__is_base_of(::AppInstaller::WinRT::ModuleCountBase, ::winrt::Microsoft::Management::Deployment::factory_implementation:: ## className), "Object factories must derive from AppInstaller::WinRT::ModuleCountBase"); \
+    }
 }

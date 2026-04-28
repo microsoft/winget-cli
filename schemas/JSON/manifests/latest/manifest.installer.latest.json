@@ -1,7 +1,7 @@
 {
-  "$id": "https://aka.ms/winget-manifest.installer.1.12.0.schema.json",
+  "$id": "https://aka.ms/winget-manifest.installer.1.28.0.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "description": "A representation of a single-file manifest representing an app installers in the OWC. v1.12.0",
+  "description": "A representation of a single-file manifest representing an app installers in the OWC. v1.28.0",
   "definitions": {
     "PackageIdentifier": {
       "type": "string",
@@ -639,6 +639,78 @@
       ],
       "description": "The authentication requirement for downloading the installer."
     },
+    "DesiredStateConfiguration": {
+      "type": [ "object", "null" ],
+      "description": "References to desired state configuration (DSC) resources that are related to the package.",
+      "properties": {
+        "PowerShell": {
+          "type": [ "array", "null" ],
+          "description": "Contains data about DSC resources that are contained in PowerShell modules.",
+          "uniqueItems": true,
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "title": "PowerShell DSC Module Item",
+            "properties": {
+              "RepositoryUrl": {
+                "$ref": "#/definitions/Url"
+              },
+              "ModuleName": {
+                "type": "string",
+                "description": "The name of the module containing resources.",
+                "$comment": "From nuget package id, although PowerShell convention is slightly more strict: https://learn.microsoft.com/en-us/nuget/reference/errors-and-warnings/nu1017",
+                "pattern": "^\\w+([.-]\\w+)*$",
+                "maxLength": 100
+              },
+              "Resources": {
+                "type": "array",
+                "description": "The resources contained within the module.",
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "title": "PowerShell DSC Resource Item",
+                  "properties": {
+                    "Name": {
+                      "type": "string",
+                      "description": "The name of the resource.",
+                      "$comment": "Needs to be an identifier in the various languages (MOF, PS class name), could not find any direct description.",
+                      "pattern": "^[A-Za-z][-_A-Za-z0-9]*$",
+                      "maxLength": 100
+                    }
+                  }
+                }
+              }
+            },
+            "required": [ "RepositoryUrl", "ModuleName", "Resources" ]
+          }
+        },
+        "DSCv3": {
+          "type": [ "object", "null" ],
+          "description": "Contains data about DSC resources that are contained in the package using the DSC v3 specification.",
+          "properties": {
+            "Resources": {
+              "type": "array",
+              "description": "The resources contained within the package.",
+              "maxItems": 128,
+              "items": {
+                "type": "object",
+                "title": "DSCv3 Resource Item",
+                "properties": {
+                  "Type": {
+                    "type": "string",
+                    "description": "The name of the resource.",
+                    "$comment": "Pulled from DSCv3 definition; matches `Publisher.Product.Component/ResourceName` where the Product and Component are optional.",
+                    "pattern": "^\\w+(\\.\\w+){0,2}\\/\\w+$",
+                    "maxLength": 256
+                  }
+                }
+              }
+            }
+          },
+          "required": [ "Resources" ]
+        }
+      }
+    },
     "Installer": {
       "type": "object",
       "properties": {
@@ -765,6 +837,9 @@
         },
         "Authentication": {
           "$ref": "#/definitions/Authentication"
+        },
+        "DesiredStateConfiguration": {
+          "$ref": "#/definitions/DesiredStateConfiguration"
         }
       },
       "required": [
@@ -890,6 +965,9 @@
     "Authentication": {
       "$ref": "#/definitions/Authentication"
     },
+    "DesiredStateConfiguration": {
+      "$ref": "#/definitions/DesiredStateConfiguration"
+    },
     "Installers": {
       "type": "array",
       "items": {
@@ -906,7 +984,7 @@
     },
     "ManifestVersion": {
       "type": "string",
-      "default": "1.12.0",
+      "default": "1.28.0",
       "pattern": "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){2}$",
       "description": "The manifest syntax version"
     }

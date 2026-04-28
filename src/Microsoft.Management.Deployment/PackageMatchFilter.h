@@ -3,6 +3,7 @@
 #pragma once
 #include "PackageMatchFilter.g.h"
 #include "Public/ComClsids.h"
+#include <winget/ModuleCountBase.h>
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
 namespace AppInstaller::Repository
@@ -41,7 +42,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
 {
-    struct PackageMatchFilter : PackageMatchFilterT<PackageMatchFilter, implementation::PackageMatchFilter>
+    struct PackageMatchFilter : PackageMatchFilterT<PackageMatchFilter, implementation::PackageMatchFilter>, AppInstaller::WinRT::ModuleCountBase
     {
     };
 }

@@ -18,6 +18,7 @@
 #include <ShutdownMonitoring.h>
 #include <winget/COMStaticStorage.h>
 #include <ComClsids.h>
+#include <CanUnload.h>
 
 using namespace winrt::Microsoft::Management::Deployment;
 
@@ -101,16 +102,20 @@ extern "C"
     {
         try
         {
-            // The WRL object count is used to track externally visible objects, which largely means objects created with the `wil::details::module_count_wrapper` type wrapper.
-            // Configuration objects use a composition based tracking that is similar in nature (only when OOP).
-            // 
-            // In-proc DllCanUnloadNow should not be blocked by our internal objects, but they must be destroyed on unload or a future reload will attempt to destroy them
-            // and our module may have moved.  So when we don't have any more objects that we gave to callers, remove all of our static lifetime objects and indicate
-            // that we can now be unloaded.
-            if (::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::GetModule().Terminate())
+            // Check whether the caller wants us to allow unloads
+            if (implementation::GetCanUnload())
             {
-                AppInstaller::WinRT::COMStaticStorageStatics::ResetAll();
-                return true;
+                // The WRL object count is used to track externally visible objects, which largely means objects created with the `wil::details::module_count_wrapper` type wrapper.
+                // Configuration objects use a composition based tracking that is similar in nature (only when OOP).
+                // 
+                // In-proc DllCanUnloadNow should not be blocked by our internal objects, but they must be destroyed on unload or a future reload will attempt to destroy them
+                // and our module may have moved.  So when we don't have any more objects that we gave to callers, remove all of our static lifetime objects and indicate
+                // that we can now be unloaded.
+                if (::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::GetModule().Terminate())
+                {
+                    AppInstaller::WinRT::COMStaticStorageStatics::ResetAll();
+                    return true;
+                }
             }
         }
         catch (...) {}
@@ -134,6 +139,13 @@ extern "C"
         RETURN_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::WinGet));
 
         return WINRT_GetActivationFactory(classId, factory);
+    }
+    CATCH_RETURN();
+
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerLog(const char* message) try
+    {
+        AppInstaller::Logging::Log().Write(AppInstaller::Logging::Channel::Core, AppInstaller::Logging::Level::Info, message);
+        return S_OK;
     }
     CATCH_RETURN();
 }

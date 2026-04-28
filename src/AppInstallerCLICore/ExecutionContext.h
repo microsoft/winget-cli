@@ -80,12 +80,6 @@ namespace AppInstaller::CLI::Execution
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
-    HWND GetWindowHandle();
-
-    bool WaitForAppShutdownEvent();
-#endif
-
     // Callback to log data actions.
     void ContextEnumBasedVariantMapActionCallback(const void* map, Data data, EnumBasedVariantMapAction action);
 
@@ -100,7 +94,7 @@ namespace AppInstaller::CLI::Execution
         // Constructor for creating a sub-context.
         Context(Execution::Reporter& reporter, ThreadLocalStorage::WingetThreadGlobals& threadGlobals) :
             Reporter(reporter, Execution::Reporter::clone_t{}),
-            m_threadGlobals(threadGlobals, ThreadLocalStorage::WingetThreadGlobals::create_sub_thread_globals_t{}) {}
+            m_threadGlobals(std::make_shared<ThreadLocalStorage::WingetThreadGlobals>(threadGlobals, ThreadLocalStorage::WingetThreadGlobals::create_sub_thread_globals_t{})) {}
 
         virtual ~Context();
 
@@ -163,7 +157,8 @@ namespace AppInstaller::CLI::Execution
         virtual void SetExecutionStage(Workflow::ExecutionStage stage);
 
         // Get Globals for Current Context
-        AppInstaller::ThreadLocalStorage::WingetThreadGlobals& GetThreadGlobals();
+        ThreadLocalStorage::WingetThreadGlobals& GetThreadGlobals();
+        std::shared_ptr<ThreadLocalStorage::WingetThreadGlobals> GetSharedThreadGlobals();
 
         std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> SetForCurrentThread();
 
@@ -209,7 +204,7 @@ namespace AppInstaller::CLI::Execution
         size_t m_CtrlSignalCount = 0;
         ContextFlag m_flags = ContextFlag::None;
         Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
-        AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
+        std::shared_ptr<ThreadLocalStorage::WingetThreadGlobals> m_threadGlobals = std::make_shared<ThreadLocalStorage::WingetThreadGlobals>();
         AppInstaller::CLI::Command* m_executingCommand = nullptr;
         std::unique_ptr<AppInstaller::Checkpoints::CheckpointManager> m_checkpointManager;
     };

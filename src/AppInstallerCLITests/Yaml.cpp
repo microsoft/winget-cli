@@ -97,7 +97,7 @@ TEST_CASE("YamlMergeSequenceNode_CaseInsensitive", "[YAML]")
     auto luffy = std::find_if(
         document["StrawHats"].Sequence().begin(),
         document["StrawHats"].Sequence().end(),
-        [](auto const& n) { return n["Name"].as<std::string>() == "Monkey D Luffy"; });
+        [](Node const& n) { return n["Name"].as<std::string>() == "Monkey D Luffy"; });
     REQUIRE(luffy != document["StrawHats"].Sequence().end());
 
     // From original node

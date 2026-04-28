@@ -110,6 +110,10 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
 
+            groupPolicyException = Assert.Catch<GroupPolicyException>(() => { EditPackageCatalogOptions packageManagerSettings = this.TestFactory.CreateEditPackageCatalogOptions(); });
+            Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
+
             // PackageManagerSettings is not implemented in context OutOfProcDev
             if (this.TestFactory.Context == ClsidContext.InProc)
             {

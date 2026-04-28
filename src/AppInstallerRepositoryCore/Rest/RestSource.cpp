@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "RestSource.h"
+#include "MatchCriteriaResolver.h"
 
 using namespace AppInstaller::Utility;
 
@@ -509,10 +510,8 @@ namespace AppInstaller::Repository::Rest
         std::shared_ptr<RestSource> sharedThis = NonConstSharedFromThis();
         for (auto& result : results.Matches)
         {
-            std::shared_ptr<ICompositePackage> package = std::make_shared<RestPackage>(sharedThis, std::move(result));
-
-            // TODO: Improve to use Package match filter to return relevant search results.
-            PackageMatchFilter packageFilter{ {}, {}, {} };
+            std::shared_ptr<RestPackage> package = std::make_shared<RestPackage>(sharedThis, std::move(result));
+            PackageMatchFilter packageFilter{ FindBestMatchCriteria(request, package->GetLatestVersion().get()) };
 
             searchResult.Matches.emplace_back(std::move(package), std::move(packageFilter));
         }

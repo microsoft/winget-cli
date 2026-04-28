@@ -17,7 +17,7 @@ Repairs the installation of the WinGet client on your computer.
 ### IntegrityVersionSet (Default)
 
 ```
-Repair-WinGetPackageManager [-AllUsers] [-Force] [-Version <String>] [<CommonParameters>]
+Repair-WinGetPackageManager [-AllUsers] [-Force] [-Version <String>] [-IncludePreRelease] [<CommonParameters>]
 ```
 
 ### IntegrityLatestSet
@@ -53,6 +53,16 @@ Repair-WinGetPackageManager -Latest -Force
 This example shows how to repair they WinGet client by installing the latest version and ensuring
 it functions properly. The **Force** parameter shuts down the version that is currently running so
 that it can update the application files.
+
+### Example 3: Install a version with wildcards
+
+```powershell
+Repair-WinGetPackageManager -Version "1.12.*" -Force
+```
+
+This example shows how to repair the WinGet client by installing a version that matches the
+specified version pattern. The **Force** parameter shuts down the version that is currently running
+so that it can update the application files.
 
 ## PARAMETERS
 
@@ -123,8 +133,7 @@ Accept wildcard characters: False
 ```
 
 ### -Version
-
-Use this parameter to specify the specific version of the WinGet client to install.
+Specifies the version of the WinGet client to install or repair. You can provide an exact version number or use wildcard characters (for example, `"1.*.1*"`) to match and install the latest version that fits the pattern.
 
 ```yaml
 Type: System.String
@@ -156,6 +165,19 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ### System.Int32
 
 ## NOTES
+
+This cmdlet makes GitHub API requests to query release information. Unauthenticated requests are
+subject to [GitHub API rate limits](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api),
+which can cause failures in CI/CD pipelines. If the `GH_TOKEN` or `GITHUB_TOKEN` environment
+variable is set, the cmdlet automatically uses it to authenticate requests, which significantly
+increases the rate limit.
+
+`GH_TOKEN` takes precedence over `GITHUB_TOKEN`, matching
+[GitHub CLI behavior](https://cli.github.com/manual/gh_help_environment). In GitHub Actions,
+you can make `GITHUB_TOKEN` available to the cmdlet by mapping it as an environment variable in
+your workflow step (e.g., `env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}`).
+
+Use `-Verbose` to see which token source is being used.
 
 ## RELATED LINKS
 

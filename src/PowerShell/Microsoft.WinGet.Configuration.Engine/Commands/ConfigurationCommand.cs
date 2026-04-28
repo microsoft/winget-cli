@@ -23,6 +23,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using Microsoft.WinGet.Configuration.Engine.Helpers;
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
     using Microsoft.WinGet.Resources;
+    using Microsoft.WinGet.SharedLib.Exceptions;
     using Microsoft.WinGet.SharedLib.PolicySettings;
     using Windows.Storage;
     using Windows.Storage.Streams;
@@ -403,6 +404,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             var factoryMap = factory.As<IDictionary<string, string>>();
             if (!string.IsNullOrEmpty(openParams.ProcessorPath))
             {
+                if (!GroupPolicy.GetInstance().IsEnabled(Policy.ConfigurationProcessorPath))
+                {
+                    throw new GroupPolicyException(Policy.ConfigurationProcessorPath, GroupPolicyFailureType.BlockedByPolicy);
+                }
+
                 factoryMap.Add(DSCv3FactoryMapKeyDscExecutablePath, openParams.ProcessorPath);
             }
             else

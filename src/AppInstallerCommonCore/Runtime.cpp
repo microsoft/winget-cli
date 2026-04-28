@@ -572,9 +572,11 @@ namespace AppInstaller::Runtime
 
     Utility::LocIndString GetUserAgent(std::string_view caller)
     {
+        auto escapedCaller = winrt::Windows::Foundation::Uri::EscapeComponent(Utility::ConvertToUTF16(caller));
+
         std::ostringstream strstr;
         strstr <<
-            caller <<
+            Utility::ConvertToUTF8(escapedCaller) <<
             " WindowsPackageManager/" << GetClientVersion() <<
             " DesktopAppInstaller/" << GetPackageVersion();
         return Utility::LocIndString{ strstr.str() };

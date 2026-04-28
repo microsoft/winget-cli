@@ -32,10 +32,16 @@
           "type": "boolean",
           "default": false
         },
+        "ConfigurationProcessorPath": {
+          "description": "Enable specifying a custom DSC processor path in configuration commands.",
+          "type": "boolean",
+          "default": false
+        },
         "DefaultProxy": {
           "description": "Default proxy.",
           "type": "string"
         }
+      }
     },
     "UserSettingsFile": {
       "description": "Path for the winget's user settings file.",

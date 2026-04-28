@@ -26,4 +26,7 @@
   <ItemGroup>
     <Text Include="dictionary.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="OneFuzzConfig.json" />
+  </ItemGroup>
 </Project>

@@ -7,6 +7,7 @@
 #include "PackageCollection.h"
 #include "DependenciesFlow.h"
 #include "WorkflowBase.h"
+#include <winget/Filesystem.h>
 #include <winget/RepositorySearch.h>
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
@@ -108,7 +109,7 @@ namespace AppInstaller::CLI::Workflow
             auto channel = installedPackageVersion->GetProperty(PackageVersionProperty::Channel);
 
             // Find an available version of this package to determine its source.
-            auto availablePackageVersion = GetAvailableVersionForInstalledPackage(context, packageMatch.Package, Utility::LocIndView{ version }, Utility::LocIndView{ channel }, includeVersions);
+            auto availablePackageVersion = GetAvailableVersionForInstalledPackage(context, packageMatch.Package, version, channel, includeVersions);
             if (!availablePackageVersion)
             {
                 // Report package not found and move to next package.
@@ -140,7 +141,27 @@ namespace AppInstaller::CLI::Workflow
             // but take the exported version from the installed package if needed.
             PackageCollection::Package exportPackage;
             exportPackage.Id = availablePackageVersion->GetProperty(PackageVersionProperty::Id);
-            exportPackage.InstalledLocation = Utility::ConvertToUTF16(installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledLocation]);
+
+            const auto& installedMetadata = installedPackageVersion->GetMetadata();
+
+            auto locationItr = installedMetadata.find(PackageVersionMetadata::InstalledLocation);
+            if (locationItr != installedMetadata.end())
+            {
+                exportPackage.InstalledLocation = Utility::ConvertToUTF16(locationItr->second);
+            }
+
+            auto overrideItr = installedMetadata.find(PackageVersionMetadata::InitialOverrideArguments);
+            if (overrideItr != installedMetadata.end())
+            {
+                exportPackage.InitialOverrideArgs = overrideItr->second;
+            }
+
+            auto customItr = installedMetadata.find(PackageVersionMetadata::InitialCustomSwitches);
+            if (customItr != installedMetadata.end())
+            {
+                exportPackage.InitialCustomSwitches = customItr->second;
+            }
+
             if (includeVersions)
             {
                 exportPackage.VersionAndChannel = { version.get(), channel.get() };
@@ -157,8 +178,21 @@ namespace AppInstaller::CLI::Workflow
         auto packages = PackagesJson::CreateJson(context.Get<Execution::Data::PackageCollection>());
 
         std::filesystem::path outputFilePath{ context.Args.GetArg(Execution::Args::Type::OutputFile) };
-        std::ofstream outputFileStream{ outputFilePath };
-        outputFileStream << packages;
+
+        // GetFileAttributesW returns INVALID_FILE_ATTRIBUTES for nonexistent files, so no separate exists() check is needed.
+        DWORD attrs = GetFileAttributesW(outputFilePath.c_str());
+        bool isHidden = (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_HIDDEN));
+
+        // Open the file directly without changing its attributes:
+        // - For an existing hidden file, use TRUNCATE_EXISTING to clear its content while preserving its attributes.
+        // - Otherwise, use CREATE_ALWAYS to create a new file or overwrite an existing one.
+        DWORD creationDisposition = isHidden ? TRUNCATE_EXISTING : CREATE_ALWAYS;
+        wil::unique_hfile fileHandle{ CreateFileW(outputFilePath.c_str(), GENERIC_WRITE, 0, nullptr, creationDisposition, FILE_ATTRIBUTE_NORMAL, nullptr) };
+        THROW_LAST_ERROR_IF(!fileHandle);
+
+        Json::StreamWriterBuilder writerBuilder;
+        std::string jsonContent = Json::writeString(writerBuilder, packages);
+        Filesystem::WriteStringToFile(fileHandle.get(), jsonContent);
     }
 
     void ReadImportFile(Execution::Context& context)
@@ -296,6 +330,16 @@ namespace AppInstaller::CLI::Workflow
                 if (!channelString.empty())
                 {
                     searchContext.Args.AddArg(Execution::Args::Type::Channel, channelString);
+                }
+
+                if (!packageRequest.InitialOverrideArgs.empty())
+                {
+                    searchContext.Args.AddArg(Execution::Args::Type::Override, packageRequest.InitialOverrideArgs);
+                }
+
+                if (!packageRequest.InitialCustomSwitches.empty())
+                {
+                    searchContext.Args.AddArg(Execution::Args::Type::CustomSwitches, packageRequest.InitialCustomSwitches);
                 }
 
                 packageSubContexts.emplace_back(std::move(searchContextPtr));

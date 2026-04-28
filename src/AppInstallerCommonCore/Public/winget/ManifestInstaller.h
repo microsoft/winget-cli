@@ -120,5 +120,7 @@ namespace AppInstaller::Manifest
         bool ArchiveBinariesDependOnPath = false;
 
         Authentication::AuthenticationInfo AuthInfo;
+
+        std::vector<DesiredStateConfigurationContainerInfo> DesiredStateConfiguration;
     };
 }

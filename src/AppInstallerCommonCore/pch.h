@@ -80,6 +80,7 @@
 #include <wil/com.h>
 #include <wil/filesystem.h>
 #include <wil/win32_helpers.h>
+#include <wil/registry_helpers.h>
 #pragma warning( pop )
 
 #include <wil/cppwinrt.h>

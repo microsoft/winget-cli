@@ -330,7 +330,8 @@ namespace AppInstaller::Repository
                 {
                     auto trackingMetadata = m_trackingPackageVersion->GetMetadata();
                     for (auto metadataItem : { PackageVersionMetadata::InstalledArchitecture, PackageVersionMetadata::InstalledLocale,
-                        PackageVersionMetadata::UserIntentArchitecture, PackageVersionMetadata::UserIntentLocale, PackageVersionMetadata::PinnedState })
+                        PackageVersionMetadata::UserIntentArchitecture, PackageVersionMetadata::UserIntentLocale, PackageVersionMetadata::PinnedState,
+                        PackageVersionMetadata::InitialOverrideArguments, PackageVersionMetadata::InitialCustomSwitches })
                     {
                         auto itr = trackingMetadata.find(metadataItem);
                         auto existingItr = result.find(metadataItem);
@@ -550,6 +551,7 @@ namespace AppInstaller::Repository
                         if (Manifest::DoesInstallerTypeSupportArpVersionRange(key.InstalledType))
                         {
                             key.Version = GetMappedInstalledVersion(key.InstalledVersion->GetProperty(PackageVersionProperty::Version), availablePackage);
+                            key.VersionAndChannel = Utility::VersionAndChannel{ key.Version, key.Channel };
                         }
                     }
                 }

@@ -17,6 +17,15 @@ namespace AppInstallerCLIE2ETests
     public class InstallCommand : BaseCommand
     {
         /// <summary>
+        /// One time set up.
+        /// </summary>
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            WinGetSettingsHelper.ConfigureFeature("sourcePriority", true);
+        }
+
+        /// <summary>
         /// Set up.
         /// </summary>
         [SetUp]
@@ -701,6 +710,30 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test install a package with a package dependency and specify dependencies only.
+        /// </summary>
+        [Test]
+        public void InstallWithPackageDependency_DependenciesOnly()
+        {
+            var testDir = TestCommon.GetRandomTestDir();
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            var installResult = TestCommon.RunAICLICommand("install", $"-q AppInstallerTest.PackageDependencyRequiresPathRefresh -l {testDir} --dependencies-only");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
+            Assert.True(installResult.StdOut.Contains("Installing dependencies only. The package itself will not be installed."));
+            Assert.True(installResult.StdOut.Contains("Successfully installed"));
+
+            // Portable package is used as a dependency. Ensure that it is installed and cleaned up successfully.
+            string portablePackageId, commandAlias, fileName, packageDirName, productCode;
+            portablePackageId = "AppInstallerTest.TestPortableExeWithCommand";
+            packageDirName = productCode = portablePackageId + "_" + Constants.TestSourceIdentifier;
+            fileName = "AppInstallerTestExeInstaller.exe";
+            commandAlias = "testCommand.exe";
+
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
+            Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
+        }
+
+        /// <summary>
         /// Test install a package using a specific installer type.
         /// </summary>
         [Test]
@@ -796,6 +829,38 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
 
             TestCommon.RemoveARPEntry(fakeProductCode);
+        }
+
+        /// <summary>
+        /// Test install source priority.
+        /// </summary>
+        [Test]
+        public void InstallExeWithSourcePriority()
+        {
+            // This test source always returns a single package from search
+            TestCommon.RunAICLICommand("source add", "dummyPackage \"{ \"\"ContainsPackage\"\": true }\" Microsoft.Test.Configurable --header \"{}\"");
+
+            try
+            {
+                // Attempt install with equal (default) priorities
+                var installDir = TestCommon.GetRandomTestDir();
+                var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
+                Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
+                Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
+
+                // Change the priority of the primary test source to be higher
+                TestCommon.RunAICLICommand("source edit", $"{Constants.TestSourceName} --priority 1");
+
+                result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
+                Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+                Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
+                Assert.True(result.StdOut.Contains("Successfully installed"));
+                Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
+            }
+            finally
+            {
+                this.ResetTestSource();
+            }
         }
     }
 }

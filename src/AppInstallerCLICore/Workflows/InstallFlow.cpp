@@ -61,14 +61,8 @@ namespace AppInstaller::CLI::Workflow
 
         bool ShouldUseDirectMSIInstall(InstallerTypeEnum type, bool isSilentInstall)
         {
-            switch (type)
-            {
-            case InstallerTypeEnum::Msi:
-            case InstallerTypeEnum::Wix:
-                return isSilentInstall || ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::DirectMSI);
-            default:
-                return false;
-            }
+            return DoesInstallerTypeUseMsiProperties(type) &&
+                (isSilentInstall || ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::DirectMSI));
         }
 
         bool ShouldErrorForUnsupportedArgument(UnsupportedArgumentEnum arg)
@@ -157,6 +151,16 @@ namespace AppInstaller::CLI::Workflow
             HRESULT HResult;
             Resource::StringId Message;
         };
+
+        void CheckForOnlyDependencies(Execution::Context& context)
+        {
+            if (context.Args.Contains(Execution::Args::Type::DependenciesOnly))
+            {
+                context.Reporter.Info() << Resource::String::DependenciesOnlyMessage << std::endl;
+                // We want the context to terminate, but successfully.
+                context.SetTerminationHR(S_OK);
+            }
+        }
     }
 
     namespace details
@@ -640,6 +644,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::CreateDependencySubContexts(Resource::String::PackageRequiresDependencies) <<
             Workflow::InstallDependencies <<
+            CheckForOnlyDependencies <<
             Workflow::DownloadInstaller <<
             Workflow::InstallPackageInstaller <<
             Workflow::RegisterStartupAfterReboot();
@@ -712,6 +717,7 @@ namespace AppInstaller::CLI::Workflow
         m_stopOnFailure = WI_IsFlagSet(flags, Flags::StopOnFailure);
         m_refreshPathVariable = WI_IsFlagSet(flags, Flags::RefreshPathVariable);
         m_downloadOnly = WI_IsFlagSet(flags, Flags::DownloadOnly);
+        m_dependenciesOnly = WI_IsFlagSet(flags, Flags::DependenciesOnly);
     }
 
     void ProcessMultiplePackages::operator()(Execution::Context& context) const
@@ -763,6 +769,11 @@ namespace AppInstaller::CLI::Workflow
         size_t packagesCount = packageSubContexts.size();
         size_t packagesProgress = 0;
 
+        if (m_dependenciesOnly)
+        {
+            context.Reporter.Info() << Resource::String::DependenciesOnlyMessage << std::endl;
+        }
+
         for (auto& packageContext : packageSubContexts)
         {
             packagesProgress++;
@@ -786,11 +797,14 @@ namespace AppInstaller::CLI::Workflow
                         Workflow::ProcessMultiplePackages(m_dependenciesReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, Flags::IgnoreDependencies | Flags::StopOnFailure | Flags::RefreshPathVariable);
                 }
 
-                currentContext << Workflow::DownloadInstaller;
-
-                if (!downloadInstallerOnly)
+                if (!m_dependenciesOnly)
                 {
-                    currentContext << Workflow::InstallPackageInstaller;
+                    currentContext << Workflow::DownloadInstaller;
+
+                    if (!downloadInstallerOnly)
+                    {
+                        currentContext << Workflow::InstallPackageInstaller;
+                    }
                 }
             }
             catch (...)
@@ -976,6 +990,8 @@ namespace AppInstaller::CLI::Workflow
             installedMetadata = context.Get<Data::InstalledPackageVersion>()->GetMetadata();
         }
 
+        bool isUpdate = WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerExecutionUseUpdate);
+
         if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
         {
             version.SetMetadata(Repository::PackageVersionMetadata::UserIntentArchitecture, context.Args.GetArg(Execution::Args::Type::InstallArchitecture));
@@ -999,6 +1015,35 @@ namespace AppInstaller::CLI::Workflow
             if (itr != installedMetadata.end())
             {
                 version.SetMetadata(Repository::PackageVersionMetadata::UserIntentLocale, itr->second);
+            }
+        }
+
+        // InitialOverrideArguments and InitialCustomSwitches capture the args from the original install.
+        // They are set only on fresh install and preserved (not updated) on upgrade.
+        if (!isUpdate)
+        {
+            if (context.Args.Contains(Execution::Args::Type::Override))
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::InitialOverrideArguments, context.Args.GetArg(Execution::Args::Type::Override));
+            }
+
+            if (context.Args.Contains(Execution::Args::Type::CustomSwitches))
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::InitialCustomSwitches, context.Args.GetArg(Execution::Args::Type::CustomSwitches));
+            }
+        }
+        else
+        {
+            auto overrideItr = installedMetadata.find(Repository::PackageVersionMetadata::InitialOverrideArguments);
+            if (overrideItr != installedMetadata.end())
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::InitialOverrideArguments, overrideItr->second);
+            }
+
+            auto customItr = installedMetadata.find(Repository::PackageVersionMetadata::InitialCustomSwitches);
+            if (customItr != installedMetadata.end())
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::InitialCustomSwitches, customItr->second);
             }
         }
     }

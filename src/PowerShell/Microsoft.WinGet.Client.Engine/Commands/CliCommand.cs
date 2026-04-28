@@ -33,7 +33,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public void EnableSetting(string name)
         {
             Utilities.VerifyAdmin();
-            _ = this.Run("settings", $"--enable \"{name}\"");
+            _ = this.Run(new WinGetCLICommandBuilder("settings").AppendOption("enable", name));
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public void DisableSetting(string name)
         {
             Utilities.VerifyAdmin();
-            _ = this.Run("settings", $"--disable \"{name}\"");
+            _ = this.Run(new WinGetCLICommandBuilder("settings").AppendOption("disable", name));
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="asPlainText">Return as string.</param>
         public void GetSettings(bool asPlainText)
         {
-            var result = this.Run("settings", "export");
+            var result = this.Run(new WinGetCLICommandBuilder("settings").AppendSubCommand("export"));
 
             if (asPlainText)
             {
@@ -72,27 +72,36 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="type">Type of source.</param>
         /// <param name="trustLevel">Trust level of source.</param>
         /// <param name="isExplicit">Make source explicit.</param>
-        public void AddSource(string name, string arg, string type, string trustLevel, bool isExplicit)
+        /// <param name="priority">Set the priority if the source.</param>
+        public void AddSource(string name, string arg, string type, string trustLevel, bool isExplicit, int priority)
         {
             Utilities.VerifyAdmin();
-            string parameters = $"add --name \"{name}\" --arg \"{arg}\"";
+            var builder = new WinGetCLICommandBuilder("source")
+                .AppendSubCommand("add")
+                .AppendOption("name", name)
+                .AppendOption("arg", arg);
 
             if (!string.IsNullOrEmpty(type))
             {
-                parameters += $" --type \"{type}\"";
+                builder.AppendOption("type", type);
             }
 
             if (!string.IsNullOrEmpty(trustLevel))
             {
-                parameters += $" --trust-level \"{trustLevel}\"";
+                builder.AppendOption("trust-level", trustLevel);
             }
 
             if (isExplicit)
             {
-                parameters += " --explicit";
+                builder.AppendSwitch("explicit");
             }
 
-            _ = this.Run("source", parameters, 300000);
+            if (priority != 0)
+            {
+                builder.AppendOption("priority", priority.ToString());
+            }
+
+            _ = this.Run(builder, 300000);
         }
 
         /// <summary>
@@ -102,7 +111,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public void RemoveSource(string name)
         {
             Utilities.VerifyAdmin();
-            _ = this.Run("source", $"remove --name \"{name}\"");
+            _ = this.Run(new WinGetCLICommandBuilder("source").AppendSubCommand("remove").AppendOption("name", name));
         }
 
         /// <summary>
@@ -112,7 +121,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public void ResetSourceByName(string name)
         {
             Utilities.VerifyAdmin();
-            _ = this.Run("source", $"reset --name \"{name}\" --force");
+            _ = this.Run(new WinGetCLICommandBuilder("source").AppendSubCommand("reset").AppendOption("name", name).AppendSwitch("force"));
         }
 
         /// <summary>
@@ -121,13 +130,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public void ResetAllSources()
         {
             Utilities.VerifyAdmin();
-            _ = this.Run("source", $"reset --force");
+            _ = this.Run(new WinGetCLICommandBuilder("source").AppendSubCommand("reset").AppendSwitch("force"));
         }
 
-        private WinGetCLICommandResult Run(string command, string parameters, int timeOut = 60000)
+        private WinGetCLICommandResult Run(WinGetCLICommandBuilder builder, int timeOut = 60000)
         {
             var wingetCliWrapper = new WingetCLIWrapper();
-            var result = wingetCliWrapper.RunCommand(this, command, parameters, timeOut);
+            var result = wingetCliWrapper.RunCommand(this, builder, timeOut);
             result.VerifyExitCode();
 
             return result;

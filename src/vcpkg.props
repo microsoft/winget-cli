@@ -2,50 +2,72 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
-    <VcpkgInstalledDir>$(MSBuildThisFileDirectory)\vcpkg_installed</VcpkgInstalledDir>
+    <VcpkgInstalledDir>$(MSBuildThisFileDirectory)vcpkg_installed\</VcpkgInstalledDir>
+    <!-- Note: For x86, the platform is x86 when building the solution meta-project, and Win32 when building individual projects. -->
+    <_VcpkgTripletPlatform>$(Platform)</_VcpkgTripletPlatform>
+    <_VcpkgTripletPlatform Condition="'$(Platform)'=='Win32'">x86</_VcpkgTripletPlatform>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <VcpkgTriplet>x64</VcpkgTriplet>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)'=='Debug'">
+    <VcpkgTriplet>$(_VcpkgTripletPlatform)</VcpkgTriplet>
     <VcpkgConfiguration>Debug</VcpkgConfiguration>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <VcpkgTriplet>arm64</VcpkgTriplet>
-    <VcpkgConfiguration>Debug</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <VcpkgTriplet>x86</VcpkgTriplet>
-    <VcpkgConfiguration>Debug</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <VcpkgTriplet>x64-release</VcpkgTriplet>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)'=='Release'">
+    <VcpkgTriplet>$(_VcpkgTripletPlatform)-release</VcpkgTriplet>
     <VcpkgConfiguration>Release</VcpkgConfiguration>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <VcpkgTriplet>arm64-release</VcpkgTriplet>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)'=='ReleaseStatic'">
+    <VcpkgTriplet>$(_VcpkgTripletPlatform)-release-static</VcpkgTriplet>
     <VcpkgConfiguration>Release</VcpkgConfiguration>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <VcpkgTriplet>x86-release</VcpkgTriplet>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)'=='Fuzzing'">
+    <VcpkgTriplet>$(_VcpkgTripletPlatform)-fuzzing</VcpkgTriplet>
     <VcpkgConfiguration>Release</VcpkgConfiguration>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|x64'">
-    <VcpkgTriplet>x64-release-static</VcpkgTriplet>
-    <VcpkgConfiguration>Release</VcpkgConfiguration>
+
+  <!-- vcpkg can only install ports for one triplet at a time, so we need to ensure that every project using vcpkg uses the same triplet.
+       If there is a triplet mismatch, the ports for one of the triplets will be deleted when installing a second one.
+       In parallel builds, this can lead to projects that use the first triplet not being able to find the headers or binaries, and cause an error. -->
+
+  <PropertyGroup>
+      <!-- The MSBuild process starts with the solution file, and each individual project is built recursively from there.
+           When building the .sln, we will write a file to indicate which triplet should be used in all projects.
+           Each project will later read this file to verify that it is using the same triplet. -->
+      <_IsBuildingSln>$(MSBuildProjectName.EndsWith('.sln'))</_IsBuildingSln>
+      <_TripletFile>$(VcpkgInstalledDir).solution-triplet</_TripletFile>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM64'">
-    <VcpkgTriplet>arm64-release-static</VcpkgTriplet>
-    <VcpkgConfiguration>Release</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">
-    <VcpkgTriplet>x86-release-static</VcpkgTriplet>
-    <VcpkgConfiguration>Release</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">
-    <VcpkgTriplet>x64-fuzzing</VcpkgTriplet>
-    <VcpkgConfiguration>Release</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">
-    <VcpkgTriplet>x86-fuzzing</VcpkgTriplet>
-    <VcpkgConfiguration>Release</VcpkgConfiguration>
-  </PropertyGroup>
+
+  <Target Name="WriteSolutionTripletToFile"
+          BeforeTargets="Build"
+          Condition="'$(_IsBuildingSln)' == 'true'">
+    <WriteLinesToFile File="$(_TripletFile)" Lines="$(VcpkgTriplet)" Overwrite="true" />
+  </Target>
+
+  <!-- Note: Visual Studio does not build the .sln in the same way that MSBuild.exe does.
+       VS builds each project directly, instead of calling MSBuild on the .sln.
+       This means that in VS the file is not written in the previous task, so we try to write it on the first project we build.
+       There is a race condition for parallel builds in doing this, but it is unlikely and it cannot happen in pipeline (official) builds. -->
+  <Target Name="WriteProjectTripletToFile"
+          BeforeTargets="EnsureNoTripletMismatch"
+          Condition="!Exists('$(_TripletFile)')">
+    <WriteLinesToFile File="$(_TripletFile)" Lines="$(VcpkgTriplet)" Overwrite="true" />
+  </Target>
+
+  <Target Name="EnsureNoTripletMismatch"
+          BeforeTargets="PrepareForBuild"
+          Condition="'$(_IsBuildingSln)' != 'true'" >
+
+    <ReadLinesFromFile File="$(_TripletFile)">
+      <Output TaskParameter="Lines" ItemName="_TripletFileLines" />
+    </ReadLinesFromFile>
+
+    <PropertyGroup>
+      <_SolutionTriplet>@(_TripletFileLines)</_SolutionTriplet>
+    </PropertyGroup>
+
+    <!-- For the dev inner loop using VS, this target will fail any time we build with a different configuration.
+         We delete the file so that the next build works fine. -->
+    <Delete Condition=" '$(_SolutionTriplet)' != '$(VcpkgTriplet)' " Files="$(_TripletFile)" />
+    <Error Condition=" '$(_SolutionTriplet)' != '$(VcpkgTriplet)' "
+           Text="The vcpkg triplet '$(VcpkgTriplet)' selected for project '$(MSBuildProjectName)' does not match the recorded triplet '$(_SolutionTriplet)'. This may indicate a mismatch in the triplets used for current build configuration. If you have just changed the Configuration in Visual Studio, this error may be spurious and building again should properly check for mismatch." />
+  </Target>
 </Project>

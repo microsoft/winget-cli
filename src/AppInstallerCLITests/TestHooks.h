@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include "TestSettings.h"
+
 #include <SourceFactory.h>
 #include <filesystem>
 #include <functional>
@@ -11,6 +13,7 @@
 #include <AppInstallerRuntime.h>
 #include <AppInstallerDownloader.h>
 #include <winget/UserSettings.h>
+#include <winget/ExperimentalFeature.h>
 #include <winget/Filesystem.h>
 #include <winget/IconExtraction.h>
 #include <winget/Authentication.h>
@@ -59,6 +62,7 @@ namespace AppInstaller
     namespace Settings
     {
         void SetUserSettingsOverride(UserSettings* value);
+        void SetExperimentalFeatureOverride(const std::map<ExperimentalFeature::Feature, bool>* override);
     }
 
     namespace Filesystem
@@ -69,6 +73,11 @@ namespace AppInstaller
     namespace Archive
     {
         void TestHook_SetScanArchiveResult_Override(bool* status);
+    }
+
+    namespace CLI::Execution
+    {
+        void TestHook_SetConsoleWidth_Override(std::optional<size_t>* value);
     }
 
     namespace CLI::Workflow
@@ -342,6 +351,24 @@ namespace TestHook
             std::optional<AppInstaller::Utility::DownloadInfo> info)> m_downloadFunction;
     };
 
+    struct SetConsoleWidth_Override
+    {
+        // Pass std::nullopt to simulate no console (redirected output);
+        // pass a size_t value to simulate a console of that width.
+        SetConsoleWidth_Override(std::optional<size_t> width) : m_width(width)
+        {
+            AppInstaller::CLI::Execution::TestHook_SetConsoleWidth_Override(&m_width);
+        }
+
+        ~SetConsoleWidth_Override()
+        {
+            AppInstaller::CLI::Execution::TestHook_SetConsoleWidth_Override(nullptr);
+        }
+
+    private:
+        std::optional<size_t> m_width;
+    };
+
     struct SetGetFontRegistryRoot_Override
     {
         SetGetFontRegistryRoot_Override(std::function<AppInstaller::Registry::Key(AppInstaller::Manifest::ScopeEnum)> function)
@@ -355,5 +382,35 @@ namespace TestHook
         }
 
     private:
+    };
+
+    struct SetUserSettings_Override
+    {
+        SetUserSettings_Override(AppInstaller::Settings::UserSettings& settings)
+        {
+            AppInstaller::Settings::SetUserSettingsOverride(&settings);
+        }
+
+        ~SetUserSettings_Override()
+        {
+            AppInstaller::Settings::SetUserSettingsOverride(nullptr);
+        }
+    };
+
+    struct SetSingleExperimentalFeature_Override
+    {
+        SetSingleExperimentalFeature_Override(AppInstaller::Settings::ExperimentalFeature::Feature feature)
+        {
+            m_overrides[feature] = true;
+            AppInstaller::Settings::SetExperimentalFeatureOverride(&m_overrides);
+        }
+
+        ~SetSingleExperimentalFeature_Override()
+        {
+            AppInstaller::Settings::SetExperimentalFeatureOverride(nullptr);
+        }
+
+    private:
+        std::map<AppInstaller::Settings::ExperimentalFeature::Feature, bool> m_overrides;
     };
 }

@@ -24,6 +24,7 @@ namespace Microsoft::Management::Deployment::OutOfProc
         constexpr CLSID CLSID_RepairOptions = { 0x0498F441, 0x3097, 0x455F, { 0x9C, 0xAF, 0x14, 0x8F, 0x28, 0x29, 0x38, 0x65 } }; //0498F441-3097-455F-9CAF-148F28293865
         constexpr CLSID CLSID_AddPackageCatalogOptions = { 0xDB9D012D, 0x00D7, 0x47EE, { 0x8F, 0xB1, 0x60, 0x6E, 0x10, 0xAC, 0x4F, 0x51 } }; //DB9D012D-00D7-47EE-8FB1-606E10AC4F51
         constexpr CLSID CLSID_RemovePackageCatalogOptions = { 0x032B1C58, 0xB975, 0x469B, { 0xA0, 0x13, 0xE6, 0x32, 0xB6, 0xEC, 0xE8, 0xD8 } }; //032B1C58-B975-469B-A013-E632B6ECE8D8
+        constexpr CLSID CLSID_EditPackageCatalogOptions = { 0xA9F5E736, 0x68CE, 0x463C, { 0xBA, 0x6D, 0xDE, 0x96, 0x8F, 0x0C, 0xCE, 0x04 } }; //A9F5E736-68CE-463C-BA6D-DE968F0CCE04
 #else
         constexpr CLSID CLSID_PackageManager = { 0x74CB3139, 0xB7C5, 0x4B9E, { 0x93, 0x88, 0xE6, 0x61, 0x6D, 0xEA, 0x28, 0x8C } }; //74CB3139-B7C5-4B9E-9388-E6616DEA288C
         constexpr CLSID CLSID_InstallOptions = { 0x44FE0580, 0x62F7, 0x44D4, { 0x9E, 0x91, 0xAA, 0x96, 0x14, 0xAB, 0x3E, 0x86 } }; //44FE0580-62F7-44D4-9E91-AA9614AB3E86
@@ -36,6 +37,7 @@ namespace Microsoft::Management::Deployment::OutOfProc
         constexpr CLSID CLSID_RepairOptions = { 0xE62BB1E7, 0xC7B2, 0x4AEC, { 0x9E, 0x28, 0xFB, 0x64, 0x9B, 0x30, 0xFF, 0x03 } }; //E62BB1E7-C7B2-4AEC-9E28-FB649B30FF03
         constexpr CLSID CLSID_AddPackageCatalogOptions = { 0xD58C7E4C, 0x70E6, 0x476C, { 0xA5, 0xD4, 0x80, 0x34, 0x1E, 0xD8, 0x02, 0x52 } }; //D58C7E4C-70E6-476C-A5D4-80341ED80252
         constexpr CLSID CLSID_RemovePackageCatalogOptions = { 0x87A96609, 0x1A39, 0x4955, { 0xBE, 0x72, 0x71, 0x74, 0xE1, 0x47, 0xB7, 0xDC } }; //87A96609-1A39-4955-BE72-7174E147B7DC
+        constexpr CLSID CLSID_EditPackageCatalogOptions = { 0x29B19238, 0x81AD, 0x4A8E, { 0xA2, 0xFC, 0xAD, 0xF1, 0x7C, 0x38, 0xCA, 0xEB } }; //29B19238-81AD-4A8E-A2FC-ADF17C38CAEB
 
 #endif
 
@@ -45,7 +47,7 @@ namespace Microsoft::Management::Deployment::OutOfProc
             GUID CLSID;
         };
 
-        constexpr std::array<NameCLSIDPair, 11> s_nameCLSIDPairs
+        constexpr std::array<NameCLSIDPair, 12> s_nameCLSIDPairs
         {
             NameCLSIDPair{ L"Microsoft.Management.Deployment.PackageManager"sv, CLSID_PackageManager },
             NameCLSIDPair{ L"Microsoft.Management.Deployment.InstallOptions"sv, CLSID_InstallOptions },
@@ -58,6 +60,7 @@ namespace Microsoft::Management::Deployment::OutOfProc
             NameCLSIDPair{ L"Microsoft.Management.Deployment.RepairOptions"sv, CLSID_RepairOptions },
             NameCLSIDPair{ L"Microsoft.Management.Deployment.AddPackageCatalogOptions"sv, CLSID_AddPackageCatalogOptions },
             NameCLSIDPair{ L"Microsoft.Management.Deployment.RemovePackageCatalogOptions"sv, CLSID_RemovePackageCatalogOptions },
+            NameCLSIDPair{ L"Microsoft.Management.Deployment.EditPackageCatalogOptions"sv, CLSID_EditPackageCatalogOptions },
         };
 
         bool IsCLSIDPresent(const GUID& clsid)

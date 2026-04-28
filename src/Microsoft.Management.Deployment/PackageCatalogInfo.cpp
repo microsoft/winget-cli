@@ -61,4 +61,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_sourceDetails.Explicit;
     }
+
+    int32_t PackageCatalogInfo::Priority()
+    {
+        return m_sourceDetails.Priority;
+    }
 }

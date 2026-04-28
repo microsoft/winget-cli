@@ -23,6 +23,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
             this.Type = info.Type;
             this.TrustLevel = info.TrustLevel.ToString();
             this.Explicit = info.Explicit;
+            this.Priority = info.Priority;
         }
 
         /// <summary>
@@ -49,5 +50,10 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         /// Gets a value indicating whether the source must be explicitly specified for discovery.
         /// </summary>
         public bool Explicit { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating the priority of the source. Higher values are sorted first.
+        /// </summary>
+        public int Priority { get; private set; }
     }
 }

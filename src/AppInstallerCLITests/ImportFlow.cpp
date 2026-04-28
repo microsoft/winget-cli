@@ -231,6 +231,58 @@ TEST_CASE("ImportFlow_MachineScope", "[ImportFlow][workflow]")
     REQUIRE(installResultStr.find("/scope=machine") != std::string::npos);
 }
 
+TEST_CASE("ImportFlow_WithOverrideArgs", "[ImportFlow][workflow]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForImportSource(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-WithOverrideArgs.json").GetPath().string());
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+
+    // Verify package was installed with override args (override replaces all installer args)
+    REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
+    std::ifstream installResultFile(exeInstallResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/overrideArgs") != std::string::npos);
+    // Override replaces all args, so default silent switches should not be present
+    REQUIRE(installResultStr.find("/silentwithprogress") == std::string::npos);
+}
+
+TEST_CASE("ImportFlow_WithCustomSwitches", "[ImportFlow][workflow]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForImportSource(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-WithCustomSwitches.json").GetPath().string());
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+
+    // Verify package was installed with custom switches appended to the default args
+    REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
+    std::ifstream installResultFile(exeInstallResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/customSwitches") != std::string::npos);
+    // Custom switches are appended, so default silent switches should still be present
+    REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
+}
+
 TEST_CASE("ImportFlow_Dependencies", "[ImportFlow][workflow][dependencies]")
 {
     std::ostringstream importOutput;

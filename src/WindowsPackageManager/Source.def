@@ -12,3 +12,4 @@ EXPORTS
     WindowsPackageManagerInProcModuleGetClassObject
     WindowsPackageManagerInProcModuleGetActivationFactory
     WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization
+    WindowsPackageManagerServerLog

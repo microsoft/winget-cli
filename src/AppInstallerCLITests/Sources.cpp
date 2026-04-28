@@ -66,6 +66,18 @@ Sources:
     IsTombstone: false
 )"sv;
 
+constexpr std::string_view s_SingleSourceOverride = R"(
+Sources:
+  - Name: winget-font
+    Type: ""
+    Arg: ""
+    Data: ""
+    IsTombstone: false
+    IsOverride: true
+    Explicit: false
+    Priority: 12
+)"sv;
+
 constexpr std::string_view s_SingleSourceMetadata = R"(
 Sources:
   - Name: testName
@@ -107,16 +119,19 @@ Sources:
     Arg: testArg
     Data: testData
     IsTombstone: false
+    Priority: 1
   - Name: testName2
     Type: testType2
     Arg: testArg2
     Data: testData2
     IsTombstone: false
+    Priority: 5
   - Name: testName3
     Type: testType3
     Arg: testArg3
     Data: testData3
     IsTombstone: false
+    Priority: 3
   - Name: winget
     Type: ""
     Arg: ""
@@ -184,7 +199,7 @@ Sources:
     IsTombstone: false
 )"sv;
 
-constexpr std::string_view s_SingleSource_TrustLevels_Explicit= R"(
+constexpr std::string_view s_SingleSource_AllProperties= R"(
 Sources:
   - Name: testName
     Type: testType
@@ -193,6 +208,7 @@ Sources:
     IsTombstone: false
     TrustLevel: 3
     Explicit: true
+    Priority: 1
 )"sv;
 
 namespace
@@ -291,6 +307,42 @@ TEST_CASE("RepoSources_DefaultSourcesTombstoned", "[sources]")
     REQUIRE(sources.empty());
 }
 
+
+TEST_CASE("RepoSources_DefaultSourceOverride", "[sources]")
+{
+    SetSetting(Stream::UserSources, s_EmptySources);
+
+    // Default font has explicit to true.
+    // Font is at index 2 as it is the third one added.
+    auto beforeOverride = GetSources();
+    REQUIRE(beforeOverride.size() == c_DefaultSourceCount);
+    REQUIRE(beforeOverride[2].Name == "winget-font");
+    REQUIRE(beforeOverride[2].Arg == "https://cdn.winget.microsoft.com/fonts");
+    REQUIRE(beforeOverride[2].Data == "Microsoft.Winget.Fonts.Source_8wekyb3d8bbwe");
+    REQUIRE(beforeOverride[2].Type == "Microsoft.PreIndexed.Package");
+    REQUIRE(beforeOverride[2].Origin == SourceOrigin::Default);
+    REQUIRE(beforeOverride[2].Explicit == true);
+    REQUIRE(beforeOverride[2].Priority == 0);
+
+    SetSetting(Stream::UserSources, s_SingleSourceOverride);
+    auto afterOverride = GetSources();
+
+    // The override will change the index value as the Default will be replaced by the override.
+    // User sources have higher priority so the override will be at index 0.
+    // We expect the same count, and the Name, Arg, Data, and Type properties to all be identical.
+    // Only the name is defined in the override setting so all others should be properly populated.
+    REQUIRE(afterOverride.size() == c_DefaultSourceCount);
+    REQUIRE(afterOverride[0].Name == beforeOverride[2].Name);
+    REQUIRE(afterOverride[0].Arg == beforeOverride[2].Arg);
+    REQUIRE(afterOverride[0].Data == beforeOverride[2].Data);
+    REQUIRE(afterOverride[0].Type == beforeOverride[2].Type);
+
+    // The only properties we expect to be different are the Origin, which is now User, and Explicit.
+    REQUIRE(afterOverride[0].Origin == SourceOrigin::User);
+    REQUIRE(afterOverride[0].Explicit == false);
+    REQUIRE(afterOverride[0].Priority == 12);
+}
+
 TEST_CASE("RepoSources_SingleSource", "[sources]")
 {
     SetSetting(Stream::UserSources, s_SingleSource);
@@ -309,9 +361,9 @@ TEST_CASE("RepoSources_SingleSource", "[sources]")
     RequireDefaultSourcesAt(sources, 1);
 }
 
-TEST_CASE("RepoSources_SingleSource_TrustLevel_Explicit", "[sources]")
+TEST_CASE("RepoSources_SingleSource_AllProperties", "[sources]")
 {
-    SetSetting(Stream::UserSources, s_SingleSource_TrustLevels_Explicit);
+    SetSetting(Stream::UserSources, s_SingleSource_AllProperties);
     RemoveSetting(Stream::SourcesMetadata);
 
     std::vector<SourceDetails> sources = GetSources();
@@ -323,6 +375,7 @@ TEST_CASE("RepoSources_SingleSource_TrustLevel_Explicit", "[sources]")
     REQUIRE(sources[0].Data == "testData");
     REQUIRE(sources[0].Origin == SourceOrigin::User);
     REQUIRE(sources[0].Explicit == true);
+    REQUIRE(sources[0].Priority == 1);
     REQUIRE(WI_IsFlagSet(sources[0].TrustLevel, SourceTrustLevel::Trusted));
     REQUIRE(WI_IsFlagSet(sources[0].TrustLevel, SourceTrustLevel::StoreOrigin));
     REQUIRE(sources[0].LastUpdateTime == ConvertUnixEpochToSystemClock(0));
@@ -335,20 +388,36 @@ TEST_CASE("RepoSources_ThreeSources", "[sources]")
     SetSetting(Stream::UserSources, s_ThreeSources);
     SetSetting(Stream::SourcesMetadata, s_ThreeSourcesMetadata);
 
+    const char* suffixStrings[3] = { "", "2", "3" };
+    size_t suffixUnsorted[3] = { 0, 1, 2 };
+    size_t suffixPrioritySorted[3] = { 1, 2, 0 };
+    size_t* suffix = nullptr;
+    std::unique_ptr<TestHook::SetSingleExperimentalFeature_Override> override;
+
+    SECTION("Unsorted")
+    {
+        suffix = suffixUnsorted;
+    }
+    SECTION("Priority Sorted")
+    {
+        override = std::make_unique<TestHook::SetSingleExperimentalFeature_Override>(ExperimentalFeature::Feature::SourcePriority);
+        suffix = suffixPrioritySorted;
+    }
+
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 3);
 
-    const char* suffix[3] = { "", "2", "3" };
-
-    for (size_t i = 0; i < 3; ++i)
+    for (size_t index = 0; index < 3; ++index)
     {
-        INFO("Source #" << i);
-        REQUIRE(sources[i].Name == "testName"s + suffix[i]);
-        REQUIRE(sources[i].Type == "testType"s + suffix[i]);
-        REQUIRE(sources[i].Arg == "testArg"s + suffix[i]);
-        REQUIRE(sources[i].Data == "testData"s + suffix[i]);
-        REQUIRE(sources[i].LastUpdateTime == ConvertUnixEpochToSystemClock(i));
-        REQUIRE(sources[i].Origin == SourceOrigin::User);
+        size_t i = suffix[index];
+
+        INFO("Source #" << index << " [" << i << "]");
+        REQUIRE(sources[index].Name == "testName"s + suffixStrings[i]);
+        REQUIRE(sources[index].Type == "testType"s + suffixStrings[i]);
+        REQUIRE(sources[index].Arg == "testArg"s + suffixStrings[i]);
+        REQUIRE(sources[index].Data == "testData"s + suffixStrings[i]);
+        REQUIRE(sources[index].LastUpdateTime == ConvertUnixEpochToSystemClock(i));
+        REQUIRE(sources[index].Origin == SourceOrigin::User);
     }
 }
 
@@ -378,6 +447,7 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
     details.Data = "thisIsTheData";
     details.TrustLevel = Repository::SourceTrustLevel::None;
     details.Explicit = false;
+    details.Priority = 42;
 
     bool addCalledOnFactory = false;
     TestSourceFactory factory{ SourcesTestSource::Create };
@@ -400,6 +470,7 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
     REQUIRE(sources[0].Origin == SourceOrigin::User);
     REQUIRE(sources[0].TrustLevel == details.TrustLevel);
     REQUIRE(sources[0].Explicit == details.Explicit);
+    REQUIRE(sources[0].Priority == details.Priority);
 
     RequireDefaultSourcesAt(sources, 1);
 }
@@ -1295,7 +1366,7 @@ TEST_CASE("RepoSources_RestoringWellKnownSource", "[sources]")
 
     SECTION("with well known name")
     {
-        Source addStoreBack{ details.Name, details.Arg, details.Type, Repository::SourceTrustLevel::None, false };
+        Source addStoreBack{ details.Name, details.Arg, details.Type, Repository::SourceTrustLevel::None, {} };
         REQUIRE(addStoreBack.Add(progress));
 
         Source storeAfterAdd{ details.Name };
@@ -1306,7 +1377,7 @@ TEST_CASE("RepoSources_RestoringWellKnownSource", "[sources]")
     SECTION("with different name")
     {
         std::string newName = details.Name + "_new";
-        Source addStoreBack{ newName, details.Arg, details.Type, Repository::SourceTrustLevel::None, false };
+        Source addStoreBack{ newName, details.Arg, details.Type, Repository::SourceTrustLevel::None, {} };
         REQUIRE(addStoreBack.Add(progress));
 
         Source storeAfterAdd{ newName };

@@ -39,7 +39,6 @@ namespace AppInstaller::MSStore
     private:
         HRESULT InstallPackage(IProgressCallback& progress);
         HRESULT UpdatePackage(IProgressCallback& progress);
-        HRESULT WaitForOperation(winrt::Windows::Foundation::Collections::IVectorView<winrt::Windows::ApplicationModel::Store::Preview::InstallControl::AppInstallItem>& installItems, IProgressCallback& progress);
 
         MSStoreOperationType m_type;
         std::wstring m_productId;

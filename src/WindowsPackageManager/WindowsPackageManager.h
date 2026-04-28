@@ -48,4 +48,7 @@ extern "C"
 
     // DllGetActivationFactory for in-proc cpp winrt runtime classes.
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleGetActivationFactory(HSTRING classId, void** factory);
+
+    // Allows logging from callers.
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerLog(const char* message);
 }

@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.12.0.schema.json
+
+PackageIdentifier: Microsoft.ArchiveContainingMSIX
+PackageVersion: 1.7.32
+PackageLocale: en-US
+Publisher: Microsoft
+PublisherUrl: https://www.microsoft.com
+PublisherSupportUrl: https://www.microsoft.com/support
+PrivacyUrl: https://www.microsoft.com/privacy
+Author: Microsoft
+PackageName: MSIX SDK
+PackageUrl: https://www.microsoft.com/msixsdk/home
+License: MIT License
+LicenseUrl: https://www.microsoft.com/msixsdk/license
+Copyright: Copyright Microsoft Corporation
+CopyrightUrl: https://www.microsoft.com/msixsdk/copyright
+ShortDescription: Archive with nested MSIX
+Description: A manifest containing an archive with a nested MSIX installer
+InstallerLocale: en-US
+InstallerType: zip
+NestedInstallerType: msix
+PackageFamilyName: Microsoft.DesktopAppInstaller_8wekyb3d8bbwe
+NestedInstallerFiles:
+  - RelativeFilePath: RelativeFilePath
+    PortableCommandAlias: PortableCommandAlias
+
+Installers:
+  - Architecture: x86
+    InstallerLocale: en-GB
+    InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx86.msix
+    InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+
+ManifestType: singleton
+ManifestVersion: 1.12.0

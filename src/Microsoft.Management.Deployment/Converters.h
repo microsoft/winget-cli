@@ -33,6 +33,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     ::AppInstaller::Manifest::ScopeEnum GetManifestRepairScope(winrt::Microsoft::Management::Deployment::PackageRepairScope scope);
     winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus GetAddPackageCatalogOperationStatus(winrt::hresult hresult);
     winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus GetRemovePackageCatalogOperationStatus(winrt::hresult hresult);
+    winrt::Microsoft::Management::Deployment::EditPackageCatalogStatus GetEditPackageCatalogOperationStatus(winrt::hresult hresult);
     ::AppInstaller::Manifest::PlatformEnum GetPlatformEnum(winrt::Microsoft::Management::Deployment::WindowsPlatform value);
 
 #define WINGET_GET_OPERATION_RESULT_STATUS(_installResultStatus_, _uninstallResultStatus_, _downloadResultStatus_, _repairResultStatus_) \
@@ -81,6 +82,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             WINGET_GET_OPERATION_RESULT_STATUS(NoApplicableInstallers, InternalError, NoApplicableInstallers, NoApplicableRepairer);
             break;
         case APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE:
+        case APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH:
         case APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN:
         case APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER:
             WINGET_GET_OPERATION_RESULT_STATUS(NoApplicableUpgrade, InternalError, InternalError, InternalError);
@@ -193,6 +195,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         else if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::RefreshPackageCatalogStatus>)
         {
             return HandleCommonCatalogOperationStatus<RefreshPackageCatalogStatus>(hresult);
+        }
+        else if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::EditPackageCatalogStatus>)
+        {
+            return GetEditPackageCatalogOperationStatus(hresult);
         }
         else
         {

@@ -242,6 +242,8 @@ if ($MetadataCollection)
   Copy-Item -Path $WingetUtilPath -Destination $tempFolder -Force
 }
 
+$HostGeoID = (Get-WinHomeLocation).GeoId
+
 # Copy main script
 
 $mainPs1FileName = 'InSandboxScript.ps1'
@@ -262,7 +264,7 @@ foreach ($packageIdentifier in $PackageIdentifiers)
       $dependenciesPathsInSandbox = "@('$($vcLibsUwp.pathInSandbox)')"
     }
 
-    $bootstrapPs1Content = ".\$mainPs1FileName -DesktopAppInstallerDependencyPath @($dependenciesPathsInSandbox) -PackageIdentifier '$packageIdentifier' -SourceName '$Source' -OutputPath '$outPathInSandbox' -System32Path '$system32PathInSandbox'"
+    $bootstrapPs1Content = ".\$mainPs1FileName -DesktopAppInstallerDependencyPath @($dependenciesPathsInSandbox) -PackageIdentifier '$packageIdentifier' -SourceName '$Source' -OutputPath '$outPathInSandbox' -System32Path '$system32PathInSandbox' -GeoID $HostGeoID"
 
     if ($UseDev)
     {

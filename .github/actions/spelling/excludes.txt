@@ -88,6 +88,7 @@
 \.webm$
 \.webp$
 \.woff2?$
+\.wprp$
 \.xcf$
 \.xlsx?$
 \.xpm$

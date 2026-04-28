@@ -11,12 +11,13 @@
 #include <msi.h>
 
 #pragma warning( push )
-#pragma warning ( disable : 6001 6340 6387 6388 26495 28196 )
+#pragma warning ( disable : 6001 6340 6387 6388 26451 26495 28196 )
 #include <wil/filesystem.h>
 #include <wil/registry.h>
 #include <wil/resource.h>
 #include <wil/result.h>
 #include <wil/result_macros.h>
+#include <wil/registry_helpers.h>
 #pragma warning( pop )
 
 #include <winsqlite/winsqlite3.h>

@@ -885,6 +885,19 @@ namespace AppInstaller::Manifest
         return (installerType == InstallerTypeEnum::Msix || installerType == InstallerTypeEnum::MSStore);
     }
 
+    bool DoAnyAppsAndFeaturesEntriesUsePackageFamilyName(const std::vector<AppsAndFeaturesEntry>& entries)
+    {
+        for (const AppsAndFeaturesEntry& entry : entries)
+        {
+            if (DoesInstallerTypeUsePackageFamilyName(entry.InstallerType))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     bool DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType)
     {
         return (
@@ -919,7 +932,8 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Msi ||
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Wix ||
-            installerType == InstallerTypeEnum::Burn
+            installerType == InstallerTypeEnum::Burn ||
+            installerType == InstallerTypeEnum::Msix
             );
     }
 
@@ -948,6 +962,13 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Inno ||
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Exe;
+    }
+
+    bool DoesInstallerTypeUseMsiProperties(InstallerTypeEnum installerType)
+    {
+        return
+            installerType == InstallerTypeEnum::Msi ||
+            installerType == InstallerTypeEnum::Wix;
     }
 
     bool IsArchiveType(InstallerTypeEnum installerType)
@@ -1174,7 +1195,7 @@ namespace AppInstaller::Manifest
     }
 
     // for testing purposes
-    bool DependencyList::HasExactDependency(DependencyType type, const string_t& id, const string_t& minVersion)
+    bool DependencyList::HasExactDependency(DependencyType type, const string_t& id, const string_t& minVersion) const
     {
         for (const auto& dependency : m_dependencies)
         {
@@ -1193,7 +1214,7 @@ namespace AppInstaller::Manifest
         return false;
     }
 
-    size_t DependencyList::Size()
+    size_t DependencyList::Size() const
     {
         return m_dependencies.size();
     }

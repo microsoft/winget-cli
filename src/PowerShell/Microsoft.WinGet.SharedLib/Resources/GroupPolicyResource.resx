@@ -156,6 +156,9 @@
   <data name="PolicyEnableProxyCommandLineOptions" xml:space="preserve">
     <value>Enable Windows Package Manager proxy command line options</value>
   </data>
+  <data name="PolicyEnableConfigurationProcessorPath" xml:space="preserve">
+    <value>Enable Windows Package Manager Configuration processor path</value>
+  </data>
   <data name="PolicyEnableWindowsPackageManagerCommandLineInterfaces" xml:space="preserve">
     <value>Enable Windows Package Manager command line interfaces</value>
   </data>

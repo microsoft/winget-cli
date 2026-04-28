@@ -20,9 +20,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="version">String Version.</param>
         public WinGetVersion(string version)
         {
-            if (string.IsNullOrEmpty(version))
+            if (string.IsNullOrWhiteSpace(version))
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(version));
             }
 
             string toParseVersion = version;
@@ -32,6 +32,12 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             {
                 this.TagVersion = version;
                 toParseVersion = toParseVersion.Substring(1);
+
+                // Handle v-0.2*, v-0.3*, v-0.4*
+                if (toParseVersion.Length > 0 && toParseVersion[0] == '-')
+                {
+                    toParseVersion = toParseVersion.Substring(1);
+                }
             }
             else
             {
@@ -65,22 +71,48 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public bool IsPrerelease { get; }
 
         /// <summary>
+        /// Runs the winget version command.
+        /// </summary>
+        /// <param name="pwshCmdlet">PowerShell cmdlet.</param>
+        /// <param name="fullPath">Use full path or not.</param>
+        /// <returns>The command result.</returns>
+        public static WinGetCLICommandResult RunWinGetVersionFromCLI(PowerShellCmdlet pwshCmdlet, bool fullPath = true)
+        {
+            var wingetCliWrapper = new WingetCLIWrapper(fullPath);
+            return wingetCliWrapper.RunCommand(pwshCmdlet, new WinGetCLICommandBuilder().AppendSwitch("--version"));
+        }
+
+        /// <summary>
         /// Gets the version of the installed winget.
         /// </summary>
         /// <param name="pwshCmdlet">PowerShell cmdlet.</param>
+        /// <param name="versionResult">A command result from running previously.</param>
         /// <returns>The WinGetVersion.</returns>
-        public static WinGetVersion InstalledWinGetVersion(PowerShellCmdlet pwshCmdlet)
+        public static WinGetVersion InstalledWinGetVersion(PowerShellCmdlet pwshCmdlet, WinGetCLICommandResult? versionResult = null)
         {
-            // Try getting the version through COM if it is available (user might have an older build installed)
-            string? comVersion = PackageManagerWrapper.Instance.GetVersion();
-            if (comVersion != null)
+            if (versionResult == null || versionResult.ExitCode != 0)
             {
-                return new WinGetVersion(comVersion);
+                // Try getting the version through COM if it is available (user might have an older build installed)
+                string? comVersion = PackageManagerWrapper.Instance.GetVersion();
+                if (comVersion != null)
+                {
+                    return new WinGetVersion(comVersion);
+                }
+
+                versionResult = RunWinGetVersionFromCLI(pwshCmdlet);
             }
 
-            var wingetCliWrapper = new WingetCLIWrapper();
-            var result = wingetCliWrapper.RunCommand(pwshCmdlet, "--version");
-            return new WinGetVersion(result.StdOut.Replace(Environment.NewLine, string.Empty));
+            return new WinGetVersion(versionResult.StdOut.Replace(Environment.NewLine, string.Empty));
+        }
+
+        /// <summary>
+        /// Checks if the version string has a wildcard.
+        /// </summary>
+        /// <param name="version">The version string.</param>
+        /// <returns>True if it has a wildcard, false otherwise.</returns>
+        public static bool VersionHasWildcard(string version)
+        {
+            return version.Contains("*");
         }
 
         /// <summary>

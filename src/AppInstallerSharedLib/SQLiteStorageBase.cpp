@@ -156,10 +156,14 @@ namespace AppInstaller::SQLite
         m_version = Version::GetSchemaVersion(m_dbconn);
     }
 
-    SQLiteStorageBase::SQLiteStorageBase(const std::string& target, const Version& version) :
+    SQLiteStorageBase::SQLiteStorageBase(const std::string& target, const Version& version, size_t pageSize) :
         m_dbconn(SQLite::Connection::Create(target, SQLite::Connection::OpenDisposition::Create))
     {
         m_version = version;
+        if (pageSize > 0)
+        {
+            m_dbconn.SetPageSize(pageSize);
+        }
         MetadataTable::Create(m_dbconn);
 
         // Write a new identifier for this database

@@ -14,6 +14,7 @@
 #include "Public/winget/Filesystem.h"
 #include "DODownloader.h"
 #include "HttpStream/HttpRandomAccessStream.h"
+#include "Public/winget/ThreadGlobals.h"
 
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Settings;
@@ -481,15 +482,19 @@ namespace AppInstaller::Utility
         THROW_IF_FAILED(zoneIdentifier.As(&persistFile));
 
         auto hr = persistFile->Load(filePath.c_str(), STGM_READ);
-        if (hr == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
+        if (hr == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND) ||
+            hr == HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND))
         {
-            // IPersistFile::Load returns same error for "file not found" and "motw not found".
+            // IPersistFile::Load can return ERROR_FILE_NOT_FOUND or ERROR_PATH_NOT_FOUND for
+            // both "file not found" and "motw not found" depending on the Windows build.
             // Check if the file exists to be sure we are on the "motw not found" case.
             THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND), !std::filesystem::exists(filePath));
 
             AICLI_LOG(Core, Info, << "File does not contain motw. Skipped removing motw");
             return;
         }
+
+        THROW_IF_FAILED(hr);
 
         THROW_IF_FAILED(zoneIdentifier->Remove());
         THROW_IF_FAILED(persistFile->Save(NULL, TRUE));
@@ -516,8 +521,17 @@ namespace AppInstaller::Utility
             RETURN_IF_FAILED(attachmentExecute->SetLocalPath(filePath.c_str()));
             RETURN_IF_FAILED(attachmentExecute->SetSource(Utility::ConvertToUTF16(source).c_str()));
 
-            // IAttachmentExecute::Save() expects the local file to be clean(i.e. it won't clear existing motw if it thinks the source url is trusted)
-            RemoveMotwIfApplicable(filePath);
+            // IAttachmentExecute::Save() expects the local file to be clean (i.e. it won't clear existing motw if it thinks the source url is trusted).
+            // If removal fails for any reason, log a warning and proceed — a removal failure should not abort the security check.
+            try
+            {
+                RemoveMotwIfApplicable(filePath);
+            }
+            catch (...)
+            {
+                HRESULT hrRemoveMotw = wil::ResultFromCaughtException();
+                AICLI_LOG(Core, Warning, << "RemoveMotwIfApplicable failed before IAttachmentExecute::Save(). Result: " << hrRemoveMotw << ". Proceeding with Save()");
+            }
 
             aesSaveResult = attachmentExecute->Save();
 
@@ -534,23 +548,35 @@ namespace AppInstaller::Utility
 
         HRESULT hr = S_OK;
 
-        std::thread aesThread([&]()
+        ThreadLocalStorage::ThreadGlobals* globals = ThreadLocalStorage::ThreadGlobals::GetForCurrentThread();
+        std::thread aesThread([&, globals]()
             {
-                hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-                if (FAILED(hr))
+                auto globalsCleanup = globals ? globals->SetForCurrentThread() : nullptr;
+                try
                 {
-                    return;
-                }
+                    hr = LOG_IF_FAILED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED));
+                    if (FAILED(hr))
+                    {
+                        return;
+                    }
 
-                hr = updateMotw();
-                CoUninitialize();
+                    hr = updateMotw();
+                    CoUninitialize();
+                }
+                catch (...)
+                {
+                    hr = wil::ResultFromCaughtException();
+                    AICLI_LOG(Core, Error, << "Exception in IAttachmentExecute thread. Result: " << hr);
+                }
             });
 
         aesThread.join();
 
         AICLI_LOG(Core, Info, << "Finished applying motw using IAttachmentExecute. Result: " << hr << " IAttachmentExecute::Save() result: " << aesSaveResult);
 
-        return aesSaveResult;
+        // Return the thread's hr when aesSaveResult was never updated (e.g. CoInitializeEx failure or exception
+        // before IAttachmentExecute::Save() was called), so the caller sees the real failure instead of S_OK.
+        return (FAILED(hr) && aesSaveResult == S_OK) ? hr : aesSaveResult;
     }
 
     Microsoft::WRL::ComPtr<IStream> GetReadOnlyStreamFromURI(std::string_view uriStr)
@@ -649,7 +675,7 @@ namespace AppInstaller::Utility
             }
             else if (StartsWith(lowerDirective, s_MaxAge))
             {
-                std::vector<std::wstring_view> parts = Utility::Split(lowerDirective, L'=', true);
+                std::vector<std::wstring_view> parts = Utility::SplitView(lowerDirective, L'=', true);
                 if (parts.size() == 2)
                 {
                     try

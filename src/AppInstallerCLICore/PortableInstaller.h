@@ -113,7 +113,7 @@ namespace AppInstaller::CLI::Portable
         void CreateTargetInstallDirectory();
         void RemoveInstallDirectory();
 
-        void AddToPathVariable(const std::filesystem::path& value);
-        void RemoveFromPathVariable(const std::filesystem::path& value);
+        void AddToPathVariable(std::filesystem::path value);
+        void RemoveFromPathVariable(std::filesystem::path value);
     };
 }

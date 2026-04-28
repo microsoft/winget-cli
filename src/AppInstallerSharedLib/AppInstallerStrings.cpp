@@ -99,6 +99,43 @@ namespace AppInstaller::Utility
         };
 
         template <typename StringType>
+        StringType& TrimTemplate(StringType& input, std::basic_string_view<typename StringType::value_type> spaceChars)
+        {
+            if (!input.empty())
+            {
+                size_t begin = input.find_first_not_of(spaceChars);
+                size_t end = input.find_last_not_of(spaceChars);
+
+                if (begin == StringType::npos || end == StringType::npos)
+                {
+                    input = {};
+                }
+                else if (begin != 0 || end != input.length() - 1)
+                {
+                    input = input.substr(begin, (end - begin) + 1);
+                }
+            }
+
+            return input;
+        }
+
+        template <typename StringType>
+        StringType TrimCopyTemplate(const StringType& input)
+        {
+            StringType result = input;
+            Utility::Trim(result);
+            return result;
+        }
+
+        template <typename StringType>
+        StringType TrimMoveTemplate(StringType&& input)
+        {
+            StringType result = std::move(input);
+            Utility::Trim(result);
+            return result;
+        }
+
+        template <typename StringType>
         std::vector<StringType> SplitTemplate(const StringType& input, typename StringType::value_type separator, bool trim)
         {
             std::vector<StringType> result;
@@ -160,6 +197,15 @@ namespace AppInstaller::Utility
             a.begin(), a.end(),
             b.begin(), b.end(),
             [](char ch1, char ch2) { return std::tolower(ch1) == std::tolower(ch2); }
+        );
+        return (it != a.end());
+    }
+
+    bool ContainsSubstring(std::string_view a, std::string_view b)
+    {
+        auto it = std::search(
+            a.begin(), a.end(),
+            b.begin(), b.end()
         );
         return (it != a.end());
     }
@@ -557,76 +603,52 @@ namespace AppInstaller::Utility
 
     std::string& Trim(std::string& str)
     {
-        if (!str.empty())
-        {
-            size_t begin = str.find_first_not_of(s_SpaceChars);
-            size_t end = str.find_last_not_of(s_SpaceChars);
-
-            if (begin == std::string_view::npos || end == std::string_view::npos)
-            {
-                str.clear();
-            }
-            else if (begin != 0 || end != str.length() - 1)
-            {
-                str = str.substr(begin, (end - begin) + 1);
-            }
-        }
-
-        return str;
+        return TrimTemplate(str, s_SpaceChars);
     }
 
-    std::wstring& Trim(std::wstring& str)
+    std::string Trim(const std::string& str)
     {
-        if (!str.empty())
-        {
-            size_t begin = str.find_first_not_of(s_WideSpaceChars);
-            size_t end = str.find_last_not_of(s_WideSpaceChars);
-
-            if (begin == std::string_view::npos || end == std::string_view::npos)
-            {
-                str.clear();
-            }
-            else if (begin != 0 || end != str.length() - 1)
-            {
-                str = str.substr(begin, (end - begin) + 1);
-            }
-        }
-
-        return str;
-    }
-
-    std::wstring_view& Trim(std::wstring_view& str)
-    {
-        if (!str.empty())
-        {
-            size_t begin = str.find_first_not_of(s_WideSpaceChars);
-            size_t end = str.find_last_not_of(s_WideSpaceChars);
-
-            if (begin == std::string_view::npos || end == std::string_view::npos)
-            {
-                str = {};
-            }
-            else if (begin != 0 || end != str.length() - 1)
-            {
-                str = str.substr(begin, (end - begin) + 1);
-            }
-        }
-
-        return str;
-    }
-
-    std::wstring_view Trim(std::wstring_view&& str)
-    {
-        std::wstring_view result = std::move(str);
-        Utility::Trim(result);
-        return result;
+        return TrimCopyTemplate(str);
     }
 
     std::string Trim(std::string&& str)
     {
-        std::string result = std::move(str);
-        Utility::Trim(result);
-        return result;
+        return TrimMoveTemplate(std::move(str));
+    }
+
+    std::string_view& Trim(std::string_view& str)
+    {
+        return TrimTemplate(str, s_SpaceChars);
+    }
+
+    std::string_view Trim(std::string_view&& str)
+    {
+        return TrimCopyTemplate(str);
+    }
+
+    std::wstring& Trim(std::wstring& str)
+    {
+        return TrimTemplate(str, s_WideSpaceChars);
+    }
+
+    std::wstring Trim(const std::wstring& str)
+    {
+        return TrimCopyTemplate(str);
+    }
+
+    std::wstring Trim(std::wstring&& str)
+    {
+        return TrimMoveTemplate(std::move(str));
+    }
+
+    std::wstring_view& Trim(std::wstring_view& str)
+    {
+        return TrimTemplate(str, s_WideSpaceChars);
+    }
+
+    std::wstring_view Trim(std::wstring_view&& str)
+    {
+        return TrimCopyTemplate(str);
     }
 
     std::string ReadEntireStream(std::istream& stream)
@@ -929,6 +951,26 @@ namespace AppInstaller::Utility
         return SplitTemplate(input, separator, trim);
     }
 
+    std::vector<std::string_view> SplitView(const std::string& input, char separator, bool trim)
+    {
+        return SplitTemplate(static_cast<std::string_view>(input), separator, trim);
+    }
+
+    std::vector<std::string_view> Split(std::string_view input, char separator, bool trim)
+    {
+        return SplitTemplate(input, separator, trim);
+    }
+
+    std::vector<std::wstring> Split(const std::wstring& input, wchar_t separator, bool trim)
+    {
+        return SplitTemplate(input, separator, trim);
+    }
+
+    std::vector<std::wstring_view> SplitView(const std::wstring& input, wchar_t separator, bool trim)
+    {
+        return SplitTemplate(static_cast<std::wstring_view>(input), separator, trim);
+    }
+
     std::vector<std::wstring_view> Split(std::wstring_view input, wchar_t separator, bool trim)
     {
         return SplitTemplate(input, separator, trim);
@@ -937,6 +979,42 @@ namespace AppInstaller::Utility
     std::string_view ConvertBoolToString(bool value)
     {
         return value ? "true"sv : "false"sv;
+    }
+
+    std::optional<bool> TryConvertStringToBool(const std::string_view& input)
+    {
+        try
+        {
+            if (CaseInsensitiveEquals(input, "false"sv))
+            {
+                return { false };
+            }
+
+            if (CaseInsensitiveEquals(input, "true"sv))
+            {
+                return { true };
+            }
+
+            return {};
+        }
+        catch (...)
+        {
+            return {};
+        }
+    }
+
+    std::optional<int32_t> TryConvertStringToInt32(const std::string_view& input)
+    {
+        int32_t result = 0;
+        auto parseResult = std::from_chars(input.data(), input.data() + input.length(), result);
+
+        std::optional<int32_t> optionalResult;
+        if (parseResult.ec == std::errc{})
+        {
+            optionalResult = result;
+        }
+
+        return optionalResult;
     }
 
     std::string ConvertGuidToString(const GUID& value)
@@ -1062,5 +1140,23 @@ namespace AppInstaller::Utility
         }
 
         return result;
+    }
+
+    bool IsValidWindowsFeaturePattern(std::string_view value)
+    {
+        if (value.empty())
+        {
+            return false;
+        }
+
+        for (char c : value)
+        {
+            if (!std::isalnum(static_cast<unsigned char>(c)) && c != '-' && c != '_')
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

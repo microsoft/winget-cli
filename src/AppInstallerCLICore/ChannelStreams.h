@@ -5,14 +5,16 @@
 #include "VTSupport.h"
 #include <winget/LocIndependent.h>
 
+#include <optional>
 #include <ostream>
 #include <string>
 
 
 namespace AppInstaller::CLI::Execution
 {
-    // Gets the current console width.
-    size_t GetConsoleWidth();
+    // Gets the current console width, or std::nullopt if stdout is not attached to a console
+    // (e.g. redirected to a file or pipe). Callers that receive nullopt should not truncate output.
+    std::optional<size_t> GetConsoleWidth();
 
     // The base stream for all channels.
     struct BaseStream

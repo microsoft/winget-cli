@@ -3,6 +3,7 @@
 #pragma once
 #include "FindPackagesOptions.g.h"
 #include "Public/ComClsids.h"
+#include <winget/ModuleCountBase.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -30,7 +31,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
 {
-    struct FindPackagesOptions : FindPackagesOptionsT<FindPackagesOptions, implementation::FindPackagesOptions>
+    struct FindPackagesOptions : FindPackagesOptionsT<FindPackagesOptions, implementation::FindPackagesOptions>, AppInstaller::WinRT::ModuleCountBase
     {
     };
 }

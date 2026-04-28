@@ -33,6 +33,7 @@ steps:
                                       -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1
                                       -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer
                                       -SkipTestSource true
+                                      -InprocTestbedUseTestPackage true
                                       -ForcedExperimentalFeatures ${{ parameters.experimentalFeatures }}'
       ${{ else }}:
           overrideTestrunParameters: '-PackagedContext false
@@ -41,6 +42,7 @@ steps:
                                       -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1
                                       -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer
                                       -SkipTestSource true
+                                      -InprocTestbedUseTestPackage true
                                       -ForcedExperimentalFeatures ${{ parameters.experimentalFeatures }}'
 
   - task: CmdLine@2
