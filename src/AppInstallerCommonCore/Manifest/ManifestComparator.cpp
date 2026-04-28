@@ -286,8 +286,8 @@ namespace AppInstaller::Manifest
 
             details::ComparisonResult IsFirstBetter(const ManifestInstaller& first, const ManifestInstaller& second) override
             {
-                // Requirements take precedence over preferences for ordering; fall back to preferences when no requirements are set.
-                const auto& effectiveOrder = !m_requirement.empty() ? m_requirement : m_preference;
+                // If no preferences are set, use requirement ordering instead.
+                const auto& effectiveOrder = m_preference.empty() ? m_requirement : m_preference;
 
                 if (effectiveOrder.empty())
                 {

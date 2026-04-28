@@ -55,7 +55,7 @@ Installer type selection no longer depends on the order defined on the manifest.
 - Nullsoft / Inno / EXE
 - Portable
 
-When a user configures installer type requirements or preferences, the order in which they are listed is now respected during installer selection. Requirements take precedence over preferences when both are configured.
+When a user configures installer type requirements or preferences, the order in which they are listed is now respected during installer selection.
 
 ### Improved `list` output when redirected
 

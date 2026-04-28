@@ -137,7 +137,7 @@ The `archiveExtractionMethod` behavior affects how installer archives are extrac
 
 Some of the settings are duplicated under `preferences` and `requirements`. `preferences` affect how the various available options are sorted when choosing the one to act on.  For instance, the default scope of package installs is for the current user, but if that is not an option then a machine level installer will be chosen. `requirements` filter the options, potentially resulting in an empty list and a failure to install. In the previous example, a user scope requirement would result in no applicable installers and an error.
 
-When multiple values are listed under `requirements`, they are treated as an ordered preference in addition to a filter — the first listed value is preferred over subsequent ones when multiple valid options exist. If both `requirements` and `preferences` are set for the same field, the ordering from `requirements` takes precedence.
+When multiple values are listed under `requirements`, they are treated as an ordered preference in addition to a filter — the first listed value is preferred over subsequent ones when multiple valid options exist. If both `requirements` and `preferences` are set for the same field, the ordering from `preferences` takes precedence.
 
 Any arguments passed on the command line will effectively override the matching `requirement` setting for the duration of that command.
 
