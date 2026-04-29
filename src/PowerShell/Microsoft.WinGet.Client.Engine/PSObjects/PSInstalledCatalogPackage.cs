@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     using System;
     using Microsoft.Management.Deployment;
+    using Microsoft.WinGet.Client.Engine.Helpers;
 
     /// <summary>
     /// InstalledCatalogPackage wrapper object for displaying to PowerShell.
@@ -29,6 +30,14 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         public string InstalledVersion
         {
             get { return this.CatalogPackageCOM.InstalledVersion.Version; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the package is pinned.
+        /// </summary>
+        public bool IsPinned
+        {
+            get { return PackageManagerWrapper.Instance.GetPins(this.CatalogPackageCOM).Count > 0; }
         }
 
         /// <summary>

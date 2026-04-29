@@ -137,6 +137,18 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
+        /// Wrapper for GetPins.
+        /// </summary>
+        /// <param name="package">The package to get pins for.</param>
+        /// <returns>A read-only list of PackagePin objects.</returns>
+        public IReadOnlyList<PackagePin> GetPins(CatalogPackage package)
+        {
+            return this.Execute(
+                () => this.packageManager.GetPins(package),
+                false);
+        }
+
+        /// <summary>
         /// Gets the version of the package manager that is running.
         /// </summary>
         /// <returns>The version string.</returns>
