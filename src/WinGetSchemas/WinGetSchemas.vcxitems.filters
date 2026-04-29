@@ -9,7 +9,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\settings\settings.schema.0.2.json">
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\settings\settings.schema.1.29.0.json">
+      <Filter>settings</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\settings\settings.schema.latest.json">
       <Filter>settings</Filter>
     </None>
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\packages\packages.schema.1.0.json">
