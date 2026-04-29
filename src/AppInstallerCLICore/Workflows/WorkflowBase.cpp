@@ -463,16 +463,6 @@ namespace AppInstaller::CLI::Workflow
 
         // Returns true if the execution context contains filter arguments that
         // produce relevance-ordered results (query, name, id, moniker, tag, command).
-        bool HasRelevanceAffectingArgs(const Execution::Context& context)
-        {
-            return context.Args.Contains(Execution::Args::Type::Query) ||
-                   context.Args.Contains(Execution::Args::Type::Id) ||
-                   context.Args.Contains(Execution::Args::Type::Name) ||
-                   context.Args.Contains(Execution::Args::Type::Moniker) ||
-                   context.Args.Contains(Execution::Args::Type::Tag) ||
-                   context.Args.Contains(Execution::Args::Type::Command);
-        }
-
         // Sorts a vector of InstalledPackagesTableLine according to the user's sort preferences.
         // Resolution order: CLI args (--sort) > settings (output.sortOrder) > query-aware default.
         void SortInstalledPackagesTableLines(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
@@ -499,19 +489,22 @@ namespace AppInstaller::CLI::Workflow
                     // rejects them with an error before workflow execution begins.
                 }
             }
-            else if (HasRelevanceAffectingArgs(context))
-            {
-                // Design: when query/filter arguments are present, relevance ordering is
-                // always preserved unless the user explicitly passes --sort on the CLI.
-                // Settings sortOrder intentionally does NOT override relevance for queries,
-                // because query results are ranked by match quality and reordering them
-                // would hide the best matches. Only --sort (explicit user intent per-command)
-                // can override this.
-                return;
-            }
             else
             {
                 sortFields = User().Get<Setting::OutputSortOrder>();
+
+                // When the free-text query argument is present and the user has NOT
+                // configured a sort preference in settings, preserve relevance ordering.
+                // Only the positional query argument populates searchRequest.Query and
+                // produces meaningful relevance ranking; filter arguments like --id,
+                // --name, --tag etc. use exact/substring matching where all results
+                // have equivalent relevance.
+                // If the user explicitly configured output.sortOrder, respect it even
+                // with queries — that is an explicit user preference.
+                if (sortFields.empty() && context.Args.Contains(Execution::Args::Type::Query))
+                {
+                    return;
+                }
             }
 
             // Empty sort fields or relevance-only means no sorting
