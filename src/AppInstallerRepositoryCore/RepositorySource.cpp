@@ -1105,7 +1105,18 @@ namespace AppInstaller::Repository
                 AICLI_LOG(Repo, Info, << "Named source to be dropped, found: " << source->Name);
 
                 EnsureSourceIsRemovable(*source);
-                sourceList.RemoveSource(*source);
+
+                // For default sources and overrides of default sources, reset to clean state
+                // (remove user customizations and clear metadata) instead of tombstoning.
+                if (source->Origin == SourceOrigin::Default ||
+                    (source->Origin == SourceOrigin::User && source->IsOverride))
+                {
+                    sourceList.ResetSource(*source);
+                }
+                else
+                {
+                    sourceList.RemoveSource(*source);
+                }
 
                 return true;
             }

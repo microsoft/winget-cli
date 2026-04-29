@@ -70,6 +70,10 @@ namespace AppInstaller::Repository
         void RemoveSource(const SourceDetailsInternal& details);
         void EditSource(const SourceDetailsInternal& details);
 
+        // Reset a default source: removes any user-level entry (tombstone or override)
+        // and clears the source's metadata, restoring it to clean-install state.
+        void ResetSource(const SourceDetailsInternal& details);
+
         // Save source metadata; the particular source with the metadata update is given.
         // The given source must already be in the internal source list.
         void SaveMetadata(const SourceDetailsInternal& details);

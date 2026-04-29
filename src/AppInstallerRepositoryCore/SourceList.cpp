@@ -661,6 +661,63 @@ namespace AppInstaller::Repository
         SaveMetadataInternal(details, true);
     }
 
+    void SourceList::ResetSource(const SourceDetailsInternal& detailsRef)
+    {
+        // Copy the incoming details because we might destroy the referenced structure
+        // when reloading the source details from settings.
+        SourceDetailsInternal details = detailsRef;
+        bool sourcesSet = false;
+
+        for (size_t i = 0; !sourcesSet && i < 10; ++i)
+        {
+            // Remove any user-level entry for this source (tombstone or override).
+            auto itr = FindSource(details.Name, true);
+            if (itr != m_sourceList.end() && itr->Origin == SourceOrigin::User)
+            {
+                m_sourceList.erase(itr);
+            }
+
+            sourcesSet = SetSourcesByOrigin(SourceOrigin::User, m_sourceList);
+
+            if (!sourcesSet)
+            {
+                OverwriteSourceList();
+                OverwriteMetadata();
+            }
+        }
+
+        THROW_HR_IF_MSG(E_UNEXPECTED, !sourcesSet, "Too many attempts at SetSourcesByOrigin");
+
+        // Reload to bring back the Default source (now that the user entry is removed)
+        // and to get fresh metadata for all other sources.
+        OverwriteSourceList();
+        OverwriteMetadata();
+
+        // Clear the metadata for the reset source and save.
+        bool metadataSet = false;
+        for (size_t i = 0; !metadataSet && i < 10; ++i)
+        {
+            auto target = FindSource(details.Name, true);
+            if (target != m_sourceList.end())
+            {
+                target->LastUpdateTime = {};
+                target->DoNotUpdateBefore = {};
+                target->AcceptedAgreementFields = 0;
+                target->AcceptedAgreementsIdentifier = {};
+            }
+
+            metadataSet = SetMetadata(m_sourceList);
+
+            if (!metadataSet)
+            {
+                OverwriteSourceList();
+                OverwriteMetadata();
+            }
+        }
+
+        THROW_HR_IF_MSG(E_UNEXPECTED, !metadataSet, "Too many attempts at SetMetadata");
+    }
+
     void SourceList::SaveMetadata(const SourceDetailsInternal& details)
     {
         SaveMetadataInternal(details);
