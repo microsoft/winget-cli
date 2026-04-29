@@ -584,6 +584,7 @@ Tlg
 tlhelp
 TLSCAs
 tombstoned
+tombstoning
 Toolhelp
 transitioning
 trimstart

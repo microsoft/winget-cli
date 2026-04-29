@@ -25,6 +25,9 @@ namespace AppInstaller::Repository
         // Copies the metadata fields from this source. This only include partial metadata.
         void CopyMetadataFieldsFrom(const SourceDetails& source);
 
+        // Resets all metadata fields to their default (clean-install) state.
+        void ResetMetadataFields();
+
         // Copies the overridden fields from the target source to this source. This is only the supported override fields.
         void CopyOverrideFieldsFrom(const SourceDetails& overrideSource);
 
@@ -70,6 +73,10 @@ namespace AppInstaller::Repository
         void RemoveSource(const SourceDetailsInternal& details);
         void EditSource(const SourceDetailsInternal& details);
 
+        // Reset a default source: removes any user-level entry (tombstone or override)
+        // and clears the source's metadata, restoring it to clean-install state.
+        void ResetSource(const SourceDetailsInternal& details);
+
         // Save source metadata; the particular source with the metadata update is given.
         // The given source must already be in the internal source list.
         void SaveMetadata(const SourceDetailsInternal& details);
@@ -107,6 +114,9 @@ namespace AppInstaller::Repository
         // Save source metadata; the particular source with the metadata update is given.
         // If remove is true, the given source is being removed.
         void SaveMetadataInternal(const SourceDetailsInternal& details, bool remove = false);
+
+        // Clears all metadata for the named source and persists the change.
+        void ResetMetadataInternal(const SourceDetailsInternal& details);
 
         std::vector<SourceDetailsInternal> m_sourceList;
         Settings::Stream m_userSourcesStream;
