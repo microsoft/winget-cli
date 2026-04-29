@@ -20,6 +20,9 @@
 #include <wil\cppwinrt_wrl.h>
 // 4467 Allow use of uuid attribute for com object creation.
 #include "PackageManager.h"
+#include "PackagePin.h"
+#include "PinPackageOptions.h"
+#include "PinPackageResult.h"
 #pragma warning( pop )
 #include "PackageManager.g.cpp"
 #include "CatalogPackage.h"
@@ -40,6 +43,10 @@
 #include "AppInstallerRuntime.h"
 #include <optional>
 #include <PackageCatalogProgress.h>
+#include <winget/PinningData.h>
+#include <AppInstallerDateTime.h>
+#include <winget/PackageVersionSelection.h>
+#include <winget/RepositorySearch.h>
 
 using namespace std::literals::chrono_literals;
 using namespace ::AppInstaller::CLI;
@@ -1486,6 +1493,269 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
 
         return GetEditPackageCatalogResult(terminationHR);
+    }
+
+    namespace
+    {
+        // Builds PackagePin WinRT objects from a vector of internal Pin objects.
+        winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackagePin>
+            MakePackagePinVectorView(const std::vector<::AppInstaller::Pinning::Pin>& pins)
+        {
+            auto result = winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackagePin>();
+            for (const auto& pin : pins)
+            {
+                auto packagePin = winrt::make_self<wil::details::module_count_wrapper<
+                    winrt::Microsoft::Management::Deployment::implementation::PackagePin>>();
+                packagePin->Initialize(pin);
+                result.Append(*packagePin);
+            }
+            return result.GetView();
+        }
+
+        // Collects PinKeys for all available sources of a package, and optionally for its installed identity.
+        std::vector<::AppInstaller::Pinning::PinKey> GetPinKeysForCatalogPackage(
+            winrt::Microsoft::Management::Deployment::CatalogPackage const& package,
+            bool includeInstalled)
+        {
+            std::vector<::AppInstaller::Pinning::PinKey> pinKeys;
+
+            // Keys for each available source version
+            for (auto const& versionId : package.AvailableVersions())
+            {
+                auto versionInfo = package.GetPackageVersionInfo(versionId);
+                if (versionInfo)
+                {
+                    std::string packageId = winrt::to_string(package.Id());
+                    std::string sourceId = winrt::to_string(versionInfo.PackageCatalog().Info().Id());
+                    if (!packageId.empty() && !sourceId.empty())
+                    {
+                        ::AppInstaller::Pinning::PinKey key{ packageId, sourceId };
+                        // Avoid duplicates (same packageId+sourceId may appear for multiple versions)
+                        if (std::find(pinKeys.begin(), pinKeys.end(), key) == pinKeys.end())
+                        {
+                            pinKeys.push_back(std::move(key));
+                        }
+                    }
+                }
+            }
+
+            // Key for the installed package identity (ProductCode / PackageFamilyName)
+            if (includeInstalled)
+            {
+                auto installedVersion = package.InstalledVersion();
+                if (installedVersion)
+                {
+                    // Prefer PackageFamilyName (MSIX), fall back to ProductCode (MSI/EXE)
+                    auto pfns = installedVersion.PackageFamilyNames();
+                    if (pfns && pfns.Size() > 0)
+                    {
+                        for (auto const& pfn : pfns)
+                        {
+                            pinKeys.push_back(::AppInstaller::Pinning::PinKey::GetPinKeyForInstalled(winrt::to_string(pfn)));
+                        }
+                    }
+                    else
+                    {
+                        auto productCodes = installedVersion.ProductCodes();
+                        if (productCodes)
+                        {
+                            for (auto const& productCode : productCodes)
+                            {
+                                pinKeys.push_back(::AppInstaller::Pinning::PinKey::GetPinKeyForInstalled(winrt::to_string(productCode)));
+                            }
+                        }
+                    }
+                }
+            }
+
+            return pinKeys;
+        }
+
+        winrt::Microsoft::Management::Deployment::PinPackageResult MakePinPackageResult(HRESULT hr)
+        {
+            auto result = winrt::make_self<wil::details::module_count_wrapper<
+                winrt::Microsoft::Management::Deployment::implementation::PinPackageResult>>();
+            result->Initialize(GetPinOperationStatus(hr), hr);
+            return *result;
+        }
+
+        // Converts PinPackageOptions.PinType to the internal pin representation.
+        ::AppInstaller::Pinning::Pin CreatePinFromOptions(
+            const ::AppInstaller::Pinning::PinKey& pinKey,
+            winrt::Microsoft::Management::Deployment::PinPackageOptions const& options)
+        {
+            switch (options.PinType())
+            {
+            case winrt::Microsoft::Management::Deployment::PackagePinType::Blocking:
+                return ::AppInstaller::Pinning::Pin::CreateBlockingPin(pinKey);
+            case winrt::Microsoft::Management::Deployment::PackagePinType::Gating:
+                return ::AppInstaller::Pinning::Pin::CreateGatingPin(
+                    pinKey,
+                    ::AppInstaller::Utility::GatedVersion{ winrt::to_string(options.GatedVersion()) });
+            default:
+                return ::AppInstaller::Pinning::Pin::CreatePinningPin(pinKey);
+            }
+        }
+    }
+
+    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackagePin>
+        PackageManager::GetAllPins()
+    {
+        LogStartupIfApplicable();
+
+        THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageQuery));
+
+        auto pinningData = ::AppInstaller::Pinning::PinningData{ ::AppInstaller::Pinning::PinningData::Disposition::ReadOnly };
+        return MakePackagePinVectorView(pinningData.GetAllPins());
+    }
+
+    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackagePin>
+        PackageManager::GetPins(winrt::Microsoft::Management::Deployment::CatalogPackage package)
+    {
+        LogStartupIfApplicable();
+
+        THROW_HR_IF_NULL(E_POINTER, package);
+        THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageQuery));
+
+        auto pinKeys = GetPinKeysForCatalogPackage(package, /* includeInstalled */ true);
+        auto pinningData = ::AppInstaller::Pinning::PinningData{ ::AppInstaller::Pinning::PinningData::Disposition::ReadOnly };
+
+        std::vector<::AppInstaller::Pinning::Pin> pins;
+        for (const auto& pinKey : pinKeys)
+        {
+            auto pin = pinningData.GetPin(pinKey);
+            if (pin)
+            {
+                pins.push_back(std::move(*pin));
+            }
+        }
+
+        return MakePackagePinVectorView(pins);
+    }
+
+    winrt::Microsoft::Management::Deployment::PinPackageResult PackageManager::PinPackage(
+        winrt::Microsoft::Management::Deployment::CatalogPackage package,
+        winrt::Microsoft::Management::Deployment::PinPackageOptions options)
+    {
+        LogStartupIfApplicable();
+
+        HRESULT terminationHR = S_OK;
+        try
+        {
+            THROW_HR_IF_NULL(E_POINTER, package);
+            THROW_HR_IF_NULL(E_POINTER, options);
+            THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageManagement));
+
+            // Gating pins require a non-empty version range.
+            if (options.PinType() == winrt::Microsoft::Management::Deployment::PackagePinType::Gating &&
+                options.GatedVersion().empty())
+            {
+                THROW_HR(E_INVALIDARG);
+            }
+
+            auto pinKeys = GetPinKeysForCatalogPackage(package, options.PinInstalledPackage());
+            THROW_HR_IF(E_INVALIDARG, pinKeys.empty());
+
+            auto pinningData = ::AppInstaller::Pinning::PinningData{ ::AppInstaller::Pinning::PinningData::Disposition::ReadWrite };
+
+            std::string dateAdded = ::AppInstaller::Utility::TimePointToString(
+                std::chrono::system_clock::now(),
+                ::AppInstaller::Utility::TimeFacet::Year | ::AppInstaller::Utility::TimeFacet::Month |
+                ::AppInstaller::Utility::TimeFacet::Day | ::AppInstaller::Utility::TimeFacet::Hour |
+                ::AppInstaller::Utility::TimeFacet::Minute | ::AppInstaller::Utility::TimeFacet::Second);
+
+            std::optional<std::string> note;
+            if (!options.Note().empty())
+            {
+                note = winrt::to_string(options.Note());
+            }
+
+            for (const auto& pinKey : pinKeys)
+            {
+                auto newPin = CreatePinFromOptions(pinKey, options);
+
+                auto existingPin = pinningData.GetPin(pinKey);
+                if (existingPin && !(*existingPin == newPin))
+                {
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_PIN_ALREADY_EXISTS, !options.Force());
+                }
+
+                newPin.SetDateAdded(dateAdded);
+                newPin.SetNote(note);
+                pinningData.AddOrUpdatePin(newPin);
+            }
+        }
+        catch (...)
+        {
+            terminationHR = AppInstaller::CLI::Workflow::HandleException(nullptr, std::current_exception());
+        }
+
+        return MakePinPackageResult(terminationHR);
+    }
+
+    winrt::Microsoft::Management::Deployment::PinPackageResult PackageManager::UnpinPackage(
+        winrt::Microsoft::Management::Deployment::CatalogPackage package)
+    {
+        LogStartupIfApplicable();
+
+        HRESULT terminationHR = S_OK;
+        try
+        {
+            THROW_HR_IF_NULL(E_POINTER, package);
+            THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageManagement));
+
+            auto pinKeys = GetPinKeysForCatalogPackage(package, /* includeInstalled */ true);
+            auto pinningData = ::AppInstaller::Pinning::PinningData{ ::AppInstaller::Pinning::PinningData::Disposition::ReadWrite };
+
+            bool anyRemoved = false;
+            for (const auto& pinKey : pinKeys)
+            {
+                auto existingPin = pinningData.GetPin(pinKey);
+                if (existingPin)
+                {
+                    pinningData.RemovePin(pinKey);
+                    anyRemoved = true;
+                }
+            }
+
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST, !anyRemoved);
+        }
+        catch (...)
+        {
+            terminationHR = AppInstaller::CLI::Workflow::HandleException(nullptr, std::current_exception());
+        }
+
+        return MakePinPackageResult(terminationHR);
+    }
+
+    winrt::Microsoft::Management::Deployment::PinPackageResult PackageManager::ResetAllPins(winrt::hstring const& sourceName)
+    {
+        LogStartupIfApplicable();
+
+        HRESULT terminationHR = S_OK;
+        try
+        {
+            THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageManagement));
+
+            std::string sourceId;
+            if (!sourceName.empty())
+            {
+                auto matchingSource = GetMatchingSource(winrt::to_string(sourceName));
+                if (matchingSource.has_value())
+                {
+                    sourceId = matchingSource->Identifier;
+                }
+            }
+
+            auto pinningData = ::AppInstaller::Pinning::PinningData{ ::AppInstaller::Pinning::PinningData::Disposition::ReadWrite };
+            pinningData.ResetAllPins(sourceId);
+        }
+        catch (...)
+        {
+            terminationHR = AppInstaller::CLI::Workflow::HandleException(nullptr, std::current_exception());
+        }
+
+        return MakePinPackageResult(terminationHR);
     }
 
     CoCreatableMicrosoftManagementDeploymentClass(PackageManager);

@@ -543,6 +543,29 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
     }
 
+    PinResultStatus GetPinOperationStatus(winrt::hresult hresult)
+    {
+        switch (hresult)
+        {
+        case S_OK:
+            return PinResultStatus::Ok;
+        case APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY:
+        case APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY:
+        case APPINSTALLER_CLI_ERROR_MSSTORE_APP_BLOCKED_BY_POLICY:
+        case APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED:
+            return PinResultStatus::BlockedByPolicy;
+        case APPINSTALLER_CLI_ERROR_PIN_ALREADY_EXISTS:
+            return PinResultStatus::PackagePinAlreadyExists;
+        case APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST:
+            return PinResultStatus::PackagePinNotFound;
+        case E_INVALIDARG:
+        case APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS:
+            return PinResultStatus::InvalidOptions;
+        default:
+            return PinResultStatus::InternalError;
+        }
+    }
+
     ::AppInstaller::Manifest::PlatformEnum GetPlatformEnum(WindowsPlatform value)
     {
         switch (value)

@@ -34,6 +34,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus GetAddPackageCatalogOperationStatus(winrt::hresult hresult);
     winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus GetRemovePackageCatalogOperationStatus(winrt::hresult hresult);
     winrt::Microsoft::Management::Deployment::EditPackageCatalogStatus GetEditPackageCatalogOperationStatus(winrt::hresult hresult);
+    winrt::Microsoft::Management::Deployment::PinResultStatus GetPinOperationStatus(winrt::hresult hresult);
     ::AppInstaller::Manifest::PlatformEnum GetPlatformEnum(winrt::Microsoft::Management::Deployment::WindowsPlatform value);
 
 #define WINGET_GET_OPERATION_RESULT_STATUS(_installResultStatus_, _uninstallResultStatus_, _downloadResultStatus_, _repairResultStatus_) \
