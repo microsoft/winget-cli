@@ -495,8 +495,8 @@ namespace AppInstaller::CLI::Workflow
                     {
                         sortFields.emplace_back(field.value());
                     }
-                    // Invalid values are silently skipped; argument validation
-                    // should catch these before we get here in a future PR.
+                    // Invalid values should not reach here; ValidateArgumentsInternal
+                    // rejects them with an error before workflow execution begins.
                 }
             }
             else if (HasRelevanceAffectingArgs(context))
