@@ -149,6 +149,54 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
+        /// Wrapper for GetAllPins.
+        /// </summary>
+        /// <returns>A read-only list of all PackagePin objects.</returns>
+        public IReadOnlyList<PackagePin> GetAllPins()
+        {
+            return this.Execute(
+                () => this.packageManager.GetAllPins(),
+                false);
+        }
+
+        /// <summary>
+        /// Wrapper for PinPackage.
+        /// </summary>
+        /// <param name="package">The package to pin.</param>
+        /// <param name="options">The pin options.</param>
+        /// <returns>A PinPackageResult.</returns>
+        public PinPackageResult PinPackage(CatalogPackage package, PinPackageOptions options)
+        {
+            return this.Execute(
+                () => this.packageManager.PinPackage(package, options),
+                false);
+        }
+
+        /// <summary>
+        /// Wrapper for UnpinPackage.
+        /// </summary>
+        /// <param name="package">The package to unpin.</param>
+        /// <returns>A PinPackageResult.</returns>
+        public PinPackageResult UnpinPackage(CatalogPackage package)
+        {
+            return this.Execute(
+                () => this.packageManager.UnpinPackage(package),
+                false);
+        }
+
+        /// <summary>
+        /// Wrapper for ResetAllPins.
+        /// </summary>
+        /// <param name="sourceName">The source name to reset pins for. Pass empty string to reset all.</param>
+        /// <returns>A PinPackageResult.</returns>
+        public PinPackageResult ResetAllPins(string sourceName)
+        {
+            return this.Execute(
+                () => this.packageManager.ResetAllPins(sourceName),
+                false);
+        }
+
+        /// <summary>
         /// Gets the version of the package manager that is running.
         /// </summary>
         /// <returns>The version string.</returns>
