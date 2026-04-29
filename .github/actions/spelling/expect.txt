@@ -290,6 +290,7 @@ LEBOM
 lhs
 LIBYAML
 liv
+listsort
 liwpx
 localizationpriority
 localsource
