@@ -17,6 +17,10 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Creates all of the version dependent tables within the database.
         virtual void CreateTables(SQLite::Connection& connection) = 0;
 
+        // Migrates the schema from an older version.
+        // Returns true if migration succeeded, false if migration is not applicable.
+        virtual bool MigrateFrom(SQLite::Connection& connection, const IPinningIndex* current) = 0;
+
         // Version 1.0
         // Adds a pin to the index.
         virtual SQLite::rowid_t AddPin(SQLite::Connection& connection, const Pinning::Pin& pin) = 0;

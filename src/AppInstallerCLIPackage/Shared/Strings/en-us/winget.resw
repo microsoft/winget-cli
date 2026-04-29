@@ -1648,6 +1648,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PinInstalledArgumentDescription" xml:space="preserve">
     <value>Pin a specific installed version</value>
   </data>
+  <data name="PinNoteArgumentDescription" xml:space="preserve">
+    <value>Optional note to store with the pin</value>
+    <comment>Description for the --note argument used with `winget pin add`</comment>
+  </data>
   <data name="PinInstalledSource" xml:space="preserve">
     <value>Installed</value>
     <comment>Value used in a table to indicate that a package comes from the list of packages installed in the machine</comment>
@@ -1912,6 +1916,48 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PinVersion" xml:space="preserve">
     <value>Pinned version</value>
     <comment>Table header for the version to which a package is pinned; meaning it should not update from that version.</comment>
+  </data>
+  <data name="PinDateAdded" xml:space="preserve">
+    <value>Date added</value>
+    <comment>Label shown in the pin show output for when the pin was added or last updated.</comment>
+  </data>
+  <data name="PinNote" xml:space="preserve">
+    <value>Note</value>
+    <comment>Label shown in the pin show output for the user-provided note stored with the pin.</comment>
+  </data>
+  <data name="PinShowCommandShortDescription" xml:space="preserve">
+    <value>Show details about a pin</value>
+  </data>
+  <data name="PinShowCommandLongDescription" xml:space="preserve">
+    <value>Show detailed information about a specific pin, including the package ID, version, type, date added, and any note stored with the pin.</value>
+  </data>
+  <data name="PinShowLabelDateAdded" xml:space="preserve">
+    <value>Date added:</value>
+    <comment>Label shown in the `winget pin show` output for when the pin was added or last updated.</comment>
+  </data>
+  <data name="PinShowLabelId" xml:space="preserve">
+    <value>Id:</value>
+    <comment>Label shown in the `winget pin show` output for the package identifier.</comment>
+  </data>
+  <data name="PinShowLabelNote" xml:space="preserve">
+    <value>Note:</value>
+    <comment>Label shown in the `winget pin show` output for the user-provided note stored with the pin.</comment>
+  </data>
+  <data name="PinShowLabelSource" xml:space="preserve">
+    <value>Source:</value>
+    <comment>Label shown in the `winget pin show` output for the package source.</comment>
+  </data>
+  <data name="PinShowLabelType" xml:space="preserve">
+    <value>Pin type:</value>
+    <comment>Label shown in the `winget pin show` output for the type of pin (e.g., Pinning, Gating, Blocking).</comment>
+  </data>
+  <data name="PinShowLabelVersion" xml:space="preserve">
+    <value>Pinned version:</value>
+    <comment>Label shown in the `winget pin show` output for the version string of a gating pin.</comment>
+  </data>
+  <data name="PinShowNoMatchFound" xml:space="preserve">
+    <value>No pin found matching the specified criteria.</value>
+    <comment>Shown when `winget pin show` finds no matching pin.</comment>
   </data>
   <data name="ConfigurationDescriptionWasTruncated" xml:space="preserve">
     <value>&lt;See the log file for additional details&gt;</value>

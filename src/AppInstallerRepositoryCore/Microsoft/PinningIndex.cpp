@@ -4,6 +4,7 @@
 #include "PinningIndex.h"
 #include <winget/SQLiteStorageBase.h>
 #include "Schema/Pinning_1_0/PinningIndexInterface.h"
+#include "Schema/Pinning_1_1/PinningIndexInterface.h"
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -186,11 +187,22 @@ namespace AppInstaller::Repository::Microsoft
 
     std::unique_ptr<Schema::IPinningIndex> PinningIndex::CreateIPinningIndex() const
     {
-        if (m_version == SQLite::Version{ 1, 0 } ||
-            m_version.MajorVersion == 1 ||
-            m_version.IsLatest())
+        // Always return the latest interface; migration will handle version mismatches.
+        return std::make_unique<Schema::Pinning_V1_1::PinningIndexInterface>();
+    }
+
+    std::unique_ptr<Schema::IPinningIndex> PinningIndex::CreateIPinningIndexForVersion(const SQLite::Version& version)
+    {
+        if (version == SQLite::Version{ 1, 0 })
         {
             return std::make_unique<Schema::Pinning_V1_0::PinningIndexInterface>();
+        }
+
+        if (version == SQLite::Version{ 1, 1 } ||
+            version.MajorVersion == 1 ||
+            version.IsLatest())
+        {
+            return std::make_unique<Schema::Pinning_V1_1::PinningIndexInterface>();
         }
 
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -201,7 +213,41 @@ namespace AppInstaller::Repository::Microsoft
     {
         AICLI_LOG(Repo, Info, << "Opened Pinning Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
         m_interface = CreateIPinningIndex();
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
+
+        if (m_version != m_interface->GetVersion())
+        {
+            if (disposition == SQLiteStorageBase::OpenDisposition::ReadWrite)
+            {
+                // Attempt to migrate from the stored version to the current version.
+                AICLI_LOG(Repo, Info, << "Attempting to migrate Pinning Index from [" << m_version << "] to [" << m_interface->GetVersion() << "]");
+
+                // Create an interface representing the existing (older) schema so MigrateFrom can inspect it.
+                std::unique_ptr<Schema::IPinningIndex> oldInterface = CreateIPinningIndexForVersion(m_version);
+
+                SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningindex_migrate");
+                bool migrated = m_interface->MigrateFrom(m_dbconn, oldInterface.get());
+
+                if (migrated)
+                {
+                    m_interface->GetVersion().SetSchemaVersion(m_dbconn);
+                    SetLastWriteTime();
+                    savepoint.Commit();
+                    m_version = m_interface->GetVersion();
+                    AICLI_LOG(Repo, Info, << "Migration successful");
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Error, << "Migration failed");
+                    THROW_HR(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX);
+                }
+            }
+            else
+            {
+                // Read-only open: use an interface matching the stored schema version to avoid querying missing columns.
+                AICLI_LOG(Repo, Info, << "Read-only open with older schema [" << m_version << "]; using compatible interface");
+                m_interface = CreateIPinningIndexForVersion(m_version);
+            }
+        }
     }
 
     PinningIndex::PinningIndex(const std::string& target, SQLite::Version version) : SQLiteStorageBase(target, version)

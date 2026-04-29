@@ -54,6 +54,14 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ReportPins(Execution::Context& context);
 
+    // Shows details for a single matching pin (for `winget pin show`).
+    // Filters the pinning index by query/name/id/exact args and outputs
+    // detailed field-by-field info (Name, ID, Version, Source, Type, Date Added, Note).
+    // Required Args: None (at least one of --query/--name/--id expected)
+    // Inputs: PinningIndex
+    // Outputs: None
+    void ShowPinDetails(Execution::Context& context);
+
     // Resets all the existing pins.
     // Required Args: None
     // Inputs: None

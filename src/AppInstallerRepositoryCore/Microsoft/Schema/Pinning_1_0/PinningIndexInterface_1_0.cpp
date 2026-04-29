@@ -35,6 +35,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         savepoint.Commit();
     }
 
+    bool PinningIndexInterface::MigrateFrom(SQLite::Connection&, const IPinningIndex*)
+    {
+        // Version 1.0 cannot migrate from any prior version.
+        return false;
+    }
+
     SQLite::rowid_t PinningIndexInterface::AddPin(SQLite::Connection& connection, const Pinning::Pin& pin)
     {
         auto existingPin = GetExistingPinId(connection, pin.GetKey());
