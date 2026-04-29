@@ -147,10 +147,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
             .Column(s_PinTable_SourceId_Column).Equals(pinKey.SourceId)
             .Column(s_PinTable_Type_Column).Equals(pin.GetType())
             .Column(s_PinTable_Version_Column).Equals(pin.GetGatedVersion().ToString())
-            .Column(s_PinTable_DateAdded_Column).Equals((std::string_view)pin.GetDateAdded())
-            .Column(s_PinTable_Note_Column).Equals(pin.GetNote())
-            .Where(SQLite::RowIDName).Equals(pinId);
+            .Column(s_PinTable_DateAdded_Column).Equals((std::string_view)pin.GetDateAdded());
 
+        // Use Unbound (= ?) for null note so SQLite stores NULL via = NULL, not the invalid SET syntax IS NULL.
+        const auto& note = pin.GetNote();
+        if (note.has_value())
+        {
+            builder.Column(s_PinTable_Note_Column).Equals(note.value());
+        }
+        else
+        {
+            builder.Column(s_PinTable_Note_Column).Equals(SQLite::Builder::Unbound);
+        }
+
+        builder.Where(SQLite::RowIDName).Equals(pinId);
         builder.Execute(connection);
         return connection.GetChanges() != 0;
     }

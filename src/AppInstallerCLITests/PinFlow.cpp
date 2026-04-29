@@ -199,3 +199,220 @@ TEST_CASE("PinFlow_ResetEmpty", "[PinFlow][workflow]")
 
     REQUIRE(pinResetOutput.str().find(Resource::LocString(Resource::String::PinNoPinsExist)) != std::string::npos);
 }
+
+TEST_CASE("PinFlow_Add_SetsDateAdded", "[PinFlow][workflow]")
+{
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    std::ostringstream pinAddOutput;
+    TestContext addContext{ pinAddOutput, std::cin };
+    OverrideForCompositeInstalledSource(addContext, CreateTestSource({ TSR::TestInstaller_Exe }));
+    addContext.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
+    addContext.Args.AddArg(Execution::Args::Type::BlockingPin);
+
+    PinAddCommand pinAdd({});
+    pinAdd.Execute(addContext);
+    INFO(pinAddOutput.str());
+
+    auto index = PinningIndex::Open(indexFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+    auto pins = index.GetAllPins();
+    REQUIRE(pins.size() == 1);
+    REQUIRE_FALSE(pins[0].GetDateAdded().empty());
+}
+
+TEST_CASE("PinFlow_Add_WithNote", "[PinFlow][workflow]")
+{
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    std::ostringstream pinAddOutput;
+    TestContext addContext{ pinAddOutput, std::cin };
+    OverrideForCompositeInstalledSource(addContext, CreateTestSource({ TSR::TestInstaller_Exe }));
+    addContext.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
+    addContext.Args.AddArg(Execution::Args::Type::PinNote, "my test note"sv);
+
+    PinAddCommand pinAdd({});
+    pinAdd.Execute(addContext);
+    INFO(pinAddOutput.str());
+
+    auto index = PinningIndex::Open(indexFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+    auto pins = index.GetAllPins();
+    REQUIRE(pins.size() == 1);
+    REQUIRE(pins[0].GetNote().has_value());
+    REQUIRE(pins[0].GetNote().value() == "my test note");
+}
+
+TEST_CASE("PinFlow_Add_WithoutNote", "[PinFlow][workflow]")
+{
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    std::ostringstream pinAddOutput;
+    TestContext addContext{ pinAddOutput, std::cin };
+    OverrideForCompositeInstalledSource(addContext, CreateTestSource({ TSR::TestInstaller_Exe }));
+    addContext.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
+
+    PinAddCommand pinAdd({});
+    pinAdd.Execute(addContext);
+    INFO(pinAddOutput.str());
+
+    auto index = PinningIndex::Open(indexFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+    auto pins = index.GetAllPins();
+    REQUIRE(pins.size() == 1);
+    REQUIRE_FALSE(pins[0].GetNote().has_value());
+}
+
+// Helper: Creates a v1.1 pinning index at the given path and adds the provided pins directly.
+// Each pin should already have date_added and note set as desired.
+namespace
+{
+    void PopulatePinIndexForShow(const std::filesystem::path& indexPath, const std::vector<Pin>& pins)
+    {
+        PinningIndex index = PinningIndex::CreateNew(indexPath.u8string(), AppInstaller::SQLite::Version::Latest());
+        for (const auto& pin : pins)
+        {
+            index.AddPin(pin);
+        }
+    }
+}
+
+TEST_CASE("PinFlow_Show_NoMatch", "[PinFlow][workflow]")
+{
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    Pin existingPin = Pin::CreateBlockingPin({ "SomePackage.Id", "sourceId" });
+    existingPin.SetDateAdded("2026-01-15 10:00:00");
+    PopulatePinIndexForShow(indexFile.GetPath(), { existingPin });
+
+    std::ostringstream showOutput;
+    TestContext showContext{ showOutput, std::cin };
+    showContext.Args.AddArg(Execution::Args::Type::Query, "ThisQueryMatchesNothing"sv);
+
+    PinShowCommand pinShow({});
+    pinShow.Execute(showContext);
+    INFO(showOutput.str());
+
+    REQUIRE_TERMINATED_WITH(showContext, APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST);
+    REQUIRE(showOutput.str().find(Resource::LocString(Resource::String::PinShowNoMatchFound)) != std::string::npos);
+}
+
+TEST_CASE("PinFlow_Show_MatchById", "[PinFlow][workflow]")
+{
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    Pin pin = Pin::CreateBlockingPin({ "MyApp.Package", "sourceId" });
+    pin.SetDateAdded("2026-06-01 09:00:00");
+    pin.SetNote(std::string{ "keep this one" });
+    PopulatePinIndexForShow(indexFile.GetPath(), { pin });
+
+    std::ostringstream showOutput;
+    TestContext showContext{ showOutput, std::cin };
+    showContext.Args.AddArg(Execution::Args::Type::Id, "MyApp.Package"sv);
+
+    PinShowCommand pinShow({});
+    pinShow.Execute(showContext);
+    INFO(showOutput.str());
+
+    REQUIRE_FALSE(showContext.IsTerminated());
+    REQUIRE(showOutput.str().find("MyApp.Package") != std::string::npos);
+    REQUIRE(showOutput.str().find("Blocking") != std::string::npos);
+    REQUIRE(showOutput.str().find("2026-06-01 09:00:00") != std::string::npos);
+    REQUIRE(showOutput.str().find("keep this one") != std::string::npos);
+}
+
+TEST_CASE("PinFlow_Show_MatchByQuery", "[PinFlow][workflow]")
+{
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    Pin pin = Pin::CreatePinningPin({ "Contoso.AppOne", "sourceId" });
+    pin.SetDateAdded("2026-03-10 12:00:00");
+    PopulatePinIndexForShow(indexFile.GetPath(), { pin });
+
+    std::ostringstream showOutput;
+    TestContext showContext{ showOutput, std::cin };
+    // Partial, case-insensitive match on the package ID
+    showContext.Args.AddArg(Execution::Args::Type::Query, "appone"sv);
+
+    PinShowCommand pinShow({});
+    pinShow.Execute(showContext);
+    INFO(showOutput.str());
+
+    REQUIRE_FALSE(showContext.IsTerminated());
+    REQUIRE(showOutput.str().find("Contoso.AppOne") != std::string::npos);
+}
+
+TEST_CASE("PinFlow_Show_ExactMatch", "[PinFlow][workflow]")
+{
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    // Two pins sharing a prefix
+    Pin pinA = Pin::CreateBlockingPin({ "Vendor.App", "src" });
+    pinA.SetDateAdded("2026-01-01 00:00:00");
+
+    Pin pinB = Pin::CreateBlockingPin({ "Vendor.AppExtra", "src" });
+    pinB.SetDateAdded("2026-01-01 00:00:00");
+
+    PopulatePinIndexForShow(indexFile.GetPath(), { pinA, pinB });
+
+    std::ostringstream showOutput;
+    TestContext showContext{ showOutput, std::cin };
+    showContext.Args.AddArg(Execution::Args::Type::Id, "Vendor.App"sv);
+    showContext.Args.AddArg(Execution::Args::Type::Exact);
+
+    PinShowCommand pinShow({});
+    pinShow.Execute(showContext);
+    INFO(showOutput.str());
+
+    REQUIRE_FALSE(showContext.IsTerminated());
+    // Only the exact-match pin should appear
+    REQUIRE(showOutput.str().find("Vendor.App") != std::string::npos);
+    // The inexact match should NOT appear
+    REQUIRE(showOutput.str().find("Vendor.AppExtra") == std::string::npos);
+}
+
+TEST_CASE("PinFlow_Show_NoNote_DoesNotShowNoteLabel", "[PinFlow][workflow]")
+{
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    Pin pin = Pin::CreatePinningPin({ "NoNote.Package", "src" });
+    pin.SetDateAdded("2026-05-01 08:00:00");
+    // note intentionally not set
+    PopulatePinIndexForShow(indexFile.GetPath(), { pin });
+
+    std::ostringstream showOutput;
+    TestContext showContext{ showOutput, std::cin };
+    showContext.Args.AddArg(Execution::Args::Type::Query, "NoNote.Package"sv);
+
+    PinShowCommand pinShow({});
+    pinShow.Execute(showContext);
+    INFO(showOutput.str());
+
+    REQUIRE_FALSE(showContext.IsTerminated());
+    REQUIRE(showOutput.str().find("NoNote.Package") != std::string::npos);
+    REQUIRE(showOutput.str().find(Resource::LocString(Resource::String::PinShowLabelNote)) == std::string::npos);
+}
+
+TEST_CASE("PinFlow_Show_EmptyIndex_NoMatch", "[PinFlow][workflow]")
+{
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    // Create an empty index (no pins)
+    { PinningIndex::CreateNew(indexFile.GetPath().u8string(), AppInstaller::SQLite::Version::Latest()); }
+
+    std::ostringstream showOutput;
+    TestContext showContext{ showOutput, std::cin };
+    showContext.Args.AddArg(Execution::Args::Type::Query, "AnyQuery"sv);
+
+    PinShowCommand pinShow({});
+    pinShow.Execute(showContext);
+    INFO(showOutput.str());
+
+    REQUIRE_TERMINATED_WITH(showContext, APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST);
+}

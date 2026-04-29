@@ -252,7 +252,7 @@ namespace AppInstaller::Repository::Microsoft
 
     PinningIndex::PinningIndex(const std::string& target, SQLite::Version version) : SQLiteStorageBase(target, version)
     {
-        m_interface = CreateIPinningIndex();
+        m_interface = CreateIPinningIndexForVersion(version);
         m_version = m_interface->GetVersion();
     }
 }
