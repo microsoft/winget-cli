@@ -240,6 +240,14 @@ namespace AppInstaller::Repository
         DoNotUpdateBefore = source.DoNotUpdateBefore;
     }
 
+    void SourceDetailsInternal::ResetMetadataFields()
+    {
+        LastUpdateTime = {};
+        DoNotUpdateBefore = {};
+        AcceptedAgreementFields = 0;
+        AcceptedAgreementsIdentifier = {};
+    }
+
     void SourceDetailsInternal::CopyOverrideFieldsFrom(const SourceDetails& overrideSource)
     {
         // These are the supported Override fields.
@@ -688,34 +696,10 @@ namespace AppInstaller::Repository
 
         THROW_HR_IF_MSG(E_UNEXPECTED, !sourcesSet, "Too many attempts at SetSourcesByOrigin");
 
-        // Reload to bring back the Default source (now that the user entry is removed)
-        // and to get fresh metadata for all other sources.
+        // Reload to bring back the Default source (now that the user entry is removed).
         OverwriteSourceList();
-        OverwriteMetadata();
 
-        // Clear the metadata for the reset source and save.
-        bool metadataSet = false;
-        for (size_t i = 0; !metadataSet && i < 10; ++i)
-        {
-            auto target = FindSource(details.Name, true);
-            if (target != m_sourceList.end())
-            {
-                target->LastUpdateTime = {};
-                target->DoNotUpdateBefore = {};
-                target->AcceptedAgreementFields = 0;
-                target->AcceptedAgreementsIdentifier = {};
-            }
-
-            metadataSet = SetMetadata(m_sourceList);
-
-            if (!metadataSet)
-            {
-                OverwriteSourceList();
-                OverwriteMetadata();
-            }
-        }
-
-        THROW_HR_IF_MSG(E_UNEXPECTED, !metadataSet, "Too many attempts at SetMetadata");
+        ResetMetadataInternal(details);
     }
 
     void SourceList::SaveMetadata(const SourceDetailsInternal& details)
@@ -1058,6 +1042,32 @@ namespace AppInstaller::Repository
                     // Update the freshly read metadata with the update that was requested.
                     details.CopyMetadataFieldsTo(*target);
                 }
+            }
+        }
+
+        THROW_HR_IF_MSG(E_UNEXPECTED, !metadataSet, "Too many attempts at SetMetadata");
+    }
+
+    void SourceList::ResetMetadataInternal(const SourceDetailsInternal& details)
+    {
+        bool metadataSet = false;
+
+        for (size_t i = 0; !metadataSet && i < 10; ++i)
+        {
+            // Load fresh metadata from storage so that other sources' metadata is preserved.
+            OverwriteMetadata();
+
+            auto target = FindSource(details.Name, true);
+            if (target != m_sourceList.end())
+            {
+                target->ResetMetadataFields();
+            }
+
+            metadataSet = SetMetadata(m_sourceList);
+
+            if (!metadataSet)
+            {
+                OverwriteSourceList();
             }
         }
 
