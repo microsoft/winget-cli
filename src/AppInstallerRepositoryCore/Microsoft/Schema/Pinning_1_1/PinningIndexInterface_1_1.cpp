@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Microsoft/Schema/Pinning_1_1/PinningIndexInterface.h"
-#include "Microsoft/Schema/Pinning_1_0/PinTable.h"
 #include "Microsoft/Schema/Pinning_1_1/PinTable.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
@@ -76,20 +75,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         return { status, existingPinId.value() };
     }
 
-    SQLite::rowid_t PinningIndexInterface::RemovePin(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
-    {
-        auto existingPinId = GetExistingPinId(connection, pinKey);
-
-        // If the pin doesn't exist, fail the remove
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NOT_FOUND), !existingPinId);
-
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removepin_v1_1");
-        PinTable::RemovePinById(connection, existingPinId.value());
-
-        savepoint.Commit();
-        return existingPinId.value();
-    }
-
     std::optional<Pinning::Pin> PinningIndexInterface::GetPin(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
     {
         auto existingPinId = GetExistingPinId(connection, pinKey);
@@ -105,14 +90,5 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
     std::vector<Pinning::Pin> PinningIndexInterface::GetAllPins(SQLite::Connection& connection)
     {
         return PinTable::GetAllPins(connection);
-    }
-
-    bool PinningIndexInterface::ResetAllPins(SQLite::Connection& connection, std::string_view sourceId)
-    {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "resetpins_v1_1");
-        bool result = PinTable::ResetAllPins(connection, sourceId);
-        savepoint.Commit();
-
-        return result;
     }
 }
