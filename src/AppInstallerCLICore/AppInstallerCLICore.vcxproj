@@ -460,6 +460,7 @@
     <ClCompile Include="Workflows\UninstallFlow.cpp" />
     <ClCompile Include="Workflows\UpdateFlow.cpp" />
     <ClCompile Include="Workflows\WorkflowBase.cpp" />
+    <ClCompile Include="Workflows\ListSortHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
