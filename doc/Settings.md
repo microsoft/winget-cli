@@ -10,6 +10,15 @@ If you are using the non-packaged WinGet version by building it from source code
 
 If you are creating a settings file from scratch, make sure that the line `"$schema": "https://aka.ms/winget-settings.schema.json",` is in it.
 
+## Schema Versioning
+
+The settings schema is versioned to match each WinGet client release, so users can know exactly which settings their client supports.
+
+- **`settings.schema.latest.json`** — tracks the latest in-development schema for the next release. New settings are added here first.
+- **`settings.schema.<version>.json`** (e.g., `settings.schema.1.29.0.json`) — a frozen snapshot of the schema for a specific client version.
+
+When a new version of WinGet is released, `latest` is copied to a new versioned file. This means you can always check the versioned schema for your installed client to see exactly what settings are available.
+
 ## Source
 
 The `source` settings involve configuration to the WinGet source.
