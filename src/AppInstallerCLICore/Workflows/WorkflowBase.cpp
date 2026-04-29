@@ -3,13 +3,13 @@
 #include "pch.h"
 #include "WorkflowBase.h"
 #include "ExecutionContext.h"
-#include <winget/UserSettings.h>
-#include "Workflows/ListSortHelper.h"
-#include <winget/ManifestComparator.h>
+#include "ListSortHelper.h"
 #include "PromptFlow.h"
 #include "ShowFlow.h"
 #include "Sixel.h"
 #include "TableOutput.h"
+#include <winget/UserSettings.h>
+#include <winget/ManifestComparator.h>
 #include <winget/FileCache.h>
 #include <winget/ExperimentalFeature.h>
 #include <winget/ManifestYamlParser.h>
@@ -461,16 +461,6 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        // Compares two InstalledPackagesTableLine values by the given field.
-        int CompareByField(const InstalledPackagesTableLine& a, const InstalledPackagesTableLine& b, SortField field)
-        {
-            // Create SortablePackageEntry copies for comparison — fields are layout-compatible
-            // (both have Name, Id, InstalledVersion, AvailableVersion, Source as LocIndString in same order).
-            SortablePackageEntry entryA{ a.Name, a.Id, a.InstalledVersion, a.AvailableVersion, a.Source };
-            SortablePackageEntry entryB{ b.Name, b.Id, b.InstalledVersion, b.AvailableVersion, b.Source };
-            return Workflow::CompareByField(entryA, entryB, field);
-        }
-
         // Returns true if the execution context contains filter arguments that
         // produce relevance-ordered results (query, name, id, moniker, tag, command).
         bool HasRelevanceAffectingArgs(const Execution::Context& context)
@@ -498,19 +488,15 @@ namespace AppInstaller::CLI::Workflow
 
             if (hasExplicitSort)
             {
-                const auto* sortArgs = context.Args.GetArgs(Execution::Args::Type::Sort);
-                if (sortArgs)
+                for (const auto& arg : *context.Args.GetArgs(Execution::Args::Type::Sort))
                 {
-                    for (const auto& arg : *sortArgs)
+                    auto field = ConvertToSortField(arg);
+                    if (field)
                     {
-                        auto field = ConvertToSortField(arg);
-                        if (field)
-                        {
-                            sortFields.emplace_back(field.value());
-                        }
-                        // Invalid values are silently skipped; argument validation
-                        // should catch these before we get here in a future PR.
+                        sortFields.emplace_back(field.value());
                     }
+                    // Invalid values are silently skipped; argument validation
+                    // should catch these before we get here in a future PR.
                 }
             }
             else if (HasRelevanceAffectingArgs(context))
@@ -550,13 +536,24 @@ namespace AppInstaller::CLI::Workflow
                 direction = User().Get<Setting::OutputSortDirection>();
             }
 
-            // 3. Multi-field cascading sort with stable_sort
-            std::stable_sort(lines.begin(), lines.end(),
-                [&sortFields, direction](const InstalledPackagesTableLine& a, const InstalledPackagesTableLine& b)
+            // 3. Project into SortablePackageEntry, sort, then apply the permutation back
+            std::vector<SortablePackageEntry> sortable;
+            sortable.reserve(lines.size());
+            for (const auto& line : lines)
+            {
+                sortable.push_back({ line.Name, line.Id, line.InstalledVersion, line.AvailableVersion, line.Source });
+            }
+
+            // Build index array to track the permutation
+            std::vector<size_t> indices(lines.size());
+            std::iota(indices.begin(), indices.end(), 0);
+
+            std::stable_sort(indices.begin(), indices.end(),
+                [&sortable, &sortFields, direction](size_t lhs, size_t rhs)
                 {
                     for (const auto& field : sortFields)
                     {
-                        int cmp = CompareByField(a, b, field);
+                        int cmp = CompareByField(sortable[lhs], sortable[rhs], field);
                         if (cmp != 0)
                         {
                             return direction == SortDirection::Ascending ? (cmp < 0) : (cmp > 0);
@@ -564,6 +561,15 @@ namespace AppInstaller::CLI::Workflow
                     }
                     return false;
                 });
+
+            // Apply permutation
+            std::vector<InstalledPackagesTableLine> sorted;
+            sorted.reserve(lines.size());
+            for (size_t i : indices)
+            {
+                sorted.push_back(std::move(lines[i]));
+            }
+            lines = std::move(sorted);
         }
 
         void OutputInstalledPackages(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)

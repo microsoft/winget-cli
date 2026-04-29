@@ -325,6 +325,9 @@
     <ClCompile Include="Workflows\WorkflowBase.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
+    <ClCompile Include="Workflows\ListSortHelper.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
     <ClCompile Include="Commands\ShowCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
