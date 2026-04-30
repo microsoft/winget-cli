@@ -538,40 +538,16 @@ namespace AppInstaller::CLI::Workflow
                 direction = User().Get<Setting::OutputSortDirection>();
             }
 
-            // 3. Project into SortablePackageEntry, sort, then apply the permutation back
-            std::vector<SortablePackageEntry> sortable;
-            sortable.reserve(lines.size());
-            for (const auto& line : lines)
-            {
-                sortable.push_back({ line.Name, line.Id, line.InstalledVersion, line.AvailableVersion, line.Source });
-            }
-
-            // Build index array to track the permutation
-            std::vector<size_t> indices(lines.size());
-            std::iota(indices.begin(), indices.end(), 0);
-
-            std::stable_sort(indices.begin(), indices.end(),
-                [&sortable, &sortFields, direction](size_t lhs, size_t rhs)
-                {
-                    for (const auto& field : sortFields)
-                    {
-                        int cmp = CompareByField(sortable[lhs], sortable[rhs], field);
-                        if (cmp != 0)
-                        {
-                            return direction == SortDirection::Ascending ? (cmp < 0) : (cmp > 0);
-                        }
-                    }
-                    return false;
-                });
-
-            // Apply permutation
-            std::vector<InstalledPackagesTableLine> sorted;
-            sorted.reserve(lines.size());
-            for (size_t i : indices)
-            {
-                sorted.push_back(std::move(lines[i]));
-            }
-            lines = std::move(sorted);
+            // 3. Sort using the helper's production pipeline
+            SortBy(lines,
+                [](const InstalledPackagesTableLine& line, size_t index) {
+                    return SortablePackageEntry(
+                        index,
+                        line.Name.get(), line.Id.get(),
+                        line.InstalledVersion.get(), line.AvailableVersion.get(),
+                        line.Source.get());
+                },
+                sortFields, direction);
         }
 
         void OutputInstalledPackages(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)

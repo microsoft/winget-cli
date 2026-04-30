@@ -2,11 +2,29 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ListSortHelper.h"
-#include <AppInstallerStrings.h>
-#include <AppInstallerVersions.h>
 
 namespace AppInstaller::CLI::Workflow
 {
+    SortablePackageEntry::SortablePackageEntry(
+        size_t originalIndex,
+        std::string_view name,
+        std::string_view id,
+        std::string_view installedVersion,
+        std::string_view availableVersion,
+        std::string_view source)
+        : OriginalIndex(originalIndex),
+          FoldedName(Utility::FoldCase(name)),
+          FoldedId(Utility::FoldCase(id)),
+          FoldedSource(Utility::FoldCase(source)),
+          ParsedInstalledVersion(std::string{ installedVersion }),
+          HasAvailableVersion(!availableVersion.empty())
+    {
+        if (HasAvailableVersion)
+        {
+            ParsedAvailableVersion = Utility::Version{ std::string{ availableVersion } };
+        }
+    }
+
     int CompareByField(const SortablePackageEntry& a, const SortablePackageEntry& b, Settings::SortField field)
     {
         using Settings::SortField;
@@ -14,34 +32,28 @@ namespace AppInstaller::CLI::Workflow
         switch (field)
         {
         case SortField::Name:
-            return Utility::FoldCase(std::string_view{ a.Name.get() }).compare(Utility::FoldCase(std::string_view{ b.Name.get() }));
+            return a.FoldedName.compare(b.FoldedName);
         case SortField::Id:
-            return Utility::FoldCase(std::string_view{ a.Id.get() }).compare(Utility::FoldCase(std::string_view{ b.Id.get() }));
+            return a.FoldedId.compare(b.FoldedId);
         case SortField::Version:
         {
-            Utility::Version va(a.InstalledVersion.get());
-            Utility::Version vb(b.InstalledVersion.get());
-            if (va < vb) return -1;
-            if (vb < va) return 1;
+            if (a.ParsedInstalledVersion < b.ParsedInstalledVersion) return -1;
+            if (b.ParsedInstalledVersion < a.ParsedInstalledVersion) return 1;
             return 0;
         }
         case SortField::Source:
-            return Utility::FoldCase(std::string_view{ a.Source.get() }).compare(Utility::FoldCase(std::string_view{ b.Source.get() }));
+            return a.FoldedSource.compare(b.FoldedSource);
         case SortField::Available:
         {
-            bool aHas = !a.AvailableVersion.get().empty();
-            bool bHas = !b.AvailableVersion.get().empty();
-            if (aHas != bHas)
+            if (a.HasAvailableVersion != b.HasAvailableVersion)
             {
                 // Ascending: has-update sorts before no-update
-                return aHas ? -1 : 1;
+                return a.HasAvailableVersion ? -1 : 1;
             }
-            if (aHas && bHas)
+            if (a.HasAvailableVersion && b.HasAvailableVersion)
             {
-                Utility::Version va(a.AvailableVersion.get());
-                Utility::Version vb(b.AvailableVersion.get());
-                if (va < vb) return -1;
-                if (vb < va) return 1;
+                if (a.ParsedAvailableVersion < b.ParsedAvailableVersion) return -1;
+                if (b.ParsedAvailableVersion < a.ParsedAvailableVersion) return 1;
             }
             return 0;
         }
@@ -50,10 +62,6 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    // Currently used in tests; production code uses CompareByField with an index-based
-    // permutation sort because workflow-specific row types carry additional fields.
-    // Intended for reuse by commands (e.g., search, upgrade) whose data maps directly
-    // to SortablePackageEntry without extra fields.
     void SortEntries(
         std::vector<SortablePackageEntry>& entries,
         const std::vector<Settings::SortField>& sortFields,

@@ -6,32 +6,25 @@
 
 using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Settings;
-using namespace AppInstaller::Utility::literals;
 
 namespace
 {
     SortablePackageEntry MakeEntry(std::string name, std::string id, std::string version, std::string available = {}, std::string source = {})
     {
-        return SortablePackageEntry{
-            AppInstaller::Utility::LocIndString{ std::move(name) },
-            AppInstaller::Utility::LocIndString{ std::move(id) },
-            AppInstaller::Utility::LocIndString{ std::move(version) },
-            AppInstaller::Utility::LocIndString{ std::move(available) },
-            AppInstaller::Utility::LocIndString{ std::move(source) },
-        };
+        return SortablePackageEntry{ 0, name, id, version, available, source };
     }
 
     std::vector<std::string> GetNames(const std::vector<SortablePackageEntry>& entries)
     {
         std::vector<std::string> names;
-        for (const auto& e : entries) { names.push_back(e.Name.get()); }
+        for (const auto& e : entries) { names.push_back(e.FoldedName); }
         return names;
     }
 
     std::vector<std::string> GetIds(const std::vector<SortablePackageEntry>& entries)
     {
         std::vector<std::string> ids;
-        for (const auto& e : entries) { ids.push_back(e.Id.get()); }
+        for (const auto& e : entries) { ids.push_back(e.FoldedId); }
         return ids;
     }
 }
@@ -138,7 +131,7 @@ TEST_CASE("ListSort_SortEntries_ByName_Ascending", "[listsort]")
     SortEntries(entries, { SortField::Name }, SortDirection::Ascending);
 
     auto names = GetNames(entries);
-    REQUIRE(names == std::vector<std::string>{ "Alpha", "Beta", "Charlie" });
+    REQUIRE(names == std::vector<std::string>{ "alpha", "beta", "charlie" });
 }
 
 TEST_CASE("ListSort_SortEntries_ByName_Descending", "[listsort]")
@@ -152,7 +145,7 @@ TEST_CASE("ListSort_SortEntries_ByName_Descending", "[listsort]")
     SortEntries(entries, { SortField::Name }, SortDirection::Descending);
 
     auto names = GetNames(entries);
-    REQUIRE(names == std::vector<std::string>{ "Charlie", "Beta", "Alpha" });
+    REQUIRE(names == std::vector<std::string>{ "charlie", "beta", "alpha" });
 }
 
 TEST_CASE("ListSort_SortEntries_ByName_CaseInsensitive", "[listsort]")
@@ -193,9 +186,9 @@ TEST_CASE("ListSort_SortEntries_ByVersion", "[listsort]")
 
     SortEntries(entries, { SortField::Version }, SortDirection::Ascending);
 
-    std::vector<std::string> versions;
-    for (const auto& e : entries) { versions.push_back(e.InstalledVersion.get()); }
-    REQUIRE(versions == std::vector<std::string>{ "1.0.0", "2.0.0", "10.0.0" });
+    // Version is precomputed, verify order via ParsedInstalledVersion
+    REQUIRE(entries[0].ParsedInstalledVersion < entries[1].ParsedInstalledVersion);
+    REQUIRE(entries[1].ParsedInstalledVersion < entries[2].ParsedInstalledVersion);
 }
 
 TEST_CASE("ListSort_SortEntries_MultiField", "[listsort]")
@@ -225,9 +218,9 @@ TEST_CASE("ListSort_SortEntries_Available_GroupsByPresence", "[listsort]")
 
     auto names = GetNames(entries);
     // Has-update first, then no-update (stable within groups)
-    REQUIRE(names[0] == "HasUpdate");
-    REQUIRE(names[1] == "NoUpdate1");
-    REQUIRE(names[2] == "NoUpdate2");
+    REQUIRE(names[0] == "hasupdate");
+    REQUIRE(names[1] == "noupdate1");
+    REQUIRE(names[2] == "noupdate2");
 }
 
 TEST_CASE("ListSort_SortEntries_Relevance_NoOp", "[listsort]")
@@ -242,7 +235,7 @@ TEST_CASE("ListSort_SortEntries_Relevance_NoOp", "[listsort]")
     SortEntries(entries, { SortField::Relevance }, SortDirection::Ascending);
 
     auto names = GetNames(entries);
-    REQUIRE(names == std::vector<std::string>{ "Charlie", "Alpha", "Beta" });
+    REQUIRE(names == std::vector<std::string>{ "charlie", "alpha", "beta" });
 }
 
 TEST_CASE("ListSort_SortEntries_EmptyFields_NoOp", "[listsort]")
@@ -256,7 +249,7 @@ TEST_CASE("ListSort_SortEntries_EmptyFields_NoOp", "[listsort]")
     SortEntries(entries, {}, SortDirection::Ascending);
 
     auto names = GetNames(entries);
-    REQUIRE(names == std::vector<std::string>{ "Charlie", "Alpha" });
+    REQUIRE(names == std::vector<std::string>{ "charlie", "alpha" });
 }
 
 TEST_CASE("ListSort_SortEntries_SingleElement", "[listsort]")
@@ -268,7 +261,7 @@ TEST_CASE("ListSort_SortEntries_SingleElement", "[listsort]")
     SortEntries(entries, { SortField::Name }, SortDirection::Ascending);
 
     REQUIRE(entries.size() == 1);
-    REQUIRE(entries[0].Name.get() == "Only");
+    REQUIRE(entries[0].FoldedName == "only");
 }
 
 TEST_CASE("ListSort_SortEntries_StableSort", "[listsort]")
@@ -281,6 +274,49 @@ TEST_CASE("ListSort_SortEntries_StableSort", "[listsort]")
 
     SortEntries(entries, { SortField::Name }, SortDirection::Ascending);
 
-    REQUIRE(entries[0].Id.get() == "first");
-    REQUIRE(entries[1].Id.get() == "second");
+    REQUIRE(entries[0].FoldedId == "first");
+    REQUIRE(entries[1].FoldedId == "second");
+}
+
+// Tests for SortBy template — validates the production sort pipeline
+// that converts arbitrary types to SortablePackageEntry and reorders in place.
+TEST_CASE("ListSort_SortBy_ReordersSourceItems", "[listsort]")
+{
+    struct Row { std::string name; std::string id; std::string ver; int extra; };
+
+    std::vector<Row> rows = {
+        { "Charlie", "c", "1.0", 100 },
+        { "Alpha",   "a", "1.0", 200 },
+        { "Beta",    "b", "1.0", 300 },
+    };
+
+    SortBy(rows,
+        [](const Row& r, size_t i) {
+            return SortablePackageEntry(i, r.name, r.id, r.ver, "", "");
+        },
+        { SortField::Name }, SortDirection::Ascending);
+
+    REQUIRE(rows[0].name == "Alpha");
+    REQUIRE(rows[0].extra == 200);
+    REQUIRE(rows[1].name == "Beta");
+    REQUIRE(rows[2].name == "Charlie");
+}
+
+TEST_CASE("ListSort_SortBy_PreservesExtraFields", "[listsort]")
+{
+    struct Row { std::string name; std::string payload; };
+
+    std::vector<Row> rows = {
+        { "Zeta", "payload-z" },
+        { "Alpha", "payload-a" },
+    };
+
+    SortBy(rows,
+        [](const Row& r, size_t i) {
+            return SortablePackageEntry(i, r.name, "", "", "", "");
+        },
+        { SortField::Name }, SortDirection::Ascending);
+
+    REQUIRE(rows[0].payload == "payload-a");
+    REQUIRE(rows[1].payload == "payload-z");
 }
