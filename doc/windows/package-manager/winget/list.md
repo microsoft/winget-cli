@@ -75,7 +75,7 @@ The following example limits the output of list to 9 apps.
 
 ## Sorting output
 
-By default, results are displayed in the order returned by the package source (no sorting applied). You can control sorting through command-line arguments or user settings.
+By default, results are sorted by name in ascending order. When a query argument is used (for example, `winget list foo`), results preserve relevance ordering from the package source. You can override either default through command-line arguments or user settings.
 
 ### Sort via command-line arguments
 
