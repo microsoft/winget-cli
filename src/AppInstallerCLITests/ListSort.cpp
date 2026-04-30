@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include "Workflows/ListSortHelper.h"
+#include "Workflows/PackageTableSortHelper.h"
 
 using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Settings;

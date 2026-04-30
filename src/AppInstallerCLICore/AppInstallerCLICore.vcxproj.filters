@@ -50,7 +50,7 @@
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h">
       <Filter>Workflows</Filter>
     </ClInclude>
-    <ClInclude Include="Workflows\ListSortHelper.h">
+    <ClInclude Include="Workflows\PackageTableSortHelper.h">
       <Filter>Workflows</Filter>
     </ClInclude>
     <ClInclude Include="Workflows\WorkflowBase.h">
@@ -325,7 +325,7 @@
     <ClCompile Include="Workflows\WorkflowBase.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
-    <ClCompile Include="Workflows\ListSortHelper.cpp">
+    <ClCompile Include="Workflows\PackageTableSortHelper.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="Commands\ShowCommand.cpp">
