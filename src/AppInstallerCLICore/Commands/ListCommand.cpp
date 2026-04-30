@@ -32,9 +32,7 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::IncludeUnknown, Resource::String::IncludeUnknownInListArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::IncludePinned, Resource::String::IncludePinnedInListArgumentDescription, ArgumentType::Flag},
             Argument::ForType(Execution::Args::Type::ListDetails),
-            // 7 = one more than the number of user-facing SortField values (Relevance, Name, Id, Version, Source, Available),
-            // allowing all fields plus a small buffer for future additions.
-            Argument{ Execution::Args::Type::Sort, Resource::String::SortArgumentDescription, ArgumentType::Standard }.SetCountLimit(7),
+            Argument{ Execution::Args::Type::Sort, Resource::String::SortArgumentDescription, ArgumentType::Standard }.SetCountLimit(6),
             Argument{ Execution::Args::Type::SortAscending, Resource::String::SortAscendingArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::SortDescending, Resource::String::SortDescendingArgumentDescription, ArgumentType::Flag },
         };

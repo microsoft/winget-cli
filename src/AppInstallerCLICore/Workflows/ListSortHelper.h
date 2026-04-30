@@ -9,7 +9,7 @@
 namespace AppInstaller::CLI::Workflow
 {
     // Lightweight sortable representation of a package line in list output.
-    // Decoupled from ICompositePackage/IPackageVersion to enable unit testing.
+    // Decoupled from ICompositePackage/IPackageVersion to ease unit testing.
     struct SortablePackageEntry
     {
         Utility::LocIndString Name;

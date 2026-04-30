@@ -461,8 +461,6 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        // Returns true if the execution context contains filter arguments that
-        // produce relevance-ordered results (query, name, id, moniker, tag, command).
         // Sorts a vector of InstalledPackagesTableLine according to the user's sort preferences.
         // Resolution order: CLI args (--sort) > settings (output.sortOrder) > query-aware default.
         void SortInstalledPackagesTableLines(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
@@ -485,8 +483,12 @@ namespace AppInstaller::CLI::Workflow
                     {
                         sortFields.emplace_back(field.value());
                     }
-                    // Invalid values should not reach here; ValidateArgumentsInternal
-                    // rejects them with an error before workflow execution begins.
+                    else
+                    {
+                        // Invalid values should not reach here; ValidateArgumentsInternal
+                        // rejects them with an error before workflow execution begins.
+                        THROW_HR(E_UNEXPECTED);
+                    }
                 }
             }
             else
