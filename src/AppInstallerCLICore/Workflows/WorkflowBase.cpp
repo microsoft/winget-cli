@@ -507,6 +507,13 @@ namespace AppInstaller::CLI::Workflow
                 {
                     return;
                 }
+
+                // No settings configured and no query — apply default sort by name
+                // so that output is deterministic and user-friendly.
+                if (sortFields.empty())
+                {
+                    sortFields.emplace_back(SortField::Name);
+                }
             }
 
             // Empty sort fields or relevance-only means no sorting
