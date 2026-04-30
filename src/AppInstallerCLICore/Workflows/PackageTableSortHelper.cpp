@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "ListSortHelper.h"
+#include "PackageTableSortHelper.h"
 
 namespace AppInstaller::CLI::Workflow
 {
