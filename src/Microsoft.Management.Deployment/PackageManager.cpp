@@ -1525,7 +1525,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 auto versionInfo = package.GetPackageVersionInfo(versionId);
                 if (versionInfo)
                 {
-                    std::string packageId = winrt::to_string(package.Id());
+                    std::string packageId = winrt::to_string(versionInfo.Id());
                     std::string sourceId = winrt::to_string(versionInfo.PackageCatalog().Info().Id());
                     if (!packageId.empty() && !sourceId.empty())
                     {
