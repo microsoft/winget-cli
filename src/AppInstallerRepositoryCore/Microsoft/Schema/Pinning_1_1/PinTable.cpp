@@ -49,40 +49,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
     static constexpr std::string_view s_PinTable_Version_Column = "version"sv;
     static constexpr std::string_view s_PinTable_DateAdded_Column = "date_added"sv;
     static constexpr std::string_view s_PinTable_Note_Column = "note"sv;
-    static constexpr std::string_view s_PinTable_Index = "pin_index"sv;
-
-    std::string_view PinTable::TableName()
-    {
-        return s_PinTable_Table_Name;
-    }
-
-    void PinTable::Create(SQLite::Connection& connection)
-    {
-        using namespace SQLite::Builder;
-
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createpintable_v1_1");
-
-        StatementBuilder createTableBuilder;
-        createTableBuilder.CreateTable(s_PinTable_Table_Name).BeginColumns();
-
-        createTableBuilder.Column(ColumnBuilder(s_PinTable_PackageId_Column, Type::Text).NotNull());
-        createTableBuilder.Column(ColumnBuilder(s_PinTable_SourceId_Column, Type::Text).NotNull());
-        createTableBuilder.Column(ColumnBuilder(s_PinTable_Type_Column, Type::Int64).NotNull());
-        createTableBuilder.Column(ColumnBuilder(s_PinTable_Version_Column, Type::Text).NotNull());
-        createTableBuilder.Column(ColumnBuilder(s_PinTable_DateAdded_Column, Type::Text).NotNull());
-        createTableBuilder.Column(ColumnBuilder(s_PinTable_Note_Column, Type::Text));
-
-        createTableBuilder.EndColumns();
-        createTableBuilder.Execute(connection);
-
-        // Create an index over the pairs package,source
-        StatementBuilder createIndexBuilder;
-        createIndexBuilder.CreateUniqueIndex(s_PinTable_Index).On(s_PinTable_Table_Name)
-            .Columns({ s_PinTable_PackageId_Column, s_PinTable_SourceId_Column });
-        createIndexBuilder.Execute(connection);
-
-        savepoint.Commit();
-    }
 
     void PinTable::MigrateFrom1_0(SQLite::Connection& connection)
     {
@@ -93,25 +59,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         SQLite::Statement addNote = SQLite::Statement::Create(connection,
             "ALTER TABLE pin ADD COLUMN note TEXT");
         addNote.Execute();
-    }
-
-    std::optional<SQLite::rowid_t> PinTable::GetIdByPinKey(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
-    {
-        SQLite::Builder::StatementBuilder builder;
-        builder.Select(SQLite::RowIDName).From(s_PinTable_Table_Name)
-            .Where(s_PinTable_PackageId_Column).Equals((std::string_view)pinKey.PackageId)
-            .And(s_PinTable_SourceId_Column).Equals((std::string_view)pinKey.SourceId);
-
-        SQLite::Statement select = builder.Prepare(connection);
-
-        if (select.Step())
-        {
-            return select.GetColumn<SQLite::rowid_t>(0);
-        }
-        else
-        {
-            return {};
-        }
     }
 
     SQLite::rowid_t PinTable::AddPin(SQLite::Connection& connection, const Pinning::Pin& pin)
@@ -163,13 +110,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         builder.Where(SQLite::RowIDName).Equals(pinId);
         builder.Execute(connection);
         return connection.GetChanges() != 0;
-    }
-
-    void PinTable::RemovePinById(SQLite::Connection& connection, SQLite::rowid_t pinId)
-    {
-        SQLite::Builder::StatementBuilder builder;
-        builder.DeleteFrom(s_PinTable_Table_Name).Where(SQLite::RowIDName).Equals(pinId);
-        builder.Execute(connection);
     }
 
     std::optional<Pinning::Pin> PinTable::GetPinById(SQLite::Connection& connection, const SQLite::rowid_t pinId)
@@ -225,18 +165,4 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         return pins;
     }
 
-    bool PinTable::ResetAllPins(SQLite::Connection& connection, std::string_view sourceId)
-    {
-        SQLite::Builder::StatementBuilder builder;
-        builder.DeleteFrom(s_PinTable_Table_Name);
-
-        if (!sourceId.empty())
-        {
-            builder.Where(s_PinTable_SourceId_Column).Equals(sourceId);
-        }
-
-        builder.Execute(connection);
-
-        return connection.GetChanges() != 0;
-    }
 }
