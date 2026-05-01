@@ -19,5 +19,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         std::optional<Pinning::Pin> GetPin(SQLite::Connection& connection, const Pinning::PinKey& pinKey) override;
         std::vector<Pinning::Pin> GetAllPins(SQLite::Connection& connection) override;
         bool ResetAllPins(SQLite::Connection& connection, std::string_view sourceId) override;
+
+    protected:
+        virtual SQLite::rowid_t IAddPin(SQLite::Connection& connection, const Pinning::Pin& pin);
+        virtual bool IUpdatePinById(SQLite::Connection& connection, SQLite::rowid_t pinId, const Pinning::Pin& pin);
+        virtual std::optional<Pinning::Pin> IGetPinById(SQLite::Connection& connection, SQLite::rowid_t pinId);
+        virtual std::vector<Pinning::Pin> IGetAllPins(SQLite::Connection& connection);
     };
 }

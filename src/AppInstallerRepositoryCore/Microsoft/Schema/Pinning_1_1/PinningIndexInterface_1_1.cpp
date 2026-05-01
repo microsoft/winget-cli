@@ -6,21 +6,6 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
 {
-    namespace
-    {
-        std::optional<SQLite::rowid_t> GetExistingPinId(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
-        {
-            auto result = PinTable::GetIdByPinKey(connection, pinKey);
-
-            if (!result)
-            {
-                AICLI_LOG(Repo, Verbose, << "Did not find pin " << pinKey.ToString());
-            }
-
-            return result;
-        }
-    }
-
     // Version 1.1
     SQLite::Version PinningIndexInterface::GetVersion() const
     {
@@ -50,46 +35,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         return true;
     }
 
-    SQLite::rowid_t PinningIndexInterface::AddPin(SQLite::Connection& connection, const Pinning::Pin& pin)
+    SQLite::rowid_t PinningIndexInterface::IAddPin(SQLite::Connection& connection, const Pinning::Pin& pin)
     {
-        auto existingPin = GetExistingPinId(connection, pin.GetKey());
-
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), existingPin.has_value());
-
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addpin_v1_1");
-        SQLite::rowid_t pinId = PinTable::AddPin(connection, pin);
-
-        savepoint.Commit();
-        return pinId;
+        return PinTable::AddPin(connection, pin);
     }
 
-    std::pair<bool, SQLite::rowid_t> PinningIndexInterface::UpdatePin(SQLite::Connection& connection, const Pinning::Pin& pin)
+    bool PinningIndexInterface::IUpdatePinById(SQLite::Connection& connection, SQLite::rowid_t pinId, const Pinning::Pin& pin)
     {
-        auto existingPinId = GetExistingPinId(connection, pin.GetKey());
-
-        // If the pin doesn't exist, fail the update
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NOT_FOUND), !existingPinId);
-
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "updatepin_v1_1");
-        bool status = PinTable::UpdatePinById(connection, existingPinId.value(), pin);
-
-        savepoint.Commit();
-        return { status, existingPinId.value() };
+        return PinTable::UpdatePinById(connection, pinId, pin);
     }
 
-    std::optional<Pinning::Pin> PinningIndexInterface::GetPin(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
+    std::optional<Pinning::Pin> PinningIndexInterface::IGetPinById(SQLite::Connection& connection, SQLite::rowid_t pinId)
     {
-        auto existingPinId = GetExistingPinId(connection, pinKey);
-
-        if (!existingPinId)
-        {
-            return {};
-        }
-
-        return PinTable::GetPinById(connection, existingPinId.value());
+        return PinTable::GetPinById(connection, pinId);
     }
 
-    std::vector<Pinning::Pin> PinningIndexInterface::GetAllPins(SQLite::Connection& connection)
+    std::vector<Pinning::Pin> PinningIndexInterface::IGetAllPins(SQLite::Connection& connection)
     {
         return PinTable::GetAllPins(connection);
     }
