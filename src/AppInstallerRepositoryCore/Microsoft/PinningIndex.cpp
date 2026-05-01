@@ -206,27 +206,28 @@ namespace AppInstaller::Repository::Microsoft
         SQLiteStorageBase(target, disposition, std::move(indexFile))
     {
         AICLI_LOG(Repo, Info, << "Opened Pinning Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
-        m_interface = CreateIPinningIndexForVersion(SQLite::Version::Latest());
 
-        if (m_version != m_interface->GetVersion())
+        // Create the correct interface for the stored schema version.
+        m_interface = CreateIPinningIndexForVersion(m_version);
+
+        if (disposition == SQLiteStorageBase::OpenDisposition::ReadWrite)
         {
-            if (disposition == SQLiteStorageBase::OpenDisposition::ReadWrite)
-            {
-                // Attempt to migrate from the stored version to the current version.
-                AICLI_LOG(Repo, Info, << "Attempting to migrate Pinning Index from [" << m_version << "] to [" << m_interface->GetVersion() << "]");
+            // For writable opens, create a latest interface and migrate if the stored version is older.
+            auto latestInterface = CreateIPinningIndexForVersion(SQLite::Version::Latest());
 
-                // Create an interface representing the existing (older) schema so MigrateFrom can inspect it.
-                std::unique_ptr<Schema::IPinningIndex> oldInterface = CreateIPinningIndexForVersion(m_version);
+            if (m_version != latestInterface->GetVersion())
+            {
+                AICLI_LOG(Repo, Info, << "Attempting to migrate Pinning Index from [" << m_version << "] to [" << latestInterface->GetVersion() << "]");
 
                 SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningindex_migrate");
-                bool migrated = m_interface->MigrateFrom(m_dbconn, oldInterface.get());
+                bool migrated = latestInterface->MigrateFrom(m_dbconn, m_interface.get());
 
                 if (migrated)
                 {
-                    m_interface->GetVersion().SetSchemaVersion(m_dbconn);
+                    latestInterface->GetVersion().SetSchemaVersion(m_dbconn);
                     SetLastWriteTime();
                     savepoint.Commit();
-                    m_version = m_interface->GetVersion();
+                    m_version = latestInterface->GetVersion();
                     AICLI_LOG(Repo, Info, << "Migration successful");
                 }
                 else
@@ -235,12 +236,8 @@ namespace AppInstaller::Repository::Microsoft
                     THROW_HR(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX);
                 }
             }
-            else
-            {
-                // Read-only open: use an interface matching the stored schema version to avoid querying missing columns.
-                AICLI_LOG(Repo, Info, << "Read-only open with older schema [" << m_version << "]; using compatible interface");
-                m_interface = CreateIPinningIndexForVersion(m_version);
-            }
+
+            m_interface = std::move(latestInterface);
         }
     }
 
