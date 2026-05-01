@@ -1639,20 +1639,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         LogStartupIfApplicable();
 
+        THROW_HR_IF_NULL(E_POINTER, package);
+        THROW_HR_IF_NULL(E_POINTER, options);
+        THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageManagement));
+
+        // Gating pins require a non-empty version range.
+        THROW_HR_IF(E_INVALIDARG,
+            options.PinType() == winrt::Microsoft::Management::Deployment::PackagePinType::Gating &&
+            options.GatedVersion().empty());
+
         HRESULT terminationHR = S_OK;
         try
         {
-            THROW_HR_IF_NULL(E_POINTER, package);
-            THROW_HR_IF_NULL(E_POINTER, options);
-            THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageManagement));
-
-            // Gating pins require a non-empty version range.
-            if (options.PinType() == winrt::Microsoft::Management::Deployment::PackagePinType::Gating &&
-                options.GatedVersion().empty())
-            {
-                THROW_HR(E_INVALIDARG);
-            }
-
             auto pinKeys = GetPinKeysForCatalogPackage(package, options.PinInstalledPackage());
             THROW_HR_IF(E_INVALIDARG, pinKeys.empty());
 
@@ -1694,12 +1692,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         LogStartupIfApplicable();
 
+        THROW_HR_IF_NULL(E_POINTER, package);
+        THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageManagement));
+
         HRESULT terminationHR = S_OK;
         try
         {
-            THROW_HR_IF_NULL(E_POINTER, package);
-            THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageManagement));
-
             auto pinKeys = GetPinKeysForCatalogPackage(package, /* includeInstalled */ true);
             auto pinningData = ::AppInstaller::Pinning::PinningData{ ::AppInstaller::Pinning::PinningData::Disposition::ReadWrite };
 
@@ -1728,11 +1726,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         LogStartupIfApplicable();
 
+        THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageManagement));
+
         HRESULT terminationHR = S_OK;
         try
         {
-            THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageManagement));
-
             std::string sourceId;
             if (packageCatalogReference)
             {
