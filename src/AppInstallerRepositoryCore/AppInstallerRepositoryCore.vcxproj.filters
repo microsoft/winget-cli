@@ -381,7 +381,7 @@
     <ClInclude Include="Microsoft\Schema\Pinning_1_1\PinningIndexInterface.h">
       <Filter>Microsoft\Schema\Pinning_1_1</Filter>
     </ClInclude>
-    <ClInclude Include="Microsoft\Schema\Pinning_1_1\PinTable.h">
+    <ClInclude Include="Microsoft\Schema\Pinning_1_1\PinTable_1_1.h">
       <Filter>Microsoft\Schema\Pinning_1_1</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\InstalledFilesCorrelation.h">
@@ -704,7 +704,7 @@
     <ClCompile Include="Microsoft\Schema\Pinning_1_0\PinTable.cpp">
       <Filter>Microsoft\Schema\Pinning_1_0</Filter>
     </ClCompile>
-    <ClCompile Include="Microsoft\Schema\Pinning_1_1\PinTable.cpp">
+    <ClCompile Include="Microsoft\Schema\Pinning_1_1\PinTable_1_1.cpp">
       <Filter>Microsoft\Schema\Pinning_1_1</Filter>
     </ClCompile>
     <ClCompile Include="InstalledFilesCorrelation.cpp">

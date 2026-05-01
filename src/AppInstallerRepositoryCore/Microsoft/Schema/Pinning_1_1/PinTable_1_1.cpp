@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "PinTable.h"
+#include "PinTable_1_1.h"
 #include <AppInstallerDateTime.h>
 #include <winget/SQLiteStatementBuilder.h>
 #include "Microsoft/Schema/IPinningIndex.h"

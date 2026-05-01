@@ -7,7 +7,7 @@
 #include <Microsoft/PinningIndex.h>
 #include <Microsoft/Schema/IPinningIndex.h>
 #include <Microsoft/Schema/Pinning_1_0/PinTable.h>
-#include <Microsoft/Schema/Pinning_1_1/PinTable.h>
+#include <Microsoft/Schema/Pinning_1_1/PinTable_1_1.h>
 #include <winget/Pin.h>
 
 using namespace std::string_literals;
