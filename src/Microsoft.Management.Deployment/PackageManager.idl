@@ -1679,7 +1679,129 @@ namespace Microsoft.Management.Deployment
             /// Edit an existing Windows Package Catalog.
             EditPackageCatalogResult EditPackageCatalog(EditPackageCatalogOptions options);
         }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
+        {
+            /// Get all pins across all sources.
+            Windows.Foundation.Collections.IVectorView<PackagePin> GetAllPins();
+
+            /// Get the pins associated with the specified package.
+            /// Returns pins for all sources the package is available from, and for the installed
+            /// package identity if InstalledVersion is present.
+            Windows.Foundation.Collections.IVectorView<PackagePin> GetPins(CatalogPackage package);
+
+            /// Add or update a pin for the specified package.
+            /// Requires Force = true to overwrite an existing pin of a different type.
+            PinPackageResult PinPackage(CatalogPackage package, PinPackageOptions options);
+
+            /// Remove all pins associated with the specified package.
+            /// Returns PackagePinNotFound if no pin exists for the package.
+            PinPackageResult UnpinPackage(CatalogPackage package);
+
+            /// Reset (remove) all pins. If packageCatalogReference is non-null, only pins from that
+            /// catalog are removed; otherwise all pins are removed.
+            PinPackageResult ResetAllPins(PackageCatalogReference packageCatalogReference);
+        }
     }
+
+    /// IMPLEMENTATION NOTE: Pinning::PinType from AppInstaller::Pinning
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
+    enum PackagePinType
+    {
+        /// Unknown pin type or not pinned.
+        Unknown,
+        /// Pinned by the manifest using the RequiresExplicitUpgrade field.
+        /// Behaves the same as Pinning.
+        PinnedByManifest,
+        /// The package is excluded from upgrade --all, unless --include-pinned is added.
+        /// upgrade <package> is not blocked.
+        Pinning,
+        /// The package is pinned to a specific version range.
+        Gating,
+        /// The package is blocked from upgrade --all and upgrade <package>.
+        /// User must unpin to allow update.
+        Blocking,
+    };
+
+    /// IMPLEMENTATION NOTE: Pinning::Pin from AppInstaller::Pinning
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
+    runtimeclass PackagePin
+    {
+        /// The package ID that the pin applies to (for available-package pins) or the
+        /// ProductCode/PackageFamilyName (for installed-package pins).
+        String PackageId { get; };
+
+        /// The source identifier the pin applies to. Empty for installed-package pins.
+        String SourceId { get; };
+
+        /// The type of the pin.
+        PackagePinType Type { get; };
+
+        /// The gated version range. Only meaningful when Type is Gating; empty otherwise.
+        String GatedVersion { get; };
+
+        /// The UTC date/time when the pin was added. Null if not set.
+        Windows.Foundation.IReference<Windows.Foundation.DateTime> DateAdded { get; };
+
+        /// Optional note associated with the pin. May be empty.
+        String Note { get; };
+
+        /// True if this pin is keyed on the installed package identity
+        /// (ProductCode or PackageFamilyName) rather than available package ID + source.
+        Boolean IsForInstalledPackage { get; };
+    };
+
+    /// Options for adding or updating a package pin.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
+    runtimeclass PinPackageOptions
+    {
+        PinPackageOptions();
+
+        /// The type of pin to create. Required.
+        PackagePinType PinType;
+
+        /// The gated version range. Required when PinType is Gating; ignored otherwise.
+        /// SAMPLE VALUE: "1.0.*" or "<2.0"
+        String GatedVersion;
+
+        /// When true, the pin is keyed on the installed package identity (ProductCode or
+        /// PackageFamilyName) instead of the available package ID and source.
+        /// Mirrors the winget pin add --installed flag. Default is false.
+        Boolean PinInstalledPackage;
+
+        /// When true, an existing pin with a different type will be overwritten.
+        /// When false and a pin already exists with a different type, the operation returns
+        /// PinResultStatus::PackagePinAlreadyExists. Default is false.
+        Boolean Force;
+
+        /// Optional note to store with the pin.
+        String Note;
+    };
+
+    /// Status of a pin operation.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
+    enum PinResultStatus
+    {
+        Ok,
+        BlockedByPolicy,
+        InternalError,
+        InvalidOptions,
+        /// Returned by UnpinPackage when no pin exists for the package.
+        PackagePinNotFound,
+        /// Returned by PinPackage when a pin with a different type already exists
+        /// and Force is false.
+        PackagePinAlreadyExists,
+    };
+
+    /// Result of a pin operation.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
+    runtimeclass PinPackageResult
+    {
+        PinResultStatus Status { get; };
+
+        /// The error code of the overall operation.
+        HRESULT ExtendedErrorCode { get; };
+    };
 
     /// Global settings for PackageManager operations.
     /// This settings should be invoked prior to invocation of PackageManager class.
@@ -1789,5 +1911,7 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<RepairOptions>;
         interface Windows.Foundation.Collections.IVector<RepairResult>;
         interface Windows.Foundation.Collections.IVectorView<RepairResult>;
+        interface Windows.Foundation.Collections.IVector<PackagePin>;
+        interface Windows.Foundation.Collections.IVectorView<PackagePin>;
     }
 }

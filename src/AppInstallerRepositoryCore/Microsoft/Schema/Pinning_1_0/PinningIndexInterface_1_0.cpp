@@ -35,6 +35,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         savepoint.Commit();
     }
 
+    bool PinningIndexInterface::MigrateFrom(SQLite::Connection&, const IPinningIndex*)
+    {
+        // Version 1.0 cannot migrate from any prior version.
+        return false;
+    }
+
     SQLite::rowid_t PinningIndexInterface::AddPin(SQLite::Connection& connection, const Pinning::Pin& pin)
     {
         auto existingPin = GetExistingPinId(connection, pin.GetKey());
@@ -42,7 +48,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), existingPin.has_value());
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addpin_v1_0");
-        SQLite::rowid_t pinId = PinTable::AddPin(connection, pin);
+        SQLite::rowid_t pinId = IAddPin(connection, pin);
 
         savepoint.Commit();
         return pinId;
@@ -57,7 +63,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "updatepin_v1_0");
-        bool status = PinTable::UpdatePinById(connection, existingPinId.value(), pin);
+        bool status = IUpdatePinById(connection, existingPinId.value(), pin);
 
         savepoint.Commit();
         return { status, existingPinId.value() };
@@ -87,12 +93,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
             return {};
         }
 
-        return PinTable::GetPinById(connection, existingPinId.value());
+        return IGetPinById(connection, existingPinId.value());
     }
 
     std::vector<Pinning::Pin> PinningIndexInterface::GetAllPins(SQLite::Connection& connection)
     {
-        return PinTable::GetAllPins(connection);
+        return IGetAllPins(connection);
     }
 
     bool PinningIndexInterface::ResetAllPins(SQLite::Connection& connection, std::string_view sourceId)
@@ -102,5 +108,25 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         savepoint.Commit();
 
         return result;
+    }
+
+    SQLite::rowid_t PinningIndexInterface::IAddPin(SQLite::Connection& connection, const Pinning::Pin& pin)
+    {
+        return PinTable::AddPin(connection, pin);
+    }
+
+    bool PinningIndexInterface::IUpdatePinById(SQLite::Connection& connection, SQLite::rowid_t pinId, const Pinning::Pin& pin)
+    {
+        return PinTable::UpdatePinById(connection, pinId, pin);
+    }
+
+    std::optional<Pinning::Pin> PinningIndexInterface::IGetPinById(SQLite::Connection& connection, SQLite::rowid_t pinId)
+    {
+        return PinTable::GetPinById(connection, pinId);
+    }
+
+    std::vector<Pinning::Pin> PinningIndexInterface::IGetAllPins(SQLite::Connection& connection)
+    {
+        return PinTable::GetAllPins(connection);
     }
 }

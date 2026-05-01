@@ -3,7 +3,9 @@
 #include "pch.h"
 #include "Resources.h"
 #include "PinFlow.h"
+#include "ShowFlow.h"
 #include "TableOutput.h"
+#include <AppInstallerDateTime.h>
 #include <winget/PinningData.h>
 #include <winget/RepositorySearch.h>
 #include <winget/PackageVersionSelection.h>
@@ -197,9 +199,18 @@ namespace AppInstaller::CLI::Workflow
 
         if (!pinsToAddOrUpdate.empty())
         {
-            for (const auto& pin : pinsToAddOrUpdate)
+            auto pinTime = std::chrono::system_clock::now();
 
+            std::optional<std::string> note;
+            if (context.Args.Contains(Execution::Args::Type::PinNote))
             {
+                note = std::string{ context.Args.GetArg(Execution::Args::Type::PinNote) };
+            }
+
+            for (auto& pin : pinsToAddOrUpdate)
+            {
+                pin.SetDateAdded(pinTime);
+                pin.SetNote(note);
                 pinningData.AddOrUpdatePin(pin);
             }
 
@@ -333,6 +344,108 @@ namespace AppInstaller::CLI::Workflow
         else
         {
             context.Reporter.Info() << Resource::String::PinNoPinsExist << std::endl;
+        }
+    }
+
+    void ShowPinDetails(Execution::Context& context)
+    {
+        auto& pinningData = context.Get<Execution::Data::PinningData>();
+        auto allPins = pinningData.GetAllPins();
+
+        // Apply filtering based on provided arguments
+        bool hasId = context.Args.Contains(Execution::Args::Type::Id);
+        bool hasName = context.Args.Contains(Execution::Args::Type::Name);
+        bool hasQuery = context.Args.Contains(Execution::Args::Type::Query);
+        bool exactMatch = context.Args.Contains(Execution::Args::Type::Exact);
+
+        std::vector<Pinning::Pin> matchingPins;
+        for (const auto& pin : allPins)
+        {
+            const auto& packageId = pin.GetKey().PackageId;
+
+            if (hasId)
+            {
+                std::string_view idArg = context.Args.GetArg(Execution::Args::Type::Id);
+                bool match = exactMatch
+                    ? Utility::CaseInsensitiveEquals(packageId, idArg)
+                    : Utility::CaseInsensitiveContainsSubstring(packageId, idArg);
+                if (!match)
+                {
+                    continue;
+                }
+            }
+            else if (hasName || hasQuery)
+            {
+                // Without an open source, we can only match against PackageId
+                std::string_view queryArg = hasName
+                    ? context.Args.GetArg(Execution::Args::Type::Name)
+                    : context.Args.GetArg(Execution::Args::Type::Query);
+                bool match = exactMatch
+                    ? Utility::CaseInsensitiveEquals(packageId, queryArg)
+                    : Utility::CaseInsensitiveContainsSubstring(packageId, queryArg);
+                if (!match)
+                {
+                    continue;
+                }
+            }
+
+            matchingPins.push_back(pin);
+        }
+
+        if (matchingPins.empty())
+        {
+            context.Reporter.Info() << Resource::String::PinShowNoMatchFound << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST);
+        }
+
+        auto info = context.Reporter.Info();
+        bool firstPin = true;
+        for (const auto& pin : matchingPins)
+        {
+            if (!firstPin)
+            {
+                info << std::endl;
+            }
+            firstPin = false;
+
+            const auto& pinKey = pin.GetKey();
+
+            // ID
+            ShowSingleLineField(info, Resource::String::PinShowLabelId, Utility::LocIndView{ pinKey.PackageId });
+
+            // Source
+            if (!pinKey.SourceId.empty() && !pinKey.IsForInstalled())
+            {
+                ShowSingleLineField(info, Resource::String::PinShowLabelSource, Utility::LocIndView{ pinKey.SourceId });
+            }
+
+            // Type
+            std::string pinTypeStr{ ToString(pin.GetType()) };
+            ShowSingleLineField(info, Resource::String::PinShowLabelType, Utility::LocIndView{ pinTypeStr });
+
+            // Version (gated version string; empty for pinning/blocking pins)
+            std::string gatedVersionStr = pin.GetGatedVersion().ToString();
+            if (!gatedVersionStr.empty())
+            {
+                ShowSingleLineField(info, Resource::String::PinShowLabelVersion, Utility::LocIndView{ gatedVersionStr });
+            }
+
+            // Date Added
+            const auto& dateAdded = pin.GetDateAdded();
+            if (dateAdded.has_value())
+            {
+                std::string dateAddedStr = Utility::TimePointToString(*dateAdded,
+                    Utility::TimeFacet::Year | Utility::TimeFacet::Month | Utility::TimeFacet::Day |
+                    Utility::TimeFacet::Hour | Utility::TimeFacet::Minute | Utility::TimeFacet::Second);
+                ShowSingleLineField(info, Resource::String::PinShowLabelDateAdded, Utility::LocIndView{ dateAddedStr });
+            }
+
+            // Note (only shown if present)
+            const auto& note = pin.GetNote();
+            if (note.has_value() && !note->empty())
+            {
+                ShowSingleLineField(info, Resource::String::PinShowLabelNote, Utility::LocIndView{ *note });
+            }
         }
     }
 }

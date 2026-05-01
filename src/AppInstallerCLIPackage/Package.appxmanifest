@@ -86,6 +86,8 @@
               </com:Class>
               <com:Class Id="29B19238-81AD-4A8E-A2FC-ADF17C38CAEB" DisplayName="EditPackageCatalogOptions Server">
               </com:Class>
+              <com:Class Id="B3A61CCB-A3D0-497D-B300-A904904EEA56" DisplayName="PinPackageOptions Server">
+              </com:Class>
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>

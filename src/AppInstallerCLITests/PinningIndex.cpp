@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "PinTestCommon.h"
+#include <AppInstallerDateTime.h>
 #include <Microsoft/PinningIndex.h>
 #include <Microsoft/Schema/IPinningIndex.h>
 #include <Microsoft/Schema/Pinning_1_0/PinTable.h>
+#include <Microsoft/Schema/Pinning_1_1/PinTable_1_1.h>
 #include <winget/Pin.h>
 
 using namespace std::string_literals;
@@ -163,4 +166,151 @@ TEST_CASE("PinningIndex_AddDuplicatePin", "[pinningIndex]")
     index.AddPin(pin);
 
     REQUIRE_THROWS(index.AddPin(pin), ERROR_ALREADY_EXISTS);
+}
+
+TEST_CASE("PinningIndexCreateLatest_HasCorrectVersion", "[pinningIndex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    PinningIndex index = PinningIndex::CreateNew(tempFile, Version::Latest());
+    REQUIRE(index.GetVersion() == Version{ 1, 1 });
+}
+
+TEST_CASE("PinningIndex_V1_1_AddPin_WithDateAndNote", "[pinningIndex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Pin pin = Pin::CreateBlockingPin({ "pkgId", "sourceId" });
+    pin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1030));
+    pin.SetNote(std::string{ "test note" });
+
+    {
+        PinningIndex index = PinningIndex::CreateNew(tempFile, Version::Latest());
+        index.AddPin(pin);
+    }
+
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
+
+        auto pinFromIndex = Pinning_V1_1::PinTable::GetPinById(connection, 1);
+        REQUIRE(pinFromIndex.has_value());
+        REQUIRE(pinFromIndex->GetType() == PinType::Blocking);
+        REQUIRE(pinFromIndex->GetKey().PackageId == "pkgId");
+        REQUIRE(pinFromIndex->GetDateAdded() == AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1030));
+        REQUIRE(pinFromIndex->GetNote().has_value());
+        REQUIRE(pinFromIndex->GetNote().value() == "test note");
+    }
+}
+
+
+TEST_CASE("PinningIndex_V1_1_AddUpdateRemove", "[pinningIndex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Pin pin = Pin::CreateBlockingPin({ "pkgId", "srcId" });
+    pin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1000));
+    pin.SetNote(std::string{ "original note" });
+
+    Pin updatedPin = Pin::CreateGatingPin({ "pkgId", "srcId" }, { "1.0.*"sv });
+    updatedPin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1100));
+    updatedPin.SetNote(std::string{ "updated note" });
+
+    {
+        PinningIndex index = PinningIndex::CreateNew(tempFile, Version::Latest());
+        index.AddPin(pin);
+        REQUIRE(index.UpdatePin(updatedPin));
+    }
+
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
+
+        auto pinFromIndex = Pinning_V1_1::PinTable::GetPinById(connection, 1);
+        REQUIRE(pinFromIndex.has_value());
+        REQUIRE(pinFromIndex->GetType() == PinType::Gating);
+        REQUIRE(pinFromIndex->GetDateAdded() == AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1100));
+        REQUIRE(pinFromIndex->GetNote().has_value());
+        REQUIRE(pinFromIndex->GetNote().value() == "updated note");
+    }
+
+    {
+        PinningIndex index = PinningIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        index.RemovePin(updatedPin.GetKey());
+    }
+
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+        REQUIRE(Pinning_V1_1::PinTable::GetAllPins(connection).empty());
+        REQUIRE(!Pinning_V1_1::PinTable::GetPinById(connection, 1));
+    }
+}
+
+TEST_CASE("PinningIndex_MigrateFrom_1_0_to_1_1", "[pinningIndex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Pin pin1 = Pin::CreateBlockingPin({ "pkg1", "src1" });
+    Pin pin2 = Pin::CreateGatingPin({ "pkg2", "src2" }, { "2.*"sv });
+
+    // Create a v1.0 index and add two pins (no date_added or note columns yet)
+    {
+        PinningIndex index = PinningIndex::CreateNew(tempFile, { 1, 0 });
+        index.AddPin(pin1);
+        index.AddPin(pin2);
+        REQUIRE(index.GetVersion() == Version{ 1, 0 });
+    }
+
+    // Re-open with ReadWrite: should trigger automatic migration to v1.1
+    {
+        PinningIndex migratedIndex = PinningIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        REQUIRE(migratedIndex.GetVersion() == Version{ 1, 1 });
+
+        auto pins = migratedIndex.GetAllPins();
+        REQUIRE(pins.size() == 2);
+
+        for (const auto& pin : pins)
+        {
+            // Migration adds nullable INTEGER and NULL respectively; existing rows get NULL for both
+            REQUIRE_FALSE(pin.GetDateAdded().has_value());
+            REQUIRE_FALSE(pin.GetNote().has_value());
+        }
+
+        // Verify that the original pin data is still intact
+        auto foundPin1 = migratedIndex.GetPin(pin1.GetKey());
+        REQUIRE(foundPin1.has_value());
+        REQUIRE(foundPin1->GetType() == PinType::Blocking);
+
+        auto foundPin2 = migratedIndex.GetPin(pin2.GetKey());
+        REQUIRE(foundPin2.has_value());
+        REQUIRE(foundPin2->GetType() == PinType::Gating);
+        REQUIRE(foundPin2->GetGatedVersion().ToString() == pin2.GetGatedVersion().ToString());
+    }
+}
+
+TEST_CASE("PinningIndex_MigrateFrom_1_0_to_1_1_ReadOnly_Uses_OldInterface", "[pinningIndex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Pin pin = Pin::CreatePinningPin({ "pkgId", "srcId" });
+
+    // Create a v1.0 index and add a pin
+    {
+        PinningIndex index = PinningIndex::CreateNew(tempFile, { 1, 0 });
+        index.AddPin(pin);
+    }
+
+    // Re-open with Read (read-only): should NOT migrate, should use v1.0 interface
+    {
+        PinningIndex readOnlyIndex = PinningIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::Read);
+        REQUIRE(readOnlyIndex.GetVersion() == Version{ 1, 0 });
+
+        auto pins = readOnlyIndex.GetAllPins();
+        REQUIRE(pins.size() == 1);
+        REQUIRE(pins[0].GetType() == PinType::Pinning);
+        REQUIRE(pins[0].GetKey() == pin.GetKey());
+    }
 }

@@ -54,6 +54,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::hstring Version() const;
         // Contract 28.0
         winrt::Microsoft::Management::Deployment::EditPackageCatalogResult EditPackageCatalog(winrt::Microsoft::Management::Deployment::EditPackageCatalogOptions options);
+        // Contract 29.0
+        winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackagePin> GetAllPins();
+        winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackagePin> GetPins(winrt::Microsoft::Management::Deployment::CatalogPackage package);
+        winrt::Microsoft::Management::Deployment::PinPackageResult PinPackage(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PinPackageOptions options);
+        winrt::Microsoft::Management::Deployment::PinPackageResult UnpinPackage(winrt::Microsoft::Management::Deployment::CatalogPackage package);
+        winrt::Microsoft::Management::Deployment::PinPackageResult ResetAllPins(winrt::Microsoft::Management::Deployment::PackageCatalogReference packageCatalogReference);
     };
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)

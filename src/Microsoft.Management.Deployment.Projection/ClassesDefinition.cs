@@ -162,6 +162,18 @@ namespace Microsoft.Management.Deployment.Projection
                     [ClsidContext.OutOfProc] = new Guid("A9F5E736-68CE-463C-BA6D-DE968F0CCE04"),
                     [ClsidContext.OutOfProcDev] = new Guid("29B19238-81AD-4A8E-A2FC-ADF17C38CAEB"),
                 }
+            },
+
+            [typeof(PinPackageOptions)] = new()
+            {
+                ProjectedClassType = typeof(PinPackageOptions),
+                InterfaceType = typeof(IPinPackageOptions),
+                Clsids = new Dictionary<ClsidContext, Guid>()
+                {
+                    [ClsidContext.InProc] = new Guid("BA9BB1AF-4453-4274-BBF9-4C17794EFA8E"),
+                    [ClsidContext.OutOfProc] = new Guid("93409EF2-29D0-46D3-8085-13EDE73939C4"),
+                    [ClsidContext.OutOfProcDev] = new Guid("B3A61CCB-A3D0-497D-B300-A904904EEA56"),
+                }
             }
         };
 
