@@ -293,6 +293,11 @@ namespace AppInstaller::Repository
         // Set authentication arguments. Must be set before Open to have effect.
         void SetAuthenticationArguments(Authentication::AuthenticationArguments args);
 
+        // Set a custom server certificate validation callback. Must be set before Open to have effect.
+        // Return true from the callback to accept the connection, false to reject.
+        // Only invoked when the certificate pinning group policy is not configured.
+        void SetServerCertificateValidationCallback(std::function<bool(PCCERT_CONTEXT)> callback);
+
         // Set thread globals. Must be set before Open to have effect.
         void SetThreadGlobals(const std::shared_ptr<ThreadLocalStorage::ThreadGlobals>& threadGlobals);
 

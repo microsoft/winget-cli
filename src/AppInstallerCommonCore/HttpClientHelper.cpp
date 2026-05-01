@@ -3,6 +3,7 @@
 #include "pch.h"
 #include <AppInstallerDownloader.h>
 #include <AppInstallerRuntime.h>
+#include <winget/GroupPolicy.h>
 #include <winget/HttpClientHelper.h>
 #include <winget/NetworkSettings.h>
 #include <winhttp.h>
@@ -22,7 +23,7 @@ namespace AppInstaller::Http
             }
         }
 
-        void NativeHandleServerCertificateValidation(web::http::client::native_handle handle, const Certificates::PinningConfiguration& pinningConfiguration, ThreadLocalStorage::ThreadGlobals* threadGlobals)
+        void NativeHandleServerCertificateValidation(web::http::client::native_handle handle, const Certificates::PinningConfiguration& pinningConfiguration, const std::function<bool(PCCERT_CONTEXT)>& customValidation, ThreadLocalStorage::ThreadGlobals* threadGlobals)
         {
             decltype(threadGlobals->SetForCurrentThread()) previousThreadGlobals;
             if (threadGlobals)
@@ -38,6 +39,12 @@ namespace AppInstaller::Http
             THROW_IF_WIN32_BOOL_FALSE(WinHttpQueryOption(requestHandle, WINHTTP_OPTION_SERVER_CERT_CONTEXT, &certContext, &bufferSize));
 
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH, !pinningConfiguration.Validate(certContext.get()));
+
+            // Invoke the custom validation callback only when the certificate pinning group policy is not configured.
+            if (customValidation && AppInstaller::Settings::GroupPolicies().GetState(AppInstaller::Settings::TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore) == AppInstaller::Settings::PolicyState::NotConfigured)
+            {
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH, !customValidation(certContext.get()));
+            }
         }
 
         std::chrono::seconds GetRetryAfter(const web::http::http_headers& headers)
@@ -184,10 +191,15 @@ namespace AppInstaller::Http
 
     void HttpClientHelper::SetPinningConfiguration(const Certificates::PinningConfiguration& configuration, std::shared_ptr<ThreadLocalStorage::ThreadGlobals> threadGlobals)
     {
-        m_clientConfig.set_nativehandle_servercertificate_validation([pinConfig = configuration, globals = std::move(threadGlobals)](web::http::client::native_handle handle)
+        m_clientConfig.set_nativehandle_servercertificate_validation([pinConfig = configuration, customValidation = m_serverCertValidationCallback, globals = std::move(threadGlobals)](web::http::client::native_handle handle)
             {
-                NativeHandleServerCertificateValidation(handle, pinConfig, globals.get());
+                NativeHandleServerCertificateValidation(handle, pinConfig, customValidation, globals.get());
             });
+    }
+
+    void HttpClientHelper::SetServerCertificateValidationCallback(std::function<bool(PCCERT_CONTEXT)> callback)
+    {
+        m_serverCertValidationCallback = std::move(callback);
     }
 
     web::http::client::http_client HttpClientHelper::GetClient(const utility::string_t& uri) const

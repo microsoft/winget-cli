@@ -47,6 +47,11 @@ namespace AppInstaller::Repository::Rest
                 m_authArgs = std::move(authArgs);
             }
 
+            void SetServerCertificateValidationCallback(std::function<bool(PCCERT_CONTEXT)> callback) override
+            {
+                m_serverCertValidationCallback = std::move(callback);
+            }
+
             std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
                 Initialize();
@@ -65,6 +70,10 @@ namespace AppInstaller::Repository::Rest
                 std::call_once(m_initializeFlag,
                     [&]()
                     {
+                        if (m_serverCertValidationCallback)
+                        {
+                            m_httpClientHelper.SetServerCertificateValidationCallback(m_serverCertValidationCallback);
+                        }
                         m_httpClientHelper.SetPinningConfiguration(m_details.CertificatePinningConfiguration, m_threadGlobals);
                         m_restClientInformation = RestClient::GetInformation(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper);
 
@@ -92,6 +101,7 @@ namespace AppInstaller::Repository::Rest
             std::optional<std::string> m_customHeader;
             std::string m_caller;
             Authentication::AuthenticationArguments m_authArgs;
+            std::function<bool(PCCERT_CONTEXT)> m_serverCertValidationCallback;
             std::once_flag m_initializeFlag;
             std::shared_ptr<ThreadLocalStorage::ThreadGlobals> m_threadGlobals;
         };

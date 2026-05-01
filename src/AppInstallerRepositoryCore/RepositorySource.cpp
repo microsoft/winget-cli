@@ -687,6 +687,14 @@ namespace AppInstaller::Repository
         }
     }
 
+    void Source::SetServerCertificateValidationCallback(std::function<bool(PCCERT_CONTEXT)> callback)
+    {
+        for (auto& sourceReference : m_sourceReferences)
+        {
+            sourceReference->SetServerCertificateValidationCallback(callback);
+        }
+    }
+
     void Source::SetThreadGlobals(const std::shared_ptr<ThreadLocalStorage::ThreadGlobals>& threadGlobals)
     {
         for (auto& sourceReference : m_sourceReferences)

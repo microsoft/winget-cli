@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\Microsoft.Management.Deployment.Projection\</OutDir>
     <IsPackable>false</IsPackable>
     <Platforms>x64;x86;arm64</Platforms>
@@ -16,8 +16,8 @@
   <!-- CsWinRT properties -->
   <PropertyGroup>
     <CsWinRTWindowsMetadata>10.0.26100.0</CsWinRTWindowsMetadata>
-    <CsWinRTIncludes>Microsoft.Management.Deployment;Windows.Foundation;Windows.System.ProcessorArchitecture</CsWinRTIncludes>
-    <CsWinRTExcludes>Windows.Foundation.Diagnostics</CsWinRTExcludes>
+    <CsWinRTIncludes>Microsoft.Management.Deployment</CsWinRTIncludes>
+    <CsWinRTExcludes>Windows.Foundation.Diagnostics;Windows.Security.Cryptography.Certificates;Windows.Storage.Streams;Windows.System</CsWinRTExcludes>
   </PropertyGroup>
 
   <ItemGroup>

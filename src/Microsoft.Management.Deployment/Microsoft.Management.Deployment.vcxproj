@@ -182,6 +182,7 @@
     <ClInclude Include="MicrosoftEntraIdAuthenticationInfo.h" />
     <ClInclude Include="PackageAgreement.h" />
     <ClInclude Include="PackageCatalog.h" />
+    <ClInclude Include="PackageCatalogConnectionValidationEventArgs.h" />
     <ClInclude Include="PackageCatalogInfo.h" />
     <ClInclude Include="PackageCatalogProgress.h" />
     <ClInclude Include="PackageCatalogReference.h" />
@@ -234,6 +235,7 @@
     <ClCompile Include="MicrosoftEntraIdAuthenticationInfo.cpp" />
     <ClCompile Include="PackageAgreement.cpp" />
     <ClCompile Include="PackageCatalog.cpp" />
+    <ClCompile Include="PackageCatalogConnectionValidationEventArgs.cpp" />
     <ClCompile Include="PackageCatalogInfo.cpp" />
     <ClCompile Include="PackageCatalogProgress.cpp" />
     <ClCompile Include="PackageCatalogReference.cpp" />

@@ -38,6 +38,11 @@ namespace AppInstaller::Http
 
         void SetPinningConfiguration(const Certificates::PinningConfiguration& configuration, std::shared_ptr<ThreadLocalStorage::ThreadGlobals> threadGlobals = {});
 
+        // Set a custom server certificate validation callback. Called after built-in pinning validation,
+        // only when the certificate pinning group policy is not configured.
+        // Return true to accept the connection, false to reject.
+        void SetServerCertificateValidationCallback(std::function<bool(PCCERT_CONTEXT)> callback);
+
     protected:
         std::optional<web::json::value> ValidateAndExtractResponse(const web::http::http_response& response) const;
 
@@ -51,5 +56,6 @@ namespace AppInstaller::Http
 
         std::shared_ptr<web::http::http_pipeline_stage> m_defaultRequestHandlerStage;
         web::http::client::http_client_config m_clientConfig;
+        std::function<bool(PCCERT_CONTEXT)> m_serverCertValidationCallback;
     };
 }
