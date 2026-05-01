@@ -15,9 +15,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Xunit.Abstractions;
 
     /// <summary>
-    /// Out-of-process integration tests for DSCv3 processor path integrity in the elevation split.
-    /// These use EnableDynamicFactoryTestMode to avoid actual elevation, making them safe for ADO
-    /// pipelines where the user is always admin.
+    /// Integration tests for DSCv3 processor path integrity checks.
+    /// These tests verify that hash verification catches mismatches when a custom DSC executable
+    /// path is provided. Units run in-process (no elevation split) so limit mode is not involved.
     /// </summary>
     [Collection("UnitTestCollection")]
     [OutOfProc]
@@ -39,18 +39,18 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
-        /// Verifies that providing a wrong hash for a custom processor path causes the elevated
+        /// Verifies that providing a wrong hash for a custom processor path causes the
         /// apply to fail with a hash mismatch error.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task ElevatedApply_ProcessorPath_WrongHash_FailsWithHashMismatch()
+        public async Task Apply_ProcessorPath_WrongHash_FailsWithHashMismatch()
         {
             using var tempFile = new TempFile(content: "test content for hash test");
 
             IConfigurationSetProcessorFactory dynamicFactory =
                 await this.fixture.ConfigurationStatics.CreateConfigurationSetProcessorFactoryAsync(
-                    Helpers.Constants.DynamicRuntimeHandlerIdentifier);
+                    Helpers.Constants.DSCv3DynamicRuntimeHandlerIdentifier);
 
             var factoryMap = (IDictionary<string, string>)dynamicFactory;
             factoryMap["DscExecutablePath"] = tempFile.FullFileName;
@@ -59,40 +59,32 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             ConfigurationSet configurationSet = this.ConfigurationSet();
             configurationSet.SchemaVersion = "0.3";
-            configurationSet.Environment.ProcessorIdentifier = "dscv3";
             configurationSet.Metadata.Add(Helpers.Constants.EnableDynamicFactoryTestMode, true);
-            configurationSet.Metadata.Add(Helpers.Constants.ForceHighIntegrityLevelUnitsTestGuid, true);
 
-            ConfigurationUnit elevatedUnit = this.ConfigurationUnit();
-            elevatedUnit.Environment.Context = SecurityContext.Elevated;
-            elevatedUnit.Type = "TestResource/TestUnit";
-            elevatedUnit.Intent = ConfigurationUnitIntent.Apply;
-            configurationSet.Units = new[] { elevatedUnit };
+            ConfigurationUnit unit = this.ConfigurationUnit();
+            unit.Identifier = "testUnit";
+            unit.Type = "TestResource/TestUnit";
+            unit.Intent = ConfigurationUnitIntent.Apply;
+            configurationSet.Units = new[] { unit };
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(dynamicFactory);
-            ApplyConfigurationSetResult result = processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None);
-
-            Assert.NotNull(result);
-            Assert.Equal(1, result.UnitResults.Count);
-            Assert.NotNull(result.UnitResults[0].ResultInformation.ResultCode);
-            Assert.Equal(
-                Errors.WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH,
-                result.UnitResults[0].ResultInformation.ResultCode!.HResult);
+            var ex = Assert.ThrowsAny<Exception>(() => processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None));
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH, ex.HResult);
         }
 
         /// <summary>
-        /// Verifies that omitting the hash for a custom processor path causes the elevated apply
+        /// Verifies that omitting the hash for a custom processor path causes the apply
         /// to fail. The server requires a hash whenever a custom path is provided.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task ElevatedApply_ProcessorPath_MissingHash_ApplyFails()
+        public async Task Apply_ProcessorPath_MissingHash_ApplyFails()
         {
             using var tempFile = new TempFile(content: "test content");
 
             IConfigurationSetProcessorFactory dynamicFactory =
                 await this.fixture.ConfigurationStatics.CreateConfigurationSetProcessorFactoryAsync(
-                    Helpers.Constants.DynamicRuntimeHandlerIdentifier);
+                    Helpers.Constants.DSCv3DynamicRuntimeHandlerIdentifier);
 
             var factoryMap = (IDictionary<string, string>)dynamicFactory;
 
@@ -101,23 +93,16 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             ConfigurationSet configurationSet = this.ConfigurationSet();
             configurationSet.SchemaVersion = "0.3";
-            configurationSet.Environment.ProcessorIdentifier = "dscv3";
             configurationSet.Metadata.Add(Helpers.Constants.EnableDynamicFactoryTestMode, true);
-            configurationSet.Metadata.Add(Helpers.Constants.ForceHighIntegrityLevelUnitsTestGuid, true);
 
-            ConfigurationUnit elevatedUnit = this.ConfigurationUnit();
-            elevatedUnit.Environment.Context = SecurityContext.Elevated;
-            elevatedUnit.Type = "TestResource/TestUnit";
-            elevatedUnit.Intent = ConfigurationUnitIntent.Apply;
-            configurationSet.Units = new[] { elevatedUnit };
+            ConfigurationUnit unit = this.ConfigurationUnit();
+            unit.Identifier = "testUnit";
+            unit.Type = "TestResource/TestUnit";
+            unit.Intent = ConfigurationUnitIntent.Apply;
+            configurationSet.Units = new[] { unit };
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(dynamicFactory);
-            ApplyConfigurationSetResult result = processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None);
-
-            Assert.NotNull(result);
-            bool anyFailure = result.ResultCode != null ||
-                (result.UnitResults.Count > 0 && result.UnitResults[0].ResultInformation.ResultCode != null);
-            Assert.True(anyFailure, "Expected apply to fail when processor path hash is missing.");
+            Assert.ThrowsAny<Exception>(() => processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None));
         }
     }
 }

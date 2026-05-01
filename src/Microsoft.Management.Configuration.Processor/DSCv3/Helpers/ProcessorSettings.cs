@@ -17,7 +17,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
     /// <summary>
     /// Contains settings for the DSC v3 processor components to share.
     /// </summary>
-    internal class ProcessorSettings
+    internal class ProcessorSettings : IDisposable
     {
         private readonly object dscV3Lock = new ();
         private readonly object defaultPathLock = new ();
@@ -30,6 +30,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         private bool? defaultPathIsAlias = null;
         private SafeFileHandle? processorPathHandle = null;
         private bool processorPathVerified = false;
+        private bool disposed = false;
 
         private Dictionary<string, ResourceDetails> resourceDetailsDictionary = new ();
 
@@ -179,6 +180,13 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             return this.dscPackageStateMachine.DetermineNextTransition();
         }
 
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         /// <summary>
         /// Create a deep copy of this settings object.
         /// </summary>
@@ -309,6 +317,27 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Releases resources held by this instance, including the open handle used for TOCTOU protection.
+        /// </summary>
+        /// <param name="disposing">True if called from Dispose(); false if called from a finalizer.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
+                {
+                    lock (this.processorPathLock)
+                    {
+                        this.processorPathHandle?.Dispose();
+                        this.processorPathHandle = null;
+                    }
+                }
+
+                this.disposed = true;
+            }
         }
 
         private void EnsureFoundPathHashCached(string path)

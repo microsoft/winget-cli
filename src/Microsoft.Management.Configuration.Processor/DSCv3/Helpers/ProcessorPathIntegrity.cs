@@ -6,11 +6,11 @@
 
 namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 {
-    using Microsoft.Management.Configuration.Processor.Exceptions;
-    using Microsoft.Win32.SafeHandles;
     using System;
     using System.Runtime.InteropServices;
     using System.Security.Cryptography;
+    using Microsoft.Management.Configuration.Processor.Exceptions;
+    using Microsoft.Win32.SafeHandles;
 
     /// <summary>
     /// Provides integrity verification for the DSC processor executable path.

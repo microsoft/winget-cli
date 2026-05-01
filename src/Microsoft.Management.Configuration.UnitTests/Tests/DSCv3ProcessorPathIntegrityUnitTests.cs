@@ -129,7 +129,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             string hash = ProcessorPathIntegrity.ComputeHash(tempFile.FullFileName, out bool isAlias);
 
-            var settings = new ProcessorSettings();
+            using var settings = new ProcessorSettings();
             settings.DscExecutablePath = tempFile.FullFileName;
             settings.DscExecutablePathHash = hash;
             settings.DscExecutablePathIsAlias = isAlias;

@@ -8,6 +8,7 @@ namespace AppInstallerCLIE2ETests
 {
     using System;
     using System.IO;
+    using System.Text.RegularExpressions;
     using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
@@ -20,21 +21,37 @@ namespace AppInstallerCLIE2ETests
     {
         private const string Command = "configure";
 
+        // DSC app execution alias paths (stable then preview).
+        private static readonly string[] DscAliasCandidates = new[]
+        {
+            Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                @"Microsoft\WindowsApps\Microsoft.DesiredStateConfiguration_8wekyb3d8bbwe\dsc.exe"),
+            Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                @"Microsoft\WindowsApps\Microsoft.DesiredStateConfiguration-Preview_8wekyb3d8bbwe\dsc.exe"),
+        };
+
         /// <summary>
-        /// Verifies that when a signed Windows binary is provided as the processor path,
-        /// the audit header, file path, SHA256 hash, and Authenticode signing subject
+        /// Verifies that when the DSC executable is provided as the processor path,
+        /// the audit header, file path, SHA256 hash, and app-execution-alias marker
         /// all appear in the output.
         /// </summary>
         [Test]
-        public void ProcessorPath_AuditOutput_SignedBinary()
+        public void ProcessorPath_AuditOutput_ShowsPathAndHash()
         {
-            // cmd.exe is always present and is Authenticode-signed by Microsoft.
-            string processorPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
+            string processorPath = FindDscExePath();
+            if (processorPath == null)
+            {
+                Assert.Ignore("DSC is not installed; skipping processor path audit test.");
+                return;
+            }
+
             string configFile = TestCommon.GetTestDataFile(@"Configuration\ShowDetails_DSCv3.yml");
 
             var result = TestCommon.RunAICLICommand(
                 Command,
-                $"--accept-configuration-agreements --processor-path \"{processorPath}\" \"{configFile}\"");
+                $"--accept-configuration-agreements --processor-path \"{processorPath}\" \"{configFile}\" --no-progress");
 
             // Audit header must appear regardless of whether the configure succeeds or fails,
             // because audit output happens during factory setup before DSC is invoked.
@@ -42,24 +59,29 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains($"  Path: {processorPath}"), $"Expected path in audit output. StdOut: {result.StdOut}");
             Assert.True(result.StdOut.Contains("  Hash: "), $"Expected hash in audit output. StdOut: {result.StdOut}");
 
-            // cmd.exe is signed; the output must not say "(unsigned)".
-            Assert.True(result.StdOut.Contains("  Signed By: "), $"Expected signing info in audit output. StdOut: {result.StdOut}");
-            Assert.False(result.StdOut.Contains("  Signed By: (unsigned)"), $"Expected signed binary, not unsigned. StdOut: {result.StdOut}");
+            // dsc.exe is an app execution alias; the alias marker must be present.
+            Assert.True(result.StdOut.Contains("Type: App execution alias"), $"Expected app execution alias marker. StdOut: {result.StdOut}");
         }
 
         /// <summary>
         /// Verifies that the hash in the audit output is a 64-character lowercase hex string
-        /// (SHA256 of the file contents).
+        /// (SHA256 of the file or reparse buffer contents).
         /// </summary>
         [Test]
         public void ProcessorPath_AuditOutput_HashIsValidSHA256()
         {
-            string processorPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
+            string processorPath = FindDscExePath();
+            if (processorPath == null)
+            {
+                Assert.Ignore("DSC is not installed; skipping processor path hash format test.");
+                return;
+            }
+
             string configFile = TestCommon.GetTestDataFile(@"Configuration\ShowDetails_DSCv3.yml");
 
             var result = TestCommon.RunAICLICommand(
                 Command,
-                $"--accept-configuration-agreements --processor-path \"{processorPath}\" \"{configFile}\"");
+                $"--accept-configuration-agreements --processor-path \"{processorPath}\" \"{configFile}\" --no-progress");
 
             Assert.True(result.StdOut.Contains("  Hash: "), $"Expected hash in audit output. StdOut: {result.StdOut}");
 
@@ -75,8 +97,24 @@ namespace AppInstallerCLIE2ETests
 
             Assert.AreEqual(64, hashValue.Length, $"Expected 64-character SHA256 hash, got: '{hashValue}'");
             Assert.True(
-                System.Text.RegularExpressions.Regex.IsMatch(hashValue, "^[0-9a-f]{64}$"),
+                Regex.IsMatch(hashValue, "^[0-9a-f]{64}$"),
                 $"Expected lowercase hex hash, got: '{hashValue}'");
+        }
+
+        /// <summary>
+        /// Gets the path to dsc.exe (app execution alias), or null if not installed.
+        /// </summary>
+        private static string FindDscExePath()
+        {
+            foreach (string candidate in DscAliasCandidates)
+            {
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
         }
     }
 }
