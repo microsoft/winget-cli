@@ -105,6 +105,8 @@ namespace AppInstaller
         void SetSfsClientAppContents_Override(std::function<std::vector<SFS::AppContent>(std::string_view)>* value);
 
         void SetLicensingHttpPipelineStage_Override(std::shared_ptr<web::http::http_pipeline_stage> value);
+
+        void TestHook_SetProvisionAfterInstall(bool* value);
     }
 
     namespace Utility::TestHooks
@@ -323,6 +325,22 @@ namespace TestHook
         {
             AppInstaller::MSStore::TestHooks::SetLicensingHttpPipelineStage_Override(nullptr);
         }
+    };
+
+    struct SetForceProvisionAfterInstall_Override
+    {
+        SetForceProvisionAfterInstall_Override(bool value) : m_value(value)
+        {
+            AppInstaller::MSStore::TestHooks::TestHook_SetProvisionAfterInstall(&m_value);
+        }
+
+        ~SetForceProvisionAfterInstall_Override()
+        {
+            AppInstaller::MSStore::TestHooks::TestHook_SetProvisionAfterInstall(nullptr);
+        }
+
+    private:
+        bool m_value;
     };
 
     struct SetDownloadResult_Function_Override

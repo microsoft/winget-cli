@@ -20,6 +20,12 @@ namespace AppInstaller::Deployment
         std::vector<std::pair<std::string, std::wstring>> ExpectedDigests;
     };
 
+    // Waits for a deployment operation.
+    HRESULT WaitForDeployment(
+        winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Windows::Management::Deployment::DeploymentResult, winrt::Windows::Management::Deployment::DeploymentProgress>& deployOperation,
+        IProgressCallback& callback,
+        bool throwOnError = true);
+
     // Calls winrt::Windows::Management::Deployment::PackageManager::AddPackageAsync if skipSmartScreen is true,
     // Otherwise, calls winrt::Windows::Management::Deployment::PackageManager::RequestAddPackageAsync
     void AddPackage(
