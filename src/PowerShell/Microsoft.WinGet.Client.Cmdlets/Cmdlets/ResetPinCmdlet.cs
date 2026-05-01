@@ -41,11 +41,22 @@ namespace Microsoft.WinGet.Client.Commands
         protected override void ProcessRecord()
         {
             string target = string.IsNullOrEmpty(this.Source) ? "All sources" : this.Source;
-            if (this.Force || this.ShouldProcess(target))
+            if (!this.ShouldProcess(target))
             {
-                this.command = new ResetPinCommand(this);
-                this.command.Reset(this.Source);
+                return;
             }
+
+            if (!this.Force && !this.ShouldContinue(
+                string.IsNullOrEmpty(this.Source)
+                    ? "This will reset all pins for all sources."
+                    : $"This will reset all pins for source '{this.Source}'.",
+                "Confirm"))
+            {
+                return;
+            }
+
+            this.command = new ResetPinCommand(this);
+            this.command.Reset(this.Source);
         }
 
         /// <summary>
