@@ -43,6 +43,8 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
         REQUIRE(pins[0].GetGatedVersion().ToString() == "");
         REQUIRE(pins[0].GetKey().PackageId == "AppInstallerCliTest.TestExeInstaller");
         REQUIRE(pins[0].GetKey().SourceId == "*TestSource");
+        REQUIRE(pins[0].GetDateAdded().has_value());
+        REQUIRE_FALSE(pins[0].GetNote().has_value());
 
         std::ostringstream pinListOutput;
         TestContext listContext{ pinListOutput, std::cin };
@@ -201,27 +203,6 @@ TEST_CASE("PinFlow_ResetEmpty", "[PinFlow][workflow]")
     REQUIRE(pinResetOutput.str().find(Resource::LocString(Resource::String::PinNoPinsExist)) != std::string::npos);
 }
 
-TEST_CASE("PinFlow_Add_SetsDateAdded", "[PinFlow][workflow]")
-{
-    TempFile indexFile("pinningIndex", ".db");
-    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
-
-    std::ostringstream pinAddOutput;
-    TestContext addContext{ pinAddOutput, std::cin };
-    OverrideForCompositeInstalledSource(addContext, CreateTestSource({ TSR::TestInstaller_Exe }));
-    addContext.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
-    addContext.Args.AddArg(Execution::Args::Type::BlockingPin);
-
-    PinAddCommand pinAdd({});
-    pinAdd.Execute(addContext);
-    INFO(pinAddOutput.str());
-
-    auto index = PinningIndex::Open(indexFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
-    auto pins = index.GetAllPins();
-    REQUIRE(pins.size() == 1);
-    REQUIRE(pins[0].GetDateAdded().has_value());
-}
-
 TEST_CASE("PinFlow_Add_WithNote", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
@@ -242,26 +223,6 @@ TEST_CASE("PinFlow_Add_WithNote", "[PinFlow][workflow]")
     REQUIRE(pins.size() == 1);
     REQUIRE(pins[0].GetNote().has_value());
     REQUIRE(pins[0].GetNote().value() == "my test note");
-}
-
-TEST_CASE("PinFlow_Add_WithoutNote", "[PinFlow][workflow]")
-{
-    TempFile indexFile("pinningIndex", ".db");
-    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
-
-    std::ostringstream pinAddOutput;
-    TestContext addContext{ pinAddOutput, std::cin };
-    OverrideForCompositeInstalledSource(addContext, CreateTestSource({ TSR::TestInstaller_Exe }));
-    addContext.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
-
-    PinAddCommand pinAdd({});
-    pinAdd.Execute(addContext);
-    INFO(pinAddOutput.str());
-
-    auto index = PinningIndex::Open(indexFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
-    auto pins = index.GetAllPins();
-    REQUIRE(pins.size() == 1);
-    REQUIRE_FALSE(pins[0].GetNote().has_value());
 }
 
 // Helper: Creates a v1.1 pinning index at the given path and adds the provided pins directly.
