@@ -68,7 +68,7 @@ namespace AppInstaller::Repository::Microsoft
         PinningIndex(const std::string& target, SQLite::Version version);
 
         // Creates an IPinningIndex interface object for a specific version.
-        static std::unique_ptr<Schema::IPinningIndex> CreateIPinningIndexForVersion(const SQLite::Version& version);
+        static std::unique_ptr<Schema::IPinningIndex> CreateIPinningIndex(const SQLite::Version& version);
 
         std::unique_ptr<Schema::IPinningIndex> m_interface;
     };

@@ -185,7 +185,7 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->ResetAllPins(m_dbconn, sourceId);
     }
 
-    std::unique_ptr<Schema::IPinningIndex> PinningIndex::CreateIPinningIndexForVersion(const SQLite::Version& version)
+    std::unique_ptr<Schema::IPinningIndex> PinningIndex::CreateIPinningIndex(const SQLite::Version& version)
     {
         if (version == SQLite::Version{ 1, 0 })
         {
@@ -208,12 +208,12 @@ namespace AppInstaller::Repository::Microsoft
         AICLI_LOG(Repo, Info, << "Opened Pinning Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
 
         // Create the correct interface for the stored schema version.
-        m_interface = CreateIPinningIndexForVersion(m_version);
+        m_interface = CreateIPinningIndex(m_version);
 
         if (disposition == SQLiteStorageBase::OpenDisposition::ReadWrite)
         {
             // For writable opens, create a latest interface and migrate if the stored version is older.
-            auto latestInterface = CreateIPinningIndexForVersion(SQLite::Version::Latest());
+            auto latestInterface = CreateIPinningIndex(SQLite::Version::Latest());
 
             if (m_version != latestInterface->GetVersion())
             {
@@ -243,7 +243,7 @@ namespace AppInstaller::Repository::Microsoft
 
     PinningIndex::PinningIndex(const std::string& target, SQLite::Version version) : SQLiteStorageBase(target, version)
     {
-        m_interface = CreateIPinningIndexForVersion(version);
+        m_interface = CreateIPinningIndex(version);
         m_version = m_interface->GetVersion();
     }
 }
