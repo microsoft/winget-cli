@@ -278,6 +278,24 @@ namespace AppInstaller::SQLite::Builder
                 return IsNull();
             }
         }
+
+        // Assigns a value using "= ?" binding semantics. When the optional is empty, binds NULL
+        // via the "= ?" parameter rather than producing "IS NULL". Use this instead of
+        // Equals(optional) in UPDATE SET clauses, where "IS NULL" is invalid SQL.
+        template <typename ValueType>
+        StatementBuilder& AssignValue(const std::optional<ValueType>& value)
+        {
+            if (value)
+            {
+                AddBindFunctor(AppendOpAndBinder(Op::Equals), value.value());
+            }
+            else
+            {
+                AddBindFunctor(AppendOpAndBinder(Op::Equals), nullptr);
+            }
+            return *this;
+        }
+
         // The optional index value can be used to specify the parameter index.
         StatementBuilder& Equals(details::unbound_t, std::optional<size_t> index = {});
         StatementBuilder& Equals(std::nullptr_t);

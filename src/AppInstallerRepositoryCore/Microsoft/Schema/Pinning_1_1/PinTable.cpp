@@ -110,33 +110,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
     {
         SQLite::Builder::StatementBuilder builder;
         const auto& pinKey = pin.GetKey();
+
+        const auto& dateAdded = pin.GetDateAdded();
+        std::optional<int64_t> epochOpt = dateAdded.has_value()
+            ? std::optional<int64_t>{ Utility::ConvertSystemClockToUnixEpoch(*dateAdded) }
+            : std::nullopt;
+
         builder.Update(s_PinTable_Table_Name).Set()
             .Column(s_PinTable_PackageId_Column).Equals(pinKey.PackageId)
             .Column(s_PinTable_SourceId_Column).Equals(pinKey.SourceId)
             .Column(s_PinTable_Type_Column).Equals(pin.GetType())
-            .Column(s_PinTable_Version_Column).Equals(pin.GetGatedVersion().ToString());
-
-        // Use Unbound (= ?) for null date so SQLite stores NULL via = NULL, not the invalid SET syntax IS NULL.
-        const auto& dateAdded = pin.GetDateAdded();
-        if (dateAdded.has_value())
-        {
-            builder.Column(s_PinTable_DateAdded_Column).Equals(Utility::ConvertSystemClockToUnixEpoch(*dateAdded));
-        }
-        else
-        {
-            builder.Column(s_PinTable_DateAdded_Column).Equals(SQLite::Builder::Unbound);
-        }
-
-        // Use Unbound (= ?) for null note so SQLite stores NULL via = NULL, not the invalid SET syntax IS NULL.
-        const auto& note = pin.GetNote();
-        if (note.has_value())
-        {
-            builder.Column(s_PinTable_Note_Column).Equals(note.value());
-        }
-        else
-        {
-            builder.Column(s_PinTable_Note_Column).Equals(SQLite::Builder::Unbound);
-        }
+            .Column(s_PinTable_Version_Column).Equals(pin.GetGatedVersion().ToString())
+            .Column(s_PinTable_DateAdded_Column).AssignValue(epochOpt)
+            .Column(s_PinTable_Note_Column).AssignValue(pin.GetNote());
 
         builder.Where(SQLite::RowIDName).Equals(pinId);
         builder.Execute(connection);
