@@ -29,9 +29,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
 
     void PinningIndexInterface::CreateTables(SQLite::Connection& connection)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createpintable_v1_1");
-        Pinning_V1_1::PinTable::Create(connection);
-        savepoint.Commit();
+        Pinning_V1_0::PinningIndexInterface base;
+        base.CreateTables(connection);
+        MigrateFrom(connection, &base);
     }
 
     bool PinningIndexInterface::MigrateFrom(SQLite::Connection& connection, const IPinningIndex* current)

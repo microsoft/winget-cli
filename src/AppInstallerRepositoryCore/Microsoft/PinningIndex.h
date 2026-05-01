@@ -67,9 +67,6 @@ namespace AppInstaller::Repository::Microsoft
         // Constructor used to create a new index.
         PinningIndex(const std::string& target, SQLite::Version version);
 
-        // Creates the IPinningIndex interface object for this version.
-        std::unique_ptr<Schema::IPinningIndex> CreateIPinningIndex() const;
-
         // Creates an IPinningIndex interface object for a specific version.
         static std::unique_ptr<Schema::IPinningIndex> CreateIPinningIndexForVersion(const SQLite::Version& version);
 
