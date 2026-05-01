@@ -1704,12 +1704,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             bool anyRemoved = false;
             for (const auto& pinKey : pinKeys)
             {
-                auto existingPin = pinningData.GetPin(pinKey);
-                if (existingPin)
-                {
-                    pinningData.RemovePin(pinKey);
-                    anyRemoved = true;
-                }
+                anyRemoved |= pinningData.TryRemovePin(pinKey);
             }
 
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST, !anyRemoved);
