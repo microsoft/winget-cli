@@ -18,7 +18,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         hstring SourceId();
         winrt::Microsoft::Management::Deployment::PackagePinType Type();
         hstring GatedVersion();
-        hstring DateAdded();
+        winrt::Windows::Foundation::IReference<winrt::Windows::Foundation::DateTime> DateAdded();
         hstring Note();
         bool IsForInstalledPackage();
 
@@ -28,7 +28,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         hstring m_sourceId;
         winrt::Microsoft::Management::Deployment::PackagePinType m_type = winrt::Microsoft::Management::Deployment::PackagePinType::Unknown;
         hstring m_gatedVersion;
-        hstring m_dateAdded;
+        winrt::Windows::Foundation::IReference<winrt::Windows::Foundation::DateTime> m_dateAdded{ nullptr };
         hstring m_note;
         bool m_isForInstalledPackage = false;
 #endif

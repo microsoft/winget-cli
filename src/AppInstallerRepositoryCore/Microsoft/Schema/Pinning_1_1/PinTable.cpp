@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "PinTable.h"
+#include <AppInstallerDateTime.h>
 #include <winget/SQLiteStatementBuilder.h>
 #include "Microsoft/Schema/IPinningIndex.h"
 
@@ -9,11 +10,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
 {
     namespace
     {
-        using PinRow = std::tuple<std::string, std::string, Pinning::PinType, std::string, std::string, std::optional<std::string>>;
+        using PinRow = std::tuple<std::string, std::string, Pinning::PinType, std::string, std::optional<int64_t>, std::optional<std::string>>;
 
         std::optional<Pinning::Pin> GetPinFromRow(PinRow&& row)
         {
-            auto [packageId, sourceId, type, version, dateAdded, note] = std::move(row);
+            auto [packageId, sourceId, type, version, epochOpt, note] = std::move(row);
 
             std::optional<Pinning::Pin> result;
 
@@ -34,6 +35,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
                 break;
             default:
                 return {};
+            }
+
+            std::optional<std::chrono::system_clock::time_point> dateAdded;
+            if (epochOpt.has_value())
+            {
+                dateAdded = Utility::ConvertUnixEpochToSystemClock(*epochOpt);
             }
 
             result->SetDateAdded(std::move(dateAdded));
@@ -59,7 +66,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "migratepintable_v1_0_to_v1_1_pintable");
 
         StatementBuilder addDateAdded;
-        addDateAdded.AlterTable(s_PinTable_Table_Name).Add(s_PinTable_DateAdded_Column, Type::Text).NotNull().Default("''"sv);
+        addDateAdded.AlterTable(s_PinTable_Table_Name).Add(s_PinTable_DateAdded_Column, Type::Integer);
         addDateAdded.Execute(connection);
 
         StatementBuilder addNote;
@@ -73,6 +80,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
     {
         SQLite::Builder::StatementBuilder builder;
         const auto& pinKey = pin.GetKey();
+
+        const auto& dateAdded = pin.GetDateAdded();
+        std::optional<int64_t> epochOpt = dateAdded.has_value()
+            ? std::optional<int64_t>{ Utility::ConvertSystemClockToUnixEpoch(*dateAdded) }
+            : std::nullopt;
+
         builder.InsertInto(s_PinTable_Table_Name)
             .Columns({
                 s_PinTable_PackageId_Column,
@@ -86,7 +99,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
                 pinKey.SourceId,
                 pin.GetType(),
                 pin.GetGatedVersion().ToString(),
-                pin.GetDateAdded(),
+                epochOpt,
                 pin.GetNote());
 
         builder.Execute(connection);
@@ -101,8 +114,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
             .Column(s_PinTable_PackageId_Column).Equals(pinKey.PackageId)
             .Column(s_PinTable_SourceId_Column).Equals(pinKey.SourceId)
             .Column(s_PinTable_Type_Column).Equals(pin.GetType())
-            .Column(s_PinTable_Version_Column).Equals(pin.GetGatedVersion().ToString())
-            .Column(s_PinTable_DateAdded_Column).Equals(pin.GetDateAdded());
+            .Column(s_PinTable_Version_Column).Equals(pin.GetGatedVersion().ToString());
+
+        // Use Unbound (= ?) for null date so SQLite stores NULL via = NULL, not the invalid SET syntax IS NULL.
+        const auto& dateAdded = pin.GetDateAdded();
+        if (dateAdded.has_value())
+        {
+            builder.Column(s_PinTable_DateAdded_Column).Equals(Utility::ConvertSystemClockToUnixEpoch(*dateAdded));
+        }
+        else
+        {
+            builder.Column(s_PinTable_DateAdded_Column).Equals(SQLite::Builder::Unbound);
+        }
 
         // Use Unbound (= ?) for null note so SQLite stores NULL via = NULL, not the invalid SET syntax IS NULL.
         const auto& note = pin.GetNote();
@@ -139,7 +162,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
             return {};
         }
 
-        return GetPinFromRow(select.GetRow<std::string, std::string, Pinning::PinType, std::string, std::string, std::optional<std::string>>());
+        return GetPinFromRow(select.GetRow<std::string, std::string, Pinning::PinType, std::string, std::optional<int64_t>, std::optional<std::string>>());
     }
 
     std::vector<Pinning::Pin> PinTable::GetAllPins(SQLite::Connection& connection)
@@ -159,7 +182,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         std::vector<Pinning::Pin> pins;
         while (select.Step())
         {
-            auto pin = GetPinFromRow(select.GetRow<std::string, std::string, Pinning::PinType, std::string, std::string, std::optional<std::string>>());
+            auto pin = GetPinFromRow(select.GetRow<std::string, std::string, Pinning::PinType, std::string, std::optional<int64_t>, std::optional<std::string>>());
             if (pin)
             {
                 pins.push_back(std::move(pin.value()));

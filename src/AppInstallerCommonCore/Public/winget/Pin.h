@@ -3,6 +3,7 @@
 #pragma once
 #include "winget/Manifest.h"
 #include "AppInstallerVersions.h"
+#include <chrono>
 #include <optional>
 #include <string>
 
@@ -99,10 +100,10 @@ namespace AppInstaller::Pinning
         PinType GetType() const { return m_type; }
         const PinKey& GetKey() const { return m_key; }
         const Utility::GatedVersion& GetGatedVersion() const { return m_gatedVersion; }
-        const std::string& GetDateAdded() const { return m_dateAdded; }
+        const std::optional<std::chrono::system_clock::time_point>& GetDateAdded() const { return m_dateAdded; }
         const std::optional<std::string>& GetNote() const { return m_note; }
 
-        void SetDateAdded(std::string dateAdded) { m_dateAdded = std::move(dateAdded); }
+        void SetDateAdded(std::optional<std::chrono::system_clock::time_point> dateAdded) { m_dateAdded = std::move(dateAdded); }
         void SetNote(std::optional<std::string> note) { m_note = std::move(note); }
 
         bool operator==(const Pin& other) const;
@@ -121,7 +122,7 @@ namespace AppInstaller::Pinning
         PinType m_type = PinType::Unknown;
         PinKey m_key;
         Utility::GatedVersion m_gatedVersion;
-        std::string m_dateAdded;
+        std::optional<std::chrono::system_clock::time_point> m_dateAdded;
         std::optional<std::string> m_note;
     };
 }

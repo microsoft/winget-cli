@@ -33,7 +33,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         m_sourceId = winrt::to_hstring(pin.GetKey().SourceId);
         m_type = ConvertPinType(pin.GetType());
         m_gatedVersion = winrt::to_hstring(pin.GetGatedVersion().ToString());
-        m_dateAdded = winrt::to_hstring(pin.GetDateAdded());
+        const auto& dateAdded = pin.GetDateAdded();
+        if (dateAdded.has_value())
+        {
+            m_dateAdded = winrt::clock::from_sys(*dateAdded);
+        }
         m_note = pin.GetNote() ? winrt::to_hstring(*pin.GetNote()) : hstring{};
         m_isForInstalledPackage = pin.GetKey().IsForInstalled();
     }
@@ -58,7 +62,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return m_gatedVersion;
     }
 
-    hstring PackagePin::DateAdded()
+    winrt::Windows::Foundation::IReference<winrt::Windows::Foundation::DateTime> PackagePin::DateAdded()
     {
         return m_dateAdded;
     }

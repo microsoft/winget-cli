@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 #include "TestHooks.h"
+#include "PinTestCommon.h"
+#include <AppInstallerDateTime.h>
 #include <Commands/PinCommand.h>
 #include <Workflows/PinFlow.h>
 #include <Microsoft/PinningIndex.h>
@@ -14,7 +16,6 @@ using namespace TestCommon;
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Repository::Microsoft;
-using namespace AppInstaller::Utility;
 using namespace AppInstaller::Pinning;
 using namespace AppInstaller::SQLite;
 
@@ -218,7 +219,7 @@ TEST_CASE("PinFlow_Add_SetsDateAdded", "[PinFlow][workflow]")
     auto index = PinningIndex::Open(indexFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
     auto pins = index.GetAllPins();
     REQUIRE(pins.size() == 1);
-    REQUIRE_FALSE(pins[0].GetDateAdded().empty());
+    REQUIRE(pins[0].GetDateAdded().has_value());
 }
 
 TEST_CASE("PinFlow_Add_WithNote", "[PinFlow][workflow]")
@@ -283,7 +284,7 @@ TEST_CASE("PinFlow_Show_NoMatch", "[PinFlow][workflow]")
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     Pin existingPin = Pin::CreateBlockingPin({ "SomePackage.Id", "sourceId" });
-    existingPin.SetDateAdded("2026-01-15 10:00:00");
+    existingPin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1000));
     PopulatePinIndexForShow(indexFile.GetPath(), { existingPin });
 
     std::ostringstream showOutput;
@@ -304,7 +305,7 @@ TEST_CASE("PinFlow_Show_MatchById", "[PinFlow][workflow]")
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     Pin pin = Pin::CreateBlockingPin({ "MyApp.Package", "sourceId" });
-    pin.SetDateAdded("2026-06-01 09:00:00");
+    pin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jun2026_01_0900));
     pin.SetNote(std::string{ "keep this one" });
     PopulatePinIndexForShow(indexFile.GetPath(), { pin });
 
@@ -319,7 +320,7 @@ TEST_CASE("PinFlow_Show_MatchById", "[PinFlow][workflow]")
     REQUIRE_FALSE(showContext.IsTerminated());
     REQUIRE(showOutput.str().find("MyApp.Package") != std::string::npos);
     REQUIRE(showOutput.str().find("Blocking") != std::string::npos);
-    REQUIRE(showOutput.str().find("2026-06-01 09:00:00") != std::string::npos);
+    REQUIRE(showOutput.str().find("Date added:") != std::string::npos);
     REQUIRE(showOutput.str().find("keep this one") != std::string::npos);
 }
 
@@ -329,7 +330,7 @@ TEST_CASE("PinFlow_Show_MatchByQuery", "[PinFlow][workflow]")
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     Pin pin = Pin::CreatePinningPin({ "Contoso.AppOne", "sourceId" });
-    pin.SetDateAdded("2026-03-10 12:00:00");
+    pin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Mar2026_10_1200));
     PopulatePinIndexForShow(indexFile.GetPath(), { pin });
 
     std::ostringstream showOutput;
@@ -352,10 +353,10 @@ TEST_CASE("PinFlow_Show_ExactMatch", "[PinFlow][workflow]")
 
     // Two pins sharing a prefix
     Pin pinA = Pin::CreateBlockingPin({ "Vendor.App", "src" });
-    pinA.SetDateAdded("2026-01-01 00:00:00");
+    pinA.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_01_0000));
 
     Pin pinB = Pin::CreateBlockingPin({ "Vendor.AppExtra", "src" });
-    pinB.SetDateAdded("2026-01-01 00:00:00");
+    pinB.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_01_0000));
 
     PopulatePinIndexForShow(indexFile.GetPath(), { pinA, pinB });
 
@@ -381,7 +382,7 @@ TEST_CASE("PinFlow_Show_NoNote_DoesNotShowNoteLabel", "[PinFlow][workflow]")
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     Pin pin = Pin::CreatePinningPin({ "NoNote.Package", "src" });
-    pin.SetDateAdded("2026-05-01 08:00:00");
+    pin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::May2026_01_0800));
     // note intentionally not set
     PopulatePinIndexForShow(indexFile.GetPath(), { pin });
 

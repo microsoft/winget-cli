@@ -57,9 +57,9 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         }
 
         /// <summary>
-        /// Gets the date the pin was added (UTC ISO 8601 string).
+        /// Gets the UTC date/time when the pin was added. Null if not set.
         /// </summary>
-        public string DateAdded
+        public DateTimeOffset? DateAdded
         {
             get { return this.packagePin.DateAdded; }
         }

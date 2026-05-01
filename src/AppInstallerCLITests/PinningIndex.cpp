@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "PinTestCommon.h"
+#include <AppInstallerDateTime.h>
 #include <Microsoft/PinningIndex.h>
 #include <Microsoft/Schema/IPinningIndex.h>
 #include <Microsoft/Schema/Pinning_1_0/PinTable.h>
@@ -181,7 +183,7 @@ TEST_CASE("PinningIndex_V1_1_AddPin_WithDateAndNote", "[pinningIndex]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Pin pin = Pin::CreateBlockingPin({ "pkgId", "sourceId" });
-    pin.SetDateAdded("2026-01-15 10:30:00");
+    pin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1030));
     pin.SetNote(std::string{ "test note" });
 
     {
@@ -196,7 +198,7 @@ TEST_CASE("PinningIndex_V1_1_AddPin_WithDateAndNote", "[pinningIndex]")
         REQUIRE(pinFromIndex.has_value());
         REQUIRE(pinFromIndex->GetType() == PinType::Blocking);
         REQUIRE(pinFromIndex->GetKey().PackageId == "pkgId");
-        REQUIRE(pinFromIndex->GetDateAdded() == "2026-01-15 10:30:00");
+        REQUIRE(pinFromIndex->GetDateAdded() == AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1030));
         REQUIRE(pinFromIndex->GetNote().has_value());
         REQUIRE(pinFromIndex->GetNote().value() == "test note");
     }
@@ -208,7 +210,7 @@ TEST_CASE("PinningIndex_V1_1_AddPin_WithoutNote", "[pinningIndex]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Pin pin = Pin::CreatePinningPin({ "pkgId", "sourceId" });
-    pin.SetDateAdded("2026-01-15 10:30:00");
+    pin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1030));
     // note intentionally left unset
 
     {
@@ -221,7 +223,7 @@ TEST_CASE("PinningIndex_V1_1_AddPin_WithoutNote", "[pinningIndex]")
 
         auto pinFromIndex = Pinning_V1_1::PinTable::GetPinById(connection, 1);
         REQUIRE(pinFromIndex.has_value());
-        REQUIRE(pinFromIndex->GetDateAdded() == "2026-01-15 10:30:00");
+        REQUIRE(pinFromIndex->GetDateAdded() == AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1030));
         REQUIRE_FALSE(pinFromIndex->GetNote().has_value());
     }
 }
@@ -232,11 +234,11 @@ TEST_CASE("PinningIndex_V1_1_AddUpdateRemove", "[pinningIndex]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Pin pin = Pin::CreateBlockingPin({ "pkgId", "srcId" });
-    pin.SetDateAdded("2026-01-15 10:00:00");
+    pin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1000));
     pin.SetNote(std::string{ "original note" });
 
     Pin updatedPin = Pin::CreateGatingPin({ "pkgId", "srcId" }, { "1.0.*"sv });
-    updatedPin.SetDateAdded("2026-01-15 11:00:00");
+    updatedPin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1100));
     updatedPin.SetNote(std::string{ "updated note" });
 
     {
@@ -251,7 +253,7 @@ TEST_CASE("PinningIndex_V1_1_AddUpdateRemove", "[pinningIndex]")
         auto pinFromIndex = Pinning_V1_1::PinTable::GetPinById(connection, 1);
         REQUIRE(pinFromIndex.has_value());
         REQUIRE(pinFromIndex->GetType() == PinType::Gating);
-        REQUIRE(pinFromIndex->GetDateAdded() == "2026-01-15 11:00:00");
+        REQUIRE(pinFromIndex->GetDateAdded() == AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1100));
         REQUIRE(pinFromIndex->GetNote().has_value());
         REQUIRE(pinFromIndex->GetNote().value() == "updated note");
     }
@@ -294,8 +296,8 @@ TEST_CASE("PinningIndex_MigrateFrom_1_0_to_1_1", "[pinningIndex]")
 
         for (const auto& pin : pins)
         {
-            // Migration adds columns with DEFAULT '' and NULL respectively
-            REQUIRE(pin.GetDateAdded() == "");
+            // Migration adds nullable INTEGER and NULL respectively; existing rows get NULL for both
+            REQUIRE_FALSE(pin.GetDateAdded().has_value());
             REQUIRE_FALSE(pin.GetNote().has_value());
         }
 

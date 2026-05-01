@@ -1658,11 +1658,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
             auto pinningData = ::AppInstaller::Pinning::PinningData{ ::AppInstaller::Pinning::PinningData::Disposition::ReadWrite };
 
-            std::string dateAdded = ::AppInstaller::Utility::TimePointToString(
-                std::chrono::system_clock::now(),
-                ::AppInstaller::Utility::TimeFacet::Year | ::AppInstaller::Utility::TimeFacet::Month |
-                ::AppInstaller::Utility::TimeFacet::Day | ::AppInstaller::Utility::TimeFacet::Hour |
-                ::AppInstaller::Utility::TimeFacet::Minute | ::AppInstaller::Utility::TimeFacet::Second);
+            auto pinTime = std::chrono::system_clock::now();
 
             std::optional<std::string> note;
             if (!options.Note().empty())
@@ -1680,7 +1676,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     THROW_HR_IF(APPINSTALLER_CLI_ERROR_PIN_ALREADY_EXISTS, !options.Force());
                 }
 
-                newPin.SetDateAdded(dateAdded);
+                newPin.SetDateAdded(pinTime);
                 newPin.SetNote(note);
                 pinningData.AddOrUpdatePin(newPin);
             }

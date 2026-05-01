@@ -1740,8 +1740,8 @@ namespace Microsoft.Management.Deployment
         /// The gated version range. Only meaningful when Type is Gating; empty otherwise.
         String GatedVersion { get; };
 
-        /// The UTC date/time when the pin was added (ISO 8601 format).
-        String DateAdded { get; };
+        /// The UTC date/time when the pin was added. Null if not set.
+        Windows.Foundation.IReference<Windows.Foundation.DateTime> DateAdded { get; };
 
         /// Optional note associated with the pin. May be empty.
         String Note { get; };

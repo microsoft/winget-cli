@@ -199,10 +199,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!pinsToAddOrUpdate.empty())
         {
-            std::string dateAdded = Utility::TimePointToString(
-                std::chrono::system_clock::now(),
-                Utility::TimeFacet::Year | Utility::TimeFacet::Month | Utility::TimeFacet::Day |
-                Utility::TimeFacet::Hour | Utility::TimeFacet::Minute | Utility::TimeFacet::Second);
+            auto pinTime = std::chrono::system_clock::now();
 
             std::optional<std::string> note;
             if (context.Args.Contains(Execution::Args::Type::PinNote))
@@ -212,7 +209,7 @@ namespace AppInstaller::CLI::Workflow
 
             for (auto& pin : pinsToAddOrUpdate)
             {
-                pin.SetDateAdded(dateAdded);
+                pin.SetDateAdded(pinTime);
                 pin.SetNote(note);
                 pinningData.AddOrUpdatePin(pin);
             }
@@ -435,9 +432,12 @@ namespace AppInstaller::CLI::Workflow
 
             // Date Added
             const auto& dateAdded = pin.GetDateAdded();
-            if (!dateAdded.empty())
+            if (dateAdded.has_value())
             {
-                ShowSingleLineField(info, Resource::String::PinShowLabelDateAdded, Utility::LocIndView{ dateAdded });
+                std::string dateAddedStr = Utility::TimePointToString(*dateAdded,
+                    Utility::TimeFacet::Year | Utility::TimeFacet::Month | Utility::TimeFacet::Day |
+                    Utility::TimeFacet::Hour | Utility::TimeFacet::Minute | Utility::TimeFacet::Second);
+                ShowSingleLineField(info, Resource::String::PinShowLabelDateAdded, Utility::LocIndView{ dateAddedStr });
             }
 
             // Note (only shown if present)
