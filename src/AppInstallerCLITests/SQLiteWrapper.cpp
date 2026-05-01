@@ -54,7 +54,7 @@ void InsertIntoSimpleTestTable(Connection& connection, int firstVal, const std::
 void UpdateSimpleTestTable(Connection& connection, int firstVal, const std::string& secondVal)
 {
     Builder::StatementBuilder update;
-    update.Update(s_tableName).Set().Column(s_firstColumn).Equals(firstVal).Column(s_secondColumn).Equals(secondVal);
+    update.Update(s_tableName).Set().Column(s_firstColumn).AssignValue(firstVal).Column(s_secondColumn).AssignValue(secondVal);
     update.Execute(connection);
 }
 

@@ -117,10 +117,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
             : std::nullopt;
 
         builder.Update(s_PinTable_Table_Name).Set()
-            .Column(s_PinTable_PackageId_Column).Equals(pinKey.PackageId)
-            .Column(s_PinTable_SourceId_Column).Equals(pinKey.SourceId)
-            .Column(s_PinTable_Type_Column).Equals(pin.GetType())
-            .Column(s_PinTable_Version_Column).Equals(pin.GetGatedVersion().ToString())
+            .Column(s_PinTable_PackageId_Column).AssignValue(pinKey.PackageId)
+            .Column(s_PinTable_SourceId_Column).AssignValue(pinKey.SourceId)
+            .Column(s_PinTable_Type_Column).AssignValue(pin.GetType())
+            .Column(s_PinTable_Version_Column).AssignValue(pin.GetGatedVersion().ToString())
             .Column(s_PinTable_DateAdded_Column).AssignValue(epochOpt)
             .Column(s_PinTable_Note_Column).AssignValue(pin.GetNote());
 

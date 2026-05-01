@@ -82,10 +82,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Update(s_PortableTable_Table_Name).Set()
-            .Column(s_PortableTable_FilePath_Column).Equals(file.GetFilePath().u8string())
-            .Column(s_PortableTable_FileType_Column).Equals(file.FileType)
-            .Column(s_PortableTable_SHA256_Column).Equals(file.SHA256)
-            .Column(s_PortableTable_SymlinkTarget_Column).Equals(file.SymlinkTarget)
+            .Column(s_PortableTable_FilePath_Column).AssignValue(file.GetFilePath().u8string())
+            .Column(s_PortableTable_FileType_Column).AssignValue(file.FileType)
+            .Column(s_PortableTable_SHA256_Column).AssignValue(file.SHA256)
+            .Column(s_PortableTable_SymlinkTarget_Column).AssignValue(file.SymlinkTarget)
             .Where(SQLite::RowIDName).Equals(id);
 
         builder.Execute(connection);

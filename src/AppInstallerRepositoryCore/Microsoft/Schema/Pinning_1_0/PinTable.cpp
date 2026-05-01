@@ -113,10 +113,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         SQLite::Builder::StatementBuilder builder;
         const auto& pinKey = pin.GetKey();
         builder.Update(s_PinTable_Table_Name).Set()
-            .Column(s_PinTable_PackageId_Column).Equals((std::string_view)pinKey.PackageId)
-            .Column(s_PinTable_SourceId_Column).Equals(pinKey.SourceId)
-            .Column(s_PinTable_Type_Column).Equals(pin.GetType())
-            .Column(s_PinTable_Version_Column).Equals(pin.GetGatedVersion().ToString())
+            .Column(s_PinTable_PackageId_Column).AssignValue((std::string_view)pinKey.PackageId)
+            .Column(s_PinTable_SourceId_Column).AssignValue(pinKey.SourceId)
+            .Column(s_PinTable_Type_Column).AssignValue(pin.GetType())
+            .Column(s_PinTable_Version_Column).AssignValue(pin.GetGatedVersion().ToString())
             .Where(SQLite::RowIDName).Equals(pinId);
 
         builder.Execute(connection);

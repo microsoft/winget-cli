@@ -296,6 +296,16 @@ namespace AppInstaller::SQLite::Builder
             return *this;
         }
 
+        // Assigns a non-nullable value using "= ?" binding semantics. Prefer this over Equals()
+        // in UPDATE SET clauses to clearly signal assignment intent and prevent future breakage
+        // if the type is later made optional.
+        template <typename ValueType>
+        StatementBuilder& AssignValue(const ValueType& value)
+        {
+            AddBindFunctor(AppendOpAndBinder(Op::Equals), value);
+            return *this;
+        }
+
         // The optional index value can be used to specify the parameter index.
         StatementBuilder& Equals(details::unbound_t, std::optional<size_t> index = {});
         StatementBuilder& Equals(std::nullptr_t);
