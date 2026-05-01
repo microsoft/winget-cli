@@ -275,9 +275,16 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         {
             this.processorSettings.DiagnosticsSink?.OnDiagnostics(DiagnosticLevel.Verbose, $"Starting process: {processExecution.CommandLine}{(processExecution.Input == null ? string.Empty : $"\n--- Input Stream ---\n{processExecution.Input}")}");
 
-            processExecution.Start().WaitForExit();
+            using (var batcher = new ProcessOutputBatcher(this.processorSettings.DiagnosticsSink, TimeSpan.FromMilliseconds(500)))
+            {
+                batcher.Subscribe(processExecution);
 
-            this.processorSettings.DiagnosticsSink?.OnDiagnostics(DiagnosticLevel.Verbose, $"Process exited with code: {processExecution.ExitCode}\n--- Output Stream ---\n{processExecution.GetAllOutputLines()}\n--- Error Stream ---\n{processExecution.GetAllErrorLines()}");
+                processExecution.Start().WaitForExit();
+
+                batcher.Flush();
+            }
+
+            this.processorSettings.DiagnosticsSink?.OnDiagnostics(DiagnosticLevel.Verbose, $"Process exited with code: {processExecution.ExitCode}");
 
             return processExecution.ExitCode != 0;
         }
