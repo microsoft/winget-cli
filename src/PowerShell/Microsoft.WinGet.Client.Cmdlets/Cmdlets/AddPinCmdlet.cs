@@ -16,6 +16,14 @@ namespace Microsoft.WinGet.Client.Commands
     /// <summary>
     /// Adds a pin for a package. Mirrors the behavior of <c>winget pin add</c>.
     /// </summary>
+    /// <remarks>
+    /// Pin type is determined by which parameters are provided, matching <c>winget pin add</c> behavior:
+    /// <list type="bullet">
+    ///   <item><description><see cref="GatedVersion"/> present → Gating pin</description></item>
+    ///   <item><description><see cref="Blocking"/> present → Blocking pin</description></item>
+    ///   <item><description>Neither → Pinning pin (default)</description></item>
+    /// </list>
+    /// </remarks>
     [Cmdlet(
         VerbsCommon.Add,
         Constants.WinGetNouns.Pin,
@@ -27,15 +35,19 @@ namespace Microsoft.WinGet.Client.Commands
         private PinPackageCommand command = null;
 
         /// <summary>
-        /// Gets or sets the pin type. Defaults to <see cref="PSPackagePinType.Pinning"/>.
+        /// Gets or sets a value indicating whether to add a blocking pin, which prevents all upgrades.
+        /// Cannot be combined with <see cref="GatedVersion"/>.
         /// </summary>
         [Parameter(ValueFromPipelineByPropertyName = true)]
-        public PSPackagePinType PinType { get; set; } = PSPackagePinType.Pinning;
+        public SwitchParameter Blocking { get; set; }
 
         /// <summary>
-        /// Gets or sets the gated version range. Required when <see cref="PinType"/> is Gating.
+        /// Gets or sets the gated version range, which creates a gating pin that limits upgrades to
+        /// versions satisfying this range (e.g., <c>&lt;7.5</c>, <c>&gt;=7.0,&lt;8.0</c>).
+        /// Cannot be combined with <see cref="Blocking"/>.
         /// </summary>
         [Parameter(ValueFromPipelineByPropertyName = true)]
+        [ValidateNotNullOrEmpty]
         public string GatedVersion { get; set; }
 
         /// <summary>
@@ -61,6 +73,19 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
+            if (this.Blocking && !string.IsNullOrEmpty(this.GatedVersion))
+            {
+                this.ThrowTerminatingError(new ErrorRecord(
+                    new System.ArgumentException("Cannot specify both -Blocking and -GatedVersion. Use -GatedVersion for a gating pin or -Blocking for a blocking pin."),
+                    "ConflictingPinTypeParameters",
+                    ErrorCategory.InvalidArgument,
+                    null));
+            }
+
+            PSPackagePinType pinType = !string.IsNullOrEmpty(this.GatedVersion) ? PSPackagePinType.Gating
+                           : this.Blocking ? PSPackagePinType.Blocking
+                           : PSPackagePinType.Pinning;
+
             this.command = new PinPackageCommand(
                 this,
                 this.PSCatalogPackage,
@@ -71,7 +96,7 @@ namespace Microsoft.WinGet.Client.Commands
                 this.Query);
             this.command.Add(
                 this.MatchOption.ToString(),
-                this.PinType.ToString(),
+                pinType.ToString(),
                 this.GatedVersion,
                 this.PinInstalledPackage.ToBool(),
                 this.Force.ToBool(),

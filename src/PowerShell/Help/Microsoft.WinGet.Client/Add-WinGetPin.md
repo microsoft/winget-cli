@@ -15,7 +15,7 @@ Adds a WinGet package pin.
 
 ### FoundSet (Default)
 ```
-Add-WinGetPin [-PinType <PSPackagePinType>] [-GatedVersion <String>] [-PinInstalledPackage]
+Add-WinGetPin [-Blocking] [-GatedVersion <String>] [-PinInstalledPackage]
  [-Force] [-Note <String>] [-Id <String>] [-Name <String>] [-Moniker <String>] [-Source <String>]
  [[-Query] <String[]>] [-MatchOption <PSPackageFieldMatchOption>] [-ProgressAction <ActionPreference>]
  [-WhatIf] [-Confirm] [<CommonParameters>]
@@ -23,7 +23,7 @@ Add-WinGetPin [-PinType <PSPackagePinType>] [-GatedVersion <String>] [-PinInstal
 
 ### GivenSet
 ```
-Add-WinGetPin [-PinType <PSPackagePinType>] [-GatedVersion <String>] [-PinInstalledPackage]
+Add-WinGetPin [-Blocking] [-GatedVersion <String>] [-PinInstalledPackage]
  [-Force] [-Note <String>] [[-PSCatalogPackage] <PSCatalogPackage>]
  [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
@@ -33,10 +33,10 @@ This command adds a pin for a WinGet package, preventing automatic updates. Mirr
 of `winget pin add`. By default, all string-based searches are case-insensitive exact matches.
 Wildcards are not supported. You can change the search behavior using the **MatchOption** parameter.
 
-Pin types:
+Pin types are determined by the parameters you provide:
 - **Pinning** (default): Prevents automatic updates but allows manual upgrades.
-- **Blocking**: Prevents all upgrades, including manual ones.
-- **Gating**: Allows upgrades only to versions below the specified **GatedVersion**.
+- **Blocking**: Use `-Blocking` to prevent all upgrades, including manual ones.
+- **Gating**: Use `-GatedVersion` to allow upgrades only to versions satisfying the specified range.
 
 ## EXAMPLES
 
@@ -48,13 +48,13 @@ This example adds a Pinning pin for `Microsoft.PowerShell`, preventing automatic
 
 ### Example 2: Add a blocking pin
 ```powershell
-Add-WinGetPin -Id "Microsoft.PowerShell" -PinType Blocking
+Add-WinGetPin -Id "Microsoft.PowerShell" -Blocking
 ```
 This example adds a Blocking pin for `Microsoft.PowerShell`, preventing all upgrades.
 
 ### Example 3: Add a gating pin
 ```powershell
-Add-WinGetPin -Id "Microsoft.PowerShell" -PinType Gating -GatedVersion "<7.5"
+Add-WinGetPin -Id "Microsoft.PowerShell" -GatedVersion "<7.5"
 ```
 This example adds a Gating pin that allows upgrades only to versions below 7.5.
 
@@ -106,8 +106,9 @@ Accept wildcard characters: False
 
 ### -GatedVersion
 
-Specify the version range for a Gating pin. This parameter is required when **PinType** is
-`Gating`. The value uses WinGet version range syntax (e.g., `<7.5`, `>=7.0,<8.0`).
+Specify the version range for a Gating pin. When provided, a gating pin is created that limits
+upgrades to versions satisfying this range. Uses WinGet version range syntax (e.g., `<7.5`,
+`>=7.0,<8.0`). Cannot be combined with **-Blocking**.
 
 ```yaml
 Type: System.String
@@ -221,23 +222,19 @@ Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
-### -PinType
+### -Blocking
 
-Specify the type of pin to add. Accepted values:
-
-- **Pinning** (default): Prevents automatic upgrades.
-- **Blocking**: Prevents all upgrades.
-- **Gating**: Limits upgrades to versions below **GatedVersion**.
+When specified, adds a Blocking pin that prevents all upgrades, including manual ones. Cannot be
+combined with **-GatedVersion**.
 
 ```yaml
-Type: Microsoft.WinGet.Client.PSObjects.PSPackagePinType
+Type: System.Management.Automation.SwitchParameter
 Parameter Sets: (All)
 Aliases:
-Accepted values: Pinning, Blocking, Gating
 
 Required: False
 Position: Named
-Default value: Pinning
+Default value: None
 Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
@@ -329,7 +326,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### Microsoft.WinGet.Client.PSObjects.PSPackageFieldMatchOption
 
-### Microsoft.WinGet.Client.PSObjects.PSPackagePinType
+### System.Management.Automation.SwitchParameter
 
 ## OUTPUTS
 
