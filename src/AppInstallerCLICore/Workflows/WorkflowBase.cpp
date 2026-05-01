@@ -485,9 +485,9 @@ namespace AppInstaller::CLI::Workflow
                     }
                     else
                     {
-                        // Invalid values should not reach here; ValidateArgumentsInternal
-                        // rejects them with an error before workflow execution begins.
-                        THROW_HR(E_UNEXPECTED);
+                        // Invalid values should not reach here; ValidateArguments
+                        // rejects them with a CommandException before workflow execution begins.
+                        FAIL_FAST_MSG("Unexpected sort field value reached workflow; validation should have caught this.");
                     }
                 }
             }
@@ -495,30 +495,29 @@ namespace AppInstaller::CLI::Workflow
             {
                 sortFields = User().Get<Setting::OutputSortOrder>();
 
-                // When the free-text query argument is present and the user has NOT
-                // configured a sort preference in settings, preserve relevance ordering.
-                // Only the positional query argument populates searchRequest.Query and
-                // produces meaningful relevance ranking; filter arguments like --id,
-                // --name, --tag etc. use exact/substring matching where all results
-                // have equivalent relevance.
-                // If the user explicitly configured output.sortOrder, respect it even
-                // with queries — that is an explicit user preference.
-                if (sortFields.empty() && context.Args.Contains(Execution::Args::Type::Query))
-                {
-                    return;
-                }
-
-                // No settings configured and no query — apply default sort by name
-                // so that output is deterministic and user-friendly.
                 if (sortFields.empty())
                 {
+                    if (context.Args.Contains(Execution::Args::Type::Query))
+                    {
+                        // When the free-text query argument is present and the user has NOT
+                        // configured a sort preference in settings, preserve relevance ordering.
+                        // Only the positional query argument populates searchRequest.Query and
+                        // produces meaningful relevance ranking; filter arguments like --id,
+                        // --name, --tag etc. use exact/substring matching where all results
+                        // have equivalent relevance.
+                        // If the user explicitly configured output.sortOrder, respect it even
+                        // with queries — that is an explicit user preference.
+                        return;
+                    }
+
+                    // No settings configured and no query — apply default sort by name
+                    // so that output is deterministic and user-friendly.
                     sortFields.emplace_back(SortField::Name);
                 }
             }
 
-            // Empty sort fields or relevance-only means no sorting
-            if (sortFields.empty() ||
-                (sortFields.size() == 1 && sortFields[0] == SortField::Relevance))
+            // Relevance-only means preserve source ordering — no sorting needed.
+            if (sortFields.size() == 1 && sortFields[0] == SortField::Relevance)
             {
                 return;
             }
@@ -544,9 +543,12 @@ namespace AppInstaller::CLI::Workflow
                 [mask](const InstalledPackagesTableLine& line, size_t index) {
                     return SortablePackageEntry(
                         index,
-                        line.Name.get(), line.Id.get(),
-                        line.InstalledVersion.get(), line.AvailableVersion.get(),
-                        line.Source.get(), mask);
+                        line.Name.get(),
+                        line.Id.get(),
+                        line.InstalledVersion.get(),
+                        line.AvailableVersion.get(),
+                        line.Source.get(),
+                        mask);
                 },
                 sortFields, direction);
         }

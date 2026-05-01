@@ -302,7 +302,7 @@
     <ClCompile Include="TestConfiguration.cpp" />
     <ClCompile Include="TestRestRequestHandler.cpp" />
     <ClCompile Include="TestSettings.cpp" />
-    <ClCompile Include="ListSort.cpp" />
+    <ClCompile Include="PackageTableSortHelper.cpp" />
     <ClCompile Include="TestSource.cpp" />
     <ClCompile Include="UninstallFlow.cpp" />
     <ClCompile Include="UpdateFlow.cpp" />

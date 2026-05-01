@@ -4,7 +4,9 @@
 #include "TestCommon.h"
 #include <Command.h>
 #include <AppInstallerStrings.h>
+#include <Commands/ListCommand.h>
 #include <Commands/RootCommand.h>
+#include <winget/UserSettings.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -664,4 +666,56 @@ TEST_CASE("ParseArguments_PositionalWithTooManyValues", "[command]")
     Invocation inv{ std::vector<std::string>(values) };
 
     REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::ExtraPositionalError(Utility::LocIndView{ values.back() }));
+}
+
+TEST_CASE("EnsureListSortFieldCountMatchesLimit", "[command]")
+{
+    // Verifies that the ListCommand --sort argument count limit matches
+    // the number of valid SortField enum values. If a new SortField is
+    // added but SetCountLimit is not updated (or vice versa), this fails.
+    ListCommand listCmd("");
+    auto args = listCmd.GetArguments();
+
+    size_t sortLimit = 0;
+    for (const auto& arg : args)
+    {
+        if (arg.ExecArgType() == Execution::Args::Type::Sort)
+        {
+            sortLimit = arg.Limit();
+            break;
+        }
+    }
+    REQUIRE(sortLimit > 0);
+
+    // Every valid sort field string must convert successfully.
+    std::vector<std::string_view> allFieldNames = {
+        "relevance", "name", "id", "version", "source", "available"
+    };
+
+    REQUIRE(allFieldNames.size() == sortLimit);
+
+    for (const auto& name : allFieldNames)
+    {
+        auto field = Settings::ConvertToSortField(name);
+        REQUIRE(field.has_value());
+    }
+}
+
+TEST_CASE("ValidateArguments_StandardArgExceedsCountLimit", "[command]")
+{
+    Args args;
+    TestCommand command({
+            Argument{ "sort", 's', Args::Type::Sort, DefaultDesc, ArgumentType::Standard }.SetCountLimit(6),
+        });
+
+    // All 6 valid sort fields plus a duplicate — 7 total exceeds the limit of 6.
+    Invocation inv{ std::vector<std::string>{
+        "--sort", "name", "--sort", "id", "--sort", "version",
+        "--sort", "source", "--sort", "available", "--sort", "relevance",
+        "--sort", "name" } };
+
+    command.ParseArguments(inv, args);
+    REQUIRE(args.GetCount(Args::Type::Sort) == 7);
+
+    REQUIRE_COMMAND_EXCEPTION(command.ValidateArguments(args), CLI::Resource::String::TooManyArgError(ArgumentCommon::ForType(Args::Type::Sort).Name));
 }
