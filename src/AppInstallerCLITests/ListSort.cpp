@@ -9,9 +9,15 @@ using namespace AppInstaller::Settings;
 
 namespace
 {
+    // Use all-fields mask for tests so every field is precomputed.
+    constexpr SortField AllFieldsMask =
+        SortField::Name | SortField::Id |
+        SortField::Version | SortField::Source |
+        SortField::Available;
+
     SortablePackageEntry MakeEntry(std::string name, std::string id, std::string version, std::string available = {}, std::string source = {})
     {
-        return SortablePackageEntry{ 0, name, id, version, available, source };
+        return SortablePackageEntry{ 0, name, id, version, available, source, AllFieldsMask };
     }
 
     std::vector<std::string> GetNames(const std::vector<SortablePackageEntry>& entries)
@@ -292,7 +298,7 @@ TEST_CASE("ListSort_SortBy_ReordersSourceItems", "[listsort]")
 
     SortBy(rows,
         [](const Row& r, size_t i) {
-            return SortablePackageEntry(i, r.name, r.id, r.ver, "", "");
+            return SortablePackageEntry(i, r.name, r.id, r.ver, "", "", AllFieldsMask);
         },
         { SortField::Name }, SortDirection::Ascending);
 
@@ -313,7 +319,7 @@ TEST_CASE("ListSort_SortBy_PreservesExtraFields", "[listsort]")
 
     SortBy(rows,
         [](const Row& r, size_t i) {
-            return SortablePackageEntry(i, r.name, "", "", "", "");
+            return SortablePackageEntry(i, r.name, "", "", "", "", AllFieldsMask);
         },
         { SortField::Name }, SortDirection::Ascending);
 

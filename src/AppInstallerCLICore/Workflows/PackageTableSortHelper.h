@@ -6,7 +6,6 @@
 #include <winget/UserSettings.h>
 
 #include <algorithm>
-#include <numeric>
 #include <vector>
 
 namespace AppInstaller::CLI::Workflow
@@ -35,7 +34,8 @@ namespace AppInstaller::CLI::Workflow
             std::string_view id,
             std::string_view installedVersion,
             std::string_view availableVersion,
-            std::string_view source);
+            std::string_view source,
+            Settings::SortField fieldMask);
     };
 
     // Compares two sortable entries by the given field using precomputed sort keys.
@@ -48,10 +48,24 @@ namespace AppInstaller::CLI::Workflow
         const std::vector<Settings::SortField>& sortFields,
         Settings::SortDirection direction);
 
+    // Computes a bitmask of all sort fields so the constructor can skip unused fields.
+    inline Settings::SortField ComputeSortFieldMask(const std::vector<Settings::SortField>& sortFields)
+    {
+        Settings::SortField mask = Settings::SortField::Relevance;
+        for (const auto& f : sortFields)
+        {
+            mask |= f;
+        }
+        return mask;
+    }
+
     // Sorts a vector of arbitrary items by projecting each into a SortablePackageEntry
     // via a caller-supplied converter, sorting the projections, then reordering the
     // source vector to match. The converter signature is:
     //   SortablePackageEntry converter(const T& item, size_t index)
+    // The caller is responsible for pre-computing the SortFieldMask and capturing
+    // it in the converter closure so the SortablePackageEntry constructor only
+    // initializes the fields actually needed for comparison.
     template <typename T, typename Converter>
     void SortBy(
         std::vector<T>& items,

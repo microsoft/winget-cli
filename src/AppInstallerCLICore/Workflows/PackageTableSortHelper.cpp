@@ -11,17 +11,33 @@ namespace AppInstaller::CLI::Workflow
         std::string_view id,
         std::string_view installedVersion,
         std::string_view availableVersion,
-        std::string_view source)
-        : OriginalIndex(originalIndex),
-          FoldedName(Utility::FoldCase(name)),
-          FoldedId(Utility::FoldCase(id)),
-          FoldedSource(Utility::FoldCase(source)),
-          ParsedInstalledVersion(std::string{ installedVersion }),
-          HasAvailableVersion(!availableVersion.empty())
+        std::string_view source,
+        Settings::SortField fieldMask)
+        : OriginalIndex(originalIndex)
     {
-        if (HasAvailableVersion)
+        if (WI_IsAnyFlagSet(fieldMask, Settings::SortField::Name))
         {
-            ParsedAvailableVersion = Utility::Version{ std::string{ availableVersion } };
+            FoldedName = Utility::FoldCase(name);
+        }
+        if (WI_IsAnyFlagSet(fieldMask, Settings::SortField::Id))
+        {
+            FoldedId = Utility::FoldCase(id);
+        }
+        if (WI_IsAnyFlagSet(fieldMask, Settings::SortField::Source))
+        {
+            FoldedSource = Utility::FoldCase(source);
+        }
+        if (WI_IsAnyFlagSet(fieldMask, Settings::SortField::Version))
+        {
+            ParsedInstalledVersion = Utility::Version{ std::string{ installedVersion } };
+        }
+        if (WI_IsAnyFlagSet(fieldMask, Settings::SortField::Available))
+        {
+            HasAvailableVersion = !availableVersion.empty();
+            if (HasAvailableVersion)
+            {
+                ParsedAvailableVersion = Utility::Version{ std::string{ availableVersion } };
+            }
         }
     }
 
