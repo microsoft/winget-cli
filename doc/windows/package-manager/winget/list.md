@@ -99,7 +99,7 @@ You can set a default sort order in your [settings](https://aka.ms/winget-settin
 }
 ```
 
-An empty array (`[]`) results in default sorting (no sorting applied).
+An empty array (`[]`) results in default sorting (sorted by name when listing, relevance preserved when querying).
 
 ### Resolution order
 
@@ -107,14 +107,7 @@ When both settings and command-line arguments are present, the following priorit
 
 1. **`--sort` command-line argument** — takes highest priority, overrides settings.
 2. **`output.sortOrder` in settings** — used when no `--sort` argument is provided. If the user has configured a sort order in settings, it is applied even when a query is present.
-3. **Default** — no sorting (source order preserved).
-
-### Default relevance preservation
-
-When using a free-text query (e.g., `winget list Microsoft`) and no sort preference is configured in settings, results are displayed in relevance order as returned by the source. This preserves the most relevant matches at the top by default. If you configure `output.sortOrder` in settings, that preference is respected even for queries. An explicit `--sort` on the command line always overrides both settings and the default relevance ordering.
-
-> [!NOTE]
-> Only the free-text query argument (`-q`/`--query`) has meaningful relevance ranking. Filter arguments like `--id`, `--name`, or `--tag` use exact or substring matching where results have equivalent relevance, so settings sort always applies for those.
+3. **Default** — sorted by name in ascending order. When a query is used, relevance ordering is preserved instead.
 
 ## List with Update
 
