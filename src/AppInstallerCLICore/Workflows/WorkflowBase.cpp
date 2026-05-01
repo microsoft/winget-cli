@@ -539,13 +539,14 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // 3. Sort using the helper's production pipeline
+            const SortField mask = ComputeSortFieldMask(sortFields);
             SortBy(lines,
-                [](const InstalledPackagesTableLine& line, size_t index) {
+                [mask](const InstalledPackagesTableLine& line, size_t index) {
                     return SortablePackageEntry(
                         index,
                         line.Name.get(), line.Id.get(),
                         line.InstalledVersion.get(), line.AvailableVersion.get(),
-                        line.Source.get());
+                        line.Source.get(), mask);
                 },
                 sortFields, direction);
         }
