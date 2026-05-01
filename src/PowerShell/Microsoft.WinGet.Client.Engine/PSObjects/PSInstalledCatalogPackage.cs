@@ -15,6 +15,8 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
     /// </summary>
     public sealed class PSInstalledCatalogPackage : PSCatalogPackage
     {
+        private bool? isPinned;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PSInstalledCatalogPackage"/> class.
         /// </summary>
@@ -37,7 +39,15 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         /// </summary>
         public bool IsPinned
         {
-            get { return PackageManagerWrapper.Instance.GetPins(this.CatalogPackageCOM).Count > 0; }
+            get
+            {
+                if (!this.isPinned.HasValue)
+                {
+                    this.isPinned = PackageManagerWrapper.Instance.GetPins(this.CatalogPackageCOM).Count > 0;
+                }
+
+                return this.isPinned.Value;
+            }
         }
 
         /// <summary>
