@@ -196,6 +196,16 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
+    <policy name="EnableWindowsPackageManagerConfigurationProcessorPath" class="Machine" displayName="$(string.EnableWindowsPackageManagerConfigurationProcessorPath)" explainText="$(string.EnableWindowsPackageManagerConfigurationProcessorPathExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerConfigurationProcessorPath">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
     <policy name="WindowsPackageManagerDefaultProxy" class="Machine" displayName="$(string.WindowsPackageManagerDefaultProxy)" explainText="$(string.WindowsPackageManagerDefaultProxyExplanation)" presentation="$(presentation.WindowsPackageManagerDefaultProxy)" key="Software\Policies\Microsoft\Windows\AppInstaller">
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />

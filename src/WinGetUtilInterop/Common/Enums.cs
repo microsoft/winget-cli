@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="Enums.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -42,6 +42,18 @@ namespace Microsoft.WinGetUtil.Common
         /// Return error on manifest fields that require verified publishers, used during semantic validation
         /// </summary>
         ReturnErrorOnVerifiedPublisherFields = 0x1000,
+
+        /// <summary>
+        /// Return error if a network address is present in installer switches.
+        /// </summary>
+        ReturnErrorOnNetworkAddressInSwitches = 0x2000,
+
+        /// <summary>
+        /// Return the failure or warning message as a JSON string containing both the full message
+        /// and a structured list of individual errors/warnings. When set, <see cref="Common.CreateManifestResult.Diagnostics"/>
+        /// will be populated with the structured data.
+        /// </summary>
+        ReturnResponseAsJson = 0x4000,
     }
 
     /// <summary>

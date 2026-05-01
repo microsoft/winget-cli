@@ -61,14 +61,8 @@ namespace AppInstaller::CLI::Workflow
 
         bool ShouldUseDirectMSIInstall(InstallerTypeEnum type, bool isSilentInstall)
         {
-            switch (type)
-            {
-            case InstallerTypeEnum::Msi:
-            case InstallerTypeEnum::Wix:
-                return isSilentInstall || ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::DirectMSI);
-            default:
-                return false;
-            }
+            return DoesInstallerTypeUseMsiProperties(type) &&
+                (isSilentInstall || ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::DirectMSI));
         }
 
         bool ShouldErrorForUnsupportedArgument(UnsupportedArgumentEnum arg)

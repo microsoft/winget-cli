@@ -113,7 +113,7 @@ namespace AppInstaller::CLI::Workflow
         {
             // Using a height of 4 arbitrarily; allow width up to the entire console.
             UINT imageHeightCells = 4;
-            UINT imageWidthCells = static_cast<UINT>(Execution::GetConsoleWidth());
+            UINT imageWidthCells = static_cast<UINT>(Execution::GetConsoleWidth().value_or(120));
 
             icon.RenderSizeInCells(imageWidthCells, imageHeightCells);
             icon.RenderTo(outputStream);
@@ -1102,6 +1102,7 @@ namespace AppInstaller::CLI::Workflow
 
         auto &source = context.Get<Execution::Data::Source>();
         bool shouldShowSource = source.IsComposite() && source.GetAvailableSources().size() > 1;
+        bool sourceFilterProvided = context.Args.Contains(Execution::Args::Type::Source);
 
         PinBehavior pinBehavior;
         if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::Force))
@@ -1175,7 +1176,13 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                // The only time we don't want to output a line is when filtering and no update is available.
+                // When --source is given, only show packages that have a correlation (available version)
+                // in the specified source. Packages with no available match are not from that source.
+                if (sourceFilterProvided && !latestVersion)
+                {
+                    continue;
+                }
+
                 if (updateAvailable || !m_onlyShowUpgrades)
                 {
                     Utility::LocIndString availableVersion, sourceName;

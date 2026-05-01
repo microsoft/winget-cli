@@ -354,3 +354,28 @@ TEST_CASE("ConvertControlCodesToPictures", "[strings]")
 
     REQUIRE(ConvertControlCodesToPictures(allCodes) == ConvertToUTF8(allPictures));
 }
+
+TEST_CASE("IsValidWindowsFeaturePattern_AllFound_True", "[strings][111981]")
+{
+    for (const auto& name : {
+            "IIS-ODBCLogging",
+            "NetFx3",
+            "SMB1Protocol",
+        })
+    {
+        INFO(name);
+        REQUIRE(IsValidWindowsFeaturePattern(name));
+    }
+}
+
+TEST_CASE("IsValidWindowsFeaturePattern_Bad_False", "[strings][111981]")
+{
+    for (const auto& name : {
+            "MediaPlayback /LogPath:C:\\file.txt",
+            "\"MediaPlayback /LogPath:C:\\file.txt\"",
+        })
+    {
+        INFO(name);
+        REQUIRE(!IsValidWindowsFeaturePattern(name));
+    }
+}

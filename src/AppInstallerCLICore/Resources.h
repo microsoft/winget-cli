@@ -685,6 +685,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(SilentArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SingleCharAfterDashError);
+        WINGET_DEFINE_RESOURCE_STRINGID(SortArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SortAscendingArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SortDescendingArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SkipDependenciesArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesOnlyArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesOnlyMessage);

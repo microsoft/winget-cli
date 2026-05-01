@@ -85,8 +85,49 @@ TEST_CASE("AdminSetting_AllSettingsAreImplemented", "[adminSettings]")
     }
 }
 
-TEST_CASE("AdminSetting_CorruptedVerificationFile", "[adminSettings]")
+TEST_CASE("AdminSetting_ConfigurationProcessorPath", "[adminSettings]")
 {
+    WHEN("Default state")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::ConfigurationProcessorPath, PolicyState::NotConfigured);
+
+        REQUIRE_FALSE(IsAdminSettingEnabled(BoolAdminSetting::ConfigurationProcessorPath));
+    }
+
+    WHEN("Group policy not configured - can enable and disable")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::ConfigurationProcessorPath, PolicyState::NotConfigured);
+
+        REQUIRE(EnableAdminSetting(BoolAdminSetting::ConfigurationProcessorPath));
+        REQUIRE(IsAdminSettingEnabled(BoolAdminSetting::ConfigurationProcessorPath));
+        REQUIRE(DisableAdminSetting(BoolAdminSetting::ConfigurationProcessorPath));
+        REQUIRE_FALSE(IsAdminSettingEnabled(BoolAdminSetting::ConfigurationProcessorPath));
+    }
+
+    WHEN("Group policy enabled - cannot disable")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::ConfigurationProcessorPath, PolicyState::Enabled);
+
+        REQUIRE(IsAdminSettingEnabled(BoolAdminSetting::ConfigurationProcessorPath));
+        REQUIRE_FALSE(DisableAdminSetting(BoolAdminSetting::ConfigurationProcessorPath));
+        REQUIRE(IsAdminSettingEnabled(BoolAdminSetting::ConfigurationProcessorPath));
+    }
+
+    WHEN("Group policy disabled - cannot enable")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::ConfigurationProcessorPath, PolicyState::Disabled);
+
+        REQUIRE_FALSE(IsAdminSettingEnabled(BoolAdminSetting::ConfigurationProcessorPath));
+        REQUIRE_FALSE(EnableAdminSetting(BoolAdminSetting::ConfigurationProcessorPath));
+        REQUIRE_FALSE(IsAdminSettingEnabled(BoolAdminSetting::ConfigurationProcessorPath));
+    }
+}
+
+TEST_CASE("AdminSetting_CorruptedVerificationFile", "[adminSettings]"){
     GroupPolicyTestOverride policies;
     policies.SetState(TogglePolicy::Policy::LocalManifestFiles, PolicyState::NotConfigured);
 

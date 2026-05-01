@@ -8,6 +8,7 @@
 #include "winget/MsixManifestValidation.h"
 #include "winget/Locale.h"
 #include "winget/Filesystem.h"
+#include "winget/MsiExecArguments.h"
 
 namespace AppInstaller::Manifest
 {
@@ -27,6 +28,9 @@ namespace AppInstaller::Manifest
 
         const auto& GetErrorIdToMessageMap()
         {
+            // Each entry here must have a corresponding WINGET_DEFINE_RESOURCE_STRINGID in
+            // ManifestValidation.h (ManifestError namespace) and a value in the
+            // ManifestErrorId enum in src/WinGetUtilInterop/Common/ManifestErrorId.cs.
             static std::map<AppInstaller::StringResource::StringId, std::string_view> ErrorIdToMessageMap = {
                 { AppInstaller::Manifest::ManifestError::InvalidRootNode, "Encountered unexpected root node."sv },
                 { AppInstaller::Manifest::ManifestError::FieldUnknown, "Unknown field."sv },
@@ -85,13 +89,29 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::SchemaHeaderUrlPatternMismatch, "The schema header URL does not match the expected pattern."sv },
                 { AppInstaller::Manifest::ManifestError::InvalidPortableFiletype, "The file type of the referenced file is not allowed."sv },
                 { AppInstaller::Manifest::ManifestError::InvalidFontFiletype, "The file type of the referenced file is not a supported font file type."sv },
+                { AppInstaller::Manifest::ManifestError::InvalidWindowsFeatureName, "The provided value is not a valid Windows feature name."sv },
+                { AppInstaller::Manifest::ManifestError::BlockedMsiProperty, "Contains a blocked MSI property."sv },
+                { AppInstaller::Manifest::ManifestError::InvalidMsiSwitches, "Contains invalid MSI switches."sv },
+                { AppInstaller::Manifest::ManifestError::ContainsNetworkAddress, "Installer switch contains network address."sv },
             };
 
             return ErrorIdToMessageMap;
         }
+
+        bool ContainsSharePathSignifier(std::string_view input)
+        {
+            return Utility::CaseInsensitiveContainsSubstring(input, "\\\\");
+        }
+
+        bool ContainsNetworkAddressSignifier(std::string_view input)
+        {
+            return Utility::CaseInsensitiveContainsSubstring(input, "http://") ||
+                Utility::CaseInsensitiveContainsSubstring(input, "https://") ||
+                Utility::CaseInsensitiveContainsSubstring(input, "ftp://");
+        }
     }
 
-    std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation)
+    std::vector<ValidationError> ValidateManifest(const Manifest& manifest, const ManifestValidateOption& options)
     {
         std::vector<ValidationError> resultErrors;
 
@@ -115,7 +135,7 @@ namespace AppInstaller::Manifest
             resultErrors.emplace_back(ManifestError::InvalidFieldValue, "PackageVersion", manifest.Version);
         }
 
-        auto defaultLocErrors = ValidateManifestLocalization(manifest.DefaultLocalization, !fullValidation);
+        auto defaultLocErrors = ValidateManifestLocalization(manifest.DefaultLocalization, !options.FullValidation);
         std::move(defaultLocErrors.begin(), defaultLocErrors.end(), std::inserter(resultErrors, resultErrors.end()));
 
         // Comparison function to check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
@@ -166,7 +186,7 @@ namespace AppInstaller::Manifest
         for (auto const& installer : manifest.Installers)
         {
             // If not full validation, for future compatibility, skip validating unknown installers.
-            if (installer.EffectiveInstallerType() == InstallerTypeEnum::Unknown && !fullValidation)
+            if (installer.EffectiveInstallerType() == InstallerTypeEnum::Unknown && !options.FullValidation)
             {
                 continue;
             }
@@ -215,7 +235,7 @@ namespace AppInstaller::Manifest
 
             if (installer.EffectiveInstallerType() == InstallerTypeEnum::MSStore)
             {
-                if (fullValidation)
+                if (options.FullValidation)
                 {
                     // MSStore type is not supported in community repo
                     resultErrors.emplace_back(
@@ -247,7 +267,7 @@ namespace AppInstaller::Manifest
 
                 // Ensure that each URL has a one to one mapping with a Sha256 and
                 // warn if a Sha256 has a one to many mapping with a URL
-                if (fullValidation && !installer.Url.empty() && !installer.Sha256.empty())
+                if (options.FullValidation && !installer.Url.empty() && !installer.Sha256.empty())
                 {
                     std::string checksum = Utility::SHA256::ConvertToString(installer.Sha256);
                     std::string url = installer.Url;
@@ -351,11 +371,13 @@ namespace AppInstaller::Manifest
                     }
 
                     // If running full validation, check filetype
-                    if (fullValidation)
+                    if (options.FullValidation)
                     {
+                        const std::wstring lowerExtension = Utility::ToLower(fullPath.extension().wstring());
+
                         if (isPortable)
                         {
-                            if (fullPath.has_extension() && std::find(s_AllowedPortableFiletypes.begin(), s_AllowedPortableFiletypes.end(), fullPath.extension()) == s_AllowedPortableFiletypes.end())
+                            if (fullPath.has_extension() && std::find(s_AllowedPortableFiletypes.begin(), s_AllowedPortableFiletypes.end(), lowerExtension) == s_AllowedPortableFiletypes.end())
                             {
                                 resultErrors.emplace_back(ManifestError::InvalidPortableFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
                             }
@@ -363,7 +385,7 @@ namespace AppInstaller::Manifest
 
                         if (isFont)
                         {
-                            if (fullPath.has_extension() && std::find(s_AllowedFontFiletypes.begin(), s_AllowedFontFiletypes.end(), fullPath.extension()) == s_AllowedFontFiletypes.end())
+                            if (fullPath.has_extension() && std::find(s_AllowedFontFiletypes.begin(), s_AllowedFontFiletypes.end(), lowerExtension) == s_AllowedFontFiletypes.end())
                             {
                                 resultErrors.emplace_back(ManifestError::InvalidFontFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
                             }
@@ -425,7 +447,7 @@ namespace AppInstaller::Manifest
             // Check AuthInfo validity. For full validation (community repo), authentication type must be none.
             if (installer.AuthInfo.Type != Authentication::AuthenticationType::None)
             {
-                if (fullValidation)
+                if (options.FullValidation)
                 {
                     // Authentication is not supported (must be none) in community repo.
                     resultErrors.emplace_back(ManifestError::FieldNotSupported, "Authentication");
@@ -437,7 +459,15 @@ namespace AppInstaller::Manifest
                 }
             }
 
-            if (fullValidation)
+            installer.Dependencies.ApplyToType(DependencyType::WindowsFeature, [&](const Dependency& dependency)
+                {
+                    if (!IsValidWindowsFeaturePattern(dependency.Id()))
+                    {
+                        resultErrors.emplace_back(ManifestError::InvalidWindowsFeatureName, dependency.Id());
+                    }
+                });
+
+            if (options.FullValidation)
             {
                 for (const auto& container : installer.DesiredStateConfiguration)
                 {
@@ -448,13 +478,50 @@ namespace AppInstaller::Manifest
                         break;
                     }
                 }
+
+                if (DoesInstallerTypeUseMsiProperties(installer.EffectiveInstallerType()))
+                {
+                    try
+                    {
+                        for (const auto& item : installer.Switches)
+                        {
+                            if (!item.second.empty())
+                            {
+                                auto blocked = Msi::ParseMSIArguments(item.second).GetFirstBlockedProperty();
+                                if (blocked)
+                                {
+                                    resultErrors.emplace_back(ManifestError::BlockedMsiProperty, blocked.value());
+                                }
+                            }
+                        }
+                    }
+                    catch (...)
+                    {
+                        resultErrors.emplace_back(ManifestError::InvalidMsiSwitches);
+                    }
+                }
+
+                for (const auto& item : installer.Switches)
+                {
+                    if (!item.second.empty())
+                    {
+                        if (ContainsSharePathSignifier(item.second))
+                        {
+                            resultErrors.emplace_back(ManifestError::ContainsNetworkAddress, item.second);
+                        }
+                        else if (ContainsNetworkAddressSignifier(item.second))
+                        {
+                            resultErrors.emplace_back(ManifestError::ContainsNetworkAddress, item.second, options.ErrorOnNetworkAddressInSwitches ? ValidationError::Level::Error : ValidationError::Level::Warning);
+                        }
+                    }
+                }
             }
         }
 
         // Validate localizations
         for (auto const& localization : manifest.Localizations)
         {
-            auto locErrors = ValidateManifestLocalization(localization, !fullValidation);
+            auto locErrors = ValidateManifestLocalization(localization, !options.FullValidation);
             std::move(locErrors.begin(), locErrors.end(), std::inserter(resultErrors, resultErrors.end()));
         }
 
@@ -515,5 +582,88 @@ namespace AppInstaller::Manifest
         }
         
         return Utility::ConvertToUTF8(Message);
+    }
+
+    const std::string& ManifestException::GetManifestErrorMessage() const noexcept
+    {
+        if (m_manifestErrorMessage.empty())
+        {
+            if (m_errors.empty())
+            {
+                // Syntax error, yaml parser error is stored in FailureInfo
+                if (GetFailureInfo().pszMessage)
+                {
+                    m_manifestErrorMessage = Utility::ConvertToUTF8(GetFailureInfo().pszMessage);
+                }
+            }
+            else
+            {
+                for (auto const& error : m_errors)
+                {
+                    if (error.ErrorLevel == ValidationError::Level::Error)
+                    {
+                        m_manifestErrorMessage += ManifestError::ErrorMessagePrefix;
+                    }
+                    else if (error.ErrorLevel == ValidationError::Level::Warning)
+                    {
+                        m_manifestErrorMessage += ManifestError::WarningMessagePrefix;
+                    }
+                    m_manifestErrorMessage += error.GetErrorMessage();
+
+                    if (!error.Context.empty())
+                    {
+                        m_manifestErrorMessage += " [" + error.Context + "]";
+                    }
+                    if (!error.Value.empty())
+                    {
+                        m_manifestErrorMessage += " Value: " + error.Value;
+                    }
+                    if (error.Line > 0 && error.Column > 0)
+                    {
+                        m_manifestErrorMessage += " Line: " + std::to_string(error.Line) + ", Column: " + std::to_string(error.Column);
+                    }
+                    if (!error.FileName.empty())
+                    {
+                        m_manifestErrorMessage += " File: " + error.FileName;
+                    }
+                    m_manifestErrorMessage += '\n';
+                }
+            }
+        }
+        return m_manifestErrorMessage;
+    }
+
+    std::string ManifestException::GetManifestErrorJson() const noexcept
+    {
+        try
+        {
+            Json::Value root;
+            root["fullMessage"] = GetManifestErrorMessage();
+            root["isSyntaxError"] = m_errors.empty();
+
+            Json::Value errorsArray(Json::arrayValue);
+            for (auto const& error : m_errors)
+            {
+                Json::Value entry;
+                entry["errorId"] = Utility::ConvertToUTF8(error.Message);
+                entry["message"] = error.GetErrorMessage();
+                entry["context"] = error.Context;
+                entry["value"] = error.Value;
+                entry["line"] = static_cast<Json::UInt64>(error.Line);
+                entry["column"] = static_cast<Json::UInt64>(error.Column);
+                entry["level"] = (error.ErrorLevel == ValidationError::Level::Error) ? "Error" : "Warning";
+                entry["file"] = error.FileName;
+                errorsArray.append(std::move(entry));
+            }
+            root["errors"] = std::move(errorsArray);
+
+            Json::StreamWriterBuilder writer;
+            writer["indentation"] = "";
+            return Json::writeString(writer, root);
+        }
+        catch (...)
+        {
+            return {};
+        }
     }
 }

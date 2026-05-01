@@ -936,6 +936,100 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
     }
 }
 
+TEST_CASE("ShellExecuteHandlerInstallerArgs_LogNamingStrategy", "[InstallFlow][workflow]")
+{
+    SECTION("Manifest")
+    {
+        TestUserSettings testSettings;
+        testSettings.Set<Setting::LoggingFileNameStrategy>(LogNameStrategy::Manifest);
+
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
+        context << GetInstallerArgs;
+
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs.find(manifest.Id) != std::string::npos);
+        REQUIRE(installerArgs.find(manifest.Version) != std::string::npos);
+
+        REQUIRE(context.Contains(Data::LogPath));
+        auto logPath = context.Get<Data::LogPath>();
+        REQUIRE(logPath.filename().u8string().find(manifest.Id) != std::string::npos);
+    }
+
+    SECTION("Timestamp")
+    {
+        TestUserSettings testSettings;
+        testSettings.Set<Setting::LoggingFileNameStrategy>(LogNameStrategy::Timestamp);
+
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
+        context << GetInstallerArgs;
+
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs.find(manifest.Id) == std::string::npos);
+        REQUIRE(installerArgs.find(manifest.Version) == std::string::npos);
+
+        REQUIRE(context.Contains(Data::LogPath));
+        auto logPath = context.Get<Data::LogPath>();
+        REQUIRE(logPath.extension().u8string() == std::string{ FileLogger::DefaultExt() });
+        REQUIRE(logPath.stem().u8string().find(manifest.Id) == std::string::npos);
+    }
+
+    SECTION("Guid")
+    {
+        TestUserSettings testSettings;
+        testSettings.Set<Setting::LoggingFileNameStrategy>(LogNameStrategy::Guid);
+
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
+        context << GetInstallerArgs;
+
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs.find(manifest.Id) == std::string::npos);
+
+        REQUIRE(context.Contains(Data::LogPath));
+        auto logPath = context.Get<Data::LogPath>();
+        REQUIRE(logPath.extension().u8string() == std::string{ FileLogger::DefaultExt() });
+        // A GUID string is 36 characters: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        REQUIRE(logPath.stem().u8string().size() == 36);
+    }
+
+    SECTION("ShortGuid")
+    {
+        TestUserSettings testSettings;
+        testSettings.Set<Setting::LoggingFileNameStrategy>(LogNameStrategy::ShortGuid);
+
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
+        context << GetInstallerArgs;
+
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs.find(manifest.Id) == std::string::npos);
+
+        REQUIRE(context.Contains(Data::LogPath));
+        auto logPath = context.Get<Data::LogPath>();
+        REQUIRE(logPath.extension().u8string() == std::string{ FileLogger::DefaultExt() });
+        // A short GUID is the first 8 characters of a full GUID
+        REQUIRE(logPath.stem().u8string().size() == 8);
+    }
+}
+
 TEST_CASE("InstallFlow_SearchAndInstall", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");

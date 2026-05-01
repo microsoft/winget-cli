@@ -93,7 +93,7 @@ namespace AppInstaller::Filesystem
         // Shorthand for setting Owner and giving them ACEPermissions::All
         void SetOwner(ACEPrincipal owner);
 
-        // Determines if the ACL should be applied.
+        // Determines if the ACL needs to be applied.
         bool ShouldApplyACL() const;
 
         // Applies the ACL unconditionally.

@@ -7,6 +7,7 @@ ACCESSDENIED
 ACCESSTOKEN
 ACL'd
 adjacents
+adminproperties
 adml
 admx
 AFAIK
@@ -284,6 +285,7 @@ Kaido
 KNOWNFOLDERID
 kool
 ktf
+LASTEXITCODE
 LCID
 learnxinyminutes
 LEBOM
@@ -353,6 +355,7 @@ msdownload
 msft
 msftrubengu
 MSIHASH
+msinewinstance
 MSIXHASH
 MSIXSTRM
 msstore
@@ -517,6 +520,7 @@ sddl
 secureobject
 securestring
 seekp
+Segoe
 seof
 servercert
 servercertificate
@@ -529,6 +533,7 @@ sfsclient
 SHCONTF
 shellapi
 SHGDN
+shortguid
 SHOWNORMAL
 sid
 Sideload
@@ -567,6 +572,7 @@ swgus
 SYD
 SYG
 systemnotsupported
+tableoutput
 Tagit
 TARG
 taskhostw

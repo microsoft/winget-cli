@@ -47,6 +47,27 @@ namespace AppInstaller::Settings
         Disabled,
     };
 
+    // Sort field for output ordering.
+    enum class SortField
+    {
+        Relevance,  // Preserves current natural order (source-defined relevance ranking)
+        Name,
+        Id,
+        Version,
+        Source,
+        Available,
+    };
+
+    // Sort direction for output ordering.
+    enum class SortDirection
+    {
+        Ascending,
+        Descending,
+    };
+
+    // Converts a string to SortField. Returns std::nullopt for unrecognized values.
+    std::optional<SortField> ConvertToSortField(std::string_view value);
+
     // The download code to use for *installers*.
     enum class InstallerDownloader
     {
@@ -102,6 +123,7 @@ namespace AppInstaller::Settings
         // Logging
         LoggingLevelPreference,
         LoggingChannelPreference,
+        LoggingFileNameStrategy,
         LoggingFileAgeLimitInDays,
         LoggingFileTotalSizeLimitInMB,
         LoggingFileIndividualSizeLimitInMB,
@@ -114,6 +136,9 @@ namespace AppInstaller::Settings
         ConfigureDefaultModuleRoot,
         // Interactivity
         InteractivityDisable,
+        // Output behavior
+        OutputSortOrder,
+        OutputSortDirection,
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Debug
         EnableSelfInitiatedMinidump,
@@ -202,12 +227,16 @@ namespace AppInstaller::Settings
         // Logging
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingLevelPreference, std::string, Logging::Level, Logging::Level::Info, ".logging.level"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingChannelPreference, std::vector<std::string>, Logging::Channel, Logging::Channel::Defaults, ".logging.channels"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileNameStrategy, std::string, Logging::LogNameStrategy, Logging::LogNameStrategy::Manifest, ".logging.fileNameStrategy"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileAgeLimitInDays, uint32_t, std::chrono::hours, (7 * 24h), ".logging.file.ageLimitInDays"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileTotalSizeLimitInMB, uint32_t, uint32_t, 128, ".logging.file.totalSizeLimitInMB"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileIndividualSizeLimitInMB, uint32_t, uint32_t, 16, ".logging.file.individualSizeLimitInMB"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileCountLimit, uint32_t, uint32_t, 0, ".logging.file.countLimit"sv);
         // Interactivity
         SETTINGMAPPING_SPECIALIZATION(Setting::InteractivityDisable, bool, bool, false, ".interactivity.disable"sv);
+        // Output behavior
+        SETTINGMAPPING_SPECIALIZATION(Setting::OutputSortOrder, std::vector<std::string>, std::vector<SortField>, std::vector<SortField>{}, ".output.sortOrder"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::OutputSortDirection, std::string, SortDirection, SortDirection::Ascending, ".output.sortDirection"sv);
         
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>
