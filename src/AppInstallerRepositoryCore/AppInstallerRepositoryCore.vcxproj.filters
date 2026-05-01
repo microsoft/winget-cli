@@ -82,6 +82,9 @@
     <Filter Include="Microsoft\Schema\Pinning_1_0">
       <UniqueIdentifier>{f05e19bb-2161-4ab0-9d04-2dfa2d3eb3c6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\Schema\Pinning_1_1">
+      <UniqueIdentifier>{a3e2f7c1-5d84-4b9e-8f02-1c6d3a7b0e45}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Rest\Schema\1_6">
       <UniqueIdentifier>{21da32f5-b918-436e-96a9-465525f90259}</UniqueIdentifier>
     </Filter>
@@ -374,6 +377,12 @@
     </ClInclude>
     <ClInclude Include="Microsoft\Schema\Pinning_1_0\PinTable.h">
       <Filter>Microsoft\Schema\Pinning_1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\Pinning_1_1\PinningIndexInterface.h">
+      <Filter>Microsoft\Schema\Pinning_1_1</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\Pinning_1_1\PinTable.h">
+      <Filter>Microsoft\Schema\Pinning_1_1</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\InstalledFilesCorrelation.h">
       <Filter>Public\winget</Filter>
@@ -695,6 +704,9 @@
     <ClCompile Include="Microsoft\Schema\Pinning_1_0\PinTable.cpp">
       <Filter>Microsoft\Schema\Pinning_1_0</Filter>
     </ClCompile>
+    <ClCompile Include="Microsoft\Schema\Pinning_1_1\PinTable.cpp">
+      <Filter>Microsoft\Schema\Pinning_1_1</Filter>
+    </ClCompile>
     <ClCompile Include="InstalledFilesCorrelation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -727,6 +739,9 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\Pinning_1_0\PinningIndexInterface_1_0.cpp">
       <Filter>Microsoft\Schema\Pinning_1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\Pinning_1_1\PinningIndexInterface_1_1.cpp">
+      <Filter>Microsoft\Schema\Pinning_1_1</Filter>
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_7\RestInterface_1_7.cpp">
       <Filter>Rest\Schema\1_7</Filter>
