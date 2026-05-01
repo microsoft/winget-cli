@@ -17,6 +17,13 @@ namespace AppInstaller::Settings
 
 namespace AppInstaller::Logging
 {
+    enum class ExecutionLevel : UINT32
+    {
+        User = 0,
+        Admin = 1,
+        System = 2,
+    };
+
     enum class FailureTypeEnum : UINT32
     {
         None = 0x0,
@@ -61,6 +68,7 @@ namespace AppInstaller::Logging
 
         // LogStartup
         bool IsCOMCall = false;
+        ExecutionLevel ExecutionLevel = ExecutionLevel::User;
 
         // LogCommand
         std::string Command;

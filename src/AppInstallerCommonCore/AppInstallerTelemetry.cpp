@@ -237,6 +237,16 @@ namespace AppInstaller::Logging
             packageVersion = Runtime::GetPackageVersion();
         }
 
+        ExecutionLevel executionLevel = ExecutionLevel::User;
+        if (Runtime::IsRunningAsSystem())
+        {
+            executionLevel = ExecutionLevel::System;
+        }
+        else if (Runtime::IsRunningAsAdmin())
+        {
+            executionLevel = ExecutionLevel::Admin;
+        }
+
         if (IsTelemetryEnabled())
         {
             AICLI_TraceLoggingWriteActivity(
@@ -250,11 +260,12 @@ namespace AppInstaller::Logging
             if (m_useSummary)
             {
                 m_summary.IsCOMCall = isCOMCall;
+                m_summary.ExecutionLevel = executionLevel;
             }
         }
 
         AICLI_LOG(Core, Info, << "WinGet, version [" << version << "], activity [" << *GetActivityId() << ']');
-        AICLI_LOG(Core, Info, << "Process: " << Filesystem::GetExecutablePathForProcess(GetCurrentProcess()).filename() << "[" << GetCurrentProcessId() << "], Offset: " << &__ImageBase);
+        AICLI_LOG(Core, Info, << "Process: " << Filesystem::GetExecutablePathForProcess(GetCurrentProcess()).filename() << "[" << GetCurrentProcessId() << "], Level[" << executionLevel << "], Offset: " << &__ImageBase);
         AICLI_LOG(Core, Info, << "OS: " << Runtime::GetOSVersion());
         AICLI_LOG(Core, Info, << "Command line Args: " << Utility::ConvertToUTF8(GetCommandLineW()));
         if (Runtime::IsRunningInPackagedContext())
@@ -867,6 +878,7 @@ namespace AppInstaller::Logging
                     AICLI_TraceLoggingStringView(m_summary.FailureFile, "FailureFile"),
                     TraceLoggingUInt32(m_summary.FailureLine, "FailureLine"),
                     TraceLoggingBool(m_summary.IsCOMCall, "IsCOMCall"),
+                    TraceLoggingUInt32(static_cast<UINT32>(m_summary.ExecutionLevel), "ExecutionLevel"),
                     AICLI_TraceLoggingStringView(m_summary.Command, "Command"),
                     TraceLoggingBool(m_summary.CommandSuccess, "CommandSuccess"),
                     TraceLoggingBool(m_summary.IsManifestLocal, "IsManifestLocal"),
