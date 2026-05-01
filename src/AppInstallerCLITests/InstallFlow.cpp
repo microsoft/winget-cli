@@ -5,6 +5,8 @@
 #include "TestHooks.h"
 #include "AppInstallerRuntime.h"
 #include <AppInstallerFileLogger.h>
+#include <AppInstallerProgress.h>
+#include <winget/MSStore.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerSynchronization.h>
 #include <Commands/InstallCommand.h>
@@ -601,24 +603,23 @@ TEST_CASE("MSStoreInstallFlow_MachineScopeProvision", "[InstallFlow][MSStore]")
 
     TestHook::SetForceProvisionAfterInstall_Override forceProvisionOverride(true);
 
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForMSStore(context, false);
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_MSStore_MachineScopeProvision.yaml").GetPath().u8string());
+    AppInstaller::ProgressCallback progress;
+    AppInstaller::MSStore::MSStoreOperation installOperation(
+        AppInstaller::MSStore::MSStoreOperationType::Install,
+        L"9NVTPZWRC6KQ",
+        AppInstaller::Manifest::ScopeEnum::User,
+        true,
+        false);
 
-    InstallCommand install({});
-    install.Execute(context);
-    INFO(installOutput.str());
-
-    REQUIRE(!context.IsTerminated());
+    HRESULT hr = installOperation.StartAndWaitForOperation(progress);
+    REQUIRE(SUCCEEDED(hr));
 
     // Verify the package is now provisioned.
     winrt::Windows::Management::Deployment::PackageManager packageManager;
     bool isProvisioned = false;
     for (auto const& pkg : packageManager.FindProvisionedPackages())
     {
-        if (pkg.Id().FamilyName() == L"Microsoft.DesiredStateConfiguration-Preview_8wekyb3d8bbwe")
+        if (pkg.Id().FamilyName() == L"Microsoft.DesiredStateConfiguration_8wekyb3d8bbwe")
         {
             isProvisioned = true;
             break;
