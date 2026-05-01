@@ -7,7 +7,9 @@
 namespace Microsoft.WinGet.Client.Engine.Commands
 {
     using System.Management.Automation;
+    using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
+    using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Client.Engine.PSObjects;
     using Microsoft.WinGet.Common.Command;
@@ -32,8 +34,15 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="sourceName">The source name to scope the reset. Pass null or empty to reset all sources.</param>
         public void Reset(string sourceName)
         {
+            PackageCatalogReference? catalogReference = null;
+            if (!string.IsNullOrEmpty(sourceName))
+            {
+                catalogReference = PackageManagerWrapper.Instance.GetPackageCatalogByName(sourceName)
+                    ?? throw new InvalidSourceException(sourceName);
+            }
+
             var result = this.Execute(
-                () => PackageManagerWrapper.Instance.ResetAllPins(sourceName ?? string.Empty));
+                () => PackageManagerWrapper.Instance.ResetAllPins(catalogReference));
 
             this.Write(StreamType.Object, new PSPinResult(result));
         }

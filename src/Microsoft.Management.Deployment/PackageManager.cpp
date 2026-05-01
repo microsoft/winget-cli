@@ -1724,7 +1724,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return MakePinPackageResult(terminationHR);
     }
 
-    winrt::Microsoft::Management::Deployment::PinPackageResult PackageManager::ResetAllPins(winrt::hstring const& sourceName)
+    winrt::Microsoft::Management::Deployment::PinPackageResult PackageManager::ResetAllPins(winrt::Microsoft::Management::Deployment::PackageCatalogReference packageCatalogReference)
     {
         LogStartupIfApplicable();
 
@@ -1734,12 +1734,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageManagement));
 
             std::string sourceId;
-            if (!sourceName.empty())
+            if (packageCatalogReference)
             {
-                auto matchingSource = GetMatchingSource(winrt::to_string(sourceName));
-                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NOT_FOUND), !matchingSource.has_value());
-
-                sourceId = matchingSource->Identifier;
+                sourceId = winrt::to_string(packageCatalogReference.Info().Id());
             }
 
             auto pinningData = ::AppInstaller::Pinning::PinningData{ ::AppInstaller::Pinning::PinningData::Disposition::ReadWrite };

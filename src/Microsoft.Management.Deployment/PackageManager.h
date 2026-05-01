@@ -59,7 +59,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackagePin> GetPins(winrt::Microsoft::Management::Deployment::CatalogPackage package);
         winrt::Microsoft::Management::Deployment::PinPackageResult PinPackage(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PinPackageOptions options);
         winrt::Microsoft::Management::Deployment::PinPackageResult UnpinPackage(winrt::Microsoft::Management::Deployment::CatalogPackage package);
-        winrt::Microsoft::Management::Deployment::PinPackageResult ResetAllPins(winrt::hstring const& sourceName);
+        winrt::Microsoft::Management::Deployment::PinPackageResult ResetAllPins(winrt::Microsoft::Management::Deployment::PackageCatalogReference packageCatalogReference);
     };
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)

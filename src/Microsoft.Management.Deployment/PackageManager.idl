@@ -1698,9 +1698,9 @@ namespace Microsoft.Management.Deployment
             /// Returns PackagePinNotFound if no pin exists for the package.
             PinPackageResult UnpinPackage(CatalogPackage package);
 
-            /// Reset (remove) all pins. If sourceName is non-empty, only pins from that
-            /// catalog source are removed; otherwise all pins are removed.
-            PinPackageResult ResetAllPins(String sourceName);
+            /// Reset (remove) all pins. If packageCatalogReference is non-null, only pins from that
+            /// catalog are removed; otherwise all pins are removed.
+            PinPackageResult ResetAllPins(PackageCatalogReference packageCatalogReference);
         }
     }
 

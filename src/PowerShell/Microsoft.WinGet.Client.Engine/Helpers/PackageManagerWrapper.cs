@@ -187,12 +187,12 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <summary>
         /// Wrapper for ResetAllPins.
         /// </summary>
-        /// <param name="sourceName">The source name to reset pins for. Pass empty string to reset all.</param>
+        /// <param name="packageCatalogReference">The catalog reference to reset pins for. Pass null to reset all.</param>
         /// <returns>A PinPackageResult.</returns>
-        public PinPackageResult ResetAllPins(string sourceName)
+        public PinPackageResult ResetAllPins(PackageCatalogReference? packageCatalogReference)
         {
             return this.Execute(
-                () => this.packageManager.ResetAllPins(sourceName),
+                () => this.packageManager.ResetAllPins(packageCatalogReference!),
                 false);
         }
 
