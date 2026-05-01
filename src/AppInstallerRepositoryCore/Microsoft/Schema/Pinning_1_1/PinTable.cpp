@@ -81,11 +81,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         SQLite::Builder::StatementBuilder builder;
         const auto& pinKey = pin.GetKey();
 
-        const auto& dateAdded = pin.GetDateAdded();
-        std::optional<int64_t> epochOpt = dateAdded.has_value()
-            ? std::optional<int64_t>{ Utility::ConvertSystemClockToUnixEpoch(*dateAdded) }
-            : std::nullopt;
-
         builder.InsertInto(s_PinTable_Table_Name)
             .Columns({
                 s_PinTable_PackageId_Column,
@@ -99,7 +94,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
                 pinKey.SourceId,
                 pin.GetType(),
                 pin.GetGatedVersion().ToString(),
-                epochOpt,
+                Utility::ConvertSystemClockToUnixEpoch(std::chrono::system_clock::now()),
                 pin.GetNote());
 
         builder.Execute(connection);
@@ -111,17 +106,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         SQLite::Builder::StatementBuilder builder;
         const auto& pinKey = pin.GetKey();
 
-        const auto& dateAdded = pin.GetDateAdded();
-        std::optional<int64_t> epochOpt = dateAdded.has_value()
-            ? std::optional<int64_t>{ Utility::ConvertSystemClockToUnixEpoch(*dateAdded) }
-            : std::nullopt;
-
         builder.Update(s_PinTable_Table_Name).Set()
             .Column(s_PinTable_PackageId_Column).AssignValue(pinKey.PackageId)
             .Column(s_PinTable_SourceId_Column).AssignValue(pinKey.SourceId)
             .Column(s_PinTable_Type_Column).AssignValue(pin.GetType())
             .Column(s_PinTable_Version_Column).AssignValue(pin.GetGatedVersion().ToString())
-            .Column(s_PinTable_DateAdded_Column).AssignValue(epochOpt)
+            .Column(s_PinTable_DateAdded_Column).AssignValue(Utility::ConvertSystemClockToUnixEpoch(std::chrono::system_clock::now()))
             .Column(s_PinTable_Note_Column).AssignValue(pin.GetNote());
 
         builder.Where(SQLite::RowIDName).Equals(pinId);
