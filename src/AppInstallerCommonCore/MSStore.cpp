@@ -216,7 +216,8 @@ namespace AppInstaller::MSStore
         };
 
         // After a successful machine-scope Store install, the package may not be provisioned on older
-        // Windows versions. This helper ensures the package is provisioned as a best-effort mitigation.
+        // Windows versions (fixed in Windows 11 26100). This helper ensures the package is provisioned
+        // as a best-effort mitigation.
         void EnsureProvisionedForMachineScope(const IVectorView<AppInstallItem>& installItems, std::wstring_view productId, IProgressCallback& progress) try
         {
             PackageManager packageManager;
@@ -447,8 +448,9 @@ namespace AppInstaller::MSStore
 
         if (SUCCEEDED(hr) && shouldProvision)
         {
-            // Mitigation: on older OS versions the Store install service may not provision the package
-            // even when InstallForAllUsers was set. Explicitly provision if not already provisioned.
+            // Mitigation: on older OS versions (fixed in Windows 11 26100) the Store install service
+            // may not provision the package even when InstallForAllUsers was set.
+            // Explicitly provision if not already provisioned.
             EnsureProvisionedForMachineScope(installItems, m_productId, progress);
         }
 
