@@ -184,7 +184,7 @@ builder.Execute(connection);
 // UPDATE
 StatementBuilder builder;
 builder.Update(s_MyTable).Set()
-    .Column(s_Col_Value).Equals(newValue)
+    .Column(s_Col_Value).AssignValue(newValue)
     .Where(s_Col_Id).Equals(rowId);
 builder.Execute(connection);
 
@@ -217,7 +217,7 @@ std::optional<int64_t> maybeEpoch = ...;
 std::optional<std::string> maybeNote = ...;
 
 builder.Update(s_MyTable).Set()
-    .Column(s_Col_Name).Equals(requiredName)         // non-optional: fine in SET
+    .Column(s_Col_Name).AssignValue(requiredName)    // non-optional: AssignValue in SET
     .Column(s_Col_Epoch).AssignValue(maybeEpoch)     // nullable: must use AssignValue in SET
     .Column(s_Col_Note).AssignValue(maybeNote)       // nullable: must use AssignValue in SET
     .Where(s_Col_Id).Equals(rowId);                  // filter: Equals is correct here
