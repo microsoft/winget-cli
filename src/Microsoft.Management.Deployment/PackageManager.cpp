@@ -1737,10 +1737,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             if (!sourceName.empty())
             {
                 auto matchingSource = GetMatchingSource(winrt::to_string(sourceName));
-                if (matchingSource.has_value())
-                {
-                    sourceId = matchingSource->Identifier;
-                }
+                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NOT_FOUND), !matchingSource.has_value());
+
+                sourceId = matchingSource->Identifier;
             }
 
             auto pinningData = ::AppInstaller::Pinning::PinningData{ ::AppInstaller::Pinning::PinningData::Disposition::ReadWrite };
