@@ -168,7 +168,7 @@ TEST_CASE("PinningIndex_AddDuplicatePin", "[pinningIndex]")
     REQUIRE_THROWS(index.AddPin(pin), ERROR_ALREADY_EXISTS);
 }
 
-TEST_CASE("PinningIndexCreateLatest_Is_V1_1", "[pinningIndex]")
+TEST_CASE("PinningIndexCreateLatest_HasCorrectVersion", "[pinningIndex]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
