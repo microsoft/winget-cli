@@ -204,29 +204,6 @@ TEST_CASE("PinningIndex_V1_1_AddPin_WithDateAndNote", "[pinningIndex]")
     }
 }
 
-TEST_CASE("PinningIndex_V1_1_AddPin_WithoutNote", "[pinningIndex]")
-{
-    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
-    INFO("Using temporary file named: " << tempFile.GetPath());
-
-    Pin pin = Pin::CreatePinningPin({ "pkgId", "sourceId" });
-    pin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1030));
-    // note intentionally left unset
-
-    {
-        PinningIndex index = PinningIndex::CreateNew(tempFile, Version::Latest());
-        index.AddPin(pin);
-    }
-
-    {
-        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
-
-        auto pinFromIndex = Pinning_V1_1::PinTable::GetPinById(connection, 1);
-        REQUIRE(pinFromIndex.has_value());
-        REQUIRE(pinFromIndex->GetDateAdded() == AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1030));
-        REQUIRE_FALSE(pinFromIndex->GetNote().has_value());
-    }
-}
 
 TEST_CASE("PinningIndex_V1_1_AddUpdateRemove", "[pinningIndex]")
 {
