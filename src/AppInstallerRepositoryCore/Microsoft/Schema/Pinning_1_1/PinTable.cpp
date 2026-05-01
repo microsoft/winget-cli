@@ -81,6 +81,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         SQLite::Builder::StatementBuilder builder;
         const auto& pinKey = pin.GetKey();
 
+        int64_t epochToStore = pin.GetDateAdded().has_value()
+            ? Utility::ConvertSystemClockToUnixEpoch(*pin.GetDateAdded())
+            : Utility::ConvertSystemClockToUnixEpoch(std::chrono::system_clock::now());
+
         builder.InsertInto(s_PinTable_Table_Name)
             .Columns({
                 s_PinTable_PackageId_Column,
@@ -94,7 +98,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
                 pinKey.SourceId,
                 pin.GetType(),
                 pin.GetGatedVersion().ToString(),
-                Utility::ConvertSystemClockToUnixEpoch(std::chrono::system_clock::now()),
+                epochToStore,
                 pin.GetNote());
 
         builder.Execute(connection);
@@ -106,12 +110,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         SQLite::Builder::StatementBuilder builder;
         const auto& pinKey = pin.GetKey();
 
+        int64_t epochToStore = pin.GetDateAdded().has_value()
+            ? Utility::ConvertSystemClockToUnixEpoch(*pin.GetDateAdded())
+            : Utility::ConvertSystemClockToUnixEpoch(std::chrono::system_clock::now());
+
         builder.Update(s_PinTable_Table_Name).Set()
             .Column(s_PinTable_PackageId_Column).AssignValue(pinKey.PackageId)
             .Column(s_PinTable_SourceId_Column).AssignValue(pinKey.SourceId)
             .Column(s_PinTable_Type_Column).AssignValue(pin.GetType())
             .Column(s_PinTable_Version_Column).AssignValue(pin.GetGatedVersion().ToString())
-            .Column(s_PinTable_DateAdded_Column).AssignValue(Utility::ConvertSystemClockToUnixEpoch(std::chrono::system_clock::now()))
+            .Column(s_PinTable_DateAdded_Column).AssignValue(epochToStore)
             .Column(s_PinTable_Note_Column).AssignValue(pin.GetNote());
 
         builder.Where(SQLite::RowIDName).Equals(pinId);
