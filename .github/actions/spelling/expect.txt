@@ -283,6 +283,7 @@ Kaido
 KNOWNFOLDERID
 kool
 ktf
+LASTEXITCODE
 LCID
 learnxinyminutes
 LEBOM
@@ -624,6 +625,7 @@ VERSIONINFO
 vns
 vsconfig
 vstest
+vswhere
 waitable
 wal
 wcex
@@ -651,6 +653,7 @@ wingetutil
 winreg
 winrtact
 winstring
+wintrust
 WMI
 wmmc
 wnd
