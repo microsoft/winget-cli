@@ -6,6 +6,7 @@
 
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
+    using System;
     using Microsoft.Management.Deployment;
 
     /// <summary>
