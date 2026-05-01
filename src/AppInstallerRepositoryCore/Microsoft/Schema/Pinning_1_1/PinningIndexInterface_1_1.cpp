@@ -35,6 +35,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         return true;
     }
 
+	// Override the pin methods to use the correct PinTable methods for version 1.1
+
     SQLite::rowid_t PinningIndexInterface::IAddPin(SQLite::Connection& connection, const Pinning::Pin& pin)
     {
         return PinTable::AddPin(connection, pin);
