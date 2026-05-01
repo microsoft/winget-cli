@@ -32,7 +32,7 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::IncludeUnknown, Resource::String::IncludeUnknownInListArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::IncludePinned, Resource::String::IncludePinnedInListArgumentDescription, ArgumentType::Flag},
             Argument::ForType(Execution::Args::Type::ListDetails),
-            Argument{ Execution::Args::Type::Sort, Resource::String::SortArgumentDescription, ArgumentType::Standard },
+            Argument{ Execution::Args::Type::Sort, Resource::String::SortArgumentDescription, ArgumentType::Standard }.SetCountLimit(6),
             Argument{ Execution::Args::Type::SortAscending, Resource::String::SortAscendingArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::SortDescending, Resource::String::SortDescendingArgumentDescription, ArgumentType::Flag },
         };

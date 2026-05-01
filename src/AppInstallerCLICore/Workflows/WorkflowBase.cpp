@@ -3,11 +3,13 @@
 #include "pch.h"
 #include "WorkflowBase.h"
 #include "ExecutionContext.h"
-#include <winget/ManifestComparator.h>
+#include "PackageTableSortHelper.h"
 #include "PromptFlow.h"
 #include "ShowFlow.h"
 #include "Sixel.h"
 #include "TableOutput.h"
+#include <winget/UserSettings.h>
+#include <winget/ManifestComparator.h>
 #include <winget/FileCache.h>
 #include <winget/ExperimentalFeature.h>
 #include <winget/ManifestYamlParser.h>
@@ -457,6 +459,98 @@ namespace AppInstaller::CLI::Workflow
 
                 // FUTURE: We could also pull data from the tracking database to show some things that we store there specifically.
             }
+        }
+
+        // Sorts a vector of InstalledPackagesTableLine according to the user's sort preferences.
+        // Resolution order: CLI args (--sort) > settings (output.sortOrder) > query-aware default.
+        void SortInstalledPackagesTableLines(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
+        {
+            if (lines.size() <= 1)
+            {
+                return;
+            }
+
+            // 1. Determine sort fields: CLI --sort overrides everything
+            std::vector<SortField> sortFields;
+            bool hasExplicitSort = context.Args.Contains(Execution::Args::Type::Sort);
+
+            if (hasExplicitSort)
+            {
+                for (const auto& arg : *context.Args.GetArgs(Execution::Args::Type::Sort))
+                {
+                    auto field = ConvertToSortField(arg);
+                    if (field)
+                    {
+                        sortFields.emplace_back(field.value());
+                    }
+                    else
+                    {
+                        // Invalid values should not reach here; ValidateArguments
+                        // rejects them with a CommandException before workflow execution begins.
+                        FAIL_FAST_MSG("Unexpected sort field value reached workflow; validation should have caught this.");
+                    }
+                }
+            }
+            else
+            {
+                sortFields = User().Get<Setting::OutputSortOrder>();
+
+                if (sortFields.empty())
+                {
+                    if (context.Args.Contains(Execution::Args::Type::Query))
+                    {
+                        // When the free-text query argument is present and the user has NOT
+                        // configured a sort preference in settings, preserve relevance ordering.
+                        // Only the positional query argument populates searchRequest.Query and
+                        // produces meaningful relevance ranking; filter arguments like --id,
+                        // --name, --tag etc. use exact/substring matching where all results
+                        // have equivalent relevance.
+                        // If the user explicitly configured output.sortOrder, respect it even
+                        // with queries — that is an explicit user preference.
+                        return;
+                    }
+
+                    // No settings configured and no query — apply default sort by name
+                    // so that output is deterministic and user-friendly.
+                    sortFields.emplace_back(SortField::Name);
+                }
+            }
+
+            // Relevance-only means preserve source ordering — no sorting needed.
+            if (sortFields.size() == 1 && sortFields[0] == SortField::Relevance)
+            {
+                return;
+            }
+
+            // 2. Determine direction: CLI flags override settings
+            SortDirection direction = SortDirection::Ascending;
+            if (context.Args.Contains(Execution::Args::Type::SortDescending))
+            {
+                direction = SortDirection::Descending;
+            }
+            else if (context.Args.Contains(Execution::Args::Type::SortAscending))
+            {
+                direction = SortDirection::Ascending;
+            }
+            else
+            {
+                direction = User().Get<Setting::OutputSortDirection>();
+            }
+
+            // 3. Sort using the helper's production pipeline
+            const SortField mask = ComputeSortFieldMask(sortFields);
+            SortBy(lines,
+                [mask](const InstalledPackagesTableLine& line, size_t index) {
+                    return SortablePackageEntry(
+                        index,
+                        line.Name.get(),
+                        line.Id.get(),
+                        line.InstalledVersion.get(),
+                        line.AvailableVersion.get(),
+                        line.Source.get(),
+                        mask);
+                },
+                sortFields, direction);
         }
 
         void OutputInstalledPackages(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
@@ -1226,6 +1320,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        SortInstalledPackagesTableLines(context, lines);
         OutputInstalledPackages(context, lines);
 
         if (lines.empty())
@@ -1248,12 +1343,14 @@ namespace AppInstaller::CLI::Workflow
         if (!linesForExplicitUpgrade.empty())
         {
             context.Reporter.Info() << std::endl << Resource::String::UpgradeAvailableForPinned << std::endl;
+            SortInstalledPackagesTableLines(context, linesForExplicitUpgrade);
             OutputInstalledPackages(context, linesForExplicitUpgrade);
         }
 
         if (!linesForPins.empty())
         {
             context.Reporter.Info() << std::endl << Resource::String::UpgradeBlockedByPinCount(linesForPins.size()) << std::endl;
+            SortInstalledPackagesTableLines(context, linesForPins);
             OutputInstalledPackages(context, linesForPins);
         }
 

@@ -236,6 +236,9 @@
     <ClCompile Include="TestRestRequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PackageTableSortHelper.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
     <ClCompile Include="UserSettings.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>

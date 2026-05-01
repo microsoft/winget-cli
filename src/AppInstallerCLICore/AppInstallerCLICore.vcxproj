@@ -366,6 +366,7 @@
     <ClInclude Include="Workflows\SourceFlow.h" />
     <ClInclude Include="Workflows\UninstallFlow.h" />
     <ClInclude Include="Workflows\UpdateFlow.h" />
+    <ClInclude Include="Workflows\PackageTableSortHelper.h" />
     <ClInclude Include="Workflows\WorkflowBase.h" />
   </ItemGroup>
   <ItemGroup>
@@ -459,6 +460,7 @@
     <ClCompile Include="Workflows\UninstallFlow.cpp" />
     <ClCompile Include="Workflows\UpdateFlow.cpp" />
     <ClCompile Include="Workflows\WorkflowBase.cpp" />
+    <ClCompile Include="Workflows\PackageTableSortHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
