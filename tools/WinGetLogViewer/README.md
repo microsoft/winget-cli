@@ -11,15 +11,15 @@ Opens automatically for `WinGet-*.log` and `WinGetCOM-*.log` files. Use the **"O
 
 | Channel | Description |
 |---------|-------------|
-| 🔴 `FAIL` | Failures / exceptions |
-| 🔵 `CLI`  | CLI command handling |
-| 🟣 `SQL`  | SQLite / index operations |
+| ❤️ `FAIL` | Failures / exceptions |
+| 💙 `CLI`  | CLI command handling |
+| 💜 `SQL`  | SQLite / index operations |
 | 🩵 `REPO` | Repository / source operations |
-| 🟡 `YAML` | YAML manifest parsing |
-| ⬜ `CORE` | Core runtime |
-| 🟢 `TEST` | Test infrastructure |
+| 💛 `YAML` | YAML manifest parsing |
+| 🤍 `CORE` | Core runtime |
+| 💚 `TEST` | Test infrastructure |
 | 🩶 `CONF` | Configuration / DSC |
-| 🟠 `WORK` | Workflow execution |
+| 🧡 `WORK` | Workflow execution |
 
 **Subchannel detection** — when a sub-component routes its log lines through a parent channel, the original `[CHAN]` tag appears at the start of the message. The viewer detects this and renders it as a secondary subchannel badge.
 

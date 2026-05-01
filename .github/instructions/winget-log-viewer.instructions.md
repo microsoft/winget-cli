@@ -65,15 +65,15 @@ The WebView sends `{ type: 'ready' }` when its JS has loaded. `logViewerProvider
 
 | Channel | Color (CSS class) | Emoji proxy in README |
 |---------|-------------------|-----------------------|
-| `FAIL`  | red               | 🔴 |
-| `CLI`   | blue              | 🔵 |
-| `SQL`   | purple            | 🟣 |
+| `FAIL`  | red               | ❤️ |
+| `CLI`   | blue              | 💙 |
+| `SQL`   | purple            | 💜 |
 | `REPO`  | light-blue/cyan   | 🩵 |
-| `YAML`  | yellow            | 🟡 |
-| `CORE`  | white/light-gray  | ⬜ |
-| `TEST`  | green             | 🟢 |
+| `YAML`  | yellow            | 💛 |
+| `CORE`  | white/light-gray  | 🤍 |
+| `TEST`  | green             | 💚 |
 | `CONF`  | gray              | 🩶 |
-| `WORK`  | orange            | 🟠 |
+| `WORK`  | orange            | 🧡 |
 
 ## Build & Package
 

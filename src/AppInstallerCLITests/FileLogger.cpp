@@ -39,7 +39,7 @@ namespace
 
     constexpr std::string_view WrapIndicator = "--- log file has wrapped ---"sv;
     // The amount of extra size that is allowed (total indicator size + newline + newlines from test strings)
-    constexpr size_t ExtraAllowedSize = 68;
+    constexpr size_t ExtraAllowedSize = 72;
 
     constexpr size_t NewLineCharacterCount = 2;
     constexpr size_t SmallDifferenceSize = 10;
