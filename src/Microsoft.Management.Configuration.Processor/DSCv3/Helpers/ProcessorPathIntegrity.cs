@@ -20,6 +20,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
     {
         private const uint GenericRead = 0x80000000;
         private const uint FileShareRead = 0x00000001;
+        private const uint FileShareExecute = 0x00000004;
         private const uint OpenExisting = 3;
         private const uint FileAttributeNormal = 0x80;
         private const uint FileFlagOpenReparsePoint = 0x00200000;
@@ -45,7 +46,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 handle = CreateFile(
                     path,
                     0,
-                    FileShareRead,
+                    FileShareRead | FileShareExecute,
                     IntPtr.Zero,
                     OpenExisting,
                     FileFlagOpenReparsePoint | FileFlagBackupSemantics,
@@ -70,7 +71,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 handle = CreateFile(
                     path,
                     GenericRead,
-                    FileShareRead,
+                    FileShareRead | FileShareExecute,
                     IntPtr.Zero,
                     OpenExisting,
                     FileAttributeNormal,
@@ -106,7 +107,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             SafeFileHandle regularHandle = CreateFile(
                 path,
                 GenericRead,
-                FileShareRead,
+                FileShareRead | FileShareExecute,
                 IntPtr.Zero,
                 OpenExisting,
                 FileAttributeNormal,
@@ -125,7 +126,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             SafeFileHandle aliasHandle = CreateFile(
                 path,
                 0,
-                FileShareRead,
+                FileShareRead | FileShareExecute,
                 IntPtr.Zero,
                 OpenExisting,
                 FileFlagOpenReparsePoint | FileFlagBackupSemantics,

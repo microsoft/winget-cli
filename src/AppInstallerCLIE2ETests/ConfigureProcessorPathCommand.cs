@@ -20,6 +20,7 @@ namespace AppInstallerCLIE2ETests
     public class ConfigureProcessorPathCommand
     {
         private const string Command = "configure";
+        private const string LocalProcessorPathAdminSetting = "LocalProcessorPath";
 
         // DSC app execution alias paths (stable then preview).
         private static readonly string[] DscAliasCandidates = new[]
@@ -31,6 +32,24 @@ namespace AppInstallerCLIE2ETests
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 @"Microsoft\WindowsApps\Microsoft.DesiredStateConfiguration-Preview_8wekyb3d8bbwe\dsc.exe"),
         };
+
+        /// <summary>
+        /// Enables the LocalProcessorPath admin setting before each test.
+        /// </summary>
+        [SetUp]
+        public void SetUp()
+        {
+            WinGetSettingsHelper.EnableAdminSetting(LocalProcessorPathAdminSetting);
+        }
+
+        /// <summary>
+        /// Disables the LocalProcessorPath admin setting after each test.
+        /// </summary>
+        [TearDown]
+        public void TearDown()
+        {
+            WinGetSettingsHelper.DisableAdminSetting(LocalProcessorPathAdminSetting);
+        }
 
         /// <summary>
         /// Verifies that when the DSC executable is provided as the processor path,
