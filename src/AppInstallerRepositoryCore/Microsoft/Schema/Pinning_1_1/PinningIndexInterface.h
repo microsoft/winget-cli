@@ -11,8 +11,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         SQLite::Version GetVersion() const override;
         void CreateTables(SQLite::Connection& connection) override;
         bool MigrateFrom(SQLite::Connection& connection, const IPinningIndex* current) override;
-
-    private:
         SQLite::rowid_t AddPin(SQLite::Connection& connection, const Pinning::Pin& pin) override;
         std::pair<bool, SQLite::rowid_t> UpdatePin(SQLite::Connection& connection, const Pinning::Pin& pin) override;
         std::optional<Pinning::Pin> GetPin(SQLite::Connection& connection, const Pinning::PinKey& pinKey) override;
