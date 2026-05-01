@@ -433,6 +433,7 @@ Pherson
 pid
 pidl
 pidlist
+pintable
 PKCS
 pkgmgr
 pkindex
