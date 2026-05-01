@@ -9,32 +9,34 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
 {
     namespace
     {
-        std::optional<Pinning::Pin> GetPinFromRow(
-            std::string_view packageId,
-            std::string_view sourceId,
-            Pinning::PinType type,
-            std::string_view version,
-            std::string_view dateAdded,
-            std::optional<std::string> note)
+        using PinRow = std::tuple<std::string, std::string, Pinning::PinType, std::string, std::string, std::optional<std::string>>;
+
+        std::optional<Pinning::Pin> GetPinFromRow(PinRow&& row)
         {
+            auto [packageId, sourceId, type, version, dateAdded, note] = std::move(row);
+
             std::optional<Pinning::Pin> result;
+
+            Pinning::PinKey key;
+            key.PackageId = std::move(packageId);
+            key.SourceId = std::move(sourceId);
 
             switch (type)
             {
             case Pinning::PinType::Blocking:
-                result = Pinning::Pin::CreateBlockingPin({ packageId, sourceId });
+                result = Pinning::Pin::CreateBlockingPin(std::move(key));
                 break;
             case Pinning::PinType::Pinning:
-                result = Pinning::Pin::CreatePinningPin({ packageId, sourceId });
+                result = Pinning::Pin::CreatePinningPin(std::move(key));
                 break;
             case Pinning::PinType::Gating:
-                result = Pinning::Pin::CreateGatingPin({ packageId, sourceId }, Utility::GatedVersion{ version });
+                result = Pinning::Pin::CreateGatingPin(std::move(key), Utility::GatedVersion{ std::move(version) });
                 break;
             default:
                 return {};
             }
 
-            result->SetDateAdded(std::string{ dateAdded });
+            result->SetDateAdded(std::move(dateAdded));
             result->SetNote(std::move(note));
 
             return result;
@@ -52,13 +54,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
 
     void PinTable::MigrateFrom1_0(SQLite::Connection& connection)
     {
-        SQLite::Statement addDateAdded = SQLite::Statement::Create(connection,
-            "ALTER TABLE pin ADD COLUMN date_added TEXT NOT NULL DEFAULT ''");
-        addDateAdded.Execute();
+        using namespace SQLite::Builder;
 
-        SQLite::Statement addNote = SQLite::Statement::Create(connection,
-            "ALTER TABLE pin ADD COLUMN note TEXT");
-        addNote.Execute();
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "migratepintable_v1_0_to_v1_1_pintable");
+
+        StatementBuilder addDateAdded;
+        addDateAdded.AlterTable(s_PinTable_Table_Name).Add(s_PinTable_DateAdded_Column, Type::Text).NotNull().Default("''"sv);
+        addDateAdded.Execute(connection);
+
+        StatementBuilder addNote;
+        addNote.AlterTable(s_PinTable_Table_Name).Add(s_PinTable_Note_Column, Type::Text);
+        addNote.Execute(connection);
+
+        savepoint.Commit();
     }
 
     SQLite::rowid_t PinTable::AddPin(SQLite::Connection& connection, const Pinning::Pin& pin)
@@ -74,11 +82,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
                 s_PinTable_DateAdded_Column,
                 s_PinTable_Note_Column })
             .Values(
-                (std::string_view)pinKey.PackageId,
+                pinKey.PackageId,
                 pinKey.SourceId,
                 pin.GetType(),
                 pin.GetGatedVersion().ToString(),
-                (std::string_view)pin.GetDateAdded(),
+                pin.GetDateAdded(),
                 pin.GetNote());
 
         builder.Execute(connection);
@@ -90,11 +98,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         SQLite::Builder::StatementBuilder builder;
         const auto& pinKey = pin.GetKey();
         builder.Update(s_PinTable_Table_Name).Set()
-            .Column(s_PinTable_PackageId_Column).Equals((std::string_view)pinKey.PackageId)
+            .Column(s_PinTable_PackageId_Column).Equals(pinKey.PackageId)
             .Column(s_PinTable_SourceId_Column).Equals(pinKey.SourceId)
             .Column(s_PinTable_Type_Column).Equals(pin.GetType())
             .Column(s_PinTable_Version_Column).Equals(pin.GetGatedVersion().ToString())
-            .Column(s_PinTable_DateAdded_Column).Equals((std::string_view)pin.GetDateAdded());
+            .Column(s_PinTable_DateAdded_Column).Equals(pin.GetDateAdded());
 
         // Use Unbound (= ?) for null note so SQLite stores NULL via = NULL, not the invalid SET syntax IS NULL.
         const auto& note = pin.GetNote();
@@ -131,9 +139,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
             return {};
         }
 
-        auto [packageId, sourceId, pinType, gatedVersion, dateAdded, note] =
-            select.GetRow<std::string, std::string, Pinning::PinType, std::string, std::string, std::optional<std::string>>();
-        return GetPinFromRow(packageId, sourceId, pinType, gatedVersion, dateAdded, std::move(note));
+        return GetPinFromRow(select.GetRow<std::string, std::string, Pinning::PinType, std::string, std::string, std::optional<std::string>>());
     }
 
     std::vector<Pinning::Pin> PinTable::GetAllPins(SQLite::Connection& connection)
@@ -153,9 +159,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         std::vector<Pinning::Pin> pins;
         while (select.Step())
         {
-            auto [packageId, sourceId, pinType, gatedVersion, dateAdded, note] =
-                select.GetRow<std::string, std::string, Pinning::PinType, std::string, std::string, std::optional<std::string>>();
-            auto pin = GetPinFromRow(packageId, sourceId, pinType, gatedVersion, dateAdded, std::move(note));
+            auto pin = GetPinFromRow(select.GetRow<std::string, std::string, Pinning::PinType, std::string, std::string, std::optional<std::string>>());
             if (pin)
             {
                 pins.push_back(std::move(pin.value()));
