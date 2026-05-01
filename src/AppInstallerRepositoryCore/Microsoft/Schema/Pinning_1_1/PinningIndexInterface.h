@@ -7,7 +7,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
 {
     struct PinningIndexInterface : public Pinning_V1_0::PinningIndexInterface
     {
-        // Version 1.1
         SQLite::Version GetVersion() const override;
         void CreateTables(SQLite::Connection& connection) override;
         bool MigrateFrom(SQLite::Connection& connection, const IPinningIndex* current) override;
