@@ -1586,6 +1586,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             switch (options.PinType())
             {
+            case winrt::Microsoft::Management::Deployment::PackagePinType::Pinning:
+                return ::AppInstaller::Pinning::Pin::CreatePinningPin(pinKey);
             case winrt::Microsoft::Management::Deployment::PackagePinType::Blocking:
                 return ::AppInstaller::Pinning::Pin::CreateBlockingPin(pinKey);
             case winrt::Microsoft::Management::Deployment::PackagePinType::Gating:
@@ -1593,7 +1595,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     pinKey,
                     ::AppInstaller::Utility::GatedVersion{ winrt::to_string(options.GatedVersion()) });
             default:
-                return ::AppInstaller::Pinning::Pin::CreatePinningPin(pinKey);
+                // Unknown, PinnedByManifest, and any future unrecognized values are not valid
+                // user-settable pin types.
+                THROW_HR(E_INVALIDARG);
             }
         }
     }
