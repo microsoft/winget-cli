@@ -12,18 +12,25 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
     using System.Text;
     using Microsoft.Management.Configuration.Processor.DSCv3.Model;
     using Microsoft.Management.Configuration.Processor.Helpers;
+    using Microsoft.Win32.SafeHandles;
 
     /// <summary>
     /// Contains settings for the DSC v3 processor components to share.
     /// </summary>
-    internal class ProcessorSettings
+    internal class ProcessorSettings : IDisposable
     {
         private readonly object dscV3Lock = new ();
         private readonly object defaultPathLock = new ();
+        private readonly object processorPathLock = new ();
 
         private FindDscPackageStateMachine dscPackageStateMachine = new ();
         private IDSCv3? dscV3 = null;
         private string? defaultPath = null;
+        private string? defaultPathHash = null;
+        private bool? defaultPathIsAlias = null;
+        private SafeFileHandle? processorPathHandle = null;
+        private bool processorPathVerified = false;
+        private bool disposed = false;
 
         private Dictionary<string, ResourceDetails> resourceDetailsDictionary = new ();
 
@@ -31,6 +38,17 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// Gets or sets the path to the DSC v3 executable.
         /// </summary>
         public string? DscExecutablePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the expected SHA256 hash of the DSC v3 executable (hex string).
+        /// Must be set before <see cref="EffectiveDscExecutablePath"/> is accessed when a custom path is used.
+        /// </summary>
+        public string? DscExecutablePathHash { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether <see cref="DscExecutablePath"/> is an app execution alias.
+        /// </summary>
+        public bool? DscExecutablePathIsAlias { get; set; }
 
         /// <summary>
         /// Gets the path to the DSC v3 executable.
@@ -41,6 +59,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             {
                 if (this.DscExecutablePath != null)
                 {
+                    this.EnsureProcessorPathVerified();
                     return this.DscExecutablePath;
                 }
 
@@ -117,7 +136,39 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// <returns>The full path to the dsc.exe executable, or null if not found.</returns>
         public string? GetFoundDscExecutablePath()
         {
-            return this.dscPackageStateMachine.DscExecutablePath;
+            string? result = this.dscPackageStateMachine.DscExecutablePath;
+
+            if (result != null)
+            {
+                // Ensure hash and alias are computed and cached alongside the path.
+                this.EnsureFoundPathHashCached(result);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets the SHA256 hash of the auto-discovered DSC executable path, or null if not yet discovered.
+        /// </summary>
+        /// <returns>Lowercase hex hash string, or null.</returns>
+        public string? GetFoundDscExecutablePathHash()
+        {
+            lock (this.defaultPathLock)
+            {
+                return this.defaultPathHash;
+            }
+        }
+
+        /// <summary>
+        /// Gets whether the auto-discovered DSC executable path is an app execution alias, or null if not yet discovered.
+        /// </summary>
+        /// <returns>True if alias, false if regular file, or null if not yet discovered.</returns>
+        public bool? GetFoundDscExecutablePathIsAlias()
+        {
+            lock (this.defaultPathLock)
+            {
+                return this.defaultPathIsAlias;
+            }
         }
 
         /// <summary>
@@ -127,6 +178,13 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         public FindDscPackageStateMachine.Transition PumpFindDscStateMachine()
         {
             return this.dscPackageStateMachine.DetermineNextTransition();
+        }
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -140,7 +198,16 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             result.resourceDetailsDictionary = this.resourceDetailsDictionary;
             result.DiagnosticsSink = this.DiagnosticsSink;
             result.DscExecutablePath = this.DscExecutablePath;
+            result.DscExecutablePathHash = this.DscExecutablePathHash;
+            result.DscExecutablePathIsAlias = this.DscExecutablePathIsAlias;
             result.DiagnosticTraceEnabled = this.DiagnosticTraceEnabled;
+            lock (this.defaultPathLock)
+            {
+                result.defaultPath = this.defaultPath;
+                result.defaultPathHash = this.defaultPathHash;
+                result.defaultPathIsAlias = this.defaultPathIsAlias;
+            }
+
 #if !AICLI_DISABLE_TEST_HOOKS
             result.dscV3 = this.DSCv3;
 #endif
@@ -250,6 +317,60 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Releases resources held by this instance, including the open handle used for TOCTOU protection.
+        /// </summary>
+        /// <param name="disposing">True if called from Dispose(); false if called from a finalizer.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
+                {
+                    lock (this.processorPathLock)
+                    {
+                        this.processorPathHandle?.Dispose();
+                        this.processorPathHandle = null;
+                    }
+                }
+
+                this.disposed = true;
+            }
+        }
+
+        private void EnsureFoundPathHashCached(string path)
+        {
+            lock (this.defaultPathLock)
+            {
+                if (this.defaultPathHash == null)
+                {
+                    this.defaultPathHash = ProcessorPathIntegrity.ComputeHash(path, out bool isAlias);
+                    this.defaultPathIsAlias = isAlias;
+                }
+            }
+        }
+
+        private void EnsureProcessorPathVerified()
+        {
+            lock (this.processorPathLock)
+            {
+                if (!this.processorPathVerified)
+                {
+                    if (this.DscExecutablePathHash == null)
+                    {
+                        throw new InvalidOperationException("A custom processor path was provided without a hash for integrity verification.");
+                    }
+
+                    bool isAlias = this.DscExecutablePathIsAlias ?? false;
+                    this.processorPathHandle = ProcessorPathIntegrity.VerifyAndOpen(
+                        this.DscExecutablePath!,
+                        this.DscExecutablePathHash,
+                        isAlias);
+                    this.processorPathVerified = true;
+                }
+            }
         }
     }
 }

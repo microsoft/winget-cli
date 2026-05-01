@@ -3279,6 +3279,34 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationProcessorPath" xml:space="preserve">
     <value>Specify the path to the configuration processor</value>
   </data>
+  <data name="ConfigurationProcessorPathAudit" xml:space="preserve">
+    <value>Custom DSC processor path in use:</value>
+    <comment>Displayed as a warning header when a custom --processor-path argument is provided.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditHash" xml:space="preserve">
+    <value>  Hash: {0}</value>
+    <comment>{Locked="{0}"} {0} is the SHA256 hash hex string of the processor executable or its reparse data.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditIsAlias" xml:space="preserve">
+    <value>  Type: App execution alias</value>
+    <comment>Indicates the processor path is an app execution alias (MSIX package link).</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditPath" xml:space="preserve">
+    <value>  Path: {0}</value>
+    <comment>{Locked="{0}"} {0} is the file system path to the custom DSC processor executable.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditSignature" xml:space="preserve">
+    <value>  Signed By: {0}</value>
+    <comment>{Locked="{0}"} {0} is the Authenticode signing subject name of the executable.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditUnsigned" xml:space="preserve">
+    <value>  Signed By: (unsigned)</value>
+    <comment>Indicates the custom processor executable does not have an Authenticode signature.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathHashVerificationFailed" xml:space="preserve">
+    <value>The integrity check failed for the custom DSC processor path. The path may have been modified.</value>
+    <comment>Error when the server-side hash of the processor path does not match the client-computed hash.</comment>
+  </data>
   <data name="DscCommandShortDescription" xml:space="preserve">
     <value>DSC v3 resource commands</value>
     <comment>DSC stands for "Desired State Configuration". It should already have a locked translation.</comment>
@@ -3605,5 +3633,8 @@ An unlocalized JSON fragment will follow on another line.</comment>
   <data name="MultiplePackagesFoundFilteredBySourcePriority" xml:space="preserve">
     <value>Results have been filtered to the highest matched source priority.</value>
     <comment>A warning message to indicate to the user that the results of a search have been filtered by choosing only those matching the highest source priority amongst the results.</comment>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
+    <value>The DSC processor hash provided does not match hash of the target file.</value>
   </data>
 </root>

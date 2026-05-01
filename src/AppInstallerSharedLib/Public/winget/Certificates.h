@@ -6,13 +6,21 @@
 #include <json/forwards.h>
 #include <wil/resource.h>
 
+#include <filesystem>
 #include <functional>
 #include <ostream>
+#include <string>
 #include <vector>
 
 
 namespace AppInstaller::Certificates
 {
+    // Returns the Authenticode signing subject name (e.g., "Microsoft Corporation") for the
+    // given file. Only returns a value when WinVerifyTrust confirms the signature is valid and
+    // trusted; extracts the subject from the embedded PE Authenticode signature via crypt32.
+    // Returns an empty string if the file is unsigned, untrusted, or on any error.
+    std::string GetAuthenticodeSubject(const std::filesystem::path& filePath);
+
     // Defines the types of certificate pinning to perform.
     enum class PinningVerificationType : uint32_t
     {

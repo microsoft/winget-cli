@@ -14,11 +14,13 @@
 #include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerRuntime.h>
+#include <AppInstallerSHA256.h>
 #include <AppInstallerStrings.h>
 #include <winget/ExperimentalFeature.h>
 #include <winget/SelfManagement.h>
 #include <winget/PathTree.h>
 #include <winrt/Microsoft.Management.Configuration.h>
+#include <winget/Certificates.h>
 
 using namespace AppInstaller::CLI::Execution;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -129,6 +131,90 @@ namespace AppInstaller::CLI::Workflow
             return Logging::Level::Info;
         }
 
+        // Audit information gathered about a custom processor path.
+        struct ProcessorPathInfo
+        {
+            bool IsAlias = false;
+            std::string HashString;
+            std::string SigningSubject;
+        };
+
+        // Collects audit information for the given processor path.
+        // Throws on access failure so the caller is prevented from using an unverifiable path.
+        ProcessorPathInfo CollectProcessorPathInfo(const std::filesystem::path& processorPath)
+        {
+            ProcessorPathInfo result;
+            const std::wstring& pathStr = processorPath.wstring();
+
+            // Attempt to open the file for reading without FILE_FLAG_OPEN_REPARSE_POINT.
+            // App execution aliases (IO_REPARSE_TAG_APPEXECLINK) cannot be opened for reading
+            // this way and will fail with ERROR_CANT_ACCESS_FILE.
+            wil::unique_hfile fileHandle{ CreateFileW(
+                pathStr.c_str(),
+                GENERIC_READ,
+                FILE_SHARE_READ,
+                nullptr,
+                OPEN_EXISTING,
+                FILE_ATTRIBUTE_NORMAL,
+                nullptr) };
+
+            if (!fileHandle)
+            {
+                DWORD lastError = GetLastError();
+                THROW_WIN32_IF(lastError, lastError != ERROR_CANT_ACCESS_FILE);
+
+                // Re-open with FILE_FLAG_OPEN_REPARSE_POINT to inspect the reparse data.
+                wil::unique_hfile reparseHandle{ CreateFileW(
+                    pathStr.c_str(),
+                    0,
+                    FILE_SHARE_READ,
+                    nullptr,
+                    OPEN_EXISTING,
+                    FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS,
+                    nullptr) };
+                THROW_LAST_ERROR_IF(!reparseHandle);
+
+                // Retrieve the reparse point data.
+                std::vector<BYTE> reparseBuffer(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+                DWORD bytesReturned = 0;
+                THROW_LAST_ERROR_IF(!DeviceIoControl(
+                    reparseHandle.get(),
+                    FSCTL_GET_REPARSE_POINT,
+                    nullptr,
+                    0,
+                    reparseBuffer.data(),
+                    static_cast<DWORD>(reparseBuffer.size()),
+                    &bytesReturned,
+                    nullptr));
+
+                // Confirm it is specifically an app execution alias, not another reparse type.
+                THROW_HR_IF(E_INVALIDARG, bytesReturned < sizeof(DWORD));
+                DWORD reparseTag = *reinterpret_cast<DWORD*>(reparseBuffer.data());
+                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_REPARSE_TAG_MISMATCH), reparseTag != IO_REPARSE_TAG_APPEXECLINK);
+
+                result.IsAlias = true;
+                result.HashString = Utility::SHA256::ConvertToString(
+                    Utility::SHA256::ComputeHash(reparseBuffer.data(), bytesReturned));
+            }
+            else
+            {
+                // Regular file: hash the file bytes using the shared SHA256 utility.
+                result.HashString = Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHashFromHandle(fileHandle.get()));
+
+                // Attempt to extract signing info (handles both embedded and catalog signatures).
+                try
+                {
+                    result.SigningSubject = Certificates::GetAuthenticodeSubject(processorPath);
+                }
+                catch (...)
+                {
+                    AICLI_LOG(Config, Warning, << "Failed to retrieve signing info for processor path");
+                }
+            }
+
+            return result;
+        }
+
         DiagnosticLevel ConvertLevel(Logging::Level level)
         {
             switch (level)
@@ -228,7 +314,39 @@ namespace AppInstaller::CLI::Workflow
 
                 if (context.Args.Contains(Args::Type::ConfigurationProcessorPath))
                 {
-                    factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePath), Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationProcessorPath)));
+                    progressScope.reset();
+
+                    const auto& processorPathArg = context.Args.GetArg(Args::Type::ConfigurationProcessorPath);
+                    std::filesystem::path processorPath{ Utility::ConvertToUTF16(processorPathArg) };
+
+                    // Collect audit information; throws if the path cannot be opened or hashed.
+                    auto pathInfo = anon::CollectProcessorPathInfo(processorPath);
+
+                    // Output audit information to the user as a warning since this is a non-default path.
+                    context.Reporter.Info() << Resource::String::ConfigurationProcessorPathAudit << std::endl;
+                    context.Reporter.Info() << Resource::String::ConfigurationProcessorPathAuditPath(Utility::LocIndString{ processorPathArg }) << std::endl;
+                    context.Reporter.Info() << Resource::String::ConfigurationProcessorPathAuditHash(Utility::LocIndString{ pathInfo.HashString }) << std::endl;
+                    if (pathInfo.IsAlias)
+                    {
+                        context.Reporter.Info() << Resource::String::ConfigurationProcessorPathAuditIsAlias << std::endl;
+                    }
+                    else if (!pathInfo.SigningSubject.empty())
+                    {
+                        context.Reporter.Info() << Resource::String::ConfigurationProcessorPathAuditSignature(Utility::LocIndString{ pathInfo.SigningSubject }) << std::endl;
+                    }
+                    else
+                    {
+                        context.Reporter.Info() << Resource::String::ConfigurationProcessorPathAuditUnsigned << std::endl;
+                    }
+
+                    AICLI_LOG(Config, Info, << "Processor path audit - Path: " << processorPathArg << ", Hash: " << pathInfo.HashString << ", IsAlias: " << pathInfo.IsAlias);
+
+                    factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePath), processorPath.wstring());
+                    factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePathHash), Utility::ConvertToUTF16(pathInfo.HashString));
+                    factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePathIsAlias), pathInfo.IsAlias ? L"true" : L"false");
+
+                    progressScope = context.Reporter.BeginAsyncProgress(true);
+                    progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
                 }
                 else
                 {

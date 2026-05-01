@@ -102,6 +102,13 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNoTestRun);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNotInDesiredState);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationProcessorPath);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationProcessorPathAudit);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationProcessorPathAuditHash);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationProcessorPathAuditIsAlias);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationProcessorPathAuditPath);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationProcessorPathAuditSignature);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationProcessorPathAuditUnsigned);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationProcessorPathHashVerificationFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationReadingConfigFile);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSetStateCompleted);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSetStateInProgress);

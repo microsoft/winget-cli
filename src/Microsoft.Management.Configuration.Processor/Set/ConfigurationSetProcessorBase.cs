@@ -73,7 +73,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
         {
             try
             {
-                this.OnDiagnostics(DiagnosticLevel.Informational, $"GetUnitProcessorDetails is running in limit mode: {this.IsLimitMode}.");
+                this.OnDiagnostics(DiagnosticLevel.Informational, $"CreateUnitProcessor is running in limit mode: {this.IsLimitMode}.");
 
                 // CreateUnitProcessor can only be called once on each configuration unit in limit mode.
                 var unit = this.GetConfigurationUnit(incomingUnit, true);
@@ -172,7 +172,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
             this.SetProcessorFactory?.OnDiagnostics(level, message);
         }
 
-        private static bool ConfigurationUnitEquals(ConfigurationUnit first, ConfigurationUnit second)
+        private bool ConfigurationUnitEquals(ConfigurationUnit first, ConfigurationUnit second)
         {
             var firstIdentifier = first.Identifier;
             var firstIntent = first.Intent;
@@ -181,10 +181,15 @@ namespace Microsoft.Management.Configuration.Processor.Set
             var secondType = second.Type;
             var secondIntent = second.Intent;
 
-            if (firstIdentifier != secondIdentifier ||
-                firstType != secondType ||
+            if (firstIdentifier != secondIdentifier)
+            {
+                return false;
+            }
+
+            if (firstType != secondType ||
                 firstIntent != secondIntent)
             {
+                this.OnDiagnostics(DiagnosticLevel.Error, $"Configuration unit `{firstIdentifier}` mismatch of type or intent.");
                 return false;
             }
 
@@ -194,16 +199,19 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 firstEnvironment.ProcessorIdentifier != secondEnvironment.ProcessorIdentifier ||
                 !firstEnvironment.ProcessorProperties.ContentEquals(secondEnvironment.ProcessorProperties))
             {
+                this.OnDiagnostics(DiagnosticLevel.Error, $"Configuration unit `{firstIdentifier}` mismatch of environment.");
                 return false;
             }
 
             if (!first.Settings.ContentEquals(second.Settings))
             {
+                this.OnDiagnostics(DiagnosticLevel.Error, $"Configuration unit `{firstIdentifier}` mismatch of settings.");
                 return false;
             }
 
             if (!first.Metadata.ContentEquals(second.Metadata))
             {
+                this.OnDiagnostics(DiagnosticLevel.Error, $"Configuration unit `{firstIdentifier}` mismatch of metadata.");
                 return false;
             }
 
@@ -226,7 +234,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 for (int i = 0; i < unitList.Count; i++)
                 {
                     var unit = unitList[i];
-                    if (ConfigurationUnitEquals(incomingUnit, unit))
+                    if (this.ConfigurationUnitEquals(incomingUnit, unit))
                     {
                         if (useLimitList)
                         {
@@ -239,8 +247,8 @@ namespace Microsoft.Management.Configuration.Processor.Set
                     // Note: Consider group units logic when group units are supported.
                 }
 
-                this.OnDiagnostics(DiagnosticLevel.Error, "Configuration unit not found in limit mode.");
-                throw new InvalidOperationException("Configuration unit not found in limit mode.");
+                this.OnDiagnostics(DiagnosticLevel.Error, "Configuration unit match not found in limit mode.");
+                throw new InvalidOperationException("Configuration unit match not found in limit mode.");
             }
             else
             {

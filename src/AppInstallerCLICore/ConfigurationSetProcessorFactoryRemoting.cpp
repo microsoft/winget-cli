@@ -381,8 +381,11 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         case PropertyName::FoundDscExecutablePath: return L"FoundDscExecutablePath";
         case PropertyName::DiagnosticTraceEnabled: return L"DiagnosticTraceEnabled";
         case PropertyName::FindDscStateMachine: return L"FindDscStateMachine";
+        case PropertyName::DscExecutablePathHash: return L"DscExecutablePathHash";
+        case PropertyName::DscExecutablePathIsAlias: return L"DscExecutablePathIsAlias";
+        case PropertyName::FoundDscExecutablePathHash: return L"FoundDscExecutablePathHash";
+        case PropertyName::FoundDscExecutablePathIsAlias: return L"FoundDscExecutablePathIsAlias";
         }
-
         THROW_HR(E_UNEXPECTED);
     }
 }

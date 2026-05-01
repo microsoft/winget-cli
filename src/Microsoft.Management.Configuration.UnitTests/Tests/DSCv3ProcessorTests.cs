@@ -6,8 +6,12 @@
 
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
+    using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Reflection;
+    using System.Security.Cryptography;
     using Microsoft.Management.Configuration.Processor;
     using Microsoft.Management.Configuration.Processor.DSCv3.Model;
     using Microsoft.Management.Configuration.Processor.Exceptions;
@@ -313,7 +317,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             DSCv3ConfigurationSetProcessorFactory factory = new DSCv3ConfigurationSetProcessorFactory();
             TestDSCv3 dsc = new TestDSCv3();
             factory.Settings.DSCv3 = dsc;
-            factory.Settings.DscExecutablePath = "Test-Path-Not-Used.txt";
+            TempFile tempFile = new TempFile(content: "Contents", cleanup: false);
+            factory.Settings.DscExecutablePath = tempFile.FullFileName;
+            using var fileStream = File.Open(factory.Settings.DscExecutablePath, FileMode.Open);
+            factory.Settings.DscExecutablePathHash = Convert.ToHexString(SHA256.HashData(fileStream)).ToLowerInvariant();
 
             return (factory, dsc);
         }

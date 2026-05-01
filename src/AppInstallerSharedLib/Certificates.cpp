@@ -12,6 +12,59 @@ namespace AppInstaller::Certificates
 {
     namespace
     {
+        // WTHelperProvDataFromStateData and WTHelperGetProvSignerFromChain are not in the wintrust import lib;
+        // resolve them at runtime via GetProcAddress.
+        using WTHelperProvDataFromStateDataPtr = decltype(&WTHelperProvDataFromStateData);
+        using WTHelperGetProvSignerFromChainPtr = decltype(&WTHelperGetProvSignerFromChain);
+
+        struct WinTrustHelpers
+        {
+            WinTrustHelpers()
+            {
+                m_module.reset(LoadLibraryExW(L"wintrust.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32));
+                if (!m_module)
+                {
+                    AICLI_LOG(Core, Warning, << "Could not load wintrust.dll");
+                    return;
+                }
+
+                m_provDataFromStateData = reinterpret_cast<WTHelperProvDataFromStateDataPtr>(
+                    GetProcAddress(m_module.get(), "WTHelperProvDataFromStateData"));
+                if (!m_provDataFromStateData)
+                {
+                    AICLI_LOG(Core, Warning, << "Could not get proc address of WTHelperProvDataFromStateData");
+                }
+
+                m_provSignerFromChain = reinterpret_cast<WTHelperGetProvSignerFromChainPtr>(
+                    GetProcAddress(m_module.get(), "WTHelperGetProvSignerFromChain"));
+                if (!m_provSignerFromChain)
+                {
+                    AICLI_LOG(Core, Warning, << "Could not get proc address of WTHelperGetProvSignerFromChain");
+                }
+            }
+
+            CRYPT_PROVIDER_DATA* ProvDataFromStateData(HANDLE stateData) const
+            {
+                return m_provDataFromStateData ? m_provDataFromStateData(stateData) : nullptr;
+            }
+
+            CRYPT_PROVIDER_SGNR* ProvSignerFromChain(CRYPT_PROVIDER_DATA* provData, DWORD signerIdx, BOOL counterSigner, DWORD counterSignerIdx) const
+            {
+                return m_provSignerFromChain ? m_provSignerFromChain(provData, signerIdx, counterSigner, counterSignerIdx) : nullptr;
+            }
+
+        private:
+            wil::unique_hmodule m_module;
+            WTHelperProvDataFromStateDataPtr m_provDataFromStateData = nullptr;
+            WTHelperGetProvSignerFromChainPtr m_provSignerFromChain = nullptr;
+        };
+
+        const WinTrustHelpers& GetWinTrustHelpers()
+        {
+            static WinTrustHelpers s_helpers;
+            return s_helpers;
+        }
+
         std::string GetNameString(PCCERT_CONTEXT certContext, DWORD nameType, bool forIssuer, void* typeParam = nullptr)
         {
             if (!certContext)
@@ -735,5 +788,57 @@ namespace AppInstaller::Certificates
         }
 
         return result;
+    }
+
+    std::string GetAuthenticodeSubject(const std::filesystem::path& filePath)
+    {
+        const std::wstring& pathStr = filePath.wstring();
+
+        WINTRUST_FILE_INFO fileInfo = {};
+        fileInfo.cbStruct = sizeof(fileInfo);
+        fileInfo.pcwszFilePath = pathStr.c_str();
+
+        WINTRUST_DATA trustData = {};
+        trustData.cbStruct = sizeof(trustData);
+        trustData.dwUIChoice = WTD_UI_NONE;
+        trustData.fdwRevocationChecks = WTD_REVOKE_NONE;
+        trustData.dwUnionChoice = WTD_CHOICE_FILE;
+        trustData.dwStateAction = WTD_STATEACTION_VERIFY;
+        trustData.dwProvFlags = WTD_CACHE_ONLY_URL_RETRIEVAL;
+        trustData.pFile = &fileInfo;
+
+        GUID actionId = WINTRUST_ACTION_GENERIC_VERIFY_V2;
+        LONG trustResult = WinVerifyTrust(reinterpret_cast<HWND>(INVALID_HANDLE_VALUE), &actionId, &trustData);
+
+        auto cleanup = wil::scope_exit([&]()
+        {
+            trustData.dwStateAction = WTD_STATEACTION_CLOSE;
+            WinVerifyTrust(reinterpret_cast<HWND>(INVALID_HANDLE_VALUE), &actionId, &trustData);
+        });
+
+        if (trustResult != 0)
+        {
+            return {};
+        }
+
+        CRYPT_PROVIDER_DATA* provData = GetWinTrustHelpers().ProvDataFromStateData(trustData.hWVTStateData);
+        if (!provData)
+        {
+            return {};
+        }
+
+        CRYPT_PROVIDER_SGNR* signer = GetWinTrustHelpers().ProvSignerFromChain(provData, 0, FALSE, 0);
+        if (!signer || signer->csCertChain == 0 || !signer->pasCertChain)
+        {
+            return {};
+        }
+
+        PCCERT_CONTEXT certContext = signer->pasCertChain[0].pCert;
+        if (!certContext)
+        {
+            return {};
+        }
+
+        return GetNameString(certContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, false);
     }
 }
