@@ -579,4 +579,21 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         default: return AppInstaller::Manifest::PlatformEnum::Unknown;
         }
     }
+
+    winrt::Microsoft::Management::Deployment::PackagePinType ConvertPinType(::AppInstaller::Pinning::PinType type)
+    {
+        switch (type)
+        {
+        case ::AppInstaller::Pinning::PinType::PinnedByManifest:
+            return winrt::Microsoft::Management::Deployment::PackagePinType::PinnedByManifest;
+        case ::AppInstaller::Pinning::PinType::Pinning:
+            return winrt::Microsoft::Management::Deployment::PackagePinType::Pinning;
+        case ::AppInstaller::Pinning::PinType::Gating:
+            return winrt::Microsoft::Management::Deployment::PackagePinType::Gating;
+        case ::AppInstaller::Pinning::PinType::Blocking:
+            return winrt::Microsoft::Management::Deployment::PackagePinType::Blocking;
+        default:
+            return winrt::Microsoft::Management::Deployment::PackagePinType::Unknown;
+        }
+    }
 }

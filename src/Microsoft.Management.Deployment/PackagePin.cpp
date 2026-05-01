@@ -3,30 +3,11 @@
 #include "pch.h"
 #include "PackagePin.h"
 #include "PackagePin.g.cpp"
+#include "Converters.h"
 #include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    namespace
-    {
-        winrt::Microsoft::Management::Deployment::PackagePinType ConvertPinType(::AppInstaller::Pinning::PinType type)
-        {
-            switch (type)
-            {
-            case ::AppInstaller::Pinning::PinType::PinnedByManifest:
-                return winrt::Microsoft::Management::Deployment::PackagePinType::PinnedByManifest;
-            case ::AppInstaller::Pinning::PinType::Pinning:
-                return winrt::Microsoft::Management::Deployment::PackagePinType::Pinning;
-            case ::AppInstaller::Pinning::PinType::Gating:
-                return winrt::Microsoft::Management::Deployment::PackagePinType::Gating;
-            case ::AppInstaller::Pinning::PinType::Blocking:
-                return winrt::Microsoft::Management::Deployment::PackagePinType::Blocking;
-            default:
-                return winrt::Microsoft::Management::Deployment::PackagePinType::Unknown;
-            }
-        }
-    }
-
     void PackagePin::Initialize(const ::AppInstaller::Pinning::Pin& pin)
     {
         m_packageId = winrt::to_hstring(pin.GetKey().PackageId);
