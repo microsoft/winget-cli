@@ -86,6 +86,17 @@ namespace Microsoft.WinGet.Client.Commands
                            : this.Blocking ? PSPackagePinType.Blocking
                            : PSPackagePinType.Pinning;
 
+            string target = this.PSCatalogPackage?.Id
+                ?? this.Id
+                ?? this.Name
+                ?? (this.Query != null ? string.Join(" ", this.Query) : null)
+                ?? "package";
+
+            if (!this.ShouldProcess(target))
+            {
+                return;
+            }
+
             this.command = new PinPackageCommand(
                 this,
                 this.PSCatalogPackage,

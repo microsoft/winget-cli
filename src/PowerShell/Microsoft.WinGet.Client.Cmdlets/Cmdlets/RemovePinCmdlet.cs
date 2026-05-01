@@ -52,6 +52,17 @@ namespace Microsoft.WinGet.Client.Commands
                 id = this.PSPackagePin.PackageId;
             }
 
+            string target = id
+                ?? this.PSCatalogPackage?.Id
+                ?? this.Name
+                ?? (this.Query != null ? string.Join(" ", this.Query) : null)
+                ?? "package";
+
+            if (!this.ShouldProcess(target))
+            {
+                return;
+            }
+
             this.command = new PinPackageCommand(
                 this,
                 catalogPackage,
