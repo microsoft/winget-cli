@@ -19,14 +19,13 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
     /// </summary>
     internal sealed class ProcessOutputBatcher : IDisposable
     {
-        private const string OutputPrefix = "[out] ";
-        private const string ErrorPrefix = "[err] ";
-        private const string BatchHeader = "--- Process Output ---";
-
         private readonly IDiagnosticsSink? sink;
         private readonly Timer flushTimer;
         private readonly object bufferLock = new object();
         private StringBuilder buffer = new StringBuilder();
+        private string batchHeader = "--- Process Output ---";
+        private string outputPrefix = "[out] ";
+        private string errorPrefix = "[err] ";
         private bool disposed = false;
 
         /// <summary>
@@ -47,6 +46,10 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// <param name="processExecution">The process execution to monitor.</param>
         public void Subscribe(ProcessExecution processExecution)
         {
+            int number = processExecution.ExecutionNumber;
+            this.batchHeader = $"--- [{number}] Process Output ---";
+            this.outputPrefix = $"[{number}:out] ";
+            this.errorPrefix = $"[{number}:err] ";
             processExecution.OutputLineReceived += this.OnOutputLineReceived;
             processExecution.ErrorLineReceived += this.OnErrorLineReceived;
         }
@@ -75,7 +78,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         {
             lock (this.bufferLock)
             {
-                this.buffer.AppendLine(OutputPrefix + line);
+                this.buffer.Append('\n').Append(this.outputPrefix).Append(line);
             }
         }
 
@@ -83,7 +86,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         {
             lock (this.bufferLock)
             {
-                this.buffer.AppendLine(ErrorPrefix + line);
+                this.buffer.Append('\n').Append(this.errorPrefix).Append(line);
             }
         }
 
@@ -111,7 +114,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 this.buffer = new StringBuilder();
             }
 
-            this.sink.OnDiagnostics(DiagnosticLevel.Verbose, BatchHeader + "\n" + toEmit);
+            this.sink.OnDiagnostics(DiagnosticLevel.Verbose, this.batchHeader + toEmit);
         }
     }
 }
