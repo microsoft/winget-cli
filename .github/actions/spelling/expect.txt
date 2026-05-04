@@ -428,6 +428,7 @@ PEGI
 pfn
 pgp
 Pherson
+phishing
 pid
 pidl
 pidlist
@@ -586,6 +587,7 @@ TLSCAs
 tombstoned
 Toolhelp
 transitioning
+Trenly
 trimstart
 ttl
 twgc
