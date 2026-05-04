@@ -4,8 +4,6 @@ applyTo: "doc/specs/*"
 
 # Writing WinGet Specifications
 
-These instructions apply when creating or editing files in `doc/specs/`.
-
 ## Template
 
 All specifications must follow the template at `doc/specs/spec-template.md`. Use the YAML front matter and all required sections. Do not omit sections — if a section is not applicable, include it with a brief explanation of why.
@@ -83,7 +81,7 @@ A complete specification should address all areas the feature touches. For WinGe
 
 ### Schema and Versioning
 
-- Manifest schema changes require a new minor version (e.g., 1.12.0 → 1.13.0).
+- Manifest schema changes require a new minor version (e.g., 1.28.0 → 1.29.0).
 - WinGet does not make breaking changes in 1.X releases. New fields must be additive and optional.
 - Older clients silently ignore unknown fields. Do not rely on older clients reading new fields.
 - The winget-pkgs community repository enforces schema version n or n-1 for new submissions. This is the practical mechanism that drives publisher adoption of new fields.
@@ -93,6 +91,7 @@ A complete specification should address all areas the feature touches. For WinGe
 Schema changes in `winget-cli` have downstream impact across several repositories. A complete specification should address:
 
 - **winget-cli** — Client implementation, schema files, settings, and CLI arguments.
+- **winget-create** — The manifest creation tool must be updated to support new schema fields so publishers can author manifests with the new data.
 - **winget-cli-restsource** — The REST source reference implementation must be updated to support new schema fields so enterprise REST sources can serve the new data. Enterprise scenarios do not carry the same deprecation concerns as the community repository since organizations control their own source update cadence.
 - **winget-pkgs** — The community repository's validation pipeline must be updated to accept (and validate) new fields. The n/n-1 schema version acceptance policy at winget-pkgs is the practical driver for publisher adoption and eventual deprecation of replaced fields.
 
@@ -103,6 +102,7 @@ When writing the spec, describe the end-to-end customer impact across these repo
 WinGet has multiple interactivity modes that specifications must account for:
 
 - **Interactive** (default) — Prompts are shown and user input is accepted.
+- **`--no-vt`** — I/O stream is available but VT (virtual terminal) escape sequences are not processed. This is a layer between fully interactive and non-interactive — specs should consider whether features need special handling when VT is unavailable.
 - **`--disable-interactivity`** — No prompts; operations proceed automatically.
 - **`--silent`** — Implies non-interactive.
 - **COM API** — Never prompts; returns data for the consumer to handle.
@@ -135,7 +135,7 @@ When proposing a replacement for an existing field or feature:
 
 ## Spelling
 
-The repository uses `check-spelling`. If your spec introduces new words (proper names, technical terms), add them to `.github/actions/spelling/expect.txt` in alphabetical order.
+The repository uses `check-spelling`. If your spec introduces uncommon words (proper names, technical terms), add them to `.github/actions/spelling/expect.txt` in alphabetical order.
 
 ## Pull Request
 
