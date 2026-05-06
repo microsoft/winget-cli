@@ -4,6 +4,8 @@
 
 #if _DEBUG
 #include "DebugCommand.h"
+#include "Public/ConfigurationSetProcessorFactoryRemoting.h"
+#include <AppInstallerRuntime.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <winrt/Microsoft.Management.Configuration.SetProcessorFactory.h>
 #include "AppInstallerDownloader.h"
@@ -62,6 +64,7 @@ namespace AppInstaller::CLI
             std::make_unique<DumpErrorResourceCommand>(FullName()),
             std::make_unique<ShowSixelCommand>(FullName()),
             std::make_unique<ProgressCommand>(FullName()),
+            std::make_unique<DebugDscResourceCommand>(FullName()),
         });
     }
 
@@ -363,6 +366,191 @@ namespace AppInstaller::CLI
         if (context.Args.Contains(WINGET_DEBUG_PROGRESS_POST))
         {
             context.Reporter.Info() << context.Args.GetArg(WINGET_DEBUG_PROGRESS_POST) << std::endl;
+        }
+    }
+
+#define WINGET_DEBUG_DSC_RESOURCE_RESOURCE  Args::Type::SourceName
+#define WINGET_DEBUG_DSC_RESOURCE_EXPORT    Args::Type::AllVersions
+
+    std::vector<Argument> DebugDscResourceCommand::GetArguments() const
+    {
+        return {
+            Argument{ "resource", 'r', WINGET_DEBUG_DSC_RESOURCE_RESOURCE, Resource::String::SourceListUpdatedNever, ArgumentType::Positional },
+            Argument{ "export", 'e', WINGET_DEBUG_DSC_RESOURCE_EXPORT, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument::ForType(Args::Type::ConfigurationProcessorPath),
+        };
+    }
+
+    Resource::LocString DebugDscResourceCommand::ShortDescription() const
+    {
+        return Utility::LocIndString("Run DSCv3 resource actions"sv);
+    }
+
+    Resource::LocString DebugDscResourceCommand::LongDescription() const
+    {
+        return Utility::LocIndString("Directly invokes DSCv3 resource functions through WinGet's infrastructure, without requiring a full configuration document."sv);
+    }
+
+    void DebugDscResourceCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        using namespace winrt::Microsoft::Management::Configuration;
+        using namespace winrt::Windows::Foundation::Collections;
+
+        if (!context.Args.Contains(WINGET_DEBUG_DSC_RESOURCE_EXPORT))
+        {
+            OutputHelp(context.Reporter);
+            return;
+        }
+
+        std::string resourceName{ context.Args.GetArg(WINGET_DEBUG_DSC_RESOURCE_RESOURCE) };
+
+        context.Reporter.Info() << "Creating OOP DSCv3 processor factory..." << std::endl;
+
+        IConfigurationSetProcessorFactory factory;
+        if (Runtime::IsRunningWithLimitedToken())
+        {
+            factory = ConfigurationRemoting::CreateDynamicRuntimeFactory(ConfigurationRemoting::ProcessorEngine::DSCv3);
+        }
+        else
+        {
+            factory = ConfigurationRemoting::CreateOutOfProcessFactory(ConfigurationRemoting::ProcessorEngine::DSCv3);
+        }
+
+        auto factoryMap = factory.as<IMap<winrt::hstring, winrt::hstring>>();
+
+        if (context.Args.Contains(Args::Type::ConfigurationProcessorPath))
+        {
+            factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePath), Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationProcessorPath)));
+        }
+        else
+        {
+            // Run the state machine to locate dsc.exe.
+            for (;;)
+            {
+                winrt::hstring nextTransition = factoryMap.Lookup(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::FindDscStateMachine));
+                AICLI_LOG(CLI, Info, << "FindDscStateMachine: " << Utility::ConvertToUTF8(nextTransition));
+
+                if (nextTransition == L"Found")
+                {
+                    break;
+                }
+                else if (nextTransition == L"NotFound")
+                {
+                    context.Reporter.Error() << Resource::String::ConfigurationInstallDscPackageFailed << std::endl;
+                    AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND));
+                }
+                else
+                {
+                    // InstallStable/InstallPreview etc. are not supported in debug mode; install DSCv3 manually.
+                    context.Reporter.Error() << "DSCv3 unavailable (" << Utility::ConvertToUTF8(nextTransition) << "); use --processor-path or install DSCv3." << std::endl;
+                    AICLI_TERMINATE_CONTEXT(E_NOTIMPL);
+                }
+            }
+        }
+
+        if (Logging::Log().IsEnabled(Logging::Channel::Config, Logging::Level::Verbose))
+        {
+            factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DiagnosticTraceEnabled), L"True");
+        }
+
+        // Build and configure the processor.
+        ConfigurationProcessor processor{ factory };
+        processor.Caller(L"winget-debug");
+
+        if (Logging::Log().IsEnabled(Logging::Channel::Config, Logging::Level::Verbose))
+        {
+            processor.MinimumLevel(DiagnosticLevel::Verbose);
+        }
+
+        processor.Diagnostics([&context](const winrt::Windows::Foundation::IInspectable&, const IDiagnosticInformation& diag)
+            {
+                Logging::Level level = Logging::Level::Info;
+                switch (diag.Level())
+                {
+                case DiagnosticLevel::Verbose: level = Logging::Level::Verbose; break;
+                case DiagnosticLevel::Informational: level = Logging::Level::Info; break;
+                case DiagnosticLevel::Warning: level = Logging::Level::Warning; break;
+                case DiagnosticLevel::Error: level = Logging::Level::Error; break;
+                case DiagnosticLevel::Critical: level = Logging::Level::Crit; break;
+                }
+                context.GetThreadGlobals().GetDiagnosticLogger().Write(Logging::Channel::Config, level, Utility::ConvertToUTF8(diag.Message()));
+            });
+
+        // Construct a minimal ConfigurationUnit for the named resource.
+        ConfigurationUnit unit;
+        unit.Type(Utility::ConvertToUTF16(resourceName));
+        unit.Identifier(L"debug-item");
+        unit.Intent(ConfigurationUnitIntent::Inform);
+
+        context.Reporter.Info() << "Exporting resource: " << resourceName << std::endl;
+
+        auto progressScope = context.Reporter.BeginAsyncProgress(true);
+        progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationExportingUnit());
+
+        GetAllConfigurationUnitsResult exportResult = nullptr;
+        {
+            auto exportAction = processor.GetAllUnitsAsync(unit);
+            auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { exportAction.Cancel(); });
+            exportResult = exportAction.get();
+        }
+
+        progressScope.reset();
+
+        HRESULT hr = exportResult.ResultInformation().ResultCode();
+        if (FAILED(hr))
+        {
+            auto description = exportResult.ResultInformation().Description();
+            context.Reporter.Error() << "Export failed (0x" << Logging::SetHRFormat << hr << "): ";
+            if (!description.empty())
+            {
+                context.Reporter.Error() << Utility::ConvertToUTF8(description);
+            }
+            context.Reporter.Error() << std::endl;
+            AICLI_TERMINATE_CONTEXT(hr);
+        }
+
+        auto units = exportResult.Units();
+        context.Reporter.Info() << "Exported " << units.Size() << " instance(s):" << std::endl;
+
+        for (const auto& resultUnit : units)
+        {
+            context.Reporter.Info() << "  Type:       " << Utility::ConvertToUTF8(resultUnit.Type()) << std::endl;
+            context.Reporter.Info() << "  Identifier: " << Utility::ConvertToUTF8(resultUnit.Identifier()) << std::endl;
+
+            auto settings = resultUnit.Settings();
+            if (settings && settings.Size() > 0)
+            {
+                context.Reporter.Info() << "  Settings:" << std::endl;
+                for (const auto& [key, value] : settings)
+                {
+                    auto prop = value.try_as<winrt::Windows::Foundation::IPropertyValue>();
+                    if (prop)
+                    {
+                        std::string valueStr;
+                        switch (prop.Type())
+                        {
+                        case winrt::Windows::Foundation::PropertyType::String:
+                            valueStr = Utility::ConvertToUTF8(prop.GetString());
+                            break;
+                        case winrt::Windows::Foundation::PropertyType::Boolean:
+                            valueStr = prop.GetBoolean() ? "true" : "false";
+                            break;
+                        case winrt::Windows::Foundation::PropertyType::Int32:
+                            valueStr = std::to_string(prop.GetInt32());
+                            break;
+                        case winrt::Windows::Foundation::PropertyType::Int64:
+                            valueStr = std::to_string(prop.GetInt64());
+                            break;
+                        default:
+                            valueStr = "(unsupported type)";
+                            break;
+                        }
+                        context.Reporter.Info() << "    " << Utility::ConvertToUTF8(key) << ": " << valueStr << std::endl;
+                    }
+                }
+            }
+
+            context.Reporter.Info() << std::endl;
         }
     }
 }

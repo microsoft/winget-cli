@@ -85,6 +85,20 @@ namespace AppInstaller::CLI
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
     };
+
+    // Directly invokes a DSCv3 resource function through WinGet's infrastructure.
+    struct DebugDscResourceCommand final : public Command
+    {
+        DebugDscResourceCommand(std::string_view parent) : Command("dsc-resource", {}, parent) {}
+
+        std::vector<Argument> GetArguments() const override;
+
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
+
+    protected:
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
 }
 
 #endif

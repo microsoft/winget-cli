@@ -43,5 +43,10 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04.Defi
         /// The name used by the code.
         /// </summary>
         Importer = Import,
+
+        /// <summary>
+        /// An exporter resource.
+        /// </summary>
+        Exporter,
     }
 }

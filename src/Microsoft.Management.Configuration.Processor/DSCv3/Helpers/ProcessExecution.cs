@@ -60,7 +60,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// <summary>
         /// Gets the data to write to standard input of the process.
         /// </summary>
-        public string? Input { get; init; } = null;
+        public string? Input { get; init; } = string.Empty;
 
         /// <summary>
         /// Gets the list of custom environment variables to use for the process.
