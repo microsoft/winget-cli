@@ -15,23 +15,23 @@ namespace AppInstaller::CLI::Workflow
         Settings::SortField fieldMask)
         : OriginalIndex(originalIndex)
     {
-        if (WI_IsAnyFlagSet(fieldMask, Settings::SortField::Name))
+        if (WI_IsFlagSet(fieldMask, Settings::SortField::Name))
         {
             FoldedName = Utility::FoldCase(name);
         }
-        if (WI_IsAnyFlagSet(fieldMask, Settings::SortField::Id))
+        if (WI_IsFlagSet(fieldMask, Settings::SortField::Id))
         {
             FoldedId = Utility::FoldCase(id);
         }
-        if (WI_IsAnyFlagSet(fieldMask, Settings::SortField::Source))
+        if (WI_IsFlagSet(fieldMask, Settings::SortField::Source))
         {
             FoldedSource = Utility::FoldCase(source);
         }
-        if (WI_IsAnyFlagSet(fieldMask, Settings::SortField::Version))
+        if (WI_IsFlagSet(fieldMask, Settings::SortField::Version))
         {
             ParsedInstalledVersion = Utility::Version{ std::string{ installedVersion } };
         }
-        if (WI_IsAnyFlagSet(fieldMask, Settings::SortField::Available))
+        if (WI_IsFlagSet(fieldMask, Settings::SortField::Available))
         {
             HasAvailableVersion = !availableVersion.empty();
             if (HasAvailableVersion)
@@ -39,6 +39,16 @@ namespace AppInstaller::CLI::Workflow
                 ParsedAvailableVersion = Utility::Version{ std::string{ availableVersion } };
             }
         }
+    }
+
+    Settings::SortField ComputeSortFieldMask(const std::vector<Settings::SortField>& sortFields)
+    {
+        Settings::SortField mask = Settings::SortField::Relevance;
+        for (const auto& f : sortFields)
+        {
+            mask |= f;
+        }
+        return mask;
     }
 
     int CompareByField(const SortablePackageEntry& a, const SortablePackageEntry& b, Settings::SortField field)

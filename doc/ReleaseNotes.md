@@ -73,6 +73,10 @@ Added a user setting (`logging.fileNameStrategy`) for controlling the default na
 | guid | The log name is a GUID |
 | shortguid | The log name is the first 8 characters of a GUID |
 
+### Sortable `list` output
+
+`winget list` now supports sorting results via `--sort <field>` (repeatable for multi-field sorting), `--ascending`/`--descending` direction flags, and a persistent `output.sortOrder` setting. Available sort fields: `name`, `id`, `version`, `source`, `available`, `relevance`. By default, results are sorted alphabetically by name when no query is present; use `--sort relevance` to preserve the previous source-determined ordering.
+
 ## Bug Fixes
 
 * `winget export` now works when the destination path is a hidden file

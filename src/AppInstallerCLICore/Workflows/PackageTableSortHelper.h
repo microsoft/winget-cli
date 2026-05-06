@@ -49,15 +49,7 @@ namespace AppInstaller::CLI::Workflow
         Settings::SortDirection direction);
 
     // Computes a bitmask of all sort fields so the constructor can skip unused fields.
-    inline Settings::SortField ComputeSortFieldMask(const std::vector<Settings::SortField>& sortFields)
-    {
-        Settings::SortField mask = Settings::SortField::Relevance;
-        for (const auto& f : sortFields)
-        {
-            mask |= f;
-        }
-        return mask;
-    }
+    Settings::SortField ComputeSortFieldMask(const std::vector<Settings::SortField>& sortFields);
 
     // Sorts a vector of arbitrary items by projecting each into a SortablePackageEntry
     // via a caller-supplied converter, sorting the projections, then reordering the

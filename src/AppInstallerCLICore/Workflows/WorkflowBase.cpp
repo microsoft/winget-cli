@@ -497,7 +497,8 @@ namespace AppInstaller::CLI::Workflow
 
                 if (sortFields.empty())
                 {
-                    if (context.Args.Contains(Execution::Args::Type::Query))
+                    if (context.Args.Contains(Execution::Args::Type::Query) ||
+                        context.Args.Contains(Execution::Args::Type::MultiQuery))
                     {
                         // When the free-text query argument is present and the user has NOT
                         // configured a sort preference in settings, preserve relevance ordering.
@@ -555,6 +556,8 @@ namespace AppInstaller::CLI::Workflow
 
         void OutputInstalledPackages(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
         {
+            SortInstalledPackagesTableLines(context, lines);
+
             if (context.Args.Contains(Execution::Args::Type::ListDetails))
             {
                 OutputInstalledPackagesDetails(context, lines);
@@ -1320,7 +1323,6 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        SortInstalledPackagesTableLines(context, lines);
         OutputInstalledPackages(context, lines);
 
         if (lines.empty())
@@ -1343,14 +1345,12 @@ namespace AppInstaller::CLI::Workflow
         if (!linesForExplicitUpgrade.empty())
         {
             context.Reporter.Info() << std::endl << Resource::String::UpgradeAvailableForPinned << std::endl;
-            SortInstalledPackagesTableLines(context, linesForExplicitUpgrade);
             OutputInstalledPackages(context, linesForExplicitUpgrade);
         }
 
         if (!linesForPins.empty())
         {
             context.Reporter.Info() << std::endl << Resource::String::UpgradeBlockedByPinCount(linesForPins.size()) << std::endl;
-            SortInstalledPackagesTableLines(context, linesForPins);
             OutputInstalledPackages(context, linesForPins);
         }
 
