@@ -11,7 +11,7 @@ For [#3483](https://github.com/microsoft/winget-cli/issues/3483)
 
 ## Abstract
 
-This specification proposes adding an optional `UserMessages` object to the WinGet package manifest schema. The new field provides structured, flow-dependent messaging to users before and after install, upgrade, and uninstall operations. It is designed as a non-breaking, additive change that coexists with the existing `InstallationNotes` string field during a transition period and eventually replaces it.
+This specification proposes adding an optional `UserMessages` object to the WinGet package manifest schema. The new field provides structured, flow-dependent messaging to users before and after install, upgrade, uninstall, and repair operations. It is designed as a non-breaking, additive change that coexists with the existing `InstallationNotes` string field during a transition period and eventually replaces it.
 
 ## Inspiration
 
@@ -69,6 +69,18 @@ A new optional `UserMessages` object is added to the **defaultLocale** and **loc
             "minLength": 1,
             "maxLength": 10000,
             "description": "Message displayed to the user upon completion of a package uninstall."
+        },
+        "PreRepair": {
+            "type": ["string", "null"],
+            "minLength": 1,
+            "maxLength": 2048,
+            "description": "Confirmation request displayed to the user before a package repair begins."
+        },
+        "PostRepair": {
+            "type": ["string", "null"],
+            "minLength": 1,
+            "maxLength": 10000,
+            "description": "Message displayed to the user upon completion of a package repair."
         }
     },
     "additionalProperties": false
@@ -80,7 +92,7 @@ A new optional `UserMessages` object is added to the **defaultLocale** and **loc
 
 ### Schema Version
 
-This change requires a new manifest schema version (the next minor version after the current release, e.g., 1.13.0). The `UserMessages` field is added to:
+This change requires a new manifest schema version that aligns with the client version at the time of implementation. The `UserMessages` field is added to:
 
 - `defaultLocale.schema.json`
 - `locale.schema.json`
@@ -89,7 +101,7 @@ The `installer.schema.json` is not affected. User-facing messages are locale-sen
 
 ### Existing `InstallationNotes` Field
 
-The existing `InstallationNotes` field is **unchanged** in this schema version. It continues to function as it does today. During the transition period, manifests may include both fields for backward compatibility.
+The existing `InstallationNotes` field is **unchanged** in this schema version. It continues to function as it does today. During the transition period, manifests should include both fields for backward compatibility.
 
 ### Client Behavior
 
@@ -100,7 +112,18 @@ When both `InstallationNotes` and `UserMessages.PostInstall` are present in a ma
 - **Clients that support `UserMessages`:** Display `UserMessages.PostInstall` and ignore `InstallationNotes`.
 - **Clients that do not support `UserMessages`:** Display `InstallationNotes` (current behavior, unaffected by the unknown field).
 
-#### Pre-Action Messages (PreInstall, PreUpgrade, PreUninstall)
+> [!NOTE]
+> Each operation displays only its corresponding `UserMessages` field. There is no cross-field fallback between operations — for example, if a manifest defines `PreInstall` but not `PreUpgrade`, no pre-action message is displayed during an upgrade.
+
+#### Uninstall Message Sourcing
+
+For uninstall operations, `PreUninstall` and `PostUninstall` are sourced as follows:
+
+- If the package is correlated to a specific installed version, use that version's manifest messages.
+- If the package is correlated but no target version manifest exists, use the latest available version's messages.
+- If the package is not correlated (for example, it was not installed through WinGet), no uninstall message is displayed.
+
+#### Pre-Action Messages (PreInstall, PreUpgrade, PreUninstall, PreRepair)
 
 Pre-action messages are displayed **before** the operation begins and represent information the user should be aware of before proceeding.
 
@@ -115,6 +138,9 @@ Do you wish to continue? [Y/n]:
 ```
 
 The user is prompted to confirm. Entering `N` cancels the operation. Entering `Y` or pressing Enter proceeds.
+
+> [!IMPORTANT]
+> **Automation impact:** The introduction of pre-action prompts in interactive mode will affect existing automation scripts that do not use `--disable-interactivity`. Automation authors should ensure their scripts pass `--disable-interactivity` or use the PowerShell module with `-Force` to avoid being blocked by prompts. The COM API does not prompt and is unaffected.
 
 **Non-interactive mode (`--disable-interactivity`):**
 
@@ -131,7 +157,7 @@ Proceeding automatically (non-interactive mode)...
 > [!NOTE]
 > **Design rationale:** Pre-action messages are informational, not contractual agreements. Unlike license terms (which require explicit acceptance via `--accept-package-agreements`), user messages are manifest-author-provided guidance. The `--disable-interactivity` flag is the appropriate suppressor because it already governs all interactive prompts in WinGet. A new flag is not warranted.
 
-#### Post-Action Messages (PostInstall, PostUpgrade, PostUninstall)
+#### Post-Action Messages (PostInstall, PostUpgrade, PostUninstall, PostRepair)
 
 Post-action messages are displayed **after** the operation completes successfully. They are informational only — no prompt is shown.
 
@@ -141,67 +167,67 @@ Successfully installed ExampleApp [Publisher.ExampleApp] v2.0.0
   Restart your terminal to use the CLI.
 ```
 
-Post-action messages are displayed in both interactive and non-interactive modes. They are suppressed when the `userMessages.disablePostActionMessages` setting is enabled.
+Post-action messages are displayed in both interactive and non-interactive modes. They are suppressed when the `userExperience.userMessages.disablePostActionMessages` setting is enabled.
 
 #### Flow Behavior Matrix
 
 | Scenario | Pre-message | Post-message | Notes |
 |----------|-------------|--------------|-------|
-| `winget install` | `PreInstall` shown, prompt Y/n | `PostInstall` shown | Standard single-package install |
-| `winget upgrade <package>` | `PreUpgrade` shown, prompt Y/n | `PostUpgrade` shown | Single-package upgrade |
-| `winget upgrade --all` | Each package's `PreUpgrade` shown, prompt Y/n per package | Each package's `PostUpgrade` shown | See "Bulk Operations" below |
-| `winget uninstall` | `PreUninstall` shown, prompt Y/n | `PostUninstall` shown | Standard uninstall |
-| `winget install --disable-interactivity` | `PreInstall` displayed, no prompt | `PostInstall` shown | Non-interactive install |
-| `winget install --silent` | `PreInstall` displayed, no prompt | `PostInstall` shown | Silent implies non-interactive |
-| Dependency packages | Not shown | Not shown | Messages apply to the root package only, not transitive dependencies |
-| `winget import` | Each package's `Pre*` shown, prompt Y/n per package | Each package's `Post*` shown | Follows the same per-package model |
-| WinGet Configuration (DSC) | Displayed in log output, no prompt | Displayed in log output | Configuration is inherently non-interactive |
+| `winget install` | `PreInstall` Displayed; Prompted (Y/n) | `PostInstall` Displayed | Standard single-package install |
+| `winget upgrade <package>` | `PreUpgrade` Displayed; Prompted (Y/n) | `PostUpgrade` Displayed | Single-package upgrade |
+| `winget upgrade --all` | All `PreUpgrade` messages Displayed together; Prompted (Y/n) once | Each `PostUpgrade` Displayed | See "Bulk Operations" below |
+| `winget uninstall` | `PreUninstall` Displayed; Prompted (Y/n) | `PostUninstall` Displayed | Uses uninstall message sourcing rules above |
+| `winget install --disable-interactivity` | `PreInstall` Displayed; Prompt Suppressed | `PostInstall` Displayed | Non-interactive install |
+| Dependency packages | Suppressed | Suppressed | Messages apply to the root package only, not transitive dependencies |
+| `winget import` | All `Pre*` messages Displayed together; Prompted (Y/n) once | Each `Post*` Displayed | Follows the same batch model |
+| WinGet Configuration (DSC) | Displayed | Displayed | Configuration is inherently non-interactive |
 | `winget show` | N/A | N/A | `show` displays `UserMessages` as package metadata (see below) |
-| `winget repair` | `PreInstall` shown, prompt Y/n | `PostInstall` shown | Repair reuses install messages |
+| `winget repair` | `PreRepair` Displayed; Prompted (Y/n) | `PostRepair` Displayed | Repair has dedicated fields |
 | `winget export` | N/A | N/A | Export captures package list, not messages |
-| Operation failure | `Pre*` shown before attempt | `Post*` NOT shown | Post-messages only appear on success |
-| `disableInstallNotes` setting enabled | `Pre*` still shown (not affected) | `Post*` still shown (controlled by `userMessages` settings, not `disableInstallNotes`) | Legacy setting does not affect new fields |
-| `userMessages.disablePostActionMessages` enabled | `Pre*` still shown | `Post*` suppressed | New setting for new fields |
-| `userMessages.disablePreActionMessages` enabled | `Pre*` suppressed, no prompt | `Post*` still shown | Suppresses both display and prompt |
-| `--ignore-user-messages` | `Pre*` suppressed, no prompt | `Post*` suppressed | CLI argument overrides settings for this invocation |
-| `--ignore-pre-action-messages` | `Pre*` suppressed, no prompt | `Post*` still shown | CLI argument overrides `disablePreActionMessages` setting |
-| `--ignore-post-action-messages` | `Pre*` still shown | `Post*` suppressed | CLI argument overrides `disablePostActionMessages` setting |
-| `winget validate` | Not shown, not prompted | Not shown | Validation checks schema correctness only; messages are not rendered |
+| Operation failure | `Pre*` Displayed before attempt | Suppressed | Post-messages only appear on success |
+| `disableInstallNotes` setting enabled | `Pre*` Displayed | `PostInstall` Suppressed; other `Post*` Displayed | Backward compatibility behavior for migrated install notes |
+| `userExperience.userMessages.disablePostActionMessages` enabled | `Pre*` Displayed | `Post*` Suppressed | New setting for new fields |
+| `userExperience.userMessages.disablePreActionMessages` enabled | Suppressed; Prompt Suppressed | `Post*` Displayed | Suppresses both display and prompt |
+| `--show-user-messages` | `Pre*` Displayed; Prompted (Y/n) in interactive mode | `Post*` Displayed | Overrides settings that suppress messages for this invocation |
+| `--ignore-user-messages` | Suppressed; Prompt Suppressed | `Post*` Suppressed | CLI argument overrides settings for this invocation |
+| `--ignore-pre-action-messages` | Suppressed; Prompt Suppressed | `Post*` Displayed | CLI argument overrides `userExperience.userMessages.disablePreActionMessages` |
+| `--ignore-post-action-messages` | `Pre*` Displayed | `Post*` Suppressed | CLI argument overrides `userExperience.userMessages.disablePostActionMessages` |
+| `winget validate` | Suppressed | Suppressed | Validation checks schema correctness only; messages are not rendered |
 
 #### Bulk Operations (`upgrade --all`, `import`)
 
-For bulk operations, pre-action messages are shown per-package. In interactive mode, each package with a pre-action message prompts individually. This is consistent with how `--accept-package-agreements` works today — per-package, not a single blanket prompt.
+For bulk operations, pre-action messages for all packages in the batch are collected and presented together before any operations begin.
 
-A future enhancement could aggregate pre-messages and present them as a summary before beginning the batch, but that is out of scope for this specification.
+In interactive mode, the user is prompted once after seeing the full set of pre-action messages. This is consistent with how preconditions are already handled in WinGet.
 
 ### Settings
 
-A new `userMessages` settings object is introduced under the root of the WinGet settings file. The existing `installBehavior.disableInstallNotes` setting is **not modified** and continues to control only the legacy `InstallationNotes` field.
+A new `userExperience.userMessages` settings object is introduced in the WinGet settings file. The `userExperience` section is a new organizational grouping that could eventually house other user-facing settings such as `visual` and `interactivity` in a future settings schema revision.
 
 ```json
 {
-    "userMessages": {
-        "disablePreActionMessages": false,
-        "disablePostActionMessages": false
+    "userExperience": {
+        "userMessages": {
+            "disablePreActionMessages": false,
+            "disablePostActionMessages": false
+        }
     }
 }
 ```
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `userMessages.disablePreActionMessages` | `false` | When `true`, suppresses all pre-action messages (`PreInstall`, `PreUpgrade`, `PreUninstall`) and their associated prompts. The operation proceeds as if the user confirmed. |
-| `userMessages.disablePostActionMessages` | `false` | When `true`, suppresses all post-action messages (`PostInstall`, `PostUpgrade`, `PostUninstall`). |
+| `userExperience.userMessages.disablePreActionMessages` | `false` | When `true`, suppresses all pre-action messages (`PreInstall`, `PreUpgrade`, `PreUninstall`, `PreRepair`) and their associated prompts. The operation proceeds as if the user confirmed. |
+| `userExperience.userMessages.disablePostActionMessages` | `false` | When `true`, suppresses all post-action messages (`PostInstall`, `PostUpgrade`, `PostUninstall`, `PostRepair`). |
 
 **Interaction with existing settings:**
 
-The following table shows what is displayed on **clients that support `UserMessages`** during an install operation when both `InstallationNotes` and `UserMessages.PostInstall` are present. Per the precedence rules above, supporting clients display `UserMessages.PostInstall` and ignore `InstallationNotes`.
+Since `UserMessages.PostInstall` takes precedence over `InstallationNotes` on supporting clients (as described in the Precedence Rules section), the settings that affect post-action messages are:
 
-| `disableInstallNotes` | `userMessages.disablePostActionMessages` | `InstallationNotes` | `UserMessages.Post*` |
-|----------------------|------------------------------------------|---------------------|----------------------|
-| `false` | `false` | Ignored (superseded) | Shown |
-| `true` | `false` | Ignored (superseded) | Shown |
-| `false` | `true` | Ignored (superseded) | Suppressed |
-| `true` | `true` | Ignored (superseded) | Suppressed |
+- `userExperience.userMessages.disablePostActionMessages` — suppresses `UserMessages.Post*`
+- `disableInstallNotes` — also suppresses `UserMessages.PostInstall` for backward compatibility (see below)
+
+For backward compatibility, when `disableInstallNotes` is `true`, it also suppresses `UserMessages.PostInstall`. This ensures users who previously disabled install notes continue to have a consistent experience when manifests migrate to the new field.
 
 On **older clients** that do not support `UserMessages`, only `InstallationNotes` is relevant and `disableInstallNotes` controls it as it does today.
 
@@ -212,10 +238,11 @@ Corresponding CLI arguments are provided so users can override the settings on a
 | Argument | Applies to | Description |
 |----------|-----------|-------------|
 | `--ignore-user-messages` | `install`, `upgrade`, `uninstall`, `repair`, `import` | Suppresses all `UserMessages` (both pre- and post-action) for this invocation. Pre-action prompts are skipped and the operation proceeds. |
-| `--ignore-pre-action-messages` | `install`, `upgrade`, `uninstall`, `repair`, `import` | Suppresses pre-action messages and their prompts for this invocation. Post-action messages are still shown. |
-| `--ignore-post-action-messages` | `install`, `upgrade`, `uninstall`, `repair`, `import` | Suppresses post-action messages for this invocation. Pre-action messages and prompts are still shown. |
+| `--ignore-pre-action-messages` | `install`, `upgrade`, `uninstall`, `repair`, `import` | Suppresses pre-action messages and their prompts for this invocation. Post-action messages are still displayed. |
+| `--ignore-post-action-messages` | `install`, `upgrade`, `uninstall`, `repair`, `import` | Suppresses post-action messages for this invocation. Pre-action messages and prompts are still displayed. |
+| `--show-user-messages` | `install`, `upgrade`, `uninstall`, `repair`, `import` | Forces all `UserMessages` to be displayed for this invocation, overriding any settings that disable them. |
 
-**Precedence:** CLI arguments override settings. If a user has `userMessages.disablePreActionMessages` set to `false` in settings but passes `--ignore-pre-action-messages`, the pre-action messages are suppressed for that invocation.
+**Precedence:** CLI arguments override settings. If a user has `userExperience.userMessages.disablePreActionMessages` set to `false` in settings but passes `--ignore-pre-action-messages`, the pre-action messages are suppressed for that invocation. `--show-user-messages` overrides settings but does not override `--ignore-user-messages` if both are passed; ignore wins.
 
 **Relationship to `--disable-interactivity`:** The `--disable-interactivity` flag suppresses the **prompt** on pre-action messages but still displays the message text. The `--ignore-pre-action-messages` flag suppresses both the message and the prompt entirely.
 
@@ -224,29 +251,16 @@ Example usage:
 ```
 winget upgrade --all --ignore-pre-action-messages
 winget install Publisher.ExampleApp --ignore-user-messages
+winget install Publisher.ExampleApp --show-user-messages
 ```
 
 ### COM API
 
-The COM API must surface `UserMessages` in a structured manner for programmatic consumers.
-
-A new `IPackageUserMessages` interface is introduced, and a new versioned interface (e.g., `IPackageCatalogInfo2` or `IPackageVersionInfo2`) exposes a `UserMessages` property that returns this object. This follows the established WinGet pattern for additive COM API changes — new interface versions are introduced rather than modifying existing interfaces, ensuring existing consumers remain compatible.
-
-```idl
-interface IPackageUserMessages : IInspectable
-{
-    String PreInstall { get; };
-    String PostInstall { get; };
-    String PreUpgrade { get; };
-    String PostUpgrade { get; };
-    String PreUninstall { get; };
-    String PostUninstall { get; };
-}
-```
-
-Consumers query for the new interface version to access `UserMessages`. Existing consumers that use the original interface are unaffected.
+The `UserMessages` data will be available in the COM API as eight string properties (one per message field). The specific interface shape and versioning will be determined during implementation, following the established WinGet pattern for additive COM API changes.
 
 COM consumers are responsible for their own interactivity model. The WinGet COM API does not prompt — it returns the data and the consumer decides how to handle it.
+
+The `userExperience.userMessages` settings should also be exposed via the COM API so that well-behaved callers (such as the WinGet PowerShell module) can query the user's settings and make informed decisions about whether to display messages.
 
 ### PowerShell Cmdlets
 
@@ -259,7 +273,7 @@ The WinGet PowerShell module cmdlets consume the COM API and must surface `UserM
 | `Install-WinGetPackage` | `PreInstall` | `PostInstall` |
 | `Update-WinGetPackage` | `PreUpgrade` | `PostUpgrade` |
 | `Uninstall-WinGetPackage` | `PreUninstall` | `PostUninstall` |
-| `Repair-WinGetPackage` | `PreInstall` (reuses install messages) | `PostInstall` (reuses install messages) |
+| `Repair-WinGetPackage` | `PreRepair` | `PostRepair` |
 
 #### Interactive Behavior
 
@@ -310,20 +324,20 @@ if ($result.UserMessages.PostInstall) {
 }
 ```
 
-#### Find-WinGetPackage / Show-WinGetPackage
+#### Find-WinGetPackage
 
-The `Show-WinGetPackage` (or `Get-WinGetPackage`) cmdlet should include `UserMessages` in its output when displaying package metadata, allowing users to review messages before deciding to install:
+`Find-WinGetPackage` should include `UserMessages` in its output when displaying package metadata from the source, allowing users to review messages before deciding to install.
 
 ```powershell
-PS> Show-WinGetPackage -Id Publisher.ExampleApp | Select-Object -ExpandProperty UserMessages
+PS> Find-WinGetPackage -Id Publisher.ExampleApp | Select-Object -ExpandProperty UserMessages
 
-PreInstall  : This package requires 2 GB of disk space and will modify your PATH.
-PostInstall : Restart your terminal to use the CLI.
-PreUpgrade  : Back up your configuration file before upgrading.
-PostUpgrade : Review the changelog for breaking changes.
+PreInstall   : This package requires 2 GB of disk space and will modify your PATH.
+PostInstall  : Restart your terminal to use the CLI.
+PreUpgrade   : Back up your configuration file before upgrading.
+PostUpgrade  : Review the changelog for breaking changes.
+PreRepair    : Close the application before starting repair.
+PostRepair   : Restart the application to verify the repair completed successfully.
 ```
-
-`Find-WinGetPackage` returns search results and does not include `UserMessages` in its default output. Users should use `Show-WinGetPackage` to inspect messages for a specific package before installation.
 
 ### Validation Pipeline (winget-pkgs)
 
@@ -335,7 +349,6 @@ The `winget validate` command and the automated validation pipeline in the winge
    - Messages do not contain ANSI escape sequences or control characters.
    - Messages do not contain URLs that appear to be phishing attempts (leveraging existing content moderation if applicable).
 4. **Deprecation warnings:** During the transition period, if a manifest contains `InstallationNotes` but no `UserMessages.PostInstall`, a warning (not an error) may be emitted suggesting the manifest author add the `UserMessages` equivalent.
-5. **Rendering validation:** Validate that pre-messages render cleanly when displayed (no truncation at the 2048-character limit that would break mid-word or mid-sentence).
 
 ### Additional CLI Commands
 
@@ -353,13 +366,15 @@ User Messages:
   Pre-Install: This package requires 2 GB of disk space and will modify your PATH.
   Post-Install: Restart your terminal to use the CLI.
   Pre-Upgrade: Back up your configuration file before upgrading.
+  Pre-Repair: Close the application before starting repair.
+  Post-Repair: Restart the application to verify the repair completed successfully.
 ```
 
 No prompt is displayed — `show` is read-only.
 
 #### `winget repair`
 
-The `repair` command reuses `PreInstall` and `PostInstall` messages. The behavior is identical to `install` — pre-message with prompt in interactive mode, post-message after success.
+The `repair` command uses the dedicated `PreRepair` and `PostRepair` fields. Its behavior mirrors the other operation-specific flows — pre-message with prompt in interactive mode, post-message after success.
 
 #### `winget export`
 
@@ -371,7 +386,7 @@ WinGet Configuration is inherently non-interactive. When a configuration file re
 
 - **Pre-messages** are written to the configuration log output as informational entries. They do not block or prompt.
 - **Post-messages** are written to the configuration log output after the resource completes successfully.
-- The COM API provides the `IPackageUserMessages` interface so the configuration engine can access messages programmatically.
+- The COM API provides the message data so the configuration engine can access it programmatically.
 
 ### Group Policy
 
@@ -404,7 +419,7 @@ The [winget-pkgs](https://github.com/microsoft/winget-pkgs) community repository
 #### Transition period — both fields for compatibility
 
 ```yaml
-# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.13.0.schema.json
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.X.0.schema.json
 
 PackageIdentifier: Publisher.ExampleApp
 PackageVersion: 2.0.0
@@ -419,8 +434,10 @@ UserMessages:
   PostUpgrade: "Review the changelog at https://example.com/changelog for breaking changes."
   PreUninstall: "Run 'example cleanup' to remove cached data before uninstalling."
   PostUninstall: "Restart your terminal to remove the CLI from your PATH."
+  PreRepair: "Close the application before starting repair."
+  PostRepair: "Restart the application to verify the repair completed successfully."
 ManifestType: defaultLocale
-ManifestVersion: 1.13.0
+ManifestVersion: 1.X.0
 ```
 
 #### Pre-install warning only
@@ -476,6 +493,8 @@ All messages include clear attribution language ("provided by the manifest autho
 
 Messages in locale manifests override those in the defaultLocale manifest on a per-field basis. If a locale manifest provides `UserMessages.PreInstall` but not `UserMessages.PostInstall`, the client falls back to the defaultLocale value for `PostInstall`.
 
+Locale manifests may provide different message content per locale, following the existing localization model. Ensuring that translations are accurate and not misleading is the responsibility of the manifest author. A future enhancement to the validation infrastructure could automate checks for potentially misleading translations across locales.
+
 ## Capabilities
 
 ### Accessibility
@@ -506,23 +525,23 @@ Messages in locale manifests override those in the defaultLocale manifest on a p
 - **No breaking changes.** `InstallationNotes` is unchanged. Existing manifests and existing clients continue to work exactly as they do today.
 - **Older clients:** Ignore the `UserMessages` field (unknown fields are silently ignored in manifest parsing). They continue to display `InstallationNotes` if present.
 - **Newer clients:** Read `UserMessages` and prefer `UserMessages.PostInstall` over `InstallationNotes` when both are present.
-- **Schema version:** The new schema version (e.g., 1.13.0) is required. Clients that cannot parse manifests at this schema version will receive manifests at the highest version they support from the source. In the winget-pkgs repository, manifests can exist at multiple schema versions to support this.
+- **Schema version:** The new schema version must align with the client version at the time of implementation. Clients that cannot parse manifests at this schema version will receive manifests at the highest version they support from the source. In the winget-pkgs repository, manifests can exist at multiple schema versions to support this.
 - **Minimum client version:** Only clients at or above the version that implements this specification will process `UserMessages`. The exact version will be determined during implementation.
 
 ### Performance, Power, and Efficiency
 
-- Negligible impact. The feature adds string parsing and display of up to six optional text fields. No network calls, no computation, no background processing.
+- Negligible impact. The feature adds string parsing and display of up to eight optional text fields. No network calls, no computation, no background processing.
 - Pre-action prompts add user wait time in interactive mode only.
 
 ## Potential Issues
 
 1. **Prompt fatigue.** If many packages include pre-action messages, users may develop "prompt blindness" and reflexively confirm without reading. Mitigation: the 2048-character limit keeps messages concise, and community review in winget-pkgs ensures messages are meaningful.
 
-2. **Bulk operation noise.** `upgrade --all` with many packages containing pre-messages could be verbose and slow. A future enhancement to aggregate messages would address this, but is out of scope here.
+2. **Bulk operation noise.** `upgrade --all` with many packages containing pre-messages could still be verbose even when those messages are presented together before execution.
 
 3. **Transition-period duplication.** During the transition, manifest authors must duplicate their install note in both `InstallationNotes` and `UserMessages.PostInstall`. This is a known trade-off for backward compatibility and is temporary.
 
-4. **Content moderation burden.** The winget-pkgs community reviewers now have six new fields to review per manifest. Automated tooling to flag suspicious content in these fields would reduce this burden.
+4. **Content moderation burden.** The winget-pkgs community reviewers now have eight new fields to review per manifest. Automated tooling to flag suspicious content in these fields would reduce this burden.
 
 5. **Locale fallback complexity.** Per-field fallback from locale to defaultLocale adds implementation complexity. However, this follows the existing pattern for all other localizable fields and is well-understood.
 
@@ -548,7 +567,6 @@ The `UserMessages` object is designed to be extended. Potential future additions
 - **`PreDownload` / `PostDownload` ** — Message displayed before the package is downloaded, if different from pre-install. Also applies to `winget download`
 - **`Configuration`** — Message displayed when the package is processed as part of a WinGet Configuration.
 - **Structured message types** — Replacing plain strings with objects that include severity, category, or formatting hints.
-- **Aggregate pre-message summary** — For bulk operations, presenting all pre-messages in a single summary before beginning the batch.
 - **Rich formatting** — Support for basic markdown or structured text in messages (requires careful consideration of terminal rendering).
 - **Group Policy controls** — Admin policies to enforce or suppress user messages across managed devices.
 
