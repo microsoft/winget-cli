@@ -3280,27 +3280,27 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Specify the path to the configuration processor</value>
   </data>
   <data name="ConfigurationProcessorPathAudit" xml:space="preserve">
-    <value>Custom DSC processor path in use:</value>
+    <value>Custom processor path:</value>
     <comment>Displayed as a warning header when a custom --processor-path argument is provided.</comment>
   </data>
   <data name="ConfigurationProcessorPathAuditHash" xml:space="preserve">
-    <value>  Hash: {0}</value>
+    <value>Hash: {0}</value>
     <comment>{Locked="{0}"} {0} is the SHA256 hash hex string of the processor executable or its reparse data.</comment>
   </data>
   <data name="ConfigurationProcessorPathAuditIsAlias" xml:space="preserve">
-    <value>  Type: App execution alias</value>
+    <value>Type: App execution alias</value>
     <comment>Indicates the processor path is an app execution alias (MSIX package link).</comment>
   </data>
   <data name="ConfigurationProcessorPathAuditPath" xml:space="preserve">
-    <value>  Path: {0}</value>
-    <comment>{Locked="{0}"} {0} is the file system path to the custom DSC processor executable.</comment>
+    <value>Path: {0}</value>
+    <comment>{Locked="{0}"} {0} is the file system path provided by the user.</comment>
   </data>
   <data name="ConfigurationProcessorPathAuditSignature" xml:space="preserve">
-    <value>  Signed By: {0}</value>
+    <value>Signed By: {0}</value>
     <comment>{Locked="{0}"} {0} is the Authenticode signing subject name of the executable.</comment>
   </data>
   <data name="ConfigurationProcessorPathAuditUnsigned" xml:space="preserve">
-    <value>  Signed By: (unsigned)</value>
+    <value>Signed By: (unsigned)</value>
     <comment>Indicates the custom processor executable does not have an Authenticode signature.</comment>
   </data>
   <data name="ConfigurationProcessorPathHashVerificationFailed" xml:space="preserve">

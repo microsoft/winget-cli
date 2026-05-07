@@ -323,20 +323,21 @@ namespace AppInstaller::CLI::Workflow
                     auto pathInfo = anon::CollectProcessorPathInfo(processorPath);
 
                     // Output audit information to the user as a warning since this is a non-default path.
+                    constexpr std::string_view s_indent = "  "sv;
                     context.Reporter.Info() << Resource::String::ConfigurationProcessorPathAudit << std::endl;
-                    context.Reporter.Info() << Resource::String::ConfigurationProcessorPathAuditPath(Utility::LocIndString{ processorPathArg }) << std::endl;
-                    context.Reporter.Info() << Resource::String::ConfigurationProcessorPathAuditHash(Utility::LocIndString{ pathInfo.HashString }) << std::endl;
+                    context.Reporter.Info() << s_indent << Resource::String::ConfigurationProcessorPathAuditPath(Utility::LocIndString{ processorPathArg }) << std::endl;
+                    context.Reporter.Info() << s_indent << Resource::String::ConfigurationProcessorPathAuditHash(Utility::LocIndString{ pathInfo.HashString }) << std::endl;
                     if (pathInfo.IsAlias)
                     {
-                        context.Reporter.Info() << Resource::String::ConfigurationProcessorPathAuditIsAlias << std::endl;
+                        context.Reporter.Info() << s_indent << Resource::String::ConfigurationProcessorPathAuditIsAlias << std::endl;
                     }
                     else if (!pathInfo.SigningSubject.empty())
                     {
-                        context.Reporter.Info() << Resource::String::ConfigurationProcessorPathAuditSignature(Utility::LocIndString{ pathInfo.SigningSubject }) << std::endl;
+                        context.Reporter.Info() << s_indent << Resource::String::ConfigurationProcessorPathAuditSignature(Utility::LocIndString{ pathInfo.SigningSubject }) << std::endl;
                     }
                     else
                     {
-                        context.Reporter.Info() << Resource::String::ConfigurationProcessorPathAuditUnsigned << std::endl;
+                        context.Reporter.Info() << s_indent << Resource::String::ConfigurationProcessorPathAuditUnsigned << std::endl;
                     }
 
                     AICLI_LOG(Config, Info, << "Processor path audit - Path: " << processorPathArg << ", Hash: " << pathInfo.HashString << ", IsAlias: " << pathInfo.IsAlias);

@@ -839,6 +839,7 @@ namespace AppInstaller::Certificates
             return {};
         }
 
-        return GetNameString(certContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, false);
+        DWORD strType = CERT_X500_NAME_STR | CERT_NAME_STR_REVERSE_FLAG;
+        return GetNameString(certContext, CERT_NAME_RDN_TYPE, false, &strType);
     }
 }
