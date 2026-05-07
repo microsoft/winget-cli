@@ -51,12 +51,14 @@ namespace AppInstaller::Settings
     // via ComputeSortFieldMask, so the constructor can skip unused field computation.
     enum class SortField : uint32_t
     {
-        Relevance = 0x0,   // Preserves current natural order (source-defined relevance ranking)
+        None      = 0x0,   // Zero value for bitmask initialization; not a user-facing sort field
         Name      = 0x1,
         Id        = 0x2,
         Version   = 0x4,
         Source    = 0x8,
         Available = 0x10,
+        Relevance = 0x20,  // Preserves current natural order (source-defined relevance ranking)
+        Max       = 0x40,  // Sentinel for iteration via GetAllExponentialEnumValues; not a valid sort field
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(SortField);

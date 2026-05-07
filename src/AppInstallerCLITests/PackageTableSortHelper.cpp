@@ -32,9 +32,12 @@ namespace
             REQUIRE(actual[i].FoldedName == expected[i].FoldedName);
             REQUIRE(actual[i].FoldedId == expected[i].FoldedId);
             REQUIRE(actual[i].FoldedSource == expected[i].FoldedSource);
-            REQUIRE(actual[i].HasAvailableVersion == expected[i].HasAvailableVersion);
+            REQUIRE(actual[i].ParsedAvailableVersion.has_value() == expected[i].ParsedAvailableVersion.has_value());
             REQUIRE(actual[i].ParsedInstalledVersion == expected[i].ParsedInstalledVersion);
-            REQUIRE(actual[i].ParsedAvailableVersion == expected[i].ParsedAvailableVersion);
+            if (actual[i].ParsedAvailableVersion.has_value() && expected[i].ParsedAvailableVersion.has_value())
+            {
+                REQUIRE(actual[i].ParsedAvailableVersion.value() == expected[i].ParsedAvailableVersion.value());
+            }
         }
     }
 

@@ -5,6 +5,7 @@
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
+#include <AppInstallerLanguageUtilities.h>
 
 namespace AppInstaller::CLI
 {
@@ -32,7 +33,7 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::IncludeUnknown, Resource::String::IncludeUnknownInListArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::IncludePinned, Resource::String::IncludePinnedInListArgumentDescription, ArgumentType::Flag},
             Argument::ForType(Execution::Args::Type::ListDetails),
-            Argument{ Execution::Args::Type::Sort, Resource::String::SortArgumentDescription, ArgumentType::Standard }.SetCountLimit(6),
+            Argument{ Execution::Args::Type::Sort, Resource::String::SortArgumentDescription, ArgumentType::Standard }.SetCountLimit(AppInstaller::GetAllExponentialEnumValues<Settings::SortField>(Settings::SortField::None).size()),
             Argument{ Execution::Args::Type::SortAscending, Resource::String::SortAscendingArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::SortDescending, Resource::String::SortDescendingArgumentDescription, ArgumentType::Flag },
         };

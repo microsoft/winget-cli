@@ -6,6 +6,7 @@
 #include <winget/UserSettings.h>
 
 #include <algorithm>
+#include <optional>
 #include <vector>
 
 namespace AppInstaller::CLI::Workflow
@@ -23,8 +24,7 @@ namespace AppInstaller::CLI::Workflow
 
         // Precomputed parsed versions
         Utility::Version ParsedInstalledVersion;
-        Utility::Version ParsedAvailableVersion;
-        bool HasAvailableVersion = false;
+        std::optional<Utility::Version> ParsedAvailableVersion;
 
         SortablePackageEntry() = default;
 
@@ -50,6 +50,28 @@ namespace AppInstaller::CLI::Workflow
 
     // Computes a bitmask of all sort fields so the constructor can skip unused fields.
     Settings::SortField ComputeSortFieldMask(const std::vector<Settings::SortField>& sortFields);
+
+    // Result of sort parameter resolution. If ShouldSort is false, the caller should
+    // preserve the current ordering (relevance or no-op).
+    struct SortParameters
+    {
+        bool ShouldSort = false;
+        std::vector<Settings::SortField> Fields;
+        Settings::SortDirection Direction = Settings::SortDirection::Ascending;
+    };
+
+    // Resolves the effective sort parameters from explicit CLI args, user settings,
+    // and query context. Resolution order: explicit args > settings > query-aware default.
+    // Parameters:
+    //   explicitSortArgs - raw string values from --sort (empty if not provided)
+    //   hasQuery - whether a free-text query argument is present
+    //   hasExplicitAscending - whether --ascending was passed
+    //   hasExplicitDescending - whether --descending was passed
+    SortParameters ResolveSortParameters(
+        const std::vector<std::string_view>& explicitSortArgs,
+        bool hasQuery,
+        bool hasExplicitAscending,
+        bool hasExplicitDescending);
 
     // Sorts a vector of arbitrary items by projecting each into a SortablePackageEntry
     // via a caller-supplied converter, sorting the projections, then reordering the

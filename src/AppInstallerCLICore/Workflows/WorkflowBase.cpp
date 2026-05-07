@@ -470,76 +470,31 @@ namespace AppInstaller::CLI::Workflow
                 return;
             }
 
-            // 1. Determine sort fields: CLI --sort overrides everything
-            std::vector<SortField> sortFields;
-            bool hasExplicitSort = context.Args.Contains(Execution::Args::Type::Sort);
-
-            if (hasExplicitSort)
+            // Collect explicit --sort arg values (if any)
+            std::vector<std::string_view> explicitSortArgs;
+            if (context.Args.Contains(Execution::Args::Type::Sort))
             {
                 for (const auto& arg : *context.Args.GetArgs(Execution::Args::Type::Sort))
                 {
-                    auto field = ConvertToSortField(arg);
-                    if (field)
-                    {
-                        sortFields.emplace_back(field.value());
-                    }
-                    else
-                    {
-                        // Invalid values should not reach here; ValidateArguments
-                        // rejects them with a CommandException before workflow execution begins.
-                        FAIL_FAST_MSG("Unexpected sort field value reached workflow; validation should have caught this.");
-                    }
-                }
-            }
-            else
-            {
-                sortFields = User().Get<Setting::OutputSortOrder>();
-
-                if (sortFields.empty())
-                {
-                    if (context.Args.Contains(Execution::Args::Type::Query) ||
-                        context.Args.Contains(Execution::Args::Type::MultiQuery))
-                    {
-                        // When the free-text query argument is present and the user has NOT
-                        // configured a sort preference in settings, preserve relevance ordering.
-                        // Only the positional query argument populates searchRequest.Query and
-                        // produces meaningful relevance ranking; filter arguments like --id,
-                        // --name, --tag etc. use exact/substring matching where all results
-                        // have equivalent relevance.
-                        // If the user explicitly configured output.sortOrder, respect it even
-                        // with queries — that is an explicit user preference.
-                        return;
-                    }
-
-                    // No settings configured and no query — apply default sort by name
-                    // so that output is deterministic and user-friendly.
-                    sortFields.emplace_back(SortField::Name);
+                    explicitSortArgs.emplace_back(arg);
                 }
             }
 
-            // Relevance-only means preserve source ordering — no sorting needed.
-            if (sortFields.size() == 1 && sortFields[0] == SortField::Relevance)
+            bool hasQuery = context.Args.Contains(Execution::Args::Type::Query) ||
+                            context.Args.Contains(Execution::Args::Type::MultiQuery);
+
+            auto params = ResolveSortParameters(
+                explicitSortArgs,
+                hasQuery,
+                context.Args.Contains(Execution::Args::Type::SortAscending),
+                context.Args.Contains(Execution::Args::Type::SortDescending));
+
+            if (!params.ShouldSort)
             {
                 return;
             }
 
-            // 2. Determine direction: CLI flags override settings
-            SortDirection direction = SortDirection::Ascending;
-            if (context.Args.Contains(Execution::Args::Type::SortDescending))
-            {
-                direction = SortDirection::Descending;
-            }
-            else if (context.Args.Contains(Execution::Args::Type::SortAscending))
-            {
-                direction = SortDirection::Ascending;
-            }
-            else
-            {
-                direction = User().Get<Setting::OutputSortDirection>();
-            }
-
-            // 3. Sort using the helper's production pipeline
-            const SortField mask = ComputeSortFieldMask(sortFields);
+            const SortField mask = ComputeSortFieldMask(params.Fields);
             SortBy(lines,
                 [mask](const InstalledPackagesTableLine& line, size_t index) {
                     return SortablePackageEntry(
@@ -551,7 +506,7 @@ namespace AppInstaller::CLI::Workflow
                         line.Source.get(),
                         mask);
                 },
-                sortFields, direction);
+                params.Fields, params.Direction);
         }
 
         void OutputInstalledPackages(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
