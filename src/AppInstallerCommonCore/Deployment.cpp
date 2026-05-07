@@ -150,6 +150,14 @@ namespace AppInstaller::Deployment
         return out;
     }
 
+    HRESULT WaitForDeployment(
+        IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress>& deployOperation,
+        IProgressCallback& callback,
+        bool throwOnError)
+    {
+        return WaitForDeployment(deployOperation, GetDeploymentOperationId(), callback, throwOnError);
+    }
+
     void AddPackage(
         const winrt::Windows::Foundation::Uri& uri,
         const Options& options,

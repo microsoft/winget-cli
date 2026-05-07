@@ -1,6 +1,6 @@
-id: scheduledSearch.closeNoRecentActivity
+id: scheduledSearch.markNoRecentActivity
 name: GitOps.PullRequestIssueManagement
-description: Markss issues that are inactive
+description: Marks issues that are inactive
 owner:
 resource: repository
 disabled: false
@@ -45,7 +45,7 @@ configuration:
           * Has not had activity in the last 7 days
 
           Then -
-          * Close the Issue
+          * Mark the Issue with No-Recent-Activity
         frequencies:
           - hourly:
               hour: 6

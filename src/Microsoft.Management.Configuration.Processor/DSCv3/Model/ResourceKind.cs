@@ -36,5 +36,10 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Model
         /// An importer resource.
         /// </summary>
         Importer,
+
+        /// <summary>
+        /// An exporter resource.
+        /// </summary>
+        Exporter,
     }
 }

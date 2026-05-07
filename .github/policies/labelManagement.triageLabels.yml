@@ -14,6 +14,7 @@ configuration:
         if:
           - payloadType: Issues
           - or:
+              # Area labels — only applied manually during triage
               - labelAdded:
                   label: Area-Accessibility
               - labelAdded:
@@ -46,10 +47,15 @@ configuration:
                   label: Area-Sorting
               - labelAdded:
                   label: Area-User-Interface
-              - labelAdded:
-                  label: Blocking-Issue
+              # Issue type / context / feature labels — manually applied
               - labelAdded:
                   label: Breaking-Change
+              - labelAdded:
+                  label: Context-Elevated-User
+              - labelAdded:
+                  label: Context-User
+              - labelAdded:
+                  label: Context-System
               - labelAdded:
                   label: Dependencies
               - labelAdded:
@@ -61,11 +67,17 @@ configuration:
               - labelAdded:
                   label: Interactive-Only-Installer
               - labelAdded:
+                  label: Issue-Bug
+              - labelAdded:
+                  label: Issue-Docs
+              - labelAdded:
+                  label: Issue-Feature
+              - labelAdded:
                   label: msstore
               - labelAdded:
                   label: Needs-Attention
               - labelAdded:
-                  label: Needs-Author-Feedback
+                  label: Needs-Repro
               - labelAdded:
                   label: Portable
               - labelAdded:
@@ -73,7 +85,17 @@ configuration:
               - labelAdded:
                   label: Side-By-Side
               - labelAdded:
+                  label: Windows-Sandbox
+              - labelAdded:
                   label: Zipped-Binary
+              # Needs-Author-Feedback is only auto-applied on PR open (localization),
+              # not on issue open, so it is safe to include here.
+              - labelAdded:
+                  label: Needs-Author-Feedback
+              # NOTE: Command-*, DSC-Resource, PowerShell, and Blocking-Issue
+              # are excluded because they are auto-applied by issueOpened and
+              # would prematurely remove Needs-Triage before a human has triaged
+              # the issue.
         then:
           - removeLabel:
               label: Needs-Triage
