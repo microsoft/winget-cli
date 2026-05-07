@@ -189,6 +189,12 @@ namespace AppInstaller::CLI
             return { type, "upgrade-available"_liv};
         case Execution::Args::Type::ListDetails:
             return { type, "details"_liv };
+        case Execution::Args::Type::Sort:
+            return { type, "sort"_liv };
+        case Execution::Args::Type::SortAscending:
+            return { type, "ascending"_liv, "asc"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::SortDirection };
+        case Execution::Args::Type::SortDescending:
+            return { type, "descending"_liv, "desc"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::SortDirection };
 
         // Pin command
         case Execution::Args::Type::GatedVersion:
@@ -490,6 +496,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::ProxyArgumentDescription, ArgumentType::Standard, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
         case Args::Type::NoProxy:
             return Argument{ type, Resource::String::NoProxyArgumentDescription, ArgumentType::Flag, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
+        case Args::Type::ConfigurationProcessorPath:
+            return Argument{ type, Resource::String::ConfigurationProcessorPath, ArgumentType::Standard, Argument::Visibility::Help, TogglePolicy::Policy::ConfigurationProcessorPath, BoolAdminSetting::ConfigurationProcessorPath };
         case Args::Type::Family:
             return Argument{ type, Resource::String::FontFamilyNameArgumentDescription, ArgumentType::Positional, false };
         case Args::Type::Details:

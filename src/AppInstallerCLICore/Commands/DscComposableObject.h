@@ -45,7 +45,7 @@ namespace AppInstaller::CLI
             Json::ValueType type,
             std::string_view description,
             const std::vector<std::string>& enumValues,
-            const std::optional<std::string>& defaultValue);
+            const std::optional<Json::Value>& defaultValue);
     }
 
     template <typename PropertyType>
@@ -224,7 +224,7 @@ namespace AppInstaller::CLI
         static std::string_view Name() { return _json_name_; } \
         static Resource::LocString Description() { return _description_; } \
         static std::vector<std::string> EnumValues() { return std::vector<std::string> _enum_vals_; } \
-        static std::optional<std::string> Default() { return _default_; } \
+        static std::optional<Json::Value> Default() { return _default_; } \
         std::optional<PropertyType>& _property_name_() { return m_value; } \
         const std::optional<PropertyType>& _property_name_() const { return m_value; } \
         void _property_name_(std::optional<PropertyType> value) { m_value = std::move(value); } \

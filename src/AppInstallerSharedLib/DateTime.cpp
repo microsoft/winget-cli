@@ -149,6 +149,11 @@ namespace AppInstaller::Utility
         return winrt::clock::to_sys(winrt::clock::from_FILETIME(fileTime));
     }
 
+    FILETIME ConvertSystemClockToFileTime(const std::chrono::system_clock::time_point& time)
+    {
+        return winrt::clock::to_FILETIME(winrt::clock::from_sys(time));
+    }
+
     std::chrono::system_clock::time_point GetTimePointFromVersion(const UInt64Version& version)
     {
         // Our custom format for converting UTC into a version is:

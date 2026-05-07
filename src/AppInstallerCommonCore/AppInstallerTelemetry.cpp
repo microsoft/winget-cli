@@ -9,6 +9,7 @@
 #include "Public/winget/ThreadGlobals.h"
 #include "winget/Filesystem.h"
 #include "winget/UserSettings.h"
+#include <AppInstallerDateTime.h>
 
 #define AICLI_TraceLoggingStringView(_sv_,_name_) TraceLoggingCountedUtf8String(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
 #define AICLI_TraceLoggingWStringView(_sv_,_name_) TraceLoggingCountedWideString(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
@@ -735,6 +736,74 @@ namespace AppInstaller::Logging
                 m_summary.DOHResult = hr;
             }
         }
+    }
+
+    void TelemetryTraceLogger::LogPreindexedPackageUpdate(
+        std::string_view sourceId,
+        std::optional<std::chrono::system_clock::time_point> previousIndexPublishedAt,
+        std::chrono::system_clock::time_point newIndexPublishedAt,
+        bool usedDeltaDownload,
+        std::optional<std::chrono::system_clock::time_point> previousBaselinePublishedAt,
+        std::optional<std::chrono::system_clock::time_point> newBaselinePublishedAt,
+        bool baselineUpdated,
+        uint64_t downloadedBytes,
+        bool isManualUpdate) const noexcept
+    {
+        // Converts a system_clock time_point to FILETIME. An empty optional maps to FILETIME{0,0} (null sentinel).
+        auto toFileTime = [](const std::optional<std::chrono::system_clock::time_point>& tp) -> FILETIME
+        {
+            return tp ? Utility::ConvertSystemClockToFileTime(*tp) : FILETIME{};
+        };
+
+        bool isNewClient = !previousIndexPublishedAt.has_value();
+
+        double indexStalenessDays = -1.0;
+        if (previousIndexPublishedAt)
+        {
+            indexStalenessDays = std::chrono::duration<double, std::ratio<86400>>(
+                newIndexPublishedAt - *previousIndexPublishedAt).count();
+        }
+
+        double baselineStalenessDays = -1.0;
+        if (previousBaselinePublishedAt && newBaselinePublishedAt)
+        {
+            baselineStalenessDays = std::chrono::duration<double, std::ratio<86400>>(
+                *newBaselinePublishedAt - *previousBaselinePublishedAt).count();
+        }
+
+        FILETIME previousIndexFt = toFileTime(previousIndexPublishedAt);
+        FILETIME newIndexFt = toFileTime(newIndexPublishedAt);
+        FILETIME previousBaselineFt = toFileTime(previousBaselinePublishedAt);
+        FILETIME newBaselineFt = toFileTime(newBaselinePublishedAt);
+
+        if (IsTelemetryEnabled())
+        {
+            AICLI_TraceLoggingWriteActivity(
+                "PreindexedPackageUpdate",
+                AICLI_TraceLoggingStringView(sourceId, "SourceId"),
+                TraceLoggingFileTime(previousIndexFt, "PreviousIndexPublishedAt"),
+                TraceLoggingFileTime(newIndexFt, "NewIndexPublishedAt"),
+                TraceLoggingFloat64(indexStalenessDays, "IndexStalenessDays"),
+                TraceLoggingBool(isNewClient, "IsNewClient"),
+                TraceLoggingBool(usedDeltaDownload, "UsedDeltaDownload"),
+                TraceLoggingFileTime(previousBaselineFt, "PreviousBaselinePublishedAt"),
+                TraceLoggingFileTime(newBaselineFt, "NewBaselinePublishedAt"),
+                TraceLoggingFloat64(baselineStalenessDays, "BaselineStalenessDays"),
+                TraceLoggingBool(baselineUpdated, "BaselineUpdated"),
+                TraceLoggingUInt64(downloadedBytes, "DownloadedBytes"),
+                TraceLoggingBool(isManualUpdate, "IsManualUpdate"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+        }
+
+        AICLI_LOG(Repo, Verbose, << "PreindexedPackageUpdate: Source [" << sourceId
+            << "] IsNewClient [" << isNewClient
+            << "] IndexStalenessDays [" << indexStalenessDays
+            << "] UsedDeltaDownload [" << usedDeltaDownload
+            << "] BaselineStalenessDays [" << baselineStalenessDays
+            << "] BaselineUpdated [" << baselineUpdated
+            << "] DownloadedBytes [" << downloadedBytes
+            << "] IsManualUpdate [" << isManualUpdate << "]");
     }
 
     void TelemetryTraceLogger::LogRepairFailure(std::string_view id, std::string_view version, std::string_view type, uint32_t errorCode) const noexcept

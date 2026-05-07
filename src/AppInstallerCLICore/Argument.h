@@ -92,6 +92,7 @@ namespace AppInstaller::CLI
         ConfigurationSetChoice = 0x80,
         DscResourceFunction = 0x100,
         DependenciesConflict = 0x200,
+        SortDirection = 0x400,
 
         // This must always be at the end
         Max

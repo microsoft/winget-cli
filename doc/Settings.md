@@ -137,6 +137,8 @@ The `archiveExtractionMethod` behavior affects how installer archives are extrac
 
 Some of the settings are duplicated under `preferences` and `requirements`. `preferences` affect how the various available options are sorted when choosing the one to act on.  For instance, the default scope of package installs is for the current user, but if that is not an option then a machine level installer will be chosen. `requirements` filter the options, potentially resulting in an empty list and a failure to install. In the previous example, a user scope requirement would result in no applicable installers and an error.
 
+When multiple values are listed under `requirements`, they are treated as an ordered preference in addition to a filter — the first listed value is preferred over subsequent ones when multiple valid options exist. If both `requirements` and `preferences` are set for the same field, the ordering from `preferences` takes precedence.
+
 Any arguments passed on the command line will effectively override the matching `requirement` setting for the duration of that command.
 
 > [!NOTE]
@@ -186,12 +188,15 @@ The `installerTypes` behavior affects what installer types will be selected when
 
 Allowed values as of version 1.12.470 include: `appx`, `burn`, `exe`, `font`, `inno`, `msi`, `msix`, `msstore`, `nullsoft`, `portable`, `wix`, `zip`
 
-By default, and with all other properties being equal, WinGet defaults to the installer type that is listed first in the manifest's installer YAML if the package has not been installed yet.  If it is already installed, the same installer type will be required to ensure a proper upgrade.
+By default, when no user preference or requirement is configured, WinGet selects installer types in the following order: MSIX, MSI/Wix/Burn, Nullsoft/Inno/EXE, Portable.  If it is already installed, the same installer type will be required to ensure a proper upgrade.
 
 ```json
     "installBehavior": {
         "preferences": {
             "installerTypes": ["msi", "msix"]
+        },
+        "requirements": {
+            "installerTypes": ["msix", "msi"]
         }
     },
 ```
@@ -309,6 +314,16 @@ In addition, there are special values that cover multiple channels.  `default` i
     "logging": {
         "channels": ["default"]
     },
+```
+
+### fileNameStrategy
+
+Sets the default strategy for naming log files for installers that support it. `manifest` is the default and uses the manifest name. `timestamp` uses the date and time. `guid` uses a generated GUID. `shortguid` uses the first 8 characters of a generated GUID. Invalid values will revert to `manifest`.
+
+```json
+	"logging": {
+		"fileNameStrategy": "manifest" | "timestamp" | "guid" | "shortguid"
+	},
 ```
 
 ### file

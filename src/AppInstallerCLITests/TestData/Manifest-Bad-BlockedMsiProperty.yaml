@@ -1,0 +1,19 @@
+# Installer with a blocked MSI property in a switch value
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.0.0.schema.json
+
+PackageIdentifier: AppInstallerCliTest.TestMsiInstaller
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: AppInstaller Test MSI Installer
+ShortDescription: AppInstaller Test MSI Installer
+Publisher: Microsoft Corporation
+License: Test
+InstallerType: msi
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://ThisIsNotUsed
+    InstallerSha256: 6a2d3683fa19bf00e58e07d1313d20a5f5735ebbd6a999d33381d28740ee07ea
+    InstallerSwitches:
+      Silent: TRANSFORMS=evil.mst
+ManifestType: singleton
+ManifestVersion: 1.0.0

@@ -64,9 +64,13 @@ namespace AppInstaller::Manifest
 
     struct ManifestValidateOption
     {
+        ManifestValidateOption() = default;
+        explicit ManifestValidateOption(bool fullValidation) : FullValidation(fullValidation) {}
+
         bool SchemaValidationOnly = false;
         bool ErrorOnVerifiedPublisherFields = false;
         bool InstallerValidation = false;
+        bool ErrorOnNetworkAddressInSwitches = false;
 
         // Options not exposed in winget util
         bool FullValidation = false;
@@ -495,6 +499,9 @@ namespace AppInstaller::Manifest
 
     // Gets a value indicating whether the given installer requires RepairBehavior for repair.
     bool DoesInstallerTypeRequireRepairBehaviorForRepair(InstallerTypeEnum installerType);
+
+    // Gets a value indicating whether the given installer type uses MSI properties in its command line.
+    bool DoesInstallerTypeUseMsiProperties(InstallerTypeEnum installerType);
 
     // Gets a value indicating whether the given installer type is an archive.
     bool IsArchiveType(InstallerTypeEnum installerType);

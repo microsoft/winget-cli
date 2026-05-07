@@ -171,11 +171,41 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 const auto& manifest = context.Get<Execution::Data::Manifest>();
-
+                const Logging::LogNameStrategy logNameStrategy = Settings::User().Get<Settings::Setting::LoggingFileNameStrategy>();
                 auto path = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
-                path /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
-                path += '-';
-                path += Utility::GetCurrentTimeForFilename(true);
+
+                switch (logNameStrategy)
+                {
+                    case Logging::LogNameStrategy::Manifest:
+                        // Use manifest ID and version for log file name
+                        // Results in <DefaultLogLocation>\<ManifestId>.<ManifestVersion>-<Timestamp>.log
+                        path /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
+                        path += '-';
+                        path += Utility::GetCurrentTimeForFilename(true);
+                        break;
+                    case Logging::LogNameStrategy::Timestamp:
+                        // Use only timestamp for log file name
+                        // Results in <DefaultLogLocation>\<Timestamp>.log
+                        path /= Utility::GetCurrentTimeForFilename(true);
+                        break;
+                    case Logging::LogNameStrategy::Guid:
+                        // Use a GUID for log file name
+                        // Results in <DefaultLogLocation>\<GUID>.log
+                        path /= Utility::CreateNewGuidNameWString();
+                        break;
+                    case Logging::LogNameStrategy::ShortGuid:
+                        // Use the first 8 characters of a GUID for log file name
+                        // Results in <DefaultLogLocation>\<First 8 characters of GUID>.log
+                        path /= Utility::CreateNewGuidNameWString().substr(0, 8);
+                        break;
+                    default:
+                        // This should never happen due to validation when reading settings, but handle it just in case.
+                        AICLI_LOG(CLI, Error, << "Unknown log naming strategy.");
+                        THROW_HR(E_UNEXPECTED);
+                        break;
+                }
+
+                // Add the extension to the log file regardless of naming strategy
                 path += Logging::FileLogger::DefaultExt();
 
                 logPath = path.u8string();
@@ -509,6 +539,12 @@ namespace AppInstaller::CLI::Workflow
 
     void ShellExecuteEnableWindowsFeature::operator()(Execution::Context& context) const
     {
+        if (!Utility::IsValidWindowsFeaturePattern(m_featureName))
+        {
+            context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(E_INVALIDARG));
+            return;
+        }
+
         Utility::LocIndView locIndFeatureName{ m_featureName };
 
         std::optional<DWORD> doesFeatureExistResult = DoesWindowsFeatureExist(context, m_featureName);

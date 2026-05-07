@@ -71,7 +71,7 @@ struct ServerProcessLauncher
 
 #ifndef USE_PROD_WINGET_SERVER
             // The feature that allows directly launching a packaged process as long as it has a matching alias
-            // requires a failure to trigger, and the dev package is not ACL'd to force this to happen. Attempting
+            // requires a failure to trigger, and the dev package ACL does not force this to happen. Attempting
             // to use the other code path results in an unpackaged server, causing other issues.
             // We run the product code above to ensure that it is functioning properly, but then replace it with
             // the path of the alias.
@@ -88,7 +88,7 @@ struct ServerProcessLauncher
     {
         RETURN_IF_FAILED(m_hr);
 
-        std::wstring commandLineInput = std::wstring{ m_serverExePath } + L" --manualActivation";
+        std::wstring commandLineInput = L"\"" + std::wstring{ m_serverExePath } + L"\" --manualActivation";
 
         STARTUPINFO info = { sizeof(info) };
         wil::unique_process_information process;

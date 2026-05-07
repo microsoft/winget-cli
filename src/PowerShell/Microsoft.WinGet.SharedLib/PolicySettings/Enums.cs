@@ -106,6 +106,11 @@ namespace Microsoft.WinGet.SharedLib.PolicySettings
         /// Enabled MCP server.
         /// </summary>
         McpServer,
+
+        /// <summary>
+        /// Enable Configuration Processor Path.
+        /// </summary>
+        ConfigurationProcessorPath,
     }
 
     /// <summary>

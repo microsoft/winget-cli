@@ -51,6 +51,14 @@ namespace AppInstaller::Msi
 
         // Properties string
         std::wstring Properties;
+
+        using ParsedProperty = std::pair<std::string, std::string>;
+
+        // Contains the properties as split into name and value portions.
+        std::vector<ParsedProperty> ParsedProperties;
+
+        // Checks for properties that are blocked in some cases.
+        std::optional<std::string> GetFirstBlockedProperty() const;
     };
 
     // Parses a command line string for msiexec.

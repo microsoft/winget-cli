@@ -97,6 +97,15 @@ namespace Microsoft.WinGet.SharedLib.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enable Windows Package Manager Configuration processor path.
+        /// </summary>
+        internal static string PolicyEnableConfigurationProcessorPath {
+            get {
+                return ResourceManager.GetString("PolicyEnableConfigurationProcessorPath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enable Windows App Installer Default Source.
         /// </summary>
         internal static string PolicyEnableDefaultSource {

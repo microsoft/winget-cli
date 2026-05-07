@@ -133,6 +133,15 @@ If you disable this setting, users will not be able to use the Windows Package M
         If you enable or do not configure this setting, users will be able to use the Windows Package Manager's MCP server.
 
         If you disable this setting, users will not be able to to use the Windows Package Manager's MCP server.</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPath">Enable Windows Package Manager Configuration Processor Override</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPathExplanation">
+        This policy controls whether users can specify a custom DSC processor path via the --processor-path argument in Windows Package Manager configuration commands.
+
+        If you enable this setting, users will be able to specify a custom DSC processor path in configuration commands.
+
+        If you do not configure this setting, users will be able to specify a custom DSC processor path in configuration commands after enabling the related administrator setting.
+
+        If you disable this setting, users will not be able to specify a custom DSC processor path in configuration commands.</string>
       <string id="WindowsPackageManagerDefaultProxy">Set Windows Package Manager Default Proxy</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">This policy controls the default proxy used by the Windows Package Manager.
 

@@ -56,9 +56,15 @@ namespace AppInstaller::CLI::Execution
         m_out(outStream),
         m_in(inStream)
     {
-        auto sixelSupported = [&]() { return SixelsSupported(); };
-        m_spinner = IIndefiniteSpinner::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), VisualStyle::Accent, sixelSupported);
-        m_progressBar = IProgressBar::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), VisualStyle::Accent, sixelSupported);
+        // Only create spinner and progress bar when stdout is attached to a console.
+        // When output is redirected to a file or pipe, suppress all progress output
+        // so it does not appear in the redirected stream.
+        if (GetConsoleWidth().has_value())
+        {
+            auto sixelSupported = [&]() { return SixelsSupported(); };
+            m_spinner = IIndefiniteSpinner::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), VisualStyle::Accent, sixelSupported);
+            m_progressBar = IProgressBar::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), VisualStyle::Accent, sixelSupported);
+        }
 
         SetProgressSink(this);
     }
@@ -146,7 +152,7 @@ namespace AppInstaller::CLI::Execution
     {
         m_style = style;
 
-        if (m_channel == Channel::Output)
+        if (m_channel == Channel::Output && GetConsoleWidth().has_value())
         {
             auto sixelSupported = [&]() { return SixelsSupported(); };
             m_spinner = IIndefiniteSpinner::CreateForStyle(*m_out, ConsoleModeRestore::Instance().IsVTEnabled(), style, sixelSupported);

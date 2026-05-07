@@ -273,11 +273,22 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Schema_2024_04
         /// <returns>True if the exit code was not 0.</returns>
         private bool RunSynchronously(ProcessExecution processExecution)
         {
-            this.processorSettings.DiagnosticsSink?.OnDiagnostics(DiagnosticLevel.Verbose, $"Starting process: {processExecution.CommandLine}{(processExecution.Input == null ? string.Empty : $"\n--- Input Stream ---\n{processExecution.Input}")}");
+            this.processorSettings.DiagnosticsSink?.OnDiagnostics(DiagnosticLevel.Verbose, $"[{processExecution.ExecutionNumber}] Starting process: {processExecution.CommandLine}{(processExecution.Input == null ? string.Empty : $"\n--- Input Stream ---\n{processExecution.Input}")}");
 
-            processExecution.Start().WaitForExit();
+            using (var batcher = new ProcessOutputBatcher(this.processorSettings.DiagnosticsSink, TimeSpan.FromMilliseconds(500)))
+            {
+                try
+                {
+                    batcher.Subscribe(processExecution);
+                    processExecution.Start().WaitForExit();
+                }
+                finally
+                {
+                    batcher.Flush();
+                }
+            }
 
-            this.processorSettings.DiagnosticsSink?.OnDiagnostics(DiagnosticLevel.Verbose, $"Process exited with code: {processExecution.ExitCode}\n--- Output Stream ---\n{processExecution.GetAllOutputLines()}\n--- Error Stream ---\n{processExecution.GetAllErrorLines()}");
+            this.processorSettings.DiagnosticsSink?.OnDiagnostics(DiagnosticLevel.Verbose, $"Process exited with code: {processExecution.ExitCode}");
 
             return processExecution.ExitCode != 0;
         }

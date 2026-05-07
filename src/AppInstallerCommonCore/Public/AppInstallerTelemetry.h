@@ -4,6 +4,8 @@
 #include <AppInstallerLanguageUtilities.h>
 #include <wil/result_macros.h>
 
+#include <chrono>
+#include <optional>
 #include <string_view>
 #include <vector>
 #include <cguid.h>
@@ -266,6 +268,19 @@ namespace AppInstaller::Logging
             std::string_view arpLanguage) const noexcept;
 
         void LogNonFatalDOError(std::string_view url, HRESULT hr) const noexcept;
+
+        // Logs details of a preindexed package source update (full or delta).
+        // Nullable datetime fields use a null optional; nullable float fields use -1.0.
+        void LogPreindexedPackageUpdate(
+            std::string_view sourceId,
+            std::optional<std::chrono::system_clock::time_point> previousIndexPublishedAt,
+            std::chrono::system_clock::time_point newIndexPublishedAt,
+            bool usedDeltaDownload,
+            std::optional<std::chrono::system_clock::time_point> previousBaselinePublishedAt,
+            std::optional<std::chrono::system_clock::time_point> newBaselinePublishedAt,
+            bool baselineUpdated,
+            uint64_t downloadedBytes,
+            bool isManualUpdate) const noexcept;
 
     protected:
         bool IsTelemetryEnabled() const noexcept;

@@ -278,5 +278,32 @@ namespace AppInstallerCLIE2ETests
             result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml"));
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
+
+        /// <summary>
+        /// Test that using a custom configuration processor path is disabled by policy.
+        /// </summary>
+        [Test]
+        public void EnableConfigurationProcessorPath()
+        {
+            GroupPolicyHelper.EnableConfigurationProcessorPath.Disable();
+
+            // --processor-path is rejected by policy at argument validation time across all configure subcommands.
+            var result = TestCommon.RunAICLICommand("configure", $"--processor-path C:\\dsc.exe {TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")}");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            result = TestCommon.RunAICLICommand("configure show", $"--processor-path C:\\dsc.exe {TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")}");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            result = TestCommon.RunAICLICommand("configure test", $"--processor-path C:\\dsc.exe {TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")}");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            result = TestCommon.RunAICLICommand("configure validate", $"--processor-path C:\\dsc.exe {TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")}");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            // When not configured, the argument is allowed by policy (admin setting governs).
+            GroupPolicyHelper.EnableConfigurationProcessorPath.SetNotConfigured();
+            result = TestCommon.RunAICLICommand("configure show", $"--processor-path C:\\dsc.exe {TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")}");
+            Assert.AreNotEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+        }
     }
 }

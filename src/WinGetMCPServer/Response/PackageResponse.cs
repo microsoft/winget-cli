@@ -96,6 +96,94 @@ namespace WinGetMCPServer.Response
         }
 
         /// <summary>
+        /// Creates a response for a package that is not installed.
+        /// </summary>
+        /// <param name="identifier">The identifier used when searching.</param>
+        /// <param name="source">The source that was searched.</param>
+        /// <returns>The response.</returns>
+        public static CallToolResult ForNotInstalled(string identifier, string? source)
+        {
+            PackageIdentityErrorResult result = new()
+            {
+                Message = "The package is not installed; use install-winget-package to install it",
+                Identifier = identifier,
+                Source = source,
+            };
+
+            return ToolResponse.FromObject(result, isError: true);
+        }
+
+        /// <summary>
+        /// Creates a response for an upgrade operation.
+        /// </summary>
+        /// <param name="installResult">The upgrade operation result.</param>
+        /// <param name="findResult">The post-upgrade package data.</param>
+        /// <returns>The response.</returns>
+        public static CallToolResult ForUpgradeOperation(InstallResult installResult, FindPackagesResult? findResult)
+        {
+            InstallOperationResult result = new InstallOperationResult();
+
+            switch (installResult.Status)
+            {
+                case InstallResultStatus.Ok:
+                    result.Message = "Upgrade completed successfully";
+                    break;
+                case InstallResultStatus.BlockedByPolicy:
+                    result.Message = "Upgrade was blocked by policy";
+                    break;
+                case InstallResultStatus.CatalogError:
+                    result.Message = "An error occurred with the source";
+                    break;
+                case InstallResultStatus.InternalError:
+                    result.Message = "An internal WinGet error occurred";
+                    break;
+                case InstallResultStatus.InvalidOptions:
+                    result.Message = "The upgrade options were invalid";
+                    break;
+                case InstallResultStatus.DownloadError:
+                    result.Message = "An error occurred while downloading the package installer";
+                    break;
+                case InstallResultStatus.InstallError:
+                    result.Message = "The package installer failed during the upgrade";
+                    break;
+                case InstallResultStatus.ManifestError:
+                    result.Message = "The package manifest was invalid";
+                    break;
+                case InstallResultStatus.NoApplicableInstallers:
+                    result.Message = "No applicable package installers were available for this system";
+                    break;
+                case InstallResultStatus.NoApplicableUpgrade:
+                    result.Message = "No applicable upgrade was available for this system";
+                    break;
+                case InstallResultStatus.PackageAgreementsNotAccepted:
+                    result.Message = "The package requires accepting agreements; please upgrade manually";
+                    break;
+                default:
+                    result.Message = "Unknown upgrade status";
+                    break;
+            }
+
+            if (installResult.RebootRequired)
+            {
+                result.RebootRequired = true;
+            }
+
+            result.ErrorCode = installResult.ExtendedErrorCode?.HResult;
+
+            if (installResult.Status == InstallResultStatus.InstallError)
+            {
+                result.InstallerErrorCode = installResult.InstallerErrorCode;
+            }
+
+            if (findResult != null && findResult.Status == FindPackagesResultStatus.Ok && findResult.Matches?.Count == 1)
+            {
+                result.InstalledPackageInformation = PackageListExtensions.FindPackageResultFromCatalogPackage(findResult.Matches[0].CatalogPackage);
+            }
+
+            return ToolResponse.FromObject(result, installResult.Status != InstallResultStatus.Ok);
+        }
+
+        /// <summary>
         /// Creates a response for an install operation.
         /// </summary>
         /// <param name="installResult">The install operation result.</param>

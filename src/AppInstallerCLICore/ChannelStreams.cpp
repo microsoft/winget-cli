@@ -8,8 +8,23 @@ namespace AppInstaller::CLI::Execution
 {
     using namespace VirtualTerminal;
 
-    size_t GetConsoleWidth()
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static std::optional<size_t>* s_consoleWidthOverride = nullptr;
+
+    void TestHook_SetConsoleWidth_Override(std::optional<size_t>* value)
     {
+        s_consoleWidthOverride = value;
+    }
+#endif
+
+    std::optional<size_t> GetConsoleWidth()
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_consoleWidthOverride)
+        {
+            return *s_consoleWidthOverride;
+        }
+#endif
         CONSOLE_SCREEN_BUFFER_INFO consoleInfo{};
         if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleInfo))
         {
@@ -17,7 +32,7 @@ namespace AppInstaller::CLI::Execution
         }
         else
         {
-            return 120;
+            return std::nullopt;
         }
     }
 

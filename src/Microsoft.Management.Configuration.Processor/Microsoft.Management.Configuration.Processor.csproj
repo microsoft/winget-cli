@@ -48,6 +48,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="System.Data.SqlClient" />
+    <PackageReference Include="System.Security.Cryptography.Xml" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(WinGetCsWinRTEmbedded)'!='true'">

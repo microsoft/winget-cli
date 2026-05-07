@@ -1,5 +1,6 @@
 name: '🐛 Bug Report'
 description: Report errors or unexpected behavior.
+type: Bug
 labels:
 - Issue-Bug
 - Needs-Triage

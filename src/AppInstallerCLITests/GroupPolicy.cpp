@@ -404,6 +404,7 @@ TEST_CASE("GroupPolicy_AllEnabled", "[groupPolicy]")
     SetRegistryValue(policiesKey.get(), ConfigurationPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), ProxyCommandLineOptionsPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), McpServerValueName, 1);
+    SetRegistryValue(policiesKey.get(), ConfigurationProcessorPathValueName, 1);
 
     GroupPolicy groupPolicy{ policiesKey.get() };
     for (const auto& policy : TogglePolicy::GetAllPolicies())

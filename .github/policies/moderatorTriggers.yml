@@ -59,7 +59,7 @@ configuration:
               # Area-Accessibility
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][aA]ccessibility'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]Accessibility'
                       isRegex: True
                 then:
                   - addLabel:
@@ -67,7 +67,7 @@ configuration:
               # Area-Architecture
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][aA]rchitecture'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]Architecture'
                       isRegex: True
                 then:
                   - addLabel:
@@ -75,7 +75,7 @@ configuration:
               # Area-Build
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][bB]uild'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]Build'
                       isRegex: True
                 then:
                   - addLabel:
@@ -83,7 +83,7 @@ configuration:
               # Area-COM-API
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][cC][oO][mM][\s-][aA][pP][iI]'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]COM[\s-]API'
                       isRegex: True
                 then:
                   - addLabel:
@@ -91,7 +91,7 @@ configuration:
               # Area-External
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][eE]xternal'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]External'
                       isRegex: True
                 then:
                   - addLabel:
@@ -99,7 +99,7 @@ configuration:
               # Area-GPO
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][gG][pP][oO]'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]GPO'
                       isRegex: True
                 then:
                   - addLabel:
@@ -107,7 +107,7 @@ configuration:
               # Area-Input
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][iI]nput'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]Input'
                       isRegex: True
                 then:
                   - addLabel:
@@ -115,7 +115,7 @@ configuration:
               # Area-Localization
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][lL]ocalization'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]Localization'
                       isRegex: True
                 then:
                   - addLabel:
@@ -123,7 +123,7 @@ configuration:
               # Area-Manifest
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][mM]anifest'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]Manifest'
                       isRegex: True
                 then:
                   - addLabel:
@@ -131,7 +131,7 @@ configuration:
               # Area-Matching
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][mM]atching'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]Matching'
                       isRegex: True
                 then:
                   - addLabel:
@@ -139,7 +139,7 @@ configuration:
               # Area-Output
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][oO]utput'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]Output'
                       isRegex: True
                 then:
                   - addLabel:
@@ -147,7 +147,7 @@ configuration:
               # Area-Path
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][pP]ath'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]Path'
                       isRegex: True
                 then:
                   - addLabel:
@@ -155,7 +155,7 @@ configuration:
               # Area-Performance
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][pP]erformance'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]Performance'
                       isRegex: True
                 then:
                   - addLabel:
@@ -163,7 +163,7 @@ configuration:
               # Area-Scope
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][sS]cope'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]Scope'
                       isRegex: True
                 then:
                   - addLabel:
@@ -171,7 +171,7 @@ configuration:
               # Area-Settings
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][sS]ettings'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]Settings'
                       isRegex: True
                 then:
                   - addLabel:
@@ -179,7 +179,7 @@ configuration:
               # Area-Sorting
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][sS]orting'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]Sorting'
                       isRegex: True
                 then:
                   - addLabel:
@@ -187,7 +187,7 @@ configuration:
               # Area-User-Interface
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][uU]ser[\s-][iI]nterface'
+                      pattern: '(?in)\[Policy\]\s+Area[\s-]User[\s-]Interface'
                       isRegex: True
                 then:
                   - addLabel:
@@ -195,7 +195,7 @@ configuration:
               # Blocking-Issue
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[bB]locking[\s-][iI]ssue'
+                      pattern: '(?in)\[Policy\]\s+Blocking[\s-]Issue'
                       isRegex: True
                 then:
                   - removeLabel:
@@ -207,7 +207,7 @@ configuration:
               # Breaking-Change
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[bB]reaking[\s-][cC]hange'
+                      pattern: '(?in)\[Policy\]\s+Breaking[\s-]Change'
                       isRegex: True
                 then:
                   - addLabel:
@@ -215,7 +215,7 @@ configuration:
               # Command-Configure
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][cC]onfigure'
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Configure'
                       isRegex: True
                 then:
                   - addLabel:
@@ -223,23 +223,55 @@ configuration:
               # Command-Download
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][dD]ownload'
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Download'
                       isRegex: True
                 then:
                   - addLabel:
                       label: Command-Download
+              # Command-DSCv3
+              - if:
+                  - commentContains:
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]DSCv3'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-DSCv3
               # Command-Export
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][eE]xport'
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Export'
                       isRegex: True
                 then:
                   - addLabel:
                       label: Command-Export
+              # Command-Features
+              - if:
+                  - commentContains:
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Features'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Features
+              # Command-Font
+              - if:
+                  - commentContains:
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Font'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Font
+              # Command-Hash
+              - if:
+                  - commentContains:
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Hash'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Hash
               # Command-Import
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][iI]mport'
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Import'
                       isRegex: True
                 then:
                   - addLabel:
@@ -247,7 +279,7 @@ configuration:
               # Command-Install
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][iI]nstall'
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Install'
                       isRegex: True
                 then:
                   - addLabel:
@@ -255,31 +287,55 @@ configuration:
               # Command-List
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][lL]ist'
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]List'
                       isRegex: True
                 then:
                   - addLabel:
                       label: Command-List
+              # Command-MCP
+              - if:
+                  - commentContains:
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]MCP'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-MCP
               # Command-Pin
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][pP]in'
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Pin'
                       isRegex: True
                 then:
                   - addLabel:
                       label: Command-Pin
+              # Command-Repair
+              - if:
+                  - commentContains:
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Repair'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Repair
               # Command-Search
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][sS]earch'
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Search'
                       isRegex: True
                 then:
                   - addLabel:
                       label: Command-Search
+              # Command-Settings
+              - if:
+                  - commentContains:
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Settings'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Settings
               # Command-Show
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][sS]how'
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Show'
                       isRegex: True
                 then:
                   - addLabel:
@@ -287,7 +343,7 @@ configuration:
               # Command-Source
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][sS]ource'
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Source'
                       isRegex: True
                 then:
                   - addLabel:
@@ -295,7 +351,7 @@ configuration:
               # Command-Uninstall
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][uU]ninstall'
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Uninstall'
                       isRegex: True
                 then:
                   - addLabel:
@@ -303,7 +359,7 @@ configuration:
               # Command-Upgrade
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][uU]pgrade'
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Upgrade'
                       isRegex: True
                 then:
                   - addLabel:
@@ -311,7 +367,7 @@ configuration:
               # Command-Validate
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][vV]alidate'
+                      pattern: '(?in)\[Policy\]\s+Command[\s-]Validate'
                       isRegex: True
                 then:
                   - addLabel:
@@ -319,7 +375,7 @@ configuration:
               # Context-Elevated-User
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ontext[\s-][eE]levated([\s-][uU]ser)?'
+                      pattern: '(?in)\[Policy\]\s+Context[\s-]Elevated([\s-]User)?'
                       isRegex: True
                 then:
                   - addLabel:
@@ -327,7 +383,7 @@ configuration:
               # Context-User
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ontext[\s-][uU]ser'
+                      pattern: '(?in)\[Policy\]\s+Context[\s-]User'
                       isRegex: True
                 then:
                   - addLabel:
@@ -335,7 +391,7 @@ configuration:
               # Context-System
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[cC]ontext[\s-][sS]ystem'
+                      pattern: '(?in)\[Policy\]\s+Context[\s-]System'
                       isRegex: True
                 then:
                   - addLabel:
@@ -343,7 +399,7 @@ configuration:
               # Dependencies
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[dD]ependencies'
+                      pattern: '(?in)\[Policy\]\s+Dependencies'
                       isRegex: True
                 then:
                   - addLabel:
@@ -351,7 +407,7 @@ configuration:
               # DSC-Resource
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[dD][sS][cC][\s-][rR]esource'
+                      pattern: '(?in)\[Policy\]\s+DSC[\s-]Resource'
                       isRegex: True
                 then:
                   - addLabel:
@@ -359,7 +415,7 @@ configuration:
               # Experimental
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[eE]xperimental'
+                      pattern: '(?in)\[Policy\]\s+Experimental'
                       isRegex: True
                 then:
                   - addLabel:
@@ -367,7 +423,7 @@ configuration:
               # Hardware
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[hH]ardware'
+                      pattern: '(?in)\[Policy\]\s+Hardware'
                       isRegex: True
                 then:
                   - addLabel:
@@ -375,7 +431,7 @@ configuration:
               # Interactive-Only-Installer
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[iI]nteractive[\s-][oO]nly([\s-][iI]nstaller)?'
+                      pattern: '(?in)\[Policy\]\s+Interactive[\s-]Only([\s-]Installer)?'
                       isRegex: True
                 then:
                   - addLabel:
@@ -383,7 +439,7 @@ configuration:
               # Issue-Bug
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[iI]ssue[\s-][bB]ug'
+                      pattern: '(?in)\[Policy\]\s+Issue[\s-]Bug'
                       isRegex: True
                 then:
                   - addLabel:
@@ -391,7 +447,7 @@ configuration:
               # Issue-Docs
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[iI]ssue[\s-][dD]ocs'
+                      pattern: '(?in)\[Policy\]\s+Issue[\s-]Docs'
                       isRegex: True
                 then:
                   - addLabel:
@@ -399,7 +455,7 @@ configuration:
               # Issue-Feature
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[iI]ssue[\s-][fF]eature'
+                      pattern: '(?in)\[Policy\]\s+Issue[\s-]Feature'
                       isRegex: True
                 then:
                   - addLabel:
@@ -407,7 +463,7 @@ configuration:
               # msstore
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[mM][sS][sS]tore'
+                      pattern: '(?in)\[Policy\]\s+msstore'
                       isRegex: True
                 then:
                   - addLabel:
@@ -415,7 +471,7 @@ configuration:
               # Needs-Attention
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[Nn]eeds[\s-][Aa]ttention'
+                      pattern: '(?in)\[Policy\]\s+Needs[\s-]Attention'
                       isRegex: True
                 then:
                   - addLabel:
@@ -423,7 +479,7 @@ configuration:
               # Needs-Author-Feedback
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[Nn]eeds[\s-][Aa]uthor[\s-][fF]eedback'
+                      pattern: '(?in)\[Policy\]\s+Needs[\s-]Author[\s-]Feedback'
                       isRegex: True
                 then:
                   - addLabel:
@@ -431,7 +487,7 @@ configuration:
               # Needs-Repro
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[Nn]eeds[\s-][Rr]epro'
+                      pattern: '(?in)\[Policy\]\s+Needs[\s-]Repro'
                       isRegex: True
                 then:
                   - addLabel:
@@ -439,7 +495,7 @@ configuration:
               # Portable
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[pP]ortable'
+                      pattern: '(?in)\[Policy\]\s+Portable'
                       isRegex: True
                 then:
                   - addLabel:
@@ -447,7 +503,7 @@ configuration:
               # PowerShell
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[pP]ower[sS]hell'
+                      pattern: '(?in)\[Policy\]\s+PowerShell'
                       isRegex: True
                 then:
                   - addLabel:
@@ -455,7 +511,7 @@ configuration:
               # PSA
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[Pp][Ss][Aa]'
+                      pattern: '(?in)\[Policy\]\s+PSA'
                       isRegex: True
                 then:
                   - addLabel:
@@ -463,7 +519,7 @@ configuration:
               # Side-By-Side
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[sS]ide[\s-][bB]y[\s-][sS]ide'
+                      pattern: '(?in)\[Policy\]\s+Side[\s-]By[\s-]Side'
                       isRegex: True
                 then:
                   - addLabel:
@@ -471,15 +527,15 @@ configuration:
               # Zipped-Binary
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[zZ]ip(ped)?[\s-][bB]inary'
+                      pattern: '(?in)\[Policy\]\s+Zip(ped)?[\s-]Binary'
                       isRegex: True
                 then:
                   - addLabel:
                       label: Zipped-Binary
-              # Zipped-Binary
+              # Windows-Sandbox
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+([wW]indows[\s-])?[sS]andbox'
+                      pattern: '(?in)\[Policy\]\s+(Windows[\s-])?Sandbox'
                       isRegex: True
                 then:
                   - addLabel:
@@ -487,7 +543,7 @@ configuration:
               # Unblocked
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[uU]nblocked'
+                      pattern: '(?in)\[Policy\]\s+Unblocked'
                       isRegex: True
                 then:
                   - removeLabel:
@@ -547,7 +603,7 @@ configuration:
               # Reset-Feedback
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[rR]eset\s+[fF]eedback'
+                      pattern: '(?in)\[Policy\]\s+Reset\s+Feedback'
                       isRegex: True
                 then:
                   - removeLabel:
@@ -557,7 +613,7 @@ configuration:
               # Reset-Labels
               - if:
                   - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[rR]eset\s+[lL]abels'
+                      pattern: '(?in)\[Policy\]\s+Reset\s+Labels'
                       isRegex: True
                 then:
                   - removeLabel:
@@ -603,7 +659,15 @@ configuration:
                   - removeLabel:
                       label: Command-Download
                   - removeLabel:
+                      label: Command-DSCv3
+                  - removeLabel:
                       label: Command-Export
+                  - removeLabel:
+                      label: Command-Features
+                  - removeLabel:
+                      label: Command-Font
+                  - removeLabel:
+                      label: Command-Hash
                   - removeLabel:
                       label: Command-Import
                   - removeLabel:
@@ -611,9 +675,15 @@ configuration:
                   - removeLabel:
                       label: Command-List
                   - removeLabel:
+                      label: Command-MCP
+                  - removeLabel:
                       label: Command-Pin
                   - removeLabel:
+                      label: Command-Repair
+                  - removeLabel:
                       label: Command-Search
+                  - removeLabel:
+                      label: Command-Settings
                   - removeLabel:
                       label: Command-Show
                   - removeLabel:

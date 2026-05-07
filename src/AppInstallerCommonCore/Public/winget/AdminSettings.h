@@ -16,6 +16,7 @@ namespace AppInstaller::Settings
         InstallerHashOverride,
         LocalArchiveMalwareScanOverride,
         ProxyCommandLineOptions,
+        ConfigurationProcessorPath,
         Max,
     };
 

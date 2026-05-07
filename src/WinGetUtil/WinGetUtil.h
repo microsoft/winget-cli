@@ -26,6 +26,7 @@ extern "C"
         SchemaValidationOnly = 0x1,
         ErrorOnVerifiedPublisherFields = 0x2,
         InstallerValidations = 0x4,
+        ErrorOnNetworkAddressInSwitches = 0x8,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(WinGetValidateManifestOption);
@@ -45,6 +46,13 @@ extern "C"
 
         // Return error on manifest fields that require verified publishers, used during semantic validation
         ReturnErrorOnVerifiedPublisherFields = 0x1000,
+
+        // Return error if a network address is present in installer switches.
+        ReturnErrorOnNetworkAddressInSwitches = 0x2000,
+
+        // Return the failure or warning message as a JSON string containing both the full message
+        // and a structured list of individual errors/warnings.
+        ReturnResponseAsJson = 0x4000,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(WinGetCreateManifestOption);

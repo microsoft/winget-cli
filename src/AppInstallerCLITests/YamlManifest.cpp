@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestSettings.h"
 #include <AppInstallerSHA256.h>
 #include <AppInstallerLanguageUtilities.h>
 #include <winget/ManifestYamlParser.h>
@@ -52,6 +53,11 @@ namespace
     void ValidateError(const ValidationError& error, ValidationError::Level level, AppInstaller::StringResource::StringId message)
     {
         ValidateError(error, level, message, std::string(), std::string());
+    }
+
+    std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation)
+    {
+        return ValidateManifest(manifest, ManifestValidateOption{ fullValidation });
     }
 
     struct ManifestExceptionMatcher : public Catch::Matchers::MatcherBase<ManifestException>
@@ -836,6 +842,7 @@ TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
         { "Manifest-Good-Switches.yaml" },
         { "Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml" },
         { "Manifest-Good-InstallerTypeZip-PortableExe.yaml" },
+        { "Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml" },
     };
 
     for (auto const& testCase : TestCases)
@@ -1342,6 +1349,7 @@ TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")
 {
     Manifest installerManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml"));
     Manifest rootManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InstallerTypeZip-PortableNotExe_Root.yaml"));
+    Manifest uppercaseManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml"));
 
     // Regular validation should detect as error
     auto errors = ValidateManifest(installerManifest, true);
@@ -1358,6 +1366,71 @@ TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")
 
     errors = ValidateManifest(rootManifest, false);
     REQUIRE(errors.size() == 0);
+
+    // Uppercase file extension should be accepted (case-insensitive comparison)
+    errors = ValidateManifest(uppercaseManifest, true);
+    REQUIRE(errors.size() == 0);
+}
+
+TEST_CASE("WindowsFeatureNameValidation", "[ManifestValidation][111981]")
+{
+    // An invalid Windows Feature name should produce an error regardless of the fullValidation flag
+    Manifest invalidManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InvalidWindowsFeatureName.yaml"));
+
+    auto errors = ValidateManifest(invalidManifest, true);
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidWindowsFeatureName, "Invalid@Feature", "");
+
+    errors = ValidateManifest(invalidManifest, false);
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidWindowsFeatureName, "Invalid@Feature", "");
+}
+
+TEST_CASE("NetworkAddressInSwitchesValidation", "[ManifestValidation][111981]")
+{
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-NetworkAddressInSwitches.yaml"));
+
+    auto errors = ValidateManifest(manifest, true);
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Warning, ManifestError::ContainsNetworkAddress, "http://evil.example.com", "");
+
+    ManifestValidateOption options{ true };
+    options.ErrorOnNetworkAddressInSwitches = true;
+    errors = ValidateManifest(manifest, options);
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::ContainsNetworkAddress, "http://evil.example.com", "");
+
+    errors = ValidateManifest(manifest, false);
+    REQUIRE(errors.size() == 0);
+}
+
+TEST_CASE("BlockedMsiPropertyValidation", "[ManifestValidation][111981]")
+{
+    SECTION("Blocked property is detected under full validation")
+    {
+        Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-BlockedMsiProperty.yaml"));
+
+        auto errors = ValidateManifest(manifest, true);
+        REQUIRE(errors.size() == 1);
+        ValidateError(errors[0], ValidationError::Level::Error, ManifestError::BlockedMsiProperty, "TRANSFORMS", "");
+
+        // Not checked when fullValidation is false
+        errors = ValidateManifest(manifest, false);
+        REQUIRE(errors.size() == 0);
+    }
+
+    SECTION("Invalid MSI switches are detected under full validation")
+    {
+        Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InvalidMsiSwitches.yaml"));
+
+        auto errors = ValidateManifest(manifest, true);
+        REQUIRE(errors.size() == 1);
+        ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidMsiSwitches);
+
+        // Not checked when fullValidation is false
+        errors = ValidateManifest(manifest, false);
+        REQUIRE(errors.size() == 0);
+    }
 }
 
 TEST_CASE("ReadManifestAndValidateMsixInstallers_Success", "[ManifestValidation]")

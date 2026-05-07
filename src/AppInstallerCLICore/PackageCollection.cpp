@@ -41,6 +41,8 @@ namespace AppInstaller::CLI
             const std::string PackagesJson_Package_Version = "Version";
             const std::string PackagesJson_Package_Channel = "Channel";
             const std::string PackagesJson_Package_Scope = "Scope";
+            const std::string PackagesJson_Package_InitialOverrideArguments = "InitialOverrideArguments";
+            const std::string PackagesJson_Package_InitialCustomSwitches = "InitialCustomSwitches";
 
             static const StaticStrings& Instance()
             {
@@ -154,6 +156,16 @@ namespace AppInstaller::CLI
                 PackageCollection::Package package{ Utility::LocIndString{ id }, Utility::Version{ version }, Utility::Channel{ channel } };
                 package.Scope = Manifest::ConvertToScopeEnum(scope);
 
+                if (packageNode.isMember(ss.PackagesJson_Package_InitialOverrideArguments))
+                {
+                    package.InitialOverrideArgs = packageNode[ss.PackagesJson_Package_InitialOverrideArguments].asString();
+                }
+
+                if (packageNode.isMember(ss.PackagesJson_Package_InitialCustomSwitches))
+                {
+                    package.InitialCustomSwitches = packageNode[ss.PackagesJson_Package_InitialCustomSwitches].asString();
+                }
+
                 return package;
             }
         };
@@ -200,6 +212,16 @@ namespace AppInstaller::CLI
             if (package.Scope != Manifest::ScopeEnum::Unknown)
             {
                 packageNode[ss.PackagesJson_Package_Scope] = std::string{ Manifest::ScopeToString(package.Scope) };
+            }
+
+            if (!package.InitialOverrideArgs.empty())
+            {
+                packageNode[ss.PackagesJson_Package_InitialOverrideArguments] = package.InitialOverrideArgs;
+            }
+
+            if (!package.InitialCustomSwitches.empty())
+            {
+                packageNode[ss.PackagesJson_Package_InitialCustomSwitches] = package.InitialCustomSwitches;
             }
 
             return sourceNode[ss.PackagesJson_Packages].append(std::move(packageNode));

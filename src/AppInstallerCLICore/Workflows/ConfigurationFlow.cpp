@@ -474,7 +474,7 @@ namespace AppInstaller::CLI::Workflow
                     truncated = true;
                 }
 
-                if (Utility::LimitOutputLines(lines, GetConsoleWidth(), maxLines))
+                if (Utility::LimitOutputLines(lines, GetConsoleWidth().value_or(120), maxLines))
                 {
                     truncated = true;
                 }
@@ -885,7 +885,7 @@ namespace AppInstaller::CLI::Workflow
             if (messageData.ShowDescription && !description.empty())
             {
                 constexpr size_t maximumDescriptionLines = 3;
-                size_t consoleWidth = GetConsoleWidth();
+                size_t consoleWidth = GetConsoleWidth().value_or(120);
                 std::vector<std::string> lines = Utility::SplitIntoLines(description, maximumDescriptionLines + 1);
                 bool wasLimited = Utility::LimitOutputLines(lines, consoleWidth, maximumDescriptionLines);
 

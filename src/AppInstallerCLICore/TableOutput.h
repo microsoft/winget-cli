@@ -20,8 +20,9 @@ namespace AppInstaller::CLI::Execution
         using header_t = std::array<Resource::LocString, FieldCount>;
         using line_t = std::array<std::string, FieldCount>;
 
-        TableOutput(Reporter& reporter, header_t&& header, size_t sizingBuffer = 50) :
-            m_reporter(reporter), m_sizingBuffer(sizingBuffer)
+        TableOutput(Reporter& reporter, header_t&& header) :
+            m_reporter(reporter),
+            m_hasConsole(GetConsoleWidth().has_value())
         {
             for (size_t i = 0; i < FieldCount; ++i)
             {
@@ -35,15 +36,11 @@ namespace AppInstaller::CLI::Execution
         {
             m_empty = false;
 
-            if (m_buffer.size() < m_sizingBuffer)
-            {
-                m_buffer.emplace_back(std::move(line));
-            }
-            else
-            {
-                EvaluateAndFlushBuffer();
-                OutputLineToStream(line);
-            }
+            // Always buffer every row so that column widths are computed from the full dataset
+            // before any output is written. This guarantees that the widest value in any column
+            // is always fully visible and columns are perfectly aligned, whether output goes to
+            // a console or is redirected. Complete() triggers the actual output.
+            m_buffer.emplace_back(std::move(line));
         }
 
         void Complete()
@@ -71,10 +68,10 @@ namespace AppInstaller::CLI::Execution
 
         Reporter& m_reporter;
         std::array<Column, FieldCount> m_columns;
-        size_t m_sizingBuffer;
         std::vector<line_t> m_buffer;
         bool m_bufferEvaluated = false;
         bool m_empty = true;
+        bool m_hasConsole = false;
 
         void EvaluateAndFlushBuffer()
         {
@@ -127,13 +124,14 @@ namespace AppInstaller::CLI::Execution
                 totalRequired += m_columns[i].MaxLength + (m_columns[i].SpaceAfter ? 1 : 0);
             }
 
-            size_t consoleWidth = GetConsoleWidth();
+            auto consoleWidthOpt = GetConsoleWidth();
 
-            // If the total space would be too big, shrink them.
-            // We don't want to use the last column, lest we auto-wrap
-            if (totalRequired >= consoleWidth)
+            // If there is a console and the total space would be too big, shrink columns.
+            // We don't want to use the last column, lest we auto-wrap.
+            // When there is no console (e.g. output redirected to a file), skip truncation entirely.
+            if (consoleWidthOpt && totalRequired >= *consoleWidthOpt)
             {
-                size_t extra = (totalRequired - consoleWidth) + 1;
+                size_t extra = (totalRequired - *consoleWidthOpt) + 1;
 
                 while (extra)
                 {
@@ -151,7 +149,7 @@ namespace AppInstaller::CLI::Execution
                     extra -= 1;
                 }
 
-                totalRequired = consoleWidth - 1;
+                totalRequired = *consoleWidthOpt - 1;
             }
 
             // Header line

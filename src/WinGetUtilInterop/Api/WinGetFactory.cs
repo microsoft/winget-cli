@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="WinGetFactory.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -7,7 +7,9 @@
 namespace Microsoft.WinGetUtil.Api
 {
     using System;
+    using System.Collections.Generic;
     using System.Runtime.InteropServices;
+    using System.Text.Json;
     using Microsoft.WinGetUtil.Common;
     using Microsoft.WinGetUtil.Exceptions;
     using Microsoft.WinGetUtil.Interfaces;
@@ -101,6 +103,17 @@ namespace Microsoft.WinGetUtil.Api
                         WinGetCreateManifestOption.NoValidation);
                 }
 
+                bool returnAsJson = option.HasFlag(WinGetCreateManifestOption.ReturnResponseAsJson);
+                if (returnAsJson && failureOrWarningMessage != null)
+                {
+                    return ParseJsonManifestResult(succeeded, failureOrWarningMessage, succeeded ? new WinGetManifest(manifestHandle) : null);
+                }
+                else if (returnAsJson)
+                {
+                    // No errors/warnings; return empty diagnostics list.
+                    return new CreateManifestResult(succeeded, null, succeeded ? new WinGetManifest(manifestHandle) : null, new List<ManifestDiagnostic>());
+                }
+
                 return new CreateManifestResult(succeeded, failureOrWarningMessage, succeeded ? new WinGetManifest(manifestHandle) : null);
             }
             catch (Exception e)
@@ -137,6 +150,50 @@ namespace Microsoft.WinGetUtil.Api
             catch (Exception e)
             {
                 throw new WinGetInstallerMetadataException(e);
+            }
+        }
+
+        private static CreateManifestResult ParseJsonManifestResult(bool succeeded, string json, IWinGetManifest manifestHandle)
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+
+                string fullMessage = root.TryGetProperty("fullMessage", out var fullMsgProp) ? fullMsgProp.GetString() : json;
+
+                var diagnostics = new List<ManifestDiagnostic>();
+                if (root.TryGetProperty("errors", out var errorsArray) && errorsArray.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var entry in errorsArray.EnumerateArray())
+                    {
+                        string errorId = entry.TryGetProperty("errorId", out var p) ? p.GetString() : string.Empty;
+                        string message = entry.TryGetProperty("message", out p) ? p.GetString() : string.Empty;
+                        string context = entry.TryGetProperty("context", out p) ? p.GetString() : string.Empty;
+                        string value = entry.TryGetProperty("value", out p) ? p.GetString() : string.Empty;
+                        long line = entry.TryGetProperty("line", out p) ? p.GetInt64() : 0;
+                        long column = entry.TryGetProperty("column", out p) ? p.GetInt64() : 0;
+                        string levelStr = entry.TryGetProperty("level", out p) ? p.GetString() : "Error";
+                        string file = entry.TryGetProperty("file", out p) ? p.GetString() : string.Empty;
+
+                        var level = string.Equals(levelStr, "Warning", StringComparison.OrdinalIgnoreCase)
+                            ? ManifestDiagnosticLevel.Warning
+                            : ManifestDiagnosticLevel.Error;
+
+                        ManifestErrorId parsedErrorId = Enum.TryParse<ManifestErrorId>(errorId, out var knownId)
+                            ? knownId
+                            : ManifestErrorId.Unknown;
+
+                        diagnostics.Add(new ManifestDiagnostic(parsedErrorId, message, context, value, line, column, level, file));
+                    }
+                }
+
+                return new CreateManifestResult(succeeded, fullMessage, manifestHandle, diagnostics);
+            }
+            catch
+            {
+                // Fallback: JSON parsing failed; return raw string with no structured diagnostics.
+                return new CreateManifestResult(succeeded, json, manifestHandle, new List<ManifestDiagnostic>());
             }
         }
 

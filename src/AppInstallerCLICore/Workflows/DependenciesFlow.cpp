@@ -175,6 +175,12 @@ namespace AppInstaller::CLI::Workflow
                 {
                     AICLI_LOG(Core, Info, << "Successfully enabled [" << featureName << "]");
                 }
+                else if (result == E_INVALIDARG)
+                {
+                    AICLI_LOG(Core, Warning, << "Invalid Windows Feature name [" << featureName << "]");
+                    enableFeaturesFailed = true;
+                    featureContext.Reporter.Warn() << Resource::String::WindowsFeatureNotFound(locIndFeatureName) << std::endl;
+                }
                 else if (result == 0x800f080c) // DISMAPI_E_UNKNOWN_FEATURE
                 {
                     AICLI_LOG(Core, Warning, << "Windows Feature [" << featureName << "] does not exist");

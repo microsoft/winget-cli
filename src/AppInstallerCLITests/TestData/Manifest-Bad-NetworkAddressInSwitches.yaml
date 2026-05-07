@@ -1,0 +1,20 @@
+# Installer with a network address in a switch value
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.0.0.schema.json
+
+PackageIdentifier: AppInstallerCliTest.TestExeInstaller
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: AppInstaller Test Exe Installer
+ShortDescription: AppInstaller Test Exe Installer
+Publisher: Microsoft Corporation
+License: Test
+InstallerType: exe
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://ThisIsNotUsed
+    InstallerSha256: 6a2d3683fa19bf00e58e07d1313d20a5f5735ebbd6a999d33381d28740ee07ea
+    InstallerSwitches:
+      Silent: http://evil.example.com
+      SilentWithProgress: /normal
+ManifestType: singleton
+ManifestVersion: 1.0.0

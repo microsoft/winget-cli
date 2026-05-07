@@ -88,6 +88,8 @@ namespace AppInstaller::Repository
         case PackageVersionMetadata::PinnedState: return "PinnedState"sv;
         case PackageVersionMetadata::UserIntentArchitecture: return "UserIntentArchitecture"sv;
         case PackageVersionMetadata::UserIntentLocale: return "UserIntentLocale"sv;
+        case PackageVersionMetadata::InitialOverrideArguments: return "InitialOverrideArguments"sv;
+        case PackageVersionMetadata::InitialCustomSwitches: return "InitialCustomSwitches"sv;
         default: return "Unknown"sv;
         }
     }

@@ -144,6 +144,7 @@ namespace AppInstallerCLIE2ETests
         /// Export all.
         /// </summary>
         [Test]
+        [Ignore("DSC 3.2 design changes ", Until = "2026-05-10")]
         public void ExportAll()
         {
             var exportDir = TestCommon.GetRandomTestDir();

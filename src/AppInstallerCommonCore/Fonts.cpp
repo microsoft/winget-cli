@@ -34,7 +34,12 @@ namespace AppInstaller::Fonts
             // This code can fail in a number of ways, including if the file isn't actually
             // a font file or does not have a title.
             wil::com_ptr<IPropertyStore> pPropertyStore;
-            THROW_IF_FAILED(SHGetPropertyStoreFromParsingName(fontFilePath.c_str(), nullptr, GPS_DEFAULT, IID_PPV_ARGS(&pPropertyStore)));
+            if (FAILED(SHGetPropertyStoreFromParsingName(fontFilePath.c_str(), nullptr, GPS_DEFAULT, IID_PPV_ARGS(&pPropertyStore))))
+            {
+                // Intentionally not throwing here as this is an expected failure case for non-font files or files without titles.
+                return {};
+            }
+
             PROPVARIANT prop;
             PropVariantInit(&prop);
             THROW_IF_FAILED(pPropertyStore->GetValue(PKEY_Title, &prop));

@@ -228,6 +228,22 @@ namespace AppInstaller::Manifest
                 {
                     preference = Settings::User().Get<Settings::Setting::InstallerTypePreference>();
                     requirement = Settings::User().Get<Settings::Setting::InstallerTypeRequirement>();
+
+                    // Apply default precedence order when the user has not configured any installer type preferences or requirements.
+                    if (preference.empty() && requirement.empty())
+                    {
+                        preference = {
+                            InstallerTypeEnum::MSStore,
+                            InstallerTypeEnum::Msix,
+                            InstallerTypeEnum::Msi,
+                            InstallerTypeEnum::Wix,
+                            InstallerTypeEnum::Burn,
+                            InstallerTypeEnum::Nullsoft,
+                            InstallerTypeEnum::Inno,
+                            InstallerTypeEnum::Exe,
+                            InstallerTypeEnum::Portable,
+                        };
+                    }
                 }
 
                 if (!preference.empty() || !requirement.empty())
@@ -270,12 +286,15 @@ namespace AppInstaller::Manifest
 
             details::ComparisonResult IsFirstBetter(const ManifestInstaller& first, const ManifestInstaller& second) override
             {
-                if (m_preference.empty())
+                // If no preferences are set, use requirement ordering instead.
+                const auto& effectiveOrder = m_preference.empty() ? m_requirement : m_preference;
+
+                if (effectiveOrder.empty())
                 {
                     return details::ComparisonResult::Negative;
                 }
 
-                for (InstallerTypeEnum installerTypePreference : m_preference)
+                for (InstallerTypeEnum installerTypePreference : effectiveOrder)
                 {
                     bool isFirstInstallerTypePreferred =
                         first.EffectiveInstallerType() == installerTypePreference ||

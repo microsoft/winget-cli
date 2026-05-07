@@ -326,6 +326,7 @@
     <ClCompile Include="SQLiteIndex.cpp" />
     <ClCompile Include="SQLiteWrapper.cpp" />
     <ClCompile Include="Synchronization.cpp" />
+    <ClCompile Include="TableOutput.cpp" />
     <ClCompile Include="TestCommon.cpp" />
     <ClCompile Include="WorkflowCommon.cpp" />
     <ClCompile Include="WorkflowGroupPolicy.cpp" />
@@ -439,6 +440,12 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Good-WithLicenseAgreement.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Good-WithOverrideArgs.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Good-WithCustomSwitches.json">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <None Include="packages.config" />
@@ -1041,6 +1048,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-InstallerTypeZip-PortableExe.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -1072,6 +1082,18 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ManifestV1_28-PowerShellDSC.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InvalidWindowsFeatureName.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-BlockedMsiProperty.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InvalidMsiSwitches.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-NetworkAddressInSwitches.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
   </ItemGroup>

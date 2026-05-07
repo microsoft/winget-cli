@@ -241,7 +241,32 @@ namespace AppInstaller::Repository::Microsoft
                     return false;
                 }
 
-                return UpdateInternal(packageInfo.PackageLocation(), details, progress);
+                std::optional<uint64_t> downloadedBytes;
+                bool result = UpdateInternal(packageInfo.PackageLocation(), details, progress, downloadedBytes);
+
+                if (downloadedBytes)
+                {
+                    try
+                    {
+                        auto manifests = packageInfo.MsixInfo().GetAppPackageManifests();
+                        if (!manifests.empty())
+                        {
+                            Logging::Telemetry().LogPreindexedPackageUpdate(
+                                details.Identifier,
+                                std::nullopt,
+                                Utility::GetTimePointFromVersion(manifests[0].GetIdentity().GetVersion()),
+                                false,
+                                std::nullopt,
+                                std::nullopt,
+                                false,
+                                downloadedBytes.value(),
+                                true);
+                        }
+                    }
+                    CATCH_LOG();
+                }
+
+                return result;
             }
 
             bool Update(const SourceDetails& details, IProgressCallback& progress) override final
@@ -257,7 +282,7 @@ namespace AppInstaller::Repository::Microsoft
             // Retrieves the currently cached version of the package.
             virtual std::optional<Msix::PackageVersion> GetCurrentVersion(const SourceDetails& details) = 0;
 
-            virtual bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress) = 0;
+            virtual bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress, std::optional<uint64_t>& downloadedBytes) = 0;
 
             bool Remove(const SourceDetails& details, IProgressCallback& progress) override final
             {
@@ -325,11 +350,34 @@ namespace AppInstaller::Repository::Microsoft
                     return false;
                 }
 
-                return UpdateInternal(updateCheck.PackageLocation(), details, progress);
+                std::optional<uint64_t> downloadedBytes = 0;
+                bool result = UpdateInternal(updateCheck.PackageLocation(), details, progress, downloadedBytes);
+
+                if (downloadedBytes)
+                {
+                    std::optional<std::chrono::system_clock::time_point> previousIndexPublishedAt;
+                    if (currentVersion)
+                    {
+                        previousIndexPublishedAt = Utility::GetTimePointFromVersion(currentVersion.value());
+                    }
+
+                    Logging::Telemetry().LogPreindexedPackageUpdate(
+                        details.Identifier,
+                        previousIndexPublishedAt,
+                        Utility::GetTimePointFromVersion(updateCheck.AvailableVersion()),
+                        false,
+                        std::nullopt,
+                        std::nullopt,
+                        false,
+                        downloadedBytes.value(),
+                        !isBackground);
+                }
+
+                return result;
             }
         };
 
-        // *Should only be called when under a CrossProcessReaderWriteLock*
+        // Optimistic packaged source open may call this without the cross process lock and retry under the lock on failure.
         std::optional<Deployment::Extension> GetExtensionFromDetails(const SourceDetails& details)
         {
             Deployment::ExtensionCatalog catalog(Deployment::SourceExtensionName);
@@ -412,6 +460,90 @@ namespace AppInstaller::Repository::Microsoft
             return IsAfterUpdateCheckTime(details.Name, timeToCheck, requestedUpdateInterval);
         }
 
+        struct PackagedSourceOpenTimer
+        {
+            using clock = std::chrono::steady_clock;
+
+            struct SingleTimer
+            {
+                SingleTimer(long long& durationMs) : m_durationMs(durationMs), m_start(clock::now()) {}
+
+                ~SingleTimer()
+                {
+                    Stop();
+                }
+
+                void Stop()
+                {
+                    if (!m_stopped)
+                    {
+                        m_durationMs += std::chrono::duration_cast<std::chrono::milliseconds>(clock::now() - m_start).count();
+                        m_stopped = true;
+                    }
+                }
+
+            private:
+                long long& m_durationMs;
+                clock::time_point m_start;
+                bool m_stopped = false;
+            };
+
+            PackagedSourceOpenTimer(const std::string& sourceName) : m_sourceName(sourceName), m_start(clock::now()) {}
+
+            ~PackagedSourceOpenTimer()
+            {
+                const auto totalMs = std::chrono::duration_cast<std::chrono::milliseconds>(clock::now() - m_start).count();
+                AICLI_LOG(Repo, Info, << "Packaged source open for '" << m_sourceName << "' " << (m_succeeded ? "succeeded" : "failed") <<
+                    " in " << totalMs << " ms [extensionLookup=" << m_extensionLookupMs <<
+                    " ms, verifyContentIntegrity=" << m_verifyContentIntegrityMs <<
+                    " ms, sqliteOpen=" << m_sqliteOpenMs << " ms, mode=" << (m_usedLockFallback ? "fallbackLocked" : "optimistic") << "]");
+            }
+
+            SingleTimer MeasureExtensionLookup() { return SingleTimer{ m_extensionLookupMs }; }
+            SingleTimer MeasureVerifyContentIntegrity() { return SingleTimer{ m_verifyContentIntegrityMs }; }
+            SingleTimer MeasureSQLiteOpen() { return SingleTimer{ m_sqliteOpenMs }; }
+            void MarkFallbackLocked() { m_usedLockFallback = true; }
+            void MarkSucceeded() { m_succeeded = true; }
+
+        private:
+            const std::string& m_sourceName;
+            clock::time_point m_start;
+            bool m_succeeded = false;
+            bool m_usedLockFallback = false;
+            long long m_extensionLookupMs = 0;
+            long long m_verifyContentIntegrityMs = 0;
+            long long m_sqliteOpenMs = 0;
+        };
+
+        SQLiteIndex OpenPackagedContextIndex(const SourceDetails& details, IProgressCallback& progress, PackagedSourceOpenTimer& openTimer)
+        {
+            auto extensionLookupTimer = openTimer.MeasureExtensionLookup();
+            auto extension = GetExtensionFromDetails(details);
+            extensionLookupTimer.Stop();
+            if (!extension)
+            {
+                AICLI_LOG(Repo, Info, << "Package not found " << details.Data);
+                THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
+            }
+
+            auto verifyTimer = openTimer.MeasureVerifyContentIntegrity();
+            THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NEEDS_REMEDIATION), !extension->VerifyContentIntegrity(progress));
+            verifyTimer.Stop();
+
+            // To work around an issue with accessing the public folder, we are temporarily
+            // constructing the location ourself.  This was already the case for the non-packaged
+            // runtime, and we can fix both in the future.  The only problem with this is that
+            // the directory in the extension *must* be Public, rather than one set by the creator.
+            std::filesystem::path indexLocation = extension->GetPackagePath();
+            indexLocation /= s_PreIndexedPackageSourceFactory_IndexFilePath;
+
+            auto sqliteOpenTimer = openTimer.MeasureSQLiteOpen();
+            auto index = SQLiteIndex::Open(indexLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
+            sqliteOpenTimer.Stop();
+
+            return index;
+        }
+
         struct PackagedContextSourceReference : public ISourceReference
         {
             PackagedContextSourceReference(const SourceDetails& details) : m_details(details)
@@ -433,34 +565,47 @@ namespace AppInstaller::Repository::Microsoft
 
             std::shared_ptr<ISource> Open(IProgressCallback& progress) override
             {
-                Synchronization::CrossProcessLock lock(CreateNameForCPL(m_details));
-                if (!lock.Acquire(progress))
+                PackagedSourceOpenTimer openTimer{ m_details.Name };
+                auto completeOpen = [&](SQLiteIndex index)
+                    {
+                        // We didn't use to store the source identifier, so we compute it here in case it's
+                        // missing from the details.
+                        m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
+                        openTimer.MarkSucceeded();
+                        return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), false, true);
+                    };
+
+                std::optional<SQLiteIndex> index;
+                bool retryUnderLock = false;
+
+                try
                 {
-                    return {};
+                    index.emplace(OpenPackagedContextIndex(m_details, progress, openTimer));
+                }
+                catch (...)
+                {
+                    if (progress.IsCancelledBy(CancelReason::Any))
+                    {
+                        throw;
+                    }
+
+                    LOG_CAUGHT_EXCEPTION_MSG("Optimistic packaged source open failed, retrying under lock for source: %hs", m_details.Name.c_str());
+                    retryUnderLock = true;
                 }
 
-                auto extension = GetExtensionFromDetails(m_details);
-                if (!extension)
+                if (retryUnderLock)
                 {
-                    AICLI_LOG(Repo, Info, << "Package not found " << m_details.Data);
-                    THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
+                    openTimer.MarkFallbackLocked();
+                    Synchronization::CrossProcessLock lock(CreateNameForCPL(m_details));
+                    if (!lock.Acquire(progress))
+                    {
+                        return {};
+                    }
+
+                    index.emplace(OpenPackagedContextIndex(m_details, progress, openTimer));
                 }
 
-                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NEEDS_REMEDIATION), !extension->VerifyContentIntegrity(progress));
-
-                // To work around an issue with accessing the public folder, we are temporarily
-                // constructing the location ourself.  This was already the case for the non-packaged
-                // runtime, and we can fix both in the future.  The only problem with this is that
-                // the directory in the extension *must* be Public, rather than one set by the creator.
-                std::filesystem::path indexLocation = extension->GetPackagePath();
-                indexLocation /= s_PreIndexedPackageSourceFactory_IndexFilePath;
-
-                SQLiteIndex index = SQLiteIndex::Open(indexLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
-
-                // We didn't use to store the source identifier, so we compute it here in case it's
-                // missing from the details.
-                m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
-                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), false, true);
+                return completeOpen(std::move(index.value()));
             }
 
         private:
@@ -480,7 +625,7 @@ namespace AppInstaller::Repository::Microsoft
                 return PackagedContextGetCurrentVersion(details);
             }
 
-            bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress) override
+            bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress, std::optional<uint64_t>& downloadedBytes) override
             {
                 // Due to complications with deployment, download the file and deploy from
                 // a local source while we investigate further.
@@ -492,7 +637,8 @@ namespace AppInstaller::Repository::Microsoft
                     localFile = Runtime::GetPathTo(Runtime::PathName::Temp);
                     localFile /= GetPackageFamilyNameFromDetails(details) + ".msix";
 
-                    Utility::Download(packageLocation, localFile, Utility::DownloadType::Index, progress);
+                    auto downloadResult = Utility::Download(packageLocation, localFile, Utility::DownloadType::Index, progress);
+                    downloadedBytes = downloadResult.SizeInBytes;
                 }
                 else
                 {
@@ -634,7 +780,7 @@ namespace AppInstaller::Repository::Microsoft
                 return DesktopContextGetCurrentVersion(details);
             }
 
-            bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress) override
+            bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress, std::optional<uint64_t>& downloadedBytes) override
             {
                 // We will extract the manifest and index files directly to this location
                 std::filesystem::path packageState = GetStatePathFromDetails(details);
@@ -657,7 +803,8 @@ namespace AppInstaller::Repository::Microsoft
 
                 if (Utility::IsUrlRemote(packageLocation))
                 {
-                    AppInstaller::Utility::Download(packageLocation, tempPackagePath, AppInstaller::Utility::DownloadType::Index, progress);
+                    auto downloadResult = AppInstaller::Utility::Download(packageLocation, tempPackagePath, AppInstaller::Utility::DownloadType::Index, progress);
+                    downloadedBytes = downloadResult.SizeInBytes;
                 }
                 else
                 {

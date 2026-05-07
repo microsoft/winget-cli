@@ -5,8 +5,9 @@ ABORTIFHUNG
 accepteula
 ACCESSDENIED
 ACCESSTOKEN
-acl
+ACL'd
 adjacents
+adminproperties
 adml
 admx
 AFAIK
@@ -99,6 +100,7 @@ COMGLB
 commandline
 compressapi
 concurrencysal
+Consolas
 constexpr
 contactsupport
 contentfiles
@@ -352,6 +354,7 @@ msdownload
 msft
 msftrubengu
 MSIHASH
+msinewinstance
 MSIXHASH
 MSIXSTRM
 msstore
@@ -516,6 +519,7 @@ sddl
 secureobject
 securestring
 seekp
+Segoe
 seof
 servercert
 servercertificate
@@ -528,6 +532,7 @@ SGNR
 SHCONTF
 shellapi
 SHGDN
+shortguid
 SHOWNORMAL
 sid
 Sideload
@@ -565,6 +570,7 @@ swgus
 SYD
 SYG
 systemnotsupported
+tableoutput
 Tagit
 TARG
 taskhostw
@@ -611,6 +617,7 @@ Unregisters
 unvirtualized
 UParse
 upgradable
+upgradeable
 upgradecode
 URLZONE
 USEDEFAULT
