@@ -20,7 +20,7 @@ namespace AppInstallerCLIE2ETests
     public class ConfigureProcessorPathCommand
     {
         private const string Command = "configure";
-        private const string LocalProcessorPathAdminSetting = "LocalProcessorPath";
+        private const string ConfigurationProcessorPath = "ConfigurationProcessorPath";
 
         // DSC app execution alias paths (stable then preview).
         private static readonly string[] DscAliasCandidates = new[]
@@ -39,7 +39,7 @@ namespace AppInstallerCLIE2ETests
         [SetUp]
         public void SetUp()
         {
-            WinGetSettingsHelper.EnableAdminSetting(LocalProcessorPathAdminSetting);
+            WinGetSettingsHelper.EnableAdminSetting(ConfigurationProcessorPath);
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace AppInstallerCLIE2ETests
         [TearDown]
         public void TearDown()
         {
-            WinGetSettingsHelper.DisableAdminSetting(LocalProcessorPathAdminSetting);
+            WinGetSettingsHelper.DisableAdminSetting(ConfigurationProcessorPath);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace AppInstallerCLIE2ETests
 
             // Audit header must appear regardless of whether the configure succeeds or fails,
             // because audit output happens during factory setup before DSC is invoked.
-            Assert.True(result.StdOut.Contains("Custom DSC processor path in use:"), $"Expected audit header in output. StdOut: {result.StdOut}");
+            Assert.True(result.StdOut.Contains("Custom processor path:"), $"Expected audit header in output. StdOut: {result.StdOut}");
             Assert.True(result.StdOut.Contains($"  Path: {processorPath}"), $"Expected path in audit output. StdOut: {result.StdOut}");
             Assert.True(result.StdOut.Contains("  Hash: "), $"Expected hash in audit output. StdOut: {result.StdOut}");
 
