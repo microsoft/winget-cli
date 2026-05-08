@@ -470,25 +470,10 @@ namespace AppInstaller::CLI::Workflow
                 return;
             }
 
-            // Collect explicit --sort arg values (if any)
-            std::vector<std::string_view> explicitSortArgs;
-            if (context.Args.Contains(Execution::Args::Type::Sort))
-            {
-                for (const auto& arg : *context.Args.GetArgs(Execution::Args::Type::Sort))
-                {
-                    explicitSortArgs.emplace_back(arg);
-                }
-            }
+            const SortParameters params(context);
 
-            bool hasQuery = context.Args.Contains(Execution::Args::Type::Query) ||
-                            context.Args.Contains(Execution::Args::Type::MultiQuery);
-
-            auto params = ResolveSortParameters(
-                explicitSortArgs,
-                hasQuery,
-                context.Args.Contains(Execution::Args::Type::SortAscending),
-                context.Args.Contains(Execution::Args::Type::SortDescending));
-
+            // Not strictly required — SortBy handles this internally — but avoids
+            // constructing the SortablePackageEntry vector when no sorting is needed.
             if (!params.ShouldSort)
             {
                 return;
@@ -506,7 +491,7 @@ namespace AppInstaller::CLI::Workflow
                         line.Source.get(),
                         mask);
                 },
-                params.Fields, params.Direction);
+                params);
         }
 
         void OutputInstalledPackages(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)

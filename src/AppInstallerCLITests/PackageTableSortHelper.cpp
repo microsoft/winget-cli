@@ -32,13 +32,21 @@ namespace
             REQUIRE(actual[i].FoldedName == expected[i].FoldedName);
             REQUIRE(actual[i].FoldedId == expected[i].FoldedId);
             REQUIRE(actual[i].FoldedSource == expected[i].FoldedSource);
-            REQUIRE(actual[i].ParsedAvailableVersion.has_value() == expected[i].ParsedAvailableVersion.has_value());
             REQUIRE(actual[i].ParsedInstalledVersion == expected[i].ParsedInstalledVersion);
-            if (actual[i].ParsedAvailableVersion.has_value() && expected[i].ParsedAvailableVersion.has_value())
-            {
-                REQUIRE(actual[i].ParsedAvailableVersion.value() == expected[i].ParsedAvailableVersion.value());
-            }
+            REQUIRE(actual[i].ParsedAvailableVersion == expected[i].ParsedAvailableVersion);
         }
+    }
+
+    // Creates a SortParameters matching production constructor logic:
+    // ShouldSort is true only when fields contain non-relevance values.
+    SortParameters MakeSortParams(std::vector<SortField> fields, SortDirection direction = SortDirection::Ascending)
+    {
+        SortParameters params;
+        params.Fields = std::move(fields);
+        params.Direction = direction;
+        params.ShouldSort = !params.Fields.empty() &&
+            !(params.Fields.size() == 1 && params.Fields[0] == SortField::Relevance);
+        return params;
     }
 
 }
@@ -142,7 +150,7 @@ TEST_CASE("ListSort_SortEntries_ByName_Ascending", "[listsort]")
         MakeEntry("Beta", "b", "1.0"),
     };
 
-    SortEntries(entries, { SortField::Name }, SortDirection::Ascending);
+    SortEntries(entries, MakeSortParams({ SortField::Name }));
 
     std::vector<SortablePackageEntry> expected = {
         MakeEntry("Alpha", "a", "1.0"),
@@ -160,7 +168,7 @@ TEST_CASE("ListSort_SortEntries_ByName_Descending", "[listsort]")
         MakeEntry("Beta", "b", "1.0"),
     };
 
-    SortEntries(entries, { SortField::Name }, SortDirection::Descending);
+    SortEntries(entries, MakeSortParams({ SortField::Name }, SortDirection::Descending));
 
     std::vector<SortablePackageEntry> expected = {
         MakeEntry("Charlie", "c", "1.0"),
@@ -178,7 +186,7 @@ TEST_CASE("ListSort_SortEntries_ByName_CaseInsensitive", "[listsort]")
         MakeEntry("Beta", "b", "1.0"),
     };
 
-    SortEntries(entries, { SortField::Name }, SortDirection::Ascending);
+    SortEntries(entries, MakeSortParams({ SortField::Name }));
 
     // Expected uses same casing as input — ValidateSortResult compares folded values
     std::vector<SortablePackageEntry> expected = {
@@ -197,7 +205,7 @@ TEST_CASE("ListSort_SortEntries_ById", "[listsort]")
         MakeEntry("M App", "com.mu", "1.0"),
     };
 
-    SortEntries(entries, { SortField::Id }, SortDirection::Ascending);
+    SortEntries(entries, MakeSortParams({ SortField::Id }));
 
     std::vector<SortablePackageEntry> expected = {
         MakeEntry("A App", "com.alpha", "1.0"),
@@ -215,7 +223,7 @@ TEST_CASE("ListSort_SortEntries_ByVersion", "[listsort]")
         MakeEntry("App B", "b", "1.0.0"),
     };
 
-    SortEntries(entries, { SortField::Version }, SortDirection::Ascending);
+    SortEntries(entries, MakeSortParams({ SortField::Version }));
 
     std::vector<SortablePackageEntry> expected = {
         MakeEntry("App B", "b", "1.0.0"),
@@ -234,7 +242,7 @@ TEST_CASE("ListSort_SortEntries_MultiField", "[listsort]")
         MakeEntry("Alpha", "a.2", "2.0"),
     };
 
-    SortEntries(entries, { SortField::Name, SortField::Id }, SortDirection::Ascending);
+    SortEntries(entries, MakeSortParams({ SortField::Name, SortField::Id }));
 
     std::vector<SortablePackageEntry> expected = {
         MakeEntry("Alpha", "a.1", "1.0"),
@@ -253,7 +261,7 @@ TEST_CASE("ListSort_SortEntries_Available_GroupsByPresence", "[listsort]")
         MakeEntry("NoUpdate2", "n2", "1.0", ""),
     };
 
-    SortEntries(entries, { SortField::Available }, SortDirection::Ascending);
+    SortEntries(entries, MakeSortParams({ SortField::Available }));
 
     std::vector<SortablePackageEntry> expected = {
         MakeEntry("HasUpdate", "h1", "1.0", "2.0"),
@@ -271,8 +279,8 @@ TEST_CASE("ListSort_SortEntries_Relevance_NoOp", "[listsort]")
         MakeEntry("Beta", "b", "1.0"),
     };
 
-    // Relevance means preserve original order
-    SortEntries(entries, { SortField::Relevance }, SortDirection::Ascending);
+    // Relevance means preserve original order — exercises CompareByField(Relevance) returning 0.
+    SortEntries(entries, MakeSortParams({ SortField::Relevance }));
 
     std::vector<SortablePackageEntry> expected = {
         MakeEntry("Charlie", "c", "1.0"),
@@ -290,7 +298,7 @@ TEST_CASE("ListSort_SortEntries_EmptyFields_NoOp", "[listsort]")
     };
 
     // Empty sort fields means no sorting
-    SortEntries(entries, {}, SortDirection::Ascending);
+    SortEntries(entries, SortParameters{});
 
     std::vector<SortablePackageEntry> expected = {
         MakeEntry("Charlie", "c", "1.0"),
@@ -305,7 +313,7 @@ TEST_CASE("ListSort_SortEntries_SingleElement", "[listsort]")
         MakeEntry("Only", "only", "1.0"),
     };
 
-    SortEntries(entries, { SortField::Name }, SortDirection::Ascending);
+    SortEntries(entries, MakeSortParams({ SortField::Name }));
 
     std::vector<SortablePackageEntry> expected = {
         MakeEntry("Only", "only", "1.0"),
@@ -321,7 +329,7 @@ TEST_CASE("ListSort_SortEntries_StableSort", "[listsort]")
         MakeEntry("Same", "second", "1.0"),
     };
 
-    SortEntries(entries, { SortField::Name }, SortDirection::Ascending);
+    SortEntries(entries, MakeSortParams({ SortField::Name }));
 
     std::vector<SortablePackageEntry> expected = {
         MakeEntry("Same", "first", "1.0"),
@@ -346,7 +354,7 @@ TEST_CASE("ListSort_SortBy_ReordersSourceItems", "[listsort]")
         [](const Row& r, size_t i) {
             return SortablePackageEntry(i, r.name, r.id, r.ver, "", "", AllFieldsMask);
         },
-        { SortField::Name }, SortDirection::Ascending);
+        MakeSortParams({ SortField::Name }));
 
     // Verify all fields of each row after sort
     REQUIRE(rows.size() == 3);
@@ -377,7 +385,7 @@ TEST_CASE("ListSort_SortBy_PreservesExtraFields", "[listsort]")
         [](const Row& r, size_t i) {
             return SortablePackageEntry(i, r.name, "", "", "", "", AllFieldsMask);
         },
-        { SortField::Name }, SortDirection::Ascending);
+        MakeSortParams({ SortField::Name }));
 
     // Verify all fields preserved after sort
     REQUIRE(rows.size() == 2);

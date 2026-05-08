@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "PackageTableSortHelper.h"
+#include "ExecutionContext.h"
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -52,70 +53,53 @@ namespace AppInstaller::CLI::Workflow
         return mask;
     }
 
-    SortParameters ResolveSortParameters(
-        const std::vector<std::string_view>& explicitSortArgs,
-        bool hasQuery,
-        bool hasExplicitAscending,
-        bool hasExplicitDescending)
+    SortParameters::SortParameters(const Execution::Context& context)
     {
-        SortParameters result;
-        std::vector<SortField> sortFields;
-
-        if (!explicitSortArgs.empty())
+        if (context.Args.Contains(Execution::Args::Type::Sort))
         {
-            for (const auto& arg : explicitSortArgs)
+            for (const auto& arg : *context.Args.GetArgs(Execution::Args::Type::Sort))
             {
                 auto field = ConvertToSortField(arg);
                 WI_ASSERT(field.has_value());
                 if (field.has_value())
                 {
-                    sortFields.emplace_back(field.value());
+                    Fields.emplace_back(field.value());
                 }
             }
         }
         else
         {
-            sortFields = User().Get<Setting::OutputSortOrder>();
+            Fields = User().Get<Setting::OutputSortOrder>();
 
-            if (sortFields.empty())
+            if (Fields.empty())
             {
+                bool hasQuery = context.Args.Contains(Execution::Args::Type::Query) ||
+                    context.Args.Contains(Execution::Args::Type::MultiQuery);
+
                 if (hasQuery)
                 {
                     // Preserve relevance ordering when a free-text query is present
                     // and no explicit sort preference is configured.
-                    return result; // ShouldSort = false
+                    return; // ShouldSort remains false
                 }
 
                 // No settings, no query — default to name sort.
-                sortFields.emplace_back(SortField::Name);
+                Fields.emplace_back(SortField::Name);
             }
         }
 
         // Relevance-only means preserve source ordering.
-        if (sortFields.size() == 1 && sortFields[0] == SortField::Relevance)
+        if (Fields.size() == 1 && Fields[0] == SortField::Relevance)
         {
-            return result; // ShouldSort = false
+            return; // ShouldSort remains false
         }
 
-        // Resolve direction
-        SortDirection direction = SortDirection::Ascending;
-        if (hasExplicitDescending)
-        {
-            direction = SortDirection::Descending;
-        }
-        else if (hasExplicitAscending)
-        {
-            direction = SortDirection::Ascending;
-        }
-        else
-        {
-            direction = User().Get<Setting::OutputSortDirection>();
-        }
+        // Resolve direction: CLI flags override settings
+        Direction = context.Args.Contains(Execution::Args::Type::SortDescending) ? SortDirection::Descending :
+            context.Args.Contains(Execution::Args::Type::SortAscending) ? SortDirection::Ascending :
+            User().Get<Setting::OutputSortDirection>();
 
-        result.ShouldSort = true;
-        result.Fields = std::move(sortFields);
-        result.Direction = direction;
-        return result;
+        ShouldSort = true;
     }
 
     int CompareByField(const SortablePackageEntry& a, const SortablePackageEntry& b, SortField field)
@@ -136,14 +120,17 @@ namespace AppInstaller::CLI::Workflow
             return a.FoldedSource.compare(b.FoldedSource);
         case SortField::Available:
         {
-            // std::optional comparison: nullopt < any value.
-            // We want has-version to sort before no-version in ascending order,
-            // so reverse the comparison operands.
-            if (a.ParsedAvailableVersion.has_value() != b.ParsedAvailableVersion.has_value())
+            bool aHas = a.ParsedAvailableVersion.has_value();
+            bool bHas = b.ParsedAvailableVersion.has_value();
+
+            // Has-version sorts before no-version in ascending order.
+            if (aHas != bHas)
             {
-                return a.ParsedAvailableVersion.has_value() ? -1 : 1;
+                return aHas ? -1 : 1;
             }
-            if (a.ParsedAvailableVersion.has_value() && b.ParsedAvailableVersion.has_value())
+
+            // Both have versions — compare normally.
+            if (aHas && bHas)
             {
                 if (a.ParsedAvailableVersion.value() < b.ParsedAvailableVersion.value()) return -1;
                 if (b.ParsedAvailableVersion.value() < a.ParsedAvailableVersion.value()) return 1;
@@ -161,29 +148,22 @@ namespace AppInstaller::CLI::Workflow
 
     void SortEntries(
         std::vector<SortablePackageEntry>& entries,
-        const std::vector<SortField>& sortFields,
-        SortDirection direction)
+        const SortParameters& sortParams)
     {
-        if (entries.size() <= 1 || sortFields.empty())
-        {
-            return;
-        }
-
-        // Relevance-only means no sorting
-        if (sortFields.size() == 1 && sortFields[0] == SortField::Relevance)
+        if (entries.size() <= 1 || !sortParams.ShouldSort)
         {
             return;
         }
 
         std::stable_sort(entries.begin(), entries.end(),
-            [&sortFields, direction](const SortablePackageEntry& a, const SortablePackageEntry& b)
+            [&sortParams](const SortablePackageEntry& a, const SortablePackageEntry& b)
             {
-                for (const auto& field : sortFields)
+                for (const auto& field : sortParams.Fields)
                 {
                     int cmp = CompareByField(a, b, field);
                     if (cmp != 0)
                     {
-                        return direction == SortDirection::Ascending ? (cmp < 0) : (cmp > 0);
+                        return sortParams.Direction == SortDirection::Ascending ? (cmp < 0) : (cmp > 0);
                     }
                 }
                 return false;

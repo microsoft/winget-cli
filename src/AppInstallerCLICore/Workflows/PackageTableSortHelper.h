@@ -9,6 +9,8 @@
 #include <optional>
 #include <vector>
 
+namespace AppInstaller::CLI::Execution { struct Context; }
+
 namespace AppInstaller::CLI::Workflow
 {
     // Lightweight sortable representation of a package row with precomputed sort keys.
@@ -42,12 +44,6 @@ namespace AppInstaller::CLI::Workflow
     // Returns negative if a < b, positive if a > b, 0 if equal.
     int CompareByField(const SortablePackageEntry& a, const SortablePackageEntry& b, Settings::SortField field);
 
-    // Sorts a vector of sortable entries by the given fields and direction.
-    void SortEntries(
-        std::vector<SortablePackageEntry>& entries,
-        const std::vector<Settings::SortField>& sortFields,
-        Settings::SortDirection direction);
-
     // Computes a bitmask of all sort fields so the constructor can skip unused fields.
     Settings::SortField ComputeSortFieldMask(const std::vector<Settings::SortField>& sortFields);
 
@@ -58,20 +54,21 @@ namespace AppInstaller::CLI::Workflow
         bool ShouldSort = false;
         std::vector<Settings::SortField> Fields;
         Settings::SortDirection Direction = Settings::SortDirection::Ascending;
+
+        // Default constructor leaves ShouldSort=false. Used by unit tests to exercise
+        // sort algorithm logic independently from CLI/settings parameter resolution.
+        SortParameters() = default;
+
+        // Resolves the effective sort parameters by reading CLI args, user settings,
+        // and query context directly from the execution context.
+        // Resolution order: explicit --sort args > settings > query-aware default.
+        explicit SortParameters(const Execution::Context& context);
     };
 
-    // Resolves the effective sort parameters from explicit CLI args, user settings,
-    // and query context. Resolution order: explicit args > settings > query-aware default.
-    // Parameters:
-    //   explicitSortArgs - raw string values from --sort (empty if not provided)
-    //   hasQuery - whether a free-text query argument is present
-    //   hasExplicitAscending - whether --ascending was passed
-    //   hasExplicitDescending - whether --descending was passed
-    SortParameters ResolveSortParameters(
-        const std::vector<std::string_view>& explicitSortArgs,
-        bool hasQuery,
-        bool hasExplicitAscending,
-        bool hasExplicitDescending);
+    // Sorts a vector of sortable entries using the resolved sort parameters.
+    void SortEntries(
+        std::vector<SortablePackageEntry>& entries,
+        const SortParameters& sortParams);
 
     // Sorts a vector of arbitrary items by projecting each into a SortablePackageEntry
     // via a caller-supplied converter, sorting the projections, then reordering the
@@ -84,15 +81,9 @@ namespace AppInstaller::CLI::Workflow
     void SortBy(
         std::vector<T>& items,
         Converter&& converter,
-        const std::vector<Settings::SortField>& sortFields,
-        Settings::SortDirection direction)
+        const SortParameters& sortParams)
     {
-        if (items.size() <= 1 || sortFields.empty())
-        {
-            return;
-        }
-
-        if (sortFields.size() == 1 && sortFields[0] == Settings::SortField::Relevance)
+        if (items.size() <= 1 || !sortParams.ShouldSort)
         {
             return;
         }
@@ -104,7 +95,7 @@ namespace AppInstaller::CLI::Workflow
             entries.push_back(converter(items[i], i));
         }
 
-        SortEntries(entries, sortFields, direction);
+        SortEntries(entries, sortParams);
 
         std::vector<T> sorted;
         sorted.reserve(items.size());
