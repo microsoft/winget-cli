@@ -10,6 +10,20 @@ namespace AppInstaller::Repository
 {
     namespace
     {
+        // Heuristic: any non-numeric tail in any Part. Catches both 1.0.0-rc.1 (SemVer)
+        // and 1.0.0rc1 (e.g. Python PEP 440); the manifest schema has no IsPrerelease field.
+        bool LooksLikePrerelease(const Utility::Version& version)
+        {
+            for (const auto& part : version.GetParts())
+            {
+                if (!part.Other.empty())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         std::shared_ptr<IPackage> GetAvailablePackageFromSource(const std::vector<std::shared_ptr<IPackage>>& packages, const std::string_view sourceIdentifier)
         {
             for (const std::shared_ptr<IPackage>& package : packages)
@@ -175,6 +189,9 @@ namespace AppInstaller::Repository
         }
         AppInstaller::Manifest::ManifestComparator manifestComparator{ options };
 
+        const bool installedIsPrerelease = installedVersion &&
+            LooksLikePrerelease(Utility::Version{ installedVersion->GetProperty(PackageVersionProperty::Version) });
+
         auto availableVersionKeys = availableVersions->GetVersionKeys();
         for (const auto& availableVersionKey : availableVersionKeys)
         {
@@ -183,6 +200,13 @@ namespace AppInstaller::Repository
             if (installedVersion && !evaluator.IsUpdate(availableVersion))
             {
                 // Version too low or different channel for upgrade
+                continue;
+            }
+
+            if (installedVersion && !installedIsPrerelease &&
+                LooksLikePrerelease(Utility::Version{ availableVersion->GetProperty(PackageVersionProperty::Version) }))
+            {
+                // Stable installations are not auto-upgraded to a pre-release
                 continue;
             }
 
