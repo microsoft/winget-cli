@@ -1094,7 +1094,7 @@ namespace AppInstaller::Repository
         {
             SourceList sourceList;
 
-            auto source = sourceList.GetCurrentSource(name);
+            auto source = sourceList.GetSource(name);
             if (!source)
             {
                 AICLI_LOG(Repo, Info, << "Named source to be dropped, but not found: " << name);
@@ -1106,10 +1106,10 @@ namespace AppInstaller::Repository
 
                 EnsureSourceIsRemovable(*source);
 
-                // For default sources and overrides of default sources, reset to clean state
-                // (remove user customizations and clear metadata) instead of tombstoning.
+                // For default sources, overrides of default sources, and tombstones masking
+                // default sources, reset to clean state instead of tombstoning/removing.
                 if (source->Origin == SourceOrigin::Default ||
-                    (source->Origin == SourceOrigin::User && source->IsOverride))
+                    (source->Origin == SourceOrigin::User && (source->IsOverride || source->IsTombstone)))
                 {
                     sourceList.ResetSource(*source);
                 }

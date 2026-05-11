@@ -78,6 +78,15 @@ Sources:
     Priority: 12
 )"sv;
 
+constexpr std::string_view s_WingetTombstoned = R"(
+Sources:
+  - Name: winget
+    Type: ""
+    Arg: ""
+    Data: ""
+    IsTombstone: true
+)"sv;
+
 constexpr std::string_view s_WingetDefaultMetadata = R"(
 Sources:
   - Name: winget
@@ -791,6 +800,28 @@ TEST_CASE("RepoSources_DropDefaultSourceByName", "[sources]")
     REQUIRE(wingetAfter != sources.end());
     REQUIRE(wingetAfter->Origin == SourceOrigin::Default);
     // Metadata should be cleared
+    REQUIRE(wingetAfter->LastUpdateTime == ConvertUnixEpochToSystemClock(0));
+}
+
+TEST_CASE("RepoSources_ResetTombstonedDefaultSourceByName", "[sources]")
+{
+    SetSetting(Stream::UserSources, s_WingetTombstoned);
+    SetSetting(Stream::SourcesMetadata, s_WingetDefaultMetadata);
+
+    std::vector<SourceDetails> sources = GetSources();
+    REQUIRE(sources.size() == c_DefaultSourceCount - 1);
+
+    auto wingetBefore = std::find_if(sources.begin(), sources.end(), [](const SourceDetails& sd) { return sd.Name == "winget"; });
+    REQUIRE(wingetBefore == sources.end());
+
+    DropSource("winget");
+
+    sources = GetSources();
+    REQUIRE(sources.size() == c_DefaultSourceCount);
+
+    auto wingetAfter = std::find_if(sources.begin(), sources.end(), [](const SourceDetails& sd) { return sd.Name == "winget"; });
+    REQUIRE(wingetAfter != sources.end());
+    REQUIRE(wingetAfter->Origin == SourceOrigin::Default);
     REQUIRE(wingetAfter->LastUpdateTime == ConvertUnixEpochToSystemClock(0));
 }
 

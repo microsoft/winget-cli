@@ -1064,11 +1064,6 @@ namespace AppInstaller::Repository
             }
 
             metadataSet = SetMetadata(m_sourceList);
-
-            if (!metadataSet)
-            {
-                OverwriteSourceList();
-            }
         }
 
         THROW_HR_IF_MSG(E_UNEXPECTED, !metadataSet, "Too many attempts at SetMetadata");
