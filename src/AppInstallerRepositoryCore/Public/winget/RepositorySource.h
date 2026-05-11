@@ -272,7 +272,7 @@ namespace AppInstaller::Repository
         std::string GetIdentifier() const;
 
         // Get the source's configuration details from settings.
-        SourceDetails GetDetails() const;
+        const SourceDetails& GetDetails() const;
 
         // Get the source's information.
         SourceInformation GetInformation() const;

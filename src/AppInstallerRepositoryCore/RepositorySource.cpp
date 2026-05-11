@@ -621,7 +621,7 @@ namespace AppInstaller::Repository
         }
     }
 
-    SourceDetails Source::GetDetails() const
+    const SourceDetails& Source::GetDetails() const
     {
         if (m_source)
         {

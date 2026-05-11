@@ -267,6 +267,20 @@ namespace AppInstaller::Http
             toThrow = HRESULT_FROM_WIN32(errorValue);
         }
 
-        THROW_HR_MSG(toThrow, "%hs", exception.what());
+        // Ensure that sufficient stack space remains to include the message.
+        // We have seen rare crashes due to running out of stack space in this path
+        // so we will only include the message if there is enough space.
+        // PrintLoggingMessage usage in WIL always creates a 4K stack buffer (2K of wchar_t),
+        // so we leave some on top of that as well as the buffer is kept alive into further calls.
+        static constexpr size_t s_msgMinimum = 5 * 1024;
+
+        if (Runtime::IsStackAvailable(s_msgMinimum))
+        {
+            THROW_HR_MSG(toThrow, "%hs", exception.what());
+        }
+        else
+        {
+            THROW_HR(toThrow);
+        }
     }
 }
