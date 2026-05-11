@@ -366,6 +366,20 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void ResetNamedSource(Execution::Context& context)
+    {
+        std::string_view name = context.Args.GetArg(Args::Type::SourceName);
+
+        context.Reporter.Info() << Resource::String::SourceResetOne(Utility::LocIndView{ name }) << std::endl;
+        if (!Repository::Source::DropSource(name))
+        {
+            context.Reporter.Error() << Resource::String::SourceListNoneFound(Utility::LocIndView{ name }) << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
+        }
+
+        context.Reporter.Info() << Resource::String::Done << std::endl;
+    }
+
     void ResetAllSources(Execution::Context& context)
     {
         context.Reporter.Info() << Resource::String::SourceResetAll;

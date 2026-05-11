@@ -150,3 +150,35 @@ TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
     AppInstaller::CLI::Workflow::OpenSource()(context);
     REQUIRE(receivedCustomHeader);
 }
+
+TEST_CASE("SourceResetFlow_ByNameResetsTombstonedDefaultSource", "[SourceResetFlow][workflow]")
+{
+    SetSetting(Stream::UserSources, R"(
+Sources:
+  - Name: winget
+    Type: ""
+    Arg: ""
+    Data: ""
+    IsTombstone: true
+)"sv);
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Override({ EnsureRunningAsAdmin, [](TestContext&) {} });
+    context.Args.AddArg(Execution::Args::Type::SourceName, "winget"sv);
+
+    SourceResetCommand sourceReset({});
+    sourceReset.Execute(context);
+
+    INFO(output.str());
+    REQUIRE(context.GetTerminationHR() == S_OK);
+
+    auto sources = Source::GetCurrentSources();
+    auto winget = std::find_if(
+        sources.begin(),
+        sources.end(),
+        [](const SourceDetails& sd) { return sd.Name == "winget"; });
+    REQUIRE(winget != sources.end());
+    REQUIRE(winget->Origin == SourceOrigin::Default);
+}
