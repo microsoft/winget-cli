@@ -179,7 +179,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_AppInstallerTest.TestPackageExport"));
             Assert.True(showResult.StdOut.Contains("data: TestData"));
 
-            Assert.True(showResult.StdOut.Contains("AppInstallerTest/TestResource.SubDirectory"));
+            Assert.True(showResult.StdOut.Contains("AppInstallerTest/TestResource_SubDirectory"));
             Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_AppInstallerTest.TestPackageExport"));
             Assert.True(showResult.StdOut.Contains("data: TestData"));
         }
