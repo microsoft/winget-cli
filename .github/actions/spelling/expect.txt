@@ -208,6 +208,7 @@ GHS
 github
 gitlab
 gity
+Gotchas
 goku
 GRPICONDIR
 GRPICONDIRENTRY
@@ -240,6 +241,7 @@ hybridcrt
 Hyperlink
 IARP
 IAttachment
+ical
 ICONDIR
 ICONDIRENTRY
 ICONIMAGE
@@ -292,6 +294,7 @@ LEBOM
 lhs
 LIBYAML
 liv
+listsort
 liwpx
 localizationpriority
 localsource
@@ -345,6 +348,7 @@ minidump
 MINORVERSION
 missingdependency
 mkgmtime
+mmm
 MMmmbbbb
 MODULEENTRY
 mof
@@ -526,6 +530,7 @@ servercertificate
 setmetadatabymanifestid
 SETTINGCHANGE
 SETTINGMAPPING
+sev
 sfs
 sfsclient
 SGNR
@@ -562,6 +567,7 @@ storeapps
 storeorigin
 STRRET
 stylecop
+SUBCHAN
 subdir
 subkey
 Sudarshan
@@ -627,9 +633,12 @@ uswgp
 uwp
 VALUENAMECASE
 vclib
+vcredist
 versioned
 VERSIONINFO
+VIWEC
 vns
+vscodeignore
 vsconfig
 vstest
 vswhere
@@ -683,6 +692,7 @@ xcopy
 Xes
 XFile
 XManifest
+Xms
 XMUGIWARAMODULE
 XName
 XPLATSTR
@@ -690,6 +700,7 @@ XRESOURCEZORO
 xsi
 yamato
 yao
+Zabcdefghijklmnopqrstuvwxyz
 Zanollo
 ZIPHASH
 zoro

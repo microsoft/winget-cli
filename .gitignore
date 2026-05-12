@@ -351,3 +351,6 @@ src/PowerShell/scripts/Module
 
 # Interop nuget
 src/WinGetUtilInterop/scripts/Nuget*
+
+# VS Code extension packages
+*.vsix

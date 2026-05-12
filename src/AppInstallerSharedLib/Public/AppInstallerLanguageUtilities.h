@@ -211,6 +211,20 @@ namespace AppInstaller
 
         return result;
     }
+
+    // Returns the number of flag-bit enum values between initialToSkip and Max,
+    // computed at compile time.
+    template <typename E>
+    constexpr size_t GetExponentialEnumValuesCount(E initialToSkip)
+    {
+        using underlying_t = std::underlying_type_t<E>;
+        size_t count = 0;
+        for (underlying_t i = 1 + static_cast<underlying_t>(initialToSkip); i < static_cast<underlying_t>(E::Max); i <<= 1)
+        {
+            ++count;
+        }
+        return count;
+    }
 }
 
 // Enable enums to be output generically (as their integral value).

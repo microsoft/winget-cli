@@ -22,10 +22,10 @@ namespace AppInstaller::Logging
         static constexpr std::string_view s_fileLoggerDefaultFileExt = ".log"sv;
 
         // Send to a string first to create a single block to write to a file.
-        std::string ToLogLine(Channel channel, std::string_view message)
+        std::string ToLogLine(Channel channel, Level level, std::string_view message)
         {
             std::stringstream strstr;
-            strstr << std::chrono::system_clock::now() << " [" << std::setw(GetMaxChannelNameLength()) << std::left << std::setfill(' ') << GetChannelName(channel) << "] " << message;
+            strstr << std::chrono::system_clock::now() << " <" << GetLevelChar(level) << "> [" << std::setw(GetMaxChannelNameLength()) << std::left << std::setfill(' ') << GetChannelName(channel) << "] " << message;
             return std::move(strstr).str();
         }
 
@@ -94,7 +94,7 @@ namespace AppInstaller::Logging
 
     void FileLogger::Write(Channel channel, Level level, std::string_view message) noexcept try
     {
-        std::string log = ToLogLine(channel, message);
+        std::string log = ToLogLine(channel, level, message);
         WriteDirect(channel, level, log);
     }
     catch (...) {}
@@ -229,6 +229,6 @@ namespace AppInstaller::Logging
     {
         m_stream.seekp(m_headersEnd);
         // Yes, we may go over the size limit slightly due to this and the unaccounted for newlines
-        m_stream << ToLogLine(Channel::Core, "--- log file has wrapped ---") << std::endl;
+        m_stream << ToLogLine(Channel::Core, Level::Info, "--- log file has wrapped ---") << std::endl;
     }
 }

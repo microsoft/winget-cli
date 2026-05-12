@@ -7,11 +7,11 @@
 
 namespace AppInstaller::Logging
 {
-    void TraceLogger::Write(Channel channel, Level, std::string_view message) noexcept try
+    void TraceLogger::Write(Channel channel, Level level, std::string_view message) noexcept try
     {
         // Send to a string first to create a single block to log to a trace.
         std::stringstream strstr;
-        strstr << std::chrono::system_clock::now() << " [" << std::setw(GetMaxChannelNameLength()) << std::left << std::setfill(' ') << GetChannelName(channel) << "] " << message << std::endl;
+        strstr << std::chrono::system_clock::now() << " <" << GetLevelChar(level) << "> [" << std::setw(GetMaxChannelNameLength()) << std::left << std::setfill(' ') << GetChannelName(channel) << "] " << message << std::endl;
 
         TraceLoggingWriteActivity(g_hTraceProvider,
             "Diagnostics",

@@ -266,6 +266,7 @@
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
     <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
+    <ClCompile Include="PackageTableSortHelper.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />
     <ClCompile Include="PackageVersionDataManifest.cpp" />
     <ClCompile Include="PathVariable.cpp" />
@@ -295,6 +296,7 @@
     <ClCompile Include="SearchRequestSerializer.cpp" />
     <ClCompile Include="ShowFlow.cpp" />
     <ClCompile Include="Sixel.cpp" />
+    <ClCompile Include="SortParametersResolution.cpp" />
     <ClCompile Include="SourceFlow.cpp" />
     <ClCompile Include="SQLiteDynamicStorage.cpp" />
     <ClCompile Include="SQLiteIndexSource.cpp" />

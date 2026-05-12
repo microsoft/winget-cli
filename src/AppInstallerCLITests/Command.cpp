@@ -4,7 +4,9 @@
 #include "TestCommon.h"
 #include <Command.h>
 #include <AppInstallerStrings.h>
+#include <Commands/ListCommand.h>
 #include <Commands/RootCommand.h>
+#include <winget/UserSettings.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -665,3 +667,24 @@ TEST_CASE("ParseArguments_PositionalWithTooManyValues", "[command]")
 
     REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::ExtraPositionalError(Utility::LocIndView{ values.back() }));
 }
+
+TEST_CASE("EnsureListSortFieldCountMatchesLimit", "[command]")
+{
+    ListCommand listCommand({});
+    const auto& args = listCommand.GetArguments();
+
+    size_t sortLimit = 0;
+    for (const auto& arg : args)
+    {
+        if (arg.ExecArgType() == Args::Type::Sort)
+        {
+            sortLimit = arg.Limit();
+            break;
+        }
+    }
+
+    // The product's configured limit must match Max: adding a new field
+    // without bumping Max (or changing limit) will fail this check.
+    REQUIRE((1u << sortLimit) == static_cast<uint32_t>(Settings::SortField::Max));
+}
+

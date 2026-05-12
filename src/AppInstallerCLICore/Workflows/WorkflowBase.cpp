@@ -3,11 +3,13 @@
 #include "pch.h"
 #include "WorkflowBase.h"
 #include "ExecutionContext.h"
-#include <winget/ManifestComparator.h>
+#include "PackageTableSortHelper.h"
 #include "PromptFlow.h"
 #include "ShowFlow.h"
 #include "Sixel.h"
 #include "TableOutput.h"
+#include <winget/UserSettings.h>
+#include <winget/ManifestComparator.h>
 #include <winget/FileCache.h>
 #include <winget/ExperimentalFeature.h>
 #include <winget/ManifestYamlParser.h>
@@ -459,8 +461,43 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        // Sorts a vector of InstalledPackagesTableLine according to the user's sort preferences.
+        // Resolution order: CLI args (--sort) > settings (output.sortOrder) > query-aware default.
+        void SortInstalledPackagesTableLines(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
+        {
+            if (lines.size() <= 1)
+            {
+                return;
+            }
+
+            const SortParameters params(context);
+
+            // Not strictly required — SortBy handles this internally — but avoids
+            // constructing the SortablePackageEntry vector when no sorting is needed.
+            if (!params.ShouldSort)
+            {
+                return;
+            }
+
+            const SortField mask = ComputeSortFieldMask(params.Fields);
+            SortBy(lines,
+                [mask](const InstalledPackagesTableLine& line, size_t index) {
+                    return SortablePackageEntry(
+                        index,
+                        line.Name.get(),
+                        line.Id.get(),
+                        line.InstalledVersion.get(),
+                        line.AvailableVersion.get(),
+                        line.Source.get(),
+                        mask);
+                },
+                params);
+        }
+
         void OutputInstalledPackages(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
         {
+            SortInstalledPackagesTableLines(context, lines);
+
             if (context.Args.Contains(Execution::Args::Type::ListDetails))
             {
                 OutputInstalledPackagesDetails(context, lines);
