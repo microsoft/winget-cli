@@ -16,6 +16,7 @@ namespace AppInstaller::CLI
         Resource::LocString LongDescription() const override;
 
     protected:
+        void ValidateArgumentsInternal(Execution::Args& execArgs) const override;
         void ExecuteInternal(Execution::Context& context) const override;
     };
 }

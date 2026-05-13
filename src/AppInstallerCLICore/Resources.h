@@ -267,6 +267,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ErrorCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ErrorInputArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ErrorNumberIsTooLarge);
+        WINGET_DEFINE_RESOURCE_STRINGID(ErrorOutputFileArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ErrorOutputFileConflictsWithInput);
+        WINGET_DEFINE_RESOURCE_STRINGID(ErrorRequiresInputOrOutputFile);
         WINGET_DEFINE_RESOURCE_STRINGID(ExactArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandLongDescription);

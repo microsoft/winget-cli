@@ -2156,6 +2156,18 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ErrorInputArgumentDescription" xml:space="preserve">
     <value>A value to search within the error information</value>
   </data>
+  <data name="ErrorOutputFileArgumentDescription" xml:space="preserve">
+    <value>Generate error code Markdown file</value>
+    <comment>Description of an argument that causes a Markdown file to be generated for all winget error codes.</comment>
+  </data>
+  <data name="ErrorOutputFileConflictsWithInput" xml:space="preserve">
+    <value>The --output argument cannot be combined with an input value.</value>
+    <comment>{Locked="--output"}</comment>
+  </data>
+  <data name="ErrorRequiresInputOrOutputFile" xml:space="preserve">
+    <value>An input value or --output must be provided.</value>
+    <comment>{Locked="--output"}</comment>
+  </data>
   <data name="ErrorNumberIsTooLarge" xml:space="preserve">
     <value>The given number is too large to be an HRESULT.</value>
   </data>
