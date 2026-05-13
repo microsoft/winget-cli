@@ -370,7 +370,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                         winrt::hstring pathIsAlias = m_dynamicFactory->Lookup(ToHString(PropertyName::FoundDscExecutablePathIsAlias));
                         if (!pathIsAlias.empty())
                         {
-                            json["processorPathIsAlias"] = (pathIsAlias == L"True");
+                            json["processorPathIsAlias"] = (pathIsAlias == L"true");
                         }
                     }
                     else

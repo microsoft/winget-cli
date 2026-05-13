@@ -146,14 +146,14 @@ ms.localizationpriority: medium
 | 0x8A150084 | -1978335100 | APPINSTALLER_CLI_ERROR_SFSCLIENT_PACKAGE_NOT_SUPPORTED | The Microsoft Store package does not support download command. |
 | 0x8A150085 | -1978335099 | APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED_FORBIDDEN | Failed to retrieve Microsoft Store package license. The Microsoft Entra Id account does not have required privilege. |
 | 0x8A150086 | -1978335098 | APPINSTALLER_CLI_ERROR_INSTALLER_ZERO_BYTE_FILE | Downloaded zero byte installer; ensure that your network connection is working properly. |
-| 0x8A150087 | -1979335097 | APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED | Failed installing one or more fonts. |
-| 0x8A150088 | -1979335096 | APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED | Font file is not supported and cannot be installed. |
-| 0x8A150089 | -1979335095 | APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED | Font package is already installed. |
-| 0x8A15008A | -1979335094 | APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND | Font file not found. |
-| 0x8A15008B | -1979335093 | APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED | Font uninstall failed. The font may not be in a good state. Try uninstalling after a restart. |
-| 0x8A15008C | -1979335092 | APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED | Font validation failed. |
-| 0x8A15008D | -1979335091 | APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED | Font rollback failed. The font may not be in a good state. Try uninstalling after a restart. |
-| 0x8A15008E | -1979335090 | APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH | An upgrade is available but uses a different install technology than the current installation |
+| 0x8A150087 | -1978335097 | APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED | Failed installing one or more fonts. |
+| 0x8A150088 | -1978335096 | APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED | Font file is not supported and cannot be installed. |
+| 0x8A150089 | -1978335095 | APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED | Font package is already installed. |
+| 0x8A15008A | -1978335094 | APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND | Font file not found. |
+| 0x8A15008B | -1978335093 | APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED | Font uninstall failed. The font may not be in a good state. Try uninstalling after a restart. |
+| 0x8A15008C | -1978335092 | APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED | Font validation failed. |
+| 0x8A15008D | -1978335091 | APPINSTALLER_CLI_ERROR_FONT_ROLLBACK_FAILED | Font rollback failed. The font may not be in a good state. Try uninstalling after a restart. |
+| 0x8A15008E | -1978335090 | APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH | An upgrade is available but uses a different install technology than the current installation |
 
 ## Install errors.
 
@@ -230,7 +230,7 @@ ms.localizationpriority: medium
 | 0x8A15C107 | -1978285817 | WINGET_CONFIG_ERROR_UNIT_MODULE_CONFLICT | The module for the configuration unit is available in multiple locations with the same version. |
 | 0x8A15C108 | -1978285816 | WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE | Loading the module for the configuration unit failed. |
 | 0x8A15C109 | -1978285815 | WINGET_CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT | The configuration unit returned an unexpected result during execution. |
-| 0x8A15C110 | -1978285814 | WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT | A unit contains a setting that requires the config root. |
-| 0x8A15C111 | -1978285813 | WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN | Loading the module for the configuration unit failed because it requires administrator privileges to run. |
-| 0x8A15C112 | -1978285812 | WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR | Operation is not supported by the configuration processor. |
-| 0x8A15C113 | -1978285811 | WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH | The DSC processor hash provided does not match hash of the target file. |
+| 0x8A15C110 | -1978285808 | WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT | A unit contains a setting that requires the config root. |
+| 0x8A15C111 | -1978285807 | WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN | Loading the module for the configuration unit failed because it requires administrator privileges to run. |
+| 0x8A15C112 | -1978285806 | WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR | Operation is not supported by the configuration processor. |
+| 0x8A15C113 | -1978285805 | WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH | The DSC processor hash provided does not match hash of the target file. |

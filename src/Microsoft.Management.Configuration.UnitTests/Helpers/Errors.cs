@@ -32,6 +32,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public static readonly int WINGET_CONFIG_ERROR_TEST_FAILED                          = unchecked((int)0x8A15C00F);
         public static readonly int WINGET_CONFIG_ERROR_TEST_NOT_RUN                         = unchecked((int)0x8A15C010);
         public static readonly int WINGET_CONFIG_ERROR_GET_FAILED                           = unchecked((int)0x8A15C011);
+        public static readonly int WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY         = unchecked((int)0x8A15C013);
 
         // Configuration Processor Errors
         public static readonly int WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED                   = unchecked((int)0x8A15C101);
@@ -47,7 +48,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public static readonly int WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN             = unchecked((int)0x8A15C111);
         public static readonly int WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR           = unchecked((int)0x8A15C112);
         public static readonly int WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH              = unchecked((int)0x8A15C113);
-        public static readonly int WINGET_CONFIG_ERROR_PARAMETER_INTEGRITY_BOUNDARY         = unchecked((int)0x8A15C013);
 
         // Limitation Set Errors
         public static readonly int CORE_INVALID_OPERATION = unchecked((int)0x80131509);
