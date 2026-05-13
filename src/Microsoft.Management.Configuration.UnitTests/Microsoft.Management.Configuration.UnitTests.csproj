@@ -20,10 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="Newtonsoft.Json" />
-    <PackageReference Include="System.Net.Http" />
     <PackageReference Include="System.Private.Uri" />
-    <PackageReference Include="System.Text.RegularExpressions" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

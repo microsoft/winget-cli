@@ -9,8 +9,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Msix.Utils" />
-    <PackageReference Include="System.Net.Http" />
-    <PackageReference Include="System.Text.RegularExpressions" />
   </ItemGroup>
 
   <ItemGroup>
