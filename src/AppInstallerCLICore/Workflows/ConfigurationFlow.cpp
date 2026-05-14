@@ -104,16 +104,29 @@ namespace AppInstaller::CLI::Workflow
             return {
                 L"Microsoft.WinGet/",
                 L"Microsoft.WinGet.Dev/",
-                L"Microsoft.DSC.Debug/",
-                L"Microsoft.DSC/",
-                L"Microsoft.DSC.Transitional/",
-                L"Microsoft.Windows/RebootPending",
-                L"Microsoft.Windows/Registry",
-                L"Microsoft.Windows/WMI",
-                L"Microsoft.Windows/WindowsPowerShell",
-                L"Microsoft/OSInfo"
             };
         };
+
+        // Returns unit type prefixes that identify resources known to be shipped with DSC.
+        // These are used both to exclude the resources themselves and to discover the DSC
+        // installation location, so that any co-located resources are also excluded.
+        std::vector<std::wstring_view> DscShippedResourcePrefixes()
+        {
+            return {
+                L"Microsoft.DSC/",
+                L"Microsoft.DSC.Debug/",
+                L"Microsoft.DSC.Transitional/",
+                L"Microsoft/OSInfo",
+            };
+        }
+
+        // Returns unit type prefixes for DSC-shipped resources that are still allowed to
+        // appear in the exported configuration. All other DSC-shipped resources are excluded by default.
+        std::vector<std::wstring_view> DscShippedResourcesAllowList()
+        {
+            // Currently empty: all DSC-shipped resources are excluded from export by default.
+            return {};
+        }
 
         Logging::Level ConvertLevel(DiagnosticLevel level)
         {
@@ -1597,10 +1610,10 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        std::vector<IConfigurationUnitProcessorDetails> GetAllUnitProcessors(Execution::Context& context)
+        std::vector<IConfigurationUnitProcessorDetails3> GetAllUnitProcessors3(Execution::Context& context)
         {
             ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
-            std::vector<IConfigurationUnitProcessorDetails> result;
+            std::vector<IConfigurationUnitProcessorDetails3> result;
 
             // Only supported by dsc v3 processor.
             if (ConfigurationRemoting::ProcessorEngine::DSCv3 == ConfigurationRemoting::DetermineProcessorEngine(configContext.Set()))
@@ -1616,7 +1629,11 @@ namespace AppInstaller::CLI::Workflow
                     auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { findAction.Cancel(); });
                     for (auto unitProcessor : findAction.get())
                     {
-                        result.emplace_back(std::move(unitProcessor));
+                        IConfigurationUnitProcessorDetails3 processor3;
+                        if (unitProcessor.try_as(processor3))
+                        {
+                            result.emplace_back(std::move(processor3));
+                        }
                     }
                 }
 
@@ -1698,19 +1715,13 @@ namespace AppInstaller::CLI::Workflow
         struct UnitProcessorTree
         {
         private:
-            struct SourceAndPackage
-            {
-                PackageCollection::Source Source;
-                PackageCollection::Package Package;
-            };
-
             struct Node
             {
                 // Packages whose installed location is at this node
-                std::vector<SourceAndPackage> Packages;
+                std::vector<PackageCollection::Package> Packages;
 
                 // Units whose location is at this node.
-                std::vector<IConfigurationUnitProcessorDetails> Units;
+                std::vector<IConfigurationUnitProcessorDetails3> Units;
             };
 
             Filesystem::PathTree<Node> m_pathTree;
@@ -1722,33 +1733,29 @@ namespace AppInstaller::CLI::Workflow
             }
 
         public:
-            UnitProcessorTree(std::vector<IConfigurationUnitProcessorDetails>&& unitProcessors)
+            UnitProcessorTree(std::vector<IConfigurationUnitProcessorDetails3>&& unitProcessors)
             {
                 for (auto&& unit : unitProcessors)
                 {
-                    IConfigurationUnitProcessorDetails3 unitProcessor3;
-                    if (unit.try_as(unitProcessor3))
-                    {
-                        winrt::hstring unitPath = unitProcessor3.Path();
-                        AICLI_LOG(Config, Verbose, << "Found unit `" << Utility::ConvertToUTF8(unit.UnitType()) << "` at: " << Utility::ConvertToUTF8(unitPath));
-                        Node& node = FindNodeForFilePath(unitPath);
-                        node.Units.emplace_back(std::move(unit));
-                    }
+                    winrt::hstring unitPath = unit.Path();
+                    AICLI_LOG(Config, Verbose, << "Found unit `" << Utility::ConvertToUTF8(unit.UnitType()) << "` at: " << Utility::ConvertToUTF8(unitPath));
+                    Node& node = FindNodeForFilePath(unitPath);
+                    node.Units.emplace_back(std::move(unit));
                 }
             }
 
-            void PlacePackage(const PackageCollection::Source& source, const PackageCollection::Package& package)
+            void PlacePackage(const PackageCollection::Package& package)
             {
                 Node* node = m_pathTree.Find(package.InstalledLocation);
                 if (node)
                 {
-                    node->Packages.emplace_back(SourceAndPackage{ source, package });
+                    node->Packages.emplace_back(package);
                 }
             }
 
-            std::vector<IConfigurationUnitProcessorDetails> GetResourcesForPackage(const PackageCollection::Package& package) const
+            std::vector<IConfigurationUnitProcessorDetails3> GetResourcesForPackage(const PackageCollection::Package& package) const
             {
-                std::vector<IConfigurationUnitProcessorDetails> result;
+                std::vector<IConfigurationUnitProcessorDetails3> result;
 
                 m_pathTree.VisitIf(
                     package.InstalledLocation,
@@ -1775,10 +1782,10 @@ namespace AppInstaller::CLI::Workflow
             std::wstring packageUnitType = GetWinGetPackageUnitType(configContext);
 
             // This will be later used by per package settings export.
-            std::vector<IConfigurationUnitProcessorDetails> unitProcessors;
+            std::vector<IConfigurationUnitProcessorDetails3> unitProcessors;
             try
             {
-                unitProcessors = GetAllUnitProcessors(context);
+                unitProcessors = GetAllUnitProcessors3(context);
             }
             catch (...)
             {
@@ -1791,11 +1798,13 @@ namespace AppInstaller::CLI::Workflow
             // Filter out processors in exclusion list.
             for (auto itr = unitProcessors.begin(); itr != unitProcessors.end(); /* itr incremented in the logic */)
             {
+                std::wstring unitType{ itr->UnitType() };
                 bool processorRemoved = false;
                 for (const auto& exclusionItem : exclusionList)
                 {
-                    if (Utility::CaseInsensitiveStartsWith(itr->UnitType(), exclusionItem))
+                    if (Utility::CaseInsensitiveStartsWith(unitType, exclusionItem))
                     {
+                        AICLI_LOG(Config, Verbose, << "Filtering excluded resource `" << Utility::ConvertToUTF8(itr->UnitType()) << "` from export");
                         itr = unitProcessors.erase(itr);
                         processorRemoved = true;
                         break;
@@ -1808,6 +1817,87 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
+            // Filter out DSC-shipped resources and any resources co-located with them.
+            // First pass: find the parent directory of each known DSC resource to identify the DSC
+            // installation location(s), handling both packaged and unpackaged (PATH-based) DSC installs.
+            // Second pass: remove any resource that either matches a known DSC prefix or resides in one
+            // of those locations, unless the resource type appears in DscShippedResourcesAllowList().
+            {
+                const auto dscPrefixes = DscShippedResourcePrefixes();
+                const auto dscAllowList = DscShippedResourcesAllowList();
+
+                std::set<std::filesystem::path> dscLocations;
+                for (const auto& processor : unitProcessors)
+                {
+                    std::wstring unitType{ processor.UnitType() };
+                    for (const auto& prefix : dscPrefixes)
+                    {
+                        if (Utility::CaseInsensitiveStartsWith(unitType, prefix))
+                        {
+                            std::filesystem::path location = std::filesystem::weakly_canonical(
+                                std::filesystem::path{ std::wstring{ processor.Path() } }.parent_path());
+                            dscLocations.emplace(std::move(location));
+                            break;
+                        }
+                    }
+                }
+
+                for (auto itr = unitProcessors.begin(); itr != unitProcessors.end(); /* itr incremented in the logic */)
+                {
+                    std::wstring unitType{ itr->UnitType() };
+
+                    // Check the allow list first.
+                    bool inAllowList = false;
+                    for (const auto& allowedPrefix : dscAllowList)
+                    {
+                        if (Utility::CaseInsensitiveStartsWith(unitType, allowedPrefix))
+                        {
+                            inAllowList = true;
+                            break;
+                        }
+                    }
+
+                    if (inAllowList)
+                    {
+                        ++itr;
+                        continue;
+                    }
+
+                    // Check if the resource type is a known DSC-shipped prefix.
+                    bool isDscResource = false;
+                    for (const auto& prefix : dscPrefixes)
+                    {
+                        if (Utility::CaseInsensitiveStartsWith(unitType, prefix))
+                        {
+                            isDscResource = true;
+                            break;
+                        }
+                    }
+
+                    // If not matched by prefix, check whether it shares a location with a known DSC resource.
+                    if (!isDscResource && !dscLocations.empty())
+                    {
+                        std::filesystem::path location = std::filesystem::weakly_canonical(
+                            std::filesystem::path{ std::wstring{ itr->Path() } }.parent_path());
+
+                        if (dscLocations.find(location) != dscLocations.end())
+                        {
+                            isDscResource = true;
+                        }
+                    }
+
+                    if (isDscResource)
+                    {
+                        AICLI_LOG(Config, Verbose, << "Filtering DSC-shipped resource `" << Utility::ConvertToUTF8(itr->UnitType()) << "` from export");
+                        itr = unitProcessors.erase(itr);
+                    }
+                    else
+                    {
+                        ++itr;
+                    }
+                }
+            }
+
             // Build a tree of the unit processors and place packages onto it to indicate nearest ownership.
             UnitProcessorTree unitProcessorTree{ std::move(unitProcessors) };
 
@@ -1815,7 +1905,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 for (const auto& package : source.Packages)
                 {
-                    unitProcessorTree.PlacePackage(source, package);
+                    unitProcessorTree.PlacePackage(package);
                 }
             }
 

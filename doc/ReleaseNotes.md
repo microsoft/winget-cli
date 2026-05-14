@@ -85,3 +85,4 @@ Added a user setting (`logging.fileNameStrategy`) for controlling the default na
 * File and directory paths passed to `signtool.exe` and `makeappx.exe` are now quoted, fixing failures when paths contain spaces.
 * DSC export now correctly exports WinGet Admin Settings
 * `winget validate` now performs case-insensitive comparison for file extensions where applicable
+* `winget source reset` now properly resets default sources instead of removing them

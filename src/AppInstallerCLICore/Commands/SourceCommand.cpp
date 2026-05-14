@@ -283,8 +283,7 @@ namespace AppInstaller::CLI
         {
             context <<
                 Workflow::EnsureRunningAsAdmin <<
-                Workflow::GetSourceListWithFilter <<
-                Workflow::ResetSourceList;
+                Workflow::ResetNamedSource;
         }
         else
         {

@@ -78,6 +78,27 @@ Sources:
     Priority: 12
 )"sv;
 
+constexpr std::string_view s_WingetTombstoned = R"(
+Sources:
+  - Name: winget
+    Type: ""
+    Arg: ""
+    Data: ""
+    IsTombstone: true
+)"sv;
+
+constexpr std::string_view s_WingetDefaultMetadata = R"(
+Sources:
+  - Name: winget
+    LastUpdate: 100
+)"sv;
+
+constexpr std::string_view s_WingetFontOverrideMetadata = R"(
+Sources:
+  - Name: winget-font
+    LastUpdate: 100
+)"sv;
+
 constexpr std::string_view s_SingleSourceMetadata = R"(
 Sources:
   - Name: testName
@@ -753,6 +774,81 @@ TEST_CASE("RepoSources_DropAllSources", "[sources]")
     sources = GetSources();
     REQUIRE(sources.size() == c_DefaultSourceCount);
     REQUIRE(sources[0].Origin == SourceOrigin::Default);
+}
+
+
+TEST_CASE("RepoSources_DropDefaultSourceByName", "[sources]")
+{
+    RemoveSetting(Stream::UserSources);
+    SetSetting(Stream::SourcesMetadata, s_WingetDefaultMetadata);
+
+    std::vector<SourceDetails> sources = GetSources();
+    REQUIRE(sources.size() == c_DefaultSourceCount);
+
+    // Verify the winget source has non-zero metadata before reset
+    auto wingetBefore = std::find_if(sources.begin(), sources.end(), [](const SourceDetails& sd) { return sd.Name == "winget"; });
+    REQUIRE(wingetBefore != sources.end());
+    REQUIRE(wingetBefore->LastUpdateTime == ConvertUnixEpochToSystemClock(100));
+
+    DropSource("winget");
+
+    // Source should still be present as a Default source
+    sources = GetSources();
+    REQUIRE(sources.size() == c_DefaultSourceCount);
+
+    auto wingetAfter = std::find_if(sources.begin(), sources.end(), [](const SourceDetails& sd) { return sd.Name == "winget"; });
+    REQUIRE(wingetAfter != sources.end());
+    REQUIRE(wingetAfter->Origin == SourceOrigin::Default);
+    // Metadata should be cleared
+    REQUIRE(wingetAfter->LastUpdateTime == ConvertUnixEpochToSystemClock(0));
+}
+
+TEST_CASE("RepoSources_ResetTombstonedDefaultSourceByName", "[sources]")
+{
+    SetSetting(Stream::UserSources, s_WingetTombstoned);
+    SetSetting(Stream::SourcesMetadata, s_WingetDefaultMetadata);
+
+    std::vector<SourceDetails> sources = GetSources();
+    REQUIRE(sources.size() == c_DefaultSourceCount - 1);
+
+    auto wingetBefore = std::find_if(sources.begin(), sources.end(), [](const SourceDetails& sd) { return sd.Name == "winget"; });
+    REQUIRE(wingetBefore == sources.end());
+
+    DropSource("winget");
+
+    sources = GetSources();
+    REQUIRE(sources.size() == c_DefaultSourceCount);
+
+    auto wingetAfter = std::find_if(sources.begin(), sources.end(), [](const SourceDetails& sd) { return sd.Name == "winget"; });
+    REQUIRE(wingetAfter != sources.end());
+    REQUIRE(wingetAfter->Origin == SourceOrigin::Default);
+    REQUIRE(wingetAfter->LastUpdateTime == ConvertUnixEpochToSystemClock(0));
+}
+
+TEST_CASE("RepoSources_DropDefaultSourceOverrideByName", "[sources]")
+{
+    SetSetting(Stream::UserSources, s_SingleSourceOverride);
+    SetSetting(Stream::SourcesMetadata, s_WingetFontOverrideMetadata);
+
+    std::vector<SourceDetails> sources = GetSources();
+    REQUIRE(sources.size() == c_DefaultSourceCount);
+
+    // winget-font should be present as a User (override) source with metadata
+    auto fontBefore = std::find_if(sources.begin(), sources.end(), [](const SourceDetails& sd) { return sd.Name == "winget-font"; });
+    REQUIRE(fontBefore != sources.end());
+    REQUIRE(fontBefore->Origin == SourceOrigin::User);
+    REQUIRE(fontBefore->LastUpdateTime == ConvertUnixEpochToSystemClock(100));
+
+    DropSource("winget-font");
+
+    // winget-font should be restored to Default with cleared metadata
+    sources = GetSources();
+    REQUIRE(sources.size() == c_DefaultSourceCount);
+
+    auto fontAfter = std::find_if(sources.begin(), sources.end(), [](const SourceDetails& sd) { return sd.Name == "winget-font"; });
+    REQUIRE(fontAfter != sources.end());
+    REQUIRE(fontAfter->Origin == SourceOrigin::Default);
+    REQUIRE(fontAfter->LastUpdateTime == ConvertUnixEpochToSystemClock(0));
 }
 
 TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
