@@ -70,11 +70,7 @@ namespace AppInstaller::Repository::Rest
                 std::call_once(m_initializeFlag,
                     [&]()
                     {
-                        if (m_serverCertValidationCallback)
-                        {
-                            m_httpClientHelper.SetServerCertificateValidationCallback(m_serverCertValidationCallback);
-                        }
-                        m_httpClientHelper.SetPinningConfiguration(m_details.CertificatePinningConfiguration, m_threadGlobals);
+                        m_httpClientHelper.SetPinningConfiguration(m_details.CertificatePinningConfiguration, m_threadGlobals, m_serverCertValidationCallback);
                         m_restClientInformation = RestClient::GetInformation(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper);
 
                         m_details.Identifier = m_restClientInformation.SourceIdentifier;

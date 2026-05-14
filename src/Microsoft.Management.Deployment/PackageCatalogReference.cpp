@@ -367,9 +367,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     void PackageCatalogReference::ConnectionValidationHandler(winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationHandler const& value)
     {
+        using namespace AppInstaller::Settings;
+
         auto [hr, callerProcessId] = GetCallerProcessId();
         THROW_IF_FAILED(hr);
         THROW_HR_IF(E_ACCESSDENIED, callerProcessId != GetCurrentProcessId());
+
+        // Inform the caller that the handler is not allowed when the policy is configured (in either direction).
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, GroupPolicies().GetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore) != PolicyState::NotConfigured);
+
         m_connectionValidationHandler = value;
     }
 }
