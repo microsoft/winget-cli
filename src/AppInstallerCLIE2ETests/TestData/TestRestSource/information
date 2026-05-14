@@ -1,0 +1,6 @@
+{
+  "Data": {
+    "SourceIdentifier": "TestRestSource",
+    "ServerSupportedVersions": ["1.0.0"]
+  }
+}

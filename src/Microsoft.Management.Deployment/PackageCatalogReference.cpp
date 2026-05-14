@@ -188,14 +188,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             source.SetCaller(callerName);
             source.SetBackgroundUpdateInterval(PackageCatalogBackgroundUpdateInterval());
             source.InstalledPackageInformationOnly(m_installedPackageInformationOnly);
-            if (AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None)
-            {
-                source.SetAuthenticationArguments(GetAuthenticationArguments(m_authenticationArguments));
-            }
             auto validationCallback = MakeServerCertificateValidationCallback(m_connectionValidationHandler);
             if (validationCallback)
             {
                 source.SetServerCertificateValidationCallback(std::move(validationCallback));
+            }
+            if (AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None)
+            {
+                source.SetAuthenticationArguments(GetAuthenticationArguments(m_authenticationArguments));
             }
             source.Open(progress);
         }

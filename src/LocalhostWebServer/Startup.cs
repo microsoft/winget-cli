@@ -71,7 +71,16 @@ namespace LocalhostWebServer
                 RequestPath = StaticFileRequestPath,
                 ContentTypeProvider = provider,
                 ServeUnknownFileTypes = true,
-                DefaultContentType = "application/octet-stream"
+                DefaultContentType = "application/octet-stream",
+                OnPrepareResponse = ctx =>
+                {
+                    // Prevent caching of REST source information files so that each Connect() call
+                    // gets a fresh response and triggers certificate validation.
+                    if (ctx.File.Name == "information")
+                    {
+                        ctx.Context.Response.Headers.CacheControl = "no-store";
+                    }
+                },
             });
 
             app.UseDirectoryBrowser(new DirectoryBrowserOptions
