@@ -218,7 +218,7 @@ void GenerateDSCv3ProviderFiles(const path& installDirectory, const std::wstring
 
     if (!subDirectory.empty())
     {
-        DscResourceJsonContent += '.';
+        DscResourceJsonContent += '_';
         DscResourceJsonContent += subDirectory;
     }
 
