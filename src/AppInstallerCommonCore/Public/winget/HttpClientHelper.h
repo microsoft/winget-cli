@@ -36,7 +36,7 @@ namespace AppInstaller::Http
 
         std::optional<web::json::value> HandleGet(const utility::string_t& uri, const HttpRequestHeaders& headers = {}, const HttpRequestHeaders& authHeaders = {}, const HttpResponseHandler& customHandler = {}) const;
 
-        void SetPinningConfiguration(const Certificates::PinningConfiguration& configuration, std::shared_ptr<ThreadLocalStorage::ThreadGlobals> threadGlobals = {}, std::function<bool(PCCERT_CONTEXT)> validationCallback = {});
+        void SetPinningConfiguration(const Certificates::PinningConfiguration& configuration, std::shared_ptr<ThreadLocalStorage::ThreadGlobals> threadGlobals = {});
 
     protected:
         std::optional<web::json::value> ValidateAndExtractResponse(const web::http::http_response& response) const;
