@@ -18,7 +18,7 @@
     <CsWinRTWindowsMetadata>10.0.26100.0</CsWinRTWindowsMetadata>
     <CsWinRTIncludes>
       Microsoft.Management.Deployment;
-      Windows.Data.Text.TextSegmen;
+      Windows.Data.Text.TextSegment;
       Windows.Devices.Geolocation;
       Windows.Foundation;
       Windows.Globalization.DayOfWee;
@@ -31,7 +31,7 @@
       Windows.Networking.HostName;
       Windows.Security.Cryptography.Certificates;
       Windows.Storage;
-      Windows.Storage.Provider.FileUpdateStatu;
+      Windows.Storage.Provider.FileUpdateStatus;
       Windows.System.ProcessorArchitecture;
       Windows.System.IUser;
       Windows.System.User;
