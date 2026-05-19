@@ -134,6 +134,11 @@ namespace AppInstallerCLIE2ETests
         public static GroupPolicyHelper EnableConfigurationProcessorPath { get; private set; } = new GroupPolicyHelper("EnableWindowsPackageManagerConfigurationProcessorPath");
 
         /// <summary>
+        /// Gets the Bypass certificate pinning for Microsoft Store policy.
+        /// </summary>
+        public static GroupPolicyHelper BypassCertificatePinningForMicrosoftStore { get; private set; } = new GroupPolicyHelper("EnableBypassCertificatePinningForMicrosoftStore");
+
+        /// <summary>
         /// Gets the Enable auto update interval policy.
         /// </summary>
         public static GroupPolicyHelper SourceAutoUpdateInterval { get; private set; } = new GroupPolicyHelper("SourceAutoUpdateInterval", "SourceAutoUpdateInterval");

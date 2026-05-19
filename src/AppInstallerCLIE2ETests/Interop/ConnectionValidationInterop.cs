@@ -40,6 +40,7 @@ namespace AppInstallerCLIE2ETests.Interop
         [SetUp]
         public void Setup()
         {
+            GroupPolicyHelper.BypassCertificatePinningForMicrosoftStore.SetNotConfigured();
             TestCommon.RunAICLICommand("source remove", Constants.RestTestSourceName);
             this.packageManager = this.TestFactory.CreatePackageManager();
         }
@@ -50,6 +51,7 @@ namespace AppInstallerCLIE2ETests.Interop
         [TearDown]
         public void TearDown()
         {
+            GroupPolicyHelper.BypassCertificatePinningForMicrosoftStore.SetNotConfigured();
             TestCommon.RunAICLICommand("source remove", Constants.RestTestSourceName);
         }
 
@@ -58,6 +60,7 @@ namespace AppInstallerCLIE2ETests.Interop
         /// that returning Ok allows the connection to succeed, and that the received certificate matches
         /// the known test server certificate.
         /// </summary>
+        /// <returns>The task.</returns>
         [Test]
         public async Task ConnectionValidationCallback_AllowsConnection_ConnectSucceeds()
         {
@@ -93,6 +96,7 @@ namespace AppInstallerCLIE2ETests.Interop
         /// Verifies that the connection validation callback is invoked and that returning CertificateRejected
         /// causes the connection to fail.
         /// </summary>
+        /// <returns>The task.</returns>
         [Test]
         public async Task ConnectionValidationCallback_RejectsConnection_ConnectFails()
         {
@@ -110,6 +114,71 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.IsNotNull(connectResult);
             Assert.AreEqual(ConnectResultStatus.CatalogError, connectResult.Status, "Connect should fail when handler rejects the certificate.");
             Assert.IsTrue(handlerCalled, "Handler should have been called.");
+        }
+
+        /// <summary>
+        /// Verifies that setting ConnectionValidationHandler on the Microsoft Store catalog is blocked
+        /// when the BypassCertificatePinningForMicrosoftStore policy is enabled.
+        /// </summary>
+        [Test]
+        public void ConnectionValidationHandler_MicrosoftStore_PolicyEnabled_ThrowsBlockedByPolicy()
+        {
+            GroupPolicyHelper.BypassCertificatePinningForMicrosoftStore.Enable();
+
+            var catalogRef = this.packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.MicrosoftStore);
+            Assert.IsNotNull(catalogRef);
+
+            var ex = Assert.Throws<Exception>(() =>
+            {
+                catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
+            });
+
+            Assert.AreEqual(
+                Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY,
+                ex.HResult,
+                "Setting ConnectionValidationHandler on MicrosoftStore with policy enabled should return ERROR_BLOCKED_BY_POLICY.");
+        }
+
+        /// <summary>
+        /// Verifies that setting ConnectionValidationHandler on the Microsoft Store catalog is blocked
+        /// when the BypassCertificatePinningForMicrosoftStore policy is disabled.
+        /// </summary>
+        [Test]
+        public void ConnectionValidationHandler_MicrosoftStore_PolicyDisabled_ThrowsBlockedByPolicy()
+        {
+            GroupPolicyHelper.BypassCertificatePinningForMicrosoftStore.Disable();
+
+            var catalogRef = this.packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.MicrosoftStore);
+            Assert.IsNotNull(catalogRef);
+
+            var ex = Assert.Throws<Exception>(() =>
+            {
+                catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
+            });
+
+            Assert.AreEqual(
+                Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY,
+                ex.HResult,
+                "Setting ConnectionValidationHandler on MicrosoftStore with policy disabled should return ERROR_BLOCKED_BY_POLICY.");
+        }
+
+        /// <summary>
+        /// Verifies that setting ConnectionValidationHandler on a non-Store catalog is allowed
+        /// even when the BypassCertificatePinningForMicrosoftStore policy is configured.
+        /// </summary>
+        /// <returns>The task.</returns>
+        [Test]
+        public async Task ConnectionValidationHandler_NonStoreCatalog_PolicyEnabled_Allowed()
+        {
+            GroupPolicyHelper.BypassCertificatePinningForMicrosoftStore.Enable();
+
+            var catalogRef = await this.AddRestCatalogAsync();
+
+            // This should not throw — the policy only applies to the MicrosoftStore catalog.
+            Assert.DoesNotThrow(() =>
+            {
+                catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
+            });
         }
 
         private static byte[] GetCertificateDerBytes(Certificate certificate)
@@ -143,6 +212,8 @@ namespace AppInstallerCLIE2ETests.Interop
             return catalogRef;
         }
     }
+
+#pragma warning disable SA1402 // File may only contain a single type
 
     /// <summary>
     /// Verifies that the ConnectionValidationHandler setter is restricted to in-proc callers.

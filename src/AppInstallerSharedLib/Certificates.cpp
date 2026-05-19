@@ -3,10 +3,8 @@
 #include "pch.h"
 #include "winget/Certificates.h"
 #include "AppInstallerDateTime.h"
-#include "AppInstallerErrors.h"
 #include "AppInstallerLogging.h"
 #include "AppInstallerStrings.h"
-#include "winget/GroupPolicy.h"
 #include "winget/JsonUtil.h"
 #include "winget/Resources.h"
 
@@ -598,8 +596,6 @@ namespace AppInstaller::Certificates
     CallbackPinningChainValidation::CallbackPinningChainValidation(std::function<bool(PCCERT_CONTEXT)> callback)
         : m_callback(std::move(callback))
     {
-        using namespace AppInstaller::Settings;
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, GroupPolicies().GetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore) != PolicyState::NotConfigured);
     }
 
     bool CallbackPinningChainValidation::Validate(PCCERT_CHAIN_CONTEXT chainContext) const

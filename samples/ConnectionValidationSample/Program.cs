@@ -48,6 +48,9 @@ catalogRef.ConnectionValidationHandler = (PackageCatalogConnectionValidationEven
     Certificate cert = validationArgs.ServerCertificate;
 
     Console.WriteLine();
+    Console.WriteLine("Catalog connection validation for: " + catalogRef.Info.Name);
+    Console.WriteLine("  at: " + catalogRef.Info.Argument);
+    Console.WriteLine();
     Console.WriteLine("=== Server Certificate ===");
     Console.WriteLine($"  Subject:    {cert.Subject}");
     Console.WriteLine($"  Issuer:     {cert.Issuer}");

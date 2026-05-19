@@ -375,8 +375,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         THROW_IF_FAILED(hr);
         THROW_HR_IF(E_ACCESSDENIED, callerProcessId != GetCurrentProcessId());
 
-        // Inform the caller that the handler is not allowed when the policy is configured (in either direction).
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, GroupPolicies().GetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore) != PolicyState::NotConfigured);
+        // For the well-known Microsoft Store source, the callback is not allowed when the
+        // certificate pinning bypass policy is configured (in either direction).
+        if (m_sourceReference.IsWellKnownSource(::AppInstaller::Repository::WellKnownSource::MicrosoftStore))
+        {
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, GroupPolicies().GetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore) != PolicyState::NotConfigured);
+        }
 
         m_connectionValidationHandler = value;
     }
