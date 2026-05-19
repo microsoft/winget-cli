@@ -49,7 +49,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 winrt::Windows::Security::Cryptography::Certificates::Certificate cert{ buffer };
                 auto args = winrt::make_self<wil::details::module_count_wrapper<PackageCatalogConnectionValidationEventArgs>>();
                 args->Initialize(cert);
-                return handler(*args) == winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationResult::Ok;
+                auto handlerResult = handler(*args);
+                AICLI_LOG(Repo, Info, << "PackageCatalogConnectionValidationHandler returned: " << handlerResult);
+                return handlerResult == winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationResult::Ok;
             };
         }
     }
