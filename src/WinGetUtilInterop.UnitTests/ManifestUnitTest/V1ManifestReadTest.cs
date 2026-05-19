@@ -38,6 +38,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             V1_9_0,
             V1_10_0,
             V1_12_0,
+            V1_28_0,
         }
 
         /// <summary>
@@ -81,6 +82,11 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V1_12_0ManifestMerged));
 
             this.ValidateManifestFields(v1_12_0manifest, TestManifestVersion.V1_12_0);
+
+            Manifest v1_28_0manifest = Manifest.CreateManifestFromPath(
+                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V1_28_0ManifestMerged));
+
+            this.ValidateManifestFields(v1_28_0manifest, TestManifestVersion.V1_28_0);
         }
 
         /// <summary>
@@ -500,6 +506,31 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Assert.Equal("https://www.microsoft.com/msixsdk/msixsdkx64.exe", installer4.Url);
                 Assert.Equal("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82", installer4.Sha256);
             }
+
+            if (manifestVersion >= TestManifestVersion.V1_28_0)
+            {
+                // Root level DesiredStateConfiguration
+                Assert.NotNull(manifest.DesiredStateConfiguration);
+                Assert.Single(manifest.DesiredStateConfiguration.PowerShell);
+                Assert.Equal("https://www.powershellgallery.com/api/v2", manifest.DesiredStateConfiguration.PowerShell[0].RepositoryUrl);
+                Assert.Equal("DefaultTestModule", manifest.DesiredStateConfiguration.PowerShell[0].ModuleName);
+                Assert.Single(manifest.DesiredStateConfiguration.PowerShell[0].Resources);
+                Assert.Equal("DefaultTestResource", manifest.DesiredStateConfiguration.PowerShell[0].Resources[0].Name);
+                Assert.NotNull(manifest.DesiredStateConfiguration.DSCv3);
+                Assert.Single(manifest.DesiredStateConfiguration.DSCv3.Resources);
+                Assert.Equal("DefaultPublisher.DefaultProduct/DefaultResource", manifest.DesiredStateConfiguration.DSCv3.Resources[0].Type);
+
+                // Installer level DesiredStateConfiguration
+                Assert.NotNull(installer1.DesiredStateConfiguration);
+                Assert.Single(installer1.DesiredStateConfiguration.PowerShell);
+                Assert.Equal("https://www.powershellgallery.com/api/v2", installer1.DesiredStateConfiguration.PowerShell[0].RepositoryUrl);
+                Assert.Equal("TestModule", installer1.DesiredStateConfiguration.PowerShell[0].ModuleName);
+                Assert.Single(installer1.DesiredStateConfiguration.PowerShell[0].Resources);
+                Assert.Equal("TestResource", installer1.DesiredStateConfiguration.PowerShell[0].Resources[0].Name);
+                Assert.NotNull(installer1.DesiredStateConfiguration.DSCv3);
+                Assert.Single(installer1.DesiredStateConfiguration.DSCv3.Resources);
+                Assert.Equal("TestPublisher.TestProduct/TestResource", installer1.DesiredStateConfiguration.DSCv3.Resources[0].Type);
+            }
         }
 
         /// <summary>
@@ -542,6 +573,11 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             /// Merged v1.12 manifest.
             /// </summary>
             public const string V1_12_0ManifestMerged = "V1_12ManifestMerged.yaml";
+
+            /// <summary>
+            /// Merged v1.28 manifest.
+            /// </summary>
+            public const string V1_28_0ManifestMerged = "V1_28ManifestMerged.yaml";
 #pragma warning restore SA1310 // FieldNamesMustNotContainUnderscore
 
             /// <summary>

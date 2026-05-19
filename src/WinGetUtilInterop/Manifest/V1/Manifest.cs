@@ -340,6 +340,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         public InstallerAuthentication Authentication { get; set; }
 
         /// <summary>
+        /// Gets or sets the default desired state configuration info.
+        /// </summary>
+        public InstallerDesiredStateConfiguration DesiredStateConfiguration { get; set; }
+
+        /// <summary>
         /// Gets or sets collection of ManifestInstaller. At least one is required.
         /// </summary>
         public List<ManifestInstaller> Installers { get; set; }
