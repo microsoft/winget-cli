@@ -10,7 +10,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_28::Json
 {
     namespace
     {
-        // Installer - DesiredStateConfiguration
         constexpr std::string_view DesiredStateConfiguration = "DesiredStateConfiguration"sv;
         constexpr std::string_view PowerShell = "PowerShell"sv;
         constexpr std::string_view DSCv3 = "DSCv3"sv;
@@ -67,7 +66,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_28::Json
                                 }
                             }
 
-                            installer.DesiredStateConfiguration.emplace_back(std::move(*repositoryUrl), std::move(*moduleName), std::move(resources));
+                            if (!resources.empty())
+                            {
+                                installer.DesiredStateConfiguration.emplace_back(std::move(*repositoryUrl), std::move(*moduleName), std::move(resources));
+                            }
                         }
                     }
 
@@ -94,7 +96,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_28::Json
                                 }
                             }
 
-                            installer.DesiredStateConfiguration.emplace_back(std::move(resources));
+                            if (!resources.empty())
+                            {
+                                installer.DesiredStateConfiguration.emplace_back(std::move(resources));
+                            }
                         }
                     }
                 }
