@@ -7,6 +7,7 @@ namespace AppInstallerCLIE2ETests.Interop
 {
     using System;
     using System.IO;
+    using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Management.Deployment;
@@ -147,7 +148,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var catalogRef = this.packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.MicrosoftStore);
             Assert.IsNotNull(catalogRef);
 
-            var ex = Assert.Throws<Exception>(() =>
+            var ex = Assert.Throws<COMException>(() =>
             {
                 catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
             });
