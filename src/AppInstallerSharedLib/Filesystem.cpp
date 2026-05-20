@@ -491,7 +491,7 @@ namespace AppInstaller::Filesystem
         // filesystem access, then compare case-insensitively.
         return Utility::ICUCaseInsensitiveEquals(
             resolvedTarget.lexically_normal().u8string(),
-            std::filesystem::path(target).lexically_normal().u8string());
+            target.lexically_normal().u8string());
     }
 
     void AppendExtension(std::filesystem::path& target, const std::string& value)
