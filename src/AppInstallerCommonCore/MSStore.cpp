@@ -401,15 +401,6 @@ namespace AppInstaller::MSStore
 
         if (m_scope == Manifest::ScopeEnum::Machine)
         {
-            // TODO: There was a bug in InstallService where admin user is incorrectly identified as not admin,
-            // causing false access denied on many OS versions.
-            // Remove this check when the OS bug is fixed and back ported.
-            if (!Runtime::IsRunningAsSystem())
-            {
-                AICLI_LOG(Core, Error, << "Device wide install for msstore type is not supported under admin context.");
-                return APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED;
-            }
-
             installOptions.InstallForAllUsers(true);
         }
 
@@ -437,6 +428,18 @@ namespace AppInstaller::MSStore
         }
 
         HRESULT hr = WaitForOperation(m_productId, m_isSilentMode, installItems, progress, monitor);
+
+        // There was a bug in InstallService where admin users were incorrectly identified as non-admin,
+        // causing false access denied errors; fixed in 10.0.26100.0. On older OS versions, convert any
+        // failure under these conditions to the error that was previously always returned.
+        if (FAILED(hr) &&
+            m_scope == Manifest::ScopeEnum::Machine &&
+            !Runtime::IsRunningAsSystem() &&
+            !Runtime::IsCurrentOSVersionGreaterThanOrEqual(Utility::Version{ "10.0.26100.0" }))
+        {
+            AICLI_LOG(Core, Error, << "Device wide install for msstore type is not supported under admin context on this OS version. Error: " << hr);
+            return APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED;
+        }
 
         bool shouldProvision = m_scope == Manifest::ScopeEnum::Machine;
 #ifndef AICLI_DISABLE_TEST_HOOKS
