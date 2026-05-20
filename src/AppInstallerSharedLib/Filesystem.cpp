@@ -477,8 +477,21 @@ namespace AppInstaller::Filesystem
 
     bool VerifySymlink(const std::filesystem::path& symlink, const std::filesystem::path& target)
     {
-        const std::filesystem::path& symlinkTargetPath = std::filesystem::weakly_canonical(symlink);
-        return symlinkTargetPath == std::filesystem::weakly_canonical(target);
+        // Use read_symlink to get the symlink's recorded target without traversing the filesystem
+        // chain. weakly_canonical would follow the symlink, which is blocked by
+        // ProcessRedirectionTrustPolicy (inherited from the MSIX packaged process context on
+        // newer Windows builds) when the symlink was created by a non-elevated process.
+        const std::filesystem::path symlinkTarget = std::filesystem::read_symlink(symlink);
+
+        // If the recorded target is relative, resolve it against the symlink's parent directory.
+        const std::filesystem::path resolvedTarget = symlinkTarget.is_absolute() ?
+            symlinkTarget : (symlink.parent_path() / symlinkTarget);
+
+        // Windows paths are case-insensitive. Use lexically_normal to resolve . and .. without
+        // filesystem access, then compare case-insensitively.
+        return Utility::ICUCaseInsensitiveEquals(
+            resolvedTarget.lexically_normal().u8string(),
+            std::filesystem::path(target).lexically_normal().u8string());
     }
 
     void AppendExtension(std::filesystem::path& target, const std::string& value)
