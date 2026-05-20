@@ -995,9 +995,14 @@ namespace Microsoft.Management.Deployment
         {
             /// A callback invoked to validate the server certificate during Connect or ConnectAsync.
             /// Only available to in-process callers; out-of-process callers will receive E_ACCESSDENIED on set.
-            /// If the BypassCertificatePinningForMicrosoftStore group policy is configured, this cannot be set for the MicrosoftStore catalog.
-            /// Attempting to set it in that case produces an APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY error.
+            /// If the BypassCertificatePinningForMicrosoftStore group policy is disabled, this cannot be set
+            /// for the MicrosoftStore catalog; attempting to do so produces APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY.
             PackageCatalogConnectionValidationHandler ConnectionValidationHandler;
+
+            /// Indicates whether the ConnectionValidationHandler can be set for this catalog reference.
+            /// Returns false if setting the handler would be blocked by policy (e.g., the
+            /// BypassCertificatePinningForMicrosoftStore group policy is disabled for the MicrosoftStore catalog).
+            Boolean IsConnectionValidationHandlerEnabled { get; };
         }
     }
 

@@ -713,7 +713,7 @@ namespace AppInstaller::Repository
         m_installedPackageInformationOnly = value;
     }
 
-    bool Source::IsWellKnownSource(WellKnownSource wellKnownSource)
+    bool Source::IsWellKnownSource(WellKnownSource wellKnownSource) const
     {
         SourceDetails details = GetDetails();
         auto wellKnown = CheckForWellKnownSourceMatch(details.Name, details.Arg, details.Type);

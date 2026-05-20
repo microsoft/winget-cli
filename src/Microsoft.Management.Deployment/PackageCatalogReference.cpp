@@ -35,6 +35,20 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return *updateResult;
         }
 
+        // Returns true if the ConnectionValidationHandler may be set for the given source.
+        // Returns false if the BypassCertificatePinningForMicrosoftStore policy is explicitly
+        // disabled and the source is the well-known MicrosoftStore catalog.
+        bool IsConnectionValidationHandlerEnabledForSource(const ::AppInstaller::Repository::Source& source)
+        {
+            using namespace AppInstaller::Settings;
+            if (source.IsWellKnownSource(::AppInstaller::Repository::WellKnownSource::MicrosoftStore))
+            {
+                return GroupPolicies().GetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore) != PolicyState::Disabled;
+            }
+
+            return true;
+        }
+
         std::function<bool(PCCERT_CONTEXT)> MakeServerCertificateValidationCallback(
             winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationHandler const& handler)
         {
@@ -369,19 +383,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     void PackageCatalogReference::ConnectionValidationHandler(winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationHandler const& value)
     {
-        using namespace AppInstaller::Settings;
-
-        auto [hr, callerProcessId] = GetCallerProcessId();
-        THROW_IF_FAILED(hr);
-        THROW_HR_IF(E_ACCESSDENIED, callerProcessId != GetCurrentProcessId());
-
-        // For the well-known Microsoft Store source, the callback is not allowed when the
-        // certificate pinning bypass policy is configured (in either direction).
-        if (m_sourceReference.IsWellKnownSource(::AppInstaller::Repository::WellKnownSource::MicrosoftStore))
-        {
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, GroupPolicies().GetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore) != PolicyState::NotConfigured);
-        }
+        THROW_HR_IF(E_ACCESSDENIED, !IsInProcCaller());
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !IsConnectionValidationHandlerEnabledForSource(m_sourceReference));
 
         m_connectionValidationHandler = value;
+    }
+
+    bool PackageCatalogReference::IsConnectionValidationHandlerEnabled()
+    {
+        return IsInProcCaller() && IsConnectionValidationHandlerEnabledForSource(m_sourceReference);
     }
 }

@@ -309,7 +309,7 @@ namespace AppInstaller::Repository
         void InstalledPackageInformationOnly(bool value);
 
         // Determines if this source refers to the given well known source.
-        bool IsWellKnownSource(WellKnownSource wellKnownSource);
+        bool IsWellKnownSource(WellKnownSource wellKnownSource) const;
 
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const;

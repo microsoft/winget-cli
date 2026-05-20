@@ -117,26 +117,22 @@ namespace AppInstallerCLIE2ETests.Interop
         }
 
         /// <summary>
-        /// Verifies that setting ConnectionValidationHandler on the Microsoft Store catalog is blocked
+        /// Verifies that setting ConnectionValidationHandler on the Microsoft Store catalog is allowed
         /// when the BypassCertificatePinningForMicrosoftStore policy is enabled.
         /// </summary>
         [Test]
-        public void ConnectionValidationHandler_MicrosoftStore_PolicyEnabled_ThrowsBlockedByPolicy()
+        public void ConnectionValidationHandler_MicrosoftStore_PolicyEnabled_Allowed()
         {
             GroupPolicyHelper.BypassCertificatePinningForMicrosoftStore.Enable();
 
             var catalogRef = this.packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.MicrosoftStore);
             Assert.IsNotNull(catalogRef);
 
-            var ex = Assert.Throws<Exception>(() =>
+            // Policy enabled means the feature is allowed; setting the handler should not throw.
+            Assert.DoesNotThrow(() =>
             {
                 catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
             });
-
-            Assert.AreEqual(
-                Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY,
-                ex.HResult,
-                "Setting ConnectionValidationHandler on MicrosoftStore with policy enabled should return ERROR_BLOCKED_BY_POLICY.");
         }
 
         /// <summary>
@@ -179,6 +175,80 @@ namespace AppInstallerCLIE2ETests.Interop
             {
                 catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
             });
+        }
+
+        /// <summary>
+        /// Verifies that setting ConnectionValidationHandler on a non-Store catalog is allowed
+        /// even when the BypassCertificatePinningForMicrosoftStore policy is disabled.
+        /// </summary>
+        /// <returns>The task.</returns>
+        [Test]
+        public async Task ConnectionValidationHandler_NonStoreCatalog_PolicyDisabled_Allowed()
+        {
+            GroupPolicyHelper.BypassCertificatePinningForMicrosoftStore.Disable();
+
+            var catalogRef = await this.AddRestCatalogAsync();
+
+            // The policy only applies to the MicrosoftStore catalog.
+            Assert.DoesNotThrow(() =>
+            {
+                catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
+            });
+        }
+
+        /// <summary>
+        /// Verifies that IsConnectionValidationHandlerEnabled returns true for a non-Store catalog
+        /// regardless of policy state.
+        /// </summary>
+        /// <returns>The task.</returns>
+        [Test]
+        public async Task IsConnectionValidationHandlerEnabled_NonStoreCatalog_ReturnsTrue()
+        {
+            GroupPolicyHelper.BypassCertificatePinningForMicrosoftStore.Disable();
+
+            var catalogRef = await this.AddRestCatalogAsync();
+            Assert.IsTrue(catalogRef.IsConnectionValidationHandlerEnabled, "Non-store catalog should always report handler enabled.");
+        }
+
+        /// <summary>
+        /// Verifies that IsConnectionValidationHandlerEnabled returns false for the MicrosoftStore
+        /// catalog when the policy is disabled.
+        /// </summary>
+        [Test]
+        public void IsConnectionValidationHandlerEnabled_MicrosoftStore_PolicyDisabled_ReturnsFalse()
+        {
+            GroupPolicyHelper.BypassCertificatePinningForMicrosoftStore.Disable();
+
+            var catalogRef = this.packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.MicrosoftStore);
+            Assert.IsNotNull(catalogRef);
+            Assert.IsFalse(catalogRef.IsConnectionValidationHandlerEnabled, "MicrosoftStore catalog with policy disabled should report handler not enabled.");
+        }
+
+        /// <summary>
+        /// Verifies that IsConnectionValidationHandlerEnabled returns true for the MicrosoftStore
+        /// catalog when the policy is enabled.
+        /// </summary>
+        [Test]
+        public void IsConnectionValidationHandlerEnabled_MicrosoftStore_PolicyEnabled_ReturnsTrue()
+        {
+            GroupPolicyHelper.BypassCertificatePinningForMicrosoftStore.Enable();
+
+            var catalogRef = this.packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.MicrosoftStore);
+            Assert.IsNotNull(catalogRef);
+            Assert.IsTrue(catalogRef.IsConnectionValidationHandlerEnabled, "MicrosoftStore catalog with policy enabled should report handler enabled.");
+        }
+
+        /// <summary>
+        /// Verifies that IsConnectionValidationHandlerEnabled returns true for the MicrosoftStore
+        /// catalog when the policy is not configured.
+        /// </summary>
+        [Test]
+        public void IsConnectionValidationHandlerEnabled_MicrosoftStore_PolicyNotConfigured_ReturnsTrue()
+        {
+            // Policy is left at NotConfigured (set by SetUp).
+            var catalogRef = this.packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.MicrosoftStore);
+            Assert.IsNotNull(catalogRef);
+            Assert.IsTrue(catalogRef.IsConnectionValidationHandlerEnabled, "MicrosoftStore catalog with policy not configured should report handler enabled.");
         }
 
         private static byte[] GetCertificateDerBytes(Certificate certificate)
@@ -256,6 +326,17 @@ namespace AppInstallerCLIE2ETests.Interop
             {
                 catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
             });
+        }
+
+        /// <summary>
+        /// Verifies that IsConnectionValidationHandlerEnabled returns false for out-of-process callers.
+        /// </summary>
+        [Test]
+        public void IsConnectionValidationHandlerEnabled_OutOfProcess_ReturnsFalse()
+        {
+            var catalogRef = this.packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.OpenWindowsCatalog);
+            Assert.IsNotNull(catalogRef);
+            Assert.IsFalse(catalogRef.IsConnectionValidationHandlerEnabled, "Out-of-process callers should always see IsConnectionValidationHandlerEnabled as false.");
         }
     }
 }

@@ -38,6 +38,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // Contract 29
         winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationHandler ConnectionValidationHandler();
         void ConnectionValidationHandler(winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationHandler const& value);
+        bool IsConnectionValidationHandlerEnabled();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

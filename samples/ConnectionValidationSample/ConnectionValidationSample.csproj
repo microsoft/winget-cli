@@ -38,10 +38,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>Microsoft.Management.Deployment.dll</Link>
     </Content>
-    <Content Include="$(WinGetSrcBinRoot)\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.pdb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>Microsoft.Management.Deployment.InProc.pdb</Link>
-    </Content>
     <Content Include="$(WinGetSrcBinRoot)\WindowsPackageManager\WindowsPackageManager.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>WindowsPackageManager.dll</Link>
