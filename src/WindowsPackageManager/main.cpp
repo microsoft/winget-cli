@@ -148,4 +148,13 @@ extern "C"
         return S_OK;
     }
     CATCH_RETURN();
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    __declspec(dllexport) WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerTestHook_ReloadGroupPolicy() try
+    {
+        AppInstaller::Settings::GroupPolicy::Instance().Reload();
+        return S_OK;
+    }
+    CATCH_RETURN();
+#endif
 }

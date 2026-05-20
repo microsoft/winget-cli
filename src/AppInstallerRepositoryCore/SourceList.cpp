@@ -852,10 +852,10 @@ namespace AppInstaller::Repository
             if (GroupPolicies().GetState(TogglePolicy::Policy::AdditionalSources) == PolicyState::Enabled)
             {
                 AICLI_LOG(Repo, Verbose, << "Additional sources GP is enabled...");
-                auto additionalSourcesOpt = GroupPolicies().GetValueRef<ValuePolicy::AdditionalSources>();
+                auto additionalSourcesOpt = GroupPolicies().GetValue<ValuePolicy::AdditionalSources>();
                 if (additionalSourcesOpt.has_value())
                 {
-                    const auto& additionalSources = additionalSourcesOpt->get();
+                    const auto& additionalSources = additionalSourcesOpt.value();
                     for (const auto& additionalSource : additionalSources)
                     {
                         AICLI_LOG(Repo, Verbose, << "... with configured source " << additionalSource.Name);
