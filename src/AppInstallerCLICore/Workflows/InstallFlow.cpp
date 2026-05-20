@@ -211,16 +211,6 @@ namespace AppInstaller::CLI::Workflow
 
             bool isMachineScope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine;
 
-            // TODO: There was a bug in deployment api if provision api was called in packaged context.
-            // Remove this check when the OS bug is fixed and back ported.
-            if (isMachineScope && Runtime::IsRunningInPackagedContext())
-            {
-                context.Reporter.Error() << Resource::String::InstallFlowReturnCodeSystemNotSupported << std::endl;
-                context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
-                AICLI_LOG(CLI, Error, << "Device wide install for msix type is not supported in packaged context.");
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED);
-            }
-
             context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
             bool registrationDeferred = false;
@@ -241,6 +231,18 @@ namespace AppInstaller::CLI::Workflow
             }
             catch (const wil::ResultException& re)
             {
+                // There was a bug in the deployment provision API when called in a packaged context,
+                // fixed in 10.0.26100.0. On older OS versions, convert any failure under these conditions
+                // to the error that was previously always returned.
+                if (isMachineScope && Runtime::IsRunningInPackagedContext() &&
+                    !Runtime::IsCurrentOSVersionGreaterThanOrEqual(Utility::Version{ "10.0.26100.0" }))
+                {
+                    context.Reporter.Error() << Resource::String::InstallFlowReturnCodeSystemNotSupported << std::endl;
+                    context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
+                    AICLI_LOG(CLI, Error, << "Device wide install for msix type is not supported in packaged context on this OS version. Error: " << re.GetErrorCode());
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED);
+                }
+
                 context.Add<Execution::Data::OperationReturnCode>(re.GetErrorCode());
                 context << ReportInstallerResult("MSIX"sv, re.GetErrorCode(), /* isHResult */ true);
                 return;
