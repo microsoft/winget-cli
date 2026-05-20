@@ -13,7 +13,7 @@ using namespace winrt::Windows::Security::Cryptography;
 // The HRESULTs will be mapped to UI error code by the appropriate component
 namespace AppInstaller::Utility::HttpStream
 {
-    std::future<IBuffer> HttpLocalCache::ReadFromCacheAndDownloadIfNecessaryAsync(
+    winrt::Windows::Foundation::IAsyncOperation<IBuffer> HttpLocalCache::ReadFromCacheAndDownloadIfNecessaryAsync(
         const ULONG64 requestedPosition,
         const UINT32 requestedSize,
         HttpClientWrapper* httpClientWrapper,
@@ -145,7 +145,7 @@ namespace AppInstaller::Utility::HttpStream
 
     // Downloads a chunk of the file, saves it to the cache, and returns the corresponding buffer
     // If the requested size is 0, this method returns an empty buffer without making HTTP calls
-    std::future<void> HttpLocalCache::DownloadAndSaveToCacheAsync(
+    winrt::Windows::Foundation::IAsyncAction HttpLocalCache::DownloadAndSaveToCacheAsync(
         const std::vector<ULONG64> unsatisfiablePages,
         HttpClientWrapper* httpClientWrapper,
         InputStreamOptions httpInputStreamOptions)
