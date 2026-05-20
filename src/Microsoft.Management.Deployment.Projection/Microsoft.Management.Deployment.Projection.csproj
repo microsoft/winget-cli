@@ -16,8 +16,30 @@
   <!-- CsWinRT properties -->
   <PropertyGroup>
     <CsWinRTWindowsMetadata>10.0.26100.0</CsWinRTWindowsMetadata>
-    <CsWinRTIncludes>Microsoft.Management.Deployment;Windows.Foundation;Windows.System.ProcessorArchitecture</CsWinRTIncludes>
-    <CsWinRTExcludes>Windows.Foundation.Diagnostics</CsWinRTExcludes>
+    <CsWinRTIncludes>
+      Microsoft.Management.Deployment;
+      Windows.Data.Text.TextSegment;
+      Windows.Devices.Geolocation;
+      Windows.Foundation;
+      Windows.Globalization.DayOfWee;
+      Windows.Networking.Connectivity;
+      Windows.Networking.IDomainNameType;
+      Windows.Networking.DomainNameType;
+      Windows.Networking.IEndpointPair;
+      Windows.Networking.EndpointPair;
+      Windows.Networking.IHostName;
+      Windows.Networking.HostName;
+      Windows.Security.Cryptography.Certificates;
+      Windows.Storage;
+      Windows.Storage.Provider.FileUpdateStatus;
+      Windows.System.ProcessorArchitecture;
+      Windows.System.IUser;
+      Windows.System.User;
+    </CsWinRTIncludes>
+    <CsWinRTExcludes>
+      Windows.Foundation.Diagnostics;
+      Windows.Storage.Provider;
+    </CsWinRTExcludes>
   </PropertyGroup>
 
   <ItemGroup>

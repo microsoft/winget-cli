@@ -20,6 +20,7 @@
     <ClCompile Include="MatchResult.cpp" />
     <ClCompile Include="PackageAgreement.cpp" />
     <ClCompile Include="PackageCatalog.cpp" />
+    <ClCompile Include="PackageCatalogConnectionValidationEventArgs.cpp" />
     <ClCompile Include="PackageCatalogInfo.cpp" />
     <ClCompile Include="PackageCatalogReference.cpp" />
     <ClCompile Include="CatalogPackageMetadata.cpp" />
@@ -70,6 +71,7 @@
     <ClInclude Include="MatchResult.h" />
     <ClInclude Include="PackageAgreement.h" />
     <ClInclude Include="PackageCatalog.h" />
+    <ClInclude Include="PackageCatalogConnectionValidationEventArgs.h" />
     <ClInclude Include="PackageCatalogInfo.h" />
     <ClInclude Include="PackageCatalogReference.h" />
     <ClInclude Include="PackageInstallerInfo.h" />

@@ -17,6 +17,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     HRESULT EnsureProcessHasCapability(Capability requiredCapability, DWORD callerProcessId);
     HRESULT EnsureComCallerHasCapability(Capability requiredCapability);
     std::pair<HRESULT, DWORD> GetCallerProcessId();
+    bool IsInProcCaller();
     std::wstring TryGetCallerProcessInfo(DWORD callerProcessId);
     std::string GetCallerName();
     bool IsBackgroundProcessForPolicy();

@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>x64;x86;arm64</Platforms>
+    <!-- Override these to match the platform/configuration you built the solution with. -->
+    <WinGetBuildPlatform Condition="'$(WinGetBuildPlatform)' == ''">x64</WinGetBuildPlatform>
+    <WinGetBuildConfiguration Condition="'$(WinGetBuildConfiguration)' == ''">Debug</WinGetBuildConfiguration>
+    <!-- Platform-specific build output root. -->
+    <WinGetSrcBinRoot>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)..\..\src\$(WinGetBuildPlatform)\$(WinGetBuildConfiguration)'))</WinGetSrcBinRoot>
+  </PropertyGroup>
+
+  <!--
+    Generates a CsWinRT projection from the built winmd so this sample needs no published NuGet package.
+    Build the solution first (src\AppInstallerCLI.sln), then pass a catalog name as the argument.
+    Override the defaults if needed: -p:WinGetBuildPlatform=x64 -p:WinGetBuildConfiguration=Release
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <CsWinRTWindowsMetadata>10.0.26100.0</CsWinRTWindowsMetadata>
+    <CsWinRTIncludes>Microsoft.Management.Deployment</CsWinRTIncludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <CsWinRTInputs Include="$(WinGetSrcBinRoot)\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd" />
+  </ItemGroup>
+
+  <!-- Copy the native in-proc COM DLL next to the sample so CsWinRT can activate it. -->
+  <ItemGroup>
+    <Content Include="$(WinGetSrcBinRoot)\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Microsoft.Management.Deployment.dll</Link>
+    </Content>
+    <Content Include="$(WinGetSrcBinRoot)\WindowsPackageManager\WindowsPackageManager.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>WindowsPackageManager.dll</Link>
+    </Content>
+    <Content Include="$(WinGetSrcBinRoot)\WindowsPackageManager\WindowsPackageManager.pdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>WindowsPackageManager.pdb</Link>
+    </Content>
+  </ItemGroup>
+
+</Project>

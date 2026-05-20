@@ -59,6 +59,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
     }
 
+    bool IsInProcCaller()
+    {
+        auto [hr, callerProcessId] = GetCallerProcessId();
+        return SUCCEEDED(hr) && callerProcessId == GetCurrentProcessId();
+    }
+
     std::wstring_view GetStringForCapability(Capability capability)
     {
         switch (capability)

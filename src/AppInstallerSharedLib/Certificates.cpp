@@ -646,6 +646,26 @@ namespace AppInstaller::Certificates
         return result;
     }
 
+    CallbackPinningChainValidation::CallbackPinningChainValidation(std::function<bool(PCCERT_CONTEXT)> callback)
+        : m_callback(std::move(callback))
+    {
+    }
+
+    bool CallbackPinningChainValidation::Validate(PCCERT_CHAIN_CONTEXT chainContext) const
+    {
+        THROW_HR_IF(E_INVALIDARG, !chainContext || chainContext->cChain == 0);
+        PCCERT_SIMPLE_CHAIN simpleChain = chainContext->rgpChain[0];
+        THROW_HR_IF(E_INVALIDARG, !simpleChain || simpleChain->cElement == 0);
+        PCCERT_CHAIN_ELEMENT leafElement = simpleChain->rgpElement[0];
+        THROW_HR_IF(E_INVALIDARG, !leafElement || !leafElement->pCertContext);
+        return m_callback(leafElement->pCertContext);
+    }
+
+    std::string CallbackPinningChainValidation::GetDescription() const
+    {
+        return "<callback validation>";
+    }
+
     PinningConfiguration::PinningConfiguration(std::string identifier) : m_identifier(identifier)
     {
         if (m_identifier.empty())
@@ -660,7 +680,12 @@ namespace AppInstaller::Certificates
 
     void PinningConfiguration::AddChain(PinningChain chain)
     {
-        AICLI_LOG(Core, Verbose, << "Adding chain to pinning configuration [" << m_identifier << "]:\n" << chain.GetDescription());
+        AddChain(std::make_shared<PinningChain>(std::move(chain)));
+    }
+
+    void PinningConfiguration::AddChain(std::shared_ptr<IPinningChainValidation> chain)
+    {
+        AICLI_LOG(Core, Verbose, << "Adding chain to pinning configuration [" << m_identifier << "]:\n" << chain->GetDescription());
         m_configuration.emplace_back(std::move(chain));
     }
 
@@ -701,9 +726,9 @@ namespace AppInstaller::Certificates
 
         for (const auto& chain : m_configuration)
         {
-            if (chain.Validate(chainContext.get()))
+            if (chain->Validate(chainContext.get()))
             {
-                AICLI_LOG(Core, Verbose, << "Certificate `" << GetSimpleDisplayName(certContext) << "` accepted by pinning configuration:\n" << chain.GetDescription());
+                AICLI_LOG(Core, Verbose, << "Certificate `" << GetSimpleDisplayName(certContext) << "` accepted by pinning configuration:\n" << chain->GetDescription());
                 result = true;
                 break;
             }
@@ -711,7 +736,7 @@ namespace AppInstaller::Certificates
 
         if (result)
         {
-            // Only cache a successful validation
+            // Only cache a successful validation.
             m_cachedCertificate.assign(encodedBegin, encodedEnd);
         }
         else
@@ -784,7 +809,7 @@ namespace AppInstaller::Certificates
 
         for (const auto& chain : m_configuration)
         {
-            result = std::max(result, chain.GetRemainingLifetimePercentage());
+            result = std::max(result, chain->GetRemainingLifetimePercentage());
         }
 
         return result;

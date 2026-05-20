@@ -40,13 +40,13 @@ namespace AppInstaller::Repository
         template<ValuePolicy P>
         std::optional<SourceFromPolicy> FindSourceInPolicy(std::string_view name, std::string_view type, std::string_view arg)
         {
-            auto sourcesOpt = GroupPolicies().GetValueRef<P>();
+            auto sourcesOpt = GroupPolicies().GetValue<P>();
             if (!sourcesOpt.has_value())
             {
                 return std::nullopt;
             }
 
-            const auto& sources = sourcesOpt->get();
+            const auto& sources = sourcesOpt.value();
             auto source = std::find_if(
                 sources.begin(),
                 sources.end(),

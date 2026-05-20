@@ -687,6 +687,14 @@ namespace AppInstaller::Repository
         }
     }
 
+    void Source::SetServerCertificateValidationCallback(std::function<bool(PCCERT_CONTEXT)> callback)
+    {
+        for (auto& sourceReference : m_sourceReferences)
+        {
+            sourceReference->SetServerCertificateValidationCallback(callback);
+        }
+    }
+
     void Source::SetThreadGlobals(const std::shared_ptr<ThreadLocalStorage::ThreadGlobals>& threadGlobals)
     {
         for (auto& sourceReference : m_sourceReferences)
@@ -705,7 +713,7 @@ namespace AppInstaller::Repository
         m_installedPackageInformationOnly = value;
     }
 
-    bool Source::IsWellKnownSource(WellKnownSource wellKnownSource)
+    bool Source::IsWellKnownSource(WellKnownSource wellKnownSource) const
     {
         SourceDetails details = GetDetails();
         auto wellKnown = CheckForWellKnownSourceMatch(details.Name, details.Arg, details.Type);
