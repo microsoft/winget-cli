@@ -121,6 +121,12 @@
     <Filter Include="Rest\Schema\1_12\Json">
       <UniqueIdentifier>{2075b51e-aa11-473a-bae0-e0d4366f926b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rest\Schema\1_28">
+      <UniqueIdentifier>{a3b7c8d1-e2f4-5a6b-9c0d-1e2f3a4b5c6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rest\Schema\1_28\Json">
+      <UniqueIdentifier>{b4c8d9e2-f3a5-6b7c-0d1e-2f3a4b5c6d7e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -501,6 +507,12 @@
     <ClInclude Include="Rest\Schema\1_12\Json\ManifestDeserializer.h">
       <Filter>Rest\Schema\1_12\Json</Filter>
     </ClInclude>
+    <ClInclude Include="Rest\Schema\1_28\Interface.h">
+      <Filter>Rest\Schema\1_28</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_28\Json\ManifestDeserializer.h">
+      <Filter>Rest\Schema\1_28\Json</Filter>
+    </ClInclude>
     <ClInclude Include="Rest\RestInformationCache.h">
       <Filter>Rest</Filter>
     </ClInclude>
@@ -787,6 +799,12 @@
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_12\Json\ManifestDeserializer_1_12.cpp">
       <Filter>Rest\Schema\1_12\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_28\RestInterface_1_28.cpp">
+      <Filter>Rest\Schema\1_28</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_28\Json\ManifestDeserializer_1_28.cpp">
+      <Filter>Rest\Schema\1_28\Json</Filter>
     </ClCompile>
     <ClCompile Include="Rest\RestInformationCache.cpp">
       <Filter>Rest</Filter>
