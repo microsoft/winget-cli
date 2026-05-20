@@ -138,14 +138,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 copy.SetCaller(callerName);
                 copy.SetBackgroundUpdateInterval(catalog.PackageCatalogBackgroundUpdateInterval());
                 copy.InstalledPackageInformationOnly(catalog.InstalledPackageInformationOnly());
-                if (catalog.AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None)
-                {
-                    copy.SetAuthenticationArguments(GetAuthenticationArguments(catalog.AuthenticationArguments()));
-                }
                 auto validationCallback = MakeServerCertificateValidationCallback(catalogImpl->m_connectionValidationHandler);
                 if (validationCallback)
                 {
                     copy.SetServerCertificateValidationCallback(std::move(validationCallback));
+                }
+                if (catalog.AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None)
+                {
+                    copy.SetAuthenticationArguments(GetAuthenticationArguments(catalog.AuthenticationArguments()));
                 }
                 copy.Open(progress);
                 remoteSources.emplace_back(std::move(copy));

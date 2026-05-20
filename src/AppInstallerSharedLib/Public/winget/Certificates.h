@@ -191,8 +191,6 @@ namespace AppInstaller::Certificates
     };
 
     // A chain validation that delegates to a caller-supplied callback.
-    // Construction enforces that the BypassCertificatePinningForMicrosoftStore group policy is not configured;
-    // throws APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY if it is.
     struct CallbackPinningChainValidation : public IPinningChainValidation
     {
         // callback receives the leaf (end-entity) certificate and returns true to accept, false to reject.

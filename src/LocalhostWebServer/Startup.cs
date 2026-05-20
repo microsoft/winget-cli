@@ -74,10 +74,12 @@ namespace LocalhostWebServer
                 DefaultContentType = "application/octet-stream",
                 OnPrepareResponse = ctx =>
                 {
-                    // Prevent caching of REST source information files so that each Connect() call
-                    // gets a fresh response and triggers certificate validation.
+                    // REST source information files are extensionless JSON; set the correct content type
+                    // and prevent caching so that each Connect() call gets a fresh response and
+                    // triggers certificate validation.
                     if (ctx.File.Name == "information")
                     {
+                        ctx.Context.Response.ContentType = "application/json";
                         ctx.Context.Response.Headers.CacheControl = "no-store";
                     }
                 },

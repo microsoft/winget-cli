@@ -252,16 +252,10 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.IsNotNull(catalogRef);
 
             // Setting the handler from out-of-proc should be rejected with E_ACCESSDENIED.
-            var ex = Assert.Throws<Exception>(() =>
+            Assert.Throws<UnauthorizedAccessException>(() =>
             {
                 catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
             });
-
-            Assert.IsNotNull(ex);
-
-            // The exception should carry E_ACCESSDENIED (0x80070005).
-            const int E_ACCESSDENIED = unchecked((int)0x80070005);
-            Assert.AreEqual(E_ACCESSDENIED, ex.HResult, "Setting ConnectionValidationHandler out-of-proc should return E_ACCESSDENIED.");
         }
     }
 }
