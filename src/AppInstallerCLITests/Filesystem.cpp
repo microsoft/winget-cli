@@ -49,6 +49,10 @@ TEST_CASE("VerifySymlink", "[filesystem]")
     REQUIRE(VerifySymlink(symlinkPath, testFilePath));
     REQUIRE_FALSE(VerifySymlink(symlinkPath, "badPath"));
 
+    // Verify case-insensitive comparison works (Windows paths are case-insensitive).
+    std::filesystem::path testFilePathUpperCase = basePath / "TESTFILE.TXT";
+    REQUIRE(VerifySymlink(symlinkPath, testFilePathUpperCase));
+
     std::filesystem::remove(testFilePath);
 
     // Ensure that symlink existence does not check the target
