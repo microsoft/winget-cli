@@ -52,6 +52,22 @@
     <WriteLinesToFile File="$(_TripletFile)" Lines="$(VcpkgTriplet)" Overwrite="true" />
   </Target>
 
+  <!-- Recreate the port overlay when the script or local patches change.
+       Uses MSBuild incremental build (Inputs/Outputs) so the script only runs
+       when the stamp file is missing or an input is newer than the stamp. -->
+  <ItemGroup>
+    <_VcpkgPortOverlayInput Include="$(MSBuildThisFileDirectory)VcpkgPortOverlay\CreatePortOverlay.ps1" />
+    <_VcpkgPortOverlayInput Include="$(MSBuildThisFileDirectory)VcpkgPortOverlay\patches\**\*" />
+  </ItemGroup>
+
+  <Target Name="CreateVcpkgPortOverlay"
+          BeforeTargets="PrepareForBuild"
+          Inputs="@(_VcpkgPortOverlayInput)"
+          Outputs="$(MSBuildThisFileDirectory)VcpkgPortOverlay\.created">
+    <Exec Command="powershell.exe -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)VcpkgPortOverlay\CreatePortOverlay.ps1&quot;" />
+    <Touch Files="$(MSBuildThisFileDirectory)VcpkgPortOverlay\.created" AlwaysCreate="true" />
+  </Target>
+
   <Target Name="EnsureNoTripletMismatch"
           BeforeTargets="PrepareForBuild"
           Condition="'$(_IsBuildingSln)' != 'true'" >

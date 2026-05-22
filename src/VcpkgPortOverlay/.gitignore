@@ -1,0 +1,6 @@
+# Generated port directories are ignored; recreate with CreatePortOverlay.ps1
+/*
+!/.gitignore
+!/CreatePortOverlay.ps1
+!/README.md
+!/patches
