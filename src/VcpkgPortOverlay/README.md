@@ -24,7 +24,7 @@ https://github.com/microsoft/Detours/commit/404c153ff390cb14f1787c7feeb4908c6d79
 Changes:
 * New source commit: https://github.com/microsoft/Detours/commit/404c153ff390cb14f1787c7feeb4908c6d79b0ab
 * Remove the patch on the official port as it is already present in the newer commit
-
+
 ## sfs-client
 
 sfs-client is not in the official vcpkg registry. The port is based on the [template included in the sfs-client repository](https://github.com/microsoft/sfs-client/tree/main/sfs-client-vcpkg-port/sfs-client).
