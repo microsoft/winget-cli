@@ -720,28 +720,3 @@ jobs:
     env:
       onefuzzDropDirectory: '$(buildOutDir)\WinGetYamlFuzzing'
       SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-
-- job: 'VerifyPortOverlay'
-  displayName: 'Verify Port Overlay'
-  variables:
-    runCodesignValidationInjection: ${{ false }}
-    skipComponentGovernanceDetection: ${{ true }}
-
-  steps:
-  - task: PowerShell@2
-    displayName: Regenerate Port Overlay
-    inputs:
-      filePath: 'src\VcpkgPortOverlay\CreatePortOverlay.ps1'
-      workingDirectory: 'src\VcpkgPortOverlay'
-
-  - task: PowerShell@2
-    displayName: Verify No Changes
-    inputs:
-      targetType: inline
-      script: |
-        $diff = git diff --name-only src/VcpkgPortOverlay
-        if ($diff) {
-          Write-Host "##[error]Port overlay is out of sync. Run CreatePortOverlay.ps1 and commit the result."
-          Write-Host $diff
-          exit 1
-        }

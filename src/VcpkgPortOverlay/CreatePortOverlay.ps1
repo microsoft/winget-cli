@@ -1,5 +1,12 @@
 # Helper functions for dealing with the port overlay
 
+[CmdletBinding()]
+param(
+    # When provided, serializes concurrent invocations via a named mutex and skips work
+    # if the stamp file is already up-to-date. Used by VcpkgPortOverlay.proj.
+    [string]$StampFile
+)
+
 $OverlayRoot = $PSScriptRoot
 
 $ErrorActionPreference = "Stop"
@@ -530,29 +537,59 @@ function Update-PortVersion
     $portDefinition | ConvertTo-Json -Depth 5 | Out-File $portJsonPath
 }
 
-New-PortOverlay cpprestsdk -Version 2.10.18 -PortVersion 4
-Add-LocalPatch cpprestsdk 'add-server-certificate-validation.patch'
+# Acquire mutex if running from MSBuild (StampFile provided) to serialize parallel project builds
+$_mutex = $null
+if ($StampFile) {
+    $_mutex = [System.Threading.Mutex]::new($false, 'Local\WingetVcpkgPortOverlay')
+    try { $_mutex.WaitOne() | Out-Null } catch [System.Threading.AbandonedMutexException] {}
 
-New-PortOverlay detours -Version 4.0.1 -PortVersion 8
-Update-PortSource detours -RefPattern 'v4.0.1' -Commit '404c153ff390cb14f1787c7feeb4908c6d79b0ab' -SourceHash '1f3f26657927fa153116dce13dbfa3319ea368e6c9017f4999b6ec24d6356c335b3d5326718d3ec707b92832763ffea092088df52596f016d7ca9b8127f7033d'
-Remove-PortPatches detours
+    # Another process may have already rebuilt the overlay while we waited; skip if so.
+    if (Test-Path $StampFile) {
+        $stampTime = (Get-Item $StampFile).LastWriteTime
 
-New-PortOverlay libyaml -Version 0.2.5 -PortVersion 5
-Update-PortSource libyaml -Commit '840b65c40675e2d06bf40405ad3f12dec7f35923' -SourceHash 'de85560312d53a007a2ddf1fe403676bbd34620480b1ba446b8c16bb366524ba7a6ed08f6316dd783bf980d9e26603a9efc82f134eb0235917b3be1d3eb4b302'
-Update-PortVersion libyaml
+        $overlayInputs = @($PSCommandPath)
+        if (Test-Path $OverlayRoot\patches) {
+            $overlayInputs += Get-ChildItem -Path $OverlayRoot\patches -Recurse -File
+        }
 
-# sfs-client is not in the official vcpkg registry.
-# The port is based on the template from the sfs-client repository.
-# See: https://github.com/microsoft/sfs-client/tree/main/sfs-client-vcpkg-port/sfs-client
-$SfsClientCommit = '0e27525d597c730e71646fd0b15bdc8c8503f24d'
-$SfsClientSha512 = 'd926d7fdbbd120cbcbd9732a3300cccfeed4a90d6b94456d73a70675df3578a91127f7e9f310fe68d18fa34bb997c29c8455e586d81a2ba404cf19193a80ca6e'
-$SfsClientVersion = '1.1.0'
+        if (-not ($overlayInputs | Where-Object { $_.LastWriteTime -gt $stampTime } | Select-Object -First 1)) {
+            $_mutex.ReleaseMutex()
+            return
+        }
+    }
+}
 
-New-PortOverlayFromGitHub 'sfs-client' -Repo 'microsoft/sfs-client' -Commit $SfsClientCommit -SubPath 'sfs-client-vcpkg-port/sfs-client'
-Expand-PortfileTemplate 'sfs-client'
-Set-PortFilePlaceholder 'sfs-client' 'portfile.cmake' -Placeholder 'commit-id' -Value $SfsClientCommit
-Set-ParameterInPortFile 'sfs-client' -ParameterName 'SHA512' -CurrentValuePattern '0' -NewValue $SfsClientSha512
-Set-CmakeConfigureOptions 'sfs-client' -Options @('-DSFS_BUILD_TESTS=OFF', '-DSFS_BUILD_SAMPLES=OFF')
-Set-PortFilePlaceholder 'sfs-client' 'vcpkg.json' -Placeholder 'VERSION' -Value $SfsClientVersion
+try {
+    New-PortOverlay cpprestsdk -Version 2.10.18 -PortVersion 4
+    Add-LocalPatch cpprestsdk 'add-server-certificate-validation.patch'
 
-Add-LocalPatch 'sfs-client' 'remove-unconditional-toolchain-override.patch'
+    New-PortOverlay detours -Version 4.0.1 -PortVersion 8
+    Update-PortSource detours -RefPattern 'v4.0.1' -Commit '404c153ff390cb14f1787c7feeb4908c6d79b0ab' -SourceHash '1f3f26657927fa153116dce13dbfa3319ea368e6c9017f4999b6ec24d6356c335b3d5326718d3ec707b92832763ffea092088df52596f016d7ca9b8127f7033d'
+    Remove-PortPatches detours
+
+    New-PortOverlay libyaml -Version 0.2.5 -PortVersion 5
+    Update-PortSource libyaml -Commit '840b65c40675e2d06bf40405ad3f12dec7f35923' -SourceHash 'de85560312d53a007a2ddf1fe403676bbd34620480b1ba446b8c16bb366524ba7a6ed08f6316dd783bf980d9e26603a9efc82f134eb0235917b3be1d3eb4b302'
+    Update-PortVersion libyaml
+
+    # sfs-client is not in the official vcpkg registry.
+    # The port is based on the template from the sfs-client repository.
+    # See: https://github.com/microsoft/sfs-client/tree/main/sfs-client-vcpkg-port/sfs-client
+    $SfsClientCommit = '0e27525d597c730e71646fd0b15bdc8c8503f24d'
+    $SfsClientSha512 = 'd926d7fdbbd120cbcbd9732a3300cccfeed4a90d6b94456d73a70675df3578a91127f7e9f310fe68d18fa34bb997c29c8455e586d81a2ba404cf19193a80ca6e'
+    $SfsClientVersion = '1.1.0'
+
+    New-PortOverlayFromGitHub 'sfs-client' -Repo 'microsoft/sfs-client' -Commit $SfsClientCommit -SubPath 'sfs-client-vcpkg-port/sfs-client'
+    Expand-PortfileTemplate 'sfs-client'
+    Set-PortFilePlaceholder 'sfs-client' 'portfile.cmake' -Placeholder 'commit-id' -Value $SfsClientCommit
+    Set-ParameterInPortFile 'sfs-client' -ParameterName 'SHA512' -CurrentValuePattern '0' -NewValue $SfsClientSha512
+    Set-CmakeConfigureOptions 'sfs-client' -Options @('-DSFS_BUILD_TESTS=OFF', '-DSFS_BUILD_SAMPLES=OFF')
+    Set-PortFilePlaceholder 'sfs-client' 'vcpkg.json' -Placeholder 'VERSION' -Value $SfsClientVersion
+
+    Add-LocalPatch 'sfs-client' 'remove-unconditional-toolchain-override.patch'
+
+    if ($StampFile) {
+        $null = New-Item -ItemType File -Path $StampFile -Force
+    }
+} finally {
+    if ($_mutex) { $_mutex.ReleaseMutex() }
+}
