@@ -86,3 +86,4 @@ Added a user setting (`logging.fileNameStrategy`) for controlling the default na
 * DSC export now correctly exports WinGet Admin Settings
 * `winget validate` now performs case-insensitive comparison for file extensions where applicable
 * `winget source reset` now properly resets default sources instead of removing them
+* DSC v3 `Microsoft.WinGet/Package` resource now honors the `installMode` property to use silent or interactive installer switches as specified
