@@ -378,6 +378,13 @@ namespace AppInstaller::Filesystem
         return (b != basePath.end());
     }
 
+    bool PathEscapesBaseDirectory(std::string_view relativePath)
+    {
+        const std::filesystem::path& basePath = std::filesystem::current_path();
+        const std::filesystem::path& fullPath = basePath / Utility::ConvertToUTF16(relativePath);
+        return PathEscapesBaseDirectory(fullPath, basePath);
+    }
+
     // Complicated rename algorithm due to somewhat arbitrary failures.
     // 1. First, try to rename.
     // 2. Then, create an empty file for the target, and attempt to rename.

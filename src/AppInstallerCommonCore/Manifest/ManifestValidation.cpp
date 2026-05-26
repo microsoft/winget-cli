@@ -77,6 +77,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::ArpVersionOverlapWithIndex, "DisplayVersion declared in the manifest has overlap with existing DisplayVersion range in the index. Existing DisplayVersion range in index: "sv },
                 { AppInstaller::Manifest::ManifestError::ArpVersionValidationInternalError, "Internal error while validating DisplayVersion against index."sv },
                 { AppInstaller::Manifest::ManifestError::ExceededNestedInstallerFilesLimit, "Only one entry for NestedInstallerFiles can be specified for non-portable InstallerTypes."sv },
+                { AppInstaller::Manifest::ManifestError::PortableCommandAliasEscapesDirectory, "Portable command alias must not point to a location outside of base directory."sv },
                 { AppInstaller::Manifest::ManifestError::RelativeFilePathEscapesDirectory, "Relative file path must not point to a location outside of archive directory."sv },
                 { AppInstaller::Manifest::ManifestError::ArpValidationError, "Arp Validation Error."sv },
                 { AppInstaller::Manifest::ManifestError::SchemaError, "Schema Error."sv },
@@ -349,9 +350,7 @@ namespace AppInstaller::Manifest
                     }
 
                     // Check that the relative file path does not escape base directory.
-                    const std::filesystem::path& basePath = std::filesystem::current_path();
-                    const std::filesystem::path& fullPath = basePath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
-                    if (AppInstaller::Filesystem::PathEscapesBaseDirectory(fullPath, basePath))
+                    if (AppInstaller::Filesystem::PathEscapesBaseDirectory(nestedInstallerFile.RelativeFilePath))
                     {
                         resultErrors.emplace_back(ManifestError::RelativeFilePathEscapesDirectory, "RelativeFilePath");
                     }
@@ -362,32 +361,45 @@ namespace AppInstaller::Manifest
                         resultErrors.emplace_back(ManifestError::DuplicateRelativeFilePath, "RelativeFilePath");
                     }
 
-                    // Check for duplicate portable command alias values.
-                    const auto& alias = Utility::ToLower(nestedInstallerFile.PortableCommandAlias);
-                    if (!alias.empty() && !commandAliasSet.insert(alias).second)
+                    if (!nestedInstallerFile.PortableCommandAlias.empty())
                     {
-                        resultErrors.emplace_back(ManifestError::DuplicatePortableCommandAlias, "PortableCommandAlias");
-                        break;
+                        // Check that the command alias does not escape the base directory.
+                        if (AppInstaller::Filesystem::PathEscapesBaseDirectory(nestedInstallerFile.PortableCommandAlias))
+                        {
+                            resultErrors.emplace_back(ManifestError::PortableCommandAliasEscapesDirectory, "PortableCommandAlias");
+                        }
+
+                        // Check for duplicate portable command alias values.
+                        const auto& alias = Utility::ToLower(nestedInstallerFile.PortableCommandAlias);
+                        if (!commandAliasSet.insert(alias).second)
+                        {
+                            resultErrors.emplace_back(ManifestError::DuplicatePortableCommandAlias, "PortableCommandAlias");
+                            break;
+                        }
                     }
 
                     // If running full validation, check filetype
                     if (options.FullValidation)
                     {
-                        const std::wstring lowerExtension = Utility::ToLower(fullPath.extension().wstring());
-
-                        if (isPortable)
+                        std::filesystem::path relativeFilePath{ Utility::ConvertToUTF16(nestedInstallerFile.RelativeFilePath) };
+                        if (relativeFilePath.has_extension())
                         {
-                            if (fullPath.has_extension() && std::find(s_AllowedPortableFiletypes.begin(), s_AllowedPortableFiletypes.end(), lowerExtension) == s_AllowedPortableFiletypes.end())
+                            const std::wstring lowerExtension = Utility::ToLower(relativeFilePath.extension().wstring());
+
+                            if (isPortable)
                             {
-                                resultErrors.emplace_back(ManifestError::InvalidPortableFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
+                                if (std::find(s_AllowedPortableFiletypes.begin(), s_AllowedPortableFiletypes.end(), lowerExtension) == s_AllowedPortableFiletypes.end())
+                                {
+                                    resultErrors.emplace_back(ManifestError::InvalidPortableFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
+                                }
                             }
-                        }
 
-                        if (isFont)
-                        {
-                            if (fullPath.has_extension() && std::find(s_AllowedFontFiletypes.begin(), s_AllowedFontFiletypes.end(), lowerExtension) == s_AllowedFontFiletypes.end())
+                            if (isFont)
                             {
-                                resultErrors.emplace_back(ManifestError::InvalidFontFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
+                                if (std::find(s_AllowedFontFiletypes.begin(), s_AllowedFontFiletypes.end(), lowerExtension) == s_AllowedFontFiletypes.end())
+                                {
+                                    resultErrors.emplace_back(ManifestError::InvalidFontFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
+                                }
                             }
                         }
                     }
