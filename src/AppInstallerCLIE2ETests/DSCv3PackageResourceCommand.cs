@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using System.Collections.Generic;
+    using System.IO;
     using System.Text.Json.Serialization;
     using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
@@ -301,6 +302,48 @@ namespace AppInstallerCLIE2ETests
             AssertExistingPackageResourceData(output, DefaultPackageHighVersion);
 
             AssertDiffState(diff, []);
+        }
+
+        /// <summary>
+        /// Calls `set` on the `package` resource with `installMode` set to `silent`.
+        /// </summary>
+        [Test]
+        public void Package_Set_SilentInstallMode_UsesSilentAndCustomSwitches()
+        {
+            string installDir = Path.GetTempPath();
+            PackageResourceData packageResourceData = new PackageResourceData()
+            {
+                Identifier = DefaultPackageIdentifier,
+                InstallMode = "silent",
+            };
+
+            var result = RunDSCv3Command(PackageResource, SetFunction, packageResourceData);
+            AssertSuccessfulResourceRun(ref result);
+
+            Assert.True(TestCommon.VerifyTestExeInstalled(installDir, "/execustom"));
+            Assert.True(TestCommon.VerifyTestExeInstalled(installDir, "/exesilent"));
+            TestCommon.BestEffortTestExeCleanup(installDir);
+        }
+
+        /// <summary>
+        /// Calls `set` on the `package` resource with `installMode` set to `interactive`.
+        /// </summary>
+        [Test]
+        public void Package_Set_InteractiveInstallMode_UsesInteractiveAndCustomSwitches()
+        {
+            string installDir = Path.GetTempPath();
+            PackageResourceData packageResourceData = new PackageResourceData()
+            {
+                Identifier = DefaultPackageIdentifier,
+                InstallMode = "interactive",
+            };
+
+            var result = RunDSCv3Command(PackageResource, SetFunction, packageResourceData);
+            AssertSuccessfulResourceRun(ref result);
+
+            Assert.True(TestCommon.VerifyTestExeInstalled(installDir, "/execustom"));
+            Assert.True(TestCommon.VerifyTestExeInstalled(installDir, "/exeinteractive"));
+            TestCommon.BestEffortTestExeCleanup(installDir);
         }
 
         /// <summary>
