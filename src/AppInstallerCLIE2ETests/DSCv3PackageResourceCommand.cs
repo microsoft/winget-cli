@@ -23,6 +23,7 @@ namespace AppInstallerCLIE2ETests
         private const string DefaultPackageLowVersion = "1.0.0.0";
         private const string DefaultPackageMidVersion = "1.1.0.0";
         private const string DefaultPackageHighVersion = "2.0.0.0";
+        private const string DefaultPackageInstallLocationEnvironmentVariableName = "WINGET_TEST_EXE_INSTALL_LOCATION";
         private const string PackageResource = "package";
         private const string VersionPropertyName = "version";
         private const string UseLatestPropertyName = "useLatest";
@@ -311,13 +312,15 @@ namespace AppInstallerCLIE2ETests
         public void Package_Set_SilentInstallMode_UsesSilentAndCustomSwitches()
         {
             string installDir = Path.GetTempPath();
+            var environmentVariables = new Dictionary<string, string>();
+            environmentVariables[DefaultPackageInstallLocationEnvironmentVariableName] = installDir;
             PackageResourceData packageResourceData = new PackageResourceData()
             {
                 Identifier = DefaultPackageIdentifier,
                 InstallMode = "silent",
             };
 
-            var result = RunDSCv3Command(PackageResource, SetFunction, packageResourceData);
+            var result = RunDSCv3Command(PackageResource, SetFunction, packageResourceData, environmentVariables: environmentVariables);
             AssertSuccessfulResourceRun(ref result);
 
             Assert.True(TestCommon.VerifyTestExeInstalled(installDir, "/execustom"));
@@ -332,13 +335,15 @@ namespace AppInstallerCLIE2ETests
         public void Package_Set_InteractiveInstallMode_UsesInteractiveAndCustomSwitches()
         {
             string installDir = Path.GetTempPath();
+            var environmentVariables = new Dictionary<string, string>();
+            environmentVariables[DefaultPackageInstallLocationEnvironmentVariableName] = installDir;
             PackageResourceData packageResourceData = new PackageResourceData()
             {
                 Identifier = DefaultPackageIdentifier,
                 InstallMode = "interactive",
             };
 
-            var result = RunDSCv3Command(PackageResource, SetFunction, packageResourceData);
+            var result = RunDSCv3Command(PackageResource, SetFunction, packageResourceData, environmentVariables: environmentVariables);
             AssertSuccessfulResourceRun(ref result);
 
             Assert.True(TestCommon.VerifyTestExeInstalled(installDir, "/execustom"));

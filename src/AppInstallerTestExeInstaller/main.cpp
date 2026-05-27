@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <optional>
 #include <sstream>
 
 using namespace std::filesystem;
@@ -17,6 +18,7 @@ std::wstring_view DefaultProductID = L"{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}";
 std::wstring_view DefaultDisplayName = L"AppInstallerTestExeInstaller";
 std::wstring_view DefaultDisplayVersion = L"1.0.0.0";
 std::wstring_view DscSubDirectoryName = L"SubDirectory";
+auto InstallLocationEnvironmentVariableName = "WINGET_TEST_EXE_INSTALL_LOCATION";
 
 void WriteModifyRepairScript(std::wofstream& script, const path& repairCompletedTextFilePath, bool isModifyScript) {
     std::wstring scriptName = isModifyScript ? L"Modify" : L"Uninstaller";
@@ -447,7 +449,7 @@ void HandleInstallationOperation(
 // The installer prints all args to an output file and writes to the Uninstall registry key
 int wmain(int argc, const wchar_t** argv)
 {
-    path installDirectory = temp_directory_path();
+    std::optional<path> installDirectory;
     std::wstringstream outContent;
     std::wstring productCode;
     std::wstring displayName;
@@ -476,7 +478,6 @@ int wmain(int argc, const wchar_t** argv)
             if (++i < argc)
             {
                 installDirectory = argv[i];
-                std::filesystem::create_directories(installDirectory);
                 outContent << argv[i] << ' ';
             }
         }
@@ -616,6 +617,21 @@ int wmain(int argc, const wchar_t** argv)
         }
     }
 
+    if (!installDirectory)
+    {
+        auto value = std::getenv(InstallLocationEnvironmentVariableName);
+        if (value)
+        {
+            installDirectory = value;
+        }
+        else
+        {
+            installDirectory = temp_directory_path();
+        }
+    }
+
+    std::filesystem::create_directories(installDirectory.value());
+
     if (noOperation)
     {
         return exitCode;
@@ -650,8 +666,6 @@ int wmain(int argc, const wchar_t** argv)
         displayVersion = DefaultDisplayVersion;
     }
 
-    path outFilePath = installDirectory;
-
     if (isRepair)
     {
         outContent << L"\nInstaller Repair operation for AppInstallerTestExeInstaller.exe completed successfully.";
@@ -659,7 +673,7 @@ int wmain(int argc, const wchar_t** argv)
     }
     else
     {
-        HandleInstallationOperation(*out, installDirectory, outContent, productCode, useHKLM, displayName, displayVersion, noRepair, noModify, generateDscResourceFiles);
+        HandleInstallationOperation(*out, installDirectory.value(), outContent, productCode, useHKLM, displayName, displayVersion, noRepair, noModify, generateDscResourceFiles);
     }
 
     return exitCode;
