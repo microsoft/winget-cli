@@ -69,10 +69,17 @@ namespace AppInstallerCLIE2ETests
         /// <param name="input">Input for the function; supports null, direct string, or JSON serialization of complex objects.</param>
         /// <param name="timeOut">The maximum time to wait in milliseconds.</param>
         /// <param name="throwOnTimeout">Whether to throw on a timeout or simply return the incomplete result.</param>
+        /// <param name="environmentVariables">Environment variables to set.</param>
         /// <returns>A RunCommandResult containing the process exit code and output and error streams.</returns>
-        protected static TestCommon.RunCommandResult RunDSCv3Command(string resource, string function, object input, int timeOut = 60000, bool throwOnTimeout = true)
+        protected static TestCommon.RunCommandResult RunDSCv3Command(
+            string resource,
+            string function,
+            object input,
+            int timeOut = 60000,
+            bool throwOnTimeout = true,
+            Dictionary<string, string> environmentVariables = null)
         {
-            return TestCommon.RunAICLICommand($"dscv3 {resource}", $"--{function}", ConvertToJSON(input), timeOut, throwOnTimeout);
+            return TestCommon.RunAICLICommand($"dscv3 {resource}", $"--{function}", ConvertToJSON(input), timeOut, throwOnTimeout, environmentVariables);
         }
 
         /// <summary>
