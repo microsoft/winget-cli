@@ -619,14 +619,21 @@ int wmain(int argc, const wchar_t** argv)
 
     if (!installDirectory)
     {
-        auto value = std::getenv(InstallLocationEnvironmentVariableName);
-        if (value)
+        char* value = nullptr;
+        size_t valueLength = 0;
+        errno_t result = _dupenv_s(&value, &valueLength, InstallLocationEnvironmentVariableName);
+        if (result == 0 && value)
         {
             installDirectory = value;
         }
         else
         {
             installDirectory = temp_directory_path();
+        }
+
+        if (value)
+        {
+            free(value);
         }
     }
 
