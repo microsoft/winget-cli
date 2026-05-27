@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- MSBuildCache for C++ projects: targets must be imported last (C# auto-imports via nuget.g.targets). -->
+  <Import Project="$(MSBuildCachePackageRoot)\build\Microsoft.MSBuildCache.AzurePipelines.targets"
+          Condition="'$(MSBuildProjectExtension)' == '.vcxproj' and Exists('$(MSBuildCachePackageRoot)\build\Microsoft.MSBuildCache.AzurePipelines.targets')" />
+
+  <!-- Override vcpkg's WriteProjectTripletToFile to handle the /graph parallel build race condition.
+       With /graph, _IsBuildingSln is false so the solution-level WriteSolutionTripletToFile never
+       runs; all parallel projects simultaneously attempt the per-project fallback and race to create
+       the same .solution-triplet file. ContinueOnError lets the first writer win; losing writers
+       fail gracefully and proceed to EnsureNoTripletMismatch, which will find the already-written file. -->
+  <Target Name="WriteProjectTripletToFile"
+          BeforeTargets="EnsureNoTripletMismatch"
+          Condition="!Exists('$(_TripletFile)')">
+    <WriteLinesToFile File="$(_TripletFile)" Lines="$(VcpkgTriplet)" Overwrite="true" ContinueOnError="WarnAndContinue" />
+  </Target>
+</Project>

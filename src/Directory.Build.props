@@ -45,6 +45,25 @@
     <DefineConstants>$(WinGetMacros)$(DefineConstants)</DefineConstants>
   </PropertyGroup>
 
+  <!-- MSBuildCache: C# projects auto-import via PackageReference (NuGet handles .props/.targets).
+      C++ projects (packages.config) import manually since packages.config has no auto-import. -->
+  <PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.vcxproj' or '$(MSBuildProjectExtension)' == '.csproj'">
+    <MSBuildCachePackageRoot>$(SolutionDir)packages\microsoft.msbuildcache.azurepipelines\0.1.328-preview</MSBuildCachePackageRoot>
+    <!-- Leading \ is required: PluginSettings strips it to produce **\..., otherwise the pattern gets
+        rooted under the repo root (D:\a\1\s) and never matches C:\Users\...\VSApplicationInsights\...
+        .solution-triplet is written by all projects (first writer wins); it must not be hardened
+        with a Deny Write ACL since subsequent projects also need to write it. -->
+    <MSBuildCacheAllowFileAccessAfterProjectFinishFilePatterns>$(MSBuildCacheAllowFileAccessAfterProjectFinishFilePatterns);\**\VSApplicationInsights\*;\**\.solution-triplet</MSBuildCacheAllowFileAccessAfterProjectFinishFilePatterns>
+  </PropertyGroup>
+  <!-- C++ only: C# gets .props from nuget.g.props; importing for both causes MSB4011. -->
+  <Import Project="$(MSBuildCachePackageRoot)\build\Microsoft.MSBuildCache.AzurePipelines.props"
+         Condition="'$(MSBuildProjectExtension)' == '.vcxproj' and Exists('$(MSBuildCachePackageRoot)\build\Microsoft.MSBuildCache.AzurePipelines.props')" />
+  <!-- SharedCompilation wraps Roslyn's VBCSCompiler.exe for correct file access tracking. -->
+  <ItemGroup Condition="'$(MSBuildProjectExtension)' == '.csproj'">
+    <PackageReference Include="Microsoft.MSBuildCache.AzurePipelines" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.MSBuildCache.SharedCompilation" PrivateAssets="all" />
+  </ItemGroup>
+
   <!-- To prevent build agents from running out of disk space, clean as we go. -->
   <Target Name="CleanIntermediateFiles" AfterTargets="Build" Condition="'$(WingetCleanIntermediateFiles)'=='true'">
     <RemoveDir Directories="$(IntDir)" />

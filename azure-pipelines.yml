@@ -20,6 +20,8 @@ pool:
 variables:
   solution: 'src\AppInstallerCLI.sln'
   EnableDetectorVcpkg: true
+  EnablePipelineCache: true
+  VCPKG_BINARY_SOURCES: "clear;nuget,https://pkgs.dev.azure.com/shine-oss/winget-cli/_packaging/WinGetDependencies/nuget/v3/index.json,readwrite"
 
 # Do not set the build version for a PR build.
 
@@ -57,7 +59,6 @@ jobs:
         artifactIdentifier: 'x64release'
 
   variables:
-    BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
     buildOutDir: $(Build.SourcesDirectory)\src\$(buildPlatform)\$(buildConfiguration)
     buildOutDirAnyCpu: $(Build.SourcesDirectory)\src\AnyCPU\$(buildConfiguration)
     artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
@@ -66,6 +67,21 @@ jobs:
   steps:
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
+
+  - task: NuGetAuthenticate@1
+    displayName: Authenticate to NuGet Feed
+
+  - task: PowerShell@2
+    displayName: Configure vcpkg NuGet binary cache credentials
+    inputs:
+      targetType: inline
+      script: |
+        $nugetExe = (& "$(VCPKG_INSTALLATION_ROOT)\vcpkg.exe" fetch nuget) | Select-Object -Last 1
+        $feedUrl = "https://pkgs.dev.azure.com/shine-oss/winget-cli/_packaging/WinGetDependencies/nuget/v3/index.json"
+        & $nugetExe sources add -Name "WinGetDependencies" -Source $feedUrl -Username "AzureDevOps" -Password "$env:SYSTEM_ACCESSTOKEN" -StorePasswordInClearText
+        & $nugetExe setapikey "AzureDevOps" -Source $feedUrl
+    env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
   # Restores all projects, including native (vcxproj) projects
   - task: NuGetCommand@2
@@ -104,7 +120,7 @@ jobs:
     condition: not(eq(variables['Build.Reason'], 'PullRequest'))
     inputs:
       filePath: 'src\binver\Update-BinVer.ps1'
-      arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer)'
+      arguments: '-TargetFile binver\binver\version.h'
       workingDirectory: 'src'
 
   # Build all solutions in the root directory.
@@ -114,13 +130,17 @@ jobs:
       platform: '$(buildPlatform)'
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
-      msbuildArgs: '/bl:$(artifactsDir)\msbuild.binlog
+      msbuildArgs: '/graph /reportfileaccesses
+                    /bl:$(artifactsDir)\msbuild.binlog
                     /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly
-                    /p:WingetCleanIntermediateFiles=true'
+                    /p:WingetCleanIntermediateFiles=false'
       maximumCpuCount: true
+      msbuildArchitecture: x64
+    env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File
@@ -672,6 +692,21 @@ jobs:
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
 
+  - task: NuGetAuthenticate@1
+    displayName: Authenticate to NuGet Feed
+
+  - task: PowerShell@2
+    displayName: Configure vcpkg NuGet binary cache credentials
+    inputs:
+      targetType: inline
+      script: |
+        $nugetExe = (& "$(VCPKG_INSTALLATION_ROOT)\vcpkg.exe" fetch nuget) | Select-Object -Last 1
+        $feedUrl = "https://pkgs.dev.azure.com/shine-oss/winget-cli/_packaging/WinGetDependencies/nuget/v3/index.json"
+        & $nugetExe sources add -Name "WinGetDependencies" -Source $feedUrl -Username "AzureDevOps" -Password "$env:SYSTEM_ACCESSTOKEN" -StorePasswordInClearText
+        & $nugetExe setapikey "AzureDevOps" -Source $feedUrl
+    env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
   - task: NuGetCommand@2
     displayName: Restore Solution
     inputs:
@@ -690,7 +725,7 @@ jobs:
       platform: '$(buildPlatform)'
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
-      msbuildArgs: '/bl:$(artifactsDir)\msbuild.binlog'
+      msbuildArgs: '/bl:$(artifactsDir)\msbuild.binlog /p:MSBuildCacheEnabled=false'
       maximumCpuCount: true
 
   - task: CopyFiles@2
