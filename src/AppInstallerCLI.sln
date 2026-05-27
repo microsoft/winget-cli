@@ -180,8 +180,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5A52D9FC
 		PowerShell\tests\RunTests.ps1 = PowerShell\tests\RunTests.ps1
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SfsClient", "SfsClient\SfsClient.vcxproj", "{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VcpkgCustomTriplets", "VcpkgCustomTriplets", "{76B26B2C-602A-4AD0-9736-4162D3FCA92A}"
 	ProjectSection(SolutionItems) = preProject
 		VcpkgCustomTriplets\arm64-release-static.cmake = VcpkgCustomTriplets\arm64-release-static.cmake
@@ -197,6 +195,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VcpkgCustomTriplets", "Vcpk
 		VcpkgCustomTriplets\x86-release-static.cmake = VcpkgCustomTriplets\x86-release-static.cmake
 		VcpkgCustomTriplets\x86-release.cmake = VcpkgCustomTriplets\x86-release.cmake
 		VcpkgCustomTriplets\x86.cmake = VcpkgCustomTriplets\x86.cmake
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VcpkgPortOverlay", "VcpkgPortOverlay", "{EF18BED6-EBC0-45E9-8D61-4202528E8AAB}"
+	ProjectSection(SolutionItems) = preProject
+		VcpkgPortOverlay\CreatePortOverlay.ps1 = VcpkgPortOverlay\CreatePortOverlay.ps1
+		VcpkgPortOverlay\README.md = VcpkgPortOverlay\README.md
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Management.Deployment.OutOfProc", "Microsoft.Management.Deployment.OutOfProc\Microsoft.Management.Deployment.OutOfProc.vcxproj", "{0BA531C8-CF0C-405B-8221-0FE51BA529D1}"
@@ -941,27 +945,6 @@ Global
 		{272B2B0E-40D4-4F0F-B187-519A6EF89B10}.ReleaseStatic|x64.Build.0 = ReleaseStatic|Any CPU
 		{272B2B0E-40D4-4F0F-B187-519A6EF89B10}.ReleaseStatic|x86.ActiveCfg = ReleaseStatic|Any CPU
 		{272B2B0E-40D4-4F0F-B187-519A6EF89B10}.ReleaseStatic|x86.Build.0 = ReleaseStatic|Any CPU
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.Debug|ARM64.Build.0 = Debug|ARM64
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.Debug|x64.ActiveCfg = Debug|x64
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.Debug|x64.Build.0 = Debug|x64
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.Debug|x86.ActiveCfg = Debug|Win32
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.Debug|x86.Build.0 = Debug|Win32
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.Fuzzing|ARM64.ActiveCfg = Release|ARM64
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.Fuzzing|x64.ActiveCfg = Release|x64
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.Fuzzing|x86.ActiveCfg = Release|Win32
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.Release|ARM64.ActiveCfg = Release|ARM64
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.Release|ARM64.Build.0 = Release|ARM64
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.Release|x64.ActiveCfg = Release|x64
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.Release|x64.Build.0 = Release|x64
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.Release|x86.ActiveCfg = Release|Win32
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.Release|x86.Build.0 = Release|Win32
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.ReleaseStatic|ARM64.ActiveCfg = ReleaseStatic|ARM64
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.ReleaseStatic|ARM64.Build.0 = ReleaseStatic|ARM64
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.ReleaseStatic|x64.ActiveCfg = ReleaseStatic|x64
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.ReleaseStatic|x64.Build.0 = ReleaseStatic|x64
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.ReleaseStatic|x86.ActiveCfg = ReleaseStatic|Win32
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4}.ReleaseStatic|x86.Build.0 = ReleaseStatic|Win32
 		{0BA531C8-CF0C-405B-8221-0FE51BA529D1}.Debug|ARM64.ActiveCfg = Debug|ARM64
 		{0BA531C8-CF0C-405B-8221-0FE51BA529D1}.Debug|ARM64.Build.0 = Debug|ARM64
 		{0BA531C8-CF0C-405B-8221-0FE51BA529D1}.Debug|x64.ActiveCfg = Debug|x64
@@ -1109,8 +1092,8 @@ Global
 		{C54F80ED-B736-49B0-9BD3-662F57024D01} = {7C218A3E-9BC8-48FF-B91B-BCACD828C0C9}
 		{272B2B0E-40D4-4F0F-B187-519A6EF89B10} = {7C218A3E-9BC8-48FF-B91B-BCACD828C0C9}
 		{5A52D9FC-0059-4A4A-8196-427A7AA0D1C5} = {7C218A3E-9BC8-48FF-B91B-BCACD828C0C9}
-		{1B9077B3-8923-4ECD-8FC9-B3190FCBE4D4} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
 		{76B26B2C-602A-4AD0-9736-4162D3FCA92A} = {1A5D7A7D-5CB2-47D5-B40D-4E61CAEDC798}
+		{EF18BED6-EBC0-45E9-8D61-4202528E8AAB} = {1A5D7A7D-5CB2-47D5-B40D-4E61CAEDC798}
 		{A0B4F808-B190-41C4-97CB-C8EA1932F84F} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 		{A33223D2-550B-4D99-A53D-488B1F68683E} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
 		{7139ED6E-8FBC-0B61-3E3A-AA2A23CC4D6A} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}

@@ -52,6 +52,13 @@
     <WriteLinesToFile File="$(_TripletFile)" Lines="$(VcpkgTriplet)" Overwrite="true" />
   </Target>
 
+  <!-- Build the port overlay before any project that needs it. Incremental logic and
+       parallel-build serialization live in CreatePortOverlay.ps1 itself. -->
+  <Target Name="CreateVcpkgPortOverlay"
+          BeforeTargets="VcpkgInstallManifestDependencies">
+    <Exec Command="pwsh.exe -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)VcpkgPortOverlay\CreatePortOverlay.ps1&quot; -StampFile &quot;$(MSBuildThisFileDirectory)VcpkgPortOverlay\.created&quot;" />
+  </Target>
+
   <Target Name="EnsureNoTripletMismatch"
           BeforeTargets="PrepareForBuild"
           Condition="'$(_IsBuildingSln)' != 'true'" >
