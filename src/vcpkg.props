@@ -3,9 +3,11 @@
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
     <VcpkgInstalledDir>$(MSBuildThisFileDirectory)vcpkg_installed\</VcpkgInstalledDir>
-    <!-- Note: For x86, the platform is x86 when building the solution meta-project, and Win32 when building individual projects. -->
+    <!-- Note: For x86, the platform is x86 when building the solution meta-project, and Win32 when building individual projects.
+               When building for ARM64, the VCPKG platform must be lowercased: arm64. -->
     <_VcpkgTripletPlatform>$(Platform)</_VcpkgTripletPlatform>
     <_VcpkgTripletPlatform Condition="'$(Platform)'=='Win32'">x86</_VcpkgTripletPlatform>
+    <_VcpkgTripletPlatform Condition="'$(Platform)'=='ARM64'">arm64</_VcpkgTripletPlatform>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)'=='Debug'">
     <VcpkgTriplet>$(_VcpkgTripletPlatform)</VcpkgTriplet>
