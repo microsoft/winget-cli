@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; style-src {{cspSource}} 'nonce-{{nonce}}'; script-src 'nonce-{{nonce}}';" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="{{viewerCssUri}}" />
+  <title>WinGet Log Viewer</title>
+</head>
+<body>
+  <!-- ── Sidebar ───────────────────────────────────────────────── -->
+  <aside id="sidebar">
+    <section class="sidebar-section">
+      <div class="section-header">
+        <span>Search</span>
+      </div>
+      <input id="search-input" type="search" placeholder="Filter message text…" autocomplete="off" spellcheck="false" />
+    </section>
+
+    <section class="sidebar-section" id="level-section" style="display:none">
+      <div class="section-header">
+        <span>Levels</span>
+        <div class="header-actions">
+          <button class="link-btn" id="levels-all">All</button>
+          <button class="link-btn" id="levels-none">None</button>
+        </div>
+      </div>
+      <ul id="level-list" class="filter-list"></ul>
+    </section>
+
+    <section class="sidebar-section" id="channel-section">
+      <div class="section-header">
+        <span>Channels</span>
+        <div class="header-actions">
+          <button class="link-btn" id="channels-all">All</button>
+          <button class="link-btn" id="channels-none">None</button>
+        </div>
+      </div>
+      <ul id="channel-list" class="filter-list"></ul>
+    </section>
+
+    <section class="sidebar-section" id="subchannel-section" style="display:none">
+      <div class="section-header">
+        <span>Subchannels</span>
+        <div class="header-actions">
+          <button class="link-btn" id="subchannels-all">All</button>
+          <button class="link-btn" id="subchannels-none">None</button>
+        </div>
+      </div>
+      <ul id="subchannel-list" class="filter-list"></ul>
+    </section>
+
+    <section class="sidebar-section">
+      <div class="section-header"><span>Options</span></div>
+      <label class="option-label">
+        <input type="checkbox" id="opt-delta" />
+        Show time delta
+      </label>
+      <label class="option-label">
+        <input type="checkbox" id="opt-follow" />
+        Follow (live tail)
+      </label>
+      <label class="option-label">
+        <input type="checkbox" id="opt-wrap" />
+        Wrap long lines
+      </label>
+    </section>
+
+    <section class="sidebar-section">
+      <div class="section-header"><span>Navigate</span></div>
+      <div class="nav-buttons">
+        <button id="btn-prev-error" title="Previous error/crit line">↑ Error</button>
+        <button id="btn-next-error" title="Next error/crit line">↓ Error</button>
+      </div>
+    </section>
+
+    <section class="sidebar-section">
+      <div class="section-header"><span>Export</span></div>
+      <button id="btn-export" class="full-btn">Copy visible lines</button>
+    </section>
+  </aside>
+
+  <!-- ── Main area ─────────────────────────────────────────────── -->
+  <main id="main">
+    <div id="stats-bar">
+      <span id="stats-text">Loading…</span>
+      <span id="status-indicator"></span>
+    </div>
+    <div id="log-container">
+      <!-- Virtual scroll sentinel – real rows are injected by viewer.js -->
+      <div id="log-spacer-top"></div>
+      <div id="log-rows"></div>
+      <div id="log-spacer-bottom"></div>
+    </div>
+  </main>
+
+  <script nonce="{{nonce}}" src="{{viewerJsUri}}"></script>
+</body>
+</html>

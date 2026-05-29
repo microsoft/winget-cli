@@ -25,6 +25,13 @@ Changes:
 * New source commit: https://github.com/microsoft/Detours/commit/404c153ff390cb14f1787c7feeb4908c6d79b0ab
 * Remove the patch on the official port as it is already present in the newer commit
 
+## sfs-client
+
+sfs-client is not in the official vcpkg registry. The port is based on the [template included in the sfs-client repository](https://github.com/microsoft/sfs-client/tree/main/sfs-client-vcpkg-port/sfs-client).
+
+We use version 1.1.0 at commit https://github.com/microsoft/sfs-client/commit/0e27525d597c730e71646fd0b15bdc8c8503f24d.
+Tests and samples are disabled (`-DSFS_BUILD_TESTS=OFF -DSFS_BUILD_SAMPLES=OFF`).
+
 ## libyaml
 
 We use an unreleased version that fixes a vulnerability.

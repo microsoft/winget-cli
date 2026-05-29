@@ -621,7 +621,7 @@ namespace AppInstaller::Repository
         }
     }
 
-    SourceDetails Source::GetDetails() const
+    const SourceDetails& Source::GetDetails() const
     {
         if (m_source)
         {
@@ -687,6 +687,14 @@ namespace AppInstaller::Repository
         }
     }
 
+    void Source::SetServerCertificateValidationCallback(std::function<bool(PCCERT_CONTEXT)> callback)
+    {
+        for (auto& sourceReference : m_sourceReferences)
+        {
+            sourceReference->SetServerCertificateValidationCallback(callback);
+        }
+    }
+
     void Source::SetThreadGlobals(const std::shared_ptr<ThreadLocalStorage::ThreadGlobals>& threadGlobals)
     {
         for (auto& sourceReference : m_sourceReferences)
@@ -705,7 +713,7 @@ namespace AppInstaller::Repository
         m_installedPackageInformationOnly = value;
     }
 
-    bool Source::IsWellKnownSource(WellKnownSource wellKnownSource)
+    bool Source::IsWellKnownSource(WellKnownSource wellKnownSource) const
     {
         SourceDetails details = GetDetails();
         auto wellKnown = CheckForWellKnownSourceMatch(details.Name, details.Arg, details.Type);
@@ -1094,7 +1102,7 @@ namespace AppInstaller::Repository
         {
             SourceList sourceList;
 
-            auto source = sourceList.GetCurrentSource(name);
+            auto source = sourceList.GetSource(name);
             if (!source)
             {
                 AICLI_LOG(Repo, Info, << "Named source to be dropped, but not found: " << name);
@@ -1105,7 +1113,18 @@ namespace AppInstaller::Repository
                 AICLI_LOG(Repo, Info, << "Named source to be dropped, found: " << source->Name);
 
                 EnsureSourceIsRemovable(*source);
-                sourceList.RemoveSource(*source);
+
+                // For default sources, overrides of default sources, and tombstones masking
+                // default sources, reset to clean state instead of tombstoning/removing.
+                if (source->Origin == SourceOrigin::Default ||
+                    (source->Origin == SourceOrigin::User && (source->IsOverride || source->IsTombstone)))
+                {
+                    sourceList.ResetSource(*source);
+                }
+                else
+                {
+                    sourceList.RemoveSource(*source);
+                }
 
                 return true;
             }

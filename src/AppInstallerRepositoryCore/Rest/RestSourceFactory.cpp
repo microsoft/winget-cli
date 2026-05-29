@@ -47,6 +47,13 @@ namespace AppInstaller::Repository::Rest
                 m_authArgs = std::move(authArgs);
             }
 
+            void SetServerCertificateValidationCallback(std::function<bool(PCCERT_CONTEXT)> callback) override
+            {
+                Certificates::PinningConfiguration config;
+                config.AddChain(std::make_shared<Certificates::CallbackPinningChainValidation>(std::move(callback)));
+                m_overridePinningConfiguration = std::move(config);
+            }
+
             std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
                 Initialize();
@@ -65,7 +72,10 @@ namespace AppInstaller::Repository::Rest
                 std::call_once(m_initializeFlag,
                     [&]()
                     {
-                        m_httpClientHelper.SetPinningConfiguration(m_details.CertificatePinningConfiguration, m_threadGlobals);
+                        const auto& pinConfig = m_overridePinningConfiguration.has_value()
+                            ? *m_overridePinningConfiguration
+                            : m_details.CertificatePinningConfiguration;
+                        m_httpClientHelper.SetPinningConfiguration(pinConfig, m_threadGlobals);
                         m_restClientInformation = RestClient::GetInformation(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper);
 
                         m_details.Identifier = m_restClientInformation.SourceIdentifier;
@@ -92,6 +102,7 @@ namespace AppInstaller::Repository::Rest
             std::optional<std::string> m_customHeader;
             std::string m_caller;
             Authentication::AuthenticationArguments m_authArgs;
+            std::optional<Certificates::PinningConfiguration> m_overridePinningConfiguration;
             std::once_flag m_initializeFlag;
             std::shared_ptr<ThreadLocalStorage::ThreadGlobals> m_threadGlobals;
         };

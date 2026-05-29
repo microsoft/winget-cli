@@ -256,7 +256,7 @@ builder.Select(s_Col_Id).From(s_MyTable)
 
 - Review `CONTRIBUTING.md` for workflow
 - File/discuss issues before starting work
-- Specs required for features (stored in `doc/specs/`)
+- Specs required for features (stored in `doc/specs/`); see `.github/instructions/specs.instructions.md` for detailed guidance
 - Follow existing code style (see `stylecop.json`)
 - CI runs on Azure Pipelines (`azure-pipelines.yml`)
 

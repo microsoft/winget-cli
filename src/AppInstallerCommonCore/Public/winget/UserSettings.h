@@ -47,16 +47,24 @@ namespace AppInstaller::Settings
         Disabled,
     };
 
-    // Sort field for output ordering.
-    enum class SortField
+    // Sort field for output ordering. Flag-bit values enable bitmask composition
+    // via ComputeSortFieldMask, so the constructor can skip unused field computation.
+    enum class SortField : uint32_t
     {
-        Relevance,  // Preserves current natural order (source-defined relevance ranking)
-        Name,
-        Id,
-        Version,
-        Source,
-        Available,
+        None      = 0x0,   // Zero value for bitmask initialization; not a user-facing sort field
+        Name      = 0x1,
+        Id        = 0x2,
+        Version   = 0x4,
+        Source    = 0x8,
+        Available = 0x10,
+        Relevance = 0x20,  // Preserves current natural order (source-defined relevance ranking)
+        Max       = 0x40,  // Sentinel for iteration via GetAllExponentialEnumValues; not a valid sort field
     };
+
+    DEFINE_ENUM_FLAG_OPERATORS(SortField);
+
+    // Converts a string to SortField. Returns std::nullopt for unrecognized values.
+    std::optional<SortField> ConvertToSortField(std::string_view value);
 
     // Sort direction for output ordering.
     enum class SortDirection
@@ -64,9 +72,6 @@ namespace AppInstaller::Settings
         Ascending,
         Descending,
     };
-
-    // Converts a string to SortField. Returns std::nullopt for unrecognized values.
-    std::optional<SortField> ConvertToSortField(std::string_view value);
 
     // The download code to use for *installers*.
     enum class InstallerDownloader

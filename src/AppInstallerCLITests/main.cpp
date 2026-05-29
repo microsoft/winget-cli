@@ -67,6 +67,14 @@ int main(int argc, char** argv)
 {
     init_apartment();
 
+    // Enable ProcessRedirectionTrustPolicy to match the MSIX packaged process context in which
+    // WinGet runs in production. This policy causes Windows to block traversal of user-created
+    // symlinks (e.g. via weakly_canonical), so enabling it here surfaces bugs that would only
+    // manifest in the real product environment. The policy is one-way; it cannot be reversed.
+    PROCESS_MITIGATION_REDIRECTION_TRUST_POLICY redirectionPolicy{};
+    redirectionPolicy.EnforceRedirectionTrust = 1;
+    SetProcessMitigationPolicy(ProcessRedirectionTrustPolicy, &redirectionPolicy, sizeof(redirectionPolicy));
+
     bool hasSetTestDataBasePath = false;
     bool waitBeforeReturn = false;
     bool keepSQLLogging = false;

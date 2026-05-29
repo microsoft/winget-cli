@@ -296,6 +296,7 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT, "A unit contains a setting that requires the config root."),
             WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN, "Loading the module for the configuration unit failed because it requires administrator privileges to run."),
             WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR, "Operation is not supported by the configuration processor."),
+            WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH, "The DSC processor hash provided does not match hash of the target file."),
 
             // Errors without the error bit set
             WINGET_HRESULT_INFO(WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE, "The install location is not applicable."),

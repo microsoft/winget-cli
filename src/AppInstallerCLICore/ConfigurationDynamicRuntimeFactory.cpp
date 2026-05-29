@@ -341,10 +341,12 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 {
                     winrt::hstring dscExecutablePathPropertyName = ToHString(PropertyName::DscExecutablePath);
                     std::optional<winrt::hstring> dscExecutablePath = m_dynamicFactory->GetFactoryMapValue(dscExecutablePathPropertyName);
+                    bool usingFoundPath = false;
 
                     if (!dscExecutablePath)
                     {
                         dscExecutablePath = m_dynamicFactory->Lookup(ToHString(PropertyName::FoundDscExecutablePath));
+                        usingFoundPath = true;
                     }
 
                     if (dscExecutablePath->empty())
@@ -355,6 +357,37 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     }
 
                     json["processorPath"] = Utility::ConvertToUTF8(dscExecutablePath.value());
+
+                    if (usingFoundPath)
+                    {
+                        // FoundDscExecutablePathHash/IsAlias are computed on the remote side alongside FoundDscExecutablePath.
+                        winrt::hstring pathHash = m_dynamicFactory->Lookup(ToHString(PropertyName::FoundDscExecutablePathHash));
+                        if (!pathHash.empty())
+                        {
+                            json["processorPathHash"] = Utility::ConvertToUTF8(pathHash);
+                        }
+
+                        winrt::hstring pathIsAlias = m_dynamicFactory->Lookup(ToHString(PropertyName::FoundDscExecutablePathIsAlias));
+                        if (!pathIsAlias.empty())
+                        {
+                            json["processorPathIsAlias"] = (pathIsAlias == L"true");
+                        }
+                    }
+                    else
+                    {
+                        // DscExecutablePathHash/IsAlias are set locally via the audit block.
+                        auto pathHash = m_dynamicFactory->GetFactoryMapValue(ToHString(PropertyName::DscExecutablePathHash));
+                        if (pathHash)
+                        {
+                            json["processorPathHash"] = Utility::ConvertToUTF8(pathHash.value());
+                        }
+
+                        auto pathIsAlias = m_dynamicFactory->GetFactoryMapValue(ToHString(PropertyName::DscExecutablePathIsAlias));
+                        if (pathIsAlias)
+                        {
+                            json["processorPathIsAlias"] = (pathIsAlias.value() == L"true");
+                        }
+                    }
                 }
 
                 Json::StreamWriterBuilder writerBuilder;

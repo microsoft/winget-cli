@@ -806,6 +806,19 @@ namespace AppInstaller::CLI
             }
         }
 
+        if (execArgs.Contains(Execution::Args::Type::Sort))
+        {
+            for (const auto& arg : *execArgs.GetArgs(Execution::Args::Type::Sort))
+            {
+                if (!Settings::ConvertToSortField(arg))
+                {
+                    auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{
+                        "name"_lis, "id"_lis, "version"_lis, "source"_lis, "available"_lis, "relevance"_lis });
+                    throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::Sort).Name, validOptions));
+                }
+            }
+        }
+
         Argument::ValidateExclusiveArguments(execArgs);
 
         ValidateArgumentsInternal(execArgs);

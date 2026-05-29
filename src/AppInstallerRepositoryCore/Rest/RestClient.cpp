@@ -12,6 +12,7 @@
 #include "Rest/Schema/1_9/Interface.h"
 #include "Rest/Schema/1_10/Interface.h"
 #include "Rest/Schema/1_12/Interface.h"
+#include "Rest/Schema/1_28/Interface.h"
 #include "Rest/Schema/InformationResponseDeserializer.h"
 #include "Rest/Schema/CommonRestConstants.h"
 #include <AppInstallerDownloader.h>
@@ -37,6 +38,7 @@ namespace AppInstaller::Repository::Rest
         Version_1_9_0,
         Version_1_10_0,
         Version_1_12_0,
+        Version_1_28_0,
     };
 
     constexpr std::string_view WindowsPackageManagerHeader = "Windows-Package-Manager"sv;
@@ -142,36 +144,34 @@ namespace AppInstaller::Repository::Rest
 
         // Check the cache for a valid information entry
         RestInformationCache informationCache;
-        std::optional<Schema::IRestClient::Information> cachedInformation = informationCache.Get(endpoint, customHeader, caller);
+        std::optional<Schema::IRestClient::Information> result = informationCache.Get(endpoint, customHeader, caller);
 
-        if (cachedInformation)
+        if (!result)
         {
-            return std::move(cachedInformation).value();
+            // Not in cache, make REST call to retrieve it
+            auto headers = GetHeaders(customHeader, caller);
+            CacheControlPolicy cacheControl;
+
+            std::optional<web::json::value> response = helper.HandleGet(
+                endpoint,
+                headers,
+                {},
+                [&](const web::http::http_response& httpResponse)
+                {
+                    cacheControl = CacheControlPolicy{ httpResponse.headers().cache_control() };
+                    return Http::HttpClientHelper::HttpResponseHandlerResult{ std::nullopt, true };
+                });
+
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !response);
+
+            InformationResponseDeserializer responseDeserializer;
+            result = responseDeserializer.Deserialize(response.value());
+
+            // Cache the information value as requested
+            informationCache.Cache(endpoint, customHeader, caller, cacheControl, std::move(response).value());
         }
 
-        // Not in cache, make REST call to retrieve it
-        auto headers = GetHeaders(customHeader, caller);
-        CacheControlPolicy cacheControl;
-
-        std::optional<web::json::value> response = helper.HandleGet(
-            endpoint,
-            headers,
-            {},
-            [&](const web::http::http_response& httpResponse)
-            {
-                cacheControl = CacheControlPolicy{ httpResponse.headers().cache_control() };
-                return Http::HttpClientHelper::HttpResponseHandlerResult{ std::nullopt, true };
-            });
-
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !response);
-
-        InformationResponseDeserializer responseDeserializer;
-        auto result = responseDeserializer.Deserialize(response.value());
-
-        // Cache the information value as requested
-        informationCache.Cache(endpoint, customHeader, caller, cacheControl, std::move(response).value());
-
-        return result;
+        return std::move(result).value();
     }
 
     std::unique_ptr<Schema::IRestClient> RestClient::GetSupportedInterface(
@@ -217,6 +217,10 @@ namespace AppInstaller::Repository::Rest
         else if (version == Version_1_12_0)
         {
             return std::make_unique<Schema::V1_12::Interface>(api, helper, information, additionalHeaders, authArgs);
+        }
+        else if (version == Version_1_28_0)
+        {
+            return std::make_unique<Schema::V1_28::Interface>(api, helper, information, additionalHeaders, authArgs);
         }
 
         THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);

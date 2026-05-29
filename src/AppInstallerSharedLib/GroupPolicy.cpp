@@ -10,9 +10,9 @@ namespace AppInstaller::Settings
 {
     namespace
     {
-        const GroupPolicy& InstanceInternal(std::optional<GroupPolicy*> overridePolicy = {})
+        GroupPolicy& InstanceInternal(std::optional<GroupPolicy*> overridePolicy = {})
         {
-            const static GroupPolicy s_groupPolicy{ Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, "Software\\Policies\\Microsoft\\Windows\\AppInstaller") };
+            static GroupPolicy s_groupPolicy{ Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, "Software\\Policies\\Microsoft\\Windows\\AppInstaller") };
             static GroupPolicy* s_override = nullptr;
 
             if (overridePolicy.has_value())
@@ -385,19 +385,31 @@ namespace AppInstaller::Settings
         return Json::writeString(writerBuilder, json);
     }
 
-    GroupPolicy::GroupPolicy(const Registry::Key& key)
+    GroupPolicy::GroupPolicy(Registry::Key key) : m_key(std::move(key))
     {
-        ValidateAllValuePolicies(key, m_values, std::make_index_sequence<static_cast<size_t>(ValuePolicy::Max)>());
+        Reload();
+    }
+
+    void GroupPolicy::Reload()
+    {
+        std::map<TogglePolicy::Policy, PolicyState> toggles;
+        ValuePoliciesMap values;
+
+        ValidateAllValuePolicies(m_key, values, std::make_index_sequence<static_cast<size_t>(ValuePolicy::Max)>());
 
         using Toggle_t = std::underlying_type_t<TogglePolicy::Policy>;
         for (Toggle_t i = static_cast<Toggle_t>(TogglePolicy::Policy::None); i < static_cast<Toggle_t>(TogglePolicy::Policy::Max); ++i)
         {
             auto policy = static_cast<TogglePolicy::Policy>(i);
-            m_toggles[policy] = GetStateInternal(key, policy);
+            toggles[policy] = GetStateInternal(m_key, policy);
         }
+
+        auto lock = m_lock.lock_exclusive();
+        m_toggles = std::move(toggles);
+        m_values = std::move(values);
     }
 
-    PolicyState GroupPolicy::GetState(TogglePolicy::Policy policy) const
+    PolicyState GroupPolicy::GetStateNoLock(TogglePolicy::Policy policy) const
     {
         auto itr = m_toggles.find(policy);
         if (itr == m_toggles.end())
@@ -408,6 +420,12 @@ namespace AppInstaller::Settings
         return itr->second;
     }
 
+    PolicyState GroupPolicy::GetState(TogglePolicy::Policy policy) const
+    {
+        auto lock = m_lock.lock_shared();
+        return GetStateNoLock(policy);
+    }
+
     bool GroupPolicy::IsEnabled(TogglePolicy::Policy policy) const
     {
         if (policy == TogglePolicy::Policy::None)
@@ -415,7 +433,8 @@ namespace AppInstaller::Settings
             return true;
         }
 
-        PolicyState state = GetState(policy);
+        auto lock = m_lock.lock_shared();
+        PolicyState state = GetStateNoLock(policy);
         if (state == PolicyState::NotConfigured)
         {
             return TogglePolicy::GetPolicy(policy).DefaultIsEnabled();
@@ -424,7 +443,7 @@ namespace AppInstaller::Settings
         return state == PolicyState::Enabled;
     }
 
-    GroupPolicy const& GroupPolicy::Instance()
+    GroupPolicy& GroupPolicy::Instance()
     {
         return InstanceInternal();
     }

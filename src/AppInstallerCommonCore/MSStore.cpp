@@ -5,6 +5,7 @@
 #include <winget/ManifestCommon.h>
 #include <winget/Runtime.h>
 #include <AppInstallerFileLogger.h>
+#include <AppInstallerDeployment.h>
 #include <AppInstallerErrors.h>
 #include <winrt/Windows.ApplicationModel.h>
 
@@ -14,6 +15,7 @@ namespace AppInstaller::MSStore
     using namespace winrt::Windows::Foundation;
     using namespace winrt::Windows::Foundation::Collections;
     using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
+    using namespace winrt::Windows::Management::Deployment;
 
     namespace
     {
@@ -213,6 +215,50 @@ namespace AppInstaller::MSStore
             std::atomic_bool m_isUpdating = false;
         };
 
+        // After a successful machine-scope Store install, the package may not be provisioned on older
+        // Windows versions (fixed in Windows 11 26100). This helper ensures the package is provisioned
+        // as a best-effort mitigation.
+        void EnsureProvisionedForMachineScope(const IVectorView<AppInstallItem>& installItems, std::wstring_view productId, IProgressCallback& progress) try
+        {
+            PackageManager packageManager;
+            auto provisionedPackages = packageManager.FindProvisionedPackages();
+
+            for (auto const& installItem : installItems)
+            {
+                if (Utility::CaseInsensitiveEquals(installItem.ProductId(), productId))
+                {
+                    std::wstring familyName{ installItem.PackageFamilyName() };
+                    if (familyName.empty())
+                    {
+                        continue;
+                    }
+
+                    bool isProvisioned = false;
+                    for (auto const& provisionedPkg : provisionedPackages)
+                    {
+                        if (provisionedPkg.Id().FamilyName() == familyName)
+                        {
+                            isProvisioned = true;
+                            break;
+                        }
+                    }
+
+                    if (!isProvisioned)
+                    {
+                        AICLI_LOG(Core, Info, << "Package not provisioned after machine scope install, provisioning: " << Utility::ConvertToUTF8(familyName));
+                        try
+                        {
+                            auto operation = packageManager.ProvisionPackageForAllUsersAsync(familyName);
+                            Deployment::WaitForDeployment(operation, progress);
+                            AICLI_LOG(Core, Info, << "Successfully provisioned package: " << Utility::ConvertToUTF8(familyName));
+                        }
+                        CATCH_LOG();
+                    }
+                }
+            }
+        }
+        CATCH_LOG();
+
         HRESULT WaitForOperation(const std::wstring& productId, bool isSilentMode, IVectorView<AppInstallItem>& installItems, IProgressCallback& progress, const PackageUpdateMonitor& monitor)
         {
             auto cancelIfOperationFailed = wil::scope_exit(
@@ -321,6 +367,18 @@ namespace AppInstaller::MSStore
         }
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    namespace TestHooks
+    {
+        static bool* s_ProvisionAfterInstall = nullptr;
+
+        void TestHook_SetProvisionAfterInstall(bool* value)
+        {
+            s_ProvisionAfterInstall = value;
+        }
+    }
+#endif
+
     HRESULT MSStoreOperation::InstallPackage(IProgressCallback& progress)
     {
         PackageUpdateMonitor monitor;
@@ -343,15 +401,6 @@ namespace AppInstaller::MSStore
 
         if (m_scope == Manifest::ScopeEnum::Machine)
         {
-            // TODO: There was a bug in InstallService where admin user is incorrectly identified as not admin,
-            // causing false access denied on many OS versions.
-            // Remove this check when the OS bug is fixed and back ported.
-            if (!Runtime::IsRunningAsSystem())
-            {
-                AICLI_LOG(Core, Error, << "Device wide install for msstore type is not supported under admin context.");
-                return APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED;
-            }
-
             installOptions.InstallForAllUsers(true);
         }
 
@@ -378,7 +427,37 @@ namespace AppInstaller::MSStore
                 installOptions).get();
         }
 
-        return WaitForOperation(m_productId, m_isSilentMode, installItems, progress, monitor);
+        HRESULT hr = WaitForOperation(m_productId, m_isSilentMode, installItems, progress, monitor);
+
+        // There was a bug in InstallService where admin users were incorrectly identified as non-admin,
+        // causing false access denied errors; fixed in 10.0.26100.0. On older OS versions, convert any
+        // failure under these conditions to the error that was previously always returned.
+        if (FAILED(hr) &&
+            m_scope == Manifest::ScopeEnum::Machine &&
+            !Runtime::IsRunningAsSystem() &&
+            !Runtime::IsCurrentOSVersionGreaterThanOrEqual(Utility::Version{ "10.0.26100.0" }))
+        {
+            AICLI_LOG(Core, Error, << "Device wide install for msstore type is not supported under admin context on this OS version. Error: " << hr);
+            return APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED;
+        }
+
+        bool shouldProvision = m_scope == Manifest::ScopeEnum::Machine;
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (TestHooks::s_ProvisionAfterInstall)
+        {
+            shouldProvision = *TestHooks::s_ProvisionAfterInstall;
+        }
+#endif
+
+        if (SUCCEEDED(hr) && shouldProvision)
+        {
+            // Mitigation: on older OS versions (fixed in Windows 11 26100) the Store install service
+            // may not provision the package even when InstallForAllUsers was set.
+            // Explicitly provision if not already provisioned.
+            EnsureProvisionedForMachineScope(installItems, m_productId, progress);
+        }
+
+        return hr;
     }
 
     HRESULT MSStoreOperation::UpdatePackage(IProgressCallback& progress)

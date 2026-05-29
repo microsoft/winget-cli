@@ -144,6 +144,7 @@ namespace AppInstallerCLIE2ETests
         /// Export all.
         /// </summary>
         [Test]
+        [Ignore("DSC 3.2 design changes ", Until = "2026-05-10")]
         public void ExportAll()
         {
             var exportDir = TestCommon.GetRandomTestDir();
@@ -178,7 +179,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_AppInstallerTest.TestPackageExport"));
             Assert.True(showResult.StdOut.Contains("data: TestData"));
 
-            Assert.True(showResult.StdOut.Contains("AppInstallerTest/TestResource.SubDirectory"));
+            Assert.True(showResult.StdOut.Contains("AppInstallerTest/TestResource_SubDirectory"));
             Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_AppInstallerTest.TestPackageExport"));
             Assert.True(showResult.StdOut.Contains("data: TestData"));
         }

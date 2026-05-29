@@ -218,4 +218,21 @@ namespace AppInstaller::Runtime
     {
         return wil::get_token_information<TOKEN_ELEVATION_TYPE>() == TokenElevationTypeLimited;
     }
+
+    DECLSPEC_NOINLINE bool IsStackAvailable(size_t bytes)
+    {
+        // https://devblogs.microsoft.com/oldnewthing/20200610-00/?p=103855
+        ULONG_PTR low, high;
+        GetCurrentThreadStackLimits(&low, &high);
+        auto remaining = reinterpret_cast<ULONG_PTR>(&low) - low;
+        if (remaining > high - low)
+        {
+            // Choosing to return false instead of failing
+            return false;
+        }
+
+        ULONG guarantee = 0;
+        SetThreadStackGuarantee(&guarantee);
+        return remaining >= bytes + guarantee;
+    }
 }

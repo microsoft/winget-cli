@@ -175,6 +175,21 @@ namespace AppInstaller::Utility {
         return targetFileHash;
     }
 
+    SHA256::HashBuffer SHA256::ComputeHashFromHandle(HANDLE fileHandle)
+    {
+        constexpr DWORD bufferSize = 1024 * 1024;
+        auto buffer = std::make_unique<uint8_t[]>(bufferSize);
+        SHA256 hasher;
+        DWORD bytesRead = 0;
+
+        while (ReadFile(fileHandle, buffer.get(), bufferSize, &bytesRead, nullptr) && bytesRead > 0)
+        {
+            hasher.Add(buffer.get(), bytesRead);
+        }
+
+        return hasher.Get();
+    }
+
     void SHA256::SHA256ContextDeleter::operator()(SHA256Context* context)
     {
         delete context;

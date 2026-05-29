@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests.Helpers
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
@@ -112,8 +113,15 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="stdIn">Optional std in.</param>
         /// <param name="timeOut">Optional timeout.</param>
         /// <param name="throwOnTimeout">Throw on timeout.</param>
+        /// <param name="environmentVariables">Environment variables to set.</param>
         /// <returns>The result of the command.</returns>
-        public static RunCommandResult RunAICLICommand(string command, string parameters, string stdIn = null, int timeOut = 60000, bool throwOnTimeout = true)
+        public static RunCommandResult RunAICLICommand(
+            string command,
+            string parameters,
+            string stdIn = null,
+            int timeOut = 60000,
+            bool throwOnTimeout = true,
+            Dictionary<string, string> environmentVariables = null)
         {
             string correlationParameter = " --correlation " + Guid.NewGuid().ToString();
 
@@ -126,7 +134,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                 }
             }
 
-            return RunAICLICommandViaDirectProcess(command, parameters + correlationParameter, stdIn, timeOut, throwOnTimeout);
+            return RunAICLICommandViaDirectProcess(command, parameters + correlationParameter, stdIn, timeOut, throwOnTimeout, environmentVariables);
         }
 
         /// <summary>
@@ -1159,15 +1167,25 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="stdIn">Optional std in.</param>
         /// <param name="timeOut">Optional timeout.</param>
         /// <param name="throwOnTimeout">Throw on timeout.</param>
+        /// <param name="environmentVariables">Environment variables to set.</param>
         /// <returns>The result of the command.</returns>
-        public static RunCommandResult RunProcess(string executablePath, string command, string parameters, string stdIn, int timeOut, bool throwOnTimeout)
+        public static RunCommandResult RunProcess(
+            string executablePath,
+            string command,
+            string parameters,
+            string stdIn,
+            int timeOut,
+            bool throwOnTimeout,
+            Dictionary<string, string> environmentVariables)
         {
             string inputMsg =
                     "Exe path: " + executablePath +
                     " Command: " + command +
                     " Parameters: " + parameters +
                     (string.IsNullOrEmpty(stdIn) ? string.Empty : " StdIn: " + stdIn) +
-                    " Timeout: " + timeOut;
+                    " Timeout: " + timeOut +
+                    (environmentVariables == null ? string.Empty :
+                        " Env: " + string.Join(", ", environmentVariables.Select(item => $"{item.Key}={item.Value}")));
 
             TestContext.Out.WriteLine($"Starting command run. {inputMsg}");
 
@@ -1201,6 +1219,14 @@ namespace AppInstallerCLIE2ETests.Helpers
             if (!string.IsNullOrEmpty(stdIn))
             {
                 p.StartInfo.RedirectStandardInput = true;
+            }
+
+            if (environmentVariables != null)
+            {
+                foreach (var item in environmentVariables)
+                {
+                    p.StartInfo.EnvironmentVariables[item.Key] = item.Value;
+                }
             }
 
             p.Start();
@@ -1251,10 +1277,17 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="stdIn">Optional std in.</param>
         /// <param name="timeOut">Optional timeout.</param>
         /// <param name="throwOnTimeout">Throw on timeout.</param>
+        /// <param name="environmentVariables">Environment variables to set.</param>
         /// <returns>The result of the command.</returns>
-        private static RunCommandResult RunAICLICommandViaDirectProcess(string command, string parameters, string stdIn, int timeOut, bool throwOnTimeout)
+        private static RunCommandResult RunAICLICommandViaDirectProcess(
+            string command,
+            string parameters,
+            string stdIn,
+            int timeOut,
+            bool throwOnTimeout,
+            Dictionary<string, string> environmentVariables)
         {
-            return RunProcess(TestSetup.Parameters.AICLIPath, command, parameters, stdIn, timeOut, throwOnTimeout);
+            return RunProcess(TestSetup.Parameters.AICLIPath, command, parameters, stdIn, timeOut, throwOnTimeout, environmentVariables);
         }
 
         /// <summary>

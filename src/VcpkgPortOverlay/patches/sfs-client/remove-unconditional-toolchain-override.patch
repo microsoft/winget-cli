@@ -1,0 +1,12 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -12,8 +12,6 @@ if(SFS_BUILD_TESTS)
+     list(APPEND VCPKG_MANIFEST_FEATURES "tests")
+ endif()
+ 
+-set(CMAKE_TOOLCHAIN_FILE "vcpkg/scripts/buildsystems/vcpkg.cmake")
+-
+ # By default using x64 static custom triplet for Windows. Can be overridden by
+ # setting VCPKG_TARGET_TRIPLET
+ if(SFS_WINDOWS_STATIC_ONLY

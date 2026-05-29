@@ -4,10 +4,13 @@
 
 #if _DEBUG
 #include "DebugCommand.h"
+#include "Public/ConfigurationSetProcessorFactoryRemoting.h"
+#include <AppInstallerRuntime.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <winrt/Microsoft.Management.Configuration.SetProcessorFactory.h>
 #include "AppInstallerDownloader.h"
 #include "Sixel.h"
+#include <winget/Certificates.h>
 
 using namespace AppInstaller::CLI::Execution;
 
@@ -62,6 +65,9 @@ namespace AppInstaller::CLI
             std::make_unique<DumpErrorResourceCommand>(FullName()),
             std::make_unique<ShowSixelCommand>(FullName()),
             std::make_unique<ProgressCommand>(FullName()),
+            std::make_unique<GetSignerCommand>(FullName()),
+            std::make_unique<LogViewerTestCommand>(FullName()),
+            std::make_unique<DebugDscResourceCommand>(FullName()),
         });
     }
 
@@ -363,6 +369,343 @@ namespace AppInstaller::CLI
         if (context.Args.Contains(WINGET_DEBUG_PROGRESS_POST))
         {
             context.Reporter.Info() << context.Args.GetArg(WINGET_DEBUG_PROGRESS_POST) << std::endl;
+        }
+    }
+
+    std::vector<Argument> GetSignerCommand::GetArguments() const
+    {
+        return {
+            Argument{ "file", 'f', Args::Type::Manifest, Resource::String::SourceListUpdatedNever, ArgumentType::Positional },
+        };
+    }
+
+    Resource::LocString GetSignerCommand::ShortDescription() const
+    {
+        return Utility::LocIndString("Get signer information"sv);
+    }
+
+    Resource::LocString GetSignerCommand::LongDescription() const
+    {
+        return Utility::LocIndString("Gets the signing information for a given path."sv);
+    }
+
+    void GetSignerCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        std::string subject = Certificates::GetAuthenticodeSubject(context.Args.GetArg(Args::Type::Manifest));
+
+        context.Reporter.Info() << "Subject: " << subject << std::endl;
+    }
+    
+// ── LogViewerTestCommand ─────────────────────────────────────────────────────
+
+#define WINGET_DEBUG_LOG_VIEWER_FOLLOW Args::Type::Force
+
+    std::vector<Argument> LogViewerTestCommand::GetArguments() const
+    {
+        return {
+            Argument{ "follow", 'f', WINGET_DEBUG_LOG_VIEWER_FOLLOW, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+        };
+    }
+
+    Resource::LocString LogViewerTestCommand::ShortDescription() const
+    {
+        return Utility::LocIndString("Emit test logs for the log viewer extension"sv);
+    }
+
+    Resource::LocString LogViewerTestCommand::LongDescription() const
+    {
+        return Utility::LocIndString(
+            "Emits log entries exercising every channel, level, subchannel, continuation line, "
+            "and long-line feature of the WinGet Log Viewer VS Code extension. "
+            "Use --follow to stream additional log lines every 3 seconds (up to 100 iterations)."sv);
+    }
+
+    void LogViewerTestCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        // Ensure all channels and the most verbose level are active so every test entry lands in the file.
+        auto& logger = AppInstaller::Logging::Log();
+        logger.EnableChannel(AppInstaller::Logging::Channel::All);
+        logger.SetLevel(AppInstaller::Logging::Level::Verbose);
+
+        // ── All five levels on CLI ────────────────────────────────────────────
+        AICLI_LOG(CLI, Verbose, << "Log viewer test: Verbose level message");
+        AICLI_LOG(CLI, Info,    << "Log viewer test: Info level message");
+        AICLI_LOG(CLI, Warning, << "Log viewer test: Warning level message");
+        AICLI_LOG(CLI, Error,   << "Log viewer test: Error level message");
+        AICLI_LOG(CLI, Crit,    << "Log viewer test: Critical level message");
+
+        // ── One Info entry on every channel ──────────────────────────────────
+        AICLI_LOG(Fail,     Info, << "Log viewer test: Failure channel");
+        AICLI_LOG(SQL,      Info, << "Log viewer test: SQL channel");
+        AICLI_LOG(Repo,     Info, << "Log viewer test: Repository channel");
+        AICLI_LOG(YAML,     Info, << "Log viewer test: YAML channel");
+        AICLI_LOG(Core,     Info, << "Log viewer test: Core channel");
+        AICLI_LOG(Test,     Info, << "Log viewer test: Test channel");
+        AICLI_LOG(Config,   Info, << "Log viewer test: Configuration channel");
+        AICLI_LOG(Workflow, Info, << "Log viewer test: Workflow channel");
+
+        // ── Subchannel simulation (sub-component logs routed through CLI) ─────
+        AICLI_LOG(CLI, Info, << "[SQL ] Subchannel test: database query initiated for package lookup");
+        AICLI_LOG(CLI, Info, << "[REPO] Subchannel test: fetching package metadata from remote source");
+
+        // ── Continuation lines (newlines in the message become continuation rows) ──
+        AICLI_LOG(Core, Warning, << "Package installation encountered multiple issues:\n"
+            "  - Dependency 'vcredist' version 14.0.30704 not found in any configured source\n"
+            "  - Insufficient disk space on C:\\ (requires 512 MB, available 203 MB)\n"
+            "  - Installation directory is read-only: C:\\Program Files\\TestPackage\\1.0.0");
+
+        // ── Long line (should require horizontal scroll or wrap in the viewer) ─
+        AICLI_LOG(Workflow, Info, << "Resolving full package dependency graph: The following packages are required "
+            "as dependencies and will be installed in sequence if not already present on the system: "
+            "Microsoft.VCRedist.2015+.x64 (>= 14.0.30704), Microsoft.DotNet.Runtime.7 (>= 7.0.14), "
+            "Microsoft.WebView2.Runtime (>= 113.0.1774.35), Microsoft.WindowsAppRuntime.1.4 (>= 1.4.231219000). "
+            "Total estimated download size: 847 MB across 4 installers.");
+
+        context.Reporter.Info() << "Log viewer test burst complete. Open the WinGet log file to review all viewer features." << std::endl;
+
+        if (!context.Args.Contains(WINGET_DEBUG_LOG_VIEWER_FOLLOW))
+        {
+            return;
+        }
+
+        // ── Follow mode: stream log lines every 3 seconds ────────────────────
+        context.Reporter.Info() << "Follow mode active (up to 100 iterations). Press Ctrl-C to stop." << std::endl;
+
+        struct FollowEntry { AppInstaller::Logging::Channel Channel; AppInstaller::Logging::Level Level; std::string_view Message; };
+        static constexpr FollowEntry s_entries[] =
+        {
+            { AppInstaller::Logging::Channel::CLI,      AppInstaller::Logging::Level::Info,    "Follow: searching for available package updates" },
+            { AppInstaller::Logging::Channel::Repo,     AppInstaller::Logging::Level::Info,    "Follow: refreshing source index from remote endpoint" },
+            { AppInstaller::Logging::Channel::SQL,      AppInstaller::Logging::Level::Verbose, "Follow: executing SELECT query on packages table" },
+            { AppInstaller::Logging::Channel::Core,     AppInstaller::Logging::Level::Info,    "Follow: applying version comparison for upgrade eligibility" },
+            { AppInstaller::Logging::Channel::YAML,     AppInstaller::Logging::Level::Verbose, "Follow: parsing manifest for Microsoft.TestPackage 2.1.0" },
+            { AppInstaller::Logging::Channel::Workflow, AppInstaller::Logging::Level::Info,    "Follow: evaluating installer selection policy for current architecture" },
+            { AppInstaller::Logging::Channel::Config,   AppInstaller::Logging::Level::Info,    "Follow: reading configuration resource state from DSC provider" },
+            { AppInstaller::Logging::Channel::CLI,      AppInstaller::Logging::Level::Warning, "Follow: package is pinned to a specific version, skipping upgrade" },
+            { AppInstaller::Logging::Channel::Core,     AppInstaller::Logging::Level::Info,    "Follow: SHA-256 hash verification passed for downloaded installer" },
+            { AppInstaller::Logging::Channel::CLI,      AppInstaller::Logging::Level::Info,    "[SQL ] Follow: subchannel activity routed through CLI during follow" },
+        };
+
+        auto progress = context.Reporter.BeginAsyncProgress(true);
+
+        for (int i = 1; i <= 100; ++i)
+        {
+            // Wait 3 seconds, checking for cancellation every 100 ms.
+            for (int t = 0; t < 30; ++t)
+            {
+                if (progress->Callback().IsCancelledBy(CancelReason::Any)) { return; }
+                std::this_thread::sleep_for(100ms);
+            }
+
+            // Emit the cycling entry for this iteration.
+            const auto& e = s_entries[static_cast<size_t>(i) % ARRAYSIZE(s_entries)];
+            const std::string msg = std::string(e.Message) + " [" + std::to_string(i) + "/100]";
+            logger.Write(e.Channel, e.Level, msg);
+
+            // Every 5 iterations: multi-line status summary (continuation lines).
+            if (i % 5 == 0)
+            {
+                AICLI_LOG(Core, Info, << "Follow iteration " << i << " status summary:\n"
+                    "  Packages checked: " << (i * 7) << "\n"
+                    "  Updates available: " << (i % 3) << "\n"
+                    "  Sources refreshed: 2");
+            }
+
+            // Every 20 iterations: simulated error with a stack trace (continuation lines + HRESULT).
+            if (i % 20 == 0)
+            {
+                AICLI_LOG(Fail, Error, << "Simulated transient error at follow iteration " << i << " [HRESULT 0x80070005]:\n"
+                    "  at AppInstaller::Repository::SourceList::OpenSource(std::string_view)\n"
+                    "  at AppInstaller::CLI::Workflow::OpenSourcesForSearch(Context&)\n"
+                    "  at AppInstaller::CLI::LogViewerTestCommand::ExecuteInternal(Context&)");
+            }
+        }
+
+        context.Reporter.Info() << "Follow mode complete (100 iterations)." << std::endl;
+    }
+    
+#define WINGET_DEBUG_DSC_RESOURCE_RESOURCE  Args::Type::SourceName
+#define WINGET_DEBUG_DSC_RESOURCE_EXPORT    Args::Type::AllVersions
+
+    std::vector<Argument> DebugDscResourceCommand::GetArguments() const
+    {
+        return {
+            Argument{ "resource", 'r', WINGET_DEBUG_DSC_RESOURCE_RESOURCE, Resource::String::SourceListUpdatedNever, ArgumentType::Positional },
+            Argument{ "export", 'e', WINGET_DEBUG_DSC_RESOURCE_EXPORT, Resource::String::SourceListUpdatedNever, ArgumentType::Flag },
+            Argument::ForType(Args::Type::ConfigurationProcessorPath),
+        };
+    }
+
+    Resource::LocString DebugDscResourceCommand::ShortDescription() const
+    {
+        return Utility::LocIndString("Run DSCv3 resource actions"sv);
+    }
+
+    Resource::LocString DebugDscResourceCommand::LongDescription() const
+    {
+        return Utility::LocIndString("Directly invokes DSCv3 resource functions through WinGet's infrastructure, without requiring a full configuration document."sv);
+    }
+
+    void DebugDscResourceCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        using namespace winrt::Microsoft::Management::Configuration;
+        using namespace winrt::Windows::Foundation::Collections;
+
+        if (!context.Args.Contains(WINGET_DEBUG_DSC_RESOURCE_EXPORT))
+        {
+            OutputHelp(context.Reporter);
+            return;
+        }
+
+        std::string resourceName{ context.Args.GetArg(WINGET_DEBUG_DSC_RESOURCE_RESOURCE) };
+
+        context.Reporter.Info() << "Creating OOP DSCv3 processor factory..." << std::endl;
+
+        IConfigurationSetProcessorFactory factory;
+        if (Runtime::IsRunningWithLimitedToken())
+        {
+            factory = ConfigurationRemoting::CreateDynamicRuntimeFactory(ConfigurationRemoting::ProcessorEngine::DSCv3);
+        }
+        else
+        {
+            factory = ConfigurationRemoting::CreateOutOfProcessFactory(ConfigurationRemoting::ProcessorEngine::DSCv3);
+        }
+
+        auto factoryMap = factory.as<IMap<winrt::hstring, winrt::hstring>>();
+
+        if (context.Args.Contains(Args::Type::ConfigurationProcessorPath))
+        {
+            factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePath), Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationProcessorPath)));
+        }
+        else
+        {
+            // Run the state machine to locate dsc.exe.
+            for (;;)
+            {
+                winrt::hstring nextTransition = factoryMap.Lookup(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::FindDscStateMachine));
+                AICLI_LOG(CLI, Info, << "FindDscStateMachine: " << Utility::ConvertToUTF8(nextTransition));
+
+                if (nextTransition == L"Found")
+                {
+                    break;
+                }
+                else if (nextTransition == L"NotFound")
+                {
+                    context.Reporter.Error() << Resource::String::ConfigurationInstallDscPackageFailed << std::endl;
+                    AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND));
+                }
+                else
+                {
+                    // InstallStable/InstallPreview etc. are not supported in debug mode; install DSCv3 manually.
+                    context.Reporter.Error() << "DSCv3 unavailable (" << Utility::ConvertToUTF8(nextTransition) << "); use --processor-path or install DSCv3." << std::endl;
+                    AICLI_TERMINATE_CONTEXT(E_NOTIMPL);
+                }
+            }
+        }
+
+        if (Logging::Log().IsEnabled(Logging::Channel::Config, Logging::Level::Verbose))
+        {
+            factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DiagnosticTraceEnabled), L"True");
+        }
+
+        // Build and configure the processor.
+        ConfigurationProcessor processor{ factory };
+        processor.Caller(L"winget-debug");
+
+        if (Logging::Log().IsEnabled(Logging::Channel::Config, Logging::Level::Verbose))
+        {
+            processor.MinimumLevel(DiagnosticLevel::Verbose);
+        }
+
+        processor.Diagnostics([&context](const winrt::Windows::Foundation::IInspectable&, const IDiagnosticInformation& diag)
+            {
+                Logging::Level level = Logging::Level::Info;
+                switch (diag.Level())
+                {
+                case DiagnosticLevel::Verbose: level = Logging::Level::Verbose; break;
+                case DiagnosticLevel::Informational: level = Logging::Level::Info; break;
+                case DiagnosticLevel::Warning: level = Logging::Level::Warning; break;
+                case DiagnosticLevel::Error: level = Logging::Level::Error; break;
+                case DiagnosticLevel::Critical: level = Logging::Level::Crit; break;
+                }
+                context.GetThreadGlobals().GetDiagnosticLogger().Write(Logging::Channel::Config, level, Utility::ConvertToUTF8(diag.Message()));
+            });
+
+        // Construct a minimal ConfigurationUnit for the named resource.
+        ConfigurationUnit unit;
+        unit.Type(Utility::ConvertToUTF16(resourceName));
+        unit.Identifier(L"debug-item");
+        unit.Intent(ConfigurationUnitIntent::Inform);
+
+        context.Reporter.Info() << "Exporting resource: " << resourceName << std::endl;
+
+        auto progressScope = context.Reporter.BeginAsyncProgress(true);
+        progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationExportingUnit());
+
+        GetAllConfigurationUnitsResult exportResult = nullptr;
+        {
+            auto exportAction = processor.GetAllUnitsAsync(unit);
+            auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { exportAction.Cancel(); });
+            exportResult = exportAction.get();
+        }
+
+        progressScope.reset();
+
+        HRESULT hr = exportResult.ResultInformation().ResultCode();
+        if (FAILED(hr))
+        {
+            auto description = exportResult.ResultInformation().Description();
+            context.Reporter.Error() << "Export failed (0x" << Logging::SetHRFormat << hr << "): ";
+            if (!description.empty())
+            {
+                context.Reporter.Error() << Utility::ConvertToUTF8(description);
+            }
+            context.Reporter.Error() << std::endl;
+            AICLI_TERMINATE_CONTEXT(hr);
+        }
+
+        auto units = exportResult.Units();
+        context.Reporter.Info() << "Exported " << units.Size() << " instance(s):" << std::endl;
+
+        for (const auto& resultUnit : units)
+        {
+            context.Reporter.Info() << "  Type:       " << Utility::ConvertToUTF8(resultUnit.Type()) << std::endl;
+            context.Reporter.Info() << "  Identifier: " << Utility::ConvertToUTF8(resultUnit.Identifier()) << std::endl;
+
+            auto settings = resultUnit.Settings();
+            if (settings && settings.Size() > 0)
+            {
+                context.Reporter.Info() << "  Settings:" << std::endl;
+                for (const auto& [key, value] : settings)
+                {
+                    auto prop = value.try_as<winrt::Windows::Foundation::IPropertyValue>();
+                    if (prop)
+                    {
+                        std::string valueStr;
+                        switch (prop.Type())
+                        {
+                        case winrt::Windows::Foundation::PropertyType::String:
+                            valueStr = Utility::ConvertToUTF8(prop.GetString());
+                            break;
+                        case winrt::Windows::Foundation::PropertyType::Boolean:
+                            valueStr = prop.GetBoolean() ? "true" : "false";
+                            break;
+                        case winrt::Windows::Foundation::PropertyType::Int32:
+                            valueStr = std::to_string(prop.GetInt32());
+                            break;
+                        case winrt::Windows::Foundation::PropertyType::Int64:
+                            valueStr = std::to_string(prop.GetInt64());
+                            break;
+                        default:
+                            valueStr = "(unsupported type)";
+                            break;
+                        }
+                        context.Reporter.Info() << "    " << Utility::ConvertToUTF8(key) << ": " << valueStr << std::endl;
+                    }
+                }
+            }
+
+            context.Reporter.Info() << std::endl;
         }
     }
 }

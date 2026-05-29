@@ -44,6 +44,22 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         // We must respond to the value it returns to properly transition states.
         // Read only.
         FindDscStateMachine,
+        // The SHA256 hash of the DscExecutablePath content: file bytes for regular executables, or
+        // raw reparse data buffer bytes for app execution aliases.
+        // Must be set alongside DscExecutablePath when a custom processor path is used.
+        // Read / Write
+        DscExecutablePathHash,
+        // Whether DscExecutablePath refers to an app execution alias
+        // (e.g., a path under %LOCALAPPDATA%\Microsoft\WindowsApps).
+        // Read / Write
+        DscExecutablePathIsAlias,
+        // The SHA256 hash of the FoundDscExecutablePath content.
+        // Computed alongside FoundDscExecutablePath; available after FoundDscExecutablePath is queried.
+        // Read only.
+        FoundDscExecutablePathHash,
+        // Whether FoundDscExecutablePath refers to an app execution alias.
+        // Read only.
+        FoundDscExecutablePathIsAlias,
     };
 
     // Gets the string for a property name.

@@ -27,6 +27,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public const string DynamicRuntimeHandlerIdentifier = "{73fea39f-6f4a-41c9-ba94-6fd14d633e40}";
 
         /// <summary>
+        /// The DSCv3-specific dynamic runtime factory handler identifier.
+        /// Unlike DynamicRuntimeHandlerIdentifier, this pre-selects the DSCv3 processor engine.
+        /// </summary>
+        public const string DSCv3DynamicRuntimeHandlerIdentifier = "{5f83e564-ca26-41ca-89db-36f5f0517ffd}";
+
+        /// <summary>
         /// Test guid for enabling test mode for the dynamic runtime factory. Forces factory to exclude 'runas' verb and sets current IL to medium.
         /// </summary>
         public const string EnableDynamicFactoryTestMode = "1e62d683-2999-44e7-81f7-6f8f35e8d731";

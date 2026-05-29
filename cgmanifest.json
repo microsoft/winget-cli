@@ -33,7 +33,7 @@
         "type": "git",
         "git": {
           "repositoryUrl": "https://github.com/microsoft/sfs-client.git",
-          "commitHash": "ff315ecfa2ef2953d8a808e51e8a61a4e0759180"
+          "commitHash": "0e27525d597c730e71646fd0b15bdc8c8503f24d"
         }
       }
     },

@@ -68,6 +68,10 @@ namespace AppInstaller::Utility {
         // Computes the hash from a given file path.
         static HashBuffer ComputeHashFromFile(const std::filesystem::path& path);
 
+        // Computes the hash from an open file HANDLE by reading sequentially from the current position.
+        // The caller retains ownership of the handle.
+        static HashBuffer ComputeHashFromHandle(HANDLE fileHandle);
+
         static std::string ConvertToString(const HashBuffer& hashBuffer);
 
         static std::wstring ConvertToWideString(const HashBuffer& hashBuffer);

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "WinGet Log",
+  "scopeName": "text.winget-log",
+  "patterns": [
+    { "include": "#logLine" }
+  ],
+  "repository": {
+    "logLine": {
+      "comment": "Full log line: TIMESTAMP [<L>] [CHAN] [SUBCHAN] message",
+      "match": "^(\\d{2,4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3})\\s+(?:(<[VIWEC]>)\\s+)?(\\[(FAIL|CLI |SQL |REPO|YAML|CORE|TEST|CONF|WORK)\\s*\\])(\\s+\\[([A-Z]{2,8})\\s*\\])?(.*)$",
+      "captures": {
+        "1": { "name": "constant.numeric.timestamp.winget-log" },
+        "2": { "name": "keyword.operator.level-marker.winget-log" },
+        "3": { "patterns": [{ "include": "#channelBadge" }] },
+        "6": { "name": "entity.name.type.subchannel.winget-log" },
+        "7": { "patterns": [{ "include": "#messageText" }] }
+      }
+    },
+    "channelBadge": {
+      "patterns": [
+        { "match": "\\[FAIL\\s*\\]", "name": "invalid.illegal.channel.fail.winget-log" },
+        { "match": "\\[CLI\\s*\\]",  "name": "support.function.channel.cli.winget-log" },
+        { "match": "\\[SQL\\s*\\]",  "name": "entity.name.function.channel.sql.winget-log" },
+        { "match": "\\[REPO\\s*\\]", "name": "support.class.channel.repo.winget-log" },
+        { "match": "\\[YAML\\s*\\]", "name": "constant.language.channel.yaml.winget-log" },
+        { "match": "\\[CORE\\s*\\]", "name": "comment.channel.core.winget-log" },
+        { "match": "\\[TEST\\s*\\]", "name": "markup.inserted.channel.test.winget-log" },
+        { "match": "\\[CONF\\s*\\]", "name": "keyword.control.channel.conf.winget-log" },
+        { "match": "\\[WORK\\s*\\]", "name": "variable.parameter.channel.work.winget-log" }
+      ]
+    },
+    "messageText": {
+      "patterns": [
+        { "match": "\\b(Error|Fail(ed|ure)?|Exception|HRESULT|0x[0-9a-fA-F]+)\\b", "name": "invalid.illegal.error-keyword.winget-log" },
+        { "match": "\\b(Warn(ing)?|Deprecated)\\b", "name": "support.type.warning-keyword.winget-log" },
+        { "match": "\\b(Verbose|Trace|Debug)\\b", "name": "comment.verbose-keyword.winget-log" }
+      ]
+    }
+  }
+}

@@ -6,13 +6,22 @@
 #include <json/forwards.h>
 #include <wil/resource.h>
 
+#include <filesystem>
 #include <functional>
+#include <memory>
 #include <ostream>
+#include <string>
 #include <vector>
 
 
 namespace AppInstaller::Certificates
 {
+    // Returns the Authenticode signing subject name (e.g., "Microsoft Corporation") for the
+    // given file. Only returns a value when WinVerifyTrust confirms the signature is valid and
+    // trusted; extracts the subject from the embedded PE Authenticode signature via crypt32.
+    // Returns an empty string if the file is unsigned, untrusted, or on any error.
+    std::string GetAuthenticodeSubject(const std::filesystem::path& filePath);
+
     // Defines the types of certificate pinning to perform.
     enum class PinningVerificationType : uint32_t
     {
@@ -107,8 +116,25 @@ namespace AppInstaller::Certificates
         PinningVerificationType m_pinning = PinningVerificationType::None;
     };
 
+    // Interface for a single chain validation strategy within a PinningConfiguration.
+    // For a certificate to be accepted by PinningConfiguration, it must be accepted by at least one chain.
+    struct IPinningChainValidation
+    {
+        virtual ~IPinningChainValidation() = default;
+
+        // Returns true if the certificate chain is accepted.
+        virtual bool Validate(PCCERT_CHAIN_CONTEXT chainContext) const = 0;
+
+        // Returns a human-readable description of this validation for logging.
+        virtual std::string GetDescription() const = 0;
+
+        // Returns the remaining lifetime percentage of the pinned material (0.0 = expired, 1.0 = full life remaining).
+        // Implementations without a fixed lifetime should return 1.0.
+        virtual double GetRemainingLifetimePercentage() const = 0;
+    };
+
     // Contains the full chain of pinning details.
-    struct PinningChain
+    struct PinningChain : public IPinningChainValidation
     {
         PinningChain() = default;
 
@@ -155,20 +181,34 @@ namespace AppInstaller::Certificates
         // Validates the given certificate chain against the configuration.
         // Returns true to indicate that the chain meets the pinning configuration criteria.
         // Returns false to indicate the it does not.
-        bool Validate(PCCERT_CHAIN_CONTEXT chainContext) const;
+        bool Validate(PCCERT_CHAIN_CONTEXT chainContext) const override;
 
         // Gets a description of the pinning chain.
-        std::string GetDescription() const;
+        std::string GetDescription() const override;
 
         // Loads the pinning chain from the given JSON.
         [[nodiscard]] bool LoadFrom(const Json::Value& configuration);
 
         // Determines how far the certificate chain is through its lifespan (the minimum of all of its certificates).
-        double GetRemainingLifetimePercentage() const;
+        double GetRemainingLifetimePercentage() const override;
 
     private:
         std::vector<PinningDetails> m_chain;
         bool m_partial = false;
+    };
+
+    // A chain validation that delegates to a caller-supplied callback.
+    struct CallbackPinningChainValidation : public IPinningChainValidation
+    {
+        // callback receives the leaf (end-entity) certificate and returns true to accept, false to reject.
+        explicit CallbackPinningChainValidation(std::function<bool(PCCERT_CONTEXT)> callback);
+
+        bool Validate(PCCERT_CHAIN_CONTEXT chainContext) const override;
+        std::string GetDescription() const override;
+        double GetRemainingLifetimePercentage() const override { return 1.0; }
+
+    private:
+        std::function<bool(PCCERT_CONTEXT)> m_callback;
     };
 
     // Holds the details about how a certificate chain is to be validated (aka "pinned").
@@ -185,6 +225,7 @@ namespace AppInstaller::Certificates
         // Adds a possible chain to the configuration.
         // For a certificate to be valid, it must match only one of the configured chains.
         void AddChain(PinningChain chain);
+        void AddChain(std::shared_ptr<IPinningChainValidation> chain);
 
         // Validates the given leaf certificate against the configuration.
         // Returns true to indicate that the certificate meets the pinning configuration criteria.
@@ -205,7 +246,7 @@ namespace AppInstaller::Certificates
         std::string m_identifier;
 
         // The configured chains.
-        std::vector<PinningChain> m_configuration;
+        std::vector<std::shared_ptr<IPinningChainValidation>> m_configuration;
 
         // We store the last certificate that was successfully validated to speed up subsequent checks.
         // Only cache a single certificate under the assumption that most of the time there will

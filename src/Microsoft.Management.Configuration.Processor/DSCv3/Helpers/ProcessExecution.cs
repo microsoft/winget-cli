@@ -18,6 +18,8 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
     /// </summary>
     internal class ProcessExecution
     {
+        private static int nextExecutionNumber = 0;
+
         private List<string> outputLines = new List<string>();
         private List<string> errorLines = new List<string>();
 
@@ -26,6 +28,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// </summary>
         public ProcessExecution()
         {
+            this.ExecutionNumber = Interlocked.Increment(ref nextExecutionNumber);
         }
 
         /// <summary>
@@ -37,6 +40,11 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// An event that receives the error lines as they are delivered.
         /// </summary>
         public event EventHandler<string>? ErrorLineReceived;
+
+        /// <summary>
+        /// Gets the monotonically increasing number assigned to this process execution.
+        /// </summary>
+        public int ExecutionNumber { get; }
 
         /// <summary>
         /// Gets the executable path.
@@ -52,7 +60,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// <summary>
         /// Gets the data to write to standard input of the process.
         /// </summary>
-        public string? Input { get; init; } = null;
+        public string? Input { get; init; } = string.Empty;
 
         /// <summary>
         /// Gets the list of custom environment variables to use for the process.
@@ -264,7 +272,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 
             foreach (string line in lines)
             {
-                stringBuilder.AppendLine(line);
+                stringBuilder.Append(line).Append('\n');
             }
 
             return stringBuilder.ToString();

@@ -26,6 +26,7 @@ apfn
 apicontract
 apiset
 appdata
+APPEXECLINK
 appinstallertest
 applic
 appname
@@ -150,6 +151,7 @@ Dns
 Dobbeleer
 DONOT
 dsc
+dupenv
 dustojnikhummer
 dvinns
 dwgs
@@ -193,6 +195,7 @@ FONTHASH
 FORPARSING
 foundfr
 fsanitize
+Fsctl
 FULLMUTEX
 FULLWIDTH
 fundraiser
@@ -207,6 +210,7 @@ GHS
 github
 gitlab
 gity
+Gotchas
 goku
 GRPICONDIR
 GRPICONDIRENTRY
@@ -239,6 +243,7 @@ hybridcrt
 Hyperlink
 IARP
 IAttachment
+ical
 ICONDIR
 ICONDIRENTRY
 ICONIMAGE
@@ -291,6 +296,7 @@ LEBOM
 lhs
 LIBYAML
 liv
+listsort
 liwpx
 localizationpriority
 localsource
@@ -345,6 +351,7 @@ minidump
 MINORVERSION
 missingdependency
 mkgmtime
+mmm
 MMmmbbbb
 MODULEENTRY
 mof
@@ -527,8 +534,10 @@ servercertificate
 setmetadatabymanifestid
 SETTINGCHANGE
 SETTINGMAPPING
+sev
 sfs
 sfsclient
+SGNR
 SHCONTF
 shellapi
 SHGDN
@@ -562,6 +571,7 @@ storeapps
 storeorigin
 STRRET
 stylecop
+SUBCHAN
 subdir
 subkey
 Sudarshan
@@ -587,6 +597,7 @@ Tlg
 tlhelp
 TLSCAs
 tombstoned
+tombstoning
 Toolhelp
 transitioning
 trimstart
@@ -627,11 +638,15 @@ uswgp
 uwp
 VALUENAMECASE
 vclib
+vcredist
 versioned
 VERSIONINFO
+VIWEC
 vns
+vscodeignore
 vsconfig
 vstest
+vswhere
 waitable
 wal
 wcex
@@ -659,6 +674,7 @@ wingetutil
 winreg
 winrtact
 winstring
+wintrust
 WMI
 wmmc
 wnd
@@ -674,12 +690,14 @@ wsb
 wsl
 wsv
 wto
+WVT
 wwinmain
 WZDNCRFJ
 xcopy
 Xes
 XFile
 XManifest
+Xms
 XMUGIWARAMODULE
 XName
 XPLATSTR
@@ -687,6 +705,7 @@ XRESOURCEZORO
 xsi
 yamato
 yao
+Zabcdefghijklmnopqrstuvwxyz
 Zanollo
 ZIPHASH
 zoro

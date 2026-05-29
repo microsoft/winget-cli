@@ -11,6 +11,8 @@
 #include <Shlobj.h>
 #include <compressapi.h>
 #include <concurrencysal.h>
+#include <SoftPub.h>
+#include <WinTrust.h>
 
 #define YAML_DECLARE_STATIC
 #include <yaml.h>

@@ -380,6 +380,8 @@
     <ClInclude Include="Rest\Schema\1_10\Json\ManifestDeserializer.h" />
     <ClInclude Include="Rest\Schema\1_12\Interface.h" />
     <ClInclude Include="Rest\Schema\1_12\Json\ManifestDeserializer.h" />
+    <ClInclude Include="Rest\Schema\1_28\Interface.h" />
+    <ClInclude Include="Rest\Schema\1_28\Json\ManifestDeserializer.h" />
     <ClInclude Include="Rest\Schema\1_1\Interface.h" />
     <ClInclude Include="Rest\Schema\1_1\Json\ManifestDeserializer.h" />
     <ClInclude Include="Rest\Schema\1_1\Json\SearchRequestSerializer.h" />
@@ -484,6 +486,8 @@
     <ClCompile Include="Rest\Schema\1_10\RestInterface_1_10.cpp" />
     <ClCompile Include="Rest\Schema\1_12\Json\ManifestDeserializer_1_12.cpp" />
     <ClCompile Include="Rest\Schema\1_12\RestInterface_1_12.cpp" />
+    <ClCompile Include="Rest\Schema\1_28\Json\ManifestDeserializer_1_28.cpp" />
+    <ClCompile Include="Rest\Schema\1_28\RestInterface_1_28.cpp" />
     <ClCompile Include="Rest\Schema\1_1\Json\ManifestDeserializer_1_1.cpp" />
     <ClCompile Include="Rest\Schema\1_1\Json\SearchRequestSerializer_1_1.cpp" />
     <ClCompile Include="Rest\Schema\1_1\RestInterface_1_1.cpp" />

@@ -14,11 +14,13 @@
 #include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerRuntime.h>
+#include <AppInstallerSHA256.h>
 #include <AppInstallerStrings.h>
 #include <winget/ExperimentalFeature.h>
 #include <winget/SelfManagement.h>
 #include <winget/PathTree.h>
 #include <winrt/Microsoft.Management.Configuration.h>
+#include <winget/Certificates.h>
 
 using namespace AppInstaller::CLI::Execution;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -104,16 +106,29 @@ namespace AppInstaller::CLI::Workflow
             return {
                 L"Microsoft.WinGet/",
                 L"Microsoft.WinGet.Dev/",
-                L"Microsoft.DSC.Debug/",
-                L"Microsoft.DSC/",
-                L"Microsoft.DSC.Transitional/",
-                L"Microsoft.Windows/RebootPending",
-                L"Microsoft.Windows/Registry",
-                L"Microsoft.Windows/WMI",
-                L"Microsoft.Windows/WindowsPowerShell",
-                L"Microsoft/OSInfo"
             };
         };
+
+        // Returns unit type prefixes that identify resources known to be shipped with DSC.
+        // These are used both to exclude the resources themselves and to discover the DSC
+        // installation location, so that any co-located resources are also excluded.
+        std::vector<std::wstring_view> DscShippedResourcePrefixes()
+        {
+            return {
+                L"Microsoft.DSC/",
+                L"Microsoft.DSC.Debug/",
+                L"Microsoft.DSC.Transitional/",
+                L"Microsoft/OSInfo",
+            };
+        }
+
+        // Returns unit type prefixes for DSC-shipped resources that are still allowed to
+        // appear in the exported configuration. All other DSC-shipped resources are excluded by default.
+        std::vector<std::wstring_view> DscShippedResourcesAllowList()
+        {
+            // Currently empty: all DSC-shipped resources are excluded from export by default.
+            return {};
+        }
 
         Logging::Level ConvertLevel(DiagnosticLevel level)
         {
@@ -127,6 +142,90 @@ namespace AppInstaller::CLI::Workflow
             }
 
             return Logging::Level::Info;
+        }
+
+        // Audit information gathered about a custom processor path.
+        struct ProcessorPathInfo
+        {
+            bool IsAlias = false;
+            std::string HashString;
+            std::string SigningSubject;
+        };
+
+        // Collects audit information for the given processor path.
+        // Throws on access failure so the caller is prevented from using an unverifiable path.
+        ProcessorPathInfo CollectProcessorPathInfo(const std::filesystem::path& processorPath)
+        {
+            ProcessorPathInfo result;
+            const std::wstring& pathStr = processorPath.wstring();
+
+            // Attempt to open the file for reading without FILE_FLAG_OPEN_REPARSE_POINT.
+            // App execution aliases (IO_REPARSE_TAG_APPEXECLINK) cannot be opened for reading
+            // this way and will fail with ERROR_CANT_ACCESS_FILE.
+            wil::unique_hfile fileHandle{ CreateFileW(
+                pathStr.c_str(),
+                GENERIC_READ,
+                FILE_SHARE_READ,
+                nullptr,
+                OPEN_EXISTING,
+                FILE_ATTRIBUTE_NORMAL,
+                nullptr) };
+
+            if (!fileHandle)
+            {
+                DWORD lastError = GetLastError();
+                THROW_WIN32_IF(lastError, lastError != ERROR_CANT_ACCESS_FILE);
+
+                // Re-open with FILE_FLAG_OPEN_REPARSE_POINT to inspect the reparse data.
+                wil::unique_hfile reparseHandle{ CreateFileW(
+                    pathStr.c_str(),
+                    0,
+                    FILE_SHARE_READ,
+                    nullptr,
+                    OPEN_EXISTING,
+                    FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS,
+                    nullptr) };
+                THROW_LAST_ERROR_IF(!reparseHandle);
+
+                // Retrieve the reparse point data.
+                std::vector<BYTE> reparseBuffer(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+                DWORD bytesReturned = 0;
+                THROW_LAST_ERROR_IF(!DeviceIoControl(
+                    reparseHandle.get(),
+                    FSCTL_GET_REPARSE_POINT,
+                    nullptr,
+                    0,
+                    reparseBuffer.data(),
+                    static_cast<DWORD>(reparseBuffer.size()),
+                    &bytesReturned,
+                    nullptr));
+
+                // Confirm it is specifically an app execution alias, not another reparse type.
+                THROW_HR_IF(E_INVALIDARG, bytesReturned < sizeof(DWORD));
+                DWORD reparseTag = *reinterpret_cast<DWORD*>(reparseBuffer.data());
+                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_REPARSE_TAG_MISMATCH), reparseTag != IO_REPARSE_TAG_APPEXECLINK);
+
+                result.IsAlias = true;
+                result.HashString = Utility::SHA256::ConvertToString(
+                    Utility::SHA256::ComputeHash(reparseBuffer.data(), bytesReturned));
+            }
+            else
+            {
+                // Regular file: hash the file bytes using the shared SHA256 utility.
+                result.HashString = Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHashFromHandle(fileHandle.get()));
+
+                // Attempt to extract signing info (handles both embedded and catalog signatures).
+                try
+                {
+                    result.SigningSubject = Certificates::GetAuthenticodeSubject(processorPath);
+                }
+                catch (...)
+                {
+                    AICLI_LOG(Config, Warning, << "Failed to retrieve signing info for processor path");
+                }
+            }
+
+            return result;
         }
 
         DiagnosticLevel ConvertLevel(Logging::Level level)
@@ -228,7 +327,40 @@ namespace AppInstaller::CLI::Workflow
 
                 if (context.Args.Contains(Args::Type::ConfigurationProcessorPath))
                 {
-                    factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePath), Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationProcessorPath)));
+                    progressScope.reset();
+
+                    const auto& processorPathArg = context.Args.GetArg(Args::Type::ConfigurationProcessorPath);
+                    std::filesystem::path processorPath{ Utility::ConvertToUTF16(processorPathArg) };
+
+                    // Collect audit information; throws if the path cannot be opened or hashed.
+                    auto pathInfo = anon::CollectProcessorPathInfo(processorPath);
+
+                    // Output audit information to the user as a warning since this is a non-default path.
+                    constexpr std::string_view s_indent = "  "sv;
+                    context.Reporter.Info() << Resource::String::ConfigurationProcessorPathAudit << std::endl;
+                    context.Reporter.Info() << s_indent << Resource::String::ConfigurationProcessorPathAuditPath(Utility::LocIndString{ processorPathArg }) << std::endl;
+                    context.Reporter.Info() << s_indent << Resource::String::ConfigurationProcessorPathAuditHash(Utility::LocIndString{ pathInfo.HashString }) << std::endl;
+                    if (pathInfo.IsAlias)
+                    {
+                        context.Reporter.Info() << s_indent << Resource::String::ConfigurationProcessorPathAuditIsAlias << std::endl;
+                    }
+                    else if (!pathInfo.SigningSubject.empty())
+                    {
+                        context.Reporter.Info() << s_indent << Resource::String::ConfigurationProcessorPathAuditSignature(Utility::LocIndString{ pathInfo.SigningSubject }) << std::endl;
+                    }
+                    else
+                    {
+                        context.Reporter.Info() << s_indent << Resource::String::ConfigurationProcessorPathAuditUnsigned << std::endl;
+                    }
+
+                    AICLI_LOG(Config, Info, << "Processor path audit - Path: " << processorPathArg << ", Hash: " << pathInfo.HashString << ", IsAlias: " << pathInfo.IsAlias);
+
+                    factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePath), processorPath.wstring());
+                    factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePathHash), Utility::ConvertToUTF16(pathInfo.HashString));
+                    factoryMap.Insert(ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DscExecutablePathIsAlias), pathInfo.IsAlias ? L"true" : L"false");
+
+                    progressScope = context.Reporter.BeginAsyncProgress(true);
+                    progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
                 }
                 else
                 {
@@ -1597,10 +1729,10 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        std::vector<IConfigurationUnitProcessorDetails> GetAllUnitProcessors(Execution::Context& context)
+        std::vector<IConfigurationUnitProcessorDetails3> GetAllUnitProcessors3(Execution::Context& context)
         {
             ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
-            std::vector<IConfigurationUnitProcessorDetails> result;
+            std::vector<IConfigurationUnitProcessorDetails3> result;
 
             // Only supported by dsc v3 processor.
             if (ConfigurationRemoting::ProcessorEngine::DSCv3 == ConfigurationRemoting::DetermineProcessorEngine(configContext.Set()))
@@ -1616,7 +1748,11 @@ namespace AppInstaller::CLI::Workflow
                     auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { findAction.Cancel(); });
                     for (auto unitProcessor : findAction.get())
                     {
-                        result.emplace_back(std::move(unitProcessor));
+                        IConfigurationUnitProcessorDetails3 processor3;
+                        if (unitProcessor.try_as(processor3))
+                        {
+                            result.emplace_back(std::move(processor3));
+                        }
                     }
                 }
 
@@ -1698,19 +1834,13 @@ namespace AppInstaller::CLI::Workflow
         struct UnitProcessorTree
         {
         private:
-            struct SourceAndPackage
-            {
-                PackageCollection::Source Source;
-                PackageCollection::Package Package;
-            };
-
             struct Node
             {
                 // Packages whose installed location is at this node
-                std::vector<SourceAndPackage> Packages;
+                std::vector<PackageCollection::Package> Packages;
 
                 // Units whose location is at this node.
-                std::vector<IConfigurationUnitProcessorDetails> Units;
+                std::vector<IConfigurationUnitProcessorDetails3> Units;
             };
 
             Filesystem::PathTree<Node> m_pathTree;
@@ -1722,33 +1852,29 @@ namespace AppInstaller::CLI::Workflow
             }
 
         public:
-            UnitProcessorTree(std::vector<IConfigurationUnitProcessorDetails>&& unitProcessors)
+            UnitProcessorTree(std::vector<IConfigurationUnitProcessorDetails3>&& unitProcessors)
             {
                 for (auto&& unit : unitProcessors)
                 {
-                    IConfigurationUnitProcessorDetails3 unitProcessor3;
-                    if (unit.try_as(unitProcessor3))
-                    {
-                        winrt::hstring unitPath = unitProcessor3.Path();
-                        AICLI_LOG(Config, Verbose, << "Found unit `" << Utility::ConvertToUTF8(unit.UnitType()) << "` at: " << Utility::ConvertToUTF8(unitPath));
-                        Node& node = FindNodeForFilePath(unitPath);
-                        node.Units.emplace_back(std::move(unit));
-                    }
+                    winrt::hstring unitPath = unit.Path();
+                    AICLI_LOG(Config, Verbose, << "Found unit `" << Utility::ConvertToUTF8(unit.UnitType()) << "` at: " << Utility::ConvertToUTF8(unitPath));
+                    Node& node = FindNodeForFilePath(unitPath);
+                    node.Units.emplace_back(std::move(unit));
                 }
             }
 
-            void PlacePackage(const PackageCollection::Source& source, const PackageCollection::Package& package)
+            void PlacePackage(const PackageCollection::Package& package)
             {
                 Node* node = m_pathTree.Find(package.InstalledLocation);
                 if (node)
                 {
-                    node->Packages.emplace_back(SourceAndPackage{ source, package });
+                    node->Packages.emplace_back(package);
                 }
             }
 
-            std::vector<IConfigurationUnitProcessorDetails> GetResourcesForPackage(const PackageCollection::Package& package) const
+            std::vector<IConfigurationUnitProcessorDetails3> GetResourcesForPackage(const PackageCollection::Package& package) const
             {
-                std::vector<IConfigurationUnitProcessorDetails> result;
+                std::vector<IConfigurationUnitProcessorDetails3> result;
 
                 m_pathTree.VisitIf(
                     package.InstalledLocation,
@@ -1775,10 +1901,10 @@ namespace AppInstaller::CLI::Workflow
             std::wstring packageUnitType = GetWinGetPackageUnitType(configContext);
 
             // This will be later used by per package settings export.
-            std::vector<IConfigurationUnitProcessorDetails> unitProcessors;
+            std::vector<IConfigurationUnitProcessorDetails3> unitProcessors;
             try
             {
-                unitProcessors = GetAllUnitProcessors(context);
+                unitProcessors = GetAllUnitProcessors3(context);
             }
             catch (...)
             {
@@ -1791,11 +1917,13 @@ namespace AppInstaller::CLI::Workflow
             // Filter out processors in exclusion list.
             for (auto itr = unitProcessors.begin(); itr != unitProcessors.end(); /* itr incremented in the logic */)
             {
+                std::wstring unitType{ itr->UnitType() };
                 bool processorRemoved = false;
                 for (const auto& exclusionItem : exclusionList)
                 {
-                    if (Utility::CaseInsensitiveStartsWith(itr->UnitType(), exclusionItem))
+                    if (Utility::CaseInsensitiveStartsWith(unitType, exclusionItem))
                     {
+                        AICLI_LOG(Config, Verbose, << "Filtering excluded resource `" << Utility::ConvertToUTF8(itr->UnitType()) << "` from export");
                         itr = unitProcessors.erase(itr);
                         processorRemoved = true;
                         break;
@@ -1808,6 +1936,87 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
+            // Filter out DSC-shipped resources and any resources co-located with them.
+            // First pass: find the parent directory of each known DSC resource to identify the DSC
+            // installation location(s), handling both packaged and unpackaged (PATH-based) DSC installs.
+            // Second pass: remove any resource that either matches a known DSC prefix or resides in one
+            // of those locations, unless the resource type appears in DscShippedResourcesAllowList().
+            {
+                const auto dscPrefixes = DscShippedResourcePrefixes();
+                const auto dscAllowList = DscShippedResourcesAllowList();
+
+                std::set<std::filesystem::path> dscLocations;
+                for (const auto& processor : unitProcessors)
+                {
+                    std::wstring unitType{ processor.UnitType() };
+                    for (const auto& prefix : dscPrefixes)
+                    {
+                        if (Utility::CaseInsensitiveStartsWith(unitType, prefix))
+                        {
+                            std::filesystem::path location = std::filesystem::weakly_canonical(
+                                std::filesystem::path{ std::wstring{ processor.Path() } }.parent_path());
+                            dscLocations.emplace(std::move(location));
+                            break;
+                        }
+                    }
+                }
+
+                for (auto itr = unitProcessors.begin(); itr != unitProcessors.end(); /* itr incremented in the logic */)
+                {
+                    std::wstring unitType{ itr->UnitType() };
+
+                    // Check the allow list first.
+                    bool inAllowList = false;
+                    for (const auto& allowedPrefix : dscAllowList)
+                    {
+                        if (Utility::CaseInsensitiveStartsWith(unitType, allowedPrefix))
+                        {
+                            inAllowList = true;
+                            break;
+                        }
+                    }
+
+                    if (inAllowList)
+                    {
+                        ++itr;
+                        continue;
+                    }
+
+                    // Check if the resource type is a known DSC-shipped prefix.
+                    bool isDscResource = false;
+                    for (const auto& prefix : dscPrefixes)
+                    {
+                        if (Utility::CaseInsensitiveStartsWith(unitType, prefix))
+                        {
+                            isDscResource = true;
+                            break;
+                        }
+                    }
+
+                    // If not matched by prefix, check whether it shares a location with a known DSC resource.
+                    if (!isDscResource && !dscLocations.empty())
+                    {
+                        std::filesystem::path location = std::filesystem::weakly_canonical(
+                            std::filesystem::path{ std::wstring{ itr->Path() } }.parent_path());
+
+                        if (dscLocations.find(location) != dscLocations.end())
+                        {
+                            isDscResource = true;
+                        }
+                    }
+
+                    if (isDscResource)
+                    {
+                        AICLI_LOG(Config, Verbose, << "Filtering DSC-shipped resource `" << Utility::ConvertToUTF8(itr->UnitType()) << "` from export");
+                        itr = unitProcessors.erase(itr);
+                    }
+                    else
+                    {
+                        ++itr;
+                    }
+                }
+            }
+
             // Build a tree of the unit processors and place packages onto it to indicate nearest ownership.
             UnitProcessorTree unitProcessorTree{ std::move(unitProcessors) };
 
@@ -1815,7 +2024,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 for (const auto& package : source.Packages)
                 {
-                    unitProcessorTree.PlacePackage(source, package);
+                    unitProcessorTree.PlacePackage(package);
                 }
             }
 

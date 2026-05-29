@@ -272,7 +272,7 @@ namespace AppInstaller::Repository
         std::string GetIdentifier() const;
 
         // Get the source's configuration details from settings.
-        SourceDetails GetDetails() const;
+        const SourceDetails& GetDetails() const;
 
         // Get the source's information.
         SourceInformation GetInformation() const;
@@ -293,6 +293,11 @@ namespace AppInstaller::Repository
         // Set authentication arguments. Must be set before Open to have effect.
         void SetAuthenticationArguments(Authentication::AuthenticationArguments args);
 
+        // Set a custom server certificate validation callback. Must be set before Open to have effect.
+        // Return true from the callback to accept the connection, false to reject.
+        // Only invoked when the certificate pinning group policy is not configured.
+        void SetServerCertificateValidationCallback(std::function<bool(PCCERT_CONTEXT)> callback);
+
         // Set thread globals. Must be set before Open to have effect.
         void SetThreadGlobals(const std::shared_ptr<ThreadLocalStorage::ThreadGlobals>& threadGlobals);
 
@@ -304,7 +309,7 @@ namespace AppInstaller::Repository
         void InstalledPackageInformationOnly(bool value);
 
         // Determines if this source refers to the given well known source.
-        bool IsWellKnownSource(WellKnownSource wellKnownSource);
+        bool IsWellKnownSource(WellKnownSource wellKnownSource) const;
 
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const;

@@ -35,6 +35,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::AuthenticationInfo AuthenticationInfo();
         // Contract 12.0
         winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RefreshPackageCatalogResult, double> RefreshPackageCatalogAsync();
+        // Contract 29
+        winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationHandler ConnectionValidationHandler();
+        void ConnectionValidationHandler(winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationHandler const& value);
+        bool IsConnectionValidationHandlerEnabled();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -50,6 +54,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::AuthenticationArguments m_authenticationArguments{ nullptr };
         std::once_flag m_authenticationInfoOnceFlag;
         winrt::Microsoft::Management::Deployment::AuthenticationInfo m_authenticationInfo{ nullptr };
+        winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationHandler m_connectionValidationHandler{ nullptr };
 #endif
     };
 }

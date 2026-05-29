@@ -85,6 +85,49 @@ namespace AppInstaller::CLI
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
     };
+
+    // Directly invokes a DSCv3 resource function through WinGet's infrastructure.
+    struct DebugDscResourceCommand final : public Command
+    {
+        DebugDscResourceCommand(std::string_view parent) : Command("dsc-resource", {}, parent) {}
+
+        std::vector<Argument> GetArguments() const override;
+
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
+
+    protected:
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
+
+    // Invokes signing information collection for a path.
+    struct GetSignerCommand final : public Command
+    {
+        GetSignerCommand(std::string_view parent) : Command("get-signer", {}, parent) {}
+
+        std::vector<Argument> GetArguments() const override;
+
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
+
+    protected:
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
+    
+    // Tests the log viewer extension by emitting logs that exercise all channels, levels, subchannels,
+    // continuation lines, long lines, and optionally a streaming follow mode.
+    struct LogViewerTestCommand final : public Command
+    {
+        LogViewerTestCommand(std::string_view parent) : Command("log-viewer", {}, parent) {}
+
+        std::vector<Argument> GetArguments() const override;
+
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
+
+    protected:
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
 }
 
 #endif

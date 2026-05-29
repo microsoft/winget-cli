@@ -50,6 +50,9 @@ The options allow you to customize the list experience to meet your needs.
 | **--upgrade-available** | Lists only packages which have an upgrade available. |
 | **-u,--unknown,--include-unknown** | List packages even if their current version cannot be determined. Can only be used with the --upgrade-available argument. |
 | **--pinned,--include-pinned** | List packages even if they have a pin that prevents upgrade. Can only be used with the --upgrade-available argument. |
+| **--sort** | Sort results by a property. Can be repeated for multi-field sorting (e.g., `--sort source --sort name`). Valid values: `name`, `id`, `version`, `source`, `available`, `relevance`. |
+| **--ascending,--asc** | Sort results in ascending order (default). |
+| **--descending,--desc** | Sort results in descending order. |
 | **-?,--help** | Get additional help on this command. |
 | **--wait** | Prompts the user to press any key before exiting. |
 | **--logs,--open-logs** | Open the default logs location. |
@@ -69,6 +72,42 @@ The following example lists all application by ID from a specific source.
 The following example limits the output of list to 9 apps.
 
 ![list count command](images/list-count.png)
+
+## Sorting output
+
+By default, results are sorted by name in ascending order. When a query argument is used (for example, `winget list foo`), results preserve relevance ordering from the package source. You can override either default through command-line arguments or user settings.
+
+### Sort via command-line arguments
+
+Use `--sort` to sort by one or more fields. When multiple `--sort` options are specified, results are sorted by the first field, then ties are broken by the second field, and so on.
+
+```cmd
+winget list --sort name
+winget list --sort source --sort name
+winget list --sort name --descending
+```
+
+### Sort via user settings
+
+You can set a default sort order in your [settings](https://aka.ms/winget-settings) under `output.sortOrder`:
+
+```json
+{
+    "output": {
+        "sortOrder": ["source", "name"]
+    }
+}
+```
+
+An empty array (`[]`) results in default sorting (sorted by name when listing, relevance preserved when querying).
+
+### Resolution order
+
+When both settings and command-line arguments are present, the following priority applies:
+
+1. **`--sort` command-line argument** — takes highest priority, overrides settings.
+2. **`output.sortOrder` in settings** — used when no `--sort` argument is provided. If the user has configured a sort order in settings, it is applied even when a query is present.
+3. **Default** — sorted by name in ascending order. When a query is used, relevance ordering is preserved instead.
 
 ## List with Update
 

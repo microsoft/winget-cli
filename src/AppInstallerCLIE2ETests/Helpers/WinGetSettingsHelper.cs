@@ -89,6 +89,24 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
+        /// Enables an admin setting.
+        /// </summary>
+        /// <param name="settingName">The admin setting name.</param>
+        public static void EnableAdminSetting(string settingName)
+        {
+            TestCommon.RunAICLICommand("settings", $"--enable {settingName}");
+        }
+
+        /// <summary>
+        /// Disables an admin setting.
+        /// </summary>
+        /// <param name="settingName">The admin setting name.</param>
+        public static void DisableAdminSetting(string settingName)
+        {
+            TestCommon.RunAICLICommand("settings", $"--disable {settingName}");
+        }
+
+        /// <summary>
         /// Configure experimental features.
         /// </summary>
         /// <param name="featureName">Feature name.</param>

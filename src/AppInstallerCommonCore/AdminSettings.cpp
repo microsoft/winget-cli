@@ -277,12 +277,12 @@ namespace AppInstaller::Settings
             return GroupPolicies().GetState(policy);
         }
 
-        std::optional<std::reference_wrapper<const std::string>> GetPolicyStateForSetting(StringAdminSetting setting)
+        std::optional<std::string> GetPolicyStateForSetting(StringAdminSetting setting)
         {
             switch (setting)
             {
             case AppInstaller::Settings::StringAdminSetting::DefaultProxy:
-                return GroupPolicies().GetValueRef<ValuePolicy::DefaultProxy>();
+                return GroupPolicies().GetValue<ValuePolicy::DefaultProxy>();
             default:
                 return std::nullopt;
             }

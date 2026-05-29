@@ -222,6 +222,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         public InstallerAuthentication Authentication { get; set; }
 
         /// <summary>
+        /// Gets or sets the desired state configuration info.
+        /// </summary>
+        public InstallerDesiredStateConfiguration DesiredStateConfiguration { get; set; }
+
+        /// <summary>
         /// Returns a List of strings containing the URIs contained within this installer.
         /// </summary>
         /// <returns>List of strings.</returns>
