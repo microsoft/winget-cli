@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="DSCv3AdminSettingsResourceCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -77,11 +77,11 @@ namespace AppInstallerCLIE2ETests
             AssertSuccessfulResourceRun(ref result);
 
             AdminSettingsResourceData output = GetSingleOutputLineAs<AdminSettingsResourceData>(result.StdOut);
-            Assert.IsNotNull(output);
-            Assert.IsNotNull(output.Settings);
-            Assert.IsTrue(output.Settings.ContainsKey(LocalManifestFiles));
-            Assert.IsFalse(output.Settings.ContainsKey(DefaultProxy));
-            Assert.IsFalse(output.Settings.ContainsKey(NotAnAdminSettingName));
+            Assert.That(output, Is.Not.Null);
+            Assert.That(output.Settings, Is.Not.Null);
+            Assert.That(output.Settings.ContainsKey(LocalManifestFiles), Is.True);
+            Assert.That(output.Settings.ContainsKey(DefaultProxy), Is.False);
+            Assert.That(output.Settings.ContainsKey(NotAnAdminSettingName), Is.False);
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace AppInstallerCLIE2ETests
             result = RunDSCv3Command(AdminSettingsResource, TestFunction, resourceData);
             AssertTestOfBoolSetting(ref result, settingName, false, false);
 
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("settings", $"--enable {settingName}").ExitCode);
+            Assert.That(TestCommon.RunAICLICommand("settings", $"--enable {settingName}").ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             resourceData.Settings[settingName] = false;
             result = RunDSCv3Command(AdminSettingsResource, TestFunction, resourceData);
@@ -136,7 +136,7 @@ namespace AppInstallerCLIE2ETests
             result = RunDSCv3Command(AdminSettingsResource, TestFunction, resourceData);
             AssertTestOfStringSetting(ref result, settingName, null, testValue);
 
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("settings set", $"{settingName} \"{testValue}\"").ExitCode);
+            Assert.That(TestCommon.RunAICLICommand("settings set", $"{settingName} \"{testValue}\"").ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             resourceData.Settings[settingName] = null;
             result = RunDSCv3Command(AdminSettingsResource, TestFunction, resourceData);
@@ -157,8 +157,8 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void AdminSettings_Test_Complex()
         {
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("settings", $"--enable {LocalArchiveMalwareScanOverride}").ExitCode);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("settings", $"--enable {LocalManifestFiles}").ExitCode);
+            Assert.That(TestCommon.RunAICLICommand("settings", $"--enable {LocalArchiveMalwareScanOverride}").ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(TestCommon.RunAICLICommand("settings", $"--enable {LocalManifestFiles}").ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             AdminSettingsResourceData resourceData = new AdminSettingsResourceData() { Settings = new JsonObject() };
             resourceData.Settings[LocalArchiveMalwareScanOverride] = true;
@@ -169,9 +169,9 @@ namespace AppInstallerCLIE2ETests
             AssertSuccessfulResourceRun(ref result);
 
             (AdminSettingsResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<AdminSettingsResourceData>(result.StdOut);
-            Assert.IsNotNull(output);
-            Assert.IsTrue(output.InDesiredState);
-            Assert.IsNotNull(output.Settings);
+            Assert.That(output, Is.Not.Null);
+            Assert.That(output.InDesiredState, Is.True);
+            Assert.That(output.Settings, Is.Not.Null);
 
             AssertDiffState(diff, []);
         }
@@ -254,11 +254,11 @@ namespace AppInstallerCLIE2ETests
             AssertSuccessfulResourceRun(ref result);
 
             (AdminSettingsResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<AdminSettingsResourceData>(result.StdOut);
-            Assert.IsNotNull(output);
-            Assert.IsNotNull(output.Settings);
-            Assert.AreEqual(JsonValueKind.True, output.Settings[LocalArchiveMalwareScanOverride].AsValue().GetValueKind());
-            Assert.AreEqual(JsonValueKind.False, output.Settings[BypassCertificatePinningForMicrosoftStore].AsValue().GetValueKind());
-            Assert.AreEqual(testValue, output.Settings[DefaultProxy].AsValue().GetValue<string>());
+            Assert.That(output, Is.Not.Null);
+            Assert.That(output.Settings, Is.Not.Null);
+            Assert.That(output.Settings[LocalArchiveMalwareScanOverride].AsValue().GetValueKind(), Is.EqualTo(JsonValueKind.True));
+            Assert.That(output.Settings[BypassCertificatePinningForMicrosoftStore].AsValue().GetValueKind(), Is.EqualTo(JsonValueKind.False));
+            Assert.That(output.Settings[DefaultProxy].AsValue().GetValue<string>(), Is.EqualTo(testValue));
 
             AssertDiffState(diff, [ SettingsPropertyName ]);
         }
@@ -275,12 +275,12 @@ namespace AppInstallerCLIE2ETests
             resourceData.Settings[InstallerHashOverride] = true;
 
             var result = RunDSCv3Command(AdminSettingsResource, SetFunction, resourceData);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
         }
 
         private static void ResetAllSettings()
         {
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("settings reset", "--all").ExitCode);
+            Assert.That(TestCommon.RunAICLICommand("settings reset", "--all").ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
         }
 
         private static void AssertTestOfBoolSetting(ref TestCommon.RunCommandResult result, string settingName, bool expectedState, bool testState)
@@ -290,11 +290,11 @@ namespace AppInstallerCLIE2ETests
             bool inDesiredState = expectedState == testState;
 
             (AdminSettingsResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<AdminSettingsResourceData>(result.StdOut);
-            Assert.IsNotNull(output);
-            Assert.AreEqual(inDesiredState, output.InDesiredState);
-            Assert.IsNotNull(output.Settings);
-            Assert.IsTrue(output.Settings.ContainsKey(settingName));
-            Assert.AreEqual(expectedState ? JsonValueKind.True : JsonValueKind.False, output.Settings[settingName].AsValue().GetValueKind());
+            Assert.That(output, Is.Not.Null);
+            Assert.That(output.InDesiredState, Is.EqualTo(inDesiredState));
+            Assert.That(output.Settings, Is.Not.Null);
+            Assert.That(output.Settings.ContainsKey(settingName), Is.True);
+            Assert.That(output.Settings[settingName].AsValue().GetValueKind(), Is.EqualTo(expectedState ? JsonValueKind.True : JsonValueKind.False));
 
             AssertDiffState(diff, inDesiredState ? [] : [ SettingsPropertyName ]);
         }
@@ -306,10 +306,10 @@ namespace AppInstallerCLIE2ETests
             bool inDesiredState = previousState == desiredState;
 
             (AdminSettingsResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<AdminSettingsResourceData>(result.StdOut);
-            Assert.IsNotNull(output);
-            Assert.IsNotNull(output.Settings);
-            Assert.IsTrue(output.Settings.ContainsKey(settingName));
-            Assert.AreEqual(desiredState ? JsonValueKind.True : JsonValueKind.False, output.Settings[settingName].AsValue().GetValueKind());
+            Assert.That(output, Is.Not.Null);
+            Assert.That(output.Settings, Is.Not.Null);
+            Assert.That(output.Settings.ContainsKey(settingName), Is.True);
+            Assert.That(output.Settings[settingName].AsValue().GetValueKind(), Is.EqualTo(desiredState ? JsonValueKind.True : JsonValueKind.False));
 
             AssertDiffState(diff, inDesiredState ? [] : [ SettingsPropertyName ]);
         }
@@ -321,17 +321,17 @@ namespace AppInstallerCLIE2ETests
             bool inDesiredState = expectedState == testState;
 
             (AdminSettingsResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<AdminSettingsResourceData>(result.StdOut);
-            Assert.IsNotNull(output);
-            Assert.AreEqual(inDesiredState, output.InDesiredState);
-            Assert.IsNotNull(output.Settings);
+            Assert.That(output, Is.Not.Null);
+            Assert.That(output.InDesiredState, Is.EqualTo(inDesiredState));
+            Assert.That(output.Settings, Is.Not.Null);
             if (expectedState != null)
             {
-                Assert.IsTrue(output.Settings.ContainsKey(settingName));
-                Assert.AreEqual(expectedState, output.Settings[settingName].AsValue().GetValue<string>());
+                Assert.That(output.Settings.ContainsKey(settingName), Is.True);
+                Assert.That(output.Settings[settingName].AsValue().GetValue<string>(), Is.EqualTo(expectedState));
             }
             else
             {
-                Assert.IsFalse(output.Settings.ContainsKey(settingName));
+                Assert.That(output.Settings.ContainsKey(settingName), Is.False);
             }
 
             AssertDiffState(diff, inDesiredState ? [] : [SettingsPropertyName]);
@@ -344,16 +344,16 @@ namespace AppInstallerCLIE2ETests
             bool inDesiredState = previousState == desiredState;
 
             (AdminSettingsResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<AdminSettingsResourceData>(result.StdOut);
-            Assert.IsNotNull(output);
-            Assert.IsNotNull(output.Settings);
+            Assert.That(output, Is.Not.Null);
+            Assert.That(output.Settings, Is.Not.Null);
             if (desiredState != null)
             {
-                Assert.IsTrue(output.Settings.ContainsKey(settingName));
-                Assert.AreEqual(desiredState, output.Settings[settingName].AsValue().GetValue<string>());
+                Assert.That(output.Settings.ContainsKey(settingName), Is.True);
+                Assert.That(output.Settings[settingName].AsValue().GetValue<string>(), Is.EqualTo(desiredState));
             }
             else
             {
-                Assert.IsFalse(output.Settings.ContainsKey(settingName));
+                Assert.That(output.Settings.ContainsKey(settingName), Is.False);
             }
 
             AssertDiffState(diff, inDesiredState ? [] : [SettingsPropertyName]);

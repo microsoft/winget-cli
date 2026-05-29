@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="RepairCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -39,8 +39,8 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMsiRepair --silent -l {installDir}");
 
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
 
             // Note: The 'msiexec repair' command requires the original installer file to be present at the location registered in the ARP (Add/Remove Programs).
             // In our test scenario, the MSI installer file is initially placed in a temporary location and then deleted, which can cause the repair operation to fail.
@@ -50,9 +50,9 @@ namespace AppInstallerCLIE2ETests
             string installerSourceDir = TestCommon.CopyInstallerFileToARPInstallSourceDirectory(TestCommon.GetTestDataFile("AppInstallerTestMsiInstallerV2.msi"), Constants.MsiInstallerProductCode, true);
 
             result = TestCommon.RunAICLICommand("repair", "AppInstallerTest.TestMsiRepair");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Repair operation completed successfully"));
-            Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(installDir));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Repair operation completed successfully"), Is.True);
+            Assert.That(TestCommon.VerifyTestMsiInstalledAndCleanup(installDir), Is.True);
 
             if (installerSourceDir != null && Directory.Exists(installerSourceDir))
             {
@@ -70,13 +70,13 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMsixInstaller --silent -l {installDir}");
 
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
 
             result = TestCommon.RunAICLICommand("repair", "AppInstallerTest.TestMsixInstaller");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Repair operation completed successfully"));
-            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Repair operation completed successfully"), Is.True);
+            Assert.That(TestCommon.VerifyTestMsixInstalledAndCleanup(), Is.True);
         }
 
         /// <summary>
@@ -94,11 +94,11 @@ namespace AppInstallerCLIE2ETests
                 Assert.Ignore("Test skipped as Microsoft.Paint_8wekyb3d8bbwe is not installed.");
             }
 
-            Assert.True(result.StdOut.Contains("Microsoft.Paint"));
+            Assert.That(result.StdOut.Contains("Microsoft.Paint"), Is.True);
 
             result = TestCommon.RunAICLICommand("repair", "Microsoft.Paint_8wekyb3d8bbwe --scope machine");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_SYSTEM_NOT_SUPPORTED, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The current system configuration does not support the repair of this package."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
+            Assert.That(result.StdOut.Contains("The current system configuration does not support the repair of this package."), Is.True);
         }
 
         /// <summary>
@@ -111,13 +111,13 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestModifyRepair -v 2.0.0.0 --silent -l {installDir}");
 
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
 
             result = TestCommon.RunAICLICommand("repair", "AppInstallerTest.TestModifyRepair");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Repair operation completed successfully"));
-            Assert.True(TestCommon.VerifyTestExeRepairCompletedAndCleanup(installDir, "Modify Repair operation"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Repair operation completed successfully"), Is.True);
+            Assert.That(TestCommon.VerifyTestExeRepairCompletedAndCleanup(installDir, "Modify Repair operation"), Is.True);
         }
 
         /// <summary>
@@ -130,12 +130,12 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestUserScopeInstallRepairInAdminContext -v 2.0.0.0 --silent -l {installDir}");
 
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
 
             result = TestCommon.RunAICLICommand("repair", "AppInstallerTest.TestUserScopeInstallRepairInAdminContext");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The package installed for user scope cannot be repaired when running with administrator privileges."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED));
+            Assert.That(result.StdOut.Contains("The package installed for user scope cannot be repaired when running with administrator privileges."), Is.True);
             TestCommon.CleanupTestExeAndDirectory(installDir);
         }
 
@@ -149,12 +149,12 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMissingRepairBehavior -v 2.0.0.0 --silent -l {installDir}");
 
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
 
             result = TestCommon.RunAICLICommand("repair", "AppInstallerTest.TestMissingRepairBehavior");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_REPAIR_INFO_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The repair command for this package cannot be found. Please reach out to the package publisher for support."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_REPAIR_INFO_FOUND));
+            Assert.That(result.StdOut.Contains("The repair command for this package cannot be found. Please reach out to the package publisher for support."), Is.True);
             TestCommon.CleanupTestExeAndDirectory(installDir);
         }
 
@@ -168,12 +168,12 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestModifyRepairWithNoModify -v 2.0.0.0 --silent -l {installDir}");
 
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
 
             result = TestCommon.RunAICLICommand("repair", "AppInstallerTest.TestModifyRepairWithNoModify");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_REPAIR_NOT_SUPPORTED, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The installer technology in use does not support repair."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_REPAIR_NOT_SUPPORTED));
+            Assert.That(result.StdOut.Contains("The installer technology in use does not support repair."), Is.True);
             TestCommon.CleanupTestExeAndDirectory(installDir);
         }
 
@@ -190,12 +190,12 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
 
             result = TestCommon.RunAICLICommand("repair", "AppInstallerTest.TestPortableExe");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_REPAIR_NOT_SUPPORTED, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The installer technology in use does not support repair."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_REPAIR_NOT_SUPPORTED));
+            Assert.That(result.StdOut.Contains("The installer technology in use does not support repair."), Is.True);
 
             // If no location specified, default behavior is to create a package directory with the name "{packageId}_{sourceId}"
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
@@ -211,13 +211,13 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.UninstallerRepair -v 2.0.0.0 --silent -l {installDir}");
 
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
 
             result = TestCommon.RunAICLICommand("repair", "AppInstallerTest.UninstallerRepair");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Repair operation completed successfully"));
-            Assert.True(TestCommon.VerifyTestExeRepairCompletedAndCleanup(installDir, "Uninstaller Repair operation"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Repair operation completed successfully"), Is.True);
+            Assert.That(TestCommon.VerifyTestExeRepairCompletedAndCleanup(installDir, "Uninstaller Repair operation"), Is.True);
         }
 
         /// <summary>
@@ -230,12 +230,12 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.UninstallerRepairWithNoRepair -v 2.0.0.0 --silent -l {installDir}");
 
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
 
             result = TestCommon.RunAICLICommand("repair", "AppInstallerTest.UninstallerRepairWithNoRepair");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_REPAIR_NOT_SUPPORTED, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The installer technology in use does not support repair."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_REPAIR_NOT_SUPPORTED));
+            Assert.That(result.StdOut.Contains("The installer technology in use does not support repair."), Is.True);
             TestCommon.CleanupTestExeAndDirectory(installDir);
         }
 
@@ -249,13 +249,13 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.UninstallerRepair -v 2.0.0.0 --silent -l {installDir}");
 
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
 
             result = TestCommon.RunAICLICommand("repair", "AppInstallerTest.UninstallerRepair");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Repair operation completed successfully"));
-            Assert.True(TestCommon.VerifyTestExeRepairCompletedAndCleanup(installDir, "Uninstaller Repair operation"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Repair operation completed successfully"), Is.True);
+            Assert.That(TestCommon.VerifyTestExeRepairCompletedAndCleanup(installDir, "Uninstaller Repair operation"), Is.True);
         }
 
         /// <summary>
@@ -268,13 +268,13 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestInstallerRepair -v 2.0.0.0 --silent -l {installDir}");
 
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
 
             result = TestCommon.RunAICLICommand("repair", "AppInstallerTest.TestInstallerRepair");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Repair operation completed successfully"));
-            Assert.True(TestCommon.VerifyTestExeRepairCompletedAndCleanup(installDir, "Installer Repair operation"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Repair operation completed successfully"), Is.True);
+            Assert.That(TestCommon.VerifyTestExeRepairCompletedAndCleanup(installDir, "Installer Repair operation"), Is.True);
         }
     }
 }

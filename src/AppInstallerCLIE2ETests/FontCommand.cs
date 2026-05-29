@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="FontCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -32,12 +32,12 @@ namespace AppInstallerCLIE2ETests
             var fontPackageName = "AppInstallerTest.TestFont";
             var fontPackageVersion = "1.0.0.0";
             var installResult = TestCommon.RunAICLICommand("install", fontPackageName);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
-            Assert.True(installResult.StdOut.Contains("Successfully installed"));
+            Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installResult.StdOut.Contains("Successfully installed"), Is.True);
             TestCommon.VerifyFontPackage(fontPackageName, fontPackageVersion, TestCommon.Scope.User);
 
             var uninstallResult = TestCommon.RunAICLICommand("uninstall", fontPackageName);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, uninstallResult.ExitCode);
+            Assert.That(uninstallResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
             TestCommon.VerifyFontPackage(fontPackageName, fontPackageVersion, TestCommon.Scope.User, false);
         }
 
@@ -50,12 +50,12 @@ namespace AppInstallerCLIE2ETests
             var fontPackageName = "AppInstallerTest.TestFont";
             var fontPackageVersion = "1.0.0.0";
             var result = TestCommon.RunAICLICommand("install", $"{fontPackageName} --scope Machine");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
             TestCommon.VerifyFontPackage(fontPackageName, fontPackageVersion, TestCommon.Scope.Machine);
 
             var uninstallResult = TestCommon.RunAICLICommand("uninstall", fontPackageName);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, uninstallResult.ExitCode);
+            Assert.That(uninstallResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
             TestCommon.VerifyFontPackage(fontPackageName, fontPackageVersion, TestCommon.Scope.Machine, false);
         }
 
@@ -66,8 +66,8 @@ namespace AppInstallerCLIE2ETests
         public void InstallInvalidFont()
         {
             var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestInvalidFont");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_FONT_FILE_NOT_SUPPORTED, result.ExitCode);
-            Assert.True(result.StdOut.Contains("One or more fonts in the font package is not supported and cannot be installed."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_FONT_FILE_NOT_SUPPORTED));
+            Assert.That(result.StdOut.Contains("One or more fonts in the font package is not supported and cannot be installed."), Is.True);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+﻿﻿// -----------------------------------------------------------------------------
 // <copyright file="WinGetUtilInstallerMetadataCollection.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -34,8 +34,8 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                 WinGetUtilWrapper.WinGetBeginInstallerMetadataCollectionOptions.WinGetBeginInstallerMetadataCollectionOption_InputIsFilePath,
                 out IntPtr collectionHandle);
 
-            Assert.AreNotEqual(IntPtr.Zero, collectionHandle);
-            Assert.True(File.Exists(logFilePath));
+            Assert.That(collectionHandle, Is.Not.EqualTo(IntPtr.Zero));
+            Assert.That(File.Exists(logFilePath), Is.True);
 
             WinGetUtilWrapper.WinGetCompleteInstallerMetadataCollection(
                 collectionHandle,
@@ -43,7 +43,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                 WinGetUtilWrapper.WinGetCompleteInstallerMetadataCollectionOptions.WinGetCompleteInstallerMetadataCollectionOption_None);
 
             string outputJson = File.ReadAllText(outputFilePath);
-            Assert.IsNotEmpty(JsonConvert.DeserializeObject(outputJson).ToString());
+            Assert.That(JsonConvert.DeserializeObject(outputJson).ToString(), Is.Not.Empty);
         }
 
         /// <summary>
@@ -63,8 +63,8 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                logFilePath,
                WinGetUtilWrapper.WinGetMergeInstallerMetadataOptions.WinGetMergeInstallerMetadataOptions_None);
 
-            Assert.True(File.Exists(logFilePath));
-            Assert.IsNotEmpty(JsonConvert.DeserializeObject(outputJson).ToString());
+            Assert.That(File.Exists(logFilePath), Is.True);
+            Assert.That(JsonConvert.DeserializeObject(outputJson).ToString(), Is.Not.Empty);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             string inputJsonPath = TestCommon.GetTestDataFile(@"WinGetUtil\InstallerMetadata\MergeSubmissionMismatch.json");
             string inputJson = File.ReadAllText(inputJsonPath);
 
-            Assert.Throws<COMException>(() =>
+            Assert.That((Action)(() =>
             {
                 WinGetUtilWrapper.WinGetMergeInstallerMetadata(
                    inputJson,
@@ -85,9 +85,9 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                    0,
                    logFilePath,
                    WinGetUtilWrapper.WinGetMergeInstallerMetadataOptions.WinGetMergeInstallerMetadataOptions_None);
-            });
+            }), Throws.TypeOf<COMException>());
 
-            Assert.True(File.Exists(logFilePath));
+            Assert.That(File.Exists(logFilePath), Is.True);
         }
     }
 }

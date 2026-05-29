@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+﻿﻿// -----------------------------------------------------------------------------
 // <copyright file="WinGetUtilDownload.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -30,8 +30,8 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             // Download
             WinGetUtilWrapper.WinGetDownload(installerUrl, filePath, sha256Hash, hashSize);
 
-            Assert.True(File.Exists(filePath));
-            Assert.False(sha256Hash.All(byteVal => byteVal == 0));
+            Assert.That(File.Exists(filePath), Is.True);
+            Assert.That(sha256Hash.All(byteVal => byteVal == 0), Is.False);
         }
     }
 }

@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="ResumeCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -47,14 +47,14 @@ namespace AppInstallerCLIE2ETests
 
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"), Is.True);
 
             int actualCheckpointsCount = Directory.GetFiles(checkpointsDir).Length;
 
             // The checkpoints count should not change as the index file should be cleaned up after a successful install.
-            Assert.AreEqual(initialCheckpointsCount, actualCheckpointsCount);
+            Assert.That(actualCheckpointsCount, Is.EqualTo(initialCheckpointsCount));
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace AppInstallerCLIE2ETests
         public void ResumeIdNotFound()
         {
             var resumeResult = TestCommon.RunAICLICommand("resume", "-g invalidResumeId");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_RESUME_ID_NOT_FOUND, resumeResult.ExitCode);
+            Assert.That(resumeResult.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_RESUME_ID_NOT_FOUND));
         }
 
         /// <summary>
@@ -80,14 +80,14 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"TestRebootRequired --custom \"/ExitCode 9\" -l {installDir}");
 
             // REBOOT_REQUIRED_TO_FINISH is treated as a success.
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Restart your PC to finish installation."));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Restart your PC to finish installation."), Is.True);
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), Is.True);
 
             int actualCheckpointsCount = Directory.GetDirectories(checkpointsDir).Length;
 
             // Checkpoint database should be cleaned up since resume is not needed to complete installation.
-            Assert.AreEqual(initialCheckpointsCount, actualCheckpointsCount);
+            Assert.That(actualCheckpointsCount, Is.EqualTo(initialCheckpointsCount));
         }
 
         /// <summary>
@@ -102,12 +102,12 @@ namespace AppInstallerCLIE2ETests
 
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"TestRebootRequired --custom \"/ExitCode 10\" -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Your PC will restart to finish installation."));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL));
+            Assert.That(result.StdOut.Contains("Your PC will restart to finish installation."), Is.True);
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), Is.True);
 
             int actualCheckpointsCount = Directory.GetDirectories(checkpointsDir).Length;
-            Assert.AreEqual(initialCheckpointsCount + 1, actualCheckpointsCount);
+            Assert.That(actualCheckpointsCount, Is.EqualTo(initialCheckpointsCount + 1));
 
             var checkpointsDirectoryInfo = new DirectoryInfo(checkpointsDir);
 
@@ -117,9 +117,9 @@ namespace AppInstallerCLIE2ETests
 
             // Resume output should be the same as the install result.
             var resumeResult = TestCommon.RunAICLICommand("resume", $"-g {checkpoint.Name}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL, resumeResult.ExitCode);
-            Assert.True(resumeResult.StdOut.Contains("Your PC will restart to finish installation."));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
+            Assert.That(resumeResult.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL));
+            Assert.That(resumeResult.StdOut.Contains("Your PC will restart to finish installation."), Is.True);
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), Is.True);
         }
     }
 }

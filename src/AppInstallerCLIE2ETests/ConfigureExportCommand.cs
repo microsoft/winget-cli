@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="ConfigureExportCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -60,23 +60,23 @@ namespace AppInstallerCLIE2ETests
             var exportDir = TestCommon.GetRandomTestDir();
             var exportFile = Path.Combine(exportDir, "exported.yml");
             var result = TestCommon.RunAICLICommand(Command, $"--package-id AppInstallerTest.TestPackageExport -o {exportFile}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(File.Exists(exportFile));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(File.Exists(exportFile), Is.True);
 
             // Check exported file is readable and validate content
             var showResult = TestCommon.RunAICLICommand(ShowCommand, $"-f {exportFile}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, showResult.ExitCode);
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Source"));
-            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_{Constants.TestSourceType}]"));
-            Assert.True(showResult.StdOut.Contains($"type: {Constants.TestSourceType}"));
-            Assert.True(showResult.StdOut.Contains($"argument: {Constants.TestSourceUrl}"));
-            Assert.True(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"));
+            Assert.That(showResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Source"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"[{Constants.TestSourceName}_{Constants.TestSourceType}]"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"type: {Constants.TestSourceType}"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"argument: {Constants.TestSourceUrl}"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"), Is.True);
 
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Package"));
-            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"));
-            Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"));
-            Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"));
-            Assert.True(showResult.StdOut.Contains($"source: {Constants.TestSourceName}"));
+            Assert.That(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Package"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"), Is.True);
+            Assert.That(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"source: {Constants.TestSourceName}"), Is.True);
         }
 
         /// <summary>
@@ -88,27 +88,27 @@ namespace AppInstallerCLIE2ETests
             var exportDir = TestCommon.GetRandomTestDir();
             var exportFile = Path.Combine(exportDir, "exported.yml");
             var result = TestCommon.RunAICLICommand(Command, $"--package-id AppInstallerTest.TestPackageExport --module AppInstallerTest --resource TestResource -o {exportFile}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(File.Exists(exportFile));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(File.Exists(exportFile), Is.True);
 
             // Check exported file is readable and validate content
             var showResult = TestCommon.RunAICLICommand(ShowCommand, $"-f {exportFile}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, showResult.ExitCode);
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Source"));
-            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_{Constants.TestSourceType}]"));
-            Assert.True(showResult.StdOut.Contains($"type: {Constants.TestSourceType}"));
-            Assert.True(showResult.StdOut.Contains($"argument: {Constants.TestSourceUrl}"));
-            Assert.True(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"));
+            Assert.That(showResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Source"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"[{Constants.TestSourceName}_{Constants.TestSourceType}]"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"type: {Constants.TestSourceType}"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"argument: {Constants.TestSourceUrl}"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"), Is.True);
 
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Package"));
-            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"));
-            Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"));
-            Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"));
-            Assert.True(showResult.StdOut.Contains($"source: {Constants.TestSourceName}"));
+            Assert.That(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Package"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"), Is.True);
+            Assert.That(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"source: {Constants.TestSourceName}"), Is.True);
 
-            Assert.True(showResult.StdOut.Contains("AppInstallerTest/TestResource"));
-            Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_AppInstallerTest.TestPackageExport"));
-            Assert.True(showResult.StdOut.Contains("data: TestData"));
+            Assert.That(showResult.StdOut.Contains("AppInstallerTest/TestResource"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_AppInstallerTest.TestPackageExport"), Is.True);
+            Assert.That(showResult.StdOut.Contains("data: TestData"), Is.True);
         }
 
         /// <summary>
@@ -120,24 +120,24 @@ namespace AppInstallerCLIE2ETests
             var exportDir = TestCommon.GetRandomTestDir();
             var exportFile = Path.Combine(exportDir, "exported.yml");
             var result = TestCommon.RunAICLICommand(Command, $"--package-id AppInstallerTest.TestPackageExport --include-versions -o {exportFile}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(File.Exists(exportFile));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(File.Exists(exportFile), Is.True);
 
             // Check exported file is readable and validate content
             var showResult = TestCommon.RunAICLICommand(ShowCommand, $"-f {exportFile}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, showResult.ExitCode);
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Source"));
-            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_{Constants.TestSourceType}]"));
-            Assert.True(showResult.StdOut.Contains($"type: {Constants.TestSourceType}"));
-            Assert.True(showResult.StdOut.Contains($"argument: {Constants.TestSourceUrl}"));
-            Assert.True(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"));
+            Assert.That(showResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Source"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"[{Constants.TestSourceName}_{Constants.TestSourceType}]"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"type: {Constants.TestSourceType}"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"argument: {Constants.TestSourceUrl}"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"), Is.True);
 
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Package"));
-            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"));
-            Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"));
-            Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"));
-            Assert.True(showResult.StdOut.Contains($"source: {Constants.TestSourceName}"));
-            Assert.True(showResult.StdOut.Contains("version: 1.0.0.0"));
+            Assert.That(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Package"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"), Is.True);
+            Assert.That(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"source: {Constants.TestSourceName}"), Is.True);
+            Assert.That(showResult.StdOut.Contains("version: 1.0.0.0"), Is.True);
         }
 
         /// <summary>
@@ -150,38 +150,38 @@ namespace AppInstallerCLIE2ETests
             var exportDir = TestCommon.GetRandomTestDir();
             var exportFile = Path.Combine(exportDir, "exported.yml");
             var result = TestCommon.RunAICLICommand(Command, $"--all --verbose -o {exportFile}", timeOut: 1200000);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(File.Exists(exportFile));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(File.Exists(exportFile), Is.True);
 
             // Check exported file is readable and validate content
             var showResult = TestCommon.RunAICLICommand(ShowCommand, $"-f {exportFile}", timeOut: 1200000);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, showResult.ExitCode);
+            Assert.That(showResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
-            Assert.True(showResult.StdOut.Contains("Microsoft.PowerShell"));
+            Assert.That(showResult.StdOut.Contains("Microsoft.PowerShell"), Is.True);
 
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/UserSettingsFile"));
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/AdminSettings"));
-            Assert.True(showResult.StdOut.Contains("Microsoft.Windows.Settings/WindowsSettings"));
+            Assert.That(showResult.StdOut.Contains("Microsoft.WinGet.Dev/UserSettingsFile"), Is.True);
+            Assert.That(showResult.StdOut.Contains("Microsoft.WinGet.Dev/AdminSettings"), Is.True);
+            Assert.That(showResult.StdOut.Contains("Microsoft.Windows.Settings/WindowsSettings"), Is.True);
 
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Source"));
-            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_{Constants.TestSourceType}]"));
-            Assert.True(showResult.StdOut.Contains($"type: {Constants.TestSourceType}"));
-            Assert.True(showResult.StdOut.Contains($"argument: {Constants.TestSourceUrl}"));
-            Assert.True(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"));
+            Assert.That(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Source"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"[{Constants.TestSourceName}_{Constants.TestSourceType}]"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"type: {Constants.TestSourceType}"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"argument: {Constants.TestSourceUrl}"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"name: {Constants.TestSourceName}"), Is.True);
 
-            Assert.True(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Package"));
-            Assert.True(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"));
-            Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"));
-            Assert.True(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"));
-            Assert.True(showResult.StdOut.Contains($"source: {Constants.TestSourceName}"));
+            Assert.That(showResult.StdOut.Contains("Microsoft.WinGet.Dev/Package"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"[{Constants.TestSourceName}_AppInstallerTest.TestPackageExport]"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_{Constants.TestSourceType}"), Is.True);
+            Assert.That(showResult.StdOut.Contains("id: AppInstallerTest.TestPackageExport"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"source: {Constants.TestSourceName}"), Is.True);
 
-            Assert.True(showResult.StdOut.Contains("AppInstallerTest/TestResource"));
-            Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_AppInstallerTest.TestPackageExport"));
-            Assert.True(showResult.StdOut.Contains("data: TestData"));
+            Assert.That(showResult.StdOut.Contains("AppInstallerTest/TestResource"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_AppInstallerTest.TestPackageExport"), Is.True);
+            Assert.That(showResult.StdOut.Contains("data: TestData"), Is.True);
 
-            Assert.True(showResult.StdOut.Contains("AppInstallerTest/TestResource_SubDirectory"));
-            Assert.True(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_AppInstallerTest.TestPackageExport"));
-            Assert.True(showResult.StdOut.Contains("data: TestData"));
+            Assert.That(showResult.StdOut.Contains("AppInstallerTest/TestResource_SubDirectory"), Is.True);
+            Assert.That(showResult.StdOut.Contains($"Dependencies: {Constants.TestSourceName}_AppInstallerTest.TestPackageExport"), Is.True);
+            Assert.That(showResult.StdOut.Contains("data: TestData"), Is.True);
         }
 
         /// <summary>
@@ -193,7 +193,7 @@ namespace AppInstallerCLIE2ETests
             var exportDir = TestCommon.GetRandomTestDir();
             var exportFile = Path.Combine(exportDir, "exported.yml");
             var result = TestCommon.RunAICLICommand(Command, $"--package-id NotFound.NotFound -o {exportFile}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace AppInstallerCLIE2ETests
             var exportDir = TestCommon.GetRandomTestDir();
             var exportFile = Path.Combine(exportDir, "exported.yml");
             var result = TestCommon.RunAICLICommand(Command, $"--all --package-id AppInstallerTest.TestPackageExport -o {exportFile}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS));
         }
     }
 }

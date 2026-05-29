@@ -76,20 +76,17 @@ namespace AppInstallerCLIE2ETests.Interop
 
             var connectResult = catalogRef.Connect();
 
-            Assert.IsNotNull(connectResult);
-            Assert.AreEqual(ConnectResultStatus.Ok, connectResult.Status, "Connect should succeed when handler returns Ok.");
-            Assert.IsNotNull(connectResult.PackageCatalog, "PackageCatalog should be non-null on success.");
-            Assert.IsNotNull(receivedCertDer, "Handler should have been called with a non-null certificate.");
+            Assert.That(connectResult, Is.Not.Null);
+            Assert.That(connectResult.Status, Is.EqualTo(ConnectResultStatus.Ok), "Connect should succeed when handler returns Ok.");
+            Assert.That(connectResult.PackageCatalog, Is.Not.Null, "PackageCatalog should be non-null on success.");
+            Assert.That(receivedCertDer, Is.Not.Null, "Handler should have been called with a non-null certificate.");
 
             // Verify the received certificate matches the test server's known certificate.
             if (!string.IsNullOrEmpty(TestSetup.Parameters.LocalServerCertPath) &&
                 File.Exists(TestSetup.Parameters.LocalServerCertPath))
             {
                 byte[] expectedCertDer = File.ReadAllBytes(TestSetup.Parameters.LocalServerCertPath);
-                Assert.AreEqual(
-                    expectedCertDer,
-                    receivedCertDer,
-                    "The certificate received in the callback should match the test server's certificate.");
+                Assert.That(receivedCertDer, Is.EqualTo(expectedCertDer), "The certificate received in the callback should match the test server's certificate.");
             }
         }
 
@@ -112,9 +109,9 @@ namespace AppInstallerCLIE2ETests.Interop
 
             var connectResult = catalogRef.Connect();
 
-            Assert.IsNotNull(connectResult);
-            Assert.AreEqual(ConnectResultStatus.CatalogError, connectResult.Status, "Connect should fail when handler rejects the certificate.");
-            Assert.IsTrue(handlerCalled, "Handler should have been called.");
+            Assert.That(connectResult, Is.Not.Null);
+            Assert.That(connectResult.Status, Is.EqualTo(ConnectResultStatus.CatalogError), "Connect should fail when handler rejects the certificate.");
+            Assert.That(handlerCalled, Is.True, "Handler should have been called.");
         }
 
         /// <summary>
@@ -127,13 +124,13 @@ namespace AppInstallerCLIE2ETests.Interop
             GroupPolicyHelper.BypassCertificatePinningForMicrosoftStore.Enable();
 
             var catalogRef = this.packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.MicrosoftStore);
-            Assert.IsNotNull(catalogRef);
+            Assert.That(catalogRef, Is.Not.Null);
 
             // Policy enabled means the feature is allowed; setting the handler should not throw.
-            Assert.DoesNotThrow(() =>
+            Assert.That((Action)(() =>
             {
                 catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
-            });
+            }), Throws.Nothing);
         }
 
         /// <summary>
@@ -146,17 +143,15 @@ namespace AppInstallerCLIE2ETests.Interop
             GroupPolicyHelper.BypassCertificatePinningForMicrosoftStore.Disable();
 
             var catalogRef = this.packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.MicrosoftStore);
-            Assert.IsNotNull(catalogRef);
+            Assert.That(catalogRef, Is.Not.Null);
 
-            var ex = Assert.Throws<COMException>(() =>
+            Assert.That(
+                (Action)(() =>
             {
                 catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
-            });
-
-            Assert.AreEqual(
-                Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY,
-                ex.HResult,
-                "Setting ConnectionValidationHandler on MicrosoftStore with policy disabled should return ERROR_BLOCKED_BY_POLICY.");
+            }),
+                Throws.TypeOf<COMException>()
+                    .With.Property("HResult").EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY), "Setting ConnectionValidationHandler on MicrosoftStore with policy disabled should return ERROR_BLOCKED_BY_POLICY.");
         }
 
         /// <summary>
@@ -172,10 +167,10 @@ namespace AppInstallerCLIE2ETests.Interop
             var catalogRef = await this.AddRestCatalogAsync();
 
             // This should not throw — the policy only applies to the MicrosoftStore catalog.
-            Assert.DoesNotThrow(() =>
+            Assert.That((Action)(() =>
             {
                 catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
-            });
+            }), Throws.Nothing);
         }
 
         /// <summary>
@@ -191,10 +186,10 @@ namespace AppInstallerCLIE2ETests.Interop
             var catalogRef = await this.AddRestCatalogAsync();
 
             // The policy only applies to the MicrosoftStore catalog.
-            Assert.DoesNotThrow(() =>
+            Assert.That((Action)(() =>
             {
                 catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
-            });
+            }), Throws.Nothing);
         }
 
         /// <summary>
@@ -208,7 +203,7 @@ namespace AppInstallerCLIE2ETests.Interop
             GroupPolicyHelper.BypassCertificatePinningForMicrosoftStore.Disable();
 
             var catalogRef = await this.AddRestCatalogAsync();
-            Assert.IsTrue(catalogRef.IsConnectionValidationHandlerEnabled, "Non-store catalog should always report handler enabled.");
+            Assert.That(catalogRef.IsConnectionValidationHandlerEnabled, Is.True, "Non-store catalog should always report handler enabled.");
         }
 
         /// <summary>
@@ -221,8 +216,8 @@ namespace AppInstallerCLIE2ETests.Interop
             GroupPolicyHelper.BypassCertificatePinningForMicrosoftStore.Disable();
 
             var catalogRef = this.packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.MicrosoftStore);
-            Assert.IsNotNull(catalogRef);
-            Assert.IsFalse(catalogRef.IsConnectionValidationHandlerEnabled, "MicrosoftStore catalog with policy disabled should report handler not enabled.");
+            Assert.That(catalogRef, Is.Not.Null);
+            Assert.That(catalogRef.IsConnectionValidationHandlerEnabled, Is.False, "MicrosoftStore catalog with policy disabled should report handler not enabled.");
         }
 
         /// <summary>
@@ -235,8 +230,8 @@ namespace AppInstallerCLIE2ETests.Interop
             GroupPolicyHelper.BypassCertificatePinningForMicrosoftStore.Enable();
 
             var catalogRef = this.packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.MicrosoftStore);
-            Assert.IsNotNull(catalogRef);
-            Assert.IsTrue(catalogRef.IsConnectionValidationHandlerEnabled, "MicrosoftStore catalog with policy enabled should report handler enabled.");
+            Assert.That(catalogRef, Is.Not.Null);
+            Assert.That(catalogRef.IsConnectionValidationHandlerEnabled, Is.True, "MicrosoftStore catalog with policy enabled should report handler enabled.");
         }
 
         /// <summary>
@@ -248,8 +243,8 @@ namespace AppInstallerCLIE2ETests.Interop
         {
             // Policy is left at NotConfigured (set by SetUp).
             var catalogRef = this.packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.MicrosoftStore);
-            Assert.IsNotNull(catalogRef);
-            Assert.IsTrue(catalogRef.IsConnectionValidationHandlerEnabled, "MicrosoftStore catalog with policy not configured should report handler enabled.");
+            Assert.That(catalogRef, Is.Not.Null);
+            Assert.That(catalogRef.IsConnectionValidationHandlerEnabled, Is.True, "MicrosoftStore catalog with policy not configured should report handler enabled.");
         }
 
         private static byte[] GetCertificateDerBytes(Certificate certificate)
@@ -275,11 +270,11 @@ namespace AppInstallerCLIE2ETests.Interop
             options.TrustLevel = PackageCatalogTrustLevel.Trusted;
 
             var addResult = await this.packageManager.AddPackageCatalogAsync(options);
-            Assert.IsNotNull(addResult);
-            Assert.AreEqual(AddPackageCatalogStatus.Ok, addResult.Status, $"Failed to add REST test source. Error: {addResult.ExtendedErrorCode?.HResult:X}");
+            Assert.That(addResult, Is.Not.Null);
+            Assert.That(addResult.Status, Is.EqualTo(AddPackageCatalogStatus.Ok), $"Failed to add REST test source. Error: {addResult.ExtendedErrorCode?.HResult:X}");
 
             var catalogRef = this.packageManager.GetPackageCatalogByName(Constants.RestTestSourceName);
-            Assert.IsNotNull(catalogRef, "REST test source catalog reference should not be null after adding.");
+            Assert.That(catalogRef, Is.Not.Null, "REST test source catalog reference should not be null after adding.");
             return catalogRef;
         }
     }
@@ -320,13 +315,13 @@ namespace AppInstallerCLIE2ETests.Interop
         {
             // Use the default winget catalog -- we just need any catalog reference.
             var catalogRef = this.packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.OpenWindowsCatalog);
-            Assert.IsNotNull(catalogRef);
+            Assert.That(catalogRef, Is.Not.Null);
 
             // Setting the handler from out-of-proc should be rejected with E_ACCESSDENIED.
-            Assert.Throws<UnauthorizedAccessException>(() =>
+            Assert.That((Action)(() =>
             {
                 catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
-            });
+            }), Throws.TypeOf<UnauthorizedAccessException>());
         }
 
         /// <summary>
@@ -336,8 +331,8 @@ namespace AppInstallerCLIE2ETests.Interop
         public void IsConnectionValidationHandlerEnabled_OutOfProcess_ReturnsFalse()
         {
             var catalogRef = this.packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog.OpenWindowsCatalog);
-            Assert.IsNotNull(catalogRef);
-            Assert.IsFalse(catalogRef.IsConnectionValidationHandlerEnabled, "Out-of-process callers should always see IsConnectionValidationHandlerEnabled as false.");
+            Assert.That(catalogRef, Is.Not.Null);
+            Assert.That(catalogRef.IsConnectionValidationHandlerEnabled, Is.False, "Out-of-process callers should always see IsConnectionValidationHandlerEnabled as false.");
         }
     }
 }

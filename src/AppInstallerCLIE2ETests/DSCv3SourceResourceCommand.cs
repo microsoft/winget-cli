@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="DSCv3SourceResourceCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -93,9 +93,9 @@ namespace AppInstallerCLIE2ETests
             AssertSuccessfulResourceRun(ref result);
 
             SourceResourceData output = GetSingleOutputLineAs<SourceResourceData>(result.StdOut);
-            Assert.IsNotNull(output);
-            Assert.False(output.Exist);
-            Assert.AreEqual(resourceData.Name, output.Name);
+            Assert.That(output, Is.Not.Null);
+            Assert.That(output.Exist, Is.False);
+            Assert.That(output.Name, Is.EqualTo(resourceData.Name));
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Get_Present()
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {DefaultSourceArgForCmdLine} --type {DefaultSourceType} --explicit");
-            Assert.AreEqual(0, setup.ExitCode);
+            Assert.That(setup.ExitCode, Is.EqualTo(0));
 
             SourceResourceData resourceData = new SourceResourceData() { Name = DefaultSourceName };
 
@@ -128,10 +128,10 @@ namespace AppInstallerCLIE2ETests
             AssertSuccessfulResourceRun(ref result);
 
             (SourceResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<SourceResourceData>(result.StdOut);
-            Assert.IsNotNull(output);
-            Assert.False(output.Exist);
-            Assert.AreEqual(resourceData.Name, output.Name);
-            Assert.False(output.InDesiredState);
+            Assert.That(output, Is.Not.Null);
+            Assert.That(output.Exist, Is.False);
+            Assert.That(output.Name, Is.EqualTo(resourceData.Name));
+            Assert.That(output.InDesiredState, Is.False);
 
             AssertDiffState(diff, [ ExistPropertyName ]);
         }
@@ -143,7 +143,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Test_SimplePresent()
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {DefaultSourceArgForCmdLine} --type {DefaultSourceType}");
-            Assert.AreEqual(0, setup.ExitCode);
+            Assert.That(setup.ExitCode, Is.EqualTo(0));
 
             SourceResourceData resourceData = new SourceResourceData() { Name = DefaultSourceName };
 
@@ -152,7 +152,7 @@ namespace AppInstallerCLIE2ETests
 
             (SourceResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<SourceResourceData>(result.StdOut);
             AssertExistingSourceResourceData(output, DefaultSourceArgDirect, DefaultTrustLevel, DefaultExplicitState);
-            Assert.True(output.InDesiredState);
+            Assert.That(output.InDesiredState, Is.True);
 
             AssertDiffState(diff, []);
         }
@@ -173,7 +173,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Test_PropertyMatch(bool useDefaultArgument, string trustLevel, bool isExplicit, int priority, string targetProperty)
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {(useDefaultArgument ? DefaultSourceArgForCmdLine : NonDefaultSourceArgForCmdLine)} --type {DefaultSourceType} --trust-level {trustLevel} {(isExplicit ? "--explicit" : string.Empty)} --priority {priority}");
-            Assert.AreEqual(0, setup.ExitCode);
+            Assert.That(setup.ExitCode, Is.EqualTo(0));
 
             SourceResourceData resourceData = new SourceResourceData() { Name = DefaultSourceName };
 
@@ -195,7 +195,7 @@ namespace AppInstallerCLIE2ETests
                     resourceData.Priority = priority;
                     break;
                 default:
-                    Assert.Fail($"{targetProperty} is not a handled case.");
+                    Assert.That(false, Is.True, $"{targetProperty} is not a handled case.");
                     break;
             }
 
@@ -204,7 +204,7 @@ namespace AppInstallerCLIE2ETests
 
             (SourceResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<SourceResourceData>(result.StdOut);
             AssertExistingSourceResourceData(output, useDefaultArgument ? DefaultSourceArgDirect : NonDefaultSourceArgDirect, trustLevel, isExplicit);
-            Assert.True(output.InDesiredState);
+            Assert.That(output.InDesiredState, Is.True);
 
             AssertDiffState(diff, []);
         }
@@ -225,7 +225,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Test_PropertyMismatch(bool useDefaultArgument, string trustLevel, bool isExplicit, int priority, string targetProperty, object testValue)
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {(useDefaultArgument ? DefaultSourceArgForCmdLine : NonDefaultSourceArgForCmdLine)} --type {DefaultSourceType} --trust-level {trustLevel} {(isExplicit ? "--explicit" : string.Empty)} --priority {priority}");
-            Assert.AreEqual(0, setup.ExitCode);
+            Assert.That(setup.ExitCode, Is.EqualTo(0));
 
             SourceResourceData resourceData = new SourceResourceData() { Name = DefaultSourceName };
 
@@ -244,7 +244,7 @@ namespace AppInstallerCLIE2ETests
                     resourceData.Priority = (int)testValue;
                     break;
                 default:
-                    Assert.Fail($"{targetProperty} is not a handled case.");
+                    Assert.That(false, Is.True, $"{targetProperty} is not a handled case.");
                     break;
             }
 
@@ -253,7 +253,7 @@ namespace AppInstallerCLIE2ETests
 
             (SourceResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<SourceResourceData>(result.StdOut);
             AssertExistingSourceResourceData(output, useDefaultArgument ? DefaultSourceArgDirect : NonDefaultSourceArgDirect, trustLevel, isExplicit);
-            Assert.False(output.InDesiredState);
+            Assert.That(output.InDesiredState, Is.False);
 
             AssertDiffState(diff, [ targetProperty ]);
         }
@@ -265,7 +265,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Test_AllMatch()
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {NonDefaultSourceArgForCmdLine} --type {DefaultSourceType} --trust-level {TrustedTrustLevel} --explicit --priority 42");
-            Assert.AreEqual(0, setup.ExitCode);
+            Assert.That(setup.ExitCode, Is.EqualTo(0));
 
             SourceResourceData resourceData = new SourceResourceData()
             {
@@ -282,7 +282,7 @@ namespace AppInstallerCLIE2ETests
 
             (SourceResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<SourceResourceData>(result.StdOut);
             AssertExistingSourceResourceData(output, resourceData);
-            Assert.True(output.InDesiredState);
+            Assert.That(output.InDesiredState, Is.True);
 
             AssertDiffState(diff, []);
         }
@@ -325,7 +325,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Set_Remove()
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {DefaultSourceArgForCmdLine} --type {DefaultSourceType} --explicit");
-            Assert.AreEqual(0, setup.ExitCode);
+            Assert.That(setup.ExitCode, Is.EqualTo(0));
 
             SourceResourceData resourceData = new SourceResourceData()
             {
@@ -337,9 +337,9 @@ namespace AppInstallerCLIE2ETests
             AssertSuccessfulResourceRun(ref result);
 
             (SourceResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<SourceResourceData>(result.StdOut);
-            Assert.IsNotNull(output);
-            Assert.False(output.Exist);
-            Assert.AreEqual(resourceData.Name, output.Name);
+            Assert.That(output, Is.Not.Null);
+            Assert.That(output.Exist, Is.False);
+            Assert.That(output.Name, Is.EqualTo(resourceData.Name));
 
             AssertDiffState(diff, [ ExistPropertyName ]);
 
@@ -353,9 +353,9 @@ namespace AppInstallerCLIE2ETests
             AssertSuccessfulResourceRun(ref result);
 
             output = GetSingleOutputLineAs<SourceResourceData>(result.StdOut);
-            Assert.IsNotNull(output);
-            Assert.False(output.Exist);
-            Assert.AreEqual(resourceDataForGet.Name, output.Name);
+            Assert.That(output, Is.Not.Null);
+            Assert.That(output.Exist, Is.False);
+            Assert.That(output.Name, Is.EqualTo(resourceDataForGet.Name));
         }
 
         /// <summary>
@@ -365,7 +365,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Set_Replace()
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {DefaultSourceArgForCmdLine} --type {DefaultSourceType}");
-            Assert.AreEqual(0, setup.ExitCode);
+            Assert.That(setup.ExitCode, Is.EqualTo(0));
 
             SourceResourceData resourceData = new SourceResourceData()
             {
@@ -404,7 +404,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Set_Replace_Edit()
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {DefaultSourceArgForCmdLine} --type {DefaultSourceType}");
-            Assert.AreEqual(0, setup.ExitCode);
+            Assert.That(setup.ExitCode, Is.EqualTo(0));
 
             SourceResourceData resourceData = new SourceResourceData()
             {
@@ -441,7 +441,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Export_NoInput()
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {DefaultSourceArgForCmdLine} --type {DefaultSourceType}");
-            Assert.AreEqual(0, setup.ExitCode);
+            Assert.That(setup.ExitCode, Is.EqualTo(0));
 
             var result = RunDSCv3Command(SourceResource, ExportFunction, " ");
             AssertSuccessfulResourceRun(ref result);
@@ -454,17 +454,17 @@ namespace AppInstallerCLIE2ETests
                 if (item.Name == DefaultSourceName)
                 {
                     foundDefaultSource = true;
-                    Assert.AreEqual(DefaultSourceName, item.Name);
-                    Assert.AreEqual(DefaultSourceArgDirect, item.Argument);
-                    Assert.AreEqual(DefaultSourceType, item.Type);
-                    Assert.AreEqual(DefaultTrustLevel, item.TrustLevel);
-                    Assert.AreEqual(DefaultExplicitState, item.Explicit);
-                    Assert.AreEqual(DefaultPriority, item.Priority);
+                    Assert.That(item.Name, Is.EqualTo(DefaultSourceName));
+                    Assert.That(item.Argument, Is.EqualTo(DefaultSourceArgDirect));
+                    Assert.That(item.Type, Is.EqualTo(DefaultSourceType));
+                    Assert.That(item.TrustLevel, Is.EqualTo(DefaultTrustLevel));
+                    Assert.That(item.Explicit, Is.EqualTo(DefaultExplicitState));
+                    Assert.That(item.Priority, Is.EqualTo(DefaultPriority));
                     break;
                 }
             }
 
-            Assert.IsTrue(foundDefaultSource);
+            Assert.That(foundDefaultSource, Is.True);
         }
 
         private static void RemoveTestSource()
@@ -486,30 +486,30 @@ namespace AppInstallerCLIE2ETests
 
         private static void AssertExistingSourceResourceData(SourceResourceData output, string argument, string trustLevel = null, bool? isExplicit = null, int? priority = null)
         {
-            Assert.IsNotNull(output);
-            Assert.True(output.Exist);
-            Assert.AreEqual(DefaultSourceName, output.Name);
+            Assert.That(output, Is.Not.Null);
+            Assert.That(output.Exist, Is.True);
+            Assert.That(output.Name, Is.EqualTo(DefaultSourceName));
 
             if (argument != null)
             {
-                Assert.AreEqual(argument, output.Argument);
+                Assert.That(output.Argument, Is.EqualTo(argument));
             }
 
-            Assert.AreEqual(DefaultSourceType, output.Type);
+            Assert.That(output.Type, Is.EqualTo(DefaultSourceType));
 
             if (trustLevel != null)
             {
-                Assert.AreEqual(trustLevel, output.TrustLevel);
+                Assert.That(output.TrustLevel, Is.EqualTo(trustLevel));
             }
 
             if (isExplicit != null)
             {
-                Assert.AreEqual(isExplicit, output.Explicit);
+                Assert.That(output.Explicit, Is.EqualTo(isExplicit));
             }
 
             if (priority != null)
             {
-                Assert.AreEqual(priority, output.Priority);
+                Assert.That(output.Priority, Is.EqualTo(priority));
             }
         }
 

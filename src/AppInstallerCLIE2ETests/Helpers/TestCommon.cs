@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="TestCommon.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -392,7 +392,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                 using var winGetRootKey = fontsRegistryKey.OpenSubKey("Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
                 if (shouldExist)
                 {
-                    Assert.IsNotNull(winGetRootKey);
+                    Assert.That(winGetRootKey, Is.Not.Null);
                 }
                 else
                 {
@@ -402,7 +402,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                 using var packageNameSubkey = winGetRootKey.OpenSubKey(packageName);
                 if (shouldExist)
                 {
-                    Assert.IsNotNull(packageNameSubkey);
+                    Assert.That(packageNameSubkey, Is.Not.Null);
                 }
 
                 if (packageNameSubkey is not null)
@@ -411,11 +411,11 @@ namespace AppInstallerCLIE2ETests.Helpers
 
                     if (shouldExist)
                     {
-                        Assert.IsNotNull(versionSubkey);
+                        Assert.That(versionSubkey, Is.Not.Null);
                     }
                     else
                     {
-                        Assert.IsNull(versionSubkey);
+                        Assert.That(versionSubkey, Is.Null);
                     }
 
                     if (versionSubkey is not null)
@@ -426,7 +426,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                             fileList.Add(versionSubkey.GetValue(valueName).ToString());
                         }
 
-                        Assert.AreEqual(valueNames.Length, fileList.Count);
+                        Assert.That(fileList.Count, Is.EqualTo(valueNames.Length));
                     }
                 }
             }
@@ -434,7 +434,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             // Verify each package file we expect to exist actually exists.
             foreach (var file in fileList)
             {
-                Assert.IsTrue(File.Exists(file));
+                Assert.That(File.Exists(file), Is.True);
             }
         }
 
@@ -489,10 +489,10 @@ namespace AppInstallerCLIE2ETests.Helpers
             // Always clean up as best effort.
             RunAICLICommand("uninstall", $"--product-code {productCode} --force");
 
-            Assert.AreEqual(shouldExist, exeExists, $"Expected portable exe path: {exePath}");
-            Assert.AreEqual(shouldExist && !installDirectoryAddedToPath, symlinkExists, $"Expected portable symlink path: {symlinkPath}");
-            Assert.AreEqual(shouldExist, portableEntryExists, $"Expected {productCode} subkey in path: {uninstallSubKey}");
-            Assert.AreEqual(shouldExist, isAddedToPath, $"Expected path variable: {(installDirectoryAddedToPath ? installDir : symlinkDirectory)}");
+            Assert.That(exeExists, Is.EqualTo(shouldExist), $"Expected portable exe path: {exePath}");
+            Assert.That(symlinkExists, Is.EqualTo(shouldExist && !installDirectoryAddedToPath), $"Expected portable symlink path: {symlinkPath}");
+            Assert.That(portableEntryExists, Is.EqualTo(shouldExist), $"Expected {productCode} subkey in path: {uninstallSubKey}");
+            Assert.That(isAddedToPath, Is.EqualTo(shouldExist), $"Expected path variable: {(installDirectoryAddedToPath ? installDir : symlinkDirectory)}");
         }
 
         /// <summary>
@@ -645,9 +645,9 @@ namespace AppInstallerCLIE2ETests.Helpers
             string installerDownloadPath = Path.Combine(downloadDir, expectedFileName + installerExtension);
             string manifestDownloadPath = Path.Combine(downloadDir, expectedFileName + ".yaml");
 
-            Assert.IsTrue(Directory.Exists(downloadDir), $"Download directory does not exist: {downloadDir}");
-            Assert.IsTrue(File.Exists(installerDownloadPath), $"Installer file does not exist: {installerDownloadPath}");
-            Assert.IsTrue(File.Exists(manifestDownloadPath), $"Manifest file does not exist: {manifestDownloadPath}");
+            Assert.That(Directory.Exists(downloadDir), Is.True, $"Download directory does not exist: {downloadDir}");
+            Assert.That(File.Exists(installerDownloadPath), Is.True, $"Installer file does not exist: {installerDownloadPath}");
+            Assert.That(File.Exists(manifestDownloadPath), Is.True, $"Manifest file does not exist: {manifestDownloadPath}");
 
             if (cleanup)
             {
@@ -1081,7 +1081,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         public static string GetConfigurationInstanceIdentifierFor(string name)
         {
             var result = TestCommon.RunAICLICommand("configure list", string.Empty);
-            Assert.AreEqual(0, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(0));
 
             string[] lines = result.StdOut.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
@@ -1092,9 +1092,9 @@ namespace AppInstallerCLIE2ETests.Helpers
                     // Find the first GUID in the output
                     int left = line.IndexOf('{');
                     int right = line.IndexOfAny(new char[] { '}', '…' });
-                    Assert.AreNotEqual(-1, left);
-                    Assert.AreNotEqual(-1, right);
-                    Assert.LessOrEqual(right - left, 38);
+                    Assert.That(left, Is.Not.EqualTo(-1));
+                    Assert.That(right, Is.Not.EqualTo(-1));
+                    Assert.That(right - left, Is.LessThanOrEqualTo(38));
 
                     return line.Substring(left, right - left);
                 }
