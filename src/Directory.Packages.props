@@ -15,11 +15,11 @@
     <PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageVersion Include="Microsoft.Msix.Utils" Version="2.1.1" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
-    <PackageVersion Include="Microsoft.PowerShell.SDK" Version="7.6.2" />
+    <PackageVersion Include="Microsoft.PowerShell.SDK" Version="7.4.16" />
     <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
-    <PackageVersion Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
+    <PackageVersion Include="Microsoft.Windows.CsWinRT" Version="2.1.6" />
     <PackageVersion Include="Microsoft.Windows.SDK.Contracts" Version="10.0.28000.1839" />
-    <PackageVersion Include="ModelContextProtocol" Version="1.3.0" />
+    <PackageVersion Include="ModelContextProtocol" Version="0.3.0-preview.3" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="nunit" Version="4.6.1" />
