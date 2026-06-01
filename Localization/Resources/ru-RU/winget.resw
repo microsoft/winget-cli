@@ -214,15 +214,19 @@
   </data>
   <data name="FeaturesDisabled" xml:space="preserve">
     <value>Отключено</value>
+    <comment>Status value in the 'winget features' table. Indicates an experimental feature is turned off. Paired with 'Enabled'.</comment>
   </data>
   <data name="FeaturesEnabled" xml:space="preserve">
     <value>Включено</value>
+    <comment>Status value in the 'winget features' table. Indicates an experimental feature is active/turned on. Paired with 'Disabled'.</comment>
   </data>
   <data name="FeaturesFeature" xml:space="preserve">
     <value>Компонент</value>
+    <comment>Column header in the 'winget features' output table. 'Feature' is noun - an experimental software capability. Do NOT translate as a verb.</comment>
   </data>
   <data name="FeaturesLink" xml:space="preserve">
     <value>Ссылка</value>
+    <comment>Column header in the 'winget features' output table. 'Link' is a noun — a URL pointing to documentation for the feature. Do NOT translate as a verb.</comment>
   </data>
   <data name="FeaturesMessage" xml:space="preserve">
     <value>Следующие экспериментальные компоненты находятся в процессе разработки.
@@ -231,9 +235,11 @@
   </data>
   <data name="FeaturesProperty" xml:space="preserve">
     <value>Свойство</value>
+    <comment>Column header in the 'winget features' output table. 'Property' refers to a named attribute/setting of the feature.</comment>
   </data>
   <data name="FeaturesStatus" xml:space="preserve">
     <value>Состояние</value>
+    <comment>Column header in the 'winget features' output table. Shows whether an experimental feature is Enabled or Disabled.</comment>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Файл для хэширования</value>
@@ -271,8 +277,8 @@
     <value>Корпорация Майкрософт не несет ответственность за сторонние пакеты и не предоставляет для них никакие лицензии.</value>
   </data>
   <data name="InstallationDisclaimerMSStore" xml:space="preserve">
-    <value>Этот пакет предоставляется через Microsoft Store. Программе winget может потребоваться получить пакет в Microsoft Store от имени текущего пользователя.</value>
-    <comment>{Locked="winget"}</comment>
+    <value>Этот пакет предоставляется через Microsoft Store. Программе WinGet может потребоваться получить пакет от Microsoft Store от имени текущего пользователя.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>Устанавливает выбранный пакет, найденный путем поиска в настроенном источнике или непосредственно из манифеста. По умолчанию запрос должен сравнить id, name или moniker пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр. По умолчанию команда установки проверяет состояние установки пакета и, если применимо, пытается выполнить обновление. Переопределите с помощью параметра --force для прямой установки.</value>
@@ -324,7 +330,7 @@
   </data>
   <data name="KeyDirectoriesHeader" xml:space="preserve">
     <value>Каталоги WinGet</value>
-    <comment>Header for a table detailing the directories Winget uses for key operations like logging and portable installs</comment>
+    <comment>{Locked="WinGet"} Header for a table detailing the directories WinGet uses for key operations like logging and portable installs</comment>
   </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>Используемый языковой стандарт (формат BCP47)</value>
@@ -351,7 +357,7 @@
     <value>Расположение журнала (если поддерживается)</value>
   </data>
   <data name="MainCopyrightNotice" xml:space="preserve">
-    <value>(с) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.</value>
+    <value>© Корпорация Майкрософт (Microsoft), 2026. Все права защищены.</value>
   </data>
   <data name="MainHomepage" xml:space="preserve">
     <value>Домашняя страница</value>
@@ -468,12 +474,14 @@
   </data>
   <data name="SearchMatch" xml:space="preserve">
     <value>Совпадение</value>
+    <comment>Column header in the 'winget search' output table. 'Match' is a noun describing how the result matched the search query (e.g., Exact, Substring). Do NOT translate as a verb.</comment>
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>Имя</value>
   </data>
   <data name="SearchSource" xml:space="preserve">
     <value>Источник</value>
+    <comment>Column header in the 'winget search' output table. 'Source' refers to the WinGet package repository the result came from (e.g., 'winget', 'msstore'). Not 'source code'.</comment>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>дополнительные записи усечены из-за ограничения количества результатов</value>
@@ -497,6 +505,7 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Канал</value>
+    <comment>Label in the 'winget show' output. 'Channel' refers to a software release channel (e.g., stable, preview, beta). Not a TV or media channel.</comment>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Отображает сведения о конкретном пакете. По умолчанию запрос должен сравнить идентификатор, имя или моникер пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр.</value>
@@ -514,6 +523,18 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Только один псевдоним символа может появляться после одного символа -: "{0}"</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides more than a single character command line alias argument after an alias argument specifier '-'. {0} is a placeholder replaced by the user's argument input.</comment>
+  </data>
+  <data name="SortArgumentDescription" xml:space="preserve">
+    <value>Сортировать результаты по свойству (может повторяться)</value>
+    <comment>Description for the --sort argument used to sort output by field name.</comment>
+  </data>
+  <data name="SortAscendingArgumentDescription" xml:space="preserve">
+    <value>Сортировать результаты по возрастанию</value>
+    <comment>Description for the --ascending (--asc) flag that sets ascending sort direction for output.</comment>
+  </data>
+  <data name="SortDescendingArgumentDescription" xml:space="preserve">
+    <value>Сортировать результаты по убыванию</value>
+    <comment>Description for the --descending (--desc) flag that sets descending sort direction for output.</comment>
   </data>
   <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
     <value>Источник с указанным именем уже существует и ссылается на другое расположение:</value>
@@ -616,8 +637,8 @@
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
-    <value>Не удалось открыть предопределенный источник. Сообщите об этом специалистам по обслуживанию winget.</value>
-    <comment>{Locked="winget"}</comment>
+    <value>Не удалось открыть заданный источник. Сообщите об этом специалистам по обслуживанию WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Удаление всех источников...</value>
@@ -672,7 +693,8 @@
     <value>Фильтровать результаты по тегу</value>
   </data>
   <data name="ThankYou" xml:space="preserve">
-    <value>Благодарим за использование виджета</value>
+    <value>Благодарим за использование WinGet</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Уведомления третьих сторон</value>
@@ -771,6 +793,7 @@
   </data>
   <data name="ReportIdentityFound" xml:space="preserve">
     <value>Найдено</value>
+    <comment>Header label printed before showing details about a located package, e.g. "Found [package name]". This is the past tense of "to find" — the package was successfully found/located.</comment>
   </data>
   <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
     <value>Указан путь к каталогу: {0}</value>
@@ -814,8 +837,8 @@
     <value>Удалено</value>
   </data>
   <data name="NoUninstallInfoFound" xml:space="preserve">
-    <value>winget не может найти команду удаления для пакета. Обратитесь за помощью к издателю пакетов.</value>
-    <comment>{Locked="winget"}</comment>
+    <value>WinGet не может найти команду удаления для пакета. Обратитесь за помощью к издателю пакетов.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="UninstallAbandoned" xml:space="preserve">
     <value>Удаление прекращено</value>
@@ -998,6 +1021,7 @@
   </data>
   <data name="ExternalDependencies" xml:space="preserve">
     <value>Внешние</value>
+    <comment>Category label for external package dependencies — packages that this package depends on but are distributed separately. Contrasts with built-in/internal dependencies. This is an adjective modifying the implied noun "dependencies".</comment>
   </data>
   <data name="ImportCommandReportDependencies" xml:space="preserve">
     <value>У пакетов, обнаруженных в этом импорте, следующие зависимости:</value>
@@ -1344,6 +1368,10 @@
   <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
     <value>Обнаружена более новая версия, но технология установки отличается от текущей установленной версии. Удалите пакет и установите более новую версию.</value>
   </data>
+  <data name="UpgradeInstallTechnologyMismatchCount" xml:space="preserve">
+    <value>Обновления {0} пакетов заблокированы, так как в более новых версиях используется технология установки, отличная от текущей. Удалите каждый пакет, а затем установите новую версию.</value>
+    <comment>{Locked="{0}"} {0} is the number of packages skipped for this reason during winget upgrade --all.</comment>
+  </data>
   <data name="UpgradeDifferentInstallTechnology" xml:space="preserve">
     <value>Указанная технология установки более новой версии отличается от текущей установленной версии. Удалите пакет и установите более новую версию.</value>
   </data>
@@ -1462,6 +1490,7 @@
   </data>
   <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
     <value>Не удается очистить каталог установки, так как он не был создан с помощью WinGet</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="RelatedLink" xml:space="preserve">
     <value>Связанная ссылка</value>
@@ -1724,7 +1753,8 @@
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
   </data>
   <data name="UpgradeBlockedByManifest" xml:space="preserve">
-    <value>Невозможно обновить пакет с помощью winget. Для обновления этого пакета используйте метод, предоставленный издателем.</value>
+    <value>Невозможно установить новую версию пакета с помощью WinGet. Для установки новой версии этого пакета используйте метод, предоставленный издателем.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>Обновление пакетов, даже если они используют неблокирующее закрепление</value>
@@ -2021,6 +2051,12 @@
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>Пропускает обработку зависимостей пакетов и компонентов Windows</value>
   </data>
+  <data name="DependenciesOnlyArgumentDescription" xml:space="preserve">
+    <value>Устанавливает только зависимости пакета</value>
+  </data>
+  <data name="DependenciesOnlyMessage" xml:space="preserve">
+    <value>Устанавливаются только зависимости. Сам пакет установлен не будет.</value>
+  </data>
   <data name="DependenciesSkippedMessage" xml:space="preserve">
     <value>Зависимости пропущены.</value>
   </data>
@@ -2111,13 +2147,26 @@
     <value>Включить конфигурацию Диспетчера пакетов Windows</value>
   </data>
   <data name="ErrorCommandLongDescription" xml:space="preserve">
-    <value>Получение сведений об ошибках. Если указано число, выходные данные будут содержать сведения об ошибке, включая имя символа, если это ошибка winget. При указании строки для этого значения будут искаться ошибки, относящиеся к winget.</value>
+    <value>Получить информацию об ошибках. Если задано число, выданные результаты будут содержать сведения об ошибке (в том числе имя символа, если это ошибка, специфичная для WinGet). Если задана строка, выполняется поиск ошибок, специфичных для WinGet, по этому значению.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="ErrorCommandShortDescription" xml:space="preserve">
     <value>Получить информацию об ошибках</value>
   </data>
   <data name="ErrorInputArgumentDescription" xml:space="preserve">
     <value>Значение для поиска в сведениях об ошибке</value>
+  </data>
+  <data name="ErrorOutputFileArgumentDescription" xml:space="preserve">
+    <value>Сгенерировать Markdown-файл с кодами ошибок</value>
+    <comment>Description of an argument that causes a Markdown file to be generated for all winget error codes.</comment>
+  </data>
+  <data name="ErrorOutputFileConflictsWithInput" xml:space="preserve">
+    <value>Аргумент --output нельзя комбинировать с входным значением.</value>
+    <comment>{Locked="--output"}</comment>
+  </data>
+  <data name="ErrorRequiresInputOrOutputFile" xml:space="preserve">
+    <value>Необходимо указать входное значение или --output.</value>
+    <comment>{Locked="--output"}</comment>
   </data>
   <data name="ErrorNumberIsTooLarge" xml:space="preserve">
     <value>Указанное число слишком велико для HRESULT.</value>
@@ -2210,7 +2259,8 @@
     <value>Приложение Microsoft Store заблокировано политикой</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED" xml:space="preserve">
-    <value>Эта функция сейчас находится в разработке. Его можно включить с помощью параметров winget.</value>
+    <value>Эта функция сейчас находится в разработке. Ее можно включить с помощью команды "winget settings".</value>
+    <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED" xml:space="preserve">
     <value>Не удалось установить приложение Microsoft Store</value>
@@ -2253,6 +2303,9 @@
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE" xml:space="preserve">
     <value>Применимые обновления не найдены</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH" xml:space="preserve">
+    <value>Доступно обновление, но оно использует технологию установки, отличную от текущей</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE" xml:space="preserve">
     <value>Команда winget upgrade --all завершилась с ошибками</value>
@@ -2780,8 +2833,8 @@
     <value>Укажите учетную запись, которая будет использоваться для проверки подлинности</value>
   </data>
   <data name="SourceAddFailedAuthenticationNotSupported" xml:space="preserve">
-    <value>Не удалось добавить источник. Эта winget не поддерживает метод проверки подлинности источника. Попробуйте обновиться до последней winget версии.</value>
-    <comment>{Locked="winget"}</comment>
+    <value>Не удалось добавить источник. Эта версия WinGet не поддерживает метод проверки подлинности источника. Попробуйте обновить до последней версии WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="SourceRequiresAuthentication" xml:space="preserve">
     <value>Источник {0} требует проверки подлинности. При необходимости может появиться запрос проверки подлинности. Сведения, прошедшие проверку подлинности, будут предоставлены источнику для авторизации доступа.</value>
@@ -2861,11 +2914,18 @@
     <value>Включить Диспетчер пакетов Windows командной строки прокси-сервера</value>
     <comment>Describes a Group Policy that can enable the use of the --proxy option to set a proxy</comment>
   </data>
+  <data name="PolicyEnableConfigurationProcessorPath" xml:space="preserve">
+    <value>Включить путь обработчика конфигурации Диспетчера пакетов Windows</value>
+    <comment>Describes a Group Policy that can enable the use of the --processor-path option in configuration commands</comment>
+  </data>
   <data name="ProxyArgumentDescription" xml:space="preserve">
     <value>Задать прокси-сервер для этого выполнения</value>
   </data>
   <data name="NoProxyArgumentDescription" xml:space="preserve">
     <value>Отключить использование прокси-сервера для этого выполнения</value>
+  </data>
+  <data name="NoProgressArgumentDescription" xml:space="preserve">
+    <value>Отключает индикатор хода выполнения и вертушку</value>
   </data>
   <data name="ResetAdminSettingFailed" xml:space="preserve">
     <value>Не удается сбросить {0}. Этот параметр управляется политикой. Для получения дополнительных сведений обратитесь к системному администратору.</value>
@@ -2908,10 +2968,11 @@
     <value>Исключить источник из обнаружения (true или false)</value>
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
-    <value>Возрастные ограничения</value>
+    <value>Явный</value>
+    <comment>Column header in 'winget source list' output. 'Explicit' here is a technical term meaning the source must be directly named/specified to be used—it is NOT automatically included in package discovery. Translate as the equivalent of "requires explicit specification" or "must be directly specified". Do NOT translate as "explicit content", "adult content", "mature content", or any phrase suggesting inappropriate material.</comment>
   </data>
   <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
-    <value>Уровень доверия источника (нет или недоверенный)</value>
+    <value>Уровень доверия источника (нет или доверенный)</value>
   </data>
   <data name="SourceListTrustLevel" xml:space="preserve">
     <value>Уровень доверия</value>
@@ -3184,17 +3245,19 @@
   </data>
   <data name="FontFamily" xml:space="preserve">
     <value>Семейство</value>
+    <comment>Column header for the font family name, e.g. 'Arial' or 'Times New Roman'. Do NOT translate as a family of people or a surname.</comment>
   </data>
   <data name="FontFaces" xml:space="preserve">
-    <value>Лица</value>
-    <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
+    <value>Начертания</value>
+    <comment>Column header listing the typefaces within a font family, e.g. 'Bold', 'Italic', 'Bold Italic'. Do NOT translate as human/anatomical faces.</comment>
   </data>
   <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
-    <value>Фильтровать результаты по фамилии</value>
+    <value>Фильтровать результаты по имени семейства шрифтов</value>
+    <comment>'Family name' refers to the font family name, e.g. 'Arial' or 'Times New Roman'. Do NOT translate 'family' as a family of people or 'family name' as a surname.</comment>
   </data>
   <data name="FontFace" xml:space="preserve">
-    <value>Лицо</value>
-    <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
+    <value>Начертание</value>
+    <comment>A single typeface within a font family, e.g. 'Bold' or 'Italic'. Do NOT translate as a human/anatomical face.</comment>
   </data>
   <data name="FontFilePaths" xml:space="preserve">
     <value>Пути</value>
@@ -3219,8 +3282,8 @@
     <value>Установщику пакета требуется проверка подлинности. При необходимости может появиться запрос проверки подлинности. Сведения, прошедшие проверку подлинности, будут предоставлены с URL-адресом скачивания установщика.</value>
   </data>
   <data name="InstallerDownloadAuthenticationNotSupported" xml:space="preserve">
-    <value>Не удалось скачать установщик. Эта winget не поддерживает метод проверки подлинности скачивания установщиком. Попробуйте обновиться до последней winget версии.</value>
-    <comment>{Locked="winget"}</comment>
+    <value>Не удалось скачать установщик. Эта версия WinGet не поддерживает способ проверки подлинности скачивания установщика. Попробуйте обновить до последней версии WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
     <value>Не удалось скачать установщик. Проверка подлинности не пройдена.</value>
@@ -3228,12 +3291,41 @@
   <data name="ConfigurationProcessorPath" xml:space="preserve">
     <value>Укажите путь к процессору конфигурации</value>
   </data>
+  <data name="ConfigurationProcessorPathAudit" xml:space="preserve">
+    <value>Настраиваемый путь к процессору:</value>
+    <comment>Displayed as a warning header when a custom --processor-path argument is provided.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditHash" xml:space="preserve">
+    <value>Хэш: {0}</value>
+    <comment>{Locked="{0}"} {0} is the SHA256 hash hex string of the processor executable or its reparse data.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditIsAlias" xml:space="preserve">
+    <value>Тип: псевдоним выполнения приложения</value>
+    <comment>Indicates the processor path is an app execution alias (MSIX package link).</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditPath" xml:space="preserve">
+    <value>Путь: {0}</value>
+    <comment>{Locked="{0}"} {0} is the file system path provided by the user.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditSignature" xml:space="preserve">
+    <value>Кем подписано: {0}</value>
+    <comment>{Locked="{0}"} {0} is the Authenticode signing subject name of the executable.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditUnsigned" xml:space="preserve">
+    <value>Кем подписано: (не подписано)</value>
+    <comment>Indicates the custom processor executable does not have an Authenticode signature.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathHashVerificationFailed" xml:space="preserve">
+    <value>Проверка целостности пользовательского пути к обработчику DSC не пройдена. Возможно, путь был изменен.</value>
+    <comment>Error when the server-side hash of the processor path does not match the client-computed hash.</comment>
+  </data>
   <data name="DscCommandShortDescription" xml:space="preserve">
     <value>Команды ресурсов DSC v3</value>
     <comment>DSC stands for "Desired State Configuration". It should already have a locked translation.</comment>
   </data>
   <data name="DscCommandLongDescription" xml:space="preserve">
-    <value>Вложенные команды реализуют Desired State Configuration (DSC) версии 3 для настройки winget и пакетов.</value>
+    <value>Подкоманды здесь реализуют ресурсы Desired State Configuration (DSC) версии 3 для настройки WinGet и пакетов.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourceFunctionDescriptionGet" xml:space="preserve">
     <value>Получить состояние ресурса</value>
@@ -3272,7 +3364,8 @@
     <value>Управление состоянием пакета</value>
   </data>
   <data name="DscPackageResourceLongDescription" xml:space="preserve">
-    <value>Управление пакетами через winget.</value>
+    <value>Управление пакетами через WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionExist" xml:space="preserve">
     <value>Указывает, существует экземпляр или должен существовать.</value>
@@ -3308,7 +3401,8 @@
     <value>Управление файлом настроек пользователя</value>
   </data>
   <data name="DscUserSettingsFileLongDescription" xml:space="preserve">
-    <value>Управление настройками пользователя winget.</value>
+    <value>Управление настройками пользователя WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionUserSettingsFileSettings" xml:space="preserve">
     <value>Содержимое файла настроек JSON.</value>
@@ -3323,7 +3417,8 @@
     <value>Управление конфигурацией источника</value>
   </data>
   <data name="DscSourceResourceLongDescription" xml:space="preserve">
-    <value>Управляйте источниками winget.</value>
+    <value>Управление источниками WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionSourceName" xml:space="preserve">
     <value>Имя, используемое для источника.</value>
@@ -3383,7 +3478,8 @@
     <value>Управление настройками администратора</value>
   </data>
   <data name="DscAdminSettingsResourceLongDescription" xml:space="preserve">
-    <value>Управление параметрами администратора winget.</value>
+    <value>Управление настройками администратора WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="ResetAllAdminSettingsArgumentDescription" xml:space="preserve">
     <value>Сбрасывает все настройки администратора</value>
@@ -3534,5 +3630,23 @@ An unlocalized JSON fragment will follow on another line.</comment>
   <data name="SourceEditNewValue" xml:space="preserve">
     <value>Новое значение</value>
     <comment>Column title for listing the new value.</comment>
+  </data>
+  <data name="SourcePriorityArgumentDescription" xml:space="preserve">
+    <value>Приоритет; сначала более высокие значения</value>
+    <comment>This argument sets the numerical priority of the source. Higher values will be first in priority.</comment>
+  </data>
+  <data name="SourceListPriority" xml:space="preserve">
+    <value>Приоритет</value>
+    <comment>Label for the priority of the source with respect to other sources. Higher values come first in the order.</comment>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourcePriority" xml:space="preserve">
+    <value>Приоритет источника. Более высокие значения идут первыми при сортировке.</value>
+  </data>
+  <data name="MultiplePackagesFoundFilteredBySourcePriority" xml:space="preserve">
+    <value>Результаты отфильтрованы по приоритету самого высокоприоритетного сопоставленного источника.</value>
+    <comment>A warning message to indicate to the user that the results of a search have been filtered by choosing only those matching the highest source priority amongst the results.</comment>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
+    <value>Предоставленный хэш обработчика DSC не совпадает с хэшем целевого файла.</value>
   </data>
 </root>

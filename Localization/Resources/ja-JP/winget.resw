@@ -214,15 +214,19 @@
   </data>
   <data name="FeaturesDisabled" xml:space="preserve">
     <value>無効</value>
+    <comment>Status value in the 'winget features' table. Indicates an experimental feature is turned off. Paired with 'Enabled'.</comment>
   </data>
   <data name="FeaturesEnabled" xml:space="preserve">
     <value>有効</value>
+    <comment>Status value in the 'winget features' table. Indicates an experimental feature is active/turned on. Paired with 'Disabled'.</comment>
   </data>
   <data name="FeaturesFeature" xml:space="preserve">
     <value>機能</value>
+    <comment>Column header in the 'winget features' output table. 'Feature' is noun - an experimental software capability. Do NOT translate as a verb.</comment>
   </data>
   <data name="FeaturesLink" xml:space="preserve">
     <value>リンク</value>
+    <comment>Column header in the 'winget features' output table. 'Link' is a noun — a URL pointing to documentation for the feature. Do NOT translate as a verb.</comment>
   </data>
   <data name="FeaturesMessage" xml:space="preserve">
     <value>次の試験的な機能が進行中です。
@@ -231,9 +235,11 @@
   </data>
   <data name="FeaturesProperty" xml:space="preserve">
     <value>プロパティ</value>
+    <comment>Column header in the 'winget features' output table. 'Property' refers to a named attribute/setting of the feature.</comment>
   </data>
   <data name="FeaturesStatus" xml:space="preserve">
     <value>状態</value>
+    <comment>Column header in the 'winget features' output table. Shows whether an experimental feature is Enabled or Disabled.</comment>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>ハッシュするファイル</value>
@@ -271,8 +277,8 @@
     <value>Microsoft はサードパーティのパッケージに対して責任を負わず、ライセンスも付与しません。</value>
   </data>
   <data name="InstallationDisclaimerMSStore" xml:space="preserve">
-    <value>このパッケージは Microsoft Store から提供されています。winget は、現在のユーザーに代わって Microsoft Store からパッケージを取得する必要がある場合があります。</value>
-    <comment>{Locked="winget"}</comment>
+    <value>このパッケージは Microsoft Store から提供されています。WinGet は、現在のユーザーに代わって Microsoft Store からパッケージを取得する必要がある場合があります。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>構成されたソースを探して見つけるかマニフェストから直接見つけて、選んだパッケージをインストールします。既定では、そのクエリはパッケージの id、name、または moniker と大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すと使えます。既定では、install コマンドは、パッケージのインストール済み状態を確認し、アップグレードがあればそれを実行しようとします。直接インストールするには、--force を指定してオーバーライドします。</value>
@@ -323,8 +329,8 @@
     <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
   </data>
   <data name="KeyDirectoriesHeader" xml:space="preserve">
-    <value>Winget ディレクトリ</value>
-    <comment>Header for a table detailing the directories Winget uses for key operations like logging and portable installs</comment>
+    <value>WinGet ディレクトリ</value>
+    <comment>{Locked="WinGet"} Header for a table detailing the directories WinGet uses for key operations like logging and portable installs</comment>
   </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>使用するロケール (BCP47 形式)</value>
@@ -351,7 +357,7 @@
     <value>ログの場所 (サポートされている場合)</value>
   </data>
   <data name="MainCopyrightNotice" xml:space="preserve">
-    <value>Copyright (c) Microsoft Corporation. All rights reserved.</value>
+    <value>© 2026 Microsoft. All rights reserved.</value>
   </data>
   <data name="MainHomepage" xml:space="preserve">
     <value>ホーム ページ</value>
@@ -468,12 +474,14 @@
   </data>
   <data name="SearchMatch" xml:space="preserve">
     <value>一致</value>
+    <comment>Column header in the 'winget search' output table. 'Match' is a noun describing how the result matched the search query (e.g., Exact, Substring). Do NOT translate as a verb.</comment>
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>名前</value>
   </data>
   <data name="SearchSource" xml:space="preserve">
     <value>ソース</value>
+    <comment>Column header in the 'winget search' output table. 'Source' refers to the WinGet package repository the result came from (e.g., 'winget', 'msstore'). Not 'source code'.</comment>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>結果制限により、エントリがさらに切り捨てられました</value>
@@ -497,6 +505,7 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>チャネル</value>
+    <comment>Label in the 'winget show' output. 'Channel' refers to a software release channel (e.g., stable, preview, beta). Not a TV or media channel.</comment>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>特定のパッケージの情報を表示します。既定では、クエリはパッケージの ID、名前、モニカーに大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。</value>
@@ -514,6 +523,18 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>単一の - の後に出現できるのは、1 文字の別名のみです: '{0}'</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides more than a single character command line alias argument after an alias argument specifier '-'. {0} is a placeholder replaced by the user's argument input.</comment>
+  </data>
+  <data name="SortArgumentDescription" xml:space="preserve">
+    <value>プロパティで結果を並べ替える (繰り返し可能)</value>
+    <comment>Description for the --sort argument used to sort output by field name.</comment>
+  </data>
+  <data name="SortAscendingArgumentDescription" xml:space="preserve">
+    <value>結果を昇順で並べ替える</value>
+    <comment>Description for the --ascending (--asc) flag that sets ascending sort direction for output.</comment>
+  </data>
+  <data name="SortDescendingArgumentDescription" xml:space="preserve">
+    <value>結果を降順で並べ替える</value>
+    <comment>Description for the --descending (--desc) flag that sets descending sort direction for output.</comment>
   </data>
   <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
     <value>指定された名前のソースは既に存在し、別の場所を参照しています:</value>
@@ -616,8 +637,8 @@
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
-    <value>定義済みのソースを開けませんでした; winget メンテナに報告してください。</value>
-    <comment>{Locked="winget"}</comment>
+    <value>定義済みのソースを開けませんでした。WinGet メンテナーに報告してください。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>すべてのソースを削除しています...</value>
@@ -672,7 +693,8 @@
     <value>タグで結果をフィルター処理</value>
   </data>
   <data name="ThankYou" xml:space="preserve">
-    <value>Winget をお使いいただきありがとうございます</value>
+    <value>WinGet をお使いいただきありがとうございます</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>サード パーティに関する通知</value>
@@ -771,6 +793,7 @@
   </data>
   <data name="ReportIdentityFound" xml:space="preserve">
     <value>見つかりました</value>
+    <comment>Header label printed before showing details about a located package, e.g. "Found [package name]". This is the past tense of "to find" — the package was successfully found/located.</comment>
   </data>
   <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
     <value>パスはディレクトリです: {0}</value>
@@ -814,8 +837,8 @@
     <value>正常にアンインストールされました</value>
   </data>
   <data name="NoUninstallInfoFound" xml:space="preserve">
-    <value>winget は、このパッケージのアンインストールコマンドを見つけることができません。サポートについては、パッケージの発行元に問い合わせてください。</value>
-    <comment>{Locked="winget"}</comment>
+    <value>WinGet でこのパッケージのアンインストール コマンドが見つかりません。サポートについては、パッケージの発行元にお問い合わせください。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="UninstallAbandoned" xml:space="preserve">
     <value>アンインストールが中止されました</value>
@@ -998,6 +1021,7 @@
   </data>
   <data name="ExternalDependencies" xml:space="preserve">
     <value>外部</value>
+    <comment>Category label for external package dependencies — packages that this package depends on but are distributed separately. Contrasts with built-in/internal dependencies. This is an adjective modifying the implied noun "dependencies".</comment>
   </data>
   <data name="ImportCommandReportDependencies" xml:space="preserve">
     <value>このインポートで見つかったパッケージには、次の依存関係があります:</value>
@@ -1344,6 +1368,10 @@
   <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
     <value>新しいバージョンが見つかりましたが、インストールテクノロジが現在インストールされているバージョンと異なります。パッケージをアンインストールして、新しいバージョンをインストールしてください。</value>
   </data>
+  <data name="UpgradeInstallTechnologyMismatchCount" xml:space="preserve">
+    <value>新しいバージョンでは現在のインストールとは異なるインストール テクノロジが使用されているため、{0} パッケージのアップグレードがブロックされています。各パッケージをアンインストールしてから、新しいバージョンをインストールします。</value>
+    <comment>{Locked="{0}"} {0} is the number of packages skipped for this reason during winget upgrade --all.</comment>
+  </data>
   <data name="UpgradeDifferentInstallTechnology" xml:space="preserve">
     <value>指定された新しいバージョンのインストール テクノロジが、現在インストールされているバージョンと異なります。パッケージをアンインストールして、新しいバージョンをインストールしてください。</value>
   </data>
@@ -1462,6 +1490,7 @@
   </data>
   <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
     <value>WinGet によって作成されていないため、インストール ディレクトリを破棄することができません</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="RelatedLink" xml:space="preserve">
     <value>関連リンク</value>
@@ -1724,7 +1753,8 @@
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
   </data>
   <data name="UpgradeBlockedByManifest" xml:space="preserve">
-    <value>winget を使用してパッケージをアップグレードすることはできません。このパッケージをアップグレードするには、発行元から提供された方法を使用してください。</value>
+    <value>WinGet を使用してパッケージをアップグレードすることはできません。このパッケージをアップグレードするには、発行元から提供された方法を使用してください。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>ブロックでないピンを持っている場合でもパッケージをアップグレードする</value>
@@ -1744,7 +1774,7 @@
     <comment>{Locked="winget pin","--include-pinned"} Error shown when we block an upgrade due to the package being pinned</comment>
   </data>
   <data name="UpgradePinnedByUserCount" xml:space="preserve">
-    <value>{0} 個のパッケージには、アップグレードを止めるピンがあります。'winget pin' コマンドを使用してピンを表示および編集します。--include-pinned 引数を使用すると、より多くの結果が表示される場合があります。</value>
+    <value>{0} 個のパッケージにアップグレードを妨げるピンがあります。ピンを表示および編集するには、'winget pin' コマンドを使用します。'--include-pinned' 引数を使用すると、より多くの結果が表示される場合があります。</value>
     <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
   </data>
   <data name="ConfigureCommandLongDescription" xml:space="preserve">
@@ -2021,6 +2051,12 @@
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>パッケージの依存関係と Windows 機能の処理をスキップする</value>
   </data>
+  <data name="DependenciesOnlyArgumentDescription" xml:space="preserve">
+    <value>パッケージの依存関係のみをインストールします</value>
+  </data>
+  <data name="DependenciesOnlyMessage" xml:space="preserve">
+    <value>依存関係のみをインストールしています。パッケージ自体はインストールされません。</value>
+  </data>
   <data name="DependenciesSkippedMessage" xml:space="preserve">
     <value>依存関係がスキップされました。</value>
   </data>
@@ -2111,13 +2147,26 @@
     <value>Windows パッケージ マネージャーの構成を有効にする</value>
   </data>
   <data name="ErrorCommandLongDescription" xml:space="preserve">
-    <value>エラーに関する情報を取得します。指定された数値は、winget 固有のエラーの場合のシンボル名を含む、エラーに関する詳細を出力に含めます。文字列を指定すると、winget 固有のエラーがこの値で検索されます。</value>
+    <value>エラーに関する情報を取得します。数値を指定すると、出力には、WinGet 固有のエラーの場合はシンボル名を含む、エラーに関する詳細が含まれます。文字列を指定すると、WinGet 固有のエラーがこの値で検索されます。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="ErrorCommandShortDescription" xml:space="preserve">
     <value>エラーに関する情報を取得する</value>
   </data>
   <data name="ErrorInputArgumentDescription" xml:space="preserve">
     <value>エラー情報内で検索する値</value>
+  </data>
+  <data name="ErrorOutputFileArgumentDescription" xml:space="preserve">
+    <value>エラー コード Markdown ファイルを生成する</value>
+    <comment>Description of an argument that causes a Markdown file to be generated for all winget error codes.</comment>
+  </data>
+  <data name="ErrorOutputFileConflictsWithInput" xml:space="preserve">
+    <value>--output 引数を入力値と組み合わせることはできません。</value>
+    <comment>{Locked="--output"}</comment>
+  </data>
+  <data name="ErrorRequiresInputOrOutputFile" xml:space="preserve">
+    <value>入力値または --output を指定する必要があります。</value>
+    <comment>{Locked="--output"}</comment>
   </data>
   <data name="ErrorNumberIsTooLarge" xml:space="preserve">
     <value>指定された数値が大きすぎて HRESULT にできません。</value>
@@ -2210,7 +2259,8 @@
     <value>Microsoft Store アプリがポリシーによってブロックされています</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED" xml:space="preserve">
-    <value>この機能は現在開発中です。winget 設定を使用して有効にできます。</value>
+    <value>この機能は現在開発中です。'winget settings' を使用して有効にできます。</value>
+    <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED" xml:space="preserve">
     <value>Microsoft Store アプリをインストールできませんでした</value>
@@ -2253,6 +2303,9 @@
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE" xml:space="preserve">
     <value>適用可能な更新は見つかりませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH" xml:space="preserve">
+    <value>アップグレードは利用できますが、現在のインストールとは異なるインストール テクノロジを使用しています</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE" xml:space="preserve">
     <value>WinGet アップグレード -- すべて完了しましたが、エラーが発生しました</value>
@@ -2780,8 +2833,8 @@
     <value>認証に使用するアカウントを指定します</value>
   </data>
   <data name="SourceAddFailedAuthenticationNotSupported" xml:space="preserve">
-    <value>ソースを追加できませんでした。この winget バージョンは、ソースの認証方法をサポートしていません。最新の winget バージョンにアップグレードしてみてください。</value>
-    <comment>{Locked="winget"}</comment>
+    <value>ソースを追加できませんでした。この WinGet バージョンは、ソースの認証方法をサポートしていません。最新の WinGet バージョンにアップグレードしてみてください。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="SourceRequiresAuthentication" xml:space="preserve">
     <value>{0} ソースには認証が必要です。必要に応じて認証プロンプトが表示されることがあります。認証された情報は、アクセス承認のためにソースと共有されます。</value>
@@ -2861,11 +2914,18 @@
     <value>プロキシ コマンド ライン オプションWindows パッケージ マネージャー有効にする</value>
     <comment>Describes a Group Policy that can enable the use of the --proxy option to set a proxy</comment>
   </data>
+  <data name="PolicyEnableConfigurationProcessorPath" xml:space="preserve">
+    <value>Windows パッケージ マネージャー構成プロセッサー パスを有効にします</value>
+    <comment>Describes a Group Policy that can enable the use of the --processor-path option in configuration commands</comment>
+  </data>
   <data name="ProxyArgumentDescription" xml:space="preserve">
     <value>この実行に使用するプロキシを設定します</value>
   </data>
   <data name="NoProxyArgumentDescription" xml:space="preserve">
     <value>この実行に対するプロキシの使用を無効にする</value>
+  </data>
+  <data name="NoProgressArgumentDescription" xml:space="preserve">
+    <value>進行状況バーとスピナーを無効にします</value>
   </data>
   <data name="ResetAdminSettingFailed" xml:space="preserve">
     <value>{0} をリセットできません。この設定はポリシーによって制御されます。詳細については、システム管理者に問い合わせてください。</value>
@@ -2908,7 +2968,8 @@
     <value>ソースを検出から除外します (true または false)</value>
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
-    <value>成人指定</value>
+    <value>明示的</value>
+    <comment>Column header in 'winget source list' output. 'Explicit' here is a technical term meaning the source must be directly named/specified to be used—it is NOT automatically included in package discovery. Translate as the equivalent of "requires explicit specification" or "must be directly specified". Do NOT translate as "explicit content", "adult content", "mature content", or any phrase suggesting inappropriate material.</comment>
   </data>
   <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
     <value>ソースの信頼レベル (なしまたは信頼済み)</value>
@@ -3184,17 +3245,19 @@
   </data>
   <data name="FontFamily" xml:space="preserve">
     <value>ファミリ</value>
+    <comment>Column header for the font family name, e.g. 'Arial' or 'Times New Roman'. Do NOT translate as a family of people or a surname.</comment>
   </data>
   <data name="FontFaces" xml:space="preserve">
-    <value>フェイス</value>
-    <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
+    <value>スタイル</value>
+    <comment>Column header listing the typefaces within a font family, e.g. 'Bold', 'Italic', 'Bold Italic'. Do NOT translate as human/anatomical faces.</comment>
   </data>
   <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
     <value>ファミリ名で結果をフィルター処理する</value>
+    <comment>'Family name' refers to the font family name, e.g. 'Arial' or 'Times New Roman'. Do NOT translate 'family' as a family of people or 'family name' as a surname.</comment>
   </data>
   <data name="FontFace" xml:space="preserve">
-    <value>顔</value>
-    <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
+    <value>スタイル</value>
+    <comment>A single typeface within a font family, e.g. 'Bold' or 'Italic'. Do NOT translate as a human/anatomical face.</comment>
   </data>
   <data name="FontFilePaths" xml:space="preserve">
     <value>パス</value>
@@ -3219,8 +3282,8 @@
     <value>パッケージ インストーラーには認証が必要です。必要に応じて認証プロンプトが表示されることがあります。認証された情報はインストーラーのダウンロード URL と共有されます。</value>
   </data>
   <data name="InstallerDownloadAuthenticationNotSupported" xml:space="preserve">
-    <value>インストーラーをダウンロードできませんでした。この winget バージョンは、インストーラーのダウンロード認証方法をサポートしていません。最新の winget バージョンにアップグレードしてみてください。</value>
-    <comment>{Locked="winget"}</comment>
+    <value>インストーラーをダウンロードできませんでした。この WinGet バージョンでは、インストーラーのダウンロード認証方法がサポートされていません。最新の WinGet バージョンにアップグレードしてみてください。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
     <value>インストーラーをダウンロードできませんでした。認証に失敗しました。</value>
@@ -3228,12 +3291,41 @@
   <data name="ConfigurationProcessorPath" xml:space="preserve">
     <value>構成プロセッサへのパスを指定する</value>
   </data>
+  <data name="ConfigurationProcessorPathAudit" xml:space="preserve">
+    <value>カスタム プロセッサ パス:</value>
+    <comment>Displayed as a warning header when a custom --processor-path argument is provided.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditHash" xml:space="preserve">
+    <value>ハッシュ: {0}</value>
+    <comment>{Locked="{0}"} {0} is the SHA256 hash hex string of the processor executable or its reparse data.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditIsAlias" xml:space="preserve">
+    <value>種類: アプリ実行エイリアス</value>
+    <comment>Indicates the processor path is an app execution alias (MSIX package link).</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditPath" xml:space="preserve">
+    <value>パス: {0}</value>
+    <comment>{Locked="{0}"} {0} is the file system path provided by the user.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditSignature" xml:space="preserve">
+    <value>署名者: {0}</value>
+    <comment>{Locked="{0}"} {0} is the Authenticode signing subject name of the executable.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditUnsigned" xml:space="preserve">
+    <value>署名者: (署名なし)</value>
+    <comment>Indicates the custom processor executable does not have an Authenticode signature.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathHashVerificationFailed" xml:space="preserve">
+    <value>カスタム DSC プロセッサ パスの整合性チェックに失敗しました。パスが変更された可能性があります。</value>
+    <comment>Error when the server-side hash of the processor path does not match the client-computed hash.</comment>
+  </data>
   <data name="DscCommandShortDescription" xml:space="preserve">
     <value>DSC v3 リソース コマンド</value>
     <comment>DSC stands for "Desired State Configuration". It should already have a locked translation.</comment>
   </data>
   <data name="DscCommandLongDescription" xml:space="preserve">
-    <value>ここでのサブコマンドは、winget とパッケージを構成するための Desired State Configuration (DSC) v3 リソースを実装しています。</value>
+    <value>ここでのサブコマンドは、WinGet とパッケージを構成するための Desired State Configuration (DSC) v3 リソースを実装しています。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourceFunctionDescriptionGet" xml:space="preserve">
     <value>リソースの状態を取得する</value>
@@ -3272,7 +3364,8 @@
     <value>パッケージの状態を管理する</value>
   </data>
   <data name="DscPackageResourceLongDescription" xml:space="preserve">
-    <value>winget を使用してパッケージを管理します。</value>
+    <value>WinGet を使用してパッケージを管理します。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionExist" xml:space="preserve">
     <value>インスタンスが存在するかどうかを示します。</value>
@@ -3308,7 +3401,8 @@
     <value>ユーザー設定ファイルを管理する</value>
   </data>
   <data name="DscUserSettingsFileLongDescription" xml:space="preserve">
-    <value>winget のユーザー設定を管理します。</value>
+    <value>WinGet のユーザー設定を管理します。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionUserSettingsFileSettings" xml:space="preserve">
     <value>設定 JSON ファイルの内容。</value>
@@ -3323,7 +3417,8 @@
     <value>ソースの構成を管理する</value>
   </data>
   <data name="DscSourceResourceLongDescription" xml:space="preserve">
-    <value>winget のソースを管理します。</value>
+    <value>WinGet のソースを管理します。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionSourceName" xml:space="preserve">
     <value>ソースに使用する名前。</value>
@@ -3383,7 +3478,8 @@
     <value>管理者設定を管理する</value>
   </data>
   <data name="DscAdminSettingsResourceLongDescription" xml:space="preserve">
-    <value>winget の管理者設定を管理します。</value>
+    <value>WinGet の管理者設定を管理します。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="ResetAllAdminSettingsArgumentDescription" xml:space="preserve">
     <value>すべての管理者設定をリセットする</value>
@@ -3534,5 +3630,23 @@ An unlocalized JSON fragment will follow on another line.</comment>
   <data name="SourceEditNewValue" xml:space="preserve">
     <value>新しい値</value>
     <comment>Column title for listing the new value.</comment>
+  </data>
+  <data name="SourcePriorityArgumentDescription" xml:space="preserve">
+    <value>優先 順位; 大きい数字順</value>
+    <comment>This argument sets the numerical priority of the source. Higher values will be first in priority.</comment>
+  </data>
+  <data name="SourceListPriority" xml:space="preserve">
+    <value>優先順位</value>
+    <comment>Label for the priority of the source with respect to other sources. Higher values come first in the order.</comment>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourcePriority" xml:space="preserve">
+    <value>ソースの優先度。値が大きいほど順番の先頭に並べ替えられます。</value>
+  </data>
+  <data name="MultiplePackagesFoundFilteredBySourcePriority" xml:space="preserve">
+    <value>結果は、一致したソースの優先度が最も高いものにフィルター処理されました。</value>
+    <comment>A warning message to indicate to the user that the results of a search have been filtered by choosing only those matching the highest source priority amongst the results.</comment>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
+    <value>指定された DSC プロセッサ ハッシュがターゲット ファイルのハッシュと一致しません。</value>
   </data>
 </root>

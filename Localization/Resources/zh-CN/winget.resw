@@ -214,15 +214,19 @@
   </data>
   <data name="FeaturesDisabled" xml:space="preserve">
     <value>已禁用</value>
+    <comment>Status value in the 'winget features' table. Indicates an experimental feature is turned off. Paired with 'Enabled'.</comment>
   </data>
   <data name="FeaturesEnabled" xml:space="preserve">
     <value>已启用</value>
+    <comment>Status value in the 'winget features' table. Indicates an experimental feature is active/turned on. Paired with 'Disabled'.</comment>
   </data>
   <data name="FeaturesFeature" xml:space="preserve">
     <value>功能</value>
+    <comment>Column header in the 'winget features' output table. 'Feature' is noun - an experimental software capability. Do NOT translate as a verb.</comment>
   </data>
   <data name="FeaturesLink" xml:space="preserve">
     <value>链接</value>
+    <comment>Column header in the 'winget features' output table. 'Link' is a noun — a URL pointing to documentation for the feature. Do NOT translate as a verb.</comment>
   </data>
   <data name="FeaturesMessage" xml:space="preserve">
     <value>以下实验性功能正在进行中。
@@ -231,9 +235,11 @@
   </data>
   <data name="FeaturesProperty" xml:space="preserve">
     <value>属性</value>
+    <comment>Column header in the 'winget features' output table. 'Property' refers to a named attribute/setting of the feature.</comment>
   </data>
   <data name="FeaturesStatus" xml:space="preserve">
     <value>状态</value>
+    <comment>Column header in the 'winget features' output table. Shows whether an experimental feature is Enabled or Disabled.</comment>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>进行哈希处理的文件</value>
@@ -271,8 +277,8 @@
     <value>Microsoft 对第三方程序包概不负责，也不向第三方程序包授予任何许可证。</value>
   </data>
   <data name="InstallationDisclaimerMSStore" xml:space="preserve">
-    <value>此程序包是通过 Microsoft Store 提供的。winget 可能需要代表当前用户从 Microsoft Store 获取该程序包。</value>
-    <comment>{Locked="winget"}</comment>
+    <value>此程序包是通过 Microsoft Store 提供的。WinGet 可能需要代表当前用户从 Microsoft Store 获取此程序包。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>安装选定的程序包（通过搜索配置的源或直接从清单中找到）。默认情况下，查询必须以不区分大小写的方式匹配程序包的 id、name 或 moniker。可以通过传递相应的选项来使用其他字段。默认情况下，安装命令将检查包安装状态，并尝试执行升级（如果适用）。使用 --force 重写以执行直接安装。</value>
@@ -323,8 +329,8 @@
     <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
   </data>
   <data name="KeyDirectoriesHeader" xml:space="preserve">
-    <value>Winget 目录</value>
-    <comment>Header for a table detailing the directories Winget uses for key operations like logging and portable installs</comment>
+    <value>WinGet 目录</value>
+    <comment>{Locked="WinGet"} Header for a table detailing the directories WinGet uses for key operations like logging and portable installs</comment>
   </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>要使用的区域设置(BCP47 格式)</value>
@@ -351,7 +357,7 @@
     <value>日志位置（如果支持）</value>
   </data>
   <data name="MainCopyrightNotice" xml:space="preserve">
-    <value>版权所有 (C) Microsoft Corporation。保留所有权利。</value>
+    <value>© 2026 Microsoft。保留所有权利。</value>
   </data>
   <data name="MainHomepage" xml:space="preserve">
     <value>主页</value>
@@ -468,12 +474,14 @@
   </data>
   <data name="SearchMatch" xml:space="preserve">
     <value>匹配</value>
+    <comment>Column header in the 'winget search' output table. 'Match' is a noun describing how the result matched the search query (e.g., Exact, Substring). Do NOT translate as a verb.</comment>
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>名称</value>
   </data>
   <data name="SearchSource" xml:space="preserve">
     <value>源</value>
+    <comment>Column header in the 'winget search' output table. 'Source' refers to the WinGet package repository the result came from (e.g., 'winget', 'msstore'). Not 'source code'.</comment>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>由于结果限制而截断了其他条目</value>
@@ -497,6 +505,7 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>频道</value>
+    <comment>Label in the 'winget show' output. 'Channel' refers to a software release channel (e.g., stable, preview, beta). Not a TV or media channel.</comment>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>显示有关特定程序包的信息。默认情况下，查询必须以不区分大小写的方式匹配程序包的 ID、名称或名字对象。可通过传递相应的选项来使用其他字段。</value>
@@ -514,6 +523,18 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>只能在单个 - 后出现单个字符别名: "{0}"</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides more than a single character command line alias argument after an alias argument specifier '-'. {0} is a placeholder replaced by the user's argument input.</comment>
+  </data>
+  <data name="SortArgumentDescription" xml:space="preserve">
+    <value>按属性对结果排序(可重复)</value>
+    <comment>Description for the --sort argument used to sort output by field name.</comment>
+  </data>
+  <data name="SortAscendingArgumentDescription" xml:space="preserve">
+    <value>按升序对结果进行排序</value>
+    <comment>Description for the --ascending (--asc) flag that sets ascending sort direction for output.</comment>
+  </data>
+  <data name="SortDescendingArgumentDescription" xml:space="preserve">
+    <value>按降序对结果进行排序</value>
+    <comment>Description for the --descending (--desc) flag that sets descending sort direction for output.</comment>
   </data>
   <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
     <value>具有给定名称的源已存在，并且引用了其他位置:</value>
@@ -616,8 +637,8 @@
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
-    <value>打开预定义源失败; 请向 winget 维护人员报告。</value>
-    <comment>{Locked="winget"}</comment>
+    <value>无法打开预定义源；请向 WinGet 维护人员报告。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>正在删除所有源...</value>
@@ -672,7 +693,8 @@
     <value>按标签筛选</value>
   </data>
   <data name="ThankYou" xml:space="preserve">
-    <value>感谢你使用 winget</value>
+    <value>感谢你使用 WinGet</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>第三方声明</value>
@@ -771,6 +793,7 @@
   </data>
   <data name="ReportIdentityFound" xml:space="preserve">
     <value>已找到</value>
+    <comment>Header label printed before showing details about a located package, e.g. "Found [package name]". This is the past tense of "to find" — the package was successfully found/located.</comment>
   </data>
   <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
     <value>路径是一个目录: {0}</value>
@@ -814,8 +837,8 @@
     <value>已成功卸载</value>
   </data>
   <data name="NoUninstallInfoFound" xml:space="preserve">
-    <value>winget 找不到此程序包的卸载命令。请与程序包发布者联系以获取支持。</value>
-    <comment>{Locked="winget"}</comment>
+    <value>WinGet 找不到此包的卸载命令。请联系包发布者以获取支持。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="UninstallAbandoned" xml:space="preserve">
     <value>卸载已放弃</value>
@@ -998,6 +1021,7 @@
   </data>
   <data name="ExternalDependencies" xml:space="preserve">
     <value>外部</value>
+    <comment>Category label for external package dependencies — packages that this package depends on but are distributed separately. Contrasts with built-in/internal dependencies. This is an adjective modifying the implied noun "dependencies".</comment>
   </data>
   <data name="ImportCommandReportDependencies" xml:space="preserve">
     <value>在此导入中找到的包具有以下依赖项：</value>
@@ -1120,7 +1144,7 @@
     <value>许可证 URL:</value>
   </data>
   <data name="ShowLabelMoniker" xml:space="preserve">
-    <value>绰号：</value>
+    <value>绰号:</value>
   </data>
   <data name="ShowLabelPackageUrl" xml:space="preserve">
     <value>主页:</value>
@@ -1344,6 +1368,10 @@
   <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
     <value>找到了较新的版本，但安装技术与当前安装的版本不同。请卸载包并安装较新的版本。</value>
   </data>
+  <data name="UpgradeInstallTechnologyMismatchCount" xml:space="preserve">
+    <value>{0} 包() 阻止升级，因为较新的版本使用的安装技术与当前安装不同。卸载每个包，然后安装较新的版本。</value>
+    <comment>{Locked="{0}"} {0} is the number of packages skipped for this reason during winget upgrade --all.</comment>
+  </data>
   <data name="UpgradeDifferentInstallTechnology" xml:space="preserve">
     <value>指定的较新版本的安装技术与当前安装的版本不同。请卸载包并安装较新的版本。</value>
   </data>
@@ -1462,6 +1490,7 @@
   </data>
   <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
     <value>无法清除安装目录，因为它不是由 WinGet 创建的</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="RelatedLink" xml:space="preserve">
     <value>相关链接</value>
@@ -1724,7 +1753,8 @@
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
   </data>
   <data name="UpgradeBlockedByManifest" xml:space="preserve">
-    <value>无法使用 winget 升级包。请使用发布者提供的方法升级此包。</value>
+    <value>无法使用 WinGet 升级包。请使用发布者提供的方法来升级此包。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>即使程序包拥有非阻止性包钉，也要升级程序包</value>
@@ -2021,6 +2051,12 @@
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>跳过处理包依赖项和 Windows 功能</value>
   </data>
+  <data name="DependenciesOnlyArgumentDescription" xml:space="preserve">
+    <value>仅安装包的依赖项</value>
+  </data>
+  <data name="DependenciesOnlyMessage" xml:space="preserve">
+    <value>仅安装依赖项。不会安装包本身。</value>
+  </data>
   <data name="DependenciesSkippedMessage" xml:space="preserve">
     <value>已跳过依赖项。</value>
   </data>
@@ -2111,13 +2147,26 @@
     <value>启用 Windows 程序包管理器配置</value>
   </data>
   <data name="ErrorCommandLongDescription" xml:space="preserve">
-    <value>检索有关错误的信息。给定一个数字，输出将包含有关错误的详细信息，如果是 winget 特定的错误，则包括符号名称。给定一个字符串，将搜索 winget 特定的错误以查找此值。</value>
+    <value>检索有关错误的信息。给定一个数字，输出将包含有关错误的详细信息，如果它是特定于 WinGet 的错误，则包括符号名称。给定一个字符串，搜索 WinGet 特定错误以查找此值。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="ErrorCommandShortDescription" xml:space="preserve">
     <value>获取错误相关信息</value>
   </data>
   <data name="ErrorInputArgumentDescription" xml:space="preserve">
     <value>要在错误信息中搜索的值</value>
+  </data>
+  <data name="ErrorOutputFileArgumentDescription" xml:space="preserve">
+    <value>生成错误代码 Markdown 文件</value>
+    <comment>Description of an argument that causes a Markdown file to be generated for all winget error codes.</comment>
+  </data>
+  <data name="ErrorOutputFileConflictsWithInput" xml:space="preserve">
+    <value>--output 参数不能与输入值结合使用。</value>
+    <comment>{Locked="--output"}</comment>
+  </data>
+  <data name="ErrorRequiresInputOrOutputFile" xml:space="preserve">
+    <value>必须提供输入值或 --output。</value>
+    <comment>{Locked="--output"}</comment>
   </data>
   <data name="ErrorNumberIsTooLarge" xml:space="preserve">
     <value>给定的数字太大，无法为 HRESULT。</value>
@@ -2210,7 +2259,8 @@
     <value>Microsoft Store 应用遭到策略阻止</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED" xml:space="preserve">
-    <value>该功能当前正在开发中。可以使用 winget 设置启用它。</value>
+    <value>该功能当前正在开发中。可以使用 `winget settings` 启用它。</value>
+    <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED" xml:space="preserve">
     <value>未能安装 Microsoft Store 应用</value>
@@ -2253,6 +2303,9 @@
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE" xml:space="preserve">
     <value>找不到适用的更新</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH" xml:space="preserve">
+    <value>有可用升级，但使用的安装技术与当前安装不同</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE" xml:space="preserve">
     <value>winget upgrade --all 完成，但出现故障</value>
@@ -2780,8 +2833,8 @@
     <value>指定用于身份验证的帐户</value>
   </data>
   <data name="SourceAddFailedAuthenticationNotSupported" xml:space="preserve">
-    <value>无法添加源。此 winget 版本不支持源的身份验证方法。请尝试升级到最新 winget 版本。</value>
-    <comment>{Locked="winget"}</comment>
+    <value>未能添加源。此 WinGet 版本不支持源的身份验证方法。请尝试升级到最新的 WinGet 版本。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="SourceRequiresAuthentication" xml:space="preserve">
     <value>{0} 源需要身份验证。必要时可能会显示身份验证提示。将与源共享经过身份验证的信息以进行访问授权。</value>
@@ -2861,11 +2914,18 @@
     <value>启用Windows 程序包管理器代理命令行选项</value>
     <comment>Describes a Group Policy that can enable the use of the --proxy option to set a proxy</comment>
   </data>
+  <data name="PolicyEnableConfigurationProcessorPath" xml:space="preserve">
+    <value>启用Windows 程序包管理器配置处理器路径</value>
+    <comment>Describes a Group Policy that can enable the use of the --processor-path option in configuration commands</comment>
+  </data>
   <data name="ProxyArgumentDescription" xml:space="preserve">
     <value>设置要用于此执行的代理</value>
   </data>
   <data name="NoProxyArgumentDescription" xml:space="preserve">
     <value>禁止对此执行使用代理</value>
+  </data>
+  <data name="NoProgressArgumentDescription" xml:space="preserve">
+    <value>禁用进度栏和旋转图标</value>
   </data>
   <data name="ResetAdminSettingFailed" xml:space="preserve">
     <value>无法重置 {0}。此设置由策略控制。有关详细信息，请与系统管理员联系。</value>
@@ -2909,6 +2969,7 @@
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
     <value>显式</value>
+    <comment>Column header in 'winget source list' output. 'Explicit' here is a technical term meaning the source must be directly named/specified to be used—it is NOT automatically included in package discovery. Translate as the equivalent of "requires explicit specification" or "must be directly specified". Do NOT translate as "explicit content", "adult content", "mature content", or any phrase suggesting inappropriate material.</comment>
   </data>
   <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
     <value>源的信任级别 (无或受信任的)</value>
@@ -3184,17 +3245,19 @@
   </data>
   <data name="FontFamily" xml:space="preserve">
     <value>家庭</value>
+    <comment>Column header for the font family name, e.g. 'Arial' or 'Times New Roman'. Do NOT translate as a family of people or a surname.</comment>
   </data>
   <data name="FontFaces" xml:space="preserve">
     <value>脸</value>
-    <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
+    <comment>Column header listing the typefaces within a font family, e.g. 'Bold', 'Italic', 'Bold Italic'. Do NOT translate as human/anatomical faces.</comment>
   </data>
   <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
     <value>按家庭名称筛选结果</value>
+    <comment>'Family name' refers to the font family name, e.g. 'Arial' or 'Times New Roman'. Do NOT translate 'family' as a family of people or 'family name' as a surname.</comment>
   </data>
   <data name="FontFace" xml:space="preserve">
     <value>脸</value>
-    <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
+    <comment>A single typeface within a font family, e.g. 'Bold' or 'Italic'. Do NOT translate as a human/anatomical face.</comment>
   </data>
   <data name="FontFilePaths" xml:space="preserve">
     <value>路径</value>
@@ -3219,8 +3282,8 @@
     <value>包安装程序需要身份验证。必要时可能会显示身份验证提示。将与安装程序下载 URL 共享经过身份验证的信息。</value>
   </data>
   <data name="InstallerDownloadAuthenticationNotSupported" xml:space="preserve">
-    <value>无法下载安装程序。此 winget 版本不支持安装程序下载身份验证方法。请尝试升级到最新 winget 版本。</value>
-    <comment>{Locked="winget"}</comment>
+    <value>未能下载安装程序。此 WinGet 版本不支持安装程序下载身份验证方法。请尝试升级到最新的 WinGet 版本。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
     <value>未能下载安装程序。身份验证失败。</value>
@@ -3228,12 +3291,41 @@
   <data name="ConfigurationProcessorPath" xml:space="preserve">
     <value>指定配置处理器的路径</value>
   </data>
+  <data name="ConfigurationProcessorPathAudit" xml:space="preserve">
+    <value>自定义处理器路径:</value>
+    <comment>Displayed as a warning header when a custom --processor-path argument is provided.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditHash" xml:space="preserve">
+    <value>哈希: {0}</value>
+    <comment>{Locked="{0}"} {0} is the SHA256 hash hex string of the processor executable or its reparse data.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditIsAlias" xml:space="preserve">
+    <value>类型: 应用执行别名</value>
+    <comment>Indicates the processor path is an app execution alias (MSIX package link).</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditPath" xml:space="preserve">
+    <value>路径: {0}</value>
+    <comment>{Locked="{0}"} {0} is the file system path provided by the user.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditSignature" xml:space="preserve">
+    <value>签名者: {0}</value>
+    <comment>{Locked="{0}"} {0} is the Authenticode signing subject name of the executable.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditUnsigned" xml:space="preserve">
+    <value>签名者: (未签名)</value>
+    <comment>Indicates the custom processor executable does not have an Authenticode signature.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathHashVerificationFailed" xml:space="preserve">
+    <value>自定义 DSC 处理器路径的完整性检查失败。路径可能已被修改。</value>
+    <comment>Error when the server-side hash of the processor path does not match the client-computed hash.</comment>
+  </data>
   <data name="DscCommandShortDescription" xml:space="preserve">
     <value>DSC v3 资源命令</value>
     <comment>DSC stands for "Desired State Configuration". It should already have a locked translation.</comment>
   </data>
   <data name="DscCommandLongDescription" xml:space="preserve">
-    <value>此处的子命令实现Desired State Configuration (DSC) v3 资源来配置 winget 和包。</value>
+    <value>此处的子命令实现Desired State Configuration (DSC) v3 资源，以配置 WinGet 和包。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourceFunctionDescriptionGet" xml:space="preserve">
     <value>获取资源状态</value>
@@ -3272,7 +3364,8 @@
     <value>管理包状态</value>
   </data>
   <data name="DscPackageResourceLongDescription" xml:space="preserve">
-    <value>通过 winget 管理包。</value>
+    <value>通过 WinGet 管理程序包。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionExist" xml:space="preserve">
     <value>指示实例是否应存在。</value>
@@ -3308,7 +3401,8 @@
     <value>管理用户设置文件</value>
   </data>
   <data name="DscUserSettingsFileLongDescription" xml:space="preserve">
-    <value>管理 winget 的用户设置。</value>
+    <value>管理 WinGet 的用户设置。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionUserSettingsFileSettings" xml:space="preserve">
     <value>设置 json 文件内容。</value>
@@ -3323,7 +3417,8 @@
     <value>管理源配置</value>
   </data>
   <data name="DscSourceResourceLongDescription" xml:space="preserve">
-    <value>管理 winget 的源。</value>
+    <value>管理 WinGet 的源。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionSourceName" xml:space="preserve">
     <value>用于源的名称。</value>
@@ -3383,7 +3478,8 @@
     <value>管理管理员设置</value>
   </data>
   <data name="DscAdminSettingsResourceLongDescription" xml:space="preserve">
-    <value>管理 winget 的管理员设置。</value>
+    <value>管理 WinGet 的管理员设置。</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="ResetAllAdminSettingsArgumentDescription" xml:space="preserve">
     <value>重置所有管理员设置</value>
@@ -3534,5 +3630,23 @@ An unlocalized JSON fragment will follow on another line.</comment>
   <data name="SourceEditNewValue" xml:space="preserve">
     <value>新值</value>
     <comment>Column title for listing the new value.</comment>
+  </data>
+  <data name="SourcePriorityArgumentDescription" xml:space="preserve">
+    <value>优先级；数字越大越靠前</value>
+    <comment>This argument sets the numerical priority of the source. Higher values will be first in priority.</comment>
+  </data>
+  <data name="SourceListPriority" xml:space="preserve">
+    <value>优先级</value>
+    <comment>Label for the priority of the source with respect to other sources. Higher values come first in the order.</comment>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourcePriority" xml:space="preserve">
+    <value>源的优先级。顺序中较高的值排在最前面。</value>
+  </data>
+  <data name="MultiplePackagesFoundFilteredBySourcePriority" xml:space="preserve">
+    <value>结果已筛选为最高匹配源优先级。</value>
+    <comment>A warning message to indicate to the user that the results of a search have been filtered by choosing only those matching the highest source priority amongst the results.</comment>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
+    <value>提供的 DSC 处理器哈希与目标文件的哈希不匹配。</value>
   </data>
 </root>
