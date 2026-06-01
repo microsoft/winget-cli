@@ -761,6 +761,46 @@ TEST_CASE("CompositePackage_AvailableVersions_NoChannelFilteredOut", "[Composite
     REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Channel).get() == channel);
 }
 
+TEST_CASE("CompositePackage_PrereleaseAvailable_StableInstalled_NoUpdate", "[CompositeSource]")
+{
+    // microsoft/winget-pkgs#368913: a higher-precedence pre-release must not be
+    // offered as an upgrade to a stable installation.
+    auto availableVersion = GENERATE("3.14.5"sv, "3.14.5rc1"sv);
+    const bool isPrerelease = (availableVersion == "3.14.5rc1"sv);
+
+    CompositeTestSetup setup;
+    setup.Installed->Everything.Matches.emplace_back(setup.MakeInstalled().WithVersion("3.14.4"sv), Criteria());
+    setup.Available->SearchFunction = [&](const SearchRequest&)
+    {
+        auto manifest = MakeDefaultManifest(availableVersion);
+        // ManifestComparator::GetPreferredInstaller drops Architecture::Unknown on the host.
+        manifest.Installers[0].BaseInstallerType = Manifest::InstallerTypeEnum::Exe;
+        manifest.Installers[0].Arch = Utility::Architecture::Neutral;
+
+        SearchResult result;
+        result.Matches.emplace_back(
+            TestCompositePackage::Make(std::vector<Manifest::Manifest>{ manifest }, setup.Available),
+            Criteria());
+        return result;
+    };
+
+    SearchResult result = setup.Search();
+    REQUIRE(result.Matches.size() == 1);
+
+    auto latest = GetLatestApplicableVersion(result.Matches[0].Package);
+    if (isPrerelease)
+    {
+        REQUIRE_FALSE(latest.UpdateAvailable);
+        REQUIRE_FALSE(latest.LatestApplicableVersion);
+    }
+    else
+    {
+        REQUIRE(latest.UpdateAvailable);
+        REQUIRE(latest.LatestApplicableVersion);
+        REQUIRE(latest.LatestApplicableVersion->GetProperty(PackageVersionProperty::Version).get() == availableVersion);
+    }
+}
+
 TEST_CASE("CompositeSource_MultipleAvailableSources_MatchAll", "[CompositeSource]")
 {
     TestCommon::TestUserSettings testSettings;
