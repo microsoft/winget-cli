@@ -303,6 +303,13 @@ jobs:
       TargetFolder: '$(artifactsDir)\E2ETests\Scripts'
       flattenFolders: true
 
+  - task: CopyFiles@2
+    displayName: Copy MSBuildCache logs
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\MSBuildCacheLogs'
+      TargetFolder: '$(artifactsDir)\MSBuildCacheLogs'
+    condition: succeededOrFailed()
+
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
     inputs:
