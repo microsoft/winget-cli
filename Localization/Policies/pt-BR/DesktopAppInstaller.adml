@@ -133,6 +133,15 @@ Se você desabilitar ou não definir essa configuração, os usuários não pode
 Se você habilitar ou não definir essa configuração, os usuários poderão usar o Gerenciador de Pacotes do Windows MCP do servidor.
 
 Se você desabilitar essa configuração, os usuários não poderão usar o Gerenciador de Pacotes do Windows MCP do servidor.</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPath">Habilitar Substituição do Processador de Configuração do Gerenciador de Pacotes do Windows</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPathExplanation">
+        Esta política controla se os usuários podem especificar um caminho de processador DSC personalizado por meio do argumento --processor-path nos comandos de configuração do Gerenciador de Pacotes do Windows.
+
+Se você habilitar essa configuração, os usuários poderão especificar um caminho de processador DSC personalizado nos comandos de configuração.
+
+Se você não definir essa configuração, os usuários poderão especificar um caminho personalizado do processador DSC nos comandos de configuração depois de habilitar a configuração de administrador relacionada.
+
+Se você desabilitar essa configuração, os usuários não poderão especificar um caminho de processador DSC personalizado nos comandos de configuração.</string>
       <string id="WindowsPackageManagerDefaultProxy">Definir Proxy Padrão do Gerenciador de Pacotes do Windows</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">Esta política controla o proxy padrão usado pelo Gerenciador de Pacotes do Windows.
 
