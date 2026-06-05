@@ -42,6 +42,11 @@ namespace Microsoft.WinGet.Client.PSObjects
         Zip,
 
         /// <summary>
+        /// Tar (includes .tar.gz, .tgz, .tar.bz2, .tar.xz, and bare .tar).
+        /// </summary>
+        Tar,
+
+        /// <summary>
         /// Msix.
         /// </summary>
         Msix,

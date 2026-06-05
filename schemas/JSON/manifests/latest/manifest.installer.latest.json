@@ -60,6 +60,7 @@
         "appx",
         "exe",
         "zip",
+        "tar",
         "inno",
         "nullsoft",
         "wix",

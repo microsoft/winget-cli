@@ -142,6 +142,10 @@ namespace AppInstaller::Manifest
         {
             result = InstallerTypeEnum::Zip;
         }
+        else if (IsTarInstallerTypeAlias(inStrLower))
+        {
+            result = InstallerTypeEnum::Tar;
+        }
         else if (inStrLower == "appx" || inStrLower == "msix")
         {
             result = InstallerTypeEnum::Msix;
@@ -581,6 +585,8 @@ namespace AppInstaller::Manifest
             return "wix"sv;
         case InstallerTypeEnum::Zip:
             return "zip"sv;
+        case InstallerTypeEnum::Tar:
+            return "tar"sv;
         case InstallerTypeEnum::Burn:
             return "burn"sv;
         case InstallerTypeEnum::MSStore:
@@ -973,7 +979,7 @@ namespace AppInstaller::Manifest
 
     bool IsArchiveType(InstallerTypeEnum installerType)
     {
-        return (installerType == InstallerTypeEnum::Zip);
+        return (installerType == InstallerTypeEnum::Zip || installerType == InstallerTypeEnum::Tar);
     }
 
     bool IsPortableType(InstallerTypeEnum installerType)

@@ -3,6 +3,7 @@
 #pragma once
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
+#include <algorithm>
 #include <functional>
 #include <map>
 #include <set>
@@ -109,6 +110,7 @@ namespace AppInstaller::Manifest
         Msi,
         Nullsoft,
         Zip,
+        Tar,
         Msix,
         Exe,
         Burn,
@@ -116,6 +118,16 @@ namespace AppInstaller::Manifest
         Portable,
         Font,
     };
+
+    inline bool IsTarInstallerTypeAlias(std::string_view s)
+    {
+        using namespace std::string_view_literals;
+        static constexpr std::string_view aliases[] = {
+            "tar"sv, "tgz"sv, "tbz2"sv, "tbz"sv, "txz"sv, "tzst"sv,
+            "tar.gz"sv, "tar.bz2"sv, "tar.xz"sv, "tar.zst"sv, "tar.lz4"sv,
+        };
+        return std::find(std::begin(aliases), std::end(aliases), s) != std::end(aliases);
+    }
 
     enum class UpdateBehaviorEnum
     {

@@ -1586,6 +1586,9 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ExtractingArchive" xml:space="preserve">
     <value>Extracting archive...</value>
   </data>
+  <data name="ArchiveScanNotSupportedForTar" xml:space="preserve">
+    <value>Malware scanning is not supported for tar archives; proceeding without scan</value>
+  </data>
   <data name="ArchiveFailedMalwareScan" xml:space="preserve">
     <value>Archive scan detected malware. To override this check use --ignore-local-archive-malware-scan</value>
     <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>

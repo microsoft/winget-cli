@@ -519,6 +519,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         {
             return InstallerTypeEnum::Zip;
         }
+        else if (IsTarInstallerTypeAlias(inStrLower))
+        {
+            return InstallerTypeEnum::Tar;
+        }
         else if (inStrLower == "appx" || inStrLower == "msix")
         {
             return InstallerTypeEnum::Msix;

@@ -63,6 +63,18 @@ namespace AppInstaller::CLI::Workflow
                 return L".msix"sv;
             case InstallerTypeEnum::Zip:
                 return L".zip"sv;
+            case InstallerTypeEnum::Tar:
+                {
+                    const auto& fileName = GetFileNameFromURI(installer->Url);
+                    if (fileName.has_extension())
+                    {
+                        return fileName.extension().c_str();
+                    }
+                    else
+                    {
+                        return L".tar.gz"sv;
+                    }
+                }
             case InstallerTypeEnum::Font:
                 {
                     const auto& fileName = GetFileNameFromURI(installer->Url);
@@ -302,6 +314,7 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Wix:
             case InstallerTypeEnum::Font:
             case InstallerTypeEnum::Zip:
+            case InstallerTypeEnum::Tar:
                 context << DownloadInstallerFile;
                 break;
             case InstallerTypeEnum::Msix:

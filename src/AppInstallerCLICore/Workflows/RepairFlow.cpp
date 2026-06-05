@@ -174,7 +174,7 @@ namespace AppInstaller::CLI::Workflow
                 ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
                 DownloadInstaller;
 
-            if (installerType == InstallerTypeEnum::Zip)
+            if (installerType == InstallerTypeEnum::Zip || installerType == InstallerTypeEnum::Tar)
             {
                 context <<
                     ScanArchiveFromLocalManifest <<

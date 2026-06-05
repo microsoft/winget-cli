@@ -21,6 +21,13 @@ namespace AppInstaller::CLI::Workflow
     {
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
+            if (context.Get<Execution::Data::Installer>().value().BaseInstallerType == InstallerTypeEnum::Tar)
+            {
+                AICLI_LOG(CLI, Warning, << "Archive malware scan is not supported for tar archives");
+                context.Reporter.Warn() << Resource::String::ArchiveScanNotSupportedForTar << std::endl;
+                return;
+            }
+
             bool scanResult = Archive::ScanZipFile(context.Get<Execution::Data::InstallerPath>());
 
             if (scanResult)
@@ -54,7 +61,10 @@ namespace AppInstaller::CLI::Workflow
         AICLI_LOG(CLI, Info, << "Extracting archive to: " << destinationFolder);
         context.Reporter.Info() << Resource::String::ExtractingArchive << std::endl;
 
-        if (Settings::User().Get<Settings::Setting::ArchiveExtractionMethod>() == Archive::ExtractionMethod::Tar)
+        const bool useTar = context.Get<Execution::Data::Installer>().value().BaseInstallerType == InstallerTypeEnum::Tar
+            || Settings::User().Get<Settings::Setting::ArchiveExtractionMethod>() == Archive::ExtractionMethod::Tar;
+
+        if (useTar)
         {
             context << ShellExecuteExtractArchive(installerPath, destinationFolder);
         }
