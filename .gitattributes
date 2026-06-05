@@ -1,0 +1,28 @@
+# Default: CRLF on checkout - primary tooling is Visual Studio / PowerShell on Windows.
+# Git always stores text as LF in the object store; eol= controls the working tree only.
+* text=auto eol=crlf
+
+# Cross-platform formats - no Windows tooling owns these, LF is safer for external consumers
+*.editorconfig  text eol=lf
+*.gitattributes text eol=lf
+*.gitignore     text eol=lf
+*.json          text eol=lf
+*.js            text eol=lf
+*.md            text eol=lf
+*.patch         text eol=lf
+*.txt           text eol=lf
+
+# Vendored external modules - preserve byte-for-byte as shipped upstream
+# (some files are UTF-16 LE; text=auto would misidentify or corrupt them)
+src/PowerShell/ExternalModules/** -text
+
+# Binary assets - suppress line-ending conversion and text diffs
+*.cer   binary
+*.crt   binary
+*.dll   binary
+*.exe   binary
+*.gif   binary
+*.ico   binary
+*.msi   binary
+*.msix  binary
+*.png   binary
