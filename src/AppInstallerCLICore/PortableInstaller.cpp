@@ -194,11 +194,6 @@ namespace AppInstaller::CLI::Portable
                 RemoveFromPathVariable(std::filesystem::path(Utility::ConvertToUTF16(entry.SymlinkTarget)).parent_path());
             }
         }
-        else if (fileType == PortableFileType::Symlink && Filesystem::SymlinkExists(filePath))
-        {
-            AICLI_LOG(CLI, Info, << "Deleting portable symlink at: " << filePath);
-            std::filesystem::remove(filePath);
-        }
         else if (fileType == PortableFileType::Directory && std::filesystem::exists(filePath))
         {
             AICLI_LOG(CLI, Info, << "Removing directory at " << filePath);
