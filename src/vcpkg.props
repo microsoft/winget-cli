@@ -58,7 +58,7 @@
        parallel-build serialization live in CreatePortOverlay.ps1 itself. -->
   <Target Name="CreateVcpkgPortOverlay"
           BeforeTargets="VcpkgInstallManifestDependencies">
-    <Exec Command="pwsh.exe -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)VcpkgPortOverlay\CreatePortOverlay.ps1&quot; -StampFile &quot;$(MSBuildThisFileDirectory)VcpkgPortOverlay\.created&quot;" />
+    <Exec Command="powershell.exe -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)VcpkgPortOverlay\CreatePortOverlay.ps1&quot; -StampFile &quot;$(MSBuildThisFileDirectory)VcpkgPortOverlay\.created&quot;" />
   </Target>
 
   <Target Name="EnsureNoTripletMismatch"
