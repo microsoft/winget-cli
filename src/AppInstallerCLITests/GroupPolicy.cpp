@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestCertificates.h"
 #include "TestSettings.h"
 #include "winget/GroupPolicy.h"
 #include <AppInstallerStrings.h>
-#include <CertificateResources.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::Settings;
@@ -116,7 +116,7 @@ TEST_CASE("GroupPolicy_UpdateInterval_OldName", "[groupPolicy]")
     }
 }
 
-TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
+TEST_CASE("GroupPolicy_Sources", "[groupPolicy][uses-test-certificates]")
 {
     auto policiesKey = RegCreateVolatileTestRoot();
 
@@ -301,17 +301,12 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
 
         auto additionalSourcesKey = RegCreateVolatileSubKey(policiesKey.get(), AdditionalSourcesPolicyKeyName);
 
-        PinningDetails rootCert;
-        rootCert.LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_2, CERTIFICATE_RESOURCE_TYPE);
-        PinningDetails intermediateCert;
-        intermediateCert.LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_2, CERTIFICATE_RESOURCE_TYPE);
-        PinningDetails leafCert;
-        leafCert.LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_2, CERTIFICATE_RESOURCE_TYPE);
+        TestCertificateChain testChain;
 
-        auto getBytesString = [](const PinningDetails& details)
+        auto certToHexString = [](PCCERT_CONTEXT cert)
         {
             std::vector<BYTE> bytes;
-            bytes.assign(details.GetCertificate()->pbCertEncoded, details.GetCertificate()->pbCertEncoded + details.GetCertificate()->cbCertEncoded);
+            bytes.assign(cert->pbCertEncoded, cert->pbCertEncoded + cert->cbCertEncoded);
             return AppInstaller::Utility::ConvertToUTF16(AppInstaller::Utility::ConvertToHexString(bytes));
         };
 
@@ -320,9 +315,9 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
 LR"({
     "Chains": [{
         "Chain":[
-            { "Validation": ["publickey"], "EmbeddedCertificate": ")" << getBytesString(rootCert) << LR"(" },
-            { "Validation": ["subject","issuer"], "EmbeddedCertificate": ")" << getBytesString(intermediateCert) << LR"(" },
-            { "Validation": ["subject","issuer"], "EmbeddedCertificate": ")" << getBytesString(leafCert) << LR"(" }
+            { "Validation": ["publickey"], "EmbeddedCertificate": ")" << certToHexString(testChain.Root()) << LR"(" },
+            { "Validation": ["subject","issuer"], "EmbeddedCertificate": ")" << certToHexString(testChain.Intermediate2()) << LR"(" },
+            { "Validation": ["subject","issuer"], "EmbeddedCertificate": ")" << certToHexString(testChain.Leaf2()) << LR"(" }
         ]
     }]
 })";
@@ -345,7 +340,8 @@ LR"({
 
         // Use loaded pinning config and validate against leaf certificate
         REQUIRE(!sourceInfo.PinningConfiguration.IsEmpty());
-        REQUIRE(sourceInfo.PinningConfiguration.Validate(leafCert.GetCertificate()));
+        auto chainCtx = testChain.BuildChain(testChain.Leaf2());
+        REQUIRE(sourceInfo.PinningConfiguration.Validate(testChain.Leaf2(), chainCtx.get()));
     }
 }
 
