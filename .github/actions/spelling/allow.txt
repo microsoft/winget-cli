@@ -117,6 +117,7 @@ forcerestart
 gdi
 genai
 HCCE
+HCERTCHAINENGINE
 hcertstore
 HCRYPTMSG
 HGlobal
@@ -240,6 +241,7 @@ pinnable
 pinningindex
 pipssource
 Pkcs
+PKI
 portableindex
 powertoys
 pplx
