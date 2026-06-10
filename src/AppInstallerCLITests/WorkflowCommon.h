@@ -44,6 +44,8 @@ namespace TestCommon
         const extern TestSourceResult TestInstaller_Exe_UnsupportedArguments;
         const extern TestSourceResult TestInstaller_Exe_UpgradeAllWithDuplicateUpgradeItems;
         const extern TestSourceResult TestInstaller_Exe_UpgradeUsesAgreements;
+        const extern TestSourceResult TestInstaller_Exe_UpgradeDelayEligible;
+        const extern TestSourceResult TestInstaller_Exe_UpgradeDelayTooRecent;
         const extern TestSourceResult TestInstaller_Msix;
         const extern TestSourceResult TestInstaller_Msix_UpgradeRequiresExplicit;
         const extern TestSourceResult TestInstaller_Msix_UpgradeUsesAgreements;

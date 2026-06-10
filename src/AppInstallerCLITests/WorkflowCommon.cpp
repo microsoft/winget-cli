@@ -105,6 +105,62 @@ namespace TestCommon
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             });
 
+        const TestSourceResult TestInstaller_Exe_UpgradeDelayEligible(
+            "AppInstallerCliTest.TestExeDelayEligible"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("UpgradeDelayTest_Exe_Eligible_Install.yaml"));
+                auto updateManifest = YamlParser::CreateFromPath(TestDataFile("UpgradeDelayTest_Exe_Eligible_Update.yaml"));
+
+                auto testPackage =
+                    TestCompositePackage::Make(
+                        manifest,
+                        TestCompositePackage::MetadataMap
+                        {
+                            { PackageVersionMetadata::InstalledType, "Exe" },
+                            { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                            { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                        },
+                        std::vector<Manifest>{ updateManifest, manifest },
+                        source
+                        );
+                for (auto& availablePackage : testPackage->Available)
+                {
+                    availablePackage->IsSameOverride = [](const IPackage*, const IPackage*) { return true; };
+                }
+                matches.emplace_back(
+                    ResultMatch(
+                        testPackage,
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeDelayEligible")));
+            });
+
+        const TestSourceResult TestInstaller_Exe_UpgradeDelayTooRecent(
+            "AppInstallerCliTest.TestExeDelayTooRecent"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("UpgradeDelayTest_Exe_TooRecent_Install.yaml"));
+                auto updateManifest = YamlParser::CreateFromPath(TestDataFile("UpgradeDelayTest_Exe_TooRecent_Update.yaml"));
+
+                auto testPackage =
+                    TestCompositePackage::Make(
+                        manifest,
+                        TestCompositePackage::MetadataMap
+                        {
+                            { PackageVersionMetadata::InstalledType, "Exe" },
+                            { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                            { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                        },
+                        std::vector<Manifest>{ updateManifest, manifest },
+                        source
+                        );
+                for (auto& availablePackage : testPackage->Available)
+                {
+                    availablePackage->IsSameOverride = [](const IPackage*, const IPackage*) { return true; };
+                }
+                matches.emplace_back(
+                    ResultMatch(
+                        testPackage,
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeDelayTooRecent")));
+            });
+
         const TestSourceResult TestInstaller_Portable(
             "AppInstallerCliTest.TestPortableInstaller"sv,
             [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {

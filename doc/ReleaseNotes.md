@@ -28,6 +28,10 @@ match criteria that factor into the result ordering. This will prevent them from
 
 ## Minor Features
 
+### Upgrade delay for `winget upgrade --all`
+
+Added the `installBehavior.upgradeDelayInDays` user setting to delay `winget upgrade --all` until an upgrade's `ReleaseDate` is at least N days old. This helps reduce exposure to newly published updates that may be part of a supply chain attack.
+
 ### Preserve installer arguments across export and import
 
 `winget export` now captures the `--override` and `--custom` arguments that were used when a package was originally installed and saves them into the export file. When subsequently running `winget import`, those values are automatically re-applied during installation — `--override` replaces all installer arguments and `--custom` appends extra switches — so packages can be reinstalled with the same customizations without any manual intervention. Both fields are optional and independent of each other; packages without stored installer arguments are unaffected.
