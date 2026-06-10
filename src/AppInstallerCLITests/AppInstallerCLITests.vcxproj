@@ -213,6 +213,7 @@
     <ClInclude Include="DependenciesTestSource.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="TestCommon.h" />
+    <ClInclude Include="TestCertificates.h" />
     <ClInclude Include="TestConfiguration.h" />
     <ClInclude Include="TestRestRequestHandler.h" />
     <ClInclude Include="TestHooks.h" />
@@ -330,6 +331,7 @@
     <ClCompile Include="SQLiteWrapper.cpp" />
     <ClCompile Include="Synchronization.cpp" />
     <ClCompile Include="TableOutput.cpp" />
+    <ClCompile Include="TestCertificates.cpp" />
     <ClCompile Include="TestCommon.cpp" />
     <ClCompile Include="WorkflowCommon.cpp" />
     <ClCompile Include="WorkflowGroupPolicy.cpp" />
@@ -337,6 +339,21 @@
     <ClCompile Include="YamlManifest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="TestData\TestRoot.cer">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestIntermediate1.cer">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestIntermediate2.cer">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestLeaf1.cer">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestLeaf2.cer">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
