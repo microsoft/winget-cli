@@ -6,6 +6,7 @@
 #include <AppInstallerDownloader.h>
 #include <winget/Settings.h>
 #include <Workflows/DownloadFlow.h>
+#include <Workflows/WorkflowBase.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/SettingsCommand.h>
 #include <Commands/ValidateCommand.h>
@@ -185,5 +186,66 @@ TEST_CASE("Export_Settings", "[Settings][workflow]")
 
         auto userSettingsFileValue = std::string(json["userSettingsFile"].asCString());
         REQUIRE(userSettingsFileValue.find("settings.json") != std::string::npos);
+    }
+}
+
+TEST_CASE("HandleSearchResultFailures_SingleMatchWithPartialFailure", "[HandleSearchResultFailures][workflow]")
+{
+    auto makeSearchResult = []()
+    {
+        SearchResult result;
+        result.Matches.push_back(ResultMatch{
+            TestCompositePackage::Make(std::vector<Manifest>{ Manifest{} }),
+            PackageMatchFilter{ PackageMatchField::Id, MatchType::Exact }
+        });
+        result.Failures.push_back({ "FailedSource", std::make_exception_ptr(std::runtime_error("source error")) });
+        return result;
+    };
+
+    SECTION("Interactive_Accept")
+    {
+        std::istringstream input{ "y\n" };
+        std::ostringstream output;
+        TestContext context{ output, input };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
+        context.Add<Data::SearchResult>(makeSearchResult());
+
+        context << HandleSearchResultFailures;
+
+        INFO(output.str());
+        REQUIRE_FALSE(context.IsTerminated());
+        REQUIRE(output.str().find("FailedSource") != std::string::npos);
+    }
+
+    SECTION("Interactive_Decline")
+    {
+        std::istringstream input{ "n\n" };
+        std::ostringstream output;
+        TestContext context{ output, input };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
+        context.Add<Data::SearchResult>(makeSearchResult());
+
+        context << HandleSearchResultFailures;
+
+        INFO(output.str());
+        REQUIRE(context.IsTerminated());
+    }
+
+    SECTION("NonInteractive_HardError")
+    {
+        std::ostringstream output;
+        TestContext context{ output, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
+        context.Args.AddArg(Args::Type::DisableInteractivity);
+        context.Add<Data::SearchResult>(makeSearchResult());
+
+        context << HandleSearchResultFailures;
+
+        INFO(output.str());
+        REQUIRE(context.IsTerminated());
+        REQUIRE(output.str().find("FailedSource") != std::string::npos);
     }
 }
