@@ -313,7 +313,7 @@
           },
           "maxItems": 16,
           "uniqueItems": true,
-          "examples": ["ntvdm", "DirectPlay", "Microsoft-Windows-Subsystem-Linux"],
+          "examples": ["DirectPlay", "Microsoft-Windows-Subsystem-Linux"],
           "description": "List of Windows feature dependencies"
         },
         "WindowsLibraries": {
@@ -368,7 +368,7 @@
       "type": [ "string", "null" ],
       "minLength": 1,
       "maxLength": 255,
-      "examples": ["{MSI-GUID}", "ContosoApp", "Fabrikam.FantastikApp"],
+      "examples": ["{MSI-GUID}", "ContosoApp"],
       "description": "The name of the ARP registry key, could be used for correlation of packages across sources"
     },
     "UpgradeCode": {
