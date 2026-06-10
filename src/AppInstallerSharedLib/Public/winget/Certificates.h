@@ -87,6 +87,7 @@ namespace AppInstaller::Certificates
         PinningDetails& LoadCertificate(int resource, int resourceType);
         PinningDetails& LoadCertificate(const std::vector<BYTE>& certificateBytes);
         PinningDetails& LoadCertificate(const std::pair<const BYTE*,size_t> certificateBytes);
+        PinningDetails& LoadCertificate(const BYTE* certData, size_t certSize);
         PCCERT_CONTEXT GetCertificate() const { return m_certificateContext.get(); }
 
         PinningDetails& SetPinning(PinningVerificationType type);
@@ -227,9 +228,24 @@ namespace AppInstaller::Certificates
         void AddChain(PinningChain chain);
         void AddChain(std::shared_ptr<IPinningChainValidation> chain);
 
+        // Builds a certificate chain for the given leaf certificate.
+        // Provide a custom chain engine and additional store to use non-system-trusted roots
+        // (e.g., for testing with self-signed certificates).
+        // Pass nullptr for engine to use the system default engine.
+        // Pass nullptr for additionalStore to use only certContext->hCertStore.
+        // Pass 0 for flags to skip revocation checking (e.g., for test certs with no CRL).
+        static wil::unique_cert_chain_context BuildCertificateChain(
+            PCCERT_CONTEXT certContext,
+            HCERTCHAINENGINE engine = nullptr,
+            HCERTSTORE additionalStore = nullptr,
+            DWORD flags = CERT_CHAIN_REVOCATION_CHECK_CHAIN);
+
+        // Validates the given leaf certificate against the configuration using a pre-built chain.
+        // Use BuildCertificateChain to construct the chain, providing a custom engine if needed.
+        bool Validate(PCCERT_CONTEXT certContext, PCCERT_CHAIN_CONTEXT chainContext) const;
+
         // Validates the given leaf certificate against the configuration.
-        // Returns true to indicate that the certificate meets the pinning configuration criteria.
-        // Returns false to indicate the it does not.
+        // Builds the certificate chain internally using the system chain engine.
         bool Validate(PCCERT_CONTEXT certContext) const;
 
         // True if no pinning is configured.
