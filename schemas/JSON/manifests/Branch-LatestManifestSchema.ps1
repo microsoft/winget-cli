@@ -418,6 +418,7 @@ if ($mshContent.Contains("IDX_MANIFEST_SCHEMA_${newSuffix}_LOCALE")) {
 #define IDX_MANIFEST_SCHEMA_${newSuffix}_DEFAULTLOCALE       $($nextId + 3)
 #define IDX_MANIFEST_SCHEMA_${newSuffix}_LOCALE              $($nextId + 4)
 
+
 "@
     # Insert before the "Packages schema starts at 300" comment
     $insertBefore = '// Packages schema starts at 300'
@@ -503,6 +504,7 @@ if ($csContent.Contains("ManifestVersion${newSuffix}")) {
         /// V$newMajor.$newMinor manifest version.
         /// </summary>
         public const string ManifestVersion${newSuffix} = "$newVersion";
+
 
 "@
     if (-not $csContent.Contains($insertBefore)) {
