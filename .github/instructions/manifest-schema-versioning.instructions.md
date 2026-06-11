@@ -6,30 +6,58 @@ applyTo: "schemas/JSON/manifests/**,src/ManifestSchema/**"
 
 The `schemas/JSON/manifests/` directory holds JSON schemas for WinGet package manifests.
 `latest/` is the in-development schema; each `v{X.Y.0}/` directory is a frozen snapshot.
+The binary version is defined in `src/binver/binver/version.h` as `{VERSION_MAJOR}.{VERSION_MINOR}.0`.
 See `schemas/JSON/manifests/README.md` for full documentation.
 
-## Branching `latest/` to a frozen version
+## Script
 
-Run `schemas/JSON/manifests/Branch-LatestManifestSchema.ps1` from the repo root to automate
-the schema-file and project-file steps. Then verify or complete the manual items below.
+`schemas/JSON/manifests/Branch-LatestManifestSchema.ps1` automates most steps in both workflows.
 
-### Files to update
+```powershell
+# Freeze only (no version bump, C++ changes are manual).
+.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1
 
-| File | Change |
-|------|--------|
-| `schemas/JSON/manifests/v{VERSION}/` | **Create** — copy each `latest/manifest.*.latest.json` to `manifest.*.{VERSION}.json`. No JSON content changes needed; `$id` already contains the version. |
-| `src/ManifestSchema/ManifestSchema.h` | **Add** five `#define IDX_MANIFEST_SCHEMA_V{MAJOR}_{MINOR}_*` constants (Singleton/Version/Installer/DefaultLocale/Locale) using the next available IDs (must stay below 300). |
-| `src/ManifestSchema/ManifestSchema.rc` | **Update** the five resource entries for this version from `latest/` paths to `v{VERSION}/` paths, **or add** them if they don't exist yet, pointing directly to `v{VERSION}/`. |
-| `src/ManifestSchema/ManifestSchema.vcxitems` | **Add** five `<None Include="...v{VERSION}/..."/>` entries alongside the existing `latest/` entries. |
-| `src/ManifestSchema/ManifestSchema.vcxitems.filters` | **Add** a `<Filter Include="schema\v{VERSION}">` with a new GUID, and five `<None>` items with `<Filter>schema\v{VERSION}</Filter>`. |
-| `src/AppInstallerCommonCore/Public/winget/ManifestCommon.h` | **Add** `constexpr std::string_view s_ManifestVersionV{MAJOR}_{MINOR} = "{VERSION}"sv;` |
-| `src/AppInstallerCommonCore/Manifest/ManifestSchemaValidation.cpp` | **Prepend** a new `if (manifestVersion >= ManifestVer{ s_ManifestVersionV{MAJOR}_{MINOR} })` block at the top of the version-check chain with the five `IDX_MANIFEST_SCHEMA_V{MAJOR}_{MINOR}_*` constants. |
-| `src/WinGetUtilInterop/Manifest/ManifestVersion.cs` | **Add** `public const string ManifestVersionV{MAJOR}_{MINOR} = "{VERSION}";` |
-| `src/AppInstallerCLITests/TestData/` | **Add** `ManifestV{MAJOR}_{MINOR}-Singleton.yaml` and `ManifestV{MAJOR}_{MINOR}-MultiFile-{Version,Installer,DefaultLocale,Locale}.yaml`. |
-| `src/AppInstallerCLITests/AppInstallerCLITests.vcxproj` and `.vcxproj.filters` | **Add** references to the new test manifest files. |
-| `src/AppInstallerCLITests/YamlManifest.cpp` | **Add** test cases exercising the new version. |
+# Freeze current latest/, then advance schema to match the binary version (automates C++ source edits).
+.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1 -BumpVersion
 
-### ManifestSchemaValidation.cpp pattern
+# Dry run.
+.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1 -BumpVersion -WhatIf
+```
+
+## Workflow A: Starting a new schema version (`-BumpVersion`)
+
+Run when `version.h` has been advanced to a new minor version and the `latest/` schema version
+does not yet match. The script automates steps 1–7 below. Step 8 (test manifests) is always manual.
+
+| Step | File(s) | Change |
+|------|---------|--------|
+| 1 | `schemas/JSON/manifests/v{OLD}/` | **Create** frozen copy of current `latest/` (only if the folder doesn't exist). |
+| 2 | `schemas/JSON/manifests/latest/*.json` | **Replace** every occurrence of the old version string with the new one (`$id` and `description` fields). |
+| 3 | `src/AppInstallerCommonCore/Public/winget/ManifestCommon.h` | **Add** `constexpr std::string_view s_ManifestVersionV{MAJOR}_{MINOR} = "{VERSION}"sv;` before the "Any new manifest version" comment. |
+| 4 | `src/ManifestSchema/ManifestSchema.h` | **Add** five `IDX_MANIFEST_SCHEMA_V{MAJOR}_{MINOR}_*` constants (Singleton/Version/Installer/DefaultLocale/Locale) at the next available IDs (must stay below 300). |
+| 5 | `src/ManifestSchema/ManifestSchema.rc` | **Append** five new resource entries pointing to `latest/`. |
+| 6 | `src/AppInstallerCommonCore/Manifest/ManifestSchemaValidation.cpp` | **Prepend** a new `if (manifestVersion >= ManifestVer{ s_ManifestVersionV{MAJOR}_{MINOR} })` block; old top block becomes `else if`. |
+| 7 | `src/WinGetUtilInterop/Manifest/ManifestVersion.cs` | **Add** `public const string ManifestVersionV{MAJOR}_{MINOR} = "{VERSION}";` |
+| 8 | `src/AppInstallerCLITests/TestData/` + vcxproj + YamlManifest.cpp | **Add** test manifests and test cases (**manual**). |
+
+## Workflow B: Freezing `latest/` at a release
+
+Run when a WinGet release approaches and the in-flight schema must be locked in.
+The script (without `-BumpVersion`) automates steps 1–4 below. Steps 5–8 are only needed if
+the C++ infrastructure was not set up in a prior PR.
+
+| Step | File(s) | Change |
+|------|---------|--------|
+| 1 | `schemas/JSON/manifests/v{VERSION}/` | **Create** — copy each `latest/manifest.*.latest.json` to `manifest.*.{VERSION}.json`. |
+| 2 | `src/ManifestSchema/ManifestSchema.rc` | **Update** five resource entries from `latest/` paths to `v{VERSION}/` paths. |
+| 3 | `src/ManifestSchema/ManifestSchema.vcxitems` | **Add** five `<None Include="...v{VERSION}/..."/>` entries. |
+| 4 | `src/ManifestSchema/ManifestSchema.vcxitems.filters` | **Add** `<Filter Include="schema\v{VERSION}">` with a new GUID, and five `<None>` items with `<Filter>schema\v{VERSION}</Filter>`. |
+| 5 | `src/AppInstallerCommonCore/Public/winget/ManifestCommon.h` | **Add** version constant (if not already present). |
+| 6 | `src/ManifestSchema/ManifestSchema.h` | **Add** five IDX constants (if not already present). |
+| 7 | `src/AppInstallerCommonCore/Manifest/ManifestSchemaValidation.cpp` | **Prepend** new if-block (if not already present). |
+| 8 | `src/WinGetUtilInterop/Manifest/ManifestVersion.cs` | **Add** version constant (if not already present). |
+
+## ManifestSchemaValidation.cpp pattern
 
 ```cpp
 if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_N })
@@ -45,8 +73,8 @@ if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_N })
 else if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_<PREVIOUS> })
 ```
 
-### Notes
+## Key invariants
 
-- If C++ infrastructure (ManifestCommon.h, ManifestSchemaValidation.cpp, ManifestSchema.h, ManifestVersion.cs) was already added in a prior PR pointing to `latest/`, only update ManifestSchema.rc to redirect from `latest/` to the versioned path; the constants and logic stay the same.
-- Resource IDs in `ManifestSchema.h` are numbered sequentially in groups of 5 (one group per schema version). The comment near the top warns they must stay below 300.
-- The `latest/` `<None>` entries in `ManifestSchema.vcxitems` are never removed; versioned entries are added alongside them.
+- `latest/` `<None>` entries in `ManifestSchema.vcxitems` are **never removed**; versioned entries are added alongside them.
+- `ManifestSchema.rc` entries for the **current** version always point to `latest/`; entries for all **prior** versions point to their `v{VERSION}/` directories.
+- Resource IDs in `ManifestSchema.h` are sequential groups of 5, must stay below 300.

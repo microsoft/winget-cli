@@ -6,7 +6,7 @@ This directory contains JSON schemas for WinGet package manifests.
 
 | Directory | Contents |
 |-----------|----------|
-| `latest/` | The in-development schema. File names use `latest` as the version token. The `$id` field in each file contains the **current version string** (e.g., `1.28.0`). |
+| `latest/` | The in-development schema. File names use `latest` as the version token. The `$id` field in each file contains the **current version string** (e.g., `1.29.0`). |
 | `v{X.Y.0}/` | Frozen snapshots. File names use the numeric version. Content is identical to `latest/` at the moment of branching. |
 | `preview/` | Legacy v0.1.0 preview schema. |
 
@@ -20,13 +20,75 @@ Each version directory contains five schema files:
 | `manifest.defaultLocale.latest.json` | Multi-file: default locale manifest |
 | `manifest.locale.latest.json` | Multi-file: locale manifest |
 
+The version string embedded in the `$id` of each `latest/` file is the authoritative schema
+version. The binary version is defined in `src/binver/binver/version.h` as
+`{VERSION_MAJOR}.{VERSION_MINOR}.0`.
+
 ---
 
-## Branching `latest/` to a Frozen Version
+## Helper script
 
-When the current `latest/` schemas are ready to be frozen (typically as a WinGet release
-approaches), branch them into a numbered version directory. The version to use is embedded in
-the `$id` field of each `latest/` file—for example:
+`Branch-LatestManifestSchema.ps1` (in this directory) automates most of both workflows below.
+Run from any directory; it locates the repo root automatically.
+
+```powershell
+# Freeze the current latest/ schema at its version (no source-file changes).
+.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1
+
+# Freeze latest/, then advance to match the binary version and update all source files.
+.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1 -BumpVersion
+
+# Preview changes without writing anything.
+.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1 -BumpVersion -WhatIf
+```
+
+---
+
+## Workflow A: Advancing to a new schema version
+
+Use this when starting work on a new set of schema changes (e.g. after `version.h` has been
+bumped to a new minor version). The goal is to ensure `latest/` carries the new version number
+before any schema edits are made.
+
+**Run the script:**
+
+```powershell
+.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1 -BumpVersion
+```
+
+The script performs the following automatically:
+
+1. Reads the target version from `src/binver/binver/version.h` (`MAJOR.MINOR.0`).
+2. Reads the current schema version from `latest/manifest.installer.latest.json` (`$id` field).
+3. If the versions already match, exits with no changes.
+4. If they differ, branches the current schema (see Workflow B steps 1–4 below).
+5. Replaces every occurrence of the old version string in all five `latest/` JSON files (`$id`
+   and `description` fields).
+6. Adds a new version constant to `ManifestCommon.h`.
+7. Adds five new `IDX_MANIFEST_SCHEMA_*` resource-ID constants to `ManifestSchema.h`.
+8. Appends new resource entries (pointing to `latest/`) to `ManifestSchema.rc`.
+9. Prepends a new `if (manifestVersion >= ...)` block at the top of the version-check chain in
+   `ManifestSchemaValidation.cpp`, converting the old top block to an `else if`.
+10. Adds a new version constant to `ManifestVersion.cs`.
+
+**Manual steps always required (not automated):**
+
+- Add representative YAML test manifests:
+  - `src/AppInstallerCLITests/TestData/ManifestV{MAJOR}_{MINOR}-Singleton.yaml`
+  - `src/AppInstallerCLITests/TestData/ManifestV{MAJOR}_{MINOR}-MultiFile-{Version,Installer,DefaultLocale,Locale}.yaml`
+- Reference each file in `src/AppInstallerCLITests/AppInstallerCLITests.vcxproj` and
+  `.vcxproj.filters`.
+- Add corresponding test cases in `src/AppInstallerCLITests/YamlManifest.cpp`.
+
+---
+
+## Workflow B: Freezing `latest/` into a numbered version
+
+Use this when a WinGet release is approaching and the in-flight schema needs to be locked in —
+i.e., `latest/` is frozen at its current version number and subsequent changes will target the
+next version.
+
+The version to freeze is embedded in the `$id` field of each `latest/` file — for example:
 
 ```
 "$id": "https://aka.ms/winget-manifest.installer.1.28.0.schema.json"
@@ -34,11 +96,13 @@ the `$id` field of each `latest/` file—for example:
                                                    This is the version.
 ```
 
-> **Helper script**: `Branch-LatestManifestSchema.ps1` in this directory automates
-> the schema-file and project-file steps (1–4 below). The C++ source and test steps
-> still require manual edits.
+**Run the script (automates steps 1–4):**
 
-### 1. Create the versioned schema directory
+```powershell
+.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1
+```
+
+### Step 1 — Create the versioned schema directory
 
 Create `schemas/JSON/manifests/v{VERSION}/` and copy each `latest/` file with the version
 token substituted for `latest`:
@@ -53,10 +117,9 @@ token substituted for `latest`:
 
 The JSON content does **not** need editing; the `$id` already contains the version string.
 
-### 2. Update `src/ManifestSchema/ManifestSchema.rc`
+### Step 2 — Update `src/ManifestSchema/ManifestSchema.rc`
 
-If the resource IDs for this version currently point to `latest/` (as they will if the C++ work
-was done in a prior "add new version" PR), redirect them to the versioned files:
+Redirect the five resource entries for this version from `latest/` to the versioned paths:
 
 ```
 # Before
@@ -68,7 +131,7 @@ IDX_MANIFEST_SCHEMA_V1_28_SINGLETON   MANIFESTSCHEMA_RESOURCE_TYPE  "..\..\schem
 
 Repeat for all five manifest types.
 
-### 3. Update `src/ManifestSchema/ManifestSchema.vcxitems`
+### Step 3 — Update `src/ManifestSchema/ManifestSchema.vcxitems`
 
 Add five `<None>` entries for the new versioned files inside the existing `<ItemGroup>` that
 contains the `<None>` elements. The `latest/` entries should remain unchanged.
@@ -81,7 +144,7 @@ contains the `<None>` elements. The `latest/` entries should remain unchanged.
 <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.28.0\manifest.locale.1.28.0.json" />
 ```
 
-### 4. Update `src/ManifestSchema/ManifestSchema.vcxitems.filters`
+### Step 4 — Update `src/ManifestSchema/ManifestSchema.vcxitems.filters`
 
 Add a `<Filter>` entry for the new version directory, then add five `<None>` items that
 reference the versioned files and assign them to that filter:
@@ -101,15 +164,15 @@ reference the versioned files and assign them to that filter:
 
 ---
 
-## C++ and Test Changes
+## C++ and test changes (both workflows)
 
-The four steps above cover the schema and project files. Depending on whether the C++
-infrastructure was already added in a prior PR (pointing to `latest/`), some or all of the
-following may also be needed in the same PR as the branching step.
+If the C++ infrastructure for a version was **not** already added in a prior PR (as happens
+when branching occurs separately from the initial feature work), these files also need changes.
+When using `-BumpVersion`, the script handles all of these except the test manifests.
 
 ### `src/AppInstallerCommonCore/Public/winget/ManifestCommon.h`
 
-Add a version constant for the new version, following the pattern of existing entries:
+Add a version constant before the "Any new manifest version" comment:
 
 ```cpp
 // V1.N manifest version
@@ -119,7 +182,7 @@ constexpr std::string_view s_ManifestVersionV1_N = "1.N.0"sv;
 ### `src/AppInstallerCommonCore/Manifest/ManifestSchemaValidation.cpp`
 
 Prepend a new `if` block at the top of the version-check chain so that manifests at this
-version or higher use the new schema resources:
+version or higher use the new schema resources. The previous top-level `if` becomes `else if`:
 
 ```cpp
 if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_N })
@@ -138,8 +201,8 @@ else if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_<PREVIOUS> })
 
 ### `src/ManifestSchema/ManifestSchema.h`
 
-Add five resource-ID constants, continuing the numeric sequence (IDs must stay below 300,
-per the comment in that file):
+Add five resource-ID constants, continuing the numeric sequence. IDs must stay below 300
+(per the comment in that file):
 
 ```c
 #define IDX_MANIFEST_SCHEMA_V1_N_SINGLETON      NNN
