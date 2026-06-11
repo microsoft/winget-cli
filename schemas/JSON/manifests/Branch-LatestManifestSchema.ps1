@@ -164,7 +164,7 @@ function Invoke-BranchLatest {
     param([string]$Version, [string]$VersionedDir)
 
     $alreadyBranched = (Test-Path $VersionedDir) -and
-        ((Get-ChildItem $VersionedDir -Filter "*.json").Count -ge $schemaTypes.Count)
+        (@(Get-ChildItem $VersionedDir -Filter "*.json" -ErrorAction SilentlyContinue).Count -ge $schemaTypes.Count)
 
     if ($alreadyBranched) {
         Write-Host "=== Branch: v$Version already exists -- skipping schema file copy ==="
@@ -412,7 +412,6 @@ if ($mshContent.Contains("IDX_MANIFEST_SCHEMA_${newSuffix}_LOCALE")) {
     }
 
     $newBlock = @"
-
 #define IDX_MANIFEST_SCHEMA_${newSuffix}_SINGLETON           $nextId
 #define IDX_MANIFEST_SCHEMA_${newSuffix}_VERSION             $($nextId + 1)
 #define IDX_MANIFEST_SCHEMA_${newSuffix}_INSTALLER           $($nextId + 2)
@@ -440,6 +439,7 @@ if ($rcContent.Contains("IDX_MANIFEST_SCHEMA_${newSuffix}_SINGLETON")) {
     Write-Host "  IDX_MANIFEST_SCHEMA_${newSuffix}_* already present in RC file - no change needed."
 } else {
     $rcAppend = @"
+
 
 IDX_MANIFEST_SCHEMA_${newSuffix}_SINGLETON         MANIFESTSCHEMA_RESOURCE_TYPE    "..\\..\\schemas\\JSON\\manifests\\latest\\manifest.singleton.latest.json"
 IDX_MANIFEST_SCHEMA_${newSuffix}_VERSION           MANIFESTSCHEMA_RESOURCE_TYPE    "..\\..\\schemas\\JSON\\manifests\\latest\\manifest.version.latest.json"
@@ -499,7 +499,6 @@ if ($csContent.Contains("ManifestVersion${newSuffix}")) {
     # Insert before the closing #pragma restore line
     $insertBefore = '#pragma warning restore SA1310'
     $newConstant  = @"
-
         /// <summary>
         /// V$newMajor.$newMinor manifest version.
         /// </summary>
