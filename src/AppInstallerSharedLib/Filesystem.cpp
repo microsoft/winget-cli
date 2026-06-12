@@ -474,6 +474,34 @@ namespace AppInstaller::Filesystem
         }
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static bool* s_CreateHardLinkResult_TestHook_Override = nullptr;
+
+    void TestHook_SetCreateHardLinkResult_Override(bool* status)
+    {
+        s_CreateHardLinkResult_TestHook_Override = status;
+    }
+#endif
+
+	bool CreateFileHardLink(const std::filesystem::path& target, const std::filesystem::path& link)
+	{
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_CreateHardLinkResult_TestHook_Override)
+        {
+            return *s_CreateHardLinkResult_TestHook_Override;
+        }
+#endif
+		try
+		{
+			std::filesystem::create_hard_link(target, link);
+			return true;
+		}
+		catch (...)
+		{
+			return false;
+		}
+	}
+
     bool VerifySymlink(const std::filesystem::path& symlink, const std::filesystem::path& target)
     {
         // Use read_symlink to get the symlink's recorded target without traversing the filesystem

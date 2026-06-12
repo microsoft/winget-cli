@@ -30,6 +30,9 @@ namespace AppInstaller::Filesystem
     // Creates a symlink that points to the target path.
     bool CreateSymlink(const std::filesystem::path& target, const std::filesystem::path& link);
 
+	// Creates a hard link that points to the target path.
+	bool CreateFileHardLink(const std::filesystem::path& target, const std::filesystem::path& link);
+
     // Verifies that a symlink points to the target path.
     bool VerifySymlink(const std::filesystem::path& symlink, const std::filesystem::path& target);
 

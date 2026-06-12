@@ -157,7 +157,13 @@ namespace AppInstaller::CLI::Portable
 
                 if (Filesystem::CreateSymlink(symlinkTargetPath, filePath))
                 {
+                    m_hasCreatedSymlink = true;
                     AICLI_LOG(Core, Info, << "Symlink created at: " << filePath << " with target path: " << symlinkTargetPath);
+                }
+                else if (Filesystem::CreateFileHardLink(symlinkTargetPath, filePath))
+                {
+                    m_hasCreatedSymlink = true;
+                    AICLI_LOG(Core, Info, << "Hardlink created at: " << filePath << " with target path: " << symlinkTargetPath);
                 }
                 else
                 {
@@ -187,8 +193,15 @@ namespace AppInstaller::CLI::Portable
             {
                 AICLI_LOG(CLI, Info, << "Deleting portable symlink at: " << filePath);
                 std::filesystem::remove(filePath);
+				m_hasRemovedSymlink = true;
             }
-            else if (InstallDirectoryAddedToPath)
+            else if (std::filesystem::exists(filePath) && std::filesystem::is_regular_file(std::filesystem::status(filePath)))
+            {
+				AICLI_LOG(CLI, Info, << "Deleting portable hard link at: " << filePath);
+				std::filesystem::remove(filePath);
+                m_hasRemovedSymlink = true;
+            }
+            else
             {
                 // If symlink doesn't exist, check if install directory was added to PATH directly and remove.
                 RemoveFromPathVariable(std::filesystem::path(Utility::ConvertToUTF16(entry.SymlinkTarget)).parent_path(), false);
@@ -289,7 +302,7 @@ namespace AppInstaller::CLI::Portable
 
         ApplyDesiredState();
 
-        if (!InstallDirectoryAddedToPath)
+        if (m_hasCreatedSymlink)
         {
             AddToPathVariable(GetPortableLinksLocation(GetScope()));
         }
@@ -302,20 +315,20 @@ namespace AppInstaller::CLI::Portable
         }
     }
 
-    void PortableInstaller::Uninstall()
-    {
-        ApplyDesiredState();
+	void PortableInstaller::Uninstall()
+	{
+		ApplyDesiredState();
 
-        RemoveInstallDirectory();
+		RemoveInstallDirectory();
 
-        if (!InstallDirectoryAddedToPath)
-        {
-            RemoveFromPathVariable(GetPortableLinksLocation(GetScope()));
-        }
+		if (m_hasRemovedSymlink)
+		{
+			RemoveFromPathVariable(GetPortableLinksLocation(GetScope()));
+		}
 
-        m_portableARPEntry.Delete();
-        AICLI_LOG(CLI, Info, << "PortableARPEntry deleted.");
-    }
+		m_portableARPEntry.Delete();
+		AICLI_LOG(CLI, Info, << "PortableARPEntry deleted.");
+	}
 
     void PortableInstaller::CreateTargetInstallDirectory()
     {
@@ -371,25 +384,25 @@ namespace AppInstaller::CLI::Portable
     }
 
 	void PortableInstaller::RemoveFromPathVariable(std::filesystem::path value, bool checkIfEmpty /*= true*/)
-    {
+	{
 		if (checkIfEmpty && std::filesystem::exists(value) && !std::filesystem::is_empty(value))
-        {
-            AICLI_LOG(Core, Info, << "Install directory is not empty: " << value);
-        }
-        else
-        {
+		{
+			AICLI_LOG(Core, Info, << "Install directory is not empty: " << value);
+		}
+		else
+		{
 			// Attempt to remove both the original and the preferred format to ensure removal
-            // Necessary for handling old path values associated with winget-cli#5033
-            if (PathVariable(GetScope()).Remove(value) || PathVariable(GetScope()).Remove(value.make_preferred()))
-            {
-                AICLI_LOG(CLI, Info, << "Removed target directory from PATH registry: " << value);
-            }
-            else
-            {
-                AICLI_LOG(CLI, Info, << "Target directory not removed from PATH registry: " << value);
-            }
-        }
-    }
+			// Necessary for handling old path values associated with winget-cli#5033
+			if (PathVariable(GetScope()).Remove(value) || PathVariable(GetScope()).Remove(value.make_preferred()))
+			{
+				AICLI_LOG(CLI, Info, << "Removed target directory from PATH registry: " << value);
+			}
+			else
+			{
+				AICLI_LOG(CLI, Info, << "Target directory not removed from PATH registry: " << value);
+			}
+		}
+	}
 
     void PortableInstaller::SetAppsAndFeaturesMetadata(const Manifest::Manifest& manifest, const std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry>& entries)
     {

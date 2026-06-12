@@ -35,6 +35,7 @@ namespace AppInstaller::CLI::Portable
         bool InstallDirectoryCreated = false;
         bool BinariesDependOnPath = false;
         // If we fail to create a symlink, add install directory to PATH variable
+        // TODO: Variable is redundant, remove it.
         bool InstallDirectoryAddedToPath = false;
 
         bool IsUpdate = false;
@@ -94,6 +95,9 @@ namespace AppInstaller::CLI::Portable
         AppInstaller::Manifest::AppsAndFeaturesEntry GetAppsAndFeaturesEntry();
 
     private:
+        // True if any symlink creation succeeds. No persistence required.
+        bool m_hasCreatedSymlink = false;
+        bool m_hasRemovedSymlink = false;
         PortableARPEntry m_portableARPEntry;
         std::vector<AppInstaller::Portable::PortableFileEntry> m_desiredEntries;
         std::vector<AppInstaller::Portable::PortableFileEntry> m_expectedEntries;
