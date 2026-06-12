@@ -114,6 +114,6 @@ namespace AppInstaller::CLI::Portable
         void RemoveInstallDirectory();
 
         void AddToPathVariable(std::filesystem::path value);
-        void RemoveFromPathVariable(std::filesystem::path value);
+        void RemoveFromPathVariable(std::filesystem::path value, bool checkIfEmpty = true);
     };
 }
