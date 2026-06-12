@@ -1,4 +1,4 @@
-# WinGet Manifest Schemas
+﻿# WinGet Manifest Schemas
 
 This directory contains JSON schemas for WinGet package manifests.
 
@@ -28,18 +28,18 @@ version. The binary version is defined in `src/binver/binver/version.h` as
 
 ## Helper script
 
-`Branch-LatestManifestSchema.ps1` (in this directory) automates most of both workflows below.
+`Checkpoint-LatestManifestSchema.ps1` (in this directory) automates most of both workflows below.
 Run from any directory; it locates the repo root automatically.
 
 ```powershell
 # Freeze the current latest/ schema at its version (no source-file changes).
-.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1
+.\schemas\JSON\manifests\Checkpoint-LatestManifestSchema.ps1
 
 # Freeze latest/, then advance to match the binary version and update all source files.
-.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1 -BumpVersion
+.\schemas\JSON\manifests\Checkpoint-LatestManifestSchema.ps1 -BumpVersion
 
 # Preview changes without writing anything.
-.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1 -BumpVersion -WhatIf
+.\schemas\JSON\manifests\Checkpoint-LatestManifestSchema.ps1 -BumpVersion -WhatIf
 ```
 
 ---
@@ -53,7 +53,7 @@ before any schema edits are made.
 **Run the script:**
 
 ```powershell
-.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1 -BumpVersion
+.\schemas\JSON\manifests\Checkpoint-LatestManifestSchema.ps1 -BumpVersion
 ```
 
 The script performs the following automatically:
@@ -61,7 +61,7 @@ The script performs the following automatically:
 1. Reads the target version from `src/binver/binver/version.h` (`MAJOR.MINOR.0`).
 2. Reads the current schema version from `latest/manifest.installer.latest.json` (`$id` field).
 3. If the versions already match, exits with no changes.
-4. If they differ, branches the current schema (see Workflow B steps 1–4 below).
+4. If they differ, checkpoints the current schema (see Workflow B steps 1–4 below).
 5. Replaces every occurrence of the old version string in all five `latest/` JSON files (`$id`
    and `description` fields).
 6. Adds a new version constant to `ManifestCommon.h`.
@@ -70,15 +70,6 @@ The script performs the following automatically:
 9. Prepends a new `if (manifestVersion >= ...)` block at the top of the version-check chain in
    `ManifestSchemaValidation.cpp`, converting the old top block to an `else if`.
 10. Adds a new version constant to `ManifestVersion.cs`.
-
-**Manual steps always required (not automated):**
-
-- Add representative YAML test manifests:
-  - `src/AppInstallerCLITests/TestData/ManifestV{MAJOR}_{MINOR}-Singleton.yaml`
-  - `src/AppInstallerCLITests/TestData/ManifestV{MAJOR}_{MINOR}-MultiFile-{Version,Installer,DefaultLocale,Locale}.yaml`
-- Reference each file in `src/AppInstallerCLITests/AppInstallerCLITests.vcxproj` and
-  `.vcxproj.filters`.
-- Add corresponding test cases in `src/AppInstallerCLITests/YamlManifest.cpp`.
 
 ---
 
@@ -99,7 +90,7 @@ The version to freeze is embedded in the `$id` field of each `latest/` file — 
 **Run the script (automates steps 1–4):**
 
 ```powershell
-.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1
+.\schemas\JSON\manifests\Checkpoint-LatestManifestSchema.ps1
 ```
 
 ### Step 1 — Create the versioned schema directory
@@ -164,11 +155,10 @@ reference the versioned files and assign them to that filter:
 
 ---
 
-## C++ and test changes (both workflows)
+## C++ source changes
 
-If the C++ infrastructure for a version was **not** already added in a prior PR (as happens
-when branching occurs separately from the initial feature work), these files also need changes.
-When using `-BumpVersion`, the script handles all of these except the test manifests.
+These files are updated automatically by `-BumpVersion`. They are listed here for reference
+when doing the work manually or reviewing what the script changes.
 
 ### `src/AppInstallerCommonCore/Public/winget/ManifestCommon.h`
 
@@ -222,17 +212,3 @@ Add a version constant:
 /// </summary>
 public const string ManifestVersionV1_N = "1.N.0";
 ```
-
-### Test manifests and project files
-
-Add representative YAML manifests that exercise the new schema version:
-
-- `src/AppInstallerCLITests/TestData/ManifestV1_N-Singleton.yaml`
-- `src/AppInstallerCLITests/TestData/ManifestV1_N-MultiFile-Version.yaml`
-- `src/AppInstallerCLITests/TestData/ManifestV1_N-MultiFile-Installer.yaml`
-- `src/AppInstallerCLITests/TestData/ManifestV1_N-MultiFile-DefaultLocale.yaml`
-- `src/AppInstallerCLITests/TestData/ManifestV1_N-MultiFile-Locale.yaml`
-
-Reference each file in `src/AppInstallerCLITests/AppInstallerCLITests.vcxproj` and
-`.vcxproj.filters`, and add corresponding test cases in
-`src/AppInstallerCLITests/YamlManifest.cpp`.

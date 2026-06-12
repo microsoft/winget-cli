@@ -30,18 +30,18 @@
 
 .PARAMETER RepoRoot
     Path to the repository root. Defaults to three directories above this script, which is
-    correct when the script lives at schemas/JSON/manifests/Branch-LatestManifestSchema.ps1.
+    correct when the script lives at schemas/JSON/manifests/Checkpoint-LatestManifestSchema.ps1.
 
 .EXAMPLE
     # Freeze the in-flight schema at its current version number.
-    .\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1
+    .\schemas\JSON\manifests\Checkpoint-LatestManifestSchema.ps1
 
 .EXAMPLE
     # Freeze then advance the schema version to match the binary.
-    .\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1 -BumpVersion
+    .\schemas\JSON\manifests\Checkpoint-LatestManifestSchema.ps1 -BumpVersion
 
 .EXAMPLE
-    .\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1 -BumpVersion -WhatIf
+    .\schemas\JSON\manifests\Checkpoint-LatestManifestSchema.ps1 -BumpVersion -WhatIf
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
@@ -61,7 +61,7 @@ function Save-XmlFile {
     $settings = [System.Xml.XmlWriterSettings]@{
         Indent      = $true
         IndentChars = '  '
-        Encoding    = New-Object System.Text.UTF8Encoding $false
+        Encoding    = New-Object System.Text.UTF8Encoding $true
     }
     $writer = [System.Xml.XmlWriter]::Create($Path, $settings)
     try { $Xml.Save($writer) }
@@ -70,7 +70,7 @@ function Save-XmlFile {
 
 function Save-TextFile {
     param([string]$Content, [string]$Path)
-    [System.IO.File]::WriteAllText($Path, $Content, (New-Object System.Text.UTF8Encoding $false))
+    $Content | Out-File -FilePath $Path -Encoding utf8 -NoNewline
 }
 
 # Derive the C++ identifier suffix from a version string: "1.29.0" -> "V1_29"
@@ -84,17 +84,17 @@ function Get-CppSuffix {
 # Resolve paths
 # ---------------------------------------------------------------------------
 
-$manifestsDir       = Join-Path $RepoRoot 'schemas\JSON\manifests'
-$latestDir          = Join-Path $manifestsDir 'latest'
-$manifestSchemaDir  = Join-Path $RepoRoot 'src\ManifestSchema'
-$rcFile             = Join-Path $manifestSchemaDir 'ManifestSchema.rc'
-$vcxitemsFile       = Join-Path $manifestSchemaDir 'ManifestSchema.vcxitems'
-$filtersFile        = Join-Path $manifestSchemaDir 'ManifestSchema.vcxitems.filters'
-$manifestCommonH    = Join-Path $RepoRoot 'src\AppInstallerCommonCore\Public\winget\ManifestCommon.h'
+$manifestsDir        = Join-Path $RepoRoot 'schemas\JSON\manifests'
+$latestDir           = Join-Path $manifestsDir 'latest'
+$manifestSchemaDir   = Join-Path $RepoRoot 'src\ManifestSchema'
+$rcFile              = Join-Path $manifestSchemaDir 'ManifestSchema.rc'
+$vcxitemsFile        = Join-Path $manifestSchemaDir 'ManifestSchema.vcxitems'
+$filtersFile         = Join-Path $manifestSchemaDir 'ManifestSchema.vcxitems.filters'
+$manifestCommonH     = Join-Path $RepoRoot 'src\AppInstallerCommonCore\Public\winget\ManifestCommon.h'
 $schemaValidationCpp = Join-Path $RepoRoot 'src\AppInstallerCommonCore\Manifest\ManifestSchemaValidation.cpp'
-$manifestSchemaH    = Join-Path $RepoRoot 'src\ManifestSchema\ManifestSchema.h'
-$manifestVersionCs  = Join-Path $RepoRoot 'src\WinGetUtilInterop\Manifest\ManifestVersion.cs'
-$binverH            = Join-Path $RepoRoot 'src\binver\binver\version.h'
+$manifestSchemaH     = Join-Path $RepoRoot 'src\ManifestSchema\ManifestSchema.h'
+$manifestVersionCs   = Join-Path $RepoRoot 'src\WinGetUtilInterop\Manifest\ManifestVersion.cs'
+$binverH             = Join-Path $RepoRoot 'src\binver\binver\version.h'
 
 foreach ($path in $latestDir, $rcFile, $vcxitemsFile, $filtersFile) {
     if (-not (Test-Path $path)) {
@@ -140,7 +140,7 @@ if ($BumpVersion) {
 
     Write-Host "Binary version:         $newVersion"
 
-    if ($schemaVersion -eq $newVersion) {
+    if ($schemaVersion -eq $newVersion) {sXml
         Write-Host ''
         Write-Host "Schema version already matches the binary version ($newVersion). No bump needed."
         exit 0
@@ -157,10 +157,10 @@ Write-Host ''
 
 $schemaTypes = @('singleton', 'version', 'installer', 'defaultLocale', 'locale')
 $rcRelBase   = '..\..\schemas\JSON\manifests'
-$vcxRelBase  = '$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests'
+$vcxitemsRelBase  = '$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests'
 $ns          = 'http://schemas.microsoft.com/developer/msbuild/2003'
 
-function Invoke-BranchLatest {
+function Invoke-CheckpointLatest {
     param([string]$Version, [string]$VersionedDir)
 
     $alreadyBranched = (Test-Path $VersionedDir) -and
@@ -170,7 +170,7 @@ function Invoke-BranchLatest {
         Write-Host "=== Branch: v$Version already exists -- skipping schema file copy ==="
     } else {
         # Step 1: Schema files
-        Write-Host '=== Branch Step 1: Schema files ==='
+        Write-Host '=== Checkpoint Step 1: Schema files ==='
         if ($PSCmdlet.ShouldProcess($VersionedDir, 'Create directory')) {
             New-Item -ItemType Directory -Path $VersionedDir -Force | Out-Null
         }
@@ -186,7 +186,7 @@ function Invoke-BranchLatest {
 
     # Step 2: ManifestSchema.rc -- redirect latest/ entries to versioned paths
     Write-Host ''
-    Write-Host '=== Branch Step 2: ManifestSchema.rc ==='
+    Write-Host '=== Checkpoint Step 2: ManifestSchema.rc ==='
     $rcContent  = Get-Content $rcFile -Raw
     $rcModified = $false
 
@@ -214,24 +214,24 @@ function Invoke-BranchLatest {
 
     # Step 3: ManifestSchema.vcxitems -- add versioned <None> entries
     Write-Host ''
-    Write-Host '=== Branch Step 3: ManifestSchema.vcxitems ==='
+    Write-Host '=== Checkpoint Step 3: ManifestSchema.vcxitems ==='
 
-    [xml]$vcxXml = Get-Content $vcxitemsFile -Raw
-    $nsm = New-Object System.Xml.XmlNamespaceManager($vcxXml.NameTable)
-    $nsm.AddNamespace('msb', $ns)
+    [xml]$vcxitemsXml = Get-Content $vcxitemsFile -Raw
+    $namespaceManager = New-Object System.Xml.XmlNamespaceManager($vcxitemsXml.NameTable)
+    $namespaceManager.AddNamespace('msb', $ns)
 
-    $noneGroup = $vcxXml.SelectSingleNode('//msb:ItemGroup[msb:None]', $nsm)
+    $noneGroup = $vcxitemsXml.SelectSingleNode('//msb:ItemGroup[msb:None]', $namespaceManager)
     if (-not $noneGroup) { throw 'Could not locate <ItemGroup> containing <None> in ManifestSchema.vcxitems.' }
 
     $vcxModified = $false
     foreach ($type in $schemaTypes) {
-        $versionedInclude = "$vcxRelBase\v$Version\manifest.$type.$Version.json"
-        if ($vcxXml.SelectSingleNode("//msb:None[@Include='$versionedInclude']", $nsm)) {
+        $versionedInclude = "$vcxitemsRelBase\v$Version\manifest.$type.$Version.json"
+        if ($vcxitemsXml.SelectSingleNode("//msb:None[@Include='$versionedInclude']", $namespaceManager)) {
             Write-Host "  manifest.$type v$Version already present - no change needed."
             continue
         }
         if ($PSCmdlet.ShouldProcess($vcxitemsFile, "Add <None> for manifest.$type v$Version")) {
-            $el = $vcxXml.CreateElement('None', $ns)
+            $el = $vcxitemsXml.CreateElement('None', $ns)
             $el.SetAttribute('Include', $versionedInclude)
             $noneGroup.AppendChild($el) | Out-Null
             $vcxModified = $true
@@ -240,21 +240,21 @@ function Invoke-BranchLatest {
     }
 
     if ($vcxModified -and $PSCmdlet.ShouldProcess($vcxitemsFile, 'Save')) {
-        Save-XmlFile $vcxXml $vcxitemsFile
+        Save-XmlFile $vcxitemsXml $vcxitemsFile
         Write-Host "  Saved $vcxitemsFile"
     }
 
     # Step 4: ManifestSchema.vcxitems.filters -- add filter + <None> entries
     Write-Host ''
-    Write-Host '=== Branch Step 4: ManifestSchema.vcxitems.filters ==='
+    Write-Host '=== Checkpoint Step 4: ManifestSchema.vcxitems.filters ==='
 
     [xml]$filtersXml = Get-Content $filtersFile -Raw
-    $fnsm = New-Object System.Xml.XmlNamespaceManager($filtersXml.NameTable)
-    $fnsm.AddNamespace('msb', $ns)
+    $filtersNamespaceManager = New-Object System.Xml.XmlNamespaceManager($filtersXml.NameTable)
+    $filtersNamespaceManager.AddNamespace('msb', $ns)
 
     $filterName     = "schema\v$Version"
-    $filterGroup    = $filtersXml.SelectSingleNode('//msb:ItemGroup[msb:Filter]', $fnsm)
-    $existingFilter = $filtersXml.SelectSingleNode("//msb:Filter[@Include='$filterName']", $fnsm)
+    $filterGroup    = $filtersXml.SelectSingleNode('//msb:ItemGroup[msb:Filter]', $filtersNamespaceManager)
+    $existingFilter = $filtersXml.SelectSingleNode("//msb:Filter[@Include='$filterName']", $filtersNamespaceManager)
     $filtersModified = $false
 
     if (-not $existingFilter) {
@@ -273,15 +273,15 @@ function Invoke-BranchLatest {
         Write-Host "  <Filter> for $filterName already present."
     }
 
-    $noneFilterGroup = $filtersXml.SelectSingleNode('//msb:ItemGroup[msb:None]', $fnsm)
+    $noneFilterGroup = $filtersXml.SelectSingleNode('//msb:ItemGroup[msb:None]', $filtersNamespaceManager)
     if (-not $noneFilterGroup) {
         $noneFilterGroup = $filtersXml.CreateElement('ItemGroup', $ns)
         $filtersXml.DocumentElement.AppendChild($noneFilterGroup) | Out-Null
     }
 
     foreach ($type in $schemaTypes) {
-        $versionedInclude = "$vcxRelBase\v$Version\manifest.$type.$Version.json"
-        if ($filtersXml.SelectSingleNode("//msb:None[@Include='$versionedInclude']", $fnsm)) {
+        $versionedInclude = "$vcxitemsRelBase\v$Version\manifest.$type.$Version.json"
+        if ($filtersXml.SelectSingleNode("//msb:None[@Include='$versionedInclude']", $filtersNamespaceManager)) {
             Write-Host "  manifest.$type v$Version filter entry already present."
             continue
         }
@@ -304,44 +304,18 @@ function Invoke-BranchLatest {
 }
 
 # ---------------------------------------------------------------------------
-# Run branch step
+# Run checkpoint step
 # ---------------------------------------------------------------------------
 
-Invoke-BranchLatest -Version $schemaVersion -VersionedDir $versionedDir
+Invoke-CheckpointLatest -Version $schemaVersion -VersionedDir $versionedDir
 
 # ---------------------------------------------------------------------------
 # If not bumping, print manual-step reminder and exit
 # ---------------------------------------------------------------------------
 
 if (-not $BumpVersion) {
-    $oldSuffix = Get-CppSuffix $schemaVersion
     Write-Host ''
     Write-Host '=== Done ==='
-    Write-Host ''
-    Write-Host 'Manual steps remaining (if not already done in a prior PR):'
-    Write-Host ''
-    Write-Host "  1. src\AppInstallerCommonCore\Public\winget\ManifestCommon.h"
-    Write-Host "       Add: constexpr std::string_view s_ManifestVersion${oldSuffix} = `"$schemaVersion`"sv;"
-    Write-Host ''
-    Write-Host "  2. src\AppInstallerCommonCore\Manifest\ManifestSchemaValidation.cpp"
-    Write-Host "       Prepend a new 'if (manifestVersion >= ManifestVer{ s_ManifestVersion${oldSuffix} })'"
-    Write-Host "       block at the top of the version-check chain."
-    Write-Host ''
-    Write-Host "  3. src\ManifestSchema\ManifestSchema.h"
-    Write-Host "       Add five IDX_MANIFEST_SCHEMA_${oldSuffix}_* constants (next available IDs, must stay < 300)."
-    Write-Host ''
-    Write-Host "  4. src\WinGetUtilInterop\Manifest\ManifestVersion.cs"
-    Write-Host "       Add: public const string ManifestVersion${oldSuffix} = `"$schemaVersion`";"
-    Write-Host ''
-    $parts = $schemaVersion -split '\.'
-    Write-Host "  5. src\AppInstallerCLITests\TestData\"
-    Write-Host "       Add ManifestV$($parts[0])_$($parts[1])-Singleton.yaml and ManifestV$($parts[0])_$($parts[1])-MultiFile-*.yaml."
-    Write-Host ''
-    Write-Host "  6. src\AppInstallerCLITests\AppInstallerCLITests.vcxproj and .vcxproj.filters"
-    Write-Host "       Reference the new test manifest files."
-    Write-Host ''
-    Write-Host "  7. src\AppInstallerCLITests\YamlManifest.cpp"
-    Write-Host "       Add test cases for manifest version $schemaVersion."
     exit 0
 }
 
@@ -396,13 +370,13 @@ if ($mcContent.Contains("s_ManifestVersion${newSuffix}")) {
 # Bump Step 3: ManifestSchema.h -- add five new IDX constants
 Write-Host ''
 Write-Host '=== Bump Step 3: ManifestSchema.h ==='
-$mshContent = Get-Content $manifestSchemaH -Raw
+$manifestSchemaHeaderContent = Get-Content $manifestSchemaH -Raw
 
-if ($mshContent.Contains("IDX_MANIFEST_SCHEMA_${newSuffix}_LOCALE")) {
+if ($manifestSchemaHeaderContent.Contains("IDX_MANIFEST_SCHEMA_${newSuffix}_LOCALE")) {
     Write-Host "  IDX_MANIFEST_SCHEMA_${newSuffix}_* already present - no change needed."
 } else {
     # Find the last defined IDX constant ID number to determine the next available IDs.
-    $allIds = [System.Text.RegularExpressions.Regex]::Matches($mshContent, '#define IDX_MANIFEST_SCHEMA_\w+\s+(\d+)') |
+    $allIds = [System.Text.RegularExpressions.Regex]::Matches($manifestSchemaHeaderContent, '#define IDX_MANIFEST_SCHEMA_\w+\s+(\d+)') |
         ForEach-Object { [int]$_.Groups[1].Value }
     if (-not $allIds) { throw 'Could not parse existing IDX constants from ManifestSchema.h.' }
     $nextId = ($allIds | Measure-Object -Maximum).Maximum + 1
@@ -422,11 +396,11 @@ if ($mshContent.Contains("IDX_MANIFEST_SCHEMA_${newSuffix}_LOCALE")) {
 "@
     # Insert before the "Packages schema starts at 300" comment
     $insertBefore = '// Packages schema starts at 300'
-    if (-not $mshContent.Contains($insertBefore)) {
+    if (-not $manifestSchemaHeaderContent.Contains($insertBefore)) {
         Write-Warning "  Could not locate insertion point in ManifestSchema.h. Manual edit required."
     } elseif ($PSCmdlet.ShouldProcess($manifestSchemaH, "Add IDX_MANIFEST_SCHEMA_${newSuffix}_* constants")) {
-        $mshContent = $mshContent.Replace($insertBefore, "$newBlock$insertBefore")
-        Save-TextFile $mshContent $manifestSchemaH
+        $manifestSchemaHeaderContent = $manifestSchemaHeaderContent.Replace($insertBefore, "$newBlock$insertBefore")
+        Save-TextFile $manifestSchemaHeaderContent $manifestSchemaH
         Write-Host "  Added IDX_MANIFEST_SCHEMA_${newSuffix}_* (IDs $nextId-$($nextId + 4))"
     }
 }
@@ -522,14 +496,3 @@ if ($csContent.Contains("ManifestVersion${newSuffix}")) {
 
 Write-Host ''
 Write-Host '=== Done ==='
-Write-Host ''
-Write-Host 'Manual steps remaining:'
-Write-Host ''
-Write-Host "  1. src\AppInstallerCLITests\TestData\"
-Write-Host "       Add ManifestV${newMajor}_${newMinor}-Singleton.yaml and ManifestV${newMajor}_${newMinor}-MultiFile-*.yaml."
-Write-Host ''
-Write-Host "  2. src\AppInstallerCLITests\AppInstallerCLITests.vcxproj and .vcxproj.filters"
-Write-Host "       Reference the new test manifest files."
-Write-Host ''
-Write-Host "  3. src\AppInstallerCLITests\YamlManifest.cpp"
-Write-Host "       Add test cases for manifest version $newVersion."

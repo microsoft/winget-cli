@@ -1,4 +1,4 @@
----
+﻿---
 applyTo: "schemas/JSON/manifests/**,src/ManifestSchema/**"
 ---
 
@@ -11,17 +11,17 @@ See `schemas/JSON/manifests/README.md` for full documentation.
 
 ## Script
 
-`schemas/JSON/manifests/Branch-LatestManifestSchema.ps1` automates most steps in both workflows.
+`schemas/JSON/manifests/Checkpoint-LatestManifestSchema.ps1` automates most steps in both workflows.
 
 ```powershell
 # Freeze only (no version bump, C++ changes are manual).
-.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1
+.\schemas\JSON\manifests\Checkpoint-LatestManifestSchema.ps1
 
 # Freeze current latest/, then advance schema to match the binary version (automates C++ source edits).
-.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1 -BumpVersion
+.\schemas\JSON\manifests\Checkpoint-LatestManifestSchema.ps1 -BumpVersion
 
 # Dry run.
-.\schemas\JSON\manifests\Branch-LatestManifestSchema.ps1 -BumpVersion -WhatIf
+.\schemas\JSON\manifests\Checkpoint-LatestManifestSchema.ps1 -BumpVersion -WhatIf
 ```
 
 ## Workflow A: Starting a new schema version (`-BumpVersion`)
@@ -38,7 +38,6 @@ does not yet match. The script automates steps 1–7 below. Step 8 (test manifes
 | 5 | `src/ManifestSchema/ManifestSchema.rc` | **Append** five new resource entries pointing to `latest/`. |
 | 6 | `src/AppInstallerCommonCore/Manifest/ManifestSchemaValidation.cpp` | **Prepend** a new `if (manifestVersion >= ManifestVer{ s_ManifestVersionV{MAJOR}_{MINOR} })` block; old top block becomes `else if`. |
 | 7 | `src/WinGetUtilInterop/Manifest/ManifestVersion.cs` | **Add** `public const string ManifestVersionV{MAJOR}_{MINOR} = "{VERSION}";` |
-| 8 | `src/AppInstallerCLITests/TestData/` + vcxproj + YamlManifest.cpp | **Add** test manifests and test cases (**manual**). |
 
 ## Workflow B: Freezing `latest/` at a release
 
