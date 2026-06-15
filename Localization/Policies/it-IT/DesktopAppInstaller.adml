@@ -133,6 +133,15 @@ Se si disabilita o non si configura questa impostazione, gli utenti non potranno
 Se si abilita o non si configura questa impostazione, gli utenti potranno utilizzare il server MCP del Gestione pacchetti Windows.
 
 Se si disabilita questa impostazione, gli utenti non potranno utilizzare il server MCP del Gestione pacchetti Windows.</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPath">Abilita l'override del processore di configurazione di Gestione pacchetti Windows</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPathExplanation">
+        Questo criterio controlla se gli utenti possono specificare un percorso del processore DSC personalizzato tramite l'argomento --processor-path nei comandi di configurazione di Gestione pacchetti Windows.
+
+Se si abilita questa impostazione, gli utenti potranno specificare un percorso del processore DSC personalizzato nei comandi di configurazione.
+
+Se non si configura questa impostazione, gli utenti potranno specificare un percorso del processore DSC personalizzato nei comandi di configurazione dopo aver abilitato l'impostazione amministratore correlata.
+
+Se si disabilita questa impostazione, gli utenti non potranno specificare un percorso del processore DSC personalizzato nei comandi di configurazione.</string>
       <string id="WindowsPackageManagerDefaultProxy">Imposta proxy predefinito Gestione pacchetti Windows</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">Questo criterio controlla il proxy predefinito utilizzato dal Gestione pacchetti Windows.
 
