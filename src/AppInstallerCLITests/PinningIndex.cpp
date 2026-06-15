@@ -204,6 +204,21 @@ TEST_CASE("PinningIndex_V1_1_AddPin_WithDateAndNote", "[pinningIndex]")
     }
 }
 
+TEST_CASE("PinningIndex_V1_1_AddDuplicatePin", "[pinningIndex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Pin pin = Pin::CreateGatingPin({ "pkg", "src" }, { "1.0.*"sv });
+    pin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1030));
+    pin.SetNote(std::string{ "duplicate test" });
+
+    PinningIndex index = PinningIndex::CreateNew(tempFile, Version::Latest());
+    index.AddPin(pin);
+
+    REQUIRE_THROWS(index.AddPin(pin), ERROR_ALREADY_EXISTS);
+}
+
 
 TEST_CASE("PinningIndex_V1_1_AddUpdateRemove", "[pinningIndex]")
 {
