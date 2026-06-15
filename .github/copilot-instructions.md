@@ -105,16 +105,16 @@ void WorkflowTask(Execution::Context& context)
 {
     // Check if already terminated
     AICLI_RETURN_IF_TERMINATED(context);
-
+    
     // Access data
     auto& data = context.Get<Data::Installer>();
-
+    
     // Report to user
     context.Reporter.Info() << "Doing something";
-
+    
     // Store data for next workflow
     context.Add<Data::SomeResult>(result);
-
+    
     // Terminate on error
     if (failed)
     {
@@ -132,6 +132,18 @@ void WorkflowTask(Execution::Context& context)
 - Schema definitions in `schemas/JSON/manifests/`
 - Parsing in `AppInstallerCommonCore/Manifest/`
 - Multi-file manifests: installer, locale, version, defaultLocale
+
+## Naming Conventions
+
+- **Namespace structure**: `AppInstaller::<Area>[::<Subarea>]`
+  - `AppInstaller::CLI::Execution` - CLI execution context
+  - `AppInstaller::CLI::Workflow` - Workflow functions
+  - `AppInstaller::Repository` - Repository/source logic
+  - `AppInstaller::Manifest` - Manifest types
+  - `AppInstaller::Settings` - User/admin settings
+
+- **Macros**: Prefixed with `AICLI_` for CLI, `WINGET_` for general
+- **Data keys**: ExecutionContextData uses enum keys to type-safely store/retrieve data
 
 ## Windows-Specific Considerations
 
