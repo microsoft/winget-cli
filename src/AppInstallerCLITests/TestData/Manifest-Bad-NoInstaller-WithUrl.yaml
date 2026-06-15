@@ -1,5 +1,5 @@
 # Bad manifest. InstallerType noinstaller must not have InstallerUrl.
-# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.29.0.schema.json
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.30.0.schema.json
 
 PackageIdentifier: microsoft.msixsdk
 PackageVersion: 1.7.32
@@ -15,4 +15,4 @@ Installers:
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
     InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
 ManifestType: singleton
-ManifestVersion: 1.29.0
+ManifestVersion: 1.30.0

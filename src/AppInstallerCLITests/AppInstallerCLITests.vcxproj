@@ -1140,19 +1140,19 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-NetworkAddressInSwitches.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ManifestV1_29-Singleton.yaml">
+    <CopyFileToFolders Include="TestData\ManifestV1_30-Singleton.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_29\ManifestV1_29-MultiFile-DefaultLocale.yaml">
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_30\ManifestV1_30-MultiFile-DefaultLocale.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_29\ManifestV1_29-MultiFile-Installer.yaml">
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_30\ManifestV1_30-MultiFile-Installer.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_29\ManifestV1_29-MultiFile-Locale.yaml">
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_30\ManifestV1_30-MultiFile-Locale.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_29\ManifestV1_29-MultiFile-Version.yaml">
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_30\ManifestV1_30-MultiFile-Version.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
   </ItemGroup>

@@ -2,7 +2,7 @@
 
 # New Feature: NoInstaller manifest type
 
-Manifests can now declare `InstallerType: noinstaller` (manifest version `1.29.0`). This type is intended for software a publisher no longer offers as a direct download, allowing winget to continue correlating against the installed package without providing an installer URL.
+Manifests can now declare `InstallerType: noinstaller` (manifest version `1.30.0`). This type is intended for software a publisher no longer offers as a direct download, allowing winget to continue correlating against the installed package without providing an installer URL.
 
 Key behaviours:
 

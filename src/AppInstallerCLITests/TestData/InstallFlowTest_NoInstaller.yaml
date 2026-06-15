@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.29.0.schema.json
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.30.0.schema.json
 
 PackageIdentifier: AppInstallerCliTest.TestNoInstaller
 PackageVersion: 1.0.0.0
@@ -13,4 +13,4 @@ Installers:
     InstallerType: noinstaller
     InstallerAvailabilityMessage: Contact vendor for installer
 ManifestType: singleton
-ManifestVersion: 1.29.0
+ManifestVersion: 1.30.0

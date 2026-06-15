@@ -1,5 +1,5 @@
 # Good manifest. InstallerType noinstaller is valid with optional InstallerAvailabilityMessage and no InstallerUrl required.
-# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.29.0.schema.json
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.30.0.schema.json
 
 PackageIdentifier: microsoft.msixsdk
 PackageVersion: 1.7.32
@@ -19,4 +19,4 @@ Installers:
       UpgradeCode: '{FEDCBA98-8765-8765-8765-FEDCBA987654}'
     InstallerAvailabilityMessage: This software has been discontinued by the publisher.
 ManifestType: singleton
-ManifestVersion: 1.29.0
+ManifestVersion: 1.30.0
