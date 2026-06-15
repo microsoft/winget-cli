@@ -20,6 +20,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         // Get the table name.
         static std::string_view TableName();
 
+        // Creates the table with named indices.
+        static void Create(SQLite::Connection& connection);
+
         // Gets the row ID for the pin, if it exists.
         static std::optional<SQLite::rowid_t> GetIdByPinKey(SQLite::Connection& connection, const Pinning::PinKey& pinKey);
 
@@ -43,11 +46,5 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         // Resets all pins from a given source, or from all sources if none is specified.
         // Returns a value indicating whether there were any changes.
         static bool ResetAllPins(SQLite::Connection& connection, std::string_view sourceId = {});
-
-    protected:
-        // Creates the table with named indices.
-        static void Create(SQLite::Connection& connection);
-
-        friend struct PinningIndexInterface;
     };
 }
