@@ -10,6 +10,7 @@ Key behaviours:
 - **`winget show`** — displays `Installer Availability Message:` instead of `Installer Url:`, and shows `Offline Distribution Supported: false`.
 - **`winget upgrade`** — a real installer is always preferred over a `noinstaller` entry when both exist for the same package. A `noinstaller` entry is only selected when it is the only applicable option, at which point the install flow blocks as above.
 - **Manifest fields** — `InstallerUrl` must not be present. `InstallerSha256`, `ProductCode`, and `AppsAndFeaturesEntries` are all supported for package correlation. `InstallerAvailabilityMessage` (optional, max 512 characters) may be set at root or per-installer level.
+- **REST source contract** — REST source negotiation now supports contract version `1.30.0`, including `noinstaller` and `InstallerAvailabilityMessage` payload parsing.
 
 
 ## Bug Fixes
