@@ -535,6 +535,39 @@ TEST_CASE("SQLBuilder_Update", "[sqlbuilder]")
     SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
 }
 
+TEST_CASE("SQLBuilder_UpdateEmptyOptional", "[sqlbuilder]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    CreateSimpleTestTable(connection);
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+
+    std::optional<std::string> emptySecondVal;
+
+    Builder::StatementBuilder update;
+    update.Update(s_tableName)
+        .Set()
+        .Column(s_secondColumn).AssignValue(emptySecondVal)
+        .Where(s_firstColumn).Equals(firstVal);
+
+    update.Execute(connection);
+
+    Builder::StatementBuilder select;
+    select.Select({ s_firstColumn, s_secondColumn }).From(s_tableName).Where(s_firstColumn).Equals(firstVal);
+
+    auto statement = select.Prepare(connection);
+
+    REQUIRE(statement.Step());
+    REQUIRE(statement.GetColumn<int>(0) == firstVal);
+    REQUIRE(statement.GetColumnIsNull(1));
+
+    REQUIRE(!statement.Step());
+}
+
 TEST_CASE("SQLBuilder_CaseInsensitive", "[sqlbuilder]")
 {
     Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
