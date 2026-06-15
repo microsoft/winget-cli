@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Microsoft/Schema/Pinning_1_1/PinningIndexInterface.h"
-#include "Microsoft/Schema/Pinning_1_1/PinTable_1_1.h"
+#include "Microsoft/Schema/Pinning_1_1/PinTable.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
 {
