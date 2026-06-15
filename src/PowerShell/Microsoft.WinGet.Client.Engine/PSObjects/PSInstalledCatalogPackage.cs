@@ -7,7 +7,6 @@
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     using System;
-    using System.Collections.Generic;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Helpers;
 
@@ -16,21 +15,21 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
     /// </summary>
     public sealed class PSInstalledCatalogPackage : PSCatalogPackage
     {
-        private readonly IReadOnlySet<string>? pinnedPackageIds;
+        private readonly Func<CatalogPackage, bool> isPinnedLookup;
         private bool? isPinned;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PSInstalledCatalogPackage"/> class.
         /// </summary>
         /// <param name="catalogPackage">The catalog package COM object.</param>
-        /// <param name="pinnedPackageIds">
-        /// Optional pre-fetched set of pinned package IDs. When provided, <see cref="IsPinned"/>
-        /// uses this set instead of issuing a per-package COM call.
+        /// <param name="isPinnedLookup">
+        /// Optional lookup used to determine whether the package is pinned. When not supplied,
+        /// the lookup is resolved on demand through the package manager.
         /// </param>
-        internal PSInstalledCatalogPackage(CatalogPackage catalogPackage, IReadOnlySet<string>? pinnedPackageIds = null)
+        internal PSInstalledCatalogPackage(CatalogPackage catalogPackage, Func<CatalogPackage, bool>? isPinnedLookup = null)
             : base(catalogPackage)
         {
-            this.pinnedPackageIds = pinnedPackageIds;
+            this.isPinnedLookup = isPinnedLookup ?? this.DefaultIsPinnedLookup;
         }
 
         /// <summary>
@@ -50,13 +49,16 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
             {
                 if (!this.isPinned.HasValue)
                 {
-                    this.isPinned = this.pinnedPackageIds != null
-                        ? this.pinnedPackageIds.Contains(this.CatalogPackageCOM.Id)
-                        : PackageManagerWrapper.Instance.GetPins(this.CatalogPackageCOM).Count > 0;
+                    this.isPinned = this.isPinnedLookup(this.CatalogPackageCOM);
                 }
 
                 return this.isPinned.Value;
             }
+        }
+
+        private bool DefaultIsPinnedLookup(CatalogPackage catalogPackage)
+        {
+            return PackageManagerWrapper.Instance.GetPins(catalogPackage).Count > 0;
         }
 
         /// <summary>

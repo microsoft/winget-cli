@@ -6,8 +6,6 @@
 
 namespace Microsoft.WinGet.Client.Engine.Commands
 {
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
@@ -85,20 +83,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     CompositeSearchBehavior.LocalCatalogs,
                     PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption)));
 
-            if (results.Count == 0)
-            {
-                return;
-            }
-
-            // Fetch all pins in a single COM call and build a lookup set to avoid
-            // one GetPins() roundtrip per package when IsPinned is accessed during output.
-            IReadOnlyList<PackagePin> allPins = this.Execute(
-                () => PackageManagerWrapper.Instance.GetAllPins());
-            var pinnedPackageIds = allPins.Select(p => p.PackageId).ToHashSet();
-
             for (var i = 0; i < results.Count; i++)
             {
-                this.Write(StreamType.Object, new PSInstalledCatalogPackage(results[i].CatalogPackage, pinnedPackageIds));
+                this.Write(StreamType.Object, new PSInstalledCatalogPackage(results[i].CatalogPackage));
             }
         }
     }
