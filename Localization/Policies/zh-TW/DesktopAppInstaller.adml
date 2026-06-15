@@ -133,6 +133,15 @@
         如果您啟用或未設定此原則，使用者將能使用 Windows 封裝管理員的 MCP 伺服器。
 
         如果您停用此原則，使用者將無法使用 Windows 封裝管理員的 MCP 伺服器。</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPath">啟用 Windows 套件管理員設定處理器覆寫</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPathExplanation">
+        此原則控制使用者是否可以透過 Windows 封裝管理員設定命令中的 --processor-path 引數指定自訂 DSC 處理器路徑。
+
+如果您啟用這個設定，使用者將可以在設定命令中指定自訂 DSC 處理器路徑。
+
+如果您未設定這個設定，啟用相關的系統管理員設定之後，使用者將可以在設定命令中指定自訂 DSC 處理器路徑。
+
+如果您停用這個設定，使用者將無法在組態命令中指定自訂 DSC 處理器路徑。</string>
       <string id="WindowsPackageManagerDefaultProxy">設定 Windows 封裝管理員預設 Proxy</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">此原則控制Windows 封裝管理員使用的預設 Proxy。
 

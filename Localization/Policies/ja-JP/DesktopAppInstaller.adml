@@ -133,6 +133,15 @@
 この設定を有効にするか、未構成にした場合、ユーザーはWindows パッケージ マネージャーの MCP サーバーを使用できます。
 
 この設定を無効にすると、ユーザーはWindows パッケージ マネージャーの MCP サーバーを使用できなくなります。</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPath">Windows パッケージ マネージャー構成プロセッサーのオーバーライドを有効にします</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPathExplanation">
+        このポリシーは、ユーザーが Windows パッケージ マネージャー構成コマンドの --processor-path 引数を使用してカスタム DSC プロセッサ パスを指定できるかどうかを制御します。
+
+この設定を有効にした場合、ユーザーは構成コマンドでカスタム DSC プロセッサ パスを指定できます。
+
+この設定を構成しなかった場合、関連する管理者設定を有効にすると、ユーザーは構成コマンドでカスタム DSC プロセッサ パスを指定できるようになります。
+
+この設定を無効にした場合、ユーザーは構成コマンドでカスタム DSC プロセッサ パスを指定できなくなります。</string>
       <string id="WindowsPackageManagerDefaultProxy">Windows パッケージ マネージャーの既定のプロキシを設定する</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">このポリシーは、Windows パッケージ マネージャーで使用される既定のプロキシを制御します。
 

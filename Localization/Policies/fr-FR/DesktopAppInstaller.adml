@@ -133,6 +133,15 @@ Si vous désactivez ou ne configurez pas ce paramètre, les utilisateurs ne peuv
 Si vous activez ou ne configurez pas ce paramètre, les utilisateurs peuvent utiliser le serveur MCP du Gestionnaire de package Windows.
 
 Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas utiliser le serveur MCP du Gestionnaire de package Windows.</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPath">Activer le remplacement du processeur de configuration du Gestionnaire de package Windows</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPathExplanation">
+        Cette stratégie contrôle si les utilisateurs peuvent spécifier un chemin d’accès de processeur DSC personnalisé via l’argument --processor-path dans les commandes de configuration du Gestionnaire de package Windows.
+
+Si vous activez ce paramètre, les utilisateurs peuvent spécifier un chemin d’accès au processeur DSC personnalisé dans les commandes de configuration.
+
+Si vous ne configurez pas ce paramètre, les utilisateurs peuvent spécifier un chemin d’accès au processeur DSC personnalisé dans les commandes de configuration après avoir activé le paramètre administrateur associé.
+
+Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas spécifier de chemin d’accès au processeur DSC personnalisé dans les commandes de configuration.</string>
       <string id="WindowsPackageManagerDefaultProxy">Définir Gestionnaire de package Windows proxy par défaut</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">Cette stratégie contrôle le proxy par défaut utilisé par le Gestionnaire de package Windows.
 

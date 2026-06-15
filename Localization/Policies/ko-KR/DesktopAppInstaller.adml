@@ -133,6 +133,15 @@
 이 설정을 사용하거나 구성하지 않으면 사용자가 Windows 패키지 관리자 MCP 서버를 사용할 수 있습니다.
 
 이 설정을 사용하지 않으면 사용자가 Windows 패키지 관리자 MCP 서버를 사용할 수 없습니다.</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPath">Windows 패키지 관리자 구성 프로세서 재정의 사용</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPathExplanation">
+        이 정책은 사용자가 Windows 패키지 관리자 구성 명령의 --processor-path 인수를 통해 사용자 지정 DSC 프로세서 경로를 지정할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하면 사용자가 구성 명령에서 사용자 지정 DSC 프로세서 경로를 지정할 수 있습니다.
+
+이 설정을 구성하지 않으면 사용자는 관련 관리자 설정을 사용하도록 설정한 후 구성 명령에서 사용자 지정 DSC 프로세서 경로를 지정할 수 있습니다.
+
+이 설정을 사용하지 않으면 사용자가 구성 명령에서 사용자 지정 DSC 프로세서 경로를 지정할 수 없습니다.</string>
       <string id="WindowsPackageManagerDefaultProxy">Windows 패키지 관리자 기본 프록시 설정</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">이 정책은 Windows 패키지 관리자 사용하는 기본 프록시를 제어합니다.
 

@@ -133,6 +133,15 @@ Si deshabilita o no establece esta configuración, los usuarios no podrán confi
 Si habilita o no establece esta configuración, los usuarios podrán usar el servidor MCP del Administrador de paquetes de Windows.
 
 Si deshabilita esta configuración, los usuarios no podrán usar el servidor MCP del Administrador de paquetes de Windows.</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPath">Habilitar invalidación del procesador de configuración de Administrador de paquetes de Windows</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPathExplanation">
+        Esta directiva controla si los usuarios pueden especificar una ruta de acceso de procesador DSC personalizada mediante el argumento --processor-path en los comandos de configuración del Administrador de paquetes de Windows.
+
+Si habilita esta opción, los usuarios podrán especificar una ruta de acceso del procesador DSC personalizada en los comandos de configuración.
+
+Si no establece esta configuración, los usuarios podrán especificar una ruta de acceso de procesador DSC personalizada en los comandos de configuración después de habilitar la configuración de administrador relacionada.
+
+Si deshabilita esta opción, los usuarios no podrán especificar una ruta de acceso del procesador DSC personalizada en los comandos de configuración.</string>
       <string id="WindowsPackageManagerDefaultProxy">Establecer Administrador de paquetes de Windows proxy predeterminado</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">Esta directiva controla el proxy predeterminado que usa el Administrador de paquetes de Windows.
 
