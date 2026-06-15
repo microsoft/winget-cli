@@ -30,14 +30,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         }
     }
 
-    using namespace std::string_view_literals;
-    static constexpr std::string_view s_PinTable_Table_Name = "pin"sv;
-    static constexpr std::string_view s_PinTable_PackageId_Column = "package_id"sv;
-    static constexpr std::string_view s_PinTable_SourceId_Column = "source_id"sv;
-    static constexpr std::string_view s_PinTable_Type_Column = "type"sv;
-    static constexpr std::string_view s_PinTable_Version_Column = "version"sv;
-    static constexpr std::string_view s_PinTable_Index = "pin_index"sv;
-
     std::string_view PinTable::TableName()
     {
         return s_PinTable_Table_Name;

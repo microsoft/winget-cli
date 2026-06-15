@@ -228,6 +228,7 @@ namespace AppInstaller::Repository::Microsoft
                     SetLastWriteTime();
                     savepoint.Commit();
                     m_version = latestInterface->GetVersion();
+                    m_interface = std::move(latestInterface);
                     AICLI_LOG(Repo, Info, << "Migration successful");
                 }
                 else
@@ -236,8 +237,6 @@ namespace AppInstaller::Repository::Microsoft
                     THROW_HR(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX);
                 }
             }
-
-            m_interface = std::move(latestInterface);
         }
     }
 

@@ -11,6 +11,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
 {
     struct PinTable : Pinning_V1_0::PinTable
     {
+        static inline constexpr std::string_view s_PinTable_DateAdded_Column = "date_added";
+        static inline constexpr std::string_view s_PinTable_Note_Column = "note";
+
         // Migrates an existing v1.0 pin table by adding the date_added and note columns.
         static void MigrateFrom1_0(SQLite::Connection& connection);
 
