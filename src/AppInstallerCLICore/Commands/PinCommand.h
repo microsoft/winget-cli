@@ -88,18 +88,4 @@ namespace AppInstaller::CLI
         void ExecuteInternal(Execution::Context& context) const override;
     };
 
-    struct PinShowCommand final : public Command
-    {
-        PinShowCommand(std::string_view parent) : Command("show", parent) {}
-
-        std::vector<Argument> GetArguments() const override;
-
-        Resource::LocString ShortDescription() const override;
-        Resource::LocString LongDescription() const override;
-
-        Utility::LocIndView HelpLink() const override;
-
-    protected:
-        void ExecuteInternal(Execution::Context& context) const override;
-    };
 }

@@ -4,7 +4,9 @@
 #include "WorkflowCommon.h"
 #include "TestHooks.h"
 #include "PinTestCommon.h"
+#include "TestSource.h"
 #include <AppInstallerDateTime.h>
+#include <winget/Manifest.h>
 #include <Commands/PinCommand.h>
 #include <Workflows/PinFlow.h>
 #include <Microsoft/PinningIndex.h>
@@ -225,13 +227,54 @@ TEST_CASE("PinFlow_Add_WithNote", "[PinFlow][workflow]")
     REQUIRE(pins[0].GetNote().value() == "my test note");
 }
 
-// Helper: Creates a v1.1 pinning index at the given path and adds the provided pins directly.
+// Helper: Creates a pinning index at the given path and adds the provided pins directly.
 // Each pin should already have date_added and note set as desired.
 namespace
 {
-    void PopulatePinIndexForShow(const std::filesystem::path& indexPath, const std::vector<Pin>& pins)
+    AppInstaller::Manifest::Manifest MakeListTestManifest(std::string_view id)
     {
-        PinningIndex index = PinningIndex::CreateNew(indexPath.u8string(), AppInstaller::SQLite::Version::Latest());
+        AppInstaller::Manifest::Manifest result;
+        result.Id = std::string{ id };
+        result.DefaultLocalization.Add<AppInstaller::Manifest::Localization::PackageName>(std::string{ id });
+        result.DefaultLocalization.Add<AppInstaller::Manifest::Localization::Publisher>("TestPublisher");
+        result.Version = "1.0.0";
+        result.Installers.push_back({});
+        return result;
+    }
+
+    TestSourceResult MakeListTestSourceResult(std::string_view id)
+    {
+        std::string packageId{ id };
+        return TestSourceResult(
+            packageId,
+            [packageId](std::vector<AppInstaller::Repository::ResultMatch>& matches, std::weak_ptr<const AppInstaller::Repository::ISource> source)
+            {
+                auto manifest = MakeListTestManifest(packageId);
+                matches.emplace_back(
+                    AppInstaller::Repository::ResultMatch(
+                        TestCompositePackage::Make(std::vector<AppInstaller::Manifest::Manifest>{ manifest }, source),
+                        AppInstaller::Repository::PackageMatchFilter(
+                            AppInstaller::Repository::PackageMatchField::Id,
+                            AppInstaller::Repository::MatchType::Exact,
+                            packageId)));
+            });
+    }
+
+    std::shared_ptr<WorkflowTestSource> CreateListTestSource(std::initializer_list<std::string_view> ids)
+    {
+        std::vector<TestSourceResult> results;
+        results.reserve(ids.size());
+        for (auto id : ids)
+        {
+            results.emplace_back(MakeListTestSourceResult(id));
+        }
+
+        return CreateTestSource(std::move(results));
+    }
+
+    void PopulatePinIndexForList(const std::filesystem::path& indexPath, const std::vector<Pin>& pins, AppInstaller::SQLite::Version version = AppInstaller::SQLite::Version::Latest())
+    {
+        PinningIndex index = PinningIndex::CreateNew(indexPath.u8string(), version);
         for (const auto& pin : pins)
         {
             index.AddPin(pin);
@@ -239,28 +282,29 @@ namespace
     }
 }
 
-TEST_CASE("PinFlow_Show_NoMatch", "[PinFlow][workflow]")
+TEST_CASE("PinFlow_List_Filter_NoMatch", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     Pin existingPin = Pin::CreateBlockingPin({ "SomePackage.Id", "sourceId" });
     existingPin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_15_1000));
-    PopulatePinIndexForShow(indexFile.GetPath(), { existingPin });
+    PopulatePinIndexForList(indexFile.GetPath(), { existingPin });
 
-    std::ostringstream showOutput;
-    TestContext showContext{ showOutput, std::cin };
-    showContext.Args.AddArg(Execution::Args::Type::Query, "ThisQueryMatchesNothing"sv);
+    std::ostringstream listOutput;
+    TestContext listContext{ listOutput, std::cin };
+    listContext.Args.AddArg(Execution::Args::Type::Query, "ThisQueryMatchesNothing"sv);
+    OverrideForCompositeInstalledSource(listContext, CreateListTestSource({ "SomePackage.Id" }));
 
-    PinShowCommand pinShow({});
-    pinShow.Execute(showContext);
-    INFO(showOutput.str());
+    PinListCommand pinList({});
+    pinList.Execute(listContext);
+    INFO(listOutput.str());
 
-    REQUIRE_TERMINATED_WITH(showContext, APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST);
-    REQUIRE(showOutput.str().find(Resource::LocString(Resource::String::PinShowNoMatchFound)) != std::string::npos);
+    REQUIRE_TERMINATED_WITH(listContext, APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::PinShowNoMatchFound)) != std::string::npos);
 }
 
-TEST_CASE("PinFlow_Show_MatchById", "[PinFlow][workflow]")
+TEST_CASE("PinFlow_List_Filter_MatchById_WithDetails", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
@@ -268,46 +312,49 @@ TEST_CASE("PinFlow_Show_MatchById", "[PinFlow][workflow]")
     Pin pin = Pin::CreateBlockingPin({ "MyApp.Package", "sourceId" });
     pin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jun2026_01_0900));
     pin.SetNote(std::string{ "keep this one" });
-    PopulatePinIndexForShow(indexFile.GetPath(), { pin });
+    PopulatePinIndexForList(indexFile.GetPath(), { pin });
 
-    std::ostringstream showOutput;
-    TestContext showContext{ showOutput, std::cin };
-    showContext.Args.AddArg(Execution::Args::Type::Id, "MyApp.Package"sv);
+    std::ostringstream listOutput;
+    TestContext listContext{ listOutput, std::cin };
+    listContext.Args.AddArg(Execution::Args::Type::Id, "MyApp.Package"sv);
+    listContext.Args.AddArg(Execution::Args::Type::ListDetails);
+    OverrideForCompositeInstalledSource(listContext, CreateListTestSource({ "MyApp.Package" }));
 
-    PinShowCommand pinShow({});
-    pinShow.Execute(showContext);
-    INFO(showOutput.str());
+    PinListCommand pinList({});
+    pinList.Execute(listContext);
+    INFO(listOutput.str());
 
-    REQUIRE_FALSE(showContext.IsTerminated());
-    REQUIRE(showOutput.str().find("MyApp.Package") != std::string::npos);
-    REQUIRE(showOutput.str().find("Blocking") != std::string::npos);
-    REQUIRE(showOutput.str().find("Date added:") != std::string::npos);
-    REQUIRE(showOutput.str().find("keep this one") != std::string::npos);
+    REQUIRE_FALSE(listContext.IsTerminated());
+    REQUIRE(listOutput.str().find("MyApp.Package") != std::string::npos);
+    REQUIRE(listOutput.str().find("Blocking") != std::string::npos);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::PinDateAdded)) != std::string::npos);
+    REQUIRE(listOutput.str().find("keep this one") != std::string::npos);
 }
 
-TEST_CASE("PinFlow_Show_MatchByQuery", "[PinFlow][workflow]")
+TEST_CASE("PinFlow_List_Filter_MatchByQuery", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     Pin pin = Pin::CreatePinningPin({ "Contoso.AppOne", "sourceId" });
     pin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Mar2026_10_1200));
-    PopulatePinIndexForShow(indexFile.GetPath(), { pin });
+    PopulatePinIndexForList(indexFile.GetPath(), { pin });
 
-    std::ostringstream showOutput;
-    TestContext showContext{ showOutput, std::cin };
+    std::ostringstream listOutput;
+    TestContext listContext{ listOutput, std::cin };
     // Partial, case-insensitive match on the package ID
-    showContext.Args.AddArg(Execution::Args::Type::Query, "appone"sv);
+    listContext.Args.AddArg(Execution::Args::Type::Query, "appone"sv);
+    OverrideForCompositeInstalledSource(listContext, CreateListTestSource({ "Contoso.AppOne" }));
 
-    PinShowCommand pinShow({});
-    pinShow.Execute(showContext);
-    INFO(showOutput.str());
+    PinListCommand pinList({});
+    pinList.Execute(listContext);
+    INFO(listOutput.str());
 
-    REQUIRE_FALSE(showContext.IsTerminated());
-    REQUIRE(showOutput.str().find("Contoso.AppOne") != std::string::npos);
+    REQUIRE_FALSE(listContext.IsTerminated());
+    REQUIRE(listOutput.str().find("Contoso.AppOne") != std::string::npos);
 }
 
-TEST_CASE("PinFlow_Show_ExactMatch", "[PinFlow][workflow]")
+TEST_CASE("PinFlow_List_Filter_ExactMatch", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
@@ -319,25 +366,26 @@ TEST_CASE("PinFlow_Show_ExactMatch", "[PinFlow][workflow]")
     Pin pinB = Pin::CreateBlockingPin({ "Vendor.AppExtra", "src" });
     pinB.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jan2026_01_0000));
 
-    PopulatePinIndexForShow(indexFile.GetPath(), { pinA, pinB });
+    PopulatePinIndexForList(indexFile.GetPath(), { pinA, pinB });
 
-    std::ostringstream showOutput;
-    TestContext showContext{ showOutput, std::cin };
-    showContext.Args.AddArg(Execution::Args::Type::Id, "Vendor.App"sv);
-    showContext.Args.AddArg(Execution::Args::Type::Exact);
+    std::ostringstream listOutput;
+    TestContext listContext{ listOutput, std::cin };
+    listContext.Args.AddArg(Execution::Args::Type::Id, "Vendor.App"sv);
+    listContext.Args.AddArg(Execution::Args::Type::Exact);
+    OverrideForCompositeInstalledSource(listContext, CreateListTestSource({ "Vendor.App", "Vendor.AppExtra" }));
 
-    PinShowCommand pinShow({});
-    pinShow.Execute(showContext);
-    INFO(showOutput.str());
+    PinListCommand pinList({});
+    pinList.Execute(listContext);
+    INFO(listOutput.str());
 
-    REQUIRE_FALSE(showContext.IsTerminated());
+    REQUIRE_FALSE(listContext.IsTerminated());
     // Only the exact-match pin should appear
-    REQUIRE(showOutput.str().find("Vendor.App") != std::string::npos);
+    REQUIRE(listOutput.str().find("Vendor.App") != std::string::npos);
     // The inexact match should NOT appear
-    REQUIRE(showOutput.str().find("Vendor.AppExtra") == std::string::npos);
+    REQUIRE(listOutput.str().find("Vendor.AppExtra") == std::string::npos);
 }
 
-TEST_CASE("PinFlow_Show_NoNote_DoesNotShowNoteLabel", "[PinFlow][workflow]")
+TEST_CASE("PinFlow_List_DetailsWithoutNotes_ShowsEmptyNoteColumn", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
@@ -345,22 +393,49 @@ TEST_CASE("PinFlow_Show_NoNote_DoesNotShowNoteLabel", "[PinFlow][workflow]")
     Pin pin = Pin::CreatePinningPin({ "NoNote.Package", "src" });
     pin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::May2026_01_0800));
     // note intentionally not set
-    PopulatePinIndexForShow(indexFile.GetPath(), { pin });
+    PopulatePinIndexForList(indexFile.GetPath(), { pin });
 
-    std::ostringstream showOutput;
-    TestContext showContext{ showOutput, std::cin };
-    showContext.Args.AddArg(Execution::Args::Type::Query, "NoNote.Package"sv);
+    std::ostringstream listOutput;
+    TestContext listContext{ listOutput, std::cin };
+    listContext.Args.AddArg(Execution::Args::Type::Query, "NoNote.Package"sv);
+    listContext.Args.AddArg(Execution::Args::Type::ListDetails);
+    OverrideForCompositeInstalledSource(listContext, CreateListTestSource({ "NoNote.Package" }));
 
-    PinShowCommand pinShow({});
-    pinShow.Execute(showContext);
-    INFO(showOutput.str());
+    PinListCommand pinList({});
+    pinList.Execute(listContext);
+    INFO(listOutput.str());
 
-    REQUIRE_FALSE(showContext.IsTerminated());
-    REQUIRE(showOutput.str().find("NoNote.Package") != std::string::npos);
-    REQUIRE(showOutput.str().find(Resource::LocString(Resource::String::PinShowLabelNote)) == std::string::npos);
+    REQUIRE_FALSE(listContext.IsTerminated());
+    REQUIRE(listOutput.str().find("NoNote.Package") != std::string::npos);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::PinDateAdded)) != std::string::npos);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::PinNote)) != std::string::npos);
 }
 
-TEST_CASE("PinFlow_Show_EmptyIndex_NoMatch", "[PinFlow][workflow]")
+TEST_CASE("PinFlow_List_V1_0Index_NoMigrationRequired", "[PinFlow][workflow]")
+{
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    Pin pin = Pin::CreateBlockingPin({ "Legacy.Package", "src" });
+    PopulatePinIndexForList(indexFile.GetPath(), { pin }, { 1, 0 });
+
+    std::ostringstream listOutput;
+    TestContext listContext{ listOutput, std::cin };
+    listContext.Args.AddArg(Execution::Args::Type::Query, "Legacy.Package"sv);
+    listContext.Args.AddArg(Execution::Args::Type::ListDetails);
+    OverrideForCompositeInstalledSource(listContext, CreateListTestSource({ "Legacy.Package" }));
+
+    PinListCommand pinList({});
+    pinList.Execute(listContext);
+    INFO(listOutput.str());
+
+    REQUIRE_FALSE(listContext.IsTerminated());
+    REQUIRE(listOutput.str().find("Legacy.Package") != std::string::npos);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::PinDateAdded)) == std::string::npos);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::PinNote)) == std::string::npos);
+}
+
+TEST_CASE("PinFlow_List_Filter_EmptyIndex_NoMatch", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
@@ -368,13 +443,38 @@ TEST_CASE("PinFlow_Show_EmptyIndex_NoMatch", "[PinFlow][workflow]")
     // Create an empty index (no pins)
     { PinningIndex::CreateNew(indexFile.GetPath().u8string(), AppInstaller::SQLite::Version::Latest()); }
 
-    std::ostringstream showOutput;
-    TestContext showContext{ showOutput, std::cin };
-    showContext.Args.AddArg(Execution::Args::Type::Query, "AnyQuery"sv);
+    std::ostringstream listOutput;
+    TestContext listContext{ listOutput, std::cin };
+    listContext.Args.AddArg(Execution::Args::Type::Query, "AnyQuery"sv);
+    OverrideForCompositeInstalledSource(listContext, CreateListTestSource({}));
 
-    PinShowCommand pinShow({});
-    pinShow.Execute(showContext);
-    INFO(showOutput.str());
+    PinListCommand pinList({});
+    pinList.Execute(listContext);
+    INFO(listOutput.str());
 
-    REQUIRE_TERMINATED_WITH(showContext, APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST);
+    REQUIRE_TERMINATED_WITH(listContext, APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST);
+}
+
+TEST_CASE("PinFlow_List_DefaultOutput_DoesNotShowDetailsColumns", "[PinFlow][workflow]")
+{
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    Pin pin = Pin::CreateBlockingPin({ "Has.Note.Package", "sourceId" });
+    pin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::Jun2026_01_0900));
+    pin.SetNote(std::string{ "some note" });
+    PopulatePinIndexForList(indexFile.GetPath(), { pin });
+
+    std::ostringstream listOutput;
+    TestContext listContext{ listOutput, std::cin };
+    listContext.Args.AddArg(Execution::Args::Type::Query, "Has.Note.Package"sv);
+    OverrideForCompositeInstalledSource(listContext, CreateListTestSource({ "Has.Note.Package" }));
+
+    PinListCommand pinList({});
+    pinList.Execute(listContext);
+    INFO(listOutput.str());
+
+    REQUIRE_FALSE(listContext.IsTerminated());
+    REQUIRE(listOutput.str().find("Has.Note.Package") != std::string::npos);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::PinDateAdded)) == std::string::npos);
 }

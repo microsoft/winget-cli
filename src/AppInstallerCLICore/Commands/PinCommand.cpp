@@ -23,7 +23,6 @@ namespace AppInstaller::CLI
             std::make_unique<PinRemoveCommand>(FullName()),
             std::make_unique<PinListCommand>(FullName()),
             std::make_unique<PinResetCommand>(FullName()),
-            std::make_unique<PinShowCommand>(FullName()),
         });
     }
 
@@ -246,6 +245,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::AuthenticationMode),
             Argument::ForType(Args::Type::AuthenticationAccount),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
+            Argument::ForType(Args::Type::ListDetails),
         };
     }
 
@@ -346,35 +346,4 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::vector<Argument> PinShowCommand::GetArguments() const
-    {
-        return {
-            Argument::ForType(Args::Type::Query),
-            Argument::ForType(Args::Type::Id),
-            Argument::ForType(Args::Type::Name),
-            Argument::ForType(Args::Type::Exact),
-        };
-    }
-
-    Resource::LocString PinShowCommand::ShortDescription() const
-    {
-        return { Resource::String::PinShowCommandShortDescription };
-    }
-
-    Resource::LocString PinShowCommand::LongDescription() const
-    {
-        return { Resource::String::PinShowCommandLongDescription };
-    }
-
-    Utility::LocIndView PinShowCommand::HelpLink() const
-    {
-        return s_PinCommand_HelpLink;
-    }
-
-    void PinShowCommand::ExecuteInternal(Execution::Context& context) const
-    {
-        context <<
-            Workflow::OpenPinningIndex(/* readOnly */ true) <<
-            Workflow::ShowPinDetails;
-    }
 }

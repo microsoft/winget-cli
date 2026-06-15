@@ -559,14 +559,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PinResetSuccessful);
         WINGET_DEFINE_RESOURCE_STRINGID(PinResettingAll);
         WINGET_DEFINE_RESOURCE_STRINGID(PinResetUseForceArg);
-        WINGET_DEFINE_RESOURCE_STRINGID(PinShowCommandLongDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(PinShowCommandShortDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(PinShowLabelDateAdded);
-        WINGET_DEFINE_RESOURCE_STRINGID(PinShowLabelId);
-        WINGET_DEFINE_RESOURCE_STRINGID(PinShowLabelNote);
-        WINGET_DEFINE_RESOURCE_STRINGID(PinShowLabelSource);
-        WINGET_DEFINE_RESOURCE_STRINGID(PinShowLabelType);
-        WINGET_DEFINE_RESOURCE_STRINGID(PinShowLabelVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(PinShowNoMatchFound);
         WINGET_DEFINE_RESOURCE_STRINGID(PinType);
         WINGET_DEFINE_RESOURCE_STRINGID(PinVersion);
