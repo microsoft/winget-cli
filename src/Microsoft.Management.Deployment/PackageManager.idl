@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(29)] // For version 1.29
+    [contractversion(30)] // For version 1.30
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -1717,7 +1717,7 @@ namespace Microsoft.Management.Deployment
             EditPackageCatalogResult EditPackageCatalog(EditPackageCatalogOptions options);
         }
 
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 30)]
         {
             /// Get all pins across all sources.
             Windows.Foundation.Collections.IVectorView<PackagePin> GetAllPins();
@@ -1742,7 +1742,7 @@ namespace Microsoft.Management.Deployment
     }
 
     /// IMPLEMENTATION NOTE: Pinning::PinType from AppInstaller::Pinning
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 30)]
     enum PackagePinType
     {
         /// Unknown pin type or not pinned.
@@ -1761,7 +1761,7 @@ namespace Microsoft.Management.Deployment
     };
 
     /// IMPLEMENTATION NOTE: Pinning::Pin from AppInstaller::Pinning
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 30)]
     runtimeclass PackagePin
     {
         /// The package ID that the pin applies to (for available-package pins) or the
@@ -1789,7 +1789,7 @@ namespace Microsoft.Management.Deployment
     };
 
     /// Options for adding or updating a package pin.
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 30)]
     runtimeclass PinPackageOptions
     {
         PinPackageOptions();
@@ -1816,7 +1816,7 @@ namespace Microsoft.Management.Deployment
     };
 
     /// Status of a pin operation.
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 30)]
     enum PinResultStatus
     {
         Ok,
@@ -1831,7 +1831,7 @@ namespace Microsoft.Management.Deployment
     };
 
     /// Result of a pin operation.
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 29)]
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 30)]
     runtimeclass PinPackageResult
     {
         PinResultStatus Status { get; };
