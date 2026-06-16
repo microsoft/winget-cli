@@ -1,7 +1,7 @@
-## New in v1.29
+## New in v1.30
 
 Nothing yet.
 
 ## Bug Fixes
 
-* None yet
+* Updated NUnit to v4
