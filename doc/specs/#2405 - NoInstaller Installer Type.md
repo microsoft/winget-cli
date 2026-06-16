@@ -64,7 +64,7 @@ A new optional field `InstallerAvailabilityMessage` is added at the installer le
 Installers:
   - Architecture: x64
     InstallerType: NoInstaller
-    InstallerAvailabilityMessage: "Contact vendor for installer"
+    InstallerAvailabilityMessage: "This package is obsolete. Please use Example.Package.2 instead."
 ```
 
 The field may also be specified at the root manifest level:
@@ -132,7 +132,7 @@ Installers:
     InstallerType: NoInstaller
     InstallerAvailabilityMessage: "Version 2.0.0 has been removed due to a security vulnerability. Please download version 3.0.0 or later."
 
-ManifestType: singleton
+ManifestType: installer
 ManifestVersion: 1.30.0
 ```
 
@@ -284,7 +284,7 @@ Exit Code: 0x8A150116 (APPINSTALLER_CLI_ERROR_INSTALLER_NOT_AVAILABLE)
 $ winget install ExamplePackage
 Found Example Package [Example.Package]
 
-Contact vendor for installer
+This package is obsolete. Please use Example.Package.2 instead.
 
 Exit Code: 0x8A150116 (APPINSTALLER_CLI_ERROR_INSTALLER_NOT_AVAILABLE)
 ```
@@ -307,7 +307,7 @@ Installer Sha256:
 Installer Product Id:
 Installer Release Date:
 Offline Distribution Supported: false
-Installer Availability Message: Contact vendor for installer
+Installer Availability Message: This package is obsolete. Please use Example.Package instead.
 ```
 
 ### Search Results
@@ -380,7 +380,7 @@ Example Package          Example.Package      2.0.0              winget
 
 **Mitigation:**
 - Prominent messaging in `show` output and install error messages.
-- `InstallerAvailabilityMessage` provides actionable context (e.g., "Upgrade to version 3.0.0" or "Contact vendor").
+- `InstallerAvailabilityMessage` provides actionable context (e.g., "Upgrade to version 3.0.0" or "This package is obsolete. Please use Example.Package.2 instead.").
 - Search and upgrade flows clearly indicate unavailability.
 
 ### Mixed-Architecture Complexity
