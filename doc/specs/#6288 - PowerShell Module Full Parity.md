@@ -11,7 +11,7 @@ For [#6288](https://github.com/microsoft/winget-cli/issues/6288).
 
 ## Abstract
 
-The WinGet PowerShell module (`Microsoft.WinGet.Client`) must achieve full functional parity with the WinGet CLI. Several CLI capabilities have no PowerShell equivalent today, blocking adoption by enterprise automation workflows that operate exclusively in PowerShell contexts (Intune, SCCM, Azure Automation, DSC).
+WinGet ships two PowerShell modules — `Microsoft.WinGet.Client` (package management) and `Microsoft.WinGet.Configuration` (configuration/DSC operations). Both must achieve full functional parity with the WinGet CLI. Several CLI capabilities have no PowerShell equivalent today, blocking adoption by enterprise automation workflows that operate exclusively in PowerShell contexts (Intune, SCCM, Azure Automation, DSC).
 
 ## Inspiration
 
@@ -19,25 +19,34 @@ IT decision makers evaluating WinGet for large-scale deployment cite incomplete 
 
 Key gaps identified by enterprise customers:
 
-- No PowerShell equivalent for `winget configure` operations (test, validate, show)
+- No PowerShell equivalent for `winget configure` operations (test, validate, show) — these belong in `Microsoft.WinGet.Configuration`
 - Missing cmdlets for pin management (`winget pin add/remove/list/reset`)
 - No cmdlet for `winget download` ([#658](https://github.com/microsoft/winget-cli/issues/658) added CLI support)
 - Missing `winget repair` support in the module ([#148](https://github.com/microsoft/winget-cli/issues/148) added CLI support)
 - No PowerShell equivalent for `winget settings` management
 - Limited source management beyond basic add/remove
 - COM API cannot activate in elevated/SYSTEM context ([#6042](https://github.com/microsoft/winget-cli/issues/6042))
+- `Microsoft.WinGet.Configuration` lacks cmdlets for configuration history, abort, and delete operations
 
 ## Solution Design
 
-### Phase 1: Core Cmdlet Gaps
+### Module Architecture
+
+WinGet ships two separate PowerShell modules with distinct responsibilities:
+
+| Module | Responsibility | Gallery Link |
+|--------|---------------|--------------|
+| `Microsoft.WinGet.Client` | Package lifecycle — install, upgrade, uninstall, search, source, pin, download, settings | [PSGallery](https://www.powershellgallery.com/packages/Microsoft.WinGet.Client) |
+| `Microsoft.WinGet.Configuration` | Configuration operations — apply, test, validate, show, history | [PSGallery](https://www.powershellgallery.com/packages/Microsoft.WinGet.Configuration) |
+
+Both modules communicate with the WinGet COM API (`Microsoft.Management.Deployment`) but surface different subsets of functionality. This spec covers parity gaps in **both** modules.
+
+### Phase 1: Core Cmdlet Gaps — Microsoft.WinGet.Client
 
 Add the following cmdlets to `Microsoft.WinGet.Client`:
 
 | CLI Command | Proposed Cmdlet | Verb-Noun Justification |
 |-------------|----------------|------------------------|
-| `winget configure test` | `Test-WinGetConfiguration` | `Test` = validate state compliance |
-| `winget configure validate` | `Assert-WinGetConfiguration` | `Assert` = validate schema/syntax |
-| `winget configure show` | `Get-WinGetConfigurationDetails` | `Get` = retrieve information |
 | `winget download` | `Save-WinGetPackage` | `Save` = download without install (PS convention) |
 | `winget repair` | `Repair-WinGetPackage` | `Repair` = fix broken install |
 | `winget pin add` | `Add-WinGetPin` | `Add` = create resource |
@@ -46,6 +55,19 @@ Add the following cmdlets to `Microsoft.WinGet.Client`:
 | `winget pin reset` | `Reset-WinGetPin` | `Reset` = restore defaults |
 | `winget settings export` | `Export-WinGetSettings` | `Export` = serialize to file |
 | `winget settings set` | `Set-WinGetSetting` | `Set` = modify value |
+
+### Phase 1b: Core Cmdlet Gaps — Microsoft.WinGet.Configuration
+
+Add or enhance the following cmdlets in `Microsoft.WinGet.Configuration`:
+
+| CLI Command | Proposed Cmdlet | Verb-Noun Justification |
+|-------------|----------------|------------------------|
+| `winget configure test` | `Test-WinGetConfiguration` | `Test` = validate state compliance |
+| `winget configure validate` | `Assert-WinGetConfiguration` | `Assert` = validate schema/syntax |
+| `winget configure show` | `Get-WinGetConfigurationDetails` | `Get` = retrieve information |
+| `winget configure list` | `Get-WinGetConfigurationHistory` | `Get` = list previous runs |
+| `winget configure abort` | `Stop-WinGetConfiguration` | `Stop` = cancel in-progress operation |
+| `winget configure delete` | `Remove-WinGetConfigurationHistory` | `Remove` = delete record |
 
 ### Phase 2: Enhanced Source Management
 
@@ -66,25 +88,26 @@ Address the fundamental blocker of WinGet operating in SYSTEM context:
 
 ### Architecture
 
-All new cmdlets use the existing COM API rather than wrapping the CLI executable:
+Both modules use the existing COM API rather than wrapping the CLI executable:
 
 ```
-┌──────────────────────────────────┐
-│ PowerShell Cmdlet                │
-│ (Microsoft.WinGet.Client)        │
-└──────────────┬───────────────────┘
-               │ COM Interop
-               ▼
-┌──────────────────────────────────┐
-│ Microsoft.Management.Deployment  │
-│ (WinRT COM API)                  │
-└──────────────┬───────────────────┘
-               │
-               ▼
-┌──────────────────────────────────┐
-│ WindowsPackageManagerServer      │
-│ (WinGetDev.exe / winget.exe)     │
-└──────────────────────────────────┘
+┌──────────────────────────────────┐  ┌──────────────────────────────────┐
+│ Microsoft.WinGet.Client          │  │ Microsoft.WinGet.Configuration   │
+│ (Package management cmdlets)     │  │ (Configuration/DSC cmdlets)      │
+└──────────────┬───────────────────┘  └──────────────┬───────────────────┘
+               │ COM Interop                         │ COM Interop
+               └───────────────┬─────────────────────┘
+                               ▼
+               ┌──────────────────────────────────┐
+               │ Microsoft.Management.Deployment  │
+               │ (WinRT COM API)                  │
+               └──────────────┬───────────────────┘
+                              │
+                              ▼
+               ┌──────────────────────────────────┐
+               │ WindowsPackageManagerServer      │
+               │ (WinGetDev.exe / winget.exe)     │
+               └──────────────────────────────────┘
 ```
 
 Benefits:
@@ -269,12 +292,15 @@ No direct impact — PowerShell modules inherit the accessibility of the termina
 - Enables richer Intune remediation scripts and proactive remediations
 - Azure Automation runbooks can manage packages across fleets
 - Potential for a `WinGet` PowerShell drive provider (`Get-ChildItem WinGet:\installed\`)
+- **Module consolidation**: Evaluate whether `Microsoft.WinGet.Client` and `Microsoft.WinGet.Configuration` should eventually merge into a single `Microsoft.WinGet` module. Keeping them separate today reduces install footprint for users who only need package management, but the split adds complexity for users who need both. A unified module could be considered once the configuration surface stabilizes.
 
 ## Resources
 
-- Current module: https://www.powershellgallery.com/packages/Microsoft.WinGet.Client
+- Current Client module: https://www.powershellgallery.com/packages/Microsoft.WinGet.Client
+- Current Configuration module: https://www.powershellgallery.com/packages/Microsoft.WinGet.Configuration
 - COM API source: `src/Microsoft.Management.Deployment/`
-- PowerShell module source: `src/PowerShell/Microsoft.WinGet.Client/`
+- PowerShell Client module source: `src/PowerShell/Microsoft.WinGet.Client/`
+- PowerShell Configuration module source: `src/PowerShell/Microsoft.WinGet.Configuration/`
 - SYSTEM context issue: https://github.com/microsoft/winget-cli/issues/5991
 - Elevated COM issue: https://github.com/microsoft/winget-cli/issues/6042
 - Scope parameter issue: https://github.com/microsoft/winget-cli/issues/4787
