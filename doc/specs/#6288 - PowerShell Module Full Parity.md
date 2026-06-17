@@ -119,26 +119,7 @@ Benefits:
 
 ### COM API Surface Additions
 
-New interfaces needed in `Microsoft.Management.Deployment`:
-
-```idl
-// Pin management
-interface IPackagePinManager
-{
-    IAsyncOperation<IVectorView<PackagePin>> GetPinsAsync();
-    IAsyncOperationWithProgress<PinResult, PinProgress> AddPinAsync(AddPinOptions options);
-    IAsyncOperationWithProgress<PinResult, PinProgress> RemovePinAsync(RemovePinOptions options);
-    IAsyncOperationWithProgress<PinResult, PinProgress> ResetPinsAsync(ResetPinOptions options);
-}
-
-// Settings management
-interface ISettingsManager
-{
-    String ExportSettings();
-    void SetSetting(String settingPath, String value);
-    String GetSetting(String settingPath);
-}
-```
+New COM interfaces will be needed in `Microsoft.Management.Deployment` for pin management and settings. These should expose async operations consistent with the existing API patterns (e.g., `IAsyncOperationWithProgress` for pin add/remove/reset, string-based settings get/set/export). Detailed interface design will be determined during implementation.
 
 ### PowerShell Cmdlet Details
 
@@ -231,7 +212,7 @@ $result.UnitResults | Where-Object { -not $_.InDesiredState }
 ```powershell
 # Intune remediation script
 $pins = Get-WinGetPin
-if ($pins | Where-Object { $_.Id -eq "Microsoft.Edge" -and $_.IsBlocking }) {
+if ($pins | Where-Object { $_.Id -eq "Microsoft.Edge" -and $_.PinType -eq "Blocking" }) {
     Write-Output "Edge is pinned - compliant"
     exit 0
 } else {
@@ -304,3 +285,4 @@ No direct impact — PowerShell modules inherit the accessibility of the termina
 - SYSTEM context issue: https://github.com/microsoft/winget-cli/issues/5991
 - Elevated COM issue: https://github.com/microsoft/winget-cli/issues/6042
 - Scope parameter issue: https://github.com/microsoft/winget-cli/issues/4787
+- Configuration module improvements PR: https://github.com/microsoft/winget-cli/pull/6190
