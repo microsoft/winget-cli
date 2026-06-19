@@ -1,0 +1,57 @@
+diff --git a/Release/include/cpprest/containerstream.h b/Release/include/cpprest/containerstream.h
+index b3028e84b..f59fcb65d 100644
+--- a/Release/include/cpprest/containerstream.h
++++ b/Release/include/cpprest/containerstream.h
+@@ -401,7 +401,7 @@ class basic_container_buffer : public basic_streambuf<_CharType>
+ 
+ #if defined(_ITERATOR_DEBUG_LEVEL) && _ITERATOR_DEBUG_LEVEL != 0
+         // Avoid warning C4996: Use checked iterators under SECURE_SCL
+-        std::copy(readBegin, readEnd, stdext::checked_array_iterator<_CharType*>(ptr, count));
++        std::copy(readBegin, readEnd, ptr);
+ #else
+         std::copy(readBegin, readEnd, ptr);
+ #endif // _WIN32
+diff --git a/Release/include/cpprest/producerconsumerstream.h b/Release/include/cpprest/producerconsumerstream.h
+index c733651af..95fceea9a 100644
+--- a/Release/include/cpprest/producerconsumerstream.h
++++ b/Release/include/cpprest/producerconsumerstream.h
+@@ -441,7 +441,7 @@ class basic_producer_consumer_buffer : public basic_streambuf<_CharType>
+ 
+ #if defined(_ITERATOR_DEBUG_LEVEL) && _ITERATOR_DEBUG_LEVEL != 0
+             // Avoid warning C4996: Use checked iterators under SECURE_SCL
+-            std::copy(beg, end, stdext::checked_array_iterator<_CharType*>(dest, count));
++            std::copy(beg, end, dest);
+ #else
+             std::copy(beg, end, dest);
+ #endif // _WIN32
+@@ -464,7 +464,7 @@ class basic_producer_consumer_buffer : public basic_streambuf<_CharType>
+ 
+ #if defined(_ITERATOR_DEBUG_LEVEL) && _ITERATOR_DEBUG_LEVEL != 0
+             // Avoid warning C4996: Use checked iterators under SECURE_SCL
+-            std::copy(src, srcEnd, stdext::checked_array_iterator<_CharType*>(wbegin(), static_cast<size_t>(avail)));
++            std::copy(src, srcEnd, wbegin());
+ #else
+             std::copy(src, srcEnd, wbegin());
+ #endif // _WIN32
+diff --git a/Release/include/cpprest/rawptrstream.h b/Release/include/cpprest/rawptrstream.h
+index 14c0fd538..6af8fd17e 100644
+--- a/Release/include/cpprest/rawptrstream.h
++++ b/Release/include/cpprest/rawptrstream.h
+@@ -441,7 +441,7 @@ class basic_rawptr_buffer : public basic_streambuf<_CharType>
+ 
+ #if defined(_ITERATOR_DEBUG_LEVEL) && _ITERATOR_DEBUG_LEVEL != 0
+         // Avoid warning C4996: Use checked iterators under SECURE_SCL
+-        std::copy(readBegin, readEnd, stdext::checked_array_iterator<_CharType*>(ptr, count));
++        std::copy(readBegin, readEnd, ptr);
+ #else
+         std::copy(readBegin, readEnd, ptr);
+ #endif // _WIN32
+@@ -468,7 +468,7 @@ class basic_rawptr_buffer : public basic_streambuf<_CharType>
+             // Copy the data
+ #if defined(_ITERATOR_DEBUG_LEVEL) && _ITERATOR_DEBUG_LEVEL != 0
+         // Avoid warning C4996: Use checked iterators under SECURE_SCL
+-        std::copy(ptr, ptr + count, stdext::checked_array_iterator<_CharType*>(m_data, m_size, m_current_position));
++        std::copy(ptr, ptr + count, m_data + m_current_position);
+ #else
+         std::copy(ptr, ptr + count, m_data + m_current_position);
+ #endif // _WIN32
