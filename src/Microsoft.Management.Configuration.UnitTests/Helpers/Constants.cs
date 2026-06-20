@@ -46,5 +46,14 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// Test guid for forcing units to have a high integrity level during the final routing of unit processor creation.
         /// </summary>
         public const string ForceHighIntegrityLevelUnitsTestGuid = "f698d20f-3584-4f28-bc75-28037e08e651";
+
+        /// <summary>
+        /// Dictionary key for the test-hook-only "found DSC executable path" property on
+        /// <c>DSCv3ConfigurationSetProcessorFactory</c>. Setting this key injects a path as the
+        /// auto-discovered DSC executable, computing its hash and alias flag automatically so that
+        /// the C++ Lookup → C# TryGetValue → bool.ToString() serialization path is exercised.
+        /// Only available when AICLI_DISABLE_TEST_HOOKS is not defined.
+        /// </summary>
+        public const string TestFoundDscExecutablePathPropertyName = "TestFoundDscExecutablePath";
     }
 }
