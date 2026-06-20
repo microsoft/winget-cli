@@ -178,11 +178,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             // Before the fix: isAlias is incorrectly false, so VerifyAndOpen opens the APPEXECLINK
             // with GENERIC_READ which fails with Win32 error 1920, causing VerifyAndOpen to throw
-            // InvalidOperationException (HResult = COR_E_INVALIDOPERATION = 0x80131509).
+            // InvalidOperationException (HResult = 0x80131509).
             // After the fix: the alias is opened correctly; any failure is unrelated to alias access
             // and will have a different HResult.
-            const int corEInvalidOperation = unchecked((int)0x80131509);
-            Assert.NotEqual(corEInvalidOperation, unitResult.ResultInformation?.ResultCode?.HResult ?? 0);
+            const int invalidOperation = unchecked((int)0x80131509);
+            Assert.NotEqual(invalidOperation, unitResult.ResultInformation?.ResultCode?.HResult ?? 0);
         }
 
         /// <summary>
