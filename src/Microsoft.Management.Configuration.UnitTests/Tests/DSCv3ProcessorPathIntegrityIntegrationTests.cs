@@ -154,11 +154,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             ConfigurationSet configurationSet = this.ConfigurationSet();
             configurationSet.SchemaVersion = "0.3";
             configurationSet.Metadata.Add(Helpers.Constants.EnableDynamicFactoryTestMode, true);
-            configurationSet.Metadata.Add(Helpers.Constants.ForceHighIntegrityLevelUnitsTestGuid, true);
 
             ConfigurationUnit unit = this.ConfigurationUnit();
             unit.Identifier = "testUnit";
             unit.Type = "Microsoft.WinGet.Dev/TestJSON";
+            unit.Intent = ConfigurationUnitIntent.Unknown;
+            unit.Environment.Context = SecurityContext.Elevated;
             configurationSet.Units = new[] { unit };
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(dynamicFactory);
