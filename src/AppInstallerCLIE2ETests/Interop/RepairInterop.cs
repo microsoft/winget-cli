@@ -167,7 +167,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var repairOptions = this.TestFactory.CreateRepairOptions();
             repairOptions.PackageRepairMode = PackageRepairMode.Silent;
 
-            await this.RepairPackageAndValidateStatus(searchResult.CatalogPackage, repairOptions, RepairResultStatus.RepairError, Constants.ErrorCode.ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED);
+            await this.RepairPackageAndValidateStatus(searchResult.CatalogPackage, repairOptions, RepairResultStatus.RepairError, Constants.ErrorCode.ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
 
             // Cleanup
             TestCommon.CleanupTestExeAndDirectory(this.installDir);
