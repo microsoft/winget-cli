@@ -202,7 +202,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles = context.Get<Execution::Data::Installer>()->NestedInstallerFiles;
-            
+
             for (const auto& nestedInstallerFile : nestedInstallerFiles)
             {
                 const std::filesystem::path& relativeFilePath = ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
@@ -222,7 +222,7 @@ namespace AppInstaller::CLI::Workflow
                 Filesystem::AppendExtension(commandAlias, ".exe");
 
                 // If alias differs from original filename, create hardlink
-				// Hardlink will be placed in the same directory as the original file to avoid pathing issues and same-volume restrictions
+                // Hardlink will be placed in the same directory as the original file to avoid pathing issues and same-volume restrictions
                 if (commandAlias != originalFilename)
                 {
                     std::filesystem::path sourcePath = installerPath / relativeFilePath;
@@ -239,7 +239,7 @@ namespace AppInstaller::CLI::Workflow
             // Non-archive portable case: single executable file
             std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
             const std::vector<string_t>& commands = context.Get<Execution::Data::Installer>()->Commands;
-            
+
             std::filesystem::path originalFilename = installerPath.filename();
             std::filesystem::path commandAlias = originalFilename;
 
