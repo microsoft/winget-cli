@@ -70,6 +70,14 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
             return result;
         }
+
+        bool MeetsOptimizedSearchFallbackCriteria(const SearchRequest& request)
+        {
+            return !request.Query && request.Inclusions.empty() &&
+                request.Filters.size() == 1 &&
+                request.Filters[0].Field == PackageMatchField::Id &&
+                request.Filters[0].Type == MatchType::Substring;
+        }
     }
 
     Interface::Interface(const std::string& restApi, const Http::HttpClientHelper& httpClientHelper) : m_restApiUri(restApi), m_httpClientHelper(httpClientHelper)
@@ -98,7 +106,20 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             return OptimizedSearch(request);
         }
 
-        return SearchInternal(request);
+        SearchResult result = SearchInternal(request);
+
+        // Some sources (including msstore) may not return exact package identifier matches for substring ID requests.
+        // Preserve substring semantics, but if no match was found for a single-ID request, retry through optimized exact lookup.
+        if (result.Matches.empty() && MeetsOptimizedSearchFallbackCriteria(request))
+        {
+            SearchRequest optimizedRequest = request;
+            optimizedRequest.Filters[0].Type = MatchType::CaseInsensitive;
+
+            AICLI_LOG(Repo, Verbose, << "No search results for ID substring request; retrying with optimized exact ID lookup.");
+            return OptimizedSearch(optimizedRequest);
+        }
+
+        return result;
     }
 
     IRestClient::SearchResult Interface::SearchInternal(const SearchRequest& request) const

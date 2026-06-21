@@ -4,4 +4,4 @@ Nothing yet.
 
 ## Bug Fixes
 
-* None yet
+* Fixed an issue where `winget search --id <msstoreId>` could fail to return a Microsoft Store package unless `--exact` was also provided.
