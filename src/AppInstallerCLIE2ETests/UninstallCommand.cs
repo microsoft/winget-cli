@@ -189,6 +189,41 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test uninstall portable package removes hardlinks.
+        /// </summary>
+        [Test]
+        public void UninstallPortableWithCommands_RemovesHardlinks()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExeWithCommand";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+
+            // Install
+            var installResult = TestCommon.RunAICLICommand("install", $"{packageId}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
+            Assert.True(installResult.StdOut.Contains("Successfully installed"));
+
+            string installPath = Path.Combine(installDir, packageDirName);
+            string originalFile = Path.Combine(installPath, "AppInstallerTestExeInstaller.exe");
+            string hardlinkFile = Path.Combine(installPath, "testCommand.exe");
+
+            // Verify files exist after install
+            Assert.True(File.Exists(originalFile), "Original file should exist after install");
+            Assert.True(File.Exists(hardlinkFile), "Hardlink should exist after install");
+
+            // Uninstall
+            var uninstallResult = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, uninstallResult.ExitCode);
+            Assert.True(uninstallResult.StdOut.Contains("Successfully uninstalled"));
+
+            // Verify both original and hardlink are removed
+            Assert.False(File.Exists(originalFile), "Original file should be removed after uninstall");
+            Assert.False(File.Exists(hardlinkFile), "Hardlink should be removed after uninstall");
+            Assert.False(Directory.Exists(installPath), "Installation directory should be removed after uninstall");
+        }
+
+        /// <summary>
         /// Test uninstall not indexed.
         /// </summary>
         [Test]

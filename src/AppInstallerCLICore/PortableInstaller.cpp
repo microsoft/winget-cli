@@ -72,6 +72,22 @@ namespace AppInstaller::CLI::Portable
                 }
             }
         }
+        else if (fileType == PortableFileType::Hardlink)
+        {
+            if (std::filesystem::exists(filePath))
+            {
+                // Only verify hash if one was stored
+                if (!entry.SHA256.empty())
+                {
+                    SHA256::HashBuffer fileHash = SHA256::ComputeHashFromFile(filePath);
+                    if (!SHA256::AreEqual(fileHash, SHA256::ConvertToBytes(entry.SHA256)))
+                    {
+                        AICLI_LOG(CLI, Warning, << "Hardlink hash does not match ARP Entry. Expected: " << entry.SHA256 << " Actual: " << SHA256::ConvertToString(fileHash));
+                        return false;
+                    }
+                }
+            }
+        }
         else if (fileType == PortableFileType::Symlink)
         {
             std::filesystem::path symlinkTargetPath{ AppInstaller::Utility::ConvertToUTF16(entry.SymlinkTarget) };
@@ -120,6 +136,33 @@ namespace AppInstaller::CLI::Portable
                 // Copy directory instead of renaming as there is a known issue with renaming across drives.
                 AICLI_LOG(Core, Info, << "Copying directory to: " << filePath);
                 std::filesystem::copy(entry.CurrentPath, filePath, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
+            }
+        }
+        else if (fileType == PortableFileType::Hardlink)
+        {
+            if (std::filesystem::exists(filePath))
+            {
+                AICLI_LOG(Core, Info, << "Removing existing portable hardlink at: " << filePath);
+                std::filesystem::remove(filePath);
+            }
+
+            AICLI_LOG(Core, Info, << "Creating hardlink at: " << filePath << " pointing to: " << entry.CurrentPath);
+
+            // Try to create hardlink
+            if (Filesystem::CreateHardlink(entry.CurrentPath, filePath))
+            {
+                AICLI_LOG(Core, Info, << "Hardlink created successfully at: " << filePath);
+            }
+            else
+            {
+                // Fallback: copy the file if hardlinks not supported
+                AICLI_LOG(Core, Info, << "Hardlink creation failed, falling back to copy: " << filePath);
+                std::filesystem::copy_file(entry.CurrentPath, filePath, std::filesystem::copy_options::overwrite_existing);
+            }
+
+            if (!RecordToIndex)
+            {
+                CommitToARPEntry(PortableValueName::SHA256, entry.SHA256);
             }
         }
         else if (entry.FileType == PortableFileType::Symlink)
@@ -179,6 +222,11 @@ namespace AppInstaller::CLI::Portable
         if (fileType == PortableFileType::File && std::filesystem::exists(filePath))
         {
             AICLI_LOG(CLI, Info, << "Deleting portable exe at: " << filePath);
+            std::filesystem::remove(filePath);
+        }
+        else if (fileType == PortableFileType::Hardlink && std::filesystem::exists(filePath))
+        {
+            AICLI_LOG(CLI, Info, << "Deleting portable hardlink at: " << filePath);
             std::filesystem::remove(filePath);
         }
         else if (fileType == PortableFileType::Symlink)
@@ -462,6 +510,16 @@ namespace AppInstaller::CLI::Portable
 
             if (!symlinkFullPath.empty())
             {
+                // If alias differs from original filename, a hardlink exists in the install directory.
+                // Track it so uninstall removes it even when state is reconstructed from ARP values.
+                if (!targetFullPath.empty() && targetFullPath.filename() != symlinkFullPath.filename())
+                {
+                    std::filesystem::path hardlinkPath = InstallLocation / symlinkFullPath.filename();
+                    if (hardlinkPath != targetFullPath && std::filesystem::exists(hardlinkPath))
+                    {
+                        m_expectedEntries.emplace_back(std::move(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetFullPath, SHA256)));
+                    }
+                }
                 m_expectedEntries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkFullPath, targetFullPath)));
             }
         }
