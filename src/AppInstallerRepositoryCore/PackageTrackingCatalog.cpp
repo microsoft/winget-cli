@@ -110,7 +110,7 @@ namespace AppInstaller::Repository
 
             std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
-                THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, PackageTrackingCatalogSourceFactory::Type()));
+                THROW_HR_IF(E_INVALIDARG, details.Type != SourceType::PackageTracking);
 
                 return std::make_shared<PackageTrackingCatalogSourceReference>(details);
             }
@@ -127,7 +127,7 @@ namespace AppInstaller::Repository
 
             bool Remove(const SourceDetails& details, IProgressCallback& progress) override final
             {
-                THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, PackageTrackingCatalogSourceFactory::Type()));
+                THROW_HR_IF(E_INVALIDARG, details.Type != SourceType::PackageTracking);
 
                 std::string pathName = Utility::MakeSuitablePathPart(details.Data);
 
@@ -172,7 +172,7 @@ namespace AppInstaller::Repository
 
         // Create fake details for the source while stashing some information that might be helpful for debugging
         SourceDetails details;
-        details.Type = PackageTrackingCatalogSourceFactory::Type();
+        details.Type = SourceType::PackageTracking;
         details.Identifier = "*Tracking";
         details.Name = "Tracking for "s + source.GetDetails().Name;
         details.Origin = SourceOrigin::PackageTracking;
@@ -182,7 +182,7 @@ namespace AppInstaller::Repository
 
         PackageTrackingCatalog result;
         result.m_implementation = std::make_shared<PackageTrackingCatalog::implementation>();
-        result.m_implementation->Source = SourceCast<SQLiteIndexSource>(ISourceFactory::GetForType(details.Type)->Create(details)->Open(dummyProgress));
+        result.m_implementation->Source = SourceCast<SQLiteIndexSource>(ISourceFactory::GetForType(SourceType::PackageTracking)->Create(details)->Open(dummyProgress));
 
         return result;
     }
@@ -196,12 +196,12 @@ namespace AppInstaller::Repository
 
         // Create details to pass to the factory; the identifier of the source is passed in the Data field.
         SourceDetails dummyDetails;
-        dummyDetails.Type = PackageTrackingCatalogSourceFactory::Type();
+        dummyDetails.Type = SourceType::PackageTracking;
         dummyDetails.Data = identifier;
 
         ProgressCallback dummyProgress;
 
-        ISourceFactory::GetForType(dummyDetails.Type)->Remove(dummyDetails, dummyProgress);
+        ISourceFactory::GetForType(SourceType::PackageTracking)->Remove(dummyDetails, dummyProgress);
     }
 
     PackageTrackingCatalog::operator bool() const

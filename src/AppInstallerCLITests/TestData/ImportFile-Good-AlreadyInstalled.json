@@ -13,7 +13,7 @@
         "Argument": "//arg",
         "Identifier": "*TestSource",
         "Name": "TestSource",
-        "Type": "Microsoft.TestSource"
+        "Type": "Microsoft.Test.Configurable"
       }
     }
   ],

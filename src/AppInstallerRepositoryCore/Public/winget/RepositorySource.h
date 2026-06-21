@@ -61,6 +61,26 @@ namespace AppInstaller::Repository
     // Gets the full trust level string name for display.
     std::string GetSourceTrustLevelForDisplay(SourceTrustLevel trustLevel);
 
+    // Defines known source types.
+    enum class SourceType
+    {
+        PreIndexedPackage,
+        Rest,
+        PredefinedInstalled,
+        PredefinedWriteable,
+        PackageTracking,
+        ConfigurableTest,
+    };
+
+    // Converts a source type string to the corresponding SourceType enum.
+    SourceType ConvertToSourceTypeEnum(std::string_view sourceType);
+
+    // Attempts to convert a source type string to the corresponding SourceType enum.
+    std::optional<SourceType> TryConvertToSourceTypeEnum(std::string_view sourceType);
+
+    // Converts a SourceType enum to the corresponding canonical string.
+    std::string_view SourceTypeEnumToString(SourceType sourceType);
+
     std::string_view ToString(SourceOrigin origin);
 
     // Fields that require user agreements.
@@ -120,7 +140,9 @@ namespace AppInstaller::Repository
         std::string Name;
 
         // The type of the source.
-        std::string Type;
+        // Defaults to PreIndexedPackage if not specified, moved here from call sites during migration from
+		// String type to Enum type to avoid conversion in multiple places.
+        SourceType Type = SourceType::PreIndexedPackage;
 
         // The argument used when adding the source.
         std::string Arg;
@@ -240,7 +262,7 @@ namespace AppInstaller::Repository
         Source(WellKnownSource source);
 
         // Constructor for a source to be added.
-        Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel, const SourceEdit& additionalProperties);
+        Source(std::string_view name, std::string_view arg, SourceType type, SourceTrustLevel trustLevel, const SourceEdit& additionalProperties);
 
         // Constructor for creating a composite source from a list of available sources.
         Source(const std::vector<Source>& availableSources);
@@ -373,7 +395,7 @@ namespace AppInstaller::Repository
         static std::vector<SourceDetails> GetCurrentSources();
 
         // Get a default source type is the source type used when adding a source without specifying a type.
-        static std::string_view GetDefaultSourceType();
+        static SourceType GetDefaultSourceType();
 
     private:
         void InitializeSourceReference(std::string_view name);

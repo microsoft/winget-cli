@@ -40,7 +40,8 @@ namespace AppInstaller::CLI::Workflow
             return [&](const T& source)
             {
                 SourceDetails sourceDetails = GetSourceDetails(source);
-                return sourceDetails.Type == details.Type && sourceDetails.Identifier == details.Identifier;
+                return sourceDetails.Type == details.Type &&
+                    sourceDetails.Identifier == details.Identifier;
             };
         }
 

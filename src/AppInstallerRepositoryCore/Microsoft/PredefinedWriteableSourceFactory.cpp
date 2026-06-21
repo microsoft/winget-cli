@@ -85,7 +85,7 @@ namespace AppInstaller::Repository::Microsoft
 
         std::shared_ptr<ISourceReference> PredefinedWriteableSourceFactoryImpl::Create(const SourceDetails& details)
         {
-            THROW_HR_IF(E_INVALIDARG, details.Type != PredefinedWriteableSourceFactory::Type());
+            THROW_HR_IF(E_INVALIDARG, details.Type != SourceType::PredefinedWriteable);
 
             return std::make_shared<PredefinedWriteableSourceReference>(details);
         }

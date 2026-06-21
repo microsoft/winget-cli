@@ -4,4 +4,4 @@ Nothing yet.
 
 ## Bug Fixes
 
-* None yet
+* Refactored source type handling to use a `SourceType` enum with centralized string conversion, and added stronger `source add` type validation (#4463).

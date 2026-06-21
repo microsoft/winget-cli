@@ -128,7 +128,7 @@ namespace TestCommon
         AppInstaller::Repository::SearchResult Search(const AppInstaller::Repository::SearchRequest& request) const override;
         void* CastTo(AppInstaller::Repository::ISourceType type) override;
 
-        AppInstaller::Repository::SourceDetails Details = { "TestSource", "Microsoft.TestSource", "//arg", "", "*TestSource" };
+        AppInstaller::Repository::SourceDetails Details = { "TestSource", AppInstaller::Repository::SourceType::ConfigurableTest, "//arg", "", "*TestSource" };
         AppInstaller::Repository::SourceInformation Information;
         std::function<AppInstaller::Repository::SearchResult(const AppInstaller::Repository::SearchRequest& request)> SearchFunction;
 

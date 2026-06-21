@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SourcePolicy.h"
-#include "Microsoft/PreIndexedPackageSourceFactory.h"
-#include "Rest/RestSourceFactory.h"
 
 using namespace AppInstaller::Settings;
 
@@ -38,7 +36,7 @@ namespace AppInstaller::Repository
         }
 
         template<ValuePolicy P>
-        std::optional<SourceFromPolicy> FindSourceInPolicy(std::string_view name, std::string_view type, std::string_view arg)
+        std::optional<SourceFromPolicy> FindSourceInPolicy(std::string_view name, SourceType type, std::string_view arg)
         {
             auto sourcesOpt = GroupPolicies().GetValue<P>();
             if (!sourcesOpt.has_value())
@@ -52,7 +50,9 @@ namespace AppInstaller::Repository
                 sources.end(),
                 [&](const SourceFromPolicy& policySource)
                 {
-                    return Utility::ICUCaseInsensitiveEquals(name, policySource.Name) && Utility::ICUCaseInsensitiveEquals(type, policySource.Type) && arg == policySource.Arg;
+                    return Utility::ICUCaseInsensitiveEquals(name, policySource.Name) &&
+                        Utility::ICUCaseInsensitiveEquals(SourceTypeEnumToString(type), policySource.Type) &&
+                        arg == policySource.Arg;
                 });
 
             if (source == sources.end())
@@ -64,7 +64,7 @@ namespace AppInstaller::Repository
         }
 
         template<ValuePolicy P>
-        bool IsSourceInPolicy(std::string_view name, std::string_view type, std::string_view arg)
+        bool IsSourceInPolicy(std::string_view name, SourceType type, std::string_view arg)
         {
             return FindSourceInPolicy<P>(name, type, arg).has_value();
         }
@@ -74,7 +74,7 @@ namespace AppInstaller::Repository
     // If it does it returns None, otherwise it returns which policy is blocking it.
     // Note that this applies to user sources that are being added as well as user sources
     // that already existed when the Group Policy came into effect.
-    TogglePolicy::Policy GetPolicyBlockingUserSource(std::string_view name, std::string_view type, std::string_view arg, bool isTombstone)
+    TogglePolicy::Policy GetPolicyBlockingUserSource(std::string_view name, SourceType type, std::string_view arg, bool isTombstone)
     {
         // Reasons for not allowing:
         //  1. The source is a tombstone for default source that is explicitly enabled
@@ -116,19 +116,19 @@ namespace AppInstaller::Repository
         //  - Do a case-insensitive check as the domain portion of the URL is case-insensitive,
         //    and we don't need case sensitivity for the rest as we control the domain.
         if (Utility::CaseInsensitiveEquals(arg, GetWellKnownSourceArg(WellKnownSource::WinGet)) &&
-            Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))
+            type == SourceType::PreIndexedPackage)
         {
             return IsWellKnownSourceEnabled(WellKnownSource::WinGet) ? TogglePolicy::Policy::None : TogglePolicy::Policy::DefaultSource;
         }
 
         if (Utility::CaseInsensitiveEquals(arg, GetWellKnownSourceArg(WellKnownSource::MicrosoftStore)) &&
-            Utility::CaseInsensitiveEquals(type, Rest::RestSourceFactory::Type()))
+            type == SourceType::Rest)
         {
             return IsWellKnownSourceEnabled(WellKnownSource::MicrosoftStore) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
         }
 
         if (Utility::CaseInsensitiveEquals(arg, GetWellKnownSourceArg(WellKnownSource::WinGetFont)) &&
-            Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))
+            type == SourceType::PreIndexedPackage)
         {
             return IsWellKnownSourceEnabled(WellKnownSource::WinGetFont) ? TogglePolicy::Policy::None : TogglePolicy::Policy::FontSource;
         }
@@ -138,19 +138,19 @@ namespace AppInstaller::Repository
         // (as it didn't match above). We only care if Group Policy requires the default source.
         if (name == GetWellKnownSourceName(WellKnownSource::WinGet) && IsWellKnownSourceEnabled(WellKnownSource::WinGet, true))
         {
-            AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows the default source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
+            AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows the default source. Name [" << name << "]. Arg [" << arg << "] Type [" << SourceTypeEnumToString(type) << ']');
             return TogglePolicy::Policy::DefaultSource;
         }
 
         if (name == GetWellKnownSourceName(WellKnownSource::MicrosoftStore) && IsWellKnownSourceEnabled(WellKnownSource::MicrosoftStore, true))
         {
-            AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
+            AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << SourceTypeEnumToString(type) << ']');
             return TogglePolicy::Policy::MSStoreSource;
         }
 
         if (name == GetWellKnownSourceName(WellKnownSource::WinGetFont) && IsWellKnownSourceEnabled(WellKnownSource::WinGetFont, true))
         {
-            AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default font source. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
+            AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default font source. Name [" << name << "]. Arg [" << arg << "] Type [" << SourceTypeEnumToString(type) << ']');
             return TogglePolicy::Policy::FontSource;
         }
 
@@ -169,7 +169,7 @@ namespace AppInstaller::Repository
         {
             if (!IsSourceInPolicy<ValuePolicy::AllowedSources>(name, type, arg))
             {
-                AICLI_LOG(Repo, Warning, << "Source is not in the Group Policy allowed list. Name [" << name << "]. Arg [" << arg << "] Type [" << type << ']');
+                AICLI_LOG(Repo, Warning, << "Source is not in the Group Policy allowed list. Name [" << name << "]. Arg [" << arg << "] Type [" << SourceTypeEnumToString(type) << ']');
                 return TogglePolicy::Policy::AllowedSources;
             }
         }
@@ -177,7 +177,7 @@ namespace AppInstaller::Repository
         return TogglePolicy::Policy::None;
     }
 
-    bool IsUserSourceAllowedByPolicy(std::string_view name, std::string_view type, std::string_view arg, bool isTombstone)
+    bool IsUserSourceAllowedByPolicy(std::string_view name, SourceType type, std::string_view arg, bool isTombstone)
     {
         return GetPolicyBlockingUserSource(name, type, arg, isTombstone) == TogglePolicy::Policy::None;
     }

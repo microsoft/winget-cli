@@ -29,7 +29,7 @@ namespace
 
         details.Identifier = "*SimpleTestSetup";
         details.Name = "TestName";
-        details.Type = "TestType";
+        details.Type = SourceType::ConfigurableTest;
         details.Arg = testManifest.GetPath().parent_path().u8string();
         details.Data = "";
 

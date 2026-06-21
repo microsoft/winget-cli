@@ -79,7 +79,7 @@ TEST_CASE("PIPS_Add", "[pips]")
 
     SourceDetails details;
     details.Name = "TestName";
-    details.Type = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type();
+    details.Type = AppInstaller::Repository::SourceType::PreIndexedPackage;
     details.Arg = dir;
     ProgressCallback callback;
 
@@ -117,7 +117,7 @@ TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
 
     SourceDetails details;
     details.Name = "TestName";
-    details.Type = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type();
+    details.Type = AppInstaller::Repository::SourceType::PreIndexedPackage;
     details.Arg = dir;
     TestProgress callback;
 
@@ -156,7 +156,7 @@ TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
 
     SourceDetails details;
     details.Name = "TestName";
-    details.Type = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type();
+    details.Type = AppInstaller::Repository::SourceType::PreIndexedPackage;
     details.Arg = dir;
     TestProgress callback;
 
@@ -205,7 +205,7 @@ TEST_CASE("PIPS_Remove", "[pips]")
 
     SourceDetails details;
     details.Name = "TestName";
-    details.Type = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type();
+    details.Type = AppInstaller::Repository::SourceType::PreIndexedPackage;
     details.Arg = dir;
     ProgressCallback callback;
 

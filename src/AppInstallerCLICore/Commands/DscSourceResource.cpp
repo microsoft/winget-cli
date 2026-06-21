@@ -107,7 +107,7 @@ namespace AppInstaller::CLI
                     {
                         Output.Exist(true);
                         Output.Argument(source.Arg);
-                        Output.Type(source.Type);
+                        Output.Type(std::string{ SourceTypeEnumToString(source.Type) });
                         Output.TrustLevel(TrustLevelStringFromFlags(source.TrustLevel));
                         Output.Explicit(source.Explicit);
 
@@ -495,7 +495,7 @@ namespace AppInstaller::CLI
             SourceResourceObject output;
             output.SourceName(source.Name);
             output.Argument(source.Arg);
-            output.Type(source.Type);
+            output.Type(std::string{ SourceTypeEnumToString(source.Type) });
             output.TrustLevel(TrustLevelStringFromFlags(source.TrustLevel));
             output.Explicit(source.Explicit);
 

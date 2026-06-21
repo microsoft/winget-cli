@@ -138,7 +138,7 @@ void VerifyEntryAgainstIndex(const SQLiteIndex& index, SQLiteIndex::IdType manif
 std::shared_ptr<ISource> CreatePredefinedInstalledSource(Factory::Filter filter = Factory::Filter::None)
 {
     SourceDetails details;
-    details.Type = Factory::Type();
+    details.Type = AppInstaller::Repository::SourceType::PredefinedInstalled;
     details.Arg = Factory::FilterToString(filter);
 
     TestProgress progress;

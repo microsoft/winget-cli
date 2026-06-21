@@ -119,7 +119,7 @@ namespace AppInstaller::CLI::Configuration
             {
                 if (Utility::CaseInsensitiveEquals(wellKnownSource.Name, source.Name) &&
                     Utility::CaseInsensitiveEquals(wellKnownSource.Arg, source.Arg) &&
-                    Utility::CaseInsensitiveEquals(wellKnownSource.Type, source.Type))
+                    Utility::CaseInsensitiveEquals(Repository::SourceTypeEnumToString(wellKnownSource.Type), source.Type))
                 {
                     return true;
                 }

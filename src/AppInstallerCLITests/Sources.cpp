@@ -60,7 +60,7 @@ Sources:
 constexpr std::string_view s_SingleSource = R"(
 Sources:
   - Name: testName
-    Type: testType
+    Type: Microsoft.Test.Configurable
     Arg: testArg
     Data: testData
     IsTombstone: false
@@ -114,12 +114,12 @@ Sources:
 constexpr std::string_view s_DoubleSource = R"(
 Sources:
   - Name: testName
-    Type: testType
+    Type: Microsoft.Test.Configurable
     Arg: testArg
     Data: testData
     IsTombstone: false
   - Name: testName2
-    Type: testType
+    Type: Microsoft.Test.Configurable
     Arg: testArg2
     Data: testData2
     IsTombstone: false
@@ -136,19 +136,19 @@ Sources:
 constexpr std::string_view s_ThreeSources = R"(
 Sources:
   - Name: testName
-    Type: testType
+    Type: Microsoft.Test.Configurable
     Arg: testArg
     Data: testData
     IsTombstone: false
     Priority: 1
   - Name: testName2
-    Type: testType2
+    Type: Microsoft.Test.Configurable
     Arg: testArg2
     Data: testData2
     IsTombstone: false
     Priority: 5
   - Name: testName3
-    Type: testType3
+    Type: Microsoft.Test.Configurable
     Arg: testArg3
     Data: testData3
     IsTombstone: false
@@ -183,7 +183,7 @@ Sources:
 constexpr std::string_view s_SingleSource_MissingArg = R"(
 Sources:
   - Name: testName
-    Type: testType
+    Type: Microsoft.Test.Configurable
     Data: testData
     IsTombstone: false
 )"sv;
@@ -191,12 +191,12 @@ Sources:
 constexpr std::string_view s_TwoSource_AggregateSourceTest = R"(
 Sources:
   - Name: winget
-    Type: testType
+    Type: Microsoft.Test.Configurable
     Arg: testArg
     Data: testData
     IsTombstone: false
   - Name: msstore
-    Type: testType
+    Type: Microsoft.Test.Configurable
     Arg: testArg
     Data: testData
     IsTombstone: false
@@ -214,7 +214,7 @@ Sources:
 constexpr std::string_view s_UserSourceNamedLikeDefault = R"(
 Sources:
   - Name: winget
-    Type: testType
+    Type: Microsoft.Test.Configurable
     Arg: testArg
     Data: testData
     IsTombstone: false
@@ -223,7 +223,7 @@ Sources:
 constexpr std::string_view s_SingleSource_AllProperties= R"(
 Sources:
   - Name: testName
-    Type: testType
+    Type: Microsoft.Test.Configurable
     Arg: testArg
     Data: testData
     IsTombstone: false
@@ -340,7 +340,7 @@ TEST_CASE("RepoSources_DefaultSourceOverride", "[sources]")
     REQUIRE(beforeOverride[2].Name == "winget-font");
     REQUIRE(beforeOverride[2].Arg == "https://cdn.winget.microsoft.com/fonts");
     REQUIRE(beforeOverride[2].Data == "Microsoft.Winget.Fonts.Source_8wekyb3d8bbwe");
-    REQUIRE(beforeOverride[2].Type == "Microsoft.PreIndexed.Package");
+    REQUIRE(beforeOverride[2].Type == SourceType::PreIndexedPackage);
     REQUIRE(beforeOverride[2].Origin == SourceOrigin::Default);
     REQUIRE(beforeOverride[2].Explicit == true);
     REQUIRE(beforeOverride[2].Priority == 0);
@@ -373,7 +373,7 @@ TEST_CASE("RepoSources_SingleSource", "[sources]")
     REQUIRE(sources.size() == c_DefaultSourceCount + 1);
 
     REQUIRE(sources[0].Name == "testName");
-    REQUIRE(sources[0].Type == "testType");
+    REQUIRE(sources[0].Type == SourceType::ConfigurableTest);
     REQUIRE(sources[0].Arg == "testArg");
     REQUIRE(sources[0].Data == "testData");
     REQUIRE(sources[0].Origin == SourceOrigin::User);
@@ -391,7 +391,7 @@ TEST_CASE("RepoSources_SingleSource_AllProperties", "[sources]")
     REQUIRE(sources.size() == c_DefaultSourceCount + 1);
 
     REQUIRE(sources[0].Name == "testName");
-    REQUIRE(sources[0].Type == "testType");
+    REQUIRE(sources[0].Type == SourceType::ConfigurableTest);
     REQUIRE(sources[0].Arg == "testArg");
     REQUIRE(sources[0].Data == "testData");
     REQUIRE(sources[0].Origin == SourceOrigin::User);
@@ -434,7 +434,7 @@ TEST_CASE("RepoSources_ThreeSources", "[sources]")
 
         INFO("Source #" << index << " [" << i << "]");
         REQUIRE(sources[index].Name == "testName"s + suffixStrings[i]);
-        REQUIRE(sources[index].Type == "testType"s + suffixStrings[i]);
+        REQUIRE(sources[index].Type == SourceType::ConfigurableTest);
         REQUIRE(sources[index].Arg == "testArg"s + suffixStrings[i]);
         REQUIRE(sources[index].Data == "testData"s + suffixStrings[i]);
         REQUIRE(sources[index].LastUpdateTime == ConvertUnixEpochToSystemClock(i));
@@ -463,7 +463,7 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
 
     SourceDetails details;
     details.Name = "thisIsTheName";
-    details.Type = "thisIsTheType";
+    details.Type = SourceType::ConfigurableTest;
     details.Arg = "thisIsTheArg";
     details.Data = "thisIsTheData";
     details.TrustLevel = Repository::SourceTrustLevel::None;
@@ -502,7 +502,7 @@ TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
 
     SourceDetails details;
     details.Name = "thisIsTheName";
-    details.Type = "thisIsTheType";
+    details.Type = SourceType::ConfigurableTest;
     details.Arg = "thisIsTheArg";
     details.Data = "thisIsTheData";
 
@@ -529,7 +529,7 @@ TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
 
     SourceDetails details2;
     details2.Name = details.Name + suffix[1];
-    details2.Type = details.Type + suffix[1];
+    details2.Type = details.Type;
     details2.Arg = details.Arg + suffix[1];
     details2.Data = details.Data + suffix[1];
     TestSourceFactory factory2{ SourcesTestSource::Create };
@@ -545,7 +545,7 @@ TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
     {
         INFO("Source #" << i);
         REQUIRE(sources[i].Name == details.Name + suffix[i]);
-        REQUIRE(sources[i].Type == details.Type + suffix[i]);
+        REQUIRE(sources[i].Type == details.Type);
         REQUIRE(sources[i].Arg == details.Arg + suffix[i]);
         REQUIRE(sources[i].Data == details.Data + suffix[i]);
         REQUIRE(sources[i].LastUpdateTime != ConvertUnixEpochToSystemClock(0));
@@ -564,7 +564,7 @@ TEST_CASE("RepoSources_UpdateSource", "[sources]")
 
     SourceDetails details;
     details.Name = "thisIsTheName";
-    details.Type = "thisIsTheType";
+    details.Type = SourceType::ConfigurableTest;
     details.Arg = "thisIsTheArg";
     details.Data = "thisIsTheData";
 
@@ -618,7 +618,7 @@ TEST_CASE("RepoSources_UpdateSourceRetries", "[sources]")
 
     SourceDetails details;
     details.Name = "thisIsTheName";
-    details.Type = "thisIsTheType";
+    details.Type = SourceType::ConfigurableTest;
     details.Arg = "thisIsTheArg";
     details.Data = "thisIsTheData";
 
@@ -654,7 +654,7 @@ TEST_CASE("RepoSources_RemoveSource", "[sources]")
 
     SourceDetails details;
     details.Name = "thisIsTheName";
-    details.Type = "thisIsTheType";
+    details.Type = SourceType::ConfigurableTest;
     details.Arg = "thisIsTheArg";
     details.Data = "thisIsTheData";
 
@@ -708,7 +708,7 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
     TestHook_ClearSourceFactoryOverrides();
 
     std::string name = "testName";
-    std::string type = "testType";
+    SourceType type = SourceType::ConfigurableTest;
     std::string arg = "testArg";
     std::string data = "testData";
 
@@ -754,7 +754,7 @@ TEST_CASE("RepoSources_DropSourceByName", "[sources]")
     {
         INFO("Source #" << i);
         REQUIRE(sources[i].Name == "testName"s + suffix[i]);
-        REQUIRE(sources[i].Type == "testType"s + suffix[i]);
+        REQUIRE(sources[i].Type == SourceType::ConfigurableTest);
         REQUIRE(sources[i].Arg == "testArg"s + suffix[i]);
         REQUIRE(sources[i].Data == "testData"s + suffix[i]);
         REQUIRE(sources[i].LastUpdateTime == ConvertUnixEpochToSystemClock(i + 1));
@@ -855,7 +855,7 @@ TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
 {
     TestHook_ClearSourceFactoryOverrides();
     TestSourceFactory factory{ SourcesTestSource::Create };
-    TestHook_SetSourceFactoryOverride("testType", factory);
+    TestHook_SetSourceFactoryOverride(SourceType::ConfigurableTest, factory);
 
     SetSetting(Stream::UserSources, s_TwoSource_AggregateSourceTest);
 
@@ -908,7 +908,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             ProgressCallback progress;
             SourceDetails details;
             details.Name = "winget";
-            details.Type = "Microsoft.PreIndexed.Package";
+            details.Type = SourceType::PreIndexedPackage;
             details.Arg = "https://cdn.winget.microsoft.com/cache";
             REQUIRE_POLICY_EXCEPTION(
                 AddSource(details, progress),
@@ -931,7 +931,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
 
             SourceDetails details;
             details.Name = "winget";
-            details.Type = "someType";
+            details.Type = SourceType::ConfigurableTest;
             details.Arg = "notWingetRealArg";
             details.Data = "someData";
 
@@ -965,7 +965,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             REQUIRE(sources.size() == c_DefaultSourceCount);
 
             REQUIRE(sources[0].Name == "winget");
-            REQUIRE(sources[0].Type == "testType");
+            REQUIRE(sources[0].Type == SourceType::ConfigurableTest);
             REQUIRE(sources[0].Arg == "testArg");
             REQUIRE(sources[0].Data == "testData");
             REQUIRE(sources[0].Origin == SourceOrigin::User);
@@ -1028,7 +1028,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             {
                 SourceFromPolicy source;
                 source.Name = "name" + suffix[i];
-                source.Type = "type" + suffix[i];
+                source.Type = std::string{ SourceTypeEnumToString(SourceType::ConfigurableTest) };
                 source.Arg = "arg" + suffix[i];
                 source.Data = "data" + suffix[i];
                 source.Identifier = "id" + suffix[i];
@@ -1047,7 +1047,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             for (size_t i = 0; i < policySources.size(); ++i)
             {
                 REQUIRE(sources[i].Name == policySources[i].Name);
-                REQUIRE(sources[i].Type == policySources[i].Type);
+                REQUIRE(SourceTypeEnumToString(sources[i].Type) == policySources[i].Type);
                 REQUIRE(sources[i].Arg == policySources[i].Arg);
                 REQUIRE(sources[i].Data == policySources[i].Data);
                 REQUIRE(sources[i].Identifier == policySources[i].Identifier);
@@ -1059,7 +1059,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             // User sources with the same name as an additional source are ignored.
             SourceFromPolicy policySource;
             policySource.Name = "testName";
-            policySource.Type = "notTestType";
+            policySource.Type = std::string{ SourceTypeEnumToString(SourceType::ConfigurableTest) };
             policySource.Arg = "notTestArg";
             policySource.Data = "notTestData";
             policySource.Identifier = "notTestId";
@@ -1074,7 +1074,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             REQUIRE(sources[1].Origin == SourceOrigin::Default);
 
             REQUIRE(sources[0].Name == policySource.Name);
-            REQUIRE(sources[0].Type == policySource.Type);
+            REQUIRE(SourceTypeEnumToString(sources[0].Type) == policySource.Type);
             REQUIRE(sources[0].Arg == policySource.Arg);
             REQUIRE(sources[0].Data == policySource.Data);
             REQUIRE(sources[0].Identifier == policySource.Identifier);
@@ -1085,7 +1085,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             // An additional source cannot be removed.
             SourceFromPolicy policySource;
             policySource.Name = "name";
-            policySource.Type = "type";
+            policySource.Type = std::string{ SourceTypeEnumToString(SourceType::ConfigurableTest) };
             policySource.Arg = "arg";
             policySource.Data = "data";
             policySource.Identifier = "id";
@@ -1093,7 +1093,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             bool removeCalledOnFactory = false;
             TestSourceFactory factory{ SourcesTestSource::Create };
             factory.OnRemove = [&](const SourceDetails&) { removeCalledOnFactory = true; };
-            TestHook_SetSourceFactoryOverride(policySource.Type, factory);
+            TestHook_SetSourceFactoryOverride(ConvertToSourceTypeEnum(policySource.Type), factory);
 
             policies.SetValue<ValuePolicy::AdditionalSources>({ policySource });
             SetSetting(Stream::UserSources, s_EmptySources);
@@ -1109,7 +1109,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             // An additional source with the same name as a default overrides it.
             SourceFromPolicy policySource;
             policySource.Name = "winget";
-            policySource.Type = "notDefaultType";
+            policySource.Type = std::string{ SourceTypeEnumToString(SourceType::ConfigurableTest) };
             policySource.Arg = "notDefaultArg";
             policySource.Data = "notDefaultData";
             policySource.Identifier = "notDefaultId";
@@ -1121,7 +1121,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
 
             REQUIRE(sources.size() == c_DefaultSourceCount);
             REQUIRE(sources[0].Name == policySource.Name);
-            REQUIRE(sources[0].Type == policySource.Type);
+            REQUIRE(SourceTypeEnumToString(sources[0].Type) == policySource.Type);
             REQUIRE(sources[0].Arg == policySource.Arg);
             REQUIRE(sources[0].Data == policySource.Data);
             REQUIRE(sources[0].Identifier == policySource.Identifier);
@@ -1142,7 +1142,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             // We should be able to add sources in the allow list.
             SourceFromPolicy policySource;
             policySource.Name = "testName";
-            policySource.Type = "testType";
+            policySource.Type = std::string{ SourceTypeEnumToString(SourceType::ConfigurableTest) };
             policySource.Arg = "testArg";
             policySource.Data = "testData";
             policySource.Identifier = "testId";
@@ -1159,12 +1159,12 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
                 sd.Data = policySource.Data;
                 sd.Identifier = policySource.Identifier;
             };
-            TestHook_SetSourceFactoryOverride(policySource.Type, factory);
+            TestHook_SetSourceFactoryOverride(ConvertToSourceTypeEnum(policySource.Type), factory);
 
             ProgressCallback progress;
             SourceDetails details;
             details.Name = policySource.Name;
-            details.Type = policySource.Type;
+            details.Type = SourceType::ConfigurableTest;
             details.Arg = policySource.Arg;
             AddSource(details, progress);
 
@@ -1176,7 +1176,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             REQUIRE(sources[1].Origin == SourceOrigin::Default);
 
             REQUIRE(sources[0].Name == policySource.Name);
-            REQUIRE(sources[0].Type == policySource.Type);
+            REQUIRE(SourceTypeEnumToString(sources[0].Type) == policySource.Type);
             REQUIRE(sources[0].Arg == policySource.Arg);
             REQUIRE(sources[0].Data == policySource.Data);
             REQUIRE(sources[0].Identifier == policySource.Identifier);
@@ -1187,7 +1187,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             // We should not be allowed to add anything not matching the allow list.
             SourceFromPolicy policySource;
             policySource.Name = "testName";
-            policySource.Type = "testType";
+            policySource.Type = std::string{ SourceTypeEnumToString(SourceType::ConfigurableTest) };
             policySource.Arg = "testArg";
             policySource.Data = "testData";
             policySource.Identifier = "testId";
@@ -1198,7 +1198,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             ProgressCallback progress;
             SourceDetails details;
             details.Name = "notAllowed";
-            details.Type = "type";
+            details.Type = SourceType::ConfigurableTest;
             details.Arg = "arg";
 
             bool addCalledOnFactory = false;
@@ -1225,7 +1225,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             ProgressCallback progress;
             SourceDetails details;
             details.Name = "name";
-            details.Type = "type";
+            details.Type = SourceType::ConfigurableTest;
             details.Arg = "arg";
 
             bool addCalledOnFactory = false;
@@ -1257,7 +1257,7 @@ TEST_CASE("RepoSources_OpenMultipleWithSingleFailure", "[sources]")
 {
     TestHook_ClearSourceFactoryOverrides();
     TestSourceFactory factory{ FailingSourcesTestSource::CreateFailWinget };
-    TestHook_SetSourceFactoryOverride("testType", factory);
+    TestHook_SetSourceFactoryOverride(SourceType::ConfigurableTest, factory);
 
     SetSetting(Stream::UserSources, s_TwoSource_AggregateSourceTest);
 
@@ -1288,7 +1288,7 @@ TEST_CASE("RepoSources_OpenMultipleWithTotalFailure", "[sources]")
 {
     TestHook_ClearSourceFactoryOverrides();
     TestSourceFactory factory{ FailingSourcesTestSource::CreateFailAll };
-    TestHook_SetSourceFactoryOverride("testType", factory);
+    TestHook_SetSourceFactoryOverride(SourceType::ConfigurableTest, factory);
 
     SetSetting(Stream::UserSources, s_TwoSource_AggregateSourceTest);
 
@@ -1309,7 +1309,7 @@ TEST_CASE("RepoSources_UpdateSettingsDuringAction_SourcesUpdate", "[sources]")
 
     std::string unusedSourceName = "unusedName";
     std::string unusedSourceArg = "unusedArg";
-    std::string testSourceType = "testType";
+    SourceType testSourceType = SourceType::ConfigurableTest;
 
     TestHook_ClearSourceFactoryOverrides();
     TestSourceFactory factory{ FailingSourcesTestSource::CreateFailAll };
@@ -1392,7 +1392,7 @@ TEST_CASE("RepoSources_UpdateSettingsDuringAction_MetadataUpdate", "[sources]")
 
     std::string unusedSourceName = "unusedName";
     std::string unusedSourceArg = "unusedArg";
-    std::string testSourceType = "testType";
+    SourceType testSourceType = SourceType::ConfigurableTest;
 
     TestHook_ClearSourceFactoryOverrides();
     TestSourceFactory factory{ FailingSourcesTestSource::CreateFailAll };
@@ -1462,7 +1462,12 @@ TEST_CASE("RepoSources_RestoringWellKnownSource", "[sources]")
 
     SECTION("with well known name")
     {
-        Source addStoreBack{ details.Name, details.Arg, details.Type, Repository::SourceTrustLevel::None, {} };
+        Source addStoreBack{
+            details.Name,
+            details.Arg,
+            details.Type,
+            Repository::SourceTrustLevel::None,
+            {} };
         REQUIRE(addStoreBack.Add(progress));
 
         Source storeAfterAdd{ details.Name };
@@ -1473,7 +1478,12 @@ TEST_CASE("RepoSources_RestoringWellKnownSource", "[sources]")
     SECTION("with different name")
     {
         std::string newName = details.Name + "_new";
-        Source addStoreBack{ newName, details.Arg, details.Type, Repository::SourceTrustLevel::None, {} };
+        Source addStoreBack{
+            newName,
+            details.Arg,
+            details.Type,
+            Repository::SourceTrustLevel::None,
+            {} };
         REQUIRE(addStoreBack.Add(progress));
 
         Source storeAfterAdd{ newName };
@@ -1536,4 +1546,25 @@ TEST_CASE("RepoSources_MicrosoftStore_CertificatePinningLifetimeCheck", "[source
     INFO("If this test has failed, the pinning certificates may be nearing expiration and should be investigated.");
     double lifetimePercentage = source.GetDetails().CertificatePinningConfiguration.GetRemainingLifetimePercentage();
     REQUIRE(lifetimePercentage > 0.25);
+}
+
+TEST_CASE("RepoSources_SourceTypeEnumConversion", "[sources]")
+{
+    REQUIRE(ConvertToSourceTypeEnum("Microsoft.PreIndexed.Package"sv) == SourceType::PreIndexedPackage);
+    REQUIRE(ConvertToSourceTypeEnum("microsoft.rest"sv) == SourceType::Rest);
+    REQUIRE(ConvertToSourceTypeEnum("Microsoft.Predefined.Installed"sv) == SourceType::PredefinedInstalled);
+    REQUIRE(ConvertToSourceTypeEnum("Microsoft.Predefined.Writeable"sv) == SourceType::PredefinedWriteable);
+    REQUIRE(ConvertToSourceTypeEnum("Microsoft.PackageTracking"sv) == SourceType::PackageTracking);
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    REQUIRE(ConvertToSourceTypeEnum("Microsoft.Test.Configurable"sv) == SourceType::ConfigurableTest);
+#endif
+
+    REQUIRE(TryConvertToSourceTypeEnum("Microsoft.Unknown"sv) == std::nullopt);
+    REQUIRE_THROWS_HR(ConvertToSourceTypeEnum("Microsoft.Unknown"sv), APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
+
+    REQUIRE(TryConvertToSourceTypeEnum(""sv).value_or(Source::GetDefaultSourceType()) == Source::GetDefaultSourceType());
+    REQUIRE(SourceTypeEnumToString(SourceType::PreIndexedPackage) == "Microsoft.PreIndexed.Package"sv);
+    REQUIRE(SourceTypeEnumToString(SourceType::Rest) == "Microsoft.Rest"sv);
+    REQUIRE(Source::GetDefaultSourceType() == SourceType::PreIndexedPackage);
+    REQUIRE(SourceTypeEnumToString(Source::GetDefaultSourceType()) == "Microsoft.PreIndexed.Package"sv);
 }

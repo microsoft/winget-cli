@@ -3,10 +3,9 @@
 #include "pch.h"
 #include "PackageCatalogProgress.h"
 #include "AppInstallerStrings.h"
-#include "Microsoft/PredefinedInstalledSourceFactory.h"
+#include <winget/RepositorySource.h>
 
 using namespace AppInstaller;
-using namespace AppInstaller::Repository;
 
 namespace winrt::Microsoft::Management::Deployment
 {
@@ -14,8 +13,8 @@ namespace winrt::Microsoft::Management::Deployment
     {
         std::shared_ptr<AppInstaller::IProgressSink> CreatePackageCatalogProgressSink(std::string sourceType, std::function<void(double)> progressReporter, bool removeOperation)
         {
-            if (sourceType.empty()
-                || Utility::CaseInsensitiveEquals( Repository::Microsoft::PredefinedInstalledSourceFactory::Type(), sourceType))
+            auto sourceTypeEnum = ::AppInstaller::Repository::TryConvertToSourceTypeEnum(sourceType).value_or(::AppInstaller::Repository::Source::GetDefaultSourceType());
+            if (sourceTypeEnum == ::AppInstaller::Repository::SourceType::PreIndexedPackage || sourceTypeEnum == ::AppInstaller::Repository::SourceType::PredefinedInstalled)
             {
                 std::vector<std::pair<AppInstaller::ProgressType, double>> progressWeights;
 
