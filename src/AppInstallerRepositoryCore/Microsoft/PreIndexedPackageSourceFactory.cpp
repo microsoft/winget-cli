@@ -208,8 +208,8 @@ namespace AppInstaller::Repository::Microsoft
 
             bool Add(SourceDetails& details, IProgressCallback& progress) override final
             {
+                // Source type is normalized before reaching the factory; this path only accepts PreIndexedPackage.
                 THROW_HR_IF(E_INVALIDARG, details.Type != SourceType::PreIndexedPackage);
-                details.Type = SourceType::PreIndexedPackage;
                 AICLI_LOG(Repo, Info, << "Initializing source type: " << details.Name << " => " << SourceTypeEnumToString(details.Type));
 
                 PreIndexedPackageInfo packageInfo(details, [](const std::string& packageLocation)

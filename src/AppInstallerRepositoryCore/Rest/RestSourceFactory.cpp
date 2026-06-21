@@ -124,8 +124,8 @@ namespace AppInstaller::Repository::Rest
 
             bool Add(SourceDetails& details, IProgressCallback&) override final
             {
+                // Source type is normalized before reaching the factory; this path only accepts Rest.
                 THROW_HR_IF(E_INVALIDARG, details.Type != SourceType::Rest);
-                details.Type = SourceType::Rest;
 
                 // Check if URL is remote and secure
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE, !Utility::IsUrlRemote(details.Arg));
