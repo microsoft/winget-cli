@@ -98,6 +98,23 @@ The `locale` behavior affects the choice of installer based on installer locale.
     },
 ```
 
+### Output
+
+The `output` settings affect winget interface output behavior.
+
+#### locale
+
+The `locale` setting overrides winget interface language using a BCP47 language tag (for example, `en-US`). If not specified, winget uses the default Windows globalization behavior.
+
+> [!NOTE]
+> This setting only affects winget interface strings and does not affect package metadata localization or installer locale selection.
+
+```json
+    "output": {
+        "locale": "en-US"
+    },
+```
+
 ### Telemetry
 
 The `telemetry` settings control whether winget writes ETW events that may be sent to Microsoft on a default installation of Windows.
@@ -133,4 +150,3 @@ The `downloader` setting controls which code is used when downloading packages. 
 ## Enabling Experimental features
 
 To discover which experimental features are available, go to [https://aka.ms/winget-settings](https://aka.ms/winget-settings) where you can see the experimental features available to you.
-

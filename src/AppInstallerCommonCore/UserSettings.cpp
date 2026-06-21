@@ -561,6 +561,16 @@ namespace AppInstaller::Settings
 
             return {};
         }
+
+        WINGET_VALIDATE_SIGNATURE(OutputLocale)
+        {
+            if (Locale::IsWellFormedBcp47Tag(value))
+            {
+                return value;
+            }
+
+            return {};
+        }
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

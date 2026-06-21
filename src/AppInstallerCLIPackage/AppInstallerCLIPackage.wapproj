@@ -187,15 +187,25 @@
       <SubType>Designer</SubType>
     </PRIResource>
     <PRIResource Include="shared\strings\de-DE\winget.resw" Condition="Exists('shared\strings\de-DE\winget.resw')" />
+    <PRIResource Include="..\..\Localization\Resources\de-DE\winget.resw" Condition="!Exists('shared\strings\de-DE\winget.resw') and Exists('..\..\Localization\Resources\de-DE\winget.resw')" />
     <PRIResource Include="shared\strings\es-ES\winget.resw" Condition="Exists('shared\strings\es-ES\winget.resw')" />
+    <PRIResource Include="..\..\Localization\Resources\es-ES\winget.resw" Condition="!Exists('shared\strings\es-ES\winget.resw') and Exists('..\..\Localization\Resources\es-ES\winget.resw')" />
     <PRIResource Include="shared\strings\fr-FR\winget.resw" Condition="Exists('shared\strings\fr-FR\winget.resw')" />
+    <PRIResource Include="..\..\Localization\Resources\fr-FR\winget.resw" Condition="!Exists('shared\strings\fr-FR\winget.resw') and Exists('..\..\Localization\Resources\fr-FR\winget.resw')" />
     <PRIResource Include="shared\strings\it-IT\winget.resw" Condition="Exists('shared\strings\it-IT\winget.resw')" />
+    <PRIResource Include="..\..\Localization\Resources\it-IT\winget.resw" Condition="!Exists('shared\strings\it-IT\winget.resw') and Exists('..\..\Localization\Resources\it-IT\winget.resw')" />
     <PRIResource Include="shared\strings\ja-JP\winget.resw" Condition="Exists('shared\strings\ja-JP\winget.resw')" />
+    <PRIResource Include="..\..\Localization\Resources\ja-JP\winget.resw" Condition="!Exists('shared\strings\ja-JP\winget.resw') and Exists('..\..\Localization\Resources\ja-JP\winget.resw')" />
     <PRIResource Include="shared\strings\ko-KR\winget.resw" Condition="Exists('shared\strings\ko-KR\winget.resw')" />
+    <PRIResource Include="..\..\Localization\Resources\ko-KR\winget.resw" Condition="!Exists('shared\strings\ko-KR\winget.resw') and Exists('..\..\Localization\Resources\ko-KR\winget.resw')" />
     <PRIResource Include="shared\strings\pt-BR\winget.resw" Condition="Exists('shared\strings\pt-BR\winget.resw')" />
+    <PRIResource Include="..\..\Localization\Resources\pt-BR\winget.resw" Condition="!Exists('shared\strings\pt-BR\winget.resw') and Exists('..\..\Localization\Resources\pt-BR\winget.resw')" />
     <PRIResource Include="shared\strings\ru-RU\winget.resw" Condition="Exists('shared\strings\ru-RU\winget.resw')" />
+    <PRIResource Include="..\..\Localization\Resources\ru-RU\winget.resw" Condition="!Exists('shared\strings\ru-RU\winget.resw') and Exists('..\..\Localization\Resources\ru-RU\winget.resw')" />
     <PRIResource Include="shared\strings\zh-CN\winget.resw" Condition="Exists('shared\strings\zh-CN\winget.resw')" />
+    <PRIResource Include="..\..\Localization\Resources\zh-CN\winget.resw" Condition="!Exists('shared\strings\zh-CN\winget.resw') and Exists('..\..\Localization\Resources\zh-CN\winget.resw')" />
     <PRIResource Include="shared\strings\zh-TW\winget.resw" Condition="Exists('shared\strings\zh-TW\winget.resw')" />
+    <PRIResource Include="..\..\Localization\Resources\zh-TW\winget.resw" Condition="!Exists('shared\strings\zh-TW\winget.resw') and Exists('..\..\Localization\Resources\zh-TW\winget.resw')" />
     <PRIResource Include="Shared\Strings\en-us\Resources.resw" />
   </ItemGroup>
   <ItemGroup>

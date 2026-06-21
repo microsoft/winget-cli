@@ -10,6 +10,7 @@
 #include "COMContext.h"
 #include <AppInstallerFileLogger.h>
 #include <winget/OutputDebugStringLogger.h>
+#include <winrt/Windows.Globalization.h>
 #include "Public/ShutdownMonitoring.h"
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -78,6 +79,18 @@ namespace AppInstaller::CLI
             main.Wait = WaitOnMainWaitEvent;
             ShutdownMonitoring::ServerShutdownSynchronization::AddComponent(main);
         }
+
+        std::optional<std::string> ApplyOutputLocaleOverride()
+        {
+            std::string localePreference = Settings::User().Get<Settings::Setting::OutputLocale>();
+            if (!localePreference.empty())
+            {
+                winrt::Windows::Globalization::ApplicationLanguages::PrimaryLanguageOverride(Utility::ConvertToUTF16(localePreference));
+                return localePreference;
+            }
+
+            return {};
+        }
     }
 
     int CoreMain(int argc, wchar_t const** argv) try
@@ -89,6 +102,7 @@ namespace AppInstaller::CLI
         std::signal(SIGABRT, abort_signal_handler);
 
         init_apartment();
+        auto outputLocaleOverride = ApplyOutputLocaleOverride();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // We have to do this here so the auto minidump config initialization gets caught
@@ -119,6 +133,11 @@ namespace AppInstaller::CLI
         Logging::FileLogger::Add();
         Logging::OutputDebugStringLogger::Remove();
         Logging::EnableWilFailureTelemetry();
+
+        if (outputLocaleOverride)
+        {
+            AICLI_LOG(CLI, Info, << "Applied output locale override from settings: " << outputLocaleOverride.value());
+        }
 
         // Set output to UTF8
         ConsoleOutputCPRestore utf8CP(CP_UTF8);
@@ -212,6 +231,8 @@ namespace AppInstaller::CLI
 
     void ServerInitialize()
     {
+        auto outputLocaleOverride = ApplyOutputLocaleOverride();
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // We have to do this here so the auto minidump config initialization gets caught
         Logging::OutputDebugStringLogger::Add();
@@ -227,10 +248,16 @@ namespace AppInstaller::CLI
 #endif
 
         AppInstaller::CLI::Execution::COMContext::SetLoggers();
+        if (outputLocaleOverride)
+        {
+            AICLI_LOG(CLI, Info, << "Applied output locale override from settings: " << outputLocaleOverride.value());
+        }
     }
 
     void InProcInitialize()
     {
+        auto outputLocaleOverride = ApplyOutputLocaleOverride();
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // We have to do this here so the auto minidump config initialization gets caught
         Logging::OutputDebugStringLogger::Add();
@@ -247,5 +274,9 @@ namespace AppInstaller::CLI
 
         // Explicitly set default channel and level before user settings from PackageManagerSettings
         AppInstaller::CLI::Execution::COMContext::SetLoggers(AppInstaller::Logging::Channel::Defaults, AppInstaller::Logging::Level::Info);
+        if (outputLocaleOverride)
+        {
+            AICLI_LOG(CLI, Info, << "Applied output locale override from settings: " << outputLocaleOverride.value());
+        }
     }
 }

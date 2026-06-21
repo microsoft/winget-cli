@@ -925,6 +925,46 @@ TEST_CASE("SettingOutputSortDirection", "[settings]")
     }
 }
 
+TEST_CASE("SettingOutputLocale", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Default value")
+    {
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputLocale>().empty());
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Valid locale")
+    {
+        std::string_view json = R"({ "output": { "locale": "en-US" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputLocale>() == "en-US");
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Invalid locale")
+    {
+        std::string_view json = R"({ "output": { "locale": "en_US.UTF-8" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputLocale>().empty());
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+    SECTION("Wrong type")
+    {
+        std::string_view json = R"({ "output": { "locale": ["en-US"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputLocale>().empty());
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+}
+
 TEST_CASE("ConvertToSortField", "[settings]")
 {
     SECTION("Valid values - lowercase")
