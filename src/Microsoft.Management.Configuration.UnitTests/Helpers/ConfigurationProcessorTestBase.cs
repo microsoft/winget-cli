@@ -48,11 +48,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// Create a new <see cref="ConfigurationProcessor"/> with the diagnostics event hooked up.
         /// </summary>
         /// <param name="factory">The factory to use.</param>
+        /// <param name="captureVerbose">If true, verbose logs are captured into the log.</param>
         /// <returns>The new <see cref="ConfigurationProcessor"/> object.</returns>
-        internal ConfigurationProcessor CreateConfigurationProcessorWithDiagnostics(IConfigurationSetProcessorFactory? factory = null)
+        internal ConfigurationProcessor CreateConfigurationProcessorWithDiagnostics(IConfigurationSetProcessorFactory? factory = null, bool captureVerbose = false)
         {
             ConfigurationProcessor result = this.Fixture.ConfigurationStatics.CreateConfigurationProcessor(factory);
-            result.Diagnostics += this.EventSink.DiagnosticsHandler;
+            result.Diagnostics += captureVerbose ? this.EventSink.DiagnosticsHandlerCapturesVerbose : this.EventSink.DiagnosticsHandler;
             result.MinimumLevel = DiagnosticLevel.Verbose;
             return result;
         }

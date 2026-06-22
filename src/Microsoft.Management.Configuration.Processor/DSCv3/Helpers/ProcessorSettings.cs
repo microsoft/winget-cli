@@ -32,6 +32,10 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         private bool processorPathVerified = false;
         private bool disposed = false;
 
+#if !AICLI_DISABLE_TEST_HOOKS
+        private string? testFoundPath = null;
+#endif
+
         private Dictionary<string, ResourceDetails> resourceDetailsDictionary = new ();
 
         /// <summary>
@@ -136,6 +140,13 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// <returns>The full path to the dsc.exe executable, or null if not found.</returns>
         public string? GetFoundDscExecutablePath()
         {
+#if !AICLI_DISABLE_TEST_HOOKS
+            if (this.testFoundPath != null)
+            {
+                return this.testFoundPath;
+            }
+#endif
+
             string? result = this.dscPackageStateMachine.DscExecutablePath;
 
             if (result != null)
@@ -210,10 +221,26 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 
 #if !AICLI_DISABLE_TEST_HOOKS
             result.dscV3 = this.DSCv3;
+            result.testFoundPath = this.testFoundPath;
 #endif
 
             return result;
         }
+
+#if !AICLI_DISABLE_TEST_HOOKS
+        /// <summary>
+        /// Injects a found DSC executable path for testing. The hash and alias flag are
+        /// computed automatically via the normal integrity helper so that the full
+        /// <c>TryGetValue → bool.ToString()</c> stringification path (including the bug
+        /// under test) is exercised end-to-end.
+        /// </summary>
+        /// <param name="path">The path to inject as the found DSC executable path.</param>
+        public void SetFoundDscExecutablePathForTest(string path)
+        {
+            this.EnsureFoundPathHashCached(path);
+            this.testFoundPath = path;
+        }
+#endif
 
         /// <summary>
         /// Gets a string representation of this object.
