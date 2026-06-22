@@ -29,15 +29,13 @@ WinGet manages software installations for millions of Windows users but provides
 
 During manifest validation in the `winget-pkgs` pipeline:
 
-1. **CVE lookup** — Query the GitHub Advisory Database (GHSA) using the package identifier and version via PURL or CPE mapping
+1. **CVE lookup** — The private validation infrastructure queries vulnerability databases using internal package-to-CVE mappings
 2. **Known CVE flagging** — If the submitted version has known CVEs:
    - Add a `Security-CVE` label to the PR
-   - Post a bot comment listing CVEs with severity ratings (CVSS score)
-   - Do NOT auto-reject — moderators approve with acknowledgment
+   - Post a bot comment listing CVEs with CVSS scores
 3. **Severity-based workflow:**
-   - Critical/High (CVSS ≥ 7.0): Require explicit moderator approval
-   - Medium (CVSS 4.0–6.9): Warning, auto-approve still possible
-   - Low (CVSS < 4.0): Informational only
+   - Critical (CVSS ≥ 9.0): **Blocked** — submission rejected, no waiver available
+   - High/Medium/Low (CVSS < 9.0): Informational — submission proceeds with the label for visibility
 
 ### Part 2: Client CVE Reporting
 
@@ -52,10 +50,10 @@ winget security show <package-id>
 
 | Command | CVE Behavior |
 |---------|-------------|
-| `winget list` | `--include-security` flag adds CVE column |
-| `winget upgrade` | Security-relevant upgrades highlighted with ⚠️ |
-| `winget install --version` | Non-blocking warning when version has known CVEs |
-| `winget show` | `--security` flag shows CVE details |
+| `winget list` | CVE column shown via `--details` |
+| `winget upgrade` | Security-relevant upgrades highlighted with ⚠️; `--security` flag to upgrade only packages with security fixes |
+| `winget install --version` | Non-blocking warning when version has known CVEs (blocking if GPO `CVEBlockInstallThreshold` is set and CVSS meets threshold) |
+| `winget show` | CVE details shown in `--details` output |
 | `winget configure test` | Reports CVE compliance status per resource |
 
 #### Data Source Architecture
@@ -88,7 +86,7 @@ winget security show <package-id>
 
 ### Part 3: Package-to-CVE Mapping
 
-The mapping between WinGet package IDs and vulnerability database entries requires a translation layer:
+The mapping between WinGet package IDs and vulnerability database entries is maintained by Microsoft's private validation infrastructure:
 
 ```json
 {
@@ -104,43 +102,67 @@ The mapping between WinGet package IDs and vulnerability database entries requir
 ```
 
 This mapping is:
-- Maintained as part of the source index (community-contributed, reviewed)
-- Incrementally updated with source updates (`winget source update`)
-- Optional per-package — packages without mappings simply have no CVE data
+- Maintained internally by Microsoft — community contributions to CVE mappings are **disallowed by policy**
+- Updated as part of the private validation infrastructure's periodic rescan process
+- Delivered to clients via the source index (same distribution path as other backend-managed metadata)
+- Not present in the public `winget-pkgs` manifest files
 
-### Part 4: Manifest Extension
+> [!NOTE]
+> Mapping WinGet package IDs to PURLs/CPEs is a known challenge. Many NVD entries have inaccurate version ranges, and GHSA's global database doesn't cover Windows-specific package formats well. Microsoft's internal infrastructure uses multiple data sources and manual curation to improve accuracy over time.
 
-Add an optional `Security` field to the package manifest schema (version 1.29.0):
+### Part 4: CVE Metadata in Merged Manifests
+
+CVE metadata is added to the back-end **merged manifest** by Microsoft's private infrastructure — the same mechanism used for package icons and other enrichment metadata. This metadata is NOT authored by community contributors and is NOT present in the public `winget-pkgs` repository manifest files.
+
+**How it works:**
+
+1. Microsoft's validation infrastructure periodically rescans packages against vulnerability databases.
+2. When CVEs are detected (or when existing CVE metadata changes), the merged manifest stored on Azure blob storage is updated with the security metadata.
+3. The PreIndexed package source index is regenerated to reflect the updated merged manifest, ensuring the hash in the source still matches the stored blob.
+
+**Merged manifest security metadata format:**
 
 ```yaml
 Security:
   Advisories:
     - Id: CVE-2024-32002
-      Severity: Critical
+      Cvss: 9.8
       FixedIn: "2.45.1"
+      Description: "Remote code execution via crafted input"
+    - Id: CVE-2023-22490
+      Cvss: 5.5
+      FixedIn: "2.39.2"
+      Description: "Path traversal in clone"
   AdvisoryUrl: https://github.com/git/git/security/advisories
 ```
 
-This supplements automated database lookups for packages not yet indexed or where automated mapping is incomplete.
+**Pipeline hash reconciliation:**
+
+When a periodic rescan detects new CVEs and updates the merged manifest, the publishing pipeline must:
+1. Regenerate the merged manifest with updated security metadata
+2. Recompute the content hash
+3. Update the PreIndexed package source to reference the new hash
+4. Publish the updated source index
+
+This requires additional publishing pipeline functionality to support out-of-band manifest updates (updates triggered by rescan rather than by a new PR submission).
 
 ### Part 5: Group Policy Controls
 
 | Policy | Type | Default | Description |
 |--------|------|---------|-------------|
 | `EnableCVEDetection` | Bool | Enabled | Master toggle for all CVE features |
-| `CVEBlockInstallSeverity` | Enum | None | Block installs at or above severity (None/Low/Medium/High/Critical) |
-| `CVEBlockUpgradeSeverity` | Enum | None | Block upgrades to versions with CVEs at/above severity |
+| `CVEBlockInstallThreshold` | Float | 0 (disabled) | Block installs when any CVE has CVSS ≥ this value (e.g., 7.0) |
+| `CVEBlockUpgradeThreshold` | Float | 0 (disabled) | Block upgrades to versions with CVSS ≥ this value |
 | `CVEScanFrequency` | Int | 1440 | Cache refresh interval in minutes |
 | `CVEReportingEndpoint` | String | Empty | URL to POST scan results for fleet visibility |
-| `CVEDataSources` | MultiString | GHSA | Which databases to query |
 
 ### CLI Arguments
 
 | Argument | Commands | Description |
 |----------|----------|-------------|
 | `--ignore-security-warnings` | install, upgrade | Proceed despite CVE warnings |
-| `--include-security` | list, show | Show CVE information |
-| `--severity` | security scan | Minimum severity to report |
+| `--security` | upgrade | Only upgrade packages with available security fixes |
+| `--severity` | security scan | Minimum CVSS score to report (e.g., `--severity 7.0`) |
 
 ### Settings
 
@@ -148,9 +170,8 @@ This supplements automated database lookups for packages not yet indexed or wher
 {
   "security": {
     "enableCVEDetection": true,
-    "minimumReportSeverity": "medium",
+    "minimumReportCvss": 4.0,
     "cacheRefreshMinutes": 1440,
-    "dataSources": ["ghsa"],
     "reportingEndpoint": ""
   }
 }
@@ -159,7 +180,7 @@ This supplements automated database lookups for packages not yet indexed or wher
 | Setting | CLI Argument | GPO Policy | Interaction |
 |---------|-------------|------------|-------------|
 | `enableCVEDetection` | N/A | `EnableCVEDetection` | GPO wins |
-| `minimumReportSeverity` | `--severity` | N/A | Arg overrides setting |
+| `minimumReportCvss` | `--severity` | N/A | Arg overrides setting |
 | `cacheRefreshMinutes` | N/A | `CVEScanFrequency` | GPO wins |
 
 ### COM API Surface
@@ -168,42 +189,44 @@ This supplements automated database lookups for packages not yet indexed or wher
 interface IPackageSecurityInfo
 {
     IVectorView<SecurityAdvisory> Advisories { get; };
-    SecuritySeverity HighestSeverity { get; };
+    Double HighestCvss { get; };
     Boolean HasKnownVulnerabilities { get; };
 }
 
 interface ISecurityAdvisory
 {
     String Id { get; };           // CVE-YYYY-NNNNN
-    SecuritySeverity Severity { get; };
+    Double CvssScore { get; };
     String Description { get; };
     String FixedInVersion { get; };
     String AdvisoryUrl { get; };
 }
-
-enum SecuritySeverity { None, Low, Medium, High, Critical };
 ```
 
 ### PowerShell Cmdlets
 
 ```powershell
 # Scan installed packages
-Get-WinGetSecurityScan [-Source <String>] [-MinimumSeverity <SecuritySeverity>]
+Get-WinGetSecurityScan [-Source <String>] [-MinimumCvss <Double>]
 
-# Get security info for a specific package
-Get-WinGetPackage -Id "Git.Git" -IncludeSecurityInfo
+# Get security info for a specific package (included in --details output)
+Get-WinGetPackage -Id "Git.Git" | Select-Object Id, InstalledVersion, SecurityInfo
+
+# Upgrade only packages with security fixes
+Update-WinGetPackage -All -Security
 ```
 
 ### Cross-Repository Impact
 
 - **winget-cli** — CVE engine, `winget security` command, GPO policies, settings, COM API additions
-- **winget-pkgs** — Validation pipeline integration, `Security-CVE` label, bot comments, PURL mapping data
-- **winget-cli-restsource** — REST API extension for serving CVE mapping data
-- **winget-create** — Support for `Security` manifest field in manifest authoring
+- **winget-pkgs** — Validation pipeline integration (CVE lookup during submission), `Security-CVE` label, bot comments
+- **winget-cli-restsource** — REST API extension for serving CVE metadata from merged manifests
+- **winget-create** — No impact (CVE metadata is backend-managed, not author-managed)
+- **Publishing pipeline** — New capability: out-of-band manifest updates triggered by periodic rescan (hash reconciliation for updated merged manifests)
 
 ### Schema Version
 
-This feature requires manifest schema version 1.29.0 for the optional `Security` field. The CVE detection itself works without manifest changes (uses external database lookups).
+The CVE metadata lives in the merged manifest (backend-managed, not in public repository manifests). No community-facing manifest schema version change is required. The client reads CVE data from the source index where it is delivered alongside other backend-enriched metadata.
 
 ## UI/UX Design
 
@@ -236,7 +259,7 @@ Git         Git.Git         2.44.0     2.45.1     winget   ⚠️ Critical
 Node.js     OpenJS.NodeJS   18.12.0    18.20.3    winget   ⚠️ High
 VS Code     Microsoft.VS..  1.90.0     1.91.0     winget
 
-⚠️ 2 packages have security updates. Run 'winget upgrade --all' to apply.
+⚠️ 2 packages have security updates. Run 'winget upgrade --all --security' to apply security fixes only.
 ```
 
 ### Blocking behavior (GPO-enabled):
@@ -306,12 +329,13 @@ Warnings are emitted to stderr but do not prompt. Blocking (when GPO-enabled) re
 
 ## Potential Issues
 
-1. **Package-to-CVE mapping accuracy** — WinGet package IDs don't directly correspond to PURLs/CPEs. Mapping will have gaps and false positives. Community contribution model for mapping data mitigates over time.
-2. **False positives** — A CVE may apply to a specific platform/build but not the Windows version distributed via WinGet (e.g., Linux-only CVE for cross-platform package). Severity and specificity metadata can filter.
-3. **Warning fatigue** — Too many Medium/Low warnings may desensitize users. Default `minimumReportSeverity: medium` helps; enterprises can raise to `high`.
-4. **Data freshness** — NVD can lag days behind disclosure. GHSA is faster for GitHub-hosted projects. Using GHSA as primary mitigates.
-5. **Privacy** — Bulk-download model avoids per-package queries but requires local storage (~5-10 MB for full GHSA database).
-6. **Manifest `Security` field abuse** — Malicious/incorrect CVE entries in manifests could create false warnings. Validation pipeline must cross-check against actual databases.
+1. **Package-to-CVE mapping accuracy** — WinGet package IDs don't directly correspond to PURLs/CPEs. Many NVD entries have inaccurate version ranges, and GHSA's global database doesn't cover Windows-specific package formats well. Microsoft's internal curation improves accuracy over time but gaps will exist.
+2. **False positives** — A CVE may apply to a specific platform/build but not the Windows version distributed via WinGet (e.g., Linux-only CVE for cross-platform package). CVSS scoring and specificity metadata can filter.
+3. **Warning fatigue** — Too many warnings for lower-CVSS issues may desensitize users. Default `minimumReportCvss: 4.0` helps; enterprises can raise the threshold.
+4. **Data freshness** — NVD can lag days behind disclosure. GHSA is faster for GitHub-hosted projects. Microsoft's periodic rescan frequency determines how quickly CVE data propagates to clients.
+5. **Privacy** — Bulk-download model avoids per-package queries but requires local storage (~5-10 MB for advisory database).
+6. **Pipeline hash reconciliation** — Out-of-band merged manifest updates (from periodic rescan) require the publishing pipeline to recompute hashes and republish source indexes without a corresponding PR submission. This is new pipeline functionality that must be designed carefully to avoid race conditions with ongoing submissions.
+7. **Reporting endpoint trust** — Enterprise reporting endpoints must be configured by GPO to prevent data exfiltration of installed software inventory.
 
 ## Future Considerations
 
@@ -319,7 +343,8 @@ Warnings are emitted to stderr but do not prompt. Blocking (when GPO-enabled) re
 - **Automated remediation** — Scheduled upgrades for security-critical packages with GPO controls
 - **Microsoft Defender integration** — Feed CVE data into Defender for Endpoint vulnerability management
 - **Supply chain attestation** — Validate package signatures and provenance
-- **winget-pkgs community mapping** — Crowdsourced PURL/CPE mappings reviewed by moderators
+- **REST source CVE serving** — REST source implementations could serve CVE data directly, enabling enterprise REST sources to provide their own vulnerability assessments
+- **Reporting endpoint examples** — Community-contributed example servers for the `CVEReportingEndpoint` feature (fleet-wide vulnerability dashboards)
 
 ## Resources
 
