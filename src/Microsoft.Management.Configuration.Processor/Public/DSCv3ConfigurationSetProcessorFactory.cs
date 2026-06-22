@@ -29,6 +29,10 @@ namespace Microsoft.Management.Configuration.Processor
         private const string FoundDscExecutablePathHashPropertyName = "FoundDscExecutablePathHash";
         private const string FoundDscExecutablePathIsAliasPropertyName = "FoundDscExecutablePathIsAlias";
 
+#if !AICLI_DISABLE_TEST_HOOKS
+        private const string TestFoundDscExecutablePathPropertyName = "TestFoundDscExecutablePath";
+#endif
+
         private ProcessorSettings processorSettings = new ();
 
         /// <summary>
@@ -297,6 +301,11 @@ namespace Microsoft.Management.Configuration.Processor
                 case DscExecutablePathIsAliasPropertyName:
                     this.DscExecutablePathIsAlias = bool.Parse(value);
                     break;
+#if !AICLI_DISABLE_TEST_HOOKS
+                case TestFoundDscExecutablePathPropertyName:
+                    this.processorSettings.SetFoundDscExecutablePathForTest(value);
+                    break;
+#endif
                 default:
                     throw new ArgumentOutOfRangeException($"Invalid property name: {name}");
             }
