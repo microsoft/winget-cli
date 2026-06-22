@@ -28,21 +28,21 @@ Related: [#3401](https://github.com/microsoft/winget-cli/issues/3401), [#5806](h
 
 ## Solution Design
 
-### New Resources
+### Resources
 
-Implement as **native DSC v3 command-based resources** shipped with the WinGet client:
+The WinGet client already ships native DSC v3 command-based resources via the `winget dsc` subcommand infrastructure (including `DscPackageResource`, `DscSourceResource`, `DscUserSettingsFileResource`, and `DscAdminSettingsResource`). This spec extends the existing infrastructure with enhanced capabilities and new resources:
 
-| Resource Type | Purpose | DSC Operations |
-|--------------|---------|----------------|
-| `Microsoft.WinGet/Package` | Single package desired state | Get, Set, Test |
-| `Microsoft.WinGet/PackageList` | Declarative list of packages | Get, Set, Test |
-| `Microsoft.WinGet/Source` | Package source configuration | Get, Set, Test |
-| `Microsoft.WinGet/Settings` | WinGet settings desired state | Get, Set, Test |
-| `Microsoft.WinGet/Pin` | Package pin management | Get, Set, Test |
+| Resource Type | Status | Purpose | DSC Operations |
+|--------------|--------|---------|----------------|
+| `Microsoft.WinGet/Package` | **Enhanced** — add list support for declarative package sets | Get, Set, Test |
+| `Microsoft.WinGet/Source` | Existing | Package source configuration | Get, Set, Test |
+| `Microsoft.WinGet/UserSettings` | Existing | User-scoped WinGet settings | Get, Set, Test |
+| `Microsoft.WinGet/AdminSettings` | Existing (requires elevation) | Admin-scoped WinGet settings | Get, Set, Test |
+| `Microsoft.WinGet/Pin` | **New** | Package pin management | Get, Set, Test |
 
 ### Architecture
 
-A new `winget dsc` subcommand implements the DSC v3 command-based resource protocol:
+The existing `winget dsc` subcommand implements the DSC v3 command-based resource protocol:
 
 ```
 ┌─────────────────────────────────────┐
@@ -108,7 +108,9 @@ Each resource ships a `.dsc.resource.json` manifest alongside `winget.exe`:
 
 ### Microsoft.WinGet/Package
 
-Manages a single package's desired state:
+Manages package desired state — supports both single packages and declarative package lists:
+
+**Single package:**
 
 ```yaml
 resources:
@@ -123,36 +125,11 @@ resources:
       ensure: present
 ```
 
-**Schema:**
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `id` | string | Yes | Package identifier |
-| `source` | string | No | Source name (default: winget) |
-| `version` | string | No | Version constraint (exact, range via `>=`/`<=`, or `latest`) |
-| `scope` | enum | No | `machine` \| `user` |
-| `ensure` | enum | No | `present` (default) \| `absent` \| `latest` |
-| `installerType` | string | No | Preferred installer type |
-| `overrideArguments` | string | No | Custom installer arguments |
-| `acceptAgreements` | bool | No | Accept source/package agreements |
-
-**Test behavior:**
-- `ensure: present` — true if package is installed with version matching constraint
-- `ensure: absent` — true if package is NOT installed
-- `ensure: latest` — true if installed version matches latest available in source
-
-**Set behavior:**
-- `ensure: present` — install if not present, upgrade if version constraint not met
-- `ensure: absent` — uninstall if present
-- `ensure: latest` — upgrade to latest if not already
-
-### Microsoft.WinGet/PackageList
-
-The key new resource — declares complete desired package state:
+**Package list (declarative set):**
 
 ```yaml
 resources:
-  - resource: Microsoft.WinGet/PackageList
+  - resource: Microsoft.WinGet/Package
     directives:
       description: Developer workstation packages
     settings:
@@ -172,22 +149,41 @@ resources:
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `packages` | array | Yes | Array of package declarations |
-| `enforcement` | enum | No | `present` (default) \| `exact` |
-| `source` | string | No | Default source for all packages |
-| `scope` | enum | No | Default scope for all packages |
+| `id` | string | Yes (single mode) | Package identifier |
+| `packages` | array | Yes (list mode) | Array of package declarations (mutually exclusive with `id`) |
+| `source` | string | No | Source name (default: winget) |
+| `version` | string | No | Version constraint (exact, range via `>=`/`<=`, or `latest`) |
+| `scope` | enum | No | `machine` \| `user` |
+| `ensure` | enum | No | `present` (default) \| `absent` \| `latest` |
+| `enforcement` | enum | No | List mode only: `present` (default) \| `exact` |
+| `installerType` | string | No | Preferred installer type |
+| `overrideArguments` | string | No | Custom installer arguments |
+| `acceptAgreements` | bool | No | Accept source/package agreements |
 
-**Enforcement modes:**
+> [!NOTE]
+> The resource operates in **single mode** when `id` is specified, and **list mode** when `packages` is specified. These are mutually exclusive — specifying both is an error.
+
+**Test behavior:**
+- `ensure: present` — true if package is installed with version matching constraint
+- `ensure: absent` — true if package is NOT installed
+- `ensure: latest` — true if installed version matches latest available in source
+
+**Set behavior:**
+- `ensure: present` — install if not present, upgrade if version constraint not met
+- `ensure: absent` — uninstall if present
+- `ensure: latest` — upgrade to latest if not already
+
+**Enforcement modes (list mode only):**
 - `present` (default) — Ensure listed packages exist. Does not remove unlisted packages. Additive-only.
 - `exact` — Ensure ONLY listed packages exist. **Removes unlisted packages.** Requires Group Policy `EnableExactEnforcement` to be enabled. Without the policy, `exact` mode fails with a clear error.
 
-**Set behavior with `present` enforcement:**
-1. For each package in the list, evaluate individually (same as `Microsoft.WinGet/Package`)
+**Set behavior in list mode:**
+1. For each package in the list, evaluate individually
 2. MSIX packages may be installed concurrently (up to 6 concurrent, matching existing WinGet behavior)
 3. MSI/EXE packages are installed sequentially (Win32 installer mutex)
 4. Failures are reported per-package; other packages continue
 
-**Test output:**
+**Test output (list mode):**
 
 ```json
 {
@@ -220,11 +216,14 @@ resources:
 | `ensure` | enum | No | `present` \| `absent` |
 | `trustLevel` | enum | No | `none` \| `trusted` |
 
-### Microsoft.WinGet/Settings
+### Microsoft.WinGet/UserSettings
+
+> [!NOTE]
+> This resource already exists as `DscUserSettingsFileResource` in the WinGet client. The spec documents the target schema for parity with other resources.
 
 ```yaml
 resources:
-  - resource: Microsoft.WinGet/Settings
+  - resource: Microsoft.WinGet/UserSettings
     settings:
       ensure: merged
       settings:
@@ -242,6 +241,24 @@ resources:
 
 - `merged` — overlay provided settings on existing (deep merge)
 - `replaced` — overwrite entire settings file
+
+### Microsoft.WinGet/AdminSettings
+
+> [!NOTE]
+> This resource already exists as `DscAdminSettingsResource` in the WinGet client. It requires elevated security context (`securityContext: elevated` in DSC metadata) because admin settings are machine-scoped and affect all users.
+
+```yaml
+resources:
+  - resource: Microsoft.WinGet/AdminSettings
+    settings:
+      LocalManifestFiles: true
+      BypassCertificatePinningForMicrosoftStore: false
+    metadata:
+      winget:
+        securityContext: elevated
+```
+
+Admin settings are distinct from user settings — they control machine-wide WinGet behaviors and require administrator privileges to modify.
 
 ### Microsoft.WinGet/Pin
 
@@ -263,7 +280,7 @@ resources:
 
 ### CLI Commands Affected
 
-New subcommand tree:
+The `winget dsc` subcommand already exists and implements the DSC v3 command-based resource protocol:
 
 ```
 winget dsc get --resource <type>      # stdin: JSON, stdout: current state
@@ -273,7 +290,8 @@ winget dsc schema --resource <type>   # stdout: JSON schema
 winget dsc list                       # List available resources
 ```
 
-The `winget dsc` subcommand is NOT intended for direct user interaction — it implements the DSC v3 protocol for the runtime to invoke. It does not appear in `winget --help` by default (hidden command, visible with `--verbose`).
+> [!NOTE]
+> `winget dsc` previously served as an alias for `winget configure`. With the existing resource protocol implementation in the client, `winget dsc` is now the dedicated entry point for DSC v3 resource operations. It is NOT intended for direct user interaction — it implements the DSC v3 protocol for the runtime to invoke. It does not appear in `winget --help` by default (hidden command, visible with `--verbose`).
 
 ### Configuration Export Enhancement
 
