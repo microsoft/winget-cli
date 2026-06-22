@@ -56,5 +56,20 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
                 this.log.WriteLine(e.Message);
             }
         }
+
+        /// <summary>
+        /// Handles diagnostic information from a <see cref="ConfigurationProcessor"/>.
+        /// </summary>
+        /// <param name="sender">The object sending the information.</param>
+        /// <param name="e">The diagnostic information.</param>
+        internal void DiagnosticsHandlerCapturesVerbose(object? sender, IDiagnosticInformation e)
+        {
+            if (e.Message.Contains(TelemetryEvent.Preamble))
+            {
+                this.Events.Add(new TelemetryEvent(e.Message));
+            }
+
+            this.log.WriteLine(e.Message);
+        }
     }
 }
