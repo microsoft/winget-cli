@@ -11,12 +11,12 @@ For [#6298](https://github.com/microsoft/winget-cli/issues/6298).
 
 ## Abstract
 
-Enable WinGet to detect that it is outdated and self-update on first meaningful command execution. When the first command requiring the source index runs, the client checks a version signal in the preIndexed package source, determines whether a newer stable release exists, and — with user consent — updates itself and relaunches the original command. This eliminates the "chicken and egg" problem where WinGet must already be current to use new functionality (e.g., `winget configure`).
+Enable WinGet to detect that it is outdated and self-update on first meaningful command execution. When the first command requiring the source index runs, the client checks a version signal in the winget default source's preIndexed package metadata, determines whether a newer stable release exists, and — with user consent — updates itself and relaunches the original command. This eliminates the "chicken and egg" problem where WinGet must already be current to use new functionality (e.g., `winget configure`).
 
 ## Inspiration
 
 - Users who receive WinGet via Windows or the Microsoft Store often have an outdated client by the time they first use it. New features (Configuration, DSC v3, parallel install) are unreachable until the user independently discovers they need to update.
-- `winget configure enable` is a friction point: users attempting `winget configure` for the first time hit "unrecognized command" because their client predates the feature. Day 0 Update removes this barrier by updating the client before the command fails.
+- `winget configure enable` is a friction point: many devices ship with the "Stub App" version of App Installer (containing only WinGet's package management code). Users attempting `winget configure` for the first time must first run `winget configure enable` to download the configuration management components. Day 0 Update removes this barrier by updating the client to a full version before the command fails.
 - Other package managers solve this with auto-update (Homebrew, rustup, pip self-check). WinGet currently has no equivalent.
 - Enterprise provisioning scenarios (OOBE, Configuration-as-Code) benefit from guaranteed-current clients without requiring a separate pre-flight update step.
 
@@ -46,30 +46,30 @@ This metadata is updated as part of the source publication pipeline whenever a n
 User runs: winget configure myconfig.yaml
          │
          ▼
-┌─────────────────────────────┐
-│ Source index access required │
-│ (first command this session)│
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│ Read latestStableClientVersion │
-│ from source metadata          │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│ Compare against own version │
-│ (Package.Current.Id.Version)│
-└──────────────┬──────────────┘
-               │
-        ┌──────┴──────┐
-        │ Up to date? │
-        └──────┬──────┘
-          Yes  │  No
-          │    │
-          ▼    ▼
-       Proceed  ──► Day 0 Update Flow
+┌───────────────────────────────────┐
+│ Source index access required       │
+│ (first command this session)       │
+└────────────────┬──────────────────┘
+                 │
+                 ▼
+┌───────────────────────────────────┐
+│ Read latestStableClientVersion     │
+│ from source metadata               │
+└────────────────┬──────────────────┘
+                 │
+                 ▼
+┌───────────────────────────────────┐
+│ Compare against own version        │
+│ (Package.Current.Id.Version)       │
+└────────────────┬──────────────────┘
+                 │
+          ┌──────┴──────┐
+          │ Up to date? │
+          └──────┬──────┘
+            Yes  │  No
+            │    │
+            ▼    ▼
+         Proceed  ──► Day 0 Update Flow
 ```
 
 ### Update Flow
@@ -85,11 +85,10 @@ When an update is available:
    ```
 
 2. **If accepted:**
-   - Record the original command line arguments.
-   - Initiate the self-update via `winget upgrade Microsoft.AppInstaller --silent`.
+   - Record the original command line arguments via `winget resume` infrastructure.
+   - Initiate the self-update via `winget upgrade Microsoft.AppInstaller --source winget --silent`.
    - The current process exits (WinGet cannot update itself while running).
-   - A watchdog process (or scheduled task) monitors the update completion.
-   - On completion, launch a **new terminal window** with the original command, using `--wait` to prevent the window from closing on completion.
+   - The update orchestrator (see [Self-Update Mechanism](#self-update-mechanism)) handles completion and relaunch.
 
 3. **If declined:**
    - Record the dismissal (increment counter in local state).
@@ -251,7 +250,8 @@ No manifest schema changes required. The version signal lives in source metadata
 │  Updating is recommended to access all current features.        │
 │  WinGet will restart and run your command after updating.       │
 │                                                                 │
-│  [U]pdate now    [S]kip this time    [D]on't ask again          │
+│  Update now    Skip this time    Don't ask again             │
+│  [U]            [S]               [D]                         │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
