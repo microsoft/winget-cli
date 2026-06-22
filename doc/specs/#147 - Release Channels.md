@@ -33,9 +33,12 @@ This is one of the oldest open feature requests ([#147](https://github.com/micro
 
 ## Solution Design
 
-### Manifest Schema Extension (v1.29.0)
+### Manifest Schema Extension
 
 Add a `Channel` field to the version manifest:
+
+> [!NOTE]
+> The `Channel` field already exists in the installer manifest at the installer and root level. This spec extends the channel concept to the version level for subscription tracking and version resolution, while acknowledging that a single package version can exist in multiple channels simultaneously.
 
 ```yaml
 PackageIdentifier: Google.Chrome
@@ -52,10 +55,21 @@ ManifestVersion: 1.29.0
 | `Channel` | string | No | (empty = stable) | Channel name for this version |
 
 - If `Channel` is omitted or empty, the version belongs to the implicit `stable` channel
+- A single version can appear in multiple channels simultaneously (e.g., a build may be in both `dev` and `canary` at the same time)
 - Channel names are case-insensitive, publisher-defined strings
 - Recommended vocabulary: `stable`, `beta`, `dev`, `canary`, `lts`, `preview`, `insiders`, `nightly`, `rc`
 - Maximum length: 32 characters
 - Allowed characters: `[a-zA-Z0-9._-]`
+
+**Channel detection challenge:**
+
+When a package is installed or updated outside of WinGet, there is no reliable mechanism for WinGet to determine which channel the installed version belongs to. This varies by installer type:
+
+- **MSIX/AppX** — Channel can often be identified from the package identity itself
+- **MSI/EXE** — Registry entries (ARP) rarely encode channel information; the same version number may exist in multiple channels with no distinguishing metadata
+- **External updates** — If an application self-updates, WinGet's channel subscription remains unchanged but the installed version may no longer align with the subscribed channel
+
+The design must account for these ambiguities. WinGet's channel subscription is a user-expressed intent ("keep me on Dev") rather than a detected property of the installed binary. The tracking database records the user's subscription, and version resolution uses it to filter available upgrades — but WinGet cannot guarantee that the currently installed version is exclusively associated with the subscribed channel.
 
 ### Version Resolution Logic
 
@@ -204,8 +218,8 @@ interface IPackageChannelInfo
 # Install on a channel
 Install-WinGetPackage -Id "Google.Chrome" -Channel "Dev"
 
-# List with channel info
-Get-WinGetPackage -IncludeChannel
+# List with channel info (Channel is a property on the output object)
+Get-WinGetPackage | Select-Object Id, Name, InstalledVersion, Channel
 
 # See available channels
 Show-WinGetPackage -Id "Google.Chrome" -Channels
@@ -216,24 +230,7 @@ Update-WinGetPackage -Id "Google.Chrome"  # uses subscribed channel
 
 ### Migration Path for Existing Packages
 
-Packages currently using separate IDs for channels (e.g., `Google.Chrome.Beta`):
-
-**Phase 1 — Introduction (v1.29.0):**
-- Add `Channel` field to the unified package ID in parallel with existing separate-ID packages
-- Both `Google.Chrome` with `Channel: Beta` AND `Google.Chrome.Beta` exist simultaneously
-
-**Phase 2 — Transition (v1.30.0):**
-- `Google.Chrome.Beta` marked as deprecated alias pointing to `Google.Chrome` channel `Beta`
-- Installing `Google.Chrome.Beta` shows: "This package ID is deprecated. Use 'winget install Google.Chrome --channel beta' instead."
-- Upgrades of `Google.Chrome.Beta` transparently resolve to `Google.Chrome` channel `Beta`
-
-**Phase 3 — Deprecation (v1.31.0+):**
-- `Google.Chrome.Beta` stops receiving new version submissions
-- Existing installs continue to work (alias resolution)
-- `winget upgrade` for aliased packages offers migration
-
-> [!IMPORTANT]
-> WinGet 1.X does not make breaking changes. Aliased packages continue to resolve indefinitely. The community repository schema version policy (n/n-1) drives publisher adoption of the unified model.
+Packages currently using separate IDs for channels (e.g., `Google.Chrome.Beta`) will need a migration path to the unified model. This is deferred to a future spec once the underlying mechanisms (such as package tombstones or alias resolution) are designed and implemented. See [Future Considerations](#future-considerations).
 
 ### WinGet Configuration / DSC
 
@@ -264,7 +261,7 @@ The `channel` property is added to the `Microsoft.WinGet/Package` resource schem
 
 ### Schema Version
 
-Requires manifest schema version 1.29.0 for the `Channel` field.
+Requires a new manifest schema version for the `Channel` field.
 
 ## UI/UX Design
 
@@ -359,17 +356,23 @@ Channel switch fails with error — explicit user consent required. Use `--force
 
 For packages migrating from separate IDs to unified ID + Channel:
 
-| Phase | Timeframe | Behavior |
-|-------|-----------|----------|
-| Introduction | v1.29.0 | Both old (separate ID) and new (Channel) exist |
-| Transition | v1.30.0 | Old ID shows deprecation notice, alias resolution added |
-| Deprecation | v1.31.0+ | Old ID stops receiving new submissions |
-| Removal | Never in 1.X | Old IDs continue resolving via alias |
+> [!NOTE]
+> Migration from separate package IDs to the unified channel model requires mechanisms (such as package tombstones or alias resolution) that do not exist today. The phases below describe a conceptual progression — specific timelines and mechanisms are deferred to a future spec.
+
+| Phase | Behavior |
+|-------|----------|
+| Introduction | Both old (separate ID) and new (Channel) exist side-by-side |
+| Transition | Old ID shows deprecation notice, redirect resolution added |
+| Deprecation | Old ID stops receiving new submissions |
+| Removal | Never in 1.X — old IDs continue resolving |
 
 Adoption will be driven by the winget-pkgs schema version policy (n/n-1) which encourages publishers to use the latest schema.
 
 ## Future Considerations
 
+- **Migration from separate IDs** — Design alias resolution or tombstone-based redirection for packages currently using separate IDs per channel (e.g., `Google.Chrome.Beta` → `Google.Chrome` channel `Beta`). Tombstones may be part of the solution.
+- **Cross-package channel dependencies** — Allow packages to depend on a specific channel of another package (e.g., an app that requires the LTS channel of Node.js)
+- **LTS subscription semantics** — Distinguish between subscribing to a specific LTS line (e.g., Node.js 24.x) vs. "always latest LTS" (which could jump from 24.x to 26.x when the active LTS line changes)
 - **Channel-aware pinning** — `winget pin add --channel stable` prevents channel drift
 - **Side-by-side channels** — Install both Stable and Dev simultaneously (separate feature, requires different approach)
 - **Channel notifications** — Alert when a new channel becomes available
