@@ -95,43 +95,46 @@ When an update is available:
    - Record the dismissal (increment counter in local state).
    - Proceed with the original command on the current version.
    - If the command fails because the client is too old (e.g., unrecognized subcommand), show a targeted message: "This feature requires WinGet 1.29+. Run `winget upgrade Microsoft.AppInstaller` to update."
+   - The client determines available functionality in the newer version by examining the version signal in the source metadata. When the source index or schema version exceeds what the current client understands, the client infers that new functionality is available in the advertised `latestStableClientVersion`. This heuristic may not capture all edge cases, but provides a reasonable signal for the most common scenario: a user attempting a command that requires a newer client.
 
 4. **If non-interactive** (`--disable-interactivity`, COM API, Configuration):
    - Do not prompt. Proceed with current version.
    - Emit a warning to stderr: "WinGet update available (1.30.1234.0). Run `winget upgrade Microsoft.AppInstaller` to update."
+   - If `--nowarn` is specified, suppress the warning entirely. The command proceeds silently on the current version. If the current version cannot execute the command (e.g., unrecognized subcommand), the command fails with an appropriate error code — the update does not occur implicitly.
 
 ### Self-Update Mechanism
 
-The update uses the existing `winget upgrade` infrastructure targeting `Microsoft.AppInstaller`:
+The update targets `Microsoft.AppInstaller` from the winget default source:
 
 ```
-winget upgrade --id Microsoft.AppInstaller --silent --accept-package-agreements --accept-source-agreements
+winget upgrade --id Microsoft.AppInstaller --source winget --silent
 ```
 
 Because WinGet cannot update its own running process:
 
-1. WinGet spawns a detached update orchestrator process (a small helper EXE bundled with the client).
-2. The orchestrator:
+1. WinGet records the original command line and context using the resume infrastructure (`winget resume`).
+2. WinGet spawns a detached update orchestrator process (a small helper EXE bundled with the client).
+3. The orchestrator:
    - Waits for the original WinGet process to exit.
    - Triggers the Microsoft Store update or direct MSIX install.
-   - On success: launches a new `conhost`/`wt` window with the saved command + `--wait`.
-   - On failure: launches a new window with an error message and the original command for manual retry.
+   - On success: uses `ShellExecute` to invoke the app execution alias (`winget`) with `resume` to continue the original operation. This avoids a hard dependency on Windows Terminal or `cmd.exe` and works regardless of the user's default terminal application.
+   - On failure: uses `ShellExecute` to launch `winget` with an error message displayed and the original command for manual retry.
 
 ### Relaunch Behavior
 
-The relaunch uses `--wait` to keep the new terminal window open after the command completes:
+The relaunch leverages `winget resume` (currently experimental) to restore the original command context:
 
 ```
-wt.exe --wait -- winget configure myconfig.yaml
+winget resume --resume-id <saved-id>
 ```
 
-If Windows Terminal is not available, fall back to:
+The resume infrastructure records the full command line, working directory, and any relevant state. After a successful self-update, the orchestrator invokes `winget resume` via `ShellExecute` on the app execution alias. This delegates terminal window creation to the operating system's default handler, avoiding any dependency on a specific terminal application.
+
+If `winget resume` is unavailable (older client somehow reached this path), fall back to `ShellExecute` with the original command line:
 
 ```
-cmd.exe /k winget configure myconfig.yaml
+ShellExecute(NULL, "open", "winget", "configure myconfig.yaml --wait", workingDir, SW_SHOWNORMAL)
 ```
-
-This ensures the user sees the full output of their original command and can inspect results.
 
 ### `winget configure` Special Case
 
