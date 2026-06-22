@@ -34,7 +34,7 @@ Their absence from `winget-pkgs` damages credibility and drives users to less-sa
 | **Restricted** | Legitimate uses but elevated risk profile | Moderator review required | Strong warning + consent |
 | **Blocked** | Confirmed unwanted/malicious | Rejected | N/A |
 
-### Manifest Schema Extension (v1.29.0)
+### Manifest Schema Extension
 
 Add a `PuaClassification` field to the installer manifest:
 
@@ -72,6 +72,9 @@ Installers:
 - `Cryptocurrency` — Mining software
 - `PeerToPeer` — P2P file sharing clients
 
+> [!NOTE]
+> These categories are derived from detections across various AV vendors (Defender, ESET, K7, Malwarebytes, etc.). The enum is not exhaustive — additional categories may emerge over time as new detection patterns are identified. The categories abstract vendor-specific detection names into a consistent vocabulary for the WinGet ecosystem.
+
 ### Validation Pipeline Changes
 
 1. SmartScreen/Defender scan occurs (existing behavior)
@@ -82,30 +85,21 @@ Installers:
 
 ### Allowlist Governance
 
-Maintained as `policies/pua-allowlist.yaml` in `winget-pkgs`:
+PUA allowlisting uses the existing **waiver system** — the same mechanism used for other validation pipeline waivers. This is NOT a policy bot configuration or community-maintained file.
 
-```yaml
-allowlist:
-  - id: RustDesk.RustDesk
-    categories: [RemoteControl]
-    tier: Allowed
-    justification: "Open-source remote desktop — primary product function"
-    approved: 2026-03-15
-    reviewers: [Trenly, mdanish-kh]
+**Waiver flow:**
 
-  - id: Malwarebytes.Malwarebytes
-    categories: [EncryptedInstaller]
-    tier: Allowed
-    justification: "Anti-malware tool — binary protection is security measure"
-    approved: 2026-03-15
-    reviewers: [Trenly, stephengillie]
-```
+1. A manifest submission triggers a PUA detection during validation pipeline scanning.
+2. The validation pipeline applies a label to the PR (e.g., `PUA-Review-Required`) signaling that a Microsoft maintainer must review.
+3. A Microsoft maintainer reviews the detection, the package's legitimacy, and the use case.
+4. If approved, the maintainer grants a waiver — the package is allowlisted for that category.
+5. The waiver is recorded internally and subsequent submissions for the same package + category pass validation without re-review (unless a new category is detected).
 
 **Governance rules:**
-- Changes require a dedicated PR (not bundled with manifest submissions)
-- Minimum 2 moderator approvals for `Allowed` tier
-- Microsoft security team sign-off required for `Restricted` tier
-- Annual re-review required (ReviewDate must be within 12 months)
+- Each waiver requires human validation by a Microsoft maintainer — no automation can grant waivers.
+- `Restricted` tier requires Microsoft security team sign-off.
+- Annual re-review required (waiver must be within 12 months).
+- New category detections for a previously-waivered package require a new review.
 
 ### Client-Side Warning Behavior
 
@@ -131,9 +125,13 @@ Warning logged to output, installation proceeds. No prompt.
 
 Implies acceptance of PUA warning. Installation proceeds with warning in output.
 
+#### `--ignore-warnings`:
+
+Warning suppressed entirely. Installation proceeds without displaying PUA information.
+
 #### `--silent`:
 
-Warning suppressed entirely. Installation proceeds.
+Does not affect PUA warning behavior. `--silent` only controls installer-level switches (silent install mode). PUA warnings are still shown unless `--ignore-warnings` is specified.
 
 #### COM API:
 
@@ -186,7 +184,7 @@ if (result.PuaClassification != null) {
 |---------|-------------|------------|-------------|
 | `puaInstallBehavior` | `--accept-package-agreements` | `PuaInstallBehavior` | GPO wins |
 | `puaBlockedCategories` | N/A | `PuaBlockedCategories` | GPO wins |
-| `puaSilenceWarnings` | `--silent` | `PuaSilenceWarnings` | Either silences |
+| `puaSilenceWarnings` | `--ignore-warnings` | `PuaSilenceWarnings` | Either silences |
 
 ### CLI Commands Affected
 
@@ -194,9 +192,9 @@ if (result.PuaClassification != null) {
 |---------|----------------|
 | `winget install` | Show PUA warning before install |
 | `winget upgrade` | Show PUA warning if upgrading a PUA package |
-| `winget show` | Display PUA classification in package details |
-| `winget search` | `--include-security` shows PUA flag in results |
-| `winget list` | `--include-security` shows PUA flag for installed PUA packages |
+| `winget show` | Display PUA classification in `--details` output |
+| `winget search` | PUA flag shown in `--details` output |
+| `winget list` | PUA flag shown for installed PUA packages in `--details` output |
 
 ### PowerShell Cmdlets
 
@@ -212,13 +210,13 @@ Install-WinGetPackage -Id "RustDesk.RustDesk" -Force
 ### Cross-Repository Impact
 
 - **winget-cli** — Client warning logic, GPO policies, settings, manifest parsing for `PuaClassification`
-- **winget-pkgs** — `pua-allowlist.yaml`, validation pipeline changes, `PUA-Allowed` label, bot comments
+- **winget-pkgs** — Validation pipeline waiver system for PUA allowlisting, `PUA-Review-Required` label, bot comments guiding contributors
 - **winget-create** — Support `PuaClassification` field in manifest authoring (read-only display, not user-authored)
 - **winget-cli-restsource** — Schema update to serve `PuaClassification` data
 
 ### Schema Version
 
-Requires manifest schema version 1.29.0 for the `PuaClassification` field.
+Requires a new manifest schema version for the `PuaClassification` field.
 
 ## UI/UX Design
 
