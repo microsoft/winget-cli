@@ -169,16 +169,18 @@ namespace AppInstaller::CLI::Portable
         {
             std::filesystem::path symlinkTargetPath{ Utility::ConvertToUTF16(entry.SymlinkTarget) };
 
-            if (BinariesDependOnPath && !InstallDirectoryAddedToPath)
+            if (BinariesDependOnPath)
             {
                 // Scenario indicated by 'ArchiveBinariesDependOnPath' manifest entry.
                 // Skip symlink creation for portables dependent on binaries that require the install directory to be added to PATH.
                 std::filesystem::path installDirectory = symlinkTargetPath.parent_path();
                 AddToPathVariable(installDirectory);
+                // Only remove the links directory if there are no links in it
+                RemoveFromPathVariable(GetPortableLinksLocation(GetScope()), true);
                 AICLI_LOG(Core, Info, << "Install directory added to PATH: " << installDirectory);
                 CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
             }
-            else if (!InstallDirectoryAddedToPath)
+            else
             {
                 std::filesystem::file_status status = std::filesystem::status(filePath);
                 if (std::filesystem::is_directory(status))
@@ -200,6 +202,12 @@ namespace AppInstaller::CLI::Portable
 
                 if (Filesystem::CreateSymlink(symlinkTargetPath, filePath))
                 {
+                    if (InstallDirectoryAddedToPath)
+                    {
+						// If the install directory was previously added to PATH, remove it now that the symlink has been created.
+                        RemoveFromPathVariable(symlinkTargetPath.parent_path(), false);
+                    }
+                    CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = false);
                     AICLI_LOG(Core, Info, << "Symlink created at: " << filePath << " with target path: " << symlinkTargetPath);
                 }
                 else
@@ -207,6 +215,8 @@ namespace AppInstaller::CLI::Portable
                     // If symlink creation fails, resort to adding the package directory to PATH.
                     AICLI_LOG(Core, Info, << "Failed to create symlink at: " << filePath);
                     AddToPathVariable(symlinkTargetPath.parent_path());
+					// Only remove the links directory if there are no links in it
+                    RemoveFromPathVariable(GetPortableLinksLocation(GetScope()), true);
                     CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
                 }
             }
@@ -239,7 +249,7 @@ namespace AppInstaller::CLI::Portable
             else if (InstallDirectoryAddedToPath)
             {
                 // If symlink doesn't exist, check if install directory was added to PATH directly and remove.
-                RemoveFromPathVariable(std::filesystem::path(Utility::ConvertToUTF16(entry.SymlinkTarget)).parent_path());
+                RemoveFromPathVariable(std::filesystem::path(Utility::ConvertToUTF16(entry.SymlinkTarget)).parent_path(), false);
             }
         }
         else if (fileType == PortableFileType::Symlink && Filesystem::SymlinkExists(filePath))
@@ -363,7 +373,12 @@ namespace AppInstaller::CLI::Portable
 
         if (!InstallDirectoryAddedToPath)
         {
-            RemoveFromPathVariable(GetPortableLinksLocation(GetScope()));
+			// Only remove the links directory if there are no links in it
+            RemoveFromPathVariable(GetPortableLinksLocation(GetScope()), true);
+        }
+        else
+        {
+            RemoveFromPathVariable(InstallLocation, false);
         }
 
         m_portableARPEntry.Delete();
@@ -423,15 +438,15 @@ namespace AppInstaller::CLI::Portable
         }
     }
 
-    void PortableInstaller::RemoveFromPathVariable(std::filesystem::path value)
+    void PortableInstaller::RemoveFromPathVariable(std::filesystem::path value, bool onlyIfEmpty)
     {
-        if (std::filesystem::exists(value) && !std::filesystem::is_empty(value))
+        if (onlyIfEmpty && std::filesystem::exists(value) && !std::filesystem::is_empty(value))
         {
-            AICLI_LOG(Core, Info, << "Install directory is not empty: " << value);
+            AICLI_LOG(Core, Info, << "Directory is not empty: " << value);
         }
         else
         {
-			// Attempt to remove both the original and the preferred format to ensure removal
+            // Attempt to remove both the original and the preferred format to ensure removal
             // Necessary for handling old path values associated with winget-cli#5033
             if (PathVariable(GetScope()).Remove(value) || PathVariable(GetScope()).Remove(value.make_preferred()))
             {
