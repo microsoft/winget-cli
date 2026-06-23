@@ -361,7 +361,8 @@ namespace AppInstaller
                 }
                 else
                 {
-                    strstr << std::system_category().message(hr);
+                    strstr << std::system_category().message(
+                        HRESULT_FACILITY(hr) == FACILITY_WIN32 ? HRESULT_CODE(hr) : hr);
                 }
             }
         }
