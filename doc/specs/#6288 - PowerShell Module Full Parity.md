@@ -1,7 +1,7 @@
 ---
 author: Demitrius Nelon denelon, GitHub Copilot Copilot
 created on: 2026-06-17
-last updated: 2026-06-17
+last updated: 2026-06-23
 issue id: 6288
 ---
 
@@ -11,278 +11,297 @@ For [#6288](https://github.com/microsoft/winget-cli/issues/6288).
 
 ## Abstract
 
-WinGet ships two PowerShell modules — `Microsoft.WinGet.Client` (package management) and `Microsoft.WinGet.Configuration` (configuration/DSC operations). Both must achieve full functional parity with the WinGet CLI. Several CLI capabilities have no PowerShell equivalent today, blocking adoption by enterprise automation workflows that operate exclusively in PowerShell contexts (Intune, SCCM, Azure Automation, DSC).
+WinGet ships two PowerShell modules — `Microsoft.WinGet.Client` (package management) and
+`Microsoft.WinGet.Configuration` (configuration operations). The modules already cover the large
+majority of the CLI surface. This spec establishes an accurate baseline of what exists today and
+scopes the remaining work required to reach full parity.
+
+After auditing the shipping source (`src/PowerShell/`) and the published modules, the true parity
+work falls into three categories:
+
+1. **Genuine command gaps** — capabilities with no cmdlet equivalent today: **pin management** and
+   **package list import/export**.
+2. **Reliability bugs** — the module already supports elevated and SYSTEM contexts through dedicated
+   activation paths; where these fail it is a defect to fix, not a missing feature
+   ([#5991](https://github.com/microsoft/winget-cli/issues/5991),
+   [#6042](https://github.com/microsoft/winget-cli/issues/6042)).
+3. **Enhancement backlog** — smaller, issue-tracked improvements to existing cmdlets (richer detail
+   output, update-all, multiple IDs, cancellation, `-WhatIf`/`-Debug`).
 
 ## Inspiration
 
-IT decision makers evaluating WinGet for large-scale deployment cite incomplete PowerShell support as a blocking issue. Enterprise automation tooling operates in PowerShell-only contexts where shelling out to `winget.exe` is unreliable — especially in SYSTEM context ([#5991](https://github.com/microsoft/winget-cli/issues/5991)) — or architecturally inappropriate.
+IT decision makers evaluating WinGet for large-scale deployment cite incomplete PowerShell support
+as a blocker. Enterprise automation operates in PowerShell-only contexts (Intune, SCCM, Azure
+Automation, DSC) where shelling out to `winget.exe` and parsing text is unreliable. Closing the
+remaining gaps and hardening elevated/SYSTEM execution lets these workflows stay native.
 
-Key gaps identified by enterprise customers:
+## Current State — What Already Exists
 
-- No PowerShell equivalent for `winget configure` operations (test, validate, show) — these belong in `Microsoft.WinGet.Configuration`
-- Missing cmdlets for pin management (`winget pin add/remove/list/reset`)
-- No cmdlet for `winget download` ([#658](https://github.com/microsoft/winget-cli/issues/658) added CLI support)
-- Missing `winget repair` support in the module ([#148](https://github.com/microsoft/winget-cli/issues/148) added CLI support)
-- No PowerShell equivalent for `winget settings` management
-- Limited source management beyond basic add/remove
-- COM API cannot activate in elevated/SYSTEM context ([#6042](https://github.com/microsoft/winget-cli/issues/6042))
-- `Microsoft.WinGet.Configuration` lacks cmdlets for configuration history, abort, and delete operations
+This inventory is the corrected baseline. Earlier drafts of this spec proposed cmdlets that already
+ship; those are recorded here as **existing** so the parity gap is not overstated.
+
+### Microsoft.WinGet.Client (package management)
+
+| CLI command | Existing cmdlet | Notes |
+|-------------|-----------------|-------|
+| `winget install` | `Install-WinGetPackage` | Supports `-Scope` ([#4787](https://github.com/microsoft/winget-cli/issues/4787)) |
+| `winget upgrade` | `Update-WinGetPackage` | Supports `-Scope` |
+| `winget uninstall` | `Uninstall-WinGetPackage` | |
+| `winget search` | `Find-WinGetPackage` | |
+| `winget list` | `Get-WinGetPackage` | |
+| `winget download` | `Export-WinGetPackage` | Downloads a package and its dependencies; `-Scope` supported |
+| `winget repair` | `Repair-WinGetPackage` | |
+| `winget source add/remove/reset/list` | `Add/Remove/Reset/Get-WinGetSource` | |
+| `winget settings` (user file) | `Get/Set/Test-WinGetUserSetting` | Read, write, and validate the user settings JSON |
+| `winget settings` (admin) | `Get-WinGetSetting`, `Enable/Disable-WinGetSetting` | Admin/toggle settings |
+| `winget --version` | `Get-WinGetVersion` | |
+| (bootstrap) | `Assert/Repair-WinGetPackageManager` | Verify/repair the WinGet installation itself |
+
+### Microsoft.WinGet.Configuration (configuration operations)
+
+| CLI command | Existing cmdlet | Notes |
+|-------------|-----------------|-------|
+| `winget configure` / `apply` | `Invoke-WinGetConfiguration`, `Start/Complete-WinGetConfiguration` | Synchronous and async apply |
+| `winget configure test` | `Test-WinGetConfiguration` | Tests system state against the set |
+| `winget configure show` | `Get-WinGetConfigurationDetails` | |
+| `winget configure list` | `Get-WinGetConfiguration` | History via `-...FromHistory` parameter sets |
+| `winget configure abort` | `Stop-WinGetConfiguration` | |
+| `winget configure delete` | `Remove-WinGetConfigurationHistory` | |
+| (open/confirm/convert) | `Get/Confirm-WinGetConfiguration`, `ConvertTo-WinGetConfigurationYaml` | |
+
+> Note: `Microsoft.WinGet.Configuration` communicates with the **`Microsoft.Management.Configuration`**
+> WinRT API (and its processor), **not** `Microsoft.Management.Deployment`. The two modules do not
+> share a COM surface.
 
 ## Solution Design
 
-### Module Architecture
+### Gap 1 — Pin Management (Microsoft.WinGet.Client)
 
-WinGet ships two separate PowerShell modules with distinct responsibilities:
+There is no PowerShell equivalent for `winget pin add/remove/list/reset` today. This is the largest
+genuine parity gap.
 
-| Module | Responsibility | Gallery Link |
-|--------|---------------|--------------|
-| `Microsoft.WinGet.Client` | Package lifecycle — install, upgrade, uninstall, search, source, pin, download, settings | [PSGallery](https://www.powershellgallery.com/packages/Microsoft.WinGet.Client) |
-| `Microsoft.WinGet.Configuration` | Configuration operations — apply, test, validate, show, history | [PSGallery](https://www.powershellgallery.com/packages/Microsoft.WinGet.Configuration) |
-
-Both modules communicate with the WinGet COM API (`Microsoft.Management.Deployment`) but surface different subsets of functionality. This spec covers parity gaps in **both** modules.
-
-### Phase 1: Core Cmdlet Gaps — Microsoft.WinGet.Client
-
-Add the following cmdlets to `Microsoft.WinGet.Client`:
-
-| CLI Command | Proposed Cmdlet | Verb-Noun Justification |
-|-------------|----------------|------------------------|
-| `winget download` | `Save-WinGetPackage` | `Save` = download without install (PS convention) |
-| `winget repair` | `Repair-WinGetPackage` | `Repair` = fix broken install |
+| CLI command | Proposed cmdlet | Verb justification |
+|-------------|-----------------|--------------------|
 | `winget pin add` | `Add-WinGetPin` | `Add` = create resource |
-| `winget pin remove` | `Remove-WinGetPin` | `Remove` = delete resource |
 | `winget pin list` | `Get-WinGetPin` | `Get` = list/retrieve |
+| `winget pin remove` | `Remove-WinGetPin` | `Remove` = delete resource |
 | `winget pin reset` | `Reset-WinGetPin` | `Reset` = restore defaults |
-| `winget settings export` | `Export-WinGetSettings` | `Export` = serialize to file |
-| `winget settings set` | `Set-WinGetSetting` | `Set` = modify value |
 
-### Phase 1b: Core Cmdlet Gaps — Microsoft.WinGet.Configuration
+Pins are modeled with a **`PinType`** rather than a boolean, so the output can describe pinning,
+blocking, and gating pins as the feature evolves (per review feedback):
 
-Add or enhance the following cmdlets in `Microsoft.WinGet.Configuration`:
+```powershell
+# Pinning pin (excluded from `upgrade --all`, still upgradeable explicitly)
+Add-WinGetPin -Id "Microsoft.VisualStudioCode"
 
-| CLI Command | Proposed Cmdlet | Verb-Noun Justification |
-|-------------|----------------|------------------------|
-| `winget configure test` | `Test-WinGetConfiguration` | `Test` = validate state compliance |
-| `winget configure validate` | `Assert-WinGetConfiguration` | `Assert` = validate schema/syntax |
-| `winget configure show` | `Get-WinGetConfigurationDetails` | `Get` = retrieve information |
-| `winget configure list` | `Get-WinGetConfigurationHistory` | `Get` = list previous runs |
-| `winget configure abort` | `Stop-WinGetConfiguration` | `Stop` = cancel in-progress operation |
-| `winget configure delete` | `Remove-WinGetConfigurationHistory` | `Remove` = delete record |
+# Blocking pin (no upgrades at all)
+Add-WinGetPin -Id "Microsoft.VisualStudioCode" -Blocking
 
-### Phase 2: Enhanced Source Management
+# Gating pin (pin to a version range, e.g. 1.2.*)
+Add-WinGetPin -Id "Microsoft.VisualStudioCode" -Version "1.2.*"
 
-Extend `Get-WinGetSource`, `Add-WinGetSource`, `Remove-WinGetSource`:
+Get-WinGetPin [-Id <String>]      # returns objects with Id, Version, Source, PinType
+Remove-WinGetPin -Id "Microsoft.VisualStudioCode"
+Reset-WinGetPin [-Force]
+```
 
-- Full parameter parity (custom headers, certificates, authentication tokens)
-- `Update-WinGetSource` for refresh operations (equivalent to `winget source update`)
-- Source group policy awareness — report when sources are policy-managed with a `PolicyManaged` property
+`Get-WinGetPin` output object:
 
-### Phase 3: SYSTEM Context Support
+| Property | Description |
+|----------|-------------|
+| `Id` | Package identifier |
+| `Source` | Source the pin applies to |
+| `Version` | Pinned version or range (gating pins) |
+| `PinType` | `Pinning`, `Blocking`, or `Gating` |
 
-Address the fundamental blocker of WinGet operating in SYSTEM context:
+Automation can branch on `PinType` directly:
 
-- The COM API (`Microsoft.Management.Deployment`) must properly initialize in SYSTEM context
-- Package operations must work without a logged-in user session
-- Source management must work in SYSTEM context for Intune and SCCM deployments
-- Related to [#6042](https://github.com/microsoft/winget-cli/issues/6042) and [#5991](https://github.com/microsoft/winget-cli/issues/5991)
+```powershell
+if (Get-WinGetPin -Id "Microsoft.Edge" | Where-Object PinType -eq 'Blocking') {
+    Write-Output "Edge is blocked from upgrade - compliant"
+}
+```
+
+### Gap 2 — Package List Import / Export (Microsoft.WinGet.Client)
+
+`winget export` (serialize installed packages to a JSON list) and `winget import` (install from such
+a list) have no cmdlet equivalent ([#5041](https://github.com/microsoft/winget-cli/issues/5041)).
+This is distinct from `Export-WinGetPackage`, which downloads installers.
+
+To avoid colliding with the existing `Export-WinGetPackage` (download) noun, the list operations use
+a dedicated noun:
+
+```powershell
+# Serialize installed packages to a WinGet import/export JSON file
+Export-WinGetPackageList -OutputFile "C:\state\packages.json"
+    [-Source <String>] [-IncludeVersions]
+
+# Install everything described by an export file
+Import-WinGetPackageList -File "C:\state\packages.json"
+    [-IgnoreUnavailable] [-IgnoreVersions] [-AcceptPackageAgreements] [-AcceptSourceAgreements]
+```
+
+`Import-WinGetPackageList` returns one result object per package describing install status, so callers
+can detect partial failures in automation.
+
+> Naming is provisional. If the team prefers, these can ship as parameters on existing cmdlets;
+> the requirement is that the installed-list import/export workflow becomes available without
+> shelling out to `winget.exe`.
+
+### Reliability — Elevated and SYSTEM Context
+
+The module already activates the COM API through a custom path for elevated callers and an in-proc
+path for SYSTEM; this is not a missing feature. The parity work here is to **fix the defects** so
+these paths are dependable for Intune/SCCM:
+
+- SYSTEM context regression where `Get-WinGetPackage` exits immediately
+  ([#5991](https://github.com/microsoft/winget-cli/issues/5991),
+  [#4820](https://github.com/microsoft/winget-cli/issues/4820)).
+- Elevated activation failing to see the packaged COM registration
+  ([#6042](https://github.com/microsoft/winget-cli/issues/6042),
+  [#5369](https://github.com/microsoft/winget-cli/issues/5369),
+  [#5635](https://github.com/microsoft/winget-cli/issues/5635)).
+
+Note that successful *package operation* in a session-less context also depends on installer
+behavior, which WinGet does not own; per-installer results cannot be guaranteed.
+
+### Enhancement Backlog (existing cmdlets)
+
+These are issue-tracked refinements, not new commands. They are listed for completeness and can be
+scheduled independently of the gaps above:
+
+- Richer package detail output / `list --details`
+  ([#6055](https://github.com/microsoft/winget-cli/issues/6055),
+  [#6144](https://github.com/microsoft/winget-cli/issues/6144),
+  [#5129](https://github.com/microsoft/winget-cli/issues/5129))
+- Update-all for `Update-WinGetPackage` ([#5495](https://github.com/microsoft/winget-cli/issues/5495))
+- Multiple package IDs in a single call ([#5094](https://github.com/microsoft/winget-cli/issues/5094))
+- `Ctrl+C` cancellation of download/install ([#4961](https://github.com/microsoft/winget-cli/issues/4961))
+- `-WhatIf` honored by `Update-WinGetPackage` ([#4622](https://github.com/microsoft/winget-cli/issues/4622))
+- `-Debug` support ([#4697](https://github.com/microsoft/winget-cli/issues/4697))
 
 ### Architecture
 
-Both modules use the existing COM API rather than wrapping the CLI executable:
+Both modules use the existing WinRT COM APIs rather than wrapping `winget.exe`. They target
+**different** APIs:
 
 ```
 ┌──────────────────────────────────┐  ┌──────────────────────────────────┐
 │ Microsoft.WinGet.Client          │  │ Microsoft.WinGet.Configuration   │
-│ (Package management cmdlets)     │  │ (Configuration/DSC cmdlets)      │
+│ (package management cmdlets)     │  │ (configuration cmdlets)          │
 └──────────────┬───────────────────┘  └──────────────┬───────────────────┘
-               │ COM Interop                         │ COM Interop
-               └───────────────┬─────────────────────┘
-                               ▼
-               ┌──────────────────────────────────┐
-               │ Microsoft.Management.Deployment  │
-               │ (WinRT COM API)                  │
-               └──────────────┬───────────────────┘
-                              │
-                              ▼
-               ┌──────────────────────────────────┐
-               │ WindowsPackageManagerServer      │
-               │ (WinGetDev.exe / winget.exe)     │
-               └──────────────────────────────────┘
+               │                                      │
+               ▼                                      ▼
+┌──────────────────────────────────┐  ┌──────────────────────────────────┐
+│ Microsoft.Management.Deployment  │  │ Microsoft.Management.Configuration│
+│ (package manager WinRT COM API)  │  │ (configuration WinRT COM API)    │
+└──────────────────────────────────┘  └──────────────────────────────────┘
 ```
 
-Benefits:
-- Proper error propagation as PowerShell exceptions (`ErrorRecord` with `HRESULT`)
-- Structured output objects (not parsed text)
-- Cancellation support via `Ctrl+C` / `StopProcessing()`
-- Progress reporting via `WriteProgress`
-- Pipeline support for batch operations
+Using the COM APIs gives error propagation as PowerShell `ErrorRecord`s (with `HRESULT`), structured
+output objects, `StopProcessing()` cancellation, `WriteProgress`, and pipeline support.
 
-### COM API Surface Additions
-
-New COM interfaces will be needed in `Microsoft.Management.Deployment` for pin management and settings. These should expose async operations consistent with the existing API patterns (e.g., `IAsyncOperationWithProgress` for pin add/remove/reset, string-based settings get/set/export). Detailed interface design will be determined during implementation.
-
-### PowerShell Cmdlet Details
-
-#### Save-WinGetPackage
-
-```powershell
-Save-WinGetPackage
-    [-Id] <String>
-    [-Version <String>]
-    [-Source <String>]
-    [-Architecture <Architecture>]
-    [-InstallerType <InstallerType>]
-    [-Scope <PackageScope>]
-    [-OutputDirectory <String>]  # Required
-    [-AcceptSourceAgreements]
-    [-AcceptPackageAgreements]
-    [-Force]
-```
-
-Output: `WinGetDownloadResult` object with `InstallerPath`, `InstallerType`, `Sha256`, `Status`.
-
-#### Test-WinGetConfiguration
-
-```powershell
-Test-WinGetConfiguration
-    [-File] <String>
-    [-AcceptConfigurationAgreements]
-```
-
-Output: `WinGetConfigurationTestResult` object with per-resource compliance status:
-
-```powershell
-$result = Test-WinGetConfiguration -File .\config.dsc.yaml
-$result.UnitResults | Format-Table ResourceName, State, InDesiredState
-```
-
-#### Add-WinGetPin / Remove-WinGetPin / Get-WinGetPin
-
-```powershell
-# Pin to prevent upgrades
-Add-WinGetPin -Id "Microsoft.VisualStudioCode" [-Version <String>] [-Blocking]
-
-# List pins
-Get-WinGetPin [-Id <String>]
-
-# Remove pin
-Remove-WinGetPin -Id "Microsoft.VisualStudioCode"
-
-# Reset all pins
-Reset-WinGetPin [-Force]
-```
+> Detailed COM interface design (IIDs, async signatures) is intentionally out of scope for this spec.
+> Pin management requires a small addition to the `Microsoft.Management.Deployment` surface; the
+> concrete interface shape is an implementation decision made during development. This spec defines
+> the cmdlet inputs and outputs only.
 
 ### Settings Changes
 
-No new settings required. Existing settings continue to apply to both CLI and PowerShell module operations identically.
+No new settings required. Existing settings apply identically to CLI and module operations.
 
 ### Validation Pipeline Impact
 
-No impact on `winget-pkgs` validation. Validation already uses the COM API for non-interactive operation.
+No impact on `winget-pkgs` validation. Validation already uses the COM API for non-interactive
+operation.
 
 ## UI/UX Design
 
-### Interactive Mode
+### Pin management
 
 ```powershell
-PS> Save-WinGetPackage -Id "Git.Git" -OutputDirectory "C:\Packages"
+PS> Add-WinGetPin -Id "Git.Git" -Version "2.45.*"
+PS> Get-WinGetPin
 
-Id       : Git.Git
-Version  : 2.45.1
-Path     : C:\Packages\Git-2.45.1-64-bit.exe
-Sha256   : abc123...
-Status   : Ok
+Id       Version  Source  PinType
+--       -------  ------  -------
+Git.Git  2.45.*   winget  Gating
 ```
 
-### Pipeline Support
+### Import / export workflow
 
 ```powershell
-# Download multiple packages
-"Git.Git", "Python.Python.3.12" | ForEach-Object {
-    Save-WinGetPackage -Id $_ -OutputDirectory "C:\Packages"
-}
-
-# Test configuration and filter failures
-$result = Test-WinGetConfiguration -File .\config.dsc.yaml
-$result.UnitResults | Where-Object { -not $_.InDesiredState }
+# Capture a machine's installed packages, then reproduce it elsewhere
+Export-WinGetPackageList -OutputFile "\\share\golden.json" -IncludeVersions
+Import-WinGetPackageList -File "\\share\golden.json" -IgnoreUnavailable
 ```
 
-### Non-Interactive / Automation
+### -Force behavior
 
-```powershell
-# Intune remediation script
-$pins = Get-WinGetPin
-if ($pins | Where-Object { $_.Id -eq "Microsoft.Edge" -and $_.PinType -eq "Blocking" }) {
-    Write-Output "Edge is pinned - compliant"
-    exit 0
-} else {
-    Add-WinGetPin -Id "Microsoft.Edge" -Blocking
-    exit 1
-}
-```
-
-### -Force Parameter Behavior
-
-All new cmdlets support `-Force` to suppress confirmation prompts, consistent with existing cmdlets.
+New cmdlets support `-Force` to suppress confirmation prompts, consistent with existing cmdlets.
 
 ## Capabilities
 
 ### Accessibility
 
-No direct impact — PowerShell modules inherit the accessibility of the terminal/host application. All output is text-based and works with screen readers through the PowerShell host.
+No direct impact — modules inherit the accessibility of the PowerShell host; all output is text-based
+and screen-reader compatible.
 
 ### Security
 
-- SYSTEM context support must not bypass UAC for operations that require elevation in user context
-- COM API activation in SYSTEM context validates caller identity
-- Settings cmdlets respect Group Policy overrides (throw terminating error when attempting to modify policy-managed settings)
-- Token/credential parameters are `SecureString` where applicable
+- Elevated/SYSTEM hardening must not bypass UAC for operations that require elevation in user context.
+- Pin and import/export operations respect Group Policy; policy-managed state yields a terminating
+  error when a caller attempts to modify it.
+- Credential/token parameters on source cmdlets remain `SecureString` where applicable.
 
 ### Reliability
 
-- Eliminates the unreliable pattern of `Start-Process winget.exe` with text parsing
-- COM API provides structured error codes via `HRESULT` mapped to PowerShell `ErrorRecord`
-- Proper cancellation via `StopProcessing()` prevents orphaned installer processes
-- Retry logic for transient COM activation failures
+- Eliminates `Start-Process winget.exe` text parsing for the newly covered commands.
+- COM `HRESULT`s map to PowerShell `ErrorRecord`s.
+- `StopProcessing()` cancellation prevents orphaned installer processes.
 
 ### Compatibility
 
-- No breaking changes to existing cmdlets
-- New cmdlets follow established naming patterns in the module
-- Minimum PowerShell version remains 7.2+ (consistent with current module)
-- Windows PowerShell 5.1 is NOT supported (consistent with current module)
+- No breaking changes to existing cmdlets; new cmdlets follow established naming patterns.
+- Minimum PowerShell version remains 7.2+; Windows PowerShell 5.1 is not supported, consistent with
+  the current modules.
 
 ### Performance, Power, and Efficiency
 
-- COM API calls avoid process startup overhead (no `winget.exe` launch per operation)
-- Pipelining enables batch operations without repeated COM activation
-- `Save-WinGetPackage` supports parallel downloads when used with `ForEach-Object -Parallel`
+- COM calls avoid per-operation `winget.exe` startup.
+- Pipelining enables batch operations without repeated activation.
 
 ## Potential Issues
 
-1. **SYSTEM context COM activation** — The WinGet COM server (`WindowsPackageManagerServer`) may require architectural changes to support activation outside a user session. This is the highest-risk item.
-2. **Configuration cmdlets depend on DSC runtime** — `Test-WinGetConfiguration` requires the DSC v3 runtime to be available. If unavailable, the cmdlet should throw a clear error with installation guidance.
-3. **Backwards compatibility testing** — Enterprises may pin to older module versions. New cmdlets must not destabilize existing functionality via assembly loading changes.
-4. **COM interface versioning** — New interfaces must be additive to avoid breaking existing COM consumers. Use new interface IIDs.
-5. **Scope parameter interactions** — `Save-WinGetPackage` with `-Scope machine` in a non-elevated session should fail early with a clear error, not after download.
+1. **Elevated/SYSTEM defects are environmental** — reproducing and fixing
+   [#5991](https://github.com/microsoft/winget-cli/issues/5991)/[#6042](https://github.com/microsoft/winget-cli/issues/6042)
+   requires testing across Intune/SCCM/session-less hosts; installer behavior in those contexts is
+   outside WinGet's control.
+2. **Pin COM surface** — pin management needs an additive `Microsoft.Management.Deployment` interface
+   (new IIDs) to avoid breaking existing COM consumers.
+3. **Import/export noun choice** — `Export-WinGetPackage` already means *download*. The list
+   operations must use a distinct noun (or parameters) to avoid ambiguity.
+4. **Backwards compatibility** — new cmdlets must not destabilize existing functionality via assembly
+   loading changes.
 
 ## Future Considerations
 
-- Full parity enables DSC resources to delegate directly to PowerShell cmdlets
-- Opens the path for WinGet to be fully operable as a PowerShell-native tool without the CLI
-- Enables richer Intune remediation scripts and proactive remediations
-- Azure Automation runbooks can manage packages across fleets
-- Potential for a `WinGet` PowerShell drive provider (`Get-ChildItem WinGet:\installed\`)
-- **Module consolidation**: Evaluate whether `Microsoft.WinGet.Client` and `Microsoft.WinGet.Configuration` should eventually merge into a single `Microsoft.WinGet` module. Keeping them separate today reduces install footprint for users who only need package management, but the split adds complexity for users who need both. A unified module could be considered once the configuration surface stabilizes.
+- Full parity enables DSC resources to delegate directly to PowerShell cmdlets.
+- Richer Intune remediation and proactive remediation scripts.
+- Azure Automation runbooks managing packages across fleets.
+- Potential `WinGet:` PowerShell drive provider (e.g. `Get-ChildItem WinGet:\installed\`).
 
 ## Resources
 
-- Current Client module: https://www.powershellgallery.com/packages/Microsoft.WinGet.Client
-- Current Configuration module: https://www.powershellgallery.com/packages/Microsoft.WinGet.Configuration
-- COM API source: `src/Microsoft.Management.Deployment/`
-- PowerShell Client module source: `src/PowerShell/Microsoft.WinGet.Client/`
-- PowerShell Configuration module source: `src/PowerShell/Microsoft.WinGet.Configuration/`
-- SYSTEM context issue: https://github.com/microsoft/winget-cli/issues/5991
-- Elevated COM issue: https://github.com/microsoft/winget-cli/issues/6042
-- Scope parameter issue: https://github.com/microsoft/winget-cli/issues/4787
-- Configuration module improvements PR: https://github.com/microsoft/winget-cli/pull/6190
+- Client module: https://www.powershellgallery.com/packages/Microsoft.WinGet.Client
+- Configuration module: https://www.powershellgallery.com/packages/Microsoft.WinGet.Configuration
+- Package manager COM API source: `src/Microsoft.Management.Deployment/`
+- Configuration COM API source: `src/Microsoft.Management.Configuration/`
+- Client module source: `src/PowerShell/Microsoft.WinGet.Client/`
+- Configuration module source: `src/PowerShell/Microsoft.WinGet.Configuration/`
+- Pin management: [#6288](https://github.com/microsoft/winget-cli/issues/6288)
+- Import/Export package list: [#5041](https://github.com/microsoft/winget-cli/issues/5041)
+- SYSTEM context: [#5991](https://github.com/microsoft/winget-cli/issues/5991)
+- Elevated COM: [#6042](https://github.com/microsoft/winget-cli/issues/6042)
+- Scope parameter (already shipped): [#4787](https://github.com/microsoft/winget-cli/issues/4787)
+- Configuration module improvements PR: [#6190](https://github.com/microsoft/winget-cli/pull/6190)
