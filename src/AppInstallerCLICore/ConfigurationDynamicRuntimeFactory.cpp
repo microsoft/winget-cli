@@ -370,7 +370,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                         winrt::hstring pathIsAlias = m_dynamicFactory->Lookup(ToHString(PropertyName::FoundDscExecutablePathIsAlias));
                         if (!pathIsAlias.empty())
                         {
-                            json["processorPathIsAlias"] = (pathIsAlias == L"true");
+                            json["processorPathIsAlias"] = Utility::TryConvertStringToBool(std::wstring_view{ pathIsAlias }).value_or(false);
                         }
                     }
                     else
@@ -385,7 +385,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                         auto pathIsAlias = m_dynamicFactory->GetFactoryMapValue(ToHString(PropertyName::DscExecutablePathIsAlias));
                         if (pathIsAlias)
                         {
-                            json["processorPathIsAlias"] = (pathIsAlias.value() == L"true");
+                            json["processorPathIsAlias"] = Utility::TryConvertStringToBool(std::wstring_view{ pathIsAlias.value() }).value_or(false);
                         }
                     }
                 }

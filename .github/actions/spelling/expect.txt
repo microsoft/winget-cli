@@ -636,6 +636,7 @@ uwp
 VALUENAMECASE
 vclib
 vcredist
+vcx
 versioned
 VERSIONINFO
 VIWEC
