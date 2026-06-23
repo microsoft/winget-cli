@@ -304,7 +304,7 @@ TEST_CASE("PinFlow_List_Filter_NoMatch", "[PinFlow][workflow]")
     REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::PinShowNoMatchFound)) != std::string::npos);
 }
 
-TEST_CASE("PinFlow_List_Filter_MatchById_WithDetails", "[PinFlow][workflow]")
+TEST_CASE("PinFlow_List_Filter_MatchById", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
@@ -317,7 +317,6 @@ TEST_CASE("PinFlow_List_Filter_MatchById_WithDetails", "[PinFlow][workflow]")
     std::ostringstream listOutput;
     TestContext listContext{ listOutput, std::cin };
     listContext.Args.AddArg(Execution::Args::Type::Id, "MyApp.Package"sv);
-    listContext.Args.AddArg(Execution::Args::Type::ListDetails);
     OverrideForCompositeInstalledSource(listContext, CreateListTestSource({ "MyApp.Package" }));
 
     PinListCommand pinList({});
@@ -398,7 +397,6 @@ TEST_CASE("PinFlow_List_DetailsWithoutNotes_HidesEmptyNoteColumn", "[PinFlow][wo
     std::ostringstream listOutput;
     TestContext listContext{ listOutput, std::cin };
     listContext.Args.AddArg(Execution::Args::Type::Query, "Example.Package"sv);
-    listContext.Args.AddArg(Execution::Args::Type::ListDetails);
     OverrideForCompositeInstalledSource(listContext, CreateListTestSource({ "Example.Package" }));
 
     PinListCommand pinList({});
@@ -422,7 +420,6 @@ TEST_CASE("PinFlow_List_V1_0Index_NoMigrationRequired", "[PinFlow][workflow]")
     std::ostringstream listOutput;
     TestContext listContext{ listOutput, std::cin };
     listContext.Args.AddArg(Execution::Args::Type::Query, "Legacy.Package"sv);
-    listContext.Args.AddArg(Execution::Args::Type::ListDetails);
     OverrideForCompositeInstalledSource(listContext, CreateListTestSource({ "Legacy.Package" }));
 
     PinListCommand pinList({});
@@ -455,7 +452,7 @@ TEST_CASE("PinFlow_List_Filter_EmptyIndex_NoMatch", "[PinFlow][workflow]")
     REQUIRE_TERMINATED_WITH(listContext, APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST);
 }
 
-TEST_CASE("PinFlow_List_DefaultOutput_DoesNotShowDetailsColumns", "[PinFlow][workflow]")
+TEST_CASE("PinFlow_List_DefaultOutput_ShowsAllColumns", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
@@ -476,5 +473,6 @@ TEST_CASE("PinFlow_List_DefaultOutput_DoesNotShowDetailsColumns", "[PinFlow][wor
 
     REQUIRE_FALSE(listContext.IsTerminated());
     REQUIRE(listOutput.str().find("Has.Note.Package") != std::string::npos);
-    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::PinDateAdded)) == std::string::npos);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::PinDateAdded)) != std::string::npos);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::PinNote)) != std::string::npos);
 }

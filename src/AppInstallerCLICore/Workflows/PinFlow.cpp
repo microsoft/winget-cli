@@ -425,47 +425,24 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        bool showDetails = context.Args.Contains(Execution::Args::Type::ListDetails);
-        if (!showDetails)
-        {
-            Execution::TableOutput<6> table(context.Reporter,
-                {
-                    Resource::String::SearchName,
-                    Resource::String::SearchId,
-                    Resource::String::SearchVersion,
-                    Resource::String::SearchSource,
-                    Resource::String::PinType,
-                    Resource::String::PinVersion,
-                });
-
-            for (const auto& row : rowData)
+        Execution::TableOutput<8> table(context.Reporter,
             {
-                table.OutputLine({ row.PackageName, row.PackageId, row.Version, row.SourceName, row.PinType, row.PinnedVersion });
-            }
+                Resource::String::SearchName,
+                Resource::String::SearchId,
+                Resource::String::SearchVersion,
+                Resource::String::SearchSource,
+                Resource::String::PinType,
+                Resource::String::PinVersion,
+                Resource::String::PinDateAdded,
+                Resource::String::PinNote,
+            });
 
-            table.Complete();
-        }
-        else
+        for (const auto& row : rowData)
         {
-            Execution::TableOutput<8> table(context.Reporter,
-                {
-                    Resource::String::SearchName,
-                    Resource::String::SearchId,
-                    Resource::String::SearchVersion,
-                    Resource::String::SearchSource,
-                    Resource::String::PinType,
-                    Resource::String::PinVersion,
-                    Resource::String::PinDateAdded,
-                    Resource::String::PinNote,
-                });
-
-            for (const auto& row : rowData)
-            {
-                table.OutputLine({ row.PackageName, row.PackageId, row.Version, row.SourceName, row.PinType, row.PinnedVersion, row.DateAdded, row.Note });
-            }
-
-            table.Complete();
+            table.OutputLine({ row.PackageName, row.PackageId, row.Version, row.SourceName, row.PinType, row.PinnedVersion, row.DateAdded, row.Note });
         }
+
+        table.Complete();
     }
 
     void ResetAllPins(Execution::Context& context)
