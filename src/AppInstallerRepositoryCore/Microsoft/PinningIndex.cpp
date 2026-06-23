@@ -251,8 +251,7 @@ namespace AppInstaller::Repository::Microsoft
                 }
                 else
                 {
-                    AICLI_LOG(Repo, Error, << "Pinning Index migration failed");
-                    THROW_HR(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX);
+                    AICLI_LOG(Repo, Warning, << "Pinning Index migration failed; continuing with existing schema version [" << m_version << "]");
                 }
             }
         }
