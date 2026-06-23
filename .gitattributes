@@ -5,3 +5,6 @@
 # Patch files must stay LF - git apply matches content lines against the target source
 # tree, which vcpkg manages as LF internally
 *.patch text eol=lf
+
+# Spelling action inputs must stay LF
+{allow.txt,excludes.txt,patterns.txt,expect.txt} text eol=lf
