@@ -561,6 +561,7 @@ if ($StampFile) {
 
 try {
     New-PortOverlay cpprestsdk -Version 2.10.18 -PortVersion 4
+    # stdext::checked_array_iterator was removed in VS2026 (MSVC 19.43); replace with plain pointers.
     Add-LocalPatch cpprestsdk 'fix-msvc-checked-array-iterator.patch'
     Add-LocalPatch cpprestsdk 'add-server-certificate-validation.patch'
 

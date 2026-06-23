@@ -11,6 +11,8 @@ We add support for certificate pinning.
 Note that we use v2.10.18, which is not the latest.
 
 Changes:
+* Add patch file: `fix-msvc-checked-array-iterator.patch`
+  * `stdext::checked_array_iterator` was removed in VS2026 (MSVC 19.43). This patch replaces its usages with plain pointers, which is equivalent since the `#else` branch already used plain pointers.
 * Add patch file: `add-server-certificate-validation.patch`
 * Patch source: https://github.com/microsoft/winget-cli/commit/888b4ed8f4f7d25cb05a47210e083fe29348163b
 
