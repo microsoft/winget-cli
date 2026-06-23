@@ -11,6 +11,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
     namespace
     {
         using PinRow = std::tuple<std::string, std::string, Pinning::PinType, std::string, std::optional<int64_t>, std::optional<std::string>>;
+        int64_t GetEpochToStore(const Pinning::Pin& pin)
+        {
+            return pin.GetDateAdded().has_value()
+                ? Utility::ConvertSystemClockToUnixEpoch(*pin.GetDateAdded())
+                : Utility::ConvertSystemClockToUnixEpoch(std::chrono::system_clock::now());
+        }
 
         std::optional<Pinning::Pin> GetPinFromRow(PinRow&& row)
         {
@@ -71,10 +77,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
     {
         SQLite::Builder::StatementBuilder builder;
         const auto& pinKey = pin.GetKey();
-
-        int64_t epochToStore = pin.GetDateAdded().has_value()
-            ? Utility::ConvertSystemClockToUnixEpoch(*pin.GetDateAdded())
-            : Utility::ConvertSystemClockToUnixEpoch(std::chrono::system_clock::now());
+        int64_t epochToStore = GetEpochToStore(pin);
 
         builder.InsertInto(s_PinTable_Table_Name)
             .Columns({
@@ -100,10 +103,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
     {
         SQLite::Builder::StatementBuilder builder;
         const auto& pinKey = pin.GetKey();
-
-        int64_t epochToStore = pin.GetDateAdded().has_value()
-            ? Utility::ConvertSystemClockToUnixEpoch(*pin.GetDateAdded())
-            : Utility::ConvertSystemClockToUnixEpoch(std::chrono::system_clock::now());
+        int64_t epochToStore = GetEpochToStore(pin);
 
         builder.Update(s_PinTable_Table_Name).Set()
             .Column(s_PinTable_PackageId_Column).AssignValue(pinKey.PackageId)
@@ -114,6 +114,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
             .Column(s_PinTable_Note_Column).AssignValue(pin.GetNote());
 
         builder.Where(SQLite::RowIDName).Equals(pinId);
+        builder.Execute(connection);
+        return connection.GetChanges() != 0;
+    }
+
+    bool PinTable::UpdateMetadataById(SQLite::Connection& connection, SQLite::rowid_t pinId, const Pinning::Pin& pin)
+    {
+        SQLite::Builder::StatementBuilder builder;
+
+        builder.Update(s_PinTable_Table_Name).Set()
+            .Column(s_PinTable_DateAdded_Column).AssignValue(GetEpochToStore(pin))
+            .Column(s_PinTable_Note_Column).AssignValue(pin.GetNote())
+            .Where(SQLite::RowIDName).Equals(pinId);
+
         builder.Execute(connection);
         return connection.GetChanges() != 0;
     }

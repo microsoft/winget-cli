@@ -24,6 +24,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
         // Returns a value indicating whether there were any changes.
         static bool UpdatePinById(SQLite::Connection& connection, SQLite::rowid_t pinId, const Pinning::Pin& pin);
 
+        // Updates only 1.1 metadata columns for an existing pin.
+        // Returns a value indicating whether there were any changes.
+        static bool UpdateMetadataById(SQLite::Connection& connection, SQLite::rowid_t pinId, const Pinning::Pin& pin);
+
         // Gets a pin by its row ID if it exists.
         // Used for testing
         static std::optional<Pinning::Pin> GetPinById(SQLite::Connection& connection, const SQLite::rowid_t pinId);

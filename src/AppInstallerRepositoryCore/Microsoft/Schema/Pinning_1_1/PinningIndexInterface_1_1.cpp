@@ -38,33 +38,36 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
     SQLite::rowid_t PinningIndexInterface::AddPin(SQLite::Connection& connection, const Pinning::Pin& pin)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addpin_v1_1");
-
-        Pinning_V1_0::PinningIndexInterface base;
-        SQLite::rowid_t pinId = base.AddPin(connection, pin);
-        THROW_HR_IF(E_UNEXPECTED, !Pinning_V1_1::PinTable::UpdatePinById(connection, pinId, pin));
+        SQLite::rowid_t pinId = Pinning_V1_0::PinningIndexInterface::AddPin(connection, pin);
+        THROW_HR_IF(E_UNEXPECTED, !Pinning_V1_1::PinTable::UpdateMetadataById(connection, pinId, pin));
 
         savepoint.Commit();
         return pinId;
     }
 
-	// Override the pin methods to use the correct PinTable methods for version 1.1
-
-    SQLite::rowid_t PinningIndexInterface::IAddPin(SQLite::Connection& connection, const Pinning::Pin& pin)
+    std::pair<bool, SQLite::rowid_t> PinningIndexInterface::UpdatePin(SQLite::Connection& connection, const Pinning::Pin& pin)
     {
-        return PinTable::AddPin(connection, pin);
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "updatepin_v1_1");
+        auto [baseUpdated, pinId] = Pinning_V1_0::PinningIndexInterface::UpdatePin(connection, pin);
+        bool metadataUpdated = PinTable::UpdateMetadataById(connection, pinId, pin);
+        savepoint.Commit();
+
+        return { baseUpdated || metadataUpdated, pinId };
     }
 
-    bool PinningIndexInterface::IUpdatePinById(SQLite::Connection& connection, SQLite::rowid_t pinId, const Pinning::Pin& pin)
+    std::optional<Pinning::Pin> PinningIndexInterface::GetPin(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
     {
-        return PinTable::UpdatePinById(connection, pinId, pin);
+        auto existingPinId = Pinning_V1_0::PinTable::GetIdByPinKey(connection, pinKey);
+
+        if (!existingPinId)
+        {
+            return {};
+        }
+
+        return PinTable::GetPinById(connection, existingPinId.value());
     }
 
-    std::optional<Pinning::Pin> PinningIndexInterface::IGetPinById(SQLite::Connection& connection, SQLite::rowid_t pinId)
-    {
-        return PinTable::GetPinById(connection, pinId);
-    }
-
-    std::vector<Pinning::Pin> PinningIndexInterface::IGetAllPins(SQLite::Connection& connection)
+    std::vector<Pinning::Pin> PinningIndexInterface::GetAllPins(SQLite::Connection& connection)
     {
         return PinTable::GetAllPins(connection);
     }
