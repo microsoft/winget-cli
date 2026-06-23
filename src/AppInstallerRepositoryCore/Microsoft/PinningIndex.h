@@ -51,6 +51,9 @@ namespace AppInstaller::Repository::Microsoft
         // Removes a pin from the index.
         void RemovePin(const Pinning::PinKey& pinKey);
 
+        // Attempts to remove a pin from the index and returns whether it existed.
+        bool TryRemovePin(const Pinning::PinKey& pinKey);
+
         // Returns the current pin for a given package if it exists.
         std::optional<Pinning::Pin> GetPin(const Pinning::PinKey& pinKey);
 

@@ -32,6 +32,10 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Removes a pin from the index.
         virtual SQLite::rowid_t RemovePin(SQLite::Connection& connection, const Pinning::PinKey& pinKey) = 0;
 
+        // Attempts to remove a pin from the index.
+        // Returns false if no matching pin exists.
+        virtual bool TryRemovePin(SQLite::Connection& connection, const Pinning::PinKey& pinKey) = 0;
+
         // Returns the current pin for a given package if it exists.
         virtual std::optional<Pinning::Pin> GetPin(SQLite::Connection& connection, const Pinning::PinKey& pinKey) = 0;
 

@@ -84,6 +84,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         return existingPinId.value();
     }
 
+    bool PinningIndexInterface::TryRemovePin(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
+    {
+        auto existingPinId = GetExistingPinId(connection, pinKey);
+        if (!existingPinId)
+        {
+            return false;
+        }
+
+        PinTable::RemovePinById(connection, existingPinId.value());
+        return true;
+    }
+
     std::optional<Pinning::Pin> PinningIndexInterface::GetPin(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
     {
         auto existingPinId = GetExistingPinId(connection, pinKey);

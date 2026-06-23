@@ -167,6 +167,24 @@ namespace AppInstaller::Repository::Microsoft
         savepoint.Commit();
     }
 
+    bool PinningIndex::TryRemovePin(const Pinning::PinKey& pinKey)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Verbose, << "Trying to remove Pin " << pinKey.ToString());
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningIndex_tryRemovePin");
+
+        bool result = m_interface->TryRemovePin(m_dbconn, pinKey);
+
+        if (result)
+        {
+            SetLastWriteTime();
+            savepoint.Commit();
+        }
+
+        return result;
+    }
+
     std::optional<Pinning::Pin> PinningIndex::GetPin(const Pinning::PinKey& pinKey)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
