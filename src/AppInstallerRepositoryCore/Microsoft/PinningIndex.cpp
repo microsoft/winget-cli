@@ -229,11 +229,11 @@ namespace AppInstaller::Repository::Microsoft
                     savepoint.Commit();
                     m_version = latestInterface->GetVersion();
                     m_interface = std::move(latestInterface);
-                    AICLI_LOG(Repo, Info, << "Migration successful");
+                    AICLI_LOG(Repo, Info, << "Pinning Index migration successful");
                 }
                 else
                 {
-                    AICLI_LOG(Repo, Error, << "Migration failed");
+                    AICLI_LOG(Repo, Error, << "Pinning Index migration failed");
                     THROW_HR(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX);
                 }
             }
