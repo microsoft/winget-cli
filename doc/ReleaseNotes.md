@@ -11,4 +11,4 @@
 
 ## Bug Fixes
 
-* None yet
+* Fixed a crash (`0x8000ffff`) when using `--disable-interactivity` with the Resume experimental feature enabled during install operations.

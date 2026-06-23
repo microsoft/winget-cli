@@ -450,6 +450,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::NoProgressArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
         case Args::Type::VerboseLogs:
             return Argument{ type, Resource::String::VerboseLogsArgumentDescription, ArgumentType::Flag };
+        case Args::Type::DisableInteractivity:
+            return Argument{ type, Resource::String::DisableInteractivityArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::CustomHeader:
             return Argument{ type, Resource::String::HeaderArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::AcceptSourceAgreements:
