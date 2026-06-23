@@ -981,16 +981,21 @@ namespace AppInstaller::Utility
         return value ? "true"sv : "false"sv;
     }
 
-    std::optional<bool> TryConvertStringToBool(const std::string_view& input)
+    template <typename Char>
+    std::optional<bool> TryConvertStringToBoolT(
+        const std::basic_string_view<Char>& input,
+        const std::basic_string_view<Char>& lowerFalse,
+        const std::basic_string_view<Char>& lowerTrue)
     {
         try
         {
-            if (CaseInsensitiveEquals(input, "false"sv))
+            const auto lowerInput = ToLower(input);
+            if (lowerInput == lowerFalse)
             {
                 return { false };
             }
 
-            if (CaseInsensitiveEquals(input, "true"sv))
+            if (lowerInput == lowerTrue)
             {
                 return { true };
             }
@@ -1001,6 +1006,16 @@ namespace AppInstaller::Utility
         {
             return {};
         }
+    }
+
+    std::optional<bool> TryConvertStringToBool(const std::string_view& input)
+    {
+        return TryConvertStringToBoolT(input, "false"sv, "true"sv);
+    }
+
+    std::optional<bool> TryConvertStringToBool(const std::wstring_view& input)
+    {
+        return TryConvertStringToBoolT(input, L"false"sv, L"true"sv);
     }
 
     std::optional<int32_t> TryConvertStringToInt32(const std::string_view& input)
