@@ -114,8 +114,6 @@ namespace AppInstaller::CLI::Workflow
             const auto& packageId = pin.GetKey().PackageId;
 
             bool hasId = context.Args.Contains(Execution::Args::Type::Id);
-            bool hasName = context.Args.Contains(Execution::Args::Type::Name);
-            bool hasQuery = context.Args.Contains(Execution::Args::Type::Query);
             bool exactMatch = context.Args.Contains(Execution::Args::Type::Exact);
 
             if (hasId)
@@ -126,18 +124,36 @@ namespace AppInstaller::CLI::Workflow
                     : Utility::CaseInsensitiveContainsSubstring(packageId, idArg);
             }
 
-            if (hasName || hasQuery)
-            {
-                std::string_view queryArg = hasName
-                    ? context.Args.GetArg(Execution::Args::Type::Name)
-                    : context.Args.GetArg(Execution::Args::Type::Query);
+            return true;
+        }
 
-                return exactMatch
-                    ? Utility::CaseInsensitiveEquals(packageId, queryArg)
-                    : Utility::CaseInsensitiveContainsSubstring(packageId, queryArg);
+        bool IsMatchForListQuery(const PinRowData& row, Execution::Context& context)
+        {
+            bool hasName = context.Args.Contains(Execution::Args::Type::Name);
+            bool hasQuery = context.Args.Contains(Execution::Args::Type::Query);
+            bool exactMatch = context.Args.Contains(Execution::Args::Type::Exact);
+
+            if (!hasName && !hasQuery)
+            {
+                return true;
             }
 
-            return true;
+            std::string_view queryArg = hasName
+                ? context.Args.GetArg(Execution::Args::Type::Name)
+                : context.Args.GetArg(Execution::Args::Type::Query);
+
+            const auto packageName = static_cast<std::string_view>(row.PackageName);
+            if (hasName)
+            {
+                return exactMatch
+                    ? Utility::CaseInsensitiveEquals(packageName, queryArg)
+                    : Utility::CaseInsensitiveContainsSubstring(packageName, queryArg);
+            }
+
+            const auto packageId = static_cast<std::string_view>(row.PackageId);
+            return exactMatch
+                ? (Utility::CaseInsensitiveEquals(packageName, queryArg) || Utility::CaseInsensitiveEquals(packageId, queryArg))
+                : (Utility::CaseInsensitiveContainsSubstring(packageName, queryArg) || Utility::CaseInsensitiveContainsSubstring(packageId, queryArg));
         }
     }
 
@@ -376,7 +392,7 @@ namespace AppInstaller::CLI::Workflow
                     note = Utility::LocIndString{ *pinNote };
                 }
 
-                rowData.push_back(PinRowData{
+                PinRowData rowDataEntry{
                     std::move(packageName),
                     Utility::LocIndString{ pinKey.PackageId },
                     std::move(version),
@@ -385,8 +401,28 @@ namespace AppInstaller::CLI::Workflow
                     Utility::LocIndString{ pin.GetGatedVersion().ToString() },
                     std::move(dateAdded),
                     std::move(note),
-                });
+                };
+
+                if (IsMatchForListQuery(rowDataEntry, context))
+                {
+                    rowData.push_back(std::move(rowDataEntry));
+                }
             }
+        }
+
+        if (rowData.empty())
+        {
+            if (hasListQuery)
+            {
+                context.Reporter.Info() << Resource::String::PinShowNoMatchFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST);
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::PinNoPinsExist << std::endl;
+            }
+
+            return;
         }
 
         bool showDetails = context.Args.Contains(Execution::Args::Type::ListDetails);
