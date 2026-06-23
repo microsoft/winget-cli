@@ -385,30 +385,30 @@ TEST_CASE("PinFlow_List_Filter_ExactMatch", "[PinFlow][workflow]")
     REQUIRE(listOutput.str().find("Vendor.AppExtra") == std::string::npos);
 }
 
-TEST_CASE("PinFlow_List_DetailsWithoutNotes_ShowsEmptyNoteColumn", "[PinFlow][workflow]")
+TEST_CASE("PinFlow_List_DetailsWithoutNotes_HidesEmptyNoteColumn", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
-    Pin pin = Pin::CreatePinningPin({ "NoNote.Package", "src" });
+    Pin pin = Pin::CreatePinningPin({ "Example.Package", "src" });
     pin.SetDateAdded(AppInstaller::Utility::ConvertUnixEpochToSystemClock(PinTestEpoch::May2026_01_0800));
     // note intentionally not set
     PopulatePinIndexForList(indexFile.GetPath(), { pin });
 
     std::ostringstream listOutput;
     TestContext listContext{ listOutput, std::cin };
-    listContext.Args.AddArg(Execution::Args::Type::Query, "NoNote.Package"sv);
+    listContext.Args.AddArg(Execution::Args::Type::Query, "Example.Package"sv);
     listContext.Args.AddArg(Execution::Args::Type::ListDetails);
-    OverrideForCompositeInstalledSource(listContext, CreateListTestSource({ "NoNote.Package" }));
+    OverrideForCompositeInstalledSource(listContext, CreateListTestSource({ "Example.Package" }));
 
     PinListCommand pinList({});
     pinList.Execute(listContext);
     INFO(listOutput.str());
 
     REQUIRE_FALSE(listContext.IsTerminated());
-    REQUIRE(listOutput.str().find("NoNote.Package") != std::string::npos);
+    REQUIRE(listOutput.str().find("Example.Package") != std::string::npos);
     REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::PinDateAdded)) != std::string::npos);
-    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::PinNote)) != std::string::npos);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::PinNote)) == std::string::npos);
 }
 
 TEST_CASE("PinFlow_List_V1_0Index_NoMigrationRequired", "[PinFlow][workflow]")
