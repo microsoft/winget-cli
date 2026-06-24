@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 #pragma once
@@ -64,3 +64,8 @@ TRACELOGGING_DECLARE_PROVIDER(g_hTraceProvider);
 extern bool g_IsTelemetryProviderEnabled;
 extern UCHAR g_TelemetryProviderLevel;
 extern ULONGLONG g_TelemetryProviderMatchAnyKeyword;
+
+TRACELOGGING_DEFINE_PROVIDER(g_hStoreCriticalDataProvider,
+    "Microsoft.Store",
+    (0x5F0B026E, 0xBCC1, 0x5001, 0x95, 0xD3, 0x65, 0xE1, 0x70, 0xA1, 0x1E, 0xFA),
+    TraceLoggingOptionGroup(0x5ECB0BAC, 0xB930, 0x47F5, 0xA8, 0xA4, 0xE8, 0x25, 0x35, 0x29, 0xED, 0xB7));
