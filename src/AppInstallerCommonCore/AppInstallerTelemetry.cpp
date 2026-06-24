@@ -837,11 +837,32 @@ namespace AppInstaller::Logging
                 m_summary.PackageVersion = version;
                 m_summary.RepairExecutionType = type;
                 m_summary.RepairErrorCode = errorCode;
-            
+
             }
         }
 
         AICLI_LOG(CLI, Error, << type << " repair failed: " << errorCode);
+    }
+
+    void TelemetryTraceLogger::LogStoreInstall(std::string_view packageId) const noexcept
+    {
+        if (IsTelemetryEnabled())
+        {
+            TraceLoggingWrite(g_hStoreCriticalDataProvider,
+                "StoreExperienceTelemetryWinGetInstall",
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES),
+                AICLI_TraceLoggingStringView(packageId, "pid"),
+                TraceLoggingString(m_caller.c_str(), "src"),
+                TraceLoggingWideString(L"msstore", "cn")
+            );
+            if (m_useSummary)
+            {
+                m_summary.SourceIdentifier = m_caller;
+                m_summary.PackageIdentifier = packageId;
+            }
+        }
+        AICLI_LOG(CLI, Info, << "Store install: Source [" << m_caller << "] Package [" << packageId << "]");
     }
 
     TelemetryTraceLogger::~TelemetryTraceLogger()

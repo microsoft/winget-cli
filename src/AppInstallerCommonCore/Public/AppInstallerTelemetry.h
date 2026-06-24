@@ -290,6 +290,8 @@ namespace AppInstaller::Logging
             uint64_t downloadedBytes,
             bool isManualUpdate) const noexcept;
 
+        void LogStoreInstall(std::string_view packageId) const noexcept;
+
     protected:
         bool IsTelemetryEnabled() const noexcept;
 
