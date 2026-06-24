@@ -231,8 +231,6 @@ namespace AppInstaller::CLI
 
     void ServerInitialize()
     {
-        auto outputLocaleOverride = ApplyOutputLocaleOverride();
-
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // We have to do this here so the auto minidump config initialization gets caught
         Logging::OutputDebugStringLogger::Add();
@@ -248,16 +246,10 @@ namespace AppInstaller::CLI
 #endif
 
         AppInstaller::CLI::Execution::COMContext::SetLoggers();
-        if (outputLocaleOverride)
-        {
-            AICLI_LOG(CLI, Info, << "Applied output locale override from settings: " << outputLocaleOverride.value());
-        }
     }
 
     void InProcInitialize()
     {
-        auto outputLocaleOverride = ApplyOutputLocaleOverride();
-
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // We have to do this here so the auto minidump config initialization gets caught
         Logging::OutputDebugStringLogger::Add();
@@ -274,9 +266,5 @@ namespace AppInstaller::CLI
 
         // Explicitly set default channel and level before user settings from PackageManagerSettings
         AppInstaller::CLI::Execution::COMContext::SetLoggers(AppInstaller::Logging::Channel::Defaults, AppInstaller::Logging::Level::Info);
-        if (outputLocaleOverride)
-        {
-            AICLI_LOG(CLI, Info, << "Applied output locale override from settings: " << outputLocaleOverride.value());
-        }
     }
 }
