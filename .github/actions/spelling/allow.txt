@@ -364,6 +364,8 @@ threadpool
 TOCTOU
 tpl
 TRACELOGGING
+Trenly
+trenlymc
 triaged
 TRUSTEDPEOPLE
 UAC
