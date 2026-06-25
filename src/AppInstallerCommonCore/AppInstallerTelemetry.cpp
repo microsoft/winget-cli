@@ -852,7 +852,7 @@ namespace AppInstaller::Logging
             TraceLoggingWrite(g_hStoreCriticalDataProvider,
                 "StoreExperienceTelemetry-WinGetInstall",
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA),
                 AICLI_TraceLoggingStringView(packageId, "pid"),
                 TraceLoggingString(m_caller.c_str(), "src"),
                 TraceLoggingWideString(L"msstore", "cn")
