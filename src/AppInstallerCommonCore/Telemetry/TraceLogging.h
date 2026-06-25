@@ -66,3 +66,4 @@ extern UCHAR g_TelemetryProviderLevel;
 extern ULONGLONG g_TelemetryProviderMatchAnyKeyword;
 
 TRACELOGGING_DECLARE_PROVIDER(g_hStoreCriticalDataProvider);
+extern bool g_IsStoreTelemetryProviderEnabled;
