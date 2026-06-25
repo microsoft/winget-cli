@@ -571,6 +571,14 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
+            const auto& packageVersion = context.Get<Execution::Data::PackageVersion>();
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+
+            if (packageVersion && packageVersion->GetSource().IsWellKnownSource(WellKnownSource::MicrosoftStore))
+            {
+                Logging::Telemetry().LogStoreInstall(manifest.Id);
+            }
+
             if (isRepair)
             {
                 context.Reporter.Info() << Resource::String::RepairFlowRepairSuccess << std::endl;
