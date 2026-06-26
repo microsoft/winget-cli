@@ -15,6 +15,7 @@ bool g_IsTelemetryProviderEnabled{};
 UCHAR g_TelemetryProviderLevel{};
 ULONGLONG g_TelemetryProviderMatchAnyKeyword{};
 
+// GUID for Microsoft.Store : {5F0B026E-BCC1-5001-95D3-65E170A11EFA}
 TRACELOGGING_DEFINE_PROVIDER(
     g_hStoreCriticalDataProvider,
     "Microsoft.Store",

@@ -290,6 +290,7 @@ namespace AppInstaller::Logging
             uint64_t downloadedBytes,
             bool isManualUpdate) const noexcept;
 
+        // Logs when an install succeeded from the msstore source.
         void LogStoreInstall(std::string_view packageId) const noexcept;
 
     protected:
