@@ -101,7 +101,7 @@ namespace AppInstaller::CLI
 
         std::signal(SIGABRT, abort_signal_handler);
 
-        init_apartment()
+        init_apartment();
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // We have to do this here so the auto minidump config initialization gets caught
         Logging::OutputDebugStringLogger::Add();
