@@ -545,6 +545,118 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test install portable with rename creates hardlink instead of renaming original.
+        /// </summary>
+        [Test]
+        public void InstallPortableWithRename_VerifyHardlink()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExeWithCommand";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            string renameArgValue = "customAlias.exe";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId} --rename {renameArgValue}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+
+            string installPath = Path.Combine(installDir, packageDirName);
+            string originalFile = Path.Combine(installPath, "AppInstallerTestExeInstaller.exe");
+            string hardlinkFile = Path.Combine(installPath, renameArgValue);
+
+            // Verify original file exists with original name (not renamed)
+            Assert.True(File.Exists(originalFile), $"Original file should exist at: {originalFile}");
+
+            // Verify hardlink exists
+            Assert.True(File.Exists(hardlinkFile), $"Hardlink should exist at: {hardlinkFile}");
+
+            // Verify hardlink and original point to same content (equivalence)
+            byte[] originalBytes = File.ReadAllBytes(originalFile);
+            byte[] hardlinkBytes = File.ReadAllBytes(hardlinkFile);
+            Assert.AreEqual(originalBytes.Length, hardlinkBytes.Length, "File sizes should be equal");
+            Assert.True(originalBytes.AsSpan().SequenceEqual(hardlinkBytes.AsSpan()), "Hardlink should be equivalent to original file");
+
+            // Verify uninstall removes both original and hardlink
+            var uninstallResult = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, uninstallResult.ExitCode);
+            Assert.False(File.Exists(originalFile), $"Original file should be removed after uninstall");
+            Assert.False(File.Exists(hardlinkFile), $"Hardlink should be removed after uninstall");
+        }
+
+        /// <summary>
+        /// Test install portable with Commands field creates hardlinks for all command aliases.
+        /// </summary>
+        [Test]
+        public void InstallPortableWithCommands_VerifyHardlinks()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExeWithCommand";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            string commandAlias = "testCommand.exe";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+
+            string installPath = Path.Combine(installDir, packageDirName);
+            string originalFile = Path.Combine(installPath, "AppInstallerTestExeInstaller.exe");
+            string hardlinkFile = Path.Combine(installPath, commandAlias);
+
+            // Verify original file exists with original name
+            Assert.True(File.Exists(originalFile), $"Original file should exist at: {originalFile}");
+
+            // Verify command alias hardlink exists
+            Assert.True(File.Exists(hardlinkFile), $"Command alias hardlink should exist at: {hardlinkFile}");
+
+            // Verify hardlink is equivalent to original
+            byte[] originalBytes = File.ReadAllBytes(originalFile);
+            byte[] hardlinkBytes = File.ReadAllBytes(hardlinkFile);
+            Assert.AreEqual(originalBytes.Length, hardlinkBytes.Length, "File sizes should be equal");
+            Assert.True(originalBytes.AsSpan().SequenceEqual(hardlinkBytes.AsSpan()), "Command alias hardlink should be equivalent to original file");
+
+            // Cleanup
+            TestCommon.RunAICLICommand("uninstall", $"{packageId}");
+        }
+
+        /// <summary>
+        /// Test install zip portable with PortableCommandAlias creates hardlinks for nested files.
+        /// </summary>
+        [Test]
+        public void InstallZip_PortableWithCommandAlias_VerifyHardlinks()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestZipInstallerWithPortable";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            string originalFileName = "AppInstallerTestExeInstaller.exe";
+            string commandAlias = "TestPortable.exe";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+
+            string installPath = Path.Combine(installDir, packageDirName);
+            string originalFile = Path.Combine(installPath, originalFileName);
+            string hardlinkFile = Path.Combine(installPath, commandAlias);
+
+            // Verify original extracted file exists with original name
+            Assert.True(File.Exists(originalFile), $"Original extracted file should exist at: {originalFile}");
+
+            // Verify hardlink for command alias exists
+            Assert.True(File.Exists(hardlinkFile), $"Command alias hardlink should exist at: {hardlinkFile}");
+
+            // Verify hardlink is equivalent to original
+            byte[] originalBytes = File.ReadAllBytes(originalFile);
+            byte[] hardlinkBytes = File.ReadAllBytes(hardlinkFile);
+            Assert.AreEqual(originalBytes.Length, hardlinkBytes.Length, "File sizes should be equal");
+            Assert.True(originalBytes.AsSpan().SequenceEqual(hardlinkBytes.AsSpan()), "Archive portable hardlink should be equivalent to original file");
+
+            // Cleanup
+            TestCommon.RunAICLICommand("uninstall", $"{packageId}");
+        }
+
+        /// <summary>
         /// Test install zip with invalid relative file path.
         /// </summary>
         [Test]

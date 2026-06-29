@@ -72,6 +72,22 @@ namespace AppInstaller::CLI::Portable
                 }
             }
         }
+        else if (fileType == PortableFileType::Hardlink)
+        {
+            if (std::filesystem::exists(filePath))
+            {
+                // Only verify hash if one was stored
+                if (!entry.SHA256.empty())
+                {
+                    SHA256::HashBuffer fileHash = SHA256::ComputeHashFromFile(filePath);
+                    if (!SHA256::AreEqual(fileHash, SHA256::ConvertToBytes(entry.SHA256)))
+                    {
+                        AICLI_LOG(CLI, Warning, << "Hardlink hash does not match ARP Entry. Expected: " << entry.SHA256 << " Actual: " << SHA256::ConvertToString(fileHash));
+                        return false;
+                    }
+                }
+            }
+        }
         else if (fileType == PortableFileType::Symlink)
         {
             std::filesystem::path symlinkTargetPath{ AppInstaller::Utility::ConvertToUTF16(entry.SymlinkTarget) };
@@ -122,20 +138,49 @@ namespace AppInstaller::CLI::Portable
                 std::filesystem::copy(entry.CurrentPath, filePath, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
             }
         }
+        else if (fileType == PortableFileType::Hardlink)
+        {
+            if (std::filesystem::exists(filePath))
+            {
+                AICLI_LOG(Core, Info, << "Removing existing portable hardlink at: " << filePath);
+                std::filesystem::remove(filePath);
+            }
+
+            AICLI_LOG(Core, Info, << "Creating hardlink at: " << filePath << " pointing to: " << entry.CurrentPath);
+
+            // Try to create hardlink
+            if (Filesystem::CreateHardlink(entry.CurrentPath, filePath))
+            {
+                AICLI_LOG(Core, Info, << "Hardlink created successfully at: " << filePath);
+            }
+            else
+            {
+                // Fallback: copy the file if hardlinks not supported
+                AICLI_LOG(Core, Info, << "Hardlink creation failed, falling back to copy: " << filePath);
+                std::filesystem::copy_file(entry.CurrentPath, filePath, std::filesystem::copy_options::overwrite_existing);
+            }
+
+            if (!RecordToIndex)
+            {
+                CommitToARPEntry(PortableValueName::SHA256, entry.SHA256);
+            }
+        }
         else if (entry.FileType == PortableFileType::Symlink)
         {
             std::filesystem::path symlinkTargetPath{ Utility::ConvertToUTF16(entry.SymlinkTarget) };
 
-            if (BinariesDependOnPath && !InstallDirectoryAddedToPath)
+            if (BinariesDependOnPath)
             {
                 // Scenario indicated by 'ArchiveBinariesDependOnPath' manifest entry.
                 // Skip symlink creation for portables dependent on binaries that require the install directory to be added to PATH.
                 std::filesystem::path installDirectory = symlinkTargetPath.parent_path();
                 AddToPathVariable(installDirectory);
+                // Only remove the links directory if there are no links in it
+                RemoveFromPathVariable(GetPortableLinksLocation(GetScope()), true);
                 AICLI_LOG(Core, Info, << "Install directory added to PATH: " << installDirectory);
                 CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
             }
-            else if (!InstallDirectoryAddedToPath)
+            else
             {
                 std::filesystem::file_status status = std::filesystem::status(filePath);
                 if (std::filesystem::is_directory(status))
@@ -157,6 +202,12 @@ namespace AppInstaller::CLI::Portable
 
                 if (Filesystem::CreateSymlink(symlinkTargetPath, filePath))
                 {
+                    if (InstallDirectoryAddedToPath)
+                    {
+                        // If the install directory was previously added to PATH, remove it now that the symlink has been created.
+                        RemoveFromPathVariable(symlinkTargetPath.parent_path(), false);
+                    }
+                    CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = false);
                     AICLI_LOG(Core, Info, << "Symlink created at: " << filePath << " with target path: " << symlinkTargetPath);
                 }
                 else
@@ -164,6 +215,8 @@ namespace AppInstaller::CLI::Portable
                     // If symlink creation fails, resort to adding the package directory to PATH.
                     AICLI_LOG(Core, Info, << "Failed to create symlink at: " << filePath);
                     AddToPathVariable(symlinkTargetPath.parent_path());
+                    // Only remove the links directory if there are no links in it
+                    RemoveFromPathVariable(GetPortableLinksLocation(GetScope()), true);
                     CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
                 }
             }
@@ -181,6 +234,11 @@ namespace AppInstaller::CLI::Portable
             AICLI_LOG(CLI, Info, << "Deleting portable exe at: " << filePath);
             std::filesystem::remove(filePath);
         }
+        else if (fileType == PortableFileType::Hardlink && std::filesystem::exists(filePath))
+        {
+            AICLI_LOG(CLI, Info, << "Deleting portable hardlink at: " << filePath);
+            std::filesystem::remove(filePath);
+        }
         else if (fileType == PortableFileType::Symlink)
         {
             if (Filesystem::SymlinkExists(filePath))
@@ -191,7 +249,7 @@ namespace AppInstaller::CLI::Portable
             else if (InstallDirectoryAddedToPath)
             {
                 // If symlink doesn't exist, check if install directory was added to PATH directly and remove.
-                RemoveFromPathVariable(std::filesystem::path(Utility::ConvertToUTF16(entry.SymlinkTarget)).parent_path());
+                RemoveFromPathVariable(std::filesystem::path(Utility::ConvertToUTF16(entry.SymlinkTarget)).parent_path(), false);
             }
         }
         else if (fileType == PortableFileType::Symlink && Filesystem::SymlinkExists(filePath))
@@ -315,7 +373,12 @@ namespace AppInstaller::CLI::Portable
 
         if (!InstallDirectoryAddedToPath)
         {
-            RemoveFromPathVariable(GetPortableLinksLocation(GetScope()));
+            // Only remove the links directory if there are no links in it
+            RemoveFromPathVariable(GetPortableLinksLocation(GetScope()), true);
+        }
+        else
+        {
+            RemoveFromPathVariable(InstallLocation, false);
         }
 
         m_portableARPEntry.Delete();
@@ -375,15 +438,15 @@ namespace AppInstaller::CLI::Portable
         }
     }
 
-    void PortableInstaller::RemoveFromPathVariable(std::filesystem::path value)
+    void PortableInstaller::RemoveFromPathVariable(std::filesystem::path value, bool onlyIfEmpty)
     {
-        if (std::filesystem::exists(value) && !std::filesystem::is_empty(value))
+        if (onlyIfEmpty && std::filesystem::exists(value) && !std::filesystem::is_empty(value))
         {
-            AICLI_LOG(Core, Info, << "Install directory is not empty: " << value);
+            AICLI_LOG(Core, Info, << "Directory is not empty: " << value);
         }
         else
         {
-			// Attempt to remove both the original and the preferred format to ensure removal
+            // Attempt to remove both the original and the preferred format to ensure removal
             // Necessary for handling old path values associated with winget-cli#5033
             if (PathVariable(GetScope()).Remove(value) || PathVariable(GetScope()).Remove(value.make_preferred()))
             {
@@ -462,6 +525,16 @@ namespace AppInstaller::CLI::Portable
 
             if (!symlinkFullPath.empty())
             {
+                // If alias differs from original filename, a hardlink exists in the install directory.
+                // Track it so uninstall removes it even when state is reconstructed from ARP values.
+                if (!targetFullPath.empty() && targetFullPath.filename() != symlinkFullPath.filename())
+                {
+                    std::filesystem::path hardlinkPath = InstallLocation / symlinkFullPath.filename();
+                    if (hardlinkPath != targetFullPath && std::filesystem::exists(hardlinkPath))
+                    {
+                        m_expectedEntries.emplace_back(std::move(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetFullPath, SHA256)));
+                    }
+                }
                 m_expectedEntries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkFullPath, targetFullPath)));
             }
         }
