@@ -117,21 +117,15 @@ namespace AppInstaller::Repository::Rest
 
             std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
-                THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, RestSourceFactory::Type()));
+                THROW_HR_IF(E_INVALIDARG, details.Type != SourceType::Rest);
 
                 return std::make_shared<RestSourceReference>(details);
             }
 
             bool Add(SourceDetails& details, IProgressCallback&) override final
             {
-                if (details.Type.empty())
-                {
-                    details.Type = RestSourceFactory::Type();
-                }
-                else
-                {
-                    THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, RestSourceFactory::Type()));
-                }
+                // Source type is normalized before reaching the factory; this path only accepts Rest.
+                THROW_HR_IF(E_INVALIDARG, details.Type != SourceType::Rest);
 
                 // Check if URL is remote and secure
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE, !Utility::IsUrlRemote(details.Arg));
@@ -142,13 +136,13 @@ namespace AppInstaller::Repository::Rest
 
             bool Update(const SourceDetails& details, IProgressCallback&) override final
             {
-                THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, RestSourceFactory::Type()));
+                THROW_HR_IF(E_INVALIDARG, details.Type != SourceType::Rest);
                 return true;
             }
 
             bool Remove(const SourceDetails& details, IProgressCallback&) override final
             {
-                THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, RestSourceFactory::Type()));
+                THROW_HR_IF(E_INVALIDARG, details.Type != SourceType::Rest);
                 return true;
             }
         };

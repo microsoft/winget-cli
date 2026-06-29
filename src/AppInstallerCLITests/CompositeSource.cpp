@@ -330,7 +330,7 @@ struct CompositeWithTrackingTestSetup : public CompositeTestSetup
     CompositeWithTrackingTestSetup() : TrackingFactory([&](const SourceDetails&) { return Tracking; })
     {
         Tracking = std::make_shared<SQLiteIndexSource>(SourceDetails{}, SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET));
-        TestHook_SetSourceFactoryOverride(std::string{ PackageTrackingCatalogSourceFactory::Type() }, TrackingFactory);
+        TestHook_SetSourceFactoryOverride(SourceType::PackageTracking, TrackingFactory);
     }
 
     ~CompositeWithTrackingTestSetup()

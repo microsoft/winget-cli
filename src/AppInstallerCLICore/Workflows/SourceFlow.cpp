@@ -50,7 +50,7 @@ namespace AppInstaller::CLI::Workflow
         auto sourceList = context.Get<Execution::Data::SourceList>();
         std::string_view name = context.Args.GetArg(Args::Type::SourceName);
         std::string_view arg = context.Args.GetArg(Args::Type::SourceArg);
-        std::string_view type = context.Args.GetArg(Args::Type::SourceType);
+        Repository::SourceType type = Repository::TryConvertToSourceTypeEnum(context.Args.GetArg(Args::Type::SourceType)).value_or(Repository::Source::GetDefaultSourceType());
 
         // In the absence of a specified type, the default is Microsoft.PreIndexed.Package for comparison.
         // The default type assignment to the source takes place during the add operation (Source::Add in Repository.cpp).
@@ -59,10 +59,6 @@ namespace AppInstaller::CLI::Workflow
         // For example, the following commands would be allowed, but they acts as different alias to same source:
         //      winget source add "mysource1" "https:\\mysource" --trust - level trusted
         //      winget source add "mysource2" "https:\\mysource" --trust - level trusted
-        if (type.empty())
-        {
-            type = Repository::Source::GetDefaultSourceType();
-        }
 
         for (const auto& details : sourceList)
         {
@@ -83,7 +79,7 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            if (!details.Arg.empty() && details.Arg == arg && details.Type == type)
+            if (!details.Arg.empty() && details.Arg == arg && type == details.Type)
             {
                 context.Reporter.Error() << Resource::String::SourceAddAlreadyExistsDifferentName << std::endl <<
                     "  "_liv << details.Name << " -> "_liv << details.Arg << std::endl;
@@ -118,7 +114,7 @@ namespace AppInstaller::CLI::Workflow
         {
             std::string_view name = context.Args.GetArg(Args::Type::SourceName);
             std::string_view arg = context.Args.GetArg(Args::Type::SourceArg);
-            std::string_view type = context.Args.GetArg(Args::Type::SourceType);
+            Repository::SourceType type = Repository::TryConvertToSourceTypeEnum(context.Args.GetArg(Args::Type::SourceType)).value_or(Repository::Source::GetDefaultSourceType());
 
             Repository::SourceTrustLevel trustLevel = Repository::SourceTrustLevel::None;
             if (context.Args.Contains(Execution::Args::Type::SourceTrustLevel))
@@ -183,7 +179,7 @@ namespace AppInstaller::CLI::Workflow
             Execution::TableOutput<2> table(context.Reporter, { Resource::String::SourceListField, Resource::String::SourceListValue });
 
             table.OutputLine({ Resource::LocString(Resource::String::SourceListName), source.Name });
-            table.OutputLine({ Resource::LocString(Resource::String::SourceListType), source.Type });
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListType), std::string{ Repository::SourceTypeEnumToString(source.Type) } });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListArg), source.Arg });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListData), source.Data });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListIdentifier), source.Identifier });
@@ -401,7 +397,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 SourceFromPolicy s;
                 s.Name = source.Name;
-                s.Type = source.Type;
+                s.Type = std::string{ Repository::SourceTypeEnumToString(source.Type) };
                 s.Arg = source.Arg;
                 s.Data = source.Data;
                 s.Identifier = source.Identifier;

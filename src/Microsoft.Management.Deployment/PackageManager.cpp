@@ -68,28 +68,17 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return *addPackageCatalogResult;
         }
 
-        void CheckForDuplicateSource(const std::string& name, const std::string& type, const std::string& sourceUri)
+        void CheckForDuplicateSource(const std::string& name, ::AppInstaller::Repository::SourceType type, const std::string& sourceUri)
         {
             auto sourceList = ::AppInstaller::Repository::Source::GetCurrentSources();
 
-            std::string sourceType = type;
-
-            // [NOTE:] If the source type is not specified, the default source type will be used for validation.In cases where the source type is empty,
-            // it remains unassigned until the add operation, at which point it is assigned.Without this default assignment, an empty string could be
-            // compared to the default type, potentially allowing different source names with the same URI to be seen as unique.
-            // To avoid this, assign the default source type prior to comparison.
-            if (sourceType.empty())
-            {
-                // This method of obtaining the default source type is slightly expensive as it requires creating a SourceFactory object
-                // and fetching the type name.Nonetheless, it future-proofs the code against any changes in the SourceFactory's default type.
-                sourceType = ::AppInstaller::Repository::Source::GetDefaultSourceType();
-            }
-
+            // source type has already been normalized to enum (with default applied) at input boundary.
             for (const auto& source : sourceList)
             {
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, ::AppInstaller::Utility::ICUCaseInsensitiveEquals(source.Name, name));
 
-                bool sourceUriAlreadyExists = !source.Arg.empty() && source.Arg == sourceUri && source.Type == sourceType;
+                bool sourceUriAlreadyExists = !source.Arg.empty() && source.Arg == sourceUri &&
+                    source.Type == type;
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS, sourceUriAlreadyExists);
             }
         }
@@ -97,7 +86,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         ::AppInstaller::Repository::Source CreateSourceFromOptions(const winrt::Microsoft::Management::Deployment::AddPackageCatalogOptions& options)
         {
             std::string name = winrt::to_string(options.Name());
-            std::string type = winrt::to_string(options.Type());
+            auto sourceType = ::AppInstaller::Repository::TryConvertToSourceTypeEnum(winrt::to_string(options.Type())).value_or(::AppInstaller::Repository::Source::GetDefaultSourceType());
             std::string sourceUri = winrt::to_string(options.SourceUri());
 
             AppInstaller::Repository::SourceTrustLevel trustLevel = AppInstaller::Repository::SourceTrustLevel::None;
@@ -106,13 +95,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 trustLevel = AppInstaller::Repository::SourceTrustLevel::Trusted;
             }
 
-            CheckForDuplicateSource(name, type, sourceUri);
+            CheckForDuplicateSource(name, sourceType, sourceUri);
 
             ::AppInstaller::Repository::SourceEdit additionalProperties;
             additionalProperties.Explicit = options.Explicit();
             additionalProperties.Priority = options.Priority();
 
-            ::AppInstaller::Repository::Source source = ::AppInstaller::Repository::Source{ name, sourceUri, type, trustLevel, additionalProperties };
+            ::AppInstaller::Repository::Source source = ::AppInstaller::Repository::Source{ name, sourceUri, sourceType, trustLevel, additionalProperties };
 
             std::string customHeader = winrt::to_string(options.CustomHeader());
             if (!customHeader.empty())
@@ -1374,8 +1363,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto report_progress{ co_await winrt::get_progress_token() };
             co_await winrt::resume_background();
 
-            std::string type = winrt::to_string(options.Type());
-            auto packageCatalogProgressSink = winrt::Microsoft::Management::Deployment::ProgressSinkFactory::CreatePackageCatalogProgressSink(type, report_progress );
+            auto sourceType = ::AppInstaller::Repository::TryConvertToSourceTypeEnum(winrt::to_string(options.Type())).value_or(::AppInstaller::Repository::Source::GetDefaultSourceType());
+            auto packageCatalogProgressSink = winrt::Microsoft::Management::Deployment::ProgressSinkFactory::CreatePackageCatalogProgressSink(
+                std::string{ ::AppInstaller::Repository::SourceTypeEnumToString(sourceType) },
+                report_progress);
 
             packageCatalogProgressSink->BeginProgress();
             ::AppInstaller::ProgressCallback progress(packageCatalogProgressSink.get());
@@ -1413,7 +1404,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto report_progress{ co_await winrt::get_progress_token() };
             co_await winrt::resume_background();
 
-            auto packageCatalogProgressSink = winrt::Microsoft::Management::Deployment::ProgressSinkFactory::CreatePackageCatalogProgressSink(matchingSource.value().Type, report_progress, true);
+            std::string normalizedSourceType = std::string{
+                ::AppInstaller::Repository::SourceTypeEnumToString(matchingSource.value().Type) };
+
+            auto packageCatalogProgressSink = winrt::Microsoft::Management::Deployment::ProgressSinkFactory::CreatePackageCatalogProgressSink(
+                normalizedSourceType,
+                report_progress,
+                true);
 
             packageCatalogProgressSink->BeginProgress();
             ::AppInstaller::Repository::Source sourceToRemove = ::AppInstaller::Repository::Source{ matchingSource.value().Name };

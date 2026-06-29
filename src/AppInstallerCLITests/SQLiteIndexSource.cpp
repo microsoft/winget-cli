@@ -38,7 +38,7 @@ static std::shared_ptr<SQLiteIndexSource> SimpleTestSetup(const std::string& fil
     index.AddManifest(manifest, relativePath);
 
     details.Name = "TestName";
-    details.Type = "TestType";
+    details.Type = SourceType::ConfigurableTest;
     details.Arg = sourceFilesDirectoryPath.u8string();
     details.Data = "";
     details.Identifier = "SimpleTestSetup";

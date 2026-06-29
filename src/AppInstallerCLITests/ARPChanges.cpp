@@ -102,7 +102,7 @@ struct ARPTestContext : public Context
         };
 
         // Inject our source
-        TestHook_SetSourceFactoryOverride(std::string{ Repository::Microsoft::PredefinedInstalledSourceFactory::Type() }, SourceFactory);
+        TestHook_SetSourceFactoryOverride(SourceType::PredefinedInstalled, SourceFactory);
 
         Source = std::make_shared<TestSource>();
         Source->SearchFunction = [&](const SearchRequest& request)

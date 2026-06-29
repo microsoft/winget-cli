@@ -199,8 +199,7 @@ namespace AppInstaller::Repository::Microsoft
 
             std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
-                // With more than one source implementation, we will probably need to probe first
-                THROW_HR_IF(E_INVALIDARG, !details.Type.empty() && details.Type != PreIndexedPackageSourceFactory::Type());
+                THROW_HR_IF(E_INVALIDARG, details.Type != SourceType::PreIndexedPackage);
 
                 return CreateInternal(details);
             }
@@ -209,16 +208,9 @@ namespace AppInstaller::Repository::Microsoft
 
             bool Add(SourceDetails& details, IProgressCallback& progress) override final
             {
-                if (details.Type.empty())
-                {
-                    // With more than one source implementation, we will probably need to probe first
-                    details.Type = PreIndexedPackageSourceFactory::Type();
-                    AICLI_LOG(Repo, Info, << "Initializing source type: " << details.Name << " => " << details.Type);
-                }
-                else
-                {
-                    THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
-                }
+                // Source type is normalized before reaching the factory; this path only accepts PreIndexedPackage.
+                THROW_HR_IF(E_INVALIDARG, details.Type != SourceType::PreIndexedPackage);
+                AICLI_LOG(Repo, Info, << "Initializing source type: " << details.Name << " => " << SourceTypeEnumToString(details.Type));
 
                 PreIndexedPackageInfo packageInfo(details, [](const std::string& packageLocation)
                     {
@@ -286,7 +278,7 @@ namespace AppInstaller::Repository::Microsoft
 
             bool Remove(const SourceDetails& details, IProgressCallback& progress) override final
             {
-                THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
+                THROW_HR_IF(E_INVALIDARG, details.Type != SourceType::PreIndexedPackage);
                 auto lock = LockExclusive(details, progress);
                 if (!lock)
                 {
@@ -318,7 +310,7 @@ namespace AppInstaller::Repository::Microsoft
 
             bool UpdateBase(const SourceDetails& details, bool isBackground, IProgressCallback& progress)
             {
-                THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
+                THROW_HR_IF(E_INVALIDARG, details.Type != SourceType::PreIndexedPackage);
 
                 std::optional<Msix::PackageVersion> currentVersion = GetCurrentVersion(details);
                 PreIndexedPackageUpdateCheck updateCheck(details);

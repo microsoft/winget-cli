@@ -94,6 +94,22 @@ namespace AppInstaller::CLI
 
     void SourceAddCommand::ValidateArgumentsInternal(Args& execArgs) const
     {
+        if (execArgs.Contains(Execution::Args::Type::SourceType))
+        {
+            std::string_view sourceTypeArg = execArgs.GetArg(Execution::Args::Type::SourceType);
+            auto validOptions = std::vector<Utility::LocIndString>{
+                Utility::LocIndString{ Repository::SourceTypeEnumToString(Repository::SourceType::PreIndexedPackage) },
+                Utility::LocIndString{ Repository::SourceTypeEnumToString(Repository::SourceType::Rest) } };
+
+            auto sourceType = Repository::TryConvertToSourceTypeEnum(sourceTypeArg);
+            bool isUserAddType = sourceType.has_value() &&
+                (sourceType.value() == Repository::SourceType::PreIndexedPackage || sourceType.value() == Repository::SourceType::Rest);
+            if (!isUserAddType)
+            {
+                throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::SourceType).Name, Utility::Join(","_liv, validOptions)));
+            }
+        }
+
         if (execArgs.Contains(Execution::Args::Type::SourceTrustLevel))
         {
             try
