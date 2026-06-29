@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="ListCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -22,9 +22,9 @@ namespace AppInstallerCLIE2ETests
         public void ListSelf()
         {
             var result = TestCommon.RunAICLICommand("list", Constants.AICLIPackageFamilyName);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains(Constants.AICLIPackageName));
-            Assert.True(result.StdOut.Contains(Constants.AICLIPackagePublisherHash));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains(Constants.AICLIPackageName), Is.True);
+            Assert.That(result.StdOut.Contains(Constants.AICLIPackagePublisherHash), Is.True);
         }
 
         /// <summary>
@@ -44,16 +44,16 @@ namespace AppInstallerCLIE2ETests
             logFilePath = System.IO.Path.Combine(logFilePath, "ListAfterInstall-" + System.IO.Path.GetRandomFileName() + ".log");
 
             var result = TestCommon.RunAICLICommand("list", productCode);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
 
             result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --override \"/InstallDir {installDir} /ProductID {productCode} /LogFile {logFilePath} /DisplayName {displayName}\"");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             result = TestCommon.RunAICLICommand("list", productCode);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
-            Assert.True(result.StdOut.Contains("1.0.0.0"));
-            Assert.True(result.StdOut.Contains("2.0.0.0"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"), Is.True);
+            Assert.That(result.StdOut.Contains("1.0.0.0"), Is.True);
+            Assert.That(result.StdOut.Contains("2.0.0.0"), Is.True);
         }
 
         /// <summary>
@@ -92,11 +92,11 @@ namespace AppInstallerCLIE2ETests
             }
 
             var installDir = TestCommon.GetRandomTestDir();
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("install", $"TestMsiInstaller --silent -l {installDir}").ExitCode);
+            Assert.That(TestCommon.RunAICLICommand("install", $"TestMsiInstaller --silent -l {installDir}").ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             var result = TestCommon.RunAICLICommand("list", "TestMsiInstallerUpgradeCode");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestMsiInstallerUpgradeCode"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("AppInstallerTest.TestMsiInstallerUpgradeCode"), Is.True);
         }
 
         /// <summary>
@@ -110,17 +110,17 @@ namespace AppInstallerCLIE2ETests
             string productCode = guid.ToString();
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"{identifier} --override \"/InstallDir {installDir} /ProductID {productCode} /UseHKLM\"");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             // List with user scope will not find the package
             result = TestCommon.RunAICLICommand("list", $"{productCode} --scope user");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.False(result.StdOut.Contains(identifier));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
+            Assert.That(result.StdOut.Contains(identifier), Is.False);
 
             // List with machine scope will find the package
             result = TestCommon.RunAICLICommand("list", $"{productCode} --scope machine");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains(identifier));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains(identifier), Is.True);
 
             TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
         }
@@ -136,17 +136,17 @@ namespace AppInstallerCLIE2ETests
             string productCode = guid.ToString();
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"{identifier} --override \"/InstallDir {installDir} /ProductID {productCode}\"");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             // List with user scope will find the package
             result = TestCommon.RunAICLICommand("list", $"{productCode} --scope user");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains(identifier));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains(identifier), Is.True);
 
             // List with machine scope will not find the package
             result = TestCommon.RunAICLICommand("list", $"{productCode} --scope machine");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.False(result.StdOut.Contains(identifier));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
+            Assert.That(result.StdOut.Contains(identifier), Is.False);
 
             TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
         }
@@ -161,17 +161,17 @@ namespace AppInstallerCLIE2ETests
             Assert.Ignore();
 
             var result = TestCommon.RunAICLICommand("install", $"{Constants.MsixInstallerPackageId} --scope machine");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             // List with user scope will also find the package because msix is provisioned for all users
             result = TestCommon.RunAICLICommand("list", $"{Constants.MsixInstallerPackageId} --scope user");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains(Constants.MsixInstallerPackageId));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains(Constants.MsixInstallerPackageId), Is.True);
 
             // List with machine scope will find the package
             result = TestCommon.RunAICLICommand("list", $"{Constants.MsixInstallerPackageId} --scope machine");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains(Constants.MsixInstallerPackageId));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains(Constants.MsixInstallerPackageId), Is.True);
 
             TestCommon.RemoveMsix(Constants.MsixInstallerName, true);
         }
@@ -183,17 +183,17 @@ namespace AppInstallerCLIE2ETests
         public void ListWithScopeMsixInstalledAsUser()
         {
             var result = TestCommon.RunAICLICommand("install", $"{Constants.MsixInstallerPackageId} --scope user");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             // List with user scope will find the package
             result = TestCommon.RunAICLICommand("list", $"{Constants.MsixInstallerPackageId} --scope user");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains(Constants.MsixInstallerPackageId));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains(Constants.MsixInstallerPackageId), Is.True);
 
             // List with machine scope will not find the package
             result = TestCommon.RunAICLICommand("list", $"{Constants.MsixInstallerPackageId} --scope machine");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.False(result.StdOut.Contains(Constants.MsixInstallerPackageId));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
+            Assert.That(result.StdOut.Contains(Constants.MsixInstallerPackageId), Is.False);
 
             TestCommon.RemoveMsix(Constants.MsixInstallerName);
         }
@@ -206,22 +206,22 @@ namespace AppInstallerCLIE2ETests
         {
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMappingWithArchitectureX86 -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             // List with AppInstallerTest.TestMappingWithArchitectureX64 (from available to installed scenario) will not find the package.
             result = TestCommon.RunAICLICommand("list", "AppInstallerTest.TestMappingWithArchitectureX64");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.False(result.StdOut.Contains("AppInstallerTest.TestMappingWithArchitectureX64"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
+            Assert.That(result.StdOut.Contains("AppInstallerTest.TestMappingWithArchitectureX64"), Is.False);
 
             // List with AppInstallerTest.TestMappingWithArchitectureX86 (from available to installed scenario) will find the package.
             result = TestCommon.RunAICLICommand("list", "AppInstallerTest.TestMappingWithArchitectureX86");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestMappingWithArchitectureX86"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("AppInstallerTest.TestMappingWithArchitectureX86"), Is.True);
 
             // List with product code (from installed to available scenario) will find the AppInstallerTest.TestMappingWithArchitectureX86 package.
             result = TestCommon.RunAICLICommand("list", "{0e426f01-b682-4e67-a357-52f9ecb4590d}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestMappingWithArchitectureX86"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("AppInstallerTest.TestMappingWithArchitectureX86"), Is.True);
 
             // best effort clean up
             TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
@@ -234,19 +234,19 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
 
             var result = TestCommon.RunAICLICommand("list", productCode);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
 
             result = TestCommon.RunAICLICommand("install", $"{packageIdentifier} --override \"/InstallDir {installDir} /ProductID {productCode} /DisplayName {displayNameOverride} /Version {displayVersionOverride}\"");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             result = TestCommon.RunAICLICommand("list", productCode);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
-            Assert.True(result.StdOut.Contains(packageIdentifier));
-            Assert.True(result.StdOut.Contains(expectedListVersion));
+            Assert.That(result.StdOut.Contains(packageIdentifier), Is.True);
+            Assert.That(result.StdOut.Contains(expectedListVersion), Is.True);
             if (!string.IsNullOrEmpty(notExpectedListVersion))
             {
-                Assert.False(result.StdOut.Contains(notExpectedListVersion));
+                Assert.That(result.StdOut.Contains(notExpectedListVersion), Is.False);
             }
 
             // Try clean up

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+﻿﻿// -----------------------------------------------------------------------------
 // <copyright file="WinGetUtilCompareVersions.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -39,7 +39,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         {
             // Compare versions
             WinGetUtilWrapper.WinGetCompareVersions(version1, version2, out int result);
-            Assert.AreEqual(expectedResult, result);
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
     }
 }

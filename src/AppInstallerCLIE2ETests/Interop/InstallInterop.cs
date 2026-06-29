@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="InstallInterop.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -65,8 +65,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir));
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir), Is.True);
         }
 
         /// <summary>
@@ -88,8 +88,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.NoApplicableInstallers, installResult.Status);
-            Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir));
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.NoApplicableInstallers));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir), Is.False);
         }
 
         /// <summary>
@@ -111,8 +111,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.DownloadError, installResult.Status);
-            Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir));
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.DownloadError));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir), Is.False);
         }
 
         /// <summary>
@@ -134,8 +134,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir));
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir), Is.True);
         }
 
         /// <summary>
@@ -157,8 +157,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir));
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir), Is.True);
         }
 
         /// <summary>
@@ -180,8 +180,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir));
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir), Is.True);
         }
 
         /// <summary>
@@ -208,8 +208,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(this.installDir));
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestMsiInstalledAndCleanup(this.installDir), Is.True);
         }
 
         /// <summary>
@@ -229,8 +229,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestMsixInstalledAndCleanup(), Is.True);
         }
 
         /// <summary>
@@ -254,8 +254,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup(true));
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestMsixInstalledAndCleanup(true), Is.True);
         }
 
         /// <summary>
@@ -279,8 +279,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestMsixInstalledAndCleanup(), Is.True);
         }
 
         /// <summary>
@@ -304,8 +304,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup(true));
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestMsixInstalledAndCleanup(true), Is.True);
         }
 
         /// <summary>
@@ -325,8 +325,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.DownloadError, installResult.Status);
-            Assert.False(TestCommon.VerifyTestMsixInstalledAndCleanup());
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.DownloadError));
+            Assert.That(TestCommon.VerifyTestMsixInstalledAndCleanup(), Is.False);
         }
 
         /// <summary>
@@ -345,8 +345,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var searchResult = this.FindAllPackages(failSearchSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
 
             // Assert
-            Assert.NotNull(failSearchSource);
-            Assert.AreEqual(0, searchResult.Count);
+            Assert.That(failSearchSource, Is.Not.Null);
+            Assert.That(searchResult.Count, Is.EqualTo(0));
 
             // Remove mock source
             TestCommon.RunAICLICommand("source remove", "failSearch");
@@ -374,7 +374,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, Constants.PortableExePackageDirName), commandAlias, fileName, productCode, true);
         }
 
@@ -400,7 +400,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
             TestCommon.VerifyPortablePackage(this.installDir, commandAlias, fileName, productCode, true);
         }
 
@@ -429,7 +429,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
             TestCommon.VerifyPortablePackage(existingDir, commandAlias, fileName, productCode, true);
         }
 
@@ -469,7 +469,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.InstallError, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.InstallError));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
             Directory.Delete(conflictDirectory, true);
         }
@@ -494,7 +494,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.NoApplicableInstallers, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.NoApplicableInstallers));
         }
 
         /// <summary>
@@ -517,7 +517,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
         }
 
         /// <summary>
@@ -540,7 +540,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
         }
 
         /// <summary>
@@ -563,7 +563,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.PackageAgreementsNotAccepted, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.PackageAgreementsNotAccepted));
         }
 
         /// <summary>
@@ -587,8 +587,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert that only the exe installer is installed and not the portable package dependency.
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir));
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir), Is.True);
 
             string installDir = Path.Combine(Environment.GetEnvironmentVariable(Constants.LocalAppData), "Microsoft", "WinGet", "Packages");
             string productCode = Constants.PortableExePackageDirName;
@@ -618,8 +618,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(this.installDir));
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestMsiInstalledAndCleanup(this.installDir), Is.True);
         }
 
         /// <summary>
@@ -630,7 +630,7 @@ namespace AppInstallerCLIE2ETests.Interop
         {
             // Find package
             var searchResult = this.FindAllPackages(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageInstallerInfo");
-            Assert.AreEqual(1, searchResult.Count);
+            Assert.That(searchResult.Count, Is.EqualTo(1));
 
             // Configure installation
             var catalogPackage = searchResult[0].CatalogPackage;
@@ -641,7 +641,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var badInstallOptions = this.TestFactory.CreateInstallOptions();
             badInstallOptions.PackageInstallScope = PackageInstallScope.System;
 
-            Assert.IsNull(packageVersionInfo.GetApplicableInstaller(badInstallOptions));
+            Assert.That(packageVersionInfo.GetApplicableInstaller(badInstallOptions), Is.Null);
 
             // Use install options with valid applicable match.
             var installOptions = this.TestFactory.CreateInstallOptions();
@@ -649,13 +649,13 @@ namespace AppInstallerCLIE2ETests.Interop
             var packageInstallerInfo = packageVersionInfo.GetApplicableInstaller(installOptions);
 
             // Assert
-            Assert.IsNotNull(packageInstallerInfo);
-            Assert.AreEqual(ElevationRequirement.ElevationRequired, packageInstallerInfo.ElevationRequirement);
-            Assert.AreEqual(Windows.System.ProcessorArchitecture.X64, packageInstallerInfo.Architecture);
-            Assert.AreEqual(PackageInstallerType.Zip, packageInstallerInfo.InstallerType);
-            Assert.AreEqual(PackageInstallerType.Exe, packageInstallerInfo.NestedInstallerType);
-            Assert.AreEqual(PackageInstallerScope.User, packageInstallerInfo.Scope);
-            Assert.AreEqual("en-US", packageInstallerInfo.Locale);
+            Assert.That(packageInstallerInfo, Is.Not.Null);
+            Assert.That(packageInstallerInfo.ElevationRequirement, Is.EqualTo(ElevationRequirement.ElevationRequired));
+            Assert.That(packageInstallerInfo.Architecture, Is.EqualTo(Windows.System.ProcessorArchitecture.X64));
+            Assert.That(packageInstallerInfo.InstallerType, Is.EqualTo(PackageInstallerType.Zip));
+            Assert.That(packageInstallerInfo.NestedInstallerType, Is.EqualTo(PackageInstallerType.Exe));
+            Assert.That(packageInstallerInfo.Scope, Is.EqualTo(PackageInstallerScope.User));
+            Assert.That(packageInstallerInfo.Locale, Is.EqualTo("en-US"));
         }
 
         /// <summary>
@@ -669,8 +669,8 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Ensure package is not installed
             var installedResult = this.FindAllPackages(installedCatalogReference, PackageMatchField.ProductCode, PackageFieldMatchOption.Equals, Constants.ExeInstalledDefaultProductCode);
-            Assert.IsNotNull(installedResult);
-            Assert.AreEqual(0, installedResult.Count);
+            Assert.That(installedResult, Is.Not.Null);
+            Assert.That(installedResult.Count, Is.EqualTo(0));
 
             // Find package
             var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
@@ -685,12 +685,12 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Check installed catalog after
             this.FindOnePackage(installedCatalogReference, PackageMatchField.ProductCode, PackageFieldMatchOption.Equals, Constants.ExeInstalledDefaultProductCode);
 
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir), Is.True);
         }
 
         /// <summary>
@@ -704,8 +704,8 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Ensure package is not installed
             var installedResult = this.FindAllPackages(installedCatalogReference, PackageMatchField.PackageFamilyName, PackageFieldMatchOption.Equals, Constants.MsixInstallerPackageFamilyName);
-            Assert.IsNotNull(installedResult);
-            Assert.AreEqual(0, installedResult.Count);
+            Assert.That(installedResult, Is.Not.Null);
+            Assert.That(installedResult.Count, Is.EqualTo(0));
 
             // Find package
             var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Name, PackageFieldMatchOption.Equals, "TestMsixInstaller");
@@ -717,12 +717,12 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Check installed catalog after
             this.FindOnePackage(installedCatalogReference, PackageMatchField.PackageFamilyName, PackageFieldMatchOption.Equals, Constants.MsixInstallerPackageFamilyName);
 
-            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
+            Assert.That(TestCommon.VerifyTestMsixInstalledAndCleanup(), Is.True);
         }
     }
 }

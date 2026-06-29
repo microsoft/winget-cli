@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+﻿﻿// -----------------------------------------------------------------------------
 // <copyright file="UninstallCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -37,9 +37,9 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             TestCommon.RunAICLICommand("install", $"{Constants.ExeInstallerPackageId} --silent -l {installDir}");
             var result = TestCommon.RunAICLICommand("uninstall", Constants.ExeInstallerPackageId);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(TestCommon.VerifyTestExeUninstalled(installDir));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully uninstalled"), Is.True);
+            Assert.That(TestCommon.VerifyTestExeUninstalled(installDir), Is.True);
         }
 
         /// <summary>
@@ -57,9 +57,9 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             TestCommon.RunAICLICommand("install", $"{Constants.MsiInstallerPackageId} -l {installDir}");
             var result = TestCommon.RunAICLICommand("uninstall", Constants.MsiInstallerPackageId);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(TestCommon.VerifyTestMsiUninstalled(installDir));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully uninstalled"), Is.True);
+            Assert.That(TestCommon.VerifyTestMsiUninstalled(installDir), Is.True);
         }
 
         /// <summary>
@@ -71,9 +71,9 @@ namespace AppInstallerCLIE2ETests
             // Uninstall an MSIX
             TestCommon.RunAICLICommand("install", Constants.MsixInstallerPackageId);
             var result = TestCommon.RunAICLICommand("uninstall", Constants.MsixInstallerPackageId);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(TestCommon.VerifyTestMsixUninstalled());
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully uninstalled"), Is.True);
+            Assert.That(TestCommon.VerifyTestMsixUninstalled(), Is.True);
         }
 
         /// <summary>
@@ -88,9 +88,9 @@ namespace AppInstallerCLIE2ETests
             // Uninstall an MSIX
             TestCommon.RunAICLICommand("install", $"{Constants.MsixInstallerPackageId} --scope machine");
             var result = TestCommon.RunAICLICommand("uninstall", $"{Constants.MsixInstallerPackageId} --scope machine");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(TestCommon.VerifyTestMsixUninstalled(true));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully uninstalled"), Is.True);
+            Assert.That(TestCommon.VerifyTestMsixUninstalled(true), Is.True);
         }
 
         /// <summary>
@@ -108,8 +108,8 @@ namespace AppInstallerCLIE2ETests
 
             TestCommon.RunAICLICommand("install", $"{packageId}");
             var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully uninstalled"), Is.True);
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
@@ -128,8 +128,8 @@ namespace AppInstallerCLIE2ETests
 
             TestCommon.RunAICLICommand("install", $"{packageId}");
             var result = TestCommon.RunAICLICommand("uninstall", $"--product-code {productCode}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully uninstalled"), Is.True);
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
@@ -155,15 +155,15 @@ namespace AppInstallerCLIE2ETests
             FileSystemInfo modifiedSymlinkInfo = File.CreateSymbolicLink(symlinkPath, "fakeTargetExe");
 
             var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_PORTABLE_UNINSTALL_FAILED, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Unable to remove Portable package as it has been modified; to override this check use --force"));
-            Assert.True(modifiedSymlinkInfo.Exists, "Modified symlink should still exist");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_PORTABLE_UNINSTALL_FAILED));
+            Assert.That(result.StdOut.Contains("Unable to remove Portable package as it has been modified; to override this check use --force"), Is.True);
+            Assert.That(modifiedSymlinkInfo.Exists, Is.True, "Modified symlink should still exist");
 
             // Try again with --force
             var result2 = TestCommon.RunAICLICommand("uninstall", $"{packageId} --force");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
-            Assert.True(result2.StdOut.Contains("Portable package has been modified; proceeding due to --force"));
-            Assert.True(result2.StdOut.Contains("Successfully uninstalled"));
+            Assert.That(result2.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result2.StdOut.Contains("Portable package has been modified; proceeding due to --force"), Is.True);
+            Assert.That(result2.StdOut.Contains("Successfully uninstalled"), Is.True);
 
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
@@ -183,8 +183,8 @@ namespace AppInstallerCLIE2ETests
 
             var testResult = TestCommon.RunAICLICommand("install", $"{packageId}");
             var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully uninstalled"), Is.True);
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
@@ -200,9 +200,9 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             TestCommon.RunAICLICommand("install", $"{Constants.ExeInstallerPackageId} --override \"/ProductID {CustomProductCode} /InstallDir {installDir}");
             var result = TestCommon.RunAICLICommand("uninstall", CustomProductCode);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(TestCommon.VerifyTestExeUninstalled(installDir));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Successfully uninstalled"), Is.True);
+            Assert.That(TestCommon.VerifyTestExeUninstalled(installDir), Is.True);
         }
 
         /// <summary>
@@ -213,8 +213,8 @@ namespace AppInstallerCLIE2ETests
         {
             // Verify failure when trying to uninstall an app that is not installed.
             var result = TestCommon.RunAICLICommand("uninstall", $"TestMsixInstaller");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("No installed package found matching input criteria."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
+            Assert.That(result.StdOut.Contains("No installed package found matching input criteria."), Is.True);
         }
     }
 }

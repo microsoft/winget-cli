@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="DSCv3ResourceTestBase.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -55,10 +55,10 @@ namespace AppInstallerCLIE2ETests
         public static void EnsureTestResourcePresence()
         {
             string outputDirectory = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft\\WindowsApps");
-            Assert.IsNotEmpty(outputDirectory);
+            Assert.That(outputDirectory, Is.Not.Empty);
 
             var result = TestCommon.RunAICLICommand($"dscv3", $"--manifest -o {outputDirectory}");
-            Assert.AreEqual(0, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(0));
         }
 
         /// <summary>
@@ -88,8 +88,8 @@ namespace AppInstallerCLIE2ETests
         /// <param name="result">The result of a DSC v3 resource command run.</param>
         protected static void AssertSuccessfulResourceRun(ref TestCommon.RunCommandResult result)
         {
-            Assert.AreEqual(0, result.ExitCode);
-            Assert.IsNotEmpty(result.StdOut);
+            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.StdOut, Is.Not.Empty);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace AppInstallerCLIE2ETests
         protected static T GetSingleOutputLineAs<T>(string output)
         {
             string[] lines = GetOutputLines(output);
-            Assert.AreEqual(1, lines.Length);
+            Assert.That(lines.Length, Is.EqualTo(1));
 
             return JsonSerializer.Deserialize<T>(lines[0], GetDefaultJsonOptions());
         }
@@ -125,7 +125,7 @@ namespace AppInstallerCLIE2ETests
         protected static (T, List<string>) GetSingleOutputLineAndDiffAs<T>(string output)
         {
             string[] lines = GetOutputLines(output);
-            Assert.AreEqual(2, lines.Length);
+            Assert.That(lines.Length, Is.EqualTo(2));
 
             var options = GetDefaultJsonOptions();
             return (JsonSerializer.Deserialize<T>(lines[0], options), JsonSerializer.Deserialize<List<string>>(lines[1], options));
@@ -158,12 +158,12 @@ namespace AppInstallerCLIE2ETests
         /// <param name="expected">The expected strings.</param>
         protected static void AssertDiffState(List<string> diff, IList<string> expected)
         {
-            Assert.IsNotNull(diff);
-            Assert.AreEqual(expected.Count, diff.Count);
+            Assert.That(diff, Is.Not.Null);
+            Assert.That(diff.Count, Is.EqualTo(expected.Count));
 
             foreach (string item in expected)
             {
-                Assert.Contains(item, diff);
+                Assert.That(diff, Has.Member(item));
             }
         }
 

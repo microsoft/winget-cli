@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="Shutdown.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -38,17 +38,17 @@ namespace AppInstallerCLIE2ETests.Interop
             var packageManager = this.TestFactory.CreatePackageManager();
 
             var servers = WinGetServerInstance.GetInstances();
-            Assert.AreEqual(1, servers.Count);
+            Assert.That(servers.Count, Is.EqualTo(1));
 
             var server = servers[0];
-            Assert.IsTrue(server.HasWindow);
+            Assert.That(server.HasWindow, Is.True);
 
             // This is the call pattern from Windows
             this.SendMessageAndLog(server, WindowMessage.QueryEndSession);
             this.SendMessageAndLog(server, WindowMessage.EndSession);
             this.SendMessageAndLog(server, WindowMessage.Close);
 
-            Assert.IsTrue(server.Process.WaitForExit(5000));
+            Assert.That(server.Process.WaitForExit(5000), Is.True);
         }
 
         /// <summary>
@@ -63,10 +63,10 @@ namespace AppInstallerCLIE2ETests.Interop
             var installDir = TestCommon.GetRandomTestDir();
 
             var servers = WinGetServerInstance.GetInstances();
-            Assert.AreEqual(1, servers.Count);
+            Assert.That(servers.Count, Is.EqualTo(1));
 
             var server = servers[0];
-            Assert.IsTrue(server.HasWindow);
+            Assert.That(server.HasWindow, Is.True);
 
             // Find package
             var searchResult = this.FindOnePackage(testSource, PackageMatchField.Name, PackageFieldMatchOption.Equals, "InapplicableOsVersion");
@@ -84,7 +84,7 @@ namespace AppInstallerCLIE2ETests.Interop
             this.SendMessageAndLog(server, WindowMessage.EndSession);
             this.SendMessageAndLog(server, WindowMessage.Close);
 
-            Assert.IsTrue(server.Process.WaitForExit(5000));
+            Assert.That(server.Process.WaitForExit(5000), Is.True);
 
             InstallResult installResult = null;
             Exception exception = null;
@@ -101,14 +101,14 @@ namespace AppInstallerCLIE2ETests.Interop
             // We just expect some kind of signal to indicate the failed attempt.
             if (installResult != null)
             {
-                Assert.AreNotEqual(InstallResultStatus.Ok, installResult.Status);
+                Assert.That(installResult.Status, Is.Not.EqualTo(InstallResultStatus.Ok));
             }
             else
             {
-                Assert.NotNull(exception);
+                Assert.That(exception, Is.Not.Null);
             }
 
-            Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), Is.False);
         }
 
         private void SendMessageAndLog(WinGetServerInstance server, WindowMessage message)

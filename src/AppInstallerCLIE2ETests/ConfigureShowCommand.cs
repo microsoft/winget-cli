@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="ConfigureShowCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -45,8 +45,8 @@ namespace AppInstallerCLIE2ETests
             TestCommon.EnsureModuleState(Constants.GalleryTestModuleName, present: false);
 
             var result = TestCommon.RunAICLICommand("configure show", $"{TestCommon.GetTestDataFile("Configuration\\PSGallery_NoModule_NoSettings.yml")} --verbose", timeOut: 120000);
-            Assert.AreEqual(0, result.ExitCode);
-            Assert.True(result.StdOut.Contains(Constants.PSGalleryName));
+            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.StdOut, Does.Contain(Constants.PSGalleryName));
         }
 
         /// <summary>
@@ -58,8 +58,8 @@ namespace AppInstallerCLIE2ETests
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
 
             var result = TestCommon.RunAICLICommand("configure show", $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")} --verbose");
-            Assert.AreEqual(0, result.ExitCode);
-            Assert.True(result.StdOut.Contains(Constants.TestRepoName));
+            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.StdOut, Does.Contain(Constants.TestRepoName));
         }
 
         /// <summary>
@@ -81,8 +81,8 @@ namespace AppInstallerCLIE2ETests
             }
 
             var result = TestCommon.RunAICLICommand("configure show", args);
-            Assert.AreEqual(0, result.ExitCode);
-            Assert.True(result.StdOut.Contains(Constants.LocalModuleDescriptor));
+            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.StdOut, Does.Contain(Constants.LocalModuleDescriptor));
         }
 
         /// <summary>
@@ -94,8 +94,8 @@ namespace AppInstallerCLIE2ETests
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
 
             var result = TestCommon.RunAICLICommand("configure show", $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo_0_3.yml")} --verbose");
-            Assert.AreEqual(0, result.ExitCode);
-            Assert.True(result.StdOut.Contains(Constants.TestRepoName));
+            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.StdOut, Does.Contain(Constants.TestRepoName));
         }
 
         /// <summary>
@@ -105,8 +105,8 @@ namespace AppInstallerCLIE2ETests
         public void ShowDetails_Schema0_3_Parameters()
         {
             var result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\WithParameters_0_3.yml"));
-            Assert.AreEqual(0, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Failed to get detailed information about the configuration."));
+            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.StdOut, Does.Contain("Failed to get detailed information about the configuration."));
         }
 
         /// <summary>
@@ -116,8 +116,8 @@ namespace AppInstallerCLIE2ETests
         public void ShowDetailsFromHttpsConfigurationFile()
         {
             var result = TestCommon.RunAICLICommand("configure show", $"{Constants.TestSourceUrl}/TestData/Configuration/ShowDetails_TestRepo.yml --verbose");
-            Assert.AreEqual(0, result.ExitCode);
-            Assert.True(result.StdOut.Contains(Constants.TestRepoName));
+            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.StdOut, Does.Contain(Constants.TestRepoName));
         }
 
         /// <summary>
@@ -127,10 +127,10 @@ namespace AppInstallerCLIE2ETests
         public void ShowTruncatedDetailsAndFileContent()
         {
             var result = TestCommon.RunAICLICommand("configure show", $"{TestCommon.GetTestDataFile("Configuration\\LargeContentStrings.yml")} --verbose");
-            Assert.AreEqual(0, result.ExitCode);
-            Assert.True(result.StdOut.Contains("<this value has been truncated; inspect the file contents for the complete text>"));
-            Assert.True(result.StdOut.Contains("Some of the data present in the configuration file was truncated for this output; inspect the file contents for the complete content."));
-            Assert.False(result.StdOut.Contains("Line5"));
+            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.StdOut.Contains("<this value has been truncated; inspect the file contents for the complete text>"), Is.True);
+            Assert.That(result.StdOut.Contains("Some of the data present in the configuration file was truncated for this output; inspect the file contents for the complete content."), Is.True);
+            Assert.That(result.StdOut.Contains("Line5"), Is.False);
         }
 
         /// <summary>
@@ -140,11 +140,11 @@ namespace AppInstallerCLIE2ETests
         public void ShowFromHistory()
         {
             var result = TestCommon.RunAICLICommand("configure --accept-configuration-agreements --verbose", TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
-            Assert.AreEqual(0, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(0));
 
             string guid = TestCommon.GetConfigurationInstanceIdentifierFor("Configure_TestRepo.yml");
             result = TestCommon.RunAICLICommand("configure show", $"-h {guid}");
-            Assert.AreEqual(0, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(0));
         }
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace AppInstallerCLIE2ETests
         public void ShowWithBadProcessorIdentifier()
         {
             var result = TestCommon.RunAICLICommand("configure show", $"{TestCommon.GetTestDataFile("Configuration\\Unknown_Processor.yml")} --verbose");
-            Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_INVALID_FIELD_VALUE, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.CONFIG_ERROR_INVALID_FIELD_VALUE));
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace AppInstallerCLIE2ETests
         public void ShowDetails_DSCv3()
         {
             var result = TestCommon.RunAICLICommand("configure show", $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_DSCv3.yml")} --verbose");
-            Assert.AreEqual(0, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(0));
 
             var outputLines = result.StdOut.Split('\n');
             int startLine = -1;
@@ -176,11 +176,11 @@ namespace AppInstallerCLIE2ETests
                 }
             }
 
-            Assert.AreNotEqual(-1, startLine);
-            Assert.LessOrEqual(3, outputLines.Length - startLine);
+            Assert.That(startLine, Is.Not.EqualTo(-1));
+            Assert.That(outputLines.Length - startLine, Is.GreaterThanOrEqualTo(3));
 
             // outputLines[1] should contain the discovered resource string if working properly.
-            Assert.AreEqual("Description 1.", outputLines[startLine + 2].Trim());
+            Assert.That(outputLines[startLine + 2].Trim(), Is.EqualTo("Description 1."));
         }
 
         /// <summary>
@@ -190,11 +190,11 @@ namespace AppInstallerCLIE2ETests
         public void ShowFromHistory_DSCv3()
         {
             var result = TestCommon.RunAICLICommand("configure --accept-configuration-agreements --verbose", TestCommon.GetTestDataFile("Configuration\\ShowDetails_DSCv3.yml"));
-            Assert.AreEqual(0, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(0));
 
             string guid = TestCommon.GetConfigurationInstanceIdentifierFor("ShowDetails_DSCv3.yml");
             result = TestCommon.RunAICLICommand("configure show", $"-h {guid} --");
-            Assert.AreEqual(0, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(0));
 
             var outputLines = result.StdOut.Split('\n');
             int startLine = -1;
@@ -206,11 +206,11 @@ namespace AppInstallerCLIE2ETests
                 }
             }
 
-            Assert.AreNotEqual(-1, startLine);
-            Assert.LessOrEqual(3, outputLines.Length - startLine);
+            Assert.That(startLine, Is.Not.EqualTo(-1));
+            Assert.That(outputLines.Length - startLine, Is.GreaterThanOrEqualTo(3));
 
             // outputLines[1] should contain the discovered resource string if working properly.
-            Assert.AreEqual("Description 1.", outputLines[startLine + 2].Trim());
+            Assert.That(outputLines[startLine + 2].Trim(), Is.EqualTo("Description 1."));
         }
 
         private void DeleteResourceArtifacts()

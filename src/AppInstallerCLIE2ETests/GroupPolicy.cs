@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="GroupPolicy.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -43,29 +43,29 @@ namespace AppInstallerCLIE2ETests
         {
             GroupPolicyHelper.EnableWinget.Disable();
             var result = TestCommon.RunAICLICommand("search", "foo");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
             // Scenario if Policy WinGet is disabled but Policy EnableWindowsPackageManagerCommandLineInterfaces is Enabled.
             GroupPolicyHelper.EnableWinGetCommandLineInterfaces.Enable();
             result = TestCommon.RunAICLICommand("search", "foo");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
             // Scenario if Policy WinGet is disabled but Policy EnableWindowsPackageManagerCommandLineInterfaces is Not-Configured.
             GroupPolicyHelper.EnableWinGetCommandLineInterfaces.SetNotConfigured();
             result = TestCommon.RunAICLICommand("search", "foo");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
             // Scenario if Policy WinGet is enabled but Policy EnableWindowsPackageManagerCommandLineInterfaces is disabled.
             GroupPolicyHelper.EnableWinget.Enable();
             GroupPolicyHelper.EnableWinGetCommandLineInterfaces.Disable();
             result = TestCommon.RunAICLICommand("search", "foo");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
             // Scenario if Policy WinGet is Not-Configured  but Policy EnableWindowsPackageManagerCommandLineInterfaces is disabled.
             GroupPolicyHelper.EnableWinget.SetNotConfigured();
             GroupPolicyHelper.EnableWinGetCommandLineInterfaces.Disable();
             result = TestCommon.RunAICLICommand("search", "foo");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace AppInstallerCLIE2ETests
         {
             GroupPolicyHelper.EnableSettings.Disable();
             var result = TestCommon.RunAICLICommand("settings", string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
         }
 
         /// <summary>
@@ -87,13 +87,13 @@ namespace AppInstallerCLIE2ETests
         {
             WinGetSettingsHelper.ConfigureFeature("experimentalCmd", true);
             var result = TestCommon.RunAICLICommand("experimental", string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             // An experimental feature disabled by Group Policy behaves the same as one that is not enabled.
             // The expected result is a command line error as the argument validation rejects this.
             GroupPolicyHelper.EnableExperimentalFeatures.Disable();
             result = TestCommon.RunAICLICommand("experimental", string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS));
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace AppInstallerCLIE2ETests
         {
             GroupPolicyHelper.EnableLocalManifests.Disable();
             var result = TestCommon.RunAICLICommand("install", $"-m {TestCommon.GetTestDataFile(@"Manifests\TestExeInstaller.yaml")}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace AppInstallerCLIE2ETests
         {
             GroupPolicyHelper.EnableHashOverride.Disable();
             var result = TestCommon.RunAICLICommand("install", "AnyPackage --ignore-security-hash");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace AppInstallerCLIE2ETests
             GroupPolicyHelper.EnableLocalArchiveMalwareScanOverride.Disable();
             var result = TestCommon.RunAICLICommand("install", "AnyPackage --ignore-local-archive-malware-scan");
 
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
         }
 
         /// <summary>
@@ -138,11 +138,11 @@ namespace AppInstallerCLIE2ETests
         {
             // Default sources are disabled during setup so they are missing.
             var result = TestCommon.RunAICLICommand("source list", "winget");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST));
 
             GroupPolicyHelper.EnableDefaultSource.Enable();
             result = TestCommon.RunAICLICommand("source list", "winget");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
         }
 
         /// <summary>
@@ -153,11 +153,11 @@ namespace AppInstallerCLIE2ETests
         {
             // Default sources are disabled during setup so they are missing.
             var result = TestCommon.RunAICLICommand("source list", "msstore");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST));
 
             GroupPolicyHelper.EnableMicrosoftStoreSource.Enable();
             result = TestCommon.RunAICLICommand("source list", "msstore");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
         }
 
         /// <summary>
@@ -168,11 +168,11 @@ namespace AppInstallerCLIE2ETests
         {
             GroupPolicyHelper.EnableFontSource.Disable();
             var result = TestCommon.RunAICLICommand("source list", "winget-font");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST));
 
             GroupPolicyHelper.EnableFontSource.Enable();
             result = TestCommon.RunAICLICommand("source list", "winget-font");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
         }
 
         /// <summary>
@@ -184,7 +184,7 @@ namespace AppInstallerCLIE2ETests
             // Remove the test source, then add it with policy.
             TestCommon.RunAICLICommand("source remove", "TestSource");
             var result = TestCommon.RunAICLICommand("source list", "TestSource");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST));
 
             GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new string[]
             {
@@ -192,7 +192,7 @@ namespace AppInstallerCLIE2ETests
             });
 
             result = TestCommon.RunAICLICommand("source list", "TestSource");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
         }
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace AppInstallerCLIE2ETests
             // Remove the test source, then add it with policy.
             TestCommon.RunAICLICommand("source remove", "TestSource");
             var result = TestCommon.RunAICLICommand("source list", "TestSource");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST));
 
             GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new string[]
             {
@@ -212,13 +212,13 @@ namespace AppInstallerCLIE2ETests
             });
 
             result = TestCommon.RunAICLICommand("source list", "TestSource");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Trust Level"));
-            Assert.True(result.StdOut.Contains("Trusted"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Trust Level"), Is.True);
+            Assert.That(result.StdOut.Contains("Trusted"), Is.True);
 
             var searchResult = TestCommon.RunAICLICommand("search", "TestExampleInstaller");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_SOURCES_DEFINED, searchResult.ExitCode);
-            Assert.True(searchResult.StdOut.Contains("No sources defined; add one with 'source add' or reset to defaults with 'source reset'"));
+            Assert.That(searchResult.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_SOURCES_DEFINED));
+            Assert.That(searchResult.StdOut.Contains("No sources defined; add one with 'source add' or reset to defaults with 'source reset'"), Is.True);
         }
 
         /// <summary>
@@ -231,7 +231,7 @@ namespace AppInstallerCLIE2ETests
             // With allowed sources disabled:
             GroupPolicyHelper.EnableAllowedSources.Disable();
             var result = TestCommon.RunAICLICommand("source list", "TestSource");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST));
 
             // With allowed sources enabled, but not listing the test source:
             GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new string[]
@@ -240,7 +240,7 @@ namespace AppInstallerCLIE2ETests
             });
 
             result = TestCommon.RunAICLICommand("source list", "TestSource");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST));
 
             // With the test source allowed:
             GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new string[]
@@ -249,7 +249,7 @@ namespace AppInstallerCLIE2ETests
             });
 
             result = TestCommon.RunAICLICommand("source list", "TestSource");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
         }
 
         /// <summary>
@@ -261,8 +261,8 @@ namespace AppInstallerCLIE2ETests
             // Test this policy by inspecting the result of --info
             GroupPolicyHelper.SourceAutoUpdateInterval.SetEnabledValue(123);
             var result = TestCommon.RunAICLICommand(string.Empty, "--info");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.IsTrue(result.StdOut.Contains("Source Auto Update Interval In Minutes 123"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut.Contains("Source Auto Update Interval In Minutes 123"), Is.True);
         }
 
         /// <summary>
@@ -273,10 +273,10 @@ namespace AppInstallerCLIE2ETests
         {
             GroupPolicyHelper.EnableConfiguration.Disable();
             var result = TestCommon.RunAICLICommand("configure", TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml"));
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
             result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml"));
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
         }
 
         /// <summary>
@@ -289,21 +289,21 @@ namespace AppInstallerCLIE2ETests
 
             // --processor-path is rejected by policy at argument validation time across all configure subcommands.
             var result = TestCommon.RunAICLICommand("configure", $"--processor-path C:\\dsc.exe {TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
             result = TestCommon.RunAICLICommand("configure show", $"--processor-path C:\\dsc.exe {TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
             result = TestCommon.RunAICLICommand("configure test", $"--processor-path C:\\dsc.exe {TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
             result = TestCommon.RunAICLICommand("configure validate", $"--processor-path C:\\dsc.exe {TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
             // When not configured, the argument is allowed by policy (admin setting governs).
             GroupPolicyHelper.EnableConfigurationProcessorPath.SetNotConfigured();
             result = TestCommon.RunAICLICommand("configure show", $"--processor-path C:\\dsc.exe {TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")}");
-            Assert.AreNotEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.That(result.ExitCode, Is.Not.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
         }
     }
 }

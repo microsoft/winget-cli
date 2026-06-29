@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="InprocTestbedTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -213,7 +213,7 @@ namespace AppInstallerCLIE2ETests
             }
 
             var result = TestCommon.RunProcess(this.InprocTestbedPath, this.TargetPackageInformation, builtParameters, null, timeout, true, null);
-            Assert.AreEqual(0, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(0));
         }
 
         /// <summary>
