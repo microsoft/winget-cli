@@ -122,6 +122,7 @@ namespace AppInstaller::CLI::Execution
             GatedVersion, // Differs from Version in that this supports wildcards
             BlockingPin,
             PinInstalled,
+            PinNote, // User-provided note to attach to a pin
 
             // Error command
             ErrorInput,
