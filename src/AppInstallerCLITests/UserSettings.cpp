@@ -945,6 +945,15 @@ TEST_CASE("SettingOutputLocale", "[settings]")
         REQUIRE(userSettingTest.Get<Setting::OutputLocale>() == "en-US");
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
+    SECTION("Valid but unsupported locale")
+    {
+        std::string_view json = R"({ "output": { "locale": "el-GR" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputLocale>() == "el-GR");
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
     SECTION("Invalid locale")
     {
         std::string_view json = R"({ "output": { "locale": "en_US.UTF-8" } })";
