@@ -133,6 +133,7 @@ namespace AppInstaller::Settings
         LoggingFileTotalSizeLimitInMB,
         LoggingFileIndividualSizeLimitInMB,
         LoggingFileCountLimit,
+        LoggingFormat,
         // Uninstall behavior
         UninstallPurgePortablePackage,
         // Download behavior
@@ -237,6 +238,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileTotalSizeLimitInMB, uint32_t, uint32_t, 128, ".logging.file.totalSizeLimitInMB"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileIndividualSizeLimitInMB, uint32_t, uint32_t, 16, ".logging.file.individualSizeLimitInMB"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileCountLimit, uint32_t, uint32_t, 0, ".logging.file.countLimit"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFormat, std::string, Logging::LogFileFormat, Logging::LogFileFormat::WinGet, ".logging.format"sv);
         // Interactivity
         SETTINGMAPPING_SPECIALIZATION(Setting::InteractivityDisable, bool, bool, false, ".interactivity.disable"sv);
         // Output behavior
