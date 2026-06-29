@@ -16,6 +16,7 @@ namespace AppInstaller::Repository::Rest::Schema
     const Utility::Version Version_1_10_0{ "1.10.0" };
     const Utility::Version Version_1_12_0{ "1.12.0" };
     const Utility::Version Version_1_28_0{ "1.28.0" };
+    const Utility::Version Version_1_30_0{ "1.30.0" };
 
     // General API response constants
     constexpr std::string_view Data = "Data"sv;

@@ -13,6 +13,7 @@
 #include "Rest/Schema/1_10/Interface.h"
 #include "Rest/Schema/1_12/Interface.h"
 #include "Rest/Schema/1_28/Interface.h"
+#include "Rest/Schema/1_30/Interface.h"
 #include "Rest/Schema/InformationResponseDeserializer.h"
 #include "Rest/Schema/CommonRestConstants.h"
 #include <AppInstallerDownloader.h>
@@ -39,6 +40,7 @@ namespace AppInstaller::Repository::Rest
         Version_1_10_0,
         Version_1_12_0,
         Version_1_28_0,
+        Version_1_30_0,
     };
 
     constexpr std::string_view WindowsPackageManagerHeader = "Windows-Package-Manager"sv;
@@ -221,6 +223,10 @@ namespace AppInstaller::Repository::Rest
         else if (version == Version_1_28_0)
         {
             return std::make_unique<Schema::V1_28::Interface>(api, helper, information, additionalHeaders, authArgs);
+        }
+        else if (version == Version_1_30_0)
+        {
+            return std::make_unique<Schema::V1_30::Interface>(api, helper, information, additionalHeaders, authArgs);
         }
 
         THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
