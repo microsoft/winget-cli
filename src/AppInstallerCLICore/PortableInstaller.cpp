@@ -204,7 +204,7 @@ namespace AppInstaller::CLI::Portable
                 {
                     if (InstallDirectoryAddedToPath)
                     {
-						// If the install directory was previously added to PATH, remove it now that the symlink has been created.
+                        // If the install directory was previously added to PATH, remove it now that the symlink has been created.
                         RemoveFromPathVariable(symlinkTargetPath.parent_path(), false);
                     }
                     CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = false);
@@ -215,7 +215,7 @@ namespace AppInstaller::CLI::Portable
                     // If symlink creation fails, resort to adding the package directory to PATH.
                     AICLI_LOG(Core, Info, << "Failed to create symlink at: " << filePath);
                     AddToPathVariable(symlinkTargetPath.parent_path());
-					// Only remove the links directory if there are no links in it
+                    // Only remove the links directory if there are no links in it
                     RemoveFromPathVariable(GetPortableLinksLocation(GetScope()), true);
                     CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
                 }
@@ -373,7 +373,7 @@ namespace AppInstaller::CLI::Portable
 
         if (!InstallDirectoryAddedToPath)
         {
-			// Only remove the links directory if there are no links in it
+            // Only remove the links directory if there are no links in it
             RemoveFromPathVariable(GetPortableLinksLocation(GetScope()), true);
         }
         else
