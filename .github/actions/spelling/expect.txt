@@ -258,6 +258,7 @@ innererror
 inproc
 Insta
 installinprogress
+installable
 INSTALLPROPERTY
 installshield
 instream
@@ -597,6 +598,7 @@ tombstoned
 tombstoning
 Toolhelp
 transitioning
+Trenly
 trimstart
 ttl
 twgc
@@ -646,6 +648,7 @@ vsconfig
 vstest
 vswhere
 waitable
+waivered
 wal
 wcex
 WDAG
