@@ -460,6 +460,7 @@ namespace AppInstaller::CLI::Workflow
             context << details::PortableInstall;
             break;
         case InstallerTypeEnum::Zip:
+        case InstallerTypeEnum::Tar:
             context << details::ArchiveInstall;
             break;
         case InstallerTypeEnum::Font:

@@ -478,6 +478,11 @@ namespace Microsoft.Management.Deployment
             /// Font type.
             Font,
         },
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 14)]
+        {
+            /// Tar type (includes .tar.gz, .tgz, .tar.bz2, .tar.xz, and bare .tar).
+            Tar,
+        },
     };
 
     /// The package installer scope.
