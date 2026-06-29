@@ -180,6 +180,7 @@ Minimatch
 Moq
 motw
 mrm
+msb
 msdata
 MSHCTX
 MSHLFLAGS
@@ -197,6 +198,7 @@ ncacn
 Nelon
 netstandard
 newid
+NNN
 NOCASE
 NOCLOSEPROCESS
 nodiscard
