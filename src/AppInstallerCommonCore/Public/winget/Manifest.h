@@ -7,10 +7,18 @@
 #include <winget/ManifestInstaller.h>
 #include <winget/ManifestLocalization.h>
 
+#include <string_view>
 #include <vector>
 
 namespace AppInstaller::Manifest
 {
+    struct Manifest;
+
+    inline constexpr std::string_view PACKAGE_VERSION_TOKEN = "<PACKAGEVERSION>";
+
+    // Expands supported manifest string tokens using package-level manifest data.
+    void ExpandManifestPackageVersionTokens(Manifest& manifest);
+
     // Representation of the parsed manifest file.
     struct Manifest
     {

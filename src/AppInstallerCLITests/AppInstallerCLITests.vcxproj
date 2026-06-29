@@ -705,6 +705,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-NoArpVersionDeclared.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-PackageVersionToken.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-SingleArpVersionDeclared.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

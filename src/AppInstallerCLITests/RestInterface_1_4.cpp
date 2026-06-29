@@ -67,7 +67,7 @@ namespace
                   ],
                   "Moniker": "FooBarMoniker",
                   "ReleaseNotes": "Default release notes",
-                  "ReleaseNotesUrl": "https://DefaultReleaseNotes.net",
+                  "ReleaseNotesUrl": "https://DefaultReleaseNotes.net/<PACKAGEVERSION>",
                   "Agreements": [{
                     "AgreementLabel": "DefaultLabel",
                     "Agreement": "DefaultText",
@@ -103,7 +103,7 @@ namespace
                       "BarFr"
                     ],
                     "ReleaseNotes": "Release notes",
-                    "ReleaseNotesUrl": "https://ReleaseNotes.net",
+                    "ReleaseNotesUrl": "https://ReleaseNotes.net/<PACKAGEVERSION>",
                     "Agreements": [{
                       "AgreementLabel": "Label",
                       "Agreement": "Text",
@@ -171,7 +171,7 @@ namespace
                         "FooBarBaz"
                       ]
                     },
-                    "ProductCode": "5b6e0f8a-3bbf-4a17-aefd-024c2b3e075d",
+                    "ProductCode": "5b6e0f8a-<PACKAGEVERSION>",
                     "ReleaseDate": "2021-01-01",
                     "InstallerAbortsTerminal": true,
                     "InstallLocationRequired": true,
@@ -179,10 +179,10 @@ namespace
                     "UnsupportedOSArchitectures": [ "arm" ],
                     "ElevationRequirement": "elevatesSelf",
                     "AppsAndFeaturesEntries": [{
-                      "DisplayName": "DisplayName",
+                      "DisplayName": "DisplayName-<PACKAGEVERSION>",
                       "DisplayVersion": "DisplayVersion",
                       "Publisher": "Publisher",
-                      "ProductCode": "ProductCode",
+                      "ProductCode": "ProductCode-<PACKAGEVERSION>",
                       "UpgradeCode": "UpgradeCode",
                       "InstallerType": "exe"
                     }],
@@ -198,13 +198,13 @@ namespace
                     "DisplayInstallWarnings": true,
                     "UnsupportedArguments": [ "log" ],
                     "NestedInstallerFiles": [{
-                      "RelativeFilePath": "test\\app.exe",
+                      "RelativeFilePath": "test\\app.<PACKAGEVERSION>.exe",
                       "PortableCommandAlias": "test.exe"
                     }],
                     "InstallationMetadata": {
-                      "DefaultInstallLocation": "%TEMP%\\DefaultInstallLocation",
+                      "DefaultInstallLocation": "%TEMP%\\DefaultInstallLocation\\<PACKAGEVERSION>",
                       "Files": [{
-                        "RelativeFilePath": "test\\app.exe",
+                        "RelativeFilePath": "test\\app.<PACKAGEVERSION>.exe",
                         "FileSha256": "011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6",
                         "FileType": "launch",
                         "InvocationParameter": "/parameter",
@@ -241,7 +241,7 @@ namespace
             REQUIRE(manifest.DefaultLocalization.Get<Localization::Tags>().at(1) == "Foo");
             REQUIRE(manifest.DefaultLocalization.Get<Localization::Tags>().at(2) == "Bar");
             REQUIRE(manifest.DefaultLocalization.Get<Localization::ReleaseNotes>() == "Default release notes");
-            REQUIRE(manifest.DefaultLocalization.Get<Localization::ReleaseNotesUrl>() == "https://DefaultReleaseNotes.net");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::ReleaseNotesUrl>() == "https://DefaultReleaseNotes.net/3.0.0abc");
             REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().size() == 1);
             REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).Label == "DefaultLabel");
             REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).AgreementText == "DefaultText");
@@ -273,7 +273,7 @@ namespace
             REQUIRE(frenchLocalization.Get<Localization::Tags>().at(1) == "FooFr");
             REQUIRE(frenchLocalization.Get<Localization::Tags>().at(2) == "BarFr");
             REQUIRE(frenchLocalization.Get<Localization::ReleaseNotes>() == "Release notes");
-            REQUIRE(frenchLocalization.Get<Localization::ReleaseNotesUrl>() == "https://ReleaseNotes.net");
+            REQUIRE(frenchLocalization.Get<Localization::ReleaseNotesUrl>() == "https://ReleaseNotes.net/3.0.0abc");
             REQUIRE(frenchLocalization.Get<Localization::Agreements>().size() == 1);
             REQUIRE(frenchLocalization.Get<Localization::Agreements>().at(0).Label == "Label");
             REQUIRE(frenchLocalization.Get<Localization::Agreements>().at(0).AgreementText == "Text");
@@ -320,7 +320,7 @@ namespace
             REQUIRE(actualInstaller.Dependencies.HasExactDependency(DependencyType::Package, "Foo.Baz", "2.0.0"));
             REQUIRE(actualInstaller.Dependencies.HasExactDependency(DependencyType::External, "FooBarBaz"));
             REQUIRE(actualInstaller.PackageFamilyName == "");
-            REQUIRE(actualInstaller.ProductCode == "5b6e0f8a-3bbf-4a17-aefd-024c2b3e075d");
+            REQUIRE(actualInstaller.ProductCode == "5b6e0f8a-3.0.0abc");
             REQUIRE(actualInstaller.ReleaseDate == "2021-01-01");
             REQUIRE(actualInstaller.InstallerAbortsTerminal);
             REQUIRE(actualInstaller.InstallLocationRequired);
@@ -329,10 +329,10 @@ namespace
             REQUIRE(actualInstaller.UnsupportedOSArchitectures.size() == 1);
             REQUIRE(actualInstaller.UnsupportedOSArchitectures.at(0) == Architecture::Arm);
             REQUIRE(actualInstaller.AppsAndFeaturesEntries.size() == 1);
-            REQUIRE(actualInstaller.AppsAndFeaturesEntries.at(0).DisplayName == "DisplayName");
+            REQUIRE(actualInstaller.AppsAndFeaturesEntries.at(0).DisplayName == "DisplayName-3.0.0abc");
             REQUIRE(actualInstaller.AppsAndFeaturesEntries.at(0).DisplayVersion == "DisplayVersion");
             REQUIRE(actualInstaller.AppsAndFeaturesEntries.at(0).Publisher == "Publisher");
-            REQUIRE(actualInstaller.AppsAndFeaturesEntries.at(0).ProductCode == "ProductCode");
+            REQUIRE(actualInstaller.AppsAndFeaturesEntries.at(0).ProductCode == "ProductCode-3.0.0abc");
             REQUIRE(actualInstaller.AppsAndFeaturesEntries.at(0).UpgradeCode == "UpgradeCode");
             REQUIRE(actualInstaller.AppsAndFeaturesEntries.at(0).InstallerType == InstallerTypeEnum::Exe);
             REQUIRE(actualInstaller.Markets.AllowedMarkets.size() == 1);
@@ -344,11 +344,11 @@ namespace
             REQUIRE(actualInstaller.UnsupportedArguments.size() == 1);
             REQUIRE(actualInstaller.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
             REQUIRE(actualInstaller.NestedInstallerFiles.size() == 1);
-            REQUIRE(actualInstaller.NestedInstallerFiles.at(0).RelativeFilePath == "test\\app.exe");
+            REQUIRE(actualInstaller.NestedInstallerFiles.at(0).RelativeFilePath == "test\\app.3.0.0abc.exe");
             REQUIRE(actualInstaller.NestedInstallerFiles.at(0).PortableCommandAlias == "test.exe");
-            REQUIRE(actualInstaller.InstallationMetadata.DefaultInstallLocation == "%TEMP%\\DefaultInstallLocation");
+            REQUIRE(actualInstaller.InstallationMetadata.DefaultInstallLocation == "%TEMP%\\DefaultInstallLocation\\3.0.0abc");
             REQUIRE(actualInstaller.InstallationMetadata.Files.size() == 1);
-            REQUIRE(actualInstaller.InstallationMetadata.Files.at(0).RelativeFilePath == "test\\app.exe");
+            REQUIRE(actualInstaller.InstallationMetadata.Files.at(0).RelativeFilePath == "test\\app.3.0.0abc.exe");
             REQUIRE(actualInstaller.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Launch);
             REQUIRE(actualInstaller.InstallationMetadata.Files.at(0).FileSha256 == AppInstaller::Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6"));
             REQUIRE(actualInstaller.InstallationMetadata.Files.at(0).InvocationParameter == "/parameter");
