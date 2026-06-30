@@ -66,6 +66,26 @@ namespace AppInstaller::Settings
     // Converts a string to SortField. Returns std::nullopt for unrecognized values.
     std::optional<SortField> ConvertToSortField(std::string_view value);
 
+    // Supported output locale overrides.
+    enum class OutputLocale
+    {
+        Unset,
+        EnUS,
+        DeDE,
+        EsES,
+        FrFR,
+        ItIT,
+        JaJP,
+        KoKR,
+        PtBR,
+        RuRU,
+        ZhCN,
+        ZhTW,
+    };
+
+    // Converts OutputLocale to its locale tag value. Returns empty for OutputLocale::Unset.
+    std::string_view OutputLocaleToString(OutputLocale locale);
+
     // Sort direction for output ordering.
     enum class SortDirection
     {
@@ -243,7 +263,7 @@ namespace AppInstaller::Settings
         // Output behavior
         SETTINGMAPPING_SPECIALIZATION(Setting::OutputSortOrder, std::vector<std::string>, std::vector<SortField>, std::vector<SortField>{}, ".output.sortOrder"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::OutputSortDirection, std::string, SortDirection, SortDirection::Ascending, ".output.sortDirection"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::OutputLocale, std::string, std::string, {}, ".output.locale"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::OutputLocale, std::string, OutputLocale, OutputLocale::Unset, ".output.locale"sv);
         
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>

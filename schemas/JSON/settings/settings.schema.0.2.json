@@ -380,10 +380,21 @@
           "default": "ascending"
         },
         "locale": {
-          "description": "Overrides winget interface output language using a BCP47 language tag",
+          "description": "Overrides winget interface output language using a supported locale",
           "type": "string",
-          "pattern": "^([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$",
-          "maxLength": 20
+          "enum": [
+            "en-US",
+            "de-DE",
+            "es-ES",
+            "fr-FR",
+            "it-IT",
+            "ja-JP",
+            "ko-KR",
+            "pt-BR",
+            "ru-RU",
+            "zh-CN",
+            "zh-TW"
+          ]
         }
       }
     }

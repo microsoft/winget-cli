@@ -80,16 +80,22 @@ namespace AppInstaller::CLI
             ShutdownMonitoring::ServerShutdownSynchronization::AddComponent(main);
         }
 
-        std::optional<std::string> ApplyOutputLocaleOverride()
+        std::string ApplyOutputLocaleOverride()
         {
-            std::string localePreference = Settings::User().Get<Settings::Setting::OutputLocale>();
-            if (!localePreference.empty())
+            std::string localeTag{ Settings::OutputLocaleToString(Settings::User().Get<Settings::Setting::OutputLocale>()) };
+
+            try
             {
-                winrt::Windows::Globalization::ApplicationLanguages::PrimaryLanguageOverride(Utility::ConvertToUTF16(localePreference));
-                return localePreference;
+                // Always apply the setting value, including empty string, to clear any prior override.
+                winrt::Windows::Globalization::ApplicationLanguages::PrimaryLanguageOverride(Utility::ConvertToUTF16(localeTag));
+            }
+            catch (const winrt::hresult_error& hre)
+            {
+                AICLI_LOG(CLI, Warning, << "Failed to apply output locale override for " << localeTag << ". HRESULT: 0x" << Logging::SetHRFormat << hre.code());
+                return {};
             }
 
-            return {};
+            return localeTag;
         }
     }
 
@@ -132,10 +138,10 @@ namespace AppInstaller::CLI
         Logging::OutputDebugStringLogger::Remove();
         Logging::EnableWilFailureTelemetry();
 
-        std::optional<std::string> outputLocaleOverride = ApplyOutputLocaleOverride();
-        if (outputLocaleOverride)
+        std::string outputLocaleOverride = ApplyOutputLocaleOverride();
+        if (outputLocaleOverride != Settings::OutputLocaleToString(Settings::OutputLocale::Unset))
         {
-            AICLI_LOG(CLI, Info, << "Applied output locale override from settings: " << outputLocaleOverride.value());
+            AICLI_LOG(CLI, Info, << "Applied output locale override from settings: " << outputLocaleOverride);
         }
 
         // Set output to UTF8

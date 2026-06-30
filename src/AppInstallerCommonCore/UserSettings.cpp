@@ -235,6 +235,39 @@ namespace AppInstaller::Settings
         return std::nullopt;
     }
 
+    std::string_view OutputLocaleToString(OutputLocale locale)
+    {
+        switch (locale)
+        {
+        case OutputLocale::EnUS:
+            return "en-US"sv;
+        case OutputLocale::DeDE:
+            return "de-DE"sv;
+        case OutputLocale::EsES:
+            return "es-ES"sv;
+        case OutputLocale::FrFR:
+            return "fr-FR"sv;
+        case OutputLocale::ItIT:
+            return "it-IT"sv;
+        case OutputLocale::JaJP:
+            return "ja-JP"sv;
+        case OutputLocale::KoKR:
+            return "ko-KR"sv;
+        case OutputLocale::PtBR:
+            return "pt-BR"sv;
+        case OutputLocale::RuRU:
+            return "ru-RU"sv;
+        case OutputLocale::ZhCN:
+            return "zh-CN"sv;
+        case OutputLocale::ZhTW:
+            return "zh-TW"sv;
+        case OutputLocale::Unset:
+            return {};
+        }
+
+        return {};
+    }
+
     namespace details
     {
 #define WINGET_VALIDATE_SIGNATURE(_setting_) \
@@ -564,11 +597,19 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_SIGNATURE(OutputLocale)
         {
-            if (Locale::IsWellFormedBcp47Tag(value))
-            {
-                return value;
-            }
+            std::string lowered = Utility::ToLower(value);
 
+            if (lowered == "en-us"sv) return OutputLocale::EnUS;
+            if (lowered == "de-de"sv) return OutputLocale::DeDE;
+            if (lowered == "es-es"sv) return OutputLocale::EsES;
+            if (lowered == "fr-fr"sv) return OutputLocale::FrFR;
+            if (lowered == "it-it"sv) return OutputLocale::ItIT;
+            if (lowered == "ja-jp"sv) return OutputLocale::JaJP;
+            if (lowered == "ko-kr"sv) return OutputLocale::KoKR;
+            if (lowered == "pt-br"sv) return OutputLocale::PtBR;
+            if (lowered == "ru-ru"sv) return OutputLocale::RuRU;
+            if (lowered == "zh-cn"sv) return OutputLocale::ZhCN;
+            if (lowered == "zh-tw"sv) return OutputLocale::ZhTW;
             return {};
         }
     }

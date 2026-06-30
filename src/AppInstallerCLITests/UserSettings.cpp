@@ -933,7 +933,7 @@ TEST_CASE("SettingOutputLocale", "[settings]")
     {
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::OutputLocale>().empty());
+        REQUIRE(userSettingTest.Get<Setting::OutputLocale>() == OutputLocale::Unset);
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
     SECTION("Valid locale")
@@ -942,17 +942,26 @@ TEST_CASE("SettingOutputLocale", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::OutputLocale>() == "en-US");
+        REQUIRE(userSettingTest.Get<Setting::OutputLocale>() == OutputLocale::EnUS);
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
-    SECTION("Valid but unsupported locale")
+    SECTION("Case insensitive locale")
+    {
+        std::string_view json = R"({ "output": { "locale": "EN-us" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputLocale>() == OutputLocale::EnUS);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Unsupported locale")
     {
         std::string_view json = R"({ "output": { "locale": "el-GR" } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::OutputLocale>() == "el-GR");
-        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+        REQUIRE(userSettingTest.Get<Setting::OutputLocale>() == OutputLocale::Unset);
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
     SECTION("Invalid locale")
     {
@@ -960,7 +969,7 @@ TEST_CASE("SettingOutputLocale", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::OutputLocale>().empty());
+        REQUIRE(userSettingTest.Get<Setting::OutputLocale>() == OutputLocale::Unset);
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
     SECTION("Wrong type")
@@ -969,7 +978,7 @@ TEST_CASE("SettingOutputLocale", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::OutputLocale>().empty());
+        REQUIRE(userSettingTest.Get<Setting::OutputLocale>() == OutputLocale::Unset);
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
 }
