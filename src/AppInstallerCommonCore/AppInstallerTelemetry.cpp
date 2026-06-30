@@ -849,7 +849,7 @@ namespace AppInstaller::Logging
         // Don't use IsTelemetryEnabled as that also checks the WinGet provider.
         if (g_IsStoreTelemetryProviderEnabled && m_isInitialized && m_isSettingEnabled && m_isRuntimeEnabled)
         {
-            TraceLoggingWrite(g_hStoreCriticalDataProvider,
+            TraceLoggingWrite(g_hWindowsStoreProvider,
                 "StoreExperienceTelemetry-WinGetInstall",
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA),

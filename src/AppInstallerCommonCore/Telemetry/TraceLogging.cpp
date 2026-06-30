@@ -15,12 +15,12 @@ bool g_IsTelemetryProviderEnabled{};
 UCHAR g_TelemetryProviderLevel{};
 ULONGLONG g_TelemetryProviderMatchAnyKeyword{};
 
-// GUID for Microsoft.Store : {5F0B026E-BCC1-5001-95D3-65E170A11EFA}
+// GUID for Microsoft-Windows-Store : {9C2A37F3-E5FD-5CAE-BCD1-43DAFEEE1FF0}
 TRACELOGGING_DEFINE_PROVIDER(
-    g_hStoreCriticalDataProvider,
-    "Microsoft.Store",
-    (0x5F0B026E, 0xBCC1, 0x5001, 0x95, 0xD3, 0x65, 0xE1, 0x70, 0xA1, 0x1E, 0xFA),
-    TraceLoggingOptionGroup(0x5ECB0BAC, 0xB930, 0x47F5, 0xA8, 0xA4, 0xE8, 0x25, 0x35, 0x29, 0xED, 0xB7));
+    g_hWindowsStoreProvider,
+    "Microsoft-Windows-Store",
+    (0x9c2a37f3, 0xe5fd, 0x5cae, 0xbc, 0xd1, 0x43, 0xda, 0xfe, 0xee, 0x1f, 0xf0),
+    TraceLoggingOptionMicrosoftTelemetry());
 
 bool g_IsStoreTelemetryProviderEnabled{};
 
@@ -62,11 +62,11 @@ void WINAPI StoreTelemetryProviderEnabledCallback(
 TraceProvider::TraceProvider()
 {
     TraceLoggingRegisterEx(g_hTraceProvider, TelemetryProviderEnabledCallback, nullptr);
-    TraceLoggingRegisterEx(g_hStoreCriticalDataProvider, StoreTelemetryProviderEnabledCallback, nullptr);
+    TraceLoggingRegisterEx(g_hWindowsStoreProvider, StoreTelemetryProviderEnabledCallback, nullptr);
 }
 
 TraceProvider::~TraceProvider()
 {
     TraceLoggingUnregister(g_hTraceProvider);
-    TraceLoggingUnregister(g_hStoreCriticalDataProvider);
+    TraceLoggingUnregister(g_hWindowsStoreProvider);
 }

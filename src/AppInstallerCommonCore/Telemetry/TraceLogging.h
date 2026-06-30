@@ -65,5 +65,5 @@ extern bool g_IsTelemetryProviderEnabled;
 extern UCHAR g_TelemetryProviderLevel;
 extern ULONGLONG g_TelemetryProviderMatchAnyKeyword;
 
-TRACELOGGING_DECLARE_PROVIDER(g_hStoreCriticalDataProvider);
+TRACELOGGING_DECLARE_PROVIDER(g_hWindowsStoreProvider);
 extern bool g_IsStoreTelemetryProviderEnabled;
