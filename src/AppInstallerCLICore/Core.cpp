@@ -82,11 +82,12 @@ namespace AppInstaller::CLI
 
         std::string ApplyOutputLocaleOverride()
         {
-            std::string localeTag{ Settings::OutputLocaleToString(Settings::User().Get<Settings::Setting::OutputLocale>()) };
+            std::string localeTag{ Settings::User().Get<Settings::Setting::OutputLocale>() };
 
             try
             {
-                // Always apply the setting value, including empty string, to clear any prior override.
+                // Always apply the setting value, including empty string, to clear a persisted override from
+                // previous sessions. PrimaryLanguageOverride is package-scoped and persists across sessions.
                 winrt::Windows::Globalization::ApplicationLanguages::PrimaryLanguageOverride(Utility::ConvertToUTF16(localeTag));
             }
             catch (const winrt::hresult_error& hre)
@@ -139,7 +140,7 @@ namespace AppInstaller::CLI
         Logging::EnableWilFailureTelemetry();
 
         std::string outputLocaleOverride = ApplyOutputLocaleOverride();
-        if (outputLocaleOverride != Settings::OutputLocaleToString(Settings::OutputLocale::Unset))
+        if (!outputLocaleOverride.empty())
         {
             AICLI_LOG(CLI, Info, << "Applied output locale override from settings: " << outputLocaleOverride);
         }

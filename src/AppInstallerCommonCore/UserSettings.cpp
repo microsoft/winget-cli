@@ -12,6 +12,8 @@
 #include "AppInstallerArchitecture.h"
 #include "winget/Locale.h"
 
+#include <array>
+
 namespace AppInstaller::Settings
 {
     using namespace std::string_view_literals;
@@ -235,37 +237,35 @@ namespace AppInstaller::Settings
         return std::nullopt;
     }
 
-    std::string_view OutputLocaleToString(OutputLocale locale)
+    namespace
     {
-        switch (locale)
+        static constexpr std::array<std::string_view, 11> s_supportedOutputLocales =
         {
-        case OutputLocale::EnUS:
-            return "en-US"sv;
-        case OutputLocale::DeDE:
-            return "de-DE"sv;
-        case OutputLocale::EsES:
-            return "es-ES"sv;
-        case OutputLocale::FrFR:
-            return "fr-FR"sv;
-        case OutputLocale::ItIT:
-            return "it-IT"sv;
-        case OutputLocale::JaJP:
-            return "ja-JP"sv;
-        case OutputLocale::KoKR:
-            return "ko-KR"sv;
-        case OutputLocale::PtBR:
-            return "pt-BR"sv;
-        case OutputLocale::RuRU:
-            return "ru-RU"sv;
-        case OutputLocale::ZhCN:
-            return "zh-CN"sv;
-        case OutputLocale::ZhTW:
-            return "zh-TW"sv;
-        case OutputLocale::Unset:
+            "en-US"sv,
+            "de-DE"sv,
+            "es-ES"sv,
+            "fr-FR"sv,
+            "it-IT"sv,
+            "ja-JP"sv,
+            "ko-KR"sv,
+            "pt-BR"sv,
+            "ru-RU"sv,
+            "zh-CN"sv,
+            "zh-TW"sv,
+        };
+
+        std::optional<std::string_view> NormalizeSupportedLocale(std::string_view localeTag)
+        {
+            for (const auto& supportedLocale : s_supportedOutputLocales)
+            {
+                if (Utility::CaseInsensitiveEquals(localeTag, supportedLocale))
+                {
+                    return supportedLocale;
+                }
+            }
+
             return {};
         }
-
-        return {};
     }
 
     namespace details
@@ -597,19 +597,12 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_SIGNATURE(OutputLocale)
         {
-            std::string lowered = Utility::ToLower(value);
+            auto normalizedLocale = NormalizeSupportedLocale(value);
+            if (normalizedLocale)
+            {
+                return std::string{ normalizedLocale.value() };
+            }
 
-            if (lowered == "en-us"sv) return OutputLocale::EnUS;
-            if (lowered == "de-de"sv) return OutputLocale::DeDE;
-            if (lowered == "es-es"sv) return OutputLocale::EsES;
-            if (lowered == "fr-fr"sv) return OutputLocale::FrFR;
-            if (lowered == "it-it"sv) return OutputLocale::ItIT;
-            if (lowered == "ja-jp"sv) return OutputLocale::JaJP;
-            if (lowered == "ko-kr"sv) return OutputLocale::KoKR;
-            if (lowered == "pt-br"sv) return OutputLocale::PtBR;
-            if (lowered == "ru-ru"sv) return OutputLocale::RuRU;
-            if (lowered == "zh-cn"sv) return OutputLocale::ZhCN;
-            if (lowered == "zh-tw"sv) return OutputLocale::ZhTW;
             return {};
         }
     }
