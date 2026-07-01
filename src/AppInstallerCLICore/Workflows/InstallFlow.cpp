@@ -571,12 +571,15 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            const auto& packageVersion = context.Get<Execution::Data::PackageVersion>();
-            const auto& manifest = context.Get<Execution::Data::Manifest>();
-
-            if (packageVersion && packageVersion->GetSource().IsWellKnownSource(WellKnownSource::MicrosoftStore))
+            if (context.Contains(Execution::Data::PackageVersion))
             {
-                Logging::Telemetry().LogStoreInstall(manifest.Id);
+                const auto& packageVersion = context.Get<Execution::Data::PackageVersion>();
+
+                if (packageVersion && packageVersion->GetSource().IsWellKnownSource(WellKnownSource::MicrosoftStore))
+                {
+                    const auto& manifest = context.Get<Execution::Data::Manifest>();
+                    Logging::Telemetry().LogStoreInstall(manifest.Id);
+                }
             }
 
             if (isRepair)
