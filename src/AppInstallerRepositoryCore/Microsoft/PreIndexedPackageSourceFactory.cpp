@@ -386,6 +386,7 @@ namespace AppInstaller::Repository::Microsoft
 
         std::optional<Msix::PackageVersion> DesktopContextGetCurrentVersion(const SourceDetails& details);
         std::optional<Msix::PackageVersion> TryGetDesktopContextCurrentVersion(const SourceDetails& details);
+        bool ShouldPreferDesktopContext(std::optional<Msix::PackageVersion> desktopVersion, std::optional<Msix::PackageVersion> packagedVersion);
 
         std::optional<Msix::PackageVersion> PackagedContextGetExtensionVersion(const SourceDetails& details)
         {
@@ -403,13 +404,14 @@ namespace AppInstaller::Repository::Microsoft
         std::optional<Msix::PackageVersion> PackagedContextGetCurrentVersion(const SourceDetails& details)
         {
             auto extensionVersion = PackagedContextGetExtensionVersion(details);
+            auto desktopVersion = TryGetDesktopContextCurrentVersion(details);
 
-            if (extensionVersion)
+            if (ShouldPreferDesktopContext(desktopVersion, extensionVersion))
             {
-                return extensionVersion;
+                return desktopVersion;
             }
 
-            return TryGetDesktopContextCurrentVersion(details);
+            return extensionVersion;
         }
 
         // Constructs the location that we will write files to.
@@ -725,6 +727,12 @@ namespace AppInstaller::Repository::Microsoft
                     AICLI_LOG(Repo, Warning, << "Local state fallback is newer than packaged source extension; using fallback for source: " << m_details.Name);
                     try
                     {
+                        Synchronization::CrossProcessLock lock(CreateNameForCPL(m_details));
+                        if (!lock.Acquire(progress))
+                        {
+                            return {};
+                        }
+
                         index.emplace(OpenDesktopContextIndex(m_details, progress));
                         return completeOpen(std::move(index.value()));
                     }
