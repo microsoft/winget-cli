@@ -18,6 +18,7 @@
 #include <AppInstallerSHA256.h>
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
+#include <json/json.h>
 #include <winget/IconExtraction.h>
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
@@ -341,6 +342,8 @@ namespace AppInstaller::CLI::Workflow
             Utility::LocIndString Source;
         };
 
+        void SortInstalledPackagesTableLines(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines);
+
         void OutputInstalledPackagesTable(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
         {
             Execution::TableOutput<5> table(context.Reporter,
@@ -364,6 +367,63 @@ namespace AppInstaller::CLI::Workflow
             }
 
             table.Complete();
+        }
+
+        Json::Value InstalledPackageLineToJson(const InstalledPackagesTableLine& line)
+        {
+            Json::Value package{ Json::ValueType::objectValue };
+            package["name"] = line.Name.get();
+            package["id"] = line.Id.get();
+            package["installedVersion"] = line.InstalledVersion.get();
+            package["availableVersion"] = line.AvailableVersion.get();
+            package["source"] = line.Source.get();
+            return package;
+        }
+
+        Json::Value InstalledPackageLinesToJson(const std::vector<InstalledPackagesTableLine>& lines)
+        {
+            Json::Value packages{ Json::ValueType::arrayValue };
+            for (const auto& line : lines)
+            {
+                packages.append(InstalledPackageLineToJson(line));
+            }
+
+            return packages;
+        }
+
+        void OutputInstalledPackagesJson(
+            Execution::Context& context,
+            std::vector<InstalledPackagesTableLine>& lines,
+            std::vector<InstalledPackagesTableLine>& linesForExplicitUpgrade,
+            std::vector<InstalledPackagesTableLine>& linesForPins,
+            bool truncated,
+            bool onlyShowUpgrades,
+            int availableUpgradesCount,
+            int packagesWithUnknownVersionSkipped,
+            int packagesWithUserPinsSkipped)
+        {
+            SortInstalledPackagesTableLines(context, lines);
+            SortInstalledPackagesTableLines(context, linesForExplicitUpgrade);
+            SortInstalledPackagesTableLines(context, linesForPins);
+
+            Json::Value result{ Json::ValueType::objectValue };
+            result["packages"] = InstalledPackageLinesToJson(lines);
+            result["truncated"] = truncated;
+
+            if (onlyShowUpgrades)
+            {
+                result["availableUpgrades"] = availableUpgradesCount;
+                result["packagesWithAvailableUpgradesForPins"] = InstalledPackageLinesToJson(linesForExplicitUpgrade);
+                result["packagesBlockedByPins"] = InstalledPackageLinesToJson(linesForPins);
+                result["skippedUnknownVersions"] = packagesWithUnknownVersionSkipped;
+                result["skippedPinned"] = packagesWithUserPinsSkipped;
+            }
+
+            Json::StreamWriterBuilder writerBuilder;
+            writerBuilder.settings_["indentation"] = "";
+            writerBuilder.settings_["commentStyle"] = "None";
+            writerBuilder.settings_["emitUTF8"] = true;
+            context.Reporter.Json() << Json::writeString(writerBuilder, result) << std::endl;
         }
 
         void ShowMetadataField(
@@ -582,6 +642,12 @@ namespace AppInstaller::CLI::Workflow
         AICLI_LOG(CLI, Info, << "Created authentication arguments. Mode: " << Authentication::AuthenticationModeToString(authArgs.Mode) << ", Account: " << authArgs.AuthenticationAccount);
 
         return authArgs;
+    }
+
+    bool IsJsonOutputFormat(const Execution::Args& args)
+    {
+        return args.Contains(Execution::Args::Type::OutputFormat) &&
+            Utility::CaseInsensitiveEquals(args.GetArg(Execution::Args::Type::OutputFormat), "json"sv);
     }
 
     HRESULT HandleException(Execution::Context* context, std::exception_ptr exception)
@@ -1261,6 +1327,21 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
             }
+        }
+
+        if (IsJsonOutputFormat(context.Args))
+        {
+            OutputInstalledPackagesJson(
+                context,
+                lines,
+                linesForExplicitUpgrade,
+                linesForPins,
+                searchResult.Truncated,
+                m_onlyShowUpgrades,
+                availableUpgradesCount,
+                packagesWithUnknownVersionSkipped,
+                packagesWithUserPinsSkipped);
+            return;
         }
 
         OutputInstalledPackages(context, lines);

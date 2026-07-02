@@ -69,6 +69,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AuthenticationMode),
             Argument::ForType(Args::Type::AuthenticationAccount),
+            Argument::ForType(Args::Type::OutputFormat),
             Argument{ Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
             Argument{ Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
             Argument{ Args::Type::IncludePinned, Resource::String::IncludePinnedArgumentDescription, ArgumentType::Flag},
@@ -138,6 +139,12 @@ namespace AppInstaller::CLI
     {
         const auto argCategories = Argument::GetCategoriesAndValidateCommonArguments(execArgs, /* requirePackageSelectionArg */ false);
 
+        if (Workflow::IsJsonOutputFormat(execArgs) && !ShouldListUpgrade(execArgs, argCategories))
+        {
+            auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{ "table"_lis });
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::OutputFormat).Name, validOptions));
+        }
+
         if (!ShouldListUpgrade(execArgs, argCategories) &&
             WI_IsFlagClear(argCategories, ArgTypeCategory::PackageQuery) &&
             WI_IsFlagSet(argCategories, ArgTypeCategory::SingleInstallerBehavior))
@@ -154,6 +161,11 @@ namespace AppInstaller::CLI
         // We have to set it now to allow for source open failures to also just warn.
         if (ShouldListUpgrade(context.Args))
         {
+            if (Workflow::IsJsonOutputFormat(context.Args))
+            {
+                context.Reporter.SetChannel(Execution::Reporter::Channel::Json);
+            }
+
             context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
         }
 

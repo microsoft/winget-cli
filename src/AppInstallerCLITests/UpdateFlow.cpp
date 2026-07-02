@@ -4,6 +4,7 @@
 #include "WorkflowCommon.h"
 #include "TestHooks.h"
 #include <Commands/InstallCommand.h>
+#include <Commands/ListCommand.h>
 #include <Commands/UninstallCommand.h>
 #include <Commands/UpgradeCommand.h>
 #include <winget/PathVariable.h>
@@ -304,6 +305,61 @@ TEST_CASE("UpdateFlow_NoArgs_UnknownVersion", "[UpdateFlow][workflow]")
 
     // Verify --include-unknown help text is displayed if update is executed with no args and an unknown version package is available for upgrade.
     REQUIRE(updateOutput.str().find(Resource::String::UpgradeUnknownVersionCount(1)) != std::string::npos);
+}
+
+TEST_CASE("ListFlow_JsonOutput", "[ListFlow][workflow]")
+{
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list({});
+    context.SetExecutingCommand(&list);
+    list.Execute(context);
+    INFO(listOutput.str());
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].size() == 1);
+    REQUIRE(json["packages"][0]["id"].asString() == "AppInstallerCliTest.TestExeInstaller");
+    REQUIRE(json["packages"][0]["installedVersion"].asString() == "1.0.0.0");
+    REQUIRE(json["truncated"].asBool() == false);
+}
+
+TEST_CASE("UpdateFlow_ListJsonOutput", "[UpdateFlow][workflow]")
+{
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    UpgradeCommand update({});
+    context.SetExecutingCommand(&update);
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    Json::Value json = ConvertToJson(updateOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].size() == 1);
+    REQUIRE(json["packages"][0]["id"].asString() == "AppInstallerCliTest.TestExeInstaller");
+    REQUIRE(json["packages"][0]["availableVersion"].asString() != "");
+    REQUIRE(json["availableUpgrades"].asInt() == 1);
+    REQUIRE(json["packagesBlockedByPins"].isArray());
+    REQUIRE(json["packagesWithAvailableUpgradesForPins"].isArray());
+}
+
+TEST_CASE("UpdateFlow_JsonOutputRequiresListMode", "[UpdateFlow][workflow]")
+{
+    Execution::Args args;
+    args.AddArg(Execution::Args::Type::All);
+    args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    UpgradeCommand update({});
+    REQUIRE_THROWS_AS(update.ValidateArguments(args), CommandException);
 }
 
 TEST_CASE("UpdateFlow_IncludeUnknown", "[UpdateFlow][workflow]")

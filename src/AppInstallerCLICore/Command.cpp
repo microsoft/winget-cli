@@ -819,6 +819,17 @@ namespace AppInstaller::CLI
             }
         }
 
+        if (execArgs.Contains(Execution::Args::Type::OutputFormat))
+        {
+            auto format = execArgs.GetArg(Execution::Args::Type::OutputFormat);
+            if (!Utility::CaseInsensitiveEquals(format, "table"sv) &&
+                !Utility::CaseInsensitiveEquals(format, "json"sv))
+            {
+                auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{ "table"_lis, "json"_lis });
+                throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::OutputFormat).Name, validOptions));
+            }
+        }
+
         Argument::ValidateExclusiveArguments(execArgs);
 
         ValidateArgumentsInternal(execArgs);

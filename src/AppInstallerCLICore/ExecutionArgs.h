@@ -117,6 +117,7 @@ namespace AppInstaller::CLI::Execution
             Sort, // Sort output by field (repeatable: --sort name --sort id)
             SortAscending, // Sort output in ascending order
             SortDescending, // Sort output in descending order
+            OutputFormat, // Select the output format
 
             // Pin command
             GatedVersion, // Differs from Version in that this supports wildcards

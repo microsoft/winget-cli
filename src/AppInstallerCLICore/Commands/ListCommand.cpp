@@ -35,6 +35,7 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::IncludeUnknown, Resource::String::IncludeUnknownInListArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::IncludePinned, Resource::String::IncludePinnedInListArgumentDescription, ArgumentType::Flag},
             Argument::ForType(Execution::Args::Type::ListDetails),
+            Argument::ForType(Execution::Args::Type::OutputFormat),
             Argument{ Execution::Args::Type::Sort, Resource::String::SortArgumentDescription, ArgumentType::Standard }.SetCountLimit(s_sortFieldCount),
             Argument{ Execution::Args::Type::SortAscending, Resource::String::SortAscendingArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::SortDescending, Resource::String::SortDescendingArgumentDescription, ArgumentType::Flag },
@@ -90,6 +91,11 @@ namespace AppInstaller::CLI
 
     void ListCommand::ExecuteInternal(Execution::Context& context) const
     {
+        if (Workflow::IsJsonOutputFormat(context.Args))
+        {
+            context.Reporter.SetChannel(Execution::Reporter::Channel::Json);
+        }
+
         context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
 
         context <<

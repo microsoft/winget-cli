@@ -195,6 +195,8 @@ namespace AppInstaller::CLI
             return { type, "ascending"_liv, "asc"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::SortDirection };
         case Execution::Args::Type::SortDescending:
             return { type, "descending"_liv, "desc"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::SortDirection };
+        case Execution::Args::Type::OutputFormat:
+            return { type, "format"_liv };
 
         // Pin command
         case Execution::Args::Type::GatedVersion:
@@ -508,6 +510,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::CorrelationArgumentDescription, ArgumentType::Standard, Argument::Visibility::Hidden };
         case Args::Type::ListDetails:
             return Argument{ type, Resource::String::ListDetailsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
+        case Args::Type::OutputFormat:
+            return Argument{ type, Resource::String::OutputFormatArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         default:
             THROW_HR(E_UNEXPECTED);
         }

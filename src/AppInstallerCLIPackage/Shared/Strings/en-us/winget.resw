@@ -859,6 +859,10 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="OutputFileArgumentDescription" xml:space="preserve">
     <value>File where the result is to be written</value>
   </data>
+  <data name="OutputFormatArgumentDescription" xml:space="preserve">
+    <value>Output format</value>
+    <comment>Description for the --format argument used to select command output format.</comment>
+  </data>
   <data name="ImportFileArgumentDescription" xml:space="preserve">
     <value>File describing the packages to install</value>
   </data>
