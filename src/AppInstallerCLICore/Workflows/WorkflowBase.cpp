@@ -391,6 +391,19 @@ namespace AppInstaller::CLI::Workflow
             return packages;
         }
 
+        Json::Value SourceFailuresToJson(const std::vector<SearchResult::Failure>& failures)
+        {
+            Json::Value result{ Json::ValueType::arrayValue };
+            for (const auto& failure : failures)
+            {
+                Json::Value sourceFailure{ Json::ValueType::objectValue };
+                sourceFailure["source"] = failure.SourceName;
+                result.append(std::move(sourceFailure));
+            }
+
+            return result;
+        }
+
         void OutputInstalledPackagesJson(
             Execution::Context& context,
             std::vector<InstalledPackagesTableLine>& lines,
@@ -409,6 +422,7 @@ namespace AppInstaller::CLI::Workflow
             Json::Value result{ Json::ValueType::objectValue };
             result["packages"] = InstalledPackageLinesToJson(lines);
             result["truncated"] = truncated;
+            result["sourceFailures"] = SourceFailuresToJson(context.Get<Execution::Data::SearchResult>().Failures);
 
             if (onlyShowUpgrades)
             {
@@ -648,6 +662,14 @@ namespace AppInstaller::CLI::Workflow
     {
         return args.Contains(Execution::Args::Type::OutputFormat) &&
             Utility::CaseInsensitiveEquals(args.GetArg(Execution::Args::Type::OutputFormat), "json"sv);
+    }
+
+    void SetJsonOutputChannel(Execution::Context& context)
+    {
+        if (IsJsonOutputFormat(context.Args))
+        {
+            context.Reporter.SetChannel(Execution::Reporter::Channel::Json);
+        }
     }
 
     HRESULT HandleException(Execution::Context* context, std::exception_ptr exception)

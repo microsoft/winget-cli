@@ -87,19 +87,21 @@ namespace AppInstaller::CLI
     {
         Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::IncludeUnknown, Execution::Args::Type::Upgrade);
         Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::IncludePinned, Execution::Args::Type::Upgrade);
+
+        if (Workflow::IsJsonOutputFormat(execArgs) && execArgs.Contains(Execution::Args::Type::ListDetails))
+        {
+            auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{ "table"_lis });
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::OutputFormat).Name, validOptions));
+        }
     }
 
     void ListCommand::ExecuteInternal(Execution::Context& context) const
     {
-        if (Workflow::IsJsonOutputFormat(context.Args))
-        {
-            context.Reporter.SetChannel(Execution::Reporter::Channel::Json);
-        }
-
         context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
 
         context <<
             Workflow::OpenSource() <<
+            Workflow::SetJsonOutputChannel <<
             Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context)) <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<

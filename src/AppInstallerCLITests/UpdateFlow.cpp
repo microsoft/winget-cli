@@ -327,6 +327,8 @@ TEST_CASE("ListFlow_JsonOutput", "[ListFlow][workflow]")
     REQUIRE(json["packages"][0]["id"].asString() == "AppInstallerCliTest.TestExeInstaller");
     REQUIRE(json["packages"][0]["installedVersion"].asString() == "1.0.0.0");
     REQUIRE(json["truncated"].asBool() == false);
+    REQUIRE(json["sourceFailures"].isArray());
+    REQUIRE(json["sourceFailures"].empty());
 }
 
 TEST_CASE("UpdateFlow_ListJsonOutput", "[UpdateFlow][workflow]")
@@ -350,6 +352,8 @@ TEST_CASE("UpdateFlow_ListJsonOutput", "[UpdateFlow][workflow]")
     REQUIRE(json["availableUpgrades"].asInt() == 1);
     REQUIRE(json["packagesBlockedByPins"].isArray());
     REQUIRE(json["packagesWithAvailableUpgradesForPins"].isArray());
+    REQUIRE(json["sourceFailures"].isArray());
+    REQUIRE(json["sourceFailures"].empty());
 }
 
 TEST_CASE("UpdateFlow_JsonOutputRequiresListMode", "[UpdateFlow][workflow]")
@@ -360,6 +364,16 @@ TEST_CASE("UpdateFlow_JsonOutputRequiresListMode", "[UpdateFlow][workflow]")
 
     UpgradeCommand update({});
     REQUIRE_THROWS_AS(update.ValidateArguments(args), CommandException);
+}
+
+TEST_CASE("ListFlow_JsonOutputRejectsDetails", "[ListFlow][workflow]")
+{
+    Execution::Args args;
+    args.AddArg(Execution::Args::Type::ListDetails);
+    args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list({});
+    REQUIRE_THROWS_AS(list.ValidateArguments(args), CommandException);
 }
 
 TEST_CASE("UpdateFlow_IncludeUnknown", "[UpdateFlow][workflow]")

@@ -161,11 +161,6 @@ namespace AppInstaller::CLI
         // We have to set it now to allow for source open failures to also just warn.
         if (ShouldListUpgrade(context.Args))
         {
-            if (Workflow::IsJsonOutputFormat(context.Args))
-            {
-                context.Reporter.SetChannel(Execution::Reporter::Channel::Json);
-            }
-
             context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
         }
 
@@ -173,6 +168,7 @@ namespace AppInstaller::CLI
             InitializeInstallerDownloadAuthenticatorsMap <<
             ReportExecutionStage(ExecutionStage::Discovery) <<
             OpenSource() <<
+            SetJsonOutputChannel <<
             OpenCompositeSource(DetermineInstalledSource(context));
 
         if (ShouldListUpgrade(context.Args))
