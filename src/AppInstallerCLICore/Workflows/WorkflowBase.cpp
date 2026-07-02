@@ -1422,6 +1422,12 @@ namespace AppInstaller::CLI::Workflow
         if (searchResult.Matches.size() == 0)
         {
             Logging::Telemetry().LogNoAppMatch();
+
+            if (IsJsonOutputFormat(context.Args) && (m_operationType == OperationType::List || m_operationType == OperationType::Upgrade))
+            {
+                ReportListResult(m_operationType == OperationType::Upgrade)(context);
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
+            }
             
             switch (m_operationType)
             {

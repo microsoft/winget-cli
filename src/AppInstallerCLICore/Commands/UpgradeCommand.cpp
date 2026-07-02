@@ -167,8 +167,8 @@ namespace AppInstaller::CLI
         context <<
             InitializeInstallerDownloadAuthenticatorsMap <<
             ReportExecutionStage(ExecutionStage::Discovery) <<
-            OpenSource() <<
             SetJsonOutputChannel <<
+            OpenSource() <<
             OpenCompositeSource(DetermineInstalledSource(context));
 
         if (ShouldListUpgrade(context.Args))

@@ -331,6 +331,29 @@ TEST_CASE("ListFlow_JsonOutput", "[ListFlow][workflow]")
     REQUIRE(json["sourceFailures"].empty());
 }
 
+TEST_CASE("ListFlow_JsonOutputNoMatches", "[ListFlow][workflow]")
+{
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({}));
+    context.Args.AddArg(Execution::Args::Type::Query, "NoSuchPackage"sv);
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list({});
+    context.SetExecutingCommand(&list);
+    list.Execute(context);
+    INFO(listOutput.str());
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].empty());
+    REQUIRE(json["truncated"].asBool() == false);
+    REQUIRE(json["sourceFailures"].isArray());
+    REQUIRE(json["sourceFailures"].empty());
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
+}
+
 TEST_CASE("UpdateFlow_ListJsonOutput", "[UpdateFlow][workflow]")
 {
     std::ostringstream updateOutput;

@@ -9,6 +9,7 @@
 namespace AppInstaller::CLI
 {
     using namespace AppInstaller::CLI::Workflow;
+    using namespace AppInstaller::Utility::literals;
     using namespace std::string_view_literals;
 
     std::vector<Argument> ListCommand::GetArguments() const
@@ -100,8 +101,8 @@ namespace AppInstaller::CLI
         context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
 
         context <<
-            Workflow::OpenSource() <<
             Workflow::SetJsonOutputChannel <<
+            Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context)) <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
