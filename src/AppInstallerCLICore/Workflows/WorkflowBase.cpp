@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "Command.h"
 #include "WorkflowBase.h"
 #include "ExecutionContext.h"
 #include "PackageTableSortHelper.h"
@@ -182,6 +183,8 @@ namespace AppInstaller::CLI::Workflow
         }
         CATCH_LOG();
 
+        void OutputInstalledPackagesJsonError(Execution::Context& context, HRESULT resultCode, Resource::LocString message, Utility::LocIndView sourceName = {});
+
         Repository::Source OpenNamedSource(Execution::Context& context, Utility::LocIndView sourceName)
         {
             Repository::Source source;
@@ -197,11 +200,18 @@ namespace AppInstaller::CLI::Workflow
                     if (!sourceName.empty() && !sources.empty())
                     {
                         // A bad name was given, try to help.
-                        context.Reporter.Error() << Resource::String::OpenSourceFailedNoMatch(sourceName) << std::endl;
-                        context.Reporter.Info() << Resource::String::OpenSourceFailedNoMatchHelp << std::endl;
-                        for (const auto& details : sources)
+                        if (IsJsonOutputFormat(context.Args))
                         {
-                            context.Reporter.Info() << "  "_liv << details.Name << std::endl;
+                            OutputInstalledPackagesJsonError(context, APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, Resource::String::OpenSourceFailedNoMatch(sourceName), sourceName);
+                        }
+                        else
+                        {
+                            context.Reporter.Error() << Resource::String::OpenSourceFailedNoMatch(sourceName) << std::endl;
+                            context.Reporter.Info() << Resource::String::OpenSourceFailedNoMatchHelp << std::endl;
+                            for (const auto& details : sources)
+                            {
+                                context.Reporter.Info() << "  "_liv << details.Name << std::endl;
+                            }
                         }
 
                         AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, {});
@@ -209,7 +219,15 @@ namespace AppInstaller::CLI::Workflow
                     else
                     {
                         // Even if a name was given, there are no sources
-                        context.Reporter.Error() << Resource::String::OpenSourceFailedNoSourceDefined << std::endl;
+                        if (IsJsonOutputFormat(context.Args))
+                        {
+                            OutputInstalledPackagesJsonError(context, APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED, Resource::String::OpenSourceFailedNoSourceDefined, sourceName);
+                        }
+                        else
+                        {
+                            context.Reporter.Error() << Resource::String::OpenSourceFailedNoSourceDefined << std::endl;
+                        }
+
                         AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED, {});
                     }
                 }
@@ -404,6 +422,56 @@ namespace AppInstaller::CLI::Workflow
             return result;
         }
 
+        Json::Value EmptyInstalledPackagesJson(bool onlyShowUpgrades)
+        {
+            Json::Value result{ Json::ValueType::objectValue };
+            result["packages"] = Json::Value{ Json::ValueType::arrayValue };
+            result["truncated"] = false;
+            result["sourceFailures"] = Json::Value{ Json::ValueType::arrayValue };
+
+            if (onlyShowUpgrades)
+            {
+                result["availableUpgrades"] = 0;
+                result["packagesWithAvailableUpgradesForPins"] = Json::Value{ Json::ValueType::arrayValue };
+                result["packagesBlockedByPins"] = Json::Value{ Json::ValueType::arrayValue };
+                result["skippedUnknownVersions"] = 0;
+                result["skippedPinned"] = 0;
+            }
+
+            return result;
+        }
+
+        void WriteJsonOutput(Execution::Context& context, const Json::Value& result)
+        {
+            Json::StreamWriterBuilder writerBuilder;
+            writerBuilder.settings_["indentation"] = "";
+            writerBuilder.settings_["commentStyle"] = "None";
+            writerBuilder.settings_["emitUTF8"] = true;
+            context.Reporter.Json() << Json::writeString(writerBuilder, result) << std::endl;
+        }
+
+        void OutputInstalledPackagesJsonError(Execution::Context& context, HRESULT resultCode, Resource::LocString message, Utility::LocIndView sourceName)
+        {
+            Json::Value result = EmptyInstalledPackagesJson(context.GetExecutingCommand() && context.GetExecutingCommand()->Name() == "upgrade");
+
+            if (!sourceName.empty())
+            {
+                Json::Value sourceFailure{ Json::ValueType::objectValue };
+                sourceFailure["source"] = std::string{ sourceName };
+                result["sourceFailures"].append(std::move(sourceFailure));
+            }
+
+            std::ostringstream errorCode;
+            errorCode << WINGET_OSTREAM_FORMAT_HRESULT(resultCode);
+
+            Json::Value error{ Json::ValueType::objectValue };
+            error["code"] = errorCode.str();
+            error["message"] = message.get();
+            result["error"] = std::move(error);
+
+            WriteJsonOutput(context, result);
+        }
+
         void OutputInstalledPackagesJson(
             Execution::Context& context,
             std::vector<InstalledPackagesTableLine>& lines,
@@ -433,11 +501,7 @@ namespace AppInstaller::CLI::Workflow
                 result["skippedPinned"] = packagesWithUserPinsSkipped;
             }
 
-            Json::StreamWriterBuilder writerBuilder;
-            writerBuilder.settings_["indentation"] = "";
-            writerBuilder.settings_["commentStyle"] = "None";
-            writerBuilder.settings_["emitUTF8"] = true;
-            context.Reporter.Json() << Json::writeString(writerBuilder, result) << std::endl;
+            WriteJsonOutput(context, result);
         }
 
         void ShowMetadataField(

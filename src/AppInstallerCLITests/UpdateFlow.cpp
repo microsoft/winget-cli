@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 #include "TestHooks.h"
+#include "TestSettings.h"
 #include <Commands/InstallCommand.h>
 #include <Commands/ListCommand.h>
 #include <Commands/UninstallCommand.h>
@@ -352,6 +353,39 @@ TEST_CASE("ListFlow_JsonOutputNoMatches", "[ListFlow][workflow]")
     REQUIRE(json["sourceFailures"].isArray());
     REQUIRE(json["sourceFailures"].empty());
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
+}
+
+TEST_CASE("ListFlow_JsonOutputBadSource", "[ListFlow][workflow]")
+{
+    SetSetting(Stream::UserSources, R"(
+Sources:
+  - Name: TestSource
+    Type: Microsoft.Test
+    Arg: TestArg
+    Data: TestData
+    IsTombstone: false
+)"sv);
+
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::Source, "MissingSource"sv);
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list({});
+    context.SetExecutingCommand(&list);
+    list.Execute(context);
+    INFO(listOutput.str());
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].empty());
+    REQUIRE(json["sourceFailures"].isArray());
+    REQUIRE(json["sourceFailures"].size() == 1);
+    REQUIRE(json["sourceFailures"][0]["source"].asString() == "MissingSource");
+    REQUIRE(json["error"]["code"].asString() == "0x8a150012");
+    REQUIRE(json["error"]["message"].asString().empty() == false);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
 }
 
 TEST_CASE("UpdateFlow_ListJsonOutput", "[UpdateFlow][workflow]")
