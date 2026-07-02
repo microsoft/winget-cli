@@ -385,8 +385,9 @@ namespace AppInstaller::Repository::Microsoft
         }
 
         std::optional<Msix::PackageVersion> DesktopContextGetCurrentVersion(const SourceDetails& details);
+        std::optional<Msix::PackageVersion> TryGetDesktopContextCurrentVersion(const SourceDetails& details);
 
-        std::optional<Msix::PackageVersion> PackagedContextGetCurrentVersion(const SourceDetails& details)
+        std::optional<Msix::PackageVersion> PackagedContextGetExtensionVersion(const SourceDetails& details)
         {
             auto extension = GetExtensionFromDetails(details);
 
@@ -395,10 +396,20 @@ namespace AppInstaller::Repository::Microsoft
                 auto version = extension->GetPackageVersion();
                 return Msix::PackageVersion{ version.Major, version.Minor, version.Build, version.Revision };
             }
-            else
+
+            return std::nullopt;
+        }
+
+        std::optional<Msix::PackageVersion> PackagedContextGetCurrentVersion(const SourceDetails& details)
+        {
+            auto extensionVersion = PackagedContextGetExtensionVersion(details);
+
+            if (extensionVersion)
             {
-                return DesktopContextGetCurrentVersion(details);
+                return extensionVersion;
             }
+
+            return TryGetDesktopContextCurrentVersion(details);
         }
 
         // Constructs the location that we will write files to.
@@ -434,17 +445,27 @@ namespace AppInstaller::Repository::Microsoft
             return std::nullopt;
         }
 
-        bool HasTrustedDesktopContextPackage(const SourceDetails& details)
+        std::optional<Msix::PackageVersion> TryGetDesktopContextCurrentVersion(const SourceDetails& details)
         {
             try
             {
-                return DesktopContextGetCurrentVersion(details).has_value();
+                return DesktopContextGetCurrentVersion(details);
             }
             catch (...)
             {
-                LOG_CAUGHT_EXCEPTION();
-                return false;
+                LOG_CAUGHT_EXCEPTION_MSG("Failed to read local state source package version for source: %hs", details.Name.c_str());
+                return std::nullopt;
             }
+        }
+
+        bool HasTrustedDesktopContextPackage(const SourceDetails& details)
+        {
+            return TryGetDesktopContextCurrentVersion(details).has_value();
+        }
+
+        bool ShouldPreferDesktopContext(std::optional<Msix::PackageVersion> desktopVersion, std::optional<Msix::PackageVersion> packagedVersion)
+        {
+            return desktopVersion && (!packagedVersion || desktopVersion.value() > packagedVersion.value());
         }
 
         bool IsDeploymentBlockedByUserLogOff(HRESULT hr)
@@ -697,6 +718,27 @@ namespace AppInstaller::Repository::Microsoft
                 std::optional<SQLiteIndex> index;
                 bool retryUnderLock = false;
 
+                auto desktopVersion = TryGetDesktopContextCurrentVersion(m_details);
+                auto packagedVersion = PackagedContextGetExtensionVersion(m_details);
+                if (ShouldPreferDesktopContext(desktopVersion, packagedVersion))
+                {
+                    AICLI_LOG(Repo, Warning, << "Local state fallback is newer than packaged source extension; using fallback for source: " << m_details.Name);
+                    try
+                    {
+                        index.emplace(OpenDesktopContextIndex(m_details, progress));
+                        return completeOpen(std::move(index.value()));
+                    }
+                    catch (...)
+                    {
+                        if (progress.IsCancelledBy(CancelReason::Any))
+                        {
+                            throw;
+                        }
+
+                        LOG_CAUGHT_EXCEPTION_MSG("Newer local state fallback failed to open, continuing with packaged source extension for source: %hs", m_details.Name.c_str());
+                    }
+                }
+
                 try
                 {
                     index.emplace(OpenPackagedContextIndex(m_details, progress, openTimer));
@@ -841,13 +883,14 @@ namespace AppInstaller::Repository::Microsoft
 
                 if (!GetExtensionFromDetails(details))
                 {
-                    if (HasTrustedDesktopContextPackage(details))
-                    {
-                        AICLI_LOG(Repo, Warning, << "Packaged source deployment completed, but the extension was not found; refreshing local state fallback for source: " << details.Name);
-                        return UpdateDesktopContextPackage(localFile.u8string(), details, progress, downloadedBytes);
-                    }
+                    AICLI_LOG(Repo, Warning, << "Packaged source deployment completed, but the extension was not found; using local state fallback for source: " << details.Name);
+                    return UpdateDesktopContextPackage(localFile.u8string(), details, progress, downloadedBytes);
+                }
 
-                    THROW_HR_MSG(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING, "Packaged source deployment completed, but the extension was not found for source: %hs", details.Name.c_str());
+                if (HasTrustedDesktopContextPackage(details))
+                {
+                    AICLI_LOG(Repo, Info, << "Refreshing local state fallback after packaged source deployment for source: " << details.Name);
+                    UpdateDesktopContextPackage(localFile.u8string(), details, progress, downloadedBytes);
                 }
 
                 return true;
