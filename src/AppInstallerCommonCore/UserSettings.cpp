@@ -215,30 +215,7 @@ namespace AppInstaller::Settings
 
             return path;
         }
-    }
 
-    std::optional<SortField> ConvertToSortField(std::string_view value)
-    {
-        static constexpr std::string_view s_sortField_relevance = "relevance";
-        static constexpr std::string_view s_sortField_name = "name";
-        static constexpr std::string_view s_sortField_id = "id";
-        static constexpr std::string_view s_sortField_version = "version";
-        static constexpr std::string_view s_sortField_source = "source";
-        static constexpr std::string_view s_sortField_available = "available";
-
-        std::string lowered = Utility::ToLower(value);
-
-        if (lowered == s_sortField_relevance) return SortField::Relevance;
-        if (lowered == s_sortField_name) return SortField::Name;
-        if (lowered == s_sortField_id) return SortField::Id;
-        if (lowered == s_sortField_version) return SortField::Version;
-        if (lowered == s_sortField_source) return SortField::Source;
-        if (lowered == s_sortField_available) return SortField::Available;
-        return std::nullopt;
-    }
-
-    namespace
-    {
         static constexpr std::array<std::string_view, 11> s_supportedOutputLocales =
         {
             "en-US"sv,
@@ -266,6 +243,26 @@ namespace AppInstaller::Settings
 
             return {};
         }
+    }
+
+    std::optional<SortField> ConvertToSortField(std::string_view value)
+    {
+        static constexpr std::string_view s_sortField_relevance = "relevance";
+        static constexpr std::string_view s_sortField_name = "name";
+        static constexpr std::string_view s_sortField_id = "id";
+        static constexpr std::string_view s_sortField_version = "version";
+        static constexpr std::string_view s_sortField_source = "source";
+        static constexpr std::string_view s_sortField_available = "available";
+
+        std::string lowered = Utility::ToLower(value);
+
+        if (lowered == s_sortField_relevance) return SortField::Relevance;
+        if (lowered == s_sortField_name) return SortField::Name;
+        if (lowered == s_sortField_id) return SortField::Id;
+        if (lowered == s_sortField_version) return SortField::Version;
+        if (lowered == s_sortField_source) return SortField::Source;
+        if (lowered == s_sortField_available) return SortField::Available;
+        return std::nullopt;
     }
 
     namespace details
