@@ -404,7 +404,17 @@ namespace AppInstaller::Repository::Microsoft
         std::optional<Msix::PackageVersion> PackagedContextGetCurrentVersion(const SourceDetails& details)
         {
             auto extensionVersion = PackagedContextGetExtensionVersion(details);
-            auto desktopVersion = TryGetDesktopContextCurrentVersion(details);
+            std::optional<Msix::PackageVersion> desktopVersion;
+
+            Synchronization::CrossProcessLock lock(CreateNameForCPL(details));
+            if (lock.TryAcquireNoWait())
+            {
+                desktopVersion = TryGetDesktopContextCurrentVersion(details);
+            }
+            else
+            {
+                AICLI_LOG(Repo, Verbose, << "Skipping local state fallback version probe because source lock is held for source: " << details.Name);
+            }
 
             if (ShouldPreferDesktopContext(desktopVersion, extensionVersion))
             {
@@ -496,6 +506,8 @@ namespace AppInstaller::Repository::Microsoft
                     }
                 });
 
+            std::filesystem::remove(tempPackagePath);
+
             if (Utility::IsUrlRemote(packageLocation))
             {
                 auto downloadResult = AppInstaller::Utility::Download(packageLocation, tempPackagePath, AppInstaller::Utility::DownloadType::Index, progress);
@@ -503,7 +515,7 @@ namespace AppInstaller::Repository::Microsoft
             }
             else
             {
-                std::filesystem::copy(packageLocation, tempPackagePath);
+                std::filesystem::copy(packageLocation, tempPackagePath, std::filesystem::copy_options::overwrite_existing);
                 progress.OnProgress(100, 100, ProgressType::Percent);
             }
 
