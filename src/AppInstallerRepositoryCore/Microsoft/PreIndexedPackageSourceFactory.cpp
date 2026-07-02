@@ -470,6 +470,18 @@ namespace AppInstaller::Repository::Microsoft
             }
         }
 
+        void RemoveDesktopContextPackage(const SourceDetails& details)
+        {
+            try
+            {
+                std::filesystem::remove(GetStatePathFromDetails(details) / s_PreIndexedPackageSourceFactory_PackageFileName);
+            }
+            catch (...)
+            {
+                LOG_CAUGHT_EXCEPTION_MSG("Failed to remove unusable local state source package for source: %hs", details.Name.c_str());
+            }
+        }
+
         bool HasTrustedDesktopContextPackage(const SourceDetails& details)
         {
             return TryGetDesktopContextCurrentVersion(details).has_value();
@@ -732,33 +744,36 @@ namespace AppInstaller::Repository::Microsoft
                 std::optional<SQLiteIndex> index;
                 bool retryUnderLock = false;
 
-                auto packagedVersion = PackagedContextGetExtensionVersion(m_details);
-
                 {
                     Synchronization::CrossProcessLock lock(CreateNameForCPL(m_details));
-                    if (!lock.Acquire(progress))
+                    if (lock.TryAcquireNoWait())
                     {
-                        return {};
-                    }
+                        auto packagedVersion = PackagedContextGetExtensionVersion(m_details);
+                        auto desktopVersion = TryGetDesktopContextCurrentVersion(m_details);
 
-                    auto desktopVersion = TryGetDesktopContextCurrentVersion(m_details);
-                    if (ShouldPreferDesktopContext(desktopVersion, packagedVersion))
-                    {
-                        AICLI_LOG(Repo, Warning, << "Local state fallback is newer than packaged source extension; using fallback for source: " << m_details.Name);
-                        try
+                        if (ShouldPreferDesktopContext(desktopVersion, packagedVersion))
                         {
-                            index.emplace(OpenDesktopContextIndex(m_details, progress));
-                            return completeOpen(std::move(index.value()));
-                        }
-                        catch (...)
-                        {
-                            if (progress.IsCancelledBy(CancelReason::Any))
+                            AICLI_LOG(Repo, Warning, << "Local state fallback is newer than packaged source extension; using fallback for source: " << m_details.Name);
+                            try
                             {
-                                throw;
+                                index.emplace(OpenDesktopContextIndex(m_details, progress));
+                                return completeOpen(std::move(index.value()));
                             }
+                            catch (...)
+                            {
+                                if (progress.IsCancelledBy(CancelReason::Any))
+                                {
+                                    throw;
+                                }
 
-                            LOG_CAUGHT_EXCEPTION_MSG("Newer local state fallback failed to open, continuing with packaged source extension for source: %hs", m_details.Name.c_str());
+                                LOG_CAUGHT_EXCEPTION_MSG("Newer local state fallback failed to open; removing it and continuing with packaged source extension for source: %hs", m_details.Name.c_str());
+                                RemoveDesktopContextPackage(m_details);
+                            }
                         }
+                    }
+                    else
+                    {
+                        AICLI_LOG(Repo, Verbose, << "Skipping local state fallback probe because source lock is held for source: " << m_details.Name);
                     }
                 }
 
