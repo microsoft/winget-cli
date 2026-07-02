@@ -377,6 +377,31 @@ TEST_CASE("ListFlow_JsonOutputWithSettingsWarnings", "[ListFlow][workflow]")
     REQUIRE(json["packages"].size() == 1);
 }
 
+TEST_CASE("ListFlow_JsonOutputWinGetPolicyDisabled", "[ListFlow][workflow]")
+{
+    GroupPolicyTestOverride policies;
+    policies.SetState(TogglePolicy::Policy::WinGet, PolicyState::Disabled);
+
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list({});
+    context.SetExecutingCommand(&list);
+    ExecuteWithoutLoggingSuccess(context, &list);
+    INFO(listOutput.str());
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].empty());
+    REQUIRE(json["sourceFailures"].isArray());
+    REQUIRE(json["sourceFailures"].empty());
+    REQUIRE(json["error"]["code"].asString() == "0x8a15003a");
+    REQUIRE(json["error"]["message"].asString().empty() == false);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY);
+}
+
 TEST_CASE("ListFlow_JsonOutputBadSource", "[ListFlow][workflow]")
 {
     SetSetting(Stream::UserSources, R"(

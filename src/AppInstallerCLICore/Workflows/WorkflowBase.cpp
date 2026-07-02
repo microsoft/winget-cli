@@ -25,6 +25,7 @@
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Pinning;
 using namespace AppInstaller::Repository;
@@ -813,7 +814,16 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
                 auto policyNameId = policy.PolicyName();
-                context->Reporter.Error() << Resource::String::DisabledByGroupPolicy(policyNameId) << std::endl;
+                auto message = Resource::String::DisabledByGroupPolicy(policyNameId);
+
+                if (IsJsonOutputFormat(context->Args))
+                {
+                    OutputInstalledPackagesJsonError(*context, APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, message);
+                }
+                else
+                {
+                    context->Reporter.Error() << message << std::endl;
+                }
             }
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
