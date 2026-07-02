@@ -979,8 +979,25 @@ namespace AppInstaller::CLI::Workflow
             };
             context.Reporter.ExecuteWithProgress(openFunction, true);
         }
+        catch (const wil::ResultException& re)
+        {
+                if (IsJsonOutputFormat(context.Args))
+                {
+                    OutputInstalledPackagesJsonError(context, re.GetErrorCode(), Resource::String::SourceOpenPredefinedFailedSuggestion);
+                    AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
+                }
+
+            context.Reporter.Error() << Resource::String::SourceOpenPredefinedFailedSuggestion << std::endl;
+            throw;
+        }
         catch (...)
         {
+                if (IsJsonOutputFormat(context.Args))
+                {
+                    OutputInstalledPackagesJsonError(context, E_FAIL, Resource::String::SourceOpenPredefinedFailedSuggestion);
+                    AICLI_TERMINATE_CONTEXT(E_FAIL);
+                }
+
             context.Reporter.Error() << Resource::String::SourceOpenPredefinedFailedSuggestion << std::endl;
             throw;
         }
