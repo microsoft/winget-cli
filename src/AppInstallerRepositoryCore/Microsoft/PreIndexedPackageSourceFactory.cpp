@@ -434,6 +434,24 @@ namespace AppInstaller::Repository::Microsoft
             return std::nullopt;
         }
 
+        bool HasTrustedDesktopContextPackage(const SourceDetails& details)
+        {
+            try
+            {
+                return DesktopContextGetCurrentVersion(details).has_value();
+            }
+            catch (...)
+            {
+                LOG_CAUGHT_EXCEPTION();
+                return false;
+            }
+        }
+
+        bool IsDeploymentBlockedByUserLogOff(HRESULT hr)
+        {
+            return hr == HRESULT_FROM_WIN32(ERROR_DEPLOYMENT_BLOCKED_BY_USER_LOG_OFF);
+        }
+
         bool UpdateDesktopContextPackage(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress, std::optional<uint64_t>& downloadedBytes)
         {
             // We will extract the manifest and index files directly to this location
@@ -707,15 +725,22 @@ namespace AppInstaller::Repository::Microsoft
                     {
                         index.emplace(OpenPackagedContextIndex(m_details, progress, openTimer));
                     }
-                    catch (...)
+                    catch (const wil::ResultException& re)
                     {
                         if (progress.IsCancelledBy(CancelReason::Any))
                         {
                             throw;
                         }
 
-                        LOG_CAUGHT_EXCEPTION_MSG("Locked packaged source open failed, falling back to local state for source: %hs", m_details.Name.c_str());
-                        index.emplace(OpenDesktopContextIndex(m_details, progress));
+                        if (re.GetErrorCode() == APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING && HasTrustedDesktopContextPackage(m_details))
+                        {
+                            AICLI_LOG(Repo, Warning, << "Packaged source extension was not found; using trusted local state fallback for source: " << m_details.Name);
+                            index.emplace(OpenDesktopContextIndex(m_details, progress));
+                        }
+                        else
+                        {
+                            throw;
+                        }
                     }
                 }
 
@@ -798,21 +823,31 @@ namespace AppInstaller::Repository::Microsoft
                         Deployment::Options{ WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::Trusted) },
                         progress);
                 }
-                catch (...)
+                catch (const wil::ResultException& re)
                 {
                     if (progress.IsCancelledBy(CancelReason::Any))
                     {
                         throw;
                     }
 
-                    LOG_CAUGHT_EXCEPTION_MSG("Packaged source deployment failed, falling back to local state for source: %hs", details.Name.c_str());
-                    return UpdateDesktopContextPackage(localFile.u8string(), details, progress, downloadedBytes);
+                    if (IsDeploymentBlockedByUserLogOff(re.GetErrorCode()))
+                    {
+                        AICLI_LOG(Repo, Warning, << "Packaged source deployment was blocked because the user is logged off; using local state fallback for source: " << details.Name);
+                        return UpdateDesktopContextPackage(localFile.u8string(), details, progress, downloadedBytes);
+                    }
+
+                    throw;
                 }
 
                 if (!GetExtensionFromDetails(details))
                 {
-                    AICLI_LOG(Repo, Warning, << "Packaged source deployment completed, but the extension was not found; falling back to local state for source: " << details.Name);
-                    return UpdateDesktopContextPackage(localFile.u8string(), details, progress, downloadedBytes);
+                    if (HasTrustedDesktopContextPackage(details))
+                    {
+                        AICLI_LOG(Repo, Warning, << "Packaged source deployment completed, but the extension was not found; refreshing local state fallback for source: " << details.Name);
+                        return UpdateDesktopContextPackage(localFile.u8string(), details, progress, downloadedBytes);
+                    }
+
+                    THROW_HR_MSG(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING, "Packaged source deployment completed, but the extension was not found for source: %hs", details.Name.c_str());
                 }
 
                 return true;
