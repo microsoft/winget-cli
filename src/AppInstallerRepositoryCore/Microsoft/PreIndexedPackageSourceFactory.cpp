@@ -720,30 +720,33 @@ namespace AppInstaller::Repository::Microsoft
                 std::optional<SQLiteIndex> index;
                 bool retryUnderLock = false;
 
-                auto desktopVersion = TryGetDesktopContextCurrentVersion(m_details);
                 auto packagedVersion = PackagedContextGetExtensionVersion(m_details);
-                if (ShouldPreferDesktopContext(desktopVersion, packagedVersion))
+
                 {
-                    AICLI_LOG(Repo, Warning, << "Local state fallback is newer than packaged source extension; using fallback for source: " << m_details.Name);
-                    try
+                    Synchronization::CrossProcessLock lock(CreateNameForCPL(m_details));
+                    if (!lock.Acquire(progress))
                     {
-                        Synchronization::CrossProcessLock lock(CreateNameForCPL(m_details));
-                        if (!lock.Acquire(progress))
-                        {
-                            return {};
-                        }
-
-                        index.emplace(OpenDesktopContextIndex(m_details, progress));
-                        return completeOpen(std::move(index.value()));
+                        return {};
                     }
-                    catch (...)
-                    {
-                        if (progress.IsCancelledBy(CancelReason::Any))
-                        {
-                            throw;
-                        }
 
-                        LOG_CAUGHT_EXCEPTION_MSG("Newer local state fallback failed to open, continuing with packaged source extension for source: %hs", m_details.Name.c_str());
+                    auto desktopVersion = TryGetDesktopContextCurrentVersion(m_details);
+                    if (ShouldPreferDesktopContext(desktopVersion, packagedVersion))
+                    {
+                        AICLI_LOG(Repo, Warning, << "Local state fallback is newer than packaged source extension; using fallback for source: " << m_details.Name);
+                        try
+                        {
+                            index.emplace(OpenDesktopContextIndex(m_details, progress));
+                            return completeOpen(std::move(index.value()));
+                        }
+                        catch (...)
+                        {
+                            if (progress.IsCancelledBy(CancelReason::Any))
+                            {
+                                throw;
+                            }
+
+                            LOG_CAUGHT_EXCEPTION_MSG("Newer local state fallback failed to open, continuing with packaged source extension for source: %hs", m_details.Name.c_str());
+                        }
                     }
                 }
 
@@ -898,7 +901,19 @@ namespace AppInstaller::Repository::Microsoft
                 if (HasTrustedDesktopContextPackage(details))
                 {
                     AICLI_LOG(Repo, Info, << "Refreshing local state fallback after packaged source deployment for source: " << details.Name);
-                    UpdateDesktopContextPackage(localFile.u8string(), details, progress, downloadedBytes);
+                    try
+                    {
+                        UpdateDesktopContextPackage(localFile.u8string(), details, progress, downloadedBytes);
+                    }
+                    catch (...)
+                    {
+                        if (progress.IsCancelledBy(CancelReason::Any))
+                        {
+                            throw;
+                        }
+
+                        LOG_CAUGHT_EXCEPTION_MSG("Failed to refresh local state fallback after packaged source deployment for source: %hs", details.Name.c_str());
+                    }
                 }
 
                 return true;
