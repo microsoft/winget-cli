@@ -256,6 +256,17 @@ namespace AppInstaller::CLI::Workflow
                     context.Reporter.Warn() << Resource::String::SourceOpenWithFailedUpdate(Utility::LocIndView{ s.Name }) << std::endl;
                 }
 
+                if (!updateFailures.empty())
+                {
+                    if (!context.Contains(Execution::Data::SourceOpenUpdateFailures))
+                    {
+                        context.Add<Execution::Data::SourceOpenUpdateFailures>({});
+                    }
+
+                    auto& sourceOpenUpdateFailures = context.Get<Execution::Data::SourceOpenUpdateFailures>();
+                    std::move(updateFailures.begin(), updateFailures.end(), std::back_inserter(sourceOpenUpdateFailures));
+                }
+
                 // Report sources that may need authentication
                 if (source.IsComposite())
                 {
@@ -274,6 +285,12 @@ namespace AppInstaller::CLI::Workflow
             }
             catch (const wil::ResultException& re)
             {
+                if (IsJsonOutputFormat(context.Args))
+                {
+                    OutputInstalledPackagesJsonError(context, re.GetErrorCode(), Resource::String::SourceOpenFailedSuggestion, sourceName);
+                    AICLI_TERMINATE_CONTEXT_RETURN(re.GetErrorCode(), {});
+                }
+
                 context.Reporter.Error() << Resource::String::SourceOpenFailedSuggestion << std::endl;
                 if (re.GetErrorCode() == APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES)
                 {
@@ -288,6 +305,12 @@ namespace AppInstaller::CLI::Workflow
             }
             catch (...)
             {
+                if (IsJsonOutputFormat(context.Args))
+                {
+                    OutputInstalledPackagesJsonError(context, E_FAIL, Resource::String::SourceOpenFailedSuggestion, sourceName);
+                    AICLI_TERMINATE_CONTEXT_RETURN(E_FAIL, {});
+                }
+
                 context.Reporter.Error() << Resource::String::SourceOpenFailedSuggestion << std::endl;
                 throw;
             }
@@ -422,6 +445,16 @@ namespace AppInstaller::CLI::Workflow
             return result;
         }
 
+        void AppendSourceFailures(Json::Value& sourceFailures, const std::vector<SourceDetails>& failures)
+        {
+            for (const auto& failure : failures)
+            {
+                Json::Value sourceFailure{ Json::ValueType::objectValue };
+                sourceFailure["source"] = failure.Name;
+                sourceFailures.append(std::move(sourceFailure));
+            }
+        }
+
         Json::Value EmptyInstalledPackagesJson(bool onlyShowUpgrades)
         {
             Json::Value result{ Json::ValueType::objectValue };
@@ -452,7 +485,9 @@ namespace AppInstaller::CLI::Workflow
 
         void OutputInstalledPackagesJsonError(Execution::Context& context, HRESULT resultCode, Resource::LocString message, Utility::LocIndView sourceName)
         {
-            Json::Value result = EmptyInstalledPackagesJson(context.GetExecutingCommand() && context.GetExecutingCommand()->Name() == "upgrade");
+            Json::Value result = EmptyInstalledPackagesJson(
+                (context.GetExecutingCommand() && context.GetExecutingCommand()->Name() == "upgrade") ||
+                context.Args.Contains(Execution::Args::Type::Upgrade));
 
             if (!sourceName.empty())
             {
@@ -491,6 +526,11 @@ namespace AppInstaller::CLI::Workflow
             result["packages"] = InstalledPackageLinesToJson(lines);
             result["truncated"] = truncated;
             result["sourceFailures"] = SourceFailuresToJson(context.Get<Execution::Data::SearchResult>().Failures);
+
+            if (context.Contains(Execution::Data::SourceOpenUpdateFailures))
+            {
+                AppendSourceFailures(result["sourceFailures"], context.Get<Execution::Data::SourceOpenUpdateFailures>());
+            }
 
             if (onlyShowUpgrades)
             {
@@ -1489,7 +1529,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (IsJsonOutputFormat(context.Args) && (m_operationType == OperationType::List || m_operationType == OperationType::Upgrade))
             {
-                ReportListResult(m_operationType == OperationType::Upgrade)(context);
+                ReportListResult(m_operationType == OperationType::Upgrade || context.Args.Contains(Execution::Args::Type::Upgrade))(context);
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
             }
             

@@ -69,6 +69,7 @@ namespace AppInstaller::CLI::Execution
         RepairString,
         MsixDigests,
         InstallerDownloadAuthenticators,
+        SourceOpenUpdateFailures,
         Max
     };
 
@@ -298,6 +299,12 @@ namespace AppInstaller::CLI::Execution
         {
             // The authenticator map shared with sub contexts
             using value_t = std::shared_ptr<std::map<Authentication::AuthenticationInfo, Authentication::Authenticator>>;
+        };
+
+        template<>
+        struct DataMapping<Data::SourceOpenUpdateFailures>
+        {
+            using value_t = std::vector<Repository::SourceDetails>;
         };
     }
 }

@@ -355,6 +355,28 @@ TEST_CASE("ListFlow_JsonOutputNoMatches", "[ListFlow][workflow]")
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
 }
 
+TEST_CASE("ListFlow_JsonOutputWithSettingsWarnings", "[ListFlow][workflow]")
+{
+    auto settingsGuard = DeleteUserSettingsFiles();
+    SetSetting(Stream::PrimaryUserSettings, "{"sv);
+
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list({});
+    context.SetExecutingCommand(&list);
+    ExecuteWithoutLoggingSuccess(context, &list);
+    INFO(listOutput.str());
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].size() == 1);
+}
+
 TEST_CASE("ListFlow_JsonOutputBadSource", "[ListFlow][workflow]")
 {
     SetSetting(Stream::UserSources, R"(
@@ -411,6 +433,30 @@ TEST_CASE("UpdateFlow_ListJsonOutput", "[UpdateFlow][workflow]")
     REQUIRE(json["packagesWithAvailableUpgradesForPins"].isArray());
     REQUIRE(json["sourceFailures"].isArray());
     REQUIRE(json["sourceFailures"].empty());
+}
+
+TEST_CASE("UpdateFlow_ListJsonOutputNoMatches", "[UpdateFlow][workflow]")
+{
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({}));
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    UpgradeCommand update({});
+    context.SetExecutingCommand(&update);
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    Json::Value json = ConvertToJson(updateOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].empty());
+    REQUIRE(json["availableUpgrades"].asInt() == 0);
+    REQUIRE(json["packagesBlockedByPins"].isArray());
+    REQUIRE(json["packagesWithAvailableUpgradesForPins"].isArray());
+    REQUIRE(json["skippedUnknownVersions"].asInt() == 0);
+    REQUIRE(json["skippedPinned"].asInt() == 0);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
 }
 
 TEST_CASE("UpdateFlow_JsonOutputRequiresListMode", "[UpdateFlow][workflow]")

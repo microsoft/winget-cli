@@ -4,6 +4,7 @@
 #include "Command.h"
 #include "Resources.h"
 #include "Sixel.h"
+#include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
 #include <AppInstallerRuntime.h>
 #include <winget/Locale.h>
@@ -1071,6 +1072,8 @@ namespace AppInstaller::CLI
     {
         try
         {
+            Workflow::SetJsonOutputChannel(context);
+
             if (!Settings::User().GetWarnings().empty() &&
                 !WI_IsFlagSet(command->GetOutputFlags(), CommandOutputFlags::IgnoreSettingsWarnings))
             {
