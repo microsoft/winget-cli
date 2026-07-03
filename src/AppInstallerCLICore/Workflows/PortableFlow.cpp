@@ -212,7 +212,7 @@ namespace AppInstaller::CLI::Workflow
                 std::filesystem::path commandAlias;
                 if (nestedInstallerFile.PortableCommandAlias.empty())
                 {
-                    commandAlias = targetPath.filename();
+                    commandAlias = originalFilename;
                 }
                 else
                 {
