@@ -1037,6 +1037,10 @@ namespace AppInstaller::CLI::Workflow
 
         // Open the predefined source.
         context << OpenPredefinedSource(m_predefinedSource, m_forDependencies);
+        if (context.IsTerminated())
+        {
+            return;
+        }
 
         // Create the composite source from the two.
         Repository::Source source;

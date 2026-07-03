@@ -435,6 +435,33 @@ Sources:
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
 }
 
+TEST_CASE("ListFlow_JsonOutputStopsCompositeAfterInstalledSourceFailure", "[ListFlow][workflow]")
+{
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+    Workflow::SetJsonOutputChannel(context);
+
+    auto availableSource = AppInstaller::Repository::Source{ CreateTestSource({ TSR::TestInstaller_Exe }) };
+    context.Add<Execution::Data::Source>(availableSource);
+    context.Override({ "OpenPredefinedSource", [](TestContext& context)
+    {
+        context.Reporter.Json() << R"({"packages":[],"truncated":false,"sourceFailures":[],"error":{"code":"0x8a15000e","message":"Failed to open source."}})" << std::endl;
+        context.SetTerminationHR(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+    } });
+
+    context << Workflow::OpenCompositeSource(AppInstaller::Repository::PredefinedSource::Installed);
+    INFO(listOutput.str());
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].empty());
+    REQUIRE(json["error"]["code"].asString() == "0x8a15000e");
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+    REQUIRE_FALSE(context.Get<Execution::Data::Source>().IsComposite());
+}
+
 TEST_CASE("UpdateFlow_ListJsonOutput", "[UpdateFlow][workflow]")
 {
     std::ostringstream updateOutput;
