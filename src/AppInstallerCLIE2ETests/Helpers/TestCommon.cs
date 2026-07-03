@@ -511,7 +511,6 @@ namespace AppInstallerCLIE2ETests.Helpers
             return currentPathValue.Contains(expectedValue, StringComparison.OrdinalIgnoreCase);
         }
 
-
         /// <summary>
         /// Copies log files to the path %TEMP%\E2ETestLogs.
         /// </summary>
