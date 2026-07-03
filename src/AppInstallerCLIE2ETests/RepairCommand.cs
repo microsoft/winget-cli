@@ -134,7 +134,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Successfully installed"));
 
             result = TestCommon.RunAICLICommand("repair", "AppInstallerTest.TestUserScopeInstallRepairInAdminContext");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED, result.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED, result.ExitCode);
             Assert.True(result.StdOut.Contains("The package installed for user scope cannot be repaired when running with administrator privileges."));
             TestCommon.CleanupTestExeAndDirectory(installDir);
         }
