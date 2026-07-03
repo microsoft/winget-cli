@@ -4,6 +4,7 @@
 #include "PortableFlow.h"
 #include "PortableInstaller.h"
 #include "WorkflowBase.h"
+#include <map>
 #include <winget/Filesystem.h>
 #include <winget/PortableFileEntry.h>
 #include <winget/PortableIndex.h>
@@ -185,6 +186,10 @@ namespace AppInstaller::CLI::Workflow
         {
             portableInstaller.RecordToIndex = true;
 
+            // Build a map of installed target path → SHA256 as file entries are created,
+            // so nested installer files that need hardlinks can reuse the hash without re-reading from disk.
+            std::map<std::filesystem::path, std::string> fileHashes;
+
             for (const auto& entry : std::filesystem::directory_iterator(installerPath))
             {
                 std::filesystem::path entryPath = entry.path();
@@ -197,7 +202,8 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else
                 {
-                    entries.emplace_back(PortableFileEntry::CreateFileEntry(entryPath, targetPath, {}));
+                    const PortableFileEntry& fileEntry = entries.emplace_back(PortableFileEntry::CreateFileEntry(entryPath, targetPath, {}));
+                    fileHashes[std::filesystem::weakly_canonical(targetPath)] = fileEntry.SHA256;
                 }
             }
 
@@ -225,10 +231,9 @@ namespace AppInstaller::CLI::Workflow
                 // Hardlink will be placed in the same directory as the original file to avoid pathing issues and same-volume restrictions
                 if (commandAlias != originalFilename)
                 {
-                    std::filesystem::path sourcePath = installerPath / relativeFilePath;
                     std::filesystem::path hardlinkPath = targetPath.parent_path() / commandAlias;
-                    // Compute SHA256 from source file for the hardlink entry
-                    std::string sha256 = Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHashFromFile(sourcePath));
+                    auto it = fileHashes.find(std::filesystem::weakly_canonical(targetPath));
+                    std::string sha256 = (it != fileHashes.end()) ? it->second : std::string{};
                     entries.emplace_back(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetPath, sha256));
                 }
                 entries.emplace_back(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetPath));
