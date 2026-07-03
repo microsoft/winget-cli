@@ -520,7 +520,7 @@ namespace AppInstaller::CLI::Portable
             // This is to ensure that the directory is fully uninstalled before attempting to remove from PATH registry.
             if (!targetFullPath.empty())
             {
-                m_expectedEntries.emplace_back(std::move(PortableFileEntry::CreateFileEntry({}, targetFullPath, SHA256)));
+                m_expectedEntries.emplace_back(PortableFileEntry::CreateFileEntry({}, targetFullPath, SHA256));
             }
 
             if (!symlinkFullPath.empty())
@@ -532,10 +532,10 @@ namespace AppInstaller::CLI::Portable
                     std::filesystem::path hardlinkPath = InstallLocation / symlinkFullPath.filename();
                     if (hardlinkPath != targetFullPath && std::filesystem::exists(hardlinkPath))
                     {
-                        m_expectedEntries.emplace_back(std::move(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetFullPath, SHA256)));
+                        m_expectedEntries.emplace_back(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetFullPath, SHA256));
                     }
                 }
-                m_expectedEntries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkFullPath, targetFullPath)));
+                m_expectedEntries.emplace_back(PortableFileEntry::CreateSymlinkEntry(symlinkFullPath, targetFullPath));
             }
         }
     }

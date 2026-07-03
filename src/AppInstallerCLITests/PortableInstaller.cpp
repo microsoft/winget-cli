@@ -37,8 +37,8 @@ TEST_CASE("PortableInstaller_InstallToRegistry", "[PortableInstaller]")
     std::filesystem::path targetPath = tempDirectory.GetPath() / "testPortable.txt";
     std::filesystem::path symlinkPath = tempDirectory.GetPath() / "testSymlink.exe";
 
-    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateFileEntry(testPortable.GetPath(), targetPath, {})));
-    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkPath, targetPath)));
+    desiredTestState.emplace_back(PortableFileEntry::CreateFileEntry(testPortable.GetPath(), targetPath, {}));
+    desiredTestState.emplace_back(PortableFileEntry::CreateSymlinkEntry(symlinkPath, targetPath));
 
     PortableInstaller portableInstaller = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
     portableInstaller.TargetInstallLocation = tempDirectory.GetPath();
@@ -84,11 +84,11 @@ TEST_CASE("PortableInstaller_InstallToIndex_CreateInstallRoot", "[PortableInstal
     std::filesystem::path symlinkPath2 = installRootPath / "testSymlink2.exe";
     std::filesystem::path directoryPath = installRootPath / "testDirectory";
 
-    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateFileEntry(testPortable.GetPath(), targetPath, {})));
-    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateFileEntry(testPortable2.GetPath(), targetPath2, {})));
-    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkPath, targetPath)));
-    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkPath2, targetPath2)));
-    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateDirectoryEntry(testDirectoryFolder.GetPath(), directoryPath)));
+    desiredTestState.emplace_back(PortableFileEntry::CreateFileEntry(testPortable.GetPath(), targetPath, {}));
+    desiredTestState.emplace_back(PortableFileEntry::CreateFileEntry(testPortable2.GetPath(), targetPath2, {}));
+    desiredTestState.emplace_back(PortableFileEntry::CreateSymlinkEntry(symlinkPath, targetPath));
+    desiredTestState.emplace_back(PortableFileEntry::CreateSymlinkEntry(symlinkPath2, targetPath2));
+    desiredTestState.emplace_back(PortableFileEntry::CreateDirectoryEntry(testDirectoryFolder.GetPath(), directoryPath));
 
     PortableInstaller portableInstaller = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
     portableInstaller.TargetInstallLocation = installRootDirectory.GetPath();
@@ -142,11 +142,11 @@ TEST_CASE("PortableInstaller_InstallToIndex_ExistingInstallRoot", "[PortableInst
     std::filesystem::path symlinkPath2 = installRootPath / "testSymlink2.exe";
     std::filesystem::path directoryPath = installRootPath / "testDirectory";
 
-    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateFileEntry(testPortable.GetPath(), targetPath, {})));
-    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateFileEntry(testPortable2.GetPath(), targetPath2, {})));
-    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkPath, targetPath)));
-    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkPath2, targetPath2)));
-    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateDirectoryEntry(testDirectoryFolder.GetPath(), directoryPath)));
+    desiredTestState.emplace_back(PortableFileEntry::CreateFileEntry(testPortable.GetPath(), targetPath, {}));
+    desiredTestState.emplace_back(PortableFileEntry::CreateFileEntry(testPortable2.GetPath(), targetPath2, {}));
+    desiredTestState.emplace_back(PortableFileEntry::CreateSymlinkEntry(symlinkPath, targetPath));
+    desiredTestState.emplace_back(PortableFileEntry::CreateSymlinkEntry(symlinkPath2, targetPath2));
+    desiredTestState.emplace_back(PortableFileEntry::CreateDirectoryEntry(testDirectoryFolder.GetPath(), directoryPath));
 
     PortableInstaller portableInstaller = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
     portableInstaller.TargetInstallLocation = installRootDirectory.GetPath();
@@ -193,8 +193,8 @@ TEST_CASE("PortableInstaller_UnicodeSymlinkPath", "[PortableInstaller]")
     std::filesystem::path targetPath = testInstallLocation / "testPortable.txt";
     std::filesystem::path symlinkPath = tempDirectory.GetPath() / "testSymlink.exe";
 
-    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateFileEntry(testPortable.GetPath(), targetPath, {})));
-    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkPath, targetPath)));
+    desiredTestState.emplace_back(PortableFileEntry::CreateFileEntry(testPortable.GetPath(), targetPath, {}));
+    desiredTestState.emplace_back(PortableFileEntry::CreateSymlinkEntry(symlinkPath, targetPath));
 
     PortableInstaller portableInstaller = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
     portableInstaller.TargetInstallLocation = testInstallLocation;

@@ -193,11 +193,11 @@ namespace AppInstaller::CLI::Workflow
 
                 if (std::filesystem::is_directory(entryPath))
                 {
-                    entries.emplace_back(std::move(PortableFileEntry::CreateDirectoryEntry(entryPath, targetPath)));
+                    entries.emplace_back(PortableFileEntry::CreateDirectoryEntry(entryPath, targetPath));
                 }
                 else
                 {
-                    entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(entryPath, targetPath, {})));
+                    entries.emplace_back(PortableFileEntry::CreateFileEntry(entryPath, targetPath, {}));
                 }
             }
 
@@ -229,9 +229,9 @@ namespace AppInstaller::CLI::Workflow
                     std::filesystem::path hardlinkPath = targetPath.parent_path() / commandAlias;
                     // Compute SHA256 from source file for the hardlink entry
                     std::string sha256 = Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHashFromFile(sourcePath));
-                    entries.emplace_back(std::move(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetPath, sha256)));
+                    entries.emplace_back(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetPath, sha256));
                 }
-                entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetPath)));
+                entries.emplace_back(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetPath));
             }
         }
         else
@@ -261,15 +261,15 @@ namespace AppInstaller::CLI::Workflow
             
             // Create file entry for original (with original name) - this computes SHA256
             std::string fileSha256 = Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHashFromFile(installerPath));
-            entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(installerPath, targetFullPath, fileSha256)));
+            entries.emplace_back(PortableFileEntry::CreateFileEntry(installerPath, targetFullPath, fileSha256));
 
             // If alias differs from original filename, create hardlink
             if (commandAlias != originalFilename)
             {
                 std::filesystem::path hardlinkPath = targetInstallDirectory / commandAlias;
-                entries.emplace_back(std::move(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetFullPath, fileSha256)));
+                entries.emplace_back(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetFullPath, fileSha256));
             }
-            entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetFullPath)));
+            entries.emplace_back(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetFullPath));
         }
 
         return entries;
