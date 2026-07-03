@@ -229,14 +229,9 @@ namespace AppInstaller::CLI::Portable
         const auto& filePath = entry.GetFilePath();
         PortableFileType fileType = entry.FileType;
 
-        if (fileType == PortableFileType::File && std::filesystem::exists(filePath))
+        if ((fileType == PortableFileType::File || fileType == PortableFileType::Hardlink) && std::filesystem::exists(filePath))
         {
-            AICLI_LOG(CLI, Info, << "Deleting portable exe at: " << filePath);
-            std::filesystem::remove(filePath);
-        }
-        else if (fileType == PortableFileType::Hardlink && std::filesystem::exists(filePath))
-        {
-            AICLI_LOG(CLI, Info, << "Deleting portable hardlink at: " << filePath);
+            AICLI_LOG(CLI, Info, << "Deleting portable file at: " << filePath);
             std::filesystem::remove(filePath);
         }
         else if (fileType == PortableFileType::Symlink)
