@@ -1072,7 +1072,10 @@ namespace AppInstaller::CLI
     {
         try
         {
-            Workflow::SetJsonOutputChannel(context);
+            if (!context.Args.Contains(Execution::Args::Type::Help))
+            {
+                Workflow::SetJsonOutputChannel(context);
+            }
 
             if (!Settings::User().GetWarnings().empty() &&
                 !WI_IsFlagSet(command->GetOutputFlags(), CommandOutputFlags::IgnoreSettingsWarnings))

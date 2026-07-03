@@ -377,6 +377,23 @@ TEST_CASE("ListFlow_JsonOutputWithSettingsWarnings", "[ListFlow][workflow]")
     REQUIRE(json["packages"].size() == 1);
 }
 
+TEST_CASE("ListFlow_JsonOutputHelpUsesTextOutput", "[ListFlow][workflow]")
+{
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::Help);
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list({});
+    context.SetExecutingCommand(&list);
+    ExecuteWithoutLoggingSuccess(context, &list);
+    INFO(listOutput.str());
+
+    REQUIRE(listOutput.str().find(Resource::String::Usage("winget"_liv, "list"_liv).get()) != std::string::npos);
+    REQUIRE_FALSE(context.IsTerminated());
+}
+
 TEST_CASE("ListFlow_JsonOutputWinGetPolicyDisabled", "[ListFlow][workflow]")
 {
     GroupPolicyTestOverride policies;
@@ -400,6 +417,32 @@ TEST_CASE("ListFlow_JsonOutputWinGetPolicyDisabled", "[ListFlow][workflow]")
     REQUIRE(json["error"]["code"].asString() == "0x8a15003a");
     REQUIRE(json["error"]["message"].asString().empty() == false);
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY);
+}
+
+TEST_CASE("ListFlow_JsonOutputGenericExecutionFailure", "[ListFlow][workflow]")
+{
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+    context.Override({ "OpenSource", [](TestContext&)
+    {
+        THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+    } });
+
+    ListCommand list({});
+    context.SetExecutingCommand(&list);
+    ExecuteWithoutLoggingSuccess(context, &list);
+    INFO(listOutput.str());
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].empty());
+    REQUIRE(json["sourceFailures"].isArray());
+    REQUIRE(json["sourceFailures"].empty());
+    REQUIRE(json["error"]["code"].asString() == "0x8a150045");
+    REQUIRE(json["error"]["message"].asString().empty() == false);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
 }
 
 TEST_CASE("ListFlow_JsonOutputBadSource", "[ListFlow][workflow]")

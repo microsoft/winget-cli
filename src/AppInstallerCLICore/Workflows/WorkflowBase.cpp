@@ -508,6 +508,19 @@ namespace AppInstaller::CLI::Workflow
             WriteJsonOutput(context, result);
         }
 
+        Resource::LocString GetUnexpectedErrorMessage(std::string_view message)
+        {
+            std::string result = Resource::LocString{ Resource::String::UnexpectedErrorExecutingCommand }.get();
+
+            if (!message.empty())
+            {
+                result += ' ';
+                result += message;
+            }
+
+            return Resource::LocString{ Utility::LocIndString{ std::move(result) } };
+        }
+
         void OutputInstalledPackagesJson(
             Execution::Context& context,
             std::vector<InstalledPackagesTableLine>& lines,
@@ -790,9 +803,17 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::ResultException, re.what());
             if (context)
             {
-                context->Reporter.Error() <<
-                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                    GetUserPresentableMessage(re) << std::endl;
+                auto message = GetUserPresentableMessage(re);
+                if (IsJsonOutputFormat(context->Args))
+                {
+                    OutputInstalledPackagesJsonError(*context, re.GetErrorCode(), GetUnexpectedErrorMessage(message));
+                }
+                else
+                {
+                    context->Reporter.Error() <<
+                        Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                        message << std::endl;
+                }
             }
             return re.GetErrorCode();
         }
@@ -802,9 +823,16 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::WinrtHResultError, message);
             if (context)
             {
-                context->Reporter.Error() <<
-                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                    message << std::endl;
+                if (IsJsonOutputFormat(context->Args))
+                {
+                    OutputInstalledPackagesJsonError(*context, hre.code(), GetUnexpectedErrorMessage(message));
+                }
+                else
+                {
+                    context->Reporter.Error() <<
+                        Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                        message << std::endl;
+                }
             }
             return hre.code();
         }
@@ -832,9 +860,17 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::StdException, e.what());
             if (context)
             {
-                context->Reporter.Error() <<
-                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                    GetUserPresentableMessage(e) << std::endl;
+                auto message = GetUserPresentableMessage(e);
+                if (IsJsonOutputFormat(context->Args))
+                {
+                    OutputInstalledPackagesJsonError(*context, APPINSTALLER_CLI_ERROR_COMMAND_FAILED, GetUnexpectedErrorMessage(message));
+                }
+                else
+                {
+                    context->Reporter.Error() <<
+                        Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                        message << std::endl;
+                }
             }
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
@@ -844,8 +880,15 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::Unknown, {});
             if (context)
             {
-                context->Reporter.Error() <<
-                    Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
+                if (IsJsonOutputFormat(context->Args))
+                {
+                    OutputInstalledPackagesJsonError(*context, APPINSTALLER_CLI_ERROR_COMMAND_FAILED, GetUnexpectedErrorMessage("???"sv));
+                }
+                else
+                {
+                    context->Reporter.Error() <<
+                        Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
+                }
             }
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
