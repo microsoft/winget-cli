@@ -7,4 +7,8 @@
 *.patch text eol=lf
 
 # Spelling action inputs must stay LF
-{allow.txt,excludes.txt,patterns.txt,expect.txt} text eol=lf
+.github/actions/spelling/*.txt text eol=lf
+
+# External PowerShell files are signed, so we must preserve the exact content instead of
+# normalizing line endings.
+src/PowerShell/ExternalModules/**/* -text
