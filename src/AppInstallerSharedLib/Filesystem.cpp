@@ -443,13 +443,6 @@ namespace AppInstaller::Filesystem
     {
         try
         {
-            // Remove the link path if it already exists
-            if (std::filesystem::exists(link))
-            {
-                std::filesystem::remove(link);
-            }
-
-            // Attempt to create the hardlink
             std::filesystem::create_hard_link(target, link);
             AICLI_LOG(Core, Info, << "Hardlink created successfully from " << target << " to " << link);
             return true;
