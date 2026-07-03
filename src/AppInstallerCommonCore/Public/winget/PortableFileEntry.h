@@ -14,7 +14,7 @@ namespace AppInstaller::Portable
         File,
         Directory,
         Symlink,
-        Hardlink
+        Hardlink,
     };
 
     // Metadata representation of a portable file placed down during installation
