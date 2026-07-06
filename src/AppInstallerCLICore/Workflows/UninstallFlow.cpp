@@ -233,7 +233,7 @@ namespace AppInstaller::CLI::Workflow
         auto installedType = ConvertToInstallerTypeEnum(packageMetadata[PackageVersionMetadata::InstalledType]);
 
         // When running as admin, block attempt to uninstall user scope package to prevent elevation of privilege paths.
-        if (AdminExecutionShouldBlockUserScopePackages(installedType) && Runtime::IsRunningAsAdmin())
+        if (AdminExecutionShouldBlockUserScopePackages(installedType) && Runtime::IsRunningWithNonDefaultFullToken())
         {
             auto scopeEnum = ConvertToScopeEnum(packageMetadata[PackageVersionMetadata::InstalledScope]);
             if (scopeEnum == ScopeEnum::User)
