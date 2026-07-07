@@ -502,7 +502,16 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
 
             // Always clean up as best effort.
-            RunAICLICommand("uninstall", $"--product-code {productCode} --force");
+            var cleanupResult = RunAICLICommand("uninstall", $"--product-code {productCode} --force");
+
+            // If the uninstall cleanup failed (e.g., the exe was still in use), manually remove the symlink
+            // to prevent cascade failures in other parallel tests that check the shared Links directory.
+            if (cleanupResult.ExitCode != 0 && File.Exists(symlinkPath))
+            {
+                TestContext.Out.WriteLine($"WARNING: Cleanup uninstall failed with exit code {cleanupResult.ExitCode}. Manually removing symlink to prevent cascade: {symlinkPath}");
+                try { File.Delete(symlinkPath); }
+                catch (Exception ex) { TestContext.Out.WriteLine($"WARNING: Failed to manually remove symlink: {ex.Message}"); }
+            }
 
             Assert.AreEqual(shouldExist, exeExists, $"Expected portable exe path: {exePath}");
             Assert.AreEqual(shouldExist && !installDirectoryAddedToPath, symlinkExists, $"Expected portable symlink path: {symlinkPath}");
