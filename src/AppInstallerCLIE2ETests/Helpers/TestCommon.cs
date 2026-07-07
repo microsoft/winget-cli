@@ -477,13 +477,28 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
 
             bool isAddedToPath;
+            string pathDiagnostics;
             string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
             using (RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, true))
             {
                 string pathName = "Path";
                 var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);
+                var rawPathValue = (string)environmentRegistryKey.GetValue(pathName, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+                var valueKind = environmentRegistryKey.GetValueKind(pathName);
                 var portablePathValue = (installDirectoryAddedToPath ? installDir : symlinkDirectory) + ';';
                 isAddedToPath = currentPathValue.Contains(portablePathValue);
+
+                string symlinkDirContents = Directory.Exists(symlinkDirectory)
+                    ? (Directory.GetFileSystemEntries(symlinkDirectory) is string[] entries && entries.Length > 0
+                        ? string.Join(", ", entries)
+                        : "(empty)")
+                    : "(does not exist)";
+
+                pathDiagnostics = $"\n  Registry value kind: {valueKind}" +
+                                  $"\n  Expanded PATH value: {currentPathValue}" +
+                                  $"\n  Raw PATH value:      {rawPathValue}" +
+                                  $"\n  Searching for:       {portablePathValue}" +
+                                  $"\n  Links dir contents:  {symlinkDirContents}";
             }
 
             // Always clean up as best effort.
@@ -492,7 +507,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             Assert.AreEqual(shouldExist, exeExists, $"Expected portable exe path: {exePath}");
             Assert.AreEqual(shouldExist && !installDirectoryAddedToPath, symlinkExists, $"Expected portable symlink path: {symlinkPath}");
             Assert.AreEqual(shouldExist, portableEntryExists, $"Expected {productCode} subkey in path: {uninstallSubKey}");
-            Assert.AreEqual(shouldExist, isAddedToPath, $"Expected path variable: {(installDirectoryAddedToPath ? installDir : symlinkDirectory)}");
+            Assert.AreEqual(shouldExist, isAddedToPath, $"Expected path variable: {(installDirectoryAddedToPath ? installDir : symlinkDirectory)}{pathDiagnostics}");
         }
 
         /// <summary>
