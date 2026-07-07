@@ -283,13 +283,14 @@ node_modules/
 # Visual Studio LightSwitch build output
 **/*.HTMLClient/GeneratedArtifacts
 **/*.DesktopClient/GeneratedArtifacts
-
-# Local E2E test settings (developer-specific)
-Test.local.runsettings
 **/*.DesktopClient/ModelManifest.xml
 **/*.Server/GeneratedArtifacts
 **/*.Server/ModelManifest.xml
 _Pvt_Extensions
+
+# Local E2E test settings (developer-specific), keep the example one tracked
+*.runsettings
+!src/AppInstallerCLIE2ETests/Test.runsettings
 
 # Paket dependency manager
 .paket/paket.exe
