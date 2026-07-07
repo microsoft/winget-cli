@@ -490,7 +490,7 @@ namespace AppInstallerCLIE2ETests.Helpers
 
                 string symlinkDirContents = Directory.Exists(symlinkDirectory)
                     ? (Directory.GetFileSystemEntries(symlinkDirectory) is string[] entries && entries.Length > 0
-                        ? string.Join(", ", entries)
+                        ? string.Join(", ", entries.Select(s => Path.GetFileName(s)))
                         : "(empty)")
                     : "(does not exist)";
 
