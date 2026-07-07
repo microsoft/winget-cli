@@ -20,7 +20,11 @@
     ExeTestInstallerPath: The Exe Installer executable under test.
     PackageCertificatePath: Signing Certificate Path used to certify Index Source Package.
     PowerShellModulePath: Path to the PowerShell module manifest file under test.
-    LocalServerCertPathParameter: The cert used for the local server.
+    LocalServerCertPath: The cert used for the local server.
+    MsiTestInstallerV2Path: The v2 MSI Installer executable under test.
+    InprocTestbedPath: Path to the ComInprocTestbed executable used by in-proc COM tests.
+    InprocTestbedUseTestPackage: Bool to indicate whether in-proc COM tests should target the test package.
+    ForcedExperimentalFeatures: Pipe-separated list of experimental features to force-enable during test setup.
     SkipTestSource: I solemnly swear the test won't use the local test source or the source is already set up.
   -->
   <TestRunParameters>
@@ -35,9 +39,13 @@
     <Parameter name="MsixTestInstallerPath" value="MsixTestInstaller.msix" />
     <Parameter name="ExeTestInstallerPath" value="ExeTestInstaller.exe" />
     <Parameter name="FontTestPath" value="AppInstallerTestFont.ttf" />
+    <Parameter name="MsiTestInstallerV2Path" value="MsiTestInstallerV2.msi" />
     <Parameter name="PackageCertificatePath" value="certificate.pfx"/>
     <Parameter name="PowerShellModulePath" value="TestPowerShellModule.psd1" />
-    <Parameter name="LocalServerCertPathParameter" value="servercert.cer" />
+    <Parameter name="LocalServerCertPath" value="servercert.cer" />
+    <Parameter name="InprocTestbedPath" value="ComInprocTestbed.exe" />
+    <Parameter name="InprocTestbedUseTestPackage" value="false" />
+    <Parameter name="ForcedExperimentalFeatures" value="" />
     <Parameter name="SkipTestSource" value="false" />
   </TestRunParameters>
 </RunSettings>
