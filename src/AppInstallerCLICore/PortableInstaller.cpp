@@ -216,10 +216,27 @@ namespace AppInstaller::CLI::Portable
             {
                 PortableIndex existingIndex = PortableIndex::Open(existingIndexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
 
+                std::exception_ptr firstRemoveException;
                 for (auto expectedEntry : m_expectedEntries)
                 {
-                    RemoveFile(expectedEntry);
-                    existingIndex.RemovePortableFile(expectedEntry);
+                    try
+                    {
+                        RemoveFile(expectedEntry);
+                        existingIndex.RemovePortableFile(expectedEntry);
+                    }
+                    catch (...)
+                    {
+                        // Capture first failure but continue so that all entries (especially symlinks)
+                        // are cleaned up, preventing cascade failures in shared state like PATH.
+                        if (!firstRemoveException)
+                        {
+                            firstRemoveException = std::current_exception();
+                        }
+                    }
+                }
+                if (firstRemoveException)
+                {
+                    std::rethrow_exception(firstRemoveException);
                 }
 
                 deleteIndex = existingIndex.IsEmpty();
@@ -233,9 +250,24 @@ namespace AppInstaller::CLI::Portable
         }
         else
         {
+            std::exception_ptr firstRemoveException;
             for (auto expectedEntry : m_expectedEntries)
             {
-                RemoveFile(expectedEntry);
+                try
+                {
+                    RemoveFile(expectedEntry);
+                }
+                catch (...)
+                {
+                    if (!firstRemoveException)
+                    {
+                        firstRemoveException = std::current_exception();
+                    }
+                }
+            }
+            if (firstRemoveException)
+            {
+                std::rethrow_exception(firstRemoveException);
             }
         }
 
