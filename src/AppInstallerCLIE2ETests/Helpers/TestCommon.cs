@@ -477,22 +477,52 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
 
             bool isAddedToPath;
+            string pathDiagnostics;
             string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
             using (RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, true))
             {
                 string pathName = "Path";
                 var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);
+                var rawPathValue = (string)environmentRegistryKey.GetValue(pathName, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+                var valueKind = environmentRegistryKey.GetValueKind(pathName);
                 var portablePathValue = (installDirectoryAddedToPath ? installDir : symlinkDirectory) + ';';
                 isAddedToPath = currentPathValue.Contains(portablePathValue);
+
+                string symlinkDirContents = Directory.Exists(symlinkDirectory)
+                    ? (Directory.GetFileSystemEntries(symlinkDirectory) is string[] entries && entries.Length > 0
+                        ? string.Join(", ", entries.Select(s => Path.GetFileName(s)))
+                        : "(empty)")
+                    : "(does not exist)";
+
+                pathDiagnostics = $"\n  Registry value kind: {valueKind}" +
+                                  $"\n  Expanded PATH value: {currentPathValue}" +
+                                  $"\n  Raw PATH value:      {rawPathValue}" +
+                                  $"\n  Searching for:       {portablePathValue}" +
+                                  $"\n  Links dir contents:  {symlinkDirContents}";
             }
 
             // Always clean up as best effort.
-            RunAICLICommand("uninstall", $"--product-code {productCode} --force");
+            var cleanupResult = RunAICLICommand("uninstall", $"--product-code {productCode} --force");
+
+            // If the uninstall cleanup failed (e.g., the exe was still in use), manually remove the symlink
+            // to prevent cascade failures in other parallel tests that check the shared Links directory.
+            if (cleanupResult.ExitCode != 0 && File.Exists(symlinkPath))
+            {
+                TestContext.Out.WriteLine($"WARNING: Cleanup uninstall failed with exit code {cleanupResult.ExitCode}. Manually removing symlink to prevent cascade: {symlinkPath}");
+                try
+                {
+                    File.Delete(symlinkPath);
+                }
+                catch (Exception ex)
+                {
+                    TestContext.Out.WriteLine($"WARNING: Failed to manually remove symlink: {ex.Message}");
+                }
+            }
 
             Assert.That(exeExists, Is.EqualTo(shouldExist), $"Expected portable exe path: {exePath}");
             Assert.That(symlinkExists, Is.EqualTo(shouldExist && !installDirectoryAddedToPath), $"Expected portable symlink path: {symlinkPath}");
             Assert.That(portableEntryExists, Is.EqualTo(shouldExist), $"Expected {productCode} subkey in path: {uninstallSubKey}");
-            Assert.That(isAddedToPath, Is.EqualTo(shouldExist), $"Expected path variable: {(installDirectoryAddedToPath ? installDir : symlinkDirectory)}");
+            Assert.That(isAddedToPath, Is.EqualTo(shouldExist), $"Expected path variable: {(installDirectoryAddedToPath ? installDir : symlinkDirectory)}{pathDiagnostics}");
         }
 
         /// <summary>
