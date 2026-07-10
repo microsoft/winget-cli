@@ -8,7 +8,7 @@ The whole directory can be re-created with `.\CreatePortOverlay.ps1`
 ## cpprestsdk
 
 We add support for certificate pinning.
-Note that we use v2.10.18, which is not the latest.
+Note that we use v2.10.19
 
 Changes:
 * Add patch file: `add-server-certificate-validation.patch`
