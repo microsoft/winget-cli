@@ -10,6 +10,7 @@
 #include <AppInstallerVersions.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerRuntime.h>
+#include <winget/ManifestJSONParser.h>
 
 using namespace AppInstaller;
 using namespace AppInstaller::Http;
@@ -62,8 +63,11 @@ TEST_CASE("GetSupportedInterface", "[RestSource]")
     Version version{ "1.0.0" };
     REQUIRE(RestClient::GetSupportedInterface(TestRestUri, {}, info, {}, version, {})->GetVersion() == version);
 
+    Version version_1_30{ "1.30.0" };
+    REQUIRE(RestClient::GetSupportedInterface(TestRestUri, {}, info, {}, version_1_30, {})->GetVersion() == version_1_30);
+
     // Update this test to next version so that we don't forget to add to supported versions before rest e2e tests are available.
-    Version invalid{ "1.29.0" };
+    Version invalid{ "1.31.0" };
     REQUIRE_THROWS_HR(RestClient::GetSupportedInterface(TestRestUri, {}, info, {}, invalid, {}), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
 
     Authentication::AuthenticationArguments authArgs;
@@ -79,6 +83,43 @@ TEST_CASE("GetSupportedInterface", "[RestSource]")
     IRestClient::Information infoWithInvalidAuthenticationInfo{ "TestId", { "1.7.0" } };
     infoWithInvalidAuthenticationInfo.Authentication.Type = Authentication::AuthenticationType::MicrosoftEntraId;
     REQUIRE_THROWS_HR(RestClient::GetSupportedInterface(TestRestUri, {}, infoWithInvalidAuthenticationInfo, authArgs, version_1_7, {}), APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO);
+}
+
+TEST_CASE("ManifestJSONParser_130_NoInstaller", "[RestSource]")
+{
+    utility::string_t sample = _XPLATSTR(
+        R"delimiter({
+            "Data": {
+              "PackageIdentifier": "Foo.Bar",
+              "Versions": [
+                {
+                  "PackageVersion": "1.0.0",
+                  "DefaultLocale": {
+                    "PackageLocale": "en-US",
+                    "PackageName": "Foo Bar",
+                    "Publisher": "Foo Corp",
+                    "ShortDescription": "Foo Bar package"
+                  },
+                  "Installers": [
+                    {
+                      "Architecture": "x64",
+                      "InstallerType": "noinstaller",
+                      "InstallerAvailabilityMessage": "This software has been discontinued by the publisher."
+                    }
+                  ]
+                }
+              ]
+            }
+        })delimiter");
+
+    AppInstaller::Repository::JSON::ManifestJSONParser parser{ Version{ "1.30.0" } };
+    auto manifests = parser.Deserialize(web::json::value::parse(sample));
+
+    REQUIRE(manifests.size() == 1);
+    REQUIRE(manifests[0].ManifestVersion == AppInstaller::Manifest::ManifestVer{ "1.30.0" });
+    REQUIRE(manifests[0].Installers.size() == 1);
+    REQUIRE(manifests[0].Installers[0].BaseInstallerType == AppInstaller::Manifest::InstallerTypeEnum::NoInstaller);
+    REQUIRE(manifests[0].Installers[0].InstallerAvailabilityMessage == "This software has been discontinued by the publisher.");
 }
 
 TEST_CASE("GetInformation_Success", "[RestSource]")
