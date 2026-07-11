@@ -268,6 +268,11 @@ namespace AppInstaller::Certificates
         return *this;
     }
 
+    PinningDetails& PinningDetails::LoadCertificate(const BYTE* certData, size_t certSize)
+    {
+        return LoadCertificate(std::make_pair(certData, certSize));
+    }
+
     PinningDetails& PinningDetails::SetPinning(PinningVerificationType type)
     {
         m_pinning = type;
@@ -646,6 +651,26 @@ namespace AppInstaller::Certificates
         return result;
     }
 
+    CallbackPinningChainValidation::CallbackPinningChainValidation(std::function<bool(PCCERT_CONTEXT)> callback)
+        : m_callback(std::move(callback))
+    {
+    }
+
+    bool CallbackPinningChainValidation::Validate(PCCERT_CHAIN_CONTEXT chainContext) const
+    {
+        THROW_HR_IF(E_INVALIDARG, !chainContext || chainContext->cChain == 0);
+        PCCERT_SIMPLE_CHAIN simpleChain = chainContext->rgpChain[0];
+        THROW_HR_IF(E_INVALIDARG, !simpleChain || simpleChain->cElement == 0);
+        PCCERT_CHAIN_ELEMENT leafElement = simpleChain->rgpElement[0];
+        THROW_HR_IF(E_INVALIDARG, !leafElement || !leafElement->pCertContext);
+        return m_callback(leafElement->pCertContext);
+    }
+
+    std::string CallbackPinningChainValidation::GetDescription() const
+    {
+        return "<callback validation>";
+    }
+
     PinningConfiguration::PinningConfiguration(std::string identifier) : m_identifier(identifier)
     {
         if (m_identifier.empty())
@@ -660,11 +685,47 @@ namespace AppInstaller::Certificates
 
     void PinningConfiguration::AddChain(PinningChain chain)
     {
-        AICLI_LOG(Core, Verbose, << "Adding chain to pinning configuration [" << m_identifier << "]:\n" << chain.GetDescription());
+        AddChain(std::make_shared<PinningChain>(std::move(chain)));
+    }
+
+    void PinningConfiguration::AddChain(std::shared_ptr<IPinningChainValidation> chain)
+    {
+        AICLI_LOG(Core, Verbose, << "Adding chain to pinning configuration [" << m_identifier << "]:\n" << chain->GetDescription());
         m_configuration.emplace_back(std::move(chain));
     }
 
-    bool PinningConfiguration::Validate(PCCERT_CONTEXT certContext) const
+    wil::unique_cert_chain_context PinningConfiguration::BuildCertificateChain(
+        PCCERT_CONTEXT certContext,
+        HCERTCHAINENGINE engine,
+        HCERTSTORE additionalStore,
+        DWORD flags)
+    {
+        char oidPkixKpServerAuth[] = szOID_PKIX_KP_SERVER_AUTH;
+        std::array<char*, 1> chainUses = {
+            oidPkixKpServerAuth,
+        };
+
+        CERT_CHAIN_PARA chainParameters = {};
+        chainParameters.cbSize = sizeof(chainParameters);
+        chainParameters.RequestedUsage.dwType = USAGE_MATCH_TYPE_OR;
+        chainParameters.RequestedUsage.Usage.cUsageIdentifier = static_cast<DWORD>(chainUses.size());
+        chainParameters.RequestedUsage.Usage.rgpszUsageIdentifier = chainUses.data();
+
+        wil::unique_cert_chain_context chainContext;
+        THROW_IF_WIN32_BOOL_FALSE(CertGetCertificateChain(
+            engine,
+            certContext,
+            nullptr,
+            additionalStore ? additionalStore : certContext->hCertStore,
+            &chainParameters,
+            flags,
+            nullptr,
+            &chainContext));
+
+        return chainContext;
+    }
+
+    bool PinningConfiguration::Validate(PCCERT_CONTEXT certContext, PCCERT_CHAIN_CONTEXT chainContext) const
     {
         if (m_configuration.empty())
         {
@@ -681,29 +742,13 @@ namespace AppInstaller::Certificates
             return true;
         }
 
-        // Get the chain for the given leaf certificate
-        wil::unique_cert_chain_context chainContext;
-
-        char oidPkixKpServerAuth[] = szOID_PKIX_KP_SERVER_AUTH;
-        std::array<char*, 1> chainUses = {
-            oidPkixKpServerAuth,
-        };
-
-        CERT_CHAIN_PARA chainParameters = {};
-        chainParameters.cbSize = sizeof(chainParameters);
-        chainParameters.RequestedUsage.dwType = USAGE_MATCH_TYPE_OR;
-        chainParameters.RequestedUsage.Usage.cUsageIdentifier = static_cast<DWORD>(chainUses.size());
-        chainParameters.RequestedUsage.Usage.rgpszUsageIdentifier = chainUses.data();
-
-        THROW_IF_WIN32_BOOL_FALSE(CertGetCertificateChain(nullptr, certContext, nullptr, certContext->hCertStore, &chainParameters, CERT_CHAIN_REVOCATION_CHECK_CHAIN, nullptr, &chainContext));
-
         bool result = false;
 
         for (const auto& chain : m_configuration)
         {
-            if (chain.Validate(chainContext.get()))
+            if (chain->Validate(chainContext))
             {
-                AICLI_LOG(Core, Verbose, << "Certificate `" << GetSimpleDisplayName(certContext) << "` accepted by pinning configuration:\n" << chain.GetDescription());
+                AICLI_LOG(Core, Verbose, << "Certificate `" << GetSimpleDisplayName(certContext) << "` accepted by pinning configuration:\n" << chain->GetDescription());
                 result = true;
                 break;
             }
@@ -711,15 +756,21 @@ namespace AppInstaller::Certificates
 
         if (result)
         {
-            // Only cache a successful validation
+            // Only cache a successful validation.
             m_cachedCertificate.assign(encodedBegin, encodedEnd);
         }
         else
         {
-            AICLI_LOG(Core, Error, << "Rejecting certificate [" << GetSimpleDisplayName(certContext) << "] as it did not match anything in pinning configuration [" << m_identifier << "]:\n" << GetDescriptionOfCertChain(chainContext.get()));
+            AICLI_LOG(Core, Error, << "Rejecting certificate [" << GetSimpleDisplayName(certContext) << "] as it did not match anything in pinning configuration [" << m_identifier << "]:\n" << GetDescriptionOfCertChain(chainContext));
         }
 
         return result;
+    }
+
+    bool PinningConfiguration::Validate(PCCERT_CONTEXT certContext) const
+    {
+        auto chainContext = BuildCertificateChain(certContext);
+        return Validate(certContext, chainContext.get());
     }
 
     // The JSON is expected to look like:
@@ -784,7 +835,7 @@ namespace AppInstaller::Certificates
 
         for (const auto& chain : m_configuration)
         {
-            result = std::max(result, chain.GetRemainingLifetimePercentage());
+            result = std::max(result, chain->GetRemainingLifetimePercentage());
         }
 
         return result;

@@ -3,12 +3,12 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestRestRequestHandler.h"
+#include "TestCertificates.h"
 #include <AppInstallerErrors.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
 #include <winget/Certificates.h>
 #include <winget/HttpClientHelper.h>
-#include <CertificateResources.h>
 #include <winget/JsonUtil.h>
 
 using namespace AppInstaller::Http;
@@ -61,16 +61,17 @@ TEST_CASE("EnsureDefaultUserAgent", "[RestSource]")
     }
 }
 
-TEST_CASE("HttpClientHelper_PinningConfiguration", "[RestSource]")
+TEST_CASE("HttpClientHelper_PinningConfiguration", "[RestSource][uses-test-certificates]")
 {
-    // Create the Store chain config
+    // Create a pinning chain with test certs that won't match any real server
+    TestCommon::TestCertificateChain testChain;
     PinningChain chain;
     auto chainElement = chain.Root();
-    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::PublicKey);
+    chainElement->LoadCertificate(testChain.Root().View()).SetPinning(PinningVerificationType::PublicKey);
     chainElement = chainElement.Next();
-    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+    chainElement->LoadCertificate(testChain.Intermediate2().View()).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
     chainElement = chainElement.Next();
-    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+    chainElement->LoadCertificate(testChain.Leaf2().View()).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
 
     PinningConfiguration config;
     config.AddChain(chain);

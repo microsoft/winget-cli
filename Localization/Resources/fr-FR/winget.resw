@@ -214,15 +214,19 @@
   </data>
   <data name="FeaturesDisabled" xml:space="preserve">
     <value>Désactivé</value>
+    <comment>Status value in the 'winget features' table. Indicates an experimental feature is turned off. Paired with 'Enabled'.</comment>
   </data>
   <data name="FeaturesEnabled" xml:space="preserve">
     <value>Activé</value>
+    <comment>Status value in the 'winget features' table. Indicates an experimental feature is active/turned on. Paired with 'Disabled'.</comment>
   </data>
   <data name="FeaturesFeature" xml:space="preserve">
     <value>Fonctionnalité</value>
+    <comment>Column header in the 'winget features' output table. 'Feature' is noun - an experimental software capability. Do NOT translate as a verb.</comment>
   </data>
   <data name="FeaturesLink" xml:space="preserve">
     <value>Lien</value>
+    <comment>Column header in the 'winget features' output table. 'Link' is a noun — a URL pointing to documentation for the feature. Do NOT translate as a verb.</comment>
   </data>
   <data name="FeaturesMessage" xml:space="preserve">
     <value>Les fonctionnalités expérimentales suivantes sont en cours.
@@ -231,9 +235,11 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   </data>
   <data name="FeaturesProperty" xml:space="preserve">
     <value>Propriété</value>
+    <comment>Column header in the 'winget features' output table. 'Property' refers to a named attribute/setting of the feature.</comment>
   </data>
   <data name="FeaturesStatus" xml:space="preserve">
     <value>Statut</value>
+    <comment>Column header in the 'winget features' output table. Shows whether an experimental feature is Enabled or Disabled.</comment>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Fichier à hacher</value>
@@ -271,8 +277,8 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
     <value>Microsoft n’est pas responsable des paquets tiers et n’accorde pas de licences à ceux-ci.</value>
   </data>
   <data name="InstallationDisclaimerMSStore" xml:space="preserve">
-    <value>Ce package est fourni via Microsoft Store. Le winget devra peut-être acquérir le package à partir du Microsoft Store pour le compte de l’utilisateur actuel.</value>
-    <comment>{Locked="winget"}</comment>
+    <value>Ce package est fourni via Microsoft Store. WinGet peut devoir récupérer le package depuis Microsoft Store pour le compte de l’utilisateur actuel.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>Installe le package sélectionné, trouvé en recherchant une source configurée ou directement à partir d’un manifeste. Par défaut, la requête doit correspondre à l’id, name ou moniker du package sans respecter la casse. D’autres champs peuvent être utilisés en passant leur option appropriée. Par défaut, la commande install vérifie l’état d’installation du package et tente d’effectuer une mise à niveau, le cas échéant. Remplacez par --force pour effectuer une installation directe.</value>
@@ -323,8 +329,8 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
     <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
   </data>
   <data name="KeyDirectoriesHeader" xml:space="preserve">
-    <value>Répertoires Winget</value>
-    <comment>Header for a table detailing the directories Winget uses for key operations like logging and portable installs</comment>
+    <value>Répertoires de WinGet</value>
+    <comment>{Locked="WinGet"} Header for a table detailing the directories WinGet uses for key operations like logging and portable installs</comment>
   </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>Paramètres régionaux à utiliser (format BCP47)</value>
@@ -351,7 +357,7 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
     <value>Emplacement du journal (si pris en charge)</value>
   </data>
   <data name="MainCopyrightNotice" xml:space="preserve">
-    <value>Copyright (c) Microsoft Corporation. Tous droits réservés.</value>
+    <value>© 2026 Microsoft. Tous droits réservés.</value>
   </data>
   <data name="MainHomepage" xml:space="preserve">
     <value>Page d’accueil</value>
@@ -468,12 +474,14 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   </data>
   <data name="SearchMatch" xml:space="preserve">
     <value>Correspondance</value>
+    <comment>Column header in the 'winget search' output table. 'Match' is a noun describing how the result matched the search query (e.g., Exact, Substring). Do NOT translate as a verb.</comment>
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>Nom</value>
   </data>
   <data name="SearchSource" xml:space="preserve">
     <value>Source</value>
+    <comment>Column header in the 'winget search' output table. 'Source' refers to the WinGet package repository the result came from (e.g., 'winget', 'msstore'). Not 'source code'.</comment>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>entrées supplémentaires tronquées en raison de la limite de résultats</value>
@@ -497,6 +505,7 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
+    <comment>Label in the 'winget show' output. 'Channel' refers to a software release channel (e.g., stable, preview, beta). Not a TV or media channel.</comment>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Affiche des informations sur un package spécifique. Par défaut, la requête doit correspondre de façon non sensible à la casse à l’ID, au nom ou au moniker du package. D’autres champs peuvent être utilisés en passant l’option appropriée.</value>
@@ -514,6 +523,18 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Seul l’alias de caractère peut se produire après une seule – : '{0}'</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides more than a single character command line alias argument after an alias argument specifier '-'. {0} is a placeholder replaced by the user's argument input.</comment>
+  </data>
+  <data name="SortArgumentDescription" xml:space="preserve">
+    <value>Trier les résultats par une propriété (peut être répété)</value>
+    <comment>Description for the --sort argument used to sort output by field name.</comment>
+  </data>
+  <data name="SortAscendingArgumentDescription" xml:space="preserve">
+    <value>Trier les résultats par ordre croissant</value>
+    <comment>Description for the --ascending (--asc) flag that sets ascending sort direction for output.</comment>
+  </data>
+  <data name="SortDescendingArgumentDescription" xml:space="preserve">
+    <value>Trier les résultats par ordre décroissant</value>
+    <comment>Description for the --descending (--desc) flag that sets descending sort direction for output.</comment>
   </data>
   <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
     <value>Une source avec le nom spécifié existe déjà et fait référence à un autre emplacement :</value>
@@ -616,8 +637,8 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
-    <value>Échec de l’ouverture de la source prédéfinie ; veuillez le signaler aux chargés de maintenance winget.</value>
-    <comment>{Locked="winget"}</comment>
+    <value>Échec de l’ouverture de la source prédéfinie, veuillez le signaler aux chargés de maintenance WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Suppression en cours de toutes les sources... Merci de patienter.</value>
@@ -672,7 +693,8 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
     <value>Filtrer les résultats par mot-clé</value>
   </data>
   <data name="ThankYou" xml:space="preserve">
-    <value>Merci d’utiliser winget</value>
+    <value>Merci d’utiliser WinGet</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Avis de tiers</value>
@@ -771,6 +793,7 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   </data>
   <data name="ReportIdentityFound" xml:space="preserve">
     <value>Trouvé</value>
+    <comment>Header label printed before showing details about a located package, e.g. "Found [package name]". This is the past tense of "to find" — the package was successfully found/located.</comment>
   </data>
   <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
     <value>Le chemin d’accès est un répertoire : {0}</value>
@@ -814,8 +837,8 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
     <value>Désinstallé avec succès</value>
   </data>
   <data name="NoUninstallInfoFound" xml:space="preserve">
-    <value>winget ne peut pas trouver la commande de désinstallation pour ce package. Veuillez contacter l’éditeur du package pour obtenir de l’aide.</value>
-    <comment>{Locked="winget"}</comment>
+    <value>WinGet ne trouve pas la commande de désinstallation de ce package. Contactez l’éditeur du package pour obtenir de l’aide.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="UninstallAbandoned" xml:space="preserve">
     <value>Désinstallation abandonnée</value>
@@ -998,6 +1021,7 @@ La configuration est désactivée en raison d’une stratégie de groupe.</value
   </data>
   <data name="ExternalDependencies" xml:space="preserve">
     <value>Externe</value>
+    <comment>Category label for external package dependencies — packages that this package depends on but are distributed separately. Contrasts with built-in/internal dependencies. This is an adjective modifying the implied noun "dependencies".</comment>
   </data>
   <data name="ImportCommandReportDependencies" xml:space="preserve">
     <value>Les packages trouvés dans cette importation ont les dépendances suivantes :</value>
@@ -1344,6 +1368,10 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
     <value>Une version plus récente a été trouvée, mais la technologie d’installation est différente de la version actuelle installée. Désinstallez le package et installez la version la plus récente.</value>
   </data>
+  <data name="UpgradeInstallTechnologyMismatchCount" xml:space="preserve">
+    <value>{0} mises à niveau du ou des packages sont bloquées, car les versions plus récentes utilisent une technologie d’installation différente de celle de l’installation actuelle. Désinstallez chaque package, puis installez la nouvelle version.</value>
+    <comment>{Locked="{0}"} {0} is the number of packages skipped for this reason during winget upgrade --all.</comment>
+  </data>
   <data name="UpgradeDifferentInstallTechnology" xml:space="preserve">
     <value>La technologie d’installation de la version la plus récente spécifiée est différente de la version actuelle installée. Désinstallez le package et installez la version la plus récente.</value>
   </data>
@@ -1462,6 +1490,7 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   </data>
   <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
     <value>Impossible de vider le répertoire d’installation, car il n’a pas été créé par WinGet</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="RelatedLink" xml:space="preserve">
     <value>Lien associé</value>
@@ -1724,7 +1753,8 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
   </data>
   <data name="UpgradeBlockedByManifest" xml:space="preserve">
-    <value>Impossible de mettre à niveau le package à l’aide de Winget. Utilisez la méthode fournie par l’éditeur pour mettre à niveau ce package.</value>
+    <value>Impossible de mettre à niveau le package à l’aide de WinGet. Utilisez la méthode fournie par l’éditeur pour mettre à niveau ce package.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>Mettre à niveau les packages même s’ils ont une épingle non bloquante</value>
@@ -2021,6 +2051,12 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>Ignore le traitement des dépendances de package et des fonctionnalités Windows</value>
   </data>
+  <data name="DependenciesOnlyArgumentDescription" xml:space="preserve">
+    <value>Installe uniquement les dépendances du package</value>
+  </data>
+  <data name="DependenciesOnlyMessage" xml:space="preserve">
+    <value>Installation des dépendances uniquement. Le package lui-même ne sera pas installé.</value>
+  </data>
   <data name="DependenciesSkippedMessage" xml:space="preserve">
     <value>Dépendances ignorées.</value>
   </data>
@@ -2111,13 +2147,26 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
     <value>Activer la configuration Gestionnaire de package Windows</value>
   </data>
   <data name="ErrorCommandLongDescription" xml:space="preserve">
-    <value>Récupérez des informations sur les erreurs. En fonction d’un nombre, la sortie contiendra des détails sur l’erreur, y compris le nom du symbole s’il s’agit d’une erreur spécifique à winget. En fonction d’une chaîne, les erreurs spécifiques à winget sont recherchées pour cette valeur.</value>
+    <value>Récupérez des informations sur les erreurs. Selon un nombre, la sortie contiendra des détails sur l’erreur, y compris le nom du symbole s’il s’agit d’une erreur WinGet spécifique. En fonction d’une chaîne, les erreurs spécifiques aux WinGet sont recherchées pour cette valeur.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="ErrorCommandShortDescription" xml:space="preserve">
     <value>Obtenir des informations sur les erreurs</value>
   </data>
   <data name="ErrorInputArgumentDescription" xml:space="preserve">
     <value>Valeur à rechercher dans les informations sur l’erreur</value>
+  </data>
+  <data name="ErrorOutputFileArgumentDescription" xml:space="preserve">
+    <value>Générer un fichier Markdown contenant un code d'erreur</value>
+    <comment>Description of an argument that causes a Markdown file to be generated for all winget error codes.</comment>
+  </data>
+  <data name="ErrorOutputFileConflictsWithInput" xml:space="preserve">
+    <value>L’argument --output ne peut pas être combiné avec une valeur d’entrée.</value>
+    <comment>{Locked="--output"}</comment>
+  </data>
+  <data name="ErrorRequiresInputOrOutputFile" xml:space="preserve">
+    <value>Une valeur d’entrée ou un --output doit être fourni.</value>
+    <comment>{Locked="--output"}</comment>
   </data>
   <data name="ErrorNumberIsTooLarge" xml:space="preserve">
     <value>Le nombre donné est trop grand pour être un HRESULT.</value>
@@ -2210,7 +2259,8 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
     <value>L’application Microsoft Store est bloquée par la stratégie</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED" xml:space="preserve">
-    <value>La fonctionnalité est en cours de développement. Il peut être activé à l’aide des paramètres winget.</value>
+    <value>La fonctionnalité est en cours de développement. Il peut être activé à l’aide de 'winget settings'.</value>
+    <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED" xml:space="preserve">
     <value>Échec de l’installation de l’application Microsoft Store</value>
@@ -2253,6 +2303,9 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE" xml:space="preserve">
     <value>Aucune mise à jour applicable trouvée</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH" xml:space="preserve">
+    <value>Une mise à niveau est disponible, mais elle utilise une technologie d’installation différente de celle de l’installation actuelle</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE" xml:space="preserve">
     <value>mises à niveau WinGet – toutes terminées sur des échecs</value>
@@ -2780,8 +2833,8 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
     <value>Spécifier le compte à utiliser pour l’authentification</value>
   </data>
   <data name="SourceAddFailedAuthenticationNotSupported" xml:space="preserve">
-    <value>Échec de l’ajout de la source. Cette version winget ne prend pas en charge la méthode d’authentification de la source. Essayez de mettre à niveau vers la dernière version winget.</value>
-    <comment>{Locked="winget"}</comment>
+    <value>Échec de l’ajout de la source. Cette version WinGet ne prend pas en charge la méthode d’authentification de la source. Essayez de mettre à niveau vers la dernière version WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="SourceRequiresAuthentication" xml:space="preserve">
     <value>La source {0} requiert une authentification. L’invite d’authentification peut s’afficher en cas de besoin. Les informations authentifiées seront partagées avec la source pour l’autorisation d’accès.</value>
@@ -2861,11 +2914,18 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
     <value>Activer les options de ligne de commande du gestionnaire de paquets Windows</value>
     <comment>Describes a Group Policy that can enable the use of the --proxy option to set a proxy</comment>
   </data>
+  <data name="PolicyEnableConfigurationProcessorPath" xml:space="preserve">
+    <value>Activer le chemin d'accès du processeur de configuration du Gestionnaire de package Windows</value>
+    <comment>Describes a Group Policy that can enable the use of the --processor-path option in configuration commands</comment>
+  </data>
   <data name="ProxyArgumentDescription" xml:space="preserve">
     <value>Définir un proxy à utiliser pour cette exécution</value>
   </data>
   <data name="NoProxyArgumentDescription" xml:space="preserve">
     <value>Désactiver l’utilisation du proxy pour cette exécution</value>
+  </data>
+  <data name="NoProgressArgumentDescription" xml:space="preserve">
+    <value>Désactive la barre de progression et la boucle de progression</value>
   </data>
   <data name="ResetAdminSettingFailed" xml:space="preserve">
     <value>Impossible de réinitialiser {0}. Ce paramètre est contrôlé par la stratégie. Pour plus d’informations, contactez votre administrateur système.</value>
@@ -2908,7 +2968,8 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
     <value>Exclut une source de la découverte (true ou false)</value>
   </data>
   <data name="SourceListExplicit" xml:space="preserve">
-    <value>Contenu explicite</value>
+    <value>Explicite</value>
+    <comment>Column header in 'winget source list' output. 'Explicit' here is a technical term meaning the source must be directly named/specified to be used—it is NOT automatically included in package discovery. Translate as the equivalent of "requires explicit specification" or "must be directly specified". Do NOT translate as "explicit content", "adult content", "mature content", or any phrase suggesting inappropriate material.</comment>
   </data>
   <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
     <value>Niveau de confiance de la source (aucun ou approuvé)</value>
@@ -3184,17 +3245,19 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   </data>
   <data name="FontFamily" xml:space="preserve">
     <value>Famille</value>
+    <comment>Column header for the font family name, e.g. 'Arial' or 'Times New Roman'. Do NOT translate as a family of people or a surname.</comment>
   </data>
   <data name="FontFaces" xml:space="preserve">
-    <value>Visages</value>
-    <comment>"Faces" represents the typeface of the font family such as 'Bold' or 'Italic'</comment>
+    <value>Styles</value>
+    <comment>Column header listing the typefaces within a font family, e.g. 'Bold', 'Italic', 'Bold Italic'. Do NOT translate as human/anatomical faces.</comment>
   </data>
   <data name="FontFamilyNameArgumentDescription" xml:space="preserve">
-    <value>Filtrer les résultats par nom de famille</value>
+    <value>Filtrer les résultats par nom de famille de polices</value>
+    <comment>'Family name' refers to the font family name, e.g. 'Arial' or 'Times New Roman'. Do NOT translate 'family' as a family of people or 'family name' as a surname.</comment>
   </data>
   <data name="FontFace" xml:space="preserve">
-    <value>Visage</value>
-    <comment>"Face" represents the typeface of a font family such as 'Bold' or 'Italic'</comment>
+    <value>Style</value>
+    <comment>A single typeface within a font family, e.g. 'Bold' or 'Italic'. Do NOT translate as a human/anatomical face.</comment>
   </data>
   <data name="FontFilePaths" xml:space="preserve">
     <value>Chemins d'accès</value>
@@ -3219,8 +3282,8 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
     <value>Le programme d’installation du package nécessite une authentification. L’invite d’authentification peut s’afficher en cas de besoin. Les informations authentifiées seront partagées avec l’URL de téléchargement du programme d’installation.</value>
   </data>
   <data name="InstallerDownloadAuthenticationNotSupported" xml:space="preserve">
-    <value>Échec du téléchargement du programme d’installation. Cette version winget ne prend pas en charge la méthode d’authentification de téléchargement du programme d’installation. Essayez de mettre à niveau vers la dernière version winget.</value>
-    <comment>{Locked="winget"}</comment>
+    <value>Échec du téléchargement du programme d’installation. Cette version WinGet ne prend pas en charge la méthode d’authentification de téléchargement du programme d’installation. Essayez de mettre à niveau vers la dernière version WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="InstallerDownloadAuthenticationFailed" xml:space="preserve">
     <value>Le téléchargement du programme d'installation a échoué. L'authentification a échoué.</value>
@@ -3228,12 +3291,41 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   <data name="ConfigurationProcessorPath" xml:space="preserve">
     <value>Spécifiez le chemin d’accès au processeur de configuration</value>
   </data>
+  <data name="ConfigurationProcessorPathAudit" xml:space="preserve">
+    <value>Chemin d'accès du processeur personnalisé :</value>
+    <comment>Displayed as a warning header when a custom --processor-path argument is provided.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditHash" xml:space="preserve">
+    <value>Hachage : {0}</value>
+    <comment>{Locked="{0}"} {0} is the SHA256 hash hex string of the processor executable or its reparse data.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditIsAlias" xml:space="preserve">
+    <value>Type : alias d’exécution d’application</value>
+    <comment>Indicates the processor path is an app execution alias (MSIX package link).</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditPath" xml:space="preserve">
+    <value>Chemin d’accès : {0}</value>
+    <comment>{Locked="{0}"} {0} is the file system path provided by the user.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditSignature" xml:space="preserve">
+    <value>Signé par : {0}</value>
+    <comment>{Locked="{0}"} {0} is the Authenticode signing subject name of the executable.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathAuditUnsigned" xml:space="preserve">
+    <value>Signé par : (non signé)</value>
+    <comment>Indicates the custom processor executable does not have an Authenticode signature.</comment>
+  </data>
+  <data name="ConfigurationProcessorPathHashVerificationFailed" xml:space="preserve">
+    <value>La vérification d'intégrité a échoué pour le chemin d’accès du processeur DSC personnalisé. Le chemin d’accès a peut-être été modifié.</value>
+    <comment>Error when the server-side hash of the processor path does not match the client-computed hash.</comment>
+  </data>
   <data name="DscCommandShortDescription" xml:space="preserve">
     <value>Commandes de ressources DSC v3</value>
     <comment>DSC stands for "Desired State Configuration". It should already have a locked translation.</comment>
   </data>
   <data name="DscCommandLongDescription" xml:space="preserve">
-    <value>Les sous-commandes implémentent ici des ressources Desired State Configuration (DSC) v3 pour configurer winget et packages.</value>
+    <value>Les sous-commandes ici implémentent des ressources Desired State Configuration (DSC) v3 pour la configuration des WinGet et des packages.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourceFunctionDescriptionGet" xml:space="preserve">
     <value>Obtenir l’état de la ressource</value>
@@ -3273,6 +3365,7 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   </data>
   <data name="DscPackageResourceLongDescription" xml:space="preserve">
     <value>Gérez les packages via WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionExist" xml:space="preserve">
     <value>Indique si un instance doit ou existe.</value>
@@ -3308,7 +3401,8 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
     <value>Gérer le fichier de paramètres utilisateur</value>
   </data>
   <data name="DscUserSettingsFileLongDescription" xml:space="preserve">
-    <value>Gérez les paramètres utilisateur de WinGet.</value>
+    <value>Gérez les paramètres d’utilisateur de WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionUserSettingsFileSettings" xml:space="preserve">
     <value>Contenu du fichier JSON des paramètres.</value>
@@ -3324,6 +3418,7 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   </data>
   <data name="DscSourceResourceLongDescription" xml:space="preserve">
     <value>Gérez les sources de WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionSourceName" xml:space="preserve">
     <value>Nom à utiliser pour la source.</value>
@@ -3384,6 +3479,7 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   </data>
   <data name="DscAdminSettingsResourceLongDescription" xml:space="preserve">
     <value>Gérez les paramètres d’administrateur de WinGet.</value>
+    <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="ResetAllAdminSettingsArgumentDescription" xml:space="preserve">
     <value>Réinitialise tous les paramètres d’administration</value>
@@ -3534,5 +3630,23 @@ An unlocalized JSON fragment will follow on another line.</comment>
   <data name="SourceEditNewValue" xml:space="preserve">
     <value>Nouvelle valeur</value>
     <comment>Column title for listing the new value.</comment>
+  </data>
+  <data name="SourcePriorityArgumentDescription" xml:space="preserve">
+    <value>Priorité : les nombres les plus élevés d’abord</value>
+    <comment>This argument sets the numerical priority of the source. Higher values will be first in priority.</comment>
+  </data>
+  <data name="SourceListPriority" xml:space="preserve">
+    <value>Priorité</value>
+    <comment>Label for the priority of the source with respect to other sources. Higher values come first in the order.</comment>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourcePriority" xml:space="preserve">
+    <value>Priorité de la source. Les valeurs les plus élevées sont triées en premier dans l’ordre.</value>
+  </data>
+  <data name="MultiplePackagesFoundFilteredBySourcePriority" xml:space="preserve">
+    <value>Les résultats ont été filtrés selon la priorité source la plus élevée.</value>
+    <comment>A warning message to indicate to the user that the results of a search have been filtered by choosing only those matching the highest source priority amongst the results.</comment>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
+    <value>Le hachage du processeur DSC fourni ne correspond pas au hachage du fichier cible.</value>
   </data>
 </root>

@@ -6,6 +6,7 @@
 #include "PackageCatalogReference.g.cpp"
 #include "PackageCatalogInfo.h"
 #include "PackageCatalog.h"
+#include "PackageCatalogConnectionValidationEventArgs.h"
 #include "SourceAgreement.h"
 #include "ConnectResult.h"
 #include "AuthenticationInfo.h"
@@ -32,6 +33,40 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto updateResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::RefreshPackageCatalogResult>>();
             updateResult->Initialize(status, terminationStatus);
             return *updateResult;
+        }
+
+        // Returns true if the ConnectionValidationHandler may be set for the given source.
+        // Returns false if the BypassCertificatePinningForMicrosoftStore policy is explicitly
+        // disabled and the source is the well-known MicrosoftStore catalog.
+        bool IsConnectionValidationHandlerEnabledForSource(const ::AppInstaller::Repository::Source& source)
+        {
+            using namespace AppInstaller::Settings;
+            if (source.IsWellKnownSource(::AppInstaller::Repository::WellKnownSource::MicrosoftStore))
+            {
+                return GroupPolicies().GetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore) != PolicyState::Disabled;
+            }
+
+            return true;
+        }
+
+        std::function<bool(PCCERT_CONTEXT)> MakeServerCertificateValidationCallback(
+            winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationHandler const& handler)
+        {
+            if (!handler)
+            {
+                return {};
+            }
+            return [handler](PCCERT_CONTEXT certContext) -> bool
+            {
+                auto certBytes = winrt::array_view<uint8_t const>{ certContext->pbCertEncoded, certContext->pbCertEncoded + certContext->cbCertEncoded };
+                auto buffer = winrt::Windows::Security::Cryptography::CryptographicBuffer::CreateFromByteArray(certBytes);
+                winrt::Windows::Security::Cryptography::Certificates::Certificate cert{ buffer };
+                auto args = winrt::make_self<wil::details::module_count_wrapper<PackageCatalogConnectionValidationEventArgs>>();
+                args->Initialize(cert);
+                auto handlerResult = handler(*args);
+                AICLI_LOG(Repo, Info, << "PackageCatalogConnectionValidationHandler returned: " << handlerResult);
+                return handlerResult == winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationResult::Ok;
+            };
         }
     }
 
@@ -117,6 +152,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 copy.SetCaller(callerName);
                 copy.SetBackgroundUpdateInterval(catalog.PackageCatalogBackgroundUpdateInterval());
                 copy.InstalledPackageInformationOnly(catalog.InstalledPackageInformationOnly());
+                auto validationCallback = MakeServerCertificateValidationCallback(catalogImpl->m_connectionValidationHandler);
+                if (validationCallback)
+                {
+                    copy.SetServerCertificateValidationCallback(std::move(validationCallback));
+                }
                 if (catalog.AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None)
                 {
                     copy.SetAuthenticationArguments(GetAuthenticationArguments(catalog.AuthenticationArguments()));
@@ -164,6 +204,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             source.SetCaller(callerName);
             source.SetBackgroundUpdateInterval(PackageCatalogBackgroundUpdateInterval());
             source.InstalledPackageInformationOnly(m_installedPackageInformationOnly);
+            auto validationCallback = MakeServerCertificateValidationCallback(m_connectionValidationHandler);
+            if (validationCallback)
+            {
+                source.SetServerCertificateValidationCallback(std::move(validationCallback));
+            }
             if (AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None)
             {
                 source.SetAuthenticationArguments(GetAuthenticationArguments(m_authenticationArguments));
@@ -329,5 +374,23 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
 
         co_return GetRefreshPackageCatalogResult(terminationHR);
+    }
+
+    winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationHandler PackageCatalogReference::ConnectionValidationHandler()
+    {
+        return m_connectionValidationHandler;
+    }
+
+    void PackageCatalogReference::ConnectionValidationHandler(winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationHandler const& value)
+    {
+        THROW_HR_IF(E_ACCESSDENIED, !IsInProcCaller());
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !IsConnectionValidationHandlerEnabledForSource(m_sourceReference));
+
+        m_connectionValidationHandler = value;
+    }
+
+    bool PackageCatalogReference::IsConnectionValidationHandlerEnabled()
+    {
+        return IsInProcCaller() && IsConnectionValidationHandlerEnabledForSource(m_sourceReference);
     }
 }

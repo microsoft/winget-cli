@@ -159,6 +159,9 @@ namespace Microsoft.WinGetUtil.Common
         /// <summary>Optional field missing.</summary>
         OptionalFieldMissing,
 
+        /// <summary>Portable command alias must not point to a location outside of base directory.</summary>
+        PortableCommandAliasEscapesDirectory,
+
         /// <summary>Relative file path must not point to a location outside of archive directory.</summary>
         RelativeFilePathEscapesDirectory,
 

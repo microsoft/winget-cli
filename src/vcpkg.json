@@ -12,6 +12,7 @@
   "dependencies": [
     "catch2",
     "correlation-vector-cpp",
+    "sfs-client",
     {
       "name": "curl",
       "features": [

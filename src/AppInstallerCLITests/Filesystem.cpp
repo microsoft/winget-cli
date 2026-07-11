@@ -12,23 +12,15 @@ using namespace TestCommon;
 
 TEST_CASE("PathEscapesDirectory", "[filesystem]")
 {
-    TestCommon::TempDirectory tempDirectory("TempDirectory");
-    const std::filesystem::path& basePath = tempDirectory.GetPath();
-
     std::string badRelativePath = "../../target.exe";
     std::string badRelativePath2 = "test/../../target.exe";
     std::string goodRelativePath = "target.exe";
     std::string goodRelativePath2 = "test/../test1/target.exe";
 
-    std::filesystem::path badPath = basePath / badRelativePath;
-    std::filesystem::path badPath2 = basePath / badRelativePath2;
-    std::filesystem::path goodPath = basePath / goodRelativePath;
-    std::filesystem::path goodPath2 = basePath / goodRelativePath2;
-
-    REQUIRE(PathEscapesBaseDirectory(badPath, basePath));
-    REQUIRE(PathEscapesBaseDirectory(badPath2, basePath));
-    REQUIRE_FALSE(PathEscapesBaseDirectory(goodPath, basePath));
-    REQUIRE_FALSE(PathEscapesBaseDirectory(goodPath2, basePath));
+    REQUIRE(PathEscapesBaseDirectory(badRelativePath));
+    REQUIRE(PathEscapesBaseDirectory(badRelativePath2));
+    REQUIRE_FALSE(PathEscapesBaseDirectory(goodRelativePath));
+    REQUIRE_FALSE(PathEscapesBaseDirectory(goodRelativePath2));
 }
 
 TEST_CASE("VerifySymlink", "[filesystem]")
@@ -48,6 +40,10 @@ TEST_CASE("VerifySymlink", "[filesystem]")
     REQUIRE(SymlinkExists(symlinkPath));
     REQUIRE(VerifySymlink(symlinkPath, testFilePath));
     REQUIRE_FALSE(VerifySymlink(symlinkPath, "badPath"));
+
+    // Verify case-insensitive comparison works (Windows paths are case-insensitive).
+    std::filesystem::path testFilePathUpperCase = basePath / "TESTFILE.TXT";
+    REQUIRE(VerifySymlink(symlinkPath, testFilePathUpperCase));
 
     std::filesystem::remove(testFilePath);
 

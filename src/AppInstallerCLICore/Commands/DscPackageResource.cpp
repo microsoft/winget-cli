@@ -89,6 +89,20 @@ namespace AppInstaller::CLI
                     SubContext->Args.AddArg(Execution::Args::Type::AcceptSourceAgreements);
                     SubContext->Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
                 }
+
+                std::string installMode = Utility::ToLower(Input.InstallMode().value_or("default"));
+                if (installMode == "silent")
+                {
+                    SubContext->Args.AddArg(Execution::Args::Type::Silent);
+                }
+                else if (installMode == "interactive")
+                {
+                    SubContext->Args.AddArg(Execution::Args::Type::Interactive);
+                }
+                else if (installMode != "default")
+                {
+                    THROW_HR(E_INVALIDARG);
+                }
             }
 
             void PrepareSubContextInputs()

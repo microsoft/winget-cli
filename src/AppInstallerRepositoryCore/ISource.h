@@ -3,6 +3,7 @@
 #pragma once
 #include "Public/winget/RepositorySource.h"
 #include <winget/SharedThreadGlobals.h>
+#include <functional>
 #include <memory>
 
 namespace AppInstaller::Repository
@@ -91,6 +92,10 @@ namespace AppInstaller::Repository
 
         // Set authentication arguments.
         virtual void SetAuthenticationArguments(Authentication::AuthenticationArguments) {}
+
+        // Set a custom server certificate validation callback.
+        // Return true from the callback to accept the connection, false to reject.
+        virtual void SetServerCertificateValidationCallback(std::function<bool(PCCERT_CONTEXT)>) {}
 
         // Determine if the source needs to be updated before being opened.
         virtual bool ShouldUpdateBeforeOpen(const std::optional<TimeSpan>&) { return false; }

@@ -150,6 +150,7 @@ Dns
 Dobbeleer
 DONOT
 dsc
+dupenv
 dustojnikhummer
 dvinns
 dwgs
@@ -635,6 +636,7 @@ uwp
 VALUENAMECASE
 vclib
 vcredist
+vcx
 versioned
 VERSIONINFO
 VIWEC

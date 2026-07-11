@@ -117,6 +117,7 @@ forcerestart
 gdi
 genai
 HCCE
+HCERTCHAINENGINE
 hcertstore
 HCRYPTMSG
 HGlobal
@@ -179,6 +180,7 @@ Minimatch
 Moq
 motw
 mrm
+msb
 msdata
 MSHCTX
 MSHLFLAGS
@@ -196,6 +198,7 @@ ncacn
 Nelon
 netstandard
 newid
+NNN
 NOCASE
 NOCLOSEPROCESS
 nodiscard
@@ -240,6 +243,7 @@ pinnable
 pinningindex
 pipssource
 Pkcs
+PKI
 portableindex
 powertoys
 pplx

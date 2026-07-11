@@ -47,6 +47,9 @@ namespace AppInstallerCLIE2ETests
         public const string TestSourceUrl = @"https://localhost:5001/TestKit";
         public const string TestSourceType = "Microsoft.PreIndexed.Package";
         public const string TestSourceIdentifier = @"WingetE2E.Tests_8wekyb3d8bbwe";
+        public const string RestTestSourceName = @"TestRestSource";
+        public const string RestTestSourceUrl = @"https://localhost:5001/TestKit/TestData/TestRestSource";
+        public const string RestTestSourceType = "Microsoft.Rest";
 
         public const string AICLIPackageFamilyName = "WinGetDevCLI_8wekyb3d8bbwe";
         public const string AICLIPackageName = "WinGetDevCLI";

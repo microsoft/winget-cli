@@ -133,6 +133,15 @@ Wenn Sie diese Einstellung deaktivieren oder nicht konfigurieren, können Benutz
         Wenn Sie diese Einstellung aktivieren oder nicht konfigurieren, können Benutzer den Windows-Paket-Manager verwenden.
 
         Wenn Sie diese Einstellung deaktivieren, können Benutzer den Windows-Paket-Manager nicht verwenden.</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPath">Außerkraftsetzung des Konfigurationsprozessors für den Windows-Paket-Manager aktivieren</string>
+      <string id="EnableWindowsPackageManagerConfigurationProcessorPathExplanation">
+        Diese Richtlinie steuert, ob Benutzer einen benutzerdefinierten DSC-Prozessorpfad über das Argument "--processor-path" in Konfigurationsbefehlen des Windows-Paket-Manager angeben können.
+
+Wenn Sie diese Einstellung aktivieren, können Benutzer in Konfigurationsbefehlen einen benutzerdefinierten DSC-Prozessorpfad angeben.
+
+Wenn Sie diese Einstellung nicht konfigurieren, können Benutzer in den Konfigurationsbefehlen einen benutzerdefinierten DSC-Prozessorpfad angeben, nachdem sie die zugehörige Administratoreinstellung aktiviert haben.
+
+Wenn Sie diese Einstellung deaktivieren, können Benutzer keinen benutzerdefinierten DSC-Prozessorpfad in Konfigurationsbefehlen angeben.</string>
       <string id="WindowsPackageManagerDefaultProxy">Standardproxy für den Windows-Paket-Manager festlegen</string>
       <string id="WindowsPackageManagerDefaultProxyExplanation">Diese Richtlinie steuert den Standardproxy, der vom Windows-Paket-Manager verwendet wird.
 

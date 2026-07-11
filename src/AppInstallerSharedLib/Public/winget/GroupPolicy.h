@@ -5,6 +5,7 @@
 #include <winget/Certificates.h>
 #include <winget/Registry.h>
 #include <winget/Resources.h>
+#include <wil/resource.h>
 
 #include <string_view>
 
@@ -124,7 +125,6 @@ namespace AppInstaller::Settings
         {
             using value_t = std::monostate;
             using opt_value_t = std::nullopt_t;
-            using opt_ref_value_t = std::nullopt_t;
             static std::nullopt_t ReadAndValidate(const Registry::Key& policiesKey);
         };
 
@@ -134,7 +134,6 @@ namespace AppInstaller::Settings
         { \
             using value_t = _type_; \
             using opt_value_t = std::optional<value_t>; \
-            using opt_ref_value_t = std::optional<std::reference_wrapper<const value_t>>; \
             static std::optional<value_t> ReadAndValidate(const Registry::Key& policiesKey); \
             _extra_ \
         }
@@ -165,9 +164,9 @@ namespace AppInstaller::Settings
     {
         using ValuePoliciesMap = EnumBasedVariantMap<ValuePolicy, details::ValuePolicyMapping>;
 
-        static GroupPolicy const& Instance();
+        static GroupPolicy& Instance();
 
-        GroupPolicy(const Registry::Key& key);
+        GroupPolicy(Registry::Key key);
         ~GroupPolicy() = default;
 
         GroupPolicy() = delete;
@@ -185,22 +184,10 @@ namespace AppInstaller::Settings
         template<ValuePolicy P>
         typename details::ValuePolicyMapping<P>::opt_value_t GetValue() const
         {
+            auto lock = m_lock.lock_shared();
             if (m_values.Contains(P))
             {
                 return m_values.Get<P>();
-            }
-            else
-            {
-                return std::nullopt;
-            }
-        }
-
-        template<ValuePolicy P>
-        typename details::ValuePolicyMapping<P>::opt_ref_value_t GetValueRef() const
-        {
-            if (m_values.Contains(P))
-            {
-                return std::cref(m_values.Get<P>());
             }
             else
             {
@@ -214,17 +201,14 @@ namespace AppInstaller::Settings
             return std::nullopt;
         }
 
-        template<>
-        std::nullopt_t GetValueRef<ValuePolicy::None>() const
-        {
-            return std::nullopt;
-        }
-
         PolicyState GetState(TogglePolicy::Policy policy) const;
 
         // Checks whether a policy is enabled, using an appropriate default when not configured.
         // Should not be used when not configured means something different than enabled/disabled.
         bool IsEnabled(TogglePolicy::Policy policy) const;
+
+        // Re-reads all policy values from the registry.
+        void Reload();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
     protected:
@@ -233,8 +217,13 @@ namespace AppInstaller::Settings
 #else
     private:
 #endif
+        Registry::Key m_key;
+        mutable wil::srwlock m_lock;
         std::map<TogglePolicy::Policy, PolicyState> m_toggles;
         ValuePoliciesMap m_values;
+
+    private:
+        PolicyState GetStateNoLock(TogglePolicy::Policy policy) const;
     };
 
     inline const GroupPolicy& GroupPolicies()

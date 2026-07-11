@@ -427,9 +427,6 @@
     <ProjectReference Include="..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.vcxproj">
       <Project>{1cc41a9a-ae66-459d-9210-1e572dd7be69}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\SfsClient\SfsClient.vcxproj">
-      <Project>{1b9077b3-8923-4ecd-8fc9-b3190fcbe4d4}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

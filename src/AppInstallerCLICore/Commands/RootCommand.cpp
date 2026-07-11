@@ -102,20 +102,20 @@ namespace AppInstaller::CLI
                 if (groupPolicies.GetState(Settings::TogglePolicy::Policy::AdditionalSources) == Settings::PolicyState::Enabled)
                 {
                     info << std::endl;
-                    auto sources = groupPolicies.GetValueRef<Settings::ValuePolicy::AdditionalSources>();
-                    if (sources.has_value() && !sources->get().empty())
+                    auto sources = groupPolicies.GetValue<Settings::ValuePolicy::AdditionalSources>();
+                    if (sources.has_value() && !sources->empty())
                     {
-                        OutputGroupPolicySourceList(context, sources->get(), Resource::String::SourceListAdditionalSource);
+                        OutputGroupPolicySourceList(context, sources.value(), Resource::String::SourceListAdditionalSource);
                     }
                 }
 
                 if (groupPolicies.GetState(Settings::TogglePolicy::Policy::AllowedSources) == Settings::PolicyState::Enabled)
                 {
                     info << std::endl;
-                    auto sources = groupPolicies.GetValueRef<Settings::ValuePolicy::AllowedSources>();
-                    if (sources.has_value() && !sources->get().empty())
+                    auto sources = groupPolicies.GetValue<Settings::ValuePolicy::AllowedSources>();
+                    if (sources.has_value() && !sources->empty())
                     {
-                        OutputGroupPolicySourceList(context, sources->get(), Resource::String::SourceListAllowedSource);
+                        OutputGroupPolicySourceList(context, sources.value(), Resource::String::SourceListAllowedSource);
                     }
                 }
                 info << std::endl;

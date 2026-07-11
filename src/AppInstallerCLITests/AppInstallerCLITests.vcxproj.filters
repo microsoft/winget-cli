@@ -72,6 +72,9 @@
     <ClInclude Include="TestCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TestCertificates.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="TestHooks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -99,6 +102,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestCertificates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TestCommon.cpp">
@@ -417,6 +423,21 @@
     <None Include="Run-TestsInPackage.ps1" />
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="TestData\TestRoot.cer">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestIntermediate1.cer">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestIntermediate2.cer">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestLeaf1.cer">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestLeaf2.cer">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-ApproximateVersionInArpVersion.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -505,6 +526,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-DuplicateRelativeFilePath.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-InvalidPortableCommandAlias.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-InvalidRelativeFilePath.yaml">

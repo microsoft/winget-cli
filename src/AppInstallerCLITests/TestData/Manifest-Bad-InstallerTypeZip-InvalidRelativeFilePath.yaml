@@ -1,4 +1,4 @@
-# Bad manifest. A nested installer file must have a RelativeFilePath specified.
+# Bad manifest. A nested installer file must have a valid RelativeFilePath.
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.4.0.schema.json
 
 PackageIdentifier: microsoft.msixsdk
@@ -8,7 +8,7 @@ PackageName: AppInstaller Test Installer
 Publisher: Microsoft Corporation
 Moniker: AICLITestExe
 License: Test
-ShortDescription: Test installer for zip without RelativeFilePath specified
+ShortDescription: Test installer for zip with an invalid RelativeFilePath
 Scope: user
 Installers:
   - Architecture: x64

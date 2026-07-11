@@ -68,6 +68,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(NoSuitableMinVersionDependency);
         WINGET_DEFINE_RESOURCE_STRINGID(NoSupportedPlatforms);
         WINGET_DEFINE_RESOURCE_STRINGID(OptionalFieldMissing);
+        WINGET_DEFINE_RESOURCE_STRINGID(PortableCommandAliasEscapesDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(RelativeFilePathEscapesDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(RequiredFieldEmpty);
         WINGET_DEFINE_RESOURCE_STRINGID(RequiredFieldMissing);

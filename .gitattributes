@@ -1,0 +1,14 @@
+# Default: CRLF on checkout - primary tooling is Visual Studio / PowerShell on Windows.
+# Git always stores text as LF in the object store; eol= controls the working tree only.
+* text=auto eol=crlf
+
+# Patch files must stay LF - git apply matches content lines against the target source
+# tree, which vcpkg manages as LF internally
+*.patch text eol=lf
+
+# Spelling action inputs must stay LF
+.github/actions/spelling/*.txt text eol=lf
+
+# External PowerShell files are signed, so we must preserve the exact content instead of
+# normalizing line endings.
+src/PowerShell/ExternalModules/**/* -text

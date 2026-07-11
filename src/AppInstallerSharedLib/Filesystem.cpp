@@ -370,12 +370,11 @@ namespace AppInstaller::Filesystem
         return (GetVolumeInformationFlags(path) & FILE_SUPPORTS_REPARSE_POINTS) != 0;
     }
 
-    bool PathEscapesBaseDirectory(const std::filesystem::path& target, const std::filesystem::path& base)
+    bool PathEscapesBaseDirectory(std::string_view relativePath)
     {
-        const auto& targetPath = std::filesystem::weakly_canonical(target);
-        const auto& basePath = std::filesystem::weakly_canonical(base);
-        auto [a, b] = std::mismatch(targetPath.begin(), targetPath.end(), basePath.begin(), basePath.end());
-        return (b != basePath.end());
+        // Normalize the path, then check if the first part is ".."
+        auto resolvedPath = std::filesystem::path{ relativePath }.lexically_normal();
+        return !resolvedPath.empty() && *resolvedPath.begin() == "..";
     }
 
     // Complicated rename algorithm due to somewhat arbitrary failures.
@@ -477,8 +476,21 @@ namespace AppInstaller::Filesystem
 
     bool VerifySymlink(const std::filesystem::path& symlink, const std::filesystem::path& target)
     {
-        const std::filesystem::path& symlinkTargetPath = std::filesystem::weakly_canonical(symlink);
-        return symlinkTargetPath == std::filesystem::weakly_canonical(target);
+        // Use read_symlink to get the symlink's recorded target without traversing the filesystem
+        // chain. weakly_canonical would follow the symlink, which is blocked by
+        // ProcessRedirectionTrustPolicy (inherited from the MSIX packaged process context on
+        // newer Windows builds) when the symlink was created by a non-elevated process.
+        const std::filesystem::path symlinkTarget = std::filesystem::read_symlink(symlink);
+
+        // If the recorded target is relative, resolve it against the symlink's parent directory.
+        const std::filesystem::path resolvedTarget = symlinkTarget.is_absolute() ?
+            symlinkTarget : (symlink.parent_path() / symlinkTarget);
+
+        // Windows paths are case-insensitive. Use lexically_normal to resolve . and .. without
+        // filesystem access, then compare case-insensitively.
+        return Utility::ICUCaseInsensitiveEquals(
+            resolvedTarget.lexically_normal().u8string(),
+            target.lexically_normal().u8string());
     }
 
     void AppendExtension(std::filesystem::path& target, const std::string& value)
