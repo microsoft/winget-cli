@@ -17,8 +17,6 @@
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '18.0'">v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <!-- Disable /await from CppWinRT. Can be removed when https://github.com/microsoft/cppwinrt/pull/1521 comes through (looks like it will be 3.0+). -->
-    <CppWinRTEnableLegacyCoroutines>false</CppWinRTEnableLegacyCoroutines>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(WinGetMacros)' != ''">
     <ClCompile>
@@ -28,8 +26,6 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <!-- Enable /await:strict. Can be removed when https://github.com/microsoft/cppwinrt/pull/1521 comes through (looks like it will be 3.0+). -->
-      <AdditionalOptions>%(AdditionalOptions) /await:strict</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='ReleaseStatic'">
