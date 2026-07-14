@@ -127,10 +127,12 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.That(catalogRef, Is.Not.Null);
 
             // Policy enabled means the feature is allowed; setting the handler should not throw.
-            Assert.That((Action)(() =>
-            {
-                catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
-            }), Throws.Nothing);
+            Assert.That(
+                (Action)(() =>
+                {
+                    catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
+                }),
+                Throws.Nothing);
         }
 
         /// <summary>
@@ -167,10 +169,12 @@ namespace AppInstallerCLIE2ETests.Interop
             var catalogRef = await this.AddRestCatalogAsync();
 
             // This should not throw — the policy only applies to the MicrosoftStore catalog.
-            Assert.That((Action)(() =>
-            {
-                catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
-            }), Throws.Nothing);
+            Assert.That(
+                (Action)(() =>
+                {
+                    catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
+                }),
+                Throws.Nothing);
         }
 
         /// <summary>
@@ -186,10 +190,12 @@ namespace AppInstallerCLIE2ETests.Interop
             var catalogRef = await this.AddRestCatalogAsync();
 
             // The policy only applies to the MicrosoftStore catalog.
-            Assert.That((Action)(() =>
-            {
-                catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
-            }), Throws.Nothing);
+            Assert.That(
+                (Action)(() =>
+                {
+                    catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
+                }),
+                Throws.Nothing);
         }
 
         /// <summary>
@@ -318,10 +324,12 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.That(catalogRef, Is.Not.Null);
 
             // Setting the handler from out-of-proc should be rejected with E_ACCESSDENIED.
-            Assert.That((Action)(() =>
-            {
-                catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
-            }), Throws.TypeOf<UnauthorizedAccessException>());
+            Assert.That(
+                (Action)(() =>
+                {
+                    catalogRef.ConnectionValidationHandler = (args) => PackageCatalogConnectionValidationResult.Ok;
+                }),
+                Throws.TypeOf<UnauthorizedAccessException>());
         }
 
         /// <summary>

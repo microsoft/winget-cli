@@ -70,80 +70,56 @@ namespace AppInstallerCLIE2ETests.Interop
         {
             GroupPolicyHelper.EnableWinget.Disable();
 
-            Assert.That(
-                (Action)(() => { PackageManager packageManager = this.TestFactory.CreatePackageManager(); }),
-                Throws.TypeOf<GroupPolicyException>()
-                    .With.Message.EqualTo(Constants.BlockByWinGetPolicyErrorMessage)
-                    .And.Property("HResult").EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
+            GroupPolicyException packageManagerException = Assert.Throws<GroupPolicyException>((Action)(() => { PackageManager packageManager = this.TestFactory.CreatePackageManager(); }));
+            Assert.That(packageManagerException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(packageManagerException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            Assert.That(
-                (Action)(() => { FindPackagesOptions findPackagesOptions = this.TestFactory.CreateFindPackagesOptions(); }),
-                Throws.TypeOf<GroupPolicyException>()
-                    .With.Message.EqualTo(Constants.BlockByWinGetPolicyErrorMessage)
-                    .And.Property("HResult").EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
+            GroupPolicyException findPackagesOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { FindPackagesOptions findPackagesOptions = this.TestFactory.CreateFindPackagesOptions(); }));
+            Assert.That(findPackagesOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(findPackagesOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            Assert.That(
-                (Action)(() => { CreateCompositePackageCatalogOptions createCompositePackageCatalogOptions = this.TestFactory.CreateCreateCompositePackageCatalogOptions(); }),
-                Throws.TypeOf<GroupPolicyException>()
-                    .With.Message.EqualTo(Constants.BlockByWinGetPolicyErrorMessage)
-                    .And.Property("HResult").EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
+            GroupPolicyException createCompositePackageCatalogOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { CreateCompositePackageCatalogOptions createCompositePackageCatalogOptions = this.TestFactory.CreateCreateCompositePackageCatalogOptions(); }));
+            Assert.That(createCompositePackageCatalogOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(createCompositePackageCatalogOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            Assert.That(
-                (Action)(() => { InstallOptions installOptions = this.TestFactory.CreateInstallOptions(); }),
-                Throws.TypeOf<GroupPolicyException>()
-                    .With.Message.EqualTo(Constants.BlockByWinGetPolicyErrorMessage)
-                    .And.Property("HResult").EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
+            GroupPolicyException installOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { InstallOptions installOptions = this.TestFactory.CreateInstallOptions(); }));
+            Assert.That(installOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(installOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            Assert.That(
-                (Action)(() => { UninstallOptions uninstallOptions = this.TestFactory.CreateUninstallOptions(); }),
-                Throws.TypeOf<GroupPolicyException>()
-                    .With.Message.EqualTo(Constants.BlockByWinGetPolicyErrorMessage)
-                    .And.Property("HResult").EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
+            GroupPolicyException uninstallOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { UninstallOptions uninstallOptions = this.TestFactory.CreateUninstallOptions(); }));
+            Assert.That(uninstallOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(uninstallOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            Assert.That(
-                (Action)(() => { DownloadOptions downloadOptions = this.TestFactory.CreateDownloadOptions(); }),
-                Throws.TypeOf<GroupPolicyException>()
-                    .With.Message.EqualTo(Constants.BlockByWinGetPolicyErrorMessage)
-                    .And.Property("HResult").EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
+            GroupPolicyException downloadOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { DownloadOptions downloadOptions = this.TestFactory.CreateDownloadOptions(); }));
+            Assert.That(downloadOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(downloadOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            Assert.That(
-                (Action)(() => { PackageMatchFilter packageMatchFilter = this.TestFactory.CreatePackageMatchFilter(); }),
-                Throws.TypeOf<GroupPolicyException>()
-                    .With.Message.EqualTo(Constants.BlockByWinGetPolicyErrorMessage)
-                    .And.Property("HResult").EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
+            GroupPolicyException packageMatchFilterException = Assert.Throws<GroupPolicyException>((Action)(() => { PackageMatchFilter packageMatchFilter = this.TestFactory.CreatePackageMatchFilter(); }));
+            Assert.That(packageMatchFilterException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(packageMatchFilterException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            Assert.That(
-                (Action)(() => { RepairOptions repairOptions = this.TestFactory.CreateRepairOptions(); }),
-                Throws.TypeOf<GroupPolicyException>()
-                    .With.Message.EqualTo(Constants.BlockByWinGetPolicyErrorMessage)
-                    .And.Property("HResult").EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
+            GroupPolicyException repairOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { RepairOptions repairOptions = this.TestFactory.CreateRepairOptions(); }));
+            Assert.That(repairOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(repairOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            Assert.That(
-                (Action)(() => { AddPackageCatalogOptions packageManagerSettings = this.TestFactory.CreateAddPackageCatalogOptions(); }),
-                Throws.TypeOf<GroupPolicyException>()
-                    .With.Message.EqualTo(Constants.BlockByWinGetPolicyErrorMessage)
-                    .And.Property("HResult").EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
+            GroupPolicyException addPackageCatalogOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { AddPackageCatalogOptions packageManagerSettings = this.TestFactory.CreateAddPackageCatalogOptions(); }));
+            Assert.That(addPackageCatalogOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(addPackageCatalogOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            Assert.That(
-                (Action)(() => { RemovePackageCatalogOptions packageManagerSettings = this.TestFactory.CreateRemovePackageCatalogOptions(); }),
-                Throws.TypeOf<GroupPolicyException>()
-                    .With.Message.EqualTo(Constants.BlockByWinGetPolicyErrorMessage)
-                    .And.Property("HResult").EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
+            GroupPolicyException removePackageCatalogOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { RemovePackageCatalogOptions packageManagerSettings = this.TestFactory.CreateRemovePackageCatalogOptions(); }));
+            Assert.That(removePackageCatalogOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(removePackageCatalogOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            Assert.That(
-                (Action)(() => { EditPackageCatalogOptions packageManagerSettings = this.TestFactory.CreateEditPackageCatalogOptions(); }),
-                Throws.TypeOf<GroupPolicyException>()
-                    .With.Message.EqualTo(Constants.BlockByWinGetPolicyErrorMessage)
-                    .And.Property("HResult").EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
+            GroupPolicyException editPackageCatalogOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { EditPackageCatalogOptions packageManagerSettings = this.TestFactory.CreateEditPackageCatalogOptions(); }));
+            Assert.That(editPackageCatalogOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(editPackageCatalogOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
             // PackageManagerSettings is not implemented in context OutOfProcDev
             if (this.TestFactory.Context == ClsidContext.InProc)
             {
-                Assert.That(
-                    (Action)(() => { PackageManagerSettings packageManagerSettings = this.TestFactory.CreatePackageManagerSettings(); }),
-                    Throws.TypeOf<GroupPolicyException>()
-                        .With.Message.EqualTo(Constants.BlockByWinGetPolicyErrorMessage)
-                        .And.Property("HResult").EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
+                GroupPolicyException packageManagerSettingsException = Assert.Throws<GroupPolicyException>((Action)(() => { PackageManagerSettings packageManagerSettings = this.TestFactory.CreatePackageManagerSettings(); }));
+                Assert.That(packageManagerSettingsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+                Assert.That(packageManagerSettingsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
             }
         }
 
