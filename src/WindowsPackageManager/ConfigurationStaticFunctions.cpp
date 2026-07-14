@@ -194,7 +194,7 @@ namespace ConfigurationShim
 
             if (IsConfigurationAvailable())
             {
-                return;
+                co_return;
             }
 
             auto strong_this{ get_strong() };
