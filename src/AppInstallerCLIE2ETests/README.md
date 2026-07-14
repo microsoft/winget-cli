@@ -20,9 +20,14 @@ If your tests uses the test source see the [LocalhostWebServer](#LocalhostWebSer
 | MsixTestInstallerPath | The MSIX (or APPX) Installer executable under test. |
 | ExeTestInstallerPath |The Exe Installer executable under test. |
 | MsiTestInstallerPath | The MSI Installer executable under test. |
+| MsiTestInstallerV2Path | The v2 MSI Installer executable under test. |
+| FontTestPath | The test font file used by font package scenarios. |
 | PackageCertificatePath | Signing Certificate Path used to certify test index source package |
 | PowerShellModulePath | Path to the PowerShell module manifest file under test |
-| PowerShellModulePath | The local server cert file |
+| LocalServerCertPath | The local server cert file. |
+| InprocTestbedPath | Path to the ComInprocTestbed executable used by in-proc COM tests. |
+| InprocTestbedUseTestPackage | Bool to indicate whether in-proc COM tests should target the test package. |
+| ForcedExperimentalFeatures | Pipe-separated list of experimental features to force-enable during test setup. |
 | SkipTestSource | I solemnly swear the test won't use the local test source or the source is already set up. |
 
 #### Example of Test.runsettings with completed parameters:
@@ -38,8 +43,15 @@ Assuming you clone winget-cli in c:\dev, the localhost web server is running in 
             <Parameter name="MsixTestInstallerPath" value="C:\dev\Temp\AppInstallerTestMsixInstaller.msix" />
             <Parameter name="ExeTestInstallerPath" value="c:\dev\winget-cli\src\x64\Debug\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe" />
             <Parameter name="MsiTestInstallerPath" value="c:\dev\winget-cli\src\AppInstallerCLIE2ETests\TestData\AppInstallerTestMsiInstaller.msi" />
+            <Parameter name="MsiTestInstallerV2Path" value="c:\dev\winget-cli\src\AppInstallerCLIE2ETests\TestData\AppInstallerTestMsiInstallerV2.msi" />
+            <Parameter name="FontTestPath" value="c:\dev\winget-cli\src\AppInstallerCLIE2ETests\TestData\AppInstallerTestFont.ttf" />
             <Parameter name="PackageCertificatePath" value="C:\dev\Temp\packageCertificate.pfx"/>
             <Parameter name="PowerShellModulePath" value="c:\dev\winget-cli\src\x64\Debug\PowerShell\Microsoft.WinGet.Client.psd1" />
+            <Parameter name="LocalServerCertPath" value="C:\dev\Temp\servercert.cer" />
+            <Parameter name="InprocTestbedPath" value="c:\dev\winget-cli\src\x64\Debug\ComInprocTestbed\ComInprocTestbed.exe" />
+            <Parameter name="InprocTestbedUseTestPackage" value="false" />
+            <Parameter name="ForcedExperimentalFeatures" value="directMSI|resume|fonts|sourcePriority" />
+            <Parameter name="SkipTestSource" value="false" />
         </TestRunParameters>
     </RunSettings>
 

@@ -288,6 +288,10 @@ node_modules/
 **/*.Server/ModelManifest.xml
 _Pvt_Extensions
 
+# Local E2E test settings (developer-specific), keep the example one tracked
+*.runsettings
+!src/AppInstallerCLIE2ETests/Test.runsettings
+
 # Paket dependency manager
 .paket/paket.exe
 paket-files/
