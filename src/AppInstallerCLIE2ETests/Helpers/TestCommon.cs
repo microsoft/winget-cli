@@ -432,10 +432,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
 
             // Verify each package file we expect to exist actually exists.
-            foreach (var file in fileList)
-            {
-                Assert.That(file, Does.Exist);
-            }
+            Assert.That(fileList, Has.All.Exist);
         }
 
         /// <summary>
