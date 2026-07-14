@@ -41,7 +41,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.That(servers.Count, Is.EqualTo(1));
 
             var server = servers[0];
-            Assert.That(server.HasWindow, Is.True);
+            Assert.That(server.HasWindow);
 
             // This is the call pattern from Windows
             this.SendMessageAndLog(server, WindowMessage.QueryEndSession);
@@ -66,7 +66,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.That(servers.Count, Is.EqualTo(1));
 
             var server = servers[0];
-            Assert.That(server.HasWindow, Is.True);
+            Assert.That(server.HasWindow);
 
             // Find package
             var searchResult = this.FindOnePackage(testSource, PackageMatchField.Name, PackageFieldMatchOption.Equals, "InapplicableOsVersion");

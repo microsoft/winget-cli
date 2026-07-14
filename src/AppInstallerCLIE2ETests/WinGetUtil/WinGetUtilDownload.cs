@@ -7,7 +7,6 @@
 namespace AppInstallerCLIE2ETests.WinGetUtil
 {
     using System.IO;
-    using System.Linq;
     using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
@@ -31,7 +30,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             WinGetUtilWrapper.WinGetDownload(installerUrl, filePath, sha256Hash, hashSize);
 
             Assert.That(filePath, Does.Exist);
-            Assert.That(sha256Hash.All(byteVal => byteVal == 0), Is.False);
+            Assert.That(sha256Hash, Is.Not.All.Zero);
         }
     }
 }

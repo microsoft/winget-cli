@@ -195,7 +195,7 @@ namespace AppInstallerCLIE2ETests
                     resourceData.Priority = priority;
                     break;
                 default:
-                    Assert.That(false, Is.True, $"{targetProperty} is not a handled case.");
+                    Assert.Fail($"{targetProperty} is not a handled case.");
                     break;
             }
 
@@ -244,7 +244,7 @@ namespace AppInstallerCLIE2ETests
                     resourceData.Priority = (int)testValue;
                     break;
                 default:
-                    Assert.That(false, Is.True, $"{targetProperty} is not a handled case.");
+                    Assert.Fail($"{targetProperty} is not a handled case.");
                     break;
             }
 

@@ -8,7 +8,6 @@ namespace AppInstallerCLIE2ETests
 {
     using System;
     using System.IO;
-    using System.Text.RegularExpressions;
     using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
@@ -115,7 +114,7 @@ namespace AppInstallerCLIE2ETests
                 : result.StdOut.Substring(hashStart).Trim();
 
             Assert.That(hashValue.Length, Is.EqualTo(64), $"Expected 64-character SHA256 hash, got: '{hashValue}'");
-            Assert.That(Regex.IsMatch(hashValue, "^[0-9a-f]{64}$"), Is.True, $"Expected lowercase hex hash, got: '{hashValue}'");
+            Assert.That(hashValue, Does.Match("^[0-9a-f]{64}$"), $"Expected lowercase hex hash, got: '{hashValue}'");
         }
 
         /// <summary>
