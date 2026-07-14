@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="FontCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -33,7 +33,7 @@ namespace AppInstallerCLIE2ETests
             var fontPackageVersion = "1.0.0.0";
             var installResult = TestCommon.RunAICLICommand("install", fontPackageName);
             Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(installResult.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(installResult.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyFontPackage(fontPackageName, fontPackageVersion, TestCommon.Scope.User);
 
             var uninstallResult = TestCommon.RunAICLICommand("uninstall", fontPackageName);
@@ -51,7 +51,7 @@ namespace AppInstallerCLIE2ETests
             var fontPackageVersion = "1.0.0.0";
             var result = TestCommon.RunAICLICommand("install", $"{fontPackageName} --scope Machine");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyFontPackage(fontPackageName, fontPackageVersion, TestCommon.Scope.Machine);
 
             var uninstallResult = TestCommon.RunAICLICommand("uninstall", fontPackageName);
@@ -67,7 +67,7 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestInvalidFont");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_FONT_FILE_NOT_SUPPORTED));
-            Assert.That(result.StdOut.Contains("One or more fonts in the font package is not supported and cannot be installed."), Is.True);
+            Assert.That(result.StdOut, Does.Contain("One or more fonts in the font package is not supported and cannot be installed."));
         }
     }
 }

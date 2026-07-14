@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="InstallInterop.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -346,7 +346,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.That(failSearchSource, Is.Not.Null);
-            Assert.That(searchResult.Count, Is.EqualTo(0));
+            Assert.That(searchResult.Count, Is.Zero);
 
             // Remove mock source
             TestCommon.RunAICLICommand("source remove", "failSearch");
@@ -670,7 +670,7 @@ namespace AppInstallerCLIE2ETests.Interop
             // Ensure package is not installed
             var installedResult = this.FindAllPackages(installedCatalogReference, PackageMatchField.ProductCode, PackageFieldMatchOption.Equals, Constants.ExeInstalledDefaultProductCode);
             Assert.That(installedResult, Is.Not.Null);
-            Assert.That(installedResult.Count, Is.EqualTo(0));
+            Assert.That(installedResult.Count, Is.Zero);
 
             // Find package
             var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
@@ -705,7 +705,7 @@ namespace AppInstallerCLIE2ETests.Interop
             // Ensure package is not installed
             var installedResult = this.FindAllPackages(installedCatalogReference, PackageMatchField.PackageFamilyName, PackageFieldMatchOption.Equals, Constants.MsixInstallerPackageFamilyName);
             Assert.That(installedResult, Is.Not.Null);
-            Assert.That(installedResult.Count, Is.EqualTo(0));
+            Assert.That(installedResult.Count, Is.Zero);
 
             // Find package
             var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Name, PackageFieldMatchOption.Equals, "TestMsixInstaller");

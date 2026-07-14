@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="TestCommon.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -434,7 +434,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             // Verify each package file we expect to exist actually exists.
             foreach (var file in fileList)
             {
-                Assert.That(File.Exists(file), Is.True);
+                Assert.That(file, Does.Exist);
             }
         }
 
@@ -675,9 +675,9 @@ namespace AppInstallerCLIE2ETests.Helpers
             string installerDownloadPath = Path.Combine(downloadDir, expectedFileName + installerExtension);
             string manifestDownloadPath = Path.Combine(downloadDir, expectedFileName + ".yaml");
 
-            Assert.That(Directory.Exists(downloadDir), Is.True, $"Download directory does not exist: {downloadDir}");
-            Assert.That(File.Exists(installerDownloadPath), Is.True, $"Installer file does not exist: {installerDownloadPath}");
-            Assert.That(File.Exists(manifestDownloadPath), Is.True, $"Manifest file does not exist: {manifestDownloadPath}");
+            Assert.That(downloadDir, Does.Exist, $"Download directory does not exist: {downloadDir}");
+            Assert.That(installerDownloadPath, Does.Exist, $"Installer file does not exist: {installerDownloadPath}");
+            Assert.That(manifestDownloadPath, Does.Exist, $"Manifest file does not exist: {manifestDownloadPath}");
 
             if (cleanup)
             {
@@ -1111,7 +1111,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         public static string GetConfigurationInstanceIdentifierFor(string name)
         {
             var result = TestCommon.RunAICLICommand("configure list", string.Empty);
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             string[] lines = result.StdOut.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 

@@ -1,4 +1,4 @@
-﻿﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="WinGetUtilInstallerMetadataCollection.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -35,7 +35,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                 out IntPtr collectionHandle);
 
             Assert.That(collectionHandle, Is.Not.EqualTo(IntPtr.Zero));
-            Assert.That(File.Exists(logFilePath), Is.True);
+            Assert.That(logFilePath, Does.Exist);
 
             WinGetUtilWrapper.WinGetCompleteInstallerMetadataCollection(
                 collectionHandle,
@@ -63,7 +63,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                logFilePath,
                WinGetUtilWrapper.WinGetMergeInstallerMetadataOptions.WinGetMergeInstallerMetadataOptions_None);
 
-            Assert.That(File.Exists(logFilePath), Is.True);
+            Assert.That(logFilePath, Does.Exist);
             Assert.That(JsonConvert.DeserializeObject(outputJson).ToString(), Is.Not.Empty);
         }
 
@@ -77,7 +77,8 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             string inputJsonPath = TestCommon.GetTestDataFile(@"WinGetUtil\InstallerMetadata\MergeSubmissionMismatch.json");
             string inputJson = File.ReadAllText(inputJsonPath);
 
-            Assert.That((Action)(() =>
+            Assert.That(
+                (Action)(() =>
             {
                 WinGetUtilWrapper.WinGetMergeInstallerMetadata(
                    inputJson,
@@ -87,7 +88,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                    WinGetUtilWrapper.WinGetMergeInstallerMetadataOptions.WinGetMergeInstallerMetadataOptions_None);
             }), Throws.TypeOf<COMException>());
 
-            Assert.That(File.Exists(logFilePath), Is.True);
+            Assert.That(logFilePath, Does.Exist);
         }
     }
 }

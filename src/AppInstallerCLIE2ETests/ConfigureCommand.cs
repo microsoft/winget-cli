@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigureCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -59,7 +59,7 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\PSGallery_NoModule_NoSettings.yml"), timeOut: 120000);
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.CONFIG_ERROR_SET_APPLY_FAILED));
-            Assert.That(result.StdOut.Contains("The configuration unit failed while attempting to test the current system state."), Is.True);
+            Assert.That(result.StdOut, Does.Contain("The configuration unit failed while attempting to test the current system state."));
         }
 
         /// <summary>
@@ -71,17 +71,17 @@ namespace AppInstallerCLIE2ETests
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
 
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             // The configuration creates a file next to itself with the given contents
             string targetFilePath = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.txt");
-            Assert.That(File.Exists(targetFilePath), Is.True);
+            Assert.That(targetFilePath, Does.Exist);
             Assert.That(File.ReadAllText(targetFilePath), Is.EqualTo("Contents!"));
 
-            Assert.That(Directory.Exists(
+            Assert.That(
                 Path.Combine(
                     TestCommon.GetExpectedModulePath(TestCommon.TestModuleLocation.Default),
-                    Constants.SimpleTestModuleName)), Is.True);
+                    Constants.SimpleTestModuleName), Does.Exist);
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace AppInstallerCLIE2ETests
                 Directory.Delete(moduleTestDir, true);
             }
 
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
             Assert.That(moduleExists, Is.True);
         }
 
@@ -141,11 +141,12 @@ namespace AppInstallerCLIE2ETests
             }
 
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, args);
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
-            Assert.That(Directory.Exists(Path.Combine(
+            Assert.That(
+                Path.Combine(
                 TestCommon.GetExpectedModulePath(location),
-                Constants.SimpleTestModuleName)), Is.True);
+                Constants.SimpleTestModuleName), Does.Exist);
         }
 
         /// <summary>
@@ -159,7 +160,7 @@ namespace AppInstallerCLIE2ETests
 
             // The configuration creates a file next to itself with the given contents
             string targetFilePath = TestCommon.GetTestDataFile("Configuration\\IndependentResources_OneFailure.txt");
-            Assert.That(File.Exists(targetFilePath), Is.True);
+            Assert.That(targetFilePath, Does.Exist);
             Assert.That(File.ReadAllText(targetFilePath), Is.EqualTo("Contents!"));
         }
 
@@ -174,7 +175,7 @@ namespace AppInstallerCLIE2ETests
 
             // The configuration creates a file next to itself with the given contents
             string targetFilePath = TestCommon.GetTestDataFile("Configuration\\DependentResources_Failure.txt");
-            Assert.That(File.Exists(targetFilePath), Is.False);
+            Assert.That(targetFilePath, Does.Not.Exist);
         }
 
         /// <summary>
@@ -188,7 +189,7 @@ namespace AppInstallerCLIE2ETests
 
             // The configuration creates a file next to itself with the given contents
             string targetFilePath = TestCommon.GetTestDataFile("Configuration\\ConfigServerUnexpectedExit.txt");
-            Assert.That(File.Exists(targetFilePath), Is.False);
+            Assert.That(targetFilePath, Does.Not.Exist);
         }
 
         /// <summary>
@@ -200,11 +201,11 @@ namespace AppInstallerCLIE2ETests
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
 
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\ResourceCaseInsensitive.yml"));
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             // The configuration creates a file next to itself with the given contents
             string targetFilePath = TestCommon.GetTestDataFile("Configuration\\ResourceCaseInsensitive.txt");
-            Assert.That(File.Exists(targetFilePath), Is.True);
+            Assert.That(targetFilePath, Does.Exist);
             Assert.That(File.ReadAllText(targetFilePath), Is.EqualTo("Contents!"));
         }
 
@@ -217,7 +218,7 @@ namespace AppInstallerCLIE2ETests
             string args = $"{Constants.TestSourceUrl}/TestData/Configuration/Configure_TestRepo_Location.yml";
 
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, args);
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
         }
 
         /// <summary>
@@ -227,20 +228,20 @@ namespace AppInstallerCLIE2ETests
         public void ConfigureFromHistory()
         {
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             // The configuration creates a file next to itself with the given contents
             string targetFilePath = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.txt");
-            Assert.That(File.Exists(targetFilePath), Is.True);
+            Assert.That(targetFilePath, Does.Exist);
             Assert.That(File.ReadAllText(targetFilePath), Is.EqualTo("Contents!"));
 
             File.WriteAllText(targetFilePath, "Changed contents!");
 
             string guid = TestCommon.GetConfigurationInstanceIdentifierFor("Configure_TestRepo.yml");
             result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, $"-h {guid}");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
-            Assert.That(File.Exists(targetFilePath), Is.True);
+            Assert.That(targetFilePath, Does.Exist);
             Assert.That(File.ReadAllText(targetFilePath), Is.EqualTo("Contents!"));
         }
 
@@ -254,10 +255,10 @@ namespace AppInstallerCLIE2ETests
             string testDirectory = TestCommon.GetRandomTestDir();
 
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, $"{configFile} --module-path \"{testDirectory}\"");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             string testFile = Path.Join(TestCommon.GetTestDataFile("Configuration"), "PSModulePath.txt");
-            Assert.That(File.Exists(testFile), Is.True);
+            Assert.That(testFile, Does.Exist);
             string testFileContents = File.ReadAllText(testFile);
             Assert.That(testFileContents.StartsWith(testDirectory), Is.True);
         }
@@ -269,20 +270,20 @@ namespace AppInstallerCLIE2ETests
         public void ConfigureThroughHistory_DSCv3()
         {
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\ShowDetails_DSCv3.yml"));
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             // The configuration creates a file next to itself with the given contents
             string targetFilePath = TestCommon.GetTestDataFile("Configuration\\ShowDetails_DSCv3.txt");
-            Assert.That(File.Exists(targetFilePath), Is.True);
+            Assert.That(targetFilePath, Does.Exist);
             Assert.That(File.ReadAllText(targetFilePath), Is.EqualTo("DSCv3 Contents!"));
 
             File.WriteAllText(targetFilePath, "Changed contents!");
 
             string guid = TestCommon.GetConfigurationInstanceIdentifierFor("ShowDetails_DSCv3.yml");
             result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, $"-h {guid}");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
-            Assert.That(File.Exists(targetFilePath), Is.True);
+            Assert.That(targetFilePath, Does.Exist);
             Assert.That(File.ReadAllText(targetFilePath), Is.EqualTo("DSCv3 Contents!"));
         }
 
@@ -293,7 +294,7 @@ namespace AppInstallerCLIE2ETests
         public void TestFileResourceSchema()
         {
             var result = TestCommon.RunAICLICommand("dscv3 test-file", "--schema");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             var lines = result.StdOut.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
             Assert.That(lines.Length, Is.EqualTo(1));
@@ -307,7 +308,7 @@ namespace AppInstallerCLIE2ETests
         {
             // Reset state
             var result = TestCommon.RunAICLICommand("dscv3 test-json", "--delete");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             // Configure properties
             string propertyName1 = "prop1";
@@ -318,25 +319,25 @@ namespace AppInstallerCLIE2ETests
             string propertySetFormatString = "{{ \"property\": \"{0}\", \"value\": \"{1}\" }}";
 
             result = TestCommon.RunAICLICommand("dscv3 test-json", "--set", string.Format(propertySetFormatString, propertyName1, propertyValue1));
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             result = TestCommon.RunAICLICommand("dscv3 test-json", "--set", string.Format(propertySetFormatString, propertyName2, propertyValue2));
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             // Export
             var exportDir = TestCommon.GetRandomTestDir();
             var exportFile = Path.Combine(exportDir, "exported.yml");
 
             result = TestCommon.RunAICLICommand("test config-export-units", $"-o {exportFile} --resource Microsoft.WinGet.Dev/TestJSON --verbose");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
-            Assert.That(File.Exists(exportFile), Is.True);
+            Assert.That(exportFile, Does.Exist);
             string exportText = File.ReadAllText(exportFile);
-            Assert.That(exportText.Contains("Microsoft.WinGet.Dev/TestJSON"), Is.True);
-            Assert.That(exportText.Contains(propertyName1), Is.True);
-            Assert.That(exportText.Contains(propertyName2), Is.True);
-            Assert.That(exportText.Contains(propertyValue1), Is.True);
-            Assert.That(exportText.Contains(propertyValue2), Is.True);
+            Assert.That(exportText, Does.Contain("Microsoft.WinGet.Dev/TestJSON"));
+            Assert.That(exportText, Does.Contain(propertyName1));
+            Assert.That(exportText, Does.Contain(propertyName2));
+            Assert.That(exportText, Does.Contain(propertyValue1));
+            Assert.That(exportText, Does.Contain(propertyValue2));
         }
 
         /// <summary>
@@ -349,11 +350,11 @@ namespace AppInstallerCLIE2ETests
             this.DeleteResourceArtifacts();
 
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo_DSCv3.yml"), timeOut: 300000);
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             // The configuration creates a file next to itself with the given contents
             string targetFilePath = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.txt");
-            Assert.That(File.Exists(targetFilePath), Is.True);
+            Assert.That(targetFilePath, Does.Exist);
             Assert.That(File.ReadAllText(targetFilePath), Is.EqualTo("Contents!"));
         }
 
@@ -365,29 +366,29 @@ namespace AppInstallerCLIE2ETests
         {
             // Find all unit processors.
             var result = TestCommon.RunAICLICommand("test config-find-unit-processors", string.Empty, timeOut: 300000);
-            Assert.That(result.ExitCode, Is.EqualTo(0));
-            Assert.That(result.StdOut.Contains("Microsoft/OSInfo"), Is.True);
+            Assert.That(result.ExitCode, Is.Zero);
+            Assert.That(result.StdOut, Does.Contain("Microsoft/OSInfo"));
 
             // Setup TestExeInstaller with dsc resources.
             var installDir = TestCommon.GetRandomTestDir();
             result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --override \"/InstallDir {installDir} /GenerateDscResourceFiles\"");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             // Find unit processors filtering to install location.
             result = TestCommon.RunAICLICommand("test config-find-unit-processors", $"-l {installDir}");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
-            Assert.That(result.StdOut.Contains("Microsoft/OSInfo"), Is.False);
-            Assert.That(result.StdOut.Contains("AppInstallerTest/TestResource"), Is.True);
+            Assert.That(result.ExitCode, Is.Zero);
+            Assert.That(result.StdOut, Does.Not.Contain("Microsoft/OSInfo"));
+            Assert.That(result.StdOut, Does.Contain("AppInstallerTest/TestResource"));
 
             // Find unit processors filtering to unknown location.
             var unknownDir = TestCommon.GetRandomTestDir();
             result = TestCommon.RunAICLICommand("test config-find-unit-processors", $"-l {unknownDir}");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
-            Assert.That(result.StdOut.Contains("No unit processors found."), Is.True);
+            Assert.That(result.ExitCode, Is.Zero);
+            Assert.That(result.StdOut, Does.Contain("No unit processors found."));
 
             // Clean up
             result = TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestExeInstaller");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
         }
 
         /// <summary>
@@ -405,13 +406,13 @@ namespace AppInstallerCLIE2ETests
             File.WriteAllText(testConfigFile, content);
 
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, testConfigFile, timeOut: 300000);
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             // Verify test file created.
             string targetFilePath = Path.Combine(testDir, "TestFile.txt");
-            Assert.That(File.Exists(targetFilePath), Is.True);
+            Assert.That(targetFilePath, Does.Exist);
             string testContent = File.ReadAllText(targetFilePath);
-            Assert.That(testContent.Contains("TestContent"), Is.True);
+            Assert.That(testContent, Does.Contain("TestContent"));
         }
 
         private void DeleteResourceArtifacts()

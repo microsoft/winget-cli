@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="WinGetUtilManifest.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -64,7 +64,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             Assert.That(succeeded, Is.True);
             Assert.That(manifestHandle, Is.Not.EqualTo(IntPtr.Zero));
             Assert.That(createFailureMessage, Is.Null);
-            Assert.That(File.Exists(mergedManifestPath), Is.True);
+            Assert.That(mergedManifestPath, Does.Exist);
 
             // Validate manifest
             WinGetUtilWrapper.WinGetValidateManifestV3(
@@ -158,7 +158,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             Assert.That(succeeded, Is.False);
             Assert.That(manifestHandle, Is.EqualTo(IntPtr.Zero));
             Assert.That(createFailureMessage, Is.Not.Null);
-            Assert.That(createFailureMessage.Contains(expectedError), Is.True);
+            Assert.That(createFailureMessage, Does.Contain(expectedError));
         }
     }
 }

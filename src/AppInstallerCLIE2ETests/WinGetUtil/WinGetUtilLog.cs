@@ -1,4 +1,4 @@
-﻿﻿// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="WinGetUtilLog.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -25,7 +25,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
 
             // Init logging
             WinGetUtilWrapper.WinGetLoggingInit(filePath);
-            Assert.That(File.Exists(filePath), Is.True);
+            Assert.That(filePath, Does.Exist);
 
             // Terminate logging
             WinGetUtilWrapper.WinGetLoggingTerm(filePath);

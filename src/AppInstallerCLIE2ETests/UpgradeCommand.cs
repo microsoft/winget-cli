@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="UpgradeCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -41,11 +41,11 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe -v 1.0.0.0");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
 
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
             Assert.That(result2.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result2.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(result2.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
@@ -63,11 +63,11 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestPortableExe -v 1.0.0.0 -l {installDir}");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
 
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0 -l {installDir}");
             Assert.That(result2.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result2.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(result2.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(installDir, commandAlias, fileName, productCode, true);
         }
 
@@ -82,7 +82,7 @@ namespace AppInstallerCLIE2ETests
 
             var installResult = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe -v 1.0.0.0");
             Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(installResult.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(installResult.StdOut, Does.Contain("Successfully installed"));
 
             // Modify packageId to cause mismatch.
             TestCommon.ModifyPortableARPEntryValue(productCode, Constants.WinGetPackageIdentifier, "testPackageId");
@@ -94,7 +94,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunAICLICommand("uninstall", $"--product-code {productCode}");
 
             Assert.That(upgradeResult.ExitCode, Is.Not.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(upgradeResult.StdOut.Contains("Portable package from a different source already exists"), Is.True);
+            Assert.That(upgradeResult.StdOut, Does.Contain("Portable package from a different source already exists"));
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace AppInstallerCLIE2ETests
 
             var installResult = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe -v 1.0.0.0");
             Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(installResult.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(installResult.StdOut, Does.Contain("Successfully installed"));
 
             // Modify packageId and sourceId to cause mismatch.
             TestCommon.ModifyPortableARPEntryValue(productCode, Constants.WinGetPackageIdentifier, "testPackageId");
@@ -119,7 +119,7 @@ namespace AppInstallerCLIE2ETests
 
             var upgradeResult = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0 --force");
             Assert.That(upgradeResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(upgradeResult.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(upgradeResult.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
@@ -137,11 +137,11 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -v 1.0.0.0");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
 
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 3.0.0.0");
             Assert.That(result2.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result2.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(result2.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
@@ -155,11 +155,11 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -v 1.0.0.0");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
 
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
             Assert.That(result2.ExitCode, Is.EqualTo(Constants.ErrorCode.APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED));
-            Assert.That(result2.StdOut.Contains("package cannot be upgraded using WinGet"), Is.True);
+            Assert.That(result2.StdOut, Does.Contain("package cannot be upgraded using WinGet"));
         }
 
         /// <summary>
@@ -178,12 +178,12 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -v 1.0.0.0 --scope machine");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
 
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
             WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
             Assert.That(result2.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result2.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(result2.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.Machine);
         }
 
@@ -202,11 +202,11 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithPortable -v 1.0.0.0");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
 
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
             Assert.That(result2.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result2.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(result2.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.User);
         }
 

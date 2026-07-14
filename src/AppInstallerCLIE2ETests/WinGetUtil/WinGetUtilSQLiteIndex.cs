@@ -1,4 +1,4 @@
-﻿﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="WinGetUtilSQLiteIndex.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -75,7 +75,8 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             this.SQLiteIndex((indexHandle) =>
             {
                 // Update non-existing manifest
-                Assert.That((Action)(() =>
+                Assert.That(
+                    (Action)(() =>
                 {
                     WinGetUtilWrapper.WinGetSQLiteIndexUpdateManifest(indexHandle, this.updateManifestsFile, this.relativePath, out bool indexModified);
                 }), Throws.TypeOf<COMException>());
@@ -107,7 +108,8 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             this.SQLiteIndex((indexHandle) =>
             {
                 // Remove non-existing manifest
-                Assert.That((Action)(() =>
+                Assert.That(
+                    (Action)(() =>
                 {
                     WinGetUtilWrapper.WinGetSQLiteIndexRemoveManifest(indexHandle, this.addManifestsFile, this.relativePath);
                 }), Throws.TypeOf<COMException>());
@@ -161,7 +163,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         {
             // Create
             WinGetUtilWrapper.WinGetSQLiteIndexCreate(this.sqlitePath, this.majorVersion, this.minorVersion, out IntPtr indexHandle);
-            Assert.That(File.Exists(this.sqlitePath), Is.True);
+            Assert.That(this.sqlitePath, Does.Exist);
             Assert.That(indexHandle, Is.Not.EqualTo(IntPtr.Zero));
 
             // Execute provided function

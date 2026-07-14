@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigureListCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -34,11 +34,11 @@ namespace AppInstallerCLIE2ETests
         public void ListAllConfigurations()
         {
             var result = TestCommon.RunAICLICommand(ConfigureWithAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             result = TestCommon.RunAICLICommand("configure list", "--verbose");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
-            Assert.That(result.StdOut.Contains(ConfigureTestRepoFile), Is.True);
+            Assert.That(result.ExitCode, Is.Zero);
+            Assert.That(result.StdOut, Does.Contain(ConfigureTestRepoFile));
         }
 
         /// <summary>
@@ -48,13 +48,13 @@ namespace AppInstallerCLIE2ETests
         public void ListSpecificConfiguration()
         {
             var result = TestCommon.RunAICLICommand(ConfigureWithAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             string guid = TestCommon.GetConfigurationInstanceIdentifierFor(ConfigureTestRepoFile);
             result = TestCommon.RunAICLICommand("configure list", $"-h {guid}");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
-            Assert.That(result.StdOut.Contains(guid), Is.True);
-            Assert.That(result.StdOut.Contains(ConfigureTestRepoFile), Is.True);
+            Assert.That(result.ExitCode, Is.Zero);
+            Assert.That(result.StdOut, Does.Contain(guid));
+            Assert.That(result.StdOut, Does.Contain(ConfigureTestRepoFile));
         }
 
         /// <summary>
@@ -64,15 +64,15 @@ namespace AppInstallerCLIE2ETests
         public void RemoveConfiguration()
         {
             var result = TestCommon.RunAICLICommand(ConfigureWithAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             string guid = TestCommon.GetConfigurationInstanceIdentifierFor(ConfigureTestRepoFile);
             result = TestCommon.RunAICLICommand("configure list", $"-h {guid} --remove");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             result = TestCommon.RunAICLICommand("configure list", "--verbose");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
-            Assert.That(result.StdOut.Contains(guid), Is.False);
+            Assert.That(result.ExitCode, Is.Zero);
+            Assert.That(result.StdOut, Does.Not.Contain(guid));
         }
 
         /// <summary>
@@ -82,12 +82,12 @@ namespace AppInstallerCLIE2ETests
         public void OutputConfiguration()
         {
             var result = TestCommon.RunAICLICommand(ConfigureWithAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             string guid = TestCommon.GetConfigurationInstanceIdentifierFor(ConfigureTestRepoFile);
             string tempFile = TestCommon.GetRandomTestFile(".yml");
             result = TestCommon.RunAICLICommand("configure list", $"-h {guid} --output {tempFile}");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             result = TestCommon.RunAICLICommand("configure validate", $"--verbose {tempFile}");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_FALSE));

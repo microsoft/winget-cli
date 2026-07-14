@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ImportCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -57,7 +57,7 @@ namespace AppInstallerCLIE2ETests
             // Verify failure when trying to import with an invalid file
             var result = TestCommon.RunAICLICommand("import", this.GetTestImportFile("ImportFile-Bad-Invalid.json"));
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_JSON_INVALID_FILE));
-            Assert.That(result.StdOut.Contains("JSON file is not valid"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("JSON file is not valid"));
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace AppInstallerCLIE2ETests
             // Verify failure when trying to import from an unknown source
             var result = TestCommon.RunAICLICommand("import", this.GetTestImportFile("ImportFile-Bad-UnknownSource.json"));
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST));
-            Assert.That(result.StdOut.Contains("Source required for import is not installed"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Source required for import is not installed"));
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace AppInstallerCLIE2ETests
             // Verify failure when trying to import an unavailable package
             var result = TestCommon.RunAICLICommand("import", this.GetTestImportFile("ImportFile-Bad-UnknownPackage.json"));
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NOT_ALL_QUERIES_FOUND_SINGLE));
-            Assert.That(result.StdOut.Contains("Package not found: MissingPackage"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Package not found: MissingPackage"));
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace AppInstallerCLIE2ETests
             // Verify failure when trying to import an unavailable package
             var result = TestCommon.RunAICLICommand("import", this.GetTestImportFile("ImportFile-Bad-UnknownPackageVersion.json"));
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NOT_ALL_QUERIES_FOUND_SINGLE));
-            Assert.That(result.StdOut.Contains("Search failed for: AppInstallerTest.TestExeInstaller"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Search failed for: AppInstallerTest.TestExeInstaller"));
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -l {installDir}");
             var result = TestCommon.RunAICLICommand("import", $"{this.GetTestImportFile("ImportFile-Good.1.0.json")}");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("Package is already installed"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Package is already installed"));
             Assert.That(this.VerifyTestExeInstalled(), Is.False);
             this.UninstallTestExe();
         }

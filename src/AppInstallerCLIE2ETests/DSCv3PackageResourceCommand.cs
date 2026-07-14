@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="DSCv3PackageResourceCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -101,7 +101,7 @@ namespace AppInstallerCLIE2ETests
         public void Package_Get_Present()
         {
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier} --version {DefaultPackageLowVersion}");
-            Assert.That(setupInstall.ExitCode, Is.EqualTo(0));
+            Assert.That(setupInstall.ExitCode, Is.Zero);
 
             PackageResourceData packageResourceData = new PackageResourceData() { Identifier = DefaultPackageIdentifier };
 
@@ -119,7 +119,7 @@ namespace AppInstallerCLIE2ETests
         public void Package_Get_MuchInput()
         {
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier} --version {DefaultPackageLowVersion}");
-            Assert.That(setupInstall.ExitCode, Is.EqualTo(0));
+            Assert.That(setupInstall.ExitCode, Is.Zero);
 
             PackageResourceData packageResourceData = new PackageResourceData()
             {
@@ -162,7 +162,7 @@ namespace AppInstallerCLIE2ETests
         public void Package_Test_SimplePresent()
         {
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier} --version {DefaultPackageLowVersion}");
-            Assert.That(setupInstall.ExitCode, Is.EqualTo(0));
+            Assert.That(setupInstall.ExitCode, Is.Zero);
 
             PackageResourceData packageResourceData = new PackageResourceData() { Identifier = DefaultPackageIdentifier };
 
@@ -183,7 +183,7 @@ namespace AppInstallerCLIE2ETests
         public void Package_Test_VersionMatch()
         {
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier} --version {DefaultPackageLowVersion}");
-            Assert.That(setupInstall.ExitCode, Is.EqualTo(0));
+            Assert.That(setupInstall.ExitCode, Is.Zero);
 
             PackageResourceData packageResourceData = new PackageResourceData()
             {
@@ -208,7 +208,7 @@ namespace AppInstallerCLIE2ETests
         public void Package_Test_VersionMismatch()
         {
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier} --version {DefaultPackageLowVersion}");
-            Assert.That(setupInstall.ExitCode, Is.EqualTo(0));
+            Assert.That(setupInstall.ExitCode, Is.Zero);
 
             PackageResourceData packageResourceData = new PackageResourceData()
             {
@@ -233,7 +233,7 @@ namespace AppInstallerCLIE2ETests
         public void Package_Test_Latest()
         {
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier}");
-            Assert.That(setupInstall.ExitCode, Is.EqualTo(0));
+            Assert.That(setupInstall.ExitCode, Is.Zero);
 
             PackageResourceData packageResourceData = new PackageResourceData()
             {
@@ -258,7 +258,7 @@ namespace AppInstallerCLIE2ETests
         public void Package_Test_NotLatest()
         {
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier} --version {DefaultPackageMidVersion}");
-            Assert.That(setupInstall.ExitCode, Is.EqualTo(0));
+            Assert.That(setupInstall.ExitCode, Is.Zero);
 
             PackageResourceData packageResourceData = new PackageResourceData()
             {
@@ -358,7 +358,7 @@ namespace AppInstallerCLIE2ETests
         public void Package_Set_Remove()
         {
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier}");
-            Assert.That(setupInstall.ExitCode, Is.EqualTo(0));
+            Assert.That(setupInstall.ExitCode, Is.Zero);
 
             PackageResourceData packageResourceData = new PackageResourceData()
             {
@@ -398,7 +398,7 @@ namespace AppInstallerCLIE2ETests
         public void Package_Set_Latest()
         {
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier} --version {DefaultPackageMidVersion}");
-            Assert.That(setupInstall.ExitCode, Is.EqualTo(0));
+            Assert.That(setupInstall.ExitCode, Is.Zero);
 
             PackageResourceData packageResourceData = new PackageResourceData()
             {
@@ -434,7 +434,7 @@ namespace AppInstallerCLIE2ETests
         public void Package_Set_SpecificVersionUpgrade()
         {
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier} --version {DefaultPackageLowVersion}");
-            Assert.That(setupInstall.ExitCode, Is.EqualTo(0));
+            Assert.That(setupInstall.ExitCode, Is.Zero);
 
             PackageResourceData packageResourceData = new PackageResourceData()
             {
@@ -470,7 +470,7 @@ namespace AppInstallerCLIE2ETests
         public void Package_Set_SpecificVersionDowngrade()
         {
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier}");
-            Assert.That(setupInstall.ExitCode, Is.EqualTo(0));
+            Assert.That(setupInstall.ExitCode, Is.Zero);
 
             PackageResourceData packageResourceData = new PackageResourceData()
             {
@@ -506,7 +506,7 @@ namespace AppInstallerCLIE2ETests
         public void Package_Export_NoInput()
         {
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier}");
-            Assert.That(setupInstall.ExitCode, Is.EqualTo(0));
+            Assert.That(setupInstall.ExitCode, Is.Zero);
 
             var result = RunDSCv3Command(PackageResource, ExportFunction, " ");
             AssertSuccessfulResourceRun(ref result);
@@ -534,7 +534,7 @@ namespace AppInstallerCLIE2ETests
         public void Package_Export_RequestVersions()
         {
             var setupInstall = TestCommon.RunAICLICommand("install", $"--id {DefaultPackageIdentifier} --version {DefaultPackageLowVersion}");
-            Assert.That(setupInstall.ExitCode, Is.EqualTo(0));
+            Assert.That(setupInstall.ExitCode, Is.Zero);
 
             PackageResourceData packageResourceData = new PackageResourceData()
             {

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="GroupPolicy.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -213,12 +213,12 @@ namespace AppInstallerCLIE2ETests
 
             result = TestCommon.RunAICLICommand("source list", "TestSource");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("Trust Level"), Is.True);
-            Assert.That(result.StdOut.Contains("Trusted"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Trust Level"));
+            Assert.That(result.StdOut, Does.Contain("Trusted"));
 
             var searchResult = TestCommon.RunAICLICommand("search", "TestExampleInstaller");
             Assert.That(searchResult.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_SOURCES_DEFINED));
-            Assert.That(searchResult.StdOut.Contains("No sources defined; add one with 'source add' or reset to defaults with 'source reset'"), Is.True);
+            Assert.That(searchResult.StdOut, Does.Contain("No sources defined; add one with 'source add' or reset to defaults with 'source reset'"));
         }
 
         /// <summary>
@@ -262,7 +262,7 @@ namespace AppInstallerCLIE2ETests
             GroupPolicyHelper.SourceAutoUpdateInterval.SetEnabledValue(123);
             var result = TestCommon.RunAICLICommand(string.Empty, "--info");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("Source Auto Update Interval In Minutes 123"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Source Auto Update Interval In Minutes 123"));
         }
 
         /// <summary>

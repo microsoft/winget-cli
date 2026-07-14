@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="DownloadInterop.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -93,7 +93,7 @@ namespace AppInstallerCLIE2ETests.Interop
             // Assert
             Assert.That(downloadResult.Status, Is.EqualTo(DownloadResultStatus.Ok));
             var dependenciesDir = Path.Combine(downloadDir, Constants.Dependencies);
-            Assert.That(Directory.Exists(dependenciesDir), Is.False);
+            Assert.That(dependenciesDir, Does.Not.Exist);
             TestCommon.AssertInstallerDownload(downloadDir, "TestPackageDependency", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.Unknown, PackageInstallerType.Exe, "en-US");
         }
 

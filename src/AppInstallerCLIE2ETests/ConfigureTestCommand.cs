@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigureTestCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -48,8 +48,8 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand(CommandAndAgreements, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_FALSE));
-            Assert.That(result.StdOut.Contains("System is not in the described configuration state."), Is.True);
-            Assert.That(result.StdOut.Contains("Module: xE2ETestResource"), Is.True); // Details from the resource should appear if the initial details are shown
+            Assert.That(result.StdOut, Does.Contain("System is not in the described configuration state."));
+            Assert.That(result.StdOut, Does.Contain("Module: xE2ETestResource")); // Details from the resource should appear if the initial details are shown
         }
 
         /// <summary>
@@ -66,8 +66,8 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand(CommandAndAgreements, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("System is in the described configuration state."), Is.True);
-            Assert.That(result.StdOut.Contains("Module: xE2ETestResource"), Is.True); // Details from the resource should appear if the initial details are shown
+            Assert.That(result.StdOut, Does.Contain("System is in the described configuration state."));
+            Assert.That(result.StdOut, Does.Contain("Module: xE2ETestResource")); // Details from the resource should appear if the initial details are shown
         }
 
         /// <summary>
@@ -78,8 +78,8 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand(CommandAndAgreements, TestCommon.GetTestDataFile("Configuration\\IndependentResources_OneFailure.yml"));
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.CONFIG_ERROR_TEST_FAILED));
-            Assert.That(result.StdOut.Contains("Some of the configuration units failed while testing their state."), Is.True);
-            Assert.That(result.StdOut.Contains("System is not in the described configuration state."), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Some of the configuration units failed while testing their state."));
+            Assert.That(result.StdOut, Does.Contain("System is not in the described configuration state."));
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand(CommandAndAgreements, $"{Constants.TestSourceUrl}/TestData/Configuration/Configure_TestRepo_Location.yml");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("System is in the described configuration state."), Is.True);
+            Assert.That(result.StdOut, Does.Contain("System is in the described configuration state."));
         }
 
         /// <summary>
@@ -100,16 +100,16 @@ namespace AppInstallerCLIE2ETests
         public void TestFromHistory()
         {
             var result = TestCommon.RunAICLICommand("configure --accept-configuration-agreements --verbose", TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             // The configuration creates a file next to itself with the given contents
             string targetFilePath = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.txt");
-            Assert.That(File.Exists(targetFilePath), Is.True);
+            Assert.That(targetFilePath, Does.Exist);
             Assert.That(File.ReadAllText(targetFilePath), Is.EqualTo("Contents!"));
 
             string guid = TestCommon.GetConfigurationInstanceIdentifierFor("Configure_TestRepo.yml");
             result = TestCommon.RunAICLICommand(CommandAndAgreements, $"-h {guid}");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
 
             File.WriteAllText(targetFilePath, "Changed contents!");
 
@@ -125,7 +125,7 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand(CommandAndAgreements, $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_DSCv3.yml")} --verbose");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_FALSE));
-            Assert.That(result.StdOut.Contains("System is not in the described configuration state."), Is.True);
+            Assert.That(result.StdOut, Does.Contain("System is not in the described configuration state."));
         }
 
         /// <summary>
@@ -135,8 +135,8 @@ namespace AppInstallerCLIE2ETests
         public void ConfigureTest_SuppressInitialDetails()
         {
             var result = TestCommon.RunAICLICommand("configure --accept-configuration-agreements --suppress-initial-details", TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
-            Assert.That(result.ExitCode, Is.EqualTo(0));
-            Assert.That(result.StdOut.Contains("Module: xE2ETestResource"), Is.False); // Details from the resource should not appear if the initial details are suppressed
+            Assert.That(result.ExitCode, Is.Zero);
+            Assert.That(result.StdOut, Does.Not.Contain("Module: xE2ETestResource")); // Details from the resource should not appear if the initial details are suppressed
         }
 
         private void DeleteResourceArtifacts()

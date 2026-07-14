@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ResumeCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -48,7 +48,7 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("Successfully installed"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
             Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"), Is.True);
 
             int actualCheckpointsCount = Directory.GetFiles(checkpointsDir).Length;
@@ -81,7 +81,7 @@ namespace AppInstallerCLIE2ETests
 
             // REBOOT_REQUIRED_TO_FINISH is treated as a success.
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("Restart your PC to finish installation."), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Restart your PC to finish installation."));
             Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), Is.True);
 
             int actualCheckpointsCount = Directory.GetDirectories(checkpointsDir).Length;
@@ -103,7 +103,7 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"TestRebootRequired --custom \"/ExitCode 10\" -l {installDir}");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL));
-            Assert.That(result.StdOut.Contains("Your PC will restart to finish installation."), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Your PC will restart to finish installation."));
             Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), Is.True);
 
             int actualCheckpointsCount = Directory.GetDirectories(checkpointsDir).Length;
@@ -118,7 +118,7 @@ namespace AppInstallerCLIE2ETests
             // Resume output should be the same as the install result.
             var resumeResult = TestCommon.RunAICLICommand("resume", $"-g {checkpoint.Name}");
             Assert.That(resumeResult.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL));
-            Assert.That(resumeResult.StdOut.Contains("Your PC will restart to finish installation."), Is.True);
+            Assert.That(resumeResult.StdOut, Does.Contain("Your PC will restart to finish installation."));
             Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), Is.True);
         }
     }

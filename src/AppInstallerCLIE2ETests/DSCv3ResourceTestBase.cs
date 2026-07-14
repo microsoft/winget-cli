@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="DSCv3ResourceTestBase.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -58,7 +58,7 @@ namespace AppInstallerCLIE2ETests
             Assert.That(outputDirectory, Is.Not.Empty);
 
             var result = TestCommon.RunAICLICommand($"dscv3", $"--manifest -o {outputDirectory}");
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace AppInstallerCLIE2ETests
         /// <param name="result">The result of a DSC v3 resource command run.</param>
         protected static void AssertSuccessfulResourceRun(ref TestCommon.RunCommandResult result)
         {
-            Assert.That(result.ExitCode, Is.EqualTo(0));
+            Assert.That(result.ExitCode, Is.Zero);
             Assert.That(result.StdOut, Is.Not.Empty);
         }
 

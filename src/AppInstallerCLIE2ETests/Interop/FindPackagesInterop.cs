@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="FindPackagesInterop.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -50,7 +50,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var searchResult = this.FindAllPackages(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "DoesNotExist");
 
             // Assert
-            Assert.That(searchResult.Count, Is.EqualTo(0));
+            Assert.That(searchResult.Count, Is.Zero);
         }
 
         /// <summary>

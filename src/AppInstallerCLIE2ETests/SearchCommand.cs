@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="SearchCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -32,8 +32,8 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("search", "TestExampleInstaller");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("TestExampleInstaller"), Is.True);
-            Assert.That(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("TestExampleInstaller"));
+            Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExampleInstaller"));
         }
 
         /// <summary>
@@ -43,8 +43,8 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("find", "TestExampleInstaller");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("TestExampleInstaller"), Is.True);
-            Assert.That(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("TestExampleInstaller"));
+            Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExampleInstaller"));
         }
 
         /// <summary>
@@ -55,8 +55,8 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("search", "--name testexampleinstaller");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("TestExampleInstaller"), Is.True);
-            Assert.That(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("TestExampleInstaller"));
+            Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExampleInstaller"));
         }
 
         /// <summary>
@@ -67,8 +67,8 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("search", "--id appinstallertest.testexampleinstaller");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("TestExampleInstaller"), Is.True);
-            Assert.That(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("TestExampleInstaller"));
+            Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExampleInstaller"));
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("search", "--name InvalidName");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
-            Assert.That(result.StdOut.Contains("No package found matching input criteria."), Is.True);
+            Assert.That(result.StdOut, Does.Contain("No package found matching input criteria."));
         }
 
         /// <summary>
@@ -91,9 +91,9 @@ namespace AppInstallerCLIE2ETests
             // Search Microsoft should return multiple
             var result = TestCommon.RunAICLICommand("search", "AppInstallerTest");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"), Is.True);
-            Assert.That(result.StdOut.Contains("AppInstallerTest.TestBurnInstaller"), Is.True);
-            Assert.That(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExeInstaller"));
+            Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestBurnInstaller"));
+            Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExampleInstaller"));
         }
 
         /// <summary>
@@ -104,8 +104,8 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("search", "--exact TestExampleInstaller");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("TestExampleInstaller"), Is.True);
-            Assert.That(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("TestExampleInstaller"));
+            Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExampleInstaller"));
         }
 
         /// <summary>
@@ -116,8 +116,8 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("search", "--exact AppInstallerTest.TestExampleInstaller");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("TestExampleInstaller"), Is.True);
-            Assert.That(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("TestExampleInstaller"));
+            Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExampleInstaller"));
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("search", "--exact testexampleinstaller");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
-            Assert.That(result.StdOut.Contains("No package found matching input criteria."), Is.True);
+            Assert.That(result.StdOut, Does.Contain("No package found matching input criteria."));
         }
 
         /// <summary>
@@ -143,9 +143,9 @@ namespace AppInstallerCLIE2ETests
             {
                 var result = TestCommon.RunAICLICommand("search", "--exact AppInstallerTest.TestExampleInstaller");
                 Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-                Assert.That(result.StdOut.Contains("Failed when searching source; results will not be included: failSearch"), Is.True);
-                Assert.That(result.StdOut.Contains("TestExampleInstaller"), Is.True);
-                Assert.That(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"), Is.True);
+                Assert.That(result.StdOut, Does.Contain("Failed when searching source; results will not be included: failSearch"));
+                Assert.That(result.StdOut, Does.Contain("TestExampleInstaller"));
+                Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExampleInstaller"));
             }
             finally
             {

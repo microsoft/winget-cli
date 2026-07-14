@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="AppShutdownTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -98,7 +98,7 @@ namespace AppInstallerCLIE2ETests
 
             // The ctrl-c command terminates the batch file before the exit code file gets created.
             // Look for the output.
-            Assert.That(testCmdTask.Result.StdOut.Contains("Succeeded waiting for app shutdown event"), Is.True);
+            Assert.That(testCmdTask.Result.StdOut, Does.Contain("Succeeded waiting for app shutdown event"));
         }
 
         /// <summary>
@@ -112,12 +112,12 @@ namespace AppInstallerCLIE2ETests
             var lines = result.StdOut.Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
             Assert.That(lines.Length, Is.EqualTo(5));
-            Assert.That(lines[0].Contains("Internal objects:"), Is.True);
-            Assert.That(lines[0].Contains("Internal objects: 0"), Is.False);
-            Assert.That(lines[1].Contains("External objects: 0"), Is.True);
-            Assert.That(lines[2].Contains("DllCanUnloadNow"), Is.True);
-            Assert.That(lines[3].Contains("Internal objects: 0"), Is.True);
-            Assert.That(lines[4].Contains("External objects: 0"), Is.True);
+            Assert.That(lines[0], Does.Contain("Internal objects:"));
+            Assert.That(lines[0], Does.Not.Contain("Internal objects: 0"));
+            Assert.That(lines[1], Does.Contain("External objects: 0"));
+            Assert.That(lines[2], Does.Contain("DllCanUnloadNow"));
+            Assert.That(lines[3], Does.Contain("Internal objects: 0"));
+            Assert.That(lines[4], Does.Contain("External objects: 0"));
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace AppInstallerCLIE2ETests
         public void TermSignalHandler()
         {
             var result = TestCommon.RunAICLICommand("test", "term-signal-handler --verbose");
-            Assert.That(result.StdOut.Contains("Got a window handle"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Got a window handle"));
         }
     }
 }

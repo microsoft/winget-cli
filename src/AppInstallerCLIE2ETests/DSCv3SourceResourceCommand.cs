@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="DSCv3SourceResourceCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -105,7 +105,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Get_Present()
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {DefaultSourceArgForCmdLine} --type {DefaultSourceType} --explicit");
-            Assert.That(setup.ExitCode, Is.EqualTo(0));
+            Assert.That(setup.ExitCode, Is.Zero);
 
             SourceResourceData resourceData = new SourceResourceData() { Name = DefaultSourceName };
 
@@ -143,7 +143,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Test_SimplePresent()
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {DefaultSourceArgForCmdLine} --type {DefaultSourceType}");
-            Assert.That(setup.ExitCode, Is.EqualTo(0));
+            Assert.That(setup.ExitCode, Is.Zero);
 
             SourceResourceData resourceData = new SourceResourceData() { Name = DefaultSourceName };
 
@@ -173,7 +173,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Test_PropertyMatch(bool useDefaultArgument, string trustLevel, bool isExplicit, int priority, string targetProperty)
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {(useDefaultArgument ? DefaultSourceArgForCmdLine : NonDefaultSourceArgForCmdLine)} --type {DefaultSourceType} --trust-level {trustLevel} {(isExplicit ? "--explicit" : string.Empty)} --priority {priority}");
-            Assert.That(setup.ExitCode, Is.EqualTo(0));
+            Assert.That(setup.ExitCode, Is.Zero);
 
             SourceResourceData resourceData = new SourceResourceData() { Name = DefaultSourceName };
 
@@ -225,7 +225,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Test_PropertyMismatch(bool useDefaultArgument, string trustLevel, bool isExplicit, int priority, string targetProperty, object testValue)
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {(useDefaultArgument ? DefaultSourceArgForCmdLine : NonDefaultSourceArgForCmdLine)} --type {DefaultSourceType} --trust-level {trustLevel} {(isExplicit ? "--explicit" : string.Empty)} --priority {priority}");
-            Assert.That(setup.ExitCode, Is.EqualTo(0));
+            Assert.That(setup.ExitCode, Is.Zero);
 
             SourceResourceData resourceData = new SourceResourceData() { Name = DefaultSourceName };
 
@@ -265,7 +265,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Test_AllMatch()
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {NonDefaultSourceArgForCmdLine} --type {DefaultSourceType} --trust-level {TrustedTrustLevel} --explicit --priority 42");
-            Assert.That(setup.ExitCode, Is.EqualTo(0));
+            Assert.That(setup.ExitCode, Is.Zero);
 
             SourceResourceData resourceData = new SourceResourceData()
             {
@@ -325,7 +325,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Set_Remove()
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {DefaultSourceArgForCmdLine} --type {DefaultSourceType} --explicit");
-            Assert.That(setup.ExitCode, Is.EqualTo(0));
+            Assert.That(setup.ExitCode, Is.Zero);
 
             SourceResourceData resourceData = new SourceResourceData()
             {
@@ -365,7 +365,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Set_Replace()
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {DefaultSourceArgForCmdLine} --type {DefaultSourceType}");
-            Assert.That(setup.ExitCode, Is.EqualTo(0));
+            Assert.That(setup.ExitCode, Is.Zero);
 
             SourceResourceData resourceData = new SourceResourceData()
             {
@@ -404,7 +404,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Set_Replace_Edit()
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {DefaultSourceArgForCmdLine} --type {DefaultSourceType}");
-            Assert.That(setup.ExitCode, Is.EqualTo(0));
+            Assert.That(setup.ExitCode, Is.Zero);
 
             SourceResourceData resourceData = new SourceResourceData()
             {
@@ -441,7 +441,7 @@ namespace AppInstallerCLIE2ETests
         public void Source_Export_NoInput()
         {
             var setup = TestCommon.RunAICLICommand("source add", $"--name {DefaultSourceName} --arg {DefaultSourceArgForCmdLine} --type {DefaultSourceType}");
-            Assert.That(setup.ExitCode, Is.EqualTo(0));
+            Assert.That(setup.ExitCode, Is.Zero);
 
             var result = RunDSCv3Command(SourceResource, ExportFunction, " ");
             AssertSuccessfulResourceRun(ref result);

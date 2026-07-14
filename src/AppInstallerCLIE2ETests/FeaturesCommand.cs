@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="FeaturesCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -40,7 +40,7 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("features", string.Empty);
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("Direct MSI Installation"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Direct MSI Installation"));
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace AppInstallerCLIE2ETests
             WinGetSettingsHelper.ConfigureFeature("resume", true);
             WinGetSettingsHelper.ConfigureFeature("fonts", true);
             var result = TestCommon.RunAICLICommand("features", string.Empty);
-            Assert.That(result.StdOut.Contains("Enabled"), Is.True);
+            Assert.That(result.StdOut, Does.Contain("Enabled"));
         }
     }
 }

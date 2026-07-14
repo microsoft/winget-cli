@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="DownloadCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -40,8 +40,8 @@ namespace AppInstallerCLIE2ETests
             var downloadDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.PackageDependency --skip-dependencies --download-directory {downloadDir}");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut.Contains("Dependencies skipped."), Is.True);
-            Assert.That(Directory.Exists(Path.Combine(downloadDir, Constants.Dependencies)), Is.False);
+            Assert.That(result.StdOut, Does.Contain("Dependencies skipped."));
+            Assert.That(Path.Combine(downloadDir, Constants.Dependencies), Does.Not.Exist);
             TestCommon.AssertInstallerDownload(downloadDir, "TestPackageDependency", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.Unknown, PackageInstallerType.Exe, "en-US");
         }
 
