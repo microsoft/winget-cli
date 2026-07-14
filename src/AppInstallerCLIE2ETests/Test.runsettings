@@ -18,6 +18,7 @@
     MsiTestInstallerPath: The Msi Installer executable under test.
     MsixTestInstallerPath: The MSIX (or APPX) Installer executable under test.
     ExeTestInstallerPath: The Exe Installer executable under test.
+    FontTestPath: The test font file used by font package scenarios.
     PackageCertificatePath: Signing Certificate Path used to certify Index Source Package.
     PowerShellModulePath: Path to the PowerShell module manifest file under test.
     LocalServerCertPath: The cert used for the local server.
