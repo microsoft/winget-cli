@@ -79,9 +79,9 @@ namespace AppInstallerCLIE2ETests
             AdminSettingsResourceData output = GetSingleOutputLineAs<AdminSettingsResourceData>(result.StdOut);
             Assert.That(output, Is.Not.Null);
             Assert.That(output.Settings, Is.Not.Null);
-            Assert.That(output.Settings.ContainsKey(LocalManifestFiles), Is.True);
-            Assert.That(output.Settings.ContainsKey(DefaultProxy), Is.False);
-            Assert.That(output.Settings.ContainsKey(NotAnAdminSettingName), Is.False);
+            Assert.That(output.Settings, Contains.Key(LocalManifestFiles));
+            Assert.That(output.Settings, Does.Not.ContainKey(DefaultProxy));
+            Assert.That(output.Settings, Does.Not.ContainKey(NotAnAdminSettingName));
         }
 
         /// <summary>
@@ -293,7 +293,7 @@ namespace AppInstallerCLIE2ETests
             Assert.That(output, Is.Not.Null);
             Assert.That(output.InDesiredState, Is.EqualTo(inDesiredState));
             Assert.That(output.Settings, Is.Not.Null);
-            Assert.That(output.Settings.ContainsKey(settingName), Is.True);
+            Assert.That(output.Settings, Contains.Key(settingName));
             Assert.That(output.Settings[settingName].AsValue().GetValueKind(), Is.EqualTo(expectedState ? JsonValueKind.True : JsonValueKind.False));
 
             AssertDiffState(diff, inDesiredState ? [] : [ SettingsPropertyName ]);
@@ -308,7 +308,7 @@ namespace AppInstallerCLIE2ETests
             (AdminSettingsResourceData output, List<string> diff) = GetSingleOutputLineAndDiffAs<AdminSettingsResourceData>(result.StdOut);
             Assert.That(output, Is.Not.Null);
             Assert.That(output.Settings, Is.Not.Null);
-            Assert.That(output.Settings.ContainsKey(settingName), Is.True);
+            Assert.That(output.Settings, Contains.Key(settingName));
             Assert.That(output.Settings[settingName].AsValue().GetValueKind(), Is.EqualTo(desiredState ? JsonValueKind.True : JsonValueKind.False));
 
             AssertDiffState(diff, inDesiredState ? [] : [ SettingsPropertyName ]);
@@ -326,12 +326,12 @@ namespace AppInstallerCLIE2ETests
             Assert.That(output.Settings, Is.Not.Null);
             if (expectedState != null)
             {
-                Assert.That(output.Settings.ContainsKey(settingName), Is.True);
+                Assert.That(output.Settings, Contains.Key(settingName));
                 Assert.That(output.Settings[settingName].AsValue().GetValue<string>(), Is.EqualTo(expectedState));
             }
             else
             {
-                Assert.That(output.Settings.ContainsKey(settingName), Is.False);
+                Assert.That(output.Settings, Does.Not.ContainKey(settingName));
             }
 
             AssertDiffState(diff, inDesiredState ? [] : [SettingsPropertyName]);
@@ -348,12 +348,12 @@ namespace AppInstallerCLIE2ETests
             Assert.That(output.Settings, Is.Not.Null);
             if (desiredState != null)
             {
-                Assert.That(output.Settings.ContainsKey(settingName), Is.True);
+                Assert.That(output.Settings, Contains.Key(settingName));
                 Assert.That(output.Settings[settingName].AsValue().GetValue<string>(), Is.EqualTo(desiredState));
             }
             else
             {
-                Assert.That(output.Settings.ContainsKey(settingName), Is.False);
+                Assert.That(output.Settings, Does.Not.ContainKey(settingName));
             }
 
             AssertDiffState(diff, inDesiredState ? [] : [SettingsPropertyName]);

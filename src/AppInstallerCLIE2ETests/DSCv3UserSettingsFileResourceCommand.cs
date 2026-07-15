@@ -325,10 +325,10 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
     private static void AssertMockProperties(JsonObject settings, string value)
     {
         Assert.That(settings, Is.Not.Null);
-        Assert.That(settings.ContainsKey(SettingsMock), Is.True);
+        Assert.That(settings, Contains.Key(SettingsMock));
         Assert.That(value, Is.EqualTo(settings[SettingsMock].ToString()));
-        Assert.That(settings.ContainsKey(SettingsMockObject), Is.True);
-        Assert.That(settings[SettingsMockObject].AsObject().ContainsKey(SettingsMockNested), Is.True);
+        Assert.That(settings, Contains.Key(SettingsMockObject));
+        Assert.That(settings[SettingsMockObject].AsObject(), Contains.Key(SettingsMockNested));
         Assert.That(value, Is.EqualTo(settings[SettingsMockObject][SettingsMockNested].ToString()));
     }
 
