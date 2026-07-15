@@ -61,10 +61,10 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                 mergedManifestPath,
                 createManifestOption);
 
-            Assert.True(succeeded);
-            Assert.AreNotEqual(IntPtr.Zero, manifestHandle);
-            Assert.IsNull(createFailureMessage);
-            Assert.True(File.Exists(mergedManifestPath));
+            Assert.That(succeeded, Is.True);
+            Assert.That(manifestHandle, Is.Not.EqualTo(IntPtr.Zero));
+            Assert.That(createFailureMessage, Is.Null);
+            Assert.That(mergedManifestPath, Does.Exist);
 
             // Validate manifest
             WinGetUtilWrapper.WinGetValidateManifestV3(
@@ -75,8 +75,8 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                 WinGetUtilWrapper.ValidateManifestOptionV2.ArpVersionValidation,
                 WinGetUtilWrapper.ValidateManifestOperationType.Add);
 
-            Assert.AreEqual(WinGetUtilWrapper.ValidateManifestResultCode.Success, resultCode);
-            Assert.IsEmpty(validateFailureMessage);
+            Assert.That(resultCode, Is.EqualTo(WinGetUtilWrapper.ValidateManifestResultCode.Success));
+            Assert.That(validateFailureMessage, Is.Empty);
 
             // Close manifest
             WinGetUtilWrapper.WinGetCloseManifest(manifestHandle);
@@ -102,9 +102,9 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                 string.Empty,
                 createManifestOption);
 
-            Assert.True(succeeded);
-            Assert.AreNotEqual(IntPtr.Zero, manifestHandle);
-            Assert.IsNull(createFailureMessage);
+            Assert.That(succeeded, Is.True);
+            Assert.That(manifestHandle, Is.Not.EqualTo(IntPtr.Zero));
+            Assert.That(createFailureMessage, Is.Null);
 
             // Close manifest
             WinGetUtilWrapper.WinGetCloseManifest(manifestHandle);
@@ -155,10 +155,10 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                 string.Empty,
                 createManifestOption);
 
-            Assert.False(succeeded);
-            Assert.AreEqual(IntPtr.Zero, manifestHandle);
-            Assert.IsNotNull(createFailureMessage);
-            Assert.IsTrue(createFailureMessage.Contains(expectedError));
+            Assert.That(succeeded, Is.False);
+            Assert.That(manifestHandle, Is.EqualTo(IntPtr.Zero));
+            Assert.That(createFailureMessage, Is.Not.Null);
+            Assert.That(createFailureMessage, Does.Contain(expectedError));
         }
     }
 }

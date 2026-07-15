@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="GroupPolicyForInterop.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -70,56 +70,56 @@ namespace AppInstallerCLIE2ETests.Interop
         {
             GroupPolicyHelper.EnableWinget.Disable();
 
-            GroupPolicyException groupPolicyException = Assert.Catch<GroupPolicyException>(() => { PackageManager packageManager = this.TestFactory.CreatePackageManager(); });
-            Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
+            GroupPolicyException packageManagerException = Assert.Throws<GroupPolicyException>((Action)(() => { PackageManager packageManager = this.TestFactory.CreatePackageManager(); }));
+            Assert.That(packageManagerException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(packageManagerException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            groupPolicyException = Assert.Catch<GroupPolicyException>(() => { FindPackagesOptions findPackagesOptions = this.TestFactory.CreateFindPackagesOptions(); });
-            Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
+            GroupPolicyException findPackagesOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { FindPackagesOptions findPackagesOptions = this.TestFactory.CreateFindPackagesOptions(); }));
+            Assert.That(findPackagesOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(findPackagesOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            groupPolicyException = Assert.Catch<GroupPolicyException>(() => { CreateCompositePackageCatalogOptions createCompositePackageCatalogOptions = this.TestFactory.CreateCreateCompositePackageCatalogOptions(); });
-            Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
+            GroupPolicyException createCompositePackageCatalogOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { CreateCompositePackageCatalogOptions createCompositePackageCatalogOptions = this.TestFactory.CreateCreateCompositePackageCatalogOptions(); }));
+            Assert.That(createCompositePackageCatalogOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(createCompositePackageCatalogOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            groupPolicyException = Assert.Catch<GroupPolicyException>(() => { InstallOptions installOptions = this.TestFactory.CreateInstallOptions(); });
-            Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
+            GroupPolicyException installOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { InstallOptions installOptions = this.TestFactory.CreateInstallOptions(); }));
+            Assert.That(installOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(installOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            groupPolicyException = Assert.Catch<GroupPolicyException>(() => { UninstallOptions uninstallOptions = this.TestFactory.CreateUninstallOptions(); });
-            Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
+            GroupPolicyException uninstallOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { UninstallOptions uninstallOptions = this.TestFactory.CreateUninstallOptions(); }));
+            Assert.That(uninstallOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(uninstallOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            groupPolicyException = Assert.Catch<GroupPolicyException>(() => { DownloadOptions downloadOptions = this.TestFactory.CreateDownloadOptions(); });
-            Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
+            GroupPolicyException downloadOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { DownloadOptions downloadOptions = this.TestFactory.CreateDownloadOptions(); }));
+            Assert.That(downloadOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(downloadOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            groupPolicyException = Assert.Catch<GroupPolicyException>(() => { PackageMatchFilter packageMatchFilter = this.TestFactory.CreatePackageMatchFilter(); });
-            Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
+            GroupPolicyException packageMatchFilterException = Assert.Throws<GroupPolicyException>((Action)(() => { PackageMatchFilter packageMatchFilter = this.TestFactory.CreatePackageMatchFilter(); }));
+            Assert.That(packageMatchFilterException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(packageMatchFilterException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            groupPolicyException = Assert.Catch<GroupPolicyException>(() => { RepairOptions repairOptions = this.TestFactory.CreateRepairOptions(); });
-            Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
+            GroupPolicyException repairOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { RepairOptions repairOptions = this.TestFactory.CreateRepairOptions(); }));
+            Assert.That(repairOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(repairOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            groupPolicyException = Assert.Catch<GroupPolicyException>(() => { AddPackageCatalogOptions packageManagerSettings = this.TestFactory.CreateAddPackageCatalogOptions(); });
-            Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
+            GroupPolicyException addPackageCatalogOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { AddPackageCatalogOptions packageManagerSettings = this.TestFactory.CreateAddPackageCatalogOptions(); }));
+            Assert.That(addPackageCatalogOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(addPackageCatalogOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            groupPolicyException = Assert.Catch<GroupPolicyException>(() => { RemovePackageCatalogOptions packageManagerSettings = this.TestFactory.CreateRemovePackageCatalogOptions(); });
-            Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
+            GroupPolicyException removePackageCatalogOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { RemovePackageCatalogOptions packageManagerSettings = this.TestFactory.CreateRemovePackageCatalogOptions(); }));
+            Assert.That(removePackageCatalogOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(removePackageCatalogOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
-            groupPolicyException = Assert.Catch<GroupPolicyException>(() => { EditPackageCatalogOptions packageManagerSettings = this.TestFactory.CreateEditPackageCatalogOptions(); });
-            Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
+            GroupPolicyException editPackageCatalogOptionsException = Assert.Throws<GroupPolicyException>((Action)(() => { EditPackageCatalogOptions packageManagerSettings = this.TestFactory.CreateEditPackageCatalogOptions(); }));
+            Assert.That(editPackageCatalogOptionsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+            Assert.That(editPackageCatalogOptionsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
 
             // PackageManagerSettings is not implemented in context OutOfProcDev
             if (this.TestFactory.Context == ClsidContext.InProc)
             {
-                groupPolicyException = Assert.Catch<GroupPolicyException>(() => { PackageManagerSettings packageManagerSettings = this.TestFactory.CreatePackageManagerSettings(); });
-                Assert.AreEqual(Constants.BlockByWinGetPolicyErrorMessage, groupPolicyException.Message);
-                Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, groupPolicyException.HResult);
+                GroupPolicyException packageManagerSettingsException = Assert.Throws<GroupPolicyException>((Action)(() => { PackageManagerSettings packageManagerSettings = this.TestFactory.CreatePackageManagerSettings(); }));
+                Assert.That(packageManagerSettingsException.Message, Is.EqualTo(Constants.BlockByWinGetPolicyErrorMessage));
+                Assert.That(packageManagerSettingsException.HResult, Is.EqualTo(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY));
             }
         }
 
@@ -138,7 +138,7 @@ namespace AppInstallerCLIE2ETests.Interop
             // Create composite package catalog source
             var options = this.TestFactory.CreateCreateCompositePackageCatalogOptions();
             var testSource = packageManager.GetPackageCatalogByName(Constants.TestSourceName);
-            Assert.NotNull(testSource, $"{Constants.TestSourceName} cannot be null");
+            Assert.That(testSource, Is.Not.Null, $"{Constants.TestSourceName} cannot be null");
             options.Catalogs.Add(testSource);
             options.CompositeSearchBehavior = CompositeSearchBehavior.AllCatalogs;
             PackageCatalogReference compositeSource = packageManager.CreateCompositePackageCatalog(options);
@@ -153,22 +153,22 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Install
             var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Find package again, but this time it should detect the installed version
             searchResult = this.FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.ModifyRepairInstaller);
-            Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+            Assert.That(searchResult.CatalogPackage.InstalledVersion, Is.Not.Null);
 
             // Repair
             var repairOptions = this.TestFactory.CreateRepairOptions();
             repairOptions.PackageRepairMode = PackageRepairMode.Silent;
             var repairResult = await packageManager.RepairPackageAsync(searchResult.CatalogPackage, repairOptions);
-            Assert.AreEqual(RepairResultStatus.Ok, repairResult.Status);
+            Assert.That(repairResult.Status, Is.EqualTo(RepairResultStatus.Ok));
 
             // Uninstall
             var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateUninstallOptions());
-            Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
-            Assert.True(TestCommon.VerifyTestExeUninstalled(installDir));
+            Assert.That(uninstallResult.Status, Is.EqualTo(UninstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestExeUninstalled(installDir), Is.True);
 
             // Clean up.
             if (Directory.Exists(installDir))
@@ -178,7 +178,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Download
             var downloadResult = await packageManager.DownloadPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateDownloadOptions());
-            Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
+            Assert.That(downloadResult.Status, Is.EqualTo(DownloadResultStatus.Ok));
             var packageVersion = "2.0.0.0";
             string downloadDir = Path.Combine(TestCommon.GetDefaultDownloadDirectory(), $"{Constants.ModifyRepairInstaller}_{packageVersion}");
             TestCommon.AssertInstallerDownload(downloadDir, "TestModifyRepair", packageVersion, ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Burn, "en-US");
@@ -201,15 +201,15 @@ namespace AppInstallerCLIE2ETests.Interop
             options.TrustLevel = PackageCatalogTrustLevel.Trusted;
 
             var addCatalogResult = await packageManager.AddPackageCatalogAsync(options);
-            Assert.IsNotNull(addCatalogResult);
-            Assert.AreEqual(AddPackageCatalogStatus.Ok, addCatalogResult.Status);
+            Assert.That(addCatalogResult, Is.Not.Null);
+            Assert.That(addCatalogResult.Status, Is.EqualTo(AddPackageCatalogStatus.Ok));
 
             // Get package catalog
             var packageCatalog = packageManager.GetPackageCatalogByName(options.Name);
 
-            Assert.IsNotNull(packageCatalog);
-            Assert.AreEqual(options.Name, packageCatalog.Info.Name);
-            Assert.AreEqual(options.SourceUri, packageCatalog.Info.Argument);
+            Assert.That(packageCatalog, Is.Not.Null);
+            Assert.That(packageCatalog.Info.Name, Is.EqualTo(options.Name));
+            Assert.That(packageCatalog.Info.Argument, Is.EqualTo(options.SourceUri));
             var lastUpdatedTime = packageCatalog.Info.LastUpdateTime;
 
             // Update package catalog
@@ -217,11 +217,11 @@ namespace AppInstallerCLIE2ETests.Interop
             Thread.Sleep(TimeSpan.FromSeconds(30));
 
             var updateResult = await packageCatalog.RefreshPackageCatalogAsync();
-            Assert.IsNotNull(updateResult);
-            Assert.AreEqual(RefreshPackageCatalogStatus.Ok, updateResult.Status);
+            Assert.That(updateResult, Is.Not.Null);
+            Assert.That(updateResult.Status, Is.EqualTo(RefreshPackageCatalogStatus.Ok));
 
             packageCatalog = packageManager.GetPackageCatalogByName(options.Name);
-            Assert.IsTrue(packageCatalog.Info.LastUpdateTime > lastUpdatedTime);
+            Assert.That(packageCatalog.Info.LastUpdateTime > lastUpdatedTime, Is.True);
 
             // Remove package catalog
             await this.RemovePackageCatalog();
@@ -236,11 +236,11 @@ namespace AppInstallerCLIE2ETests.Interop
             removePackageCatalogOptions.Name = Constants.TestSourceName;
 
             var removeCatalogResult = await packageManager.RemovePackageCatalogAsync(removePackageCatalogOptions);
-            Assert.IsNotNull(removeCatalogResult);
-            Assert.AreEqual(RemovePackageCatalogStatus.Ok, removeCatalogResult.Status);
+            Assert.That(removeCatalogResult, Is.Not.Null);
+            Assert.That(removeCatalogResult.Status, Is.EqualTo(RemovePackageCatalogStatus.Ok));
 
             var packageCatalog = packageManager.GetPackageCatalogByName(removePackageCatalogOptions.Name);
-            Assert.IsNull(packageCatalog);
+            Assert.That(packageCatalog, Is.Null);
         }
     }
 }
