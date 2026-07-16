@@ -279,7 +279,6 @@ namespace AppInstaller::Repository
     std::unique_ptr<ISourceFactory> ISourceFactory::GetForType(SourceType type)
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
-        // Tests can ensure case matching
         auto itr = s_Sources_TestHook_SourceFactories.find(type);
         if (itr != s_Sources_TestHook_SourceFactories.end())
         {
