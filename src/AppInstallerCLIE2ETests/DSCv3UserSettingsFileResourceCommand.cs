@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="DSCv3UserSettingsFileResourceCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -67,8 +67,8 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
         var expected = GetCurrentUserSettings();
         var getOutput = Get(new ());
 
-        Assert.IsNotNull(getOutput);
-        Assert.IsNull(getOutput.Action);
+        Assert.That(getOutput, Is.Not.Null);
+        Assert.That(getOutput.Action, Is.Null);
         AssertSettingsAreEqual(expected, getOutput.Settings);
     }
 
@@ -87,8 +87,8 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 
         var expected = GetCurrentUserSettings();
 
-        Assert.IsNotNull(setOutput);
-        Assert.AreEqual(action, setOutput.Action);
+        Assert.That(setOutput, Is.Not.Null);
+        Assert.That(setOutput.Action, Is.EqualTo(action));
         AssertSettingsAreEqual(expected, setOutput.Settings);
         AssertDiffState(setDiff, []);
     }
@@ -111,8 +111,8 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
         var expected = GetCurrentUserSettings();
 
         // Assert that the settings are added
-        Assert.IsNotNull(setOutput);
-        Assert.AreEqual(action, setOutput.Action);
+        Assert.That(setOutput, Is.Not.Null);
+        Assert.That(setOutput.Action, Is.EqualTo(action));
         AssertMockProperties(setOutput.Settings, "mock");
         AssertSettingsAreEqual(expected, setOutput.Settings);
         AssertDiffState(setDiff, [ SettingsPropertyName ]);
@@ -134,8 +134,8 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
         (var setOutput, var setDiff) = Set(new () { Settings = setSettings });
 
         // Assert that the settings are added
-        Assert.IsNotNull(setOutput);
-        Assert.AreEqual(setOutput.Action, ActionPropertyValuePartial);
+        Assert.That(setOutput, Is.Not.Null);
+        Assert.That(ActionPropertyValuePartial, Is.EqualTo(setOutput.Action));
         AssertMockProperties(setOutput.Settings, "mock");
         AssertSettingsAreEqual(expected, setOutput.Settings);
         AssertDiffState(setDiff, [ SettingsPropertyName ]);
@@ -164,8 +164,8 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
         var expected = GetCurrentUserSettings();
 
         // Assert that the settings are updated
-        Assert.IsNotNull(setOutput);
-        Assert.AreEqual(action, setOutput.Action);
+        Assert.That(setOutput, Is.Not.Null);
+        Assert.That(setOutput.Action, Is.EqualTo(action));
         AssertMockProperties(setOutput.Settings, "mock_new");
         AssertSettingsAreEqual(expected, setOutput.Settings);
         AssertDiffState(setDiff, [ SettingsPropertyName ]);
@@ -194,11 +194,11 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
         var expected = GetCurrentUserSettings();
 
         // Assert that the settings are in desired state
-        Assert.IsNotNull(testOutput);
-        Assert.AreEqual(action, testOutput.Action);
+        Assert.That(testOutput, Is.Not.Null);
+        Assert.That(testOutput.Action, Is.EqualTo(action));
         AssertMockProperties(testOutput.Settings, "mock");
         AssertSettingsAreEqual(expected, testOutput.Settings);
-        Assert.IsTrue(testOutput.InDesiredState);
+        Assert.That(testOutput.InDesiredState, Is.True);
         AssertDiffState(testDiff, []);
     }
 
@@ -225,11 +225,11 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
         var expected = GetCurrentUserSettings();
 
         // Assert that the settings are not in desired state
-        Assert.IsNotNull(testOutput);
-        Assert.AreEqual(action, testOutput.Action);
+        Assert.That(testOutput, Is.Not.Null);
+        Assert.That(testOutput.Action, Is.EqualTo(action));
         AssertMockProperties(testOutput.Settings, "mock_set");
         AssertSettingsAreEqual(expected, testOutput.Settings);
-        Assert.IsFalse(testOutput.InDesiredState);
+        Assert.That(testOutput.InDesiredState, Is.False);
         AssertDiffState(testDiff, [ SettingsPropertyName ]);
     }
 
@@ -242,8 +242,8 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
         var expected = GetCurrentUserSettings();
         var exportOutput = Export(new ());
 
-        Assert.IsNotNull(exportOutput);
-        Assert.IsNull(exportOutput.Action);
+        Assert.That(exportOutput, Is.Not.Null);
+        Assert.That(exportOutput.Action, Is.Null);
         AssertSettingsAreEqual(expected, exportOutput.Settings);
     }
 
@@ -324,12 +324,12 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
     /// <param name="value">The expected mock value.</param>
     private static void AssertMockProperties(JsonObject settings, string value)
     {
-        Assert.IsNotNull(settings);
-        Assert.IsTrue(settings.ContainsKey(SettingsMock));
-        Assert.AreEqual(settings[SettingsMock].ToString(), value);
-        Assert.IsTrue(settings.ContainsKey(SettingsMockObject));
-        Assert.IsTrue(settings[SettingsMockObject].AsObject().ContainsKey(SettingsMockNested));
-        Assert.AreEqual(settings[SettingsMockObject][SettingsMockNested].ToString(), value);
+        Assert.That(settings, Is.Not.Null);
+        Assert.That(settings, Contains.Key(SettingsMock));
+        Assert.That(value, Is.EqualTo(settings[SettingsMock].ToString()));
+        Assert.That(settings, Contains.Key(SettingsMockObject));
+        Assert.That(settings[SettingsMockObject].AsObject(), Contains.Key(SettingsMockNested));
+        Assert.That(value, Is.EqualTo(settings[SettingsMockObject][SettingsMockNested].ToString()));
     }
 
     /// <summary>
@@ -339,7 +339,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
     /// <param name="actual">The actual settings.</param>
     private static void AssertSettingsAreEqual(JsonObject expected, JsonObject actual)
     {
-        Assert.IsTrue(JsonNode.DeepEquals(expected, actual));
+        Assert.That(JsonNode.DeepEquals(expected, actual), Is.True);
     }
 
     /// <summary>

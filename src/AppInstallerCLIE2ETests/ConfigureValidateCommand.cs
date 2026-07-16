@@ -41,7 +41,7 @@ namespace AppInstallerCLIE2ETests
         public void EmptyFile()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\Empty.yml"));
-            Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_INVALID_YAML, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.CONFIG_ERROR_INVALID_YAML));
         }
 
         /// <summary>
@@ -51,9 +51,9 @@ namespace AppInstallerCLIE2ETests
         public void NotConfigurationYAML()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\NotConfig.yml"));
-            Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_MISSING_FIELD, result.ExitCode);
-            Assert.True(result.StdOut.Contains("$schema"));
-            Assert.True(result.StdOut.Contains("missing"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.CONFIG_ERROR_MISSING_FIELD));
+            Assert.That(result.StdOut, Does.Contain("$schema"));
+            Assert.That(result.StdOut, Does.Contain("missing"));
         }
 
         /// <summary>
@@ -63,9 +63,9 @@ namespace AppInstallerCLIE2ETests
         public void NoVersion()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\NoVersion.yml"));
-            Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_MISSING_FIELD, result.ExitCode);
-            Assert.True(result.StdOut.Contains("configurationVersion"));
-            Assert.True(result.StdOut.Contains("missing"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.CONFIG_ERROR_MISSING_FIELD));
+            Assert.That(result.StdOut, Does.Contain("configurationVersion"));
+            Assert.That(result.StdOut, Does.Contain("missing"));
         }
 
         /// <summary>
@@ -75,9 +75,9 @@ namespace AppInstallerCLIE2ETests
         public void UnknownVersion()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\UnknownVersion.yml"));
-            Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Configuration file version"));
-            Assert.True(result.StdOut.Contains("is not known."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION));
+            Assert.That(result.StdOut, Does.Contain("Configuration file version"));
+            Assert.That(result.StdOut, Does.Contain("is not known."));
         }
 
         /// <summary>
@@ -87,9 +87,9 @@ namespace AppInstallerCLIE2ETests
         public void ResourcesIsWrongType()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\ResourcesNotASequence.yml"));
-            Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_INVALID_FIELD_TYPE, result.ExitCode);
-            Assert.True(result.StdOut.Contains("resources"));
-            Assert.True(result.StdOut.Contains("wrong type"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.CONFIG_ERROR_INVALID_FIELD_TYPE));
+            Assert.That(result.StdOut, Does.Contain("resources"));
+            Assert.That(result.StdOut, Does.Contain("wrong type"));
         }
 
         /// <summary>
@@ -99,9 +99,9 @@ namespace AppInstallerCLIE2ETests
         public void UnitIsWrongType()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\UnitNotAMap.yml"));
-            Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_INVALID_FIELD_TYPE, result.ExitCode);
-            Assert.True(result.StdOut.Contains("resources[0]"));
-            Assert.True(result.StdOut.Contains("wrong type"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.CONFIG_ERROR_INVALID_FIELD_TYPE));
+            Assert.That(result.StdOut, Does.Contain("resources[0]"));
+            Assert.That(result.StdOut, Does.Contain("wrong type"));
         }
 
         /// <summary>
@@ -111,10 +111,10 @@ namespace AppInstallerCLIE2ETests
         public void NoResourceName()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\NoResourceName.yml"));
-            Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_INVALID_FIELD_VALUE, result.ExitCode);
-            Assert.True(result.StdOut.Contains("resource"));
-            Assert.True(result.StdOut.Contains("invalid value"));
-            Assert.True(result.StdOut.Contains("Module/"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.CONFIG_ERROR_INVALID_FIELD_VALUE));
+            Assert.That(result.StdOut, Does.Contain("resource"));
+            Assert.That(result.StdOut, Does.Contain("invalid value"));
+            Assert.That(result.StdOut, Does.Contain("Module/"));
         }
 
         /// <summary>
@@ -124,10 +124,10 @@ namespace AppInstallerCLIE2ETests
         public void ModuleMismatch()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\ModuleMismatch.yml"));
-            Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_INVALID_FIELD_VALUE, result.ExitCode);
-            Assert.True(result.StdOut.Contains("module"));
-            Assert.True(result.StdOut.Contains("invalid value"));
-            Assert.True(result.StdOut.Contains("DifferentModule"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.CONFIG_ERROR_INVALID_FIELD_VALUE));
+            Assert.That(result.StdOut, Does.Contain("module"));
+            Assert.That(result.StdOut, Does.Contain("invalid value"));
+            Assert.That(result.StdOut, Does.Contain("DifferentModule"));
         }
 
         /// <summary>
@@ -137,9 +137,9 @@ namespace AppInstallerCLIE2ETests
         public void DuplicateIdentifiers()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\DuplicateIdentifiers.yml"));
-            Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_DUPLICATE_IDENTIFIER, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The configuration contains the identifier `same` multiple times."));
-            Assert.False(result.StdOut.Contains("NotMentioned"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.CONFIG_ERROR_DUPLICATE_IDENTIFIER));
+            Assert.That(result.StdOut, Does.Contain("The configuration contains the identifier `same` multiple times."));
+            Assert.That(result.StdOut, Does.Not.Contain("NotMentioned"));
         }
 
         /// <summary>
@@ -149,9 +149,9 @@ namespace AppInstallerCLIE2ETests
         public void MissingDependency()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\MissingDependency.yml"));
-            Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_MISSING_DEPENDENCY, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The dependency `missing` was not found within the configuration."));
-            Assert.False(result.StdOut.Contains("xE2ETestResource"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.CONFIG_ERROR_MISSING_DEPENDENCY));
+            Assert.That(result.StdOut, Does.Contain("The dependency `missing` was not found within the configuration."));
+            Assert.That(result.StdOut, Does.Not.Contain("xE2ETestResource"));
         }
 
         /// <summary>
@@ -161,9 +161,9 @@ namespace AppInstallerCLIE2ETests
         public void DependencyCycle()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\DependencyCycle.yml"));
-            Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_SET_DEPENDENCY_CYCLE, result.ExitCode);
-            Assert.True(result.StdOut.Contains("This configuration unit is part of a dependency cycle."));
-            Assert.False(result.StdOut.Contains("NotMentioned"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.CONFIG_ERROR_SET_DEPENDENCY_CYCLE));
+            Assert.That(result.StdOut, Does.Contain("This configuration unit is part of a dependency cycle."));
+            Assert.That(result.StdOut, Does.Not.Contain("NotMentioned"));
         }
 
         /// <summary>
@@ -173,8 +173,8 @@ namespace AppInstallerCLIE2ETests
         public void ResourceIsNotPublic()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
-            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
-            Assert.True(result.StdOut.Contains("not available publicly"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_FALSE));
+            Assert.That(result.StdOut, Does.Contain("not available publicly"));
         }
 
         /// <summary>
@@ -184,8 +184,8 @@ namespace AppInstallerCLIE2ETests
         public void ResourceIsNotFound()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\ResourceNotFound.yml"));
-            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The configuration unit could not be found."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_FALSE));
+            Assert.That(result.StdOut, Does.Contain("The configuration unit could not be found."));
         }
 
         /// <summary>
@@ -195,8 +195,8 @@ namespace AppInstallerCLIE2ETests
         public void ModuleNotProvided()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\PSGallery_NoModule_NoSettings.yml"), timeOut: 120000);
-            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The module was not provided."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_FALSE));
+            Assert.That(result.StdOut, Does.Contain("The module was not provided."));
         }
 
         /// <summary>
@@ -206,8 +206,8 @@ namespace AppInstallerCLIE2ETests
         public void NoIssuesDetected()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\PSGallery_NoSettings.yml"), timeOut: 120000);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Validation found no issues."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Validation found no issues."));
         }
 
         /// <summary>
@@ -217,8 +217,8 @@ namespace AppInstallerCLIE2ETests
         public void NoIssuesDetected_HttpsConfigurationFile()
         {
             var result = TestCommon.RunAICLICommand(Command, $"{Constants.TestSourceUrl}/TestData/Configuration/PSGallery_NoSettings.yml", timeOut: 120000);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Validation found no issues."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Validation found no issues."));
         }
 
         /// <summary>
@@ -228,8 +228,8 @@ namespace AppInstallerCLIE2ETests
         public void NoIssuesDetected_WinGetDscResource()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\WinGetDscResourceValidate_Good.yml"), timeOut: 120000);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Validation found no issues."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Validation found no issues."));
         }
 
         /// <summary>
@@ -239,8 +239,8 @@ namespace AppInstallerCLIE2ETests
         public void ValidateWinGetDscResource_DependencySourceMissing()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\WinGetDscResourceValidate_DependencySourceMissing.yml"), timeOut: 120000);
-            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
-            Assert.True(result.StdOut.Contains("WinGetPackage configuration unit package depends on a third-party source not previously configured. Package Id: AppInstallerTest.TestExeInstaller; Source: TestSource"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_FALSE));
+            Assert.That(result.StdOut, Does.Contain("WinGetPackage configuration unit package depends on a third-party source not previously configured. Package Id: AppInstallerTest.TestExeInstaller; Source: TestSource"));
         }
 
         /// <summary>
@@ -250,8 +250,8 @@ namespace AppInstallerCLIE2ETests
         public void ValidateWinGetDscResource_PackageNotFound()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\WinGetDscResourceValidate_PackageNotFound.yml"), timeOut: 120000);
-            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
-            Assert.True(result.StdOut.Contains("WinGetPackage configuration unit package cannot be validated. Package not found. Package Id: AppInstallerTest.DoesNotExist"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_FALSE));
+            Assert.That(result.StdOut, Does.Contain("WinGetPackage configuration unit package cannot be validated. Package not found. Package Id: AppInstallerTest.DoesNotExist"));
         }
 
         /// <summary>
@@ -261,8 +261,8 @@ namespace AppInstallerCLIE2ETests
         public void ValidateWinGetDscResource_PackageVersionNotFound()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\WinGetDscResourceValidate_PackageVersionNotFound.yml"), timeOut: 120000);
-            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
-            Assert.True(result.StdOut.Contains("WinGetPackage configuration unit package cannot be validated. Package version not found. Package Id: AppInstallerTest.TestExeInstaller; Version 101.0.101.0"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_FALSE));
+            Assert.That(result.StdOut, Does.Contain("WinGetPackage configuration unit package cannot be validated. Package version not found. Package Id: AppInstallerTest.TestExeInstaller; Version 101.0.101.0"));
         }
 
         /// <summary>
@@ -272,8 +272,8 @@ namespace AppInstallerCLIE2ETests
         public void ValidateWinGetDscResource_SourceOpenFailed()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\WinGetDscResourceValidate_SourceOpenFailed.yml"), timeOut: 120000);
-            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
-            Assert.True(result.StdOut.Contains("WinGetPackage configuration unit package cannot be validated. Source open failed. Package Id: AppInstallerTest.TestExeInstaller; Source: TestSourceV2"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_FALSE));
+            Assert.That(result.StdOut, Does.Contain("WinGetPackage configuration unit package cannot be validated. Source open failed. Package Id: AppInstallerTest.TestExeInstaller; Source: TestSourceV2"));
         }
 
         /// <summary>
@@ -283,8 +283,8 @@ namespace AppInstallerCLIE2ETests
         public void ValidateWinGetDscResource_VersionSpecifiedWithOnlyOneVersionAvailable()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\WinGetDscResourceValidate_VersionSpecifiedWithOnlyOneVersionAvailable.yml"), timeOut: 120000);
-            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
-            Assert.True(result.StdOut.Contains("WinGetPackage configuration unit package specified with a specific version while only one package version is available. Package Id: AppInstallerTest.TestValidManifest; Version: 1.0.0.0"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_FALSE));
+            Assert.That(result.StdOut, Does.Contain("WinGetPackage configuration unit package specified with a specific version while only one package version is available. Package Id: AppInstallerTest.TestValidManifest; Version: 1.0.0.0"));
         }
 
         /// <summary>
@@ -294,8 +294,8 @@ namespace AppInstallerCLIE2ETests
         public void ValidateWinGetDscResource_VersionSpecifiedWithUseLatest()
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\WinGetDscResourceValidate_VersionSpecifiedWithUseLatest.yml"), timeOut: 120000);
-            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
-            Assert.True(result.StdOut.Contains("WinGetPackage declares both UseLatest and Version. Package Id: AppInstallerTest.TestExeInstaller"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_FALSE));
+            Assert.That(result.StdOut, Does.Contain("WinGetPackage declares both UseLatest and Version. Package Id: AppInstallerTest.TestExeInstaller"));
         }
     }
 }

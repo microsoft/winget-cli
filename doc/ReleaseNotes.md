@@ -1,8 +1,9 @@
-## New in v1.29
+## New in v1.30
 
 Nothing yet.
 
 ## Bug Fixes
 
-* Refactored source type handling to use a `SourceType` enum with centralized string conversion, and added stronger `source add` type validation (#4463).
+* Updated NUnit to v4
+* Refactored source type handling to use a `SourceType` enum with centralized string conversion, and added stronger `source add` type validation.
 * Fixed a crash (`0x8000ffff`) when using `--disable-interactivity` with the Resume experimental feature enabled during install operations.

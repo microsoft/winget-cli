@@ -39,8 +39,8 @@ namespace AppInstallerCLIE2ETests
         public void DisplayFeatures()
         {
             var result = TestCommon.RunAICLICommand("features", string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Direct MSI Installation"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Direct MSI Installation"));
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace AppInstallerCLIE2ETests
             WinGetSettingsHelper.ConfigureFeature("resume", true);
             WinGetSettingsHelper.ConfigureFeature("fonts", true);
             var result = TestCommon.RunAICLICommand("features", string.Empty);
-            Assert.True(result.StdOut.Contains("Enabled"));
+            Assert.That(result.StdOut, Does.Contain("Enabled"));
         }
     }
 }
