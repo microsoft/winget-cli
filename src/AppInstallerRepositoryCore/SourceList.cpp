@@ -415,6 +415,19 @@ namespace AppInstaller::Repository
         THROW_HR(E_UNEXPECTED);
     }
 
+    std::optional<SourceType> GetWellKnownSourceType(std::string_view sourceName)
+    {
+        for (WellKnownSource source : { WellKnownSource::WinGet, WellKnownSource::MicrosoftStore, WellKnownSource::DesktopFrameworks, WellKnownSource::WinGetFont })
+        {
+            if (GetWellKnownSourceName(source) == sourceName)
+            {
+                return GetWellKnownSourceDetailsInternal(source).Type;
+            }
+        }
+
+        return std::nullopt;
+    }
+
     SourceList::SourceList() : m_userSourcesStream(Stream::UserSources), m_metadataStream(Stream::SourcesMetadata)
     {
         OverwriteSourceList();
@@ -831,7 +844,7 @@ namespace AppInstaller::Repository
                     if (type.empty() && (details.IsTombstone || details.IsOverride))
                     {
                         // Legacy tombstone/override entries may carry empty type strings.
-                        details.Type = Source::GetDefaultSourceType();
+                        details.Type = GetWellKnownSourceType(details.Name).value_or(Source::GetDefaultSourceType());
                     }
                     else
                     {

@@ -328,6 +328,33 @@ TEST_CASE("RepoSources_DefaultSourcesTombstoned", "[sources]")
     REQUIRE(sources.empty());
 }
 
+TEST_CASE("RepoSources_DefaultSourcesTombstoned_PreserveWellKnownTypeOnSave", "[sources]")
+{
+    SetSetting(Stream::UserSources, s_DefaultSourcesTombstoned);
+
+    SourceDetails details;
+    details.Name = "testName";
+    details.Type = SourceType::ConfigurableTest;
+    details.Arg = "testArg";
+    details.Data = "testData";
+
+    TestSourceFactory factory{ SourcesTestSource::Create };
+    TestHook_SetSourceFactoryOverride(details.Type, factory);
+
+    ProgressCallback progress;
+    AddSource(details, progress);
+
+    auto userSourcesStream = Stream{ Stream::UserSources }.Get();
+    REQUIRE(userSourcesStream);
+
+    std::string userSourcesSetting = ReadEntireStream(*userSourcesStream);
+    auto msstoreEntryPosition = userSourcesSetting.find("Name: msstore");
+    REQUIRE(msstoreEntryPosition != std::string::npos);
+
+    std::string msstoreEntry = userSourcesSetting.substr(msstoreEntryPosition, 120);
+    REQUIRE(msstoreEntry.find("Type: Microsoft.Rest") != std::string::npos);
+}
+
 
 TEST_CASE("RepoSources_DefaultSourceOverride", "[sources]")
 {
