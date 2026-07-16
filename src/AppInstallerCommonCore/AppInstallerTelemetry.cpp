@@ -857,16 +857,7 @@ namespace AppInstaller::Logging
                 TraceLoggingString(m_caller.c_str(), "src"),
                 TraceLoggingWideString(L"msstore", "cn")
             );
-
-            // Respect the WinGet provider for summary editing
-            if (g_IsTelemetryProviderEnabled && m_useSummary)
-            {
-                m_summary.SourceIdentifier = m_caller;
-                m_summary.PackageIdentifier = packageId;
-            }
         }
-
-        AICLI_LOG(CLI, Info, << "Store install: Source [" << m_caller << "] Package [" << packageId << "]");
     }
 
     TelemetryTraceLogger::~TelemetryTraceLogger()
