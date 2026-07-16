@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <winrt/Windows.Foundation.h>
 #include "HttpClientWrapper.h"
 
 namespace AppInstaller::Utility::HttpStream
@@ -23,7 +24,7 @@ namespace AppInstaller::Utility::HttpStream
 
         // Returns a buffer matching the requested range by reading the parts of the range that are cached
         // and downloading the rest using the provided httpClientWrapper object
-        std::future<winrt::Windows::Storage::Streams::IBuffer> ReadFromCacheAndDownloadIfNecessaryAsync(
+        winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Storage::Streams::IBuffer> ReadFromCacheAndDownloadIfNecessaryAsync(
             const ULONG64 requestedPosition,
             const UINT32 requestedSize,
             HttpClientWrapper* httpClientWrapper,
@@ -47,7 +48,7 @@ namespace AppInstaller::Utility::HttpStream
 
         void VacateStaleEntriesFromCache();
 
-        std::future<void> DownloadAndSaveToCacheAsync(
+        winrt::Windows::Foundation::IAsyncAction DownloadAndSaveToCacheAsync(
             const std::vector<ULONG64> unsatisfiablePages,
             HttpClientWrapper* httpClientWrapper,
             const winrt::Windows::Storage::Streams::InputStreamOptions httpInputStreamOptions);

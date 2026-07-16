@@ -1,4 +1,4 @@
-## New in v1.29
+## New in v1.30
 
 Nothing yet.
 
