@@ -140,8 +140,7 @@ namespace AppInstaller::Repository
         std::string Name;
 
         // The type of the source.
-        // Defaults to PreIndexedPackage if not specified, moved here from call sites during migration from
-        // String type to Enum type to avoid conversion in multiple places.
+        // Defaults to PreIndexedPackage if not specified.
         SourceType Type = SourceType::PreIndexedPackage;
 
         // The argument used when adding the source.
