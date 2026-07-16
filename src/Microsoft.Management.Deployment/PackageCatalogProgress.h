@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "AppInstallerProgress.h"
+#include <winget/RepositorySource.h>
 #include <unordered_map>
 #include <functional>
 
@@ -12,11 +13,11 @@ namespace winrt::Microsoft::Management::Deployment
         /// <summary>
         /// Creates a progress sink for package catalog operations based on sourceType.
         /// </summary>
-        /// <param name="sourceType">sourceType.</param>
+        /// <param name="sourceType">Source type.</param>
         /// <param name="progressReporter">callback function that reports progress to caller.</param>
         /// <param name="removeOperation"> Default value is false. Identifies if the operation is a PackageCatalog removal and requests the ProgressSink.</param>
         /// <returns>IProgressSink.</returns>
-        std::shared_ptr<AppInstaller::IProgressSink> CreatePackageCatalogProgressSink(std::string sourceType, std::function<void(double)> progressReporter, bool removeOperation = false);
+        std::shared_ptr<AppInstaller::IProgressSink> CreatePackageCatalogProgressSink(::AppInstaller::Repository::SourceType sourceType, std::function<void(double)> progressReporter, bool removeOperation = false);
     }
 
     /// <summary>

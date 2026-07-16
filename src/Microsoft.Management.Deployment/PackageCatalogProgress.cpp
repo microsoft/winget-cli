@@ -11,10 +11,12 @@ namespace winrt::Microsoft::Management::Deployment
 {
     namespace ProgressSinkFactory
     {
-        std::shared_ptr<AppInstaller::IProgressSink> CreatePackageCatalogProgressSink(std::string sourceType, std::function<void(double)> progressReporter, bool removeOperation)
+        std::shared_ptr<AppInstaller::IProgressSink> CreatePackageCatalogProgressSink(::AppInstaller::Repository::SourceType sourceType, std::function<void(double)> progressReporter, bool removeOperation)
         {
-            auto sourceTypeEnum = ::AppInstaller::Repository::TryConvertToSourceTypeEnum(sourceType).value_or(::AppInstaller::Repository::Source::GetDefaultSourceType());
-            if (sourceTypeEnum == ::AppInstaller::Repository::SourceType::PreIndexedPackage || sourceTypeEnum == ::AppInstaller::Repository::SourceType::PredefinedInstalled)
+            // Use weighted progress for source types that perform index-based work; everything else only reports completion.
+            // This should be aligned with prior behavior where an empty source type was treated as default
+            // default source type + PredefinedInstalled should use weighted progress.
+            if (sourceType == ::AppInstaller::Repository::Source::GetDefaultSourceType() || sourceType == ::AppInstaller::Repository::SourceType::PredefinedInstalled)
             {
                 std::vector<std::pair<AppInstaller::ProgressType, double>> progressWeights;
 

@@ -1372,7 +1372,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
             auto sourceType = sourceToAdd.GetDetails().Type;
             auto packageCatalogProgressSink = winrt::Microsoft::Management::Deployment::ProgressSinkFactory::CreatePackageCatalogProgressSink(
-                std::string{ ::AppInstaller::Repository::ToString(sourceType) },
+                sourceType,
                 report_progress);
 
             packageCatalogProgressSink->BeginProgress();
@@ -1411,11 +1411,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto report_progress{ co_await winrt::get_progress_token() };
             co_await winrt::resume_background();
 
-            std::string normalizedSourceType = std::string{
-                ::AppInstaller::Repository::ToString(matchingSource.value().Type) };
+            auto sourceType = matchingSource.value().Type;
 
             auto packageCatalogProgressSink = winrt::Microsoft::Management::Deployment::ProgressSinkFactory::CreatePackageCatalogProgressSink(
-                normalizedSourceType,
+                sourceType,
                 report_progress,
                 true);
 
