@@ -79,7 +79,7 @@ namespace AppInstaller::Repository
     std::optional<SourceType> TryConvertToSourceTypeEnum(std::string_view sourceType);
 
     // Converts a SourceType enum to the corresponding canonical string.
-    std::string_view SourceTypeEnumToString(SourceType sourceType);
+    std::string_view ToString(SourceType sourceType);
 
     std::string_view ToString(SourceOrigin origin);
 

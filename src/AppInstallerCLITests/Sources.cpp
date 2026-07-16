@@ -1028,7 +1028,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             {
                 SourceFromPolicy source;
                 source.Name = "name" + suffix[i];
-                source.Type = std::string{ SourceTypeEnumToString(SourceType::ConfigurableTest) };
+                source.Type = std::string{ ToString(SourceType::ConfigurableTest) };
                 source.Arg = "arg" + suffix[i];
                 source.Data = "data" + suffix[i];
                 source.Identifier = "id" + suffix[i];
@@ -1047,7 +1047,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             for (size_t i = 0; i < policySources.size(); ++i)
             {
                 REQUIRE(sources[i].Name == policySources[i].Name);
-                REQUIRE(SourceTypeEnumToString(sources[i].Type) == policySources[i].Type);
+                REQUIRE(ToString(sources[i].Type) == policySources[i].Type);
                 REQUIRE(sources[i].Arg == policySources[i].Arg);
                 REQUIRE(sources[i].Data == policySources[i].Data);
                 REQUIRE(sources[i].Identifier == policySources[i].Identifier);
@@ -1059,7 +1059,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             // User sources with the same name as an additional source are ignored.
             SourceFromPolicy policySource;
             policySource.Name = "testName";
-            policySource.Type = std::string{ SourceTypeEnumToString(SourceType::ConfigurableTest) };
+            policySource.Type = std::string{ ToString(SourceType::ConfigurableTest) };
             policySource.Arg = "notTestArg";
             policySource.Data = "notTestData";
             policySource.Identifier = "notTestId";
@@ -1074,7 +1074,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             REQUIRE(sources[1].Origin == SourceOrigin::Default);
 
             REQUIRE(sources[0].Name == policySource.Name);
-            REQUIRE(SourceTypeEnumToString(sources[0].Type) == policySource.Type);
+            REQUIRE(ToString(sources[0].Type) == policySource.Type);
             REQUIRE(sources[0].Arg == policySource.Arg);
             REQUIRE(sources[0].Data == policySource.Data);
             REQUIRE(sources[0].Identifier == policySource.Identifier);
@@ -1085,7 +1085,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             // An additional source cannot be removed.
             SourceFromPolicy policySource;
             policySource.Name = "name";
-            policySource.Type = std::string{ SourceTypeEnumToString(SourceType::ConfigurableTest) };
+            policySource.Type = std::string{ ToString(SourceType::ConfigurableTest) };
             policySource.Arg = "arg";
             policySource.Data = "data";
             policySource.Identifier = "id";
@@ -1109,7 +1109,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
             // An additional source with the same name as a default overrides it.
             SourceFromPolicy policySource;
             policySource.Name = "winget";
-            policySource.Type = std::string{ SourceTypeEnumToString(SourceType::ConfigurableTest) };
+            policySource.Type = std::string{ ToString(SourceType::ConfigurableTest) };
             policySource.Arg = "notDefaultArg";
             policySource.Data = "notDefaultData";
             policySource.Identifier = "notDefaultId";
@@ -1121,7 +1121,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
 
             REQUIRE(sources.size() == c_DefaultSourceCount);
             REQUIRE(sources[0].Name == policySource.Name);
-            REQUIRE(SourceTypeEnumToString(sources[0].Type) == policySource.Type);
+            REQUIRE(ToString(sources[0].Type) == policySource.Type);
             REQUIRE(sources[0].Arg == policySource.Arg);
             REQUIRE(sources[0].Data == policySource.Data);
             REQUIRE(sources[0].Identifier == policySource.Identifier);
@@ -1142,7 +1142,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             // We should be able to add sources in the allow list.
             SourceFromPolicy policySource;
             policySource.Name = "testName";
-            policySource.Type = std::string{ SourceTypeEnumToString(SourceType::ConfigurableTest) };
+            policySource.Type = std::string{ ToString(SourceType::ConfigurableTest) };
             policySource.Arg = "testArg";
             policySource.Data = "testData";
             policySource.Identifier = "testId";
@@ -1176,7 +1176,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             REQUIRE(sources[1].Origin == SourceOrigin::Default);
 
             REQUIRE(sources[0].Name == policySource.Name);
-            REQUIRE(SourceTypeEnumToString(sources[0].Type) == policySource.Type);
+            REQUIRE(ToString(sources[0].Type) == policySource.Type);
             REQUIRE(sources[0].Arg == policySource.Arg);
             REQUIRE(sources[0].Data == policySource.Data);
             REQUIRE(sources[0].Identifier == policySource.Identifier);
@@ -1187,7 +1187,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             // We should not be allowed to add anything not matching the allow list.
             SourceFromPolicy policySource;
             policySource.Name = "testName";
-            policySource.Type = std::string{ SourceTypeEnumToString(SourceType::ConfigurableTest) };
+            policySource.Type = std::string{ ToString(SourceType::ConfigurableTest) };
             policySource.Arg = "testArg";
             policySource.Data = "testData";
             policySource.Identifier = "testId";
@@ -1563,8 +1563,8 @@ TEST_CASE("RepoSources_SourceTypeEnumConversion", "[sources]")
     REQUIRE_THROWS_HR(ConvertToSourceTypeEnum("Microsoft.Unknown"sv), APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
 
     REQUIRE(TryConvertToSourceTypeEnum(""sv).value_or(Source::GetDefaultSourceType()) == Source::GetDefaultSourceType());
-    REQUIRE(SourceTypeEnumToString(SourceType::PreIndexedPackage) == "Microsoft.PreIndexed.Package"sv);
-    REQUIRE(SourceTypeEnumToString(SourceType::Rest) == "Microsoft.Rest"sv);
+    REQUIRE(ToString(SourceType::PreIndexedPackage) == "Microsoft.PreIndexed.Package"sv);
+    REQUIRE(ToString(SourceType::Rest) == "Microsoft.Rest"sv);
     REQUIRE(Source::GetDefaultSourceType() == SourceType::PreIndexedPackage);
-    REQUIRE(SourceTypeEnumToString(Source::GetDefaultSourceType()) == "Microsoft.PreIndexed.Package"sv);
+    REQUIRE(ToString(Source::GetDefaultSourceType()) == "Microsoft.PreIndexed.Package"sv);
 }

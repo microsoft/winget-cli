@@ -84,7 +84,7 @@ namespace
             const auto& jsonSourceDetails = GetAndValidateJsonProperty(*jsonSourceItr, s_PackagesJson_Source_Details, Json::ValueType::objectValue);
             ValidateJsonStringProperty(jsonSourceDetails, s_PackagesJson_Source_Name, sourceItr->Details.Name);
             ValidateJsonStringProperty(jsonSourceDetails, s_PackagesJson_Source_Argument, sourceItr->Details.Arg);
-            ValidateJsonStringProperty(jsonSourceDetails, s_PackagesJson_Source_Type, SourceTypeEnumToString(sourceItr->Details.Type));
+            ValidateJsonStringProperty(jsonSourceDetails, s_PackagesJson_Source_Type, ToString(sourceItr->Details.Type));
             ValidateJsonStringProperty(jsonSourceDetails, s_PackagesJson_Source_Identifier, sourceItr->Details.Identifier);
 
             const auto& jsonPackages = GetAndValidateJsonProperty(*jsonSourceItr, s_PackagesJson_Packages, Json::ValueType::arrayValue);

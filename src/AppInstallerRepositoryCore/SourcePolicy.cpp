@@ -51,7 +51,7 @@ namespace AppInstaller::Repository
                 [&](const SourceFromPolicy& policySource)
                 {
                     return Utility::ICUCaseInsensitiveEquals(name, policySource.Name) &&
-                        Utility::ICUCaseInsensitiveEquals(SourceTypeEnumToString(type), policySource.Type) &&
+                        Utility::ICUCaseInsensitiveEquals(ToString(type), policySource.Type) &&
                         arg == policySource.Arg;
                 });
 
@@ -138,19 +138,19 @@ namespace AppInstaller::Repository
         // (as it didn't match above). We only care if Group Policy requires the default source.
         if (name == GetWellKnownSourceName(WellKnownSource::WinGet) && IsWellKnownSourceEnabled(WellKnownSource::WinGet, true))
         {
-            AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows the default source. Name [" << name << "]. Arg [" << arg << "] Type [" << SourceTypeEnumToString(type) << ']');
+            AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows the default source. Name [" << name << "]. Arg [" << arg << "] Type [" << ToString(type) << ']');
             return TogglePolicy::Policy::DefaultSource;
         }
 
         if (name == GetWellKnownSourceName(WellKnownSource::MicrosoftStore) && IsWellKnownSourceEnabled(WellKnownSource::MicrosoftStore, true))
         {
-            AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << SourceTypeEnumToString(type) << ']');
+            AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default MS Store source. Name [" << name << "]. Arg [" << arg << "] Type [" << ToString(type) << ']');
             return TogglePolicy::Policy::MSStoreSource;
         }
 
         if (name == GetWellKnownSourceName(WellKnownSource::WinGetFont) && IsWellKnownSourceEnabled(WellKnownSource::WinGetFont, true))
         {
-            AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default font source. Name [" << name << "]. Arg [" << arg << "] Type [" << SourceTypeEnumToString(type) << ']');
+            AICLI_LOG(Repo, Warning, << "User source is not allowed as it shadows a default font source. Name [" << name << "]. Arg [" << arg << "] Type [" << ToString(type) << ']');
             return TogglePolicy::Policy::FontSource;
         }
 
@@ -169,7 +169,7 @@ namespace AppInstaller::Repository
         {
             if (!IsSourceInPolicy<ValuePolicy::AllowedSources>(name, type, arg))
             {
-                AICLI_LOG(Repo, Warning, << "Source is not in the Group Policy allowed list. Name [" << name << "]. Arg [" << arg << "] Type [" << SourceTypeEnumToString(type) << ']');
+                AICLI_LOG(Repo, Warning, << "Source is not in the Group Policy allowed list. Name [" << name << "]. Arg [" << arg << "] Type [" << ToString(type) << ']');
                 return TogglePolicy::Policy::AllowedSources;
             }
         }

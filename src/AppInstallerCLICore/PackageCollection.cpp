@@ -240,7 +240,7 @@ namespace AppInstaller::CLI
             sourceDetailsNode[ss.PackagesJson_Source_Name] = source.Details.Name;
             sourceDetailsNode[ss.PackagesJson_Source_Argument] = source.Details.Arg;
             sourceDetailsNode[ss.PackagesJson_Source_Identifier] = source.Details.Identifier;
-            sourceDetailsNode[ss.PackagesJson_Source_Type] = std::string{ SourceTypeEnumToString(source.Details.Type) };
+            sourceDetailsNode[ss.PackagesJson_Source_Type] = std::string{ ToString(source.Details.Type) };
             sourceNode[ss.PackagesJson_Source_Details] = std::move(sourceDetailsNode);
 
             sourceNode[ss.PackagesJson_Packages] = Json::Value{ Json::ValueType::arrayValue };

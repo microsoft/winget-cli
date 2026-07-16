@@ -179,7 +179,7 @@ namespace AppInstaller::CLI::Workflow
             Execution::TableOutput<2> table(context.Reporter, { Resource::String::SourceListField, Resource::String::SourceListValue });
 
             table.OutputLine({ Resource::LocString(Resource::String::SourceListName), source.Name });
-            table.OutputLine({ Resource::LocString(Resource::String::SourceListType), std::string{ Repository::SourceTypeEnumToString(source.Type) } });
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListType), std::string{ Repository::ToString(source.Type) } });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListArg), source.Arg });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListData), source.Data });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListIdentifier), source.Identifier });
@@ -397,7 +397,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 SourceFromPolicy s;
                 s.Name = source.Name;
-                s.Type = std::string{ Repository::SourceTypeEnumToString(source.Type) };
+                s.Type = std::string{ Repository::ToString(source.Type) };
                 s.Arg = source.Arg;
                 s.Data = source.Data;
                 s.Identifier = source.Identifier;

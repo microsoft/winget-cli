@@ -362,7 +362,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             co_await winrt::resume_background();
 
             auto packageCatalogProgressSink = winrt::Microsoft::Management::Deployment::ProgressSinkFactory::CreatePackageCatalogProgressSink(
-                std::string{ ::AppInstaller::Repository::SourceTypeEnumToString(this->m_sourceReference.GetDetails().Type) },
+                std::string{ ::AppInstaller::Repository::ToString(this->m_sourceReference.GetDetails().Type) },
                 report_progress);
 
             packageCatalogProgressSink->BeginProgress();

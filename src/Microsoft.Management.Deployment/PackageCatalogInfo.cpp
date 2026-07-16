@@ -25,7 +25,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     hstring PackageCatalogInfo::Type()
     {
-        return winrt::to_hstring(::AppInstaller::Repository::SourceTypeEnumToString(m_sourceDetails.Type));
+        return winrt::to_hstring(::AppInstaller::Repository::ToString(m_sourceDetails.Type));
     }
     hstring PackageCatalogInfo::Argument()
     {

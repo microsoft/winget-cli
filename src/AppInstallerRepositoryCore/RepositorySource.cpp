@@ -355,7 +355,7 @@ namespace AppInstaller::Repository
         return sourceTypeEnum.value();
     }
 
-    std::string_view SourceTypeEnumToString(SourceType sourceType)
+    std::string_view ToString(SourceType sourceType)
     {
         switch (sourceType)
         {
@@ -966,7 +966,7 @@ namespace AppInstaller::Repository
         auto& sourceDetails = m_sourceReferences[0]->GetDetails();
 
         // If the source type was empty, the constructor of sourceDetails will have defaulted it
-        AICLI_LOG(Repo, Info, << "Adding source: Name[" << sourceDetails.Name << "], Type[" << SourceTypeEnumToString(sourceDetails.Type) << "], Arg[" << sourceDetails.Arg << "]");
+        AICLI_LOG(Repo, Info, << "Adding source: Name[" << sourceDetails.Name << "], Type[" << ToString(sourceDetails.Type) << "], Arg[" << sourceDetails.Arg << "]");
 
         // Check all sources for the given name.
         SourceList sourceList;

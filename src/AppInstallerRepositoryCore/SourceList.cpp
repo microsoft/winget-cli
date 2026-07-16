@@ -183,7 +183,7 @@ namespace AppInstaller::Repository
                 {
                     out << YAML::BeginMap;
                     out << YAML::Key << s_SourcesYaml_Source_Name << YAML::Value << details.Name;
-                    out << YAML::Key << s_SourcesYaml_Source_Type << YAML::Value << SourceTypeEnumToString(details.Type);
+                    out << YAML::Key << s_SourcesYaml_Source_Type << YAML::Value << ToString(details.Type);
                     out << YAML::Key << s_SourcesYaml_Source_Arg << YAML::Value << details.Arg;
                     out << YAML::Key << s_SourcesYaml_Source_Data << YAML::Value << details.Data;
                     out << YAML::Key << s_SourcesYaml_Source_Identifier << YAML::Value << details.Identifier;

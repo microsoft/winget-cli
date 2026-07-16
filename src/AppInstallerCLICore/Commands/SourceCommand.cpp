@@ -98,8 +98,8 @@ namespace AppInstaller::CLI
         {
             std::string_view sourceTypeArg = execArgs.GetArg(Execution::Args::Type::SourceType);
             auto validOptions = std::vector<Utility::LocIndString>{
-                Utility::LocIndString{ Repository::SourceTypeEnumToString(Repository::SourceType::PreIndexedPackage) },
-                Utility::LocIndString{ Repository::SourceTypeEnumToString(Repository::SourceType::Rest) } };
+                Utility::LocIndString{ Repository::ToString(Repository::SourceType::PreIndexedPackage) },
+                Utility::LocIndString{ Repository::ToString(Repository::SourceType::Rest) } };
 
             auto sourceType = Repository::TryConvertToSourceTypeEnum(sourceTypeArg);
             bool isUserAddType = sourceType.has_value() &&
