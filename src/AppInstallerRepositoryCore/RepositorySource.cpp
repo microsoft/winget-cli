@@ -298,11 +298,10 @@ namespace AppInstaller::Repository
             return Microsoft::PredefinedWriteableSourceFactory::Create();
         case SourceType::PackageTracking:
             return PackageTrackingCatalogSourceFactory::Create();
-#ifndef AICLI_DISABLE_TEST_HOOKS
         case SourceType::ConfigurableTest:
+#ifndef AICLI_DISABLE_TEST_HOOKS
             return Microsoft::ConfigurableTestSourceFactory::Create();
 #else
-        case SourceType::ConfigurableTest:
             break;
 #endif
         }
