@@ -165,6 +165,50 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test source add with empty type.
+        /// </summary>
+        [Test]
+        public void SourceAddWithEmptyType()
+        {
+            var result = TestCommon.RunAICLICommand("source add", $"SourceWithEmptyType {Constants.TestSourceUrl} --type \"\"");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS));
+            Assert.That(result.StdOut, Does.Contain("The value provided for the `type` argument is invalid"));
+            Assert.That(result.StdOut, Does.Contain("Microsoft.PreIndexed.Package,Microsoft.Rest"));
+        }
+
+        /// <summary>
+        /// Test source add with invalid type.
+        /// </summary>
+        [Test]
+        public void SourceAddWithInvalidType()
+        {
+            var result = TestCommon.RunAICLICommand("source add", $"SourceWithInvalidType {Constants.TestSourceUrl} --type InvalidType");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS));
+            Assert.That(result.StdOut, Does.Contain("The value provided for the `type` argument is invalid"));
+            Assert.That(result.StdOut, Does.Contain("Microsoft.PreIndexed.Package,Microsoft.Rest"));
+        }
+
+        /// <summary>
+        /// Test source add without type.
+        /// </summary>
+        [Test]
+        public void SourceAddWithoutType()
+        {
+            // Remove the test source to avoid duplicate source url error.
+            TestCommon.RunAICLICommand("source remove", Constants.TestSourceName);
+
+            var result = TestCommon.RunAICLICommand("source add", $"SourceWithoutType {Constants.TestSourceUrl}");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Done"));
+
+            var listResult = TestCommon.RunAICLICommand("source list", "-n SourceWithoutType");
+            Assert.That(listResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(listResult.StdOut, Does.Contain("Microsoft.PreIndexed.Package"));
+
+            TestCommon.RunAICLICommand("source remove", "-n SourceWithoutType");
+        }
+
+        /// <summary>
         /// Test source add with http url.
         /// </summary>
         [Test]

@@ -140,6 +140,7 @@ namespace AppInstaller::CLI
 
                 if (Input.Type())
                 {
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !TryConvertToSourceTypeEnum(Input.Type().value()).has_value());
                     SubContext->Args.AddArg(Execution::Args::Type::SourceType, Input.Type().value());
                 }
 
