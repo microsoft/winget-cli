@@ -86,7 +86,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         ::AppInstaller::Repository::Source CreateSourceFromOptions(const winrt::Microsoft::Management::Deployment::AddPackageCatalogOptions& options)
         {
             std::string name = winrt::to_string(options.Name());
-            auto sourceType = ::AppInstaller::Repository::TryConvertToSourceTypeEnum(winrt::to_string(options.Type())).value_or(::AppInstaller::Repository::Source::GetDefaultSourceType());
+            std::string sourceTypeString = winrt::to_string(options.Type());
+            auto sourceType = ::AppInstaller::Repository::Source::GetDefaultSourceType();
+            if (!sourceTypeString.empty())
+            {
+                auto sourceTypeEnum = ::AppInstaller::Repository::TryConvertToSourceTypeEnum(sourceTypeString);
+                THROW_HR_IF(E_INVALIDARG, !sourceTypeEnum.has_value());
+                sourceType = sourceTypeEnum.value();
+            }
             std::string sourceUri = winrt::to_string(options.SourceUri());
 
             AppInstaller::Repository::SourceTrustLevel trustLevel = AppInstaller::Repository::SourceTrustLevel::None;
@@ -1363,7 +1370,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto report_progress{ co_await winrt::get_progress_token() };
             co_await winrt::resume_background();
 
-            auto sourceType = ::AppInstaller::Repository::TryConvertToSourceTypeEnum(winrt::to_string(options.Type())).value_or(::AppInstaller::Repository::Source::GetDefaultSourceType());
+            auto sourceType = sourceToAdd.GetDetails().Type;
             auto packageCatalogProgressSink = winrt::Microsoft::Management::Deployment::ProgressSinkFactory::CreatePackageCatalogProgressSink(
                 std::string{ ::AppInstaller::Repository::SourceTypeEnumToString(sourceType) },
                 report_progress);
