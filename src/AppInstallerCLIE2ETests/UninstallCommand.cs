@@ -169,6 +169,26 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test uninstall zip portable package.
+        /// </summary>
+        [Test]
+        public void UninstallZip_Portable()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestZipInstallerWithPortable";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = "TestPortable.exe";
+            fileName = "AppInstallerTestExeInstaller.exe";
+
+            TestCommon.RunAICLICommand("install", $"{packageId}");
+            var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully uninstalled"));
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
+        }
+
+        /// <summary>
         /// Test uninstalling one of two symlinked packages keeps Links path, then uninstalling the second removes it.
         /// </summary>
         [Test]
