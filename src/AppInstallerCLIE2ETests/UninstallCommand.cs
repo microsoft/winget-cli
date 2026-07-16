@@ -206,20 +206,20 @@ namespace AppInstallerCLIE2ETests
             var installResult2 = TestCommon.RunAICLICommand("install", remainingPackageId);
             Assert.That(installResult2.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
-            Assert.That(TestCommon.PathContainsValue(linksDirectory), Is.True, "Links directory should be on PATH after installing symlinked packages.");
+            Assert.That(TestCommon.PathContainsValue(linksDirectory), "Links directory should be on PATH after installing symlinked packages.");
 
             var uninstallResult = TestCommon.RunAICLICommand("uninstall", packageIdToUninstall);
             Assert.That(uninstallResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
             Assert.That(uninstallResult.StdOut, Does.Contain("Successfully uninstalled"));
 
-            Assert.That(File.Exists(remainingSymlinkPath), Is.True, "Remaining package symlink should still exist.");
-            Assert.That(TestCommon.PathContainsValue(linksDirectory), Is.True, "Links directory should remain on PATH while another symlinked package exists.");
+            Assert.That(remainingSymlinkPath, Does.Exist, "Remaining package symlink should still exist.");
+            Assert.That(TestCommon.PathContainsValue(linksDirectory), "Links directory should remain on PATH while another symlinked package exists.");
 
             var uninstallRemainingResult = TestCommon.RunAICLICommand("uninstall", remainingPackageId);
             Assert.That(uninstallRemainingResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
             Assert.That(uninstallRemainingResult.StdOut, Does.Contain("Successfully uninstalled"));
 
-            Assert.That(File.Exists(remainingSymlinkPath), Is.False, "Remaining package symlink should be removed after uninstall.");
+            Assert.That(remainingSymlinkPath, Does.Not.Exist, "Remaining package symlink should be removed after uninstall.");
             Assert.That(!Directory.Exists(linksDirectory) || Directory.GetFileSystemEntries(linksDirectory).Length == 0, Is.True, "Links directory should be empty after uninstalling both symlinked packages.");
             Assert.That(TestCommon.PathContainsValue(linksDirectory), Is.False, "Links directory should be removed from PATH when no symlinked packages remain.");
         }
@@ -236,7 +236,7 @@ namespace AppInstallerCLIE2ETests
 
             var installResult = TestCommon.RunAICLICommand("install", $"{packageId} -v 1.0.0.0");
             Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(TestCommon.PathContainsValue(packageDir), Is.True);
+            Assert.That(TestCommon.PathContainsValue(packageDir));
 
             var uninstallResult = TestCommon.RunAICLICommand("uninstall", packageId);
             Assert.That(uninstallResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
@@ -265,8 +265,8 @@ namespace AppInstallerCLIE2ETests
             string hardlinkFile = Path.Combine(installPath, "testCommand.exe");
 
             // Verify files exist after install
-            Assert.That(File.Exists(originalFile), Is.True, "Original file should exist after install");
-            Assert.That(File.Exists(hardlinkFile), Is.True, "Hardlink should exist after install");
+            Assert.That(originalFile, Does.Exist, "Original file should exist after install");
+            Assert.That(hardlinkFile, Does.Exist, "Hardlink should exist after install");
 
             // Uninstall
             var uninstallResult = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
@@ -274,8 +274,8 @@ namespace AppInstallerCLIE2ETests
             Assert.That(uninstallResult.StdOut, Does.Contain("Successfully uninstalled"));
 
             // Verify both original and hardlink are removed
-            Assert.That(File.Exists(originalFile), Is.False, "Original file should be removed after uninstall");
-            Assert.That(File.Exists(hardlinkFile), Is.False, "Hardlink should be removed after uninstall");
+            Assert.That(originalFile, Does.Not.Exist, "Original file should be removed after uninstall");
+            Assert.That(hardlinkFile, Does.Not.Exist, "Hardlink should be removed after uninstall");
             Assert.That(Directory.Exists(installPath), Is.False, "Installation directory should be removed after uninstall");
         }
 
