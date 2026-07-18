@@ -136,7 +136,7 @@ namespace Microsoft.WinGetSourceCreator
 
             if (p.ExitCode != 0)
             {
-                throw new Exception($"Command failed with exit code {p.ExitCode}: {command} {args}");
+                throw new Exception($"Command failed with exit code {p.ExitCode}: {command}");
             }
         }
 
