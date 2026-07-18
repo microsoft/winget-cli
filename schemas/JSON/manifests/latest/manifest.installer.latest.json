@@ -546,9 +546,8 @@
       "properties": {
         "DefaultInstallLocation": {
           "type": [ "string", "null" ],
-          "minLength": 2,
+          "minLength": 1,
           "maxLength": 2048,
-          "pattern": "^[%\\]",
           "examples": ["%ProgramFiles%\\ContosoApp"],
           "description": "Represents the default installed package location. Used for deeper installation detection."
         },
