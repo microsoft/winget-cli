@@ -30,8 +30,8 @@ namespace AppInstallerCLIE2ETests
         public void Success()
         {
             var result = TestCommon.RunAICLICommand("error", "0");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("0x00000000"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("0x00000000"));
         }
 
         /// <summary>
@@ -41,9 +41,9 @@ namespace AppInstallerCLIE2ETests
         public void HexError()
         {
             var result = TestCommon.RunAICLICommand("error", "0x8a15c001");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("0x8a15c001"));
-            Assert.True(result.StdOut.Contains("WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("0x8a15c001"));
+            Assert.That(result.StdOut, Does.Contain("WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE"));
         }
 
         /// <summary>
@@ -53,8 +53,8 @@ namespace AppInstallerCLIE2ETests
         public void HexErrorTooBig()
         {
             var result = TestCommon.RunAICLICommand("error", "0x8a15c0014");
-            Assert.AreEqual(Constants.ErrorCode.E_INVALIDARG, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The given number is too large to be an HRESULT."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.E_INVALIDARG));
+            Assert.That(result.StdOut, Does.Contain("The given number is too large to be an HRESULT."));
         }
 
         /// <summary>
@@ -64,9 +64,9 @@ namespace AppInstallerCLIE2ETests
         public void DecimalError()
         {
             var result = TestCommon.RunAICLICommand("error", "2316681217");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("0x8a15c001"));
-            Assert.True(result.StdOut.Contains("WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("0x8a15c001"));
+            Assert.That(result.StdOut, Does.Contain("WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE"));
         }
 
         /// <summary>
@@ -76,9 +76,9 @@ namespace AppInstallerCLIE2ETests
         public void NegativeDecimalError()
         {
             var result = TestCommon.RunAICLICommand("error", "-- -1978335191");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("0x8a150029"));
-            Assert.True(result.StdOut.Contains("APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_FAILURE"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("0x8a150029"));
+            Assert.That(result.StdOut, Does.Contain("APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_FAILURE"));
         }
 
         /// <summary>
@@ -88,9 +88,9 @@ namespace AppInstallerCLIE2ETests
         public void HexErrorNotFound()
         {
             var result = TestCommon.RunAICLICommand("error", "0x8a15c000");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("0x8a15c000"));
-            Assert.True(result.StdOut.Contains("Unknown error code"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("0x8a15c000"));
+            Assert.That(result.StdOut, Does.Contain("Unknown error code"));
         }
 
         /// <summary>
@@ -100,9 +100,9 @@ namespace AppInstallerCLIE2ETests
         public void NonError()
         {
             var result = TestCommon.RunAICLICommand("error", "0xA150202");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("0x0a150202"));
-            Assert.True(result.StdOut.Contains("WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("0x0a150202"));
+            Assert.That(result.StdOut, Does.Contain("WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE"));
         }
 
         /// <summary>
@@ -112,10 +112,10 @@ namespace AppInstallerCLIE2ETests
         public void Symbol()
         {
             var result = TestCommon.RunAICLICommand("error", "WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("0x8a15c001"));
-            Assert.True(result.StdOut.Contains("WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE"));
-            Assert.AreEqual(2, result.StdOut.Split('\n', System.StringSplitOptions.RemoveEmptyEntries).Length);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("0x8a15c001"));
+            Assert.That(result.StdOut, Does.Contain("WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE"));
+            Assert.That(result.StdOut.Split('\n', System.StringSplitOptions.RemoveEmptyEntries).Length, Is.EqualTo(2));
         }
 
         /// <summary>
@@ -125,15 +125,15 @@ namespace AppInstallerCLIE2ETests
         public void String()
         {
             var result = TestCommon.RunAICLICommand("error", "config");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("0x8a15c001"));
-            Assert.True(result.StdOut.Contains("WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE"));
-            Assert.True(result.StdOut.Contains("0x8a15c110"));
-            Assert.True(result.StdOut.Contains("WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("0x8a15c001"));
+            Assert.That(result.StdOut, Does.Contain("WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE"));
+            Assert.That(result.StdOut, Does.Contain("0x8a15c110"));
+            Assert.That(result.StdOut, Does.Contain("WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT"));
 
             // This contains config in it's message.
-            Assert.True(result.StdOut.Contains("0x8a150038"));
-            Assert.True(result.StdOut.Contains("APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE"));
+            Assert.That(result.StdOut, Does.Contain("0x8a150038"));
+            Assert.That(result.StdOut, Does.Contain("APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE"));
         }
     }
 }

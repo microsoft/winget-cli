@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="UninstallInterop.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -46,7 +46,7 @@ namespace AppInstallerCLIE2ETests.Interop
             // Create composite package catalog source
             var options = this.TestFactory.CreateCreateCompositePackageCatalogOptions();
             var testSource = this.packageManager.GetPackageCatalogByName(Constants.TestSourceName);
-            Assert.NotNull(testSource, $"{Constants.TestSourceName} cannot be null");
+            Assert.That(testSource, Is.Not.Null, $"{Constants.TestSourceName} cannot be null");
             options.Catalogs.Add(testSource);
             options.CompositeSearchBehavior = CompositeSearchBehavior.AllCatalogs;
             this.compositeSource = this.packageManager.CreateCompositePackageCatalog(options);
@@ -69,16 +69,16 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Find package again, but this time it should detect the installed version
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.ExeInstallerPackageId);
-            Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+            Assert.That(searchResult.CatalogPackage.InstalledVersion, Is.Not.Null);
 
             // Uninstall
             var uninstallResult = await this.packageManager.UninstallPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateUninstallOptions());
-            Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
-            Assert.True(TestCommon.VerifyTestExeUninstalled(this.installDir));
+            Assert.That(uninstallResult.Status, Is.EqualTo(UninstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestExeUninstalled(this.installDir), Is.True);
         }
 
         /// <summary>
@@ -102,16 +102,16 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Find package again, but this time it should detect the installed version
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.MsiInstallerPackageId);
-            Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+            Assert.That(searchResult.CatalogPackage.InstalledVersion, Is.Not.Null);
 
             // Uninstall
             var uninstallResult = await this.packageManager.UninstallPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateUninstallOptions());
-            Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
-            Assert.True(TestCommon.VerifyTestMsiUninstalled(this.installDir));
+            Assert.That(uninstallResult.Status, Is.EqualTo(UninstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestMsiUninstalled(this.installDir), Is.True);
         }
 
         /// <summary>
@@ -129,16 +129,16 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Find package again, but this time it should detect the installed version
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.MsixInstallerPackageId);
-            Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+            Assert.That(searchResult.CatalogPackage.InstalledVersion, Is.Not.Null);
 
             // Uninstall
             var uninstallResult = await this.packageManager.UninstallPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateUninstallOptions());
-            Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
-            Assert.True(TestCommon.VerifyTestMsixUninstalled());
+            Assert.That(uninstallResult.Status, Is.EqualTo(UninstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestMsixUninstalled(), Is.True);
         }
 
         /// <summary>
@@ -160,19 +160,19 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Find package again, but this time it should detect the installed version
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.MsixInstallerPackageId);
-            Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+            Assert.That(searchResult.CatalogPackage.InstalledVersion, Is.Not.Null);
 
             // Uninstall
             var uninstallOptions = this.TestFactory.CreateUninstallOptions();
             uninstallOptions.PackageUninstallScope = PackageUninstallScope.System;
 
             var uninstallResult = await this.packageManager.UninstallPackageAsync(searchResult.CatalogPackage, uninstallOptions);
-            Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
-            Assert.True(TestCommon.VerifyTestMsixUninstalled(true));
+            Assert.That(uninstallResult.Status, Is.EqualTo(UninstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestMsixUninstalled(true), Is.True);
         }
 
         /// <summary>
@@ -196,15 +196,15 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Find package again, but this time it should detect the installed version
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.PortableExePackageId);
-            Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+            Assert.That(searchResult.CatalogPackage.InstalledVersion, Is.Not.Null);
 
             // Uninstall
             var uninstallResult = await this.packageManager.UninstallPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateUninstallOptions());
-            Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
+            Assert.That(uninstallResult.Status, Is.EqualTo(UninstallResultStatus.Ok));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
@@ -229,15 +229,15 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Find package again, but this time it should detect the installed version
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.ProductCode, PackageFieldMatchOption.Equals, productCode);
-            Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+            Assert.That(searchResult.CatalogPackage.InstalledVersion, Is.Not.Null);
 
             // Uninstall
             var uninstallResult = await this.packageManager.UninstallPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateUninstallOptions());
-            Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
+            Assert.That(uninstallResult.Status, Is.EqualTo(UninstallResultStatus.Ok));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
@@ -261,7 +261,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Replace symlink with modified symlink
             File.Delete(symlinkPath);
@@ -269,12 +269,12 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Find package again, but this time it should detect the installed version
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-            Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+            Assert.That(searchResult.CatalogPackage.InstalledVersion, Is.Not.Null);
 
             // Uninstall
             var uninstallResult = await this.packageManager.UninstallPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateUninstallOptions());
-            Assert.AreEqual(UninstallResultStatus.UninstallError, uninstallResult.Status);
-            Assert.True(modifiedSymlinkInfo.Exists, "Modified symlink should still exist");
+            Assert.That(uninstallResult.Status, Is.EqualTo(UninstallResultStatus.UninstallError));
+            Assert.That(modifiedSymlinkInfo.Exists, Is.True, "Modified symlink should still exist");
 
             // Remove modified symlink as to not interfere with other tests
             modifiedSymlinkInfo.Delete();
@@ -301,16 +301,16 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Find package again, but this time it should detect the installed version
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.ProductCode, PackageFieldMatchOption.Equals, customProductCode);
-            Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+            Assert.That(searchResult.CatalogPackage.InstalledVersion, Is.Not.Null);
 
             // Uninstall
             var uninstallResult = await this.packageManager.UninstallPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateUninstallOptions());
-            Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
-            Assert.True(TestCommon.VerifyTestExeUninstalled(this.installDir));
+            Assert.That(uninstallResult.Status, Is.EqualTo(UninstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestExeUninstalled(this.installDir), Is.True);
         }
     }
 }

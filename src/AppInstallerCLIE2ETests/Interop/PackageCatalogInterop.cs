@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="PackageCatalogInterop.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -63,11 +63,11 @@ namespace AppInstallerCLIE2ETests.Interop
             RemovePackageCatalogOptions removePackageCatalogOptions = this.TestFactory.CreateRemovePackageCatalogOptions();
             removePackageCatalogOptions.Name = Constants.TestSourceName;
             var removeCatalogResult = await this.packageManager.RemovePackageCatalogAsync(removePackageCatalogOptions);
-            Assert.IsNotNull(removeCatalogResult);
-            Assert.AreEqual(RemovePackageCatalogStatus.Ok, removeCatalogResult.Status);
+            Assert.That(removeCatalogResult, Is.Not.Null);
+            Assert.That(removeCatalogResult.Status, Is.EqualTo(RemovePackageCatalogStatus.Ok));
 
             var testSource = this.packageManager.GetPackageCatalogByName(Constants.TestSourceName);
-            Assert.IsNull(testSource);
+            Assert.That(testSource, Is.Null);
         }
 
         /// <summary>
@@ -77,10 +77,10 @@ namespace AppInstallerCLIE2ETests.Interop
         public void AddPackageCatalogWithInvalidOptions()
         {
             // Add package catalog with null options.
-            Assert.ThrowsAsync<NullReferenceException>(async () => await this.packageManager.AddPackageCatalogAsync(null));
+            Assert.That((Func<Task>)(async () => await this.packageManager.AddPackageCatalogAsync(null)), Throws.TypeOf<NullReferenceException>());
 
             // Add package catalog with empty options.
-            Assert.ThrowsAsync<ArgumentException>(async () => await this.packageManager.AddPackageCatalogAsync(this.TestFactory.CreateAddPackageCatalogOptions()));
+            Assert.That((Func<Task>)(async () => await this.packageManager.AddPackageCatalogAsync(this.TestFactory.CreateAddPackageCatalogOptions())), Throws.TypeOf<ArgumentException>());
         }
 
         /// <summary>
@@ -196,11 +196,11 @@ namespace AppInstallerCLIE2ETests.Interop
             Thread.Sleep(TimeSpan.FromSeconds(30));
 
             var updateResult = await packageCatalog.RefreshPackageCatalogAsync();
-            Assert.IsNotNull(updateResult);
-            Assert.AreEqual(RefreshPackageCatalogStatus.Ok, updateResult.Status);
+            Assert.That(updateResult, Is.Not.Null);
+            Assert.That(updateResult.Status, Is.EqualTo(RefreshPackageCatalogStatus.Ok));
 
             packageCatalog = this.GetAndValidatePackageCatalog(options);
-            Assert.IsTrue(packageCatalog.Info.LastUpdateTime > lastUpdatedTime);
+            Assert.That(packageCatalog.Info.LastUpdateTime > lastUpdatedTime, Is.True);
 
             RemovePackageCatalogOptions removePackageCatalogOptions = this.TestFactory.CreateRemovePackageCatalogOptions();
             removePackageCatalogOptions.Name = Constants.TestSourceName;
@@ -235,10 +235,10 @@ namespace AppInstallerCLIE2ETests.Interop
         public void RemovePackageCatalogWithInvalidOptions()
         {
             // Remove package catalog with null options.
-            Assert.ThrowsAsync<NullReferenceException>(async () => await this.packageManager.RemovePackageCatalogAsync(null));
+            Assert.That((Func<Task>)(async () => await this.packageManager.RemovePackageCatalogAsync(null)), Throws.TypeOf<NullReferenceException>());
 
             // Remove package catalog with empty options.
-            Assert.ThrowsAsync<ArgumentException>(async () => await this.packageManager.RemovePackageCatalogAsync(this.TestFactory.CreateRemovePackageCatalogOptions()));
+            Assert.That((Func<Task>)(async () => await this.packageManager.RemovePackageCatalogAsync(this.TestFactory.CreateRemovePackageCatalogOptions())), Throws.TypeOf<ArgumentException>());
         }
 
         /// <summary>
@@ -261,10 +261,10 @@ namespace AppInstallerCLIE2ETests.Interop
         public void EditPackageCatalogWithInvalidOptions()
         {
             // Edit package catalog with null options.
-            Assert.Throws<NullReferenceException>(() => this.packageManager.EditPackageCatalog(null));
+            Assert.That((Action)(() => this.packageManager.EditPackageCatalog(null)), Throws.TypeOf<NullReferenceException>());
 
             // Edit package catalog with empty options.
-            Assert.Throws<ArgumentException>(() => this.packageManager.EditPackageCatalog(this.TestFactory.CreateEditPackageCatalogOptions()));
+            Assert.That((Action)(() => this.packageManager.EditPackageCatalog(this.TestFactory.CreateEditPackageCatalogOptions())), Throws.TypeOf<ArgumentException>());
         }
 
         /// <summary>
@@ -307,11 +307,11 @@ namespace AppInstallerCLIE2ETests.Interop
             RemovePackageCatalogOptions removePackageCatalogOptions = this.TestFactory.CreateRemovePackageCatalogOptions();
             removePackageCatalogOptions.Name = Constants.TestSourceName;
             var removeCatalogResult = await this.packageManager.RemovePackageCatalogAsync(removePackageCatalogOptions);
-            Assert.IsNotNull(removeCatalogResult);
-            Assert.AreEqual(RemovePackageCatalogStatus.Ok, removeCatalogResult.Status);
+            Assert.That(removeCatalogResult, Is.Not.Null);
+            Assert.That(removeCatalogResult.Status, Is.EqualTo(RemovePackageCatalogStatus.Ok));
 
             var testSource = this.packageManager.GetPackageCatalogByName(Constants.TestSourceName);
-            Assert.IsNull(testSource);
+            Assert.That(testSource, Is.Null);
         }
 
         /// <summary>
@@ -327,12 +327,12 @@ namespace AppInstallerCLIE2ETests.Interop
         private async Task AddCatalogAndVerifyStatusAsync(AddPackageCatalogOptions addPackageCatalogOptions, AddPackageCatalogStatus expectedStatus, int expectedErrorCode = 0)
         {
             var addCatalogResult = await this.packageManager.AddPackageCatalogAsync(addPackageCatalogOptions);
-            Assert.IsNotNull(addCatalogResult);
-            Assert.AreEqual(expectedStatus, addCatalogResult.Status);
+            Assert.That(addCatalogResult, Is.Not.Null);
+            Assert.That(addCatalogResult.Status, Is.EqualTo(expectedStatus));
 
             if (expectedStatus != AddPackageCatalogStatus.Ok && expectedErrorCode != 0)
             {
-                Assert.AreEqual(expectedErrorCode, addCatalogResult.ExtendedErrorCode.HResult);
+                Assert.That(addCatalogResult.ExtendedErrorCode.HResult, Is.EqualTo(expectedErrorCode));
             }
         }
 
@@ -340,11 +340,11 @@ namespace AppInstallerCLIE2ETests.Interop
         {
             var packageCatalog = this.packageManager.GetPackageCatalogByName(addPackageCatalogOptions.Name);
 
-            Assert.IsNotNull(packageCatalog);
-            Assert.AreEqual(addPackageCatalogOptions.Name, packageCatalog.Info.Name);
-            Assert.AreEqual(addPackageCatalogOptions.SourceUri, packageCatalog.Info.Argument);
-            Assert.AreEqual(addPackageCatalogOptions.Explicit, packageCatalog.Info.Explicit);
-            Assert.AreEqual(addPackageCatalogOptions.Priority, packageCatalog.Info.Priority);
+            Assert.That(packageCatalog, Is.Not.Null);
+            Assert.That(packageCatalog.Info.Name, Is.EqualTo(addPackageCatalogOptions.Name));
+            Assert.That(packageCatalog.Info.Argument, Is.EqualTo(addPackageCatalogOptions.SourceUri));
+            Assert.That(packageCatalog.Info.Explicit, Is.EqualTo(addPackageCatalogOptions.Explicit));
+            Assert.That(packageCatalog.Info.Priority, Is.EqualTo(addPackageCatalogOptions.Priority));
 
             return packageCatalog;
         }
@@ -353,15 +353,15 @@ namespace AppInstallerCLIE2ETests.Interop
         {
             // Add the package catalog and verify the status
             var addCatalogResult = await this.packageManager.AddPackageCatalogAsync(addPackageCatalogOptions);
-            Assert.IsNotNull(addCatalogResult);
-            Assert.AreEqual(expectedStatus, addCatalogResult.Status);
+            Assert.That(addCatalogResult, Is.Not.Null);
+            Assert.That(addCatalogResult.Status, Is.EqualTo(expectedStatus));
 
             if (expectedStatus != AddPackageCatalogStatus.Ok)
             {
                 // Only validate the error code if the status is not Ok and the expected error code is not 0
                 if (expectedErrorCode != 0)
                 {
-                    Assert.AreEqual(expectedErrorCode, addCatalogResult.ExtendedErrorCode.HResult);
+                    Assert.That(addCatalogResult.ExtendedErrorCode.HResult, Is.EqualTo(expectedErrorCode));
                 }
 
                 return;
@@ -374,28 +374,28 @@ namespace AppInstallerCLIE2ETests.Interop
         private async Task RemoveAndValidatePackageCatalogAsync(RemovePackageCatalogOptions removePackageCatalogOptions, RemovePackageCatalogStatus expectedStatus, int expectedErrorCode = 0)
         {
             var removeCatalogResult = await this.packageManager.RemovePackageCatalogAsync(removePackageCatalogOptions);
-            Assert.IsNotNull(removeCatalogResult);
-            Assert.AreEqual(expectedStatus, removeCatalogResult.Status);
+            Assert.That(removeCatalogResult, Is.Not.Null);
+            Assert.That(removeCatalogResult.Status, Is.EqualTo(expectedStatus));
 
             if (expectedStatus != RemovePackageCatalogStatus.Ok && expectedErrorCode != 0)
             {
-                Assert.AreEqual(expectedErrorCode, removeCatalogResult.ExtendedErrorCode.HResult);
+                Assert.That(removeCatalogResult.ExtendedErrorCode.HResult, Is.EqualTo(expectedErrorCode));
                 return;
             }
 
             var packageCatalog = this.packageManager.GetPackageCatalogByName(removePackageCatalogOptions.Name);
-            Assert.IsNull(packageCatalog);
+            Assert.That(packageCatalog, Is.Null);
         }
 
         private void EditAndValidatePackageCatalog(EditPackageCatalogOptions editPackageCatalogOptions, EditPackageCatalogStatus expectedStatus, int expectedErrorCode = 0)
         {
             var editCatalogResult = this.packageManager.EditPackageCatalog(editPackageCatalogOptions);
-            Assert.IsNotNull(editCatalogResult);
-            Assert.AreEqual(expectedStatus, editCatalogResult.Status);
+            Assert.That(editCatalogResult, Is.Not.Null);
+            Assert.That(editCatalogResult.Status, Is.EqualTo(expectedStatus));
 
             if (expectedStatus != EditPackageCatalogStatus.Ok && expectedErrorCode != 0)
             {
-                Assert.AreEqual(expectedErrorCode, editCatalogResult.ExtendedErrorCode.HResult);
+                Assert.That(editCatalogResult.ExtendedErrorCode.HResult, Is.EqualTo(expectedErrorCode));
                 return;
             }
 
@@ -403,12 +403,12 @@ namespace AppInstallerCLIE2ETests.Interop
             var packageCatalog = this.packageManager.GetPackageCatalogByName(editPackageCatalogOptions.Name);
             if (editPackageCatalogOptions.Explicit != null)
             {
-                Assert.AreEqual(packageCatalog.Info.Explicit, editPackageCatalogOptions.Explicit);
+                Assert.That(editPackageCatalogOptions.Explicit, Is.EqualTo(packageCatalog.Info.Explicit));
             }
 
             if (editPackageCatalogOptions.Priority != null)
             {
-                Assert.AreEqual(packageCatalog.Info.Priority, editPackageCatalogOptions.Priority);
+                Assert.That(editPackageCatalogOptions.Priority, Is.EqualTo(packageCatalog.Info.Priority));
             }
         }
     }

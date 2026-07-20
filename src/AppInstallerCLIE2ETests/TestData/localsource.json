@@ -34,7 +34,8 @@
       "Type": "font",
       "Name": "AppInstallerTestFont/AppInstallerTestFont.ttf",
       "Input": "%BUILD_SOURCESDIRECTORY%/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestFont.ttf",
-      "HashToken": "<FONTHASH>"
+      "HashToken": "<FONTHASH>",
+      "SkipSignature": true
     }
   ],
   "DynamicInstallers": [

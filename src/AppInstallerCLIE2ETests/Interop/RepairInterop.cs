@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="RepairInterop.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -48,7 +48,7 @@ namespace AppInstallerCLIE2ETests.Interop
             // Create a composite source
             var options = this.TestFactory.CreateCreateCompositePackageCatalogOptions();
             var testSource = this.packageManager.GetPackageCatalogByName(Constants.TestSourceName);
-            Assert.NotNull(testSource, $"{Constants.TestSourceName} cannot be null");
+            Assert.That(testSource, Is.Not.Null, $"{Constants.TestSourceName} cannot be null");
             options.Catalogs.Add(testSource);
             options.CompositeSearchBehavior = CompositeSearchBehavior.AllCatalogs;
             this.compositeSource = this.packageManager.CreateCompositePackageCatalog(options);
@@ -75,7 +75,7 @@ namespace AppInstallerCLIE2ETests.Interop
             await this.RepairPackageAndValidateStatus(searchResult.CatalogPackage, this.TestFactory.CreateRepairOptions(), RepairResultStatus.Ok);
 
             // Cleanup
-            Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(this.installDir));
+            Assert.That(TestCommon.VerifyTestMsiInstalledAndCleanup(this.installDir), Is.True);
 
             if (installerSourceDir != null && Directory.Exists(installerSourceDir))
             {
@@ -97,7 +97,7 @@ namespace AppInstallerCLIE2ETests.Interop
             await this.RepairPackageAndValidateStatus(searchResult.CatalogPackage, this.TestFactory.CreateRepairOptions(), RepairResultStatus.Ok);
 
             // Cleanup
-            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
+            Assert.That(TestCommon.VerifyTestMsixInstalledAndCleanup(), Is.True);
         }
 
         /// <summary>
@@ -145,7 +145,7 @@ namespace AppInstallerCLIE2ETests.Interop
             await this.RepairPackageAndValidateStatus(searchResult.CatalogPackage, repairOptions, RepairResultStatus.Ok);
 
             // Cleanup
-            Assert.True(TestCommon.VerifyTestExeRepairCompletedAndCleanup(this.installDir, "Modify Repair operation"));
+            Assert.That(TestCommon.VerifyTestExeRepairCompletedAndCleanup(this.installDir, "Modify Repair operation"), Is.True);
         }
 
         /// <summary>
@@ -232,7 +232,7 @@ namespace AppInstallerCLIE2ETests.Interop
             await this.RepairPackageAndValidateStatus(searchResult.CatalogPackage, this.TestFactory.CreateRepairOptions(), RepairResultStatus.Ok);
 
             // Cleanup
-            Assert.True(TestCommon.VerifyTestExeRepairCompletedAndCleanup(this.installDir, "Uninstaller Repair operation"));
+            Assert.That(TestCommon.VerifyTestExeRepairCompletedAndCleanup(this.installDir, "Uninstaller Repair operation"), Is.True);
         }
 
         /// <summary>
@@ -266,7 +266,7 @@ namespace AppInstallerCLIE2ETests.Interop
             await this.RepairPackageAndValidateStatus(searchResult.CatalogPackage, this.TestFactory.CreateRepairOptions(), RepairResultStatus.Ok);
 
             // Cleanup
-            Assert.True(TestCommon.VerifyTestExeRepairCompletedAndCleanup(this.installDir, "Uninstaller Repair operation"));
+            Assert.That(TestCommon.VerifyTestExeRepairCompletedAndCleanup(this.installDir, "Uninstaller Repair operation"), Is.True);
         }
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace AppInstallerCLIE2ETests.Interop
             await this.RepairPackageAndValidateStatus(searchResult.CatalogPackage, this.TestFactory.CreateRepairOptions(), RepairResultStatus.Ok);
 
             // Cleanup
-            Assert.True(TestCommon.VerifyTestExeRepairCompletedAndCleanup(this.installDir, "Installer Repair operation"));
+            Assert.That(TestCommon.VerifyTestExeRepairCompletedAndCleanup(this.installDir, "Installer Repair operation"), Is.True);
         }
 
         private async Task<MatchResult> FindAndInstallPackage(string packageId, string installDir, string replacementInstallerArguments)
@@ -307,11 +307,11 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Install the package
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Find package again, but this time it should be detected as installed
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-            Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+            Assert.That(searchResult.CatalogPackage.InstalledVersion, Is.Not.Null);
 
             // Return the search result
             return searchResult;
@@ -320,11 +320,11 @@ namespace AppInstallerCLIE2ETests.Interop
         private async Task RepairPackageAndValidateStatus(CatalogPackage package, RepairOptions repairOptions, RepairResultStatus expectedStatus, int expectedErrorCode = 0)
         {
             var repairResult = await this.packageManager.RepairPackageAsync(package, repairOptions);
-            Assert.AreEqual(expectedStatus, repairResult.Status);
+            Assert.That(repairResult.Status, Is.EqualTo(expectedStatus));
 
             if (expectedStatus != RepairResultStatus.Ok)
             {
-                Assert.AreEqual(expectedErrorCode, repairResult.ExtendedErrorCode.HResult);
+                Assert.That(repairResult.ExtendedErrorCode.HResult, Is.EqualTo(expectedErrorCode));
             }
         }
 
