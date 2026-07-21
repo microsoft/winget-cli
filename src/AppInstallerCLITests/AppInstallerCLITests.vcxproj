@@ -1092,6 +1092,9 @@
     <CopyFileToFolders Include="TestData\ManifestV1_28-Singleton.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_30-Singleton.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_28\ManifestV1_28-MultiFile-DefaultLocale.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -1104,7 +1107,22 @@
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_28\ManifestV1_28-MultiFile-Version.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_30\ManifestV1_30-MultiFile-DefaultLocale.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_30\ManifestV1_30-MultiFile-Installer.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_30\ManifestV1_30-MultiFile-Locale.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_30\ManifestV1_30-MultiFile-Version.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ManifestV1_28-PowerShellDSC.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_30-PowerShellDSC.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InvalidWindowsFeatureName.yaml">

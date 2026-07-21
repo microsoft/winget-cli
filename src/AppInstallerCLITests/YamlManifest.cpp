@@ -1038,6 +1038,7 @@ WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_9)
 WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_10)
 WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_12)
 WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_28)
+WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_30)
 
 void WriteSingletonManifestAndVerifyContents(const std::vector<std::string>& singleton, const std::vector<std::string>& multiFiles, std::string_view version)
 {
@@ -1090,6 +1091,7 @@ WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_9)
 WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_10)
 WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_12)
 WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_28)
+WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_30)
 
 // Since Authentication is not supported in community repo and will cause manifest validation failure,
 // we are not adding Authentication in v1_10 manifests. Instead a separate test is created for Authentication.
@@ -1181,6 +1183,55 @@ TEST_CASE("ReadWriteValidateV1_28ManifestWithPowerShellDSC", "[ManifestCreation]
     REQUIRE(std::filesystem::exists(exportedManifestPath));
     Manifest exportedManifest = YamlParser::CreateFromPath(exportedDirectory);
     REQUIRE(exportedManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_28 });
+    REQUIRE(exportedManifest.Installers.size() == 1);
+    REQUIRE(exportedManifest.Installers[0].DesiredStateConfiguration.size() == 3);
+
+    RequireContainerInfoPresent(exportedManifest.Installers[0].DesiredStateConfiguration, { "https://www.powershellgallery.com/api/v2", "Microsoft.WinGet.DSC", { { "WinGetUserSettings" }, { "WinGetAdminSettings" }, { "WinGetSource" }, { "WinGetPackageManager" }, { "WinGetPackage" } } });
+    RequireContainerInfoPresent(exportedManifest.Installers[0].DesiredStateConfiguration, { "https://mcr.microsoft.com/", "Microsoft.WinGet.DSC", { { "WinGetUserSettings" }, { "WinGetAdminSettings" }, { "WinGetSource" }, { "WinGetPackageManager" }, { "WinGetPackage" } } });
+    RequireContainerInfoPresent(exportedManifest.Installers[0].DesiredStateConfiguration, { { { "Microsoft.WinGet/AdminSettings" }, { "Microsoft.WinGet/Package" }, { "Microsoft.WinGet/Source" }, { "Microsoft.WinGet/UserSettingsFile" } } });
+}
+
+// PowerShell DSC is not supported in the community repo and will cause manifest validation failure.
+TEST_CASE("ReadWriteValidateV1_30ManifestWithPowerShellDSC", "[ManifestCreation][ManifestVersionCreation]")
+{
+    // Read manifest
+    TempDirectory testDirectory{ "TestManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_30-PowerShellDSC.yaml" }, testDirectory);
+    Manifest testManifest = YamlParser::CreateFromPath(testDirectory);
+
+    // Validate schema
+    ManifestValidateOption validateOption;
+    validateOption.SchemaValidationOnly = true;
+    validateOption.ThrowOnWarning = true;
+    YamlParser::CreateFromPath(testDirectory, validateOption);
+
+    // TODO: Update ValidateManifest
+    // TODO: Update this test with similar validations
+
+    // Verify content
+    REQUIRE(testManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_30 });
+    REQUIRE(testManifest.Installers.size() == 1);
+    REQUIRE(testManifest.Installers[0].DesiredStateConfiguration.size() == 3);
+
+    RequireContainerInfoPresent(testManifest.Installers[0].DesiredStateConfiguration, { "https://www.powershellgallery.com/api/v2", "Microsoft.WinGet.DSC", { { "WinGetUserSettings" }, { "WinGetAdminSettings" }, { "WinGetSource" }, { "WinGetPackageManager" }, { "WinGetPackage" } } });
+    RequireContainerInfoPresent(testManifest.Installers[0].DesiredStateConfiguration, { "https://mcr.microsoft.com/", "Microsoft.WinGet.DSC", { { "WinGetUserSettings" }, { "WinGetAdminSettings" }, { "WinGetSource" }, { "WinGetPackageManager" }, { "WinGetPackage" } } });
+    RequireContainerInfoPresent(testManifest.Installers[0].DesiredStateConfiguration, { { { "Microsoft.WinGet/AdminSettings" }, { "Microsoft.WinGet/Package" }, { "Microsoft.WinGet/Source" }, { "Microsoft.WinGet/UserSettingsFile" } } });
+
+    // Manifest Validation. Only error is "PowerShell not supported".
+    auto errors = ValidateManifest(testManifest, true);
+    REQUIRE(errors.size() == 1);
+    REQUIRE(errors[0].GetErrorMessage() == "Field is not supported.");
+    REQUIRE(errors[0].Context == "DesiredStateConfiguration.PowerShell");
+
+    // Write manifest
+    TempDirectory exportedDirectory{ "ExportedManifest" };
+    std::filesystem::path exportedManifestPath = exportedDirectory.GetPath() / "ExportedManifest.yaml";
+    YamlWriter::OutputYamlFile(testManifest, testManifest.Installers[0], exportedManifestPath);
+
+    // Read back and validate content
+    REQUIRE(std::filesystem::exists(exportedManifestPath));
+    Manifest exportedManifest = YamlParser::CreateFromPath(exportedDirectory);
+    REQUIRE(exportedManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_30 });
     REQUIRE(exportedManifest.Installers.size() == 1);
     REQUIRE(exportedManifest.Installers[0].DesiredStateConfiguration.size() == 3);
 
