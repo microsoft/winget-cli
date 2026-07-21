@@ -384,7 +384,11 @@ namespace AppInstaller::Repository::Microsoft
             return catalog.FindByPackageFamilyAndId(GetPackageFamilyNameFromDetails(details), Deployment::IndexDBId);
         }
 
-        std::optional<Msix::PackageVersion> PackagedContextGetCurrentVersion(const SourceDetails& details)
+        std::optional<Msix::PackageVersion> DesktopContextGetCurrentVersion(const SourceDetails& details);
+        std::optional<Msix::PackageVersion> TryGetDesktopContextCurrentVersion(const SourceDetails& details);
+        bool ShouldPreferDesktopContext(std::optional<Msix::PackageVersion> desktopVersion, std::optional<Msix::PackageVersion> packagedVersion);
+
+        std::optional<Msix::PackageVersion> PackagedContextGetExtensionVersion(const SourceDetails& details)
         {
             auto extension = GetExtensionFromDetails(details);
 
@@ -393,10 +397,31 @@ namespace AppInstaller::Repository::Microsoft
                 auto version = extension->GetPackageVersion();
                 return Msix::PackageVersion{ version.Major, version.Minor, version.Build, version.Revision };
             }
+
+            return std::nullopt;
+        }
+
+        std::optional<Msix::PackageVersion> PackagedContextGetCurrentVersion(const SourceDetails& details)
+        {
+            auto extensionVersion = PackagedContextGetExtensionVersion(details);
+            std::optional<Msix::PackageVersion> desktopVersion;
+
+            Synchronization::CrossProcessLock lock(CreateNameForCPL(details));
+            if (lock.TryAcquireNoWait())
+            {
+                desktopVersion = TryGetDesktopContextCurrentVersion(details);
+            }
             else
             {
-                return std::nullopt;
+                AICLI_LOG(Repo, Verbose, << "Skipping local state fallback version probe because source lock is held for source: " << details.Name);
             }
+
+            if (ShouldPreferDesktopContext(desktopVersion, extensionVersion))
+            {
+                return desktopVersion;
+            }
+
+            return extensionVersion;
         }
 
         // Constructs the location that we will write files to.
@@ -430,6 +455,147 @@ namespace AppInstaller::Repository::Microsoft
             }
 
             return std::nullopt;
+        }
+
+        std::optional<Msix::PackageVersion> TryGetDesktopContextCurrentVersion(const SourceDetails& details)
+        {
+            try
+            {
+                return DesktopContextGetCurrentVersion(details);
+            }
+            catch (...)
+            {
+                LOG_CAUGHT_EXCEPTION_MSG("Failed to read local state source package version for source: %hs", details.Name.c_str());
+                return std::nullopt;
+            }
+        }
+
+        void RemoveDesktopContextPackage(const SourceDetails& details)
+        {
+            try
+            {
+                std::filesystem::remove(GetStatePathFromDetails(details) / s_PreIndexedPackageSourceFactory_PackageFileName);
+            }
+            catch (...)
+            {
+                LOG_CAUGHT_EXCEPTION_MSG("Failed to remove unusable local state source package for source: %hs", details.Name.c_str());
+            }
+        }
+
+        bool HasTrustedDesktopContextPackage(const SourceDetails& details)
+        {
+            return TryGetDesktopContextCurrentVersion(details).has_value();
+        }
+
+        bool ShouldPreferDesktopContext(std::optional<Msix::PackageVersion> desktopVersion, std::optional<Msix::PackageVersion> packagedVersion)
+        {
+            return desktopVersion && (!packagedVersion || desktopVersion.value() > packagedVersion.value());
+        }
+
+        bool IsDeploymentBlockedByUserLogOff(HRESULT hr)
+        {
+            return hr == HRESULT_FROM_WIN32(ERROR_DEPLOYMENT_BLOCKED_BY_USER_LOG_OFF);
+        }
+
+        bool UpdateDesktopContextPackage(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress, std::optional<uint64_t>& downloadedBytes)
+        {
+            // We will extract the manifest and index files directly to this location
+            std::filesystem::path packageState = GetStatePathFromDetails(details);
+            std::filesystem::create_directories(packageState);
+
+            std::filesystem::path packagePath = packageState / s_PreIndexedPackageSourceFactory_PackageFileName;
+
+            std::filesystem::path tempPackagePath = packagePath.u8string() + ".dnld.msix";
+            auto removeTempFileOnExit = wil::scope_exit([&]()
+                {
+                    try
+                    {
+                        std::filesystem::remove(tempPackagePath);
+                    }
+                    catch (...)
+                    {
+                        AICLI_LOG(Repo, Info, << "Failed to remove temp index file at: " << tempPackagePath);
+                    }
+                });
+
+            std::filesystem::remove(tempPackagePath);
+
+            if (Utility::IsUrlRemote(packageLocation))
+            {
+                auto downloadResult = AppInstaller::Utility::Download(packageLocation, tempPackagePath, AppInstaller::Utility::DownloadType::Index, progress);
+                downloadedBytes = downloadResult.SizeInBytes;
+            }
+            else
+            {
+                std::filesystem::copy(packageLocation, tempPackagePath, std::filesystem::copy_options::overwrite_existing);
+                progress.OnProgress(100, 100, ProgressType::Percent);
+            }
+
+            if (progress.IsCancelledBy(CancelReason::Any))
+            {
+                AICLI_LOG(Repo, Info, << "Cancelling update upon request");
+                return false;
+            }
+
+            {
+                // Extra scope to release the file lock right after trust validation.
+                Msix::WriteLockedMsixFile tempIndexPackage{ tempPackagePath };
+                Msix::MsixInfo tempMsixInfo{ tempPackagePath };
+
+                // The package should not be a bundle
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, tempMsixInfo.GetIsBundle());
+
+                // Ensure that family name has not changed
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE,
+                    GetPackageFamilyNameFromDetails(details) != Msix::GetPackageFamilyNameFromFullName(tempMsixInfo.GetPackageFullName()));
+
+                if (!tempIndexPackage.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)))
+                {
+                    AICLI_LOG(Repo, Error, << "Source update failed. Source package failed trust validation.");
+                    THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
+                }
+            }
+
+            std::filesystem::rename(tempPackagePath, packagePath);
+            AICLI_LOG(Repo, Info, << "Source update success.");
+
+            removeTempFileOnExit.release();
+
+            return true;
+        }
+
+        SQLiteIndex OpenDesktopContextIndex(const SourceDetails& details, IProgressCallback& progress)
+        {
+            std::filesystem::path packageLocation = GetStatePathFromDetails(details);
+            packageLocation /= s_PreIndexedPackageSourceFactory_PackageFileName;
+
+            if (!std::filesystem::exists(packageLocation))
+            {
+                AICLI_LOG(Repo, Info, << "Data not found at " << packageLocation);
+                THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
+            }
+
+            // Put a write exclusive lock on the index package.
+            Msix::WriteLockedMsixFile indexPackage{ packageLocation };
+
+            // Validate index package trust info.
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, !indexPackage.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)));
+
+            // Create a temp lock exclusive index file.
+            auto tempIndexFilePath = Runtime::GetNewTempFilePath();
+            auto tempIndexFile = Utility::ManagedFile::CreateWriteLockedFile(tempIndexFilePath, GENERIC_WRITE, true);
+
+            // Populate temp index file.
+            Msix::MsixInfo packageInfo(packageLocation);
+            packageInfo.WriteToFileHandle(s_PreIndexedPackageSourceFactory_IndexFilePath, tempIndexFile.GetFileHandle(), progress);
+
+            if (progress.IsCancelledBy(CancelReason::Any))
+            {
+                AICLI_LOG(Repo, Info, << "Cancelling open upon request");
+                THROW_HR(E_ABORT);
+            }
+
+            return SQLiteIndex::Open(tempIndexFile.GetFilePath().u8string(), SQLiteIndex::OpenDisposition::Immutable, std::move(tempIndexFile));
         }
 
         bool CheckForUpdateBeforeOpen(const SourceDetails& details, std::optional<Msix::PackageVersion> currentVersion, const std::optional<TimeSpan>& requestedUpdateInterval)
@@ -578,6 +744,39 @@ namespace AppInstaller::Repository::Microsoft
                 std::optional<SQLiteIndex> index;
                 bool retryUnderLock = false;
 
+                {
+                    Synchronization::CrossProcessLock lock(CreateNameForCPL(m_details));
+                    if (lock.TryAcquireNoWait())
+                    {
+                        auto packagedVersion = PackagedContextGetExtensionVersion(m_details);
+                        auto desktopVersion = TryGetDesktopContextCurrentVersion(m_details);
+
+                        if (ShouldPreferDesktopContext(desktopVersion, packagedVersion))
+                        {
+                            AICLI_LOG(Repo, Warning, << "Local state fallback is newer than packaged source extension; using fallback for source: " << m_details.Name);
+                            try
+                            {
+                                index.emplace(OpenDesktopContextIndex(m_details, progress));
+                                return completeOpen(std::move(index.value()));
+                            }
+                            catch (...)
+                            {
+                                if (progress.IsCancelledBy(CancelReason::Any))
+                                {
+                                    throw;
+                                }
+
+                                LOG_CAUGHT_EXCEPTION_MSG("Newer local state fallback failed to open; removing it and continuing with packaged source extension for source: %hs", m_details.Name.c_str());
+                                RemoveDesktopContextPackage(m_details);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        AICLI_LOG(Repo, Verbose, << "Skipping local state fallback probe because source lock is held for source: " << m_details.Name);
+                    }
+                }
+
                 try
                 {
                     index.emplace(OpenPackagedContextIndex(m_details, progress, openTimer));
@@ -602,7 +801,27 @@ namespace AppInstaller::Repository::Microsoft
                         return {};
                     }
 
-                    index.emplace(OpenPackagedContextIndex(m_details, progress, openTimer));
+                    try
+                    {
+                        index.emplace(OpenPackagedContextIndex(m_details, progress, openTimer));
+                    }
+                    catch (const wil::ResultException& re)
+                    {
+                        if (progress.IsCancelledBy(CancelReason::Any))
+                        {
+                            throw;
+                        }
+
+                        if (re.GetErrorCode() == APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING && HasTrustedDesktopContextPackage(m_details))
+                        {
+                            AICLI_LOG(Repo, Warning, << "Packaged source extension was not found; using trusted local state fallback for source: " << m_details.Name);
+                            index.emplace(OpenDesktopContextIndex(m_details, progress));
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
                 }
 
                 return completeOpen(std::move(index.value()));
@@ -645,37 +864,83 @@ namespace AppInstaller::Repository::Microsoft
                     localFile = Utility::ConvertToUTF16(packageLocation);
                 }
 
+                auto removeLocalFileOnExit = wil::scope_exit([&]()
+                    {
+                        if (download)
+                        {
+                            try
+                            {
+                                std::filesystem::remove(localFile);
+                            }
+                            CATCH_LOG();
+                        }
+                    });
+
                 // Verify the local file
-                Msix::WriteLockedMsixFile fileLock{ localFile };
-                Msix::MsixInfo localMsixInfo{ localFile };
-
-                // The package should not be a bundle
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, localMsixInfo.GetIsBundle());
-
-                // Ensure that family name has not changed
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE,
-                    GetPackageFamilyNameFromDetails(details) != Msix::GetPackageFamilyNameFromFullName(localMsixInfo.GetPackageFullName()));
-
-                if (!fileLock.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)))
                 {
-                    AICLI_LOG(Repo, Error, << "Source update failed. Source package failed trust validation.");
-                    THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
+                    Msix::WriteLockedMsixFile fileLock{ localFile };
+                    Msix::MsixInfo localMsixInfo{ localFile };
+
+                    // The package should not be a bundle
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, localMsixInfo.GetIsBundle());
+
+                    // Ensure that family name has not changed
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE,
+                        GetPackageFamilyNameFromDetails(details) != Msix::GetPackageFamilyNameFromFullName(localMsixInfo.GetPackageFullName()));
+
+                    if (!fileLock.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)))
+                    {
+                        AICLI_LOG(Repo, Error, << "Source update failed. Source package failed trust validation.");
+                        THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
+                    }
                 }
 
                 winrt::Windows::Foundation::Uri uri = winrt::Windows::Foundation::Uri(localFile.c_str());
-                Deployment::AddPackage(
-                    uri,
-                    Deployment::Options{ WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::Trusted) },
-                    progress);
-
-                if (download)
+                try
                 {
+                    Deployment::AddPackage(
+                        uri,
+                        Deployment::Options{ WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::Trusted) },
+                        progress);
+                }
+                catch (const wil::ResultException& re)
+                {
+                    if (progress.IsCancelledBy(CancelReason::Any))
+                    {
+                        throw;
+                    }
+
+                    if (IsDeploymentBlockedByUserLogOff(re.GetErrorCode()))
+                    {
+                        AICLI_LOG(Repo, Warning, << "Packaged source deployment was blocked because the user is logged off; using local state fallback for source: " << details.Name);
+                        return UpdateDesktopContextPackage(localFile.u8string(), details, progress, downloadedBytes);
+                    }
+
+                    throw;
+                }
+
+                if (!GetExtensionFromDetails(details))
+                {
+                    AICLI_LOG(Repo, Warning, << "Packaged source deployment completed, but the extension was not found; using local state fallback for source: " << details.Name);
+                    return UpdateDesktopContextPackage(localFile.u8string(), details, progress, downloadedBytes);
+                }
+
+                if (HasTrustedDesktopContextPackage(details))
+                {
+                    AICLI_LOG(Repo, Info, << "Refreshing local state fallback after packaged source deployment for source: " << details.Name);
                     try
                     {
-                        // If successful, delete the file
-                        std::filesystem::remove(localFile);
+                        UpdateDesktopContextPackage(localFile.u8string(), details, progress, downloadedBytes);
                     }
-                    CATCH_LOG();
+                    catch (...)
+                    {
+                        if (progress.IsCancelledBy(CancelReason::Any))
+                        {
+                            throw;
+                        }
+
+                        LOG_CAUGHT_EXCEPTION_MSG("Failed to refresh local state fallback after packaged source deployment for source: %hs", details.Name.c_str());
+                    }
                 }
 
                 return true;
@@ -693,6 +958,13 @@ namespace AppInstaller::Repository::Microsoft
                 {
                     AICLI_LOG(Repo, Info, << "Removing package: " << *fullName);
                     Deployment::RemovePackage(*fullName, winrt::Windows::Management::Deployment::RemovalOptions::None, callback);
+                }
+
+                std::filesystem::path packageState = GetStatePathFromDetails(details);
+                if (std::filesystem::exists(packageState))
+                {
+                    AICLI_LOG(Repo, Info, << "Removing local state found for source: " << packageState.u8string());
+                    std::filesystem::remove_all(packageState);
                 }
 
                 return true;
@@ -726,36 +998,7 @@ namespace AppInstaller::Repository::Microsoft
                     return {};
                 }
 
-                std::filesystem::path packageLocation = GetStatePathFromDetails(m_details);
-                packageLocation /= s_PreIndexedPackageSourceFactory_PackageFileName;
-
-                if (!std::filesystem::exists(packageLocation))
-                {
-                    AICLI_LOG(Repo, Info, << "Data not found at " << packageLocation);
-                    THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
-                }
-
-                // Put a write exclusive lock on the index package.
-                Msix::WriteLockedMsixFile indexPackage{ packageLocation };
-
-                // Validate index package trust info.
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, !indexPackage.ValidateTrustInfo(WI_IsFlagSet(m_details.TrustLevel, SourceTrustLevel::StoreOrigin)));
-
-                // Create a temp lock exclusive index file.
-                auto tempIndexFilePath = Runtime::GetNewTempFilePath();
-                auto tempIndexFile = Utility::ManagedFile::CreateWriteLockedFile(tempIndexFilePath, GENERIC_WRITE, true);
-
-                // Populate temp index file.
-                Msix::MsixInfo packageInfo(packageLocation);
-                packageInfo.WriteToFileHandle(s_PreIndexedPackageSourceFactory_IndexFilePath, tempIndexFile.GetFileHandle(), progress);
-
-                if (progress.IsCancelledBy(CancelReason::Any))
-                {
-                    AICLI_LOG(Repo, Info, << "Cancelling open upon request");
-                    return {};
-                }
-
-                SQLiteIndex index = SQLiteIndex::Open(tempIndexFile.GetFilePath().u8string(), SQLiteIndex::OpenDisposition::Immutable, std::move(tempIndexFile));
+                SQLiteIndex index = OpenDesktopContextIndex(m_details, progress);
 
                 // We didn't use to store the source identifier, so we compute it here in case it's
                 // missing from the details.
@@ -782,67 +1025,7 @@ namespace AppInstaller::Repository::Microsoft
 
             bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress, std::optional<uint64_t>& downloadedBytes) override
             {
-                // We will extract the manifest and index files directly to this location
-                std::filesystem::path packageState = GetStatePathFromDetails(details);
-                std::filesystem::create_directories(packageState);
-
-                std::filesystem::path packagePath = packageState / s_PreIndexedPackageSourceFactory_PackageFileName;
-
-                std::filesystem::path tempPackagePath = packagePath.u8string() + ".dnld.msix";
-                auto removeTempFileOnExit = wil::scope_exit([&]()
-                    {
-                        try
-                        {
-                            std::filesystem::remove(tempPackagePath);
-                        }
-                        catch (...)
-                        {
-                            AICLI_LOG(Repo, Info, << "Failed to remove temp index file at: " << tempPackagePath);
-                        }
-                    });
-
-                if (Utility::IsUrlRemote(packageLocation))
-                {
-                    auto downloadResult = AppInstaller::Utility::Download(packageLocation, tempPackagePath, AppInstaller::Utility::DownloadType::Index, progress);
-                    downloadedBytes = downloadResult.SizeInBytes;
-                }
-                else
-                {
-                    std::filesystem::copy(packageLocation, tempPackagePath);
-                    progress.OnProgress(100, 100, ProgressType::Percent);
-                }
-
-                if (progress.IsCancelledBy(CancelReason::Any))
-                {
-                    AICLI_LOG(Repo, Info, << "Cancelling update upon request");
-                    return false;
-                }
-
-                {
-                    // Extra scope to release the file lock right after trust validation.
-                    Msix::WriteLockedMsixFile tempIndexPackage{ tempPackagePath };
-                    Msix::MsixInfo tempMsixInfo{ tempPackagePath };
-
-                    // The package should not be a bundle
-                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, tempMsixInfo.GetIsBundle());
-
-                    // Ensure that family name has not changed
-                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE,
-                        GetPackageFamilyNameFromDetails(details) != Msix::GetPackageFamilyNameFromFullName(tempMsixInfo.GetPackageFullName()));
-
-                    if (!tempIndexPackage.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)))
-                    {
-                        AICLI_LOG(Repo, Error, << "Source update failed. Source package failed trust validation.");
-                        THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
-                    }
-                }
-
-                std::filesystem::rename(tempPackagePath, packagePath);
-                AICLI_LOG(Repo, Info, << "Source update success.");
-
-                removeTempFileOnExit.release();
-
-                return true;
+                return UpdateDesktopContextPackage(packageLocation, details, progress, downloadedBytes);
             }
 
             bool RemoveInternal(const SourceDetails& details, IProgressCallback&) override
