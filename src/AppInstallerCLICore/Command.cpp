@@ -4,6 +4,7 @@
 #include "Command.h"
 #include "Resources.h"
 #include "Sixel.h"
+#include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
 #include <AppInstallerRuntime.h>
 #include <winget/Locale.h>
@@ -819,6 +820,17 @@ namespace AppInstaller::CLI
             }
         }
 
+        if (execArgs.Contains(Execution::Args::Type::OutputFormat))
+        {
+            auto format = execArgs.GetArg(Execution::Args::Type::OutputFormat);
+            if (!Utility::CaseInsensitiveEquals(format, "table"sv) &&
+                !Utility::CaseInsensitiveEquals(format, "json"sv))
+            {
+                auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{ "table"_lis, "json"_lis });
+                throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::OutputFormat).Name, validOptions));
+            }
+        }
+
         Argument::ValidateExclusiveArguments(execArgs);
 
         ValidateArgumentsInternal(execArgs);
@@ -1060,6 +1072,11 @@ namespace AppInstaller::CLI
     {
         try
         {
+            if (!context.Args.Contains(Execution::Args::Type::Help))
+            {
+                Workflow::SetJsonOutputChannel(context);
+            }
+
             if (!Settings::User().GetWarnings().empty() &&
                 !WI_IsFlagSet(command->GetOutputFlags(), CommandOutputFlags::IgnoreSettingsWarnings))
             {

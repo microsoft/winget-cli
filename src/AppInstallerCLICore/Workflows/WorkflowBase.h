@@ -85,6 +85,12 @@ namespace AppInstaller::CLI::Workflow
     // Helper to create authentication arguments from context input.
     Authentication::AuthenticationArguments GetAuthenticationArguments(const Execution::Context& context);
 
+    // Helper to determine whether the requested output format is JSON.
+    bool IsJsonOutputFormat(const Execution::Args& args);
+
+    // Helper to set the reporter to JSON when requested.
+    void SetJsonOutputChannel(Execution::Context& context);
+
     // Helper to report exceptions and return the HRESULT.
     // If context is null, no output will be attempted.
     HRESULT HandleException(Execution::Context* context, std::exception_ptr exception);

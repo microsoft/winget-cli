@@ -3,7 +3,9 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 #include "TestHooks.h"
+#include "TestSettings.h"
 #include <Commands/InstallCommand.h>
+#include <Commands/ListCommand.h>
 #include <Commands/UninstallCommand.h>
 #include <Commands/UpgradeCommand.h>
 #include <winget/PathVariable.h>
@@ -304,6 +306,272 @@ TEST_CASE("UpdateFlow_NoArgs_UnknownVersion", "[UpdateFlow][workflow]")
 
     // Verify --include-unknown help text is displayed if update is executed with no args and an unknown version package is available for upgrade.
     REQUIRE(updateOutput.str().find(Resource::String::UpgradeUnknownVersionCount(1)) != std::string::npos);
+}
+
+TEST_CASE("ListFlow_JsonOutput", "[ListFlow][workflow]")
+{
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list({});
+    context.SetExecutingCommand(&list);
+    list.Execute(context);
+    INFO(listOutput.str());
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].size() == 1);
+    REQUIRE(json["packages"][0]["id"].asString() == "AppInstallerCliTest.TestExeInstaller");
+    REQUIRE(json["packages"][0]["installedVersion"].asString() == "1.0.0.0");
+    REQUIRE(json["truncated"].asBool() == false);
+    REQUIRE(json["sourceFailures"].isArray());
+    REQUIRE(json["sourceFailures"].empty());
+}
+
+TEST_CASE("ListFlow_JsonOutputNoMatches", "[ListFlow][workflow]")
+{
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({}));
+    context.Args.AddArg(Execution::Args::Type::Query, "NoSuchPackage"sv);
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list({});
+    context.SetExecutingCommand(&list);
+    list.Execute(context);
+    INFO(listOutput.str());
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].empty());
+    REQUIRE(json["truncated"].asBool() == false);
+    REQUIRE(json["sourceFailures"].isArray());
+    REQUIRE(json["sourceFailures"].empty());
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
+}
+
+TEST_CASE("ListFlow_JsonOutputWithSettingsWarnings", "[ListFlow][workflow]")
+{
+    auto settingsGuard = DeleteUserSettingsFiles();
+    SetSetting(Stream::PrimaryUserSettings, "{"sv);
+
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list({});
+    context.SetExecutingCommand(&list);
+    ExecuteWithoutLoggingSuccess(context, &list);
+    INFO(listOutput.str());
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].size() == 1);
+}
+
+TEST_CASE("ListFlow_JsonOutputHelpUsesTextOutput", "[ListFlow][workflow]")
+{
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::Help);
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list({});
+    context.SetExecutingCommand(&list);
+    ExecuteWithoutLoggingSuccess(context, &list);
+    INFO(listOutput.str());
+
+    REQUIRE(listOutput.str().find(Resource::String::Usage("winget"_liv, "list"_liv).get()) != std::string::npos);
+    REQUIRE_FALSE(context.IsTerminated());
+}
+
+TEST_CASE("ListFlow_JsonOutputWinGetPolicyDisabled", "[ListFlow][workflow]")
+{
+    GroupPolicyTestOverride policies;
+    policies.SetState(TogglePolicy::Policy::WinGet, PolicyState::Disabled);
+
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list({});
+    context.SetExecutingCommand(&list);
+    ExecuteWithoutLoggingSuccess(context, &list);
+    INFO(listOutput.str());
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].empty());
+    REQUIRE(json["sourceFailures"].isArray());
+    REQUIRE(json["sourceFailures"].empty());
+    REQUIRE(json["error"]["code"].asString() == "0x8a15003a");
+    REQUIRE(json["error"]["message"].asString().empty() == false);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY);
+}
+
+TEST_CASE("ListFlow_JsonOutputGenericExecutionFailure", "[ListFlow][workflow]")
+{
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+    context.Override({ "OpenSource", [](TestContext&)
+    {
+        THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+    } });
+
+    ListCommand list({});
+    context.SetExecutingCommand(&list);
+    ExecuteWithoutLoggingSuccess(context, &list);
+    INFO(listOutput.str());
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].empty());
+    REQUIRE(json["sourceFailures"].isArray());
+    REQUIRE(json["sourceFailures"].empty());
+    REQUIRE(json["error"]["code"].asString() == "0x8a150045");
+    REQUIRE(json["error"]["message"].asString().empty() == false);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+}
+
+TEST_CASE("ListFlow_JsonOutputBadSource", "[ListFlow][workflow]")
+{
+    SetSetting(Stream::UserSources, R"(
+Sources:
+  - Name: TestSource
+    Type: Microsoft.Test
+    Arg: TestArg
+    Data: TestData
+    IsTombstone: false
+)"sv);
+
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::Source, "MissingSource"sv);
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list({});
+    context.SetExecutingCommand(&list);
+    list.Execute(context);
+    INFO(listOutput.str());
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].empty());
+    REQUIRE(json["sourceFailures"].isArray());
+    REQUIRE(json["sourceFailures"].size() == 1);
+    REQUIRE(json["sourceFailures"][0]["source"].asString() == "MissingSource");
+    REQUIRE(json["error"]["code"].asString() == "0x8a150012");
+    REQUIRE(json["error"]["message"].asString().empty() == false);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
+}
+
+TEST_CASE("ListFlow_JsonOutputStopsCompositeAfterInstalledSourceFailure", "[ListFlow][workflow]")
+{
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+    Workflow::SetJsonOutputChannel(context);
+
+    auto availableSource = AppInstaller::Repository::Source{ CreateTestSource({ TSR::TestInstaller_Exe }) };
+    context.Add<Execution::Data::Source>(availableSource);
+    context.Override({ "OpenPredefinedSource", [](TestContext& context)
+    {
+        context.Reporter.Json() << R"({"packages":[],"truncated":false,"sourceFailures":[],"error":{"code":"0x8a15000e","message":"Failed to open source."}})" << std::endl;
+        context.SetTerminationHR(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+    } });
+
+    context << Workflow::OpenCompositeSource(AppInstaller::Repository::PredefinedSource::Installed);
+    INFO(listOutput.str());
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].empty());
+    REQUIRE(json["error"]["code"].asString() == "0x8a15000e");
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+    REQUIRE_FALSE(context.Get<Execution::Data::Source>().IsComposite());
+}
+
+TEST_CASE("UpdateFlow_ListJsonOutput", "[UpdateFlow][workflow]")
+{
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    UpgradeCommand update({});
+    context.SetExecutingCommand(&update);
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    Json::Value json = ConvertToJson(updateOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].size() == 1);
+    REQUIRE(json["packages"][0]["id"].asString() == "AppInstallerCliTest.TestExeInstaller");
+    REQUIRE(json["packages"][0]["availableVersion"].asString() != "");
+    REQUIRE(json["availableUpgrades"].asInt() == 1);
+    REQUIRE(json["packagesBlockedByPins"].isArray());
+    REQUIRE(json["packagesWithAvailableUpgradesForPins"].isArray());
+    REQUIRE(json["sourceFailures"].isArray());
+    REQUIRE(json["sourceFailures"].empty());
+}
+
+TEST_CASE("UpdateFlow_ListJsonOutputNoMatches", "[UpdateFlow][workflow]")
+{
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({}));
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    UpgradeCommand update({});
+    context.SetExecutingCommand(&update);
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    Json::Value json = ConvertToJson(updateOutput.str());
+    REQUIRE(json["packages"].isArray());
+    REQUIRE(json["packages"].empty());
+    REQUIRE(json["availableUpgrades"].asInt() == 0);
+    REQUIRE(json["packagesBlockedByPins"].isArray());
+    REQUIRE(json["packagesWithAvailableUpgradesForPins"].isArray());
+    REQUIRE(json["skippedUnknownVersions"].asInt() == 0);
+    REQUIRE(json["skippedPinned"].asInt() == 0);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
+}
+
+TEST_CASE("UpdateFlow_JsonOutputRequiresListMode", "[UpdateFlow][workflow]")
+{
+    Execution::Args args;
+    args.AddArg(Execution::Args::Type::All);
+    args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    UpgradeCommand update({});
+    REQUIRE_THROWS_AS(update.ValidateArguments(args), CommandException);
+}
+
+TEST_CASE("ListFlow_JsonOutputRejectsDetails", "[ListFlow][workflow]")
+{
+    Execution::Args args;
+    args.AddArg(Execution::Args::Type::ListDetails);
+    args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list({});
+    REQUIRE_THROWS_AS(list.ValidateArguments(args), CommandException);
 }
 
 TEST_CASE("UpdateFlow_IncludeUnknown", "[UpdateFlow][workflow]")

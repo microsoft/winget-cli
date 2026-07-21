@@ -1,6 +1,6 @@
 ## New in v1.30
 
-Nothing yet.
+* Added `--format json` support for `winget list` and `winget upgrade` when listing available upgrades.
 
 ## Bug Fixes
 

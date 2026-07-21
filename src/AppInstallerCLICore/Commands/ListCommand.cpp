@@ -9,6 +9,7 @@
 namespace AppInstaller::CLI
 {
     using namespace AppInstaller::CLI::Workflow;
+    using namespace AppInstaller::Utility::literals;
     using namespace std::string_view_literals;
 
     std::vector<Argument> ListCommand::GetArguments() const
@@ -35,6 +36,7 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::IncludeUnknown, Resource::String::IncludeUnknownInListArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::IncludePinned, Resource::String::IncludePinnedInListArgumentDescription, ArgumentType::Flag},
             Argument::ForType(Execution::Args::Type::ListDetails),
+            Argument::ForType(Execution::Args::Type::OutputFormat),
             Argument{ Execution::Args::Type::Sort, Resource::String::SortArgumentDescription, ArgumentType::Standard }.SetCountLimit(s_sortFieldCount),
             Argument{ Execution::Args::Type::SortAscending, Resource::String::SortAscendingArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::SortDescending, Resource::String::SortDescendingArgumentDescription, ArgumentType::Flag },
@@ -86,6 +88,12 @@ namespace AppInstaller::CLI
     {
         Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::IncludeUnknown, Execution::Args::Type::Upgrade);
         Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::IncludePinned, Execution::Args::Type::Upgrade);
+
+        if (Workflow::IsJsonOutputFormat(execArgs) && execArgs.Contains(Execution::Args::Type::ListDetails))
+        {
+            auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{ "table"_lis });
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::OutputFormat).Name, validOptions));
+        }
     }
 
     void ListCommand::ExecuteInternal(Execution::Context& context) const
@@ -93,6 +101,7 @@ namespace AppInstaller::CLI
         context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
 
         context <<
+            Workflow::SetJsonOutputChannel <<
             Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context)) <<
             Workflow::SearchSourceForMany <<

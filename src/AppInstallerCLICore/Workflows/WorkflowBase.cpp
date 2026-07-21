@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "Command.h"
 #include "WorkflowBase.h"
 #include "ExecutionContext.h"
 #include "PackageTableSortHelper.h"
@@ -18,11 +19,13 @@
 #include <AppInstallerSHA256.h>
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
+#include <json/json.h>
 #include <winget/IconExtraction.h>
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Pinning;
 using namespace AppInstaller::Repository;
@@ -181,6 +184,8 @@ namespace AppInstaller::CLI::Workflow
         }
         CATCH_LOG();
 
+        void OutputInstalledPackagesJsonError(Execution::Context& context, HRESULT resultCode, Resource::LocString message, Utility::LocIndView sourceName = {});
+
         Repository::Source OpenNamedSource(Execution::Context& context, Utility::LocIndView sourceName)
         {
             Repository::Source source;
@@ -196,11 +201,18 @@ namespace AppInstaller::CLI::Workflow
                     if (!sourceName.empty() && !sources.empty())
                     {
                         // A bad name was given, try to help.
-                        context.Reporter.Error() << Resource::String::OpenSourceFailedNoMatch(sourceName) << std::endl;
-                        context.Reporter.Info() << Resource::String::OpenSourceFailedNoMatchHelp << std::endl;
-                        for (const auto& details : sources)
+                        if (IsJsonOutputFormat(context.Args))
                         {
-                            context.Reporter.Info() << "  "_liv << details.Name << std::endl;
+                            OutputInstalledPackagesJsonError(context, APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, Resource::String::OpenSourceFailedNoMatch(sourceName), sourceName);
+                        }
+                        else
+                        {
+                            context.Reporter.Error() << Resource::String::OpenSourceFailedNoMatch(sourceName) << std::endl;
+                            context.Reporter.Info() << Resource::String::OpenSourceFailedNoMatchHelp << std::endl;
+                            for (const auto& details : sources)
+                            {
+                                context.Reporter.Info() << "  "_liv << details.Name << std::endl;
+                            }
                         }
 
                         AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, {});
@@ -208,7 +220,15 @@ namespace AppInstaller::CLI::Workflow
                     else
                     {
                         // Even if a name was given, there are no sources
-                        context.Reporter.Error() << Resource::String::OpenSourceFailedNoSourceDefined << std::endl;
+                        if (IsJsonOutputFormat(context.Args))
+                        {
+                            OutputInstalledPackagesJsonError(context, APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED, Resource::String::OpenSourceFailedNoSourceDefined, sourceName);
+                        }
+                        else
+                        {
+                            context.Reporter.Error() << Resource::String::OpenSourceFailedNoSourceDefined << std::endl;
+                        }
+
                         AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED, {});
                     }
                 }
@@ -237,6 +257,17 @@ namespace AppInstaller::CLI::Workflow
                     context.Reporter.Warn() << Resource::String::SourceOpenWithFailedUpdate(Utility::LocIndView{ s.Name }) << std::endl;
                 }
 
+                if (!updateFailures.empty())
+                {
+                    if (!context.Contains(Execution::Data::SourceOpenUpdateFailures))
+                    {
+                        context.Add<Execution::Data::SourceOpenUpdateFailures>({});
+                    }
+
+                    auto& sourceOpenUpdateFailures = context.Get<Execution::Data::SourceOpenUpdateFailures>();
+                    std::move(updateFailures.begin(), updateFailures.end(), std::back_inserter(sourceOpenUpdateFailures));
+                }
+
                 // Report sources that may need authentication
                 if (source.IsComposite())
                 {
@@ -255,6 +286,12 @@ namespace AppInstaller::CLI::Workflow
             }
             catch (const wil::ResultException& re)
             {
+                if (IsJsonOutputFormat(context.Args))
+                {
+                    OutputInstalledPackagesJsonError(context, re.GetErrorCode(), Resource::String::SourceOpenFailedSuggestion, sourceName);
+                    AICLI_TERMINATE_CONTEXT_RETURN(re.GetErrorCode(), {});
+                }
+
                 context.Reporter.Error() << Resource::String::SourceOpenFailedSuggestion << std::endl;
                 if (re.GetErrorCode() == APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES)
                 {
@@ -269,6 +306,12 @@ namespace AppInstaller::CLI::Workflow
             }
             catch (...)
             {
+                if (IsJsonOutputFormat(context.Args))
+                {
+                    OutputInstalledPackagesJsonError(context, E_FAIL, Resource::String::SourceOpenFailedSuggestion, sourceName);
+                    AICLI_TERMINATE_CONTEXT_RETURN(E_FAIL, {});
+                }
+
                 context.Reporter.Error() << Resource::String::SourceOpenFailedSuggestion << std::endl;
                 throw;
             }
@@ -341,6 +384,8 @@ namespace AppInstaller::CLI::Workflow
             Utility::LocIndString Source;
         };
 
+        void SortInstalledPackagesTableLines(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines);
+
         void OutputInstalledPackagesTable(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
         {
             Execution::TableOutput<5> table(context.Reporter,
@@ -364,6 +409,153 @@ namespace AppInstaller::CLI::Workflow
             }
 
             table.Complete();
+        }
+
+        Json::Value InstalledPackageLineToJson(const InstalledPackagesTableLine& line)
+        {
+            Json::Value package{ Json::ValueType::objectValue };
+            package["name"] = line.Name.get();
+            package["id"] = line.Id.get();
+            package["installedVersion"] = line.InstalledVersion.get();
+            package["availableVersion"] = line.AvailableVersion.get();
+            package["source"] = line.Source.get();
+            return package;
+        }
+
+        Json::Value InstalledPackageLinesToJson(const std::vector<InstalledPackagesTableLine>& lines)
+        {
+            Json::Value packages{ Json::ValueType::arrayValue };
+            for (const auto& line : lines)
+            {
+                packages.append(InstalledPackageLineToJson(line));
+            }
+
+            return packages;
+        }
+
+        Json::Value SourceFailuresToJson(const std::vector<SearchResult::Failure>& failures)
+        {
+            Json::Value result{ Json::ValueType::arrayValue };
+            for (const auto& failure : failures)
+            {
+                Json::Value sourceFailure{ Json::ValueType::objectValue };
+                sourceFailure["source"] = failure.SourceName;
+                result.append(std::move(sourceFailure));
+            }
+
+            return result;
+        }
+
+        void AppendSourceFailures(Json::Value& sourceFailures, const std::vector<SourceDetails>& failures)
+        {
+            for (const auto& failure : failures)
+            {
+                Json::Value sourceFailure{ Json::ValueType::objectValue };
+                sourceFailure["source"] = failure.Name;
+                sourceFailures.append(std::move(sourceFailure));
+            }
+        }
+
+        Json::Value EmptyInstalledPackagesJson(bool onlyShowUpgrades)
+        {
+            Json::Value result{ Json::ValueType::objectValue };
+            result["packages"] = Json::Value{ Json::ValueType::arrayValue };
+            result["truncated"] = false;
+            result["sourceFailures"] = Json::Value{ Json::ValueType::arrayValue };
+
+            if (onlyShowUpgrades)
+            {
+                result["availableUpgrades"] = 0;
+                result["packagesWithAvailableUpgradesForPins"] = Json::Value{ Json::ValueType::arrayValue };
+                result["packagesBlockedByPins"] = Json::Value{ Json::ValueType::arrayValue };
+                result["skippedUnknownVersions"] = 0;
+                result["skippedPinned"] = 0;
+            }
+
+            return result;
+        }
+
+        void WriteJsonOutput(Execution::Context& context, const Json::Value& result)
+        {
+            Json::StreamWriterBuilder writerBuilder;
+            writerBuilder.settings_["indentation"] = "";
+            writerBuilder.settings_["commentStyle"] = "None";
+            writerBuilder.settings_["emitUTF8"] = true;
+            context.Reporter.Json() << Json::writeString(writerBuilder, result) << std::endl;
+        }
+
+        void OutputInstalledPackagesJsonError(Execution::Context& context, HRESULT resultCode, Resource::LocString message, Utility::LocIndView sourceName)
+        {
+            Json::Value result = EmptyInstalledPackagesJson(
+                (context.GetExecutingCommand() && context.GetExecutingCommand()->Name() == "upgrade") ||
+                context.Args.Contains(Execution::Args::Type::Upgrade));
+
+            if (!sourceName.empty())
+            {
+                Json::Value sourceFailure{ Json::ValueType::objectValue };
+                sourceFailure["source"] = std::string{ sourceName };
+                result["sourceFailures"].append(std::move(sourceFailure));
+            }
+
+            std::ostringstream errorCode;
+            errorCode << WINGET_OSTREAM_FORMAT_HRESULT(resultCode);
+
+            Json::Value error{ Json::ValueType::objectValue };
+            error["code"] = errorCode.str();
+            error["message"] = message.get();
+            result["error"] = std::move(error);
+
+            WriteJsonOutput(context, result);
+        }
+
+        Resource::LocString GetUnexpectedErrorMessage(std::string_view message)
+        {
+            std::string result = Resource::LocString{ Resource::String::UnexpectedErrorExecutingCommand }.get();
+
+            if (!message.empty())
+            {
+                result += ' ';
+                result += message;
+            }
+
+            return Resource::LocString{ Utility::LocIndString{ std::move(result) } };
+        }
+
+        void OutputInstalledPackagesJson(
+            Execution::Context& context,
+            std::vector<InstalledPackagesTableLine>& lines,
+            std::vector<InstalledPackagesTableLine>& linesForExplicitUpgrade,
+            std::vector<InstalledPackagesTableLine>& linesForPins,
+            bool truncated,
+            bool onlyShowUpgrades,
+            int availableUpgradesCount,
+            int packagesWithUnknownVersionSkipped,
+            int packagesWithUserPinsSkipped)
+        {
+            SortInstalledPackagesTableLines(context, lines);
+            SortInstalledPackagesTableLines(context, linesForExplicitUpgrade);
+            SortInstalledPackagesTableLines(context, linesForPins);
+
+            Json::Value result{ Json::ValueType::objectValue };
+            result["packages"] = InstalledPackageLinesToJson(lines);
+            result["truncated"] = truncated;
+            result["sourceFailures"] = SourceFailuresToJson(context.Get<Execution::Data::SearchResult>().Failures);
+
+            if (context.Contains(Execution::Data::SourceOpenUpdateFailures))
+            {
+                AppendSourceFailures(result["sourceFailures"], context.Get<Execution::Data::SourceOpenUpdateFailures>());
+            }
+
+            if (onlyShowUpgrades)
+            {
+                result["availableUpgrades"] = availableUpgradesCount;
+                result["packagesWithAvailableUpgradesForPins"] = InstalledPackageLinesToJson(linesForExplicitUpgrade);
+                result["packagesBlockedByPins"] = InstalledPackageLinesToJson(linesForPins);
+                result["skippedUnknownVersions"] = packagesWithUnknownVersionSkipped;
+                result["skippedPinned"] = packagesWithUserPinsSkipped;
+            }
+
+            WriteJsonOutput(context, result);
         }
 
         void ShowMetadataField(
@@ -584,6 +776,20 @@ namespace AppInstaller::CLI::Workflow
         return authArgs;
     }
 
+    bool IsJsonOutputFormat(const Execution::Args& args)
+    {
+        return args.Contains(Execution::Args::Type::OutputFormat) &&
+            Utility::CaseInsensitiveEquals(args.GetArg(Execution::Args::Type::OutputFormat), "json"sv);
+    }
+
+    void SetJsonOutputChannel(Execution::Context& context)
+    {
+        if (IsJsonOutputFormat(context.Args))
+        {
+            context.Reporter.SetChannel(Execution::Reporter::Channel::Json);
+        }
+    }
+
     HRESULT HandleException(Execution::Context* context, std::exception_ptr exception)
     {
         try
@@ -597,9 +803,17 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::ResultException, re.what());
             if (context)
             {
-                context->Reporter.Error() <<
-                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                    GetUserPresentableMessage(re) << std::endl;
+                auto message = GetUserPresentableMessage(re);
+                if (IsJsonOutputFormat(context->Args))
+                {
+                    OutputInstalledPackagesJsonError(*context, re.GetErrorCode(), GetUnexpectedErrorMessage(message));
+                }
+                else
+                {
+                    context->Reporter.Error() <<
+                        Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                        message << std::endl;
+                }
             }
             return re.GetErrorCode();
         }
@@ -609,9 +823,16 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::WinrtHResultError, message);
             if (context)
             {
-                context->Reporter.Error() <<
-                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                    message << std::endl;
+                if (IsJsonOutputFormat(context->Args))
+                {
+                    OutputInstalledPackagesJsonError(*context, hre.code(), GetUnexpectedErrorMessage(message));
+                }
+                else
+                {
+                    context->Reporter.Error() <<
+                        Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                        message << std::endl;
+                }
             }
             return hre.code();
         }
@@ -621,7 +842,16 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
                 auto policyNameId = policy.PolicyName();
-                context->Reporter.Error() << Resource::String::DisabledByGroupPolicy(policyNameId) << std::endl;
+                auto message = Resource::String::DisabledByGroupPolicy(policyNameId);
+
+                if (IsJsonOutputFormat(context->Args))
+                {
+                    OutputInstalledPackagesJsonError(*context, APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, message);
+                }
+                else
+                {
+                    context->Reporter.Error() << message << std::endl;
+                }
             }
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
@@ -630,9 +860,17 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::StdException, e.what());
             if (context)
             {
-                context->Reporter.Error() <<
-                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                    GetUserPresentableMessage(e) << std::endl;
+                auto message = GetUserPresentableMessage(e);
+                if (IsJsonOutputFormat(context->Args))
+                {
+                    OutputInstalledPackagesJsonError(*context, APPINSTALLER_CLI_ERROR_COMMAND_FAILED, GetUnexpectedErrorMessage(message));
+                }
+                else
+                {
+                    context->Reporter.Error() <<
+                        Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                        message << std::endl;
+                }
             }
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
@@ -642,8 +880,15 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::Unknown, {});
             if (context)
             {
-                context->Reporter.Error() <<
-                    Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
+                if (IsJsonOutputFormat(context->Args))
+                {
+                    OutputInstalledPackagesJsonError(*context, APPINSTALLER_CLI_ERROR_COMMAND_FAILED, GetUnexpectedErrorMessage("???"sv));
+                }
+                else
+                {
+                    context->Reporter.Error() <<
+                        Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
+                }
             }
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
@@ -787,8 +1032,25 @@ namespace AppInstaller::CLI::Workflow
             };
             context.Reporter.ExecuteWithProgress(openFunction, true);
         }
+        catch (const wil::ResultException& re)
+        {
+                if (IsJsonOutputFormat(context.Args))
+                {
+                    OutputInstalledPackagesJsonError(context, re.GetErrorCode(), Resource::String::SourceOpenPredefinedFailedSuggestion);
+                    AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
+                }
+
+            context.Reporter.Error() << Resource::String::SourceOpenPredefinedFailedSuggestion << std::endl;
+            throw;
+        }
         catch (...)
         {
+                if (IsJsonOutputFormat(context.Args))
+                {
+                    OutputInstalledPackagesJsonError(context, E_FAIL, Resource::String::SourceOpenPredefinedFailedSuggestion);
+                    AICLI_TERMINATE_CONTEXT(E_FAIL);
+                }
+
             context.Reporter.Error() << Resource::String::SourceOpenPredefinedFailedSuggestion << std::endl;
             throw;
         }
@@ -818,6 +1080,10 @@ namespace AppInstaller::CLI::Workflow
 
         // Open the predefined source.
         context << OpenPredefinedSource(m_predefinedSource, m_forDependencies);
+        if (context.IsTerminated())
+        {
+            return;
+        }
 
         // Create the composite source from the two.
         Repository::Source source;
@@ -1263,6 +1529,21 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        if (IsJsonOutputFormat(context.Args))
+        {
+            OutputInstalledPackagesJson(
+                context,
+                lines,
+                linesForExplicitUpgrade,
+                linesForPins,
+                searchResult.Truncated,
+                m_onlyShowUpgrades,
+                availableUpgradesCount,
+                packagesWithUnknownVersionSkipped,
+                packagesWithUserPinsSkipped);
+            return;
+        }
+
         OutputInstalledPackages(context, lines);
 
         if (lines.empty())
@@ -1319,6 +1600,12 @@ namespace AppInstaller::CLI::Workflow
         if (searchResult.Matches.size() == 0)
         {
             Logging::Telemetry().LogNoAppMatch();
+
+            if (IsJsonOutputFormat(context.Args) && (m_operationType == OperationType::List || m_operationType == OperationType::Upgrade))
+            {
+                ReportListResult(m_operationType == OperationType::Upgrade || context.Args.Contains(Execution::Args::Type::Upgrade))(context);
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
+            }
             
             switch (m_operationType)
             {
