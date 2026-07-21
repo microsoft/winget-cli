@@ -67,6 +67,21 @@ namespace AppInstaller::CLI::Workflow
 
             std::vector<Item> Items;
         };
+
+        bool AdminExecutionShouldBlockUserScopePackages(InstallerTypeEnum installerType)
+        {
+            switch (installerType)
+            {
+            case InstallerTypeEnum::Exe:
+            case InstallerTypeEnum::Burn:
+            case InstallerTypeEnum::Inno:
+            case InstallerTypeEnum::Nullsoft:
+            case InstallerTypeEnum::Portable:
+                return true;
+            default:
+                return false;
+            }
+        }
     }
 
     void UninstallSinglePackage(Execution::Context& context)
@@ -214,16 +229,27 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        const std::string installedTypeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledType];
-        switch (ConvertToInstallerTypeEnum(installedTypeString))
+        auto packageMetadata = installedPackageVersion->GetMetadata();
+        auto installedType = ConvertToInstallerTypeEnum(packageMetadata[PackageVersionMetadata::InstalledType]);
+
+        // When running as admin, block attempt to uninstall user scope package to prevent elevation of privilege paths.
+        if (AdminExecutionShouldBlockUserScopePackages(installedType) && Runtime::IsRunningWithNonDefaultFullToken())
+        {
+            auto scopeEnum = ConvertToScopeEnum(packageMetadata[PackageVersionMetadata::InstalledScope]);
+            if (scopeEnum == ScopeEnum::User)
+            {
+                context.Reporter.Error() << Resource::String::NoAdminUninstallForUserScopePackage << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+            }
+        }
+
+        switch (installedType)
         {
         case InstallerTypeEnum::Exe:
         case InstallerTypeEnum::Burn:
         case InstallerTypeEnum::Inno:
         case InstallerTypeEnum::Nullsoft:
         {
-            IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
-
             // Default to silent unless it is not present or interactivity is requested
             auto uninstallCommandItr = packageMetadata.find(PackageVersionMetadata::SilentUninstallCommand);
             if (uninstallCommandItr == packageMetadata.end() || context.Args.Contains(Execution::Args::Type::Interactive))
@@ -281,8 +307,8 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND);
             }
 
-            const std::string installedScope = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
-            const std::string installedArch = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledArchitecture];
+            const std::string installedScope = packageMetadata[Repository::PackageVersionMetadata::InstalledScope];
+            const std::string installedArch = packageMetadata[Repository::PackageVersionMetadata::InstalledArchitecture];
 
             PortableInstaller portableInstaller = PortableInstaller(
                 Manifest::ConvertToScopeEnum(installedScope),

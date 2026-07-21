@@ -69,7 +69,7 @@ namespace Microsoft.WinGet.Client.Engine.Exceptions
                     return Resources.RepairOperationNotSupported;
                 case ErrorCode.RepairNotApplicable:
                     return Resources.RepairDifferentInstallTechnology;
-                case ErrorCode.AdminContextRepairProhibited:
+                case ErrorCode.AdminContextActionProhibited:
                     return Resources.NoAdminRepairForUserScopePackage;
                 default:
                     return string.Format(Resources.UnknownRepairFailure, hresult);

@@ -219,6 +219,11 @@ namespace AppInstaller::Runtime
         return wil::get_token_information<TOKEN_ELEVATION_TYPE>() == TokenElevationTypeLimited;
     }
 
+    bool IsRunningWithNonDefaultFullToken()
+    {
+        return wil::get_token_information<TOKEN_ELEVATION_TYPE>() == TokenElevationTypeFull;
+    }
+
     DECLSPEC_NOINLINE bool IsStackAvailable(size_t bytes)
     {
         // https://devblogs.microsoft.com/oldnewthing/20200610-00/?p=103855
