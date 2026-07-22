@@ -93,6 +93,12 @@ namespace AppInstaller::Pinning
         m_database->RemovePin(pinKey);
     }
 
+    bool PinningData::TryRemovePin(const PinKey& pinKey)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !IsDatabaseConnected());
+        return m_database->TryRemovePin(pinKey);
+    }
+
     std::optional<Pin> PinningData::GetPin(const PinKey& pinKey)
     {
         return IsDatabaseConnected() ? m_database->GetPin(pinKey) : std::nullopt;

@@ -540,6 +540,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PinCannotOpenIndex);
         WINGET_DEFINE_RESOURCE_STRINGID(PinCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinDateAdded);
         WINGET_DEFINE_RESOURCE_STRINGID(PinDoesNotExist);
         WINGET_DEFINE_RESOURCE_STRINGID(PinExistsOverwriting);
         WINGET_DEFINE_RESOURCE_STRINGID(PinExistsUseForceArg);
@@ -547,6 +548,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PinInstalledSource);
         WINGET_DEFINE_RESOURCE_STRINGID(PinListCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinListCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinNote);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinNoteArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinNoPinsExist);
         WINGET_DEFINE_RESOURCE_STRINGID(PinRemoveCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinRemoveCommandShortDescription);
@@ -556,6 +559,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PinResetSuccessful);
         WINGET_DEFINE_RESOURCE_STRINGID(PinResettingAll);
         WINGET_DEFINE_RESOURCE_STRINGID(PinResetUseForceArg);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinShowNoMatchFound);
         WINGET_DEFINE_RESOURCE_STRINGID(PinType);
         WINGET_DEFINE_RESOURCE_STRINGID(PinVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(PlatformArgumentDescription);
