@@ -19,17 +19,21 @@ TEST_CASE("EnsureSortedErrorList", "[errors]")
     }
 }
 
-TEST_CASE("Win32HResultMessageUsesWin32Code", "[errors]")
+TEST_CASE("WinInetHResultMessageUsesWinInetMessage", "[errors]")
 {
     constexpr HRESULT internetCannotConnect = HRESULT_FROM_WIN32(ERROR_INTERNET_CANNOT_CONNECT);
     const std::string message = GetUserPresentableMessage(internetCannotConnect);
-    const std::string expectedSystemMessage = std::system_category().message(ERROR_INTERNET_CANNOT_CONNECT);
-    const std::string hresultSystemMessage = std::system_category().message(internetCannotConnect);
+    const std::string fallbackSystemMessage = std::system_category().message(internetCannotConnect);
 
     INFO(message);
-    INFO(expectedSystemMessage);
-    INFO(hresultSystemMessage);
+    INFO(fallbackSystemMessage);
     REQUIRE(message.find("0x80072efd") != std::string::npos);
-    REQUIRE(message.find(expectedSystemMessage) != std::string::npos);
-    REQUIRE(message.find(hresultSystemMessage) == std::string::npos);
+    REQUIRE(message.find(fallbackSystemMessage) == std::string::npos);
+
+    auto hresultInfo = Errors::HResultInformation::Find(internetCannotConnect);
+    REQUIRE(hresultInfo);
+
+    const auto description = hresultInfo->GetDescription();
+    INFO(description);
+    REQUIRE(description.get().find(fallbackSystemMessage) == std::string::npos);
 }

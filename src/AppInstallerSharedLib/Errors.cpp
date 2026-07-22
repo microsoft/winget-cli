@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include <wininet.h>
 #include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
@@ -343,6 +344,55 @@ namespace AppInstaller
                 UnknownHResultInformation(hr).GetDescription();
         }
 
+        int GetSystemErrorCode(HRESULT hr)
+        {
+            return static_cast<int>(HRESULT_FACILITY(hr) == FACILITY_WIN32 ? HRESULT_CODE(hr) : hr);
+        }
+
+        // WinINet errors are not present in the system message table.
+        std::optional<std::string> GetWinInetErrorMessage(int errorCode)
+        {
+            if (errorCode < ERROR_INTERNET_OUT_OF_HANDLES || errorCode > INTERNET_ERROR_LAST)
+            {
+                return std::nullopt;
+            }
+
+            wil::unique_hmodule module{ LoadLibraryExW(L"wininet.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32) };
+            if (!module)
+            {
+                return std::nullopt;
+            }
+
+            LPWSTR buffer = nullptr;
+            const DWORD messageLength = FormatMessageW(
+                FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS,
+                module.get(), errorCode, 0, reinterpret_cast<LPWSTR>(&buffer), 0, nullptr);
+            if (!messageLength)
+            {
+                return std::nullopt;
+            }
+
+            auto freeBuffer = wil::scope_exit([&]() { LocalFree(buffer); });
+            std::string message = Utility::ConvertToUTF8(std::wstring_view{ buffer, messageLength });
+            Utility::Trim(message);
+            return message.empty() ? std::nullopt : std::optional<std::string>{ std::move(message) };
+        }
+
+        std::string GetSystemErrorMessage(HRESULT hr)
+        {
+            const int errorCode = GetSystemErrorCode(hr);
+            if (HRESULT_FACILITY(hr) == FACILITY_WIN32)
+            {
+                auto winInetMessage = GetWinInetErrorMessage(errorCode);
+                if (winInetMessage)
+                {
+                    return std::move(winInetMessage).value();
+                }
+            }
+
+            return std::system_category().message(errorCode);
+        }
+
         void GetUserPresentableMessageForHR(std::ostringstream& strstr, HRESULT hr)
         {
             strstr << "0x" << Logging::SetHRFormat << hr << " : ";
@@ -361,8 +411,7 @@ namespace AppInstaller
                 }
                 else
                 {
-                    strstr << std::system_category().message(
-                        HRESULT_FACILITY(hr) == FACILITY_WIN32 ? HRESULT_CODE(hr) : hr);
+                    strstr << GetSystemErrorMessage(hr);
                 }
             }
         }
@@ -438,7 +487,7 @@ namespace AppInstaller
             }
             else
             {
-                return Utility::LocIndString{ std::system_category().message(m_value) };
+                return Utility::LocIndString{ GetSystemErrorMessage(m_value) };
             }
         }
 
