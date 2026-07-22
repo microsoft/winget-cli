@@ -13,10 +13,10 @@ namespace AppInstaller::Repository
     // If it does it returns None, otherwise it returns which policy is blocking it.
     // Note that this applies to user sources that are being added as well as user sources
     // that already existed when the Group Policy came into effect.
-    Settings::TogglePolicy::Policy GetPolicyBlockingUserSource(std::string_view name, std::string_view type, std::string_view arg, bool isTombstone);
+    Settings::TogglePolicy::Policy GetPolicyBlockingUserSource(std::string_view name, SourceType type, std::string_view arg, bool isTombstone);
 
     // Helper that converts the result of GetPolicyBlockingUserSource into a bool.
-    bool IsUserSourceAllowedByPolicy(std::string_view name, std::string_view type, std::string_view arg, bool isTombstone);
+    bool IsUserSourceAllowedByPolicy(std::string_view name, SourceType type, std::string_view arg, bool isTombstone);
 
     // Determines if a well known source is enabled; if onlyExplicit is true, it must be explicitly enabled by group policy.
     bool IsWellKnownSourceEnabled(WellKnownSource source, bool onlyExplicit = false);

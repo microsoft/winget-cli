@@ -361,7 +361,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             auto report_progress{ co_await winrt::get_progress_token() };
             co_await winrt::resume_background();
 
-            auto packageCatalogProgressSink = winrt::Microsoft::Management::Deployment::ProgressSinkFactory::CreatePackageCatalogProgressSink(this->m_sourceReference.GetDetails().Type, report_progress);
+            auto packageCatalogProgressSink = winrt::Microsoft::Management::Deployment::ProgressSinkFactory::CreatePackageCatalogProgressSink(
+                this->m_sourceReference.GetDetails().Type,
+                report_progress);
 
             packageCatalogProgressSink->BeginProgress();
             ::AppInstaller::ProgressCallback progress(packageCatalogProgressSink.get());

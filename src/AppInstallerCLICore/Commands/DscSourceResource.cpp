@@ -107,7 +107,7 @@ namespace AppInstaller::CLI
                     {
                         Output.Exist(true);
                         Output.Argument(source.Arg);
-                        Output.Type(source.Type);
+                        Output.Type(std::string{ ToString(source.Type) });
                         Output.TrustLevel(TrustLevelStringFromFlags(source.TrustLevel));
                         Output.Explicit(source.Explicit);
 
@@ -140,6 +140,7 @@ namespace AppInstaller::CLI
 
                 if (Input.Type())
                 {
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !TryConvertToSourceTypeEnum(Input.Type().value()).has_value());
                     SubContext->Args.AddArg(Execution::Args::Type::SourceType, Input.Type().value());
                 }
 
@@ -495,7 +496,7 @@ namespace AppInstaller::CLI
             SourceResourceObject output;
             output.SourceName(source.Name);
             output.Argument(source.Arg);
-            output.Type(source.Type);
+            output.Type(std::string{ ToString(source.Type) });
             output.TrustLevel(TrustLevelStringFromFlags(source.TrustLevel));
             output.Explicit(source.Explicit);
 

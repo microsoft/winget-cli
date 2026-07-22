@@ -423,7 +423,7 @@ namespace AppInstaller::Repository::Microsoft
 
             std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
-                THROW_HR_IF(E_INVALIDARG, details.Type != PredefinedInstalledSourceFactory::Type());
+                THROW_HR_IF(E_INVALIDARG, details.Type != SourceType::PredefinedInstalled);
 
                 return std::make_shared<PredefinedInstalledSourceReference>(details);
             }

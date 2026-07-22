@@ -84,7 +84,7 @@ namespace
             const auto& jsonSourceDetails = GetAndValidateJsonProperty(*jsonSourceItr, s_PackagesJson_Source_Details, Json::ValueType::objectValue);
             ValidateJsonStringProperty(jsonSourceDetails, s_PackagesJson_Source_Name, sourceItr->Details.Name);
             ValidateJsonStringProperty(jsonSourceDetails, s_PackagesJson_Source_Argument, sourceItr->Details.Arg);
-            ValidateJsonStringProperty(jsonSourceDetails, s_PackagesJson_Source_Type, sourceItr->Details.Type);
+            ValidateJsonStringProperty(jsonSourceDetails, s_PackagesJson_Source_Type, ToString(sourceItr->Details.Type));
             ValidateJsonStringProperty(jsonSourceDetails, s_PackagesJson_Source_Identifier, sourceItr->Details.Identifier);
 
             const auto& jsonPackages = GetAndValidateJsonProperty(*jsonSourceItr, s_PackagesJson_Packages, Json::ValueType::arrayValue);
@@ -137,7 +137,7 @@ TEST_CASE("PackageCollection_Write_SingleSource", "[PackageCollection]")
     PackageCollection::Source source;
     source.Details.Name = "TestSource";
     source.Details.Arg = "https://aka.ms/winget";
-    source.Details.Type = "Microsoft.PreIndexed.Package";
+    source.Details.Type = SourceType::PreIndexedPackage;
     source.Details.Identifier = "TestSourceId";
 
     source.Packages.emplace_back(LocIndString{ "test.package1"sv }, Version{ "1.0.1" }, Channel{ "" });
@@ -157,14 +157,14 @@ TEST_CASE("PackageCollection_Write_MultipleSources", "[PackageCollection]")
     PackageCollection::Source source1;
     source1.Details.Name = "TestSource";
     source1.Details.Arg = "https://aka.ms/winget";
-    source1.Details.Type = "Microsoft.PreIndexed.Package";
+    source1.Details.Type = SourceType::PreIndexedPackage;
     source1.Details.Identifier = "TestSourceId";
     source1.Packages.emplace_back(LocIndString{ "test.package1"sv }, Version{ "1.0.1" }, Channel{ "" });
 
     PackageCollection::Source source2;
     source2.Details.Name = "TestSource2";
     source2.Details.Arg = "https://aka.ms/winget";
-    source2.Details.Type = "*Test";
+    source2.Details.Type = SourceType::ConfigurableTest;
     source2.Details.Identifier = "SecondId";
     source2.Packages.emplace_back(LocIndString{ "test.package2"sv }, Version{ "2.1.0" }, Channel{ "Beta" });
 
@@ -182,7 +182,7 @@ TEST_CASE("PackageCollection_Write_OverrideAndCustomSwitches", "[PackageCollecti
     PackageCollection::Source source;
     source.Details.Name = "TestSource";
     source.Details.Arg = "https://aka.ms/winget";
-    source.Details.Type = "Microsoft.PreIndexed.Package";
+    source.Details.Type = SourceType::PreIndexedPackage;
     source.Details.Identifier = "TestSourceId";
 
     PackageCollection::Package packageWithOverride{ LocIndString{ "test.withOverride"sv }, Version{ "1.0" }, Channel{ "" } };
@@ -246,7 +246,7 @@ TEST_CASE("PackageCollection_Read_SingleSource_1_0", "[PackageCollection]")
     PackageCollection::Source source;
     source.Details.Name = "TestSource";
     source.Details.Arg = "https://aka.ms/winget";
-    source.Details.Type = "Microsoft.PreIndexed.Package";
+    source.Details.Type = SourceType::PreIndexedPackage;
     source.Details.Identifier = "TestSourceId";
 
     source.Packages.emplace_back(LocIndString{ "test.WithVersion"sv }, Version{ "0.1" }, Channel{ "Preview" });
@@ -296,7 +296,7 @@ TEST_CASE("PackageCollection_Read_SingleSource_2_0", "[PackageCollection]")
     PackageCollection::Source source;
     source.Details.Name = "TestSource";
     source.Details.Arg = "https://aka.ms/winget";
-    source.Details.Type = "Microsoft.PreIndexed.Package";
+    source.Details.Type = SourceType::PreIndexedPackage;
     source.Details.Identifier = "TestSourceId";
 
     source.Packages.emplace_back(LocIndString{ "test.WithVersion"sv }, Version{ "0.1" }, Channel{ "Preview" });
@@ -378,7 +378,7 @@ TEST_CASE("PackageCollection_WriteRead_OverrideAndCustomSwitches", "[PackageColl
     PackageCollection::Source source;
     source.Details.Name = "TestSource";
     source.Details.Arg = "https://aka.ms/winget";
-    source.Details.Type = "Microsoft.PreIndexed.Package";
+    source.Details.Type = SourceType::PreIndexedPackage;
     source.Details.Identifier = "TestSourceId";
 
     PackageCollection::Package packageWithOverride{ LocIndString{ "test.withOverride"sv }, Version{ "1.0" }, Channel{ "" } };
@@ -437,7 +437,7 @@ TEST_CASE("PackageCollection_Read_MultipleSources_1_0", "[PackageCollection]")
             "Argument": "//secondSource",
             "Identifier": "Id2",
             "Name": "Second",
-            "Type": "*TestSource"
+            "Type": "Microsoft.Test.Configurable"
           },
           "Packages": [
             {
@@ -457,14 +457,14 @@ TEST_CASE("PackageCollection_Read_MultipleSources_1_0", "[PackageCollection]")
     PackageCollection::Source source1;
     source1.Details.Name = "First";
     source1.Details.Arg = "//firstSource";
-    source1.Details.Type = "Microsoft.PreIndexed.Package";
+    source1.Details.Type = SourceType::PreIndexedPackage;
     source1.Details.Identifier = "Id1";
     source1.Packages.emplace_back(LocIndString{ "test"sv }, Version{ "" }, Channel{ "" });
 
     PackageCollection::Source source2;
     source2.Details.Name = "Second";
     source2.Details.Arg = "//secondSource";
-    source2.Details.Type = "*TestSource";
+    source2.Details.Type = SourceType::ConfigurableTest;
     source2.Details.Identifier = "Id2";
     source2.Packages.emplace_back(LocIndString{ "test2"sv }, Version{ "1.0" }, Channel{ "" });
 
@@ -503,7 +503,7 @@ TEST_CASE("PackageCollection_Read_MultipleSources_2_0", "[PackageCollection]")
             "Argument": "//secondSource",
             "Identifier": "Id2",
             "Name": "Second",
-            "Type": "*TestSource"
+            "Type": "Microsoft.Test.Configurable"
           },
           "Packages": [
             {
@@ -523,14 +523,14 @@ TEST_CASE("PackageCollection_Read_MultipleSources_2_0", "[PackageCollection]")
     PackageCollection::Source source1;
     source1.Details.Name = "First";
     source1.Details.Arg = "//firstSource";
-    source1.Details.Type = "Microsoft.PreIndexed.Package";
+    source1.Details.Type = SourceType::PreIndexedPackage;
     source1.Details.Identifier = "Id1";
     source1.Packages.emplace_back(LocIndString{ "test"sv }, Version{ "" }, Channel{ "" });
 
     PackageCollection::Source source2;
     source2.Details.Name = "Second";
     source2.Details.Arg = "//secondSource";
-    source2.Details.Type = "*TestSource";
+    source2.Details.Type = SourceType::ConfigurableTest;
     source2.Details.Identifier = "Id2";
     source2.Packages.emplace_back(LocIndString{ "test2"sv }, Version{ "1.0" }, Channel{ "" });
 
@@ -569,7 +569,7 @@ TEST_CASE("PackageCollection_Read_RepeatedSource", "[PackageCollection]")
             "Argument": "//secondSource",
             "Identifier": "Id2",
             "Name": "Second",
-            "Type": "*TestSource"
+            "Type": "Microsoft.Test.Configurable"
           },
           "Packages": [
             {
@@ -583,7 +583,7 @@ TEST_CASE("PackageCollection_Read_RepeatedSource", "[PackageCollection]")
             "Argument": "//secondSource",
             "Identifier": "Id2",
             "Name": "Second",
-            "Type": "*TestSource"
+            "Type": "Microsoft.Test.Configurable"
           },
           "Packages": [
             {
@@ -603,14 +603,14 @@ TEST_CASE("PackageCollection_Read_RepeatedSource", "[PackageCollection]")
     PackageCollection::Source source1;
     source1.Details.Name = "First";
     source1.Details.Arg = "//firstSource";
-    source1.Details.Type = "Microsoft.PreIndexed.Package";
+    source1.Details.Type = SourceType::PreIndexedPackage;
     source1.Details.Identifier = "Id1";
     source1.Packages.emplace_back(LocIndString{ "test"sv }, Version{ "" }, Channel{ "" });
 
     PackageCollection::Source source2;
     source2.Details.Name = "Second";
     source2.Details.Arg = "//secondSource";
-    source2.Details.Type = "*TestSource";
+    source2.Details.Type = SourceType::ConfigurableTest;
     source2.Details.Identifier = "Id2";
     source2.Packages.emplace_back(LocIndString{ "test2"sv }, Version{ "1.0" }, Channel{ "" });
     source2.Packages.emplace_back(LocIndString{ "test3"sv }, Version{ "1.2" }, Channel{ "" });

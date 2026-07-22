@@ -319,6 +319,23 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Calls `set` on the `source` resource with an invalid source type.
+        /// </summary>
+        [Test]
+        public void Source_Set_InvalidType()
+        {
+            SourceResourceData resourceData = new SourceResourceData()
+            {
+                Name = DefaultSourceName,
+                Argument = DefaultSourceArgDirect,
+                Type = "InvalidType",
+            };
+
+            var result = RunDSCv3Command(SourceResource, SetFunction, resourceData);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS));
+        }
+
+        /// <summary>
         /// Calls `set` on the `source` resource to ensure that it is not present.
         /// </summary>
         [Test]

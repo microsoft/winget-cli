@@ -3,19 +3,20 @@
 #include "pch.h"
 #include "PackageCatalogProgress.h"
 #include "AppInstallerStrings.h"
-#include "Microsoft/PredefinedInstalledSourceFactory.h"
+#include <winget/RepositorySource.h>
 
 using namespace AppInstaller;
-using namespace AppInstaller::Repository;
 
 namespace winrt::Microsoft::Management::Deployment
 {
     namespace ProgressSinkFactory
     {
-        std::shared_ptr<AppInstaller::IProgressSink> CreatePackageCatalogProgressSink(std::string sourceType, std::function<void(double)> progressReporter, bool removeOperation)
+        std::shared_ptr<AppInstaller::IProgressSink> CreatePackageCatalogProgressSink(::AppInstaller::Repository::SourceType sourceType, std::function<void(double)> progressReporter, bool removeOperation)
         {
-            if (sourceType.empty()
-                || Utility::CaseInsensitiveEquals( Repository::Microsoft::PredefinedInstalledSourceFactory::Type(), sourceType))
+            // Use weighted progress for source types that perform index-based work; everything else only reports completion.
+            // This should be aligned with prior behavior where an empty source type was treated as default
+            // default source type + PredefinedInstalled should use weighted progress.
+            if (sourceType == ::AppInstaller::Repository::Source::GetDefaultSourceType() || sourceType == ::AppInstaller::Repository::SourceType::PredefinedInstalled)
             {
                 std::vector<std::pair<AppInstaller::ProgressType, double>> progressWeights;
 

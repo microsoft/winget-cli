@@ -28,7 +28,7 @@ namespace AppInstaller::Repository
     namespace
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
-        static std::map<std::string, std::function<std::unique_ptr<ISourceFactory>()>> s_Sources_TestHook_SourceFactories;
+        static std::map<SourceType, std::function<std::unique_ptr<ISourceFactory>()>> s_Sources_TestHook_SourceFactories;
 #endif
 
         std::shared_ptr<ISourceReference> CreateSourceFromDetails(const SourceDetails& details)
@@ -160,31 +160,31 @@ namespace AppInstaller::Repository
             switch (source)
             {
             case PredefinedSource::Installed:
-                details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+                details.Type = SourceType::PredefinedInstalled;
                 details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::None);
                 return details;
             case PredefinedSource::InstalledForceCacheUpdate:
-                details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+                details.Type = SourceType::PredefinedInstalled;
                 details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::NoneWithForcedCacheUpdate);
                 return details;
             case PredefinedSource::InstalledUser:
-                details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+                details.Type = SourceType::PredefinedInstalled;
                 details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::User);
                 return details;
             case PredefinedSource::InstalledMachine:
-                details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+                details.Type = SourceType::PredefinedInstalled;
                 details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::Machine);
                 return details;
             case PredefinedSource::ARP:
-                details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+                details.Type = SourceType::PredefinedInstalled;
                 details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::ARP);
                 return details;
             case PredefinedSource::MSIX:
-                details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+                details.Type = SourceType::PredefinedInstalled;
                 details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::MSIX);
                 return details;
             case PredefinedSource::Installing:
-                details.Type = Microsoft::PredefinedWriteableSourceFactory::Type();
+                details.Type = SourceType::PredefinedWriteable;
                 // As long as there is only one type this is not particularly needed, but Arg is exposed publicly
                 // so this is used here for consistency with other predefined sources.
                 details.Arg = Microsoft::PredefinedWriteableSourceFactory::TypeToString(Microsoft::PredefinedWriteableSourceFactory::WriteableType::Installing);
@@ -276,46 +276,104 @@ namespace AppInstaller::Repository
         };
     }
 
-    std::unique_ptr<ISourceFactory> ISourceFactory::GetForType(std::string_view type)
+    std::unique_ptr<ISourceFactory> ISourceFactory::GetForType(SourceType type)
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
-        // Tests can ensure case matching
-        auto itr = s_Sources_TestHook_SourceFactories.find(std::string(type));
+        auto itr = s_Sources_TestHook_SourceFactories.find(type);
         if (itr != s_Sources_TestHook_SourceFactories.end())
         {
             return itr->second();
         }
+#endif
 
-        if (Utility::CaseInsensitiveEquals(Microsoft::ConfigurableTestSourceFactory::Type(), type))
+        switch (type)
         {
+        case SourceType::PreIndexedPackage:
+            return Microsoft::PreIndexedPackageSourceFactory::Create();
+        case SourceType::Rest:
+            return Rest::RestSourceFactory::Create();
+        case SourceType::PredefinedInstalled:
+            return Microsoft::PredefinedInstalledSourceFactory::Create();
+        case SourceType::PredefinedWriteable:
+            return Microsoft::PredefinedWriteableSourceFactory::Create();
+        case SourceType::PackageTracking:
+            return PackageTrackingCatalogSourceFactory::Create();
+        case SourceType::ConfigurableTest:
+#ifndef AICLI_DISABLE_TEST_HOOKS
             return Microsoft::ConfigurableTestSourceFactory::Create();
+#else
+            break;
+#endif
+        }
+
+        THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
+    }
+
+    std::optional<SourceType> TryConvertToSourceTypeEnum(std::string_view sourceType)
+    {
+        if (Utility::CaseInsensitiveEquals(Microsoft::PreIndexedPackageSourceFactory::Type(), sourceType))
+        {
+            return SourceType::PreIndexedPackage;
+        }
+
+        if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), sourceType))
+        {
+            return SourceType::Rest;
+        }
+
+        // Internal source types are code-defined and expected in canonical case.
+        if (Microsoft::PredefinedInstalledSourceFactory::Type() == sourceType)
+        {
+            return SourceType::PredefinedInstalled;
+        }
+
+        if (Microsoft::PredefinedWriteableSourceFactory::Type() == sourceType)
+        {
+            return SourceType::PredefinedWriteable;
+        }
+
+        if (PackageTrackingCatalogSourceFactory::Type() == sourceType)
+        {
+            return SourceType::PackageTracking;
+        }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (Utility::CaseInsensitiveEquals(Microsoft::ConfigurableTestSourceFactory::Type(), sourceType))
+        {
+            return SourceType::ConfigurableTest;
         }
 #endif
 
-        // For now, enable an empty type to represent the only one we have.
-        if (type.empty() ||
-            Utility::CaseInsensitiveEquals(Microsoft::PreIndexedPackageSourceFactory::Type(), type))
+        return {};
+    }
+
+    SourceType ConvertToSourceTypeEnum(std::string_view sourceType)
+    {
+        auto sourceTypeEnum = TryConvertToSourceTypeEnum(sourceType);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE, !sourceTypeEnum.has_value());
+        return sourceTypeEnum.value();
+    }
+
+    std::string_view ToString(SourceType sourceType)
+    {
+        switch (sourceType)
         {
-            return Microsoft::PreIndexedPackageSourceFactory::Create();
-        }
-        // Should always come from code, so no need for case insensitivity
-        else if (Microsoft::PredefinedInstalledSourceFactory::Type() == type)
-        {
-            return Microsoft::PredefinedInstalledSourceFactory::Create();
-        }
-        // Should always come from code, so no need for case insensitivity
-        else if (Microsoft::PredefinedWriteableSourceFactory::Type() == type)
-        {
-            return Microsoft::PredefinedWriteableSourceFactory::Create();
-        }
-        // Should always come from code, so no need for case insensitivity
-        else if (PackageTrackingCatalogSourceFactory::Type() == type)
-        {
-            return PackageTrackingCatalogSourceFactory::Create();
-        }
-        else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type))
-        {
-            return Rest::RestSourceFactory::Create();
+        case SourceType::PreIndexedPackage:
+            return Microsoft::PreIndexedPackageSourceFactory::Type();
+        case SourceType::Rest:
+            return Rest::RestSourceFactory::Type();
+        case SourceType::PredefinedInstalled:
+            return Microsoft::PredefinedInstalledSourceFactory::Type();
+        case SourceType::PredefinedWriteable:
+            return Microsoft::PredefinedWriteableSourceFactory::Type();
+        case SourceType::PackageTracking:
+            return PackageTrackingCatalogSourceFactory::Type();
+        case SourceType::ConfigurableTest:
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            return Microsoft::ConfigurableTestSourceFactory::Type();
+#else
+            break;
+#endif
         }
 
         THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
@@ -462,11 +520,10 @@ namespace AppInstaller::Repository
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
     }
 
-    Source::Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel, const SourceEdit& additionalProperties)
+    Source::Source(std::string_view name, std::string_view arg, SourceType type, SourceTrustLevel trustLevel, const SourceEdit& additionalProperties)
     {
         m_isSourceToBeAdded = true;
         SourceDetails details;
-
         std::optional<WellKnownSource> wellKnownSourceCheck = CheckForWellKnownSourceMatch(name, arg, type);
 
         if (wellKnownSourceCheck)
@@ -907,14 +964,8 @@ namespace AppInstaller::Repository
 
         auto& sourceDetails = m_sourceReferences[0]->GetDetails();
 
-        // If the source type is empty, use a default.
-        // AddSourceForDetails will also check for empty, but we need the actual type before that for validation.
-        if (sourceDetails.Type.empty())
-        {
-            sourceDetails.Type = GetDefaultSourceType();
-        }
-
-        AICLI_LOG(Repo, Info, << "Adding source: Name[" << sourceDetails.Name << "], Type[" << sourceDetails.Type << "], Arg[" << sourceDetails.Arg << "]");
+        // If the source type was empty, the constructor of sourceDetails will have defaulted it
+        AICLI_LOG(Repo, Info, << "Adding source: Name[" << sourceDetails.Name << "], Type[" << ToString(sourceDetails.Type) << "], Arg[" << sourceDetails.Arg << "]");
 
         // Check all sources for the given name.
         SourceList sourceList;
@@ -1131,13 +1182,13 @@ namespace AppInstaller::Repository
         }
     }
 
-    std::string_view Source::GetDefaultSourceType()
+    SourceType Source::GetDefaultSourceType()
     {
-        return ISourceFactory::GetForType("")->TypeName();
+        return SourceType::PreIndexedPackage;
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-    void TestHook_SetSourceFactoryOverride(const std::string& type, std::function<std::unique_ptr<ISourceFactory>()>&& factory)
+    void TestHook_SetSourceFactoryOverride(SourceType type, std::function<std::unique_ptr<ISourceFactory>()>&& factory)
     {
         s_Sources_TestHook_SourceFactories[type] = std::move(factory);
     }

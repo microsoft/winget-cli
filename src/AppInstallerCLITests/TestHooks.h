@@ -38,7 +38,7 @@ namespace AppInstaller
 
     namespace Repository
     {
-        void TestHook_SetSourceFactoryOverride(const std::string& type, std::function<std::unique_ptr<ISourceFactory>()>&& factory);
+        void TestHook_SetSourceFactoryOverride(SourceType type, std::function<std::unique_ptr<ISourceFactory>()>&& factory);
         void TestHook_ClearSourceFactoryOverrides();
         void TestHook_SetExtractIconFromArpEntryResult_Override(std::vector<AppInstaller::Repository::ExtractedIconInfo>* result);
     }

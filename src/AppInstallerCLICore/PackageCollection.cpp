@@ -127,7 +127,9 @@ namespace AppInstaller::CLI
                 sourceDetails.Identifier = Utility::LocIndString{ detailsNode[ss.PackagesJson_Source_Identifier].asString() };
                 sourceDetails.Name = detailsNode[ss.PackagesJson_Source_Name].asString();
                 sourceDetails.Arg = detailsNode[ss.PackagesJson_Source_Argument].asString();
-                sourceDetails.Type = detailsNode[ss.PackagesJson_Source_Type].asString();
+                auto sourceType = TryConvertToSourceTypeEnum(detailsNode[ss.PackagesJson_Source_Type].asString());
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !sourceType.has_value());
+                sourceDetails.Type = sourceType.value();
 
                 PackageCollection::Source source{ std::move(sourceDetails) };
                 for (const auto& packageNode : sourceNode[ss.PackagesJson_Packages])
@@ -238,7 +240,7 @@ namespace AppInstaller::CLI
             sourceDetailsNode[ss.PackagesJson_Source_Name] = source.Details.Name;
             sourceDetailsNode[ss.PackagesJson_Source_Argument] = source.Details.Arg;
             sourceDetailsNode[ss.PackagesJson_Source_Identifier] = source.Details.Identifier;
-            sourceDetailsNode[ss.PackagesJson_Source_Type] = source.Details.Type;
+            sourceDetailsNode[ss.PackagesJson_Source_Type] = std::string{ ToString(source.Details.Type) };
             sourceNode[ss.PackagesJson_Source_Details] = std::move(sourceDetailsNode);
 
             sourceNode[ss.PackagesJson_Packages] = Json::Value{ Json::ValueType::arrayValue };

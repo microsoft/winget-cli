@@ -3,8 +3,6 @@
 #include "pch.h"
 #include "SourceList.h"
 #include "SourcePolicy.h"
-#include "Microsoft/PreIndexedPackageSourceFactory.h"
-#include "Rest/RestSourceFactory.h"
 
 #include <winget/AdminSettings.h>
 #include <winget/Certificates.h>
@@ -185,7 +183,7 @@ namespace AppInstaller::Repository
                 {
                     out << YAML::BeginMap;
                     out << YAML::Key << s_SourcesYaml_Source_Name << YAML::Value << details.Name;
-                    out << YAML::Key << s_SourcesYaml_Source_Type << YAML::Value << details.Type;
+                    out << YAML::Key << s_SourcesYaml_Source_Type << YAML::Value << ToString(details.Type);
                     out << YAML::Key << s_SourcesYaml_Source_Arg << YAML::Value << details.Arg;
                     out << YAML::Key << s_SourcesYaml_Source_Data << YAML::Value << details.Data;
                     out << YAML::Key << s_SourcesYaml_Source_Identifier << YAML::Value << details.Identifier;
@@ -209,7 +207,7 @@ namespace AppInstaller::Repository
         {
             return left.Arg == right.Arg &&
                 left.Identifier == right.Identifier &&
-                Utility::CaseInsensitiveEquals(left.Type, right.Type);
+                left.Type == right.Type;
         }
 
         bool ShouldBeHidden(const SourceDetailsInternal& details)
@@ -312,24 +310,24 @@ namespace AppInstaller::Repository
         return {};
     }
 
-    std::optional<WellKnownSource> CheckForWellKnownSourceMatch(std::string_view name, std::string_view arg, std::string_view type)
+    std::optional<WellKnownSource> CheckForWellKnownSourceMatch(std::string_view name, std::string_view arg, SourceType type)
     {
-        if (name == s_Source_WingetCommunityDefault_Name && arg == s_Source_WingetCommunityDefault_Arg && type == Microsoft::PreIndexedPackageSourceFactory::Type())
+        if (name == s_Source_WingetCommunityDefault_Name && arg == s_Source_WingetCommunityDefault_Arg && type == SourceType::PreIndexedPackage)
         {
             return WellKnownSource::WinGet;
         }
 
-        if (name == s_Source_MSStoreDefault_Name && arg == s_Source_MSStoreDefault_Arg && type == Rest::RestSourceFactory::Type())
+        if (name == s_Source_MSStoreDefault_Name && arg == s_Source_MSStoreDefault_Arg && type == SourceType::Rest)
         {
             return WellKnownSource::MicrosoftStore;
         }
 
-        if (name == s_Source_DesktopFrameworks_Name && arg == s_Source_DesktopFrameworks_Arg && type == Microsoft::PreIndexedPackageSourceFactory::Type())
+        if (name == s_Source_DesktopFrameworks_Name && arg == s_Source_DesktopFrameworks_Arg && type == SourceType::PreIndexedPackage)
         {
             return WellKnownSource::DesktopFrameworks;
         }
 
-        if (name == s_Source_WingetCommunityFont_Name && arg == s_Source_WingetCommunityFont_Arg && type == Rest::RestSourceFactory::Type())
+        if (name == s_Source_WingetCommunityFont_Name && arg == s_Source_WingetCommunityFont_Arg && type == SourceType::PreIndexedPackage)
         {
             return WellKnownSource::WinGetFont;
         }
@@ -346,7 +344,7 @@ namespace AppInstaller::Repository
             SourceDetailsInternal details;
             details.Origin = SourceOrigin::Default;
             details.Name = s_Source_WingetCommunityDefault_Name;
-            details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+            details.Type = SourceType::PreIndexedPackage;
             details.Arg = s_Source_WingetCommunityDefault_Arg;
             details.Data = s_Source_WingetCommunityDefault_Data;
             details.Identifier = s_Source_WingetCommunityDefault_Identifier;
@@ -358,7 +356,7 @@ namespace AppInstaller::Repository
             SourceDetailsInternal details;
             details.Origin = SourceOrigin::Default;
             details.Name = s_Source_MSStoreDefault_Name;
-            details.Type = Rest::RestSourceFactory::Type();
+            details.Type = SourceType::Rest;
             details.Arg = s_Source_MSStoreDefault_Arg;
             details.Identifier = s_Source_MSStoreDefault_Identifier;
             details.TrustLevel = SourceTrustLevel::Trusted;
@@ -391,7 +389,7 @@ namespace AppInstaller::Repository
             SourceDetailsInternal details;
             details.Origin = SourceOrigin::Default;
             details.Name = s_Source_DesktopFrameworks_Name;
-            details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+            details.Type = SourceType::PreIndexedPackage;
             details.Arg = s_Source_DesktopFrameworks_Arg;
             details.Data = s_Source_DesktopFrameworks_Data;
             details.Identifier = s_Source_DesktopFrameworks_Identifier;
@@ -404,7 +402,7 @@ namespace AppInstaller::Repository
             SourceDetailsInternal details;
             details.Origin = SourceOrigin::Default;
             details.Name = s_Source_WingetCommunityFont_Name;
-            details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+            details.Type = SourceType::PreIndexedPackage;
             details.Arg = s_Source_WingetCommunityFont_Arg;
             details.Data = s_Source_WingetCommunityFont_Data;
             details.Identifier = s_Source_WingetCommunityFont_Identifier;
@@ -415,6 +413,19 @@ namespace AppInstaller::Repository
         }
 
         THROW_HR(E_UNEXPECTED);
+    }
+
+    std::optional<SourceType> GetWellKnownSourceType(std::string_view sourceName)
+    {
+        for (WellKnownSource source : { WellKnownSource::WinGet, WellKnownSource::MicrosoftStore, WellKnownSource::DesktopFrameworks, WellKnownSource::WinGetFont })
+        {
+            if (GetWellKnownSourceName(source) == sourceName)
+            {
+                return GetWellKnownSourceDetailsInternal(source).Type;
+            }
+        }
+
+        return std::nullopt;
     }
 
     SourceList::SourceList() : m_userSourcesStream(Stream::UserSources), m_metadataStream(Stream::SourcesMetadata)
@@ -820,7 +831,6 @@ namespace AppInstaller::Repository
                 {
                     std::string_view name = m_userSourcesStream.GetName();
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Name, details.Name)) { return false; }
-                    if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Type, details.Type)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Arg, details.Arg)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Data, details.Data)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
@@ -828,6 +838,20 @@ namespace AppInstaller::Repository
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsOverride, details.IsOverride, false);
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Priority, details.Priority, false);
+
+                    std::string type;
+                    if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Type, type)) { return false; }
+                    if (type.empty() && (details.IsTombstone || details.IsOverride))
+                    {
+                        // Legacy tombstone/override entries may carry empty type strings.
+                        details.Type = GetWellKnownSourceType(details.Name).value_or(Source::GetDefaultSourceType());
+                    }
+                    else
+                    {
+                        auto sourceType = TryConvertToSourceTypeEnum(type);
+                        if (!sourceType) { return false; }
+                        details.Type = sourceType.value();
+                    }
 
                     int64_t trustLevelValue;
                     if (TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_TrustLevel, trustLevelValue, false))
@@ -884,7 +908,13 @@ namespace AppInstaller::Repository
                         AICLI_LOG(Repo, Verbose, << "... with configured source " << additionalSource.Name);
                         SourceDetailsInternal details;
                         details.Name = additionalSource.Name;
-                        details.Type = additionalSource.Type;
+                        auto sourceType = TryConvertToSourceTypeEnum(additionalSource.Type);
+                        if (!sourceType)
+                        {
+                            AICLI_LOG(Repo, Warning, << "Invalid source type from policy source: " << additionalSource.Type);
+                            continue;
+                        }
+                        details.Type = sourceType.value();
                         details.Arg = additionalSource.Arg;
                         details.Data = additionalSource.Data;
                         details.Identifier = additionalSource.Identifier;

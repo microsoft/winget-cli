@@ -1495,7 +1495,7 @@ namespace AppInstaller::CLI::Workflow
 
         ConfigurationUnit CreateWinGetSourceUnit(const PackageCollection::Source& source, std::wstring_view unitType)
         {
-            std::string sourceUnitId = source.Details.Name + '_' + source.Details.Type;
+            std::string sourceUnitId = source.Details.Name + '_' + std::string{ Repository::ToString(source.Details.Type) };
             std::wstring sourceUnitIdWide = Utility::ConvertToUTF16(sourceUnitId);
 
             ConfigurationUnit unit;
@@ -1512,7 +1512,7 @@ namespace AppInstaller::CLI::Workflow
             ValueSet settings;
             settings.Insert(s_Setting_WinGetSource_Name, PropertyValue::CreateString(Utility::ConvertToUTF16(source.Details.Name)));
             settings.Insert(s_Setting_WinGetSource_Arg, PropertyValue::CreateString(Utility::ConvertToUTF16(source.Details.Arg)));
-            settings.Insert(s_Setting_WinGetSource_Type, PropertyValue::CreateString(Utility::ConvertToUTF16(source.Details.Type)));
+            settings.Insert(s_Setting_WinGetSource_Type, PropertyValue::CreateString(Utility::ConvertToUTF16(Repository::ToString(source.Details.Type))));
             if (WI_IsFlagSet(source.Details.TrustLevel, Repository::SourceTrustLevel::Trusted))
             {
                 settings.Insert(s_Setting_WinGetSource_TrustLevel, PropertyValue::CreateString(L"trusted"));

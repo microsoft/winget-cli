@@ -45,7 +45,7 @@ TEST_CASE("SourceAddFlow_Agreement", "[SourceAddFlow][workflow]")
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForSourceAddWithAgreements(context);
     context.Args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
-    context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Test"sv);
+    context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Rest"sv);
     context.Args.AddArg(Execution::Args::Type::SourceArg, "TestArg"sv);
     context.Args.AddArg(Execution::Args::Type::AcceptSourceAgreements);
 
@@ -72,7 +72,7 @@ TEST_CASE("SourceAddFlow_Agreement_Prompt_Yes", "[SourceAddFlow][workflow]")
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForSourceAddWithAgreements(context);
     context.Args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
-    context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Test"sv);
+    context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Rest"sv);
     context.Args.AddArg(Execution::Args::Type::SourceArg, "TestArg"sv);
 
     SourceAddCommand sourceAdd({});
@@ -98,7 +98,7 @@ TEST_CASE("SourceAddFlow_Agreement_Prompt_No", "[SourceAddFlow][workflow]")
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForSourceAddWithAgreements(context, false);
     context.Args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
-    context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Test"sv);
+    context.Args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Rest"sv);
     context.Args.AddArg(Execution::Args::Type::SourceArg, "TestArg"sv);
 
     SourceAddCommand sourceAdd({});
@@ -115,6 +115,39 @@ TEST_CASE("SourceAddFlow_Agreement_Prompt_No", "[SourceAddFlow][workflow]")
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED);
 }
 
+TEST_CASE("SourceAddCommand_ValidateArguments_SourceType", "[SourceAddFlow][workflow]")
+{
+    SourceAddCommand sourceAdd({});
+
+    SECTION("Valid external source type")
+    {
+        Execution::Args args;
+        args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
+        args.AddArg(Execution::Args::Type::SourceArg, "https://testsource.invalid"sv);
+        args.AddArg(Execution::Args::Type::SourceType, "microsoft.rest"sv);
+
+        REQUIRE_NOTHROW(sourceAdd.ValidateArguments(args));
+    }
+
+    SECTION("Invalid source type")
+    {
+        Execution::Args args;
+        args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
+        args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Unknown"sv);
+
+        REQUIRE_THROWS(sourceAdd.ValidateArguments(args));
+    }
+
+    SECTION("Internal source type not accepted by source add")
+    {
+        Execution::Args args;
+        args.AddArg(Execution::Args::Type::SourceName, "TestSource"sv);
+        args.AddArg(Execution::Args::Type::SourceType, "Microsoft.Predefined.Installed"sv);
+
+        REQUIRE_THROWS(sourceAdd.ValidateArguments(args));
+    }
+}
+
 TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
 {
     SetSetting(Stream::UserSources, R"(Sources:)"sv);
@@ -122,7 +155,7 @@ TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")
 
     SourceDetails details;
     details.Name = "restsource";
-    details.Type = "Microsoft.Rest";
+    details.Type = SourceType::ConfigurableTest;
     details.Arg = "thisIsTheArg";
     details.Data = "thisIsTheData";
 
