@@ -894,7 +894,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Package is already installed: {0}</value>
     <comment>{Locked="{0}"} Message displayed to inform the user that an application package is already installed. {0} is a placeholder replaced by the package identifier or search query.</comment>
   </data>
-  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+  <data name="IgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Ignore unavailable packages</value>
   </data>
   <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">

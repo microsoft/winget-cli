@@ -17,7 +17,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument{ Execution::Args::Type::ImportFile, Resource::String::ImportFileArgumentDescription, ArgumentType::Positional, true },
-            Argument{ Execution::Args::Type::IgnoreUnavailable, Resource::String::ImportIgnoreUnavailableArgumentDescription, ArgumentType::Flag },
+            Argument::ForType(Execution::Args::Type::IgnoreUnavailable),
             Argument{ Execution::Args::Type::IgnoreVersions, Resource::String::ImportIgnorePackageVersionsArgumentDescription, ArgumentType::Flag },
             Argument::ForType(Execution::Args::Type::NoUpgrade),
             Argument::ForType(Execution::Args::Type::AcceptPackageAgreements),
