@@ -439,6 +439,31 @@ namespace AppInstaller::Filesystem
         std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
     }
 
+    bool CreateHardlink(const std::filesystem::path& target, const std::filesystem::path& link)
+    {
+        try
+        {
+            std::filesystem::create_hard_link(target, link);
+            AICLI_LOG(Core, Info, << "Hardlink created successfully from " << target << " to " << link);
+            return true;
+        }
+        catch (const std::filesystem::filesystem_error& e)
+        {
+            AICLI_LOG(Core, Info, << "Hardlink not supported or creation failed: " << e.what());
+            return false;
+        }
+        catch (const std::exception& e)
+        {
+            AICLI_LOG(Core, Info, << "Hardlink creation failed: " << e.what());
+            return false;
+        }
+        catch (...)
+        {
+            AICLI_LOG(Core, Info, << "Hardlink creation failed with unknown error");
+            return false;
+        }
+    }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
     static bool* s_CreateSymlinkResult_TestHook_Override = nullptr;
 

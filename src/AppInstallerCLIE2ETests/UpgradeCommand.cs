@@ -211,6 +211,54 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test upgrade zip portable package re-evaluates stale InstallDirectoryAddedToPath state.
+        /// </summary>
+        [Test]
+        public void UpgradeZip_Portable_ReevaluatesInstallDirectoryAddedToPath()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string linksDirectory = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
+            string packageId = "AppInstallerTest.TestZipInstallerPortablePathFallbackToSymlink";
+            string packageDir = Path.Combine(installDir, packageId + "_" + Constants.TestSourceIdentifier);
+            string symlinkPath = Path.Combine(linksDirectory, "TestPortableTransitionPathToSymlink.exe");
+
+            var installResult = TestCommon.RunAICLICommand("install", $"{packageId} -v 1.0.0.0");
+            Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+
+            var upgradeResult = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
+            Assert.That(upgradeResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(symlinkPath, Does.Exist);
+            Assert.That(TestCommon.PathContainsValue(linksDirectory));
+            Assert.That(TestCommon.PathContainsValue(packageDir), Is.False);
+        }
+
+        /// <summary>
+        /// Test upgrade zip portable package with binaries dependent on PATH cleans stale Links PATH entry.
+        /// </summary>
+        [Test]
+        public void UpgradeZip_ArchivePortableWithBinariesDependentOnPath_CleansLinksPath()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId = "AppInstallerTest.TestZipInstallerPortableSymlinkToPathFallback";
+            string packageDir = Path.Combine(installDir, packageId + "_" + Constants.TestSourceIdentifier);
+            string linksDir = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
+
+            var installResult = TestCommon.RunAICLICommand("install", $"{packageId} -v 1.0.0.0");
+            Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+
+            Assert.That(TestCommon.PathContainsValue(linksDir));
+
+            var upgradeResult = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
+            Assert.That(upgradeResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(TestCommon.PathContainsValue(packageDir));
+
+            if (!Directory.Exists(linksDir) || Directory.GetFileSystemEntries(linksDir).Length == 0)
+            {
+                Assert.That(TestCommon.PathContainsValue(linksDir), Is.False);
+            }
+        }
+
+        /// <summary>
         /// Test upgrade when a new dependency is added that is not installed.
         /// </summary>
         [Test]

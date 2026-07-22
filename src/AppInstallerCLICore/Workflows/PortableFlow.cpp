@@ -4,6 +4,7 @@
 #include "PortableFlow.h"
 #include "PortableInstaller.h"
 #include "WorkflowBase.h"
+#include <map>
 #include <winget/Filesystem.h>
 #include <winget/PortableFileEntry.h>
 #include <winget/PortableIndex.h>
@@ -185,20 +186,24 @@ namespace AppInstaller::CLI::Workflow
         {
             portableInstaller.RecordToIndex = true;
 
+            // Build a map of installed target path → SHA256 as file entries are created,
+            // so nested installer files that need hardlinks can reuse the hash without re-reading from disk.
+            std::map<std::filesystem::path, std::string> fileHashes;
+
             for (const auto& entry : std::filesystem::directory_iterator(installerPath))
             {
                 std::filesystem::path entryPath = entry.path();
-                PortableFileEntry portableFile;
                 std::filesystem::path relativePath = std::filesystem::relative(entryPath, entryPath.parent_path());
                 std::filesystem::path targetPath = targetInstallDirectory / relativePath;
 
                 if (std::filesystem::is_directory(entryPath))
                 {
-                    entries.emplace_back(std::move(PortableFileEntry::CreateDirectoryEntry(entryPath, targetPath)));
+                    entries.emplace_back(PortableFileEntry::CreateDirectoryEntry(entryPath, targetPath));
                 }
                 else
                 {
-                    entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(entryPath, targetPath, {})));
+                    const PortableFileEntry& fileEntry = entries.emplace_back(PortableFileEntry::CreateFileEntry(entryPath, targetPath, {}));
+                    fileHashes[std::filesystem::weakly_canonical(targetPath)] = fileEntry.SHA256;
                 }
             }
 
@@ -206,12 +211,14 @@ namespace AppInstaller::CLI::Workflow
 
             for (const auto& nestedInstallerFile : nestedInstallerFiles)
             {
-                const std::filesystem::path& targetPath = targetInstallDirectory / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
+                const std::filesystem::path& relativeFilePath = ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
+                const std::filesystem::path& targetPath = targetInstallDirectory / relativeFilePath;
+                std::filesystem::path originalFilename = targetPath.filename();
 
                 std::filesystem::path commandAlias;
                 if (nestedInstallerFile.PortableCommandAlias.empty())
                 {
-                    commandAlias = targetPath.filename();
+                    commandAlias = originalFilename;
                 }
                 else
                 {
@@ -219,15 +226,29 @@ namespace AppInstaller::CLI::Workflow
                 }
 
                 Filesystem::AppendExtension(commandAlias, ".exe");
-                entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetPath)));
+
+                // If alias differs from original filename, create hardlink
+                // Hardlink will be placed in the same directory as the original file to avoid pathing issues and same-volume restrictions
+                if (commandAlias != originalFilename)
+                {
+                    std::filesystem::path hardlinkPath = targetPath.parent_path() / commandAlias;
+                    auto it = fileHashes.find(std::filesystem::weakly_canonical(targetPath));
+                    std::string sha256 = (it != fileHashes.end()) ? it->second : std::string{};
+                    entries.emplace_back(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetPath, sha256));
+                }
+                entries.emplace_back(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetPath));
             }
         }
         else
         {
+            // Non-archive portable case: single executable file
             std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
             const std::vector<string_t>& commands = context.Get<Execution::Data::Installer>()->Commands;
-            std::filesystem::path commandAlias = installerPath.filename();
 
+            std::filesystem::path originalFilename = installerPath.filename();
+            std::filesystem::path commandAlias = originalFilename;
+
+            // Determine the command alias from rename arg, commands, or use original filename
             if (!commands.empty())
             {
                 commandAlias = ConvertToUTF16(commands[0]);
@@ -237,11 +258,23 @@ namespace AppInstaller::CLI::Workflow
             {
                 commandAlias = ConvertToUTF16(renameArg);
             }
-            AppInstaller::Filesystem::AppendExtension(commandAlias, ".exe");
 
-            const std::filesystem::path& targetFullPath = targetInstallDirectory / commandAlias;
-            entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(installerPath, targetFullPath, {})));
-            entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetFullPath)));
+            Filesystem::AppendExtension(commandAlias, ".exe");
+
+            // Target path for the original file (keeps its original name)
+            const std::filesystem::path& targetFullPath = targetInstallDirectory / originalFilename;
+            
+            // Create file entry for original (with original name) - this computes SHA256
+            std::string fileSha256 = Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHashFromFile(installerPath));
+            entries.emplace_back(PortableFileEntry::CreateFileEntry(installerPath, targetFullPath, fileSha256));
+
+            // If alias differs from original filename, create hardlink
+            if (commandAlias != originalFilename)
+            {
+                std::filesystem::path hardlinkPath = targetInstallDirectory / commandAlias;
+                entries.emplace_back(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetFullPath, fileSha256));
+            }
+            entries.emplace_back(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetFullPath));
         }
 
         return entries;
