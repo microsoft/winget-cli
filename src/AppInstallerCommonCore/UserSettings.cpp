@@ -530,6 +530,22 @@ namespace AppInstaller::Settings
             return value * 24h;
         }
 
+        WINGET_VALIDATE_SIGNATURE(LoggingFormat)
+        {
+            static constexpr std::string_view s_format_winget = "winget";
+            static constexpr std::string_view s_format_ccm = "ccm";
+
+            if (Utility::CaseInsensitiveEquals(value, s_format_winget))
+            {
+                return LogFileFormat::WinGet;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_format_ccm))
+            {
+                return LogFileFormat::CCM;
+            }
+            return {};
+        }
+
         WINGET_VALIDATE_SIGNATURE(OutputSortOrder)
         {
             std::vector<SortField> fields;

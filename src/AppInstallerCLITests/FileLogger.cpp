@@ -2,8 +2,13 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestSettings.h"
+#include "TestHooks.h"
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerStrings.h>
+#include <winget/Settings.h>
+
+#include <regex>
 
 using namespace AppInstaller::Logging;
 using namespace AppInstaller::Utility;
@@ -204,6 +209,44 @@ TEST_CASE("FileLogger_MaximumSize", "[logging]")
     auto tagState = GENERATE(TagState_Unset, TagState_SetAtStart, TagState_SetAfterLogging);
     auto sizeState = GENERATE(MaximumSizeState_Zero, MaximumSizeState_SmallerThanLargeString, MaximumSizeState_EqualToLargeString, MaximumSizeState_SlightlyLargerThanLargeString, MaximumSizeState_MuchLargerThanLargeString);
     FileLogger_MaximumSize_Test(tagState, sizeState);
+}
+
+TEST_CASE("FileLogger_CCMFormat", "[logging]")
+{
+    // The CCM/CMTrace log format is opt-in via the "logging.format" user setting; override it for this test.
+    auto settingsGuard = DeleteUserSettingsFiles();
+    SetSetting(AppInstaller::Settings::Stream::PrimaryUserSettings, R"({ "logging": { "format": "ccm" } })");
+    UserSettingsTest userSettings;
+    TestHook::SetUserSettings_Override userSettingsOverride{ userSettings };
+
+    // CCM type: 1=Info/Verbose, 2=Warning, 3=Error/Critical.
+    Level level = Level::Info;
+    int expectedType = 1;
+    SECTION("Verbose maps to type 1") { level = Level::Verbose; expectedType = 1; }
+    SECTION("Info maps to type 1") { level = Level::Info; expectedType = 1; }
+    SECTION("Warning maps to type 2") { level = Level::Warning; expectedType = 2; }
+    SECTION("Error maps to type 3") { level = Level::Error; expectedType = 3; }
+    SECTION("Crit maps to type 3") { level = Level::Crit; expectedType = 3; }
+
+    const std::string message = "CCM format test message";
+
+    TempFile tempFile{ "FileLogger_CCM", ".log" };
+    INFO("File: " << tempFile.GetPath().u8string());
+    {
+        FileLogger logger{ tempFile };
+        logger.Write(DefaultChannel, level, message);
+    }
+
+    std::ifstream fileStream{ tempFile.GetPath(), std::ios::binary };
+    auto fileContents = ReadEntireStream(fileStream);
+    INFO("File contents: " << fileContents);
+
+    // Expected: <![LOG[<message>]LOG]!><time="HH:MM:SS.mmm+<bias>" date="MM-DD-YYYY" component="<channel>" context="" type="<N>" thread="<id>" file="">
+    std::regex ccmPattern{
+        R"(^<!\[LOG\[CCM format test message\]LOG\]!><time="\d{2}:\d{2}:\d{2}\.\d{3}\+-?\d+" date="\d{2}-\d{2}-\d{4}" component="[^"]*" context="" type=")"
+        + std::to_string(expectedType)
+        + R"(" thread="\d+" file="">)" };
+    REQUIRE(std::regex_search(fileContents, ccmPattern));
 }
 
 TEST_CASE("FileLogger_MaximumSize_ManyWraps", "[logging]")
