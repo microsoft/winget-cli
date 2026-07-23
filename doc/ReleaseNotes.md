@@ -6,3 +6,4 @@ Nothing yet.
 
 * Updated NUnit to v4
 * Fixed a crash (`0x8000ffff`) when using `--disable-interactivity` with the Resume experimental feature enabled during install operations.
+* Fixed relative path handling for rooted paths.
