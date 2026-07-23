@@ -4,7 +4,7 @@
 
 * Windows 10 1809 (17763) or later
 * [Developer Mode enabled](https://docs.microsoft.com/windows/uwp/get-started/enable-your-device-for-development)
-* [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/)
+* [Visual Studio 2026](https://visualstudio.microsoft.com/downloads/)
   * Or use WinGet to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)
 * The following workloads:
   * .NET Desktop Development
@@ -19,7 +19,7 @@
 
 * The following extensions:
 
-  * [Microsoft Visual Studio Installer Projects](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2022InstallerProjects)
+  * [Microsoft Visual Studio Installer Projects 2022](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2022InstallerProjects) (Works with Visual Studio 2026)
 
 ## Building the client
 
@@ -28,7 +28,7 @@
    - For VS Community: `winget configure .config/configuration.winget`
    - For VS Professional: `winget configure .config/configuration.vsProfessional.winget`
    - For VS Enterprise: `winget configure .config/configuration.vsEnterprise.winget`
-3. Run `vcpkg integrate install` from the Developer Command Prompt / Developer PowerShell for VS 2022. This is a one-time setup step until the configuration file in step 2 is updated to work with vcpkg setup.
+3. Run `vcpkg integrate install` from the Developer Command Prompt / Developer PowerShell for VS. This is a one-time setup step until the configuration file in step 2 is updated to work with vcpkg setup.
 
 Open `winget-cli\src\AppInstallerCLI.sln` in Visual Studio and build. We currently only build using the solution; command-line methods of building a VS solution should work as well.
 

@@ -15,7 +15,7 @@ pr:
     - schemas/JSON/manifests/*
 
 pool:
-  vmImage: 'windows-2025'
+  vmImage: 'windows-2025-vs2026'
 
 variables:
   solution: 'src\AppInstallerCLI.sln'

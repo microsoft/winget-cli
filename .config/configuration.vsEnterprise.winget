@@ -13,11 +13,11 @@ properties:
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       id: vsPackage
       directives:
-        description: Install Visual Studio 2022 Enterprise
+        description: Install Visual Studio 2026 Enterprise
         # Requires elevation for the set operation
         securityContext: elevated
       settings:
-        id: Microsoft.VisualStudio.2022.Enterprise
+        id: Microsoft.VisualStudio.Enterprise
         source: winget
     - resource: Microsoft.VisualStudio.DSC/VSComponents
       dependsOn:
