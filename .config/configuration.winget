@@ -13,11 +13,11 @@ properties:
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       id: vsPackage
       directives:
-        description: Install Visual Studio 2022 Community
+        description: Install Visual Studio 2026 Community
         # Requires elevation for the set operation
         securityContext: elevated
       settings:
-        id: Microsoft.VisualStudio.2022.Community
+        id: Microsoft.VisualStudio.Community
         source: winget
     - resource: Microsoft.VisualStudio.DSC/VSComponents
       dependsOn:
