@@ -20,7 +20,7 @@ using namespace winrt::Windows::Web::Http::Filters;
 // The HRESULTs will be mapped to UI error code by the appropriate component
 namespace AppInstaller::Utility::HttpStream
 {
-    std::future<std::shared_ptr<HttpClientWrapper>> HttpClientWrapper::CreateAsync(const Uri& uri)
+    std::shared_ptr<HttpClientWrapper> HttpClientWrapper::Create(const Uri& uri)
     {
         // TODO: Use proxy info. HttpClient does not support using a custom proxy, only using the system-wide one.
         std::shared_ptr<HttpClientWrapper> instance = std::make_shared<HttpClientWrapper>();
@@ -37,13 +37,11 @@ namespace AppInstaller::Utility::HttpStream
         instance->m_httpClient.DefaultRequestHeaders().Append(L"Connection", L"Keep-Alive");
         instance->m_httpClient.DefaultRequestHeaders().UserAgent().ParseAdd(Utility::ConvertToUTF16(Runtime::GetDefaultUserAgent().get()));
 
-        co_await instance->PopulateInfoAsync();
-
-        co_return instance;
+        return instance;
     }
 
     // this function will issue a HEAD request to determine the size of the file and the redirect URI
-    std::future<void> HttpClientWrapper::PopulateInfoAsync()
+    IAsyncAction HttpClientWrapper::PopulateInfoAsync()
     {
         HttpRequestMessage request(HttpMethod::Head(), m_requestUri);
 
@@ -93,7 +91,7 @@ namespace AppInstaller::Utility::HttpStream
 #pragma warning( disable : 4714) // HRESULT_FROM_WIN32 marked as forceinline not inlined
 #endif
 
-    std::future<IBuffer> HttpClientWrapper::SendHttpRequestAsync(
+    IAsyncOperation<IBuffer> HttpClientWrapper::SendHttpRequestAsync(
         _In_ ULONG64 startPosition,
         _In_ UINT32 requestedSizeInBytes)
     {
@@ -177,14 +175,11 @@ namespace AppInstaller::Utility::HttpStream
 #pragma warning( pop ) 
 #endif
 
-    std::future<IBuffer> HttpClientWrapper::DownloadRangeAsync(
+    IAsyncOperation<IBuffer> HttpClientWrapper::DownloadRangeAsync(
         const ULONG64 startPosition,
         const UINT32 requestedSizeInBytes,
-        const InputStreamOptions& options)
+        const InputStreamOptions&)
     {
-        std::vector<byte> byteArray(requestedSizeInBytes);
-        IBuffer buffer = CryptographicBuffer::CreateFromByteArray(byteArray);
-
-        co_return co_await SendHttpRequestAsync(startPosition, requestedSizeInBytes);
+        return SendHttpRequestAsync(startPosition, requestedSizeInBytes);
     }
 }

@@ -25,7 +25,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
 
             // Init logging
             WinGetUtilWrapper.WinGetLoggingInit(filePath);
-            Assert.True(File.Exists(filePath));
+            Assert.That(filePath, Does.Exist);
 
             // Terminate logging
             WinGetUtilWrapper.WinGetLoggingTerm(filePath);

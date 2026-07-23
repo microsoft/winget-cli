@@ -11,9 +11,12 @@ namespace AppInstaller::Utility::HttpStream
     class HttpClientWrapper
     {
     public:
-        static std::future<std::shared_ptr<HttpClientWrapper>> CreateAsync(const winrt::Windows::Foundation::Uri& uri);
+        // Create returns an uninitialized wrapper. Callers must co_await PopulateInfoAsync() before use.
+        static std::shared_ptr<HttpClientWrapper> Create(const winrt::Windows::Foundation::Uri& uri);
 
-        std::future<winrt::Windows::Storage::Streams::IBuffer> DownloadRangeAsync(
+        winrt::Windows::Foundation::IAsyncAction PopulateInfoAsync();
+
+        winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Storage::Streams::IBuffer> DownloadRangeAsync(
             const ULONG64 startPosition,
             const UINT32 requestedSizeInBytes,
             const winrt::Windows::Storage::Streams::InputStreamOptions& options);
@@ -42,9 +45,7 @@ namespace AppInstaller::Utility::HttpStream
         std::wstring m_etagHeader;
         std::wstring m_lastModifiedHeader;
 
-        std::future<void> PopulateInfoAsync();
-
-        std::future<winrt::Windows::Storage::Streams::IBuffer> SendHttpRequestAsync(
+        winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Storage::Streams::IBuffer> SendHttpRequestAsync(
             _In_ ULONG64 startPosition,
             _In_ UINT32 requestedSizeInBytes);
     };
