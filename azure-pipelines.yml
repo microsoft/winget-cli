@@ -447,7 +447,7 @@ jobs:
       TargetFolder: '$(artifactsDir)\PackagedLog'
     condition: succeededOrFailed()
 
-  - task: VSTest@2
+  - task: VSTest@3
     displayName: 'Run tests: Microsoft.WinGet.UnitTests'
     inputs:
       testSelector: 'testAssemblies'
@@ -459,7 +459,7 @@ jobs:
       diagnosticsEnabled: true
     condition: succeededOrFailed()
 
-  - task: VSTest@2
+  - task: VSTest@3
     displayName: 'Run tests: WinGetUtilInterop.UnitTests'
     inputs:
       testSelector: 'testAssemblies'
@@ -471,7 +471,7 @@ jobs:
       diagnosticsEnabled: true
     condition: succeededOrFailed()
 
-  - task: VSTest@2
+  - task: VSTest@3
     displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (InProc)'
     inputs:
       testRunTitle: Microsoft.Management.Configuration.UnitTests (InProc)
@@ -492,7 +492,7 @@ jobs:
       arguments: '-BuildOutputPath $(buildOutDir) -PackageLayoutPath $(packageLayoutDir)'
     condition: succeededOrFailed()
 
-  - task: VSTest@2
+  - task: VSTest@3
     displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (OutOfProc)'
     inputs:
       testRunTitle: Microsoft.Management.Configuration.UnitTests (OutOfProc)
