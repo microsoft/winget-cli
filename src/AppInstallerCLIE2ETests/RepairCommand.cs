@@ -121,25 +121,6 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Tests the repair operation of a Burn installer that was installed in user scope but is being repaired in an admin context.
-        /// </summary>
-        [Test]
-        public void RepairBurnInstallerInAdminContextWithUserScopeInstall()
-        {
-            // install a test burn package from TestSource and then repair it.
-            var installDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestUserScopeInstallRepairInAdminContext -v 2.0.0.0 --silent -l {installDir}");
-
-            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
-
-            result = TestCommon.RunAICLICommand("repair", "AppInstallerTest.TestUserScopeInstallRepairInAdminContext");
-            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED));
-            Assert.That(result.StdOut, Does.Contain("The package installed for user scope cannot be repaired when running with administrator privileges."));
-            TestCommon.CleanupTestExeAndDirectory(installDir);
-        }
-
-        /// <summary>
         /// Tests the repair operation of a Burn installer that lacks a repair behavior.
         /// </summary>
         [Test]

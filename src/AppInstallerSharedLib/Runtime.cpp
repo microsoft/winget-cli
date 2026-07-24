@@ -219,8 +219,23 @@ namespace AppInstaller::Runtime
         return wil::get_token_information<TOKEN_ELEVATION_TYPE>() == TokenElevationTypeLimited;
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static bool* s_IsRunningWithNonDefaultFullToken_TestHook_Override = nullptr;
+
+    void TestHook_SetIsRunningWithNonDefaultFullToken_Override(bool* value)
+    {
+        s_IsRunningWithNonDefaultFullToken_TestHook_Override = value;
+    }
+#endif
+
     bool IsRunningWithNonDefaultFullToken()
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_IsRunningWithNonDefaultFullToken_TestHook_Override)
+        {
+            return *s_IsRunningWithNonDefaultFullToken_TestHook_Override;
+        }
+#endif
         return wil::get_token_information<TOKEN_ELEVATION_TYPE>() == TokenElevationTypeFull;
     }
 
