@@ -280,6 +280,7 @@
     <ClCompile Include="PromptFlow.cpp" />
     <ClCompile Include="Regex.cpp" />
     <ClCompile Include="Registry.cpp" />
+    <ClCompile Include="RepairFlow.cpp" />
     <ClCompile Include="Resources.cpp" />
     <ClCompile Include="Rest.cpp" />
     <ClCompile Include="RestClient.cpp" />

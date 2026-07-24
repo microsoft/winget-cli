@@ -149,31 +149,6 @@ namespace AppInstallerCLIE2ETests.Interop
         }
 
         /// <summary>
-        /// Tests the repair operation of a Burn installer that was installed in user scope but is being repaired in an admin context.
-        /// </summary>
-        /// <returns>representing the asynchronous unit test.</returns>
-        [Test]
-        public async Task RepairBurnInstallerInAdminContextWithUserScopeInstall()
-        {
-            if (this.TestFactory.Context != ClsidContext.InProc)
-            {
-                Assert.Ignore("Test is only applicable for InProc context.");
-            }
-
-            string replaceInstallerArguments = this.GetReplacementArguments(this.installDir, "2.0.0.0", "TestUserScopeInstallRepairInAdminContext");
-            var searchResult = await this.FindAndInstallPackage("AppInstallerTest.TestUserScopeInstallRepairInAdminContext", this.installDir, replaceInstallerArguments);
-
-            // Repair the package
-            var repairOptions = this.TestFactory.CreateRepairOptions();
-            repairOptions.PackageRepairMode = PackageRepairMode.Silent;
-
-            await this.RepairPackageAndValidateStatus(searchResult.CatalogPackage, repairOptions, RepairResultStatus.RepairError, Constants.ErrorCode.ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED);
-
-            // Cleanup
-            TestCommon.CleanupTestExeAndDirectory(this.installDir);
-        }
-
-        /// <summary>
         /// Test repair of a Exe installer that has a "uninstaller" repair behavior specified in the manifest and NoModify ARP flag set.
         /// </summary>
         /// <returns>representing the asynchronous unit test.</returns>
