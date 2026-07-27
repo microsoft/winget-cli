@@ -21,7 +21,7 @@ namespace AppInstallerCLIE2ETests
         public void ShowWithNoArgs()
         {
             var result = TestCommon.RunAICLICommand("show", string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS));
         }
 
         /// <summary>
@@ -32,8 +32,8 @@ namespace AppInstallerCLIE2ETests
         {
             // Show with 0 search match shows a "please refine input"
             var result = TestCommon.RunAICLICommand("show", $"DoesNotExist");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("No package found matching input criteria."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
+            Assert.That(result.StdOut, Does.Contain("No package found matching input criteria."));
         }
 
         /// <summary>
@@ -44,8 +44,8 @@ namespace AppInstallerCLIE2ETests
         {
             // Show with a substring match still returns 0 results
             var result = TestCommon.RunAICLICommand("show", $"AppInstallerTest");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("No package found matching input criteria."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
+            Assert.That(result.StdOut, Does.Contain("No package found matching input criteria."));
         }
 
         /// <summary>
@@ -55,10 +55,10 @@ namespace AppInstallerCLIE2ETests
         public void ShowWithNameMatch()
         {
             var result = TestCommon.RunAICLICommand("show", $"--name testexampleinstaller");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
-            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
+            Assert.That(result.StdOut, Does.Contain("TestExampleInstaller"));
+            Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExampleInstaller"));
         }
 
         /// <summary>
@@ -68,10 +68,10 @@ namespace AppInstallerCLIE2ETests
         public void ShowWithIDMatch()
         {
             var result = TestCommon.RunAICLICommand("show", $"--id appinstallertest.testexampleinstaller");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
-            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
+            Assert.That(result.StdOut, Does.Contain("TestExampleInstaller"));
+            Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExampleInstaller"));
         }
 
         /// <summary>
@@ -82,10 +82,10 @@ namespace AppInstallerCLIE2ETests
         {
             // Show with --versions list the versions
             var result = TestCommon.RunAICLICommand("show", $"TestExampleInstaller --versions");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
-            Assert.True(result.StdOut.Contains("1.2.3.4"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("TestExampleInstaller"));
+            Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExampleInstaller"));
+            Assert.That(result.StdOut, Does.Contain("1.2.3.4"));
         }
 
         /// <summary>
@@ -95,10 +95,10 @@ namespace AppInstallerCLIE2ETests
         public void ShowWithExactName()
         {
             var result = TestCommon.RunAICLICommand("show", $"--exact TestExampleInstaller");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
-            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
+            Assert.That(result.StdOut, Does.Contain("TestExampleInstaller"));
+            Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExampleInstaller"));
         }
 
         /// <summary>
@@ -108,10 +108,10 @@ namespace AppInstallerCLIE2ETests
         public void ShowWithExactID()
         {
             var result = TestCommon.RunAICLICommand("show", $"--exact AppInstallerTest.TestExampleInstaller");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
-            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
+            Assert.That(result.StdOut, Does.Contain("TestExampleInstaller"));
+            Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExampleInstaller"));
         }
 
         /// <summary>
@@ -121,8 +121,8 @@ namespace AppInstallerCLIE2ETests
         public void ShowWithExactArgCaseSensitivity()
         {
             var result = TestCommon.RunAICLICommand("show", $"--exact testexampleinstaller");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("No package found matching input criteria."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
+            Assert.That(result.StdOut, Does.Contain("No package found matching input criteria."));
         }
 
         /// <summary>
@@ -132,9 +132,9 @@ namespace AppInstallerCLIE2ETests
         public void ShowWithInstallerTypeArg()
         {
             var result = TestCommon.RunAICLICommand("show", $"--id AppInstallerTest.TestMultipleInstallers --installer-type msi");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Found TestMultipleInstallers [AppInstallerTest.TestMultipleInstallers]"));
-            Assert.True(result.StdOut.Contains("Installer Type: msi"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Found TestMultipleInstallers [AppInstallerTest.TestMultipleInstallers]"));
+            Assert.That(result.StdOut, Does.Contain("Installer Type: msi"));
         }
 
         /// <summary>
@@ -144,9 +144,9 @@ namespace AppInstallerCLIE2ETests
         public void ShowWithZipInstallerTypeArg()
         {
             var result = TestCommon.RunAICLICommand("show", $"--id AppInstallerTest.TestMultipleInstallers --installer-type zip");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Found TestMultipleInstallers [AppInstallerTest.TestMultipleInstallers]"));
-            Assert.True(result.StdOut.Contains("Installer Type: exe (zip)"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Found TestMultipleInstallers [AppInstallerTest.TestMultipleInstallers]"));
+            Assert.That(result.StdOut, Does.Contain("Installer Type: exe (zip)"));
         }
     }
 }

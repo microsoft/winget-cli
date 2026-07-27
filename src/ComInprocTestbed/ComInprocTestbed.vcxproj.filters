@@ -29,9 +29,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll.manifest" />
   </ItemGroup>
   <ItemGroup>
@@ -47,5 +44,8 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

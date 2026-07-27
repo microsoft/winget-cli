@@ -54,12 +54,12 @@ namespace AppInstallerCLIE2ETests
             RunCommandResult result;
 
             result = TestCommon.RunAICLICommand("list", "AppInstallerTest.TestExeInstaller");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.IsTrue(result.StdOut.Contains("2.0.0.0"), "List shows the latest available version");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("2.0.0.0"), "List shows the latest available version");
 
             result = TestCommon.RunAICLICommand("upgrade", string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.IsTrue(result.StdOut.Contains("2.0.0.0"), "The latest upgrade-able version is the same if there are no pins");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("2.0.0.0"), "The latest upgrade-able version is the same if there are no pins");
         }
 
         /// <summary>
@@ -72,32 +72,32 @@ namespace AppInstallerCLIE2ETests
             string installDir = Path.GetTempPath();
 
             // The base version of this app does not log /Version, but it still includes the version number in the log file name.
-            Assert.True(TestCommon.VerifyTestExeInstalled(installDir, "1.0.0.0"), "Base version installed");
+            Assert.That(TestCommon.VerifyTestExeInstalled(installDir, "1.0.0.0"), Is.True, "Base version installed");
 
             result = TestCommon.RunAICLICommand("pin add", "AppInstallerTest.TestExeInstaller");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             result = TestCommon.RunAICLICommand("list", "AppInstallerTest.TestExeInstaller");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.IsTrue(result.StdOut.Contains("2.0.0.0"), "List shows the latest available version");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("2.0.0.0"), "List shows the latest available version");
 
             result = TestCommon.RunAICLICommand("upgrade", string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.IsFalse(result.StdOut.Contains("2.0.0.0"), "Pin hides latest available version");
-            Assert.IsTrue(result.StdOut.Contains("package(s) have pins that prevent upgrade"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Not.Contain("2.0.0.0"), "Pin hides latest available version");
+            Assert.That(result.StdOut, Does.Contain("package(s) have pins that prevent upgrade"));
 
             result = TestCommon.RunAICLICommand("upgrade", "--all");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode, "Upgrade succeeds with nothing to upgrade");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK), "Upgrade succeeds with nothing to upgrade");
 
-            Assert.True(TestCommon.VerifyTestExeInstalled(installDir, "1.0.0.0"), "No newer version installed");
+            Assert.That(TestCommon.VerifyTestExeInstalled(installDir, "1.0.0.0"), Is.True, "No newer version installed");
 
             result = TestCommon.RunAICLICommand("upgrade", "--include-pinned");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.IsTrue(result.StdOut.Contains("2.0.0.0"), "Argument makes available version show up");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("2.0.0.0"), "Argument makes available version show up");
 
             result = TestCommon.RunAICLICommand("upgrade", "--all --include-pinned");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode, "Upgrade succeeds");
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/Version 2.0.0.0"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK), "Upgrade succeeds");
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/Version 2.0.0.0"), Is.True);
         }
 
         /// <summary>
@@ -110,20 +110,20 @@ namespace AppInstallerCLIE2ETests
             string installDir = Path.GetTempPath();
 
             var pinResult = TestCommon.RunAICLICommand("pin add", "AppInstallerTest.TestExeInstaller --version 1.0.*");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, pinResult.ExitCode);
+            Assert.That(pinResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             result = TestCommon.RunAICLICommand("list", "AppInstallerTest.TestExeInstaller");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.IsTrue(result.StdOut.Contains("2.0.0.0"), "List shows the latest available version");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("2.0.0.0"), "List shows the latest available version");
 
             result = TestCommon.RunAICLICommand("upgrade", string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.IsFalse(result.StdOut.Contains("2.0.0.0"), "Pin hides latest available version");
-            Assert.IsTrue(result.StdOut.Contains("1.0.1.0"), "Version matching pin gated version shows up");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Not.Contain("2.0.0.0"), "Pin hides latest available version");
+            Assert.That(result.StdOut, Does.Contain("1.0.1.0"), "Version matching pin gated version shows up");
 
             result = TestCommon.RunAICLICommand("upgrade", "--all");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode, "Upgrade succeeds");
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/Version 1.0.1.0"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK), "Upgrade succeeds");
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/Version 1.0.1.0"), Is.True);
         }
 
         /// <summary>
@@ -135,19 +135,19 @@ namespace AppInstallerCLIE2ETests
             RunCommandResult result;
 
             result = TestCommon.RunAICLICommand("pin add", "AppInstallerTest.TestExeInstaller --version 1.0.0.*");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             result = TestCommon.RunAICLICommand("list", "AppInstallerTest.TestExeInstaller");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.IsTrue(result.StdOut.Contains("2.0.0.0"), "List shows the latest available version");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("2.0.0.0"), "List shows the latest available version");
 
             result = TestCommon.RunAICLICommand("upgrade", string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.IsFalse(result.StdOut.Contains("2.0.0.0"), "Pin hides latest available version");
-            Assert.IsTrue(result.StdOut.Contains("package(s) have pins that prevent upgrade"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Not.Contain("2.0.0.0"), "Pin hides latest available version");
+            Assert.That(result.StdOut, Does.Contain("package(s) have pins that prevent upgrade"));
 
             result = TestCommon.RunAICLICommand("upgrade", "AppInstallerTest.TestExeInstaller");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_PACKAGE_IS_PINNED, result.ExitCode, "No upgrades available due to pin");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_PACKAGE_IS_PINNED), "No upgrades available due to pin");
         }
 
         /// <summary>
@@ -159,18 +159,18 @@ namespace AppInstallerCLIE2ETests
             RunCommandResult result;
 
             var pinResult = TestCommon.RunAICLICommand("pin add", "AppInstallerTest.TestExeInstaller --blocking");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, pinResult.ExitCode);
+            Assert.That(pinResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             result = TestCommon.RunAICLICommand("list", "AppInstallerTest.TestExeInstaller");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.IsTrue(result.StdOut.Contains("2.0.0.0"), "List shows the latest available version");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("2.0.0.0"), "List shows the latest available version");
 
             result = TestCommon.RunAICLICommand("upgrade", string.Empty);
-            Assert.IsFalse(result.StdOut.Contains("2.0.0.0"), "Pin hides latest available version");
-            Assert.IsTrue(result.StdOut.Contains("package(s) have pins that prevent upgrade"));
+            Assert.That(result.StdOut, Does.Not.Contain("2.0.0.0"), "Pin hides latest available version");
+            Assert.That(result.StdOut, Does.Contain("package(s) have pins that prevent upgrade"));
 
             result = TestCommon.RunAICLICommand("upgrade", "AppInstallerTest.TestExeInstaller");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_PACKAGE_IS_PINNED, result.ExitCode, "No upgrades available due to pin");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_PACKAGE_IS_PINNED), "No upgrades available due to pin");
         }
 
         /// <summary>
@@ -183,15 +183,15 @@ namespace AppInstallerCLIE2ETests
             string installDir = Path.GetTempPath();
 
             result = TestCommon.RunAICLICommand("pin add", "AppInstallerTest.TestExeInstaller");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             result = TestCommon.RunAICLICommand("upgrade", "--force");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.IsTrue(result.StdOut.Contains("2.0.0.0"), "--force argument shows latest version");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("2.0.0.0"), "--force argument shows latest version");
 
             result = TestCommon.RunAICLICommand("upgrade", "--all --force");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/Version 2.0.0.0"), "--force argument installs last version despite pin");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/Version 2.0.0.0"), Is.True, "--force argument installs last version despite pin");
         }
 
         /// <summary>
@@ -204,15 +204,15 @@ namespace AppInstallerCLIE2ETests
             string installDir = Path.GetTempPath();
 
             var pinResult = TestCommon.RunAICLICommand("pin add", "AppInstallerTest.TestExeInstaller --version 1.0.*");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, pinResult.ExitCode);
+            Assert.That(pinResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             result = TestCommon.RunAICLICommand("upgrade", "--force");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.IsTrue(result.StdOut.Contains("2.0.0.0"), "--force argument shows latest version");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("2.0.0.0"), "--force argument shows latest version");
 
             result = TestCommon.RunAICLICommand("upgrade", "--all --force");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode, "Upgrade succeeds");
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/Version 2.0.0.0"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK), "Upgrade succeeds");
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/Version 2.0.0.0"), Is.True);
         }
 
         /// <summary>
@@ -225,14 +225,14 @@ namespace AppInstallerCLIE2ETests
             string installDir = Path.GetTempPath();
 
             var pinResult = TestCommon.RunAICLICommand("pin add", "AppInstallerTest.TestExeInstaller --blocking");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, pinResult.ExitCode);
+            Assert.That(pinResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             result = TestCommon.RunAICLICommand("upgrade", "--force");
-            Assert.IsTrue(result.StdOut.Contains("2.0.0.0"), "--force argument shows latest version");
+            Assert.That(result.StdOut, Does.Contain("2.0.0.0"), "--force argument shows latest version");
 
             result = TestCommon.RunAICLICommand("upgrade", "--all --force");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode, "Upgrade succeeds");
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/Version 2.0.0.0"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK), "Upgrade succeeds");
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/Version 2.0.0.0"), Is.True);
         }
     }
 }

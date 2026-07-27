@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="CheckInstalledStatusInterop.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -64,7 +64,7 @@ namespace AppInstallerCLIE2ETests.Interop
             {
                 var uninstallOptions = this.TestFactory.CreateUninstallOptions();
                 var uninstallResult = await this.packageManager.UninstallPackageAsync(searchResult.CatalogPackage, uninstallOptions);
-                Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
+                Assert.That(uninstallResult.Status, Is.EqualTo(UninstallResultStatus.Ok));
             }
 
             // Remove default install location
@@ -86,7 +86,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installOptions = this.TestFactory.CreateInstallOptions();
             installOptions.ReplacementInstallerArguments = $"/InstallDir {this.installDir} /ProductID CheckInstalledStatusProductId /DisplayName TestCheckInstalledStatus /Version 1.0";
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Add the data file listed in the manifest
             File.WriteAllText(Path.Combine(this.installDir, "data.txt"), "Test");
@@ -100,31 +100,31 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Check installed status
             var checkResult = await searchResult.CatalogPackage.CheckInstalledStatusAsync();
-            Assert.AreEqual(CheckInstalledStatusResultStatus.Ok, checkResult.Status);
-            Assert.AreEqual(1, checkResult.PackageInstalledStatus.Count);
+            Assert.That(checkResult.Status, Is.EqualTo(CheckInstalledStatusResultStatus.Ok));
+            Assert.That(checkResult.PackageInstalledStatus.Count, Is.EqualTo(1));
 
             // Installer info
             var installerInstalledStatus = checkResult.PackageInstalledStatus[0];
-            Assert.AreEqual(Windows.System.ProcessorArchitecture.Neutral, installerInstalledStatus.InstallerInfo.Architecture);
-            Assert.AreEqual(PackageInstallerType.Exe, installerInstalledStatus.InstallerInfo.InstallerType);
-            Assert.AreEqual(PackageInstallerType.Unknown, installerInstalledStatus.InstallerInfo.NestedInstallerType);
-            Assert.AreEqual(PackageInstallerScope.Unknown, installerInstalledStatus.InstallerInfo.Scope);
+            Assert.That(installerInstalledStatus.InstallerInfo.Architecture, Is.EqualTo(Windows.System.ProcessorArchitecture.Neutral));
+            Assert.That(installerInstalledStatus.InstallerInfo.InstallerType, Is.EqualTo(PackageInstallerType.Exe));
+            Assert.That(installerInstalledStatus.InstallerInfo.NestedInstallerType, Is.EqualTo(PackageInstallerType.Unknown));
+            Assert.That(installerInstalledStatus.InstallerInfo.Scope, Is.EqualTo(PackageInstallerScope.Unknown));
 
             // Installer status
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntry, installerInstalledStatus.InstallerInstalledStatus[0].Type);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[0]));
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntryInstallLocation, installerInstalledStatus.InstallerInstalledStatus[1].Type);
-            Assert.AreEqual(this.installDir, installerInstalledStatus.InstallerInstalledStatus[1].Path);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[1]));
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile, installerInstalledStatus.InstallerInstalledStatus[2].Type);
-            Assert.AreEqual(Path.Combine(this.installDir, "data.txt"), installerInstalledStatus.InstallerInstalledStatus[2].Path);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[2]));
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile, installerInstalledStatus.InstallerInstalledStatus[3].Type);
-            Assert.AreEqual(Path.Combine(this.installDir, "TestExeInstalled.txt"), installerInstalledStatus.InstallerInstalledStatus[3].Path);
-            Assert.AreEqual(Constants.ErrorCode.INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[3]));
-            Assert.AreEqual(InstalledStatusType.DefaultInstallLocation, installerInstalledStatus.InstallerInstalledStatus[4].Type);
-            Assert.AreEqual(this.defaultInstallDir, Path.GetFullPath(installerInstalledStatus.InstallerInstalledStatus[4].Path));
-            Assert.AreEqual(Constants.ErrorCode.INSTALLED_STATUS_INSTALL_LOCATION_NOT_FOUND, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[4]));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[0].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntry));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[0]), Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[1].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntryInstallLocation));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[1].Path, Is.EqualTo(this.installDir));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[1]), Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[2].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[2].Path, Is.EqualTo(Path.Combine(this.installDir, "data.txt")));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[2]), Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[3].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[3].Path, Is.EqualTo(Path.Combine(this.installDir, "TestExeInstalled.txt")));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[3]), Is.EqualTo(Constants.ErrorCode.INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[4].Type, Is.EqualTo(InstalledStatusType.DefaultInstallLocation));
+            Assert.That(Path.GetFullPath(installerInstalledStatus.InstallerInstalledStatus[4].Path), Is.EqualTo(this.defaultInstallDir));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[4]), Is.EqualTo(Constants.ErrorCode.INSTALLED_STATUS_INSTALL_LOCATION_NOT_FOUND));
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installOptions = this.TestFactory.CreateInstallOptions();
             installOptions.ReplacementInstallerArguments = $"/InstallDir {this.installDir} /ProductID CheckInstalledStatusProductId /DisplayName TestCheckInstalledStatus /Version 2.0";
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Add the data file listed in the manifest
             File.WriteAllText(Path.Combine(this.installDir, "data.txt"), "Test");
@@ -153,21 +153,21 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Check installed status
             var checkResult = await searchResult.CatalogPackage.CheckInstalledStatusAsync(InstalledStatusType.AllAppsAndFeaturesEntryChecks);
-            Assert.AreEqual(CheckInstalledStatusResultStatus.Ok, checkResult.Status);
-            Assert.AreEqual(1, checkResult.PackageInstalledStatus.Count);
+            Assert.That(checkResult.Status, Is.EqualTo(CheckInstalledStatusResultStatus.Ok));
+            Assert.That(checkResult.PackageInstalledStatus.Count, Is.EqualTo(1));
 
             var installerInstalledStatus = checkResult.PackageInstalledStatus[0];
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntry, installerInstalledStatus.InstallerInstalledStatus[0].Type);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[0]));
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntryInstallLocation, installerInstalledStatus.InstallerInstalledStatus[1].Type);
-            Assert.AreEqual(this.installDir, installerInstalledStatus.InstallerInstalledStatus[1].Path);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[1]));
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile, installerInstalledStatus.InstallerInstalledStatus[2].Type);
-            Assert.AreEqual(Path.Combine(this.installDir, "data.txt"), installerInstalledStatus.InstallerInstalledStatus[2].Path);
-            Assert.AreEqual(Constants.ErrorCode.INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[2]));
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile, installerInstalledStatus.InstallerInstalledStatus[3].Type);
-            Assert.AreEqual(Path.Combine(this.installDir, "TestExeInstalled.txt"), installerInstalledStatus.InstallerInstalledStatus[3].Path);
-            Assert.AreEqual(Constants.ErrorCode.INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[3]));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[0].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntry));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[0]), Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[1].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntryInstallLocation));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[1].Path, Is.EqualTo(this.installDir));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[1]), Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[2].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[2].Path, Is.EqualTo(Path.Combine(this.installDir, "data.txt")));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[2]), Is.EqualTo(Constants.ErrorCode.INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[3].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[3].Path, Is.EqualTo(Path.Combine(this.installDir, "TestExeInstalled.txt")));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[3]), Is.EqualTo(Constants.ErrorCode.INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK));
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installOptions = this.TestFactory.CreateInstallOptions();
             installOptions.ReplacementInstallerArguments = $"/InstallDir {this.installDir} /ProductID CheckInstalledStatusProductId /DisplayName TestCheckInstalledStatus /Version 1.0";
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Search from composite source again after installation
             var options = this.TestFactory.CreateCreateCompositePackageCatalogOptions();
@@ -193,21 +193,21 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Check installed status
             var checkResult = await searchResult.CatalogPackage.CheckInstalledStatusAsync(InstalledStatusType.AllAppsAndFeaturesEntryChecks);
-            Assert.AreEqual(CheckInstalledStatusResultStatus.Ok, checkResult.Status);
-            Assert.AreEqual(1, checkResult.PackageInstalledStatus.Count);
+            Assert.That(checkResult.Status, Is.EqualTo(CheckInstalledStatusResultStatus.Ok));
+            Assert.That(checkResult.PackageInstalledStatus.Count, Is.EqualTo(1));
 
             var installerInstalledStatus = checkResult.PackageInstalledStatus[0];
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntry, installerInstalledStatus.InstallerInstalledStatus[0].Type);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[0]));
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntryInstallLocation, installerInstalledStatus.InstallerInstalledStatus[1].Type);
-            Assert.AreEqual(this.installDir, installerInstalledStatus.InstallerInstalledStatus[1].Path);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[1]));
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile, installerInstalledStatus.InstallerInstalledStatus[2].Type);
-            Assert.AreEqual(Path.Combine(this.installDir, "data.txt"), installerInstalledStatus.InstallerInstalledStatus[2].Path);
-            Assert.AreEqual(Constants.ErrorCode.INSTALLED_STATUS_FILE_NOT_FOUND, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[2]));
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile, installerInstalledStatus.InstallerInstalledStatus[3].Type);
-            Assert.AreEqual(Path.Combine(this.installDir, "TestExeInstalled.txt"), installerInstalledStatus.InstallerInstalledStatus[3].Path);
-            Assert.AreEqual(Constants.ErrorCode.INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[3]));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[0].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntry));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[0]), Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[1].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntryInstallLocation));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[1].Path, Is.EqualTo(this.installDir));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[1]), Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[2].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[2].Path, Is.EqualTo(Path.Combine(this.installDir, "data.txt")));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[2]), Is.EqualTo(Constants.ErrorCode.INSTALLED_STATUS_FILE_NOT_FOUND));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[3].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[3].Path, Is.EqualTo(Path.Combine(this.installDir, "TestExeInstalled.txt")));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[3]), Is.EqualTo(Constants.ErrorCode.INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK));
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installOptions = this.TestFactory.CreateInstallOptions();
             installOptions.ReplacementInstallerArguments = $"/InstallDir {this.installDir} /ProductID CheckInstalledStatusProductId /DisplayName TestCheckInstalledStatus /Version 1.0";
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
 
             // Add the data file listed in the manifest
             File.WriteAllText(Path.Combine(this.installDir, "data.txt"), "WrongData");
@@ -236,21 +236,21 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Check installed status
             var checkResult = await searchResult.CatalogPackage.CheckInstalledStatusAsync(InstalledStatusType.AllAppsAndFeaturesEntryChecks);
-            Assert.AreEqual(CheckInstalledStatusResultStatus.Ok, checkResult.Status);
-            Assert.AreEqual(1, checkResult.PackageInstalledStatus.Count);
+            Assert.That(checkResult.Status, Is.EqualTo(CheckInstalledStatusResultStatus.Ok));
+            Assert.That(checkResult.PackageInstalledStatus.Count, Is.EqualTo(1));
 
             var installerInstalledStatus = checkResult.PackageInstalledStatus[0];
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntry, installerInstalledStatus.InstallerInstalledStatus[0].Type);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[0]));
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntryInstallLocation, installerInstalledStatus.InstallerInstalledStatus[1].Type);
-            Assert.AreEqual(this.installDir, installerInstalledStatus.InstallerInstalledStatus[1].Path);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[1]));
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile, installerInstalledStatus.InstallerInstalledStatus[2].Type);
-            Assert.AreEqual(Path.Combine(this.installDir, "data.txt"), installerInstalledStatus.InstallerInstalledStatus[2].Path);
-            Assert.AreEqual(Constants.ErrorCode.INSTALLED_STATUS_FILE_HASH_MISMATCH, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[2]));
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile, installerInstalledStatus.InstallerInstalledStatus[3].Type);
-            Assert.AreEqual(Path.Combine(this.installDir, "TestExeInstalled.txt"), installerInstalledStatus.InstallerInstalledStatus[3].Path);
-            Assert.AreEqual(Constants.ErrorCode.INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[3]));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[0].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntry));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[0]), Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[1].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntryInstallLocation));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[1].Path, Is.EqualTo(this.installDir));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[1]), Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[2].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[2].Path, Is.EqualTo(Path.Combine(this.installDir, "data.txt")));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[2]), Is.EqualTo(Constants.ErrorCode.INSTALLED_STATUS_FILE_HASH_MISMATCH));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[3].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntryInstallLocationFile));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[3].Path, Is.EqualTo(Path.Combine(this.installDir, "TestExeInstalled.txt")));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[3]), Is.EqualTo(Constants.ErrorCode.INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK));
         }
 
         /// <summary>
@@ -273,21 +273,21 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Check installed status
             var checkResult = await searchResult.CatalogPackage.CheckInstalledStatusAsync();
-            Assert.AreEqual(CheckInstalledStatusResultStatus.Ok, checkResult.Status);
-            Assert.AreEqual(1, checkResult.PackageInstalledStatus.Count);
+            Assert.That(checkResult.Status, Is.EqualTo(CheckInstalledStatusResultStatus.Ok));
+            Assert.That(checkResult.PackageInstalledStatus.Count, Is.EqualTo(1));
 
             var installerInstalledStatus = checkResult.PackageInstalledStatus[0];
-            Assert.AreEqual(InstalledStatusType.AppsAndFeaturesEntry, installerInstalledStatus.InstallerInstalledStatus[0].Type);
-            Assert.AreEqual(Constants.ErrorCode.INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[0]));
-            Assert.AreEqual(InstalledStatusType.DefaultInstallLocation, installerInstalledStatus.InstallerInstalledStatus[1].Type);
-            Assert.AreEqual(this.defaultInstallDir, Path.GetFullPath(installerInstalledStatus.InstallerInstalledStatus[1].Path));
-            Assert.AreEqual(Constants.ErrorCode.S_OK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[1]));
-            Assert.AreEqual(InstalledStatusType.DefaultInstallLocationFile, installerInstalledStatus.InstallerInstalledStatus[2].Type);
-            Assert.AreEqual(Path.Combine(this.defaultInstallDir, "data.txt"), Path.GetFullPath(installerInstalledStatus.InstallerInstalledStatus[2].Path));
-            Assert.AreEqual(Constants.ErrorCode.INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[2]));
-            Assert.AreEqual(InstalledStatusType.DefaultInstallLocationFile, installerInstalledStatus.InstallerInstalledStatus[3].Type);
-            Assert.AreEqual(Path.Combine(this.defaultInstallDir, "TestExeInstalled.txt"), Path.GetFullPath(installerInstalledStatus.InstallerInstalledStatus[3].Path));
-            Assert.AreEqual(Constants.ErrorCode.INSTALLED_STATUS_FILE_NOT_FOUND, GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[3]));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[0].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntry));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[0]), Is.EqualTo(Constants.ErrorCode.INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[1].Type, Is.EqualTo(InstalledStatusType.DefaultInstallLocation));
+            Assert.That(Path.GetFullPath(installerInstalledStatus.InstallerInstalledStatus[1].Path), Is.EqualTo(this.defaultInstallDir));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[1]), Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[2].Type, Is.EqualTo(InstalledStatusType.DefaultInstallLocationFile));
+            Assert.That(Path.GetFullPath(installerInstalledStatus.InstallerInstalledStatus[2].Path), Is.EqualTo(Path.Combine(this.defaultInstallDir, "data.txt")));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[2]), Is.EqualTo(Constants.ErrorCode.INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK));
+            Assert.That(installerInstalledStatus.InstallerInstalledStatus[3].Type, Is.EqualTo(InstalledStatusType.DefaultInstallLocationFile));
+            Assert.That(Path.GetFullPath(installerInstalledStatus.InstallerInstalledStatus[3].Path), Is.EqualTo(Path.Combine(this.defaultInstallDir, "TestExeInstalled.txt")));
+            Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[3]), Is.EqualTo(Constants.ErrorCode.INSTALLED_STATUS_FILE_NOT_FOUND));
         }
 
         // CsWinrt maps success error codes(e.g. INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE) to null exception.

@@ -22,8 +22,8 @@ namespace AppInstallerCLIE2ETests
         public void HashFile()
         {
             var result = TestCommon.RunAICLICommand("hash", TestCommon.GetTestDataFile("AppInstallerTestMsiInstaller.msi"));
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("21d90ee9b3569590c624836ef50bf39791c7184869c227eedc00585e1f39b4de"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("21d90ee9b3569590c624836ef50bf39791c7184869c227eedc00585e1f39b4de"));
         }
 
         /// <summary>
@@ -33,9 +33,9 @@ namespace AppInstallerCLIE2ETests
         public void HashMSIX()
         {
             var result = TestCommon.RunAICLICommand("hash", TestCommon.GetTestDataFile(Constants.TestPackage) + " -m");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("08917b781939a7796746b5e2349e1f1d83b6c15599b60cd3f62816f15e565fc4"));
-            Assert.True(result.StdOut.Contains("223b318c4b1154a1fb72b1bc23422810faa5ce899a8e774ba2a02834b2058f00"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("08917b781939a7796746b5e2349e1f1d83b6c15599b60cd3f62816f15e565fc4"));
+            Assert.That(result.StdOut, Does.Contain("223b318c4b1154a1fb72b1bc23422810faa5ce899a8e774ba2a02834b2058f00"));
         }
 
         /// <summary>
@@ -45,9 +45,9 @@ namespace AppInstallerCLIE2ETests
         public void HashInvalidMSIX()
         {
             var result = TestCommon.RunAICLICommand("hash", TestCommon.GetTestDataFile("AppInstallerTestMsiInstaller.msi") + " -m");
-            Assert.AreEqual(Constants.ErrorCode.OPC_E_ZIP_MISSING_END_OF_CENTRAL_DIRECTORY, result.ExitCode);
-            Assert.True(result.StdOut.Contains("21d90ee9b3569590c624836ef50bf39791c7184869c227eedc00585e1f39b4de"));
-            Assert.True(result.StdOut.Contains("Please verify that the input file is a valid, signed MSIX."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.OPC_E_ZIP_MISSING_END_OF_CENTRAL_DIRECTORY));
+            Assert.That(result.StdOut, Does.Contain("21d90ee9b3569590c624836ef50bf39791c7184869c227eedc00585e1f39b4de"));
+            Assert.That(result.StdOut, Does.Contain("Please verify that the input file is a valid, signed MSIX."));
         }
 
         /// <summary>
@@ -57,8 +57,8 @@ namespace AppInstallerCLIE2ETests
         public void HashFileNotFound()
         {
             var result = TestCommon.RunAICLICommand("hash", TestCommon.GetTestDataFile("DoesNot.Exist"));
-            Assert.AreEqual(Constants.ErrorCode.ERROR_FILE_NOT_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("File does not exist"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_FILE_NOT_FOUND));
+            Assert.That(result.StdOut, Does.Contain("File does not exist"));
         }
     }
 }

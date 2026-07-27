@@ -34,11 +34,11 @@ namespace AppInstallerCLIE2ETests
         public void ListAllConfigurations()
         {
             var result = TestCommon.RunAICLICommand(ConfigureWithAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
-            Assert.AreEqual(0, result.ExitCode);
+            Assert.That(result.ExitCode, Is.Zero);
 
             result = TestCommon.RunAICLICommand("configure list", "--verbose");
-            Assert.AreEqual(0, result.ExitCode);
-            Assert.True(result.StdOut.Contains(ConfigureTestRepoFile));
+            Assert.That(result.ExitCode, Is.Zero);
+            Assert.That(result.StdOut, Does.Contain(ConfigureTestRepoFile));
         }
 
         /// <summary>
@@ -48,13 +48,13 @@ namespace AppInstallerCLIE2ETests
         public void ListSpecificConfiguration()
         {
             var result = TestCommon.RunAICLICommand(ConfigureWithAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
-            Assert.AreEqual(0, result.ExitCode);
+            Assert.That(result.ExitCode, Is.Zero);
 
             string guid = TestCommon.GetConfigurationInstanceIdentifierFor(ConfigureTestRepoFile);
             result = TestCommon.RunAICLICommand("configure list", $"-h {guid}");
-            Assert.AreEqual(0, result.ExitCode);
-            Assert.True(result.StdOut.Contains(guid));
-            Assert.True(result.StdOut.Contains(ConfigureTestRepoFile));
+            Assert.That(result.ExitCode, Is.Zero);
+            Assert.That(result.StdOut, Does.Contain(guid));
+            Assert.That(result.StdOut, Does.Contain(ConfigureTestRepoFile));
         }
 
         /// <summary>
@@ -64,15 +64,15 @@ namespace AppInstallerCLIE2ETests
         public void RemoveConfiguration()
         {
             var result = TestCommon.RunAICLICommand(ConfigureWithAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
-            Assert.AreEqual(0, result.ExitCode);
+            Assert.That(result.ExitCode, Is.Zero);
 
             string guid = TestCommon.GetConfigurationInstanceIdentifierFor(ConfigureTestRepoFile);
             result = TestCommon.RunAICLICommand("configure list", $"-h {guid} --remove");
-            Assert.AreEqual(0, result.ExitCode);
+            Assert.That(result.ExitCode, Is.Zero);
 
             result = TestCommon.RunAICLICommand("configure list", "--verbose");
-            Assert.AreEqual(0, result.ExitCode);
-            Assert.False(result.StdOut.Contains(guid));
+            Assert.That(result.ExitCode, Is.Zero);
+            Assert.That(result.StdOut, Does.Not.Contain(guid));
         }
 
         /// <summary>
@@ -82,15 +82,15 @@ namespace AppInstallerCLIE2ETests
         public void OutputConfiguration()
         {
             var result = TestCommon.RunAICLICommand(ConfigureWithAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
-            Assert.AreEqual(0, result.ExitCode);
+            Assert.That(result.ExitCode, Is.Zero);
 
             string guid = TestCommon.GetConfigurationInstanceIdentifierFor(ConfigureTestRepoFile);
             string tempFile = TestCommon.GetRandomTestFile(".yml");
             result = TestCommon.RunAICLICommand("configure list", $"-h {guid} --output {tempFile}");
-            Assert.AreEqual(0, result.ExitCode);
+            Assert.That(result.ExitCode, Is.Zero);
 
             result = TestCommon.RunAICLICommand("configure validate", $"--verbose {tempFile}");
-            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_FALSE));
         }
 
         private void DeleteTxtFiles()

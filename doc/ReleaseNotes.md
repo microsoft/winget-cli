@@ -1,4 +1,4 @@
-## New in v1.29
+## New in v1.30
 
 ## New Features
 
@@ -10,4 +10,5 @@ Usage: add `"output": { "locale": "de-DE" }` to `settings.json`.
 
 ## Bug Fixes
 
+* Updated NUnit to v4
 * Fixed a crash (`0x8000ffff`) when using `--disable-interactivity` with the Resume experimental feature enabled during install operations.

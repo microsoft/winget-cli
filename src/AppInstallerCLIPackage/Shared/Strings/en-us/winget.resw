@@ -2890,8 +2890,8 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
     <value>The package installed for user scope cannot be repaired when running with administrator privileges.</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED" xml:space="preserve">
-    <value>Repair operations involving administrator privileges are not permitted on packages installed within the user scope.</value>
+  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED" xml:space="preserve">
+    <value>The requested operation is not permitted from an administrator context on packages installed within the user scope.</value>
   </data>
   <data name="RepairFailedWithCode" xml:space="preserve">
     <value>Repair failed with exit code: {0}</value>
@@ -3648,5 +3648,8 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
     <value>The DSC processor hash provided does not match hash of the target file.</value>
+  </data>
+  <data name="NoAdminUninstallForUserScopePackage" xml:space="preserve">
+    <value>The package installed for user scope cannot be uninstalled when running with administrator privileges.</value>
   </data>
 </root>

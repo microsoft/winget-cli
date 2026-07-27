@@ -42,8 +42,8 @@ namespace AppInstallerCLIE2ETests
         public void InstallAppDoesNotExist()
         {
             var result = TestCommon.RunAICLICommand("install", "DoesNotExist");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("No package found matching input criteria."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
+            Assert.That(result.StdOut, Does.Contain("No package found matching input criteria."));
         }
 
         /// <summary>
@@ -53,8 +53,8 @@ namespace AppInstallerCLIE2ETests
         public void InstallWithMultipleAppsMatchingQuery()
         {
             var result = TestCommon.RunAICLICommand("install", "TestExeInstaller");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Multiple packages found matching input criteria. Please refine the input."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND));
+            Assert.That(result.StdOut, Does.Contain("Multiple packages found matching input criteria. Please refine the input."));
         }
 
         /// <summary>
@@ -65,9 +65,9 @@ namespace AppInstallerCLIE2ETests
         {
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"), Is.True);
         }
 
         /// <summary>
@@ -80,8 +80,8 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"InapplicableOsVersion --silent -l {installDir}");
 
             // MinOSVersion is moved to installer level, the check is performed during installer selection
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICABLE_INSTALLER, result.ExitCode);
-            Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICABLE_INSTALLER));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), Is.False);
         }
 
         /// <summary>
@@ -92,9 +92,9 @@ namespace AppInstallerCLIE2ETests
         {
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"TestExeSha256Mismatch --silent -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALLER_HASH_MISMATCH, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Installer hash does not match"));
-            Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_INSTALLER_HASH_MISMATCH));
+            Assert.That(result.StdOut, Does.Contain("Installer hash does not match"));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), Is.False);
         }
 
         /// <summary>
@@ -106,9 +106,9 @@ namespace AppInstallerCLIE2ETests
             // Install test inno, manifest does not provide silent switch, we should be populating the default
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"TestInnoInstaller --silent -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/VERYSILENT"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/VERYSILENT"), Is.True);
         }
 
         /// <summary>
@@ -120,9 +120,9 @@ namespace AppInstallerCLIE2ETests
             // Install test burn, manifest does not provide silent switch, we should be populating the default
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"TestBurnInstaller --silent -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/quiet"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/quiet"), Is.True);
         }
 
         /// <summary>
@@ -134,9 +134,9 @@ namespace AppInstallerCLIE2ETests
             // Install test Nullsoft, manifest does not provide silent switch, we should be populating the default
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"TestNullsoftInstaller --silent -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/S"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/S"), Is.True);
         }
 
         /// <summary>
@@ -147,9 +147,9 @@ namespace AppInstallerCLIE2ETests
         {
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"TestMsiInstaller --silent -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(installDir));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestMsiInstalledAndCleanup(installDir), Is.True);
         }
 
         /// <summary>
@@ -159,9 +159,9 @@ namespace AppInstallerCLIE2ETests
         public void InstallMSIX()
         {
             var result = TestCommon.RunAICLICommand("install", $"TestMsixInstaller");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestMsixInstalledAndCleanup(), Is.True);
         }
 
         /// <summary>
@@ -174,9 +174,9 @@ namespace AppInstallerCLIE2ETests
             Assert.Ignore();
 
             var result = TestCommon.RunAICLICommand("install", $"TestMsixInstaller --scope machine");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup(true));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestMsixInstalledAndCleanup(true), Is.True);
         }
 
         /// <summary>
@@ -186,9 +186,9 @@ namespace AppInstallerCLIE2ETests
         public void InstallMSIXWithSignature()
         {
             var result = TestCommon.RunAICLICommand("install", $"TestMsixWithSignatureHash");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestMsixInstalledAndCleanup(), Is.True);
         }
 
         /// <summary>
@@ -201,9 +201,9 @@ namespace AppInstallerCLIE2ETests
             Assert.Ignore();
 
             var result = TestCommon.RunAICLICommand("install", $"TestMsixWithSignatureHash --scope machine");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup(true));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestMsixInstalledAndCleanup(true), Is.True);
         }
 
         /// <summary>
@@ -213,9 +213,9 @@ namespace AppInstallerCLIE2ETests
         public void InstallMSIXWithSignatureHashMismatch()
         {
             var result = TestCommon.RunAICLICommand("install", $"TestMsixSignatureHashMismatch");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALLER_HASH_MISMATCH, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Installer hash does not match"));
-            Assert.False(TestCommon.VerifyTestMsixInstalledAndCleanup());
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_INSTALLER_HASH_MISMATCH));
+            Assert.That(result.StdOut, Does.Contain("Installer hash does not match"));
+            Assert.That(TestCommon.VerifyTestMsixInstalledAndCleanup(), Is.False);
         }
 
         /// <summary>
@@ -230,11 +230,11 @@ namespace AppInstallerCLIE2ETests
             {
                 var installDir = TestCommon.GetRandomTestDir();
                 var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
-                Assert.AreEqual(unchecked((int)0x80070002), result.ExitCode);
-                Assert.True(result.StdOut.Contains("Failed when searching source: failSearch"));
-                Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
-                Assert.False(result.StdOut.Contains("Successfully installed"));
-                Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
+                Assert.That(result.ExitCode, Is.EqualTo(unchecked((int)0x80070002)));
+                Assert.That(result.StdOut, Does.Contain("Failed when searching source: failSearch"));
+                Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExeInstaller"));
+                Assert.That(result.StdOut, Does.Not.Contain("Successfully installed"));
+                Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), Is.False);
             }
             finally
             {
@@ -255,8 +255,8 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
 
             // If no location specified, default behavior is to create a package directory with the name "{packageId}_{sourceId}"
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
@@ -276,8 +276,8 @@ namespace AppInstallerCLIE2ETests
             commandAlias = "testCommand.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(installDir, commandAlias, fileName, productCode, true);
         }
 
@@ -294,8 +294,8 @@ namespace AppInstallerCLIE2ETests
             renameArgValue = "testRename.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(installDir, renameArgValue, renameArgValue, productCode, true);
         }
 
@@ -311,8 +311,8 @@ namespace AppInstallerCLIE2ETests
             renameArgValue = "test?";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
-            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The specified filename is not a valid filename"));
+            Assert.That(result.ExitCode, Is.Not.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("The specified filename is not a valid filename"));
         }
 
         /// <summary>
@@ -327,8 +327,8 @@ namespace AppInstallerCLIE2ETests
             renameArgValue = "CON";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
-            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("The specified filename is not a valid filename"));
+            Assert.That(result.ExitCode, Is.Not.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("The specified filename is not a valid filename"));
         }
 
         /// <summary>
@@ -347,8 +347,8 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {existingDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(existingDir, commandAlias, fileName, productCode, true);
         }
 
@@ -373,8 +373,8 @@ namespace AppInstallerCLIE2ETests
             // Remove directory prior to assertions as this will impact other tests if assertions fail.
             Directory.Delete(conflictDirectory, true);
 
-            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Unable to create symlink"));
+            Assert.That(result.ExitCode, Is.Not.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Unable to create symlink"));
         }
 
         /// <summary>
@@ -390,19 +390,19 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             string symlinkDirectory = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
 
             // Clean first install should not display file overwrite message.
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.False(result.StdOut.Contains($"Overwriting existing file: {symlinkPath}"));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(result.StdOut, Does.Not.Contain($"Overwriting existing file: {symlinkPath}"));
 
             // Perform second install and verify that file overwrite message is displayed.
             var result2 = TestCommon.RunAICLICommand("install", $"{packageId} --force");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
-            Assert.True(result2.StdOut.Contains("Successfully installed"));
+            Assert.That(result2.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result2.StdOut, Does.Contain("Successfully installed"));
 
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
@@ -423,8 +423,8 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} --scope user");
             WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageUserRoot, string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
@@ -444,8 +444,8 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} --scope machine");
             WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.Machine);
         }
 
@@ -466,8 +466,8 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId}");
             WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageUserRoot, string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
@@ -488,8 +488,8 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId}");
             WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.Machine);
         }
 
@@ -501,9 +501,9 @@ namespace AppInstallerCLIE2ETests
         {
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithExe --silent -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"), Is.True);
         }
 
         /// <summary>
@@ -520,8 +520,8 @@ namespace AppInstallerCLIE2ETests
             fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.User);
         }
 
@@ -539,8 +539,8 @@ namespace AppInstallerCLIE2ETests
             fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.User, true);
         }
 
@@ -551,8 +551,8 @@ namespace AppInstallerCLIE2ETests
         public void InstallZipWithInvalidRelativeFilePath()
         {
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInvalidRelativePath");
-            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Invalid relative file path to the nested installer; path points to a location outside of the install directory"));
+            Assert.That(result.ExitCode, Is.Not.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Invalid relative file path to the nested installer; path points to a location outside of the install directory"));
         }
 
         /// <summary>
@@ -563,9 +563,9 @@ namespace AppInstallerCLIE2ETests
         {
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithMsi --silent -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(installDir));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestMsiInstalledAndCleanup(installDir), Is.True);
         }
 
         /// <summary>
@@ -575,9 +575,9 @@ namespace AppInstallerCLIE2ETests
         public void InstallZipWithMsix()
         {
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithMsix");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestMsixInstalledAndCleanup(), Is.True);
         }
 
         /// <summary>
@@ -590,9 +590,9 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithExe --silent -l {installDir}");
             WinGetSettingsHelper.ConfigureInstallBehavior(Constants.ArchiveExtractionMethod, string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"), Is.True);
         }
 
         /// <summary>
@@ -603,18 +603,18 @@ namespace AppInstallerCLIE2ETests
         {
             var baseDir = TestCommon.GetRandomTestDir();
             var baseResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -v 1.0.0.0 --silent -l {baseDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, baseResult.ExitCode);
-            Assert.True(baseResult.StdOut.Contains("Successfully installed"));
+            Assert.That(baseResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(baseResult.StdOut, Does.Contain("Successfully installed"));
 
             // Install will convert to upgrade
             var upgradeDir = TestCommon.GetRandomTestDir();
             var upgradeResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {upgradeDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, upgradeResult.ExitCode);
-            Assert.True(upgradeResult.StdOut.Contains("Trying to upgrade the installed package..."));
-            Assert.True(upgradeResult.StdOut.Contains("Successfully installed"));
+            Assert.That(upgradeResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(upgradeResult.StdOut, Does.Contain("Trying to upgrade the installed package..."));
+            Assert.That(upgradeResult.StdOut, Does.Contain("Successfully installed"));
 
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(upgradeDir, "/Version 2.0.0.0"));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir), Is.True);
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(upgradeDir, "/Version 2.0.0.0"), Is.True);
         }
 
         /// <summary>
@@ -625,17 +625,17 @@ namespace AppInstallerCLIE2ETests
         {
             var baseDir = TestCommon.GetRandomTestDir();
             var baseResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -v 2.0.0.0 --silent -l {baseDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, baseResult.ExitCode);
-            Assert.True(baseResult.StdOut.Contains("Successfully installed"));
+            Assert.That(baseResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(baseResult.StdOut, Does.Contain("Successfully installed"));
 
             // Install will convert to upgrade
             var upgradeDir = TestCommon.GetRandomTestDir();
             var upgradeResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {upgradeDir}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_UPDATE_NOT_APPLICABLE, upgradeResult.ExitCode);
-            Assert.True(upgradeResult.StdOut.Contains("Trying to upgrade the installed package..."));
-            Assert.True(upgradeResult.StdOut.Contains("No available upgrade"));
+            Assert.That(upgradeResult.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_UPDATE_NOT_APPLICABLE));
+            Assert.That(upgradeResult.StdOut, Does.Contain("Trying to upgrade the installed package..."));
+            Assert.That(upgradeResult.StdOut, Does.Contain("No available upgrade"));
 
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir), Is.True);
         }
 
         /// <summary>
@@ -646,17 +646,17 @@ namespace AppInstallerCLIE2ETests
         {
             var baseDir = TestCommon.GetRandomTestDir();
             var baseResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -v 2.0.0.0 --silent -l {baseDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, baseResult.ExitCode);
-            Assert.True(baseResult.StdOut.Contains("Successfully installed"));
+            Assert.That(baseResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(baseResult.StdOut, Does.Contain("Successfully installed"));
 
             // Install will not convert to upgrade
             var installDir = TestCommon.GetRandomTestDir();
             var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -v 1.0.0.0 --silent -l {installDir} --force");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
-            Assert.True(installResult.StdOut.Contains("Successfully installed"));
+            Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installResult.StdOut, Does.Contain("Successfully installed"));
 
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir), Is.True);
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"), Is.True);
         }
 
         /// <summary>
@@ -667,9 +667,9 @@ namespace AppInstallerCLIE2ETests
         {
             var testDir = TestCommon.GetRandomTestDir();
             var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature -l {testDir}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_DEPENDENCIES, installResult.ExitCode);
-            Assert.True(installResult.StdOut.Contains("The feature [invalidFeature] was not found."));
-            Assert.True(installResult.StdOut.Contains("Failed to enable Windows Feature dependencies. To proceed with installation, use '--force'."));
+            Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_INSTALL_DEPENDENCIES));
+            Assert.That(installResult.StdOut, Does.Contain("The feature [invalidFeature] was not found."));
+            Assert.That(installResult.StdOut, Does.Contain("Failed to enable Windows Feature dependencies. To proceed with installation, use '--force'."));
         }
 
         /// <summary>
@@ -680,10 +680,10 @@ namespace AppInstallerCLIE2ETests
         {
             var testDir = TestCommon.GetRandomTestDir();
             var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature --silent --force -l {testDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
-            Assert.True(installResult.StdOut.Contains("Failed to enable Windows Feature dependencies; proceeding due to --force"));
-            Assert.True(installResult.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
+            Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installResult.StdOut, Does.Contain("Failed to enable Windows Feature dependencies; proceeding due to --force"));
+            Assert.That(installResult.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(testDir), Is.True);
         }
 
         /// <summary>
@@ -695,8 +695,8 @@ namespace AppInstallerCLIE2ETests
             var testDir = TestCommon.GetRandomTestDir();
             string installDir = TestCommon.GetPortablePackagesDirectory();
             var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.PackageDependencyRequiresPathRefresh -l {testDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
-            Assert.True(installResult.StdOut.Contains("Successfully installed"));
+            Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installResult.StdOut, Does.Contain("Successfully installed"));
 
             // Portable package is used as a dependency. Ensure that it is installed and cleaned up successfully.
             string portablePackageId, commandAlias, fileName, packageDirName, productCode;
@@ -706,7 +706,7 @@ namespace AppInstallerCLIE2ETests
             commandAlias = "testCommand.exe";
 
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(testDir), Is.True);
         }
 
         /// <summary>
@@ -718,9 +718,9 @@ namespace AppInstallerCLIE2ETests
             var testDir = TestCommon.GetRandomTestDir();
             string installDir = TestCommon.GetPortablePackagesDirectory();
             var installResult = TestCommon.RunAICLICommand("install", $"-q AppInstallerTest.PackageDependencyRequiresPathRefresh -l {testDir} --dependencies-only");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
-            Assert.True(installResult.StdOut.Contains("Installing dependencies only. The package itself will not be installed."));
-            Assert.True(installResult.StdOut.Contains("Successfully installed"));
+            Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installResult.StdOut, Does.Contain("Installing dependencies only. The package itself will not be installed."));
+            Assert.That(installResult.StdOut, Does.Contain("Successfully installed"));
 
             // Portable package is used as a dependency. Ensure that it is installed and cleaned up successfully.
             string portablePackageId, commandAlias, fileName, packageDirName, productCode;
@@ -730,7 +730,7 @@ namespace AppInstallerCLIE2ETests
             commandAlias = "testCommand.exe";
 
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
-            Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(testDir), Is.False);
         }
 
         /// <summary>
@@ -741,9 +741,9 @@ namespace AppInstallerCLIE2ETests
         {
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMultipleInstallers --silent -l {installDir} --installer-type exe");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"), Is.True);
         }
 
         /// <summary>
@@ -761,9 +761,9 @@ namespace AppInstallerCLIE2ETests
             // Reset installer type preferences.
             WinGetSettingsHelper.ConfigureInstallBehaviorPreferences(Constants.InstallerTypes, Array.Empty<string>());
 
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), "/S");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), Is.True, "/S");
         }
 
         /// <summary>
@@ -781,8 +781,8 @@ namespace AppInstallerCLIE2ETests
             // Reset installer type requirements.
             WinGetSettingsHelper.ConfigureInstallBehaviorRequirements(Constants.InstallerTypes, Array.Empty<string>());
 
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICABLE_INSTALLER, result.ExitCode);
-            Assert.True(result.StdOut.Contains("No applicable installer found; see logs for more details."));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICABLE_INSTALLER));
+            Assert.That(result.StdOut, Does.Contain("No applicable installer found; see logs for more details."));
         }
 
         /// <summary>
@@ -808,25 +808,25 @@ namespace AppInstallerCLIE2ETests
 
             // We should not find it before installing because the normalized name doesn't match
             var result = TestCommon.RunAICLICommand("list", targetPackageIdentifier);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
 
             // Add the MSIX to simulate an installer doing it
             TestCommon.InstallMsix(TestIndex.MsixInstaller);
 
             // Install our exe that "installs" the MSIX
             result = TestCommon.RunAICLICommand("install", $"{targetPackageIdentifier} --force");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             // We should find the package now, and it should be correlated to the MSIX (although we don't actually know that from this probe)
             result = TestCommon.RunAICLICommand("list", targetPackageIdentifier);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             // Remove the MSIX outside of winget's knowledge to keep the tracking data.
             TestCommon.RemoveMsix(Constants.MsixInstallerName);
 
             // We should not find the package now that the MSIX is gone, confirming that it was correlated
             result = TestCommon.RunAICLICommand("list", targetPackageIdentifier);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND));
 
             TestCommon.RemoveARPEntry(fakeProductCode);
         }
@@ -845,17 +845,17 @@ namespace AppInstallerCLIE2ETests
                 // Attempt install with equal (default) priorities
                 var installDir = TestCommon.GetRandomTestDir();
                 var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
-                Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
-                Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
+                Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND));
+                Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), Is.False);
 
                 // Change the priority of the primary test source to be higher
                 TestCommon.RunAICLICommand("source edit", $"{Constants.TestSourceName} --priority 1");
 
                 result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
-                Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-                Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
-                Assert.True(result.StdOut.Contains("Successfully installed"));
-                Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
+                Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+                Assert.That(result.StdOut, Does.Contain("AppInstallerTest.TestExeInstaller"));
+                Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+                Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), Is.True);
             }
             finally
             {

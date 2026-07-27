@@ -51,6 +51,14 @@ namespace AppInstaller::Runtime
     //  3. the token is not already elevated
     bool IsRunningWithLimitedToken();
 
+    // Determines whether the current token is elevated.
+    // This only returns true for tokens that are TokenElevationTypeFull.
+    // Thus, it will only be true if:
+    //  1. UAC is enabled
+    //  2. the user is in the Administrators group
+    //  3. the token is elevated
+    bool IsRunningWithNonDefaultFullToken();
+
     // Determines if the given amount of stack bytes are available.
     // If the answer cannot be determined properly, the return value will be `false`.
     DECLSPEC_NOINLINE bool IsStackAvailable(size_t bytes);

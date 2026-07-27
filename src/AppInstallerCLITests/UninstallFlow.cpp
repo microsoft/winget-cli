@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "TestHooks.h"
 #include "WorkflowCommon.h"
 #include <Commands/UninstallCommand.h>
+#include <winget/ManifestYamlParser.h>
 #include <Workflows/PortableFlow.h>
 #include <Workflows/ShellExecuteInstallerHandler.h>
 #include <Workflows/UninstallFlow.h>
@@ -209,4 +211,46 @@ TEST_CASE("UninstallFlow_UninstallMultiple_NotAllInstalled", "[UninstallFlow][wo
     INFO(uninstallOutput.str());
 
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
+}
+
+TEST_CASE("UninstallFlow_AdminContextWithUserScopeInstall", "[UninstallFlow][workflow]")
+{
+    // Simulate running with an elevated (non-default full) token.
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+
+    std::ostringstream uninstallOutput;
+    TestContext context{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+
+    // Create a test source with a Burn installer installed at user scope.
+    // AdminExecutionShouldBlockUserScopePackages returns true for Burn/Exe/Inno/Nullsoft/Portable.
+    auto testSource = CreateTestSource({
+        TestSourceResult(
+            "AppInstallerCliTest.TestBurnInstallerUserScope"sv,
+            [](std::vector<AppInstaller::Repository::ResultMatch>& matches, std::weak_ptr<const AppInstaller::Repository::ISource> source) {
+                auto manifest = AppInstaller::Manifest::YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                matches.emplace_back(
+                    AppInstaller::Repository::ResultMatch(
+                        TestCompositePackage::Make(
+                            manifest,
+                            TestCompositePackage::MetadataMap
+                            {
+                                { AppInstaller::Repository::PackageVersionMetadata::InstalledType, "Burn" },
+                                { AppInstaller::Repository::PackageVersionMetadata::InstalledScope, "User" },
+                            },
+                            std::vector<AppInstaller::Manifest::Manifest>{ manifest },
+                            source
+                        ),
+                        AppInstaller::Repository::PackageMatchFilter(AppInstaller::Repository::PackageMatchField::Id, AppInstaller::Repository::MatchType::Exact, "AppInstallerCliTest.TestBurnInstallerUserScope")));
+            })
+    });
+
+    OverrideForCompositeInstalledSource(context, testSource);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestBurnInstallerUserScope"sv);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(context);
+    INFO(uninstallOutput.str());
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
 }
