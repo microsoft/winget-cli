@@ -104,12 +104,12 @@ The `output` settings affect winget interface output behavior.
 
 #### locale
 
-The `locale` setting overrides winget interface language using a supported locale value. If not specified, winget uses the default Windows globalization behavior.
+The `locale` setting selects winget interface language using a supported locale value. If not specified, winget uses the default Windows resource resolution behavior for the current process.
 
 Supported values: `en-US`, `de-DE`, `es-ES`, `fr-FR`, `it-IT`, `ja-JP`, `ko-KR`, `pt-BR`, `ru-RU`, `zh-CN`, `zh-TW`.
 
 > [!NOTE]
-> This setting only affects winget interface strings and does not affect package metadata localization or installer locale selection.
+> This setting only affects winget interface strings and does not affect package metadata localization, installer locale selection, or package-wide language settings.
 
 ```json
     "output": {

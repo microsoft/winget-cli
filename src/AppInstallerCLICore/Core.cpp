@@ -10,7 +10,7 @@
 #include "COMContext.h"
 #include <AppInstallerFileLogger.h>
 #include <winget/OutputDebugStringLogger.h>
-#include <winrt/Windows.Globalization.h>
+#include <winget/Resources.h>
 #include "Public/ShutdownMonitoring.h"
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -84,15 +84,9 @@ namespace AppInstaller::CLI
         {
             std::string localeTag{ Settings::User().Get<Settings::Setting::OutputLocale>() };
 
-            try
+            if (!AppInstaller::Resource::SetLanguageOverride(localeTag))
             {
-                // Always apply the setting value, including empty string, to clear a persisted override from
-                // previous sessions. PrimaryLanguageOverride is package-scoped and persists across sessions.
-                winrt::Windows::Globalization::ApplicationLanguages::PrimaryLanguageOverride(Utility::ConvertToUTF16(localeTag));
-            }
-            catch (const winrt::hresult_error& hre)
-            {
-                AICLI_LOG(CLI, Warning, << "Failed to apply output locale override for " << localeTag << ". HRESULT: 0x" << Logging::SetHRFormat << hre.code());
+                AICLI_LOG(CLI, Warning, << "Failed to apply output locale override from settings: " << localeTag);
                 return {};
             }
 

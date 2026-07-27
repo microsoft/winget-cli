@@ -394,10 +394,10 @@ The `output` settings control how winget presents CLI output.
 
 ### locale
 
-The `locale` setting overrides winget interface language by BCP47 tag (for example, `en-US`). If this setting is missing or invalid, winget uses the default Windows globalization behavior.
+The `locale` setting selects the language used to resolve winget interface strings by BCP47 tag (for example, `en-US`). If this setting is missing or invalid, winget uses the default Windows resource resolution behavior for the current process.
 
 > [!NOTE]
-> This only affects winget interface strings. It does not change package metadata localization or installer selection behavior.
+> This only affects winget interface strings. It does not change package metadata localization, installer selection behavior, or package-wide language settings.
 
 ```json
     "output": {
