@@ -377,7 +377,7 @@ namespace AppInstaller::CLI::Workflow
 
         // When running as admin, block attempt to repair user scope installed package. 
         // [NOTE:] This check is to address the security concern related to above scenario.
-        if (Runtime::IsRunningAsAdmin())
+        if (Runtime::IsRunningWithNonDefaultFullToken())
         {
             auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
             const std::string installedScopeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledScope];
