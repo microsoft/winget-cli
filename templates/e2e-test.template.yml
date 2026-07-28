@@ -16,7 +16,7 @@ steps:
     inputs:
       script: 'wpr -start $(Build.SourcesDirectory)\tools\COMTrace\ComTrace.wprp -filemode'
 
-  - task: VSTest@2
+  - task: VSTest@3
     displayName: Run ${{ parameters.title }}
     condition: succeededOrFailed()
     inputs:
