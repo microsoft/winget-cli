@@ -120,7 +120,11 @@ Once you've discussed your proposed feature/fix/etc. with a team member, and you
 
 Testing is a key part of getting a change ready for review.
 
-If your contribution changes behavior or implementation, please add or update automated tests along with the code. For most fixes and features, that means updating unit tests in `AppInstallerCLITests`. If your change crosses command or workflow boundaries, you should also add or update end-to-end coverage in `AppInstallerCLIE2ETests`.
+If your contribution changes behavior or implementation, please plan to add or update automated tests alongside the code.
+
+As a quick rule of thumb: unit tests in `AppInstallerCLITests` focus on the code and logic, while end-to-end tests in `AppInstallerCLIE2ETests` focus on actual `winget` command behavior and the resulting system outcomes.
+
+For non-trivial code changes, the bar is high. Where practical, include both unit tests and end-to-end coverage. If you believe that tests aren't needed for your change, please call that out in your PR and explain why.
 
 Documentation-only updates and non-functional metadata changes generally do not require new tests.
 
