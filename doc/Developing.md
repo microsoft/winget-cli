@@ -47,6 +47,20 @@ The unit tests are located inside the `AppInstallerCLITests` project. When the s
 > [!TIP]
 > If you just want to run a particular test, you can specify the test name as an argument to the executable. For example, `AppInstallerCLITests.exe EnsureSortedErrorList`.
 
+> [!TIP]
+> For local debugging, you can increase test output detail and include timing information by running `AppInstallerCLITests.exe -d yes -v high`.
+
+## Running End-to-End Tests
+
+The end-to-end tests are located in the `AppInstallerCLIE2ETests` project and are executed with NUnit.
+
+For setup details (including `Test.runsettings`, local test source setup, and localhost web server usage), see [`src/AppInstallerCLIE2ETests/README.md`](../src/AppInstallerCLIE2ETests/README.md).
+
+A typical local workflow is:
+1. Build the solution.
+2. Configure `src/AppInstallerCLIE2ETests/Test.runsettings` for your environment.
+3. Run `AppInstallerCLIE2ETests` from Test Explorer, or run `dotnet test src\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.csproj --settings src\AppInstallerCLIE2ETests\Test.runsettings`.
+
 ## Localization
 
 The English resource strings are the source of truth and live in:

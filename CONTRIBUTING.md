@@ -118,7 +118,15 @@ Once you've discussed your proposed feature/fix/etc. with a team member, and you
 
 ### Testing
 
-Testing is a key component in the development workflow.
+Testing is a key part of getting a change ready for review.
+
+If your contribution changes behavior or implementation, please add or update automated tests along with the code. For most fixes and features, that means updating unit tests in `AppInstallerCLITests`. If your change crosses command or workflow boundaries, you should also add or update end-to-end coverage in `AppInstallerCLIE2ETests`.
+
+Documentation-only updates and non-functional metadata changes generally do not require new tests.
+
+For build and test execution details, see [Running Unit Tests](./doc/Developing.md#running-unit-tests) and [Running End-to-End Tests](./doc/Developing.md#running-end-to-end-tests) in [doc/Developing.md](./doc/Developing.md).
+
+PRs without appropriate coverage may be asked to add tests before review completes.
 
 ### Code Review
 
