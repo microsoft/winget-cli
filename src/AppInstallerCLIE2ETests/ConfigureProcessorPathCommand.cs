@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="ConfigureProcessorPathCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -8,7 +8,6 @@ namespace AppInstallerCLIE2ETests
 {
     using System;
     using System.IO;
-    using System.Text.RegularExpressions;
     using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
@@ -74,12 +73,12 @@ namespace AppInstallerCLIE2ETests
 
             // Audit header must appear regardless of whether the configure succeeds or fails,
             // because audit output happens during factory setup before DSC is invoked.
-            Assert.True(result.StdOut.Contains("Custom processor path:"), $"Expected audit header in output. StdOut: {result.StdOut}");
-            Assert.True(result.StdOut.Contains($"  Path: {processorPath}"), $"Expected path in audit output. StdOut: {result.StdOut}");
-            Assert.True(result.StdOut.Contains("  Hash: "), $"Expected hash in audit output. StdOut: {result.StdOut}");
+            Assert.That(result.StdOut, Does.Contain("Custom processor path:"), $"Expected audit header in output. StdOut: {result.StdOut}");
+            Assert.That(result.StdOut, Does.Contain($"  Path: {processorPath}"), $"Expected path in audit output. StdOut: {result.StdOut}");
+            Assert.That(result.StdOut, Does.Contain("  Hash: "), $"Expected hash in audit output. StdOut: {result.StdOut}");
 
             // dsc.exe is an app execution alias; the alias marker must be present.
-            Assert.True(result.StdOut.Contains("Type: App execution alias"), $"Expected app execution alias marker. StdOut: {result.StdOut}");
+            Assert.That(result.StdOut, Does.Contain("Type: App execution alias"), $"Expected app execution alias marker. StdOut: {result.StdOut}");
         }
 
         /// <summary>
@@ -102,7 +101,7 @@ namespace AppInstallerCLIE2ETests
                 Command,
                 $"--accept-configuration-agreements --processor-path \"{processorPath}\" \"{configFile}\" --no-progress");
 
-            Assert.True(result.StdOut.Contains("  Hash: "), $"Expected hash in audit output. StdOut: {result.StdOut}");
+            Assert.That(result.StdOut, Does.Contain("  Hash: "), $"Expected hash in audit output. StdOut: {result.StdOut}");
 
             // Extract the hash value from "  Hash: <value>"
             int hashLabelIndex = result.StdOut.IndexOf("  Hash: ");
@@ -114,10 +113,8 @@ namespace AppInstallerCLIE2ETests
                 ? result.StdOut.Substring(hashStart, hashEnd - hashStart).Trim()
                 : result.StdOut.Substring(hashStart).Trim();
 
-            Assert.AreEqual(64, hashValue.Length, $"Expected 64-character SHA256 hash, got: '{hashValue}'");
-            Assert.True(
-                Regex.IsMatch(hashValue, "^[0-9a-f]{64}$"),
-                $"Expected lowercase hex hash, got: '{hashValue}'");
+            Assert.That(hashValue.Length, Is.EqualTo(64), $"Expected 64-character SHA256 hash, got: '{hashValue}'");
+            Assert.That(hashValue, Does.Match("^[0-9a-f]{64}$"), $"Expected lowercase hex hash, got: '{hashValue}'");
         }
 
         /// <summary>

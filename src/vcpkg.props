@@ -61,6 +61,14 @@
     <Exec Command="pwsh.exe -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)VcpkgPortOverlay\CreatePortOverlay.ps1&quot; -StampFile &quot;$(MSBuildThisFileDirectory)VcpkgPortOverlay\.created&quot;" />
   </Target>
 
+  <!-- Visual Studio "Clean Solution" only clears project build outputs. vcpkg artifacts
+       live under src\vcpkg_installed and are not removed unless we clean them explicitly.
+       Removing the overlay stamp forces regeneration of overlay ports on the next build. -->
+  <Target Name="CleanVcpkg" AfterTargets="Clean">
+    <RemoveDir Directories="$(VcpkgInstalledDir)" />
+    <Delete Files="$(MSBuildThisFileDirectory)VcpkgPortOverlay\.created" />
+  </Target>
+
   <Target Name="EnsureNoTripletMismatch"
           BeforeTargets="PrepareForBuild"
           Condition="'$(_IsBuildingSln)' != 'true'" >

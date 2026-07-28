@@ -86,12 +86,7 @@ namespace Microsoft.WinGetSourceCreator
             string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
             string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
             string args = $"unpack /nv /p \"{package}\" /d \"{outDir}\"";
-            Process p = new Process
-            {
-                StartInfo = new ProcessStartInfo(makeappxExecutable, args)
-            };
-            p.Start();
-            p.WaitForExit();
+            RunCommand(makeappxExecutable, args);
         }
 
         public static void PackWithMappingFile(string outputPackage, string mappingFile)
@@ -138,6 +133,11 @@ namespace Microsoft.WinGetSourceCreator
             }
             p.Start();
             p.WaitForExit();
+
+            if (p.ExitCode != 0)
+            {
+                throw new Exception($"Command failed with exit code {p.ExitCode}: {command}");
+            }
         }
 
         // If in the future we edit more elements, this should be a nice wrapper class.

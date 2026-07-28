@@ -47,7 +47,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "The specified installer type does not support PackageFamilyName."sv },
                 { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotSupportProductCode, "The specified installer type does not support ProductCode."sv },
                 { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotWriteAppsAndFeaturesEntry, "The specified installer type does not write to Apps and Features entry."sv },
-                { AppInstaller::Manifest::ManifestError::IncompleteMultiFileManifest, "The multi file manifest is incomplete.A multi file manifest must contain at least version, installer and defaultLocale manifest."sv },
+                { AppInstaller::Manifest::ManifestError::IncompleteMultiFileManifest, "The multi file manifest is incomplete. A multi file manifest must contain at least version, installer and defaultLocale manifest."sv },
                 { AppInstaller::Manifest::ManifestError::InconsistentMultiFileManifestFieldValue, "The multi file manifest has inconsistent field values."sv },
                 { AppInstaller::Manifest::ManifestError::DuplicatePortableCommandAlias, "Duplicate portable command alias found."sv },
                 { AppInstaller::Manifest::ManifestError::DuplicateRelativeFilePath, "Duplicate relative file path found."sv },
@@ -81,7 +81,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::RelativeFilePathEscapesDirectory, "Relative file path must not point to a location outside of archive directory."sv },
                 { AppInstaller::Manifest::ManifestError::ArpValidationError, "Arp Validation Error."sv },
                 { AppInstaller::Manifest::ManifestError::SchemaError, "Schema Error."sv },
-                { AppInstaller::Manifest::ManifestError::MsixSignatureHashFailed, "Failed to calculate MSIX signature hash.Please verify that the input file is a valid, signed MSIX."sv },
+                { AppInstaller::Manifest::ManifestError::MsixSignatureHashFailed, "Failed to calculate MSIX signature hash. Please verify that the input file is a valid, signed MSIX."sv },
                 { AppInstaller::Manifest::ManifestError::ShadowManifestNotAllowed, "Shadow manifest is not allowed." },
                 { AppInstaller::Manifest::ManifestError::SchemaHeaderNotFound, "Schema header not found." },
                 { AppInstaller::Manifest::ManifestError::InvalidSchemaHeader , "The schema header is invalid. Please verify that the schema header is present and formatted correctly."sv },
@@ -592,7 +592,7 @@ namespace AppInstaller::Manifest
         {
             return std::string(itr->second);
         }
-        
+
         return Utility::ConvertToUTF8(Message);
     }
 

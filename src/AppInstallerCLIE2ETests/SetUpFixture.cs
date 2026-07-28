@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="SetUpFixture.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -45,11 +45,11 @@ namespace AppInstallerCLIE2ETests
                 {
                     if (testParams.LooseFileRegistration)
                     {
-                        Assert.True(TestCommon.InstallMsixRegister(testParams.AICLIPackagePath), $"InstallMsixRegister : {testParams.AICLIPackagePath}");
+                        Assert.That(TestCommon.InstallMsixRegister(testParams.AICLIPackagePath), Is.True, $"InstallMsixRegister : {testParams.AICLIPackagePath}");
                     }
                     else
                     {
-                        Assert.True(TestCommon.InstallMsix(testParams.AICLIPackagePath), $"InstallMsix : {testParams.AICLIPackagePath}");
+                        Assert.That(TestCommon.InstallMsix(testParams.AICLIPackagePath), Is.True, $"InstallMsix : {testParams.AICLIPackagePath}");
                     }
                 }
             }

@@ -19,7 +19,9 @@ namespace AppInstaller::Utility::HttpStream
 
         try
         {
-            strong_this->m_httpHelper = co_await HttpClientWrapper::CreateAsync(uri);
+            auto httpHelper = HttpClientWrapper::Create(uri);
+            co_await httpHelper->PopulateInfoAsync();
+            strong_this->m_httpHelper = std::move(httpHelper);
             strong_this->m_size = strong_this->m_httpHelper->GetFullFileSize();
             strong_this->m_httpLocalCache = std::make_unique<HttpLocalCache>();
         }

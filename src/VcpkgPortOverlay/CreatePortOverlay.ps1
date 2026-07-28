@@ -560,7 +560,7 @@ if ($StampFile) {
 }
 
 try {
-    New-PortOverlay cpprestsdk -Version 2.10.18 -PortVersion 4
+    New-PortOverlay cpprestsdk -Version 2.10.19 -PortVersion 5
     Add-LocalPatch cpprestsdk 'add-server-certificate-validation.patch'
 
     New-PortOverlay detours -Version 4.0.1 -PortVersion 8

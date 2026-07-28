@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="BaseInterop.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -46,7 +46,7 @@ namespace AppInstallerCLIE2ETests.Interop
             string value)
         {
             var findPackages = this.FindAllPackages(packageCatalogReference, field, option, value);
-            Assert.AreEqual(1, findPackages.Count, $"Expected exactly one package but found {findPackages.Count}");
+            Assert.That(findPackages.Count, Is.EqualTo(1), $"Expected exactly one package but found {findPackages.Count}");
             return findPackages.First();
         }
 
@@ -64,7 +64,7 @@ namespace AppInstallerCLIE2ETests.Interop
             PackageFieldMatchOption option,
             string value)
         {
-            Assert.NotNull(packageCatalogReference, "Package catalog reference cannot be null");
+            Assert.That(packageCatalogReference, Is.Not.Null, "Package catalog reference cannot be null");
 
             // Prepare filter
             var filter = this.TestFactory.CreatePackageMatchFilter();

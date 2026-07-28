@@ -661,6 +661,9 @@ int wmain(int argc, const wchar_t** argv)
         {
             return -1;
         }
+
+        WaitForSingleObject(execInfo.hProcess, INFINITE);
+        CloseHandle(execInfo.hProcess);
     }
 
     if (displayName.empty())

@@ -40,12 +40,12 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe -v 1.0.0.0");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
 
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
-            Assert.True(result2.StdOut.Contains("Successfully installed"));
+            Assert.That(result2.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result2.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
@@ -62,12 +62,12 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestPortableExe -v 1.0.0.0 -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
 
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0 -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
-            Assert.True(result2.StdOut.Contains("Successfully installed"));
+            Assert.That(result2.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result2.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(installDir, commandAlias, fileName, productCode, true);
         }
 
@@ -81,8 +81,8 @@ namespace AppInstallerCLIE2ETests
             string productCode = packageId + "_" + Constants.TestSourceIdentifier;
 
             var installResult = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe -v 1.0.0.0");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
-            Assert.True(installResult.StdOut.Contains("Successfully installed"));
+            Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installResult.StdOut, Does.Contain("Successfully installed"));
 
             // Modify packageId to cause mismatch.
             TestCommon.ModifyPortableARPEntryValue(productCode, Constants.WinGetPackageIdentifier, "testPackageId");
@@ -93,8 +93,8 @@ namespace AppInstallerCLIE2ETests
             TestCommon.ModifyPortableARPEntryValue(productCode, Constants.WinGetPackageIdentifier, packageId);
             TestCommon.RunAICLICommand("uninstall", $"--product-code {productCode}");
 
-            Assert.AreNotEqual(Constants.ErrorCode.S_OK, upgradeResult.ExitCode);
-            Assert.True(upgradeResult.StdOut.Contains("Portable package from a different source already exists"));
+            Assert.That(upgradeResult.ExitCode, Is.Not.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(upgradeResult.StdOut, Does.Contain("Portable package from a different source already exists"));
         }
 
         /// <summary>
@@ -110,16 +110,16 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var installResult = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe -v 1.0.0.0");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
-            Assert.True(installResult.StdOut.Contains("Successfully installed"));
+            Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installResult.StdOut, Does.Contain("Successfully installed"));
 
             // Modify packageId and sourceId to cause mismatch.
             TestCommon.ModifyPortableARPEntryValue(productCode, Constants.WinGetPackageIdentifier, "testPackageId");
             TestCommon.ModifyPortableARPEntryValue(productCode, Constants.WinGetSourceIdentifier, "testSourceId");
 
             var upgradeResult = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0 --force");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, upgradeResult.ExitCode);
-            Assert.True(upgradeResult.StdOut.Contains("Successfully installed"));
+            Assert.That(upgradeResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(upgradeResult.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
@@ -136,12 +136,12 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -v 1.0.0.0");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
 
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 3.0.0.0");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
-            Assert.True(result2.StdOut.Contains("Successfully installed"));
+            Assert.That(result2.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result2.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
@@ -154,12 +154,12 @@ namespace AppInstallerCLIE2ETests
             string packageId = DenyUpgradePackage;
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -v 1.0.0.0");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
 
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
-            Assert.AreEqual(Constants.ErrorCode.APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED, result2.ExitCode);
-            Assert.True(result2.StdOut.Contains("package cannot be upgraded using WinGet"));
+            Assert.That(result2.ExitCode, Is.EqualTo(Constants.ErrorCode.APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED));
+            Assert.That(result2.StdOut, Does.Contain("package cannot be upgraded using WinGet"));
         }
 
         /// <summary>
@@ -177,13 +177,13 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -v 1.0.0.0 --scope machine");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
 
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
             WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
-            Assert.True(result2.StdOut.Contains("Successfully installed"));
+            Assert.That(result2.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result2.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.Machine);
         }
 
@@ -201,12 +201,12 @@ namespace AppInstallerCLIE2ETests
             fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithPortable -v 1.0.0.0");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
 
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
-            Assert.True(result2.StdOut.Contains("Successfully installed"));
+            Assert.That(result2.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result2.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.User);
         }
 
@@ -217,10 +217,10 @@ namespace AppInstallerCLIE2ETests
         public void UpgradeAddsDependency()
         {
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestUpgradeAddsDependency -v 1.0 --verbose");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
 
             result = TestCommon.RunAICLICommand("upgrade", $"AppInstallerTest.TestUpgradeAddsDependency");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
         }
     }
 }
