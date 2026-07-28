@@ -169,8 +169,14 @@ namespace AppInstaller
             {
                 try
                 {
-
-                    m_wingetLoader = CreateLoader({});
+                    // Do not call CreateLoader({}) here. CreateLoader calls ResetGlobalQualifierValues
+                    // before ResourceLoader(), which changes WinRT resource system state and breaks the
+                    // safety guard below. When running unpackaged (e.g. during the build's
+                    // WinGetGenerateDSCv3Manifests step), ResourceLoader() must throw its catchable
+                    // hresult_error first to prevent execution from reaching GetForViewIndependentUse,
+                    // which fast-fails with an uncatchable crash (0xC0000409) when not under a debugger.
+                    [[maybe_unused]] auto defaultLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader();
+                    m_wingetLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader::GetForViewIndependentUse(L"winget");
                 }
                 catch (const winrt::hresult_error& hre)
                 {

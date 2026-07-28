@@ -84,6 +84,11 @@ namespace AppInstaller::CLI
         {
             std::string localeTag{ Settings::User().Get<Settings::Setting::OutputLocale>() };
 
+            if (localeTag.empty())
+            {
+                return {};
+            }
+
             if (!AppInstaller::Resource::SetLanguageOverride(localeTag))
             {
                 AICLI_LOG(CLI, Warning, << "Failed to apply output locale override from settings: " << localeTag);
