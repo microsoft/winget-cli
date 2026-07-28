@@ -11,6 +11,13 @@ $OverlayRoot = $PSScriptRoot
 
 $ErrorActionPreference = "Stop"
 
+# Windows PowerShell 5.1 (.NET Framework) does not load these assemblies by default.
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+# Windows PowerShell 5.1's Out-File defaults to UTF-16; vcpkg requires UTF-8 port files.
+$PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
+
 
 # Gets the versions of a port available from the official registry.
 # This is read from the versions JSON in the main branch.
@@ -29,7 +36,7 @@ function Get-PortVersions
 
     $initial = $Port[0]
     $jsonUri = "https://raw.githubusercontent.com/microsoft/vcpkg/heads/master/versions/$initial-/$Port.json"
-    $versions = (Invoke-WebRequest -Uri $jsonUri).Content | ConvertFrom-Json -Depth 5
+    $versions = (Invoke-WebRequest -Uri $jsonUri -UseBasicParsing).Content | ConvertFrom-Json
     return $versions.versions
 }
 
@@ -62,7 +69,7 @@ function Get-GitTreeAsArchive
     )
 
     $archiveUri = "https://github.com/$Repo/archive/$gitTree.zip"
-    $response = Invoke-WebRequest -Uri $archiveUri
+    $response = Invoke-WebRequest -Uri $archiveUri -UseBasicParsing
     $zipStream = [System.IO.MemoryStream]::new($response.Content)
     $zipArchive = [System.IO.Compression.ZipArchive]::new($zipStream)
     return $zipArchive
@@ -154,7 +161,7 @@ function Expand-PortfileTemplate
         [string]$CommentedFunction = 'vcpkg_from_github'
     )
 
-    $portFilePath = Join-Path $OverlayRoot $Port 'portfile.cmake'
+    $portFilePath = [System.IO.Path]::Combine($OverlayRoot, $Port, 'portfile.cmake')
     $lines = Get-Content $portFilePath
 
     $result = [System.Collections.Generic.List[string]]::new()
@@ -227,7 +234,7 @@ function Get-GitHubPatch
     )
 
     $patchUri = "https://github.com/$repo/commit/$commit.patch"
-    $response = Invoke-WebRequest -Uri $patchUri
+    $response = Invoke-WebRequest -Uri $patchUri -UseBasicParsing
     return $response.Content
 }
 
@@ -290,7 +297,7 @@ function Add-PatchToPortFile
 
     # Look for the line that says "PATCHES" and add the new patch before the closing parenthesis
 
-    $portFilePath = Join-Path $OverlayRoot $Port "portfile.cmake"
+    $portFilePath = [System.IO.Path]::Combine($OverlayRoot, $Port, "portfile.cmake")
     $originalPortFile = Get-Content $portFilePath
 
     $modifiedPortFile = @()
@@ -325,7 +332,7 @@ function Remove-PortPatches
 
     # Look for the line that says "PATCHES"
 
-    $portFilePath = Join-Path $OverlayRoot $Port "portfile.cmake"
+    $portFilePath = [System.IO.Path]::Combine($OverlayRoot, $Port, "portfile.cmake")
     $originalPortFile = Get-Content $portFilePath
 
     $modifiedPortFile = @()
@@ -392,9 +399,9 @@ function Add-LocalPatch
         [string]$PatchName
     )
 
-    Copy-Item (Join-Path $OverlayRoot 'patches' $Port $PatchName) (Join-Path $OverlayRoot $Port)
+    Copy-Item ([System.IO.Path]::Combine($OverlayRoot, 'patches', $Port, $PatchName)) (Join-Path $OverlayRoot $Port)
 
-    $portFilePath = Join-Path $OverlayRoot $Port 'portfile.cmake'
+    $portFilePath = [System.IO.Path]::Combine($OverlayRoot, $Port, 'portfile.cmake')
     $lines = Get-Content $portFilePath
     $hasPatchesKeyword = $lines | Where-Object { $_ -match '\bPATCHES\b' }
 
@@ -435,7 +442,7 @@ function Set-ParameterInPortFile
         [string]$NewValue
     )
 
-    $portFilePath = Join-Path $OverlayRoot $Port 'portfile.cmake'
+    $portFilePath = [System.IO.Path]::Combine($OverlayRoot, $Port, 'portfile.cmake')
     $originalPortFile = Get-Content $portFilePath
 
     # Explanation for the regex:
@@ -459,7 +466,7 @@ function Set-CmakeConfigureOptions
         [string[]]$Options
     )
 
-    $portFilePath = Join-Path $OverlayRoot $Port 'portfile.cmake'
+    $portFilePath = [System.IO.Path]::Combine($OverlayRoot, $Port, 'portfile.cmake')
     $originalPortFile = Get-Content $portFilePath
 
     $modifiedPortFile = @()
@@ -499,7 +506,7 @@ function Set-PortFilePlaceholder
         [string]$Value
     )
 
-    $filePath = Join-Path $OverlayRoot $Port $File
+    $filePath = [System.IO.Path]::Combine($OverlayRoot, $Port, $File)
     $content = (Get-Content -Raw $filePath) -replace "<$Placeholder>", $Value
     [System.IO.File]::WriteAllText($filePath, $content, [System.Text.Encoding]::UTF8)
 }
@@ -531,7 +538,7 @@ function Update-PortVersion
         [string]$Port
     )
 
-    $portJsonPath = Join-Path $OverlayRoot $Port "vcpkg.json"
+    $portJsonPath = [System.IO.Path]::Combine($OverlayRoot, $Port, "vcpkg.json")
     $portDefinition = Get-Content $portJsonPath | ConvertFrom-Json
     $portDefinition."port-version" += 1
     $portDefinition | ConvertTo-Json -Depth 5 | Out-File $portJsonPath
