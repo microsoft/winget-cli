@@ -225,6 +225,7 @@ OUTOFPROC
 packagefamilyname
 packageidentifier
 packagename
+PACKAGEVERSION
 PACKAGESSCHEMA
 paket
 Params

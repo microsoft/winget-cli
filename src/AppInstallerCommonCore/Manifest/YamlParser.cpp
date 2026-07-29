@@ -473,6 +473,7 @@ namespace AppInstaller::Manifest::YamlParser
 
             auto errors = ManifestYamlPopulator::PopulateManifest(manifestDoc, manifest, manifestVersion, validateOption, shadowNode);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+            ExpandManifestPackageVersionTokens(manifest);
 
             // Extra semantic validations after basic validation and field population
             if (validateOption.FullValidation)

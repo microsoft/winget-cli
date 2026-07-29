@@ -9,12 +9,71 @@ namespace AppInstaller::Manifest
 {
     namespace
     {
+        bool ReplacePackageVersionTokenInValue(std::string& value, const std::string& packageVersion)
+        {
+            return Utility::FindAndReplace(value, std::string{ PACKAGE_VERSION_TOKEN }, packageVersion);
+        }
+
+        // ReleaseNotesUrl is stored in ManifestLocalization's typed map; unlike plain struct fields,
+        // it must be read via Get<> and written back via Add<> after token expansion.
+        void ExpandPackageVersionTokenInReleaseNotesUrl(ManifestLocalization& localization, const std::string& packageVersion)
+        {
+            if (localization.Contains(Localization::ReleaseNotesUrl))
+            {
+                auto releaseNotesUrl = localization.Get<Localization::ReleaseNotesUrl>();
+                if (ReplacePackageVersionTokenInValue(releaseNotesUrl, packageVersion))
+                {
+                    localization.Add<Localization::ReleaseNotesUrl>(std::move(releaseNotesUrl));
+                }
+            }
+        }
+
         void AddFoldedStringToSetIfNotEmpty(std::set<string_t>& set, const string_t& value)
         {
             if (!value.empty())
             {
                 set.emplace(Utility::FoldCase(value));
             }
+        }
+    }
+
+    void ExpandManifestPackageVersionTokens(Manifest& manifest)
+    {
+        if (manifest.Version.empty())
+        {
+            return;
+        }
+
+        const std::string packageVersion = manifest.Version;
+
+        for (auto& installer : manifest.Installers)
+        {
+            for (auto& nestedInstallerFile : installer.NestedInstallerFiles)
+            {
+                ReplacePackageVersionTokenInValue(nestedInstallerFile.RelativeFilePath, packageVersion);
+            }
+
+            ReplacePackageVersionTokenInValue(installer.ProductCode, packageVersion);
+
+            for (auto& arpEntry : installer.AppsAndFeaturesEntries)
+            {
+                ReplacePackageVersionTokenInValue(arpEntry.DisplayName, packageVersion);
+                ReplacePackageVersionTokenInValue(arpEntry.ProductCode, packageVersion);
+            }
+
+            ReplacePackageVersionTokenInValue(installer.InstallationMetadata.DefaultInstallLocation, packageVersion);
+
+            for (auto& installedFile : installer.InstallationMetadata.Files)
+            {
+                ReplacePackageVersionTokenInValue(installedFile.RelativeFilePath, packageVersion);
+            }
+        }
+
+        ExpandPackageVersionTokenInReleaseNotesUrl(manifest.DefaultLocalization, packageVersion);
+
+        for (auto& localization : manifest.Localizations)
+        {
+            ExpandPackageVersionTokenInReleaseNotesUrl(localization, packageVersion);
         }
     }
 

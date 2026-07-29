@@ -253,6 +253,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 }
             }
 
+            ExpandManifestPackageVersionTokens(manifest);
             manifests.emplace_back(std::move(manifest));
         }
 

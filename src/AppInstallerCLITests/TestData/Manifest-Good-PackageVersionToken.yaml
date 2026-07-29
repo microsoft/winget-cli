@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.4.0.schema.json
+
+PackageIdentifier: microsoft.msixsdk
+PackageVersion: 1.2.3.4
+PackageLocale: en-US
+PackageName: AppInstaller Test Installer
+Publisher: Microsoft Corporation
+License: Test
+ShortDescription: Test manifest for PACKAGEVERSION token expansion.
+ReleaseNotesUrl: https://example.com/releases/<PACKAGEVERSION>
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://ThisIsNotUsed
+    InstallerType: zip
+    InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+    ProductCode: Product-<PACKAGEVERSION>
+    AppsAndFeaturesEntries:
+      - DisplayName: DisplayName-<PACKAGEVERSION>
+        ProductCode: ArpProduct-<PACKAGEVERSION>
+    NestedInstallerType: exe
+    NestedInstallerFiles:
+      - RelativeFilePath: setup\AppInstallerTestExeInstaller.<PACKAGEVERSION>.exe
+    InstallationMetadata:
+      DefaultInstallLocation: C:\Program Files\Test\<PACKAGEVERSION>
+      Files:
+        - RelativeFilePath: app\AppInstallerTestExeInstaller.<PACKAGEVERSION>.exe
+ManifestType: singleton
+ManifestVersion: 1.4.0

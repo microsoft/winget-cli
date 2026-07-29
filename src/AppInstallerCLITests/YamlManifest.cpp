@@ -826,6 +826,24 @@ TEST_CASE("ReadGoodManifestWithSpaces", "[ManifestValidation]")
     REQUIRE(manifest.DefaultInstallerInfo.FileExtensions == MultiValue{ "appx", "appxbundle", "msix", "msixbundle" });
 }
 
+TEST_CASE("ReadManifest_ExpandPackageVersionToken", "[ManifestValidation]")
+{
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-PackageVersionToken.yaml"));
+
+    REQUIRE(manifest.Version == "1.2.3.4");
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::ReleaseNotesUrl>() == "https://example.com/releases/1.2.3.4");
+    REQUIRE(manifest.Installers.size() == 1);
+    REQUIRE(manifest.Installers[0].NestedInstallerFiles.size() == 1);
+    REQUIRE(manifest.Installers[0].NestedInstallerFiles[0].RelativeFilePath == "setup\\AppInstallerTestExeInstaller.1.2.3.4.exe");
+    REQUIRE(manifest.Installers[0].ProductCode == "Product-1.2.3.4");
+    REQUIRE(manifest.Installers[0].AppsAndFeaturesEntries.size() == 1);
+    REQUIRE(manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayName == "DisplayName-1.2.3.4");
+    REQUIRE(manifest.Installers[0].AppsAndFeaturesEntries[0].ProductCode == "ArpProduct-1.2.3.4");
+    REQUIRE(manifest.Installers[0].InstallationMetadata.DefaultInstallLocation == "C:\\Program Files\\Test\\1.2.3.4");
+    REQUIRE(manifest.Installers[0].InstallationMetadata.Files.size() == 1);
+    REQUIRE(manifest.Installers[0].InstallationMetadata.Files[0].RelativeFilePath == "app\\AppInstallerTestExeInstaller.1.2.3.4.exe");
+}
+
 TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
 {
     ManifestTestCase TestCases[] =
