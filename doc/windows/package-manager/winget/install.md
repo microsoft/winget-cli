@@ -56,6 +56,7 @@ The options allow you to customize the install experience to meet your needs.
 | **--ignore-security-hash** | Ignore the installer hash check failure |
 | **--skip-dependencies** | Skip processing package dependencies and Windows features |
 | **--ignore-local-archive-malware-scan** | Ignore the malware scan performed as part of installing an archive-type package from a local manifest |
+| **--ignore-unavailable** | Ignore unavailable packages when installing multiple packages; remaining packages continue to install |
 | **--dependency-source** | Find package dependencies using the specified source |
 | **--accept-package-agreements** | Accept all license agreements for packages |
 | **--no-upgrade** | Skip upgrade if an installed version already exists |

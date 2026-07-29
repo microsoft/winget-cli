@@ -353,6 +353,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(IdArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IgnoreLocalArchiveMalwareScanArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IgnoreResumeLimitArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(IgnoreUnavailableArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IgnoreWarningsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandReportDependencies);
@@ -360,7 +361,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ImportFileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportFileHasInvalidSchema);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportIgnorePackageVersionsArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(ImportIgnoreUnavailableArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportInstallFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportSourceNotInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(IncludePinnedArgumentDescription);
