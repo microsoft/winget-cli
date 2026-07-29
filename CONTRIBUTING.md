@@ -25,6 +25,14 @@ Therefore, if you do file issues, or create PRs, please keep an eye on your GitH
 
 **Please do not report security vulnerabilities through public GitHub issues.** Instead, please report them to the Microsoft Security Response Center (MSRC). See [SECURITY.md](./SECURITY.md) for more information.
 
+## AI-assisted contributions
+
+AI assistance is welcome, but contributors remain fully responsible for the submitted work. If AI contributes to a change, you are accountable for that content exactly as if you wrote it yourself: you must understand it, ensure it follows project conventions, and provide the same testing and validation evidence expected for any other contribution.
+
+When opening or updating a PR, disclose material AI-generated assistance and briefly describe which parts were assisted.
+
+Opening a PR requires real engineering review time. Please keep this in mind and submit contributions that are complete, reviewed, and ready for meaningful feedback. Low-effort, unreviewed, or unverifiable AI-generated submissions may be closed at maintainer discretion.
+
 ## Before you start, file an issue
 
 Please follow this simple rule to help us eliminate any unnecessary wasted effort & frustration, and ensure an efficient and effective use of everyone's time - yours, ours, and other community members':
