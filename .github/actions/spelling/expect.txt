@@ -13,6 +13,7 @@ admx
 AFAIK
 aicli
 AICLIC
+Allman
 allusers
 alreadyinstalled
 AMap
@@ -148,6 +149,7 @@ DMC
 dnld
 Dns
 Dobbeleer
+Downcasting
 DONOT
 dsc
 dupenv
@@ -398,6 +400,7 @@ NOUPDATE
 nowarn
 npmjs
 nsis
+NRVO
 NTFS
 objbase
 objidl
