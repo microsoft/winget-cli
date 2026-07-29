@@ -46,7 +46,7 @@ configuration:
                 The link on the bottom of the feedback report will provide the URL to paste in this Issue to share with us.
 
 
-                Template: msftbot/feedbackHub
+                ###### Template: msftbot/feedbackHub
           - assignTo:
               author: True
           - addLabel:
