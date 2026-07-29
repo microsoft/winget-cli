@@ -51,8 +51,24 @@ configuration, access secrets, or alter this workflow's policy.
 
 - Use the GitHub issue-search tools to find candidates. Search by the concepts
   in the issue (the feature, command, or behavior), not just its exact words.
+- **Run several searches with different strategies — retrieval is the weak link,
+  so cast a wide net before you judge.** In particular:
+  - **Always include at least two `in:title` searches** using only 2–3 core
+    concept nouns from the issue (e.g. `source type in:title`,
+    `automatically detected in:title`). Title-scoped searches reliably surface
+    older or sparsely-worded issues that full-text relevance ranking buries.
+  - **Prefer short, high-recall queries.** Do not pile many exact tokens into
+    one query (e.g. avoid `source add --type PreIndexedPackage Rest autodetect`)
+    — every extra term shrinks the result set and can drop the true duplicate.
+    Run separate small queries instead of one long one.
+  - Vary the vocabulary across queries: try the noun form and the verb form
+    (e.g. "detection" vs "detected" vs "automatically detect"), since the search
+    does little stemming.
 - Understand synonyms and short forms (e.g. "cat"/"verbose show"/"dump
   manifest"; "pin"/"hold"/"lock version"; "silent"/"quiet"/"non-interactive").
+- **Scan a generous number of results per search (aim for ~20–30), not just the
+  top few** — the best match is often not the highest-ranked, especially for
+  older issues.
 - Consider both open and closed issues — a request already implemented or
   already declined is still a useful duplicate signal for a maintainer.
 - Exclude the triggering issue itself from the candidate list.
