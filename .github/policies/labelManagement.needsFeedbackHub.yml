@@ -35,7 +35,7 @@ configuration:
         then:
           - addReply:
               reply: >-
-                Hello @${issueAuthor},
+                Hello ${issueAuthor},
 
 
                 Please send us feedback with the Feedback Hub [Windows]+[f] with this issue and paste the link here so we can more easily find your crash information on the back end.
