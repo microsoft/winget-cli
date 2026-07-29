@@ -1,5 +1,9 @@
 # Developer guidance
 
+## Coding Standards
+
+For naming, formatting, error handling, casts, `std::move()` usage, and resource string requirements, see [doc/Standards.md](./Standards.md).
+
 ## Prerequisites
 
 * Windows 10 1809 (17763) or later

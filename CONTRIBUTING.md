@@ -116,6 +116,10 @@ Once you've discussed your proposed feature/fix/etc. with a team member, and you
 1. Work on your changes.
 1. Build and see if it works.
 
+### Coding Standards
+
+Before writing code, review [doc/Standards.md](./doc/Standards.md) for the conventions used in this codebase — naming, formatting, error handling, casts, `std::move()` usage, and resource strings. PRs that diverge from these conventions will be asked to bring their changes into line before review completes.
+
 ### Testing
 
 Testing is a key part of getting a change ready for review.
