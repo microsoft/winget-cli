@@ -18,6 +18,8 @@ tools:
       - "${{ github.repository }}"
     min-integrity: none
 safe-outputs:
+  messages:
+    footer: "###### Template: msftbot/duplicate/surfaced by [{workflow_name}]({run_url})"
   report-failure-as-issue: false
   noop:
     report-as-issue: false
@@ -85,17 +87,17 @@ If you have at least one likely-duplicate candidate:
 1. Apply the `Possible-Duplicate` label with `add_labels`.
 2. Post exactly one comment with `add_comment` in this shape:
 
-   > **Possible duplicates** (surfaced automatically for maintainer review — this
-   > issue has **not** been closed):
+   > **Possible duplicate(s):**
+   >
+   > Thank you for submitting this issue.
+   >
+   > The issue(s) below may already track your request or bug. Please take a
+   > look — if one of them matches, give that issue a 👍 and close this one as a
+   > duplicate. Older or curated issues are preferred as the canonical one to
+   > follow.
    >
    > - #<number> — <one-line why it matches>
    > - #<number> — <one-line why it matches>
-   >
-   > Maintainers: if one of these is the canonical issue, comment
-   > `Duplicate of #<number>` to consolidate. Earlier/curated issues are
-   > preferred as canonical.
-   >
-   > Template: msftbot/duplicate/surfaced
 
 ### Hard rules
 
