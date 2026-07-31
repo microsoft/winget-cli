@@ -344,11 +344,6 @@ namespace AppInstaller
                 UnknownHResultInformation(hr).GetDescription();
         }
 
-        int GetSystemErrorCode(HRESULT hr)
-        {
-            return static_cast<int>(HRESULT_FACILITY(hr) == FACILITY_WIN32 ? HRESULT_CODE(hr) : hr);
-        }
-
         // WinINet errors are not present in the system message table.
         std::optional<std::string> GetWinInetErrorMessage(int errorCode)
         {
@@ -357,7 +352,8 @@ namespace AppInstaller
                 return std::nullopt;
             }
 
-            wil::unique_hmodule module{ LoadLibraryExW(L"wininet.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32) };
+            wil::unique_hmodule module{ LoadLibraryExW(
+                L"wininet.dll", nullptr, LOAD_LIBRARY_AS_DATAFILE | LOAD_LIBRARY_SEARCH_SYSTEM32) };
             if (!module)
             {
                 return std::nullopt;
@@ -380,17 +376,16 @@ namespace AppInstaller
 
         std::string GetSystemErrorMessage(HRESULT hr)
         {
-            const int errorCode = GetSystemErrorCode(hr);
             if (HRESULT_FACILITY(hr) == FACILITY_WIN32)
             {
-                auto winInetMessage = GetWinInetErrorMessage(errorCode);
+                auto winInetMessage = GetWinInetErrorMessage(HRESULT_CODE(hr));
                 if (winInetMessage)
                 {
                     return std::move(winInetMessage).value();
                 }
             }
 
-            return std::system_category().message(errorCode);
+            return std::system_category().message(hr);
         }
 
         void GetUserPresentableMessageForHR(std::ostringstream& strstr, HRESULT hr)
