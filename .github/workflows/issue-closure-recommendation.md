@@ -43,9 +43,9 @@ pre-agent-steps:
           "<!-- gh-aw-workflow-id: issue-closure-recommendation -->";
         const templateMarker =
           "Template: msftbot/issueManagement/closureRecommendation";
-        const lookbackDays = 21;
+        const recentWindowDays = 21;
         const cutoff = new Date(
-          Date.now() - lookbackDays * 24 * 60 * 60 * 1000,
+          Date.now() - recentWindowDays * 24 * 60 * 60 * 1000,
         );
 
         const scanQuery = `
@@ -223,7 +223,7 @@ pre-agent-steps:
           issue.timelineComplete = !pageInfo?.hasPreviousPage;
         }
 
-        function mergedPullRequests(issue, applyLookback) {
+        function mergedPullRequests(issue, applyRecentWindow) {
           if (issue.timelineComplete === false) {
             return [];
           }
@@ -241,7 +241,7 @@ pre-agent-steps:
             }
 
             if (
-              applyLookback &&
+              applyRecentWindow &&
               new Date(pullRequest.mergedAt).getTime() < cutoff.getTime()
             ) {
               continue;
@@ -410,7 +410,7 @@ pre-agent-steps:
           generatedAt: new Date().toISOString(),
           mode: targeted ? "targeted" : "scheduled",
           targetIssue: targeted ? Number.parseInt(targetValue, 10) : null,
-          lookbackDays: targeted ? null : lookbackDays,
+          recentWindowDays: targeted ? null : recentWindowDays,
           scannedIssueCount: scannedIssues.length,
           preliminaryCandidateCount: preliminary.length,
           candidates,
@@ -723,7 +723,7 @@ safe-outputs:
                       cutoff.getTime()
                   ) {
                     throw new Error(
-                      `Candidate PR #${candidatePullRequestNumber} is outside the scheduled lookback window.`,
+                      `Candidate PR #${candidatePullRequestNumber} is outside the scheduled recent window.`,
                     );
                   }
 
@@ -897,7 +897,7 @@ Call `recommend_closure_review` once per candidate with:
 
 The safe-output handler independently verifies that the target is an eligible
 open issue, the candidate pull request is a merged same-repository
-cross-reference from the trusted collector, the lookback or targeted-run
+cross-reference from the trusted collector, the recent-window or targeted-run
 boundary is satisfied, and no prior recommendation exists. It then adds
 `Needs-Attention` and posts the standard comment.
 
