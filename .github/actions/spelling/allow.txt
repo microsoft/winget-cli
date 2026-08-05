@@ -182,6 +182,7 @@ motw
 mrm
 msb
 msdata
+msftbot
 MSHCTX
 MSHLFLAGS
 msiexec
@@ -362,6 +363,7 @@ TEXTFORMAT
 TEXTINCLUDE
 threadpool
 TOCTOU
+toolsets
 tpl
 TRACELOGGING
 triaged

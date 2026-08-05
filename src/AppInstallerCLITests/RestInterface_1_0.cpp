@@ -514,6 +514,94 @@ TEST_CASE("Search_Optimized_NoResponse_NotFoundCode", "[RestSource][Interface_1_
     REQUIRE_THROWS_HR(v1.Search(request), APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND);
 }
 
+TEST_CASE("Search_SubstringIdFallback_ManifestResponse", "[RestSource][Interface_1_0]")
+{
+    utility::string_t emptySearchResponse = _XPLATSTR(R"delimiter({ "Data" : [] })delimiter");
+
+    auto handler = std::make_shared<TestRestRequestHandler>(
+        [emptySearchResponse](web::http::http_request request) -> pplx::task<web::http::http_response>
+        {
+            web::http::http_response response;
+            response.headers().set_content_type(web::http::details::mime_types::application_json);
+            response.headers().set_cache_control(L"no-store");
+
+            if (request.method() == web::http::methods::POST)
+            {
+                response.set_status_code(web::http::status_codes::OK);
+                response.set_body(web::json::value::parse(emptySearchResponse));
+            }
+            else if (request.method() == web::http::methods::GET)
+            {
+                response.set_status_code(web::http::status_codes::OK);
+                response.set_body(web::json::value::parse(GetGoodManifest_RequiredFields()));
+            }
+            else
+            {
+                response.set_status_code(web::http::status_codes::BadRequest);
+            }
+
+            return pplx::task_from_result(response);
+        });
+
+    HttpClientHelper helper{ std::move(handler) };
+    AppInstaller::Repository::SearchRequest request;
+    request.Filters.emplace_back(PackageMatchFilter{ PackageMatchField::Id, MatchType::Substring, "Foo.Bar" });
+    Interface v1{ TestRestUriString, std::move(helper) };
+    Schema::IRestClient::SearchResult result = v1.Search(request);
+
+    REQUIRE(result.Matches.size() == 1);
+    REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
+    REQUIRE(result.Matches[0].Versions.size() == 1);
+    REQUIRE(result.Matches[0].Versions[0].VersionAndChannel.GetVersion().ToString() == "5.0.0");
+    REQUIRE(result.Matches[0].Versions[0].Manifest.has_value());
+}
+
+TEST_CASE("Search_SubstringId_NoFallbackWhenSearchMatches", "[RestSource][Interface_1_0]")
+{
+    utility::string_t searchResponse = _XPLATSTR(
+        R"delimiter({
+            "Data" : [
+                {
+                    "PackageIdentifier": "Foo.Bar.Baz",
+                    "PackageName": "Foo Package",
+                    "Publisher": "Foo",
+                    "Versions": [
+                        { "PackageVersion": "1.0.0" }
+                    ]
+                }
+            ]
+        })delimiter");
+
+    auto handler = std::make_shared<TestRestRequestHandler>(
+        [searchResponse](web::http::http_request request) -> pplx::task<web::http::http_response>
+        {
+            web::http::http_response response;
+            response.headers().set_content_type(web::http::details::mime_types::application_json);
+            response.headers().set_cache_control(L"no-store");
+
+            if (request.method() == web::http::methods::POST)
+            {
+                response.set_status_code(web::http::status_codes::OK);
+                response.set_body(web::json::value::parse(searchResponse));
+            }
+            else
+            {
+                response.set_status_code(web::http::status_codes::NotFound);
+            }
+
+            return pplx::task_from_result(response);
+        });
+
+    HttpClientHelper helper{ std::move(handler) };
+    AppInstaller::Repository::SearchRequest request;
+    request.Filters.emplace_back(PackageMatchFilter{ PackageMatchField::Id, MatchType::Substring, "Foo.Bar" });
+    Interface v1{ TestRestUriString, std::move(helper) };
+    Schema::IRestClient::SearchResult result = v1.Search(request);
+
+    REQUIRE(result.Matches.size() == 1);
+    REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar.Baz");
+}
+
 TEST_CASE("GetManifests_GoodResponse", "[RestSource][Interface_1_0]")
 {
     GoodManifest_AllFields sampleManifest;

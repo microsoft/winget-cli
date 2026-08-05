@@ -3,7 +3,7 @@ Due to MSI projects requiring a special extension, we have simply checked in a b
 
 1. Ensure that the extension is installed locally
 
-    a. [Microsoft Visual Studio Installer Projects 2022](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2022InstallerProjects)
+    a. [Microsoft Visual Studio Installer Projects 2022](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2022InstallerProjects) (Works with Visual Studio 2026)
 2. Set configuration to "Release|x86"
 3. Build AppInstallerTestMsiInstaller project
 4. Check in new MSI over the one in TestData

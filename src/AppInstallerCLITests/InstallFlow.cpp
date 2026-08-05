@@ -234,7 +234,7 @@ TEST_CASE("InstallFlow_UnsupportedArguments_Error", "[InstallFlow][workflow]")
     install.Execute(context);
     INFO(installOutput.str());
 
-    // Verify unsupported arguments error message is shown 
+    // Verify unsupported arguments error message is shown
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get()) != std::string::npos);
@@ -1341,6 +1341,29 @@ TEST_CASE("InstallFlow_InstallMultiple_SearchFailed", "[InstallFlow][workflow][M
     INFO(installOutput.str());
 
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
+}
+
+TEST_CASE("InstallFlow_InstallMultiple_IgnoreUnavailable", "[InstallFlow][workflow][MultiQuery]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    OverrideForOpenSource(context, CreateTestSource({ TSR::TestInstaller_Exe }), true);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Msix.Query);
+    context.Args.AddArg(Execution::Args::Type::IgnoreUnavailable);
+
+    InstallCommand installCommand({});
+    installCommand.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify the available package was installed despite the missing one,
+    // and the unavailable package was reported as not found.
+    REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::MultiQueryPackageNotFound(LocIndString{ TSR::TestInstaller_Msix.Query })).get()) != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_InstallAcquiresLock", "[InstallFlow][workflow]")
