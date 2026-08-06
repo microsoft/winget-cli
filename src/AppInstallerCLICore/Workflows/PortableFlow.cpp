@@ -233,8 +233,8 @@ namespace AppInstaller::CLI::Workflow
                 {
                     std::filesystem::path hardlinkPath = targetPath.parent_path() / commandAlias;
                     auto it = fileHashes.find(std::filesystem::weakly_canonical(targetPath));
-                    std::string sha256 = (it != fileHashes.end()) ? it->second : std::string{};
-                    entries.emplace_back(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetPath, sha256));
+                    THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, it == fileHashes.end(), "Hash not found for hardlink target: %ls", targetPath.c_str());
+                    entries.emplace_back(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetPath, it->second));
                 }
                 entries.emplace_back(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetPath));
             }
