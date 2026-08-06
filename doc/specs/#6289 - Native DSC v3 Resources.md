@@ -1,7 +1,7 @@
 ---
 author: Demitrius Nelon denelon, GitHub Copilot Copilot
 created on: 2026-06-17
-last updated: 2026-06-17
+last updated: 2026-08-06
 issue id: 6289
 ---
 
@@ -11,450 +11,543 @@ For [#6289](https://github.com/microsoft/winget-cli/issues/6289).
 
 ## Abstract
 
-Implement native DSC v3 command-based resources directly in the WinGet client, including a `PackageList` resource that declares an entire machine's desired package state. This eliminates the ~92s adapter overhead per resource and enables full configuration-as-code parity with the CLI — anything achievable via `winget` on the command line can be expressed declaratively in a configuration file.
+WinGet already ships native DSC v3 command resources for packages, sources, user settings, and administrator settings. This specification documents those existing resources, adds package installer-type selection, and proposes native `PackageList` and `Pin` resources. Users author and apply these resources through `winget configure`; the internal `winget dscv3` commands remain implementation details of the DSC resource protocol.
 
 ## Inspiration
 
-Today's WinGet DSC resources (`Microsoft.WinGet.DSC` PowerShell module) are class-based resources requiring the PowerShell adapter in DSC v3. This creates problems:
+The `Microsoft.WinGet.DSC` PowerShell module provides broad WinGet Configuration coverage, but its class-based resources require the PowerShell adapter when used with DSC v3. Internal performance testing observed approximately 92 seconds per adapted resource invocation compared with approximately 3-5 seconds for native command resources. The exact duration varies by machine and resource, but the adapter overhead makes larger configurations impractical.
 
-1. **Performance** — Each adapted resource invocation takes ~92s through the dscv3 processor vs. ~3-5s for native v3 resources. A 10-package configuration takes 15+ minutes.
-2. **Complexity** — Configuration authors must understand adapter mechanics, module installation paths (`$env:PSModulePath` for v3 vs `%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules` for v2), and processor selection.
-3. **Gaps** — No resource exists for "this machine should have exactly these packages" — the most requested enterprise scenario.
-4. **SYSTEM context** — PowerShell adapter resources have additional failure modes in SYSTEM context.
+The WinGet client already contains these native command resources:
 
-Enterprise IT administrators writing configuration-as-code have explicitly cited incomplete DSC resource coverage as a reason for not adopting WinGet Configuration.
+- `Microsoft.WinGet/Package`
+- `Microsoft.WinGet/Source`
+- `Microsoft.WinGet/UserSettingsFile`
+- `Microsoft.WinGet/AdminSettings`
 
-Related: [#3401](https://github.com/microsoft/winget-cli/issues/3401), [#5806](https://github.com/microsoft/winget-cli/issues/5806).
+The remaining gaps addressed by this specification are:
+
+1. Selecting a required installer type for a package.
+2. Declaring a set of packages in one resource while safely supporting DSC `_purge` semantics.
+3. Managing package pins without the PowerShell adapter.
+4. Exporting configuration that uses the native resources.
+
+Related issues include [#3401](https://github.com/microsoft/winget-cli/issues/3401) and [#5806](https://github.com/microsoft/winget-cli/issues/5806).
 
 ## Solution Design
 
-### Resources
+### Resource Overview
 
-The WinGet client already ships native DSC v3 command-based resources via the `winget dsc` subcommand infrastructure (including `DscPackageResource`, `DscSourceResource`, `DscUserSettingsFileResource`, and `DscAdminSettingsResource`). This spec extends the existing infrastructure with enhanced capabilities and new resources:
+| Resource type | Status | Purpose |
+|---|---|---|
+| `Microsoft.WinGet/Package` | Existing; enhanced | Manage one package and optionally require an installer type |
+| `Microsoft.WinGet/PackageList` | New | Manage a declared set of packages with optional, guarded `_purge` behavior |
+| `Microsoft.WinGet/Source` | Existing | Manage one WinGet package source |
+| `Microsoft.WinGet/UserSettingsFile` | Existing | Partially update or fully replace the user settings file |
+| `Microsoft.WinGet/AdminSettings` | Existing | Manage administrator settings |
+| `Microsoft.WinGet/Pin` | New | Manage one package pin |
 
-| Resource Type | Status | Purpose | DSC Operations |
-|--------------|--------|---------|----------------|
-| `Microsoft.WinGet/Package` | **Enhanced** — add list support for declarative package sets | Get, Set, Test |
-| `Microsoft.WinGet/Source` | Existing | Package source configuration | Get, Set, Test |
-| `Microsoft.WinGet/UserSettings` | Existing | User-scoped WinGet settings | Get, Set, Test |
-| `Microsoft.WinGet/AdminSettings` | Existing (requires elevation) | Admin-scoped WinGet settings | Get, Set, Test |
-| `Microsoft.WinGet/Pin` | **New** | Package pin management | Get, Set, Test |
+The existing resource types and property names remain compatible. New properties are additive.
 
 ### Architecture
 
-The existing `winget dsc` subcommand implements the DSC v3 command-based resource protocol:
+`winget configure` remains the user-facing command for applying and testing configuration files:
 
-```
-┌─────────────────────────────────────┐
-│  DSC v3 Runtime                     │
-│  ┌───────────────────────────────┐  │
-│  │ Resource Manifest (.dsc.json) │  │
-│  │ type: Microsoft.WinGet/*      │  │
-│  │ method: command-based         │  │
-│  │ executable: winget.exe        │  │
-│  └───────────┬───────────────────┘  │
-│              │ stdin (JSON)          │
-│              ▼                       │
-│  ┌───────────────────────────────┐  │
-│  │ winget dsc <get|set|test>     │  │
-│  │ --resource <ResourceType>     │  │
-│  └───────────┬───────────────────┘  │
-│              │                       │
-│              ▼                       │
-│  ┌───────────────────────────────┐  │
-│  │ WinGet Engine (COM API)       │  │
-│  │ (existing install/search/etc) │  │
-│  └───────────────────────────────┘  │
-└─────────────────────────────────────┘
+```text
+Configuration file
+        |
+        v
+winget configure
+        |
+        v
+DSC processor
+        |
+        v
+Microsoft.WinGet/* command resources
+        |
+        v
+WinGet package management operations
 ```
 
-The `winget dsc` subcommand:
-- Reads JSON input from stdin per DSC v3 protocol
-- Dispatches to the appropriate resource handler
-- Outputs JSON result to stdout
-- Returns exit code 0 for success, non-zero for failure
+The resource manifests invoke implementation-facing `winget dscv3` resource handlers. These handlers read resource JSON from standard input and write protocol-compliant JSON to standard output. They are not a replacement for `winget configure`, and this specification does not change the existing `winget dsc` alias.
 
-### Resource Manifests
-
-Each resource ships a `.dsc.resource.json` manifest alongside `winget.exe`:
+For example, `winget dscv3 package --manifest` emits the existing
+`Microsoft.WinGet/Package` manifest. Its operation definitions use this form:
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2024/04/bundled/resource/manifest.json",
   "type": "Microsoft.WinGet/Package",
-  "version": "1.0.0",
-  "description": "Manage a single WinGet package",
+  "export": {
+    "executable": "winget",
+    "args": ["dscv3", "package", "--export"],
+    "input": "stdin"
+  },
   "get": {
     "executable": "winget",
-    "args": ["dsc", "get", "--resource", "Package"]
+    "args": ["dscv3", "package", "--get"],
+    "input": "stdin"
   },
   "set": {
     "executable": "winget",
-    "args": ["dsc", "set", "--resource", "Package"],
-    "implementsPretest": true
+    "args": ["dscv3", "package", "--set"],
+    "input": "stdin",
+    "implementsPretest": true,
+    "handlesExist": true,
+    "return": "stateAndDiff"
   },
   "test": {
     "executable": "winget",
-    "args": ["dsc", "test", "--resource", "Package"]
+    "args": ["dscv3", "package", "--test"],
+    "input": "stdin",
+    "return": "stateAndDiff"
   },
   "schema": {
     "command": {
       "executable": "winget",
-      "args": ["dsc", "schema", "--resource", "Package"]
+      "args": ["dscv3", "package", "--schema"]
     }
   }
 }
 ```
 
-### Microsoft.WinGet/Package
+The new resources follow the same established command shape:
 
-Manages package desired state — supports both single packages and declarative package lists:
-
-**Single package:**
-
-```yaml
-resources:
-  - resource: Microsoft.WinGet/Package
-    directives:
-      description: Install Git
-    settings:
-      id: Git.Git
-      source: winget
-      version: ">=2.44.0"
-      scope: machine
-      ensure: present
+```text
+winget dscv3 package-list --get|--set|--test|--export|--schema|--manifest
+winget dscv3 pin          --get|--set|--test|--export|--schema|--manifest
 ```
 
-**Package list (declarative set):**
+`winget dscv3 --manifest --output <directory>` emits all WinGet resource manifests. The new
+resource manifests are named:
 
-```yaml
-resources:
-  - resource: Microsoft.WinGet/Package
-    directives:
-      description: Developer workstation packages
-    settings:
-      source: winget
-      enforcement: present
-      scope: machine
-      packages:
-        - id: Git.Git
-          version: ">=2.44.0"
-        - id: Microsoft.VisualStudioCode
-          ensure: latest
-        - id: Docker.DockerDesktop
-        - id: Python.Python.3.12
+```text
+microsoft.winget.package-list.dsc.resource.json
+microsoft.winget.pin.dsc.resource.json
 ```
 
-**Schema:**
+### `Microsoft.WinGet/Package`
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `id` | string | Yes (single mode) | Package identifier |
-| `packages` | array | Yes (list mode) | Array of package declarations (mutually exclusive with `id`) |
-| `source` | string | No | Source name (default: winget) |
-| `version` | string | No | Version constraint (exact, range via `>=`/`<=`, or `latest`) |
-| `scope` | enum | No | `machine` \| `user` |
-| `ensure` | enum | No | `present` (default) \| `absent` \| `latest` |
-| `enforcement` | enum | No | List mode only: `present` (default) \| `exact` |
-| `installerType` | string | No | Preferred installer type |
-| `overrideArguments` | string | No | Custom installer arguments |
-| `acceptAgreements` | bool | No | Accept source/package agreements |
-
-> [!NOTE]
-> The resource operates in **single mode** when `id` is specified, and **list mode** when `packages` is specified. These are mutually exclusive — specifying both is an error.
-
-**Test behavior:**
-- `ensure: present` — true if package is installed with version matching constraint
-- `ensure: absent` — true if package is NOT installed
-- `ensure: latest` — true if installed version matches latest available in source
-
-**Set behavior:**
-- `ensure: present` — install if not present, upgrade if version constraint not met
-- `ensure: absent` — uninstall if present
-- `ensure: latest` — upgrade to latest if not already
-
-**Enforcement modes (list mode only):**
-- `present` (default) — Ensure listed packages exist. Does not remove unlisted packages. Additive-only.
-- `exact` — Ensure ONLY listed packages exist. **Removes unlisted packages.** Requires Group Policy `EnableExactEnforcement` to be enabled. Without the policy, `exact` mode fails with a clear error.
-
-**Set behavior in list mode:**
-1. For each package in the list, evaluate individually
-2. MSIX packages may be installed concurrently (up to 6 concurrent, matching existing WinGet behavior)
-3. MSI/EXE packages are installed sequentially (Win32 installer mutex)
-4. Failures are reported per-package; other packages continue
-
-**Test output (list mode):**
-
-```json
-{
-  "inDesiredState": false,
-  "packages": [
-    { "id": "Git.Git", "inDesiredState": true, "installedVersion": "2.45.1" },
-    { "id": "Docker.DockerDesktop", "inDesiredState": false, "reason": "not installed" }
-  ]
-}
-```
-
-### Microsoft.WinGet/Source
+`Microsoft.WinGet/Package` continues to manage one package per resource instance.
 
 ```yaml
-resources:
-  - resource: Microsoft.WinGet/Source
-    settings:
-      name: corporate
-      url: https://winget.contoso.com/api
-      type: Microsoft.Rest
-      ensure: present
-      trustLevel: trusted
+- type: Microsoft.WinGet/Package
+  name: Git
+  properties:
+    id: Git.Git
+    source: winget
+    installerType: portable
+    useLatest: true
+    installMode: silent
+    acceptAgreements: true
+  metadata:
+    description: Install Git using the portable installer
 ```
 
 | Property | Type | Required | Description |
-|----------|------|----------|-------------|
+|---|---|---|---|
+| `id` | string | Yes | Package identifier |
+| `_exist` | boolean | No | Whether the package should exist; defaults to `true` |
+| `source` | string | No | Source used to resolve the package |
+| `version` | string | No | Specific package version |
+| `useLatest` | boolean | No | Require the latest available version; defaults to `false` |
+| `installerType` | string | No | Required installer type when specified |
+| `installMode` | string | No | `default`, `silent`, or `interactive`; defaults to `silent` |
+| `matchOption` | string | No | Package identifier matching behavior |
+| `acceptAgreements` | boolean | No | Accept source and package agreements |
+
+`version` and `useLatest: true` are mutually exclusive. The resource returns a validation error if both are specified.
+
+When `installerType` is specified, it is a requirement rather than a preference. WinGet must select an installer of that type that also satisfies the package, version, architecture, scope, locale, and source constraints applicable to the operation. If no installer satisfies all constraints, the resource fails without falling back to another installer type.
+
+The `_exist` property follows the canonical DSC contract:
+
+- `_exist: true` installs or updates the package as needed.
+- `_exist: false` uninstalls the matching package if it is installed.
+
+### `Microsoft.WinGet/PackageList`
+
+`Microsoft.WinGet/PackageList` manages multiple package declarations in one resource instance. Each package can specify its own source, version, installer type, installation mode, and agreement behavior.
+
+```yaml
+- type: Microsoft.WinGet/PackageList
+  name: DeveloperPackages
+  properties:
+    packages:
+      - id: Git.Git
+        source: winget
+        installerType: portable
+        useLatest: true
+      - id: Microsoft.VisualStudioCode
+        source: winget
+        installerType: exe
+        useLatest: true
+      - id: Python.Python.3.12
+        source: winget
+        version: 3.12.4
+    _purge: false
+  metadata:
+    description: Developer workstation packages
+```
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `packages` | array | Yes | Desired packages |
+| `_purge` | boolean | No | Remove eligible WinGet-managed packages not in `packages`; defaults to `false` |
+| `acceptAgreements` | boolean | No | Default agreement behavior for entries that omit it |
+
+Each entry in `packages` supports:
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `id` | string | Yes | Package identifier |
+| `source` | string | No | Source used to resolve the package |
+| `version` | string | No | Specific package version |
+| `useLatest` | boolean | No | Require the latest available version |
+| `installerType` | string | No | Required installer type when specified |
+| `installMode` | string | No | `default`, `silent`, or `interactive` |
+| `matchOption` | string | No | Package identifier matching behavior |
+| `acceptAgreements` | boolean | No | Overrides the resource-level agreement behavior |
+
+The same `version`, `useLatest`, and `installerType` behavior defined for `Microsoft.WinGet/Package` applies independently to every entry.
+
+#### `_purge` Safety Boundary
+
+`_purge` uses the canonical DSC meaning: entries in the resource's managed collection that are not declared in `packages` should be removed. It is always opt-in and defaults to `false`.
+
+As required by the DSC canonical property contract, `_purge` is write-only. Get, test, set, and
+export output must not return it. The resource schema documents that `_purge` affects the
+`packages` collection.
+
+The managed collection is intentionally narrower than all software installed on Windows. The resource may purge a package only when WinGet has authoritative management ownership and a stable package identity. At minimum:
+
+1. WinGet tracking data identifies the package as installed and managed by WinGet.
+2. The installed package maps to a stable package identifier and source.
+3. WinGet has a supported uninstall path for the package.
+4. Policy does not protect or prohibit removal of the package.
+
+The resource must not purge:
+
+- Unknown Add or Remove Programs entries.
+- Packages inferred only through best-effort catalog correlation.
+- Windows components, provisioned applications, drivers, features, or updates.
+- Packages without WinGet management ownership.
+- Dependencies or other packages for which WinGet cannot establish that removal is safe.
+
+Packages outside this managed collection do not cause the resource to report drift. Diagnostic
+logging may report the number of installed packages skipped because they were outside the purge
+boundary, but telemetry does not expose their identities.
+
+When `_purge: true`:
+
+1. `winget configure test` reports packages eligible for removal without changing the machine.
+2. `winget configure` fails before making purge removals if Group Policy does not permit package-list purge.
+3. Eligible removals and requested installations use the same package-operation scheduling model defined by the parallel installation specification in [#6295](https://github.com/microsoft/winget-cli/pull/6295).
+4. A failed package operation is reported against that package and causes the resource operation to fail. Other independent operations may complete according to the scheduler's failure behavior.
+
+WinGet must never generate `_purge: true` automatically during configuration export.
+
+### `Microsoft.WinGet/Source`
+
+The existing source resource remains unchanged and continues to use `_exist`.
+
+```yaml
+- type: Microsoft.WinGet/Source
+  name: CorporateSource
+  properties:
+    name: corporate
+    argument: https://winget.contoso.com/api
+    type: Microsoft.Rest
+    trustLevel: trusted
+    explicit: false
+    _exist: true
+```
+
+| Property | Type | Required | Description |
+|---|---|---|---|
 | `name` | string | Yes | Source name |
-| `url` | string | Yes (for set) | Source URL |
-| `type` | string | No | Source type (default: `Microsoft.Rest`) |
-| `ensure` | enum | No | `present` \| `absent` |
-| `trustLevel` | enum | No | `none` \| `trusted` |
+| `_exist` | boolean | No | Whether the source should exist |
+| `argument` | string | No | Source argument, such as its endpoint |
+| `type` | string | No | Source type |
+| `trustLevel` | string | No | `undefined`, `none`, or `trusted` |
+| `explicit` | boolean | No | Whether the source is excluded from operations that do not name it |
+| `priority` | number | No | Source priority; available when the existing source-priority experimental feature is enabled |
+| `acceptAgreements` | boolean | No | Accept source agreements |
 
-### Microsoft.WinGet/UserSettings
+### `Microsoft.WinGet/UserSettingsFile`
 
-> [!NOTE]
-> This resource already exists as `DscUserSettingsFileResource` in the WinGet client. The spec documents the target schema for parity with other resources.
+The existing user settings resource remains unchanged. The `action` property uses the existing `Partial` and `Full` values.
 
 ```yaml
-resources:
-  - resource: Microsoft.WinGet/UserSettings
+- type: Microsoft.WinGet/UserSettingsFile
+  name: WinGetUserSettings
+  properties:
+    action: Partial
     settings:
-      ensure: merged
-      settings:
-        visual:
-          progressBar: rainbow
-        installBehavior:
-          preferences:
-            scope: machine
+      visual:
+        progressBar: rainbow
+      installBehavior:
+        preferences:
+          scope: machine
 ```
 
 | Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `ensure` | enum | No | `merged` (default) \| `replaced` |
-| `settings` | object | Yes | WinGet settings JSON structure |
+|---|---|---|---|
+| `action` | string | No | `Partial` merges supplied values; `Full` replaces the file |
+| `settings` | object | Yes | WinGet user settings content |
 
-- `merged` — overlay provided settings on existing (deep merge)
-- `replaced` — overwrite entire settings file
+### `Microsoft.WinGet/AdminSettings`
 
-### Microsoft.WinGet/AdminSettings
-
-> [!NOTE]
-> This resource already exists as `DscAdminSettingsResource` in the WinGet client. It requires elevated security context (`securityContext: elevated` in DSC metadata) because admin settings are machine-scoped and affect all users.
+The existing administrator settings resource remains unchanged. The resource requires elevation because administrator settings are machine-scoped.
 
 ```yaml
-resources:
-  - resource: Microsoft.WinGet/AdminSettings
+- type: Microsoft.WinGet/AdminSettings
+  name: WinGetAdminSettings
+  properties:
     settings:
       LocalManifestFiles: true
       BypassCertificatePinningForMicrosoftStore: false
-    metadata:
-      winget:
-        securityContext: elevated
+  metadata:
+    winget:
+      securityContext: elevated
 ```
 
-Admin settings are distinct from user settings — they control machine-wide WinGet behaviors and require administrator privileges to modify.
+The resource reports settings blocked by Group Policy and does not override policy.
 
-### Microsoft.WinGet/Pin
+### `Microsoft.WinGet/Pin`
+
+`Microsoft.WinGet/Pin` manages one pin per resource instance. A configuration declares multiple resource instances to manage multiple pins. This preserves per-pin identity, status, and failure reporting; export emits one resource instance for each pin.
 
 ```yaml
-resources:
-  - resource: Microsoft.WinGet/Pin
-    settings:
-      id: Microsoft.Edge
-      pinType: blocking
-      ensure: present
+- type: Microsoft.WinGet/Pin
+  name: ContosoReleasePin
+  properties:
+    id: Contoso.App
+    source: winget
+    pinType: gating
+    version: 4.2.*
+    _exist: true
+  metadata:
+    description: Keep Contoso App on the approved release line
 ```
 
 | Property | Type | Required | Description |
-|----------|------|----------|-------------|
+|---|---|---|---|
 | `id` | string | Yes | Package identifier |
-| `pinType` | enum | No | `pinning` (default) \| `blocking` \| `gating` |
-| `version` | string | No | Version to pin to (for `gating`) |
-| `ensure` | enum | No | `present` \| `absent` |
+| `source` | string | No | Source used to identify the package |
+| `pinType` | string | No | `pinning`, `blocking`, or `gating`; defaults to `pinning` |
+| `version` | string | For `gating` | Gated version pattern |
+| `_exist` | boolean | No | Whether the pin should exist; defaults to `true` |
 
-### CLI Commands Affected
+The resource validates that `version` is provided only for `gating`. `_exist: false` removes the matching pin.
 
-The `winget dsc` subcommand already exists and implements the DSC v3 command-based resource protocol:
+### Configuration Export
 
-```
-winget dsc get --resource <type>      # stdin: JSON, stdout: current state
-winget dsc set --resource <type>      # stdin: JSON, stdout: result
-winget dsc test --resource <type>     # stdin: JSON, stdout: test result
-winget dsc schema --resource <type>   # stdout: JSON schema
-winget dsc list                       # List available resources
-```
+`winget configure export` is enhanced to emit native resources:
 
-> [!NOTE]
-> `winget dsc` previously served as an alias for `winget configure`. With the existing resource protocol implementation in the client, `winget dsc` is now the dedicated entry point for DSC v3 resource operations. It is NOT intended for direct user interaction — it implements the DSC v3 protocol for the runtime to invoke. It does not appear in `winget --help` by default (hidden command, visible with `--verbose`).
+- Packages are emitted as individual `Microsoft.WinGet/Package` instances by default.
+- An export mode may combine WinGet-managed packages into `Microsoft.WinGet/PackageList`.
+- Exported `PackageList` instances omit `_purge` or explicitly set it to `false`.
+- Sources, settings, administrator settings, and pins use their corresponding native resource types when requested and available.
+- Software outside WinGet's authoritative management boundary is not added to `PackageList`.
 
-### Configuration Export Enhancement
-
-Enhance `winget configure export` to produce `Microsoft.WinGet/PackageList`:
-
-```powershell
-winget configure export --output current-state.dsc.yaml
-```
-
-Generates a valid configuration file using the native resources, enabling "golden image" workflows.
-
-### Cross-Repository Impact
-
-- **winget-cli** — New `winget dsc` subcommand, resource manifests shipped with the package
-- **winget-dsc** — Existing PowerShell resources remain (not deprecated immediately); new native resources coexist under different type namespace (`Microsoft.WinGet/*` vs `Microsoft.WinGet.DSC/*`)
-- **winget-pkgs** — No direct impact (validation pipeline unchanged)
-- **winget-create** — No impact
+Export does not imply that applying the resulting configuration will remove undeclared software.
 
 ### Group Policy
 
+A new policy controls destructive package-list convergence:
+
 | Policy | Purpose | Default |
-|--------|---------|---------|
-| `EnableExactEnforcement` | Allow `PackageList` with `enforcement: exact` | Disabled |
-| `DscResourceTimeout` | Maximum seconds per resource operation | 600 |
+|---|---|---|
+| `EnablePackageListPurge` | Permit `Microsoft.WinGet/PackageList` to process `_purge: true` | Disabled |
 
-### Settings Changes
+When the policy is disabled or not configured, `_purge: false` continues to work. A resource instance requesting `_purge: true` fails before performing purge removals and returns a policy-specific error.
 
-```json
-{
-  "dsc": {
-    "resourceTimeout": 600,
-    "enableExactEnforcement": false
-  }
-}
-```
+No user setting can override this policy.
+
+### CLI, API, Schema, and Repository Impact
+
+| Surface | Impact |
+|---|---|
+| WinGet CLI | `winget configure` applies and tests the resources; implementation-facing `winget dscv3` handlers and manifests are added for `PackageList` and `Pin` |
+| COM API | No new public COM API is required; resources use existing package-management operations |
+| PowerShell | No cmdlet changes are required |
+| User settings | No new `settings.json` setting is required |
+| Package manifests | No WinGet package-manifest schema change is required |
+| `winget-pkgs` validation | No change |
+| `winget-create` | No change |
+| `winget-cli-restsource` | No change |
+| `winget-dsc` | Existing PowerShell resources remain supported; no immediate deprecation |
+
+### Interactivity
+
+DSC resource protocol operations are non-interactive. `winget configure` may prompt before resource
+execution for configuration agreements or elevation, but the resource handlers must not prompt
+regardless of terminal availability.
+
+- Package and source agreements must be accepted explicitly through `acceptAgreements`.
+- `installMode: interactive` permits an interactive installer UI only when the configuration host supports it; otherwise the resource returns an error before launching the installer.
+- `--disable-interactivity`, `--silent`, COM API callers, and SYSTEM context never receive a prompt.
+- `--no-vt` changes rendering only and does not change resource behavior.
+
+### Rollout and Telemetry
+
+Implementation and enablement are conditional on:
+
+1. The required DSC runtime and WinGet Configuration processor versions being available.
+2. The corresponding WinGet version being available in the applicable Windows FCIB and servicing channels.
+3. Package-operation scheduling from [#6295](https://github.com/microsoft/winget-cli/pull/6295) being available before parallel behavior is enabled.
+4. Purge safety and rollback testing meeting reliability requirements.
+
+Privacy-preserving telemetry should measure:
+
+- Resource type and operation (`get`, `test`, `set`, or `export`).
+- Duration, success, failure category, and cancellation.
+- Whether `_purge` was requested, permitted, or blocked by policy.
+- Counts of packages installed, upgraded, removed, failed, or skipped as outside the purge boundary.
+- Installer-type requirement success or failure.
+
+Telemetry must not include package identifiers, source URLs, settings content, file paths, or pin values.
 
 ## UI/UX Design
 
-### Configuration authoring (user-facing):
+Users interact with the resources through a WinGet Configuration file:
 
 ```yaml
-# config.dsc.yaml - Developer workstation
-properties:
-  configurationVersion: 0.3
-  resources:
-    - resource: Microsoft.WinGet/PackageList
-      directives:
-        description: Developer tools
+$schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
+metadata:
+  winget:
+    processor:
+      identifier: dscv3
+resources:
+  - type: Microsoft.WinGet/PackageList
+    name: DeveloperTools
+    properties:
+      packages:
+        - id: Git.Git
+          source: winget
+          installerType: portable
+          useLatest: true
+        - id: Microsoft.VisualStudioCode
+          source: winget
+          installerType: exe
+          useLatest: true
+      _purge: false
+    metadata:
+      description: Developer tools
+  - type: Microsoft.WinGet/UserSettingsFile
+    name: WinGetPreferences
+    properties:
+      action: Partial
       settings:
-        packages:
-          - id: Git.Git
-          - id: Microsoft.VisualStudioCode
-            ensure: latest
-          - id: Docker.DockerDesktop
-          - id: Python.Python.3.12
-    - resource: Microsoft.WinGet/Source
-      directives:
-        description: Add corporate source
-      settings:
-        name: corporate
-        url: https://winget.contoso.com/api
-        ensure: present
-    - resource: Microsoft.WinGet/Settings
-      directives:
-        description: Configure WinGet preferences
-      settings:
-        ensure: merged
-        settings:
-          installBehavior:
-            preferences:
-              scope: machine
+        installBehavior:
+          preferences:
+            scope: machine
+    metadata:
+      description: Configure WinGet preferences
 ```
 
-### Apply output:
+Testing the configuration does not change the machine:
 
-```
-> winget configure --file config.dsc.yaml
-Configuration: Developer workstation
-  [Microsoft.WinGet/PackageList] Developer tools
-    ✓ Git.Git 2.45.1 - already installed
-    ✓ Microsoft.VisualStudioCode 1.92.0 - upgraded from 1.91.0
-    ✓ Docker.DockerDesktop 4.32.0 - installed
-    ✓ Python.Python.3.12 3.12.4 - already installed
-  [Microsoft.WinGet/Source] Add corporate source
-    ✓ corporate - already configured
-  [Microsoft.WinGet/Settings] Configure WinGet preferences
-    ✓ Settings merged
-Configuration complete. 6 resources in desired state.
+```text
+> winget configure test --file developer-tools.dsc.yaml
+
+Testing configuration...
+  Developer tools: Package changes required
+  Configure WinGet preferences: In desired state
+
+Configuration is not in the desired state.
 ```
 
-### Test output:
+Applying the configuration uses the existing command:
 
+```text
+> winget configure --file developer-tools.dsc.yaml
+
+Applying configuration...
+  Developer tools: Successfully applied
+  Configure WinGet preferences: In desired state
+
+Configuration successfully applied.
 ```
-> winget configure test --file config.dsc.yaml
-Configuration: Developer workstation
-  [Microsoft.WinGet/PackageList] Developer tools
-    ✓ Git.Git - in desired state (2.45.1)
-    ✗ Docker.DockerDesktop - not installed
-    ✓ Microsoft.VisualStudioCode - in desired state (1.92.0)
-    ✓ Python.Python.3.12 - in desired state (3.12.4)
-  [Microsoft.WinGet/Source] Add corporate source
-    ✓ corporate - in desired state
-  [Microsoft.WinGet/Settings] Configure WinGet preferences
-    ✗ installBehavior.preferences.scope - expected "machine", got "user"
-Result: NOT in desired state (2 resources require changes)
+
+If purge is requested but prohibited by policy, WinGet fails before removing packages:
+
+```text
+The configuration requested package-list purge, but the EnablePackageListPurge
+policy does not permit this operation. No packages were removed.
+```
+
+If a required installer type is unavailable, the relevant package fails without fallback:
+
+```text
+No installer of type 'portable' satisfies the requirements for package Git.Git.
 ```
 
 ## Capabilities
 
 ### Accessibility
 
-No direct accessibility impact — DSC resources are declarative files processed by automation. CLI output during `winget configure` uses standard progress reporting accessible to screen readers.
+The resources are declarative and introduce no graphical UI. `winget configure` continues to use the existing accessible terminal output and must provide equivalent status text without relying solely on color, symbols, or VT rendering.
 
 ### Security
 
-- `PackageList` with `enforcement: exact` is gated by Group Policy to prevent accidental mass uninstallation
-- `winget dsc` subcommand inherits existing WinGet security (source trust, hash validation, SmartScreen)
-- Settings resource cannot disable security features unless Group Policy permits
-- Resource manifests are signed as part of the WinGet MSIX package
+- `_purge` is explicit, disabled by default, and controlled by Group Policy.
+- Purge applies only to packages for which WinGet has authoritative management ownership.
+- Test reports candidates without changing the machine.
+- Source trust, installer hash validation, signature validation, and existing security policies remain in effect.
+- Administrator settings continue to require elevation and cannot override Group Policy.
+- Resource manifests ship and are serviced with the WinGet client.
 
 ### Reliability
 
-- Native resources eliminate ~92s adapter overhead, making boot-time configurations viable
-- Per-package failure isolation in `PackageList` — one failure does not abort the entire list
-- Retry logic for transient failures (network timeouts, MSI mutex from Windows Update)
-- `implementsPretest: true` in manifest — resources check state before applying, avoiding unnecessary changes
+- Existing resource contracts remain compatible.
+- A required installer type prevents unexpected fallback to another installer technology.
+- Package-level results identify partial failures in `PackageList`.
+- `_purge` ignores software outside WinGet's managed boundary.
+- Resource manifests use `implementsPretest: true` so set operations avoid unnecessary work.
+- Package scheduling follows [#6295](https://github.com/microsoft/winget-cli/pull/6295) rather than defining a second scheduler.
 
 ### Compatibility
 
-- Existing `Microsoft.WinGet.DSC` PowerShell resources remain supported (not deprecated immediately)
-- New resources use different type namespace (`Microsoft.WinGet/*` vs `Microsoft.WinGet.DSC/*`) — no conflicts
-- Configuration files using old resources continue working through the adapter
-- Schema version bump required for `winget configure export` to emit new resources (1.28.0 → 1.29.0)
+- `winget dsc` remains equivalent to `winget configure`; this specification does not repurpose it.
+- Existing configurations using `Microsoft.WinGet/Package`, `Source`, `UserSettingsFile`, or `AdminSettings` continue to work.
+- Existing `Microsoft.WinGet.DSC/*` PowerShell resources remain supported through the adapter.
+- The `installerType` property is optional and additive.
+- No WinGet package-manifest schema version change is required.
 
 ### Performance, Power, and Efficiency
 
-- Native resources: ~3-5s per operation (vs. ~92s through adapter)
-- `PackageList` batches operations — concurrent MSIX installs (up to 6), sequential MSI
-- No PowerShell process startup per resource invocation
-- `implementsPretest` avoids redundant test+set round-trips
+Native command resources avoid PowerShell adapter startup for each operation. `PackageList` also permits the package scheduler to coordinate a set of operations in one resource invocation. Actual concurrency and serialization follow [#6295](https://github.com/microsoft/winget-cli/pull/6295); this specification does not independently define installer scheduling rules.
 
 ## Potential Issues
 
-1. **`winget dsc` subcommand scope** — Must carefully define the stdin/stdout JSON contract to remain compatible with future DSC protocol versions.
-2. **PackageList "exact" mode risk** — Incorrect configuration could remove critical software. Mitigated by GPO gate and dry-run via `winget configure test`.
-3. **Version constraint resolution** — Supporting ranges (`>=`, `<=`, wildcards) adds complexity. Must define exact semver-like comparison semantics.
-4. **Export fidelity** — `winget configure export` can only export WinGet-tracked packages. Sideloaded or manually installed software won't appear.
-5. **SYSTEM context** — Resources must work in SYSTEM context (dependency on PowerShell Module Parity spec [#6288](https://github.com/microsoft/winget-cli/issues/6288)).
-6. **Concurrent operation safety** — `PackageList` with parallel MSIX installs must handle the `_MSIExecute` mutex correctly and avoid conflicts with other WinGet instances.
+1. **Purge ownership data** — Existing installations may lack sufficient tracking data to be eligible for purge. This is a safe limitation: the resource skips them rather than risking removal.
+2. **Partial convergence** — A package list can partially apply before another package fails. Results must identify every completed and failed operation.
+3. **Installer-type availability** — Requiring an installer type can make a configuration fail when a publisher changes installer technologies.
+4. **Version availability** — Exact versions may disappear from mutable sources, preventing convergence.
+5. **Export fidelity** — WinGet cannot safely export software it does not authoritatively manage.
+6. **SYSTEM context** — Sources, network access, and user-scoped packages can differ under SYSTEM.
+7. **Pin correlation** — Pin operations require a stable package and source identity.
+8. **Resource schema evolution** — Additive changes must remain compatible with configurations authored for earlier WinGet versions.
 
 ## Future Considerations
 
-- **Configuration drift detection** — Scheduled `winget configure test` with reporting for continuous compliance
-- **Intune integration** — Native resources are faster and more reliable for Intune device configuration
-- **Package dependency graphs** — `PackageList` could order installations based on inter-package dependencies
-- **Remote configuration** — Combined with WinGet REST source enables fleet-wide management
-- **Adapted resource manifests** — Once `Microsoft.WinGet.DSC` ships adapted resource manifests (`.dsc.adaptedResource.json`), the PowerShell resources also benefit from faster discovery
+- Explicitly adopting an existing installation into WinGet management so it can become eligible for purge.
+- A protected-package or purge-exclusion mechanism if enterprise scenarios require additional safeguards.
+- Continuous drift detection and reporting.
+- Intune and other management-service integration.
+- Dependency-aware package-list planning.
+- Additional native resources where command-based implementation provides measurable value.
+- Adapted resource manifests for the existing `Microsoft.WinGet.DSC` PowerShell resources.
 
 ## Resources
 
-- DSC v3 command-based resources: https://learn.microsoft.com/powershell/dsc/concepts/resources
-- DSC v3 resource manifest schema: https://github.com/PowerShell/DSC/tree/main/schemas
-- Current WinGet DSC module: https://github.com/microsoft/winget-dsc
-- WinGet Configuration docs: https://learn.microsoft.com/windows/package-manager/configuration/
-- Related: [#3401](https://github.com/microsoft/winget-cli/issues/3401), [#5806](https://github.com/microsoft/winget-cli/issues/5806)
-- Performance data: Adapted resources ~92s via dscv3 processor vs. ~3-5s for native v3 resources
+- [Native DSC v3 resources issue #6289](https://github.com/microsoft/winget-cli/issues/6289)
+- [Parallel installation specification PR #6295](https://github.com/microsoft/winget-cli/pull/6295)
+- [Package pinning specification](https://github.com/microsoft/winget-cli/blob/master/doc/specs/%23476%20-%20Package%20Pinning.md)
+- [DSC resources](https://learn.microsoft.com/powershell/dsc/concepts/resources)
+- [DSC `_exist` property](https://learn.microsoft.com/powershell/dsc/reference/schemas/resource/properties/exist)
+- [DSC `_purge` property](https://learn.microsoft.com/powershell/dsc/reference/schemas/resource/properties/purge)
+- [DSC resource manifest schema](https://learn.microsoft.com/powershell/dsc/reference/schemas/resource/manifest/root)
+- [WinGet Configuration v3 schema](https://learn.microsoft.com/windows/package-manager/configuration/create-v3)
+- [WinGet Configuration documentation](https://learn.microsoft.com/windows/package-manager/configuration/)
+- [WinGet DSC module](https://github.com/microsoft/winget-dsc)
