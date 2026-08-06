@@ -1,14 +1,14 @@
 ---
 title: winget validate Command
-description: Validates a manifest file for submitting software to the Microsoft Community Package Manifest Repository on GitHub.
-ms.date: 04/28/2020
+description: Validates a manifest file.
+ms.date: 2026-08-06
 ms.topic: article
 ms.localizationpriority: medium
 ---
 
 # validate command (winget)
 
-The **validate** command of the [winget](index.md) tool validates a [manifest](../package/manifest.md) for submitting software to the **Microsoft Community Package Manifest Repository** on GitHub. The manifest must be a YAML file that follows the [specification](https://github.com/microsoft/winget-pkgs/blob/master/doc/manifest/README.md).
+The **validate** command of the [winget](index.md) tool validates a [manifest](../package/manifest.md) using a strict set of guidelines. This is intended to enable you to check your manifest before submitting it to a repository.
 
 ## Usage
 
@@ -18,21 +18,24 @@ The **validate** command of the [winget](index.md) tool validates a [manifest](.
 
 The following arguments are available.
 
-| Argument  | Description |
+| Argument | Description |
 |--------------|-------------|
-| **--manifest** |  The path to the manifest to be validated. |
+| **--manifest** | The path to the manifest to be validated. |
 
 ## Options
 
-The options allow you to customize the export experience to meet your needs.
+The following options are available.
 
 | Option | Description |
 |--------|-------------|
-| **-?, --help** | Get additional help on this command. |
+| **-?, --help** | Shows help about the selected command. |
 | **--wait** | Prompts the user to press any key before exiting. |
 | **--logs, --open-logs** | Open the default logs location. |
 | **--verbose, --verbose-logs** | Enables verbose logging for winget. |
+| **--nowarn, --ignore-warnings** | Suppresses warning outputs. |
 | **--disable-interactivity** | Disable interactive prompts. |
+| **--proxy** | Set a proxy to use for this execution. |
+| **--no-proxy** | Disable the use of proxy for this execution. |
 
 ## Related topics
 
