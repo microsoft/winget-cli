@@ -56,11 +56,6 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
             }
         }
 
-        private bool DefaultIsPinnedLookup(CatalogPackage catalogPackage)
-        {
-            return PackageManagerWrapper.Instance.GetPins(catalogPackage).Count > 0;
-        }
-
         /// <summary>
         /// Compares versions.
         /// </summary>
@@ -76,6 +71,16 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
                 CompareResult.Greater => PSCompareResult.Greater,
                 _ => throw new InvalidOperationException(),
             };
+        }
+
+        /// <summary>
+        /// Determines whether the specified catalog package has one or more pins.
+        /// </summary>
+        /// <param name="catalogPackage">The catalog package to inspect.</param>
+        /// <returns><see langword="true"/> if the package has pins; otherwise, <see langword="false"/>.</returns>
+        private bool DefaultIsPinnedLookup(CatalogPackage catalogPackage)
+        {
+            return PackageManagerWrapper.Instance.GetPins(catalogPackage).Count > 0;
         }
     }
 }
