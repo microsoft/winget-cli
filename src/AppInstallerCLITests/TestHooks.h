@@ -69,6 +69,7 @@ namespace AppInstaller
     namespace Filesystem
     {
         void TestHook_SetCreateSymlinkResult_Override(bool* status);
+        void TestHook_SetCreateHardLinkResult_Override(bool* status);
     }
 
     namespace Archive
@@ -138,6 +139,22 @@ namespace TestHook
     private:
         bool m_status;
     };
+
+	struct SetCreateHardLinkResult_Override
+	{
+		SetCreateHardLinkResult_Override(bool status) : m_status(status)
+		{
+			AppInstaller::Filesystem::TestHook_SetCreateHardLinkResult_Override(&m_status);
+		}
+
+		~SetCreateHardLinkResult_Override()
+		{
+			AppInstaller::Filesystem::TestHook_SetCreateHardLinkResult_Override(nullptr);
+		}
+
+	private:
+		bool m_status;
+	};
 
     struct SetScanArchiveResult_Override
     {
