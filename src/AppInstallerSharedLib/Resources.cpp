@@ -7,7 +7,6 @@
 #include "Public/AppInstallerErrors.h"
 #include <winrt/Windows.ApplicationModel.Resources.Core.h>
 #include <winrt/Windows.Foundation.Collections.h>
-#include <mutex>
 
 namespace AppInstaller
 {
@@ -75,7 +74,7 @@ namespace AppInstaller
             // Gets the string resource value.
             std::string ResolveString(std::wstring_view resKey) const
             {
-                std::lock_guard<std::mutex> guard(m_lock);
+                auto lock = m_lock.lock_shared();
 
                 if (resKey.empty())
                 {
@@ -94,7 +93,7 @@ namespace AppInstaller
             // Gets the string resource value or nothing if not present.
             std::optional<Resource::LocString> TryResolveString(std::wstring_view resKey) const
             {
-                std::lock_guard<std::mutex> guard(m_lock);
+                auto lock = m_lock.lock_shared();
 
                 if (!resKey.empty() && m_wingetLoader)
                 {
@@ -115,7 +114,7 @@ namespace AppInstaller
 
             bool SetLanguageOverride(std::wstring_view localeTag)
             {
-                std::lock_guard<std::mutex> guard(m_lock);
+                auto lock = m_lock.lock_exclusive();
 
                 if (localeTag == m_localeOverride)
                 {
@@ -139,7 +138,7 @@ namespace AppInstaller
         private:
             winrt::Windows::ApplicationModel::Resources::ResourceLoader m_wingetLoader;
             winrt::hstring m_localeOverride;
-            mutable std::mutex m_lock;
+            mutable wil::srwlock m_lock;
 
             static winrt::Windows::ApplicationModel::Resources::ResourceLoader CreateLoader(std::wstring_view localeTag)
             {
