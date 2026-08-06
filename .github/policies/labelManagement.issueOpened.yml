@@ -44,7 +44,7 @@ configuration:
                 Instead of this PR, it would be helpful if you could [open an issue](https://github.com/microsoft/winget-cli/issues/new?template=Localization_Issue.yml) and it will be forwarded to the internal localization team for review. For more information, please see the [Development Guide](https://github.com/microsoft/winget-cli/blob/master/doc/Developing.md#localization).
 
 
-                Template: msftbot/PullRequests/LocalizationFileChange
+                ###### Template: msftbot/PullRequests/LocalizationFileChange
       - description: Add Needs-Triage to new issues
         if:
           - payloadType: Issues
