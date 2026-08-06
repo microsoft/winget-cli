@@ -123,9 +123,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             // First attempt to update the row and then insert it if no modification occurred.
             Builder::StatementBuilder updateBuilder;
             updateBuilder.Update(s_PUTT_Table_Name).Set().
-                Column(s_PUTT_WriteTime).Equals(currentTime).
-                Column(s_PUTT_Manifest).Equals(compressedManifest).
-                Column(s_PUTT_Hash).Equals(manifestHash).
+                Column(s_PUTT_WriteTime).AssignValue(currentTime).
+                Column(s_PUTT_Manifest).AssignValue(compressedManifest).
+                Column(s_PUTT_Hash).AssignValue(manifestHash).
                 Where(s_PUTT_Package).LikeWithEscape(packageIdentifier);
 
             updateBuilder.Execute(connection);
