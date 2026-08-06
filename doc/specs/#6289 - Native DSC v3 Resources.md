@@ -393,7 +393,8 @@ regardless of terminal availability.
 Implementation and enablement are conditional on:
 
 1. The required DSC runtime and WinGet Configuration processor versions being available.
-2. The corresponding WinGet version being available in the applicable Windows FCIB and servicing channels.
+2. The corresponding WinGet version being available in the applicable Windows feature, capability,
+   and integration builds and servicing channels.
 3. Package-operation scheduling from [#6295](https://github.com/microsoft/winget-cli/pull/6295) being available before parallel behavior is enabled.
 4. Purge safety and rollback testing meeting reliability requirements.
 
