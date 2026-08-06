@@ -218,7 +218,7 @@ namespace AppInstallerCLIE2ETests
         {
             string installDir = TestCommon.GetPortablePackagesDirectory();
             string linksDirectory = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
-            string packageId = "AppInstallerTest.TestZipInstallerPortablePathFallbackToSymlink";
+            string packageId = "AppInstallerTest.ZipPortable_PathSwitchToSymlink";
             string packageDir = Path.Combine(installDir, packageId + "_" + Constants.TestSourceIdentifier);
             string symlinkPath = Path.Combine(linksDirectory, "TestPortableTransitionPathToSymlink.exe");
 
@@ -239,7 +239,7 @@ namespace AppInstallerCLIE2ETests
         public void UpgradeZip_ArchivePortableWithBinariesDependentOnPath_CleansLinksPath()
         {
             string installDir = TestCommon.GetPortablePackagesDirectory();
-            string packageId = "AppInstallerTest.TestZipInstallerPortableSymlinkToPathFallback";
+            string packageId = "AppInstallerTest.ZipPortable_SymlinkSwitchToPath";
             string packageDir = Path.Combine(installDir, packageId + "_" + Constants.TestSourceIdentifier);
             string linksDir = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
 

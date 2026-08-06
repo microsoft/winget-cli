@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.9.0.schema.json
 
-PackageIdentifier: AppInstallerTest.TestZipInstallerPortablePathFallbackToSymlink
+PackageIdentifier: AppInstallerTest.ZipPortable_PathSwitchToSymlink
 PackageVersion: 2.0.0.0
-PackageName: TestZipInstallerPortablePathFallbackToSymlink
+PackageName: ZipPortablePathSwitchToSymlink
 PackageLocale: en-US
 Publisher: AppInstallerTest
 License: Test
