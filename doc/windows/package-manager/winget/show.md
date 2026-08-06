@@ -1,7 +1,7 @@
 ---
 title: show Command
-description: Displays details for the specified application, including details on the source of the application as well as the metadata associated with the application.
-ms.date: 04/28/2020
+description: Displays details for the specified application, including source and package metadata.
+ms.date: 2026-08-06
 ms.topic: overview
 ms.localizationpriority: medium
 ---
@@ -27,7 +27,7 @@ The following arguments are available.
 
 | Argument  | Description |
 |--------------|-------------|
-| **-q, --query** |  The query used to search for an application. |
+| **-q, --query** | The query used to search for a package. |
 
 ## Options
 
@@ -35,25 +35,30 @@ The following options are available.
 
 | Option  | Description |
 |--------------|-------------|
-| **-m,--manifest** | The path to the manifest of the application to install. |
-| **--id**         |  Filter results by ID. |
-| **--name**   |      Filter results by name. |
-| **--moniker**   |  Filter results by application moniker. |
-| **-v,--version** |  Use the specified version. The default is the latest version. |
-| **-s,--source** |   Find the application using the specified [source](source.md). |
-| **-e,--exact**     | Find the application using exact match. |
-| **--versions**    | Show available versions of the application. |
+| **-m, --manifest** | The path to the manifest of the package. |
+| **--id** | Filter results by id. |
+| **--name** | Filter results by name. |
+| **--moniker** | Filter results by moniker. |
+| **-v, --version** | Use the specified version; default is the latest version. |
+| **-s, --source** | Find package using the specified source. |
+| **-e, --exact** | Find package using exact match. |
 | **--scope** | Select install scope (user or machine). |
 | **-a, --architecture** | Select the architecture. |
 | **--installer-type** | Select the installer type. |
 | **--locale** | Locale to use (BCP47 format). |
+| **--versions** | Show available versions of the package. |
 | **--header** | Optional Windows-Package-Manager REST source HTTP header. |
+| **--authentication-mode** | Specify authentication window preference (`silent`, `silentPreferred`, or `interactive`). |
+| **--authentication-account** | Specify the account to be used for authentication. |
 | **--accept-source-agreements** | Accept all source agreements during source operations. |
-| **-?, --help** | Gets additional help on this command. |
+| **-?, --help** | Shows help about the selected command. |
 | **--wait** | Prompts the user to press any key before exiting. |
 | **--logs, --open-logs** | Open the default logs location. |
 | **--verbose, --verbose-logs** | Enables verbose logging for winget. |
+| **--nowarn, --ignore-warnings** | Suppresses warning outputs. |
 | **--disable-interactivity** | Disable interactive prompts. |
+| **--proxy** | Set a proxy to use for this execution. |
+| **--no-proxy** | Disable the use of proxy for this execution. |
 
 ## Multiple selections
 
@@ -80,8 +85,8 @@ If a single application is detected, the following data will be displayed.
 | Value  | Description |
 |--------------|-------------|
 | **Type**  | The type of installer. |
-| **Download Url** | The Url of the installer. |
-| **SHA256** | The Sha-256 of the installer.  |
+| **Download Url** | The URL of the installer. |
+| **SHA256** | The SHA-256 of the installer. |
 
 ## Related topics
 

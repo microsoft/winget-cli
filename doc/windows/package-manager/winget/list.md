@@ -1,18 +1,16 @@
 ---
-title: features Command
-description: Displays the list of listed apps and if an update is available.
-ms.date: 05/5/2021
+title: list Command
+description: Displays installed packages and whether upgrades are available.
+ms.date: 2026-08-06
 ms.topic: overview
 ms.localizationpriority: medium
 ---
 
 # list command (winget)
 
-The **list** command of the [winget](index.md) tool displays a list of the applications currently installed on your computer.  The list command will show apps that were installed through the Windows Package Manager as well as apps that were installed by other means.
+The **list** command of the [winget](index.md) tool displays the packages installed on the system, as well as whether an upgrade is available. The **list** command shows packages that were installed through Windows Package Manager as well as packages installed by other means.
 
-In addition, the **list** command will also display if an update is available for an app, and you can use the [**upgrade**](upgrade.md) command to update the app.
-
-The **list** command also supports filters which can be used to limit your list query.
+The **list** command also supports filters that can be used to limit the results.
 
 ## Usage
 
@@ -29,43 +27,50 @@ The following arguments are available.
 
 | Argument | Description |
 |-------------|-------------|
-| **-q,--query** | The query used to search for an app. |
+| **-q, --query** | The query used to search for a package. |
 
 ## Options
 
 The options allow you to customize the list experience to meet your needs.
+
 | Option | Description |
 |--------|-------------|
-| **--id** | Limits the list to the ID of the application. |
-| **--name** | Limits the list to the name of the application. |
-| **--moniker** | Limits the list to the moniker listed for the application. |
-| **-s, --source** | Restricts the list to the source name provided. Must be followed by the source name. |
-| **--tag** | Filters results by tags. |
-| **--command** | Filters results by command specified by the application. |
-| **-n, --count** | Limits the number of apps displayed in one query. |
-| **-e, --exact** | Uses the exact string in the list query, including checking for case-sensitivity. It will not use the default behavior of a substring. |
+| **--id** | Filter results by id. |
+| **--name** | Filter results by name. |
+| **--moniker** | Filter results by moniker. |
+| **-s, --source** | Find package using the specified source. |
+| **--tag** | Filter results by tag. |
+| **--cmd, --command** | Filter results by command. |
+| **-n, --count** | Show no more than the specified number of results (between 1 and 1000). |
+| **-e, --exact** | Find package using exact match. |
 | **--scope** | Select installed package scope filter (user or machine). |
 | **--header** | Optional Windows-Package-Manager REST source HTTP header. |
+| **--authentication-mode** | Specify authentication window preference (`silent`, `silentPreferred`, or `interactive`). |
+| **--authentication-account** | Specify the account to be used for authentication. |
 | **--accept-source-agreements** | Accept all source agreements during source operations. |
 | **--upgrade-available** | Lists only packages which have an upgrade available. |
-| **-u,--unknown,--include-unknown** | List packages even if their current version cannot be determined. Can only be used with the --upgrade-available argument. |
-| **--pinned,--include-pinned** | List packages even if they have a pin that prevents upgrade. Can only be used with the --upgrade-available argument. |
-| **--sort** | Sort results by a property. Can be repeated for multi-field sorting (e.g., `--sort source --sort name`). Valid values: `name`, `id`, `version`, `source`, `available`, `relevance`. |
-| **--ascending,--asc** | Sort results in ascending order (default). |
-| **--descending,--desc** | Sort results in descending order. |
-| **-?,--help** | Get additional help on this command. |
+| **-u, --unknown, --include-unknown** | List packages even if their current version cannot be determined. Can only be used with the **--upgrade-available** argument. |
+| **--pinned, --include-pinned** | List packages even if they have a pin that prevents upgrade. Can only be used with the **--upgrade-available** argument. |
+| **--details** | Show detailed information about packages. |
+| **--sort** | Sort results by a property. Can be repeated for multi-field sorting. |
+| **--asc, --ascending** | Sort results in ascending order. |
+| **--desc, --descending** | Sort results in descending order. |
+| **-?, --help** | Shows help about the selected command. |
 | **--wait** | Prompts the user to press any key before exiting. |
-| **--logs,--open-logs** | Open the default logs location. |
-| **--verbose,--verbose-logs** | Enables verbose logging for winget. |
+| **--logs, --open-logs** | Open the default logs location. |
+| **--verbose, --verbose-logs** | Enables verbose logging for winget. |
+| **--nowarn, --ignore-warnings** | Suppresses warning outputs. |
 | **--disable-interactivity** | Disable interactive prompts. |
+| **--proxy** | Set a proxy to use for this execution. |
+| **--no-proxy** | Disable the use of proxy for this execution. |
 
 ### Example queries
 
-The following example lists a specific version of an application.
+The following example lists a specific application by name.
 
 ![list name command](images/list-name.png)
 
-The following example lists all application by ID from a specific source.
+The following example lists an application by ID from a specific source.
 
 ![list id with source command](images/list-id-source.png)
 
@@ -75,7 +80,7 @@ The following example limits the output of list to 9 apps.
 
 ## Sorting output
 
-By default, results are sorted by name in ascending order. When a query argument is used (for example, `winget list foo`), results preserve relevance ordering from the package source. You can override either default through command-line arguments or user settings.
+By default, results are sorted by name in ascending order. When a query argument is used, results preserve relevance ordering from the package source unless you override it.
 
 ### Sort via command-line arguments
 
@@ -99,25 +104,15 @@ You can set a default sort order in your [settings](https://aka.ms/winget-settin
 }
 ```
 
-An empty array (`[]`) results in default sorting (sorted by name when listing, relevance preserved when querying).
+An empty array (`[]`) results in default sorting.
 
-### Resolution order
+## List with update
 
-When both settings and command-line arguments are present, the following priority applies:
-
-1. **`--sort` command-line argument** — takes highest priority, overrides settings.
-2. **`output.sortOrder` in settings** — used when no `--sort` argument is provided. If the user has configured a sort order in settings, it is applied even when a query is present.
-3. **Default** — sorted by name in ascending order. When a query is used, relevance ordering is preserved instead.
-
-## List with Update
-
-As stated above, the **list** command allows you to see what apps you have installed that have updates available.
+The **list** command can show apps that have updates available.
 
 In the image below, you will notice the current version of **Google Chrome** has an update available.
 
 ![list update command](images/list-update.png)
-
-The **list** command will show not only the update version available, but the source that the update is available from.
 
 ## Related topics
 
