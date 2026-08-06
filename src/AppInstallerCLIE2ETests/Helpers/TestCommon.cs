@@ -523,6 +523,22 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
+        /// Check if a path value exists in PATH.
+        /// </summary>
+        /// <param name="value">Path value.</param>
+        /// <param name="scope">Scope.</param>
+        /// <returns>True if PATH contains the value.</returns>
+        public static bool PathContainsValue(string value, Scope scope = Scope.User)
+        {
+            RegistryKey baseKey = scope == Scope.User ? Registry.CurrentUser : Registry.LocalMachine;
+            string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
+            using RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, true);
+            string currentPathValue = (string)environmentRegistryKey.GetValue("Path") ?? string.Empty;
+            string expectedValue = value.TrimEnd('\\') + ';';
+            return currentPathValue.Contains(expectedValue, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
         /// Copies log files to the path %TEMP%\E2ETestLogs.
         /// </summary>
         public static void PublishE2ETestLogs()

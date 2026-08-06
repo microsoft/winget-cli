@@ -13,7 +13,8 @@ namespace AppInstaller::Portable
         Unknown,
         File,
         Directory,
-        Symlink
+        Symlink,
+        Hardlink,
     };
 
     // Metadata representation of a portable file placed down during installation
@@ -64,6 +65,17 @@ namespace AppInstaller::Portable
             symlinkEntry.SetFilePath(symlinkPath);
             symlinkEntry.SymlinkTarget = targetPath.u8string();
             return symlinkEntry;
+        }
+
+        static PortableFileEntry CreateHardlinkEntry(const std::filesystem::path& hardlinkPath, const std::filesystem::path& targetPath, const std::string& sha256 = {})
+        {
+            PortableFileEntry hardlinkEntry;
+            hardlinkEntry.FileType = PortableFileType::Hardlink;
+            hardlinkEntry.CurrentPath = targetPath;
+            hardlinkEntry.SetFilePath(hardlinkPath);
+            // Use provided SHA256 or empty (will be computed from target after install)
+            hardlinkEntry.SHA256 = sha256;
+            return hardlinkEntry;
         }
 
         static PortableFileEntry CreateDirectoryEntry(const std::filesystem::path& currentPath, const std::filesystem::path& directoryPath)
