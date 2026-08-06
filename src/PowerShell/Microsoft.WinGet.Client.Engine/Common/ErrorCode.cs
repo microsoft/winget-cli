@@ -52,8 +52,8 @@ namespace Microsoft.WinGet.Client.Engine.Common
         public const int RepairNotSupported = unchecked((int)0x8A15007C);
 
         /// <summary>
-        /// Error code for APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED.
+        /// Error code for APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED.
         /// </summary>
-        public const int AdminContextRepairProhibited = unchecked((int)0x8A15007D);
+        public const int AdminContextActionProhibited = unchecked((int)0x8A15007D);
     }
 }

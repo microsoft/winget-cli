@@ -420,6 +420,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::DependenciesOnlyArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::IgnoreLocalArchiveMalwareScan:
             return Argument{ type, Resource::String::IgnoreLocalArchiveMalwareScanArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::LocalArchiveMalwareScanOverride, Settings::BoolAdminSetting::LocalArchiveMalwareScanOverride };
+        case Args::Type::IgnoreUnavailable:
+            return Argument{ type, Resource::String::IgnoreUnavailableArgumentDescription, ArgumentType::Flag };
         case Args::Type::SourceName:
             return Argument{ type, Resource::String::SourceNameArgumentDescription, ArgumentType::Positional, false };
         case Args::Type::SourceArg:

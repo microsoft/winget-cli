@@ -837,11 +837,27 @@ namespace AppInstaller::Logging
                 m_summary.PackageVersion = version;
                 m_summary.RepairExecutionType = type;
                 m_summary.RepairErrorCode = errorCode;
-            
+
             }
         }
 
         AICLI_LOG(CLI, Error, << type << " repair failed: " << errorCode);
+    }
+
+    void TelemetryTraceLogger::LogStoreInstall(std::string_view packageId) const noexcept
+    {
+        // Don't use IsTelemetryEnabled as that also checks the WinGet provider.
+        if (g_IsStoreTelemetryProviderEnabled && m_isInitialized && m_isSettingEnabled && m_isRuntimeEnabled)
+        {
+            TraceLoggingWrite(g_hWindowsStoreProvider,
+                "StoreExperienceTelemetry-WinGetInstall",
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA),
+                AICLI_TraceLoggingStringView(packageId, "pid"),
+                TraceLoggingString(m_caller.c_str(), "src"),
+                TraceLoggingWideString(L"msstore", "cn")
+            );
+        }
     }
 
     TelemetryTraceLogger::~TelemetryTraceLogger()

@@ -70,6 +70,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
             return result;
         }
+
     }
 
     Interface::Interface(const std::string& restApi, const Http::HttpClientHelper& httpClientHelper) : m_restApiUri(restApi), m_httpClientHelper(httpClientHelper)
@@ -98,7 +99,20 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             return OptimizedSearch(request);
         }
 
-        return SearchInternal(request);
+        SearchResult result = SearchInternal(request);
+
+        // Some sources (including msstore) may not return exact package identifier matches for substring ID requests.
+        // Preserve substring semantics, but if no match was found for a single-ID request, retry through optimized exact lookup.
+        if (result.Matches.empty() && MeetsOptimizedSearchCriteria(request, true))
+        {
+            SearchRequest optimizedRequest = request;
+            optimizedRequest.Filters[0].Type = MatchType::CaseInsensitive;
+
+            AICLI_LOG(Repo, Verbose, << "No search results for ID substring request; retrying with optimized exact ID lookup.");
+            return OptimizedSearch(optimizedRequest);
+        }
+
+        return result;
     }
 
     IRestClient::SearchResult Interface::SearchInternal(const SearchRequest& request) const
@@ -180,16 +194,21 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         return {};
     }
 
-    bool Interface::MeetsOptimizedSearchCriteria(const SearchRequest& request) const
+    bool Interface::MeetsOptimizedSearchCriteria(const SearchRequest& request, bool allowSubstringMatch) const
     {
         // Optimization: If the user wants to install a certain package with an exact match on package id and a particular rest source, we will
         // call the package manifest endpoint to get the manifest directly instead of running a search for it.
         if (!request.Query && request.Inclusions.size() == 0 &&
-            request.Filters.size() == 1 && request.Filters[0].Field == PackageMatchField::Id &&
-            (request.Filters[0].Type == MatchType::Exact || request.Filters[0].Type == MatchType::CaseInsensitive))
+            request.Filters.size() == 1 && request.Filters[0].Field == PackageMatchField::Id)
         {
-            AICLI_LOG(Repo, Verbose, << "Search request meets optimized search criteria.");
-            return true;
+            MatchType matchType = request.Filters[0].Type;
+
+            if (matchType == MatchType::Exact || matchType == MatchType::CaseInsensitive ||
+                (allowSubstringMatch && matchType == MatchType::Substring))
+            {
+                AICLI_LOG(Repo, Verbose, << "Search request meets optimized search criteria.");
+                return true;
+            }
         }
 
         return false;

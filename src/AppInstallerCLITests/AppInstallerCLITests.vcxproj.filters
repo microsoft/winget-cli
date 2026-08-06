@@ -64,6 +64,9 @@
     <Filter Include="TestData\MultiFileManifestV1_28">
       <UniqueIdentifier>{0e5f9ff4-6f22-46eb-8538-1c560a008f06}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TestData\MultiFileManifestV1_30">
+      <UniqueIdentifier>{06dc4136-685f-4ed2-b54b-565863e95fb2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -1176,6 +1179,18 @@
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_28\ManifestV1_28-MultiFile-Version.yaml">
       <Filter>TestData\MultiFileManifestV1_28</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_30\ManifestV1_30-MultiFile-DefaultLocale.yaml">
+      <Filter>TestData\MultiFileManifestV1_30</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_30\ManifestV1_30-MultiFile-Installer.yaml">
+      <Filter>TestData\MultiFileManifestV1_30</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_30\ManifestV1_30-MultiFile-Locale.yaml">
+      <Filter>TestData\MultiFileManifestV1_30</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_30\ManifestV1_30-MultiFile-Version.yaml">
+      <Filter>TestData\MultiFileManifestV1_30</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-MSIX-in-AppsAndFeatures.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -1186,6 +1201,12 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ManifestV1_28-Singleton.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_30-PowerShellDSC.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_30-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InvalidWindowsFeatureName.yaml">

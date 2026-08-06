@@ -34,6 +34,7 @@ namespace AppInstaller
         void TestHook_SetPathOverride(PathName target, const std::filesystem::path& path);
         void TestHook_SetPathOverride(PathName target, const Filesystem::PathDetails& details);
         void TestHook_ClearPathOverrides();
+        void TestHook_SetIsRunningWithNonDefaultFullToken_Override(bool* value);
     }
 
     namespace Repository
@@ -400,6 +401,22 @@ namespace TestHook
         }
 
     private:
+    };
+
+    struct SetIsRunningWithNonDefaultFullToken_Override
+    {
+        SetIsRunningWithNonDefaultFullToken_Override(bool value) : m_value(value)
+        {
+            AppInstaller::Runtime::TestHook_SetIsRunningWithNonDefaultFullToken_Override(&m_value);
+        }
+
+        ~SetIsRunningWithNonDefaultFullToken_Override()
+        {
+            AppInstaller::Runtime::TestHook_SetIsRunningWithNonDefaultFullToken_Override(nullptr);
+        }
+
+    private:
+        bool m_value;
     };
 
     struct SetUserSettings_Override
