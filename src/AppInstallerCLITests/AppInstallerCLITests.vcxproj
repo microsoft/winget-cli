@@ -474,6 +474,9 @@
     <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_NoSwitches.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallerArgTest_Nullsoft_NoSwitches.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_WithSwitches.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
