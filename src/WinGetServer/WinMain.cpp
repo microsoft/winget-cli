@@ -40,6 +40,33 @@ HRESULT WindowsPackageManagerServerInitializeRPCServer()
     // (A;;GA;;;UserSID) specifies access only for the user with the user SID (i.e. self).
     wil::unique_hlocal_security_descriptor securityDescriptor;
     std::string securityDescriptorString = "S:(ML;;NW;;;HI)D:(A;;GA;;;" + userSID + ")";
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    // When running at non-admin integrity (e.g. a medium-integrity server process spawned by
+    // the security E2E tests to validate client-side rejection), omit the mandatory label SACL.
+    // A medium-integrity process cannot set S:(ML;;NW;;;HI) and the SACL is irrelevant to the
+    // test being performed (the client rejects the server via process token inspection, not via
+    // the pipe SD). When running elevated, use the full production SD so the elevated-client
+    // positive test also exercises the real security configuration.
+    {
+        BOOL isAdmin = FALSE;
+        {
+            PSID adminGroup = nullptr;
+            SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
+            if (AllocateAndInitializeSid(&ntAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &adminGroup))
+            {
+                CheckTokenMembership(nullptr, adminGroup, &isAdmin);
+                FreeSid(adminGroup);
+            }
+        }
+
+        if (!isAdmin)
+        {
+            securityDescriptorString = "D:(A;;GA;;;" + userSID + ")";
+        }
+    }
+#endif
+
     RETURN_LAST_ERROR_IF(!ConvertStringSecurityDescriptorToSecurityDescriptorA(securityDescriptorString.c_str(), SDDL_REVISION_1, &securityDescriptor, nullptr));
 
     status = RpcServerRegisterIf3(WinGetServerManualActivation_v1_0_s_ifspec, nullptr, nullptr, RPC_IF_ALLOW_LOCAL_ONLY | RPC_IF_AUTOLISTEN, RPC_C_LISTEN_MAX_CALLS_DEFAULT, 0, nullptr, securityDescriptor.get());
