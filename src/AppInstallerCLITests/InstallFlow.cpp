@@ -960,6 +960,21 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
         auto previousThreadGlobals = context.SetForCurrentThread();
+        // Nullsoft type with --location containing spaces; verify value is quoted in /D= switch
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Nullsoft_NoSwitches.yaml"));
+        context.Args.AddArg(Execution::Args::Type::Silent);
+        context.Args.AddArg(Execution::Args::Type::InstallLocation, R"(C:\Program Files\CustomInstallDir)"sv);
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
+        context << GetInstallerArgs;
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs.find(R"(/D="C:\Program Files\CustomInstallDir")") != std::string::npos);
+    }
+
+    {
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Override switch specified. The whole arg passed to installer is overridden.
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
