@@ -12,7 +12,7 @@ If you are new to the Windows Package Manager, you might want to [Explore the Wi
 ## Installing The Client
 
 > [!NOTE]
-> The client requires Windows 10 1809 (build 17763), Windows 11, Windows Server 2025, or later at this time. Windows Server 2019 and 2022 can run it experimentally (not supported) by extracting the .msixbundle; see https://github.com/microsoft/winget-cli/issues/4502#issuecomment-4585558561. Due to hard reliances on [IsWow64Process2](https://learn.microsoft.com/en-us/windows/win32/api/wow64apiset/nf-wow64apiset-iswow64process2) and MSIX, it cannot be run on Windows Server Core or on Windows versions earlier than Windows 10 1709.
+> The client requires Windows 10 1809 (build 17763), Windows 11, Windows Server 2025, or later at this time. Windows Server 2019 and 2022 can run it experimentally (not supported) by extracting the .msixbundle; see https://github.com/microsoft/winget-cli/issues/4502#issuecomment-4585558561. Due to hard reliances on [IsWow64Process2](https://learn.microsoft.com/en-us/windows/win32/api/wow64apiset/nf-wow64apiset-iswow64process2) and MSIX, it cannot be run on Windows Server Core or on Windows versions earlier than Windows 10 1809.
 
 ### Microsoft Store [Recommended]
 
