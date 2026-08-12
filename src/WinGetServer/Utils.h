@@ -11,4 +11,7 @@ unsigned char* GetUCharString(const std::string& str);
 
 std::string GetUserSID();
 
+// Returns true if sid belongs to the current process user, using binary SID comparison.
+bool IsCurrentUserSid(PSID sid);
+
 wil::unique_event CreateOrOpenServerStartEvent();
