@@ -36,7 +36,7 @@ namespace AppInstallerCLIE2ETests
     /// Helper exit codes for expect-denial modes (pipe-access, event-signal, event-open, rpc-noauth):
     ///   0 = expected denial occurred (PASS), 1 = unexpected success (FAIL), 2 = error.
     /// Helper exit codes for rpc-connect:
-    ///   0 = RPC transport reached server, 1 = rejected.
+    ///   0 = transport reached server (not blocked by security), 5 = ERROR_ACCESS_DENIED.
     /// </summary>
     [TestFixture]
     [Category("RpcSecurity")]
@@ -209,9 +209,8 @@ namespace AppInstallerCLIE2ETests
             Process server = this.StartServer(sid);
             try
             {
-                string endpoint = "WinGetServerManualActivation_" + sid;
                 int rc = this.RunHelperAtMediumIntegrity(
-                    $"\"{this.helperPath}\" --mode rpc-connect --endpoint {endpoint}");
+                    $"\"{this.helperPath}\" --mode rpc-connect");
 
                 string message = rc == 0
                     ? "Medium-integrity client successfully reached the server via RPC - the pipe SD is not blocking low-integrity callers."
@@ -235,8 +234,7 @@ namespace AppInstallerCLIE2ETests
             Process server = this.StartServer(sid);
             try
             {
-                string endpoint = "WinGetServerManualActivation_" + sid;
-                int rc = this.RunHelper($"--mode rpc-connect --endpoint {endpoint}");
+                int rc = this.RunHelper($"--mode rpc-connect");
 
                 string message = rc != 0
                     ? $"Elevated client was rejected by the server (0x{rc:X8}) - the security configuration is blocking legitimate elevated callers."
@@ -276,15 +274,15 @@ namespace AppInstallerCLIE2ETests
 
         /// <summary>
         /// Verifies that an elevated client rejects a medium-integrity server process.
-        /// The rpc-connect helper opens the named pipe, reads the server PID via
-        /// <c>GetNamedPipeServerProcessId</c>, checks the server process token integrity level,
-        /// and returns <c>ERROR_ACCESS_DENIED</c> when the server is below high integrity.
+        /// The rpc-connect mode calls <c>WinGetServerManualActivation_CreateInstance</c>
+        /// (the production client function) which, after the production fix, will check
+        /// the server process integrity inside <c>InitializeRpcBinding</c> and return
+        /// <c>ERROR_ACCESS_DENIED</c> when the server is below high integrity.
         /// </summary>
         [Test]
         public void ElevatedClient_RejectsMediumIntegrityServer()
         {
             string sid = GetCurrentUserSID();
-            string endpoint = "WinGetServerManualActivation_" + sid;
 
             Process medServer = this.StartHelperAtMediumIntegrity(
                 $"\"{this.serverPath}\" --manualActivation");
@@ -297,7 +295,7 @@ namespace AppInstallerCLIE2ETests
 #endif
                 this.WaitForServerReadyEvent(readyEventName, medServer);
 
-                int rc = this.RunHelper($"--mode rpc-connect --endpoint {endpoint}");
+                int rc = this.RunHelper($"--mode rpc-connect");
 
                 string message = rc == 0
                     ? "Elevated client connected to a medium-integrity server - client-side process integrity check is missing."

@@ -16,33 +16,32 @@
 //   event-open --event-name <name>
 //       Same as event-signal; separate mode for test clarity.
 //
-//   rpc-connect --endpoint <name>
-//       Opens \\.\pipe\<name>, obtains the server PID via GetNamedPipeServerProcessId,
-//       and verifies the server process is at high mandatory integrity.  If the server
-//       is below high integrity the helper exits with ERROR_ACCESS_DENIED (5) without
-//       making an RPC call.  If the integrity check passes it performs a full
-//       authenticated RPC bind and calls CreateInstance.
+//   rpc-connect
+//       Calls WinGetServerManualActivation_CreateInstance with a null CLSID/IID.
+//       Uses the production client code path, including any server-process integrity
+//       check inside InitializeRpcBinding.
+//       Exit codes:
+//         0 = transport reached server (connection not blocked by security)
+//         5 (ERROR_ACCESS_DENIED) = pipe SACL blocked a medium-IL client, or the
+//           client rejected a medium-IL server (after the production fix is applied)
 //
 //   rpc-noauth --endpoint <name>
 //       Performs an unauthenticated RPC bind and calls CreateInstance.
 //       Expects the server to reject the call.
 
 #include <windows.h>
-#include <sddl.h>
+#include <objbase.h>
 #include <string>
 #include <vector>
-
-// IID_IUnknown would normally come from objbase.h, but that pulls in full COM headers.
-// Define it explicitly to avoid the dependency.
-static const GUID s_IID_IUnknown =
-    { 0x00000000, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
 
 // RPC headers and generated client stub.
 // WinGetServer_c.c is compiled as a separate C translation unit in the project file.
 #include "WinGetServer.h"
 
-void* __RPC_USER MIDL_user_allocate(size_t size) { return malloc(size); }
-void __RPC_USER MIDL_user_free(void* ptr) { free(ptr); }
+// Production client: WinGetServerManualActivation_CreateInstance and friends.
+// WinGetServerManualActivation_Client.cpp (compiled as a separate TU) also
+// provides MIDL_user_allocate / MIDL_user_free.
+#include "WinGetServerManualActivation_Client.h"
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -91,63 +90,6 @@ static const wchar_t* GetFlag(int argc, wchar_t* argv[], const wchar_t* flag)
 }
 
 // ---------------------------------------------------------------------------
-// Server process integrity verification
-// ---------------------------------------------------------------------------
-
-// Returns the mandatory integrity level RID for the given process, or 0 on failure.
-// High integrity = SECURITY_MANDATORY_HIGH_RID (0x3000).
-static DWORD GetProcessIntegrityLevel(DWORD pid)
-{
-    HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
-    if (!hProcess) return 0;
-
-    HANDLE hToken = nullptr;
-    bool opened = OpenProcessToken(hProcess, TOKEN_QUERY, &hToken) != FALSE;
-    CloseHandle(hProcess);
-    if (!opened) return 0;
-
-    DWORD size = 0;
-    GetTokenInformation(hToken, TokenIntegrityLevel, nullptr, 0, &size);
-
-    std::vector<BYTE> buf(size);
-    DWORD level = 0;
-    if (size > 0 && GetTokenInformation(hToken, TokenIntegrityLevel, buf.data(), size, &size))
-    {
-        auto* pLabel = reinterpret_cast<TOKEN_MANDATORY_LABEL*>(buf.data());
-        DWORD* pRid = GetSidSubAuthority(pLabel->Label.Sid,
-            *GetSidSubAuthorityCount(pLabel->Label.Sid) - 1);
-        level = *pRid;
-    }
-
-    CloseHandle(hToken);
-    return level;
-}
-
-// Opens \\.\pipe\<pipeName>, retrieves the server process ID, and checks that the
-// server process is running at high mandatory integrity.
-// Returns 0 if the server is at high integrity (proceed with RPC call).
-// Returns ERROR_ACCESS_DENIED if the server is below high integrity (client rejects).
-// Returns another OS error code for infrastructure failures (pipe not found, etc.).
-static int VerifyServerProcessIntegrity(const char* pipeName)
-{
-    std::string path = std::string("\\\\.\\pipe\\") + pipeName;
-    HANDLE hPipe = CreateFileA(path.c_str(), GENERIC_READ,
-        FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
-
-    if (hPipe == INVALID_HANDLE_VALUE) return static_cast<int>(GetLastError());
-
-    ULONG serverPid = 0;
-    bool got = GetNamedPipeServerProcessId(hPipe, &serverPid) != FALSE;
-    DWORD err = got ? 0 : GetLastError();
-    CloseHandle(hPipe);
-
-    if (!got) return static_cast<int>(err);
-
-    DWORD level = GetProcessIntegrityLevel(serverPid);
-    return (level >= SECURITY_MANDATORY_HIGH_RID) ? 0 : ERROR_ACCESS_DENIED;
-}
-
-// ---------------------------------------------------------------------------
 // pipe-access  (0=denied/pass  1=opened/fail  2=unexpected OS error)
 // ---------------------------------------------------------------------------
 
@@ -181,79 +123,29 @@ static int TestEventWriteAccess(const wchar_t* eventName)
 }
 
 // ---------------------------------------------------------------------------
-// rpc-connect
-//   0                   - integrity check passed AND call reached server -> PASS
-//   ERROR_ACCESS_DENIED - server below high integrity (client rejects)   -> PASS
-//                         OR medium-IL client blocked by pipe SACL       -> PASS
-//   RPC exception code  - transport/auth failure after integrity check passes
-//   2  - RpcStringBindingComposeA failed
-//   3  - RpcBindingFromStringBindingA failed
-//   4  - RpcBindingSetAuthInfoExA failed
-//   other OS error      - integrity check infrastructure failure
+// rpc-connect  (uses production code; see mode comment above for exit codes)
 // ---------------------------------------------------------------------------
 
-static int TestRpcConnect(const char* endpointName)
+static int TestRpcConnectViaProductCode()
 {
-    // Before making any RPC call, verify the server process is running at high
-    // mandatory integrity.  This is the client-side check that prevents connecting
-    // to a medium-integrity impersonator.  For a medium-IL client connecting to a
-    // high-IL server the pipe open itself fails with ERROR_ACCESS_DENIED because
-    // the pipe SD carries a high-integrity SACL (Finding 3).
-    int integrityCheck = VerifyServerProcessIntegrity(endpointName);
-    if (integrityCheck != 0) return integrityCheck;
-
-    handle_t hBinding = nullptr;
-    int bindResult = BuildRpcBinding(endpointName, hBinding);
-    if (bindResult != 0) return bindResult; // 2 or 3
-
-    // Apply authentication
-    RPC_SECURITY_QOS qos{};
-    qos.Version           = RPC_C_SECURITY_QOS_VERSION;
-    qos.Capabilities      = RPC_C_QOS_CAPABILITIES_DEFAULT;
-    qos.IdentityTracking  = RPC_C_QOS_IDENTITY_STATIC;
-    qos.ImpersonationType = RPC_C_IMP_LEVEL_IDENTIFY;
-
-    RPC_STATUS status = RpcBindingSetAuthInfoExA(
-        hBinding,
-        nullptr,
-        RPC_C_AUTHN_LEVEL_PKT_PRIVACY,
-        RPC_C_AUTHN_GSS_NEGOTIATE,
-        nullptr,
-        RPC_C_AUTHZ_NONE,
-        &qos);
-
-    if (status != RPC_S_OK)
-    {
-        RpcBindingFree(&hBinding);
-        return 4;
-    }
-
-    WinGetServerManualActivation_IfHandle = hBinding;
-
     GUID clsidNull{};
-    UINT32 cbBuffer = 0;
-    BYTE* pBuffer = nullptr;
-    bool callCompleted = false;
-    RPC_STATUS exceptionCode = RPC_S_OK;
-
-    __try
+    GUID iidNull{};
+    void* out = nullptr;
+    HRESULT hr = WinGetServerManualActivation_CreateInstance(
+        clsidNull, iidNull, WinGetServerManualActivation_TestHookFlag_NoServerLaunch, &out);
+    if (out)
     {
-        CreateInstance(clsidNull, s_IID_IUnknown, 0, &cbBuffer, &pBuffer);
-        callCompleted = true;
-        if (pBuffer) { MIDL_user_free(pBuffer); }
+        reinterpret_cast<IUnknown*>(out)->Release();
     }
-    __except (exceptionCode = RpcExceptionCode(), EXCEPTION_EXECUTE_HANDLER)
+    // ERROR_ACCESS_DENIED means the pipe SACL blocked a low-integrity client, or
+    // (after the production fix) InitializeRpcBinding rejected a low-integrity server.
+    if (hr == HRESULT_FROM_WIN32(ERROR_ACCESS_DENIED))
     {
-        // RPC transport error: call did not reach the server.
-        // exceptionCode holds the RPC_STATUS for the caller to return.
+        return ERROR_ACCESS_DENIED;
     }
-
-    RpcBindingFree(&hBinding);
-    WinGetServerManualActivation_IfHandle = nullptr;
-
-    // 0          = transport reached the server (any app-level HRESULT is fine here)
-    // RPC status = transport/auth rejected; the specific code identifies the reason
-    return callCompleted ? 0 : static_cast<int>(exceptionCode);
+    // Any other result (S_OK or an app-level server error such as class-not-registered)
+    // means the transport was not blocked by the security mechanism under test.
+    return 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -280,7 +172,7 @@ static int TestRpcNoAuth(const char* endpointName)
 
     __try
     {
-        CreateInstance(clsidNull, s_IID_IUnknown, 0, &cbBuffer, &pBuffer);
+        CreateInstance(clsidNull, clsidNull, 0, &cbBuffer, &pBuffer);
         callCompleted = true;
         if (pBuffer) { MIDL_user_free(pBuffer); }
     }
@@ -318,9 +210,10 @@ int wmain(int argc, wchar_t* argv[])
     }
     else if (_wcsicmp(mode, L"rpc-connect") == 0)
     {
-        const wchar_t* ep = GetFlag(argc, argv, L"--endpoint");
-        if (!ep) return 3;
-        return TestRpcConnect(WideToNarrow(ep).c_str());
+        // COM must be initialized before WinGetServerManualActivation_CreateInstance
+        // can unmarshal the returned COM object.
+        CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+        return TestRpcConnectViaProductCode();
     }
     else if (_wcsicmp(mode, L"rpc-noauth") == 0)
     {

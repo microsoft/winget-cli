@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "WinGetServer.h"
+#include "WinGetServerManualActivation_Client.h"
 #include "appmodel.h"
 #include "Utils.h"
 
@@ -208,6 +209,11 @@ extern "C" HRESULT WinGetServerManualActivation_CreateInstance(REFCLSID rclsid, 
 {
     RETURN_HR_IF_NULL(E_POINTER, out);
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    bool noServerLaunch = (flags & WinGetServerManualActivation_TestHookFlag_NoServerLaunch) != 0;
+    flags &= ~WinGetServerManualActivation_TestHookFlag_NoServerLaunch;
+#endif
+
     static std::once_flag rpcBindingOnce;
     try
     {
@@ -218,6 +224,13 @@ extern "C" HRESULT WinGetServerManualActivation_CreateInstance(REFCLSID rclsid, 
     HRESULT result = CreateComInstance(rclsid, riid, flags, out);
     if (FAILED(result))
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (noServerLaunch)
+        {
+            return result;
+        }
+#endif
+
         ServerProcessLauncher launcher;
 
         for (int i = 0; i < 3; i++)
