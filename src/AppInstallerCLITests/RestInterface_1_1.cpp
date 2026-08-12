@@ -498,6 +498,7 @@ TEST_CASE("GetManifests_GoodRequest_OnlyMarketRequired", "[RestSource][Interface
     REQUIRE(manifest.Installers[0].Url == "https://installer.example.com/foobar.exe");
 }
 
+// Note that "MSStoreProductIdentifier" is not supported in regular manifests as of ManifestVersion 1.28.0.
 TEST_CASE("GetManifests_GoodResponse_MSStoreType", "[RestSource][Interface_1_1]")
 {
     utility::string_t msstoreInstallerResponse = _XPLATSTR(
