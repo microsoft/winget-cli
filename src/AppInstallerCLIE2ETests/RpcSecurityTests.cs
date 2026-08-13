@@ -33,10 +33,11 @@ namespace AppInstallerCLIE2ETests
     /// Run with:
     ///   vstest.console.exe ... --TestCaseFilter:"Category=RpcSecurity"
     ///
-    /// Helper exit codes for expect-denial modes (pipe-access, event-signal, event-open, rpc-noauth):
+    /// Helper exit codes for expect-denial modes (pipe-access, event-signal, event-open):
     ///   0 = expected denial occurred (PASS), 1 = unexpected success (FAIL), 2 = error.
     /// Helper exit codes for rpc-connect:
-    ///   0 = transport reached server (not blocked by security), 5 = ERROR_ACCESS_DENIED.
+    ///   0 = the call reached the server and succeeded,
+    ///   otherwise the HRESULT that rejected the call, expected to be E_ACCESSDENIED.
     /// </summary>
     [TestFixture]
     [Category("RpcSecurity")]
@@ -54,14 +55,14 @@ namespace AppInstallerCLIE2ETests
         private const uint ProcessQueryLimitedInformation = 0x1000;
         private const uint WaitObject0 = 0x00000000;
 
-        // PROC_THREAD_ATTRIBUTE_PARENT_PROCESS = ProcThreadAttributeValue(0, FALSE, TRUE, FALSE)
-        // = (0 & 0x0000FFFF) | (0 << 16) | (1 << 17) = 0x00020000
-        private static readonly IntPtr ProcThreadAttributeParentProcess = new IntPtr(0x00020000);
-
         // RPC error codes used in test assertions.
         // ERROR_ACCESS_DENIED / RPC_S_ACCESS_DENIED: the pipe SACL or auth check blocked the call,
         // or the client rejected the server due to medium integrity level.
         private const int RpcErrorAccessDeniedHResult = -2147024891;
+
+        // PROC_THREAD_ATTRIBUTE_PARENT_PROCESS = ProcThreadAttributeValue(0, FALSE, TRUE, FALSE)
+        // = (0 & 0x0000FFFF) | (0 << 16) | (1 << 17) = 0x00020000
+        private static readonly IntPtr ProcThreadAttributeParentProcess = new IntPtr(0x00020000);
 
         /// <summary>Gets the full path to WindowsPackageManagerServer.exe.</summary>
         private string serverPath;
@@ -199,8 +200,9 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// End-to-end: a medium-integrity client cannot complete an authenticated RPC call to
-        /// the server. The pipe SD blocks the connection at the transport level.
+        /// End-to-end: a medium-integrity client cannot complete an RPC call to the server.
+        /// The server's interface security descriptor is enforced by impersonating the caller
+        /// and running an access check, so the mandatory label denies the lower-integrity client.
         /// </summary>
         [Test]
         public void MediumIntegrityClient_CannotConnectViaRpc()
@@ -213,7 +215,8 @@ namespace AppInstallerCLIE2ETests
                     $"\"{this.helperPath}\" --mode rpc-connect");
 
                 string message = rc == 0
-                    ? "Medium-integrity client successfully reached the server via RPC - the pipe SD is not blocking low-integrity callers."
+                    ? "Medium-integrity client successfully reached the server via RPC - the interface security descriptor is not blocking lower-integrity callers. "
+                      + "Check that the mandatory label uses NRNWNX; a bare NW still grants read and execute rights via GENERIC_ALL."
                     : $"Unexpected error 0x{rc:X8} (expected ERROR_ACCESS_DENIED / 0x{RpcErrorAccessDeniedHResult:X8}).";
                 Assert.That(rc, Is.EqualTo(RpcErrorAccessDeniedHResult), message);
             }
@@ -240,31 +243,6 @@ namespace AppInstallerCLIE2ETests
                     ? $"Elevated client was rejected by the server (0x{rc:X8}) - the security configuration is blocking legitimate elevated callers."
                     : string.Empty;
                 Assert.That(rc, Is.EqualTo(0), message);
-            }
-            finally
-            {
-                KillProcess(server);
-            }
-        }
-
-        /// <summary>
-        /// Verifies that an elevated client using an unauthenticated RPC binding is rejected by
-        /// the server. The server must require authentication via RpcServerRegisterAuthInfoA.
-        /// </summary>
-        [Test]
-        public void UnauthenticatedClient_IsRejected()
-        {
-            string sid = GetCurrentUserSID();
-            Process server = this.StartServer(sid);
-            try
-            {
-                string endpoint = "WinGetServerManualActivation_" + sid;
-                int rc = this.RunHelper($"--mode rpc-noauth --endpoint {endpoint}");
-
-                string message = rc == 1
-                    ? "Server accepted an unauthenticated RPC call - RpcServerRegisterAuthInfoA enforcement is missing."
-                    : $"Unexpected error 0x{rc:X8} (expected ERROR_ACCESS_DENIED / 0x{RpcErrorAccessDeniedHResult:X8}).";
-                Assert.That(rc, Is.EqualTo(RpcErrorAccessDeniedHResult), message);
             }
             finally
             {

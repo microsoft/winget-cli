@@ -35,19 +35,24 @@ HRESULT WindowsPackageManagerServerInitializeRPCServer()
     RPC_STATUS status = RpcServerUseProtseqEpA(GetUCharString("ncalrpc"), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, GetUCharString(endpoint), nullptr);
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
-    // The goal of this security descriptor is to restrict RPC server access only to the user in admin mode. 
-    // (ML;;NW;;;HI) specifies a high mandatory integrity level (requires admin).
+    // The goal of this security descriptor is to restrict RPC server access only to the user in admin mode.
+    // It is enforced by RPC, which impersonates the caller
+    // and runs AccessCheck with MAXIMUM_ALLOWED, denying the call only when the granted access is 0.
     // (A;;GA;;;UserSID) specifies access only for the user with the user SID (i.e. self).
+    // (ML;;NRNWNX;;;HI) requires the caller to be at high integrity. All three of no-read-up,
+    // no-write-up and no-execute-up are required: the access check uses a generic mapping of
+    // STANDARD_RIGHTS_READ/WRITE/EXECUTE, so a no-write-up policy alone would still leave a
+    // medium integrity caller with the read and execute rights granted by GENERIC_ALL above,
+    // producing a non-zero granted access and allowing the call.
     wil::unique_hlocal_security_descriptor securityDescriptor;
-    std::string securityDescriptorString = "S:(ML;;NW;;;HI)D:(A;;GA;;;" + userSID + ")";
+    std::string securityDescriptorString = "D:(A;;GA;;;" + userSID + ")S:(ML;;NRNWNX;;;HI)";
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
     // When running at non-admin integrity (e.g. a medium-integrity server process spawned by
     // the security E2E tests to validate client-side rejection), omit the mandatory label SACL.
-    // A medium-integrity process cannot set S:(ML;;NW;;;HI) on the interface. The client still
-    // rejects such a server because the ALPC connect access check is driven by the client's own
-    // security descriptor, not this one. When running elevated, use the full production SD so
-    // the elevated-client positive test also exercises the real security configuration.
+    // A medium-integrity process cannot set a high integrity label on the interface. When
+    // running elevated, use the full production SD so the elevated-client positive test also
+    // exercises the real security configuration.
     {
         BOOL isAdmin = FALSE;
         {
@@ -74,7 +79,12 @@ HRESULT WindowsPackageManagerServerInitializeRPCServer()
     status = RpcServerRegisterAuthInfoA(nullptr, RPC_C_AUTHN_WINNT, nullptr, nullptr);
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
-    status = RpcServerRegisterIf3(WinGetServerManualActivation_v1_0_s_ifspec, nullptr, nullptr, RPC_IF_ALLOW_LOCAL_ONLY | RPC_IF_AUTOLISTEN | RPC_IF_ALLOW_SECURE_ONLY, RPC_C_LISTEN_MAX_CALLS_DEFAULT, RPC_C_AUTHN_LEVEL_PKT_PRIVACY, nullptr, securityDescriptor.get());
+    // Note: RPC_IF_ALLOW_SECURE_ONLY and MinAuthLevel have no effect on ncalrpc. They are retained as
+    // defense in depth should the transport ever change.
+    // Caller enforcement on this transport comes from the interface security descriptor above,
+    // checked against the token the kernel attaches to the ALPC message, which a caller cannot forge.
+    status = RpcServerRegisterIf3(WinGetServerManualActivation_v1_0_s_ifspec, nullptr, nullptr, RPC_IF_ALLOW_LOCAL_ONLY | RPC_IF_AUTOLISTEN | RPC_IF_ALLOW_SECURE_ONLY,
+        RPC_C_LISTEN_MAX_CALLS_DEFAULT, RPC_C_AUTHN_LEVEL_PKT_PRIVACY, nullptr, securityDescriptor.get());
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
     return S_OK;

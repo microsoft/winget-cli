@@ -17,17 +17,14 @@
 //       Same as event-signal; separate mode for test clarity.
 //
 //   rpc-connect
-//       Calls WinGetServerManualActivation_CreateInstance with a null CLSID/IID.
-//       Uses the production client code path, including any server-process integrity
-//       check inside InitializeRpcBinding.
+//       Calls WinGetServerManualActivation_CreateInstance for a simple options class.
+//       Uses the production client code path, so the ncalrpc binding is configured with
+//       mutual authentication and a server security descriptor requiring the same user
+//       at high integrity.
 //       Exit codes:
-//         0 = transport reached server (connection not blocked by security)
-//         5 (ERROR_ACCESS_DENIED) = pipe SACL blocked a medium-IL client, or the
-//           client rejected a medium-IL server (after the production fix is applied)
-//
-//   rpc-noauth --endpoint <name>
-//       Performs an unauthenticated RPC bind and calls CreateInstance.
-//       Expects the server to reject the call.
+//         0 = the server was accepted and the object was created
+//         0x80070005 (E_ACCESSDENIED) = the ALPC connect access check rejected the
+//           server, or the server's interface security descriptor rejected this client
 
 #include <windows.h>
 #include <objbase.h>
@@ -46,30 +43,6 @@
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-// Build an RPC string binding for the WinGetServer named-pipe endpoint.
-// endpointName is e.g. "WinGetServerManualActivation_S-1-5-..."
-// Returns 0 on success.  Returns 2 if RpcStringBindingComposeA fails,
-// 3 if RpcBindingFromStringBindingA fails.
-static int BuildRpcBinding(const char* endpointName, handle_t& hBinding)
-{
-    std::string endpoint = std::string("\\pipe\\") + endpointName;
-
-    RPC_CSTR bindingString = nullptr;
-    RPC_STATUS status = RpcStringBindingComposeA(
-        nullptr,
-        reinterpret_cast<RPC_CSTR>(const_cast<char*>("ncacn_np")),
-        reinterpret_cast<RPC_CSTR>(const_cast<char*>(".")),
-        reinterpret_cast<RPC_CSTR>(const_cast<char*>(endpoint.c_str())),
-        nullptr,
-        &bindingString);
-
-    if (status != RPC_S_OK) return 2;
-
-    status = RpcBindingFromStringBindingA(bindingString, &hBinding);
-    RpcStringFreeA(&bindingString);
-    return (status == RPC_S_OK) ? 0 : 3;
-}
 
 // Convert wide string to narrow (ACP).
 static std::string WideToNarrow(const wchar_t* w)
@@ -144,44 +117,6 @@ static int TestRpcConnectViaProductCode()
 }
 
 // ---------------------------------------------------------------------------
-// rpc-noauth  (0=server rejected/pass  1=server accepted/fail
-//              RPC exception code=binding setup failed (unexpected)
-//              2=RpcStringBindingComposeA failed
-//              3=RpcBindingFromStringBindingA failed)
-// ---------------------------------------------------------------------------
-
-static int TestRpcNoAuth(const char* endpointName)
-{
-    handle_t hBinding = nullptr;
-    int bindResult = BuildRpcBinding(endpointName, hBinding);
-    if (bindResult != 0) return bindResult; // 2 or 3
-
-    // Intentionally skip RpcBindingSetAuthInfoExA - unauthenticated binding.
-    WinGetServerManualActivation_IfHandle = hBinding;
-
-    GUID clsidNull{};
-    UINT32 cbBuffer = 0;
-    BYTE* pBuffer = nullptr;
-    bool callCompleted = false;
-    RPC_STATUS exceptionCode = RPC_S_OK;
-
-    __try
-    {
-        CreateInstance(clsidNull, clsidNull, 0, &cbBuffer, &pBuffer);
-        callCompleted = true;
-        if (pBuffer) { MIDL_user_free(pBuffer); }
-    }
-    __except (exceptionCode = RpcExceptionCode(), EXCEPTION_EXECUTE_HANDLER) {}
-
-    RpcBindingFree(&hBinding);
-    WinGetServerManualActivation_IfHandle = nullptr;
-
-    // 1          = server unexpectedly accepted it (security broken)
-    // RPC status = call was rejected but via an exception rather than returning normally
-    return callCompleted ? 1 : static_cast<int>(exceptionCode);
-}
-
-// ---------------------------------------------------------------------------
 // Entry point
 // (2=--mode missing  3=mode-specific argument missing  4=unknown mode)
 // ---------------------------------------------------------------------------
@@ -209,12 +144,6 @@ int wmain(int argc, wchar_t* argv[])
         // can unmarshal the returned COM object.
         CoInitializeEx(nullptr, COINIT_MULTITHREADED);
         return TestRpcConnectViaProductCode();
-    }
-    else if (_wcsicmp(mode, L"rpc-noauth") == 0)
-    {
-        const wchar_t* ep = GetFlag(argc, argv, L"--endpoint");
-        if (!ep) return 3;
-        return TestRpcNoAuth(WideToNarrow(ep).c_str());
     }
 
     return 4; // unknown mode
