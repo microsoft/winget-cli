@@ -14,6 +14,13 @@
 //       would need to acquire the mutex and hold it to keep the server from starting.
 //       Expects ERROR_ACCESS_DENIED from the high-integrity SACL on the mutex SD.
 //
+//   rpc-mgmt
+//       Connects to the server endpoint and attempts a management operation
+//       (RpcMgmtInqIfIds). Run elevated so that the endpoint and interface protections are
+//       both satisfied, leaving the management authorization callback as the only thing that
+//       can reject the call.
+//       Exit codes: 0 = denied as expected, 1 = the operation succeeded, 2 = other error.
+//
 //   rpc-connect
 //       Calls WinGetServerManualActivation_CreateInstance for a simple options class.
 //       Uses the production client code path, so the ncalrpc binding is configured with
@@ -28,6 +35,8 @@
 #include <windows.h>
 #include <objbase.h>
 
+#include <string>
+
 // RPC headers and generated client stub.
 // WinGetServer_c.c is compiled as a separate C translation unit in the project file.
 #include "WinGetServer.h"
@@ -36,6 +45,9 @@
 // WinGetServerManualActivation_Client.cpp (compiled as a separate TU) also
 // provides MIDL_user_allocate / MIDL_user_free.
 #include "WinGetServerManualActivation_Client.h"
+
+// Endpoint naming shared with the server.
+#include "Utils.h"
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -77,6 +89,45 @@ static int TestMutexAcquireAccess(const wchar_t* mutexName)
         return 1; // security broken
     }
     return (GetLastError() == ERROR_ACCESS_DENIED) ? 0 : 2;
+}
+
+// ---------------------------------------------------------------------------
+// rpc-mgmt  (0=denied/pass  1=succeeded/fail  2=unexpected error)
+// ---------------------------------------------------------------------------
+
+static int TestRpcManagementOperations()
+{
+    std::string protocol = "ncalrpc";
+    std::string endpoint = GetServerEndpointName();
+
+    unsigned char* binding = nullptr;
+    if (RpcStringBindingComposeA(nullptr, GetUCharString(protocol), nullptr, GetUCharString(endpoint), nullptr, &binding) != RPC_S_OK)
+    {
+        return 2;
+    }
+
+    RPC_BINDING_HANDLE bindingHandle = nullptr;
+    RPC_STATUS status = RpcBindingFromStringBindingA(binding, &bindingHandle);
+    RpcStringFreeA(&binding);
+
+    if (status != RPC_S_OK)
+    {
+        return 2;
+    }
+
+    // Deliberately left unauthenticated: the management interface is exempt from the interface
+    // security descriptor, so this is the shape of call a caller would use to probe the server.
+    RPC_IF_ID_VECTOR* interfaceIds = nullptr;
+    status = RpcMgmtInqIfIds(bindingHandle, &interfaceIds);
+    RpcBindingFree(&bindingHandle);
+
+    if (status == RPC_S_OK)
+    {
+        RpcIfIdVectorFree(&interfaceIds);
+        return 1; // security broken
+    }
+
+    return (status == RPC_S_ACCESS_DENIED) ? 0 : 2;
 }
 
 // WINGET_INPROC_COM_CLSID_FindPackagesOptions — a simple options object the server
@@ -121,6 +172,10 @@ int wmain(int argc, wchar_t* argv[])
         const wchar_t* name = GetFlag(argc, argv, L"--mutex-name");
         if (!name) return 3;
         return TestMutexAcquireAccess(name);
+    }
+    else if (_wcsicmp(mode, L"rpc-mgmt") == 0)
+    {
+        return TestRpcManagementOperations();
     }
     else if (_wcsicmp(mode, L"rpc-connect") == 0)
     {

@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.IO;
@@ -28,7 +29,7 @@ namespace AppInstallerCLIE2ETests
     /// Run with:
     ///   vstest.console.exe ... --TestCaseFilter:"Category=RpcSecurity"
     ///
-    /// Helper exit codes for expect-denial modes (event-signal, mutex-open):
+    /// Helper exit codes for expect-denial modes (event-signal, mutex-open, rpc-mgmt):
     ///   0 = expected denial occurred (PASS), 1 = unexpected success (FAIL), 2 = error.
     /// Helper exit codes for rpc-connect:
     ///   0 = the call reached the server and succeeded,
@@ -54,6 +55,10 @@ namespace AppInstallerCLIE2ETests
         // ERROR_ACCESS_DENIED / RPC_S_ACCESS_DENIED: the server's endpoint or interface security
         // descriptor rejected the caller, or the client's server security descriptor rejected the server.
         private const int RpcErrorAccessDeniedHResult = -2147024891;
+
+        // HRESULT_FROM_WIN32(ERROR_SERVICE_ALREADY_RUNNING): returned by a server instance that
+        // finds the single-instance mutex already held.
+        private const int ServiceAlreadyRunningHResult = -2147023840;
 
         // PROC_THREAD_ATTRIBUTE_PARENT_PROCESS = ProcThreadAttributeValue(0, FALSE, TRUE, FALSE)
         // = (0 & 0x0000FFFF) | (0 << 16) | (1 << 17) = 0x00020000
@@ -279,6 +284,113 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
+        /// <summary>
+        /// Verifies that the interface security descriptor denies a medium-integrity caller on its
+        /// own. The endpoint is protected by a second, independent security descriptor and both
+        /// denials surface as the same error, so <see cref="MediumIntegrityClient_CannotConnectViaRpc"/>
+        /// passes even if only one of the two is effective. This test starts the server with the
+        /// endpoint protection disabled so that the interface protection is the only thing left to
+        /// reject the caller. That layer is the one that still applies if the endpoint name is
+        /// created by another process before the server gets to it.
+        /// </summary>
+        [Test]
+        public void MediumIntegrityClient_IsDeniedByInterfaceSecurityDescriptorAlone()
+        {
+            string sid = GetCurrentUserSID();
+            Process server = this.StartServer(
+                sid,
+                new Dictionary<string, string> { ["WINGET_TEST_OMIT_ENDPOINT_SECURITY_DESCRIPTOR"] = "1" });
+            try
+            {
+                int rc = this.RunHelperAtMediumIntegrity(
+                    $"\"{this.helperPath}\" --mode rpc-connect");
+
+                string message = rc == 0
+                    ? "Medium-integrity client reached the server with the endpoint security descriptor disabled - the interface security descriptor is not denying lower-integrity callers on its own. "
+                      + "Check that its mandatory label uses NRNWNX; a bare NW still leaves access granted through GENERIC_ALL."
+                    : $"Unexpected error 0x{rc:X8} (expected ERROR_ACCESS_DENIED / 0x{RpcErrorAccessDeniedHResult:X8}).";
+                Assert.That(rc, Is.EqualTo(RpcErrorAccessDeniedHResult), message);
+            }
+            finally
+            {
+                KillProcess(server);
+            }
+        }
+
+        /// <summary>
+        /// Verifies that the RPC management operations exposed automatically on every endpoint are
+        /// denied. Those operations are exempt from the interface security descriptor and would
+        /// otherwise let any caller that reaches the endpoint enumerate the registered interfaces.
+        /// The helper runs elevated so that it satisfies both the endpoint and interface
+        /// protections, leaving the management authorization callback as the only thing that can
+        /// reject it.
+        /// </summary>
+        [Test]
+        public void ElevatedClient_CannotUseRpcManagementOperations()
+        {
+            string sid = GetCurrentUserSID();
+            Process server = this.StartServer(sid);
+            try
+            {
+                int rc = this.RunHelper("--mode rpc-mgmt");
+
+                string message = rc == 1
+                    ? "An elevated caller enumerated the server's interfaces through the RPC management interface - the management authorization callback is missing."
+                    : $"Helper inconclusive (exit {rc}).";
+                Assert.That(rc, Is.EqualTo(0), message);
+            }
+            finally
+            {
+                KillProcess(server);
+            }
+        }
+
+        /// <summary>
+        /// Verifies that a second server instance for the same user exits instead of running
+        /// alongside the first. The single-instance mutex is what stops two processes from racing
+        /// to own the endpoint, and the loser must fail cleanly rather than take it over.
+        /// </summary>
+        [Test]
+        public void SecondServerInstance_ExitsWithoutTakingOverEndpoint()
+        {
+            string sid = GetCurrentUserSID();
+            Process firstServer = this.StartServer(sid);
+            Process secondServer = null;
+            try
+            {
+                secondServer = Process.Start(new ProcessStartInfo
+                {
+                    FileName = this.serverPath,
+                    Arguments = "--manualActivation",
+                    UseShellExecute = false,
+                }) ?? throw new InvalidOperationException("Failed to start the second WinGetServer");
+
+                Assert.That(
+                    secondServer.WaitForExit(15000),
+                    Is.True,
+                    "The second server instance is still running; it should have exited immediately because the first instance holds the single-instance mutex.");
+
+                Assert.That(
+                    secondServer.ExitCode,
+                    Is.EqualTo(ServiceAlreadyRunningHResult),
+                    $"The second server instance exited with 0x{secondServer.ExitCode:X8} rather than ERROR_SERVICE_ALREADY_RUNNING (0x{ServiceAlreadyRunningHResult:X8}).");
+
+                Assert.That(
+                    firstServer.HasExited,
+                    Is.False,
+                    "The first server instance exited when the second one started.");
+
+                // The surviving instance must still be serving the endpoint.
+                int rc = this.RunHelper("--mode rpc-connect");
+                Assert.That(rc, Is.EqualTo(0), $"The first server no longer accepts connections after a second instance was started (0x{rc:X8}).");
+            }
+            finally
+            {
+                KillProcess(secondServer);
+                KillProcess(firstServer);
+            }
+        }
+
         private static string GetCurrentUserSID()
         {
             return WindowsIdentity.GetCurrent().User?.Value
@@ -312,14 +424,25 @@ namespace AppInstallerCLIE2ETests
 
         /// <summary>Starts the real WinGetServer in --manualActivation mode and waits for it to signal
         /// its per-user ready event.</summary>
-        private Process StartServer(string sid)
+        private Process StartServer(string sid, IDictionary<string, string> environment = null)
         {
-            var proc = Process.Start(new ProcessStartInfo
+            var startInfo = new ProcessStartInfo
             {
                 FileName = this.serverPath,
                 Arguments = "--manualActivation",
                 UseShellExecute = false,
-            }) ?? throw new InvalidOperationException("Failed to start WinGetServer");
+            };
+
+            if (environment != null)
+            {
+                foreach (var variable in environment)
+                {
+                    startInfo.Environment[variable.Key] = variable.Value;
+                }
+            }
+
+            var proc = Process.Start(startInfo)
+                ?? throw new InvalidOperationException("Failed to start WinGetServer");
 
             string readyEventName = "WinGetServerStartEvent_" + sid;
             this.WaitForServerReadyEvent(readyEventName, proc);

@@ -69,11 +69,24 @@ HRESULT WindowsPackageManagerServerInitializeRPCServer()
     wil::unique_hlocal_security_descriptor securityDescriptor;
     RETURN_LAST_ERROR_IF(!ConvertStringSecurityDescriptorToSecurityDescriptorA(securityDescriptorString.c_str(), SDDL_REVISION_1, &securityDescriptor, nullptr));
 
+    PSECURITY_DESCRIPTOR endpointSecurityDescriptor = securityDescriptor.get();
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    // The endpoint and the interface are protected independently below, and a caller that is
+    // denied by either one sees the same error, so a test that only observes the failure cannot
+    // tell which of the two produced it. This hook leaves the endpoint unprotected so that the
+    // interface protection can be verified on its own.
+    if (GetEnvironmentVariableW(L"WINGET_TEST_OMIT_ENDPOINT_SECURITY_DESCRIPTOR", nullptr, 0) != 0)
+    {
+        endpointSecurityDescriptor = nullptr;
+    }
+#endif
+
     // The security descriptor given here is placed on the endpoint itself, and is the ncalrpc
     // analogue of the security descriptor on a named pipe. The OS enforces it when a client
     // resolves the endpoint by name in order to connect, so a caller that is not this user at
     // high integrity is rejected before the RPC runtime is involved at all.
-    RPC_STATUS status = RpcServerUseProtseqEpA(GetUCharString("ncalrpc"), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, GetUCharString(endpoint), securityDescriptor.get());
+    RPC_STATUS status = RpcServerUseProtseqEpA(GetUCharString("ncalrpc"), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, GetUCharString(endpoint), endpointSecurityDescriptor);
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
     // ncalrpc only supports RPC_C_AUTHN_WINNT; RPC_C_AUTHN_GSS_NEGOTIATE is rejected with
