@@ -69,7 +69,10 @@ HRESULT WindowsPackageManagerServerInitializeRPCServer()
 
     RETURN_LAST_ERROR_IF(!ConvertStringSecurityDescriptorToSecurityDescriptorA(securityDescriptorString.c_str(), SDDL_REVISION_1, &securityDescriptor, nullptr));
 
-    status = RpcServerRegisterIf3(WinGetServerManualActivation_v1_0_s_ifspec, nullptr, nullptr, RPC_IF_ALLOW_LOCAL_ONLY | RPC_IF_AUTOLISTEN, RPC_C_LISTEN_MAX_CALLS_DEFAULT, 0, nullptr, securityDescriptor.get());
+    status = RpcServerRegisterAuthInfoA(nullptr, RPC_C_AUTHN_GSS_NEGOTIATE, nullptr, nullptr);
+    RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
+
+    status = RpcServerRegisterIf3(WinGetServerManualActivation_v1_0_s_ifspec, nullptr, nullptr, RPC_IF_ALLOW_LOCAL_ONLY | RPC_IF_AUTOLISTEN | RPC_IF_ALLOW_SECURE_ONLY, RPC_C_LISTEN_MAX_CALLS_DEFAULT, RPC_C_AUTHN_LEVEL_PKT_PRIVACY, nullptr, securityDescriptor.get());
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
     return S_OK;
