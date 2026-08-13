@@ -109,7 +109,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib;Secur32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -127,7 +127,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib;Secur32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -145,7 +145,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib;Secur32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -168,7 +168,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib;Secur32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
       <AdditionalOptions>/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
       <AdditionalLibraryDirectories>$(VC_LibraryPath_VC_x86_Desktop_spectre);$(VC_LibraryPath_VC_x86_OneCore_spectre);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -194,7 +194,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib;Secur32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(VC_LibraryPath_VC_x86_Desktop_spectre);$(VC_LibraryPath_VC_x86_OneCore_spectre);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
@@ -218,7 +218,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib;Secur32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
       <AdditionalOptions>/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
       <AdditionalLibraryDirectories>$(VC_LibraryPath_VC_x64_Desktop_spectre);$(VC_LibraryPath_VC_x64_OneCore_spectre);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -244,7 +244,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib;Secur32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(VC_LibraryPath_VC_x64_Desktop_spectre);$(VC_LibraryPath_VC_x64_OneCore_spectre);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
@@ -268,7 +268,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib;Secur32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
       <AdditionalOptions>/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
       <AdditionalLibraryDirectories>$(VC_LibraryPath_VC_ARM64_Desktop_spectre);$(VC_LibraryPath_VC_ARM64_OneCore_spectre);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -294,7 +294,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib;Secur32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(VC_LibraryPath_VC_ARM64_Desktop_spectre);$(VC_LibraryPath_VC_ARM64_OneCore_spectre);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
