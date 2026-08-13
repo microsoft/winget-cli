@@ -32,27 +32,23 @@ HRESULT WindowsPackageManagerServerInitializeRPCServer()
 {
     std::string userSID = GetUserSID();
     std::string endpoint = GetServerEndpointName();
-    RPC_STATUS status = RpcServerUseProtseqEpA(GetUCharString("ncalrpc"), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, GetUCharString(endpoint), nullptr);
-    RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
-    // The goal of this security descriptor is to restrict RPC server access only to the user in admin mode.
-    // It is enforced by RPC, which impersonates the caller
-    // and runs AccessCheck with MAXIMUM_ALLOWED, denying the call only when the granted access is 0.
-    // (A;;GA;;;UserSID) specifies access only for the user with the user SID (i.e. self).
+    // This security descriptor restricts access to the current user at high integrity.
+    // It is applied in two independent places below.
+    //
+    // (A;;GA;;;UserSID) grants access only to the user running the server (i.e. self).
     // (ML;;NRNWNX;;;HI) requires the caller to be at high integrity. All three of no-read-up,
-    // no-write-up and no-execute-up are required: the access check uses a generic mapping of
-    // STANDARD_RIGHTS_READ/WRITE/EXECUTE, so a no-write-up policy alone would still leave a
-    // medium integrity caller with the read and execute rights granted by GENERIC_ALL above,
-    // producing a non-zero granted access and allowing the call.
-    wil::unique_hlocal_security_descriptor securityDescriptor;
+    // no-write-up and no-execute-up are needed: the access rights being checked are reachable
+    // through more than one generic right, so a no-write-up policy alone would still leave a
+    // medium integrity caller with enough of what GENERIC_ALL grants above to pass the check.
     std::string securityDescriptorString = "D:(A;;GA;;;" + userSID + ")S:(ML;;NRNWNX;;;HI)";
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
     // When running at non-admin integrity (e.g. a medium-integrity server process spawned by
     // the security E2E tests to validate client-side rejection), omit the mandatory label SACL.
-    // A medium-integrity process cannot set a high integrity label on the interface. When
-    // running elevated, use the full production SD so the elevated-client positive test also
-    // exercises the real security configuration.
+    // A medium-integrity process cannot set a high integrity label. When running elevated, use
+    // the full production SD so the elevated-client positive test also exercises the real
+    // security configuration.
     {
         BOOL isAdmin = FALSE;
         {
@@ -72,17 +68,30 @@ HRESULT WindowsPackageManagerServerInitializeRPCServer()
     }
 #endif
 
+    wil::unique_hlocal_security_descriptor securityDescriptor;
     RETURN_LAST_ERROR_IF(!ConvertStringSecurityDescriptorToSecurityDescriptorA(securityDescriptorString.c_str(), SDDL_REVISION_1, &securityDescriptor, nullptr));
 
-    // ncalrpc only supports RPC_C_AUTHN_WINNT; RPC_C_AUTHN_GSS_NEGOTIATE is rejected by the
-    // LRPC binding handle with RPC_S_UNKNOWN_AUTHN_SERVICE.
+    // The security descriptor given here is placed on the endpoint itself, and is the ncalrpc
+    // analogue of the security descriptor on a named pipe. The OS enforces it when a client
+    // resolves the endpoint by name in order to connect, so a caller that is not this user at
+    // high integrity is rejected before the RPC runtime is involved at all.
+    RPC_STATUS status = RpcServerUseProtseqEpA(GetUCharString("ncalrpc"), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, GetUCharString(endpoint), securityDescriptor.get());
+    RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
+
+    // ncalrpc only supports RPC_C_AUTHN_WINNT; RPC_C_AUTHN_GSS_NEGOTIATE is rejected with
+    // RPC_S_UNKNOWN_AUTHN_SERVICE.
     status = RpcServerRegisterAuthInfoA(nullptr, RPC_C_AUTHN_WINNT, nullptr, nullptr);
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
-    // Note: RPC_IF_ALLOW_SECURE_ONLY and MinAuthLevel have no effect on ncalrpc. They are retained as
-    // defense in depth should the transport ever change.
-    // Caller enforcement on this transport comes from the interface security descriptor above,
-    // checked against the token the kernel attaches to the ALPC message, which a caller cannot forge.
+    // The same security descriptor is applied a second time at the interface level, where the
+    // RPC runtime impersonates the caller and runs an access check, denying the call when no
+    // access at all is granted. This is defense in depth against the endpoint check above:
+    // endpoint names are not reserved to us and could in principle be created by another
+    // process first, whereas the interface descriptor is checked against the identity the OS
+    // itself associates with the incoming call, which a caller cannot forge.
+    //
+    // Note: RPC_IF_ALLOW_SECURE_ONLY and MinAuthLevel have no effect on ncalrpc, since all
+    // ncalrpc calls are considered secure. They are retained should the transport ever change.
     status = RpcServerRegisterIf3(WinGetServerManualActivation_v1_0_s_ifspec, nullptr, nullptr, RPC_IF_ALLOW_LOCAL_ONLY | RPC_IF_AUTOLISTEN | RPC_IF_ALLOW_SECURE_ONLY,
         RPC_C_LISTEN_MAX_CALLS_DEFAULT, RPC_C_AUTHN_LEVEL_PKT_PRIVACY, nullptr, securityDescriptor.get());
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
@@ -233,15 +242,16 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
         // Manual reset event to notify the client that the server is available.
         wil::unique_event manualResetEvent;
 
+        // Held for the lifetime of the server to ensure only one instance per user.
+        wil::unique_mutex serverMutex;
+
         if (manualActivation)
         {
             // For manual activation, do not register com objects
             // so that only RPC channel can be used.
-            HANDLE hMutex = NULL;
-            hMutex = CreateMutex(NULL, FALSE, TEXT("WinGetServerMutex"));
-            RETURN_LAST_ERROR_IF_NULL(hMutex);
+            serverMutex = CreateOrOpenServerMutex();
 
-            DWORD waitResult = WaitForSingleObject(hMutex, 0);
+            DWORD waitResult = WaitForSingleObject(serverMutex.get(), 0);
             if (waitResult != WAIT_OBJECT_0 && waitResult != WAIT_ABANDONED)
             {
                 return HRESULT_FROM_WIN32(ERROR_SERVICE_ALREADY_RUNNING);

@@ -20,4 +20,10 @@ std::pair<std::unique_ptr<BYTE[]>, PSID> GetUserSidBinary();
 // Returns the ncalrpc endpoint name that the manual activation server listens on.
 std::string GetServerEndpointName();
 
+// Creates or opens the mutex used to ensure a single manual activation server per user.
+// The mutex is per-user and restricted to high integrity callers.
+wil::unique_mutex CreateOrOpenServerMutex();
+
+// Creates or opens the event used to signal that the manual activation server is ready.
+// The event is per-user and restricted to high integrity callers.
 wil::unique_event CreateOrOpenServerStartEvent();

@@ -4,11 +4,6 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-// Define WINGET_RPC_SECURITY_FIX when running against code with the security fixes applied.
-// When not defined, tests run against the pre-fix code using the original object names
-// (e.g. WinGetServerStartEvent without a per-user SID suffix).
-// #define WINGET_RPC_SECURITY_FIX
-
 namespace AppInstallerCLIE2ETests
 {
     using System;
@@ -33,7 +28,7 @@ namespace AppInstallerCLIE2ETests
     /// Run with:
     ///   vstest.console.exe ... --TestCaseFilter:"Category=RpcSecurity"
     ///
-    /// Helper exit codes for expect-denial modes (pipe-access, event-signal, event-open):
+    /// Helper exit codes for expect-denial modes (event-signal, event-open):
     ///   0 = expected denial occurred (PASS), 1 = unexpected success (FAIL), 2 = error.
     /// Helper exit codes for rpc-connect:
     ///   0 = the call reached the server and succeeded,
@@ -56,8 +51,8 @@ namespace AppInstallerCLIE2ETests
         private const uint WaitObject0 = 0x00000000;
 
         // RPC error codes used in test assertions.
-        // ERROR_ACCESS_DENIED / RPC_S_ACCESS_DENIED: the pipe SACL or auth check blocked the call,
-        // or the client rejected the server due to medium integrity level.
+        // ERROR_ACCESS_DENIED / RPC_S_ACCESS_DENIED: the server's endpoint or interface security
+        // descriptor rejected the caller, or the client's server security descriptor rejected the server.
         private const int RpcErrorAccessDeniedHResult = -2147024891;
 
         // PROC_THREAD_ATTRIBUTE_PARENT_PROCESS = ProcThreadAttributeValue(0, FALSE, TRUE, FALSE)
@@ -143,33 +138,6 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Verifies that a medium-integrity process cannot open the server's named pipe for
-        /// writing. The pipe SD carries a high-integrity mandatory-label SACL (S:(ML;;NW;;;HI))
-        /// that blocks write-up from lower-integrity callers.
-        /// </summary>
-        [Test]
-        public void MediumIntegrityClient_CannotOpenPipe()
-        {
-            string sid = GetCurrentUserSID();
-            Process server = this.StartServer(sid);
-            try
-            {
-                string pipeName = "WinGetServerManualActivation_" + sid;
-                int rc = this.RunHelperAtMediumIntegrity(
-                    $"\"{this.helperPath}\" --mode pipe-access --pipe-name {pipeName}");
-
-                string message = rc == 1
-                    ? "Medium-integrity process opened the pipe for WRITE - pipe SD high-integrity SACL is missing."
-                    : $"Helper inconclusive (exit {rc}).";
-                Assert.That(rc, Is.EqualTo(0), message);
-            }
-            finally
-            {
-                KillProcess(server);
-            }
-        }
-
-        /// <summary>
         /// Verifies that a medium-integrity process cannot open the server-start event with
         /// EVENT_MODIFY_STATE. The event SD must carry a high-integrity SACL.
         /// </summary>
@@ -180,11 +148,7 @@ namespace AppInstallerCLIE2ETests
             Process server = this.StartServer(sid);
             try
             {
-#if WINGET_RPC_SECURITY_FIX
                 string eventName = "WinGetServerStartEvent_" + sid;
-#else
-                string eventName = "WinGetServerStartEvent";
-#endif
                 int rc = this.RunHelperAtMediumIntegrity(
                     $"\"{this.helperPath}\" --mode event-signal --event-name {eventName}");
 
@@ -201,8 +165,10 @@ namespace AppInstallerCLIE2ETests
 
         /// <summary>
         /// End-to-end: a medium-integrity client cannot complete an RPC call to the server.
-        /// The server's interface security descriptor is enforced by impersonating the caller
-        /// and running an access check, so the mandatory label denies the lower-integrity client.
+        /// Two independent layers should deny it: the security descriptor on the RPC endpoint,
+        /// which the OS enforces when the client resolves the endpoint in order to connect,
+        /// and the interface security descriptor, which the RPC runtime enforces by
+        /// impersonating the caller and running an access check.
         /// </summary>
         [Test]
         public void MediumIntegrityClient_CannotConnectViaRpc()
@@ -215,8 +181,8 @@ namespace AppInstallerCLIE2ETests
                     $"\"{this.helperPath}\" --mode rpc-connect");
 
                 string message = rc == 0
-                    ? "Medium-integrity client successfully reached the server via RPC - the interface security descriptor is not blocking lower-integrity callers. "
-                      + "Check that the mandatory label uses NRNWNX; a bare NW still grants read and execute rights via GENERIC_ALL."
+                    ? "Medium-integrity client successfully reached the server via RPC - neither the endpoint security descriptor nor the interface security descriptor is blocking lower-integrity callers. "
+                      + "Check that both mandatory labels use NRNWNX; a bare NW still leaves access granted through GENERIC_ALL."
                     : $"Unexpected error 0x{rc:X8} (expected ERROR_ACCESS_DENIED / 0x{RpcErrorAccessDeniedHResult:X8}).";
                 Assert.That(rc, Is.EqualTo(RpcErrorAccessDeniedHResult), message);
             }
@@ -266,11 +232,7 @@ namespace AppInstallerCLIE2ETests
                 $"\"{this.serverPath}\" --manualActivation");
             try
             {
-#if WINGET_RPC_SECURITY_FIX
                 string readyEventName = "WinGetServerStartEvent_" + sid;
-#else
-                string readyEventName = "WinGetServerStartEvent";
-#endif
                 this.WaitForServerReadyEvent(readyEventName, medServer);
 
                 int rc = this.RunHelper($"--mode rpc-connect");
@@ -298,11 +260,7 @@ namespace AppInstallerCLIE2ETests
             Process server = this.StartServer(sid);
             try
             {
-#if WINGET_RPC_SECURITY_FIX
                 string eventName = "WinGetServerStartEvent_" + sid;
-#else
-                string eventName = "WinGetServerStartEvent";
-#endif
                 int rc = this.RunHelperAtMediumIntegrity(
                     $"\"{this.helperPath}\" --mode event-open --event-name {eventName}");
 
@@ -359,11 +317,7 @@ namespace AppInstallerCLIE2ETests
                 UseShellExecute = false,
             }) ?? throw new InvalidOperationException("Failed to start WinGetServer");
 
-#if WINGET_RPC_SECURITY_FIX
             string readyEventName = "WinGetServerStartEvent_" + sid;
-#else
-            string readyEventName = "WinGetServerStartEvent";
-#endif
             this.WaitForServerReadyEvent(readyEventName, proc);
             return proc;
         }

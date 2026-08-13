@@ -5,10 +5,6 @@
 // E2E tests (RpcSecurityTests.cs).
 //
 // MODES (--mode <name> [options])
-//   pipe-access --pipe-name <name>
-//       Opens \\.\pipe\<name> for GENERIC_WRITE at current integrity.
-//       Expects ERROR_ACCESS_DENIED from the high-integrity SACL on the pipe SD.
-//
 //   event-signal --event-name <name>
 //       Opens <name> with EVENT_MODIFY_STATE at current integrity.
 //       Expects ERROR_ACCESS_DENIED from the high-integrity SACL on the event SD.
@@ -23,13 +19,12 @@
 //       at high integrity.
 //       Exit codes:
 //         0 = the server was accepted and the object was created
-//         0x80070005 (E_ACCESSDENIED) = the ALPC connect access check rejected the
-//           server, or the server's interface security descriptor rejected this client
+//         0x80070005 (E_ACCESSDENIED) = the connection was rejected, either because the
+//           server failed the client's server security descriptor check, or because this
+//           process failed the server's endpoint or interface security descriptor
 
 #include <windows.h>
 #include <objbase.h>
-#include <string>
-#include <vector>
 
 // RPC headers and generated client stub.
 // WinGetServer_c.c is compiled as a separate C translation unit in the project file.
@@ -44,40 +39,12 @@
 // Helpers
 // ---------------------------------------------------------------------------
 
-// Convert wide string to narrow (ACP).
-static std::string WideToNarrow(const wchar_t* w)
-{
-    if (!w) return {};
-    int len = WideCharToMultiByte(CP_ACP, 0, w, -1, nullptr, 0, nullptr, nullptr);
-    std::string result(static_cast<size_t>(len), '\0');
-    WideCharToMultiByte(CP_ACP, 0, w, -1, result.data(), len, nullptr, nullptr);
-    return result;
-}
-
 // Find "--flag" in argv and return the next argument, or nullptr.
 static const wchar_t* GetFlag(int argc, wchar_t* argv[], const wchar_t* flag)
 {
     for (int i = 1; i < argc - 1; ++i)
         if (_wcsicmp(argv[i], flag) == 0) return argv[i + 1];
     return nullptr;
-}
-
-// ---------------------------------------------------------------------------
-// pipe-access  (0=denied/pass  1=opened/fail  2=unexpected OS error)
-// ---------------------------------------------------------------------------
-
-static int TestPipeAccess(const char* pipeName)
-{
-    std::string path = std::string("\\\\.\\pipe\\") + pipeName;
-    HANDLE hPipe = CreateFileA(path.c_str(), GENERIC_WRITE,
-        FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-
-    if (hPipe != INVALID_HANDLE_VALUE)
-    {
-        CloseHandle(hPipe);
-        return 1; // security broken: medium-IL wrote to high-integrity pipe
-    }
-    return (GetLastError() == ERROR_ACCESS_DENIED) ? 0 : 2;
 }
 
 // ---------------------------------------------------------------------------
@@ -96,8 +63,8 @@ static int TestEventWriteAccess(const wchar_t* eventName)
 }
 
 // WINGET_INPROC_COM_CLSID_FindPackagesOptions — a simple options object the server
-// can create with no side-effects; used to get past CallCreateInstance so the
-// post-call integrity check can run.
+// can create with no side-effects, so the call exercises the security configuration
+// rather than failing early on an unavailable class.
 static const CLSID s_clsidFindPackagesOptions = { 0x1bd8ff3a,0xec50,0x4f69,{0xae,0xee,0xdf,0x4c,0x9d,0x3b,0xaa,0x96} };
 
 // ---------------------------------------------------------------------------
@@ -126,13 +93,7 @@ int wmain(int argc, wchar_t* argv[])
     const wchar_t* mode = GetFlag(argc, argv, L"--mode");
     if (!mode) return 2;
 
-    if (_wcsicmp(mode, L"pipe-access") == 0)
-    {
-        const wchar_t* name = GetFlag(argc, argv, L"--pipe-name");
-        if (!name) return 3;
-        return TestPipeAccess(WideToNarrow(name).c_str());
-    }
-    else if (_wcsicmp(mode, L"event-signal") == 0 || _wcsicmp(mode, L"event-open") == 0)
+    if (_wcsicmp(mode, L"event-signal") == 0 || _wcsicmp(mode, L"event-open") == 0)
     {
         const wchar_t* name = GetFlag(argc, argv, L"--event-name");
         if (!name) return 3;

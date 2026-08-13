@@ -63,14 +63,14 @@ void InitializeRpcBinding()
     status = RpcBindingFromStringBindingA(binding, &WinGetServerManualActivation_IfHandle);
     THROW_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
-    // The security descriptor that the server process token is access checked against by the
-    // kernel when the ALPC connection is established. The server is only accepted if it is
-    // granted PORT_CONNECT:
+    // The security descriptor that the server process is access checked against by the OS when
+    // the connection is established. This is what makes the connection mutually authenticated:
+    // the server is only accepted if it is granted connect access by this descriptor.
     //   D:(A;;GA;;;<user>)  - only a process running as the current user is granted access.
     //   S:(ML;;NRNW;;;HI)   - a process below high integrity is denied both read and write.
-    // Both NR and NW are required because PORT_CONNECT appears in the ALPC port generic
-    // mapping for read (READ_CONTROL|PORT_CONNECT) as well as write (DELETE|PORT_CONNECT);
-    // a no-write-up label alone would still leave PORT_CONNECT granted through read access.
+    // Both NR and NW are required because connect access is reachable through the generic read
+    // right as well as the generic write right; a no-write-up label alone would still leave it
+    // granted through read access.
     std::string securityDescriptorString = "D:(A;;GA;;;" + GetUserSID() + ")S:(ML;;NRNW;;;HI)";
     wil::unique_hlocal_security_descriptor serverSecurityDescriptor;
     THROW_LAST_ERROR_IF(!ConvertStringSecurityDescriptorToSecurityDescriptorA(securityDescriptorString.c_str(), SDDL_REVISION_1, &serverSecurityDescriptor, nullptr));
@@ -78,11 +78,11 @@ void InitializeRpcBinding()
     // ncalrpc only supports RPC_C_AUTHN_WINNT; RPC_C_AUTHN_GSS_NEGOTIATE is rejected with
     // RPC_S_UNKNOWN_AUTHN_SERVICE. The runtime maps any level at or above connect to
     // packet privacy for this transport.
-    // LRPC also requires that mutual authentication name a target principal; when neither Sid
-    // nor ServerPrincipalName is supplied it attempts to translate a null principal name and
-    // fails the call with RPC_S_INVALID_ARG. When a security descriptor is present the connect
-    // is access checked against it rather than the Sid, so the Sid here simply names the
-    // expected server identity for the authentication package.
+    // This transport also requires that mutual authentication name a target principal; when
+    // neither Sid nor ServerPrincipalName is supplied the call fails with RPC_S_INVALID_ARG.
+    // When a security descriptor is present the connection is access checked against it rather
+    // than against the Sid, so the Sid here simply names the expected server identity for the
+    // authentication package.
     auto [sidBuffer, userSid] = GetUserSidBinary();
 
     RPC_SECURITY_QOS_V5_A qos{};
