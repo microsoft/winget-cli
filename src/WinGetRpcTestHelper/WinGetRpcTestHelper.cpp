@@ -122,30 +122,25 @@ static int TestEventWriteAccess(const wchar_t* eventName)
     return (GetLastError() == ERROR_ACCESS_DENIED) ? 0 : 2;
 }
 
+// WINGET_INPROC_COM_CLSID_FindPackagesOptions — a simple options object the server
+// can create with no side-effects; used to get past CallCreateInstance so the
+// post-call integrity check can run.
+static const CLSID s_clsidFindPackagesOptions = { 0x96B9A53A, 0x9228, 0x4DA0, { 0xB0, 0x13, 0xBB, 0x1B, 0x20, 0x31, 0xAB, 0x3D } };
+
 // ---------------------------------------------------------------------------
 // rpc-connect  (uses production code; see mode comment above for exit codes)
 // ---------------------------------------------------------------------------
 
 static int TestRpcConnectViaProductCode()
 {
-    GUID clsidNull{};
-    GUID iidNull{};
     void* out = nullptr;
     HRESULT hr = WinGetServerManualActivation_CreateInstance(
-        clsidNull, iidNull, WinGetServerManualActivation_TestHookFlag_NoServerLaunch, &out);
+        s_clsidFindPackagesOptions, IID_IUnknown, WinGetServerManualActivation_TestHookFlag_NoServerLaunch, &out);
     if (out)
     {
         reinterpret_cast<IUnknown*>(out)->Release();
     }
-    // ERROR_ACCESS_DENIED means the pipe SACL blocked a low-integrity client, or
-    // (after the production fix) InitializeRpcBinding rejected a low-integrity server.
-    if (hr == HRESULT_FROM_WIN32(ERROR_ACCESS_DENIED))
-    {
-        return ERROR_ACCESS_DENIED;
-    }
-    // Any other result (S_OK or an app-level server error such as class-not-registered)
-    // means the transport was not blocked by the security mechanism under test.
-    return 0;
+    return hr;
 }
 
 // ---------------------------------------------------------------------------
