@@ -60,22 +60,9 @@ HRESULT WindowsPackageManagerServerInitializeRPCServer()
     // A medium-integrity process cannot set a high integrity label. When running elevated, use
     // the full production SD so the elevated-client positive test also exercises the real
     // security configuration.
+    if (!IsCurrentProcessAdmin())
     {
-        BOOL isAdmin = FALSE;
-        {
-            PSID adminGroup = nullptr;
-            SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
-            if (AllocateAndInitializeSid(&ntAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &adminGroup))
-            {
-                CheckTokenMembership(nullptr, adminGroup, &isAdmin);
-                FreeSid(adminGroup);
-            }
-        }
-
-        if (!isAdmin)
-        {
-            securityDescriptorString = "D:(A;;GA;;;" + userSID + ")";
-        }
+        securityDescriptorString = "D:(A;;GA;;;" + userSID + ")";
     }
 #endif
 

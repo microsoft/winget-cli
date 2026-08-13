@@ -28,7 +28,7 @@ namespace AppInstallerCLIE2ETests
     /// Run with:
     ///   vstest.console.exe ... --TestCaseFilter:"Category=RpcSecurity"
     ///
-    /// Helper exit codes for expect-denial modes (event-signal, event-open):
+    /// Helper exit codes for expect-denial modes (event-signal, mutex-open):
     ///   0 = expected denial occurred (PASS), 1 = unexpected success (FAIL), 2 = error.
     /// Helper exit codes for rpc-connect:
     ///   0 = the call reached the server and succeeded,
@@ -139,7 +139,9 @@ namespace AppInstallerCLIE2ETests
 
         /// <summary>
         /// Verifies that a medium-integrity process cannot open the server-start event with
-        /// EVENT_MODIFY_STATE. The event SD must carry a high-integrity SACL.
+        /// EVENT_MODIFY_STATE, which is the access it would need to signal the event early and
+        /// defeat the client's wait for the server to become ready. Validates both the per-user
+        /// event name and its mandatory label.
         /// </summary>
         [Test]
         public void MediumIntegrityClient_CannotSignalEvent()
@@ -153,7 +155,7 @@ namespace AppInstallerCLIE2ETests
                     $"\"{this.helperPath}\" --mode event-signal --event-name {eventName}");
 
                 string message = rc == 1
-                    ? "Medium-integrity process opened the event with EVENT_MODIFY_STATE - event SD high-integrity SACL is missing."
+                    ? "Medium-integrity process opened the event with EVENT_MODIFY_STATE - per-user name or mandatory label is missing."
                     : $"Helper inconclusive (exit {rc}).";
                 Assert.That(rc, Is.EqualTo(0), message);
             }
@@ -249,23 +251,25 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Verifies that a medium-integrity process cannot open the server-start event with
-        /// EVENT_MODIFY_STATE, validating that both the per-user event name and
-        /// the high-integrity SACL are in place.
+        /// Verifies that a medium-integrity process cannot open the single-instance server mutex
+        /// with SYNCHRONIZE, which is the access it would need to acquire the mutex and hold it
+        /// so that the elevated server exits with ERROR_SERVICE_ALREADY_RUNNING instead of
+        /// starting. Validates both the per-user mutex name and its mandatory label.
         /// </summary>
         [Test]
-        public void MediumIntegrityClient_CannotOpenEventForWrite()
+        public void MediumIntegrityClient_CannotAcquireServerMutex()
         {
             string sid = GetCurrentUserSID();
             Process server = this.StartServer(sid);
             try
             {
-                string eventName = "WinGetServerStartEvent_" + sid;
+                string mutexName = "WinGetServerMutex_" + sid;
                 int rc = this.RunHelperAtMediumIntegrity(
-                    $"\"{this.helperPath}\" --mode event-open --event-name {eventName}");
+                    $"\"{this.helperPath}\" --mode mutex-open --mutex-name {mutexName}");
 
                 string message = rc == 1
-                    ? "Medium-integrity process opened the event with EVENT_MODIFY_STATE - per-user name or high-integrity SACL is missing."
+                    ? "Medium-integrity process opened the server mutex with SYNCHRONIZE and could hold it to block the elevated server from starting - per-user name or mandatory label is missing. "
+                      + "Note that the mutex label must be NRNWNX; unlike the event, a bare NW leaves the wait access granted through the generic execute right."
                     : $"Helper inconclusive (exit {rc}).";
                 Assert.That(rc, Is.EqualTo(0), message);
             }

@@ -9,8 +9,10 @@
 //       Opens <name> with EVENT_MODIFY_STATE at current integrity.
 //       Expects ERROR_ACCESS_DENIED from the high-integrity SACL on the event SD.
 //
-//   event-open --event-name <name>
-//       Same as event-signal; separate mode for test clarity.
+//   mutex-open --mutex-name <name>
+//       Opens <name> with SYNCHRONIZE at current integrity, which is the access a process
+//       would need to acquire the mutex and hold it to keep the server from starting.
+//       Expects ERROR_ACCESS_DENIED from the high-integrity SACL on the mutex SD.
 //
 //   rpc-connect
 //       Calls WinGetServerManualActivation_CreateInstance for a simple options class.
@@ -62,6 +64,21 @@ static int TestEventWriteAccess(const wchar_t* eventName)
     return (GetLastError() == ERROR_ACCESS_DENIED) ? 0 : 2;
 }
 
+// ---------------------------------------------------------------------------
+// mutex-open  (0=denied/pass  1=opened/fail  2=unexpected OS error)
+// ---------------------------------------------------------------------------
+
+static int TestMutexAcquireAccess(const wchar_t* mutexName)
+{
+    HANDLE hMutex = OpenMutexW(SYNCHRONIZE, FALSE, mutexName);
+    if (hMutex)
+    {
+        CloseHandle(hMutex);
+        return 1; // security broken
+    }
+    return (GetLastError() == ERROR_ACCESS_DENIED) ? 0 : 2;
+}
+
 // WINGET_INPROC_COM_CLSID_FindPackagesOptions — a simple options object the server
 // can create with no side-effects, so the call exercises the security configuration
 // rather than failing early on an unavailable class.
@@ -93,11 +110,17 @@ int wmain(int argc, wchar_t* argv[])
     const wchar_t* mode = GetFlag(argc, argv, L"--mode");
     if (!mode) return 2;
 
-    if (_wcsicmp(mode, L"event-signal") == 0 || _wcsicmp(mode, L"event-open") == 0)
+    if (_wcsicmp(mode, L"event-signal") == 0)
     {
         const wchar_t* name = GetFlag(argc, argv, L"--event-name");
         if (!name) return 3;
         return TestEventWriteAccess(name);
+    }
+    else if (_wcsicmp(mode, L"mutex-open") == 0)
+    {
+        const wchar_t* name = GetFlag(argc, argv, L"--mutex-name");
+        if (!name) return 3;
+        return TestMutexAcquireAccess(name);
     }
     else if (_wcsicmp(mode, L"rpc-connect") == 0)
     {
