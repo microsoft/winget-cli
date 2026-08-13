@@ -28,6 +28,17 @@ static void _releaseNotifier() noexcept
     _comServerExitEvent.SetEvent();
 }
 
+// The RPC runtime automatically exposes a management interface on every endpoint a server
+// listens on. That interface is explicitly exempt from the interface security descriptor
+// registered below, and by default it lets any caller that can reach the endpoint enumerate
+// our registered interfaces, query server statistics and read the server principal name.
+// Nothing in this server uses those operations, so deny all of them.
+static int __RPC_API DenyRpcManagementOperation(RPC_BINDING_HANDLE, unsigned long, RPC_STATUS* status)
+{
+    *status = RPC_S_ACCESS_DENIED;
+    return 0;
+}
+
 HRESULT WindowsPackageManagerServerInitializeRPCServer()
 {
     std::string userSID = GetUserSID();
@@ -83,6 +94,9 @@ HRESULT WindowsPackageManagerServerInitializeRPCServer()
     status = RpcServerRegisterAuthInfoA(nullptr, RPC_C_AUTHN_WINNT, nullptr, nullptr);
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
+    status = RpcMgmtSetAuthorizationFn(DenyRpcManagementOperation);
+    RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
+
     // The same security descriptor is applied a second time at the interface level, where the
     // RPC runtime impersonates the caller and runs an access check, denying the call when no
     // access at all is granted. This is defense in depth against the endpoint check above:
@@ -90,10 +104,11 @@ HRESULT WindowsPackageManagerServerInitializeRPCServer()
     // process first, whereas the interface descriptor is checked against the identity the OS
     // itself associates with the incoming call, which a caller cannot forge.
     //
-    // Note: RPC_IF_ALLOW_SECURE_ONLY and MinAuthLevel have no effect on ncalrpc, since all
-    // ncalrpc calls are considered secure. They are retained should the transport ever change.
+    // Note: RPC_IF_ALLOW_SECURE_ONLY and RPC_IF_ALLOW_LOCAL_ONLY have no effect on ncalrpc,
+    // which is inherently local and whose calls are always considered secure. They are retained
+    // should the transport ever change.
     status = RpcServerRegisterIf3(WinGetServerManualActivation_v1_0_s_ifspec, nullptr, nullptr, RPC_IF_ALLOW_LOCAL_ONLY | RPC_IF_AUTOLISTEN | RPC_IF_ALLOW_SECURE_ONLY,
-        RPC_C_LISTEN_MAX_CALLS_DEFAULT, RPC_C_AUTHN_LEVEL_PKT_PRIVACY, nullptr, securityDescriptor.get());
+        RPC_C_LISTEN_MAX_CALLS_DEFAULT, 4096, nullptr, securityDescriptor.get());
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
     return S_OK;

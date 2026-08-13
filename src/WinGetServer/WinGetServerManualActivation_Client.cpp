@@ -87,8 +87,22 @@ void InitializeRpcBinding()
 
     RPC_SECURITY_QOS_V5_A qos{};
     qos.Version = RPC_C_SECURITY_QOS_VERSION_5;
-    qos.Capabilities = RPC_C_QOS_CAPABILITIES_MUTUAL_AUTH;
+    // LOCAL_MA_HINT declares that the server we intend to mutually authenticate is a local one.
+    // The runtime already infers it on this transport, and it only changes behaviour when an
+    // endpoint is resolved through the endpoint mapper, which we never do because our endpoint
+    // name is fixed. It is set explicitly so that the intent is stated rather than inferred, and
+    // so that resolution stays partitioned by server identity if the endpoint ever stops being
+    // well known. It is only legal in combination with MUTUAL_AUTH.
+    qos.Capabilities = RPC_C_QOS_CAPABILITIES_MUTUAL_AUTH | RPC_C_QOS_CAPABILITIES_LOCAL_MA_HINT;
+    // Static identity pins the credentials to those of the process at the time the binding is
+    // created, rather than re-reading the calling thread's token on every call. This client is
+    // linked into processes we do not control, so it must not pick up whatever an unrelated
+    // thread happens to be impersonating at the moment of the call.
     qos.IdentityTracking = RPC_C_QOS_IDENTITY_STATIC;
+    // Identify is the least privilege that still works: the server needs to impersonate us far
+    // enough to run its own access check, but must not be able to act as us against anything
+    // else. Anonymous would defeat that check; Impersonate and Delegate would hand the server
+    // more authority over the caller than it needs.
     qos.ImpersonationType = RPC_C_IMP_LEVEL_IDENTIFY;
     qos.Sid = userSid;
     qos.ServerSecurityDescriptor = serverSecurityDescriptor.get();
