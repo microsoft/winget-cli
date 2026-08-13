@@ -61,7 +61,7 @@ namespace AppInstallerCLIE2ETests
         // RPC error codes used in test assertions.
         // ERROR_ACCESS_DENIED / RPC_S_ACCESS_DENIED: the pipe SACL or auth check blocked the call,
         // or the client rejected the server due to medium integrity level.
-        private const int RpcErrorAccessDenied = 5;
+        private const int RpcErrorAccessDeniedHResult = -2147024891;
 
         /// <summary>Gets the full path to WindowsPackageManagerServer.exe.</summary>
         private string serverPath;
@@ -214,8 +214,8 @@ namespace AppInstallerCLIE2ETests
 
                 string message = rc == 0
                     ? "Medium-integrity client successfully reached the server via RPC - the pipe SD is not blocking low-integrity callers."
-                    : $"Unexpected error 0x{rc:X8} (expected ERROR_ACCESS_DENIED / 0x{RpcErrorAccessDenied:X8}).";
-                Assert.That(rc, Is.EqualTo(RpcErrorAccessDenied), message);
+                    : $"Unexpected error 0x{rc:X8} (expected ERROR_ACCESS_DENIED / 0x{RpcErrorAccessDeniedHResult:X8}).";
+                Assert.That(rc, Is.EqualTo(RpcErrorAccessDeniedHResult), message);
             }
             finally
             {
@@ -263,8 +263,8 @@ namespace AppInstallerCLIE2ETests
 
                 string message = rc == 1
                     ? "Server accepted an unauthenticated RPC call - RpcServerRegisterAuthInfoA enforcement is missing."
-                    : $"Unexpected error 0x{rc:X8} (expected ERROR_ACCESS_DENIED / 0x{RpcErrorAccessDenied:X8}).";
-                Assert.That(rc, Is.EqualTo(RpcErrorAccessDenied), message);
+                    : $"Unexpected error 0x{rc:X8} (expected ERROR_ACCESS_DENIED / 0x{RpcErrorAccessDeniedHResult:X8}).";
+                Assert.That(rc, Is.EqualTo(RpcErrorAccessDeniedHResult), message);
             }
             finally
             {
@@ -299,8 +299,8 @@ namespace AppInstallerCLIE2ETests
 
                 string message = rc == 0
                     ? "Elevated client connected to a medium-integrity server - client-side process integrity check is missing."
-                    : $"Unexpected error 0x{rc:X8} (expected ERROR_ACCESS_DENIED / 0x{RpcErrorAccessDenied:X8}).";
-                Assert.That(rc, Is.EqualTo(RpcErrorAccessDenied), message);
+                    : $"Unexpected error 0x{rc:X8} (expected ERROR_ACCESS_DENIED / 0x{RpcErrorAccessDeniedHResult:X8}).";
+                Assert.That(rc, Is.EqualTo(RpcErrorAccessDeniedHResult), message);
             }
             finally
             {

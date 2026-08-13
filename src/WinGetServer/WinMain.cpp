@@ -31,8 +31,8 @@ static void _releaseNotifier() noexcept
 HRESULT WindowsPackageManagerServerInitializeRPCServer()
 {
     std::string userSID = GetUserSID();
-    std::string endpoint = "\\pipe\\WinGetServerManualActivation_" + userSID;
-    RPC_STATUS status = RpcServerUseProtseqEpA(GetUCharString("ncacn_np"), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, GetUCharString(endpoint), nullptr);
+    std::string endpoint = GetServerEndpointName();
+    RPC_STATUS status = RpcServerUseProtseqEpA(GetUCharString("ncalrpc"), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, GetUCharString(endpoint), nullptr);
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
     // The goal of this security descriptor is to restrict RPC server access only to the user in admin mode. 
@@ -44,10 +44,10 @@ HRESULT WindowsPackageManagerServerInitializeRPCServer()
 #ifndef AICLI_DISABLE_TEST_HOOKS
     // When running at non-admin integrity (e.g. a medium-integrity server process spawned by
     // the security E2E tests to validate client-side rejection), omit the mandatory label SACL.
-    // A medium-integrity process cannot set S:(ML;;NW;;;HI) and the SACL is irrelevant to the
-    // test being performed (the client rejects the server via process token inspection, not via
-    // the pipe SD). When running elevated, use the full production SD so the elevated-client
-    // positive test also exercises the real security configuration.
+    // A medium-integrity process cannot set S:(ML;;NW;;;HI) on the interface. The client still
+    // rejects such a server because the ALPC connect access check is driven by the client's own
+    // security descriptor, not this one. When running elevated, use the full production SD so
+    // the elevated-client positive test also exercises the real security configuration.
     {
         BOOL isAdmin = FALSE;
         {
@@ -69,7 +69,9 @@ HRESULT WindowsPackageManagerServerInitializeRPCServer()
 
     RETURN_LAST_ERROR_IF(!ConvertStringSecurityDescriptorToSecurityDescriptorA(securityDescriptorString.c_str(), SDDL_REVISION_1, &securityDescriptor, nullptr));
 
-    status = RpcServerRegisterAuthInfoA(nullptr, RPC_C_AUTHN_GSS_NEGOTIATE, nullptr, nullptr);
+    // ncalrpc only supports RPC_C_AUTHN_WINNT; RPC_C_AUTHN_GSS_NEGOTIATE is rejected by the
+    // LRPC binding handle with RPC_S_UNKNOWN_AUTHN_SERVICE.
+    status = RpcServerRegisterAuthInfoA(nullptr, RPC_C_AUTHN_WINNT, nullptr, nullptr);
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
     status = RpcServerRegisterIf3(WinGetServerManualActivation_v1_0_s_ifspec, nullptr, nullptr, RPC_IF_ALLOW_LOCAL_ONLY | RPC_IF_AUTOLISTEN | RPC_IF_ALLOW_SECURE_ONLY, RPC_C_LISTEN_MAX_CALLS_DEFAULT, RPC_C_AUTHN_LEVEL_PKT_PRIVACY, nullptr, securityDescriptor.get());

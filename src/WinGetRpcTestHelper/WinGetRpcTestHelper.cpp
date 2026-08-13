@@ -125,7 +125,7 @@ static int TestEventWriteAccess(const wchar_t* eventName)
 // WINGET_INPROC_COM_CLSID_FindPackagesOptions — a simple options object the server
 // can create with no side-effects; used to get past CallCreateInstance so the
 // post-call integrity check can run.
-static const CLSID s_clsidFindPackagesOptions = { 0x96B9A53A, 0x9228, 0x4DA0, { 0xB0, 0x13, 0xBB, 0x1B, 0x20, 0x31, 0xAB, 0x3D } };
+static const CLSID s_clsidFindPackagesOptions = { 0x1bd8ff3a,0xec50,0x4f69,{0xae,0xee,0xdf,0x4c,0x9d,0x3b,0xaa,0x96} };
 
 // ---------------------------------------------------------------------------
 // rpc-connect  (uses production code; see mode comment above for exit codes)

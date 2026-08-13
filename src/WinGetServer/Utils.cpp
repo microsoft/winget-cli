@@ -40,10 +40,16 @@ std::string GetUserSID()
     return std::string{ pszSID };
 }
 
-bool IsCurrentUserSid(PSID sid)
+std::pair<std::unique_ptr<BYTE[]>, PSID> GetUserSidBinary()
 {
     auto [buffer, pTokenUser] = GetCurrentProcessTokenUser();
-    return EqualSid(pTokenUser->User.Sid, sid) != FALSE;
+    PSID sid = pTokenUser->User.Sid;
+    return { std::move(buffer), sid };
+}
+
+std::string GetServerEndpointName()
+{
+    return "WinGetServerManualActivation_" + GetUserSID();
 }
 
 wil::unique_event CreateOrOpenServerStartEvent()
