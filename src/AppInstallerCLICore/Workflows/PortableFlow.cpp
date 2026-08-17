@@ -7,6 +7,7 @@
 #include <winget/Filesystem.h>
 #include <winget/PortableFileEntry.h>
 #include <winget/PortableIndex.h>
+#include <winget/ManifestValidation.h>
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
@@ -66,6 +67,16 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Error() << Resource::String::ReparsePointsNotSupportedError << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_REPARSE_POINT_NOT_SUPPORTED);
+            }
+        }
+
+        void EnsurePathIsRelative(Execution::Context& context, const Manifest::string_t& path, std::string_view field, Resource::StringId errorStringId)
+        {
+            if (Filesystem::PathEscapesBaseDirectory(path))
+            {
+                AICLI_LOG(CLI, Error, << "File path for [" << field << "] points to a location outside of its base directory: " << path);
+                context.Reporter.Error() << errorStringId << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
             }
         }
     }
@@ -206,6 +217,12 @@ namespace AppInstaller::CLI::Workflow
 
             for (const auto& nestedInstallerFile : nestedInstallerFiles)
             {
+                EnsurePathIsRelative(context, nestedInstallerFile.RelativeFilePath, "RelativeFilePath", ManifestError::RelativeFilePathEscapesDirectory);
+                AICLI_RETURN_VALUE_IF_TERMINATED(context, {});
+
+                EnsurePathIsRelative(context, nestedInstallerFile.PortableCommandAlias, "PortableCommandAlias", ManifestError::PortableCommandAliasEscapesDirectory);
+                AICLI_RETURN_VALUE_IF_TERMINATED(context, {});
+
                 const std::filesystem::path& targetPath = targetInstallDirectory / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
 
                 std::filesystem::path commandAlias;
@@ -230,6 +247,9 @@ namespace AppInstaller::CLI::Workflow
 
             if (!commands.empty())
             {
+                EnsurePathIsRelative(context, commands[0], "CommandAlias", ManifestError::PortableCommandAliasEscapesDirectory);
+                AICLI_RETURN_VALUE_IF_TERMINATED(context, {});
+
                 commandAlias = ConvertToUTF16(commands[0]);
             }
 
@@ -257,6 +277,7 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
             std::vector<AppInstaller::Portable::PortableFileEntry> desiredState = GetDesiredStateForPortableInstall(context);
+            AICLI_RETURN_IF_TERMINATED(context);
 
             portableInstaller.SetDesiredState(desiredState);
 
