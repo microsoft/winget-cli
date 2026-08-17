@@ -12,15 +12,69 @@ using namespace TestCommon;
 
 TEST_CASE("PathEscapesDirectory", "[filesystem]")
 {
-    std::string badRelativePath = "../../target.exe";
-    std::string badRelativePath2 = "test/../../target.exe";
-    std::string goodRelativePath = "target.exe";
-    std::string goodRelativePath2 = "test/../test1/target.exe";
+    SECTION("Simple relative paths stay within the base directory")
+    {
+        REQUIRE_FALSE(PathEscapesBaseDirectory("target.exe"));
+        REQUIRE_FALSE(PathEscapesBaseDirectory("test\\target.exe"));
+        REQUIRE_FALSE(PathEscapesBaseDirectory("test/subdir/target.exe"));
+    }
 
-    REQUIRE(PathEscapesBaseDirectory(badRelativePath));
-    REQUIRE(PathEscapesBaseDirectory(badRelativePath2));
-    REQUIRE_FALSE(PathEscapesBaseDirectory(goodRelativePath));
-    REQUIRE_FALSE(PathEscapesBaseDirectory(goodRelativePath2));
+    SECTION("Relative paths whose '..' components resolve back inside do not escape")
+    {
+        REQUIRE_FALSE(PathEscapesBaseDirectory("test/../test1/target.exe"));
+        REQUIRE_FALSE(PathEscapesBaseDirectory("./target.exe"));
+        REQUIRE_FALSE(PathEscapesBaseDirectory("a/b/../../c.exe"));
+    }
+
+    SECTION("Paths that resolve to the base directory itself do not escape")
+    {
+        REQUIRE_FALSE(PathEscapesBaseDirectory("."));
+        REQUIRE_FALSE(PathEscapesBaseDirectory("test/.."));
+    }
+
+    SECTION("An empty path refers to the base directory itself and does not escape")
+    {
+        REQUIRE_FALSE(PathEscapesBaseDirectory(""));
+    }
+
+    SECTION("Relative paths that traverse above the base directory escape")
+    {
+        REQUIRE(PathEscapesBaseDirectory("../../target.exe"));
+        REQUIRE(PathEscapesBaseDirectory("test/../../target.exe"));
+        REQUIRE(PathEscapesBaseDirectory("../target.exe"));
+        REQUIRE(PathEscapesBaseDirectory(".."));
+        REQUIRE(PathEscapesBaseDirectory("a/../../b.exe"));
+
+        // Mixed separators are still normalized correctly.
+        REQUIRE(PathEscapesBaseDirectory("test\\../..\\target.exe"));
+    }
+
+    SECTION("Absolute paths escape the base directory")
+    {
+        REQUIRE(PathEscapesBaseDirectory("C:\\Windows\\target.exe"));
+        REQUIRE(PathEscapesBaseDirectory("C:/Windows/target.exe"));
+    }
+
+    SECTION("UNC paths in their various forms escape the base directory")
+    {
+        REQUIRE(PathEscapesBaseDirectory("\\\\server\\share\\target.exe"));
+        REQUIRE(PathEscapesBaseDirectory("//server/share/target.exe"));
+
+        // Extended-length prefix.
+        REQUIRE(PathEscapesBaseDirectory("\\\\?\\C:\\target.exe"));
+    }
+
+    SECTION("Root-relative paths (no drive) resolve to the root of the base directory's drive")
+    {
+        REQUIRE(PathEscapesBaseDirectory("\\Windows\\target.exe"));
+        REQUIRE(PathEscapesBaseDirectory("/Windows/target.exe"));
+    }
+
+    SECTION("Drive-relative paths resolve against the current directory of the given drive")
+    {
+        REQUIRE(PathEscapesBaseDirectory("C:target.exe"));
+        REQUIRE(PathEscapesBaseDirectory("C:"));
+    }
 }
 
 TEST_CASE("VerifySymlink", "[filesystem]")
