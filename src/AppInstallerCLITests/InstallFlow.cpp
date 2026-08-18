@@ -18,7 +18,9 @@
 #include <Workflows/ArchiveFlow.h>
 #include <Workflows/DownloadFlow.h>
 #include <Workflows/MsiInstallFlow.h>
+#include <Workflows/PortableFlow.h>
 #include <Workflows/ShellExecuteInstallerHandler.h>
+#include <PortableInstaller.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace TestCommon;
@@ -724,6 +726,52 @@ TEST_CASE("InstallFlow_Portable", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
+}
+
+TEST_CASE("PortableInstallFlow_RejectsEscapingPathsAtPointOfUse", "[InstallFlow][workflow]")
+{
+    TestCommon::TempDirectory targetDirectory("TestPortableInstallRoot", false);
+    TestCommon::TempDirectory extractedDirectory("TestPortableExtractedRoot", true);
+    TestCommon::TempFile installerFile("TestPortableInstaller.exe");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+
+    ManifestInstaller installer;
+    std::filesystem::path installerPath = installerFile.GetPath();
+
+    SECTION("Command alias")
+    {
+        installer.BaseInstallerType = InstallerTypeEnum::Portable;
+        installer.Commands = { "C:\\escape" };
+    }
+
+    SECTION("Nested installer relative path")
+    {
+        installer.BaseInstallerType = InstallerTypeEnum::Zip;
+        installer.NestedInstallerFiles = { { "C:\\escape", {} } };
+        installerPath = extractedDirectory.GetPath();
+    }
+
+    SECTION("Nested installer command alias")
+    {
+        installer.BaseInstallerType = InstallerTypeEnum::Zip;
+        installer.NestedInstallerFiles = { { "installer.exe", "C:\\escape" } };
+        installerPath = extractedDirectory.GetPath();
+    }
+
+    AppInstaller::CLI::Portable::PortableInstaller portableInstaller{
+        ScopeEnum::User, Architecture::X64, "TestProductCode" };
+    portableInstaller.TargetInstallLocation = targetDirectory.GetPath();
+
+    context.Add<Execution::Data::Installer>(installer);
+    context.Add<Execution::Data::InstallerPath>(installerPath);
+    context.Add<Execution::Data::PortableInstaller>(std::move(portableInstaller));
+
+    PortableInstallImpl(context);
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
 }
 
 TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")

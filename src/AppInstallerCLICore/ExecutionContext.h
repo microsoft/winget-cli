@@ -45,6 +45,9 @@
 // Returns if the context is terminated.
 #define AICLI_RETURN_IF_TERMINATED(_context_) if ((_context_).IsTerminated()) { return; }
 
+// Returns the specified value if the context is terminated.
+#define AICLI_RETURN_VALUE_IF_TERMINATED(_context_,_ret_) if ((_context_).IsTerminated()) { return _ret_; }
+
 namespace AppInstaller::CLI
 {
     struct Command;
