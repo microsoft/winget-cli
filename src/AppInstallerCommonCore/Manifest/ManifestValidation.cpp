@@ -306,6 +306,14 @@ namespace AppInstaller::Manifest
                 {
                     resultErrors.emplace_back(ManifestError::ExceededCommandsLimit);
                 }
+
+                if (!installer.Commands.empty())
+                {
+                    if (AppInstaller::Filesystem::PathEscapesBaseDirectory(installer.Commands[0]))
+                    {
+                        resultErrors.emplace_back(ManifestError::PortableCommandAliasEscapesDirectory, "Commands");
+                    }
+                }
             }
 
             if (installer.EffectiveInstallerType() == InstallerTypeEnum::Portable)
