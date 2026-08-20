@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="UninstallCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -181,11 +181,102 @@ namespace AppInstallerCLIE2ETests
             commandAlias = "TestPortable.exe";
             fileName = "AppInstallerTestExeInstaller.exe";
 
-            var testResult = TestCommon.RunAICLICommand("install", $"{packageId}");
+            TestCommon.RunAICLICommand("install", $"{packageId}");
             var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
             Assert.That(result.StdOut, Does.Contain("Successfully uninstalled"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
+        }
+
+        /// <summary>
+        /// Test uninstalling one of two symlinked packages keeps Links path, then uninstalling the second removes it.
+        /// </summary>
+        [Test]
+        public void UninstallZip_Portable_KeepsThenRemovesLinksPath()
+        {
+            string linksDirectory = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
+
+            string packageIdToUninstall = "AppInstallerTest.TestZipInstallerWithPortable";
+            string remainingPackageId = "AppInstallerTest.TestPortableExe";
+            string remainingSymlinkPath = Path.Combine(linksDirectory, "AppInstallerTestExeInstaller.exe");
+
+            var installResult1 = TestCommon.RunAICLICommand("install", packageIdToUninstall);
+            Assert.That(installResult1.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+
+            var installResult2 = TestCommon.RunAICLICommand("install", remainingPackageId);
+            Assert.That(installResult2.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+
+            Assert.That(TestCommon.PathContainsValue(linksDirectory), "Links directory should be on PATH after installing symlinked packages.");
+
+            var uninstallResult = TestCommon.RunAICLICommand("uninstall", packageIdToUninstall);
+            Assert.That(uninstallResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(uninstallResult.StdOut, Does.Contain("Successfully uninstalled"));
+
+            Assert.That(remainingSymlinkPath, Does.Exist, "Remaining package symlink should still exist.");
+            Assert.That(TestCommon.PathContainsValue(linksDirectory), "Links directory should remain on PATH while another symlinked package exists.");
+
+            var uninstallRemainingResult = TestCommon.RunAICLICommand("uninstall", remainingPackageId);
+            Assert.That(uninstallRemainingResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(uninstallRemainingResult.StdOut, Does.Contain("Successfully uninstalled"));
+
+            Assert.That(remainingSymlinkPath, Does.Not.Exist, "Remaining package symlink should be removed after uninstall.");
+            Assert.That(!Directory.Exists(linksDirectory) || Directory.GetFileSystemEntries(linksDirectory).Length == 0, Is.True, "Links directory should be empty after uninstalling both symlinked packages.");
+            Assert.That(TestCommon.PathContainsValue(linksDirectory), Is.False, "Links directory should be removed from PATH when no symlinked packages remain.");
+        }
+
+        /// <summary>
+        /// Test uninstall zip portable package with binaries dependent on PATH cleans install directory PATH entry.
+        /// </summary>
+        [Test]
+        public void UninstallZip_ArchivePortableWithBinariesDependentOnPath()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId = "AppInstallerTest.ArchivePortableWithBinariesDependentOnPath";
+            string packageDir = Path.Combine(installDir, packageId + "_" + Constants.TestSourceIdentifier);
+
+            var installResult = TestCommon.RunAICLICommand("install", $"{packageId} -v 1.0.0.0");
+            Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(TestCommon.PathContainsValue(packageDir));
+
+            var uninstallResult = TestCommon.RunAICLICommand("uninstall", packageId);
+            Assert.That(uninstallResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(uninstallResult.StdOut, Does.Contain("Successfully uninstalled"));
+            Assert.That(TestCommon.PathContainsValue(packageDir), Is.False);
+        }
+
+        /// <summary>
+        /// Test uninstall portable package removes hardlinks.
+        /// </summary>
+        [Test]
+        public void UninstallPortableWithCommands_RemovesHardlinks()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExeWithCommand";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+
+            // Install
+            var installResult = TestCommon.RunAICLICommand("install", $"{packageId}");
+            Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(installResult.StdOut, Does.Contain("Successfully installed"));
+
+            string installPath = Path.Combine(installDir, packageDirName);
+            string originalFile = Path.Combine(installPath, "AppInstallerTestExeInstaller.exe");
+            string hardlinkFile = Path.Combine(installPath, "testCommand.exe");
+
+            // Verify files exist after install
+            Assert.That(originalFile, Does.Exist, "Original file should exist after install");
+            Assert.That(hardlinkFile, Does.Exist, "Hardlink should exist after install");
+
+            // Uninstall
+            var uninstallResult = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
+            Assert.That(uninstallResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(uninstallResult.StdOut, Does.Contain("Successfully uninstalled"));
+
+            // Verify both original and hardlink are removed
+            Assert.That(originalFile, Does.Not.Exist, "Original file should be removed after uninstall");
+            Assert.That(hardlinkFile, Does.Not.Exist, "Hardlink should be removed after uninstall");
+            Assert.That(Directory.Exists(installPath), Is.False, "Installation directory should be removed after uninstall");
         }
 
         /// <summary>
