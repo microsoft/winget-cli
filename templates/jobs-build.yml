@@ -1,5 +1,12 @@
 # Build job creates artifacts for use in test jobs
 
+parameters:
+# Root of the winget-cli sources. Defaults to the repository root; override when
+# winget-cli is consumed as a subtree at a non-root path.
+- name: sourceRoot
+  type: string
+  default: $(Build.SourcesDirectory)
+
 jobs:
 - job: 'Build'
   timeoutInMinutes: 120
@@ -18,9 +25,11 @@ jobs:
         artifactIdentifier: 'x64release'
 
   variables:
+    # Overrides the pipeline level variable, which cannot be rooted at sourceRoot.
+    solution: ${{ parameters.sourceRoot }}\src\AppInstallerCLI.sln
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
-    buildOutDir: $(Build.SourcesDirectory)\src\$(buildPlatform)\$(buildConfiguration)
-    buildOutDirAnyCpu: $(Build.SourcesDirectory)\src\AnyCPU\$(buildConfiguration)
+    buildOutDir: ${{ parameters.sourceRoot }}\src\$(buildPlatform)\$(buildConfiguration)
+    buildOutDirAnyCpu: ${{ parameters.sourceRoot }}\src\AnyCPU\$(buildConfiguration)
     artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
     appxPackageDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)\AppxPackages
 
@@ -39,19 +48,19 @@ jobs:
   - task: NuGetCommand@2
     displayName: Restore AppInstallerCLIPackage
     inputs:
-      restoreSolution: 'src\AppInstallerCLIPackage\AppInstallerCLIPackage.wapproj'
+      restoreSolution: '${{ parameters.sourceRoot }}\src\AppInstallerCLIPackage\AppInstallerCLIPackage.wapproj'
 
   - task: NuGetCommand@2
     displayName: Restore AppInstallerTestMsixInstaller
     inputs:
-      restoreSolution: 'src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
+      restoreSolution: '${{ parameters.sourceRoot }}\src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
 
   # Restores only .NET core projects, but is still necessary, as without this the IndexCreationTool and LocalhostWebServer projects fail to build
   - task: DotNetCoreCLI@2
     displayName: DotNet Restore
     inputs:
       command: 'restore'
-      projects: '**/*.csproj'
+      projects: '${{ parameters.sourceRoot }}\**\*.csproj'
 
   - task: CmdLine@2
     displayName: Enable Vcpkg Install
@@ -64,9 +73,9 @@ jobs:
     displayName: Update Binary Version
     condition: not(eq(variables['Build.Reason'], 'PullRequest'))
     inputs:
-      filePath: 'src\binver\Update-BinVer.ps1'
+      filePath: '${{ parameters.sourceRoot }}\src\binver\Update-BinVer.ps1'
       arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer)'
-      workingDirectory: 'src'
+      workingDirectory: '${{ parameters.sourceRoot }}\src'
 
   # Build all solutions in the root directory.
   - task: VSBuild@1
@@ -87,7 +96,7 @@ jobs:
     displayName: Build MSIX Test Installer File
     inputs:
       platform: '$(buildPlatform)'
-      solution: 'src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
+      solution: '${{ parameters.sourceRoot }}\src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
       configuration: '$(buildConfiguration)'
       msbuildArguments: '/p:AppxPackageOutput="$(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix"
                          /p:AppxBundle=Never
@@ -114,9 +123,9 @@ jobs:
   - task: PowerShell@2
     displayName: Create Package Layout
     inputs:
-      filePath: 'src\AppInstallerCLIPackage\Execute-AppxRecipe.ps1'
+      filePath: '${{ parameters.sourceRoot }}\src\AppInstallerCLIPackage\Execute-AppxRecipe.ps1'
       arguments: '-AppxRecipePath AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLIPackage.build.appxrecipe -LayoutPath $(artifactsDir)\DevPackage -Force -Verbose'
-      workingDirectory: 'src'
+      workingDirectory: '${{ parameters.sourceRoot }}\src'
 
   - task: CopyFiles@2
     displayName: 'Copy native binaries for Microsoft.WinGet.Client (net8)'
@@ -190,7 +199,7 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
     inputs:
-      SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(buildPlatform)\$(BuildConfiguration)\net8.0'
+      SourceFolder: '${{ parameters.sourceRoot }}\src\WinGetUtilInterop.UnitTests\bin\$(buildPlatform)\$(BuildConfiguration)\net8.0'
       TargetFolder:  '$(artifactsDir)\WinGetUtilInterop.UnitTests\'
       CleanTargetFolder: true
       OverWrite: true
@@ -212,8 +221,8 @@ jobs:
     # Invoke E2E setup to generate the TestLocalIndex; could optimize out some of its steps if needed
   - template: e2e-setup.yml
     parameters:
-      sourceDir: $(Build.SourcesDirectory)
-      localhostWebServerArgs: '-BuildRoot $(artifactsDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -TestDataPath $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData -ExitBeforeRun'
+      sourceDir: ${{ parameters.sourceRoot }}
+      localhostWebServerArgs: '-BuildRoot $(artifactsDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson ${{ parameters.sourceRoot }}\src\AppInstallerCLIE2ETests\TestData\localsource.json -TestDataPath ${{ parameters.sourceRoot }}\src\AppInstallerCLIE2ETests\TestData -ExitBeforeRun'
       signingCertOutDir: $(artifactsDir)\E2ETests
 
   - task: CopyFiles@2
@@ -225,7 +234,7 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy TestData'
     inputs:
-      SourceFolder: '$(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\'
+      SourceFolder: '${{ parameters.sourceRoot }}\src\AppInstallerCLIE2ETests\TestData\'
       TargetFolder: '$(artifactsDir)\E2ETests\TestData'
 
   - task: CopyFiles@2
@@ -238,9 +247,9 @@ jobs:
     displayName: 'Copy test scripts to artifacts'
     inputs:
       Contents: |
-          $(Build.SourcesDirectory)\src\PowerShell\scripts\Execute-WinGetTests.ps1
-          $(Build.SourcesDirectory)\src\PowerShell\tests\**
-          $(Build.SourcesDirectory)\src\LocalhostWebServer\Run-LocalhostWebServer.ps1
+          ${{ parameters.sourceRoot }}\src\PowerShell\scripts\Execute-WinGetTests.ps1
+          ${{ parameters.sourceRoot }}\src\PowerShell\tests\**
+          ${{ parameters.sourceRoot }}\src\LocalhostWebServer\Run-LocalhostWebServer.ps1
       TargetFolder: '$(artifactsDir)\E2ETests\Scripts'
       flattenFolders: true
 

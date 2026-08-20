@@ -1,5 +1,12 @@
 # Test job runs tests using build artifacts
 
+parameters:
+# Root of the winget-cli sources. Defaults to the repository root; override when
+# winget-cli is consumed as a subtree at a non-root path.
+- name: sourceRoot
+  type: string
+  default: $(Build.SourcesDirectory)
+
 jobs:
 - job: 'Test'
   timeoutInMinutes: 120
@@ -45,7 +52,7 @@ jobs:
     displayName: Start HAM trace
     condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
     inputs:
-      script: 'wpr -start $(Build.SourcesDirectory)\tools\HAMTrace\WER.HostActivityManager.wprp -filemode'
+      script: 'wpr -start ${{ parameters.sourceRoot }}\tools\HAMTrace\WER.HostActivityManager.wprp -filemode'
 
   - powershell: |
       Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
@@ -76,9 +83,9 @@ jobs:
   - task: PowerShell@2
     displayName: Run Unit Tests Packaged
     inputs:
-      filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
+      filePath: '${{ parameters.sourceRoot }}\src\AppInstallerCLITests\Run-TestsInPackage.ps1'
       arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot $(packageLayoutDir) -LogTarget $(artifactsDir)\AICLI-Packaged.log -MdmpTarget $(artifactsDir)\AICLI-Packaged.mdmp -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
-      workingDirectory: 'src'
+      workingDirectory: '${{ parameters.sourceRoot }}\src'
     condition: succeededOrFailed()
 
   - task: PublishTestResults@2
@@ -121,23 +128,26 @@ jobs:
 
   - template: e2e-setup.yml
     parameters:
-      sourceDir: $(Build.SourcesDirectory)
+      sourceDir: ${{ parameters.sourceRoot }}
       localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -SourceCert $(buildOutDir)\E2ETests\TestSigningCert.cer'
 
   - template: e2e-test.template.yml
     parameters:
+      sourceRoot: ${{ parameters.sourceRoot }}
       title: "E2E Tests Packaged"
       isPackaged: true
       filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
 
   - template: e2e-test.template.yml
     parameters:
+      sourceRoot: ${{ parameters.sourceRoot }}
       title: "Microsoft.Management.Deployment E2E Tests (In-process)"
       isPackaged: false
       filter: "TestCategory=InProcess"
 
   - template: e2e-test.template.yml
     parameters:
+      sourceRoot: ${{ parameters.sourceRoot }}
       title: "Microsoft.Management.Deployment E2E Tests (Out-of-process)"
       isPackaged: true
       filter: "TestCategory=OutOfProcess"
@@ -190,7 +200,7 @@ jobs:
   - task: PowerShell@2
     displayName: Prepare for Microsoft.Management.Configuration.UnitTests (OutOfProc)
     inputs:
-      filePath: 'src\Microsoft.Management.Configuration.OutOfProc\Prepare-ConfigurationOOPTests.ps1'
+      filePath: '${{ parameters.sourceRoot }}\src\Microsoft.Management.Configuration.OutOfProc\Prepare-ConfigurationOOPTests.ps1'
       arguments: '-BuildOutputPath $(buildOutDir) -PackageLayoutPath $(packageLayoutDir)'
     condition: succeededOrFailed()
 
@@ -210,7 +220,7 @@ jobs:
   - task: PowerShell@2
     displayName: Collect logs for Microsoft.Management.Configuration.UnitTests (OutOfProc)
     inputs:
-      filePath: 'src\Microsoft.Management.Configuration.OutOfProc\Collect-ConfigurationOOPTests.ps1'
+      filePath: '${{ parameters.sourceRoot }}\src\Microsoft.Management.Configuration.OutOfProc\Collect-ConfigurationOOPTests.ps1'
       arguments: '-TargetLocation $(artifactsDir)\ConfigOOPTestsLog'
     condition: succeededOrFailed()
 
