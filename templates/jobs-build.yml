@@ -77,11 +77,14 @@ jobs:
       restoreSolution: '${{ parameters.sourceRoot }}\src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
 
   # Restores only .NET core projects, but is still necessary, as without this the IndexCreationTool and LocalhostWebServer projects fail to build
+  # Scoped to src, which is where winget-cli's Directory.Build.props / Directory.Packages.props sit.
+  # The projects under samples are outside that boundary and are in no solution built here, so a
+  # subtree consumer would restore them against its own repository's MSBuild settings for nothing.
   - task: DotNetCoreCLI@2
     displayName: DotNet Restore
     inputs:
       command: 'restore'
-      projects: '${{ parameters.sourceRoot }}\**\*.csproj'
+      projects: '${{ parameters.sourceRoot }}\src\**\*.csproj'
 
   - task: CmdLine@2
     displayName: Enable Vcpkg Install

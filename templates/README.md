@@ -167,3 +167,21 @@ subtree, which this repository's own pipeline will not catch. When adding a task
 - Prefer `${{ parameters.sourceRoot }}` over `$(Build.SourcesDirectory)` for source files. The latter
   is the consuming repository's root, which is only the same thing at depth zero.
 - Watch globs. `**/*.csproj` looks harmless but would restore the entire consuming repository.
+- Keep MSBuild work inside `src\`, which is where winget-cli's `Directory.Build.props` and
+  `Directory.Packages.props` sit. See below.
+
+## The `src\` boundary
+
+MSBuild and NuGet find `Directory.Build.props`, `Directory.Packages.props`, and `global.json` by
+walking **up** from each project directory until they hit one. winget-cli has none at its root, so
+that walk leaves the subtree and lands in the consuming repository, which silently applies its
+settings to our projects. This is the one hazard `sourceRoot` cannot address: nothing here is a path.
+
+In practice `src\Directory.Build.props` and `src\Directory.Packages.props` stop the walk for anything
+under `src\`, so projects there are already insulated. Projects outside it are not — the `samples\`
+projects inherit whatever the consuming repository declares, which is why the restore glob above is
+scoped to `src\` rather than to `sourceRoot`. (They are in no solution this pipeline builds, so
+nothing is lost.) `global.json` has no equivalent guard at all, which is what `preSteps` is for.
+
+Two consequences when editing: build only what lives under `src\`, and expect a consumer to hit this
+before we do, since at depth zero the walk finds nothing and everything looks fine.
