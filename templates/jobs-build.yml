@@ -6,12 +6,19 @@ parameters:
 - name: sourceRoot
   type: string
   default: $(Build.SourcesDirectory)
+# Name of the job supplying the release tag, which this job depends on for the build version.
+# Set to an empty string when the consuming pipeline has no such job; the binary version is then
+# left unstamped.
+- name: releaseTagJob
+  type: string
+  default: 'GetReleaseTag'
 
 jobs:
 - job: 'Build'
   timeoutInMinutes: 120
-  dependsOn: 'GetReleaseTag'
-  condition: always()
+  ${{ if ne(parameters.releaseTagJob, '') }}:
+    dependsOn: ${{ parameters.releaseTagJob }}
+    condition: always()
 
   strategy:
     matrix:
@@ -27,7 +34,12 @@ jobs:
   variables:
     # Overrides the pipeline level variable, which cannot be rooted at sourceRoot.
     solution: ${{ parameters.sourceRoot }}\src\AppInstallerCLI.sln
-    BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
+    # Opts the Component Governance task below in to vcpkg detection, which is off by default.
+    # Set here rather than at pipeline level so that a consuming pipeline cannot omit it; without
+    # it the scan succeeds while silently ignoring the native dependencies.
+    EnableDetectorVcpkg: true
+    ${{ if ne(parameters.releaseTagJob, '') }}:
+      BuildVer: $[counter(dependencies.${{ parameters.releaseTagJob }}.outputs['GetTag.tag'], 1)]
     buildOutDir: ${{ parameters.sourceRoot }}\src\$(buildPlatform)\$(buildConfiguration)
     buildOutDirAnyCpu: ${{ parameters.sourceRoot }}\src\AnyCPU\$(buildConfiguration)
     artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
@@ -69,13 +81,14 @@ jobs:
         $(VCPKG_INSTALLATION_ROOT)\vcpkg.exe integrate install
       workingDirectory: '$(VCPKG_INSTALLATION_ROOT)'
 
-  - task: PowerShell@2
-    displayName: Update Binary Version
-    condition: not(eq(variables['Build.Reason'], 'PullRequest'))
-    inputs:
-      filePath: '${{ parameters.sourceRoot }}\src\binver\Update-BinVer.ps1'
-      arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer)'
-      workingDirectory: '${{ parameters.sourceRoot }}\src'
+  - ${{ if ne(parameters.releaseTagJob, '') }}:
+    - task: PowerShell@2
+      displayName: Update Binary Version
+      condition: not(eq(variables['Build.Reason'], 'PullRequest'))
+      inputs:
+        filePath: '${{ parameters.sourceRoot }}\src\binver\Update-BinVer.ps1'
+        arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer)'
+        workingDirectory: '${{ parameters.sourceRoot }}\src'
 
   # Build all solutions in the root directory.
   - task: VSBuild@1
