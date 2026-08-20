@@ -4,10 +4,9 @@
 #pragma warning( push )
 #pragma warning ( disable : 6001 6388 6553)
 #include <wil/resource.h>
+#include <wil/token_helpers.h>
 #pragma warning( pop )
-#include <memory>
 #include <string>
-#include <utility>
 
 unsigned char* GetUCharString(const std::string& str);
 
@@ -20,9 +19,9 @@ bool IsCurrentProcessAdmin();
 
 std::string GetUserSID();
 
-// Gets the SID of the current process user in binary form.
-// The returned SID points into the returned buffer, which must outlive its use.
-std::pair<std::unique_ptr<BYTE[]>, PSID> GetUserSidBinary();
+// Gets the user of the current process token; the SID is at User.Sid.
+// The returned value owns the SID, so it must outlive any use of that pointer.
+wil::unique_tokeninfo_ptr<TOKEN_USER> GetBinaryUserSID();
 
 // Returns the ncalrpc endpoint name that the manual activation server listens on.
 std::string GetServerEndpointName();

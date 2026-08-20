@@ -7,52 +7,41 @@
 #pragma warning( pop )
 #include <processthreadsapi.h>
 #include <sddl.h>
-#include <memory>
 #include <string_view>
-#include <utility>
 
 unsigned char* GetUCharString(const std::string& str)
 {
     return reinterpret_cast<unsigned char*>(const_cast<char*>(str.c_str()));
 }
 
-static std::pair<std::unique_ptr<BYTE[]>, PTOKEN_USER> GetCurrentProcessTokenUser()
+static wil::unique_tokeninfo_ptr<TOKEN_USER> GetCurrentProcessTokenUser()
 {
-    wil::unique_handle tokenHandle;
-    THROW_LAST_ERROR_IF(!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, tokenHandle.put()));
-
-    DWORD dwBufferSize = 0;
-    THROW_LAST_ERROR_IF(!GetTokenInformation(tokenHandle.get(), TokenUser, NULL, 0, &dwBufferSize) && GetLastError() != ERROR_INSUFFICIENT_BUFFER);
-
-    auto buffer = std::make_unique<BYTE[]>(dwBufferSize);
-    PTOKEN_USER pTokenUser = reinterpret_cast<PTOKEN_USER>(buffer.get());
-
-    THROW_LAST_ERROR_IF(!GetTokenInformation(tokenHandle.get(), TokenUser, pTokenUser, dwBufferSize, &dwBufferSize));
-    THROW_HR_IF(CO_E_INVALIDSID, !IsValidSid(pTokenUser->User.Sid));
-
-    return { std::move(buffer), pTokenUser };
+    // The process token is used rather than the thread's effective token so that the identity
+    // does not change if a thread happens to be impersonating.
+    auto tokenUser = wil::get_token_information<TOKEN_USER>(GetCurrentProcessToken());
+    THROW_HR_IF(CO_E_INVALIDSID, !IsValidSid(tokenUser->User.Sid));
+    return tokenUser;
 }
 
 std::string GetUserSID()
 {
-    auto [buffer, pTokenUser] = GetCurrentProcessTokenUser();
+    auto tokenUser = GetCurrentProcessTokenUser();
     LPSTR pszSID = NULL;
-    THROW_LAST_ERROR_IF(!ConvertSidToStringSidA(pTokenUser->User.Sid, &pszSID));
+    THROW_LAST_ERROR_IF(!ConvertSidToStringSidA(tokenUser->User.Sid, &pszSID));
+    wil::unique_hlocal_ansistring sidPtr{ pszSID };
     return std::string{ pszSID };
 }
 
-std::pair<std::unique_ptr<BYTE[]>, PSID> GetUserSidBinary()
+wil::unique_tokeninfo_ptr<TOKEN_USER> GetBinaryUserSID()
 {
-    auto [buffer, pTokenUser] = GetCurrentProcessTokenUser();
-    PSID sid = pTokenUser->User.Sid;
-    return { std::move(buffer), sid };
+    return GetCurrentProcessTokenUser();
 }
 
 static std::wstring GetUserSIDW()
 {
-    auto [buffer, pTokenUser] = GetCurrentProcessTokenUser();
+    auto tokenUser = GetCurrentProcessTokenUser();
     LPWSTR pszSID = NULL;
-    THROW_LAST_ERROR_IF(!ConvertSidToStringSidW(pTokenUser->User.Sid, &pszSID));
+    THROW_LAST_ERROR_IF(!ConvertSidToStringSidW(tokenUser->User.Sid, &pszSID));
     wil::unique_hlocal_string sidPtr{ pszSID };
     return std::wstring{ pszSID };
 }
@@ -82,6 +71,7 @@ bool IsCurrentProcessAdmin()
 // Builds a security descriptor granting the current user full access and requiring high
 // integrity. The mandatory label policy is supplied by the caller because the rights that
 // need to be denied are not reached through the same generic right for every object type.
+// See https://learn.microsoft.com/en-us/windows/win32/secauthz/ace-strings for decoder ring.
 static wil::unique_hlocal_security_descriptor CreateCurrentUserHighIntegritySecurityDescriptor(std::wstring_view mandatoryLabelPolicy)
 {
     std::wstring securityDescriptorString = L"D:(A;;GA;;;" + GetUserSIDW() + L")";

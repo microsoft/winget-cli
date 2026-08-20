@@ -83,7 +83,7 @@ void InitializeRpcBinding()
     // When a security descriptor is present the connection is access checked against it rather
     // than against the Sid, so the Sid here simply names the expected server identity for the
     // authentication package.
-    auto [sidBuffer, userSid] = GetUserSidBinary();
+    auto tokenUser = GetBinaryUserSID();
 
     RPC_SECURITY_QOS_V5_A qos{};
     qos.Version = RPC_C_SECURITY_QOS_VERSION_5;
@@ -104,7 +104,7 @@ void InitializeRpcBinding()
     // else. Anonymous would defeat that check; Impersonate and Delegate would hand the server
     // more authority over the caller than it needs.
     qos.ImpersonationType = RPC_C_IMP_LEVEL_IDENTIFY;
-    qos.Sid = userSid;
+    qos.Sid = tokenUser->User.Sid;
     qos.ServerSecurityDescriptor = serverSecurityDescriptor.get();
 
     status = RpcBindingSetAuthInfoExA(
