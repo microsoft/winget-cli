@@ -12,6 +12,12 @@ parameters:
 - name: releaseTagJob
   type: string
   default: 'GetReleaseTag'
+# Steps run before any winget-cli step, for environment preparation the consuming repository
+# requires. A consumer whose repository root pins a .NET SDK in global.json needs to install it
+# here, since MSBuild resolves global.json by walking up from the project, out of the subtree.
+- name: preSteps
+  type: stepList
+  default: []
 
 jobs:
 - job: 'Build'
@@ -46,6 +52,9 @@ jobs:
     appxPackageDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)\AppxPackages
 
   steps:
+  - ${{ each step in parameters.preSteps }}:
+    - ${{ step }}
+
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
 

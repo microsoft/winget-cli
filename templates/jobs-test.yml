@@ -6,6 +6,11 @@ parameters:
 - name: sourceRoot
   type: string
   default: $(Build.SourcesDirectory)
+# Steps run before any winget-cli step, for environment preparation the consuming repository
+# requires. See jobs-build.yml.
+- name: preSteps
+  type: stepList
+  default: []
 
 jobs:
 - job: 'Test'
@@ -30,6 +35,9 @@ jobs:
     packageLayoutDir: $(Pipeline.Workspace)\Build.$(artifactIdentifier)\DevPackage
 
   steps:
+  - ${{ each step in parameters.preSteps }}:
+    - ${{ step }}
+
   - task: DownloadPipelineArtifact@2
     displayName: 'Download Build Artifacts'
     inputs:

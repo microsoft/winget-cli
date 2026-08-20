@@ -62,6 +62,30 @@ before wiring this up on a restricted network:
 - nuget.org, for the `VisualStudioTestPlatformInstaller` feed selector
 - the `winget` source, for `Microsoft.Sysinternals.PsTools`
 
+## `preSteps`
+
+Each job template takes a `preSteps` step list, injected ahead of every winget-cli step. It exists
+because a job template cannot know what a consuming repository needs done to the agent first.
+
+The case that forced it: MSBuild resolves `global.json` by walking up from the *project* directory,
+so it walks straight out of the subtree and into the consuming repository's root. If that repository
+pins a .NET SDK version, every restore in these jobs inherits the pin — and fails if the agent does
+not have that exact SDK. winget-cli has no `global.json` of its own, so this never happens here and
+this repository's pipeline cannot catch it.
+
+```yaml
+- template: subtree/templates/jobs-build.yml
+  parameters:
+    preSteps:
+    - task: UseDotNet@2
+      inputs:
+        useGlobalJson: true
+```
+
+The same hook suits feed authentication (`NuGetAuthenticate@1`) and any other agent preparation.
+Keep it to environment setup: steps that build or test winget-cli belong in the templates, where
+both consumers get them.
+
 ## `releaseTagJob`
 
 `jobs-build.yml` stamps a build version obtained from a separate job. That job is named by the
