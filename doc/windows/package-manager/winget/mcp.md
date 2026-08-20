@@ -1,27 +1,27 @@
 ---
-title: features Command
-description: Displays the list of experimental features available and their state.
+title: mcp Command
+description: Displays MCP information and manages extended features.
 ms.date: 2026-08-06
 ms.topic: overview
 ms.localizationpriority: medium
 ---
 
-# features command (winget)
+# mcp command (winget)
 
-The **features** command of the [winget](index.md) tool displays the status of experimental features available in your version of Windows Package Manager.
+The **mcp** command of the [winget](index.md) tool displays Model Context Protocol (MCP) information for Windows Package Manager.
 
-Experimental features can be turned on through [**settings**](settings.md).
+Live help for **winget mcp** currently exposes enable and disable switches for extended features.
 
 ## Usage
 
-`winget features [<options>]`
-
-![features command](images/features.png)
+`winget mcp [<options>]`
 
 ## Options
 
 | Option | Description |
 |--------|-------------|
+| **--enable** | Enable extended features. Requires store access. |
+| **--disable** | Disable extended features. Requires store access. |
 | **-?, --help** | Shows help about the selected command. |
 | **--wait** | Prompts the user to press any key before exiting. |
 | **--logs, --open-logs** | Open the default logs location. |
@@ -31,9 +31,7 @@ Experimental features can be turned on through [**settings**](settings.md).
 | **--proxy** | Set a proxy to use for this execution. |
 | **--no-proxy** | Disable the use of proxy for this execution. |
 
-Note: features may be managed by Group Policy. You can use `winget --info` to view policies in effect on your system.
-
 ## Related topics
 
 * [Use the winget tool to install and manage applications](index.md)
-* [settings command](settings.md)
+* [features command](features.md)
