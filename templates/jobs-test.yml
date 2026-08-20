@@ -1,0 +1,254 @@
+# Test job runs tests using build artifacts
+
+jobs:
+- job: 'Test'
+  timeoutInMinutes: 120
+  dependsOn: 'Build'
+  condition: succeeded('Build')
+
+  strategy:
+    matrix:
+      x86_release:
+        buildConfiguration: 'Release'
+        buildPlatform: 'x86'
+        artifactIdentifier: 'x86release'
+      x64_release:
+        buildConfiguration: 'Release'
+        buildPlatform: 'x64'
+        artifactIdentifier: 'x64release'
+
+  variables:
+    buildOutDir: $(Pipeline.Workspace)\Build.$(artifactIdentifier)
+    artifactsDir: $(Build.ArtifactStagingDirectory)
+    packageLayoutDir: $(Pipeline.Workspace)\Build.$(artifactIdentifier)\DevPackage
+
+  steps:
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download Build Artifacts'
+    inputs:
+      artifact: 'Build.$(artifactIdentifier)'
+      path: '$(buildOutDir)'
+
+  - task: PowerShell@2
+    displayName: Install Tests Dependencies
+    inputs:
+      targetType: 'inline'
+      script: |
+        Get-ChildItem $(buildOutDir)\E2ETests\DevPackageDependencies -Filter *.appx | %{ Add-AppxPackage $_.FullName }
+
+  - task: VisualStudioTestPlatformInstaller@1
+    displayName: Prepare VSTest for E2E Tests
+    inputs:
+      packageFeedSelector: 'nugetOrg'
+
+  - task: CmdLine@2
+    displayName: Start HAM trace
+    condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
+    inputs:
+      script: 'wpr -start $(Build.SourcesDirectory)\tools\HAMTrace\WER.HostActivityManager.wprp -filemode'
+
+  - powershell: |
+      Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+      Install-Module Microsoft.WinGet.Client -Repository PSGallery -Force
+      try { Repair-WingetPackageManager -Latest -Verbose } catch { $_.Exception }
+      Install-WinGetPackage -Id Microsoft.Sysinternals.PsTools -Source winget
+    displayName: Install Sysinternals PsTools Using Winget
+    condition: succeededOrFailed()
+
+  - task: CmdLine@2
+    displayName: Complete HAM trace
+    condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
+    inputs:
+      script: 'wpr -stop "$(artifactsDir)\HamTrace.etl"'
+
+  - pwsh: |
+      $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+      PsExec -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -mdmpto $(artifactsDir)\AICLI-Unpackaged-System.mdmp -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
+    displayName: Run Unit Tests Unpackaged Under System Context
+    workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
+    condition: succeededOrFailed()
+
+  - powershell: |
+      Uninstall-WinGetPackage -Id Microsoft.Sysinternals.PsTools -Source winget
+    displayName: Clean up Sysinternals PsTools
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: Run Unit Tests Packaged
+    inputs:
+      filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
+      arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot $(packageLayoutDir) -LogTarget $(artifactsDir)\AICLI-Packaged.log -MdmpTarget $(artifactsDir)\AICLI-Packaged.mdmp -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
+      workingDirectory: 'src'
+    condition: succeededOrFailed()
+
+  - task: PublishTestResults@2
+    displayName: Publish Unit Test Results
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '$(artifactsDir)\TEST-*.xml'
+      failTaskOnFailedTests: true
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: 'Set program files directory'
+    inputs:
+      targetType: 'inline'
+      script: |
+        if ("$(buildPlatform)" -eq "x86") {
+          Write-Host "##vso[task.setvariable variable=platformProgramFiles;]${env:ProgramFiles(x86)}"
+        } else {
+          Write-Host "##vso[task.setvariable variable=platformProgramFiles;]${env:ProgramFiles}"
+        }
+    condition: succeededOrFailed()
+
+  # Resolves resource strings utilized by InProc E2E tests.
+  - task: CopyFiles@2
+    displayName: 'Copy resources.pri to dotnet directory'
+    inputs:
+      SourceFolder: '$(buildOutDir)\DevPackage'
+      TargetFolder:  '$(platformProgramFiles)\dotnet'
+      Contents: resources.pri
+    condition: succeededOrFailed()
+
+  # Winmd accessed by test runner process (dotnet.exe)
+  - task: CopyFiles@2
+    displayName: 'Copy winmd to dotnet directory'
+    inputs:
+      SourceFolder: '$(buildOutDir)\DevPackage'
+      TargetFolder: '$(platformProgramFiles)\dotnet'
+      Contents: Microsoft.Management.Deployment.winmd
+    condition: succeededOrFailed()
+
+  - template: e2e-setup.yml
+    parameters:
+      sourceDir: $(Build.SourcesDirectory)
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -SourceCert $(buildOutDir)\E2ETests\TestSigningCert.cer'
+
+  - template: e2e-test.template.yml
+    parameters:
+      title: "E2E Tests Packaged"
+      isPackaged: true
+      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
+
+  - template: e2e-test.template.yml
+    parameters:
+      title: "Microsoft.Management.Deployment E2E Tests (In-process)"
+      isPackaged: false
+      filter: "TestCategory=InProcess"
+
+  - template: e2e-test.template.yml
+    parameters:
+      title: "Microsoft.Management.Deployment E2E Tests (Out-of-process)"
+      isPackaged: true
+      filter: "TestCategory=OutOfProcess"
+
+  - task: CopyFiles@2
+    displayName: 'Copy E2E Tests Package Log to artifacts folder'
+    inputs:
+      SourceFolder: '$(temp)\E2ETestLogs'
+      TargetFolder: '$(artifactsDir)\PackagedLog'
+    condition: succeededOrFailed()
+
+  - task: VSTest@2
+    displayName: 'Run tests: Microsoft.WinGet.UnitTests'
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: 'Microsoft.WinGet.UnitTests.dll'
+      searchFolder: '$(buildOutDir)\Microsoft.WinGet.UnitTests'
+      codeCoverageEnabled: true
+      platform: '$(buildPlatform)'
+      configuration: '$(BuildConfiguration)'
+      diagnosticsEnabled: true
+    condition: succeededOrFailed()
+
+  - task: VSTest@2
+    displayName: 'Run tests: WinGetUtilInterop.UnitTests'
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: 'WinGetUtilInterop.UnitTests.dll'
+      searchFolder: '$(buildOutDir)\WinGetUtilInterop.UnitTests'
+      codeCoverageEnabled: true
+      platform: '$(buildPlatform)'
+      configuration: '$(BuildConfiguration)'
+      diagnosticsEnabled: true
+    condition: succeededOrFailed()
+
+  - task: VSTest@2
+    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (InProc)'
+    inputs:
+      testRunTitle: Microsoft.Management.Configuration.UnitTests (InProc)
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
+      searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
+      testFiltercriteria: 'Category=InProc'
+      codeCoverageEnabled: false
+      platform: '$(buildPlatform)'
+      configuration: '$(BuildConfiguration)'
+      diagnosticsEnabled: true
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: Prepare for Microsoft.Management.Configuration.UnitTests (OutOfProc)
+    inputs:
+      filePath: 'src\Microsoft.Management.Configuration.OutOfProc\Prepare-ConfigurationOOPTests.ps1'
+      arguments: '-BuildOutputPath $(buildOutDir) -PackageLayoutPath $(packageLayoutDir)'
+    condition: succeededOrFailed()
+
+  - task: VSTest@2
+    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (OutOfProc)'
+    inputs:
+      testRunTitle: Microsoft.Management.Configuration.UnitTests (OutOfProc)
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
+      searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
+      testFiltercriteria: 'Category=OutOfProc'
+      codeCoverageEnabled: true
+      platform: '$(buildPlatform)'
+      configuration: '$(BuildConfiguration)'
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: Collect logs for Microsoft.Management.Configuration.UnitTests (OutOfProc)
+    inputs:
+      filePath: 'src\Microsoft.Management.Configuration.OutOfProc\Collect-ConfigurationOOPTests.ps1'
+      arguments: '-TargetLocation $(artifactsDir)\ConfigOOPTestsLog'
+    condition: succeededOrFailed()
+
+  - powershell: Get-Process LocalhostWebServer | Stop-Process
+    displayName: Stop LocalhostWebServer
+    condition: succeededOrFailed()
+    
+  - task: PowerShell@2
+    displayName: 'Copy GA WinGet Log to artifacts folder'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $source = "$env:LocalAppData\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\DiagOutputDir"
+        $destination = "$(artifactsDir)\GA_WinGet_Logs"
+        if (Test-Path $source) {
+          Copy-Item -Path $source -Destination $destination -Recurse -Force
+        } else {
+          Write-Host "WinGet logs not found at $source"
+        }
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: 'Copy Application Event Logs to Artifacts'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $source = "$env:SystemRoot\System32\winevt\Logs\Application.evtx"
+        $destination = "$(artifactsDir)\Application.evtx"
+        if (Test-Path $source) {
+          Copy-Item -Path $source -Destination $destination -Force
+        } else {
+          Write-Host "Application event log not found at $source"
+        }
+    condition: succeededOrFailed()
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish Pipeline Artifacts
+    inputs:
+      targetPath: '$(artifactsDir)'
+      artifact: 'Test.$(artifactIdentifier).$(System.JobAttempt)'
+    condition: succeededOrFailed()

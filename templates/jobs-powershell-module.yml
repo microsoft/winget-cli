@@ -1,0 +1,103 @@
+# Build and test PowerShell module
+
+jobs:
+- job: 'BuildPowerShellModule'
+  timeoutInMinutes: 120
+  dependsOn: 'Build'
+  condition: succeeded('Build')
+  variables:
+    buildOutDir: $(Pipeline.Workspace)\Build.x64Release
+
+  steps:
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download Build Artifacts'
+
+  - task: CopyFiles@2
+    displayName: 'Copy x64 PowerShell Binaries to Output'
+    inputs:
+      SourceFolder: '$(buildOutDir)\PowerShell'
+      Contents: '**\*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: CopyFiles@2
+    displayName: 'Copy x86 PowerShell Binaries to Output'
+    inputs:
+      SourceFolder: '$(Pipeline.Workspace)\Build.x86release\PowerShell'
+      Contents: '**\*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PowerShell@2
+    displayName: Generate Microsoft.WinGet.Client Help Documentation
+    inputs:
+      pwsh: true
+      targetType: inline
+      script: |
+        Install-Module -Name platyPS -Force
+        Import-Module platyPS
+        New-ExternalHelp -Path '$(Build.SourcesDirectory)\src\PowerShell\Help\Microsoft.WinGet.Client' -OutputPath '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.Client'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Microsoft.WinGet.DSC module to staging directory'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\src\PowerShell\Microsoft.WinGet.DSC'
+      Contents: '**\*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.DSC'
+
+  - task: PowerShell@2
+    displayName: Install Tests Dependencies
+    inputs:
+      targetType: 'inline'
+      script: |
+        Get-ChildItem AppxPackages\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\x64 -Filter *.appx | %{ Add-AppxPackage $_.FullName }
+      workingDirectory: $(buildOutDir)
+
+  - template: e2e-setup.yml
+    parameters:
+      sourceDir: $(Build.SourcesDirectory)
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -SourceCert $(buildOutDir)\E2ETests\TestSigningCert.cer'
+
+  - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(buildOutDir)\DevPackage
+    workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
+    displayName: Run PowerShell 7 Tests
+
+  - powershell: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\WPPesterTest
+    workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
+    displayName: Run Windows PowerShell Tests
+    condition: succeededOrFailed()
+
+  - powershell: Get-Process LocalhostWebServer | Stop-Process
+    displayName: Stop LocalhostWebServer
+    condition: succeededOrFailed()
+
+  - task: PublishTestResults@2
+    displayName: Publish Pester Test Results PowerShell 7
+    inputs:
+      testResultsFormat: 'NUnit'
+      testResultsFiles: '$(Pipeline.Workspace)\PesterTest\Test*.xml'
+      failTaskOnFailedTests: true
+    condition: succeededOrFailed()
+
+  - task: PublishTestResults@2
+    displayName: Publish Pester Test Results Windows PowerShell
+    inputs:
+      testResultsFormat: 'NUnit'
+      testResultsFiles: '$(Pipeline.Workspace)\WPPesterTest\Test*.xml'
+      failTaskOnFailedTests: true
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: Copy WinGet Logs
+    inputs:
+      pwsh: true
+      targetType: inline
+      script: |
+        $sourceDir = Join-Path $env:LocalAppData Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir
+        $destinationDir = Join-Path $(Build.ArtifactStagingDirectory) WinGetLogs
+        Copy-Item -Path $sourceDir -Destination $destinationDir -Recurse -Force
+    condition: succeededOrFailed()
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish PowerShell Module Artifacts
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)'
+    condition: succeededOrFailed()
