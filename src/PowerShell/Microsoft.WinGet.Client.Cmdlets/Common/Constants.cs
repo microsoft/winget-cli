@@ -53,6 +53,16 @@ namespace Microsoft.WinGet.Client.Common
         public const string IntegrityLatestSet = "IntegrityLatestSet";
 
         /// <summary>
+        /// This parameter set indicates that no filter is applied and all items should be returned.
+        /// </summary>
+        public const string AllSet = "AllSet";
+
+        /// <summary>
+        /// This parameter set indicates that a pin object was provided via a parameter or the pipeline.
+        /// </summary>
+        public const string PinSet = "PinSet";
+
+        /// <summary>
         /// Nouns used for different cmdlets. Changing this will alter the names of the related commands.
         /// </summary>
         public static class WinGetNouns
@@ -86,6 +96,11 @@ namespace Microsoft.WinGet.Client.Common
             /// The noun for enable/disable winget admin settings.
             /// </summary>
             public const string Setting = "WinGetSetting";
+
+            /// <summary>
+            /// WinGetPin.
+            /// </summary>
+            public const string Pin = "WinGetPin";
         }
     }
 }

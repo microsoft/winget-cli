@@ -4,6 +4,7 @@
 #include "PinningIndex.h"
 #include <winget/SQLiteStorageBase.h>
 #include "Schema/Pinning_1_0/PinningIndexInterface.h"
+#include "Schema/Pinning_1_1/PinningIndexInterface.h"
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -166,6 +167,24 @@ namespace AppInstaller::Repository::Microsoft
         savepoint.Commit();
     }
 
+    bool PinningIndex::TryRemovePin(const Pinning::PinKey& pinKey)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Verbose, << "Trying to remove Pin " << pinKey.ToString());
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningIndex_tryRemovePin");
+
+        bool result = m_interface->TryRemovePin(m_dbconn, pinKey);
+
+        if (result)
+        {
+            SetLastWriteTime();
+            savepoint.Commit();
+        }
+
+        return result;
+    }
+
     std::optional<Pinning::Pin> PinningIndex::GetPin(const Pinning::PinKey& pinKey)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
@@ -184,13 +203,18 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->ResetAllPins(m_dbconn, sourceId);
     }
 
-    std::unique_ptr<Schema::IPinningIndex> PinningIndex::CreateIPinningIndex() const
+    std::unique_ptr<Schema::IPinningIndex> PinningIndex::CreateIPinningIndex(const SQLite::Version& version)
     {
-        if (m_version == SQLite::Version{ 1, 0 } ||
-            m_version.MajorVersion == 1 ||
-            m_version.IsLatest())
+        if (version == SQLite::Version{ 1, 0 })
         {
             return std::make_unique<Schema::Pinning_V1_0::PinningIndexInterface>();
+        }
+
+        if (version == SQLite::Version{ 1, 1 } ||
+            version.MajorVersion == 1 ||
+            version.IsLatest())
+        {
+            return std::make_unique<Schema::Pinning_V1_1::PinningIndexInterface>();
         }
 
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -200,13 +224,42 @@ namespace AppInstaller::Repository::Microsoft
         SQLiteStorageBase(target, disposition, std::move(indexFile))
     {
         AICLI_LOG(Repo, Info, << "Opened Pinning Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
-        m_interface = CreateIPinningIndex();
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
+
+        // Create the correct interface for the stored schema version.
+        m_interface = CreateIPinningIndex(m_version);
+
+        if (disposition == SQLiteStorageBase::OpenDisposition::ReadWrite)
+        {
+            // For writable opens, create a latest interface and migrate if the stored version is older.
+            auto latestInterface = CreateIPinningIndex(SQLite::Version::Latest());
+
+            if (m_version != latestInterface->GetVersion())
+            {
+                AICLI_LOG(Repo, Info, << "Attempting to migrate Pinning Index from [" << m_version << "] to [" << latestInterface->GetVersion() << "]");
+
+                SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningindex_migrate");
+                bool migrated = latestInterface->MigrateFrom(m_dbconn, m_interface.get());
+
+                if (migrated)
+                {
+                    latestInterface->GetVersion().SetSchemaVersion(m_dbconn);
+                    SetLastWriteTime();
+                    savepoint.Commit();
+                    m_version = latestInterface->GetVersion();
+                    m_interface = std::move(latestInterface);
+                    AICLI_LOG(Repo, Info, << "Pinning Index migration successful");
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Warning, << "Pinning Index migration failed; continuing with existing schema version [" << m_version << "]");
+                }
+            }
+        }
     }
 
     PinningIndex::PinningIndex(const std::string& target, SQLite::Version version) : SQLiteStorageBase(target, version)
     {
-        m_interface = CreateIPinningIndex();
+        m_interface = CreateIPinningIndex(version);
         m_version = m_interface->GetVersion();
     }
 }
