@@ -18,6 +18,12 @@ parameters:
 - name: preSteps
   type: stepList
   default: []
+# Extra MSBuild arguments for the build tasks, as a single string. A consuming repository whose
+# Directory.Build.props imposes settings on winget-cli can pass /p: overrides here; command line
+# properties are global and win over any assignment in a project file.
+- name: additionalMSBuildArgs
+  type: string
+  default: ''
 
 jobs:
 - job: 'Build'
@@ -114,7 +120,8 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly
-                    /p:WingetCleanIntermediateFiles=true'
+                    /p:WingetCleanIntermediateFiles=true
+                    ${{ parameters.additionalMSBuildArgs }}'
       maximumCpuCount: true
 
   - task: MSBuild@1
@@ -126,7 +133,8 @@ jobs:
       msbuildArguments: '/p:AppxPackageOutput="$(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix"
                          /p:AppxBundle=Never
                          /p:UapAppxPackageBuildMode=SideLoadOnly
-                         /p:AppxPackageSigningEnabled=false'
+                         /p:AppxPackageSigningEnabled=false
+                         ${{ parameters.additionalMSBuildArgs }}'
       maximumCpuCount: true
 
   - task: CopyFiles@2

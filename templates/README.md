@@ -86,6 +86,31 @@ The same hook suits feed authentication (`NuGetAuthenticate@1`) and any other ag
 Keep it to environment setup: steps that build or test winget-cli belong in the templates, where
 both consumers get them.
 
+## `additionalMSBuildArgs`
+
+`jobs-build.yml` appends this string to both of its build tasks. It exists for the other half of the
+walk-up problem: a consuming repository's `Directory.Build.props` can not only *break* our build but
+silently *reconfigure* it, and unlike a path there is nothing for `sourceRoot` to fix.
+
+`src\Directory.Build.props` imports any `Directory.Build.props` found above winget-cli, by design,
+so a consumer's settings reach every project under `src\`. If those settings turn on the release
+switches this repository defines — `WingetDisableTestHooks`, `UseProdCLSIDs`, `UseProdWingetServer`,
+`WingetEnableReleaseBuild` — the result is a *product* build, not the build this pipeline's tests
+expect. `WingetDisableTestHooks` compiles out members that the test projects use, so the solution
+does not even build.
+
+```yaml
+- template: subtree/templates/jobs-build.yml
+  parameters:
+    additionalMSBuildArgs: >-
+      /p:WingetDisableTestHooks=false
+      /p:UseProdCLSIDs=false
+```
+
+These must be command line properties. A consumer that assigns the property in a `.props` file
+assigns it unconditionally, and only a global property — which is what `/p:` creates — takes
+precedence over that.
+
 ## `releaseTagJob`
 
 `jobs-build.yml` stamps a build version obtained from a separate job. That job is named by the
@@ -177,11 +202,17 @@ walking **up** from each project directory until they hit one. winget-cli has no
 that walk leaves the subtree and lands in the consuming repository, which silently applies its
 settings to our projects. This is the one hazard `sourceRoot` cannot address: nothing here is a path.
 
-In practice `src\Directory.Build.props` and `src\Directory.Packages.props` stop the walk for anything
-under `src\`, so projects there are already insulated. Projects outside it are not — the `samples\`
-projects inherit whatever the consuming repository declares, which is why the restore glob above is
-scoped to `src\` rather than to `sourceRoot`. (They are in no solution this pipeline builds, so
-nothing is lost.) `global.json` has no equivalent guard at all, which is what `preSteps` is for.
+In practice `src\Directory.Packages.props` does stop the walk for package versions, which is why the
+`samples\` projects — which have no such file above them inside winget-cli — were the ones that broke
+first, and why the restore glob above is scoped to `src\` rather than to `sourceRoot`. (They are in
+no solution this pipeline builds, so nothing is lost.)
 
-Two consequences when editing: build only what lives under `src\`, and expect a consumer to hit this
-before we do, since at depth zero the walk finds nothing and everything looks fine.
+`src\Directory.Build.props` is different, and worth reading before assuming anything under `src\` is
+insulated. Its first line is an explicit `GetPathOfFileAbove` import: *"Consume containing solution
+build props if present."* It deliberately chains to whatever sits above winget-cli, so a consumer's
+properties reach every project under `src\` by design, not by accident. That is what
+`additionalMSBuildArgs` is for. `global.json` has no guard of any kind, which is what `preSteps` is
+for.
+
+Two consequences when editing: build only what lives under `src\`, and expect a consumer to hit all
+of this before we do, since at depth zero the walk finds nothing and everything looks fine.
