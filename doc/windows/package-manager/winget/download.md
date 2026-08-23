@@ -1,7 +1,7 @@
 ---
 title: download Command
 description: Downloads the installer from a given package.
-ms.date: 2026-08-06
+ms.date: 08/06/2026
 ms.topic: overview
 ms.localizationpriority: medium
 ---

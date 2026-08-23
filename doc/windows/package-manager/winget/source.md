@@ -1,7 +1,7 @@
 ---
 title: source Command
 description: Manages the repositories accessed by Windows Package Manager.
-ms.date: 2026-08-06
+ms.date: 08/06/2026
 ms.topic: overview
 ms.localizationpriority: medium
 ---
@@ -74,6 +74,24 @@ The **list** sub-command lists all current sources, or full details of a specifi
 Usage: `winget source list [[-n] <name>] [<options>]`
 
 The following command aliases are available: `ls`
+
+### list all
+
+The **list** sub-command by itself reveals the complete list of supported sources. For example:
+
+![Source list image](images/source-list.png)
+
+### list source details
+
+To get complete details about a source, pass in the name used to identify the source. For example:
+
+![Source list winget image](images/source-list-winget.png)
+
+**Name** displays the name used to identify the source. \
+**Type** displays the type of repository. \
+**Arg** displays the URL or path used by the source. \
+**Data** displays the optional package name used if appropriate. \
+**Updated** displays the last date and time the source was updated.
 
 ## update
 

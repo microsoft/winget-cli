@@ -1,7 +1,7 @@
 ---
 title: list Command
 description: Displays installed packages and whether upgrades are available.
-ms.date: 2026-08-06
+ms.date: 08/06/2026
 ms.topic: overview
 ms.localizationpriority: medium
 ---

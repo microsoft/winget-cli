@@ -1,7 +1,7 @@
 ---
 title: import Command
 description: Installs the packages listed in a file.
-ms.date: 2026-08-06
+ms.date: 08/06/2026
 ms.topic: overview
 ms.localizationpriority: medium
 ---
@@ -47,6 +47,14 @@ The following options are available.
 ## JSON schema
 
 The import file follows the schema at [https://aka.ms/winget-packages.schema.1.0.json](https://aka.ms/winget-packages.schema.1.0.json).
+
+## Importing files
+
+When Windows Package Manager imports the JSON file, it attempts to install the specified applications serially. If an application is unavailable or is already installed, it will notify the user.
+
+![import](images/import-command.png)
+
+In the example above, **Microsoft.VisualStudioCode** and **JanDeDobbeleer.OhMyPosh** were already installed. Therefore, the import command skipped the installation.
 
 ## Related topics
 

@@ -1,7 +1,7 @@
 ---
 title: uninstall Command
 description: Uninstalls the specified application.
-ms.date: 2026-08-06
+ms.date: 08/06/2026
 ms.topic: overview
 ms.localizationpriority: medium
 ---
@@ -65,6 +65,10 @@ The options allow you to customize the uninstall experience to meet your needs.
 | **--proxy** | Set a proxy to use for this execution. |
 | **--no-proxy** | Disable the use of proxy for this execution. |
 
+Once you have successfully identified the application intended to uninstall, winget executes the uninstall command. In the example below, the **name** `orca` and the **id** were passed in.
+
+![uninstall command](images/uninstall-execute.png)
+
 ### Example queries
 
 The following example uninstalls a specific version of an application.
@@ -88,6 +92,10 @@ If the query provided to **winget** does not result in a single application to u
 ## Uninstalling apps not installed with Windows Package Manager
 
 As mentioned in [**list**](list.md), the **winget list** command displays more than just apps installed with **winget**. Therefore, you can use these commands to quickly remove apps from your PC.
+
+In this example, **list** was used to find the application, and then the **id** was passed in as part of uninstall.
+
+![uninstall with list command](images/uninstall-with-list.png)
 
 ## Related topics
 

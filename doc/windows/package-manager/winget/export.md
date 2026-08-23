@@ -1,7 +1,7 @@
 ---
 title: export Command
 description: Exports the list of installed applications.
-ms.date: 2026-08-06
+ms.date: 08/06/2026
 ms.topic: overview
 ms.localizationpriority: medium
 ---
@@ -47,6 +47,18 @@ The following options are available.
 ## JSON schema
 
 The driving force behind the **export** command is the JSON file. You can see the schema at [https://aka.ms/winget-packages.schema.1.0.json](https://aka.ms/winget-packages.schema.1.0.json).
+
+## Exporting files
+
+When Windows Package Manager exports the JSON file, it attempts to export all the applications installed on the PC. If the **winget export** command is not able to match an application to an application from an available **source**, the export command will show a warning.
+
+> Matching an application depends on metadata in the manifest from a configured source and metadata in Add / Remove Programs in Windows based on the package installer.
+
+In the example below, you will see warnings for **WhatsApp Desktop** and **7-Zip**.
+
+![export](images/export-command.png)
+
+Once the export is complete, you can edit the resulting JSON file in your favorite editor. You can remove apps you do not wish to import in the future.
 
 ## Related topics
 

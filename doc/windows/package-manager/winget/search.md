@@ -1,7 +1,7 @@
 ---
 title: search Command
 description: Queries the sources for available applications that can be installed.
-ms.date: 2026-08-06
+ms.date: 08/06/2026
 ms.topic: overview
 ms.localizationpriority: medium
 ---

@@ -1,7 +1,7 @@
 ---
 title: Use the winget tool to install and manage applications
 description: The winget command line tool enables developers to discover, install, upgrade, remove, repair, download, configure, and manage applications on Windows computers.
-ms.date: 2026-08-06
+ms.date: 08/06/2026
 ms.topic: overview
 ms.localizationpriority: medium
 ---
@@ -30,7 +30,9 @@ One of the most common usage scenarios is to search for and install a favorite t
 
 1. To [search](search.md) for a tool, type `winget search <appname>`.
 2. After you have confirmed that the tool you want is available, you can [install](install.md) the tool by typing `winget install <appname>`.
+    ![winget commandline](images/install.png)
 3. To get a complete list of commands, type `winget --help`.
+    ![winget help](images/help.png)
 
 ### Commands
 

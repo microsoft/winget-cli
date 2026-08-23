@@ -1,7 +1,7 @@
 ---
 title: winget validate Command
 description: Validates a manifest file.
-ms.date: 2026-08-06
+ms.date: 08/06/2026
 ms.topic: article
 ms.localizationpriority: medium
 ---

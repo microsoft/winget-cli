@@ -1,7 +1,7 @@
 ---
 title: winget hash command
 description: Generates the SHA256 hash for an installer.
-ms.date: 2026-08-06
+ms.date: 08/06/2026
 ms.topic: article
 ms.localizationpriority: medium
 ---
