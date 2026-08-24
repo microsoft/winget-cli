@@ -40,6 +40,9 @@ they do not move with the subtree:
 - `$(Agent.TempDirectory)`, `$(VCPKG_INSTALLATION_ROOT)`
 - `$(buildOutDir)`, `$(buildOutDirAnyCpu)`, `$(artifactsDir)`, `$(packageLayoutDir)`
 
+`$(VCPKG_INSTALLATION_ROOT)` is the exception worth calling out: it is correctly *not* rooted, but a
+consumer may not use the installation it points at. See `useAgentVcpkg` below.
+
 Nested template references need no help. Azure Pipelines resolves a `- template:` reference inside a
 template file relative to *that file*, so the job templates find their siblings at any depth. Only
 the entry point has to know where the subtree lives.
@@ -110,6 +113,24 @@ does not even build.
 These must be command line properties. A consumer that assigns the property in a `.props` file
 assigns it unconditionally, and only a global property — which is what `/p:` creates — takes
 precedence over that.
+
+## `useAgentVcpkg`
+
+Defaults to `true`, matching the Microsoft-hosted images, where `VCPKG_INSTALLATION_ROOT` points at
+a real vcpkg installation that this pipeline integrates and builds the native dependencies with.
+
+Set it to `false` when the consuming repository supplies vcpkg some other way — for example through
+an MSBuild SDK that restores the ports itself. `VCPKG_INSTALLATION_ROOT` may well still be defined in
+that case, since the agent image sets it, but nothing builds there. Two steps then become
+meaningless and are dropped together:
+
+- *Enable Vcpkg Install*, which integrates an installation the build does not use.
+- *Copy vcpkg logs*, which reads `$(VCPKG_INSTALLATION_ROOT)\buildtrees` — a directory that will not
+  exist, failing the job after a successful build.
+
+Dropping the log collection loses no real diagnostics: `Build Solution` writes an MSBuild binary log
+to `$(artifactsDir)\msbuild.binlog`, which is published with the rest of the build artifacts and
+records the vcpkg invocation and its output.
 
 ## `releaseTagJob`
 

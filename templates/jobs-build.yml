@@ -24,6 +24,13 @@ parameters:
 - name: additionalMSBuildArgs
   type: string
   default: ''
+# Whether the agent's own vcpkg installation, at VCPKG_INSTALLATION_ROOT, is what builds the native
+# dependencies. Set to false when a consuming repository supplies vcpkg by other means, such as an
+# MSBuild SDK; the integrate step and the port log collection below are then both meaningless,
+# because that variable points at an installation this build never uses.
+- name: useAgentVcpkg
+  type: boolean
+  default: true
 
 jobs:
 - job: 'Build'
@@ -92,12 +99,13 @@ jobs:
       command: 'restore'
       projects: '${{ parameters.sourceRoot }}\src\**\*.csproj'
 
-  - task: CmdLine@2
-    displayName: Enable Vcpkg Install
-    inputs:
-      script: |
-        $(VCPKG_INSTALLATION_ROOT)\vcpkg.exe integrate install
-      workingDirectory: '$(VCPKG_INSTALLATION_ROOT)'
+  - ${{ if parameters.useAgentVcpkg }}:
+    - task: CmdLine@2
+      displayName: Enable Vcpkg Install
+      inputs:
+        script: |
+          $(VCPKG_INSTALLATION_ROOT)\vcpkg.exe integrate install
+        workingDirectory: '$(VCPKG_INSTALLATION_ROOT)'
 
   - ${{ if ne(parameters.releaseTagJob, '') }}:
     - task: PowerShell@2
@@ -137,13 +145,14 @@ jobs:
                          ${{ parameters.additionalMSBuildArgs }}'
       maximumCpuCount: true
 
-  - task: CopyFiles@2
-    displayName: Copy vcpkg logs
-    inputs:
-      SourceFolder: $(VCPKG_INSTALLATION_ROOT)\buildtrees
-      Contents: '**\*.log'
-      TargetFolder: '$(artifactsDir)\vcpkgLogs'
-    condition: succeededOrFailed()
+  - ${{ if parameters.useAgentVcpkg }}:
+    - task: CopyFiles@2
+      displayName: Copy vcpkg logs
+      inputs:
+        SourceFolder: $(VCPKG_INSTALLATION_ROOT)\buildtrees
+        Contents: '**\*.log'
+        TargetFolder: '$(artifactsDir)\vcpkgLogs'
+      condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy specific build artifacts'
