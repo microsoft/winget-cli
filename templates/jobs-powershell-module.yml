@@ -18,6 +18,11 @@ jobs:
   dependsOn: 'Build'
   condition: succeeded('Build')
   variables:
+    # Exported to every step as an environment variable. winget-cli content that has to find the
+    # sources at runtime, rather than through an MSBuild or task input, reads it: localsource.json
+    # and Microsoft.Management.Configuration.UnitTests both used to read BUILD_SOURCESDIRECTORY,
+    # which is the repository root and therefore wrong in a subtree.
+    WINGET_SOURCE_ROOT: ${{ parameters.sourceRoot }}
     buildOutDir: $(Pipeline.Workspace)\Build.x64Release
 
   steps:

@@ -47,6 +47,28 @@ Nested template references need no help. Azure Pipelines resolves a `- template:
 template file relative to *that file*, so the job templates find their siblings at any depth. Only
 the entry point has to know where the subtree lives.
 
+## `WINGET_SOURCE_ROOT`
+
+Not everything that needs the source root can be handed a task input. Some winget-cli content
+resolves the sources at *runtime*, from inside a process the pipeline merely launches, and that
+content used to read `BUILD_SOURCESDIRECTORY` — which is the root of the repository being built, and
+so points outside the subtree.
+
+All three job templates therefore export `sourceRoot` as a job-scope variable named
+`WINGET_SOURCE_ROOT`, which reaches every step as an environment variable. Two things read it:
+
+- `src\AppInstallerCLIE2ETests\TestData\localsource.json`, whose `%WINGET_SOURCE_ROOT%` tokens locate
+  the test installers and manifests that `LocalhostWebServer` bakes into `TestLocalIndex`.
+- `Microsoft.Management.Configuration.UnitTests`, which uses it to find
+  `src\PowerShell\ExternalModules`.
+
+Both failed silently-ish in a subtree rather than obviously: `LocalhostWebServer` is started with
+`Start-Process`, which does not propagate an exit code, so it crashed on a missing installer while
+its step reported success, and the damage only surfaced as HTTP 404s in the E2E tests one job later.
+
+Nothing needs to be passed for this; it follows `sourceRoot`. It is listed here because it is the
+one part of the contract that is neither a parameter nor a path in this directory.
+
 ## What a consuming pipeline must provide
 
 **Pipeline variables.** None. `jobs-build.yml` sets what it needs at job scope — `solution`, so it

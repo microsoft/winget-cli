@@ -30,6 +30,8 @@ jobs:
         artifactIdentifier: 'x64release'
 
   variables:
+    # See jobs-build.yml.
+    WINGET_SOURCE_ROOT: ${{ parameters.sourceRoot }}
     buildOutDir: $(Pipeline.Workspace)\Build.$(artifactIdentifier)
     artifactsDir: $(Build.ArtifactStagingDirectory)
     packageLayoutDir: $(Pipeline.Workspace)\Build.$(artifactIdentifier)\DevPackage

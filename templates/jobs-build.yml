@@ -57,6 +57,11 @@ jobs:
     # Set here rather than at pipeline level so that a consuming pipeline cannot omit it; without
     # it the scan succeeds while silently ignoring the native dependencies.
     EnableDetectorVcpkg: true
+    # Exported to every step as an environment variable, for winget-cli content that has to find
+    # the sources at runtime rather than through an MSBuild or task input. localsource.json and
+    # Microsoft.Management.Configuration.UnitTests read it; both previously read
+    # BUILD_SOURCESDIRECTORY, which is the repository root and so wrong in a subtree.
+    WINGET_SOURCE_ROOT: ${{ parameters.sourceRoot }}
     ${{ if ne(parameters.releaseTagJob, '') }}:
       BuildVer: $[counter(dependencies.${{ parameters.releaseTagJob }}.outputs['GetTag.tag'], 1)]
     buildOutDir: ${{ parameters.sourceRoot }}\src\$(buildPlatform)\$(buildConfiguration)
