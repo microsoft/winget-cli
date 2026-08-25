@@ -241,7 +241,7 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
     inputs:
-      SourceFolder: '${{ parameters.sourceRoot }}\src\WinGetUtilInterop.UnitTests\bin\$(buildPlatform)\$(BuildConfiguration)\net8.0'
+      SourceFolder: '$(buildOutDir)\WinGetUtilInterop.UnitTests'
       TargetFolder:  '$(artifactsDir)\WinGetUtilInterop.UnitTests\'
       CleanTargetFolder: true
       OverWrite: true
