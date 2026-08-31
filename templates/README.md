@@ -78,7 +78,8 @@ Both were previously pipeline-level variables in `azure-pipelines.yml`; a consum
 dependencies, so the template owns it now.
 
 **A Windows agent** with Visual Studio 2022 and vcpkg, exposing `VCPKG_INSTALLATION_ROOT`. The
-Microsoft-hosted `windows-2025` image qualifies.
+Microsoft-hosted `windows-2025` image qualifies. **The `Test` and `BuildPowerShellModule` jobs need
+more than the `Build` job does — see "Agent requirements" below.**
 
 **Outbound network access.** The test jobs reach several public endpoints, which is worth checking
 before wiring this up on a restricted network:
@@ -86,6 +87,50 @@ before wiring this up on a restricted network:
 - PSGallery, for `Microsoft.WinGet.Client` and `platyPS`
 - nuget.org, for the `VisualStudioTestPlatformInstaller` feed selector
 - the `winget` source, for `Microsoft.Sysinternals.PsTools`
+
+## Agent requirements
+
+`Build` compiles and packages; it is happy on any Windows agent that meets the above.
+
+`Test` and `BuildPowerShellModule` additionally **deploy MSIX packages and register them for the
+current user**, which is a much stronger requirement than it looks. winget's packaged sources are
+MSIX packages carrying the index as an
+[app extension](https://learn.microsoft.com/windows/apps/desktop/modernize/desktop-to-uwp-extensions);
+adding a source deploys the package, and opening the source enumerates the extension catalog. That
+catalog is **per user**, so both halves need a real, interactive user session on the agent.
+
+An agent whose service runs without one fails in a way that is easy to misread, because deployment
+reports success:
+
+```
+Starting AddPackage operation #0 ... failed with error 0x80073D19
+   80073D19 An error occurred because a user was logged off.
+Source add/update failed, waiting 7584 milliseconds and retrying: TestSource
+Starting AddPackage operation #1 ... Successfully completed #1
+Did not find extension: PFN = WingetE2E.Tests_8wekyb3d8bbwe, ID = IndexDB
+```
+
+The package stages, never registers for a user, and the extension catalog comes back **empty** — no
+`Examining extension` lines at all, not merely a non-matching one. Every test using a local source
+then fails with `CatalogConnectException` or `APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING`
+(`0x8A15000F`). Machine-wide provisioning (`-AllUsers`) is unaffected, which can make the agent look
+healthy right up until a source is added.
+
+Microsoft-hosted images run the agent interactively and are fine. Many self-hosted and scale-set
+pools run it as a service and are not. Each job template therefore takes a `pool` parameter, so a
+consumer can send these two jobs somewhere suitable while building elsewhere:
+
+```yaml
+- template: templates/jobs-test.yml
+  parameters:
+    sourceRoot: $(Build.SourcesDirectory)\subtree
+    pool:
+      vmImage: windows-2025
+```
+
+The parameter accepts whatever the `pool` key accepts — a `vmImage`, a `name`, `demands`. Left empty
+(the default) the job inherits the pipeline's pool, so a pipeline with a single suitable pool passes
+nothing and is unaffected.
 
 ## `preSteps`
 

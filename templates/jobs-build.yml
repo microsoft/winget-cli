@@ -31,10 +31,17 @@ parameters:
 - name: useAgentVcpkg
   type: boolean
   default: true
+# Agent pool for this job. Leave empty to inherit the pipeline's pool, which is what a pipeline
+# with a single suitable pool wants. See the "Agent requirements" section of README.md.
+- name: pool
+  type: object
+  default: ''
 
 jobs:
 - job: 'Build'
   timeoutInMinutes: 120
+  ${{ if ne(parameters.pool, '') }}:
+    pool: ${{ parameters.pool }}
   ${{ if ne(parameters.releaseTagJob, '') }}:
     dependsOn: ${{ parameters.releaseTagJob }}
     condition: always()

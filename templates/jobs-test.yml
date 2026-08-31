@@ -11,12 +11,20 @@ parameters:
 - name: preSteps
   type: stepList
   default: []
+# Agent pool for this job. Leave empty to inherit the pipeline's pool. This job deploys MSIX
+# packages, so its agent has stricter requirements than the build's; see the "Agent requirements"
+# section of README.md.
+- name: pool
+  type: object
+  default: ''
 
 jobs:
 - job: 'Test'
   timeoutInMinutes: 120
   dependsOn: 'Build'
   condition: succeeded('Build')
+  ${{ if ne(parameters.pool, '') }}:
+    pool: ${{ parameters.pool }}
 
   strategy:
     matrix:
