@@ -307,6 +307,34 @@ jobs:
       TargetFolder: '$(artifactsDir)\E2ETests\Scripts'
       flattenFolders: true
 
+  # Everything under the winget-cli tree that the Test and BuildPowerShellModule jobs read at run
+  # time, staged with its directory structure intact so that the artifact copy can substitute for
+  # the sources. Those jobs point their source root here and check out nothing; see the "Running
+  # the test jobs without a checkout" section of README.md.
+  #
+  # Structure matters, and flattenFolders is deliberately absent: several of these scripts navigate
+  # relative to their own location. Microsoft.WinGet.Configuration.Tests.ps1 reaches TestData
+  # through '$PSScriptRoot\..\..\AppInstallerCLIE2ETests\TestData\Configuration', and
+  # Microsoft.Management.Configuration.UnitTests expects ExternalModules at
+  # '<source root>\src\PowerShell\ExternalModules'. Both only work if the layout is preserved.
+  - task: CopyFiles@2
+    displayName: 'Copy sources needed by the test jobs'
+    inputs:
+      SourceFolder: '${{ parameters.sourceRoot }}'
+      Contents: |
+          src\AppInstallerCLIE2ETests\TestData\**
+          src\AppInstallerCLITests\Run-TestsInPackage.ps1
+          src\LocalhostWebServer\Run-LocalhostWebServer.ps1
+          src\Microsoft.Management.Configuration.OutOfProc\*.ps1
+          src\PowerShell\ExternalModules\**
+          src\PowerShell\Help\**
+          src\PowerShell\Microsoft.WinGet.DSC\**
+          src\PowerShell\scripts\*.ps1
+          src\PowerShell\tests\**
+          tools\COMTrace\*.wprp
+          tools\HAMTrace\*.wprp
+      TargetFolder: '$(artifactsDir)\Source'
+
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
     inputs:

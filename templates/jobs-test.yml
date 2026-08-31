@@ -17,6 +17,13 @@ parameters:
 - name: pool
   type: object
   default: ''
+# Whether to take the winget-cli sources this job reads at run time from the build artifact instead
+# of from a checkout. When true the job checks nothing out, so a consuming repository's sources
+# never reach this job's agent; see the "Running the test jobs without a checkout" section of
+# README.md. sourceRoot is then unused.
+- name: useArtifactSource
+  type: boolean
+  default: false
 
 jobs:
 - job: 'Test'
@@ -38,13 +45,23 @@ jobs:
         artifactIdentifier: 'x64release'
 
   variables:
+    # Root of the winget-cli sources this job reads at run time: either the checkout, or the copy
+    # staged into the build artifact. Steps use this rather than the parameter directly, so that
+    # both cases resolve at run time to a real directory on this agent.
+    ${{ if parameters.useArtifactSource }}:
+      wingetSourceRoot: $(Pipeline.Workspace)\Build.$(artifactIdentifier)\Source
+    ${{ else }}:
+      wingetSourceRoot: ${{ parameters.sourceRoot }}
     # See jobs-build.yml.
-    WINGET_SOURCE_ROOT: ${{ parameters.sourceRoot }}
+    WINGET_SOURCE_ROOT: $(wingetSourceRoot)
     buildOutDir: $(Pipeline.Workspace)\Build.$(artifactIdentifier)
     artifactsDir: $(Build.ArtifactStagingDirectory)
     packageLayoutDir: $(Pipeline.Workspace)\Build.$(artifactIdentifier)\DevPackage
 
   steps:
+  - ${{ if parameters.useArtifactSource }}:
+    - checkout: none
+
   - ${{ each step in parameters.preSteps }}:
     - ${{ step }}
 
@@ -70,7 +87,7 @@ jobs:
     displayName: Start HAM trace
     condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
     inputs:
-      script: 'wpr -start ${{ parameters.sourceRoot }}\tools\HAMTrace\WER.HostActivityManager.wprp -filemode'
+      script: 'wpr -start $(wingetSourceRoot)\tools\HAMTrace\WER.HostActivityManager.wprp -filemode'
 
   - powershell: |
       Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
@@ -101,9 +118,9 @@ jobs:
   - task: PowerShell@2
     displayName: Run Unit Tests Packaged
     inputs:
-      filePath: '${{ parameters.sourceRoot }}\src\AppInstallerCLITests\Run-TestsInPackage.ps1'
+      filePath: '$(wingetSourceRoot)\src\AppInstallerCLITests\Run-TestsInPackage.ps1'
       arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot $(packageLayoutDir) -LogTarget $(artifactsDir)\AICLI-Packaged.log -MdmpTarget $(artifactsDir)\AICLI-Packaged.mdmp -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
-      workingDirectory: '${{ parameters.sourceRoot }}\src'
+      workingDirectory: '$(wingetSourceRoot)\src'
     condition: succeededOrFailed()
 
   - task: PublishTestResults@2
@@ -146,26 +163,26 @@ jobs:
 
   - template: e2e-setup.yml
     parameters:
-      sourceDir: ${{ parameters.sourceRoot }}
+      sourceDir: $(wingetSourceRoot)
       localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -SourceCert $(buildOutDir)\E2ETests\TestSigningCert.cer'
 
   - template: e2e-test.template.yml
     parameters:
-      sourceRoot: ${{ parameters.sourceRoot }}
+      sourceRoot: $(wingetSourceRoot)
       title: "E2E Tests Packaged"
       isPackaged: true
       filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
 
   - template: e2e-test.template.yml
     parameters:
-      sourceRoot: ${{ parameters.sourceRoot }}
+      sourceRoot: $(wingetSourceRoot)
       title: "Microsoft.Management.Deployment E2E Tests (In-process)"
       isPackaged: false
       filter: "TestCategory=InProcess"
 
   - template: e2e-test.template.yml
     parameters:
-      sourceRoot: ${{ parameters.sourceRoot }}
+      sourceRoot: $(wingetSourceRoot)
       title: "Microsoft.Management.Deployment E2E Tests (Out-of-process)"
       isPackaged: true
       filter: "TestCategory=OutOfProcess"
@@ -218,7 +235,7 @@ jobs:
   - task: PowerShell@2
     displayName: Prepare for Microsoft.Management.Configuration.UnitTests (OutOfProc)
     inputs:
-      filePath: '${{ parameters.sourceRoot }}\src\Microsoft.Management.Configuration.OutOfProc\Prepare-ConfigurationOOPTests.ps1'
+      filePath: '$(wingetSourceRoot)\src\Microsoft.Management.Configuration.OutOfProc\Prepare-ConfigurationOOPTests.ps1'
       arguments: '-BuildOutputPath $(buildOutDir) -PackageLayoutPath $(packageLayoutDir)'
     condition: succeededOrFailed()
 
@@ -238,7 +255,7 @@ jobs:
   - task: PowerShell@2
     displayName: Collect logs for Microsoft.Management.Configuration.UnitTests (OutOfProc)
     inputs:
-      filePath: '${{ parameters.sourceRoot }}\src\Microsoft.Management.Configuration.OutOfProc\Collect-ConfigurationOOPTests.ps1'
+      filePath: '$(wingetSourceRoot)\src\Microsoft.Management.Configuration.OutOfProc\Collect-ConfigurationOOPTests.ps1'
       arguments: '-TargetLocation $(artifactsDir)\ConfigOOPTestsLog'
     condition: succeededOrFailed()
 

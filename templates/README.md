@@ -132,6 +132,47 @@ The parameter accepts whatever the `pool` key accepts — a `vmImage`, a `name`,
 (the default) the job inherits the pipeline's pool, so a pipeline with a single suitable pool passes
 nothing and is unaffected.
 
+If the reason a consumer cannot simply use a hosted pool is that its sources must not be cloned onto
+one, see the next section — these two jobs can run without a checkout at all.
+
+## Running the test jobs without a checkout
+
+Sending `Test` and `BuildPowerShellModule` to a different pool raises a question for a consumer whose
+sources are not public: that pool's agents would get a checkout of the consuming repository, purely
+so a handful of scripts and test data files are on disk.
+
+They do not have to. Both jobs take a `useArtifactSource` boolean. When it is true the job adds
+`checkout: none` and reads those files from the build artifact instead, so **the consuming
+repository is never cloned onto that agent**:
+
+```yaml
+- template: templates/jobs-test.yml
+  parameters:
+    useArtifactSource: true
+    pool:
+      vmImage: windows-2025
+```
+
+`sourceRoot` is then unused and need not be passed. The build job always stages the files, so
+turning this on costs nothing extra in the build.
+
+What makes it work is that these two jobs only ever *read* from the source tree — they compile
+nothing. `jobs-build.yml` has a `Copy sources needed by the test jobs` step that stages exactly what
+they read into `Source/` inside the artifact, **preserving the directory layout**, and the jobs point
+their source root at it. Layout preservation is not incidental: several of these scripts navigate
+relative to their own location, so a flattened copy would break them.
+
+- `Microsoft.WinGet.Configuration.Tests.ps1` reaches test data through
+  `$PSScriptRoot\..\..\AppInstallerCLIE2ETests\TestData\Configuration`
+- `Microsoft.Management.Configuration.UnitTests` expects `<source root>\src\PowerShell\ExternalModules`
+
+If a step in these two jobs ever comes to need another file from the tree, add it to that step's
+`Contents` list; the failure mode is a missing-file error naming the path, under `…\Build.*\Source\`.
+
+Steps in these jobs use a `$(wingetSourceRoot)` variable rather than `${{ parameters.sourceRoot }}`
+directly, because the artifact path is only known at run time. That is also why the parameter is a
+job-level switch rather than something a consumer expresses by passing a different `sourceRoot`.
+
 ## `preSteps`
 
 Each job template takes a `preSteps` step list, injected ahead of every winget-cli step. It exists
@@ -269,12 +310,43 @@ easy to get subtly wrong.
 To stamp a version instead, add a job that produces the tag and name it in `releaseTagJob`;
 `azure-pipelines.yml` in this repository is the worked example of that arrangement.
 
+A consumer that has to build on its own pool but can only run the test jobs on a hosted agent — and
+does not want its sources cloned there — combines `pool` with `useArtifactSource`:
+
+```yaml
+pool:
+  name: MyBuildPool
+
+jobs:
+- template: subtree/templates/jobs-build.yml
+  parameters:
+    sourceRoot: $(Build.SourcesDirectory)\subtree
+    releaseTagJob: ''
+
+- template: subtree/templates/jobs-test.yml
+  parameters:
+    useArtifactSource: true
+    pool:
+      vmImage: windows-2025
+
+- template: subtree/templates/jobs-powershell-module.yml
+  parameters:
+    useArtifactSource: true
+    pool:
+      vmImage: windows-2025
+```
+
+Only the build job needs a checkout, so only it takes `sourceRoot`.
+
 ## Editing these templates
 
 The failure mode to watch for is a path that works at the repository root and only breaks in the
 subtree, which this repository's own pipeline will not catch. When adding a task:
 
-- Root anything inside the winget-cli tree at `${{ parameters.sourceRoot }}`.
+- Root anything inside the winget-cli tree at `${{ parameters.sourceRoot }}`, except in
+  `jobs-test.yml` and `jobs-powershell-module.yml`, which use `$(wingetSourceRoot)` so that the
+  source can come from the build artifact instead. Adding a source file those two jobs read also
+  means adding it to the `Copy sources needed by the test jobs` step in `jobs-build.yml`.
 - Never leave a `filePath`, `solution`, `restoreSolution`, `projects`, or `workingDirectory` value
   as a repo-relative path such as `src\...`. Those resolve against the *consuming* repository.
 - Prefer `${{ parameters.sourceRoot }}` over `$(Build.SourcesDirectory)` for source files. The latter

@@ -17,6 +17,13 @@ parameters:
 - name: pool
   type: object
   default: ''
+# Whether to take the winget-cli sources this job reads at run time from the build artifact instead
+# of from a checkout. When true the job checks nothing out, so a consuming repository's sources
+# never reach this job's agent; see the "Running the test jobs without a checkout" section of
+# README.md. sourceRoot is then unused.
+- name: useArtifactSource
+  type: boolean
+  default: false
 
 jobs:
 - job: 'BuildPowerShellModule'
@@ -26,14 +33,24 @@ jobs:
   ${{ if ne(parameters.pool, '') }}:
     pool: ${{ parameters.pool }}
   variables:
+    # Root of the winget-cli sources this job reads at run time: either the checkout, or the copy
+    # staged into the build artifact. Steps use this rather than the parameter directly, so that
+    # both cases resolve at run time to a real directory on this agent.
+    ${{ if parameters.useArtifactSource }}:
+      wingetSourceRoot: $(Pipeline.Workspace)\Build.x64Release\Source
+    ${{ else }}:
+      wingetSourceRoot: ${{ parameters.sourceRoot }}
     # Exported to every step as an environment variable. winget-cli content that has to find the
     # sources at runtime, rather than through an MSBuild or task input, reads it: localsource.json
     # and Microsoft.Management.Configuration.UnitTests both used to read BUILD_SOURCESDIRECTORY,
     # which is the repository root and therefore wrong in a subtree.
-    WINGET_SOURCE_ROOT: ${{ parameters.sourceRoot }}
+    WINGET_SOURCE_ROOT: $(wingetSourceRoot)
     buildOutDir: $(Pipeline.Workspace)\Build.x64Release
 
   steps:
+  - ${{ if parameters.useArtifactSource }}:
+    - checkout: none
+
   - ${{ each step in parameters.preSteps }}:
     - ${{ step }}
 
@@ -62,12 +79,12 @@ jobs:
       script: |
         Install-Module -Name platyPS -Force
         Import-Module platyPS
-        New-ExternalHelp -Path '${{ parameters.sourceRoot }}\src\PowerShell\Help\Microsoft.WinGet.Client' -OutputPath '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.Client'
+        New-ExternalHelp -Path '$(wingetSourceRoot)\src\PowerShell\Help\Microsoft.WinGet.Client' -OutputPath '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.Client'
 
   - task: CopyFiles@2
     displayName: 'Copy Microsoft.WinGet.DSC module to staging directory'
     inputs:
-      SourceFolder: '${{ parameters.sourceRoot }}\src\PowerShell\Microsoft.WinGet.DSC'
+      SourceFolder: '$(wingetSourceRoot)\src\PowerShell\Microsoft.WinGet.DSC'
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.DSC'
 
@@ -81,15 +98,15 @@ jobs:
 
   - template: e2e-setup.yml
     parameters:
-      sourceDir: ${{ parameters.sourceRoot }}
+      sourceDir: $(wingetSourceRoot)
       localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -SourceCert $(buildOutDir)\E2ETests\TestSigningCert.cer'
 
   - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(buildOutDir)\DevPackage
-    workingDirectory: ${{ parameters.sourceRoot }}\src\PowerShell\tests\
+    workingDirectory: $(wingetSourceRoot)\src\PowerShell\tests\
     displayName: Run PowerShell 7 Tests
 
   - powershell: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\WPPesterTest
-    workingDirectory: ${{ parameters.sourceRoot }}\src\PowerShell\tests\
+    workingDirectory: $(wingetSourceRoot)\src\PowerShell\tests\
     displayName: Run Windows PowerShell Tests
     condition: succeededOrFailed()
 
