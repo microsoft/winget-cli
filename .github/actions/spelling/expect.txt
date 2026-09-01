@@ -114,6 +114,7 @@ countryregion
 Cov
 CPIL
 createmanifestmetadata
+createview
 crt
 cswinrt
 ctc
@@ -254,6 +255,7 @@ IFACEMETHODIMP
 iid
 img
 inet
+inmemorydb
 innererror
 inproc
 Insta
@@ -409,6 +411,7 @@ onefuzz
 oop
 opensource
 OPTOUT
+optoverview
 osfhandle
 oss
 outfile
@@ -454,7 +457,6 @@ pri
 PRIMARYKEY
 processthreads
 productcode
-productcodes
 PRODUCTICON
 propkey
 PROPVARIANT
@@ -629,7 +631,6 @@ UParse
 upgradable
 upgradeable
 upgradecode
-upgradecodes
 URLZONE
 USEDEFAULT
 userfilesetting
@@ -676,6 +677,7 @@ winreg
 winrtact
 winstring
 wintrust
+withoutrowid
 WMI
 wmmc
 wnd

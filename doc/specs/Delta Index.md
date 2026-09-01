@@ -148,7 +148,7 @@ Delta creation takes three inputs beyond the working index:
 
 | Input | Purpose |
 |---|---|
-| **Baseline index file** | Read-only source for the "before" state. Every changed package is diffed against this. Must carry a baseline GUID; generation fails if it does not. The GUID is copied into the delta. |
+| **Baseline index file** | Read-only source for the "before" state. Every changed package is compared against this. Must carry a baseline GUID; generation fails if it does not. The GUID is copied into the delta. |
 | **Baseline relative path** | Where the baseline package will live, relative to the source root. Recorded in the delta so the client can locate the baseline. Deliberately **independent** of the version so that the service retains freedom in how it lays out storage. |
 | **Baseline MSIX package version** | The identity version of the baseline package. Recorded in the delta so the client can determine whether the baseline it already has is the one this delta needs, without a network round trip. |
 
@@ -529,7 +529,7 @@ optimization, never a correctness dependency.
               │                           │
               ▼                           ▼
    ┌────────────────────┐      ┌─────────────────────────┐
-   │  delta.db  (main)  │      │  baseline.db (ATTACHed) │
+   │  delta.db  (main)  │      │  baseline.db (ATTACH)   │
    │  delta_packages    │      │  packages               │
    │  delta_tags2 ...   │      │  tags2 ...              │
    └────────────────────┘      └─────────────────────────┘
