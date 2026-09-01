@@ -1,16 +1,16 @@
 ---
 title: upgrade Command
-description: upgrades the specified application.
-ms.date: 05/05/2021
+description: Upgrades the specified application.
+ms.date: 08/06/2026
 ms.topic: overview
 ms.localizationpriority: medium
 ---
 
 # upgrade command (winget)
 
-The **upgrade** command of the [winget](index.md) tool upgrades the specified application. Optionally, you may not specify an application, this will list all available upgrades instead.
+The **upgrade** command of the [winget](index.md) tool upgrades the specified application. When no arguments are given, it shows the packages that have upgrades available.
 
-The **upgrade** command requires that you specify the exact string to upgrade. If there is any ambiguity, you will be prompted to further filter the **upgrade** command to  an exact application.
+The **upgrade** command requires that you specify the exact string to upgrade. If there is any ambiguity, you will be prompted to further filter the **upgrade** command to an exact application.
 
 ## Usage
 
@@ -21,50 +21,64 @@ The following command aliases are available: \
 
 ![upgrade command](images/upgrade.png)
 
+## Arguments
+
+The following arguments are available.
+
+| Argument | Description |
+|-------------|-------------|
+| **-q, --query** | The query used to search for a package. |
+
 ## Options
 
 The options allow you to customize the upgrade experience to meet your needs.
 
-| Option                            | Description                                                                                                                  |
-|-----------------------------------|------------------------------------------------------------------------------------------------------------------------------|
-| **-m, --manifest**                | Must be followed by the path to the manifest (YAML) file. You can use the manifest to run the upgrade experience from a [local YAML file](#local-upgrade). |
-| **--id**                          | Limits the upgrade to the ID of the application.                                                                             |
-| **--name**                        | Limits the search to the name of the application.                                                                           |
-| **--moniker**                     | Limits the search to the moniker listed for the application.                                                                |
-| **-v, --version**                 | Enables you to specify an exact version to upgrade. If not specified, the latest will upgrade the highest versioned application. |
-| **-s, --source**                  | Restricts the search to the source name provided. Must be followed by the source name.                                      |
-| **-e, --exact**                   | Uses the exact string in the query, including checking for case-sensitivity. It will not use the default behavior of a substring. |
-| **-i, --interactive**             | Runs the installer in interactive mode. The default experience shows installer progress.                                      |
-| **-h, --silent**                  | Runs the installer in silent mode. This suppresses all UI. The default experience shows installer progress.                 |
-| **-o, --log**                     | Directs the logging to a log file. You must provide a path to a file that you have the write rights to.                      |
-| **--override**                    | A string that will be passed directly to the installer.                                                                     |
-| **-l, --location**                | Location to upgrade to (if supported).                                                                                     |
-| **--force**                       | When a hash mismatch is discovered will ignore the error and attempt to install the package.                                |
-| **--all**                         | Updates all available packages to the latest application.                                                                  |
-| **--include-unknown**            | Attempt to upgrade a package even if the package's current version is unknown.                                              |
-| **--purge**                       | Deletes all files and directories in the package directory (portable).                                                      |
-| **--custom**                      | Arguments to be passed on to the installer in addition to the defaults.                                                     |
-| **--scope**                       | Select installed package scope filter (user or machine).                                                                    |
-| **-a, --architecture**            | Select the architecture to install.                                                                                         |
-| **--locale**                      | Locale to use (BCP47 format).                                                                                               |
-| **--ignore-security-hash**        | Ignore the installer hash check failure.                                                                                    |
-| **--ignore-local-archive-malware-scan** | Ignore the malware scan performed as part of installing an archive-type package from a local manifest.                  |
-| **--accept-package-agreements**   | Accept all license agreements for packages.                                                                                 |
-| **--accept-source-agreements**    | Accept all source agreements during source operations.                                                                      |
-| **--header**                      | Optional Windows-Package-Manager REST source HTTP header.                                                                   |
-| **-r, --recurse, --all**         | Upgrade all installed packages to the latest version if available.                                                           |
-| **--pinned,--include-pinned**    | Upgrade packages even if they have a non-blocking pin.                                                                      |
-| **--uninstall-previous**         | Uninstall the previous version of the package during the upgrade.                                                            |
-| **--wait**                        | Prompts the user to press any key before exiting.                                                                           |
-| **--logs,--open-logs**           | Open the default logs location.                                                                                             |
-| **--verbose,--verbose-logs**     | Enable verbose logging for winget.                                                                                          |
-| **--disable-interactivity**      | Disable interactive prompts.                                                                                                |
-| **--installer-type**             |        Select the installer type
-| **--skip-dependencies**          |        Skips processing package dependencies and Windows features                                                           |
+| Option | Description |
+|-------------|-------------|
+| **-m, --manifest** | The path to the manifest of the package. You can use the manifest to run the upgrade experience from a local YAML file. |
+| **--id** | Filter results by id. |
+| **--name** | Filter results by name. |
+| **--moniker** | Filter results by moniker. |
+| **-v, --version** | Use the specified version; default is the latest version. |
+| **-s, --source** | Find package using the specified source. |
+| **-e, --exact** | Find package using exact match. |
+| **-i, --interactive** | Request interactive installation; user input may be needed. |
+| **-h, --silent** | Request silent installation. |
+| **--purge** | Deletes all files and directories in the package directory (portable). |
+| **-o, --log** | Log location (if supported). |
+| **--custom** | Arguments to be passed on to the installer in addition to the defaults. |
+| **--override** | Override arguments to be passed on to the installer. |
+| **-l, --location** | Location to install to (if supported). |
+| **--scope** | Select installed package scope filter (user or machine). |
+| **-a, --architecture** | Select the architecture. |
+| **--installer-type** | Select the installer type. |
+| **--locale** | Locale to use (BCP47 format). |
+| **--ignore-security-hash** | Ignore the installer hash check failure. |
+| **--allow-reboot** | Allows a reboot if applicable. |
+| **--skip-dependencies** | Skips processing package dependencies and Windows features. |
+| **--ignore-local-archive-malware-scan** | Ignore the malware scan performed as part of installing an archive type package from local manifest. |
+| **--accept-package-agreements** | Accept all license agreements for packages. |
+| **--accept-source-agreements** | Accept all source agreements during source operations. |
+| **--header** | Optional Windows-Package-Manager REST source HTTP header. |
+| **--authentication-mode** | Specify authentication window preference (`silent`, `silentPreferred`, or `interactive`). |
+| **--authentication-account** | Specify the account to be used for authentication. |
+| **-r, --recurse, --all** | Upgrade all installed packages to latest if available. |
+| **-u, --unknown, --include-unknown** | Upgrade packages even if their current version cannot be determined. |
+| **--pinned, --include-pinned** | Upgrade packages even if they have a non-blocking pin. |
+| **--uninstall-previous** | Uninstall the previous version of the package during upgrade. |
+| **--force** | Direct run the command and continue with non security related issues. |
+| **-?, --help** | Shows help about the selected command. |
+| **--wait** | Prompts the user to press any key before exiting. |
+| **--logs, --open-logs** | Open the default logs location. |
+| **--verbose, --verbose-logs** | Enables verbose logging for winget. |
+| **--nowarn, --ignore-warnings** | Suppresses warning outputs. |
+| **--disable-interactivity** | Disable interactive prompts. |
+| **--proxy** | Set a proxy to use for this execution. |
+| **--no-proxy** | Disable the use of proxy for this execution. |
 
 ### Example queries
 
-The following example upgrades a specific version of an application.
+The following example upgrades a specific application to a specific version.
 
 ```CMD
 winget upgrade powertoys --version 0.15.2
@@ -76,7 +90,7 @@ The following example upgrades an application from its ID.
 winget upgrade --id Microsoft.PowerToys
 ```
 
-The following example shows upgrading all apps
+The following example upgrades all installed packages with upgrades available.
 
 ```CMD
 winget upgrade --all
@@ -92,7 +106,7 @@ In the example below you will see [**list**](list.md) identifies that an update 
 
 ## **upgrade** --all
 
-**upgrade --all** will identify all the applications with upgrades available. When you run **winget upgrade --all** the Windows Package Manager will look for all applications that have updates available and attempt to install the upgrade.
+**winget upgrade --all** identifies all the applications with upgrades available and attempts to install the upgrades.
 
 ## Related topics
 

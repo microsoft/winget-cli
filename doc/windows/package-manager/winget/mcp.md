@@ -1,33 +1,27 @@
 ---
-title: winget validate Command
-description: Validates a manifest file.
+title: mcp Command
+description: Displays MCP information and manages extended features.
 ms.date: 08/06/2026
-ms.topic: article
+ms.topic: overview
 ms.localizationpriority: medium
 ---
 
-# validate command (winget)
+# mcp command (winget)
 
-The **validate** command of the [winget](index.md) tool validates a [manifest](../package/manifest.md) using a strict set of guidelines. This is intended to enable you to check your manifest before submitting it to a repository.
+The **mcp** command of the [winget](index.md) tool displays Model Context Protocol (MCP) information for Windows Package Manager.
+
+Live help for **winget mcp** currently exposes enable and disable switches for extended features.
 
 ## Usage
 
-`winget validate [--manifest] <manifest> [<options>]`
-
-## Arguments
-
-The following arguments are available.
-
-| Argument | Description |
-|--------------|-------------|
-| **--manifest** | The path to the manifest to be validated. |
+`winget mcp [<options>]`
 
 ## Options
 
-The following options are available.
-
 | Option | Description |
 |--------|-------------|
+| **--enable** | Enable extended features. Requires store access. |
+| **--disable** | Disable extended features. Requires store access. |
 | **-?, --help** | Shows help about the selected command. |
 | **--wait** | Prompts the user to press any key before exiting. |
 | **--logs, --open-logs** | Open the default logs location. |
@@ -40,4 +34,4 @@ The following options are available.
 ## Related topics
 
 * [Use the winget tool to install and manage applications](index.md)
-* [Submit packages to Windows Package Manager](../package/index.md)
+* [features command](features.md)
