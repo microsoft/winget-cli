@@ -543,6 +543,29 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
     }
 
+    PinResultStatus GetPinOperationStatus(winrt::hresult hresult)
+    {
+        switch (hresult)
+        {
+        case S_OK:
+            return PinResultStatus::Ok;
+        case APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY:
+        case APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY:
+        case APPINSTALLER_CLI_ERROR_MSSTORE_APP_BLOCKED_BY_POLICY:
+        case APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED:
+            return PinResultStatus::BlockedByPolicy;
+        case APPINSTALLER_CLI_ERROR_PIN_ALREADY_EXISTS:
+            return PinResultStatus::PackagePinAlreadyExists;
+        case APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST:
+            return PinResultStatus::PackagePinNotFound;
+        case E_INVALIDARG:
+        case APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS:
+            return PinResultStatus::InvalidOptions;
+        default:
+            return PinResultStatus::InternalError;
+        }
+    }
+
     ::AppInstaller::Manifest::PlatformEnum GetPlatformEnum(WindowsPlatform value)
     {
         switch (value)
@@ -554,6 +577,23 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case WindowsPlatform::Team: return AppInstaller::Manifest::PlatformEnum::Team;
         case WindowsPlatform::Holographic: return AppInstaller::Manifest::PlatformEnum::Holographic;
         default: return AppInstaller::Manifest::PlatformEnum::Unknown;
+        }
+    }
+
+    winrt::Microsoft::Management::Deployment::PackagePinType ConvertPinType(::AppInstaller::Pinning::PinType type)
+    {
+        switch (type)
+        {
+        case ::AppInstaller::Pinning::PinType::PinnedByManifest:
+            return winrt::Microsoft::Management::Deployment::PackagePinType::PinnedByManifest;
+        case ::AppInstaller::Pinning::PinType::Pinning:
+            return winrt::Microsoft::Management::Deployment::PackagePinType::Pinning;
+        case ::AppInstaller::Pinning::PinType::Gating:
+            return winrt::Microsoft::Management::Deployment::PackagePinType::Gating;
+        case ::AppInstaller::Pinning::PinType::Blocking:
+            return winrt::Microsoft::Management::Deployment::PackagePinType::Blocking;
+        default:
+            return winrt::Microsoft::Management::Deployment::PackagePinType::Unknown;
         }
     }
 }
