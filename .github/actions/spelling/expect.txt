@@ -440,6 +440,7 @@ pidl
 pidlist
 PKCS
 pkgmgr
+pkgs
 pkindex
 pkix
 placeholders
@@ -453,6 +454,7 @@ pri
 PRIMARYKEY
 processthreads
 productcode
+productcodes
 PRODUCTICON
 propkey
 PROPVARIANT
@@ -627,6 +629,7 @@ UParse
 upgradable
 upgradeable
 upgradecode
+upgradecodes
 URLZONE
 USEDEFAULT
 userfilesetting
