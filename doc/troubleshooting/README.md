@@ -24,8 +24,6 @@ Customers may install the [latest stable release](https://github.com/microsoft/w
 
 >Note: There is a known problem restoring the client to the latest stable App Installer release. We will be distributing the latest stable builds and providing instructions once they are made available.
 
-During the initial Windows Package Manager Preview period, releases were distributed to all Windows Insider channels. Customers who [sign up](http://aka.ms/winget-InsiderProgram) to become members of the Windows Package Manager Insider program also receive pre-release builds. The final process for inclusion into the program requires manual steps, so the App Installer update may not be available for a few days **after** receiving their e-mail notification.
-
 Customers may install any [release](https://github.com/microsoft/winget-cli/releases/) including pre-release builds directly from the GitHub repository. These packages are signed, and customers will receive automatic updates if IT Policy does not block the Microsoft Store.
 
 >Note: Insiders will receive updates to the latest build (stable or pre-release) if IT Policy does not block the Microsoft Store. Other customers will receive updates to the latest stable build once a newer stable version is published if IT Policy does not block the Microsoft Store.
