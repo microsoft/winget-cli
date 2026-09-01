@@ -101,6 +101,10 @@ namespace AppInstaller
             LocString(LocString&&) = default;
             LocString& operator=(LocString&&) = default;
         };
+
+        // Sets the language override used to resolve winget interface strings.
+        // An empty value clears the override and restores default resource resolution.
+        bool SetLanguageOverride(std::string_view localeTag);
     }
 
     namespace StringResource
@@ -146,4 +150,3 @@ namespace AppInstaller
         return Utility::LocIndString{ Utility::Format(Resolve(), std::forward<T>(args)...) };
     }
 }
-
