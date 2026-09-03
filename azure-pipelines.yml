@@ -64,6 +64,12 @@ jobs:
     appxPackageDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)\AppxPackages
 
   steps:
+  - task: PowerShell@2
+    displayName: Report Initial Disk Space
+    inputs:
+      targetType: 'inline'
+      script: 'Get-PSDrive -PSProvider FileSystem | Format-Table Name, @{Name="UsedGB";Expression={[math]::Round($_.Used/1GB,2)}}, @{Name="FreeGB";Expression={[math]::Round($_.Free/1GB,2)}}'
+
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
 
@@ -119,8 +125,16 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly
-                    /p:WingetCleanIntermediateFiles=true'
+                    /p:WingetCleanIntermediateFiles=true
+                    /p:WingetDisableIncrementalLinkTimeCodeGeneration=true'
       maximumCpuCount: true
+
+  - task: PowerShell@2
+    displayName: Report Disk Space
+    condition: succeededOrFailed()
+    inputs:
+      targetType: 'inline'
+      script: 'Get-PSDrive -PSProvider FileSystem | Format-Table Name, @{Name="UsedGB";Expression={[math]::Round($_.Used/1GB,2)}}, @{Name="FreeGB";Expression={[math]::Round($_.Free/1GB,2)}}'
 
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File
