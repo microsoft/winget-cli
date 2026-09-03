@@ -10,6 +10,12 @@ parameters:
 
 steps:
   - pwsh: |
+      if (-not (Get-AppxPackage -Name Microsoft.DesiredStateConfiguration)) {
+        Add-AppxPackage -Path https://github.com/PowerShell/DSC/releases/download/v3.2.3/DSC-3.2.3-Win.msixbundle
+      }
+    displayName: Ensure DSC is installed
+
+  - pwsh: |
       $newCertArguments = @{
         Type = "Custom"
         Subject = "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
