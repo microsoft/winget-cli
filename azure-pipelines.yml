@@ -344,6 +344,8 @@ jobs:
     packageLayoutDir: $(Pipeline.Workspace)\Build.$(artifactIdentifier)\DevPackage
 
   steps:
+  - template: templates/install-dsc.yml
+
   - task: DownloadPipelineArtifact@2
     displayName: 'Download Build Artifacts'
     inputs:
@@ -584,6 +586,8 @@ jobs:
     buildOutDir: $(Pipeline.Workspace)\Build.x64Release
 
   steps:
+  - template: templates/install-dsc.yml
+
   - task: DownloadPipelineArtifact@2
     displayName: 'Download Build Artifacts'
 

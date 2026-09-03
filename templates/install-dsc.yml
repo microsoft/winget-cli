@@ -1,0 +1,7 @@
+# Ensures DSC is installed for tests that require it.
+steps:
+  - pwsh: |
+      if (-not (Get-AppxPackage -Name Microsoft.DesiredStateConfiguration)) {
+        Add-AppxPackage -Path https://github.com/PowerShell/DSC/releases/download/v3.2.3/DSC-3.2.3-Win.msixbundle
+      }
+    displayName: Ensure DSC is installed
