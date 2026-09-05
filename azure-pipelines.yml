@@ -25,6 +25,57 @@ variables:
 # Do not set the build version for a PR build.
 
 jobs:
+# TEMPORARY: diagnosing why Store installs fail on 1es-pool-winget. Delete once resolved.
+# Standalone and dependency-free so it reports within a couple of minutes rather than
+# waiting for the build. Evidence so far (build 388125 AICLI-Packaged.log) shows entitlement
+# acquisition succeeding and the failure landing in the Store install service's download
+# stage, so this only probes Windows Update.
+- job: 'DiagnoseStore'
+  timeoutInMinutes: 15
+  variables:
+    runCodesignValidationInjection: ${{ false }}
+    skipComponentGovernanceDetection: ${{ true }}
+  steps:
+  - checkout: none
+
+  - pwsh: |
+      $ErrorActionPreference = 'Continue'
+
+      Write-Host '=== Windows Update service registrations'
+      Write-Host '=== The Microsoft Store service ID is 855E8A7C-ECB4-4CA3-B045-1DFA50104289.'
+      Write-Host '=== Its absence would explain 0x80248014 WU_E_DS_UNKNOWNSERVICE.'
+      try
+      {
+        (New-Object -ComObject Microsoft.Update.ServiceManager).Services |
+          Select-Object Name, ServiceID, IsDefaultAUService |
+          Format-Table -AutoSize | Out-String -Width 200
+      }
+      catch
+      {
+        Write-Host "Microsoft.Update.ServiceManager failed: $_"
+      }
+
+      Write-Host '=== Services behind AppInstallManager'
+      Get-Service wuauserv, InstallService, DoSvc -ErrorAction SilentlyContinue |
+        Select-Object Name, Status, StartType | Format-Table -AutoSize
+
+      Write-Host '=== Windows Update policy'
+      reg query 'HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate' /s
+
+      Write-Host '=== Store install attempt (same product the failing test installs)'
+      if (Get-Command winget -ErrorAction SilentlyContinue)
+      {
+        winget install --id 9NVTPZWRC6KQ --source msstore --accept-package-agreements --disable-interactivity
+        Write-Host "winget exit code: $LASTEXITCODE"
+      }
+      else
+      {
+        Write-Host 'winget not found on PATH'
+      }
+
+      exit 0
+    displayName: Diagnose Store install stack
+
 - job: 'GetReleaseTag'
   condition: not(eq(variables['Build.Reason'], 'PullRequest'))
   variables:
