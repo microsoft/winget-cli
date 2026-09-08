@@ -50,7 +50,7 @@ Assuming you clone winget-cli in c:\dev, the localhost web server is running in 
             <Parameter name="LocalServerCertPath" value="C:\dev\Temp\servercert.cer" />
             <Parameter name="InprocTestbedPath" value="c:\dev\winget-cli\src\x64\Debug\ComInprocTestbed\ComInprocTestbed.exe" />
             <Parameter name="InprocTestbedUseTestPackage" value="false" />
-            <Parameter name="ForcedExperimentalFeatures" value="directMSI|resume|fonts|sourcePriority" />
+            <Parameter name="ForcedExperimentalFeatures" value="directMSI|resume|fonts" />
             <Parameter name="SkipTestSource" value="false" />
         </TestRunParameters>
     </RunSettings>

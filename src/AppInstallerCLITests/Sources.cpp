@@ -406,24 +406,14 @@ TEST_CASE("RepoSources_SingleSource_AllProperties", "[sources]")
 
 TEST_CASE("RepoSources_ThreeSources", "[sources]")
 {
+    GroupPolicyTestOverride policies;
+    policies.SetState(TogglePolicy::Policy::ExperimentalFeatures, GENERATE(PolicyState::NotConfigured, PolicyState::Disabled));
+
     SetSetting(Stream::UserSources, s_ThreeSources);
     SetSetting(Stream::SourcesMetadata, s_ThreeSourcesMetadata);
 
     const char* suffixStrings[3] = { "", "2", "3" };
-    size_t suffixUnsorted[3] = { 0, 1, 2 };
-    size_t suffixPrioritySorted[3] = { 1, 2, 0 };
-    size_t* suffix = nullptr;
-    std::unique_ptr<TestHook::SetSingleExperimentalFeature_Override> override;
-
-    SECTION("Unsorted")
-    {
-        suffix = suffixUnsorted;
-    }
-    SECTION("Priority Sorted")
-    {
-        override = std::make_unique<TestHook::SetSingleExperimentalFeature_Override>(ExperimentalFeature::Feature::SourcePriority);
-        suffix = suffixPrioritySorted;
-    }
+    size_t suffix[3] = { 1, 2, 0 };
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 3);

@@ -2,6 +2,10 @@
 
 ## New Features
 
+### Source priority
+
+Source priority is now available without enabling an experimental feature. Use `winget source add --priority <value>` or `winget source edit --name <source> --priority <value>` to configure it. Higher values take precedence; sources with equal priority still require disambiguation when multiple matches remain.
+
 ### Output locale override
 
 Added a persistent `output.locale` setting to override winget interface language using a BCP47 tag.

@@ -35,6 +35,7 @@ Source supports the following sub-commands for manipulating the sources.
 | Sub-command  | Description |
 |--------------|-------------|
 |  **add** |  Adds a new source. |
+|  **edit** | Edits an existing source. |
 |  **list** | Enumerates the list of enabled sources. |
 |  **update** | Updates a source. |
 |  **remove** | Removes a source. |
@@ -52,6 +53,7 @@ The **source** command supports the following options.
 |  **-n, --name** | The name to identify the source by. |
 |  **-a, --arg** | The URL or UNC of the source. |
 |  **-t, --type** | The type of source. |
+| **--priority** | Sets the source priority for **add** or **edit**. Higher values take precedence; the default is `0`. |
 | **-?, --help** |  Gets additional help on this command. |
 | **--wait** | Prompts the user to press any key before exiting. |
 | **--logs, --open-logs** | Open the default logs location. |
@@ -72,6 +74,24 @@ The **add** sub-command also supports the optional **type** parameter. The **typ
 |--------------|-------------|
 | **Microsoft.PreIndexed.Package** | The type of source \<default>. |
 | **Microsoft.Rest** | A Microsoft REST API source. |
+
+## Source priority
+
+Source priority is available without enabling an experimental feature. Set it when adding a source with `--priority`, or update an existing source from an elevated terminal:
+
+```powershell
+winget source edit --name winget --priority 1
+```
+
+Priorities are signed 32-bit integers, and all sources default to `0`. Higher-priority sources appear first in the source list. For search results, match quality and the matched field take precedence over source priority.
+
+When a command targeting available packages, such as `install`, finds multiple matches, WinGet keeps the matches from the highest-priority sources that returned results. If exactly one match remains, WinGet selects it and displays a warning. If multiple matches remain at that priority, the command still requires disambiguation. Source priority does not resolve multiple installed-package matches for `upgrade`, `uninstall`, `repair`, or `export`.
+
+Use `winget source list --name winget` to view a source's priority. To restore its default priority:
+
+```powershell
+winget source edit --name winget --priority 0
+```
 
 ## list
 
