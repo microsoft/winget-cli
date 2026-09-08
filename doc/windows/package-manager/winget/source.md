@@ -77,21 +77,13 @@ The **add** sub-command also supports the optional **type** parameter. The **typ
 
 ## Source priority
 
-Source priority is available without enabling an experimental feature. Set it when adding a source with `--priority`, or update an existing source from an elevated terminal:
+To prefer a source when installing packages, set its priority from an elevated terminal:
 
 ```powershell
 winget source edit --name winget --priority 1
 ```
 
-Priorities are signed 32-bit integers, and all sources default to `0`. Higher-priority sources appear first in the source list. For search results, match quality and the matched field take precedence over source priority.
-
-When a command targeting available packages, such as `install`, finds multiple matches, WinGet keeps the matches from the highest-priority sources that returned results. If exactly one match remains, WinGet selects it and displays a warning. If multiple matches remain at that priority, the command still requires disambiguation. Source priority does not resolve multiple installed-package matches for `upgrade`, `uninstall`, `repair`, or `export`.
-
-Use `winget source list --name winget` to view a source's priority. To restore its default priority:
-
-```powershell
-winget source edit --name winget --priority 0
-```
+If multiple matches remain at the highest priority, refine the search or specify `--source`.
 
 ## list
 
