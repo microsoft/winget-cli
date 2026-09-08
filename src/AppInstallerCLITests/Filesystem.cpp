@@ -546,3 +546,141 @@ TEST_CASE("FilterToFilesExceedingLimits", "[filesystem]")
         RequireFilePaths(files, { "h", "g", "f", "e", "d", "c" });
     }
 }
+
+TEST_CASE("GetUnexpandedPath", "[filesystem]")
+{
+    std::wstring localAppData = ExpandEnvironmentVariables(L"%LOCALAPPDATA%");
+    std::wstring appData = ExpandEnvironmentVariables(L"%APPDATA%");
+    std::wstring userProfile = ExpandEnvironmentVariables(L"%USERPROFILE%");
+    std::wstring programFiles = ExpandEnvironmentVariables(L"%ProgramFiles%");
+    std::wstring programData = ExpandEnvironmentVariables(L"%ProgramData%");
+    std::wstring programFilesX86 = ExpandEnvironmentVariables(L"%ProgramFiles(x86)%");
+
+    SECTION("Unexpands LOCALAPPDATA when user variables allowed")
+    {
+        if (localAppData.empty())
+        {
+            WARN("%LOCALAPPDATA% is unset; skipping section.");
+        }
+        else
+        {
+            std::filesystem::path testPath{ localAppData + L"\\Microsoft\\WinGet\\Links" };
+            auto result = GetUnexpandedPath(testPath, true);
+            REQUIRE(result == std::filesystem::path{ L"%LOCALAPPDATA%\\Microsoft\\WinGet\\Links" });
+        }
+    }
+
+    SECTION("Unexpands APPDATA and USERPROFILE when user variables allowed")
+    {
+        if (!appData.empty())
+        {
+            std::filesystem::path testPath{ appData + L"\\WinGet\\Tools" };
+            auto result = GetUnexpandedPath(testPath, true);
+            REQUIRE(result == std::filesystem::path{ L"%APPDATA%\\WinGet\\Tools" });
+        }
+
+        if (!userProfile.empty())
+        {
+            std::filesystem::path testPath{ userProfile + L"\\.winget\\bin" };
+            auto result = GetUnexpandedPath(testPath, true);
+            REQUIRE(result == std::filesystem::path{ L"%USERPROFILE%\\.winget\\bin" });
+        }
+    }
+
+    SECTION("Skips user variables when allowUserVariables is false")
+    {
+        if (!localAppData.empty())
+        {
+            std::filesystem::path testPath{ localAppData + L"\\Microsoft\\WinGet\\Links" };
+            auto result = GetUnexpandedPath(testPath, false);
+            REQUIRE(result.wstring().find(L"%LOCALAPPDATA%") == std::wstring::npos);
+            REQUIRE(result.wstring().find(L"%USERPROFILE%") == std::wstring::npos);
+        }
+    }
+
+    SECTION("Unexpands system variables even when allowUserVariables is false")
+    {
+        if (programFiles.empty())
+        {
+            WARN("%ProgramFiles% is unset; skipping section.");
+        }
+        else
+        {
+            std::filesystem::path testPath{ programFiles + L"\\WinGet\\Links" };
+            auto result = GetUnexpandedPath(testPath, false);
+            REQUIRE(result == std::filesystem::path{ L"%ProgramFiles%\\WinGet\\Links" });
+        }
+
+        if (!programData.empty())
+        {
+            std::filesystem::path testPath{ programData + L"\\Microsoft\\WinGet\\Links" };
+            auto result = GetUnexpandedPath(testPath, false);
+            REQUIRE(result == std::filesystem::path{ L"%ProgramData%\\Microsoft\\WinGet\\Links" });
+        }
+
+        if (!programFilesX86.empty())
+        {
+            std::filesystem::path testPath{ programFilesX86 + L"\\WinGet\\Links" };
+            auto result = GetUnexpandedPath(testPath, false);
+            REQUIRE(result == std::filesystem::path{ L"%ProgramFiles(x86)%\\WinGet\\Links" });
+        }
+    }
+
+    SECTION("Normalizes forward slashes")
+    {
+        if (!localAppData.empty())
+        {
+            std::wstring forwardSlashPath = localAppData;
+            std::replace(forwardSlashPath.begin(), forwardSlashPath.end(), L'\\', L'/');
+            std::filesystem::path testPath{ forwardSlashPath + L"/Microsoft/WinGet/Links" };
+            auto result = GetUnexpandedPath(testPath, true);
+            REQUIRE(result == std::filesystem::path{ L"%LOCALAPPDATA%\\Microsoft\\WinGet\\Links" });
+        }
+    }
+
+    SECTION("Path with literal percent or non-matching variables is returned unchanged")
+    {
+        std::filesystem::path testPathWithPercent{ L"C:\\Tools%20Dir\\Bin" };
+        auto resultPercent = GetUnexpandedPath(testPathWithPercent, true);
+        REQUIRE(resultPercent == testPathWithPercent);
+
+        std::filesystem::path testPathNonExistent{ L"%NONEXISTENT_VAR%\\Bin" };
+        auto resultNonExistent = GetUnexpandedPath(testPathNonExistent, true);
+        REQUIRE(resultNonExistent == testPathNonExistent);
+    }
+
+    SECTION("Unrelated path is returned unchanged")
+    {
+        std::filesystem::path testPath{ L"Z:\\CustomFolder\\Bin" };
+        auto result = GetUnexpandedPath(testPath, true);
+        REQUIRE(result == testPath);
+    }
+
+    SECTION("Unrelated path with forward slashes and trailing slash is normalized")
+    {
+        std::filesystem::path testPath{ L"Z:/CustomFolder/Bin/" };
+        auto result = GetUnexpandedPath(testPath, true);
+        REQUIRE(result == std::filesystem::path{ L"Z:\\CustomFolder\\Bin" });
+    }
+
+    SECTION("Unicode NFKC normalization")
+    {
+        if (!localAppData.empty())
+        {
+            // Decomposed 'e' + combining acute accent U+0301 vs precomposed 'é' U+00E9
+            std::wstring decomposed = localAppData + L"\\test_e\u0301tude";
+            auto result = GetUnexpandedPath(decomposed, true);
+            REQUIRE(result == std::filesystem::path{ L"%LOCALAPPDATA%\\test_\u00E9tude" });
+        }
+    }
+
+    SECTION("Quoted path is unquoted and unexpanded")
+    {
+        if (!localAppData.empty())
+        {
+            std::wstring quoted = L"\"" + localAppData + L"\\Microsoft\\WinGet\\Links\"";
+            auto result = GetUnexpandedPath(quoted, true);
+            REQUIRE(result == std::filesystem::path{ L"%LOCALAPPDATA%\\Microsoft\\WinGet\\Links" });
+        }
+    }
+}

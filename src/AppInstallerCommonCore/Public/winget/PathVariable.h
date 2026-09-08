@@ -12,6 +12,9 @@ namespace AppInstaller::Registry::Environment
     {
         PathVariable(Manifest::ScopeEnum scope, bool readOnly = false);
 
+        // Constructor overload for dependency injection (e.g. unit testing with volatile keys).
+        PathVariable(Manifest::ScopeEnum scope, Registry::Key key, bool readOnly = false, bool broadcastEnvironmentChange = true);
+
         // Returns the PATH variable as a string.
         std::string GetPathValue();
 
@@ -25,9 +28,11 @@ namespace AppInstaller::Registry::Environment
         bool Append(const std::filesystem::path& target);
 
     private:
+        bool ContainsInternal(const std::wstring& targetExpanded);
         void SetPathValue(const std::string& value);
         Registry::Key m_key;
         Manifest::ScopeEnum m_scope;
         bool m_readOnly;
+        bool m_broadcastEnvironmentChange = true;
     };
 }
