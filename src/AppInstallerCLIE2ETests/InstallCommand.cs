@@ -36,6 +36,21 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Tear down.
+        /// </summary>
+        [TearDown]
+        public void TearDown()
+        {
+            // Portable packages installed by tests in this class. Force-uninstalling them after every
+            // test guards against leftover state (e.g. stale Links directory PATH entries) affecting
+            // subsequent tests, even if a test fails before it can clean up after itself.
+            TestCommon.RunAICLICommand("uninstall", Constants.PortableExePackageId);
+            TestCommon.RunAICLICommand("uninstall", Constants.PortableExeWithCommandPackageId);
+            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestZipInstallerWithPortable");
+            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.ArchivePortableWithBinariesDependentOnPath");
+        }
+
+        /// <summary>
         /// Test package doesn't exist.
         /// </summary>
         [Test]
@@ -608,9 +623,6 @@ namespace AppInstallerCLIE2ETests
 
             // Verify hardlink is equivalent to original
             Assert.That(File.ReadAllBytes(hardlinkFile), Is.EqualTo(File.ReadAllBytes(originalFile)), "Command alias hardlink should be equivalent to original file");
-
-            // Cleanup
-            TestCommon.RunAICLICommand("uninstall", $"{packageId}");
         }
 
         /// <summary>
@@ -642,9 +654,6 @@ namespace AppInstallerCLIE2ETests
 
             // Verify hardlink is equivalent to original
             Assert.That(File.ReadAllBytes(hardlinkFile), Is.EqualTo(File.ReadAllBytes(originalFile)), "Archive portable hardlink should be equivalent to original file");
-
-            // Cleanup
-            TestCommon.RunAICLICommand("uninstall", $"{packageId}");
         }
 
         /// <summary>

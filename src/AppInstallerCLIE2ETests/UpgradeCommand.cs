@@ -25,6 +25,14 @@ namespace AppInstallerCLIE2ETests
         {
             // Due to its properties, this being present is problematic.
             TestCommon.RunAICLICommand("uninstall", DenyUpgradePackage);
+
+            // Portable packages installed by tests in this class. Force-uninstalling them after every
+            // test guards against leftover state (e.g. stale Links directory PATH entries) affecting
+            // subsequent tests, even if a test fails before it can clean up after itself.
+            TestCommon.RunAICLICommand("uninstall", Constants.PortableExePackageId);
+            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestZipInstallerWithPortable");
+            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.ZipPortable_PathSwitchToSymlink");
+            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.ZipPortable_SymlinkSwitchToPath");
         }
 
         /// <summary>
