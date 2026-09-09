@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Consume containing solution build targets if present. -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- Incremental link time code generation writes .iobj and .ipdb files that can be hundreds of megabytes
+       per binary. They only pay off across repeated local links, so they are pure disk cost on build agents.
+       This must be in Directory.Build.targets rather than Directory.Build.props, as WholeProgramOptimization
+       is not yet defined when Directory.Build.props is imported. -->
+  <ItemDefinitionGroup Condition="'$(WingetDisableIncrementalLinkTimeCodeGeneration)'=='true' and '$(WholeProgramOptimization)'=='true'">
+    <Link>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>

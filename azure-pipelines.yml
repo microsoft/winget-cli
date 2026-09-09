@@ -7,6 +7,7 @@ pr:
   branches:
     include:
     - master
+    - 'feature/*'
   paths:
     include:
     - azure-pipelines.yml
@@ -19,6 +20,7 @@ pool:
 
 variables:
   solution: 'src\AppInstallerCLI.sln'
+  nugetConfig: 'src\nuget.config'
   EnableDetectorVcpkg: true
 
 # Do not set the build version for a PR build.
@@ -64,6 +66,12 @@ jobs:
     appxPackageDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)\AppxPackages
 
   steps:
+  - task: PowerShell@2
+    displayName: Report Initial Disk Space
+    inputs:
+      targetType: 'inline'
+      script: 'Get-PSDrive -PSProvider FileSystem | Format-Table Name, @{Name="UsedGB";Expression={[math]::Round($_.Used/1GB,2)}}, @{Name="FreeGB";Expression={[math]::Round($_.Free/1GB,2)}}'
+
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
 
@@ -72,6 +80,8 @@ jobs:
     displayName: Restore Solution
     inputs:
       restoreSolution: '$(solution)'
+      feedsToUse: 'config'
+      nugetConfigPath: '$(nugetConfig)'
 
   # Restore these UAP packages as https://github.com/NuGet/Home/issues/7796 leads to all UAP packages being skipped for restore.
   # Even though they don't need any actual restore action, they need the project.assets.json file to be created and a direct restore does that.
@@ -79,11 +89,15 @@ jobs:
     displayName: Restore AppInstallerCLIPackage
     inputs:
       restoreSolution: 'src\AppInstallerCLIPackage\AppInstallerCLIPackage.wapproj'
+      feedsToUse: 'config'
+      nugetConfigPath: '$(nugetConfig)'
 
   - task: NuGetCommand@2
     displayName: Restore AppInstallerTestMsixInstaller
     inputs:
       restoreSolution: 'src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
+      feedsToUse: 'config'
+      nugetConfigPath: '$(nugetConfig)'
 
   # Restores only .NET core projects, but is still necessary, as without this the IndexCreationTool and LocalhostWebServer projects fail to build
   - task: DotNetCoreCLI@2
@@ -91,6 +105,8 @@ jobs:
     inputs:
       command: 'restore'
       projects: '**/*.csproj'
+      feedsToUse: 'config'
+      nugetConfigPath: '$(nugetConfig)'
 
   - task: CmdLine@2
     displayName: Enable Vcpkg Install
@@ -119,8 +135,16 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly
-                    /p:WingetCleanIntermediateFiles=true'
+                    /p:WingetCleanIntermediateFiles=true
+                    /p:WingetDisableIncrementalLinkTimeCodeGeneration=true'
       maximumCpuCount: true
+
+  - task: PowerShell@2
+    displayName: Report Disk Space
+    condition: succeededOrFailed()
+    inputs:
+      targetType: 'inline'
+      script: 'Get-PSDrive -PSProvider FileSystem | Format-Table Name, @{Name="UsedGB";Expression={[math]::Round($_.Used/1GB,2)}}, @{Name="FreeGB";Expression={[math]::Round($_.Free/1GB,2)}}'
 
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File
@@ -676,6 +700,8 @@ jobs:
     displayName: Restore Solution
     inputs:
       restoreSolution: '$(solution)'
+      feedsToUse: 'config'
+      nugetConfigPath: '$(nugetConfig)'
 
   - task: CmdLine@2
     displayName: Enable Vcpkg Install

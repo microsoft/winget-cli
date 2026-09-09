@@ -271,6 +271,26 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
+        /// Configure output locale.
+        /// </summary>
+        /// <param name="locale">Output locale to set; null or empty removes the value.</param>
+        public static void ConfigureOutputLocale(string locale)
+        {
+            JObject settingsJson = GetJsonSettingsObject("output");
+
+            if (string.IsNullOrEmpty(locale))
+            {
+                settingsJson["output"]["locale"]?.Parent?.Remove();
+            }
+            else
+            {
+                settingsJson["output"]["locale"] = new JValue(locale);
+            }
+
+            SetWingetSettings(settingsJson);
+        }
+
+        /// <summary>
         /// Configure experimental features.
         /// </summary>
         /// <param name="settingsJson">The settings JSON object to modify.</param>

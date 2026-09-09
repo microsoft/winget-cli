@@ -20,12 +20,13 @@ TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
     TestContext context{ exportOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context, CreateTestSource({
-        TSR::TestInstaller_Exe,
-        TSR::TestInstaller_Exe_UnknownVersion,
-        TSR::TestInstaller_Msix,
-        TSR::TestInstaller_MSStore,
-        TSR::TestInstaller_Portable,
         TSR::TestInstaller_Zip,
+        TSR::TestInstaller_Exe,
+        TSR::TestInstaller_Portable,
+        TSR::TestInstaller_Exe_UnknownVersion,
+        TSR::TestInstaller_MSStore,
+        TSR::TestInstaller_Msix,
+        TSR::TestInstaller_Exe,
         }));
     context.Args.AddArg(Execution::Args::Type::OutputFile, exportResultPath);
 
@@ -40,6 +41,12 @@ TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
 
     const auto& exportedPackages = exportedCollection.Sources[0].Packages;
     REQUIRE(exportedPackages.size() == 6);
+    REQUIRE(exportedPackages[0].Id == "AppInstallerCliTest.TestExeInstaller");
+    REQUIRE(exportedPackages[1].Id == "AppInstallerCliTest.TestExeUnknownVersion");
+    REQUIRE(exportedPackages[2].Id == "AppInstallerCliTest.TestMSStoreInstaller");
+    REQUIRE(exportedPackages[3].Id == "AppInstallerCliTest.TestMsixInstaller");
+    REQUIRE(exportedPackages[4].Id == "AppInstallerCliTest.TestPortableInstaller");
+    REQUIRE(exportedPackages[5].Id == "AppInstallerCliTest.TestZipInstaller");
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
             return p.Id == "AppInstallerCliTest.TestExeInstaller" && p.VersionAndChannel.GetVersion().ToString().empty();
@@ -74,12 +81,13 @@ TEST_CASE("ExportFlow_ExportAll_WithVersions", "[ExportFlow][workflow]")
     TestContext context{ exportOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context, CreateTestSource({
-        TSR::TestInstaller_Exe,
-        TSR::TestInstaller_Exe_UnknownVersion,
-        TSR::TestInstaller_Msix,
-        TSR::TestInstaller_MSStore,
-        TSR::TestInstaller_Portable,
         TSR::TestInstaller_Zip,
+        TSR::TestInstaller_Exe,
+        TSR::TestInstaller_Portable,
+        TSR::TestInstaller_Exe_UnknownVersion,
+        TSR::TestInstaller_MSStore,
+        TSR::TestInstaller_Msix,
+        TSR::TestInstaller_Exe,
         }));
     context.Args.AddArg(Execution::Args::Type::OutputFile, exportResultPath);
     context.Args.AddArg(Execution::Args::Type::IncludeVersions);
@@ -94,7 +102,14 @@ TEST_CASE("ExportFlow_ExportAll_WithVersions", "[ExportFlow][workflow]")
     REQUIRE(exportedCollection.Sources[0].Details.Identifier == "*TestSource");
 
     const auto& exportedPackages = exportedCollection.Sources[0].Packages;
-    REQUIRE(exportedPackages.size() == 6);
+    REQUIRE(exportedPackages.size() == 7);
+    REQUIRE(exportedPackages[0].Id == "AppInstallerCliTest.TestExeInstaller");
+    REQUIRE(exportedPackages[1].Id == "AppInstallerCliTest.TestExeInstaller");
+    REQUIRE(exportedPackages[2].Id == "AppInstallerCliTest.TestExeUnknownVersion");
+    REQUIRE(exportedPackages[3].Id == "AppInstallerCliTest.TestMSStoreInstaller");
+    REQUIRE(exportedPackages[4].Id == "AppInstallerCliTest.TestMsixInstaller");
+    REQUIRE(exportedPackages[5].Id == "AppInstallerCliTest.TestPortableInstaller");
+    REQUIRE(exportedPackages[6].Id == "AppInstallerCliTest.TestZipInstaller");
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
             return p.Id == "AppInstallerCliTest.TestExeInstaller" && p.VersionAndChannel.GetVersion().ToString() == "1.0.0.0";

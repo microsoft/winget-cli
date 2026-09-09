@@ -10,6 +10,7 @@
 #include "COMContext.h"
 #include <AppInstallerFileLogger.h>
 #include <winget/OutputDebugStringLogger.h>
+#include <winget/Resources.h>
 #include "Public/ShutdownMonitoring.h"
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -78,6 +79,24 @@ namespace AppInstaller::CLI
             main.Wait = WaitOnMainWaitEvent;
             ShutdownMonitoring::ServerShutdownSynchronization::AddComponent(main);
         }
+
+        std::string ApplyOutputLocaleOverride()
+        {
+            std::string localeTag{ Settings::User().Get<Settings::Setting::OutputLocale>() };
+
+            if (localeTag.empty())
+            {
+                return {};
+            }
+
+            if (!AppInstaller::Resource::SetLanguageOverride(localeTag))
+            {
+                AICLI_LOG(CLI, Warning, << "Failed to apply output locale override from settings: " << localeTag);
+                return {};
+            }
+
+            return localeTag;
+        }
     }
 
     int CoreMain(int argc, wchar_t const** argv) try
@@ -89,7 +108,6 @@ namespace AppInstaller::CLI
         std::signal(SIGABRT, abort_signal_handler);
 
         init_apartment();
-
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // We have to do this here so the auto minidump config initialization gets caught
         Logging::OutputDebugStringLogger::Add();
@@ -119,6 +137,12 @@ namespace AppInstaller::CLI
         Logging::FileLogger::Add();
         Logging::OutputDebugStringLogger::Remove();
         Logging::EnableWilFailureTelemetry();
+
+        std::string outputLocaleOverride = ApplyOutputLocaleOverride();
+        if (!outputLocaleOverride.empty())
+        {
+            AICLI_LOG(CLI, Info, << "Applied output locale override from settings: " << outputLocaleOverride);
+        }
 
         // Set output to UTF8
         ConsoleOutputCPRestore utf8CP(CP_UTF8);

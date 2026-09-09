@@ -113,7 +113,7 @@ private:
         std::unique_ptr<UINT32[]> properties;
 
         LONG result = FindPackagesByPackageFamily(pfn.c_str(), PACKAGE_FILTER_HEAD, &count, nullptr, &bufferLength, nullptr, nullptr);
-        THROW_WIN32_IF(result, result != ERROR_INSUFFICIENT_BUFFER);
+        THROW_WIN32_IF(result, result != ERROR_INSUFFICIENT_BUFFER && result != ERROR_SUCCESS);
 
         for (size_t i = 0; i < 10 && result == ERROR_INSUFFICIENT_BUFFER; ++i)
         {

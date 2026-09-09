@@ -43,6 +43,7 @@ COMMONDATA
 comparand
 conemu
 contoso
+cooldown
 COSTDEFERRED
 cotaskmem
 cpprest

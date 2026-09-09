@@ -170,6 +170,23 @@ namespace AppInstaller::CLI::Workflow
             sourceItr->Packages.emplace_back(std::move(exportPackage));
         }
 
+        for (auto& source : exportedSources)
+        {
+            auto& packages = source.Packages;
+            std::stable_sort(packages.begin(), packages.end(), [](const auto& left, const auto& right)
+                {
+                    return left.Id < right.Id;
+                });
+
+            if (!includeVersions)
+            {
+                packages.erase(std::unique(packages.begin(), packages.end(), [](const auto& left, const auto& right)
+                    {
+                        return left.Id.get() == right.Id.get();
+                    }), packages.end());
+            }
+        }
+
         context.Add<Execution::Data::PackageCollection>(std::move(exportedPackages));
     }
 
