@@ -14,6 +14,15 @@ Added a new `--ignore-unavailable` flag to the `install` command. When installin
 
 ## Bug Fixes
 
+### Portable installer alias handling
+
+Portable installs now preserve the original executable filename instead of renaming it when an alias is needed.
+For aliases requested through `--rename`, `Commands`, or `PortableCommandAlias`, WinGet creates a hardlink alias and keeps the original file as the source executable.
+
+This change resolves alias failures in non-symlinked scenarios, including cases where WinGet adds the install directory to `PATH` instead of creating links.
+Because the alias is now created as an executable hardlink in the install location, command aliases remain available and consistent even when symlink creation is skipped.
+
+### Minor Bug Fixes
 * Fixed an issue where `winget search --id <msstoreId>` could fail to return a Microsoft Store package unless `--exact` was also provided.
 * Updated NUnit to v4
 * Fixed a crash (`0x8000ffff`) when using `--disable-interactivity` with the Resume experimental feature enabled during install operations.

@@ -25,6 +25,14 @@ namespace AppInstallerCLIE2ETests
         {
             // Due to its properties, this being present is problematic.
             TestCommon.RunAICLICommand("uninstall", DenyUpgradePackage);
+
+            // Portable packages installed by tests in this class. Force-uninstalling them after every
+            // test guards against leftover state (e.g. stale Links directory PATH entries) affecting
+            // subsequent tests, even if a test fails before it can clean up after itself.
+            TestCommon.RunAICLICommand("uninstall", Constants.PortableExePackageId);
+            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestZipInstallerWithPortable");
+            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.ZipPortable_PathSwitchToSymlink");
+            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.ZipPortable_SymlinkSwitchToPath");
         }
 
         /// <summary>
@@ -208,6 +216,54 @@ namespace AppInstallerCLIE2ETests
             Assert.That(result2.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
             Assert.That(result2.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.User);
+        }
+
+        /// <summary>
+        /// Test upgrade zip portable package re-evaluates stale InstallDirectoryAddedToPath state.
+        /// </summary>
+        [Test]
+        public void UpgradeZip_Portable_ReevaluatesInstallDirectoryAddedToPath()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string linksDirectory = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
+            string packageId = "AppInstallerTest.ZipPortable_PathSwitchToSymlink";
+            string packageDir = Path.Combine(installDir, packageId + "_" + Constants.TestSourceIdentifier);
+            string symlinkPath = Path.Combine(linksDirectory, "TestPortableTransitionPathToSymlink.exe");
+
+            var installResult = TestCommon.RunAICLICommand("install", $"{packageId} -v 1.0.0.0");
+            Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+
+            var upgradeResult = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
+            Assert.That(upgradeResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(symlinkPath, Does.Exist);
+            Assert.That(TestCommon.PathContainsValue(linksDirectory));
+            Assert.That(TestCommon.PathContainsValue(packageDir), Is.False);
+        }
+
+        /// <summary>
+        /// Test upgrade zip portable package with binaries dependent on PATH cleans stale Links PATH entry.
+        /// </summary>
+        [Test]
+        public void UpgradeZip_ArchivePortableWithBinariesDependentOnPath_CleansLinksPath()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId = "AppInstallerTest.ZipPortable_SymlinkSwitchToPath";
+            string packageDir = Path.Combine(installDir, packageId + "_" + Constants.TestSourceIdentifier);
+            string linksDir = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
+
+            var installResult = TestCommon.RunAICLICommand("install", $"{packageId} -v 1.0.0.0");
+            Assert.That(installResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+
+            Assert.That(TestCommon.PathContainsValue(linksDir));
+
+            var upgradeResult = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
+            Assert.That(upgradeResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(TestCommon.PathContainsValue(packageDir));
+
+            if (!Directory.Exists(linksDir) || Directory.GetFileSystemEntries(linksDir).Length == 0)
+            {
+                Assert.That(TestCommon.PathContainsValue(linksDir), Is.False);
+            }
         }
 
         /// <summary>
