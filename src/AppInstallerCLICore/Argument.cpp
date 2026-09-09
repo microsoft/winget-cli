@@ -433,7 +433,7 @@ namespace AppInstaller::CLI
         case Args::Type::SourceEditExplicit:
             return Argument{ type, Resource::String::SourceEditExplicitArgumentDescription, ArgumentType::Standard };
         case Args::Type::SourcePriority:
-            return Argument{ type, Resource::String::SourcePriorityArgumentDescription, ArgumentType::Standard, ExperimentalFeature::Feature::SourcePriority };
+            return Argument{ type, Resource::String::SourcePriorityArgumentDescription, ArgumentType::Standard };
         case Args::Type::SourceTrustLevel:
             return Argument{ type, Resource::String::SourceTrustLevelArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::ValidateManifest:

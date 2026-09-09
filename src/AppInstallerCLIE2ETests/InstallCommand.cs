@@ -17,15 +17,6 @@ namespace AppInstallerCLIE2ETests
     public class InstallCommand : BaseCommand
     {
         /// <summary>
-        /// One time set up.
-        /// </summary>
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            WinGetSettingsHelper.ConfigureFeature("sourcePriority", true);
-        }
-
-        /// <summary>
         /// Set up.
         /// </summary>
         [SetUp]
