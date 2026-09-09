@@ -130,8 +130,6 @@ Describe 'WinGetUserSettings' {
 
 Describe 'WinGetSource' {
     BeforeAll {
-        InvokeWinGetDSC -Name WinGetUserSettings -Method Set -Property @{ Settings = @{ experimentalFeatures = @{ sourcePriority = $true } } }
-
         $testSourceName = 'TestSource'
         $testSourceArg = 'https://localhost:5001/TestKit/'
         $testSourceType = 'Microsoft.PreIndexed.Package'

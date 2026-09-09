@@ -2,6 +2,10 @@
 
 ## New Features
 
+### Source priority
+
+Source priority is now available without enabling an experimental feature. Use `winget source add --priority <value>` or `winget source edit --name <source> --priority <value>` to configure it. Higher values take precedence; sources with equal priority still require disambiguation when multiple matches remain.
+
 ### `--output-locale` argument
 
 Added a new `--output-locale` argument that overrides the language used for WinGet's own output for a single invocation.

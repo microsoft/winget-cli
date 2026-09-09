@@ -1358,8 +1358,7 @@ namespace AppInstaller::CLI::Workflow
                 m_operationType == OperationType::Repair || m_operationType == OperationType::Export;
 
             // Try limiting results to highest priority sources
-            if (searchResult.Matches.size() > 1 && !operationTargetsInstalled &&
-                ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SourcePriority))
+            if (searchResult.Matches.size() > 1 && !operationTargetsInstalled)
             {
                 // Find the set of matches that have the highest priority
                 std::vector<ResultMatch> highestPriorityMatches;
