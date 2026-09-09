@@ -53,7 +53,7 @@ The **source** command supports the following options.
 |  **-n, --name** | The name to identify the source by. |
 |  **-a, --arg** | The URL or UNC of the source. |
 |  **-t, --type** | The type of source. |
-| **--priority** | Sets the source priority for **add** or **edit**. Higher values take precedence; the default is `0`. |
+| **-p, --priority** | Sets the source priority for **add** or **edit**. Higher values take precedence; new sources default to `0`. |
 | **-?, --help** |  Gets additional help on this command. |
 | **--wait** | Prompts the user to press any key before exiting. |
 | **--logs, --open-logs** | Open the default logs location. |
