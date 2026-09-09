@@ -7,6 +7,7 @@ pr:
   branches:
     include:
     - master
+    - 'feature/*'
   paths:
     include:
     - azure-pipelines.yml
