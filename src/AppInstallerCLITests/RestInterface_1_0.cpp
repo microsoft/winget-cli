@@ -590,7 +590,7 @@ TEST_CASE("Search_ExplicitIdFilters_Continuation", "[RestSource][Interface_1_0]"
     size_t expectedCount = allFiltered ? 0 : (request.MaximumResults ? std::min(size_t{ 3 }, request.MaximumResults) : 3);
     REQUIRE(result.Matches.size() == expectedCount);
     REQUIRE(result.Truncated == (!allFiltered && expectedCount < 3));
-    REQUIRE(requestCount == (!allFiltered && request.MaximumResults == 1 ? 2 : 3));
+    REQUIRE(requestCount == (!allFiltered && request.MaximumResults == 1 ? size_t{ 2 } : size_t{ 3 }));
     REQUIRE(continuationTokens[0].empty());
     REQUIRE(continuationTokens[1] == L"next");
     if (requestCount == 3)
@@ -731,7 +731,7 @@ TEST_CASE("Search_Optimized_ExplicitIdFilter", "[RestSource][Interface_1_0]")
 
     auto result = v1.Search(request);
     bool expected = id == "Foo.Bar" || (type == MatchType::CaseInsensitive && id == "foo.bar");
-    REQUIRE(result.Matches.size() == (expected ? 1 : 0));
+    REQUIRE(result.Matches.size() == (expected ? size_t{ 1 } : size_t{ 0 }));
     REQUIRE_FALSE(result.Truncated);
     if (expected)
     {
@@ -784,7 +784,7 @@ TEST_CASE("Search_SubstringIdFallback_ManifestResponse", "[RestSource][Interface
 
     REQUIRE(searchCount == 1);
     REQUIRE(manifestCount == 1);
-    REQUIRE(result.Matches.size() == (manifestMatches ? 1 : 0));
+    REQUIRE(result.Matches.size() == (manifestMatches ? size_t{ 1 } : size_t{ 0 }));
     if (manifestMatches)
     {
         REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
